@@ -1,32 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267138AbTAUSk2>; Tue, 21 Jan 2003 13:40:28 -0500
+	id <S267158AbTAUSqw>; Tue, 21 Jan 2003 13:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267145AbTAUSk2>; Tue, 21 Jan 2003 13:40:28 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:58884 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267138AbTAUSk2>;
-	Tue, 21 Jan 2003 13:40:28 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301211849.h0LInh6g000907@darkstar.example.net>
-Subject: Re: Is the BitKeeper network protocol documented?
-To: davids@webmaster.com (David Schwartz)
-Date: Tue, 21 Jan 2003 18:49:43 +0000 (GMT)
-Cc: dana.lacoste@peregrine.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030121183414.AAA4503@shell.webmaster.com@whenever> from "David Schwartz" at Jan 21, 2003 10:34:12 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267160AbTAUSqw>; Tue, 21 Jan 2003 13:46:52 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:65416
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S267158AbTAUSqv>; Tue, 21 Jan 2003 13:46:51 -0500
+Date: Tue, 21 Jan 2003 13:55:47 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Richard Stallman <rms@gnu.org>
+cc: mark@mark.mielke.cc, <galibert@pobox.com>,
+       lkml <linux-kernel@vger.kernel.org>, <dax@gurulabs.com>,
+       <lm@bitmover.com>, <root@chaos.analogic.com>,
+       <pollard@admin.navo.hpc.mil>, <R.E.Wolff@BitWizard.nl>,
+       <jalvo@mbay.net>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+In-Reply-To: <E18b2xq-0007rw-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.44.0301211326320.24967-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Second, what you say above would imply that if I prefer my source 
-> code on 30mm tape in EBCDIC format, then RedHat has to provide it to 
-> me since that's my preferred form.
+On Tue, 21 Jan 2003, Richard Stallman wrote:
 
-What 30mm tape format are you refering to?  Or was this comment just
-inspired by almost the same comment I posted as a joke yesteday:
+>     Solely from your own point of view again.  Sorry, you just managed to lose 
+>     your credibility on this whole matter.
+> 
+> With all due respect, I doubt it.  I could not lose any credibility
+> with you, because I had none to start with.  You demanded explanations
+> for this and that with an unfriendly tone.  
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104309529827231&w=2
+To the contrary, I believe my original message to you was pretty neutral. I
+even took great care not to be offensive.  I however stated some _facts_
+which aren't coherent with your credit/naming policy so you could clarify
+them.  You instead chose to qualify the core of my mail as unfriendly and
+avoided the issue altogether.
 
-John.
+> I figured that even if I gave good answers to all those accusations,
+
+Accusations?  
+
+> it would be unlikely to win your good opinion.
+
+At least you might have avoided the bad one.
+
+> Insted I responded to the points that seemed worth responding to for the
+> sake of other readers starting with a more neutral attitude.
+
+I was one of them, but since you chose to qualify most of my points as not
+"worth responding" since they challenge your agenda, I can only conclude
+that it's not possible to have a reasonable conversation with this
+narrow-minded attitude of yours.
+
+Someone else replied to my original mail in private.  We agreed to disagree
+after some really interesting exchanges, yet I didn't lose any respect for
+that person at all.
+
+
+Nicolas
+

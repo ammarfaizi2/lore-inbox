@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbTLBXsy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 18:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTLBXsx
+	id S264452AbTLBXpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 18:45:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTLBXpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 18:48:53 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:32202 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264454AbTLBXsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 18:48:50 -0500
-Date: Tue, 2 Dec 2003 18:31:25 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Martin Waitz <tali@admingilde.org>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix use-after-free in sbp2.c
-Message-ID: <20031202233125.GP19051@phunnypharm.org>
-References: <20031201210212.GA2184@admingilde.org>
+	Tue, 2 Dec 2003 18:45:34 -0500
+Received: from relay-6m.club-internet.fr ([194.158.104.45]:12741 "EHLO
+	relay-6m.club-internet.fr") by vger.kernel.org with ESMTP
+	id S264452AbTLBXp0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 18:45:26 -0500
+From: pinotj@club-internet.fr
+To: torvalds@osdl.org
+Cc: manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       nathans@sgi.com
+Subject: Re: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Date: Wed,  3 Dec 2003 00:45:21 CET
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031201210212.GA2184@admingilde.org>
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet2.1070408721.1371.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 10:02:12PM +0100, Martin Waitz wrote:
-> hi :)
-> 
-> when using some checking code (CONFIG_DEBUG_{SLAB,SPINLOCK_SLEEP},
-> sbp2 fails to log in into my external hd enclosure.
-> 
-> that is because sbp2_agent_reset sends a packet and waits
-> for its delivery.
-> however, the function used to create the packet activates
-> auto-destruct of the packet via hpsb_set_packet_complete_task.
-> thus, the semaphore used for synchronization is destroyed
-> while the sending task is waiting.
-> 
-> the following patch (against -test11) fixes sbp2 for me
 
-Could you test what's in our repo first? We've already fixed this, but
-it was done in a way different way than you did (we got rid of the
-semaphore).
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+
+----Message d'origine----
+>Date: Mon, 1 Dec 2003 16:36:33 -0800 (PST)
+>De: Linus Torvalds <torvalds@osdl.org>
+>A: pinotj@club-internet.fr
+>Copie à: manfred@colorfullife.com, Andrew Morton <akpm@osdl.org>,
+>Sujet: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+>
+>
+>
+>On Sat, 29 Nov 2003 pinotj@club-internet.fr wrote:
+>>
+>> I triggered the slab oops with a very small kernel -test11 (~700KB):
+>
+>The only thing that looks at _all_ likely to explain the problem is
+>
+>> CONFIG_XFS_FS=y
+>
+>since there aren't that many XFS users I know of. It's also now the only
+>thing that uses buffer heads in your config, so..
+>
+>I assume it's not an option to try another filesystem on this setup, but
+>it's entirely possible that the 2.6.x buffer-head removal has impacted XFS
+>negatively - although I'm a bit surprised at how easily you seem to show
+>problems, since XFS actually has active maintenance.
+[...]
+
+Yes, I use XFS with my LFS but I got some problem with my slack on ext3 too. Usually under X and settings are not so good for debugging so I didn't made bug reports (nvidia driver too). I will try to confirm the problem under ext3.
+
+Jerome
+

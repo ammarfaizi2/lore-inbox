@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270131AbRHGHuj>; Tue, 7 Aug 2001 03:50:39 -0400
+	id <S270133AbRHGHts>; Tue, 7 Aug 2001 03:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270132AbRHGHu2>; Tue, 7 Aug 2001 03:50:28 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:5138 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270131AbRHGHuU>; Tue, 7 Aug 2001 03:50:20 -0400
-Message-ID: <3B6F9D78.412AB717@idb.hist.no>
-Date: Tue, 07 Aug 2001 09:49:12 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre4 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Steve VanDevender <stevev@efn.org>, rmack@mackman.net
-CC: linux-kernel@vger.kernel.org
+	id <S270132AbRHGHt3>; Tue, 7 Aug 2001 03:49:29 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:22031 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S270130AbRHGHtZ>; Tue, 7 Aug 2001 03:49:25 -0400
+Date: Tue, 7 Aug 2001 03:49:35 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Encrypted Swap
-In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>
-		<Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net> <15215.27296.959612.765065@localhost.efn.org>
+Message-ID: <20010807034935.C2399@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200108070624.f776Ofl21096@www.2ka.mipt.ru> <Pine.LNX.4.33.0108062338130.5491-100000@mackman.net> <200108070705.f7775xl27094@www.2ka.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108070705.f7775xl27094@www.2ka.mipt.ru>; from johnpol@2ka.mipt.ru on Tue, Aug 07, 2001 at 11:08:38AM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve VanDevender wrote:
+++ 07/08/01 11:08 +0400 - Evgeny Polyakov:
+> Hello.
+> RM> accessible for one power cycle.  Thus the computer can generate a key at
+> No, computer can not do this.
+> This will do some program,and this program is not crypted.
+> Yes?
+> We disassemle this program, get algorithm and regenerate a key in evil machine?
+> Am i wrong?
 > 
-> Justin Guyett writes:
->  > On Tue, 7 Aug 2001, David Spreen wrote:
->  >
->  > > I was just searching for swap-encryption-solutions in the lkml-archive.
->  > > Did I get the point saying ther's no way to do swap encryption
->  > > in linux right now? (Well, a swapfile in an encrypted kerneli
->  > > partition r something like that is not really what I want to
->  > > do I think).
->  >
->  > What's the benefit?  
-[...] 
-> It does prevent one means of recovering possibly security-critical
-> information for attackers who do have physical access to the machine.
+> P.S. off-topic What algorithm do you want to use to regenerate a key for once crypted data?
+> I don't know anyone, or i can't understand your point of view.
 
-The encrypted swap device protects against the guy who steals the
-harddisk.  It doesn't really protect against someone with physical
-access though.
+The weakness here is in the seed we use for generating the encryption
+key. This is not a fatal weakness. There are several scenarios:
 
-I can remove RAM live, and read it in another device.  Or replace
-the cpu with an interface that simply reads all the RAM
-addresses.  Sure, I'll leave a crashed machine, but I have
-your precious data.  A smp machine might even survive the
-cpu replacement and continue with one less cpu and
-a frozen process.
+a) the environment is trusted at boot. It has not been compromised, yet.
+   In this scenario, the random state stored for the RG is pretty
+chaotic; and we can read it in to initialize the RG, then immediatly
+wipe it from disk. Assuming we are good about clearing the data, it
+cannot be recovered; and the RG can be trusted to give us a good key.
 
-Having the RAM contents will of course provide what I need to
-decrypt the swap device and all mounted filesystems too.
+In this scenario, you can not recover the key.
 
+b) the environment is not trusted at boot. someone might have a dump of
+the harddrive already, and is waiting to take a second dump.
+   If we wish, we can write algorithms which induce chaos into the RG by
+thrashing the page table, the cache, and the harddrives. We could devote
+a second or two on boot to doing this, and get a few thousand bytes of
+entropy from the /physical/ chaos we'd be playing with.
+   Alternatively, physical RG devices exist; and are rather easy to
+make. We install a device designed to be pyhsically chaotic, and write a
+driver for it which constantly seeds the RG. This would give us very
+good chaos.
 
+In this scenario, you can not recover the key.
 
-Helge Hafting
+Do not assume that, since random number generation is patently
+impossible with an algorithm; that it is impossible with a computer.
+Computers /are/ machines, and minute timing differences, or devices
+designed for the purpose, can be used to pull chaos out of the physical
+world, and into our algorithms. In addition information which was once
+predictable, but has been destroyed along with its sources, is still
+lost to you.
+
+-- 
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

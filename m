@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261484AbSIZUyG>; Thu, 26 Sep 2002 16:54:06 -0400
+	id <S261493AbSIZVBX>; Thu, 26 Sep 2002 17:01:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSIZUyG>; Thu, 26 Sep 2002 16:54:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22154 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261484AbSIZUyF>;
-	Thu, 26 Sep 2002 16:54:05 -0400
-Date: Thu, 26 Sep 2002 13:52:59 -0700 (PDT)
-Message-Id: <20020926.135259.62665945.davem@redhat.com>
-To: jmorris@intercode.com.au
-Cc: rusty@rustcorp.com.au, nf@hipac.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
- for Netfilter
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Mutt.LNX.4.44.0209270122570.12511-100000@blackbird.intercode.com.au>
-References: <20020925.224001.99456805.davem@redhat.com>
-	<Mutt.LNX.4.44.0209270122570.12511-100000@blackbird.intercode.com.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261501AbSIZVBX>; Thu, 26 Sep 2002 17:01:23 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:46318 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261493AbSIZVBW>; Thu, 26 Sep 2002 17:01:22 -0400
+Subject: Re: Distributing drivers independent of the kernel source tree
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Heater, Daniel (IndSys, " "GEFanuc, VMIC)" 
+	<Daniel.Heater@gefanuc.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com>
+References: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-2rxPYzoHcK+QiCXGpIe1"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 23:08:39 +0200
+Message-Id: <1033074519.2698.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: James Morris <jmorris@intercode.com.au>
-   Date: Fri, 27 Sep 2002 01:27:41 +1000 (EST)
-   
-   So, this could be used for generic network layer encapsulation, and be 
-   used for GRE tunnels, SIT etc. without the kinds of kludges currently in 
-   use?  Sounds nice.
 
-Such IPIP tunnels have very real problems though, since only 64-bits
-of packet quoting are required in ICMP errors, it is often impossible
-to deal with PMTU requests properly, see "#ifndef
-I_WISH_WORLD_WERE_PERFECT" in net/ipv4/ip_gre.c
+--=-2rxPYzoHcK+QiCXGpIe1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2002-09-26 at 22:55, Heater, Daniel (IndSys, GEFanuc, VMIC)=20
+> 2. Assuming the kernel source is in /usr/src/linux is not always valid.
+>=20
+> 3. I currently use /usr/src/linux-`uname -r` to locate the kernel source
+> which is just as broken as method #2.
+
+you have to use
+
+/lib/modules/`uname -r`/build
+(yes it's a symlink usually, but that doesn't matter)
+
+
+that's what Linus decreed and that's what all distributions honor, and
+that's that make install does for manual builds.
+
+Greetings,
+   Arjan van de Ven
+
+--=-2rxPYzoHcK+QiCXGpIe1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9k3dXxULwo51rQBIRApzFAJ9bxqF/6PtozYP3vWaep5f+rGjehgCfZTpK
+VzBvMFIJzBpVb9Ix00Wttko=
+=M5db
+-----END PGP SIGNATURE-----
+
+--=-2rxPYzoHcK+QiCXGpIe1--
+

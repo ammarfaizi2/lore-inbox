@@ -1,76 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVDCKUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDCKXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbVDCKUI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 06:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVDCKUH
+	id S261645AbVDCKXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 06:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVDCKXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 06:20:07 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:20951 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261654AbVDCKTm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 06:19:42 -0400
-Message-ID: <424FC336.7000902@yandex.ru>
-Date: Sun, 03 Apr 2005 14:19:34 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
+	Sun, 3 Apr 2005 06:23:23 -0400
+Received: from funkmunch.net ([202.173.190.158]:4056 "EHLO mail.funkmunch.net")
+	by vger.kernel.org with ESMTP id S261645AbVDCKWp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 06:22:45 -0400
+Message-ID: <424FC409.3020808@funkmunch.net>
+Date: Sun, 03 Apr 2005 20:23:05 +1000
+From: Triffid Hunter <triffid_hunter@funkmunch.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050321)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru> <20050403100043.GA20768@gondor.apana.org.au>
-In-Reply-To: <20050403100043.GA20768@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "SuD (Alex)" <sud@latinsud.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in set_spdif_output in i810_audio
+References: <424F20F6.8010804@latinsud.com>
+In-Reply-To: <424F20F6.8010804@latinsud.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> On Sun, Apr 03, 2005 at 01:45:58PM +0400, Artem B. Bityuckiy wrote: 
-> I think the overhead could be higher.
-IIUC, not. But I'll check this in practice.
+try turning off your internal modem in bios until someone works out whats going on here
 
-> But even if it is 2 bytes
-Ok, suppose.
-
-> per block, then for 1M of incompressible input the total overhead is
+SuD (Alex) wrote:
+> Hi, i got a new ahtec laptop and i get null pointer oops everytime i 
+> load i810_audio on 2.4 and 2.6 (including 2.6.11.6) kernels.
 > 
-> 2 * 1048576 / 65536 = 32
+> *** These are init messages & oops:
+> i810_audio: Unknown symbol ac97_set_dac_rate
+> i810_audio: Unknown symbol ac97_release_codec
+> i810_audio: Unknown symbol ac97_set_adc_rate
+> i810_audio: Unknown symbol ac97_alloc_codec
+> i810_audio: Unknown symbol ac97_probe_codec
+> Intel 810 + AC97 Audio, version 1.01, 04:15:45 Jan 24 2005
+> ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
+> i810: Intel ICH4 found at IO 0x18c0 and 0x1c00, MEM 0xe0100c00 and 
+> 0xe0100800, IRQ 10
+> i810: Intel ICH4 mmio at 0xde9f3c00 and 0xdea84800
+> i810_audio: Primary codec has ID 0
+> i810_audio: Audio Controller supports 6 channels.
+> i810_audio: Defaulting to base 2 channel mode.
+> i810_audio: Resetting connection 0
+> i810_audio: Connection 0 with codec id 0
+> ac97_codec: AC97 Modem codec, id: CXT48 (Unknown)
+> i810_audio: codec 0 is a softmodem - skipping.
+> ...
+> EIP:    0060:[<dec4b172>]    Not tainted
+> EFLAGS: 00010246   (2.6.8-2-686)
+> EIP is at i810_set_spdif_output+0x22/0x160 [i810_audio]
+> eax: ffffffff   ebx: 00000000   ecx: d9c28400   edx: d9c28400
+> esi: 00000000   edi: 00000000   ebp: d6edfb80   esp: d7383e30
+> ds: 007b   es: 007b   ss: 0068
+> Process insmod (pid: 3358, threadinfo=d7382000 task=dca643b0)
+> Stack: 00004461 ffffffce c011c7f4 00000000 d6edfb80 00000000 d6edfc18 
+> 00000000
+>       dec4ff9f d6edfb80 ffffffff 00000000 dec51740 d7383e7c dda3c240 
+> 00000a04
+>       d9c28400 dec4fdb0 d6edfbb0 d9c28400 00000000 00000001 00000000 
+> 00000001
+> Call Trace:
+> [<c011c7f4>] release_console_sem+0xc4/0xd0
+> [<dec4ff9f>] i810_configure_clocking+0xbf/0x4c0 [i810_audio]
+> [<dec4fdb0>] i810_ac97_init+0x4a0/0x5d0 [i810_audio]
+> [<dec5084f>] i810_probe+0x4af/0x690 [i810_audio]
 > 
-> bytes.
-I've given an example why is this OK.
-
-Shortly, because we need to reserve space only for the EOB marker of the 
-*last* block (1 byte) and for the adler32 (4 bytes).
-
-Look closer to the algorithm. It consists of 2 parts.
-
-1. We reserve 12 bytes And compress as much as possible to the output 
-buffer with Z_SYNC_FLUSH. Zlib produces:
-
-| stream header | Block 1 (<header, 64 K, EOB>) |  -> more
-| Block 2 (<header, 64 K, EOB>) | ... etc ... |    -> more
-| Block N (<header, 64 K, EOB>) |                  -> more
-| Last block (<header, 25K
-
-Here zlib stops on, say 25 KiB because there is no more room for output.
-
-2. We call zlib_deflate() with Z_FINISH and provide additional 12 bytes. 
-  After zlib_deflate() has finished, the output stream is:
-
-| stream header | Block 1 (<header, 64 K, EOB>) |  -> more
-| Block 2 (<header, 64 K, EOB>) | ... etc ... |    -> more
-| Block N (<header, 64 K, EOB>) |                  -> more
-| Last block (<header, 25K, EOB>) | adler32 |
-
-And all is OK.
-
-> Actually there is a limit on that too but that's not relevant to
-> this discussion.
-Agreed :-)
-
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+> *** This is my device:
+> 0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM 
+> (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
+>        Subsystem: QUANTA Computer Inc: Unknown device 0707
+>        Flags: bus master, medium devsel, latency 0, IRQ 10
+>        I/O ports at 1c00 [size=256]
+>        I/O ports at 18c0 [size=64]
+>        Memory at e0100c00 (32-bit, non-prefetchable) [size=512]
+>        Memory at e0100800 (32-bit, non-prefetchable) [size=256]
+>        Capabilities: [50] Power Management version 2
+> 
+> 
+> *** What happened in set_spdif_output:
+>      struct ac97_codec *codec = state->card->ac97_codec[0];
+>     // ... for some reason codec is NULL, and then
+>      if(!codec->codec_ops->digital)
+>     // ... oops
+> 
+> *** Why is that null?
+>   Perhaps it is because the driver thinks that the card is a modem and 
+> releases it. So no codecs are available, but some functions expect at 
+> least one codec to exist.
+> 
+>   if(codec->modem)
+>                {
+>                        printk(KERN_WARNING "i810_audio: codec %d is a 
+> softmodem - skipping.\n", ac97_id);
+>                        ac97_release_codec(codec);
+> 
+>  And is detected as modem because of this condition (in ac97_codec.c):
+>  /* Check for an AC97 1.0 soft modem (ID1) */
+>  if(codec->codec_read(codec, AC97_RESET) & 2)                       
+> I don't know much about ac97, i also have an ac97 modem. Anybody knows 
+> what is wrong?
+> 
+> Btw, Alsa snd-intel8x0 driver works, but as many distros still default 
+> to Oss i think this bug should be hunt.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

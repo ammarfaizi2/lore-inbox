@@ -1,64 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265539AbUAGPM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 10:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUAGPM7
+	id S266166AbUAGPVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 10:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUAGPVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 10:12:59 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7028 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S265539AbUAGPM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 10:12:57 -0500
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@colin2.muc.de>,
-       Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
-       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-References: <20040106040546.GA77287@colin2.muc.de>
-	<Pine.LNX.4.58.0401052100380.2653@home.osdl.org>
-	<20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi>
-	<20040106094442.GB44540@colin2.muc.de>
-	<Pine.LNX.4.58.0401060726450.2653@home.osdl.org>
-	<20040106153706.GA63471@colin2.muc.de>
-	<m1brpgn1c3.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0401061554010.9166@home.osdl.org>
-	<m13casmk28.fsf@ebiederm.dsl.xmission.com>
-	<20040107093143.A29200@flint.arm.linux.org.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jan 2004 08:06:04 -0700
-In-Reply-To: <20040107093143.A29200@flint.arm.linux.org.uk>
-Message-ID: <m1wu83lrxf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 7 Jan 2004 10:21:36 -0500
+Received: from arhont1.eclipse.co.uk ([81.168.98.121]:20099 "EHLO
+	pingo.core.arhont.com") by vger.kernel.org with ESMTP
+	id S266166AbUAGPVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 10:21:33 -0500
+Message-ID: <3FFC240C.20408@arhont.com>
+Date: Wed, 07 Jan 2004 15:21:48 +0000
+From: Andrei Mikhailovsky <andrei@arhont.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Lorenzo Hernandez Garcia-Hierro <lorenzohgh@nsrg-security.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems in 2.4.18 with madwifi
+References: <1073486703.850.24.camel@zeus>
+In-Reply-To: <1073486703.850.24.camel@zeus>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -1.6 (-)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+I think you should post it to madwifi mail list at:
 
-> On Tue, Jan 06, 2004 at 09:58:23PM -0700, Eric W. Biederman wrote:
-> > ffff0000-ffffffff : reserved
-> > 
-> > That last reserved region is 64K.  Which looking at the pci registers
-> > is technically correct at the moment.  Only 64K happen to be decoded.
+madwifi-users@lists.sourceforge.net
+
+P.S. I've compiled madiwif on debian and slackware on kernels 2.4.20-23 
+and 2.6.0-2.6.1-rc1 without any problems. Try the latest cvs of madwifi
+
+Regards
+
+Lorenzo Hernandez Garcia-Hierro wrote:
+> Hi,
 > 
-> We already have this distinction between in use (or busy) resources and
-> allocated resources.  Surely the BIOS ROM region should be an allocation
-> resource not a busy resource, so that the MTD driver can obtain a busy
-> resource against it?
+> I am having trouble on a madwifi installation :
+> 
+> When compiling wlan.o it tries to get the net/iw_handler.h but i am
+> running Debian with 2.4.18 ( i can boot with 2.4.18 , 2.4.22 and 2.6.0
+> ).
+> 
+> Where is the problem ?
+>  Here are the little snippets of errors :
+> 
+> gcc -M -include ../include/compat.h -I../include -I.
+> -I/lib/modules/2.4.18/build/include
+> -I/lib/modules/2.4.18/build/arch/i386 -I..  -Wall -Wno-trigraphs -O2
+> -D__KERNEL__ -DMODULE -D__linux__ -fomit-frame-pointer
+> -DAH_BYTE_ORDER=AH_LITTLE_ENDIAN -fomit-frame-pointer if_ieee80211subr.c
+> if_ieee80211wireless.c if_media.c rc4.c > .depend
+> if_ieee80211wireless.c:54: net/iw_handler.h: No such file or directory
+> make[1]: *** [.depend] Error 1
+> make[1]: Leaving directory `/usr/src/madwifi/wlan'
+> make[1]: Entering directory `/usr/src/madwifi/driver'
+> rm -f .depend
+> 
+> Thanks in advance.
+> NOTE: I am installing it with 2.4.18 and a Orinoco b/g card from proxim
+> ( atheros chip ).
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-Nope the BIOS region is allocated as BUSY, at least as it comes
-out of the E820 map.
+-- 
+Andrei Mikhailovsky
+Financial Director
+Arhont Ltd
 
->From arch/i386/kernel/setup.c:legacy_init_iomem_resources
-....
-		res -> start = e820.map[i].addr;
-		res -> end = res->start + e820.map[i].size - 1;
-		res -> flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-		request_resource(&iomem_resource, res);
-
-Eric
-
-
+Web: http://www.arhont.com
+Tel: +44 (0)870 4431337
+Fax: +44 (0)1454 201200
+PGP: Key ID - 0xFF67A4F4
+PGP: Server - gpg.arhont.com
 

@@ -1,98 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317658AbSGUIL5>; Sun, 21 Jul 2002 04:11:57 -0400
+	id <S317660AbSGUINP>; Sun, 21 Jul 2002 04:13:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317659AbSGUIL5>; Sun, 21 Jul 2002 04:11:57 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:30920 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317658AbSGUIL4>; Sun, 21 Jul 2002 04:11:56 -0400
-Date: Sun, 21 Jul 2002 10:32:55 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH] serial8250_stop_tx deadlock
-Message-ID: <Pine.LNX.4.44.0207211030090.32636-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317661AbSGUINP>; Sun, 21 Jul 2002 04:13:15 -0400
+Received: from pop.gmx.net ([213.165.64.20]:29339 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317660AbSGUINO>;
+	Sun, 21 Jul 2002 04:13:14 -0400
+Message-Id: <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 21 Jul 2002 10:13:51 +0200
+To: Thunder from the hill <thunder@ngforever.de>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Tomas Szepe <szepe@pinerecords.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0207210130020.3309-100000@hawkeye.luckynet.a
+ dm>
+References: <5.1.0.14.2.20020721085320.00b962b0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
-This patch fixes a deadlock and spinlock initialisation.
+At 01:31 AM 7/21/2002 -0600, Thunder from the hill wrote:
+>Hi,
+>
+>On Sun, 21 Jul 2002, Mike Galbraith wrote:
+> > Since I know spit about IDE/ATA/ATAPI/SCSI, I'll keep my mouth shut and
+> > leave judgement/"voting" to those who fully understand the technical 
+> issues.
+>
+>You probably shouldn't. Technical decisions should be made by technicians,
+>but decisions about the technicians should be made by the human resources
+>dept., and since we claim to be a constitutional monarchy, we might try
+>out a democratic decision...
 
-Index: linux-2.5.26/drivers/serial//serial_8250.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.26/drivers/serial/serial_8250.c,v
-retrieving revision 1.1
-diff -u -r1.1 serial_8250.c
---- linux-2.5.26/drivers/serial//serial_8250.c	20 Jul 2002 18:03:12 -0000	1.1
-+++ linux-2.5.26/drivers/serial//serial_8250.c	20 Jul 2002 19:01:15 -0000
-@@ -690,12 +690,10 @@
- 	up->port.irq = (irq > 0) ? irq : 0;
- }
- 
--static void serial8250_stop_tx(struct uart_port *port, unsigned int tty_stop)
-+static void __serial8250_stop_tx(struct uart_port *port, unsigned int tty_stop)
- {
- 	struct uart_8250_port *up = (struct uart_8250_port *)port;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&up->port.lock, flags);
- 	if (up->ier & UART_IER_THRI) {
- 		up->ier &= ~UART_IER_THRI;
- 		serial_out(up, UART_IER, up->ier);
-@@ -704,6 +702,15 @@
- 		up->acr |= UART_ACR_TXDIS;
- 		serial_icr_write(up, UART_ACR, up->acr);
- 	}
-+}
-+
-+static void serial8250_stop_tx(struct uart_port *port, unsigned int tty_stop)
-+{
-+	struct uart_8250_port *up = (struct uart_8250_port *)port;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&up->port.lock, flags);
-+	__serial8250_stop_tx(port, tty_stop);
- 	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
-@@ -845,7 +852,7 @@
- 		return;
- 	}
- 	if (uart_circ_empty(xmit) || uart_tx_stopped(&up->port)) {
--		serial8250_stop_tx(&up->port, 0);
-+		__serial8250_stop_tx(&up->port, 0);
- 		return;
- 	}
- 
-@@ -864,7 +871,7 @@
- 	DEBUG_INTR("THRE...");
- 
- 	if (uart_circ_empty(xmit))
--		serial8250_stop_tx(&up->port, 0);
-+		__serial8250_stop_tx(&up->port, 0);
- }
- 
- static _INLINE_ void check_modem_status(struct uart_8250_port *up)
-@@ -1951,10 +1958,13 @@
- 
- static int __init serial8250_init(void)
- {
--	int ret;
-+	int ret, i;
- 
- 	printk(KERN_INFO "Serial: 8250/16550 driver $Revision: 1.1 $ "
- 		"IRQ sharing %sabled\n", share_irqs ? "en" : "dis");
-+
-+	for (i = 0; i < NR_IRQS; i++)
-+		spin_lock_init(&irq_lists[i].lock);
- 
- 	ret = uart_register_driver(&serial8250_reg);
- 	if (ret)
+No, I'm absolutely sure I'm doing the right thing.
 
--- 
-function.linuxpower.ca
+Regarding constitutional monarchy, that's high-grade horse shit.  LT has always
+been the benevolent dictator [1] of his tree.
+
+         -Mike
+
+1.  aka heartless bastard.  (for the humor impaired, those are his words;)
 

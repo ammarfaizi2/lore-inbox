@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271467AbRIFRFg>; Thu, 6 Sep 2001 13:05:36 -0400
+	id <S271507AbRIFRSs>; Thu, 6 Sep 2001 13:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271473AbRIFRF0>; Thu, 6 Sep 2001 13:05:26 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:43697 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271467AbRIFRFM>;
-	Thu, 6 Sep 2001 13:05:12 -0400
-Date: Thu, 06 Sep 2001 18:05:30 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Andrey Savochkin <saw@saw.sw.com.sg>,
-        Matthias Andree <matthias.andree@gmx.de>
-Cc: Wietse Venema <wietse@porcupine.org>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
- alias bug 2.4.9 and 2.2.19]
-Message-ID: <605440607.999799530@[10.132.112.53]>
-In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru>
-In-Reply-To: <20010906203854.A23109@castle.nmd.msu.ru>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S271502AbRIFRSh>; Thu, 6 Sep 2001 13:18:37 -0400
+Received: from nwcst336.netaddress.usa.net ([204.68.23.81]:6339 "HELO
+	nwcst336.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S271507AbRIFRS1> convert rfc822-to-8bit; Thu, 6 Sep 2001 13:18:27 -0400
+Message-ID: <20010906171847.8057.qmail@nwcst336.netaddress.usa.net>
+Date: 6 Sep 2001 11:18:46 MDT
+From: Andrey Ilinykh <ailinykh@usa.net>
+To: linux-kernel@vger.kernel.org
+Subject: msgrcv bug?
+X-Mailer: USANET web-mailer (34FM.0700.21.01)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey,
+Hi!
+sys_msgrcv contains such code as (ipc/msg.c): 
 
---On Thursday, September 06, 2001 8:38 PM +0400 Andrey Savochkin 
-<saw@saw.sw.com.sg> wrote:
+771                 list_del(&msg->m_list);
+772                 msq->q_qnum--;
+773                 msq->q_rtime = CURRENT_TIME;
+774                 msq->q_lrpid = current->pid;
+775                 msq->q_cbytes -= msg->m_ts;
+776                 atomic_sub(msg->m_ts,&msg_bytes);
+777                 atomic_dec(&msg_hdrs);
+778                 ss_wakeup(&msq->q_senders,0);
+779                 msg_unlock(msqid);
+780 out_success:
+781                 msgsz = (msgsz > msg->m_ts) ? msg->m_ts : msgsz;
+782                 if (put_user (msg->m_type, &msgp->mtype) ||
+783                     store_msg(msgp->mtext, msg, msgsz)) {
+784                             msgsz = -EFAULT;
+785                 }
+786                 free_msg(msg);
+787                 return msgsz;
 
-> Hell, how else could you define the notion of a local address as not the
-> address which responds to pings without external network, the address for
-> which
-
-So the remote end of a looped /30 serial line is now a local address?
-Can you bind() to 127.0.0.2? In any case, all you've found is a
-peculiarity of the loopback driver. So send a patch.
-
-The read RFC1122. (hosts & routers requirements).
-Not only does this define local address, but specifically writes:
-
-         3.3.4.2  Multihoming Requirements
-
-            The following general rules apply to the selection of an IP
-            source address for sending a datagram from a multihomed
-            host.
-
-            (1)  If the datagram is sent in response to a received
-                 datagram, the source address for the response SHOULD be
-                 the specific-destination address of the request.  See
-                 Sections 4.1.3.5 and 4.2.3.7 and the "General Issues"
-                 section of [INTRO:1] for more specific requirements on
-                 higher layers.
-
-                 Otherwise, a source address must be selected.
-
-            (2)  An application MUST be able to explicitly specify the
-                 source address for initiating a connection or a
-                 request.
-
-How can (2) be usefully true if the application cannot determine
-what the list of valid local addresses are? Or is your argument
-that all such addresses should be configured manually, rather
-than by the application? Which would not only be a rather
-odd point of view, but makes implementing things like
-BGP, which depends on being able to get the outbound interface
-address used for a session up to the higher layers, rather hard.
-
---
-Alex Bligh
+if put_user fails (user process passed wrond address) message will not be
+delivered, but it is already removed from list. So nobody will receive this
+message. Is this behavior correct?
+Thank you,
+  Andrey
+Please cc to my e-mail also.

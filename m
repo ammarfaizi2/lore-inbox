@@ -1,33 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263894AbTHOO4L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 10:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTHOO4K
+	id S262116AbTHOPt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 11:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTHOPt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 10:56:10 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:57604 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263894AbTHOO4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 10:56:08 -0400
-Subject: Re: 2.6.0test3mm2oops in mm/filemap:1930
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0308151537300.20496@hosting.rdsbv.ro>
-References: <Pine.LNX.4.56.0308151537300.20496@hosting.rdsbv.ro>
-Content-Type: text/plain
-Message-Id: <1060959361.744.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 15 Aug 2003 16:56:01 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 11:49:28 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4106 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262116AbTHOPt0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 11:49:26 -0400
+Date: Fri, 15 Aug 2003 11:28:59 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Yury Umanets <umka@namesys.com>, Daniel Egger <degger@fhm.edu>,
+       Hans Reiser <reiser@namesys.com>, Nikita Danilov <Nikita@namesys.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@namesys.com>
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+In-Reply-To: <1060870255.4803.49.camel@passion.cambridge.redhat.com>
+Message-ID: <Pine.LNX.3.96.1030815111741.20604A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-15 at 14:39, Catalin BOIE wrote:
+On Thu, 14 Aug 2003, David Woodhouse wrote:
 
-> kernel BUG at mm/filemap.c:1930!
+> The raw hardware driver provides only raw read/write/erase
+> functionality; no caching is appropriate. 
 
-Please, edit file mm/filemap.c and delete the line #1930. It's a BUG_ON
-directive which can be safely ignored. Then, recompile.
+Okay, that's the model I have in mind as the driver, assuming you included
+seek in that list.
+> 
+> The optional translation layer which simulates a block device provides
+> far more than simple caching -- it provides wear levelling, bad block
+> management, etc. All using a standard layout on the flash hardware for
+> portability.
+> 
+> (Except in the special case of the 'mtdblock' translation layer, which
+> is not suitable for anything but read-only operation on devices without
+> any bad blocks to be worked around.)
+
+> If you want to teach a file system about flash and wear levelling, you
+> end up ditching the pretence that it's a block device entirely and
+> working directly with the flash hardware driver. 
+
+I don't think that's right. A file system may very well be *optimized* for
+performance on a certain class of device, but that doesn't make it device
+dependent. For example some early SysV filesystems had the directory in
+the middle of the platters to minimize seek distance when the partition
+was only partially filled. I'd bet I could run JFFS2 on a normal drive,
+and I know I can run FAT, ext2, etc on a CF. Now if Linux only knew how to
+read SysV.4 drives I could save some critical old data from the 90's, but
+that's another issue...
+> 
+> Either that or use a translation layer which does it _all_ for the file
+> system and then just use a standard file system on that simulated block
+> device.
+
+That sounds like a loopback mount, sort of. At least a feature which could
+be added fairly easily, like crypto mounts.
+> 
+> Between those two extremes, very little actually makes sense.
+> 
+> If you introduce the gratuitous extra 'block device' abstraction layer
+> which doesn't really fit the reality of flash hardware very well at all,
+> you end up wanting to violate the layering in so many ways that you
+> realise you really shouldn't have been pretending to be a block device
+> in the first place.
+
+Agreed, if you're going to do that type of fakery it's probably better to
+take some overhead and not give up good design in the name of performance
+for something which is usually limited by other factors like device
+performance, or seldom used. Slow and robust is easier to maintain.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

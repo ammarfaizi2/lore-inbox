@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265655AbRFWGfv>; Sat, 23 Jun 2001 02:35:51 -0400
+	id <S265657AbRFWGrP>; Sat, 23 Jun 2001 02:47:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbRFWGfl>; Sat, 23 Jun 2001 02:35:41 -0400
-Received: from odin.sinectis.com.ar ([216.244.192.158]:33028 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S265655AbRFWGfa>; Sat, 23 Jun 2001 02:35:30 -0400
-Date: Sat, 23 Jun 2001 03:36:30 -0300
-From: John R Lenton <john@grulic.org.ar>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI or Advanced power ...
-Message-ID: <20010623033630.B830@grulic.org.ar>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Steve Kieu <haiquy@yahoo.com>,
-	kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15DL98-0002zE-00@the-village.bc.nu>
+	id <S265658AbRFWGrF>; Sat, 23 Jun 2001 02:47:05 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:38674 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S265657AbRFWGqy>; Sat, 23 Jun 2001 02:46:54 -0400
+Subject: Re: [OT]Re: One more ZDNet article with BillG hammering Linux and
+	Open Source.
+From: Miles Lane <miles@megapathdsl.net>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Gerhard Mack <gmack@innerfire.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <993277680.25169.1.camel@agate>
+In-Reply-To: <Pine.LNX.4.10.10106222042460.9000-100000@innerfire.net> 
+	<993277680.25169.1.camel@agate>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 22 Jun 2001 23:53:26 -0700
+Message-Id: <993279211.25168.3.camel@agate>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
-Content-Disposition: inline
-In-Reply-To: <E15DL98-0002zE-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It would be great to see the "Shared Source" licenses that Microsoft has 
+made people sign.  It would be especially interesting to compare the
+agreements that were given to the various classes of licensees:
+University Research Departments, ISVs, Enterprises and so on.
+Then we'd be able to have a somewhat more balanced public discussion
+of that includes the problems with Microsoft's licenses.
 
---uZ3hkaAS1mZxFaxD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Perhaps some of you work or study at institutions or companies
+that have copies of some iterations of the Microsoft licenses.
+If so, perhaps you could post them on the web and send the URLs.
 
-On Fri, Jun 22, 2001 at 08:14:26AM +0100, Alan Cox wrote:
-> > I need an advice, my machine is i810 chipset and using
-> > ACPI bios, but not sure which one i should use in the
-> > kernel config. Now I use APM with kernel kapm-idle .
->=20
-> If you have the option - use APM not ACPI. ACPI is larger, and right now
-> being experimental code - fairly buggy
+	Miles
 
-I agree ACPI sucks, but I have a SMP box that I need to be able to
-powerdown remotely. Is there any reason APM can't do that? I mean, I
-understand APM was never meant for SMP, but... ?
-
---=20
-John Lenton (john@grulic.org.ar) -- Random fortune:
-I must have a prodigious quantity of mind; it takes me as much as a
-week sometimes to make it up.
-		-- Mark Twain, "The Innocents Abroad"
-
---uZ3hkaAS1mZxFaxD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7NDjugPqu395ykGsRAl/aAJ9+mQQe7BgY4t6KSfvtlksyMICeJACfYcQB
-qUtFSBN2K4O88aJvAWo4diY=
-=PI17
------END PGP SIGNATURE-----
-
---uZ3hkaAS1mZxFaxD--

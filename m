@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292986AbSB1Q60>; Thu, 28 Feb 2002 11:58:26 -0500
+	id <S293504AbSB1RX4>; Thu, 28 Feb 2002 12:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293500AbSB1Q5y>; Thu, 28 Feb 2002 11:57:54 -0500
-Received: from ns1.cypress.com ([157.95.67.4]:38035 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id <S293483AbSB1Q4Q>;
-	Thu, 28 Feb 2002 11:56:16 -0500
-Message-ID: <3C7E608C.3020506@cypress.com>
-Date: Thu, 28 Feb 2002 10:53:32 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: patch to NVIDIA_kernel & kernel 2.5.5
-In-Reply-To: <XFMail.020228094914.pirx@minet.uni-jena.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Scanned but not guaranteed against viruses
+	id <S293626AbSB1RVV>; Thu, 28 Feb 2002 12:21:21 -0500
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:12416
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S293527AbSB1RTL>; Thu, 28 Feb 2002 12:19:11 -0500
+Date: Thu, 28 Feb 2002 09:18:55 -0800
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200202281718.g1SHItT14948@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.5-dj2
+In-Reply-To: <20020226223406.A26905@suse.de>
+In-Reply-To: <20020226223406.A26905@suse.de>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it make more sens to us a compatibility marco
-in one of NVIDIA's header files instead of
-having the #if LINUX_VERSION_CODE scattered
-everywhere? Or create a new header (kern_2.5_compat.h)?
+Hello,
 
-Then if/when the kernel changes again just one file needs changed?
+I need to use the patch below to get isofs.o to compile properly when
+I don't have CONFIG_ZISOFS set.  Without this patch neither branch was
+being executed in that case.
 
-Martin Huenniger wrote:
-> 
-> diff -ur NVIDIA_kernel-1.0-2314.old/nv.c NVIDIA_kernel-1.0-2314/nv.c
-> --- NVIDIA_kernel-1.0-2314.old/nv.c     Sat Dec  1 05:11:06 2001
-> +++ NVIDIA_kernel-1.0-2314/nv.c Sun Feb 24 12:37:35 2002
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0) 
->      if (NV_DEVICE_IS_CONTROL_DEVICE(inode->i_rdev))
-> +       return nv_kern_ctl_open(inode, file);
-> +#else    
-> +    if (NV_DEVICE_IS_CONTROL_DEVICE(kdev_val(inode->i_rdev)))
->          return nv_kern_ctl_open(inode, file);
+Cheers,
+Wayne
 
-
-Here change NV_DEVICE_IS_CONTROL_DEVICE to add the kdev_val()
-around arg 1.
-
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)    
-
-And 2 more times.
-
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->          if (remap_page_range(vma->vm_start,
-> +#else
-> +        if (remap_page_range(vma, vma->vm_start
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0) 
-
-make a macro for remap_page_range to always take
-the new arg, but ignore it on older kernels.
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
->      pg_table = pte_offset(pg_mid_dir, address);
-> +#else
-> +    pg_table = pte_offset_map(pg_mid_dir, address);
-
-Macro that becomes pte_offset() or pte_offset_map()
-
-> diff -ur NVIDIA_kernel-1.0-2314.old/os-interface.c
-> NVIDIA_kernel-1.0-2314/os-interface.c
-> --- NVIDIA_kernel-1.0-2314.old/os-interface.c   Sat Dec  1 05:11:06 2001
-> +++ NVIDIA_kernel-1.0-2314/os-interface.c       Wed Feb 20 18:19:01 2002
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-> +    err = remap_page_range( (size_t) uaddr, (size_t) paddr, size_bytes,
-> +#else
-> +    err = remap_page_range( kaddr, (size_t) uaddr, (size_t) paddr, size_bytes, 
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
-
-use the new macro for remap_page_range 3 more times.
-
-
-	-Thomas
+--- linux-2.5.5-dj2/fs/isofs/Makefile.orig	Thu Feb 28 09:10:30 2002
++++ linux-2.5.5-dj2/fs/isofs/Makefile	Thu Feb 28 08:44:10 2002
+@@ -11,9 +11,7 @@
+ 
+ ifeq ( $(CONFIG_ZISOFS), y )
+ 	obj-y  := compress.o namei.o inode.o dir.o util.o rock.o
+-endif
+-
+-ifeq ( $(CONFIG_ZISOFS), n )
++else
+ 	obj-y  := namei.o inode.o dir.o util.o rock.o
+ endif
+ 
 

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbSJXWzl>; Thu, 24 Oct 2002 18:55:41 -0400
+	id <S265709AbSJXW4n>; Thu, 24 Oct 2002 18:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbSJXWzl>; Thu, 24 Oct 2002 18:55:41 -0400
-Received: from bozo.vmware.com ([65.113.40.131]:48909 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S265705AbSJXWzj>; Thu, 24 Oct 2002 18:55:39 -0400
-Date: Thu, 24 Oct 2002 16:02:29 -0700
-From: chrisl@vmware.com
-To: linux-kernel@vger.kernel.org
-Subject: How to get number of physical CPU in linux from user space?
-Message-ID: <20021024230229.GA1841@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265711AbSJXW4n>; Thu, 24 Oct 2002 18:56:43 -0400
+Received: from beta.bandnet.com.br ([200.195.133.131]:60428 "EHLO
+	beta.bandnet.com.br") by vger.kernel.org with ESMTP
+	id <S265709AbSJXW4l>; Thu, 24 Oct 2002 18:56:41 -0400
+Message-ID: <000d01c27ba8$202df480$cddea7c8@bsb.virtua.com.br>
+From: "Breno" <breno_silva@bandnet.com.br>
+To: "Kernel List" <linux-kernel@vger.kernel.org>
+Subject: Doing My Boot image for Minix 2 , pls help me
+Date: Thu, 24 Oct 2002 19:55:53 -0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that /proc/cpuinfo will return the number of logical CPU.
-If the machine has Intel Hyper-Thread enabled, that number is bigger
-than physical CPU number. Usually twice as big.
-
-My question is, what is the reliable way for user space program
-to detect the number of physical CPU in the current machine?
-
-If in it is in the kernel, I can read from cpu_sibling_map[]
-or phys_cpu_id[]. But it seems not easy read that from
-user space.
-
-Of course I can do "gdb /proc/kcore" to get them. But is there
-any better way?
-
-Thanks in advance.
-
-Chris
+Hi people , i have to change somethings in Minix Boot Image (ROOT and USR) .
+Anyone knows how can i do ?
 
 
+Thnaks
+Breno
 

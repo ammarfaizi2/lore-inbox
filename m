@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRF1UeG>; Thu, 28 Jun 2001 16:34:06 -0400
+	id <S264300AbRF1Ukq>; Thu, 28 Jun 2001 16:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262607AbRF1Ud4>; Thu, 28 Jun 2001 16:33:56 -0400
-Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:14773 "EHLO
-	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
-	id <S262170AbRF1Udr>; Thu, 28 Jun 2001 16:33:47 -0400
-Message-ID: <3B3B94A6.455C3834@bigfoot.com>
-Date: Thu, 28 Jun 2001 13:33:42 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20p6ai i686)
+	id <S264280AbRF1Uk0>; Thu, 28 Jun 2001 16:40:26 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:30099 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264260AbRF1UkP>;
+	Thu, 28 Jun 2001 16:40:15 -0400
+Message-ID: <3B3B9653.A8331780@mandrakesoft.com>
+Date: Thu, 28 Jun 2001 16:40:51 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: joeja@mindspring.com, Dave Jones <davej@suse.de>
-Subject: Re: AMD thunderbird oops
-In-Reply-To: <Springmail.105.993672371.0.48374000@www.springmail.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: ankry@green.mif.pg.gda.pl, elenstev@mesatop.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error
+In-Reply-To: <6121.993725018@ocs3.ocs-net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-joeja@mindspring.com wrote:
+Keith Owens wrote:
 > 
-> Well considering the other night the power supply went dead, I think that is part of the problem.  It is brand new, and I am being sent another one (free of course).
+> On Thu, 28 Jun 2001 10:45:55 +0200 (MET DST),
+> Andrzej Krzysztofowicz <ankry@pg.gda.pl> wrote:
+> >Keith Owens wrote:
+> >> Index: 6-pre6.1/drivers/net/Config.in
+> >> -   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
+> >> +   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
 > 
-> I also had my mb loaded at the time (scsi cd-rw, cdrom, internal zip, floppy, 1 hd, Sound card, video, modem, NIC, scsi card) but my last tyan was fine with that load it may be a kt7a thing.
+> >CONFIG_EISA check in this condition is redundant.
 > 
-> Several people said that random (keyword here) oopses are more often a hardware thing.  I wonder if the kt7a is going to be able to perform  fully loaded..
-> 
-> is anyone running one fully loaded? 4 ide drives, 2 floppy, (5 pci and 1 isa) or 6pci, agp, 512MEG+ RAM?
-> 
-> Joe
+> True, but the line is a cut and paste from higher up in
+> drivers/net/Config.in.  Even though it is redundant, it is consistent
+> with the rest of the file.
 
-Similar board (KA7) had non-heat related lockups with 133MHz FSB (1756
-BogoM).  100MHz FSB + 4 way interleave has been fast and stable (1690
-BogoM).
+It is not redundant because in theory CONFIG_EISA could exist without
+CONFIG_ISA.
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  1.00 seconds =128.00 MB/sec
+> drivers/net/Config.in needs a major cleanup, lots of the if statements
+> can go and be replaced by dep_xxx statements, CONFIG_ETHERTAP is marked
+> obsolete but is tested against experimental, CONFIG_ZNET is marked
+> experimental but is tested against obsolete, etc.
 
-Abit KA7 (VT82C686a, rev 22), Athlon 850, 2x256MB PC133@CL2, 2 ide,
-CR-RW, Colorado Travan, linux 2.2.20p6+ide.2.2.19.04092001, SPI 300W
-power, PCI: Firewire, Netgear FA310TX, Turtle Beach Santa Cruz audio,
-AGP: 32MB TNT2.
+Why not send me an incremental patch for these cleanups, on top of the
+cleanup patch that (I hope!) Andrzej will send, in respond to me last
+reply.
 
-CONFIG_M686=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_1GB=y
-CONFIG_MTRR=y
+2.4 will be around for quite a while, and Config.in cleanups should
+continue to go in.  Sure work should be directed towards 2.5..... but if
+somebody sends me a 2.4 patch for drivers/net/Config.in cleanup, I sure
+as hell will apply it.
 
---
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

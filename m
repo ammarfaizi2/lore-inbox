@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUDKO6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 10:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUDKO6Y
+	id S261439AbUDKPIV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 11:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUDKPIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 10:58:24 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:10129 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262347AbUDKO6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 10:58:23 -0400
-Date: Sun, 11 Apr 2004 15:58:19 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmap 6 swap_unplug page
-In-Reply-To: <Pine.LNX.4.44.0404111524240.1923-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0404111556160.1936-100000@localhost.localdomain>
+	Sun, 11 Apr 2004 11:08:21 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:44217 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S261439AbUDKPIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 11:08:20 -0400
+Date: Sun, 11 Apr 2004 08:07:47 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: shai@ftcon.com, "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Darren Hart'" <dvhltc@us.ibm.com>
+cc: "'lkml'" <linux-kernel@vger.kernel.org>, ak@suse.de,
+       "'Rick Lindsley'" <ricklind@us.ibm.com>, akpm@osdl.org,
+       "'Ingo Molnar'" <mingo@elte.hu>
+Subject: RE: 2.6.5-rc3-mm4 x86_64 sched domains patch
+Message-ID: <1330000.1081696038@[10.10.2.4]>
+In-Reply-To: <200404110857.BIS60109@ms6.netsolmail.com>
+References: <200404110857.BIS60109@ms6.netsolmail.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Apr 2004, Hugh Dickins wrote:
+> Can SLIT/SRAT be used here to define topology for the generic case?
 > 
-> rmap 6 swap_unplug page
+> SRAT is being used by i386 to build zonelists, but not for the scheduler -
+> any good reason why?
 
-Er, rmap 5, sorry.  (Sound of one hand slapping, other.)
+Because it's not generic to all machines. 
 
-Hugh
+M.
 

@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbSL3CoY>; Sun, 29 Dec 2002 21:44:24 -0500
+	id <S265960AbSL3CpQ>; Sun, 29 Dec 2002 21:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265960AbSL3CoY>; Sun, 29 Dec 2002 21:44:24 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:65033 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265909AbSL3CoX>; Sun, 29 Dec 2002 21:44:23 -0500
-Date: Mon, 30 Dec 2002 03:37:14 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: tabs on otherwise empty lines
-In-Reply-To: <20021229222538.GK29422@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0212300300130.11574-100000@spit.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265987AbSL3CpQ>; Sun, 29 Dec 2002 21:45:16 -0500
+Received: from mnh-1-01.mv.com ([207.22.10.33]:6149 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S265960AbSL3CpP>;
+	Sun, 29 Dec 2002 21:45:15 -0500
+Message-Id: <200212300245.VAA04199@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Werner Almesberger <wa@almesberger.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Anomalous Force <anomalous_force@yahoo.com>, ebiederm@xmission.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: holy grail 
+In-Reply-To: Your message of "Sun, 29 Dec 2002 22:32:47 -0300."
+             <20021229223247.C1363@almesberger.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 29 Dec 2002 21:45:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+wa@almesberger.net said:
+> I see a certain trend towards mechanisms that can be useful for
+> process migration. E.g. the address space manipulations discussed for
+> UML seem to allow almost perfect reconstruction of processes. PIDs,
+> signals, anything with externally visible changes in kernel state
 
-On Sun, 29 Dec 2002, William Lee Irwin III wrote:
+With a UML running in skas mode, the process address space is identical to
+what it would be on the host.  Migrating one to the host would be a matter
+of
+	Sticking a process in it
+	Releasing that process from ptrace
+	Recreating the required kernel state in the host kernel
+	Kicking the process out of the UML kernel and into userspace somehow
+	Letting it run
 
-> The <HELP> state is willing to consume config options as part of help
-> texts AFAICT:
->
-> (1)	[ \t]+  {
-> (2)	\n/[^ \t\n] {
-> (3)	[ \t]*\n        {
-> (4)	[^ \t\n].* {
-> (5)	<<EOF>> {
->
-> Now consider: "\tSome help text.\n\t\nconfig FOO\n\tdepends on BAR\n"
+Step 3 is obviously where the meat of the problem is.  The process needs
+to have available on it all the resources it had in UML -
+	the same files
+	network connections (puntable on a first pass)
+	process relationships (I have no idea what to do about a parent
+process on the host, nor what to do with children whose parent has been
+migrated, or ipc mechanisms, except to do the Mosix thing and have little
+proxies sitting around passing information between UML and the host).
 
-Try to change (2) into [ \t]*\n/[^ \t\n]
-This should eat these empty lines correctly. I'll have to test it a bit
-more. Thanks for finding this.
+And since I've brought up Mosix, as did Werner, the fastest way to get
+this working is probably to finish off the OpenMosix/UML port (which was
+close from what I heard), and cluster a UML and its host.  You should get
+process migration for free.
 
-bye, Roman
+Just remember to prevent the host from trying to migrate a UML to itself.
+That would be very bad.
 
---- linux/scripts/kconfig/zconf.l	2002-12-16 21:02:55.000000000 +0100
-+++ linux/scripts/kconfig/zconf.l	2002-12-30 02:50:00.000000000 +0100
-@@ -208,7 +208,7 @@
- 		}
-
- 	}
--	\n/[^ \t\n] {
-+	[ \t]*\n/[^ \t\n] {
- 		current_file->lineno++;
- 		zconf_endhelp();
- 		return T_HELPTEXT;
---- linux/scripts/kconfig/lex.zconf.c_shipped	2002-12-16 21:02:53.000000000 +0100
-+++ linux/scripts/kconfig/lex.zconf.c_shipped	2002-12-30 02:50:06.000000000 +0100
-@@ -853,10 +853,10 @@
-     },
-
-     {
--       11,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,
--      -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,
--      -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,  -76,
--      -76,  -76,  -76,  -76,  -76,  -76,  -76
-+       11,   77,  -76,  -76,   77,   77,   77,   77,   77,   77,
-+       77,   77,   77,   77,   77,   77,   77,   77,   77,   77,
-+       77,   77,   77,   77,   77,   77,   77,   77,   77,   77,
-+       77,   77,   77,   77,   77,   77,   77
-     },
-
-     {
-@@ -2229,7 +2229,7 @@
- 	YY_BREAK
- case 53:
- *yy_cp = yy_hold_char; /* undo effects of setting up yytext */
--yy_c_buf_p = yy_cp = yy_bp + 1;
-+yy_c_buf_p = yy_cp -= 1;
- YY_DO_BEFORE_ACTION; /* set up yytext again */
- YY_RULE_SETUP
- {
-
-
+				Jeff
 

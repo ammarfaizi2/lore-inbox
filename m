@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263118AbSIWHvf>; Mon, 23 Sep 2002 03:51:35 -0400
+	id <S262687AbSIWI2P>; Mon, 23 Sep 2002 04:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264704AbSIWHve>; Mon, 23 Sep 2002 03:51:34 -0400
-Received: from mail.dia.uniroma3.it ([193.204.161.133]:33298 "EHLO
-	mail.dia.uniroma3.it") by vger.kernel.org with ESMTP
-	id <S263118AbSIWHve>; Mon, 23 Sep 2002 03:51:34 -0400
-Message-ID: <3D8EC95A.8060103@dia.uniroma3.it>
-Date: Mon, 23 Sep 2002 09:57:14 +0200
-From: Milicchio Franco <milicchi@dia.uniroma3.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en, it
+	id <S264060AbSIWI2P>; Mon, 23 Sep 2002 04:28:15 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:11785 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S262687AbSIWI2O>;
+	Mon, 23 Sep 2002 04:28:14 -0400
+Message-ID: <3D8ED192.6060109@corvil.com>
+Date: Mon, 23 Sep 2002 09:32:18 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: APM hangup on shutdown
+To: jbradford@dial.pipex.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hdparm -Y hangup
+References: <200209211813.g8LIDEqQ001330@darkstar.example.net>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shutdown hangs up after shutting down APM daemon with APM module.
+jbradford@dial.pipex.com wrote:
+>>This seems like a bug in the ide driver not issuing a reset?
+>>
+>>On RH7.3 (2.4.18-3) if I do:
+>>$ hdparm -Y /dev/hda
+>>$ do stuff and disk spins up
+>>$ hdparm -Y /dev/hda
+>>$ everything hangs waiting for disk
+> 
+> It *IS* a bug, but only Mark Lord, (the hdparm maintainer), and I seem to care about it - everybody else says, "just do hdparm -y instead", which is missing the point.
 
-Using the APM kernel module, when shutting down, the system freezes 
-after shutting down the APM daemon.
+Hrm, OK thanks for the info. Perhaps it should be removed
+from hdparm or a (DANGEROUS) put beside the description
+until it's fixed.
 
-After using a built-in-kernel APM (not modules) the shutdown works fine.
+> 
+> Incidently, I think you mean:
+> 
+> On RH7.3 (2.4.18-3) if I do:
+> $ hdparm -y /dev/hda
+> $ do stuff and disk spins up
+> $ hdparm -Y /dev/hda
+> $ everything hangs waiting for disk
+> 
+> with a lower case y for the first example.
 
+No it seemed to wake up correctly the first time with -Y.
+As you say -y works always.
 
-===== Output of ver_linux =====
+> So, unless you, I, or Mark Lord fixes it, it stays broken :-).
 
-Linux bourbaki.dia.uniroma3.it 2.4.19 #3 Mon Sep 23 09:16:26 CEST 2002 
-i686 unknown
-
-Gnu C                  2.96
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.14
-e2fsprogs              1.27
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.3.3
-Sh-utils               2.0.11
-Modules Loaded         sr_mod es1371 ac97_codec NVdriver 8139too mii 
-ide-scsi scsi_mod printer rtc
-
-
-
+cheers,
+Pádraig.
 

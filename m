@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276083AbRI1OoS>; Fri, 28 Sep 2001 10:44:18 -0400
+	id <S276089AbRI1OtI>; Fri, 28 Sep 2001 10:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276085AbRI1OoI>; Fri, 28 Sep 2001 10:44:08 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:1949 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S276083AbRI1Onx>; Fri, 28 Sep 2001 10:43:53 -0400
-Date: Fri, 28 Sep 2001 15:44:19 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: weirdness in reiserfs
-Message-ID: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S276088AbRI1Oss>; Fri, 28 Sep 2001 10:48:48 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:8364 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S276087AbRI1Osi>; Fri, 28 Sep 2001 10:48:38 -0400
+Date: Fri, 28 Sep 2001 16:48:57 +0200
+Message-Id: <200109281448.f8SEmvh08284@mailgate5.cinetic.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Organization: http://freemail.web.de/
+From: "Joachim Weller" <JoachimWeller@web.de>
+To: "ChristophHellwig" <hch@ns.caldera.de>,
+        "Joachim Weller" <joachim_weller@hsgmed.com>
+Cc: axboe@suse.de, JoachimWeller@web.de, linux-kernel@vger.kernel.org
+Subject: Re: Re: BUG: cat /proc/partitions endless loop
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 240GB reiserfs ataraid partition on one of my servers (2.4.9-ac10
-+ ext3 0.9.9 + ext3 speedup + ext3 "experimental VM patch" + jfs 1.0.4),
-which I had populated with lots of little files, probably huge amounts of
-tail-packing going on.
+Christoph Hellwig <hch@ns.caldera.de> schrieb am 28.09.01:
+> In article <200109281315.f8SDFpA01669@bmdipc2c.germany.agilent.com> you wrote:
+> >  I traced the problem down to drivers/block/genhd.c, 
+> > where the function get_partition_list() outer loop does not 
+> > terminate due to the last element in the structured list starting 
+> > with gendisk_head is not initialized to NULL, by whatever reason.
+> > My fix does not cure the pointered endless loop, but prevents
+> > from looping when stepping thru the pointered list.
+> 
+> I think the fix could be simpler.  What about:
+[...] 
 
-I deleted a tarball of one of my directories; I forget how big the file
-was, but I reckon it was of the order of 25GB. It took long enough (over
-an hour) that I went to the pub with fingers crossed instead of nursing
-it. While it was deleting vmstat 1 was showing bi= ~ 2000 and bo= ~ 20000,
-so it was hammering away. Fine, I thought, it's a big file; I don't do
-this sort of thing often, maybe the stuff needed to delete such a big file
-is bigger than the journal size or something. But.. the partition was
-otherwise inaccessible with processes just blocking. Oddly df worked
-though, so I could watch my use of the filesystem going down!
+> + for (gp = gendisk_head; gp != gendisk_head; gp = gp->next) {
 
-So.. I came back in this morning and things had recovered. Weird. Could
-the "experimental VM patch" mentioned on the ext3 for 2.4 page be a little
-too experimental? Sorry to be so vague...
+This will break your for loop immedeately, because the loop criteria
+is already violated by the initialization !
 
-Matt
+But I tried another solution:
+  for (gp = gendisk_head; gp && (gp->next != gendisk_head); gp = gp->next) {
+
+with no success - the cat /proc/partition only printed the heading line.
+This proofed to me, that the pointered list is created the wrong way,
+in other words, gendisk_head->next is a pointer to itself.
+It looks to me, that the "next" field in 
+/*static*/ struct gendisk *gendisk_head;
+is not initialized (by the compiler ?) correctly to NULL. 
+
+
+
+
+>     if (gp->part[n].nr_sects == 0)
+>      continue;
+> 
+>  
+
+
+_______________________________________________________________________
+1.000.000 DM gewinnen - kostenlos tippen - http://millionenklick.web.de
+IhrName@web.de, 8MB Speicher, Verschluesselung - http://freemail.web.de
+
 

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135830AbRDYHFz>; Wed, 25 Apr 2001 03:05:55 -0400
+	id <S135826AbRDYHL0>; Wed, 25 Apr 2001 03:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135826AbRDYHFg>; Wed, 25 Apr 2001 03:05:36 -0400
-Received: from ns.caldera.de ([212.34.180.1]:45704 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S135825AbRDYHF0>;
-	Wed, 25 Apr 2001 03:05:26 -0400
-Date: Wed, 25 Apr 2001 09:04:38 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: PATCH: trident , pci_enable_device moved
-Message-ID: <20010425090438.A12672@caldera.de>
-Mime-Version: 1.0
+	id <S135825AbRDYHLP>; Wed, 25 Apr 2001 03:11:15 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:23803 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135831AbRDYHKz>; Wed, 25 Apr 2001 03:10:55 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: "Tom Brusehaver (N-Sysdyne Corporation)" <Thomas.Brusehaver@lmco.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: shm_open doesn't work (fix maybe).
+In-Reply-To: <3AE5ADDC.A7AA6F51@lmco.com>
+	<20010424130140.P9725@devserv.devel.redhat.com>
+Organisation: SAP LinuxLab
+Date: 25 Apr 2001 09:08:32 +0200
+In-Reply-To: <20010424130140.P9725@devserv.devel.redhat.com>
+Message-ID: <m3g0exa233.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan, linux-kernel,
+Hi,
 
-This moves pci_enable_device() in trident.c before any PCI resource access.
-Everything else appears to be ok in regards to 2.4 PCI API and return values.
+On Tue, 24 Apr 2001, Jakub Jelinek wrote:
+> On Tue, Apr 24, 2001 at 11:46:20AM -0500, Tom Brusehaver (N-Sysdyne
+> Corporation) wrote:
+>> 
+>> I have been chasing all around trying to find out why
+>> shm_open always returns ENOSYS. It is implemented
+>> in glibc-2.2.2, and seems the 2.4.3 kernel knows about
+>> shmfs.
+>> 
+>> It seems the file linux/mm/shmem.c has:
+>>     #define SHMEM_MAGIC 0x01021994
+>> 
+>> And the glibc-2.2.2/sysdeps/unix/sysv/linux/linux_fsinfo.h has:
+>>     #define SHMFS_SUPER_MAGIC 0x02011994
+>> 
+>> Well, which is correct?
+> 
+> Update your glibc, 2.2.3pre* matches 2.4.x kernel:
+> 
+> 2001-03-03  Ulrich Drepper  <drepper@redhat.com>
+> 
+> 	* sysdeps/unix/sysv/linux/linux_fsinfo.h (SHMFS_SUPER_MAGIC):
+> 	Update for real 2.4 kernels.
 
-Ciao, Marcus
+Yes, and I apologize to Ulrich that the changed number slipped through
+to the official kernel. My fault.
 
-Index: trident.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/sound/trident.c,v
-retrieving revision 1.12
-diff -u -r1.12 trident.c
---- trident.c	2001/04/24 09:47:13	1.12
-+++ trident.c	2001/04/24 10:19:36
-@@ -3309,6 +3309,9 @@
- 	struct trident_card *card;
- 	u8 revision;
- 
-+	if (pci_enable_device(pci_dev))
-+	    return -ENODEV;
-+
- 	if (pci_set_dma_mask(pci_dev, TRIDENT_DMA_MASK)) {
- 		printk(KERN_ERR "trident: architecture does not support"
- 		       " 30bit PCI busmaster DMA\n");
-@@ -3322,9 +3325,6 @@
- 		       iobase);
- 		return -ENODEV;
- 	}
--
--	if (pci_enable_device(pci_dev))
--	    return -ENODEV;
- 
- 	if ((card = kmalloc(sizeof(struct trident_card), GFP_KERNEL)) == NULL) {
- 		printk(KERN_ERR "trident: out of memory\n");
+Greetings
+		Christoph
+
+

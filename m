@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHSOdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266259AbUHSOjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUHSOdd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266256AbUHSOdE
+	id S266259AbUHSOjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 10:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHSOjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:33:04 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:54169
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S266275AbUHSOcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:32:51 -0400
-Message-ID: <4124BA10.6060602@bio.ifi.lmu.de>
-Date: Thu, 19 Aug 2004 16:32:48 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: kernel@wildsau.enemy.org, diablod3@gmail.com, linux-kernel@vger.kernel.org
+	Thu, 19 Aug 2004 10:39:43 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:40340 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S266259AbUHSOfb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 10:35:31 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, kernel@wildsau.enemy.org,
+       diablod3@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <200408041233.i74CX93f009939@wildsau.enemy.org> <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner>
-In-Reply-To: <4124A024.nail7X62HZNBB@burner>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	<d577e5690408190004368536e9@mail.gmail.com>
+	<4124A024.nail7X62HZNBB@burner>
+	<1092919260.28141.30.camel@localhost.localdomain>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 19 Aug 2004 16:35:29 +0200
+In-Reply-To: <1092919260.28141.30.camel@localhost.localdomain>
+Message-ID: <m3pt5n42mm.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> The GPL requires you not to impact the original authors' reputations, but this 
-> is what SuSE is doing by publishing defective variants.
+> The GPL gives modification rights explicitly and doesn't say "except
+> ones I don't like". The GPL addresses this issue in a different manner
+> 
+>    a) You must cause the modified files to carry prominent notices
+>     stating that you changed the files and the date of any change.
+> 
+> Any SuSE (or Red Hat or other) modifications should thus clearly state
+> they are modified. If people are not marking the files as modified and
+> you want them to you'd have a legitimate rant.
 
-What a stupid claim. When I call cdrecord on SuSE 9.1, I can burn CDs and
-DVDs as normal user, without root permissions, without suid, without ide-scsi,
-using /dev/hdc as device.
+As far as I can tell SuSE has had the following text in the cdrecord
+banner for a while:
 
-And this just works fine. So where's the problem?
+Cdrecord-Clone-dvd 2.01a27 (i686-suse-linux) Copyright (C) 1995-2004 Jörg Schilling
+Note: This version is an unofficial (modified) version with DVD support
+Note: and therefore may have bugs that are not present in the original.
+Note: Please send bug reports or support requests to http://www.suse.de/feedback
+Note: The author of cdrecord should not be bothered with problems in this version.
+
+So I wonder what Jörg is complaining about.
+
+  /Christer
 
 -- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+"Just how much can I get away with and still go to heaven?"
 
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

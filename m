@@ -1,99 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267795AbTBJMNs>; Mon, 10 Feb 2003 07:13:48 -0500
+	id <S267788AbTBJMPX>; Mon, 10 Feb 2003 07:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267804AbTBJMNs>; Mon, 10 Feb 2003 07:13:48 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:23426 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267795AbTBJMNq>;
-	Mon, 10 Feb 2003 07:13:46 -0500
-Date: Mon, 10 Feb 2003 13:22:48 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
-       jakob@unthought.net, david.lang@digitalinsight.com,
-       riel@conectiva.com.br, ckolivas@yahoo.com.au,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
-Message-ID: <20030210122248.GG31401@dualathlon.random>
-References: <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <3E4790F7.2010208@cyberone.com.au> <20030210120006.GC31401@dualathlon.random> <3E4796D5.7070009@cyberone.com.au>
+	id <S267821AbTBJMPX>; Mon, 10 Feb 2003 07:15:23 -0500
+Received: from tibau-e1.pop-rio.com.br ([200.239.194.250]:40644 "EHLO
+	tibau.pop-rio.com.br") by vger.kernel.org with ESMTP
+	id <S267788AbTBJMPU>; Mon, 10 Feb 2003 07:15:20 -0500
+Date: Mon, 10 Feb 2003 10:22:34 -0200
+From: Andre Costa <acosta@ar.microlink.com.br>
+To: Linux kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: SCSI-IDE crash in 2.4.21pre4]
+Message-Id: <20030210102234.4588ff0d.acosta@ar.microlink.com.br>
+In-Reply-To: <1044847348.3767.20.camel@h68-146-142-19.localdomain>
+References: <1044772315.1102.24.camel@h68-146-142-19.localdomain>
+	<1044847348.3767.20.camel@h68-146-142-19.localdomain>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E4796D5.7070009@cyberone.com.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Microlink Internet Provider Anti-Virus, Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 11:11:01PM +1100, Nick Piggin wrote:
-> Andrea Arcangeli wrote:
+Hi Kim,
+
+the probls you describe ("all sorts of SCSI timeout errors, SCSI comm
+errors, etc") are experienced by me and other users of KT266-based mobos
+as well, under the same circumstances (cdparanoia, SCSI-emul); see
+thread "kernel 2.4.x + via-based kt266 mobo = IDE cdroms probls
+(revisited)" here on LKML . Maybe the probl isn't restricted to SIS735
+or KT266 after all...
+
+Best,
+
+Andre
+
+On 09 Feb 2003 20:22:28 -0700
+Kim Lux <lux@diesel-research.com> wrote:
+
+> One more thing: a bunch of us cdparanoia users got together and
+> compared notes.  All the computers that are having the problem are
+> running the SIS735 chipset.   We suspect a kernel bug in that driver.
 > 
-> >On Mon, Feb 10, 2003 at 10:45:59PM +1100, Nick Piggin wrote:
-> >
-> >>perspective it does nullify the need for readahead (though
-> >>it is obivously still needed for other reasons).
-> >>
-> >
-> >I'm guessing that physically it may be needed from a head prospective
-> >too, I doubt it only has to do with the in-core overhead.  Seeing it all
-> >before reaching the seek point might allow the disk to do smarter things
-> >and to keep the head at the right place for longer, dunno.  Anyways,
-> >whatever is the reason it doesn't make much difference from our point of
-> >view ;), but I don't expect this hardware behaviour changing in future
-> >high end storage.
-> >
-> I don't understand it at all. I mean there is no other IO going
+> Let me know if there is anything else we can do to help.
+> 
+> BTW: I think that Linux rocks !  You kernel developers/ debuggers/
+> supporters do an outstanding job.  
+> 
+> THANKS !
+> 
+> Kim  
+> 
+> 
+> 
+> On Sat, 2003-02-08 at 23:31, Kim Lux wrote:
+> > -----Forwarded Message-----
+> > 
+> > > From: Kim Lux <lux@diesel-research.com>
+> > > To: linux-kernel@verger.kernel.org
+> > > Subject: SCSI-IDE crash in 2.4.21pre4
+> > > Date: 08 Feb 2003 23:27:23 -0700
+> > > 
+> > > One Line Summary:
+> > > 
+> > > SCSI IDE emulation crashes RH8 computer running 2.4.21 pre4.
+> > > 
+> > > Full Description of Problem:
+> > > 
+> > > I've had this problem for months.  
+> > > 
+> > > If I run CDParanoia and try to rip CDs, it will work OK for a few
+> > > minutes and then start crashing, giving all sorts of SCSI timeout
+> > > errors, SCSI comm errors, etc. (Let me know if you want these;
+> > > I'll get them.)  I get the same or similar errors with KSCD as
+> > > well.  This is extremely frustrating. 
+> > > 
+> > > I get the error with all kernels, 2.4.18-18.8.0 through 2.4.21
+> > > pre-4, although 2.4.21 freezes entirely and cannot be killed,
+> > > whereas all kernels prior to this allow the process to be killed. 
+> > > For some reason the process survives a login and reboot with
+> > > 2.4.21 pre 4, whereas it stops running with all previous kernels. 
+> > > 
+> > > 
+> > > I've tried 2 motherboards and 2 hd cables, with the same effect. 
+> > > The computer this occurs on is otherwise stable, with uptimes of
+> > > several months at a time.
+> > > 
+> > > I might have the links/permissions messed up in /dev from trying
+> > > to fix this problem. I also disabled the CD automount command in
+> > > .kde/autostart.  
+> > > 
+> > > I've been through the CDParanoia doc several times and have tried
+> > > various kernels with various SCSI-IDE config setups.  I know that
+> > > ATAPI CDROM must be disabled to work with CDParanoia.  I believe
+> > > I've got that set up right as CD Paranoia finds (or used to find)
+> > > the CDROM player. It does rip CDs, but will crash.  I strongly
+> > > believe this is a kernel problem and not a CDParanoia problem or a
+> > > hardware problem. 
+> > > 
+> > > Keywords:
+> > > 2.4.20
+> > > 2.4.21-pre4
+> > > SCSI-IDE Emulation
+> > > CDParanoia
+> > > KSCD
+> > > 
+> > > Kernel Version:
+> > > Linux version 2.4.20 (root@h68-146-142-19) (gcc version 3.2
+> > > 20020903(Red Hat Linux 8.0 3.2-7)) #2 Mon Dec 2 11:09:28 MST 2002 
+> > >  
+> > >  
+> > > As I stated before, 2.4.21 becomes unstable on login; I cannot run
+> > > it anymore as I can't kill the process.
+> > > 
+> > > Output of Oops: don't have it.  I got dmesg errors on boot, on
+> > > /dev/hda.  See dmesg output below. 
+> > > 
+> > > A small shell script that triggers the problem:
+> > > > CDParanoia -svB or run KSCD.
+> > > 
+> > > Environment: (see below) Running KDE.  Everything stable
+> > > otherwise. 
 
-Unfortunately I can't help you understand it, but this is what I found
-with my pratical experience, I found it the first time in my alpha years
-ago when I increased the sym to 512k in early 2.4 then since it could
-break stuff we added the max_sectors again in 2.4. But of course if you
-don't fix readahead there's no way reads can take advantage of these
-lowlevel fixes. I thought I fixed readahead too but I felt it got backed
-out and when I noticed I resurrected it in my tree (see the name of the
-patch ;)
-
-> >NOTE: just to be sure, I'm not at all against anticpiatory scheduling,
-> >it's clearly a very good feature to have (still I would like an option
-> >to disable it especially in heavy async environments like databases,
-> >where lots of writes are sync too) but it should be probably be enabled
-> >by default, especially for the metadata reads that have to be
-> >synchronous by design.
-> >
-> Yes it definately has to be selectable (in fact, in my current
-> version, setting antic_expire = 0 disables it), and Andrew has
-> been working on tuning the non anticipatory version into shape.
-
-Great.
-
-> >Infact I wonder that it may be interesting to also make it optionally
-> >controlled from a fs hint (of course we don't pretend all fs to provide
-> >the hint), so that you stall I/O writes only when you know for sure
-> >you're going to submit another read in a few usec, just the time to
-> >parse the last metadata you read. Still a timeout would be needed for
-> >scheduling against RT etc..., but it could be a much more relaxed
-> >timeout with this option enabled, so it would need less accurate
-> >timings, and it would be less dependent on hardware, and it would
-> >be less prone to generate false positive stalls. The downside is having
-> >to add the hints.
-> >
-> It would be easy to anticipate or not based on hints. We could
-
-yep.
-
-> anticipate sync writes if we wanted, lower expire time for sync
-> writes, increase it for async reads. It is really not very
-> complex (although the code needs tidying up).
-
-this is not the way I thought at it. I'm interested to give an hint
-only to know for sure which are the intermediate sync dependent reads
-(the obvious example is when doing the get_block and walking the
-3 level of inode indirect metadata blocks with big files, or while
-walking the balanced tree in reiserfs), and I'm not interested at all
-about writes. And I would just set an higher timeout when a read that I
-know for sure (thanks to the hint) is "intermdiate" is completed. We can
-use high timeouts there because we know they won't trigger 90% of the
-time, a new dependent read will be always submitted first.
-
-Andrea
+-- 
+Andre Oliveira da Costa

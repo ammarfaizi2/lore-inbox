@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266173AbUBCVHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 16:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUBCVHp
+	id S266178AbUBCVLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUBCVLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 16:07:45 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:22541 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S266173AbUBCVHn (ORCPT
+	Tue, 3 Feb 2004 16:11:34 -0500
+Received: from [62.38.227.126] ([62.38.227.126]:45198 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S266178AbUBCVLc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 16:07:43 -0500
-Message-ID: <40200D9E.7060701@zvala.cz>
-Date: Tue, 03 Feb 2004 22:07:42 +0100
-From: Tomas Zvala <tomas@zvala.cz>
-User-Agent: Mozilla Thunderbird 0.5a (20031223)
-X-Accept-Language: en-us, en
+	Tue, 3 Feb 2004 16:11:32 -0500
+From: "P. Christeas" <p_christ@hol.gr>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Subject: Re: Q: large files in iso9660 ?
+Date: Tue, 3 Feb 2004 23:10:23 +0200
+User-Agent: KMail/1.6
+References: <200402020024.31785.p_christ@hol.gr> <20040203133551.GA11957@bitwizard.nl>
+In-Reply-To: <20040203133551.GA11957@bitwizard.nl>
+Cc: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Derek Foreman <manmower@signalmarketing.com>
-CC: =?ISO-8859-1?Q?Martin_Povoln=FD?= <xpovolny@aurora.fi.muni.cz>,
-       John Bradford <john@grabjohn.com>, M?ns Rullg?rd <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-References: <20040203131837.GF3967@aurora.fi.muni.cz> <Pine.LNX.4.53.0402030839380.31203@chaos> <401FB78A.5010902@zvala.cz> <Pine.LNX.4.53.0402031018170.31411@chaos> <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk> <yw1xsmhsf882.fsf@kth.se> <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402031251000.495@uberdeity> <20040203195116.GA2961@aurora.fi.muni.cz> <401FFCFF.6020309@murder.cz> <Pine.LNX.4.58.0402031358450.770@uberdeity>
-In-Reply-To: <Pine.LNX.4.58.0402031358450.770@uberdeity>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402032310.23609.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It could have been just a nice way to make the drive realize that the 
-disk is no longer what the drive thinks it is :).
-
-Tomas Zvala
-btw. guys im sorry for posting with two names .. I sometimes forget to 
-switch to my real name :(
-
-Derek Foreman wrote:
-
->Sorry, that was really more to satisfy my curiosity than anything else.
->You don't need to read the TOC to mount the disc.
->  
+>
+> The kernel (2.6 and 2.4) has the following code in isofs_read_inode():
+>
+>         /*
+>          * The ISO-9660 filesystem only stores 32 bits for file size.
+>          * mkisofs handles files up to 2GB-2 = 2147483646 = 0x7FFFFFFE
+> bytes * in size. This is according to the large file summit paper from
+> 1996. * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully *   
+>       legal. Do not prevent to use DVD's schilling@fokus.gmd.de */
+>         if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
+>             sbi->s_cruft == 'n') {
+>                 printk(KERN_WARNING "Warning: defective CD-ROM.  "
+>                        "Enabling \"cruft\" mount option.\n");
+>                 sbi->s_cruft = 'y';
+>         }
+>
+> IOW: your kernel should have warned you about the defective CDROM and
+> truncated filesizes to 16MB (which is what the "cruft" mount option
+> does).
 >
 >
+> Erik
+
+Makes perfect sense.
+However, this *does* enforce the limit on DVD files. If I try to disable this 
+code and make inode sizes uint32, can there be any other negative 
+implication? Of course, I am still limited to 3GB..

@@ -1,81 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132281AbRDNAwB>; Fri, 13 Apr 2001 20:52:01 -0400
+	id <S132601AbRDNAyw>; Fri, 13 Apr 2001 20:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132601AbRDNAvw>; Fri, 13 Apr 2001 20:51:52 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:1012 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S132281AbRDNAvj>; Fri, 13 Apr 2001 20:51:39 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200104140050.f3E0ohpb014702@webber.adilger.int>
-Subject: Re: Ext2 Directory Index - File Structure
-In-Reply-To: <20010413205832Z92227-31791+16@humbolt.nl.linux.org>
- "from Daniel Phillips at Apr 13, 2001 10:58:28 pm"
-To: Daniel Phillips <phillips@nl.linux.org>
-Date: Fri, 13 Apr 2001 18:50:42 -0600 (MDT)
-CC: adilger@turbolinux.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S132698AbRDNAyc>; Fri, 13 Apr 2001 20:54:32 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:61192 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S132601AbRDNAyZ>; Fri, 13 Apr 2001 20:54:25 -0400
+Date: Fri, 13 Apr 2001 18:47:40 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org,
+        Linus Torvalds <torvalds@transmeta.com>, Linux390@de.ibm.com
+Subject: Re: EXPORT_SYMBOL for chrdev_open 2.4.3
+Message-ID: <20010413184740.A14659@vger.timpanogas.org>
+In-Reply-To: <20010413173256.A14267@vger.timpanogas.org> <Pine.GSO.4.21.0104132004320.24992-100000@weyl.math.psu.edu> <20010413183810.A14604@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010413183810.A14604@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Apr 13, 2001 at 06:38:10PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel, you write:
-> OK, I get it.  Nice article - it would sure be nice to see this
-> incorporated Documentation/filesystems/ext2.txt.  I just checked my copy
-> of Understanding the Linux Kernel and while existence of the compat
-> fields in the super block is noted, there is nothing at all said about
-> them. 
+On Fri, Apr 13, 2001 at 06:38:10PM -0600, Jeff V. Merkey wrote:
+> On Fri, Apr 13, 2001 at 08:13:41PM -0400, Alexander Viro wrote:
+> > 
+> > 
+> > On Fri, 13 Apr 2001, Jeff V. Merkey wrote:
+> > 
+> > > It would be nice if chrdev_open were added to ksyms.c along with
+> > > blkdev_open since tape devices seem are always registered as character
+> > > rather than block devices.  
+> > > 
+> > > I am finding that kernel modules that need to open and close a tape 
+> > > drive have to export chrdev_open manually on 2.4.3.  Can this get 
+> > > exported as well?  Closing is not a problem since the method of 
+> > > calling (->release) seems to work OK with SCSI tape devices.
+> > 
+
+
+> > They don't need it. 
+
+Al,
+
+Not meaning to offend, but how could you know what everyone 
+who uses Linux needs in every instance?  NT, NetWare, etc. all
+expose these types of APIs for Backup and anti-virus software,
+etc.  The APIs in question are the very calls user space apps
+call through the syscall to indicate who is using a device. 
+
+Sure, I can send blind I/O requests to a device and I guess 
+someone running fdisk in user space can blow the device away from beneath 
+me since I have no way of locking those partitions I exclusively
+own and stopping this is these apis are removed and modules 
+cannot call them.  
+
+
+Jeff
+
+> > Moreover, blkdev_open shouldn't be exported too -
+> > the only potentially modular piece of code that refers to it is
+> > drivers/block/rd.c and it's in initrd loading, so it isn't even
+> > compiled when we do rd as a module.
+> > 
+> > BTW, Linus, could we remove blkdev_open() from the export list?
+> > I don't see any legitimate reason to export it - certainly not in
+> > the official tree.
+> > 
+> > BTW, fs/partitions/ibm.c also doesn't need blkdev_open() - it should
+> > use ioctl_by_bdev() and be done with that.
 > 
-> So then, the obvious candidate would be:
 > 
-> 	#define EXT2_FEATURE_RO_COMPAT_DIR_INDEX        0x0004
+> Al,
 > 
-> which was formerly EXT2_FEATURE_RO_COMPAT_BTREE_DIR.
-
-Actually not.  We should go with "EXT2_FEATURE_COMPAT_DIR_INDEX 0x0008"
-because the on-disk layout is 100% compatible with older kernels, so
-no reason to force read-only for those systems.  I'm guessing Ted had
-put RO_COMPAT_BTREE_DIR in there in anticipation, but it was never used.
-
-> Other than declaring it, I gather I have to set this flag in the
-> superblock every time I set the EXT2_INDEX_FL in an inode.  Is that it?
-
-Yes.  If you do like the LARGE_FILE code, it may be worthwhile to check
-whether it is already set to avoid writing out the superblock.  However,
-in most cases the superblock is already dirty after block allocation, so
-it is no extra overhead in those cases.
-
-> Yes, I will mask of 8 bits of the block index and this will be more than
-> enough to support the planned coalesce function.  I can't think of any
-> other use for these bits than coalescing - can you?
-
-Not at the moment, but then again, I probably couldn't have forseen any
-of the other requirements either.  If we don't need them for indexed
-directories, we may as well save them for a future (unspecified) use.
-Start using them from the high bits down, so that we allow the directory
-size to grow (if needed) in the future.
-
-> > So then bailing out of index mode (on error) to go into linear search
-> > mode is as easy as clearing the directory index flag and reading the
-> > directory from the start.
+> How are folks supposed to open disk and tape devices from kernel modules
+> without these?  Not everything should be done in user space Al.  If you 
+> remove blkdev_open I will not be able to properly increment the use 
+> count an a disk device I may be reading or writing to.  
 > 
-> Are you sure we want to clear the index flag?  The user has probably
-> just booted the wrong kernel.  And yes, we are talking about a
-> strategically placed goto here, after a little cleanup.
-
-OK, no need to clear the index flag under normal circumstances.  We
-simply fall back to linear search on unknown hash code, etc.  But
-with the hash version byte and dx_root size we should _know_ when we
-have bogus data.  Whether we clear the index flag or not in this case
-is up for debate.  I was thinking that it would force us into the
-"safer" code path of linear search.  However, clearing the index flag
-may lose some state (if we decide to allow the admin to set un-indexed
-but larger than 1 block directories).  In that case, how do we make
-e2fsck create indexes for old filesystems when the DIR_INDEX compat flag
-is turned on in the superblock?
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+> Jeff
+> 
+> 
+> > 							Al
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

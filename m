@@ -1,122 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSIPKwS>; Mon, 16 Sep 2002 06:52:18 -0400
+	id <S261346AbSIPLAR>; Mon, 16 Sep 2002 07:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSIPKwR>; Mon, 16 Sep 2002 06:52:17 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:13957 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261342AbSIPKwO>;
-	Mon, 16 Sep 2002 06:52:14 -0400
-Date: Mon, 16 Sep 2002 13:03:22 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] thread-exec-fix-2.5.35-A5, BK-curr
-Message-ID: <Pine.LNX.4.44.0209161256140.27517-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261348AbSIPLAR>; Mon, 16 Sep 2002 07:00:17 -0400
+Received: from mail.hometree.net ([212.34.181.120]:46784 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261346AbSIPLAQ>; Mon, 16 Sep 2002 07:00:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Date: Mon, 16 Sep 2002 11:05:13 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <am4dt9$9m4$1@forge.intermeta.de>
+References: <E17qRfU-0001qz-00@starship> <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <20020915190435.GA19821@nevyn.them.org> <20020915162412.A17345@work.bitmover.com> <20020915234108.GA1348@nevyn.them.org> <20020915165235.B17345@work.bitmover.com> <1032139750.26911.20.camel@irongate.swansea.linux.org.uk> <20020915191318.C22354@work.bitmover.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1032174313 32491 212.34.181.4 (16 Sep 2002 11:05:13 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 16 Sep 2002 11:05:13 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy <lm@bitmover.com> writes:
 
-the attached patch (against BK-curr) fixes a number of sys_execve()  
-problems:
+>the code, go for it.  However, my experience is that what he was saying
+>resonates with "I'm going in to fix this problem so I can get back to
+>work on my real project".  And that is almost always wrong.  If the
+>problem was that bloody simple don't you think the original author of
+>the code would have fixed it already?  It's almost never as simple as a
 
- - ptrace of thread groups over exec works again.
+BS. In 99% of the cases you fix the problem because the original
+author has abandoned the code or does no longer care about it.
 
- - if the exec() is done in a non-leader thread then we must inherit the
-   parent links properly - otherwise the shell will see an early
-   child-exit notification.
+Ask me about it. Once upon a time, I just wanted to use a Web
+Framework [1] for a project.  Now I'm one of the main developers of
+it. Not because I wanted to be but out of pure necessity.
 
- - if the exec()-ing thread is detached then make it use SIGCHLD like the
-   leader thread.
+	Regards
+		Henning
 
- - wait for the leader thread to become TASK_ZOMBIE properly -
-   wait_task_inactive() alone was not enough. This should be a rare
-   codepath.
+[1] Jakarta Turbine. http://jakarta.apache.org/turbine/
 
-now sys_execve() from thread groups works as expected in every combination
-i could test: standalone, from the leader thread, from one of the child
-threads, ptraced, non-ptraced, SMP and UP.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-	Ingo
-
---- linux/fs/exec.c.orig	Mon Sep 16 11:11:34 2002
-+++ linux/fs/exec.c	Mon Sep 16 12:53:00 2002
-@@ -41,6 +41,7 @@
- #include <linux/module.h>
- #include <linux/namei.h>
- #include <linux/proc_fs.h>
-+#include <linux/ptrace.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -577,11 +578,17 @@
- 	 * and to assume its PID:
- 	 */
- 	if (current->pid != current->tgid) {
--		struct task_struct *leader = current->group_leader;
-+		struct task_struct *leader = current->group_leader, *parent;
- 		struct dentry *proc_dentry1, *proc_dentry2;
--		unsigned long state;
-+		unsigned long state, ptrace;
- 
--		wait_task_inactive(leader);
-+		/*
-+		 * Wait for the thread group leader to be a zombie.
-+		 * It should already be zombie at this point, most
-+		 * of the time.
-+		 */
-+		while (leader->state != TASK_ZOMBIE)
-+			yield();
- 
- 		write_lock_irq(&tasklist_lock);
- 		proc_dentry1 = clean_proc_dentry(current);
-@@ -597,10 +604,33 @@
- 		 * two threads with a switched PID, and release
- 		 * the former thread group leader:
- 		 */
-+		ptrace = leader->ptrace;
-+		parent = leader->parent;
-+
-+		ptrace_unlink(leader);
-+		ptrace_unlink(current);
- 		unhash_pid(current);
- 		unhash_pid(leader);
-+		remove_parent(current);
-+		remove_parent(leader);
-+		/*
-+		 * Split up the last two remaining members of the
-+		 * thread group:
-+		 */
-+		list_del_init(&leader->thread_group);
-+
- 		leader->pid = leader->tgid = current->pid;
- 		current->pid = current->tgid;
-+		current->parent = current->real_parent = leader->real_parent;
-+		leader->parent = leader->real_parent = child_reaper;
-+		current->exit_signal = SIGCHLD;
-+
-+		add_parent(current, current->parent);
-+		add_parent(leader, leader->parent);
-+		if (ptrace) {
-+			current->ptrace = ptrace;
-+			__ptrace_link(current, parent);
-+		}
- 		hash_pid(current);
- 		hash_pid(leader);
- 		
-@@ -608,8 +638,9 @@
- 		state = leader->state;
- 		write_unlock_irq(&tasklist_lock);
- 
--		if (state == TASK_ZOMBIE)
--			release_task(leader);
-+		if (state != TASK_ZOMBIE)
-+			BUG();
-+		release_task(leader);
- 
- 		put_proc_dentry(proc_dentry1);
- 		put_proc_dentry(proc_dentry2);
-
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUF0IIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUF0IwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUF0IIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 04:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUF0IIj
+	id S261239AbUF0IwI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 04:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUF0IwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 04:08:39 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:987 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261234AbUF0IIi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 04:08:38 -0400
-Date: Sun, 27 Jun 2004 01:08:33 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jdike@addtoit.com, blaisorblade_spam@yahoo.it,
-       linux-kernel@vger.kernel.org
-Subject: Re: Inclusion of UML in 2.6.8
-Message-Id: <20040627010833.4019c46a.pj@sgi.com>
-In-Reply-To: <20040626234025.7d69937c.akpm@osdl.org>
-References: <200406261905.22710.blaisorblade_spam@yahoo.it>
-	<20040626130945.190fb199.akpm@osdl.org>
-	<20040627035923.GB8842@ccure.user-mode-linux.org>
-	<20040626233253.06ed314e.pj@sgi.com>
-	<20040626234025.7d69937c.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Jun 2004 04:52:08 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32128
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261239AbUF0IwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 04:52:04 -0400
+From: Rob Landley <rob@landley.net>
+To: Brad Campbell <brad@wasp.net.au>
+Subject: Re: Process in D state with USB and swsuspsp
+Date: Sun, 27 Jun 2004 03:50:46 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200406262031.14464.rob@landley.net> <40DE5BC0.7080206@wasp.net.au>
+In-Reply-To: <40DE5BC0.7080206@wasp.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406270350.46641.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> patch-scripts has the "patch-bomb" script,
+On Sunday 27 June 2004 00:31, Brad Campbell wrote:
+> Rob Landley wrote:
+> > As I said, I realise that unplugging even a USB adapter with the machine
+> > is suspended is Not A Good Thing.  But it's likely to be a common thing
+> > among people who can't figure out after the fact "oh yeah, that's what's
+> > going wrong"...
+>
+> Most of us that use swsusp regularly have our pre-suspend script unload usb
+> before suspend to prevent exactly this sort of behaviour.
+> I also unload PCMCIA.
+>
+> If there is something using these devices that prevents unloading, then my
+> script notifies me that I'm doing something I need to stop before I
+> suspend. Can't remember the last time that happened though.
+>
+> Check out the swsusp-devel list for further info.
 
-Aha - interesting.
+Yeah, I could, I just don't use USB enough.  My suspend script is now stripped 
+down to the point where the only thing I do is run dhclient afterwards (and 
+that's mostly because it seems to be too stupid to notice the timeout's 
+elapsed.  Persumably it should have some kind of trigger if the wireless 
+access point toggles...)
 
-Actually, I was asking a loaded question.  I just finished writing my
-own patch bomber.  I see a few details in your patch-bomb worth stealing
-- thanks.  Mine is more driven off of a single text file, that specifies
-what files, with what subjects, to send to whom.  And its in Python.
+It's just that a hot-pluggable bus, it should be possible to convince the 
+thing to reprobe all devices on a bus reset.  Oh well.
 
-The big feature (?) mine has is to set the Message-Id, In-Reply-To and
-References fields so that all but the first one in the set appear to be
-followups to the first one, for those using threaded email readers.
-Hard to do that with smtpsend in the shell ;).
+Maybe a todo item for 2.7...
+
+Rob
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+www.linucon.org: Linux Expo and Science Fiction Convention
+October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
+

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTFYDIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 23:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTFYDIG
+	id S263631AbTFYDKl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 23:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTFYDKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 23:08:06 -0400
-Received: from yossman.net ([209.162.234.20]:30215 "EHLO yossman.net")
-	by vger.kernel.org with ESMTP id S263823AbTFYDIE (ORCPT
+	Tue, 24 Jun 2003 23:10:41 -0400
+Received: from dp.samba.org ([66.70.73.150]:16581 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263631AbTFYDKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 23:08:04 -0400
-Message-ID: <3EF91555.9050208@yossman.net>
-Date: Tue, 24 Jun 2003 23:21:57 -0400
-From: Brian Davids <dlister@yossman.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robins Tharakan <robins.t@kutumb.org.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: developers and GPL in products (Was: Re: GPL violations by	wireless
- manufacturers)
-References: <3EF83FAF.24578.38A16F@localhost>	<3EF85024.4477.78EB14@localhost>	<200306242025.27761.roger.larsson@skelleftea.mail.telia.com> 	<200306241727.51092.zack@tehunlose.com> <1056502051.15687.33.camel@zeus.simple.com>
-In-Reply-To: <1056502051.15687.33.camel@zeus.simple.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jun 2003 23:10:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: torvalds@transmeta.com, akpm@zip.com.au, davem@redhat.com,
+       linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
+In-reply-to: Your message of "Tue, 24 Jun 2003 19:01:25 +0200."
+             <Pine.LNX.4.44.0306241851550.11817-100000@serv> 
+Date: Wed, 25 Jun 2003 13:10:53 +1000
+Message-Id: <20030625032450.406202C086@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robins Tharakan wrote:
-> Therefore, if Company A "sells" the package to anybody outside the
-> company then it has to "make available" the source, including people
-> like the primary developer.
+In message <Pine.LNX.4.44.0306241851550.11817-100000@serv> you write:
+> Hi,
 > 
-> But i think the second part of Zack's reply might not be right.
-> The company A only needs to make "available" the source. it doesnt
-> "have" to bundle the source with the binaries... (maybe make it
-> available on the website or make some such provisions...)
+> On Mon, 23 Jun 2003, Rusty Russell wrote:
+> 
+> > D: One longstanding complaint is that modules can only have one
+> > D: module_init, and one module_exit (builtin code can have multiple
+> > D: __initcall however).  This means, for example, that it is not
+> > D: possible to write a "module_proc_entry(name, readfn)" function
+> > D: which can be used like so:
+> > D: 
+> > D:   module_init(myinitfn);
+> > D:   module_cleanup(myinitfn);
+> > D:   module_proc_entry("some/path/foo", read_foo);
+> 
+> What happens if a module is compiled into the kernel and one of the init 
+> functions fails?
 
-There is a choice of ONE of THREE options.  Company A may EITHER:
+We ignore the failure, as we do with initcalls at the moment.  I
+wasn't really intending to deprecate the existing mechanisms: this is
+simple at least 8)
 
-1. include the source
-OR
-2. accompany the binary with a written offer for the source
-OR
-3.  if it is a noncommercial RE-distribution of the binary, include the 
-offer that was received in terms with #2.
+Hmm, were you thinking of grouping by KBUILD_BASENAME?  Can you think
+of a case where that would be nicer to use?
 
-If the binary is downloaded from somewhere, having the source available 
-at the same place counts as #1.
-
-IANAL, but that's how it all boils down for me.  Hopefully that'll help 
-someone understand that part a little better.
-
-
-Brian Davids
-
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

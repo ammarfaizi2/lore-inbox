@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTIQBJm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 21:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbTIQBJm
+	id S262553AbTIQBCw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 21:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbTIQBCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 21:09:42 -0400
-Received: from APlessis-Bouchard-112-1-1-62.w81-50.abo.wanadoo.fr ([81.50.76.62]:27867
-	"EHLO fozzy.syrius.org") by vger.kernel.org with ESMTP
-	id S262567AbTIQBJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 21:09:41 -0400
-To: erik@debian.franken.de (Erik Tews)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre4-pac1
-References: <Pine.LNX.4.56.0309151411010.14486@dot.kde.org>
-	<wazza.87znh6t891.fsf@message.id>
-	<1063665253.8257.27.camel@dhcp23.swansea.linux.org.uk>
-	<20030916232957.GA6216@debian.franken.de>
-From: edouardino@ifrance.com
-Date: Wed, 17 Sep 2003 03:09:34 +0200
-In-Reply-To: <20030916232957.GA6216@debian.franken.de> (Erik Tews's message
- of "Wed, 17 Sep 2003 01:29:57 +0200")
-Message-ID: <wazza.87smmwrzjl.fsf@message.id>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 16 Sep 2003 21:02:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:2025 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262553AbTIQBCv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 21:02:51 -0400
+Date: Tue, 16 Sep 2003 18:02:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       linux-acpi@intel.com, Chris Wright <chrisw@osdl.org>
+Subject: Re: [ACPI] [PATCH] 2.6.0-test4 Don't change BIOS allocated IRQs
+Message-ID: <20030917010254.GA1640@kroah.com>
+References: <200309170011.03630.adq_dvb@lidskialf.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309170011.03630.adq_dvb@lidskialf.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-erik@debian.franken.de (Erik Tews) writes:
+On Wed, Sep 17, 2003 at 12:11:03AM +0100, Andrew de Quincey wrote:
+> With the help of Chris Wright testing several failed patches, I've tracked 
+> down another ACPI IRQ problem. On many systems, the BIOS 
+> pre-allocates IRQs for certain PCI devices, providing a list of alternate 
+> possibilities as well.
+> 
+> On some systems, changing the IRQ to one of those alternate possibilities 
+> works fine. On others however, it really isn't a good idea. As theres no 
+> way to tell which systems are good and bad in advance, this patch simply 
+> ensures that ACPI does not change an IRQ if the BIOS has pre-allocated it.
 
->> > Could you send me the Device Mapper patch you used ?
->> > Or could you make -pac available as splitted patches too ?
->> > I fact I'd like to use a recent dm.
->> Its the bits in drivers/md and include/linux/dm* - easy to split out.
->> It is quite old. The Sistina guys have been promising me an update for
->> some time but I guess 2.6 is far more important
-> The latest version I know about is at:
-> http://people.sistina.com/~thornber/patches/2.4-stable/2.4.22/
+Nice, the patch below, which Chris told me is from you, fixed my
+problems too.  It is against 2.6.0-test5-bk3 and fixes bug number 1186
+in the bugzilla.kernel.org database.
 
-yep, but it doesn't apply to 2.4.23-pre4. 
-I was told it's going to be fixed soonish :-)
+Many thanks for this work, I really appreciate it.
 
--- 
-E.
+thanks,
+
+greg k-h
+
+test5-bk_current
+===== drivers/acpi/pci_link.c 1.13 vs edited =====
+--- 1.13/drivers/acpi/pci_link.c	Mon Sep  8 05:51:03 2003
++++ edited/drivers/acpi/pci_link.c	Tue Sep 16 16:16:31 2003
+@@ -456,7 +456,6 @@
+ 		irq = link->irq.active;
+ 	} else {
+ 		irq = link->irq.possible[0];
+-	}
+ 
+ 		/* 
+ 		 * Select the best IRQ.  This is done in reverse to promote 
+@@ -466,6 +465,7 @@
+ 			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
+ 				irq = link->irq.possible[i];
+ 		}
++	}
+ 
+ 	/* Attempt to enable the link device at this IRQ. */
+ 	if (acpi_pci_link_set(link, irq)) {
+
+

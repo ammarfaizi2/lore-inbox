@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbRGBCtX>; Sun, 1 Jul 2001 22:49:23 -0400
+	id <S265803AbRGBCwx>; Sun, 1 Jul 2001 22:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265797AbRGBCtM>; Sun, 1 Jul 2001 22:49:12 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34314 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265806AbRGBCs7>; Sun, 1 Jul 2001 22:48:59 -0400
-Date: Sun, 1 Jul 2001 19:47:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Removal of PG_marker scheme from 2.4.6-pre
-In-Reply-To: <Pine.LNX.4.33L.0107012301460.19985-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107011943240.7587-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266032AbRGBCwn>; Sun, 1 Jul 2001 22:52:43 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:21002 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265803AbRGBCw2>;
+	Sun, 1 Jul 2001 22:52:28 -0400
+Date: Sun, 1 Jul 2001 19:51:28 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: usbserial/keyspan module load race [was: 2.4.5 keyspan driver]
+Message-ID: <20010701195128.A21973@kroah.com>
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010630133752.A850@glitch.snoozer.net> <20010701154910.A15335@glitch.snoozer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010701154910.A15335@glitch.snoozer.net>; from haphazard@socket.net on Sun, Jul 01, 2001 at 03:49:10PM -0500
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 01, 2001 at 03:49:10PM -0500, Gregory T. Norris wrote:
+> Ok, I've figured out how to reproduce the problem.
+> 
+> Initially, usbcore and usb-uhci are the only USB drivers loaded.  If I
+> load usbserial and keyspan seperately ("modprobe usbserial ; sleep 5 ;
+> modprobe keyspan") everything works correctly.  The problem occurs when
+> I let modprobe pull in usbserial behind the scenes as a dependency. The
+> keyspan driver (usually) doesn't detect the device, and /proc/modules
+> forever lists it as "initializing".  The module won't unload at this
+> point, so the driver's unusable until the next reboot.
+> 
+> Unfortunately I have no idea how/where to fix this.  Anyone want to
+> take a stab at it?
 
-On Sun, 1 Jul 2001, Rik van Riel wrote:
-> > "me: undo page_launder() LRU changes, they have nasty side effects"
-> >
-> > Can you be more verbose about this ?
->
-> I think this was fixed by the GFP_BUFFER vs. GFP_CAN_FS + GFP_CAN_IO
-> thing and Linus accidentally backed out the wrong code ;)
+Which keyspan driver are you doing this with, keyspan_pda.o or
+keyspan.o?
 
-You wish.
+Have you tried having the linux-hotplug scripts install the driver for
+you when you plug the device in? <http://linux-hotplug.sourceforge.net/>
 
-Except it wasn't so.
+thanks,
 
-Follow the list, and read the emails that were cc'd to you.
-
-pre2 was fine, pre3 was not.
-
-ac12 was fine, ac13 was not.
-
-pre3 with the pre2 page_launder was fine.
-
-There is no question about it. The patch that caused problems was the one
-that was reversed. Please stop confusing the issue.
-
-		Linus
-
+greg k-h

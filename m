@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbULNAO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbULNAQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbULNAO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 19:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbULNAO5
+	id S261355AbULNAQS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 19:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbULNAQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 19:14:57 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:28785 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261353AbULNAO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 19:14:56 -0500
-To: "Hal Rosenstock" <halr@voltaire.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       <openib-general@openib.org>
-X-Message-Flag: Warning: May contain useful information
-References: <5CE025EE7D88BA4599A2C8FEFCF226F5175B0C@taurus.voltaire.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 13 Dec 2004 16:14:54 -0800
-In-Reply-To: <5CE025EE7D88BA4599A2C8FEFCF226F5175B0C@taurus.voltaire.com> (Hal
- Rosenstock's message of "Mon, 13 Dec 2004 22:19:09 +0200")
-Message-ID: <52sm694txd.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [openib-general] [PATCH][v3][17/21] Add IPoIB
- (IP-over-InfiniBand)driver
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 14 Dec 2004 00:14:55.0311 (UTC) FILETIME=[F0589DF0:01C4E171]
+	Mon, 13 Dec 2004 19:16:18 -0500
+Received: from tomts22.bellnexxia.net ([209.226.175.184]:21213 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261355AbULNAQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 19:16:10 -0500
+Subject: Re: dynamic-hz
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Stefan Seyfried <seife@suse.de>,
+       Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <1102949565.2687.2.camel@localhost.localdomain>
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+	 <41BD483B.1000704@suse.de>  <20041213135820.A24748@flint.arm.linux.org.uk>
+	 <1102949565.2687.2.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 13 Dec 2004 19:16:17 -0500
+Message-Id: <1102983378.9865.11.camel@orbiter>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hal> The latest I-D is now
-    Hal> http://www.ietf.org/internet-drafts/draft-ietf-ipoib-ip-over-infiniband-08.txt
+On Mon, 2004-12-13 at 14:52 +0000, Alan Cox wrote:
 
-Thanks, I'll correct this.
+> On a PC it makes huge sense, the deeply embedded folks who do turn the
+> thing off for 30secs at a time (Eg cellphone) also want it as do
+> virtualisation people where it trashes your scaling. API wise it isn't
+> too hard, its just a matter of time to convert the jiffies users away
+> and to do relative versions of add_timer with accuracy info included.
 
-    Hal> Also, isn't DHCP over IB
-    Hal> (http://www.ietf.org/internet-drafts/draft-ietf-ipoib-dhcp-over-infiniband-07.txt)
-    Hal> also supported ? If so, is that part of this or some other
-    Hal> patch being submitted ?
+Alan,
 
-DHCP should work but I don't think it's a kernel issue (I don't think
-kernel DHCP for NFS root over IPoIB will work unfortunately).
+On a related subject, a few months ago you posted a patch which added a
+nice add_timeout()/timeout_pending() API and converted many (if not
+most) drivers to use it.
 
- - R.
+If I remember correctly it did not generate much comments and the work
+was not pushed into mainline.
+
+I think it's a nice cleanup, IMHO the time_(before|after)(jiffies, ...)
+construct is horrible.
+
+Any chance to resurrect this work ?
+
+PS: the original subject was "Initial bits to help pull jiffies out of
+drivers"
+
+Best regards,
+
+Eric St-Laurent
+
+

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274830AbRIUU6A>; Fri, 21 Sep 2001 16:58:00 -0400
+	id <S274829AbRIUU47>; Fri, 21 Sep 2001 16:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274832AbRIUU5u>; Fri, 21 Sep 2001 16:57:50 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:9481 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S274830AbRIUU5d>;
-	Fri, 21 Sep 2001 16:57:33 -0400
-Date: Fri, 21 Sep 2001 17:57:36 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Marc A. Lehmann" <pcg@goof.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Significant performace improvements on reiserfs systems,
- kupdated bugfixes
-In-Reply-To: <20010921221225.A22402@schmorp.de>
-Message-ID: <Pine.LNX.4.33L.0109211757050.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S274830AbRIUU4j>; Fri, 21 Sep 2001 16:56:39 -0400
+Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:912 "EHLO
+	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S274829AbRIUU43>; Fri, 21 Sep 2001 16:56:29 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ray Bryant <raybry@timesn.com>
+Cc: <gibbs@FreeBSD.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: AIC-7XXX driver problems with 2.4.9 and L440GX+
+Date: Fri, 21 Sep 2001 22:56:33 +0200
+Message-Id: <20010921205633.2909@smtp.wanadoo.fr>
+In-Reply-To: <3BABA9F4.3677E423@timesn.com>
+In-Reply-To: <3BABA9F4.3677E423@timesn.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Marc A. Lehmann wrote:
+>scsi0:0:0:0: Attempting to queue an ABORT message
+>scsi0:0:0:0: Command already completed
+>aic7xxx_abort returns 8194
+>scsi0:0:0:0: Attempting to queue an ABORT message
+>scsi0:0:0:0: Device is active, asserting ATN
+>Recovery code sleeping
+>Recovery code awake
+>Timer Expired
+>aic7xxx_abort returns 8195
+>scsi0:0:0:0: Attempting to queue a TARGET RESET message
+>aic7xxx_dev_reset returns 8195
+>Recovery SCB completes
+>scsi0:0:0:0: Attempting to queue an ABORT message
+>ahc_intr: HOST_MSG_LOOP bad phase 0x0
+>scsi0:0:0:0: Cmd aborted from QINFIFO
+>aic7xxx_abort returns 8194
+>scsi: device set offline - not ready or command retry failed after bus
+>reset: host 0 channel 0 id 0 lun 0
+><output snipped>
 
-> A contiguous write doesn't cost anything much, so it could be major
-> win if the kernel could flush dirty buffers that are behind and after
-> the dirty block to be written. But this would nicely conflict with
-> allocate-on-flush ;)
+That's interesting as it appears to be the exact same problem I'm having
+on my G4 PowerMac with a 2960 card and recent kernels. The 6.2.3 driver
+didn't help (Justin, see the log I sent you).
 
-On the contrary, when you have a bunch of small files to sync
-you just allocate them next to each other and flush them all
-at once ;)
+Regards,
+Ben.
 
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132023AbQKBA5c>; Wed, 1 Nov 2000 19:57:32 -0500
+	id <S132036AbQKBA7m>; Wed, 1 Nov 2000 19:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132036AbQKBA5M>; Wed, 1 Nov 2000 19:57:12 -0500
-Received: from ns1.usu.net ([205.235.65.2]:24070 "EHLO blaze.usu.net")
-	by vger.kernel.org with ESMTP id <S132023AbQKBA5J>;
-	Wed, 1 Nov 2000 19:57:09 -0500
-From: stockwatcher@mindspring.com
-Message-Id: <200011020106.UAA06749@blaze.usu.net>
+	id <S132049AbQKBA7c>; Wed, 1 Nov 2000 19:59:32 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:64008 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132036AbQKBA7O>; Wed, 1 Nov 2000 19:59:14 -0500
+Date: Wed, 1 Nov 2000 19:59:14 -0500
+From: Bill Nottingham <notting@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: New Membership     
-Reply-To: trader@mindspring.com
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+Message-ID: <20001101195914.A27433@devserv.devel.redhat.com>
+Mail-Followup-To: Bill Nottingham <notting@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <200011012345.PAA20284@pizda.ninka.net> <20001101172100.A5081@fsmlabs.com> <200011020011.QAA20585@pizda.ninka.net> <8tqcng$d8p$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/html; charset="us-ascii"
-Date: Wed, 1 Nov 2000 20:03:23
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8tqcng$d8p$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Nov 01, 2000 at 04:32:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin (hpa@zytor.com) said: 
+> I think at least supporting a "kgcc" compiler makes sense,
+> conceptually (although it probably should have been called "kcc", but
+> it's too late now.)
 
+There was already some userland package named kcc, with a kcc
+binary. A Kanji converter of some sort, IIRC.
 
-
-
-
-<base href="http://geocities.com/thankyou4looking2000">
-<html>
-<head>
-	<title>Untitled</title>
-</head>
-
-<body>
-<P align=center><FONT color=#0000ff size=5><STRONG>Discount Offshore 
-Brokerage!!!</STRONG></FONT></P>
-<P align=center>&nbsp;</P>
-<P align=center><FONT color=#999999 size=2><STRONG>Trade in the privacy of your own 
-home or office from anywhere in the world via the 
-internet...</STRONG></FONT></P>
-<P align=center><FONT size=2><FONT color=#999999><STRONG><FONT color=#999999><STRONG>10 
-to 1 Margin </STRONG></FONT><FONT color=#999999><STRONG>&nbsp;$50,000.00 allows 
-you to trade $500,000.00 with no interest...</STRONG></FONT>     
-      </STRONG></FONT></FONT></P>
-<P align=center><FONT color=#999999 size=2><STRONG>Tax Free Secure Bahamian 
-Account&nbsp;&nbsp;with an  International Visa/Debit card...</STRONG></FONT></P>
-<P align=center><FONT size=2><FONT color=#999999><STRONG><FONT 
-color=#999999><STRONG><FONT color=#999999><STRONG><FONT 
-color=#999999><STRONG><FONT color=#999999><STRONG>Free Real Time Software-Quotes 
-with Instant 
-Execution!!!</STRONG></FONT></STRONG></FONT></STRONG></FONT></STRONG></FONT>    
- </STRONG></FONT></FONT></P>
-<P align=center><FONT color=#999999><STRONG><FONT color=#999999><STRONG><FONT 
-color=#999999 size=2><STRONG>Offshore Banking, Offshore Trading, Offshore 
-Freedom!!!</STRONG></FONT></STRONG></FONT></STRONG></FONT></P>
-<P align=center><FONT color=#999999 size=2><STRONG>Complete Privacy and Asset 
-Protection...</STRONG></FONT></P>
-<P align=center>&nbsp;</P>
-<P align=center><FONT size=5><FONT color=#0000ff><STRONG><FONT size=3>Start 
-Protecting you assets and investments today... </FONT><FONT size=4>     
- <a href="http://209.189.58.83">CLICK HERE</a></FONT></STRONG></FONT></FONT></P>
-<P align=center>&nbsp;</P>
-<P align=center><FONT 
-size=1>======================================<BR>We support the email bill <FONT color=#0000ff><a href="http://thomas.loc.gov/cgi-bin/query/z?c106:H.R.3113:">HR 3113</a> 
-</FONT>passed by the 106th Congress and have gone to great lengths to 
-insure that you are removed from further solicitations upon your request.&nbsp; To 
-be removed from our mailing list&nbsp;please <FONT color=#0000ff><A href="mailto:remove@list.com">Click 
-Here.</A>&nbsp;</FONT> Type the word 'remove' in the subject line please. 
-</FONT></P>
-<P>&nbsp;</P>
-
-
-
-</body>
-</html>
-
-
-
-
-
-
+Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

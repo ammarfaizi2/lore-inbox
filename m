@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbTEKOyI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 10:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTEKOyI
+	id S261624AbTEKPOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 11:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTEKPOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 10:54:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:38059 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261688AbTEKOyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 10:54:06 -0400
-Date: Sun, 11 May 2003 08:06:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, akpm@digeo.com
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030511150641.GL8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, akpm@digeo.com
-References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA39B9.8040008@aitel.hist.no>
-Mime-Version: 1.0
+	Sun, 11 May 2003 11:14:39 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:5789 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261624AbTEKPOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 11:14:39 -0400
+Date: Sun, 11 May 2003 06:12:58 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.69-mjb1
+Message-ID: <11260000.1052658777@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.50.0305110932400.15337-100000@montezuma.mastecende.com>
+References: <9380000.1052624649@[10.10.2.4]> <Pine.LNX.4.50.0305110932400.15337-100000@montezuma.mastecende.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3EBA39B9.8040008@aitel.hist.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> 2.5.69-mm3 should suffice to test things now. If you can try that when
->> you get back I'd be much obliged.
+> Any particular reason why CONFIG_PREEMPT is commented out?
 
-On Thu, May 08, 2003 at 01:04:25PM +0200, Helge Hafting wrote:
-> I'll do.
-> It'll probably work, for a 2.5.69-mm2 without netfilter works fine.
-> At least it stays up for hours where 2.5.69-mm2 with netfilter died
-> in 15 minutes.
+Yeah, 'cause it's broken ;-) If someone can figure out what broke it,
+(something in my tree) I'll turn it back on. Else it stays disabled
+as a footguard for poor innocents ;-)
 
-I think -mm3 only has the incomplete netfilter fix; you might want to
-twiddle it to use davem's more complete fix instead.
+M.
 
-
--- wli

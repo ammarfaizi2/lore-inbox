@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317766AbSFLTLj>; Wed, 12 Jun 2002 15:11:39 -0400
+	id <S317768AbSFLTWW>; Wed, 12 Jun 2002 15:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSFLTLi>; Wed, 12 Jun 2002 15:11:38 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:17927 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S317766AbSFLTLh>; Wed, 12 Jun 2002 15:11:37 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S317769AbSFLTWV>; Wed, 12 Jun 2002 15:22:21 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:16291 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317768AbSFLTWV>;
+	Wed, 12 Jun 2002 15:22:21 -0400
+Date: Wed, 12 Jun 2002 21:22:02 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Brad Hards <bhards@bigpond.net.au>,
+        Chris Faherty <rallymonkey@bellsouth.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
+Message-ID: <20020612192202.GA120@elf.ucw.cz>
+In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <200206091807.11524.bhards@bigpond.net.au> <20020609151922Z317623-22020+1197@vger.kernel.org> <200206101057.20259.bhards@bigpond.net.au> <20020610232637.A4589@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15623.40169.289632.64185@laputa.namesys.com>
-Date: Wed, 12 Jun 2002 23:11:37 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org,
-        mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-In-Reply-To: <20020612084349.GA986@elf.ucw.cz>
-X-Mailer: VM 7.04 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Antipastobozoticataclysm: Bariumenemanilow
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
- > Hi!
- > 
- > > # BUGs	|	File Name
- > > 4	|	/drivers/cdrom.c
- > > 4	|	/message/i2o_proc.c
- > > 3	|	/net/airo.c
- > > 3	|	/../inflate.c
- > > 2	|	/fs/zlib.c
- > > 2	|	/drivers/zlib.c
- > > 2	|	/drivers/cpqfcTScontrol.c
- > 		~~~~~~~~~~~~~~~~~~~~~~~~~
+Hi!
 
-By the way, gcc has -Wlarger-than-NNNN option to do such checks.
+> > > Feel free.  I wonder if MS Intellimouse 3.0 has the same resolution
+> > > problem. AFAIK they use the same sensor.
+> > Probably not, because only low end manufacturers use reference designs 
+> > directly. I have an intellimouse around here somewhere. Don't know anything 
+> > about it, because it wouldn't have occurred to me to read the manual or 
+> > install the windows drivers. Might have to check it out.
+> 
+> Intellimouse 1.0 uses Agilent HDNS-2000, 2.0 uses ADNS-2001, and 3.0
+> uses a chip made by SGS Thompson, under a secret contract with Microsoft
+                                            ~~~~~~
+> that has only 400 dpi, but up to one meter per second maximal tracking
+> speed.
 
- > 
- > Actually, 3 bugs, the name is so ugly that it is a bug, too :-).
- > 									Pavel
-
-Nikita.
+I guess they'll have to shoot us all, then ;-).
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

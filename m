@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVBXV3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbVBXVbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVBXV3g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:29:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVBXV3g
+	id S262487AbVBXVbj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:31:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVBXVbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:29:36 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:5598 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262486AbVBXV3d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:29:33 -0500
-Date: Thu, 24 Feb 2005 22:29:32 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 6/6] Bind Mount Extensions 0.06
-Message-ID: <20050224212932.GF4981@mail.13thfloor.at>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20050222121333.GG3682@mail.13thfloor.at> <20050223230659.GE21383@infradead.org>
+	Thu, 24 Feb 2005 16:31:39 -0500
+Received: from 91.64-26.246.80.66.in-addr.arpa ([66.80.246.91]:6375 "EHLO
+	knight.gregfolkert.net") by vger.kernel.org with ESMTP
+	id S262488AbVBXVa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:30:58 -0500
+Subject: Re: Greg's Decree! (was Re: Linus' decrees?)
+From: Greg Folkert <greg@gregfolkert.net>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <000001c51aab$e409bb60$294b82ce@stuartm>
+References: <000001c51aab$e409bb60$294b82ce@stuartm>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9f6c5Hoh2CQhRsMHWkWh"
+Date: Thu, 24 Feb 2005 16:30:54 -0500
+Message-Id: <1109280654.14960.5.camel@king.gregfolkert.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050223230659.GE21383@infradead.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 23, 2005 at 11:06:59PM +0000, Christoph Hellwig wrote:
-> > +++ linux-2.6.11-rc4-bme0.06-bm0.01-at0.01-cc0.01-co0.01-xa0.01-ro0.01/fs/ext2/ioctl.c	2005-02-19 06:32:05 +0100
-> > @@ -29,7 +29,8 @@ int ext2_ioctl (struct inode * inode, st
-> >  	case EXT2_IOC_SETFLAGS: {
-> >  		unsigned int oldflags;
-> >  
-> > -		if (IS_RDONLY(inode))
-> > +		if (IS_RDONLY(inode) ||
-> > +			(filp && MNT_IS_RDONLY(filp->f_vfsmnt)))
-> 
-> doing this in every filesystem ->ioctl is a really bad idea.  We need to
-> add common handling for ext2-style file attributes first.
 
-hmm, well, but the ioctls are somewhat mixed, i.e.
-some of them do just read (only) like operations,
-others do change stuff, and the test is just valid
-for write/change ioctls ...
+--=-9f6c5Hoh2CQhRsMHWkWh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-of course I could add a second switch/case block
-which checks for 'write' type ioctls and blocks
-them in the beginning ... 
+On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
+> Recently I ran across
+> http://groups.google.ca/groups?hl=3Den&lr=3Dlang_en&safe=3Doff&selm=3D103=
+3074519.2698.5.
+> camel%40localhost.localdomain
+>=20
+> Is there a collection point for Linus' decrees?
+>=20
+> The LSB (http://www.linuxbase.org/) seems to be mostly involved with
+> how a distro is laid out, and not much to do with the kernel.
 
-but maybe I did misunderstood your comment, so let
-me know what you consider appropriate ...
+Okay, Linus decreed... oh yeah.
 
-> Also please add a file_readonly() helper - when introduced it only checks
-> IS_RDONLY(file->f_dentry->d_inode) and once you add per-mount flags it
-> only needs to be added in a single place. Actually probably a lowelevel
-> one taking inode,vfsmount and wrappers for a struct file * or
-> struct nameidata * which would cover most of the cases.
+Exactly what is wrong with the method anyway?
 
-actually I started the BME patches by extending the
-IS_RDONLY() macro to take two arguments, the inode 
-and the vfsmount (which sounded natural to me) but
-that was shot down ... (don't remember why exactly)
+You on Crack?
 
-no problem with a file_readonly() or nd_readonly()
-if that makes folks happy ...
+And no... that is not a decree in the traditional sense. It is more like
+me saying:
+        "I decree that Linus Torvalds is the lead maintainer of the
+        Linux Kernel"
 
-thanks,
-Herbert
+Make TONS-O-SENSE to state the obvious. IOW the statement was all meant
+to say *DO IT THIS WAY AND NO OTHER* as nobody else honors any other
+method.
+--=20
+greg, greg@gregfolkert.net
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The technology that is
+Stronger, better, faster: Linux
+
+--=-9f6c5Hoh2CQhRsMHWkWh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCHkeN7WZpcbUkaHwRAmFIAJ9Pa/8DgIYmQpwpSnZpaEtjS+2yLgCeNHJr
+OZnHSDSuBSViKiqikPYjyDo=
+=HyK4
+-----END PGP SIGNATURE-----
+
+--=-9f6c5Hoh2CQhRsMHWkWh--
+

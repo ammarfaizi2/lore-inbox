@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270700AbTHOT4I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTHOT4H
+	id S270809AbTHOUFY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270811AbTHOUFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:56:07 -0400
-Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:45255 "EHLO
-	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S270700AbTHOT4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:56:05 -0400
-Date: Fri, 15 Aug 2003 14:56:02 -0500
-From: mouschi@wi.rr.com
-Subject: Re: Interesting VM feature?
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: mouschi@wi.rr.com
-Message-id: <147bb3140e7a.140e7a147bb3@rdc-kc.rr.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.12 (built Feb 13 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Fri, 15 Aug 2003 16:05:24 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:15066 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S270809AbTHOUFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 16:05:18 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.4.21 USB printer failure w/ HP PSC750
+Date: Fri, 15 Aug 2003 16:05:16 -0400
+User-Agent: KMail/1.5.1
+Cc: Peter Denison <lkml@marshadder.uklinux.net>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0308151220030.1137-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0308151220030.1137-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308151605.16433.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.60.66] at Fri, 15 Aug 2003 15:05:16 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> You can call madvise(start, length, MADV_DONTNEED),
-> or you can mmap() fresh empty pages into the region.
+On Friday 15 August 2003 12:25, Alan Stern wrote:
+>On Fri, 15 Aug 2003, Gene Heskett wrote:
+>> I can confirm that this does not appear to be printer related,
+>> this nearly exact scenario just happened to me while running
+>> test3-mm2.  So I powered down the printer, in this case an Epson
+>> C82 being driven by cups, and then rebooted to 2.4.22-rc2.  Where
+>> it also refused to print, until I went to the local cups page and
+>> "started" both printers, which had been apparently disabled by the
+>> above failure and it carried over the reboot from 2.6.0-test3-mm2
+>> to 2.4.22-rc2.  Once the printer was 'started' then the 3 jobs I'd
+>> sent were spit right out normally.
+>>
+>> It appears that usblp still has problems as of 2.6.0-test3-mm2.
+>
+>There was a recent change to usblp for 2.6.0, reversing a prior
+> patch which broke the driver somehow.  See
+>
+>http://sourceforge.net/mailarchive/forum.php?thread_id=2931846&forum
+>_id=5398
+>
+>I don't know whether or not this change is already incorporated in
+> the version you're using.
+>
+>Alan Stern
 
-madvise appears to be exactly what I'm looking for.
-(almost...)
+I don't believe it is Alan, and it will now have to wait till late 
+October and my return from putting out a few fires at a sister tv 
+station.
 
-> I have no idea if either of these methods is
-efficient enough to be
-> useful.  Also, I don't know whether mmap() would
-create multiple VMAs,
-> or if it is clever enough to merge adjacent vmas
-of anonymous private
-> mappings regardles of offset.
+By then maybe 2.6.0-rc3 will be out?
 
-Enough possible pitfalls that madvise becomes the
-better solution.
-
-> The ideal implementation would give the kernel the
-_option_ of
-> discarding pages until they are next touched, so
-that they are
-> discarded when there is memory pressure but
-retained if not, avoiding
-> the unnecessary zero-fill and cache flush.
-
-Is madvise required to result in zero filled pages
-by a standard, or is this just the commonly accepted
-behavior?
-
-> -- Jamie
-
-Thanks a bunch,
-Ted
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

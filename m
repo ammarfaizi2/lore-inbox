@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130072AbQKSU6D>; Sun, 19 Nov 2000 15:58:03 -0500
+	id <S129904AbQKSVHY>; Sun, 19 Nov 2000 16:07:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130067AbQKSU5y>; Sun, 19 Nov 2000 15:57:54 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:24325 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130112AbQKSU5j>;
-	Sun, 19 Nov 2000 15:57:39 -0500
-Message-ID: <20001119212404.A1175@bug.ucw.cz>
-Date: Sun, 19 Nov 2000 21:24:04 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: rdtsc to mili secs?
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz> <8uhps8$1tm$1@cesium.transmeta.com> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz> <20001118211231.A382@bug.ucw.cz> <20001118231354.A2796@suse.cz>
+	id <S130148AbQKSVHN>; Sun, 19 Nov 2000 16:07:13 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:14602 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129904AbQKSVHC>;
+	Sun, 19 Nov 2000 16:07:02 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Date: Sun, 19 Nov 2000 21:37:21 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A183A01.4F214A4F@innominate.de>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us> <news2mail-3A15ACE3.5BED2CA3@innominate.de> <20001118164021.A156@toy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001118231354.A2796@suse.cz>; from Vojtech Pavlik on Sat, Nov 18, 2000 at 11:13:54PM +0100
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 974666221 9141 10.0.0.90 (19 Nov 2000 20:37:01 GMT)
+X-Complaints-To: news@innominate.de
+To: Pavel Machek <pavel@suse.cz>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Anyway, this should be solvable by checking for clock change in the
-> > > timer interrupt. This way we should be able to detect when the clock
-> > > went weird with a 10 ms accuracy. And compensate for that. It should be
-> > > possible to keep a 'reasonable' clock running even through the clock
-> > > changes, where reasonable means constantly growing and as close to real
-> > > time as 10 ms difference max.
-> > > 
-> > > Yes, this is not perfect, but still keep every program quite happy and
-> > > running.
-> > 
-> > No. Udelay has just gone wrong and your old ISA xxx card just crashed
-> > whole system. Oops.
+Pavel Machek wrote:
+> > Actually, I was planning on doing on putting in a hack to do something
+> > like that: calculate a checksum after every buffer data update and check
+> > it after write completion, to make sure nothing scribbled in the buffer
+> > in the interim.  This would also pick up some bad memory problems.
 > 
-> Yes. But can you do any better than that? Anyway, I wouldn't expect to
-> be able to put my old ISA cards into a recent notebook which fiddles
-> with the CPU speed (or STPCLK ratio).
+> You might want to take  look to a patch with crc loop option.
+> 
+> It does verify during read, not during write; but that's even better because
+> that way you pick up problems in IO subsystem, too.
 
-PCMCIA is just that: putting old ISA crap into modern hardware. Sorry.
+You would have to store the checksums on the filesystem then, or use a
+verify-after-write.  What I was talking about is a
+verify-the-buffer-didn't get scribbled.  I'd then trust the hardware to
+report a write failure.  Note that if something scribbles on your buffer
+between the time you put good data on it and when it gets transfered to
+disk, you can verify perfectly and still have a hosed filesystem.
 
-								Pavel
+It was pointed out that you can't really do what I'm suggesting for
+mmaped file data, and there's some truth to that - but certainly the
+interval between when ->writepage gets called and when the actual buffer
+write happens can be secured in this way.  Doing this only for metadata
+is also a good idea because then the overhead would be close to nil and
+the basic fs integrity would be protected.
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

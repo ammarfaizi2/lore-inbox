@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314595AbSD3R1z>; Tue, 30 Apr 2002 13:27:55 -0400
+	id <S313190AbSD3RhV>; Tue, 30 Apr 2002 13:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314685AbSD3R1y>; Tue, 30 Apr 2002 13:27:54 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:32647 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314595AbSD3R1x>; Tue, 30 Apr 2002 13:27:53 -0400
-Date: Tue, 30 Apr 2002 11:26:08 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Arjan van de Ven <arjanv@redhat.com>, Dave Hansen <haveblue@us.ibm.com>
-cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: devfs: BKL *not* taken while opening devices
-Message-ID: <52760000.1020191168@flay>
-In-Reply-To: <20020430125214.A19533@devserv.devel.redhat.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S313205AbSD3RhV>; Tue, 30 Apr 2002 13:37:21 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:46853 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S313190AbSD3RhU>; Tue, 30 Apr 2002 13:37:20 -0400
+Date: Tue, 30 Apr 2002 10:37:10 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "Neal D. Becker" <nbecker@hns.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.11 error fbcon-cfg8.c
+In-Reply-To: <x883cxd4ba6.fsf@rpppc1.md.hns.com>
+Message-ID: <Pine.LNX.4.10.10204301036410.14139-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I like the idea.  But, while we're at it, does anyone have a good enough 
->> grasp of locking the the TTY layer that we can start peeling some of the 
->> BKL out of there?  Somebody was doing tests over a serial console here 
->> and the lockmeter data showed horrible BKL contention and hold times.
-> 
-> I really really doubt that fixing contention will make serial ports go
-> faster... it'll just move to another lock since I suspect we're
-> just waiting for hardware
 
-No, but it might make other things who are waiting for the BKL go faster.
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.11/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=fbcon_cfb8  -DEXPORT_SYMTAB -c fbcon-cfb8.c
+> fbcon-cfb8.c: In function `fbcon_cfb8_bmove':
+> fbcon-cfb8.c:55: structure has no member named `screen_base'
 
-M.
+Grab patch 
+
+http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
 

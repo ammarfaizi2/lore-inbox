@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317917AbSGWDCN>; Mon, 22 Jul 2002 23:02:13 -0400
+	id <S317914AbSGWDBN>; Mon, 22 Jul 2002 23:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317924AbSGWDCN>; Mon, 22 Jul 2002 23:02:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21930 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317917AbSGWDCL>;
-	Mon, 22 Jul 2002 23:02:11 -0400
-Date: Mon, 22 Jul 2002 19:54:26 -0700 (PDT)
-Message-Id: <20020722.195426.14578063.davem@redhat.com>
-To: thunder@ngforever.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Another DMA question
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0207222035420.3241-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0207222035420.3241-100000@hawkeye.luckynet.adm>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317917AbSGWDBN>; Mon, 22 Jul 2002 23:01:13 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:5324 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317914AbSGWDBM>; Mon, 22 Jul 2002 23:01:12 -0400
+Date: Mon, 22 Jul 2002 21:04:17 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "J. Hart" <jhart@atr.co.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: File Corruption in Kernel 2.4.18
+In-Reply-To: <3D3CC5C4.54E9EF72@atr.co.jp>
+Message-ID: <Pine.LNX.4.44.0207222103270.3241-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Thunder from the hill <thunder@ngforever.de>
-   Date: Mon, 22 Jul 2002 20:38:51 -0600 (MDT)
+Hi,
 
-   How can I get the _real_ address of a pci_map_single area, if needed? The 
-   thing bus_to_virt() did, basically. My problem is that I have code which 
-   changed the first byte of a buffer of stuff read via DMA, and I can't 
-   because the previous user did bus_to_virt() to get a pointer into that. I 
-   don't know how to get another pointer.
-   
-   After all the confusion, is the question clear?
-   
-You need to keep track of the back translations yourself.  See how the
-various net drivers do this by keeping a RX and TX ring of the SKB
-buffers mapped into the various rings.
+On Tue, 23 Jul 2002, J. Hart wrote:
+> OS         : Linux 2.4.7-10 i686 unknown
+> 
+>      Are there any outstanding issues with machines of this new
+> configuration
+
+Maybe a new kernel. I think the rest should be OK.
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

@@ -1,120 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265426AbTFMPxG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 11:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265425AbTFMPwN
+	id S265141AbTFMQJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTFMQJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 11:52:13 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:58865 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S265422AbTFMPvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 11:51:37 -0400
-Message-ID: <3EE9F5C7.8070304@mvista.com>
-Date: Fri, 13 Jun 2003 09:03:19 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Fri, 13 Jun 2003 12:09:04 -0400
+Received: from forty.greenhydrant.com ([208.48.139.185]:24518 "EHLO
+	forty.greenhydrant.com") by vger.kernel.org with ESMTP
+	id S265141AbTFMQJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 12:09:01 -0400
+Message-ID: <3570.66.75.244.69.1055521381.squirrel@www.greenhydrant.com>
+Date: Fri, 13 Jun 2003 09:23:01 -0700 (PDT)
+Subject: Re: 3ware and two drive hardware raid1
+From: "David Rees" <dbr@greenhydrant.com>
+To: <mdresser_l@windsormachine.com>
+In-Reply-To: <Pine.LNX.4.33.0306131017010.16766-100000@router.windsormachine.com>
+References: <1055494998.5162.26.camel@dhcp22.swansea.linux.org.uk>
+        <Pine.LNX.4.33.0306131017010.16766-100000@router.windsormachine.com>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-References: <3EE8D038.7090600@mvista.com> <200306130027.09288.oliver@neukum.org>
-In-Reply-To: <200306130027.09288.oliver@neukum.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Dresser said:
+>
+> I'm heading out there today to take a look at the machine and see what
+> happened.  I'm rather dissappointed in the 3ware utility, it alternately
+> claims both drives are ok(./tw_cli info c1 is different from ./tw_cli
+> info c1 u0)
+>
+> I was relying on that too much, and ignored the possiblity of two drive
+> failure.  Looks like both drives would have failed at exactly the same
+> time, which sounds like a power spike.
 
+On the 3ware boxes I use, I setup the 3DM utility to run weekly scans of
+the unit to look for badblocks, do you do the same thing?  I've had the
+scan turn up bad disks before.
 
-Oliver Neukum wrote:
+-Dave
 
->>If it works for you or doesn't or you like the idea or don't, I've love
->>to hear about it
->>    
->>
->
->+	default:
->+		result = -EINVAL;
->+		break;
->+	}
->+	return (result);
->
->Must return ENOTTY.
->
->+static int sdeq_open (struct inode *inode, struct file *file)
->+{
->+	MOD_INC_USE_COUNT;
->+
->+	return 0;
->+}
->+
->+static int sdeq_release (struct inode *inode, struct file *file)
->+{
->+	MOD_DEC_USE_COUNT;
->+
->+	return (0);
->+}
->
->Wrong. release does not map to close()
->
->  
->
-hmm not sure where I got that from i'll fix thanks.
-
->Aside from that, what exactly are you trying to do?
->You are not solving the fundamental device node reuse race,
->yet you are making necessary a further demon.
->  
->
-For device enumeration, I see a daemon as necessary.  The main goal of 
-this work is to solve the out-of-order execution of sbin/hotplug and 
-improve performance of the system during device enumeration with 
-significant (200 disks, 4 partitions each) amounts of devices.  Boot 
-time with this scheme appears, in my rudimentary tests, to be faster on 
-the order of 1-2 seconds for bootup for the case of just 12 disks.  I 
-would imagine 200 disks (which I don't have a good way to test, as I 
-don't have 200 disks:) would provide better speed gains during bootup.  
-This compares greg's original udev to this patched udev binary.
-
->You are not addressing queue limits. The current hotplug
->scheme does so, admittedly crudely by failing to spawn
->a task, but considering the small numbers of events in
->question here, for the time being we can live with that.
->
->You can just as well add load control and error detection
->to the current scheme. You fail to do so in your scheme.
->You cannot queue events forever in unlimited numbers.
->  
->
-I agree there should be some way of limiting events.  I'll add this set 
-of code.
-
->As for ordering, this is a real problem, but not fundamental.
->You can make user space locking work. IMHO it will not be
->pretty if done with shell scripts, but it can work.
->There _is_ a basic problem with the kernel 'overtaking'
->user space in its view of the device tree, but you cannot solve
->that _at_ _all_ in user space.
->
->In short, if you feel that the hotplug scheme is inadequate
->for your needs, then write industry strength devfs2.
->  
->
-devfs is not appropriate as it does not allow for complex policy with 
-external attributes that the kernel is unaware of.  For an example, lets 
-take the situation where a policy must access a cluster-wide manager to 
-determine some information before it can make a policy decision.  For 
-that to occur, there must be sockets, and hopefully libc, which puts the 
-entire thing in user space.  Who would want to write policies in the 
-kernel?  uck.
-
->	Regards
->		Oliver
->
->
->  
->
-Thanks
--steve
 

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265370AbRFVIY4>; Fri, 22 Jun 2001 04:24:56 -0400
+	id <S265373AbRFVI30>; Fri, 22 Jun 2001 04:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265371AbRFVIYr>; Fri, 22 Jun 2001 04:24:47 -0400
-Received: from t2.redhat.com ([199.183.24.243]:46587 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265370AbRFVIYi>; Fri, 22 Jun 2001 04:24:38 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010621185144.A8669@thyrsus.com> 
-In-Reply-To: <20010621185144.A8669@thyrsus.com>  <20010621154934.A6582@thyrsus.com> <Pine.LNX.4.33.0106211812560.30096-100000@xanadu.home> <20010621234002.Z18978@flint.arm.linux.org.uk> 
-To: esr@thyrsus.com
-Cc: Russell King <rmk@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Missing help entries in 2.4.6pre5 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Jun 2001 09:24:32 +0100
-Message-ID: <8226.993198272@redhat.com>
+	id <S265374AbRFVI3G>; Fri, 22 Jun 2001 04:29:06 -0400
+Received: from mailimailo.univ-rennes1.fr ([129.20.131.1]:24467 "EHLO
+	mailimailo.univ-rennes1.fr") by vger.kernel.org with ESMTP
+	id <S265373AbRFVI3C>; Fri, 22 Jun 2001 04:29:02 -0400
+Date: Fri, 22 Jun 2001 12:47:50 +0200 (CEST)
+From: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
+To: linux-kernel@vger.kernel.org
+Subject: problem with select() - 2.4.5
+In-Reply-To: <993069751.10191.0.camel@agate>
+Message-ID: <Pine.LNX.4.21.0106221233540.11061-100000@pc-astro.spm.univ-rennes1.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-esr@thyrsus.com said:
->  I've done that in my rulesfile, thanks.  Here is the current list of
-> ignored symbols:
+Hi !
+I have a problem with reading from a serial port using select() under
+2.4.5. What I am doing is basically the following: 
 
-> derive CMDLINE_BOOL from n
- ....etc...
+fd_set readfds;
+struct timeval timeout;
+int s;
 
+serialfd = open("/dev/ttyS0", O_RDWR );
 
-That'll nicely break oldconfig behaviour when the options in question do 
-get merged into the main tree, won't it?
+init_serial(B9600);
 
-Can you make them optional instead? So for normal users they're still 
-_really_ undefined, and hence get asked about when they appear, rather than 
-defaulting to 'n'.
+timeout.tv_sec = 2; /* ! */
+timeout.tv_usec = 0;
+FD_ZERO(&readfds);
+FD_SET(serialfd,&readfds);
+
+s=select(serialfd+1, &readfds, NULL, NULL, &timeout);
+...
+
+But s is always equal to 0 even when I am sure there are data to read.
+If I use 
+
+s=select(serialfd+1, NULL, &writefds, NULL,  &timeout);
+
+(with the corresponding initialisation of writefds) it returns s=1 and I
+can write to the serial port. I can see that since the lights of the modem
+are flashing. 
+I noticed that behavior since I tried to send some "ATZ" with the
+write-function but I never got the "OK" back.
+
+However, the same programme works under 2.2.19.
+
+Any help, please ?
 
 --
-dwmw2
-
+Thomas
 

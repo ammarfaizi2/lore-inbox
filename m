@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131616AbQJ2Mnc>; Sun, 29 Oct 2000 07:43:32 -0500
+	id <S131650AbQJ2M4S>; Sun, 29 Oct 2000 07:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131663AbQJ2MnW>; Sun, 29 Oct 2000 07:43:22 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:2831
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S131616AbQJ2MnP>; Sun, 29 Oct 2000 07:43:15 -0500
-Date: Sun, 29 Oct 2000 07:52:35 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Igmar Palsenberg <maillist@chello.nl>
-Cc: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock
-Message-ID: <20001029075235.A1773@animx.eu.org>
-In-Reply-To: <20001029044008.A14922@wire.cadcamlab.org> <Pine.LNX.4.21.0010291435190.14790-100000@server.serve.me.nl>
+	id <S131663AbQJ2Mz7>; Sun, 29 Oct 2000 07:55:59 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:19028
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S131650AbQJ2Mzy>; Sun, 29 Oct 2000 07:55:54 -0500
+Date: Sun, 29 Oct 2000 14:48:22 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: andre@linux-ide.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Compile error in drivers/ide/osb4.c in 240-t10p6
+Message-ID: <20001029144822.B622@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.21.0010291435190.14790-100000@server.serve.me.nl>; from Igmar Palsenberg on Sun, Oct 29, 2000 at 02:36:44PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [Wakko Warner]
-> > > While this subject is fresh, what would be wrong with using the
-> > > entire drive as opposed to creating a partition and adding the
-> > > partition to the raid?
-> > 
-> > Does it autodetect an entire drive?  The autodetect logic for
-> > partitions looks at the 'partition type' byte, which of course doesn't
-> > exist for a whole drive.
+<ugh> Forgot to cc linux-kernel
 
-Actually, I don't think it does.  I've not booted into single user mode
-(where the raid hasn'tbeen setup yet) to see.
+Hi.
 
-> > Just a thought .. I don't run RAID here.
-> 
-> A good one. I seriously doubt that it indeed will detect drives. The're
-> not partitions, the're drives.
-> 
-> Don't think the current RAID code handles entire drives. 
+I get the following error when trying to compile 2.4.0-test10pre6
+without procfs support:
 
-Autodetect, probably not.  But it doesn't seem to have any problems with it
-as far as usability.
+drivers/ide/osb4.c: In function `pci_init_osb4':
+drivers/ide/osb4.c:264: `osb4_revision' undeclared (first use in this function)
+drivers/ide/osb4.c:264: (Each undeclared identifier is reported only once
+drivers/ide/osb4.c:264: for each function it appears in.)
+make: *** [drivers/ide/osb4.o] Error 1
+
+The variable, osb4_revision, is inside a #ifdef CONFIG_PROC_FS block but
+I was not able to discern if the line where it is referred should be
+#ifdef'ed also. The following patch moves the variable declaration out-
+side the #ifdef block, as a blind guess...
+
+
+--- linux-240-t10p6-clean/drivers/ide/osb4.c	Sun Oct 29 09:51:10 2000
++++ linux/drivers/ide/osb4.c	Sun Oct 29 13:55:23 2000
+@@ -56,11 +56,12 @@
+ 
+ #define DISPLAY_OSB4_TIMINGS
+ 
++static byte osb4_revision = 0;
++
+ #if defined(DISPLAY_OSB4_TIMINGS) && defined(CONFIG_PROC_FS)
+ #include <linux/stat.h>
+ #include <linux/proc_fs.h>
+ 
+-static byte osb4_revision = 0;
+ static struct pci_dev *bmide_dev;
+ 
+ static int osb4_get_info(char *, char **, off_t, int, int);
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+        Rasmus(rasmus@jaquet.dk)
+
+There are two major products that come out of Berkeley: LSD and UNIX. We 
+don't believe this to be a coincidence. -- Jeremy S. Anderson 
+
+----- End forwarded message -----
+
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+First snow, then silence.
+This thousand dollar screen dies
+so beautifully.           --- Error messages in haiku
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

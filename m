@@ -1,30 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264511AbRFJJFX>; Sun, 10 Jun 2001 05:05:23 -0400
+	id <S263925AbRFJJkP>; Sun, 10 Jun 2001 05:40:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264514AbRFJJFN>; Sun, 10 Jun 2001 05:05:13 -0400
-Received: from beasley.gator.com ([63.197.87.202]:2578 "EHLO beasley.gator.com")
-	by vger.kernel.org with ESMTP id <S264511AbRFJJFA>;
-	Sun, 10 Jun 2001 05:05:00 -0400
-From: "George Bonser" <george@gator.com>
-To: "Rik van Riel" <riel@conectiva.com.br>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
-Date: Sun, 10 Jun 2001 02:08:06 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJOEJNDEAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <Pine.LNX.4.33.0106100541200.1742-100000@duckman.distro.conectiva>
+	id <S264513AbRFJJkF>; Sun, 10 Jun 2001 05:40:05 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:38063 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S263925AbRFJJjw>;
+	Sun, 10 Jun 2001 05:39:52 -0400
+Message-Id: <m1591h9-000OpFC@amadeus.home.nl>
+Date: Sun, 10 Jun 2001 10:39:43 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: rmk@arm.linux.org.uk (Russell King)
+Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010610093838.A13074@flint.arm.linux.org.uk>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My bad, I just looked at my notes again. It both went away and returned with
-right around 500 processes.
+In article <20010610093838.A13074@flint.arm.linux.org.uk> you wrote:
+> Is this a change of requirements for ethernet drivers?  Many other drivers
+> do exactly the same (drop the first few packets while they're negotiating
+> with a hub), unless they're using 10base2, even back to the days of 2.0
+> kernels.
 
+I think it would make sense, from the other sides perspective, to only return 
+from the "up" function when you actually can send packets[1]. Sure, pump show
+this most of all because it does
+
+"up"
+send DHCP req
+wait
+if failed "down"
+	  wait
+	  repeat
+
+
+and that sucks if you always eat the first packets after an up...
+
+xircom had this bug for a loooong time, 8139too just got it a few weeks ago
+and, well, from an applications point of view expecting to be able to send
+packets when the interface is up makes sense.
+
+Applications like pump must be robust against "random" packetloss, and,
+well, pump is. Just not against the "targeted" packetloss of loosing every
+first few packets.
+
+Greetings,
+   Arjan van de Ven
+
+
+[1] I know this is not always easy for the driverwrite. For one, xircom
+    will eat every first few packets, so the driver would have to send a few
+    fake packets to get going.

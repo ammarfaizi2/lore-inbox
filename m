@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273068AbTG3RYA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273078AbTG3RX7
+	id S273067AbTG3RVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 13:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273070AbTG3RVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:23:59 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:5521 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S273068AbTG3RX6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:23:58 -0400
-Date: Wed, 30 Jul 2003 13:23:55 -0400
-From: Yaroslav Halchenko <yoh@onerussian.com>
-To: Sander van Malssen <svm@kozmix.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
-Message-ID: <20030730172355.GA19688@washoe.rutgers.edu>
-References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org> <20030730170432.GA692@kozmix.org>
+	Wed, 30 Jul 2003 13:21:12 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:53508 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S273067AbTG3RVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 13:21:11 -0400
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+       suparna@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+In-Reply-To: <20030730163615.GD17201@wotan.suse.de>
+References: <20030708213427.39de0195.ak@suse.de>
+	<20030708.150433.104048841.davem@redhat.com>
+	<20030708222545.GC6787@dsl2.external.hp.com>
+	<20030708.152314.115928676.davem@redhat.com>
+	<20030723114006.GA28688@dsl2.external.hp.com>
+	<20030728131513.5d4b1bd3.ak@suse.de>
+	<20030730044256.GA1974@dsl2.external.hp.com>
+	<20030729215118.13a5ac18.davem@redhat.com>
+	<20030730160250.GA16960@dsl2.external.hp.com> 
+	<20030730163615.GD17201@wotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jul 2003 12:18:46 -0500
+Message-Id: <1059585657.1850.197.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730170432.GA692@kozmix.org>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And I was running patched kernel for a day so far - no errors were
-reported, so problem is really unpredictable. Probably the files which
-were causing this problem before moved on a harddrive since then so I
-can't reproduce the error. Hope it gives any hint
+On Wed, 2003-07-30 at 11:36, Andi Kleen wrote:
+> The differences were greater with the mpt fusion driver, maybe it has
+> more overhead. Or your IO subsystem is significantly different.
 
---Yarik
+By and large, these results are more like what I expect.
 
-On Wed, Jul 30, 2003 at 07:04:32PM +0200, Sander van Malssen wrote:
+As I've said before, getting SG tables to work efficiently is a core
+part of getting an I/O board to function.
 
-> 
-> Buffer I/O error on device hda1, logical block 25361
-> Call Trace:
->  [<c0150f02>] buffer_io_error+0x42/0x50
->  [<c013b87d>] cache_grow+0x15d/0x260
->  [<c0151601>] end_buffer_async_read+0xf1/0x110
->  [<c0154330>] end_bio_bh_io_sync+0x30/0x40
->  [<c015548e>] bio_endio+0x4e/0x80
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]
+There are two places vmerging can help:
+
+1. Reducing the size of the SG table
+2. Increasing the length of the I/O for devices with fixed (but small)
+SG table lengths.
+
+However, it's important to remember that vmerging comes virtually for
+free in the BIO layer, so the only added cost is the programming of the
+IOMMU.  This isn't an issue on SPARC, PA-RISC and the like where IOMMU
+programming is required to do I/O, it may be something the IOMMU
+optional architectures (like IA-64 and AMD-64) should consider, which is
+where I entered with the IOMMU bypass patch.
+
+James
+
+

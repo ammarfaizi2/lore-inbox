@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293344AbSCOVpd>; Fri, 15 Mar 2002 16:45:33 -0500
+	id <S293347AbSCOVtD>; Fri, 15 Mar 2002 16:49:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293347AbSCOVpZ>; Fri, 15 Mar 2002 16:45:25 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:53142 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S293344AbSCOVpM>; Fri, 15 Mar 2002 16:45:12 -0500
-Message-ID: <3C926B56.FC147170@delusion.de>
-Date: Fri, 15 Mar 2002 22:44:54 +0100
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.6 i686)
-X-Accept-Language: en, de
+	id <S293352AbSCOVsx>; Fri, 15 Mar 2002 16:48:53 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:14485 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S293347AbSCOVsi>;
+	Fri, 15 Mar 2002 16:48:38 -0500
+Date: Fri, 15 Mar 2002 21:42:33 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Joe Korty <joe.korty@ccur.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.18 scheduler bugs
+In-Reply-To: <E16lziH-0004ma-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0203152138550.22550-100000@elte.hu>
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Kernel powerdown
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" wrote:
 
-> > Looks like the ACPI code is simply forgetting to turn off the
-> > NMI watchdog
+On Fri, 15 Mar 2002, Alan Cox wrote:
 
-That's right, however I don't think it should have to turn it off.
+> > > moment work for them becomes available.  I see no reason why an idle cpu
+> > > should be forced to remain idle until the next tick, nor why fixing that
+> > > should be considered `broken'.
+> > 
+> > performance. IPIs are expensive.
+> 
+> On a PIII I can see this being the case, especially as they dont power
+> save on hlt nowdays.
 
-> Does the machine power off successfully using ACPI when the NMI watchdog is
-> not enabled?
+it's an option, and the default is to use the hlt instruction. The main
+reason is to let Linux save power - and those who need that final
+performance edge (and it's measurable), can enable it. HTL still uses less
+power than the tight idle loop.
 
-No, it never managed to power off with ACPI. It works with APM though.
+> [...] But on the Athlon the IPI isnt going down a little side channel
+> between cpus.
 
-> Theoretically we should be turning the machine off, after which I'm pretty
-> sure the NMI watchdog shouldn't be an issue :)
+but even in the Athlon case an IPI is still an IRQ entry, which will add
+at least 200 cycles or more to the idle wakeup latency.
 
-That's what I think.
+	Ingo
 
-> but IIRC we are masking
-> interrupts and doing some delays before turning off, so the NMI watchdog
-> might not be liking that?
-
-The problem is that it doesn't power off at all, no matter how long the
-delay is ;)
-
-> APM doesn't turn off the NMI afaik so why should ACPI have to?
-
-Imho the problem will most likely go away when poweroff works properly
-on my board. I can supply whatever info you need to make it work, too ;)
-
-The board is an Asus A7V.
-
--Udo.

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287892AbSABSmU>; Wed, 2 Jan 2002 13:42:20 -0500
+	id <S287876AbSABSja>; Wed, 2 Jan 2002 13:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287893AbSABSmL>; Wed, 2 Jan 2002 13:42:11 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:11525 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S287890AbSABSlx>; Wed, 2 Jan 2002 13:41:53 -0500
-Date: Wed, 2 Jan 2002 19:41:50 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Krzysztof Oledzki <ole@ans.pl>
-Cc: Brian <hiryuu@envisiongames.net>, linux-kernel@vger.kernel.org
-Subject: Re: Two hdds on one channel - why so slow?
-Message-ID: <20020102194150.A14140@suse.cz>
-In-Reply-To: <0GPA00BK988OBK@mtaout45-01.icomcast.net> <Pine.LNX.4.33.0201021808490.9573-100000@dark.pcgames.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201021808490.9573-100000@dark.pcgames.pl>; from ole@ans.pl on Wed, Jan 02, 2002 at 06:21:25PM +0100
+	id <S287890AbSABSjU>; Wed, 2 Jan 2002 13:39:20 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:57060 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S287876AbSABSjK>; Wed, 2 Jan 2002 13:39:10 -0500
+Date: Wed, 02 Jan 2002 10:37:41 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: highmem and usb [was
+ "sr: unaligned transfer" in 2.5.2-pre1]
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
+Message-id: <07c401c193bc$90ad5d60$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com>
+ <m23d1trr4w.fsf@pengo.localdomain> <20011230122756.L1821@suse.de>
+ <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de>
+ <20011231145455.C6465@one-eyed-alien.net>
+ <065e01c192fd$fe066e20$6800000a@brownell.org> <20020101233423.I16092@suse.de>
+ <06c801c1934e$1fc01a20$6800000a@brownell.org> <20020102103252.B28530@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 06:21:25PM +0100, Krzysztof Oledzki wrote:
+> > requirement for drivers is that the transfer buffers can be passed to
+> > pci_map_single() calls by the Host Controller Drivers (HCDs).  The
+> > device drivers, and URBs, don't expose such mappings, they only
+> > require that they can be created/destroyed.
 > 
-> 
-> On Tue, 1 Jan 2002, Brian wrote:
-> 
-> > This is an inherent quirk (SCSI folks would say brain damage) in IDE.
-> >
-> > Only one drive on an IDE chain may be accessed at once and only one
-> > request may go to that drive at a time.  Therefore, the maximum you could
-> > hope for in that test is half speed on each.  Throw in the overhead of
-> > continuously hopping between them and 12MB is no surprise.
-> 
-> So?!? This ATA100 and ATA133 standards do not make any sens? It is not
-> possible to have more than 66 MB/sec with on drive and is seems that it is
-> not possible to use more than ~30MB/sek of 100 or 133 MB/sec ATA100/133
-> bus speed with two HDDs. Oh :(((
-> 
-> Another question - why ATA100/ATA66 HDDs are so slow with UDMA33?
-> With new IBM 60 GB IC35L060AVER07-0 I have much more than 33 MB/sec with
-> ATA100 and only 24 MB/sec with UDMA33 (Asus P2B with IntelBX). New 80GB Seagates
-> (Baracuda IV) have the same problem.
+> .. which is the requirement that you want to change to use pci_map_page
+> or pci_map_sg
 
-Actually 24 MB/sec is quite a miracle with UDMA33. I'd expect values
-around 16 MB/sec. Because, as far as I know, unlike SCSI, IDE doesn't do
-concurrent reads and transfers (except for readahead), effectively
-halving the interface transfer speed.
+OK, I think I'm clear on this much then:  in 2.5, to support block drivers
+over USB (usb-storage only, for now) there needs to be an addition to
+the buffer addressing model in usbcore, as exposed by URBs.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+  - Current "transfer_buffer" + "transfer_buffer_length" mode needs to
+    stay, since most drivers aren't block drivers.
+
+  - Add some kind of "page + offset" addressing model.
+
+Discussion of details can be taken off LKML, it'd seem.  Though I'm
+curious when the scatterlist->address field will vanish, making these
+changes a requirement.  Is that a 2.5.2 thing?
+
+Also, I noticed that include/asm-sparc/pci.h doesn't include the
+standard pci_map_page() call ... what's up with that?  That surely
+causes portability problems.
+
+- Dave
+
+
+    
+
+
+
+

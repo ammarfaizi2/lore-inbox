@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292383AbSBYWxf>; Mon, 25 Feb 2002 17:53:35 -0500
+	id <S292380AbSBYW4F>; Mon, 25 Feb 2002 17:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292382AbSBYWxZ>; Mon, 25 Feb 2002 17:53:25 -0500
-Received: from ierw.net.avaya.com ([198.152.13.101]:35257 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S292386AbSBYWxM>; Mon, 25 Feb 2002 17:53:12 -0500
-Message-ID: <3C7AC06A.2040601@avaya.com>
-Date: Mon, 25 Feb 2002 15:53:30 -0700
-From: Paul Watterson <pdw@avaya.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	id <S292385AbSBYWzp>; Mon, 25 Feb 2002 17:55:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57861 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292382AbSBYWzk>; Mon, 25 Feb 2002 17:55:40 -0500
+Subject: Re: Linux 2.4.18 - Full tarball is OK
+To: crimsun@email.unc.edu (Dan Chen)
+Date: Mon, 25 Feb 2002 23:09:52 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020225223852.GA9212@opeth.ath.cx> from "Dan Chen" at Feb 25, 2002 05:38:52 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cdrecord & char-major-97
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Feb 2002 22:53:46.0062 (UTC) FILETIME=[47DFAEE0:01C1BE4F]
+Message-Id: <E16fUFk-0006ga-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > 2.4.18- patch=20
+> >=20
+> > If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
+> 
+> cdub_ and I just checked: the 18-final tarball, patch, and incr are all
+> missing the fix in fs/binfmt_elf.c
 
-I am running Redhat 6.2 and cdrecord seems to be working but on
-once in awhile I see the error message: modprobe: Can't locate module 
-char-major-97.
-Do you know what this means and is it serious?
-
-
-Paul Watterson
-Avaya, Inc.
-
+Cool - in which case its a non problem.

@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271842AbRIEIEh>; Wed, 5 Sep 2001 04:04:37 -0400
+	id <S271878AbRIEITt>; Wed, 5 Sep 2001 04:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271827AbRIEIE1>; Wed, 5 Sep 2001 04:04:27 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:43524 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S271822AbRIEIES>; Wed, 5 Sep 2001 04:04:18 -0400
-Message-ID: <3B95DC37.A7FF9966@idb.hist.no>
-Date: Wed, 05 Sep 2001 10:03:03 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: no, en
+	id <S271877AbRIEITk>; Wed, 5 Sep 2001 04:19:40 -0400
+Received: from imo-m08.mx.aol.com ([64.12.136.163]:8148 "EHLO
+	imo-m08.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S271827AbRIEITe>; Wed, 5 Sep 2001 04:19:34 -0400
+From: Floydsmith@aol.com
+Message-ID: <32.1a68e8e6.28c739c9@aol.com>
+Date: Wed, 5 Sep 2001 04:18:17 EDT
+Subject: Re3: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) 
+To: mikpe@csd.uu.se, zaitcev@redhat.com
+CC: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org,
+        Floydsmith@aol.com, floyd.smith@lmco.com
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: AOL 4.0 for Windows 95 sub 14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" wrote:
-> 
-> > >  ANdreas Dilger wrote:
-> > > > Win2K even abstracts all SMP/UP code into a module (the
-> > HAL) and loads this
-> > > > at boot, thus using the same kernel for both.
-> >
-> > >     the only possibility of this shows how ugly is SMP in win2k...
-> >
-> > Not necessarily. More likely the difference between SMP and
-> > UP is marketing-only and both have the overhead of SMP
-> > locking, etc..
-> 
-> No, they don't do this by running an SMP kernel on UP, they do it by
-> abstracting functions that care about SMP into another module.
-> 
-> Here's Linux:
-> 
-> Drivers (SMP agnostic)
-> Kernel (SMP/UP specific)
-> 
-Linux modules are not agnostic, they too are SMP specific.
-Because a module may use spinlocks.
+>>> - block size: The 2.4 ide-tape driver only works reliably if you
+>>>   write data with the correct block size. If you don't write full
+>>>   blocks the last block of data may not be readable.
+>>
+>>I fixed that some time ago, it's in current -ac
+>>if not in Linus's tree.
 
-Modules should really be compiled with the kernel.  They are an
-intersting way to save some memory, they are not a way of
-distributing drivers or anything like that.
+>Sorry, but that's not correct. I just ran a test, and the bug is
+>still there in 2.4.9-ac7. Maybe you're thinking of some other bug?
 
-> I'm not advocating anything similar for Linux, I'm just saying it's an
-> interesting thought experiment - what if the SMP-ness of a machine was
-> abstracted from the kernel proper? How much of the kernel really cares, or
-> really *should* care about SMP/UP?
-> 
-> For one thing, it would get rid of the hundreds of "#ifdef CONFIG_SMP"s in
-> the kernel. ;-)
+>ide-tape tells me it uses a 14*26KB buffer for my Seagate STT8000A.
+>If I dd a 39KB (1.5 "buffer units") file with bs=1k to /dev/ht0 it tells
+>me it wrote 39 blocks. If I then rewind and dd with bs=1k from /dev/ht0
+>it only reads 26 blocks. The same happens in 2.2 + Hedrick's IDE patch.
 
-You would also get rid of performance.  The agnostic kernel would be
-slower than simply running the SMP kernel on UP.
+>2.2 vanilla reads 56 blocks, of which the first 39 are identical to
+>what I initially wrote. The last 13 contain junk but that's not a big
+>problem since I back up with tar which writes its own EOF mark.
+>./Mikael
+>-
 
-Here's why:
-You can easily make an "agnostic kernel & modules" by changing the
-spinlocks to function calls.  Then you'll provide a null stub call site
-for running UP, and the real spinlock code for running SMP.
+The output is:
+ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
+for reads only.
+As noted earlier, this problem occurs in 2.4.x (only) even with a very small 
+test file (just the 5 character "test"). Upon sprinkling some "printk" 
+statements arround in ide-tape.c I found that what happens with this error 
+(under 2.4.x) is:
+    if (tape->failed_pc != NULL && tape->pc->c[0] == 
+IDETAPE_REQUEST_SENSE_CMD) {
+        return idetape_issue_packet_command (drive, tape->failed_pc);
+    }
+invokes idetape_issue_packet_command (...) three times in idetape_do_request 
+(...) which causes an abort in idetape_issue_packet_command (...) when 
+pc->retries reaches 4.
+I don't get ANY retries with the same test case under 2.2.x.
 
-Unfortunately, this gives the overhead of a function call, both for SMP
-and for UP.  This overhead is usually _bigger_ than the overhead of a
-inlined spinlock.
+Is there any way I can find out what the error return value asc = 2c 
+represents? For example, is there a URL to a "standard" for such values?
 
-So if you aim for a simple distribution - go for SMP.  The loss on UP is
-small. I have haerd of cases when the SMP setup code fails on UP
-when smp hardware is missing.  You could of course work to eliminate
-that.
-
-Helge Hafting
+Floyd,

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261242AbREMPzH>; Sun, 13 May 2001 11:55:07 -0400
+	id <S261212AbREMPy5>; Sun, 13 May 2001 11:54:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbREMPy5>; Sun, 13 May 2001 11:54:57 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26668 "EHLO
+	id <S261289AbREMPyr>; Sun, 13 May 2001 11:54:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25900 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S261242AbREMPyo>; Sun, 13 May 2001 11:54:44 -0400
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        alexander.eichhorn@rz.tu-ilmenau.de, linux-kernel@vger.kernel.org
-Subject: Re: [Question] Explanation of zero-copy networking
-In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu> <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com> <20010508091811.C17720@pcep-jamie.cern.ch>
+	id <S261212AbREMPyj>; Sun, 13 May 2001 11:54:39 -0400
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Edward Spidre <beamz_owl@yahoo.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible PCI subsystem bug in 2.4
+In-Reply-To: <Pine.GSO.3.96.1010508174820.26399A-100000@delta.ds2.pg.gda.pl>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 May 2001 09:13:36 -0600
-In-Reply-To: Jamie Lokier's message of "Tue, 8 May 2001 09:18:11 +0200"
-Message-ID: <m1k83qlfmn.fsf@frodo.biederman.org>
+Date: 09 May 2001 09:45:10 -0600
+In-Reply-To: "Maciej W. Rozycki"'s message of "Tue, 8 May 2001 18:01:12 +0200 (MET DST)"
+Message-ID: <m1g0eele61.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
+"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> writes:
 
-> Richard B. Johnson wrote:
-> > However, PCI to memory copying runs at about 300 megabytes per
-> > second on modern PCs and memory to memory copying runs at over 1,000
-> > megabytes per second. In the future, these speeds will increase.
+> On 4 May 2001, Eric W. Biederman wrote:
 > 
-> That would be "big expensive modern PCs" then.  Our clusters of 700MHz
-> boxes are strictly limited to 132 megabytes per second over PCI...
+> > The example that sticks out in my head is we rely on the MP table to
+> > tell us if the local apic is in pic_mode or in virtual wire mode.
+> > When all we really have to do is ask it.
+> 
+>  You can't.  IMCR is write-only and may involve chipset-specific
+> side-effects.  Then even if IMCR exists, a system's firmware might have
+> chosen the virtual wire mode for whatever reason (e.g. broken hardware). 
 
-300 Megabytes per second is definitely an odd number for a PCI bus.
-But 132 Megabytes per second is actually high, the continuous burst
-speeds are:
-32bit 33Mhz: 33*1000*1000*32/(1024*1024*8) = 125.8 Megabytes/second
-64bit 33Mhz: 33*1000*1000*64/(1024*1024*8) = 251.7 Megabytes/second
-32bit 66Mhz: 66*1000*1000*32/(1024*1024*8) = 251.7 Megabytes/second
-64bit 66Mhz: 66*1000*1000*64/(1024*1024*8) = 503.4 Megabytes/second
+Admittedly you can't detect directly detect IMCR state.  But
+triggering an interrupt on the bootstrap processor local apic, and
+failing to receive it should be proof the IMCR is at work.
+Alternatively if I'm wrong about the wiring disabling all interrupts
+at the apic level and receiving one is a second proof that IMCR is at
+work.  Further I don't think a processor with an onboard apic, works
+with an IMCR register. 
 
-The possibility of getting a continuous bursts is actually low, if
-nothing else you have an interrupt acknowledgement 100 times per
-second.  But if you are pushing the bus it should deliver close to
-it's burst potential.  But the ISA traffic doing subtractive decode
-can be nasty because you get 4 PCI cycles before you even get
-acknowledgement from the PCI/ISA bridge that you there is something to
-transfer to.   
+What I was thinking of earlier is that you can detect an apic or
+ioapic in virtual wire mode, which the current code and the intel MP
+spec treats as the opposite possibility.
 
 Eric
+
+
+

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315762AbSHVTSk>; Thu, 22 Aug 2002 15:18:40 -0400
+	id <S316182AbSHVTcn>; Thu, 22 Aug 2002 15:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316535AbSHVTSk>; Thu, 22 Aug 2002 15:18:40 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:24591 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315762AbSHVTSh>; Thu, 22 Aug 2002 15:18:37 -0400
-Date: Thu, 22 Aug 2002 20:22:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Martin Bligh <mjbligh@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] [patch] SImple Topology API v0.3 (1/2)
-Message-ID: <20020822202239.A30036@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matthew Dobson <colpatch@us.ibm.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	Martin Bligh <mjbligh@us.ibm.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>,
-	lse-tech <lse-tech@lists.sourceforge.net>
-References: <3D6537D3.3080905@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D6537D3.3080905@us.ibm.com>; from colpatch@us.ibm.com on Thu, Aug 22, 2002 at 12:13:23PM -0700
+	id <S316535AbSHVTcn>; Thu, 22 Aug 2002 15:32:43 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:60832 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316182AbSHVTcm>; Thu, 22 Aug 2002 15:32:42 -0400
+Date: Thu, 22 Aug 2002 12:29:54 -0700 (PDT)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Thomas Molina <tmolina@cox.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Problem Report Status
+In-Reply-To: <Pine.LNX.4.44.0208101252160.10605-100000@dad.molina>
+Message-ID: <Pine.LNX.4.33.0208221229090.9077-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2002 at 12:13:23PM -0700, Matthew Dobson wrote:
-> --- linux-2.5.27-vanilla/include/linux/mmzone.h	Sat Jul 20 12:11:05 2002
-> +++ linux-2.5.27-api/include/linux/mmzone.h	Wed Jul 24 17:33:41 2002
-> @@ -220,15 +20,15 @@
->  #define NODE_MEM_MAP(nid)	mem_map
->  #define MAX_NR_NODES		1
->  
-> -#else /* !CONFIG_DISCONTIGMEM */
-> -
-> -#include <asm/mmzone.h>
-> +#else /* CONFIG_DISCONTIGMEM */
->  
->  /* page->zone is currently 8 bits ... */
->  #define MAX_NR_NODES		(255 / MAX_NR_ZONES)
->  
->  #endif /* !CONFIG_DISCONTIGMEM */
->  
-> +#include <asm/mmzone.h>
-> +
 
-What is the exact purpose of this change?
+Fixed.
+
+>    handle_scancode oops              open         2.5.29
+
+Which bug is this ?
+
+>    vga console problem               open         04 Aug 2002
+
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
+
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 

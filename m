@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273027AbRIOUaL>; Sat, 15 Sep 2001 16:30:11 -0400
+	id <S273037AbRIOU3v>; Sat, 15 Sep 2001 16:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273028AbRIOUaB>; Sat, 15 Sep 2001 16:30:01 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:783 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S273027AbRIOU3t>; Sat, 15 Sep 2001 16:29:49 -0400
-Date: Sat, 15 Sep 2001 23:28:54 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <384017326.20010915232854@port.imtp.ilyichevsk.odessa.ua>
-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
-In-Reply-To: <Pine.GSO.4.21.0109152057000.12611-100000@skiathos.physics.auth.gr>
-In-Reply-To: <Pine.GSO.4.21.0109152057000.12611-100000@skiathos.physics.auth.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273031AbRIOU3l>; Sat, 15 Sep 2001 16:29:41 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:29452 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273027AbRIOU32>; Sat, 15 Sep 2001 16:29:28 -0400
+Subject: Re: [PATCH] AGP GART for AMD 761
+From: Robert Love <rml@tech9.net>
+To: Jesper Juhl <juhl@eisenstein.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BA23224.C105A0A6@eisenstein.dk>
+In-Reply-To: <1000577021.32706.29.camel@phantasy> 
+	<3BA22537.94D4EA28@eisenstein.dk> <1000582067.32708.51.camel@phantasy> 
+	<3BA228EA.FCD61CA1@eisenstein.dk> <1000583357.32707.54.camel@phantasy> 
+	<3BA23224.C105A0A6@eisenstein.dk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 15 Sep 2001 16:30:24 -0400
+Message-Id: <1000585830.32705.59.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Liakakis,
-Saturday, September 15, 2001, 9:00:41 PM, you wrote:
-LK> Hate to post a me-too, but my Asus A7V133 does have 55.7 set (reg 55 ==
-LK> 0x89) and is running fine with 2.4.9-ac9 and K7 optimizations. BIOS
-LK> revision is 1005A, memory is 3x256MB noname DIMMs.
+On Fri, 2001-09-14 at 12:36, Jesper Juhl wrote:
+> Seems to work much better :
+> 
+> Linux agpgart interface v0.99 (c) Jeff Hartmann
+> agpgart: Maximum main memory to use for agp memory: 439M
+> agpgart: Detected AMD 761 chipset
+> agpgart: AGP aperture is 64M @ 0xf8000000
 
-Ok, but we don't see KT133A mobos with Athlon/Duron and 55.7=1
-to fail always. It can start failing with faster CPU, different
-memory or once in a blue moon - nobody knows.
+Excellent.  Thank you for testing -- I don't even have a 761 :)
+ 
+> Actually the previous patch may have worked as well, while trying to figure out why I couldn't
+> get it to apply I was playing around with the configuration and various other stuff and I may
+> accidentaly have disabled Irongate support in the kernel that I ended up building. I can retry
+> the original patch to verify that if you like.
 
-It is better to turn that bit off for good,
-unless VIA and BIOS writers will enlighten
-us what is 55.7 (and 55.6-0 too).
+Actually, test out the final patch I submit to the list and Linus and
+Alan, and make sure _that_ works (I will disable the agp_try_unsupported
+there).  Let me know if that gives you problems...I will post it in a
+moment.
+
+Thanks again for your help, hope the driver works good
+
 -- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
 

@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263022AbREWJSH>; Wed, 23 May 2001 05:18:07 -0400
+	id <S263027AbREWJW1>; Wed, 23 May 2001 05:22:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263025AbREWJRs>; Wed, 23 May 2001 05:17:48 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:41743 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S263022AbREWJRi>; Wed, 23 May 2001 05:17:38 -0400
-Message-ID: <3B0B8001.88E98412@idb.hist.no>
-Date: Wed, 23 May 2001 11:16:49 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: no, en
+	id <S263025AbREWJWR>; Wed, 23 May 2001 05:22:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36616 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263026AbREWJWA>; Wed, 23 May 2001 05:22:00 -0400
+Subject: Re: Gameport analog joystick broken in 2.4.4-ac13
+To: stephen.thomas@insignia.com (Stephen Thomas)
+Date: Wed, 23 May 2001 10:19:25 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vojtech@suse.cz,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3B0B6808.F42AF166@insignia.com> from "Stephen Thomas" at May 23, 2001 08:34:32 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Manas Garg <mls@chakpak.net>
-CC: linux-kernel@vger.kernel.org
-Subject: OT: O_TRUNC problem on a full filesystem
-In-Reply-To: <20010523114318.A8336@cygsoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E152Une-0003AZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manas Garg wrote:
+> It seems not.  It failed on two successive boots last night, but
+> this morning I booted the machine 3 times and the joystick was
+> recognized just fine each time.
 > 
-> I am not sure if it should be classified as a bug, that's why I am calling it a
-> problem. Here is the description:
-Not a bug.
+> Flaky hardware?  The plug is screwed in and the joystick works
+> just fine (as far as I can tell) when in use.
+> 
+> I'll continue to keep an eye on this.
 
-> If the filesystem is full, obviously, I can't write anything to that any
-> longer. But if I open a file with O_TRUNC flag set, the file will be truncated.
-> Any program that opens a file with O_TRUNC flag set, wishes to write something
-> there later on. But because the filesystem is full, it can't write. It would
-> definitely happen if the file is not huge (TESTED). But I am not sure what
-> happens if the file _is_ huge (NOT TESTED).
+Can you compare /proc/ioports between the two 
 
-Truncating the file frees up the space it took, and will allow writing.
-but someone else may grab the space before you - there is no guarantee
-on a multi-process system.  
-
-Note that the last few % of the disk is reserved for root.  So it will
-be
-"full" for users even if there is a few % left.  Root may have filled
-the disk
-well into the reserved part (logfiles etc.)  A user deleting a small
-file
-will free up some space, but the fs may still be overfull, i.e. less
-than those few % in free space.  This is probably what happened to you.
-
-> I lost configuration files of a few programs this way. While exiting, they
-> opened their conf files with O_TRUNC flag but couldn't write anything there.
-
-Ill-written programs - complain to the maintainers.
-write a new config file with a different name first, 
-then rename it onto the old name.  This fails gracefully
-on a full fs, you get to keep the old file.
-
-Or have a fixed-size config file and update the
-contents in place.

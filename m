@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbSLOPuh>; Sun, 15 Dec 2002 10:50:37 -0500
+	id <S261900AbSLOPv0>; Sun, 15 Dec 2002 10:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbSLOPuh>; Sun, 15 Dec 2002 10:50:37 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:40335 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261872AbSLOPug>;
-	Sun, 15 Dec 2002 10:50:36 -0500
-Date: Sun, 15 Dec 2002 15:57:28 +0000
+	id <S261996AbSLOPvZ>; Sun, 15 Dec 2002 10:51:25 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42639 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261900AbSLOPvX>;
+	Sun, 15 Dec 2002 10:51:23 -0500
+Date: Sun, 15 Dec 2002 15:58:19 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Scott Robert Ladd <scott@coyotegulch.com>
-Cc: linux-kernel@vger.kernel.org
+To: "Vergoz Michael (SYSDOOR)" <mvergoz@sysdoor.Com>
+Cc: Scott Robert Ladd <scott@coyotegulch.com>, linux-kernel@vger.kernel.org
 Subject: Re: Kernel for Pentium 4 hyperthreading?
-Message-ID: <20021215155728.GB20335@suse.de>
+Message-ID: <20021215155819.GC20335@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Vergoz Michael (SYSDOOR)" <mvergoz@sysdoor.Com>,
 	Scott Robert Ladd <scott@coyotegulch.com>,
 	linux-kernel@vger.kernel.org
-References: <20021215134408.GA20335@suse.de> <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com>
+References: <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com> <00d601c2a451$519c01c0$3803a8c0@descript>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com>
+In-Reply-To: <00d601c2a451$519c01c0$3803a8c0@descript>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 10:07:43AM -0500, Scott Robert Ladd wrote:
+On Sun, Dec 15, 2002 at 04:47:39PM +0100, Vergoz Michael (SYSDOOR) wrote:
  > Hi,
  > 
- > What I have is, indeed, a hyperthread-enabled Pentium 4. They aren't common;
- > I obtained this one direct from Intel through their Early Access Program.
+ > It's possible to enable HT on any pentium 4, you just have to patch the bios
+ > :P
 
-Ah, apologies. Yes. In this case, you win. I bit the same problem you
-had btw with this box in 2.4. You need an updated BIOS. Contact Intel.
+A rumour perpetuated by many, and achieved by none to my knowledge.
 
 		Dave
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUFBPmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263219AbUFBPnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUFBPmB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUFBPlw
+	id S263219AbUFBPnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUFBPnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:41:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61078 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263199AbUFBPkW (ORCPT
+	Wed, 2 Jun 2004 11:43:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42647 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263219AbUFBPle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:40:22 -0400
-Date: Wed, 2 Jun 2004 16:40:17 +0100
+	Wed, 2 Jun 2004 11:41:34 -0400
+Date: Wed, 2 Jun 2004 16:41:29 +0100
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 1/5: Device-mapper dm-io.c
-Message-ID: <20040602154017.GN6302@agk.surrey.redhat.com>
+Subject: [PATCH] 2/5: Device-mapper: kcopyd
+Message-ID: <20040602154129.GO6302@agk.surrey.redhat.com>
 Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
 	LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
@@ -24,758 +24,753 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dm-io: device-mapper i/o library for kcopyd
+kcopyd
 
---- diff/drivers/md/Makefile	2004-05-09 21:32:38.000000000 -0500
-+++ source/drivers/md/Makefile	2004-06-01 19:08:00.000000000 -0500
+--- diff/drivers/md/Makefile	2004-06-01 19:08:00.000000000 -0500
++++ source/drivers/md/Makefile	2004-06-01 19:51:31.000000000 -0500
 @@ -3,7 +3,7 @@
  #
  
  dm-mod-objs	:= dm.o dm-table.o dm-target.o dm-linear.o dm-stripe.o \
--		   dm-ioctl.o
-+		   dm-ioctl.o dm-io.o
+-		   dm-ioctl.o dm-io.o
++		   dm-ioctl.o dm-io.o kcopyd.o
  raid6-objs	:= raid6main.o raid6algos.o raid6recov.o raid6tables.o \
  		   raid6int1.o raid6int2.o raid6int4.o \
  		   raid6int8.o raid6int16.o raid6int32.o \
---- diff/mm/mempool.c	2004-05-09 21:32:52.000000000 -0500
-+++ source/mm/mempool.c	2004-06-01 19:08:00.000000000 -0500
-@@ -89,11 +89,6 @@
- }
- EXPORT_SYMBOL(mempool_create);
+--- diff/drivers/md/dm.c	2004-06-01 15:27:33.000000000 -0500
++++ source/drivers/md/dm.c	2004-06-01 19:51:31.000000000 -0500
+@@ -153,6 +153,7 @@
+ 	xx(dm_target)
+ 	xx(dm_linear)
+ 	xx(dm_stripe)
++	xx(kcopyd)
+ 	xx(dm_interface)
+ #undef xx
+ };
+--- diff/drivers/md/dm.h	2004-06-01 15:27:33.000000000 -0500
++++ source/drivers/md/dm.h	2004-06-01 19:51:31.000000000 -0500
+@@ -177,6 +177,9 @@
+ int dm_stripe_init(void);
+ void dm_stripe_exit(void);
  
--/*
-- * mempool_resize is disabled for now, because it has no callers.  Feel free
-- * to turn it back on if needed.
-- */
--#if 0
- /**
-  * mempool_resize - resize an existing memory pool
-  * @pool:       pointer to the memory pool which was allocated via
-@@ -163,7 +158,6 @@
- 	return 0;
- }
- EXPORT_SYMBOL(mempool_resize);
--#endif
++int kcopyd_init(void);
++void kcopyd_exit(void);
++
+ void *dm_vcalloc(unsigned long nmemb, unsigned long elem_size);
  
- /**
-  * mempool_destroy - deallocate a memory pool
---- diff/drivers/md/dm-io.c	1969-12-31 18:00:00.000000000 -0600
-+++ source/drivers/md/dm-io.c	2004-06-01 19:11:21.000000000 -0500
-@@ -0,0 +1,636 @@
+ #endif
+--- diff/drivers/md/kcopyd.c	1969-12-31 18:00:00.000000000 -0600
++++ source/drivers/md/kcopyd.c	2004-06-01 19:51:31.000000000 -0500
+@@ -0,0 +1,667 @@
 +/*
-+ * Copyright (C) 2003 Sistina Software
++ * Copyright (C) 2002 Sistina Software (UK) Limited.
 + *
 + * This file is released under the GPL.
 + */
 +
-+#include "dm-io.h"
++#include <asm/atomic.h>
 +
-+#include <linux/bio.h>
++#include <linux/blkdev.h>
++#include <linux/config.h>
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <linux/list.h>
 +#include <linux/mempool.h>
 +#include <linux/module.h>
-+#include <linux/sched.h>
++#include <linux/pagemap.h>
 +#include <linux/slab.h>
++#include <linux/vmalloc.h>
++#include <linux/workqueue.h>
 +
-+#define BIO_POOL_SIZE 256
++#include "kcopyd.h"
 +
++/* FIXME: this is only needed for the DMERR macros */
++#include "dm.h"
++
++static struct workqueue_struct *_kcopyd_wq;
++static struct work_struct _kcopyd_work;
++
++static inline void wake(void)
++{
++	queue_work(_kcopyd_wq, &_kcopyd_work);
++}
 +
 +/*-----------------------------------------------------------------
-+ * Bio set, move this to bio.c
++ * Each kcopyd client has its own little pool of preallocated
++ * pages for kcopyd io.
 + *---------------------------------------------------------------*/
-+#define BV_NAME_SIZE 16
-+struct biovec_pool {
-+	int nr_vecs;
-+	char name[BV_NAME_SIZE];
-+	kmem_cache_t *slab;
-+	mempool_t *pool;
-+	atomic_t allocated;	/* FIXME: debug */
++struct kcopyd_client {
++	struct list_head list;
++
++	spinlock_t lock;
++	struct page_list *pages;
++	unsigned int nr_pages;
++	unsigned int nr_free_pages;
 +};
 +
-+#define BIOVEC_NR_POOLS 6
-+struct bio_set {
-+	char name[BV_NAME_SIZE];
-+	kmem_cache_t *bio_slab;
-+	mempool_t *bio_pool;
-+	struct biovec_pool pools[BIOVEC_NR_POOLS];
-+};
-+
-+static void bio_set_exit(struct bio_set *bs)
++static struct page_list *alloc_pl(void)
 +{
-+	unsigned i;
-+	struct biovec_pool *bp;
++	struct page_list *pl;
 +
-+	if (bs->bio_pool)
-+		mempool_destroy(bs->bio_pool);
-+
-+	if (bs->bio_slab)
-+		kmem_cache_destroy(bs->bio_slab);
-+
-+	for (i = 0; i < BIOVEC_NR_POOLS; i++) {
-+		bp = bs->pools + i;
-+		if (bp->pool)
-+			mempool_destroy(bp->pool);
-+
-+		if (bp->slab)
-+			kmem_cache_destroy(bp->slab);
-+	}
-+}
-+
-+static void mk_name(char *str, size_t len, const char *prefix, unsigned count)
-+{
-+	snprintf(str, len, "%s-%u", prefix, count);
-+}
-+
-+static int bio_set_init(struct bio_set *bs, const char *slab_prefix,
-+			 unsigned pool_entries, unsigned scale)
-+{
-+	/* FIXME: this must match bvec_index(), why not go the
-+	 * whole hog and have a pool per power of 2 ? */
-+	static unsigned _vec_lengths[BIOVEC_NR_POOLS] = {
-+		1, 4, 16, 64, 128, BIO_MAX_PAGES
-+	};
-+
-+
-+	unsigned i, size;
-+	struct biovec_pool *bp;
-+
-+	/* zero the bs so we can tear down properly on error */
-+	memset(bs, 0, sizeof(*bs));
-+
-+	/*
-+	 * Set up the bio pool.
-+	 */
-+	snprintf(bs->name, sizeof(bs->name), "%s-bio", slab_prefix);
-+
-+	bs->bio_slab = kmem_cache_create(bs->name, sizeof(struct bio), 0,
-+					 SLAB_HWCACHE_ALIGN, NULL, NULL);
-+	if (!bs->bio_slab) {
-+		DMWARN("can't init bio slab");
-+		goto bad;
-+	}
-+
-+	bs->bio_pool = mempool_create(pool_entries, mempool_alloc_slab,
-+				      mempool_free_slab, bs->bio_slab);
-+	if (!bs->bio_pool) {
-+		DMWARN("can't init bio pool");
-+		goto bad;
-+	}
-+
-+	/*
-+	 * Set up the biovec pools.
-+	 */
-+	for (i = 0; i < BIOVEC_NR_POOLS; i++) {
-+		bp = bs->pools + i;
-+		bp->nr_vecs = _vec_lengths[i];
-+		atomic_set(&bp->allocated, 1); /* FIXME: debug */
-+
-+
-+		size = bp->nr_vecs * sizeof(struct bio_vec);
-+
-+		mk_name(bp->name, sizeof(bp->name), slab_prefix, i);
-+		bp->slab = kmem_cache_create(bp->name, size, 0,
-+					     SLAB_HWCACHE_ALIGN, NULL, NULL);
-+		if (!bp->slab) {
-+			DMWARN("can't init biovec slab cache");
-+			goto bad;
-+		}
-+
-+		if (i >= scale)
-+			pool_entries >>= 1;
-+
-+		bp->pool = mempool_create(pool_entries, mempool_alloc_slab,
-+					  mempool_free_slab, bp->slab);
-+		if (!bp->pool) {
-+			DMWARN("can't init biovec mempool");
-+			goto bad;
-+		}
-+	}
-+
-+	return 0;
-+
-+ bad:
-+	bio_set_exit(bs);
-+	return -ENOMEM;
-+}
-+
-+/* FIXME: blech */
-+static inline unsigned bvec_index(unsigned nr)
-+{
-+	switch (nr) {
-+	case 1:		return 0;
-+	case 2 ... 4: 	return 1;
-+	case 5 ... 16:	return 2;
-+	case 17 ... 64:	return 3;
-+	case 65 ... 128:return 4;
-+	case 129 ... BIO_MAX_PAGES: return 5;
-+	}
-+
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void bs_bio_init(struct bio *bio)
-+{
-+	bio->bi_next = NULL;
-+	bio->bi_flags = 1 << BIO_UPTODATE;
-+	bio->bi_rw = 0;
-+	bio->bi_vcnt = 0;
-+	bio->bi_idx = 0;
-+	bio->bi_phys_segments = 0;
-+	bio->bi_hw_segments = 0;
-+	bio->bi_size = 0;
-+	bio->bi_max_vecs = 0;
-+	bio->bi_end_io = NULL;
-+	atomic_set(&bio->bi_cnt, 1);
-+	bio->bi_private = NULL;
-+}
-+
-+static unsigned _bio_count = 0;
-+struct bio *bio_set_alloc(struct bio_set *bs, int gfp_mask, int nr_iovecs)
-+{
-+	struct biovec_pool *bp;
-+	struct bio_vec *bv = NULL;
-+	unsigned long idx;
-+	struct bio *bio;
-+
-+	bio = mempool_alloc(bs->bio_pool, gfp_mask);
-+	if (unlikely(!bio))
++	pl = kmalloc(sizeof(*pl), GFP_KERNEL);
++	if (!pl)
 +		return NULL;
 +
-+	bio_init(bio);
-+
-+	if (likely(nr_iovecs)) {
-+		idx = bvec_index(nr_iovecs);
-+		bp = bs->pools + idx;
-+		bv = mempool_alloc(bp->pool, gfp_mask);
-+		if (!bv) {
-+			mempool_free(bio, bs->bio_pool);
-+			return NULL;
-+		}
-+
-+		memset(bv, 0, bp->nr_vecs * sizeof(*bv));
-+		bio->bi_flags |= idx << BIO_POOL_OFFSET;
-+		bio->bi_max_vecs = bp->nr_vecs;
-+		atomic_inc(&bp->allocated);
++	pl->page = alloc_page(GFP_KERNEL);
++	if (!pl->page) {
++		kfree(pl);
++		return NULL;
 +	}
 +
-+	bio->bi_io_vec = bv;
-+	return bio;
++	SetPageLocked(pl->page);
++	return pl;
 +}
 +
-+static void bio_set_free(struct bio_set *bs, struct bio *bio)
++static void free_pl(struct page_list *pl)
 +{
-+	struct biovec_pool *bp = bs->pools + BIO_POOL_IDX(bio);
++	ClearPageLocked(pl->page);
++	__free_page(pl->page);
++	kfree(pl);
++}
 +
-+	if (atomic_dec_and_test(&bp->allocated))
-+		BUG();
++static int kcopyd_get_pages(struct kcopyd_client *kc,
++			    unsigned int nr, struct page_list **pages)
++{
++	struct page_list *pl;
 +
-+	mempool_free(bio->bi_io_vec, bp->pool);
-+	mempool_free(bio, bs->bio_pool);
++	spin_lock(&kc->lock);
++	if (kc->nr_free_pages < nr) {
++		spin_unlock(&kc->lock);
++		return -ENOMEM;
++	}
++
++	kc->nr_free_pages -= nr;
++	for (*pages = pl = kc->pages; --nr; pl = pl->next)
++		;
++
++	kc->pages = pl->next;
++	pl->next = 0;
++
++	spin_unlock(&kc->lock);
++
++	return 0;
++}
++
++static void kcopyd_put_pages(struct kcopyd_client *kc, struct page_list *pl)
++{
++	struct page_list *cursor;
++
++	spin_lock(&kc->lock);
++	for (cursor = pl; cursor->next; cursor = cursor->next)
++		kc->nr_free_pages++;
++
++	kc->nr_free_pages++;
++	cursor->next = kc->pages;
++	kc->pages = pl;
++	spin_unlock(&kc->lock);
++}
++
++/*
++ * These three functions resize the page pool.
++ */
++static void drop_pages(struct page_list *pl)
++{
++	struct page_list *next;
++
++	while (pl) {
++		next = pl->next;
++		free_pl(pl);
++		pl = next;
++	}
++}
++
++static int client_alloc_pages(struct kcopyd_client *kc, unsigned int nr)
++{
++	unsigned int i;
++	struct page_list *pl = NULL, *next;
++
++	for (i = 0; i < nr; i++) {
++		next = alloc_pl();
++		if (!next) {
++			if (pl)
++				drop_pages(pl);
++			return -ENOMEM;
++		}
++		next->next = pl;
++		pl = next;
++	}
++
++	kcopyd_put_pages(kc, pl);
++	kc->nr_pages += nr;
++	return 0;
++}
++
++static void client_free_pages(struct kcopyd_client *kc)
++{
++	BUG_ON(kc->nr_free_pages != kc->nr_pages);
++	drop_pages(kc->pages);
++	kc->pages = NULL;
++	kc->nr_free_pages = kc->nr_pages = 0;
 +}
 +
 +/*-----------------------------------------------------------------
-+ * dm-io proper
++ * kcopyd_jobs need to be allocated by the *clients* of kcopyd,
++ * for this reason we use a mempool to prevent the client from
++ * ever having to do io (which could cause a deadlock).
 + *---------------------------------------------------------------*/
-+static struct bio_set _bios;
++struct kcopyd_job {
++	struct kcopyd_client *kc;
++	struct list_head list;
++	unsigned long flags;
 +
-+/* FIXME: can we shrink this ? */
-+struct io {
-+	unsigned long error;
-+	atomic_t count;
-+	struct task_struct *sleeper;
-+	io_notify_fn callback;
++	/*
++	 * Error state of the job.
++	 */
++	int read_err;
++	unsigned int write_err;
++
++	/*
++	 * Either READ or WRITE
++	 */
++	int rw;
++	struct io_region source;
++
++	/*
++	 * The destinations for the transfer.
++	 */
++	unsigned int num_dests;
++	struct io_region dests[KCOPYD_MAX_REGIONS];
++
++	sector_t offset;
++	unsigned int nr_pages;
++	struct page_list *pages;
++
++	/*
++	 * Set this to ensure you are notified when the job has
++	 * completed.  'context' is for callback to use.
++	 */
++	kcopyd_notify_fn fn;
 +	void *context;
++
++	/*
++	 * These fields are only used if the job has been split
++	 * into more manageable parts.
++	 */
++	struct semaphore lock;
++	atomic_t sub_jobs;
++	sector_t progress;
 +};
 +
++/* FIXME: this should scale with the number of pages */
++#define MIN_JOBS 512
++
++static kmem_cache_t *_job_cache;
++static mempool_t *_job_pool;
++
 +/*
-+ * io contexts are only dynamically allocated for asynchronous
-+ * io.  Since async io is likely to be the majority of io we'll
-+ * have the same number of io contexts as buffer heads ! (FIXME:
-+ * must reduce this).
++ * We maintain three lists of jobs:
++ *
++ * i)   jobs waiting for pages
++ * ii)  jobs that have pages, and are waiting for the io to be issued.
++ * iii) jobs that have completed.
++ *
++ * All three of these are protected by job_lock.
 + */
-+static unsigned _num_ios;
-+static mempool_t *_io_pool;
++static spinlock_t _job_lock = SPIN_LOCK_UNLOCKED;
 +
-+static void *alloc_io(int gfp_mask, void *pool_data)
++static LIST_HEAD(_complete_jobs);
++static LIST_HEAD(_io_jobs);
++static LIST_HEAD(_pages_jobs);
++
++static int __init jobs_init(void)
 +{
-+	return kmalloc(sizeof(struct io), gfp_mask);
++	INIT_LIST_HEAD(&_complete_jobs);
++	INIT_LIST_HEAD(&_io_jobs);
++	INIT_LIST_HEAD(&_pages_jobs);
++
++	_job_cache = kmem_cache_create("kcopyd-jobs",
++				       sizeof(struct kcopyd_job),
++				       __alignof__(struct kcopyd_job),
++				       0, NULL, NULL);
++	if (!_job_cache)
++		return -ENOMEM;
++
++	_job_pool = mempool_create(MIN_JOBS, mempool_alloc_slab,
++				   mempool_free_slab, _job_cache);
++	if (!_job_pool) {
++		kmem_cache_destroy(_job_cache);
++		return -ENOMEM;
++	}
++
++	return 0;
 +}
 +
-+static void free_io(void *element, void *pool_data)
++static void jobs_exit(void)
 +{
-+	kfree(element);
++	BUG_ON(!list_empty(&_complete_jobs));
++	BUG_ON(!list_empty(&_io_jobs));
++	BUG_ON(!list_empty(&_pages_jobs));
++
++	mempool_destroy(_job_pool);
++	kmem_cache_destroy(_job_cache);
 +}
 +
-+static unsigned int pages_to_ios(unsigned int pages)
++/*
++ * Functions to push and pop a job onto the head of a given job
++ * list.
++ */
++static inline struct kcopyd_job *pop(struct list_head *jobs)
 +{
-+	return 4 * pages;	/* too many ? */
++	struct kcopyd_job *job = NULL;
++	unsigned long flags;
++
++	spin_lock_irqsave(&_job_lock, flags);
++
++	if (!list_empty(jobs)) {
++		job = list_entry(jobs->next, struct kcopyd_job, list);
++		list_del(&job->list);
++	}
++	spin_unlock_irqrestore(&_job_lock, flags);
++
++	return job;
 +}
 +
-+static int resize_pool(unsigned int new_ios)
++static inline void push(struct list_head *jobs, struct kcopyd_job *job)
 +{
-+	int r = 0;
++	unsigned long flags;
 +
-+	if (_io_pool) {
-+		if (new_ios == 0) {
-+			/* free off the pool */
-+			mempool_destroy(_io_pool);
-+			_io_pool = NULL;
-+			bio_set_exit(&_bios);
++	spin_lock_irqsave(&_job_lock, flags);
++	list_add_tail(&job->list, jobs);
++	spin_unlock_irqrestore(&_job_lock, flags);
++}
 +
-+		} else {
-+			/* resize the pool */
-+			r = mempool_resize(_io_pool, new_ios, GFP_KERNEL);
-+		}
++/*
++ * These three functions process 1 item from the corresponding
++ * job list.
++ *
++ * They return:
++ * < 0: error
++ *   0: success
++ * > 0: can't process yet.
++ */
++static int run_complete_job(struct kcopyd_job *job)
++{
++	void *context = job->context;
++	int read_err = job->read_err;
++	unsigned int write_err = job->write_err;
++	kcopyd_notify_fn fn = job->fn;
 +
-+	} else {
-+		/* create new pool */
-+		_io_pool = mempool_create(new_ios, alloc_io, free_io, NULL);
-+		if (!_io_pool)
-+			r = -ENOMEM;
++	kcopyd_put_pages(job->kc, job->pages);
++	mempool_free(job, _job_pool);
++	fn(read_err, write_err, context);
++	return 0;
++}
 +
-+		r = bio_set_init(&_bios, "dm-io", 512, 1);
-+		if (r) {
-+			mempool_destroy(_io_pool);
-+			_io_pool = NULL;
++static void complete_io(unsigned long error, void *context)
++{
++	struct kcopyd_job *job = (struct kcopyd_job *) context;
++
++	if (error) {
++		if (job->rw == WRITE)
++			job->write_err &= error;
++		else
++			job->read_err = 1;
++
++		if (!test_bit(KCOPYD_IGNORE_ERROR, &job->flags)) {
++			push(&_complete_jobs, job);
++			wake();
++			return;
 +		}
 +	}
 +
-+	if (!r)
-+		_num_ios = new_ios;
++	if (job->rw == WRITE)
++		push(&_complete_jobs, job);
++
++	else {
++		job->rw = WRITE;
++		push(&_io_jobs, job);
++	}
++
++	wake();
++}
++
++/*
++ * Request io on as many buffer heads as we can currently get for
++ * a particular job.
++ */
++static int run_io_job(struct kcopyd_job *job)
++{
++	int r;
++
++	if (job->rw == READ)
++		r = dm_io_async(1, &job->source, job->rw,
++				job->pages,
++				job->offset, complete_io, job);
++
++	else
++		r = dm_io_async(job->num_dests, job->dests, job->rw,
++				job->pages,
++				job->offset, complete_io, job);
 +
 +	return r;
 +}
 +
-+int dm_io_get(unsigned int num_pages)
++static int run_pages_job(struct kcopyd_job *job)
 +{
-+	return resize_pool(_num_ios + pages_to_ios(num_pages));
-+}
++	int r;
 +
-+void dm_io_put(unsigned int num_pages)
-+{
-+	resize_pool(_num_ios - pages_to_ios(num_pages));
-+}
-+
-+/*-----------------------------------------------------------------
-+ * We need to keep track of which region a bio is doing io for.
-+ * In order to save a memory allocation we store this the last
-+ * bvec which we know is unused (blech).
-+ *---------------------------------------------------------------*/
-+static inline void bio_set_region(struct bio *bio, unsigned region)
-+{
-+	bio->bi_io_vec[bio->bi_max_vecs - 1].bv_len = region;
-+}
-+
-+static inline unsigned bio_get_region(struct bio *bio)
-+{
-+	return bio->bi_io_vec[bio->bi_max_vecs - 1].bv_len;
-+}
-+
-+/*-----------------------------------------------------------------
-+ * We need an io object to keep track of the number of bios that
-+ * have been dispatched for a particular io.
-+ *---------------------------------------------------------------*/
-+static void dec_count(struct io *io, unsigned int region, int error)
-+{
-+	if (error)
-+		set_bit(region, &io->error);
-+
-+	if (atomic_dec_and_test(&io->count)) {
-+		if (io->sleeper)
-+			wake_up_process(io->sleeper);
-+
-+		else {
-+			int r = io->error;
-+			io_notify_fn fn = io->callback;
-+			void *context = io->context;
-+
-+			mempool_free(io, _io_pool);
-+			fn(r, context);
-+		}
++	job->nr_pages = dm_div_up(job->dests[0].count + job->offset,
++				  PAGE_SIZE >> 9);
++	r = kcopyd_get_pages(job->kc, job->nr_pages, &job->pages);
++	if (!r) {
++		/* this job is ready for io */
++		push(&_io_jobs, job);
++		return 0;
 +	}
-+}
 +
-+/* FIXME Move this to bio.h? */
-+static void zero_fill_bio(struct bio *bio)
-+{
-+	unsigned long flags;
-+	struct bio_vec *bv;
-+	int i;
-+
-+	bio_for_each_segment(bv, bio, i) {
-+		char *data = bvec_kmap_irq(bv, &flags);
-+		memset(data, 0, bv->bv_len);
-+		bvec_kunmap_irq(bv, &flags);
-+	}
-+}
-+
-+static int endio(struct bio *bio, unsigned int done, int error)
-+{
-+	struct io *io = (struct io *) bio->bi_private;
-+
-+	/* keep going until we've finished */
-+	if (bio->bi_size)
++	if (r == -ENOMEM)
++		/* can't complete now */
 +		return 1;
 +
-+	if (error && bio_data_dir(bio) == READ)
-+		zero_fill_bio(bio);
-+
-+	dec_count(io, bio_get_region(bio), error);
-+	bio_put(bio);
-+
-+	return 0;
-+}
-+
-+static void bio_dtr(struct bio *bio)
-+{
-+	_bio_count--;
-+	bio_set_free(&_bios, bio);
-+}
-+
-+/*-----------------------------------------------------------------
-+ * These little objects provide an abstraction for getting a new
-+ * destination page for io.
-+ *---------------------------------------------------------------*/
-+struct dpages {
-+	void (*get_page)(struct dpages *dp,
-+			 struct page **p, unsigned long *len, unsigned *offset);
-+	void (*next_page)(struct dpages *dp);
-+
-+	unsigned context_u;
-+	void *context_ptr;
-+};
-+
-+/*
-+ * Functions for getting the pages from a list.
-+ */
-+static void list_get_page(struct dpages *dp,
-+		  struct page **p, unsigned long *len, unsigned *offset)
-+{
-+	unsigned o = dp->context_u;
-+	struct page_list *pl = (struct page_list *) dp->context_ptr;
-+
-+	*p = pl->page;
-+	*len = PAGE_SIZE - o;
-+	*offset = o;
-+}
-+
-+static void list_next_page(struct dpages *dp)
-+{
-+	struct page_list *pl = (struct page_list *) dp->context_ptr;
-+	dp->context_ptr = pl->next;
-+	dp->context_u = 0;
-+}
-+
-+static void list_dp_init(struct dpages *dp, struct page_list *pl, unsigned offset)
-+{
-+	dp->get_page = list_get_page;
-+	dp->next_page = list_next_page;
-+	dp->context_u = offset;
-+	dp->context_ptr = pl;
++	return r;
 +}
 +
 +/*
-+ * Functions for getting the pages from a bvec.
++ * Run through a list for as long as possible.  Returns the count
++ * of successful jobs.
 + */
-+static void bvec_get_page(struct dpages *dp,
-+		  struct page **p, unsigned long *len, unsigned *offset)
++static int process_jobs(struct list_head *jobs, int (*fn) (struct kcopyd_job *))
 +{
-+	struct bio_vec *bvec = (struct bio_vec *) dp->context_ptr;
-+	*p = bvec->bv_page;
-+	*len = bvec->bv_len;
-+	*offset = bvec->bv_offset;
-+}
++	struct kcopyd_job *job;
++	int r, count = 0;
 +
-+static void bvec_next_page(struct dpages *dp)
-+{
-+	struct bio_vec *bvec = (struct bio_vec *) dp->context_ptr;
-+	dp->context_ptr = bvec + 1;
-+}
++	while ((job = pop(jobs))) {
 +
-+static void bvec_dp_init(struct dpages *dp, struct bio_vec *bvec)
-+{
-+	dp->get_page = bvec_get_page;
-+	dp->next_page = bvec_next_page;
-+	dp->context_ptr = bvec;
-+}
++		r = fn(job);
 +
-+static void vm_get_page(struct dpages *dp,
-+		 struct page **p, unsigned long *len, unsigned *offset)
-+{
-+	*p = vmalloc_to_page(dp->context_ptr);
-+	*offset = dp->context_u;
-+	*len = PAGE_SIZE - dp->context_u;
-+}
-+
-+static void vm_next_page(struct dpages *dp)
-+{
-+	dp->context_ptr += PAGE_SIZE - dp->context_u;
-+	dp->context_u = 0;
-+}
-+
-+static void vm_dp_init(struct dpages *dp, void *data)
-+{
-+	dp->get_page = vm_get_page;
-+	dp->next_page = vm_next_page;
-+	dp->context_u = ((unsigned long) data) & (PAGE_SIZE - 1);
-+	dp->context_ptr = data;
-+}
-+
-+/*-----------------------------------------------------------------
-+ * IO routines that accept a list of pages.
-+ *---------------------------------------------------------------*/
-+static void do_region(int rw, unsigned int region, struct io_region *where,
-+		      struct dpages *dp, struct io *io)
-+{
-+	struct bio *bio;
-+	struct page *page;
-+	unsigned long len;
-+	unsigned offset;
-+	unsigned num_bvecs;
-+	sector_t remaining = where->count;
-+
-+	while (remaining) {
-+		/*
-+		 * Allocate a suitably sized bio, we add an extra
-+		 * bvec for bio_get/set_region().
-+		 */
-+		num_bvecs = (remaining / (PAGE_SIZE >> 9)) + 2;
-+		_bio_count++;
-+		bio = bio_set_alloc(&_bios, GFP_NOIO, num_bvecs);
-+		bio->bi_sector = where->sector + (where->count - remaining);
-+		bio->bi_bdev = where->bdev;
-+		bio->bi_end_io = endio;
-+		bio->bi_private = io;
-+		bio->bi_destructor = bio_dtr;
-+		bio_set_region(bio, region);
-+
-+		/*
-+		 * Try and add as many pages as possible.
-+		 */
-+		while (remaining) {
-+			dp->get_page(dp, &page, &len, &offset);
-+			len = min(len, to_bytes(remaining));
-+			if (!bio_add_page(bio, page, len, offset))
-+				break;
-+
-+			offset = 0;
-+			remaining -= to_sector(len);
-+			dp->next_page(dp);
++		if (r < 0) {
++			/* error this rogue job */
++			if (job->rw == WRITE)
++				job->write_err = (unsigned int) -1;
++			else
++				job->read_err = 1;
++			push(&_complete_jobs, job);
++			break;
 +		}
 +
-+		atomic_inc(&io->count);
-+		submit_bio(rw, bio);
++		if (r > 0) {
++			/*
++			 * We couldn't service this job ATM, so
++			 * push this job back onto the list.
++			 */
++			push(jobs, job);
++			break;
++		}
++
++		count++;
++	}
++
++	return count;
++}
++
++/*
++ * kcopyd does this every time it's woken up.
++ */
++static void do_work(void *ignored)
++{
++	/*
++	 * The order that these are called is *very* important.
++	 * complete jobs can free some pages for pages jobs.
++	 * Pages jobs when successful will jump onto the io jobs
++	 * list.  io jobs call wake when they complete and it all
++	 * starts again.
++	 */
++	process_jobs(&_complete_jobs, run_complete_job);
++	process_jobs(&_pages_jobs, run_pages_job);
++	process_jobs(&_io_jobs, run_io_job);
++}
++
++/*
++ * If we are copying a small region we just dispatch a single job
++ * to do the copy, otherwise the io has to be split up into many
++ * jobs.
++ */
++static void dispatch_job(struct kcopyd_job *job)
++{
++	push(&_pages_jobs, job);
++	wake();
++}
++
++#define SUB_JOB_SIZE 128
++static void segment_complete(int read_err,
++			     unsigned int write_err, void *context)
++{
++	/* FIXME: tidy this function */
++	sector_t progress = 0;
++	sector_t count = 0;
++	struct kcopyd_job *job = (struct kcopyd_job *) context;
++
++	down(&job->lock);
++
++	/* update the error */
++	if (read_err)
++		job->read_err = 1;
++
++	if (write_err)
++		job->write_err &= write_err;
++
++	/*
++	 * Only dispatch more work if there hasn't been an error.
++	 */
++	if ((!job->read_err && !job->write_err) ||
++	    test_bit(KCOPYD_IGNORE_ERROR, &job->flags)) {
++		/* get the next chunk of work */
++		progress = job->progress;
++		count = job->source.count - progress;
++		if (count) {
++			if (count > SUB_JOB_SIZE)
++				count = SUB_JOB_SIZE;
++
++			job->progress += count;
++		}
++	}
++	up(&job->lock);
++
++	if (count) {
++		int i;
++		struct kcopyd_job *sub_job = mempool_alloc(_job_pool, GFP_NOIO);
++
++		memcpy(sub_job, job, sizeof(*job));
++		sub_job->source.sector += progress;
++		sub_job->source.count = count;
++
++		for (i = 0; i < job->num_dests; i++) {
++			sub_job->dests[i].sector += progress;
++			sub_job->dests[i].count = count;
++		}
++
++		sub_job->fn = segment_complete;
++		sub_job->context = job;
++		dispatch_job(sub_job);
++
++	} else if (atomic_dec_and_test(&job->sub_jobs)) {
++
++		/*
++		 * To avoid a race we must keep the job around
++		 * until after the notify function has completed.
++		 * Otherwise the client may try and stop the job
++		 * after we've completed.
++		 */
++		job->fn(read_err, write_err, job->context);
++		mempool_free(job, _job_pool);
 +	}
 +}
 +
-+static void dispatch_io(int rw, unsigned int num_regions,
-+			struct io_region *where, struct dpages *dp,
-+			struct io *io, int sync)
++/*
++ * Create some little jobs that will do the move between
++ * them.
++ */
++#define SPLIT_COUNT 8
++static void split_job(struct kcopyd_job *job)
 +{
 +	int i;
-+	struct dpages old_pages = *dp;
 +
-+	if (sync)
-+		rw |= (1 << BIO_RW_SYNC);
-+
-+	/*
-+	 * For multiple regions we need to be careful to rewind
-+	 * the dp object for each call to do_region.
-+	 */
-+	for (i = 0; i < num_regions; i++) {
-+		*dp = old_pages;
-+		if (where[i].count)
-+			do_region(rw, i, where + i, dp, io);
-+	}
-+
-+	/*
-+	 * Drop the extra refence that we were holding to avoid
-+	 * the io being completed too early.
-+	 */
-+	dec_count(io, 0, 0);
++	atomic_set(&job->sub_jobs, SPLIT_COUNT);
++	for (i = 0; i < SPLIT_COUNT; i++)
++		segment_complete(0, 0u, job);
 +}
 +
-+static int sync_io(unsigned int num_regions, struct io_region *where,
-+	    int rw, struct dpages *dp, unsigned long *error_bits)
++int kcopyd_copy(struct kcopyd_client *kc, struct io_region *from,
++		unsigned int num_dests, struct io_region *dests,
++		unsigned int flags, kcopyd_notify_fn fn, void *context)
 +{
-+	struct io io;
++	struct kcopyd_job *job;
 +
-+	BUG_ON(num_regions > 1 && rw != WRITE);
++	/*
++	 * Allocate a new job.
++	 */
++	job = mempool_alloc(_job_pool, GFP_NOIO);
 +
-+	io.error = 0;
-+	atomic_set(&io.count, 1); /* see dispatch_io() */
-+	io.sleeper = current;
++	/*
++	 * set up for the read.
++	 */
++	job->kc = kc;
++	job->flags = flags;
++	job->read_err = 0;
++	job->write_err = 0;
++	job->rw = READ;
 +
-+	dispatch_io(rw, num_regions, where, dp, &io, 1);
++	memcpy(&job->source, from, sizeof(*from));
 +
-+	while (1) {
-+		set_current_state(TASK_UNINTERRUPTIBLE);
++	job->num_dests = num_dests;
++	memcpy(&job->dests, dests, sizeof(*dests) * num_dests);
 +
-+		if (!atomic_read(&io.count) || signal_pending(current))
-+			break;
++	job->offset = 0;
++	job->nr_pages = 0;
++	job->pages = NULL;
 +
-+		io_schedule();
++	job->fn = fn;
++	job->context = context;
++
++	if (job->source.count < SUB_JOB_SIZE)
++		dispatch_job(job);
++
++	else {
++		init_MUTEX(&job->lock);
++		job->progress = 0;
++		split_job(job);
 +	}
-+	set_current_state(TASK_RUNNING);
 +
-+	if (atomic_read(&io.count))
-+		return -EINTR;
-+
-+	*error_bits = io.error;
-+	return io.error ? -EIO : 0;
-+}
-+
-+static int async_io(unsigned int num_regions, struct io_region *where, int rw,
-+	     struct dpages *dp, io_notify_fn fn, void *context)
-+{
-+	struct io *io = mempool_alloc(_io_pool, GFP_NOIO);
-+
-+	io->error = 0;
-+	atomic_set(&io->count, 1); /* see dispatch_io() */
-+	io->sleeper = NULL;
-+	io->callback = fn;
-+	io->context = context;
-+
-+	dispatch_io(rw, num_regions, where, dp, io, 0);
 +	return 0;
 +}
 +
-+int dm_io_sync(unsigned int num_regions, struct io_region *where, int rw,
-+	       struct page_list *pl, unsigned int offset,
-+	       unsigned long *error_bits)
-+{
-+	struct dpages dp;
-+	list_dp_init(&dp, pl, offset);
-+	return sync_io(num_regions, where, rw, &dp, error_bits);
-+}
-+
-+int dm_io_sync_bvec(unsigned int num_regions, struct io_region *where, int rw,
-+		    struct bio_vec *bvec, unsigned long *error_bits)
-+{
-+	struct dpages dp;
-+	bvec_dp_init(&dp, bvec);
-+	return sync_io(num_regions, where, rw, &dp, error_bits);
-+}
-+
-+int dm_io_sync_vm(unsigned int num_regions, struct io_region *where, int rw,
-+		  void *data, unsigned long *error_bits)
-+{
-+	struct dpages dp;
-+	vm_dp_init(&dp, data);
-+	return sync_io(num_regions, where, rw, &dp, error_bits);
-+}
-+
-+int dm_io_async(unsigned int num_regions, struct io_region *where, int rw,
-+		struct page_list *pl, unsigned int offset,
-+		io_notify_fn fn, void *context)
-+{
-+	struct dpages dp;
-+	list_dp_init(&dp, pl, offset);
-+	return async_io(num_regions, where, rw, &dp, fn, context);
-+}
-+
-+int dm_io_async_bvec(unsigned int num_regions, struct io_region *where, int rw,
-+		     struct bio_vec *bvec, io_notify_fn fn, void *context)
-+{
-+	struct dpages dp;
-+	bvec_dp_init(&dp, bvec);
-+	return async_io(num_regions, where, rw, &dp, fn, context);
-+}
-+
-+int dm_io_async_vm(unsigned int num_regions, struct io_region *where, int rw,
-+		   void *data, io_notify_fn fn, void *context)
-+{
-+	struct dpages dp;
-+	vm_dp_init(&dp, data);
-+	return async_io(num_regions, where, rw, &dp, fn, context);
-+}
-+
-+EXPORT_SYMBOL(dm_io_get);
-+EXPORT_SYMBOL(dm_io_put);
-+EXPORT_SYMBOL(dm_io_sync);
-+EXPORT_SYMBOL(dm_io_async);
-+EXPORT_SYMBOL(dm_io_sync_bvec);
-+EXPORT_SYMBOL(dm_io_async_bvec);
-+EXPORT_SYMBOL(dm_io_sync_vm);
-+EXPORT_SYMBOL(dm_io_async_vm);
---- diff/drivers/md/dm-io.h	1969-12-31 18:00:00.000000000 -0600
-+++ source/drivers/md/dm-io.h	2004-06-01 19:08:00.000000000 -0500
-@@ -0,0 +1,77 @@
 +/*
-+ * Copyright (C) 2003 Sistina Software
++ * Cancels a kcopyd job, eg. someone might be deactivating a
++ * mirror.
++ */
++int kcopyd_cancel(struct kcopyd_job *job, int block)
++{
++	/* FIXME: finish */
++	return -1;
++}
++
++/*-----------------------------------------------------------------
++ * Unit setup
++ *---------------------------------------------------------------*/
++static DECLARE_MUTEX(_client_lock);
++static LIST_HEAD(_clients);
++
++static int client_add(struct kcopyd_client *kc)
++{
++	down(&_client_lock);
++	list_add(&kc->list, &_clients);
++	up(&_client_lock);
++	return 0;
++}
++
++static void client_del(struct kcopyd_client *kc)
++{
++	down(&_client_lock);
++	list_del(&kc->list);
++	up(&_client_lock);
++}
++
++int kcopyd_client_create(unsigned int nr_pages, struct kcopyd_client **result)
++{
++	int r = 0;
++	struct kcopyd_client *kc;
++
++	kc = kmalloc(sizeof(*kc), GFP_KERNEL);
++	if (!kc)
++		return -ENOMEM;
++
++	kc->lock = SPIN_LOCK_UNLOCKED;
++	kc->pages = NULL;
++	kc->nr_pages = kc->nr_free_pages = 0;
++	r = client_alloc_pages(kc, nr_pages);
++	if (r) {
++		kfree(kc);
++		return r;
++	}
++
++	r = dm_io_get(nr_pages);
++	if (r) {
++		client_free_pages(kc);
++		kfree(kc);
++		return r;
++	}
++
++	r = client_add(kc);
++	if (r) {
++		dm_io_put(nr_pages);
++		client_free_pages(kc);
++		kfree(kc);
++		return r;
++	}
++
++	*result = kc;
++	return 0;
++}
++
++void kcopyd_client_destroy(struct kcopyd_client *kc)
++{
++	dm_io_put(kc->nr_pages);
++	client_free_pages(kc);
++	client_del(kc);
++	kfree(kc);
++}
++
++
++int __init kcopyd_init(void)
++{
++	int r;
++
++	r = jobs_init();
++	if (r)
++		return r;
++
++	_kcopyd_wq = create_singlethread_workqueue("kcopyd");
++	if (!_kcopyd_wq) {
++		jobs_exit();
++		return -ENOMEM;
++	}
++
++	INIT_WORK(&_kcopyd_work, do_work, NULL);
++	return 0;
++}
++
++void kcopyd_exit(void)
++{
++	jobs_exit();
++	destroy_workqueue(_kcopyd_wq);
++}
++
++EXPORT_SYMBOL(kcopyd_client_create);
++EXPORT_SYMBOL(kcopyd_client_destroy);
++EXPORT_SYMBOL(kcopyd_copy);
++EXPORT_SYMBOL(kcopyd_cancel);
+--- diff/drivers/md/kcopyd.h	1969-12-31 18:00:00.000000000 -0600
++++ source/drivers/md/kcopyd.h	2004-06-01 19:51:31.000000000 -0500
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (C) 2001 Sistina Software
 + *
 + * This file is released under the GPL.
 + */
 +
-+#ifndef _DM_IO_H
-+#define _DM_IO_H
++#ifndef DM_KCOPYD_H
++#define DM_KCOPYD_H
 +
-+#include "dm.h"
++#include "dm-io.h"
 +
-+/* FIXME make this configurable */
-+#define DM_MAX_IO_REGIONS 8
++int kcopyd_init(void);
++void kcopyd_exit(void);
 +
-+struct io_region {
-+	struct block_device *bdev;
-+	sector_t sector;
-+	sector_t count;
-+};
++/* FIXME: make this configurable */
++#define KCOPYD_MAX_REGIONS 8
 +
-+struct page_list {
-+	struct page_list *next;
-+	struct page *page;
-+};
-+
++#define KCOPYD_IGNORE_ERROR 1
 +
 +/*
-+ * 'error' is a bitset, with each bit indicating whether an error
-+ * occurred doing io to the corresponding region.
++ * To use kcopyd you must first create a kcopyd client object.
 + */
-+typedef void (*io_notify_fn)(unsigned long error, void *context);
-+
++struct kcopyd_client;
++int kcopyd_client_create(unsigned int num_pages, struct kcopyd_client **result);
++void kcopyd_client_destroy(struct kcopyd_client *kc);
 +
 +/*
-+ * Before anyone uses the IO interface they should call
-+ * dm_io_get(), specifying roughly how many pages they are
-+ * expecting to perform io on concurrently.
++ * Submit a copy job to kcopyd.  This is built on top of the
++ * previous three fns.
 + *
-+ * This function may block.
++ * read_err is a boolean,
++ * write_err is a bitset, with 1 bit for each destination region
 + */
-+int dm_io_get(unsigned int num_pages);
-+void dm_io_put(unsigned int num_pages);
++typedef void (*kcopyd_notify_fn)(int read_err,
++				 unsigned int write_err, void *context);
 +
-+/*
-+ * Synchronous IO.
-+ *
-+ * Please ensure that the rw flag in the next two functions is
-+ * either READ or WRITE, ie. we don't take READA.  Any
-+ * regions with a zero count field will be ignored.
-+ */
-+int dm_io_sync(unsigned int num_regions, struct io_region *where, int rw,
-+	       struct page_list *pl, unsigned int offset,
-+	       unsigned long *error_bits);
-+
-+int dm_io_sync_bvec(unsigned int num_regions, struct io_region *where, int rw,
-+		    struct bio_vec *bvec, unsigned long *error_bits);
-+
-+int dm_io_sync_vm(unsigned int num_regions, struct io_region *where, int rw,
-+		  void *data, unsigned long *error_bits);
-+
-+/*
-+ * Aynchronous IO.
-+ *
-+ * The 'where' array may be safely allocated on the stack since
-+ * the function takes a copy.
-+ */
-+int dm_io_async(unsigned int num_regions, struct io_region *where, int rw,
-+		struct page_list *pl, unsigned int offset,
-+		io_notify_fn fn, void *context);
-+
-+int dm_io_async_bvec(unsigned int num_regions, struct io_region *where, int rw,
-+		     struct bio_vec *bvec, io_notify_fn fn, void *context);
-+
-+int dm_io_async_vm(unsigned int num_regions, struct io_region *where, int rw,
-+		   void *data, io_notify_fn fn, void *context);
++int kcopyd_copy(struct kcopyd_client *kc, struct io_region *from,
++		unsigned int num_dests, struct io_region *dests,
++		unsigned int flags, kcopyd_notify_fn fn, void *context);
 +
 +#endif
 

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268291AbTCFT50>; Thu, 6 Mar 2003 14:57:26 -0500
+	id <S268296AbTCFUAv>; Thu, 6 Mar 2003 15:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268294AbTCFT50>; Thu, 6 Mar 2003 14:57:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15109 "EHLO
+	id <S268327AbTCFUAv>; Thu, 6 Mar 2003 15:00:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35333 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268291AbTCFT5Z>; Thu, 6 Mar 2003 14:57:25 -0500
-Date: Thu, 6 Mar 2003 12:05:48 -0800 (PST)
+	id <S268296AbTCFUAu>; Thu, 6 Mar 2003 15:00:50 -0500
+Date: Thu, 6 Mar 2003 12:08:43 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: HT and idle = poll
-In-Reply-To: <Pine.LNX.4.50.0303061150250.1670-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0303061204120.8404-100000@home.transmeta.com>
+In-Reply-To: <1046984969.17718.118.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0303061206240.8404-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 6 Mar 2003, Davide Libenzi wrote:
+On 6 Mar 2003, Alan Cox wrote:
+> On Thu, 2003-03-06 at 19:30, Linus Torvalds wrote:
+> > >So, don't use idle=poll with HT when you know your workload has idle time!  I 
+> > >have not tried oprofile, but it stands to reason that this would be a 
 > 
-> Not only. The polling CPU will also shoot a strom of memory requests,
-> clobbering the CPU's memory I/O stages.
+> idle=poll probably needs to be doing "rep nop" in a tight loop.
 
-Well, that would only be true with a really crappy CPU with no caches.
+We already do that. It's not enough. The HT thing will still steal cycles 
+continually, since the "rep nop" is really only equivalent to a 
+"sched_yield()".
 
-Polling the same location (as long as it's a pure poll, not trying to do 
-some locked read-modify-write cycle) should be fine. At least for 
-something like idle-polling, where the one location it _is_ polling should 
-not actually be touched by anybody else until the wakeup actually happens.
+Think of "rep nop" as yielding, and "mwait" as a true wait.
+
+(I don't actually have any real information on "mwait", so I may be wrong 
+about the details on the new instructions. They looked obvious enough, 
+though).
 
 		Linus
 

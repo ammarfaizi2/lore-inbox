@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbTDNPfF (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263476AbTDNPfF (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 11:35:05 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:46836 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S263469AbTDNPfE (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 11:35:04 -0400
-Date: Mon, 14 Apr 2003 17:57:48 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Antonio Vargas <wind@cocodriloo.com>,
-       Timothy Miller <tmiller10@cfl.rr.com>, linux-kernel@vger.kernel.org,
-       nicoya@apia.dhs.org
-Subject: Re: Quick question about hyper-threading (also some NUMA stuff)
-Message-ID: <20030414155748.GD14552@wind.cocodriloo.com>
-References: <001301c3028a$25374f30$6801a8c0@epimetheus> <10760000.1050332136@[10.10.2.4]> <20030414152947.GB14552@wind.cocodriloo.com> <12790000.1050334744@[10.10.2.4]>
-Mime-Version: 1.0
+	id S263476AbTDNPf4 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTDNPf4 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 11:35:56 -0400
+Received: from web12103.mail.yahoo.com ([216.136.172.23]:8332 "HELO
+	web12103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263476AbTDNPfy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 11:35:54 -0400
+Message-ID: <20030414154743.83419.qmail@web12103.mail.yahoo.com>
+Date: Mon, 14 Apr 2003 08:47:43 -0700 (PDT)
+From: Christian Staudenmayer <the_sithlord@yahoo.com>
+Subject: 2.5.67-ac1 kernel panic
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12790000.1050334744@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 08:39:05AM -0700, Martin J. Bligh wrote:
-> > Perhaps it would be good to un-COW pages:
-> > 
-> > 1. fork process
-> > 2. if current node is not loaded, continue as usual
-> > 3. if current node is loaded:
-> > 3a. pick unloaded node
-> > 4b. don't do COW for data pages, but simply copy them to node-local memory
-> > 
-> > This way, read-write sharings would be replicated for each node.
-> 
-> Sharing read-write stuff is a total nightmare - you have to deal with
-> all the sync stuff, and invalidation. In real-life scenarios, I really
-> doubt the complexity is worth it - read-only is quite complex enough,
-> thanks ;-) 
+hello,
 
-I mean MAP_PRIVATE stuff, not MAP_SHARED.
+the 2.5.67 kernel boots fine here, but the -ac1 patch to it ends up in a kernel panic.
+i'll just post the last few lines of the error here, because i had to type it myself on another
+machine:
 
-> Theoretically, if you had some pages that were predominatly read-only, 
-> and very occasionally got written to, it *might* be worth it. 
-> But probably not ;-)
-> 
-> > Also, keeping an per-node active-page-list and then forcefully copying
-> > the page to a node-local page-frame when accesing a page which is
-> > active on another node could be good.
-> 
-> Not sure what you mean by this. wrt the active-page list here's a per-node 
-> LRU already. Or you mean something on a per-address-space basis?
+[<c0273589>] sd_attach+0x1d/0x244
+[<c023d9c0>] scsi_register_device+0xb8/0xe4
+[<c010502c>] init+0x0/0x144
+[<c0105049>] init+0x1d/0x144
+[<c010502c>] init+0x0/0x144
+[<c01079c1>] kernel_thread_helper+0x5/0xc
 
-Yes, I meant a per-node active LRU. I'd better get a closer look
-at what's already done ;)
- 
-> Yes, faulting the pages in lazily from another node as we touch them is 
-> probably the right thing to do. Giving secondary copies some LRU disadvantage
-> (perhaps always keeping them on the inactive list, never the active),
-> would be fun, but then you get into the whole "who is the primary owner,
-> and what do we do when they ditch the page" complexity. The node bitmap
-> I suggested earlier might help. But I'd rather keep it simple at first ;-)
-> 
-> M.
+Code: 8b 40 38 be 93 74 31 c0 ff d0 89 c1 c7 03 3f 00 00 00 85 ff
+ <0>Kernel panic: Attempted to kill init!
 
-Antonio.
+(if it's necessary i can get the whole screenfull of errors)
+
+The machine is a p3 700 with 448MB of ram, and it's running an old scsi disk at an adaptec 2940
+controller that uses the aic7xxx drivers (at boot it says AIC7870).
+When configuring (make menuconfig) the kernel, i loaded the saved config file that worked for
+2.5.67.
+
+Note: i am not subscribed to the lkml, perhaps i will later on, when i'm more experienced.
+so, please email me at the_sithlord@yahoo.com
+you can also drop by in my undernet channel called #hansapils
+
+any help regarding this problem would be highly appreciated.
+
+greetings, chris
+the_sithlord@yahoo.com
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - File online, calculators, forms, and more
+http://tax.yahoo.com

@@ -1,88 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272118AbRIVUvc>; Sat, 22 Sep 2001 16:51:32 -0400
+	id <S272191AbRIVU4M>; Sat, 22 Sep 2001 16:56:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272137AbRIVUvM>; Sat, 22 Sep 2001 16:51:12 -0400
-Received: from femail22.sdc1.sfba.home.com ([24.0.95.147]:49342 "EHLO
-	femail22.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272118AbRIVUvL>; Sat, 22 Sep 2001 16:51:11 -0400
-Date: Sat, 22 Sep 2001 16:50:48 -0400 (EDT)
-From: Leonid Igolnik <lim@igolnik.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.2.19 - semadj overflow in ipc/sem.c
-Message-ID: <Pine.LNX.4.33.0109221647060.9877-200000@home.igolnik.com>
+	id <S272197AbRIVU4C>; Sat, 22 Sep 2001 16:56:02 -0400
+Received: from maile.telia.com ([194.22.190.16]:202 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S272191AbRIVUzx>;
+	Sat, 22 Sep 2001 16:55:53 -0400
+Message-Id: <200109222056.f8MKu8K24322@maile.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: ksoftirqd? (Was: Re: [PATCH] Preemption Latency Measurement Tool)
+Date: Sat, 22 Sep 2001 22:51:16 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Robert Love <rml@tech9.net>, Andre Pang <ozone@algorithm.com.au>,
+        linux-kernel@vger.kernel.org, safemode@speakeasy.net,
+        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
+        george@mvista.com
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <200109221301.f8MD1n129687@mailc.telia.com> <20010922151453.B976@athlon.random>
+In-Reply-To: <20010922151453.B976@athlon.random>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1400189789-1001191764=:9877"
-Content-ID: <Pine.LNX.4.33.0109221650080.9877@home.igolnik.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Saturday 22 September 2001 15.14, Andrea Arcangeli wrote:
+> On Sat, Sep 22, 2001 at 02:56:58PM +0200, Roger Larsson wrote:
+> > Hi,
+> >
+> > We have a new kid on the block since we started thinking of a preemptive
+> > kernel.
+> >
+> > ksoftirqd...
+> >
+> > Running with nice 19 (shouldn't it really be -19?)
 
---8323328-1400189789-1001191764=:9877
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0109221650081.9877@home.igolnik.com>
+I repeat this question - should it be nice 19 and not nice -19 (not nice)?
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> > Or have a RT setting? (maybe not since one of the reasons for
+> > softirqd would be lost - would be scheduled in immediately)
+> > Can't a high prio or RT process be starved due to missing
+> > service (bh) after an interrupt?
+>
+> It cannot be starved, if ksoftirqd is never scheduled the do_softirq()
+> will be run by the next timer irq or apic_timer irq.
+>
 
-Allan's patch for 2.4.9-ac14 plus some minor modifications.
+Then could you please explain the output after adding a printk in
+ksoftirqd like this.
 
-- -- 
+--- kernel/softirq.c~   Mon Sep 17 22:37:34 2001
++++ kernel/softirq.c    Sat Sep 22 21:46:49 2001
+@@ -387,6 +387,7 @@
+                __set_current_state(TASK_RUNNING);
 
-Leonid Igolnik.
+                while (softirq_pending(cpu)) {
++                       printk("ksoftirqd: do_softirq\n");
+                        do_softirq();
+                        if (current->need_resched)
+                                schedule();
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE7rPmqRrKFtN3cJpMRAsaMAJ94PZIZv9BLnLlOXQaq16Egrdb28ACfZyTL
-7pK0jf1rJ/FBUCyeYfwuZF4=
-=/pbV
------END PGP SIGNATURE-----
+Output like this:
 
---8323328-1400189789-1001191764=:9877
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="linux-2.2.19-SEM_UNDO.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109221649240.9877@home.igolnik.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="linux-2.2.19-SEM_UNDO.patch"
+Sep 22 22:37:38 jeloin logger: *** ./stress_dbench begin ***
+Sep 22 22:37:42 jeloin kernel: ksoftirqd: do_softirq
+Sep 22 22:37:44 jeloin last message repeated 2 times
+Sep 22 22:37:48 jeloin kernel: Latency   8ms PID     7 %% kupdated
+Sep 22 22:37:49 jeloin kernel: ksoftirqd: do_softirq
+Sep 22 22:38:19 jeloin last message repeated 18 times
+Sep 22 22:38:20 jeloin su: (to root) roger on /dev/pts/2
+Sep 22 22:38:20 jeloin PAM-unix2[988]: session started for user root, service 
+su
+Sep 22 22:38:23 jeloin kernel: ksoftirqd: do_softirq
+Sep 22 22:38:24 jeloin modprobe: modprobe: Can't locate module net-pf-10
+Sep 22 22:38:24 jeloin kernel: ksoftirqd: do_softirq
+Sep 22 22:38:58 jeloin last message repeated 20 times
+Sep 22 22:39:05 jeloin last message repeated 4 times
+Sep 22 22:42:03 jeloin kernel: ksoftirqd: do_softirq
+Sep 22 22:43:58 jeloin logger: *** ./stress_dbench end ***
 
-ZGlmZiAtdWJyIGxpbnV4LTIuMi4xOS9pcGMvc2VtLmMgbGludXgtMi4yLjE5
-LmxpbS9pcGMvc2VtLmMNCi0tLSBsaW51eC0yLjIuMTkvaXBjL3NlbS5jCVN1
-biBNYXIgMjUgMTE6MzE6MTUgMjAwMQ0KKysrIGxpbnV4LTIuMi4xOS5saW0v
-aXBjL3NlbS5jCVNhdCBTZXAgMjIgMTY6Mzg6NDAgMjAwMQ0KQEAgLTIyOSw3
-ICsyMjksMTkgQEANCiAJCWN1cnItPnNlbXBpZCA9IChjdXJyLT5zZW1waWQg
-PDwgMTYpIHwgcGlkOw0KIAkJY3Vyci0+c2VtdmFsICs9IHNlbV9vcDsNCiAJ
-CWlmIChzb3AtPnNlbV9mbGcgJiBTRU1fVU5ETykNCi0JCQl1bi0+c2VtYWRq
-W3NvcC0+c2VtX251bV0gLT0gc2VtX29wOw0KKwkJew0KKwkJCWludCB1bmRv
-ID0gdW4tPnNlbWFkaltzb3AtPnNlbV9udW1dIC0gc2VtX29wOw0KKwkJCS8q
-DQorCQkJKiAgICAgIEV4Y2VlZGluZyB0aGUgdW5kbyByYW5nZSBpcyBhbiBl
-cnJvci4NCisJCQkqLw0KKwkJCWlmKHVuZG8gPCAoLVNFTUFFTSAtIDEpIHx8
-IHVuZG8gPiBTRU1BRU0pDQorCQkJew0KKwkJCQkvKiBEb24ndCB1bmRvIHRo
-ZSB1bmRvICovDQorCQkJCXNvcC0+c2VtX2ZsZyAmPSB+U0VNX1VORE87DQor
-CQkJCWdvdG8gb3V0X29mX3JhbmdlOw0KKwkJCX0NCisJCQl1bi0+c2VtYWRq
-W3NvcC0+c2VtX251bV0gPSB1bmRvOw0KKwkJfQ0KIA0KIAkJaWYgKGN1cnIt
-PnNlbXZhbCA8IDApDQogCQkJZ290byB3b3VsZF9ibG9jazsNCmRpZmYgLXVi
-ciBsaW51eC0yLjIuMTkvaW5jbHVkZS9saW51eC9zZW0uaCBsaW51eC0yLjIu
-MTkubGltL2luY2x1ZGUvbGludXgvc2VtLmgNCi0tLSBsaW51eC0yLjIuMTkv
-aW5jbHVkZS9saW51eC9zZW0uaAlTdW4gTWFyIDI1IDExOjMxOjAzIDIwMDEN
-CisrKyBsaW51eC0yLjIuMTkubGltL2luY2x1ZGUvbGludXgvc2VtLmgJU2F0
-IFNlcCAyMiAxNjozOToyMiAyMDAxDQpAQCAtNjUsMTEgKzY1LDExIEBADQog
-I2RlZmluZSBTRU1NTlMgIChTRU1NTkkqU0VNTVNMKSAvKiA/IG1heCAjIG9m
-IHNlbWFwaG9yZXMgaW4gc3lzdGVtICovDQogI2RlZmluZSBTRU1PUE0gIDMy
-CSAgICAgICAgLyogfiAxMDAgbWF4IG51bSBvZiBvcHMgcGVyIHNlbW9wIGNh
-bGwgKi8NCiAjZGVmaW5lIFNFTVZNWCAgMzI3NjcgICAgICAgICAgIC8qIHNl
-bWFwaG9yZSBtYXhpbXVtIHZhbHVlICovDQorI2RlZmluZSBTRU1BRU0gIFNF
-TVZNWCAgICAgICAgICAvKiBhZGp1c3Qgb24gZXhpdCBtYXggdmFsdWUgKi8N
-CiANCiAvKiB1bnVzZWQgKi8NCiAjZGVmaW5lIFNFTVVNRSAgU0VNT1BNICAg
-ICAgICAgIC8qIG1heCBudW0gb2YgdW5kbyBlbnRyaWVzIHBlciBwcm9jZXNz
-ICovDQogI2RlZmluZSBTRU1NTlUgIFNFTU1OUyAgICAgICAgICAvKiBudW0g
-b2YgdW5kbyBzdHJ1Y3R1cmVzIHN5c3RlbSB3aWRlICovDQotI2RlZmluZSBT
-RU1BRU0gIChTRU1WTVggPj4gMSkgICAvKiBhZGp1c3Qgb24gZXhpdCBtYXgg
-dmFsdWUgKi8NCiAjZGVmaW5lIFNFTU1BUCAgU0VNTU5TICAgICAgICAgIC8q
-ICMgb2YgZW50cmllcyBpbiBzZW1hcGhvcmUgbWFwICovDQogI2RlZmluZSBT
-RU1VU1ogIDIwCQkvKiBzaXplb2Ygc3RydWN0IHNlbV91bmRvICovDQogDQo=
---8323328-1400189789-1001191764=:9877--
+> > This will not show up in latency profiling patches since
+> > the kernel does what is requested...
+> >
+> > Previously it was run directly after interrupt,
+> > before returning to the interrupted process...
+>
+> It is still the case, that's also the common case actually.
+>
+
+Possibly but the other case is quite common too...
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

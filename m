@@ -1,112 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266405AbUBLNAp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 08:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266406AbUBLNAp
+	id S266406AbUBLNPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 08:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266408AbUBLNPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 08:00:45 -0500
-Received: from CPE-65-28-18-238.kc.rr.com ([65.28.18.238]:18334 "EHLO
-	mail.2thebatcave.com") by vger.kernel.org with ESMTP
-	id S266405AbUBLNAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 08:00:42 -0500
-Message-ID: <50391.192.168.1.12.1076590842.squirrel@mail.2thebatcave.com>
-In-Reply-To: <50365.192.168.1.12.1076590069.squirrel@mail.2thebatcave.com>
-References: <46246.192.168.1.12.1076553774.squirrel@mail.2thebatcave.com>  
-    <Pine.LNX.4.58.0402120457250.28596@student.dei.uc.pt>
-    <50365.192.168.1.12.1076590069.squirrel@mail.2thebatcave.com>
-Date: Thu, 12 Feb 2004 07:00:42 -0600 (CST)
-Subject: Re: /proc/partitions not done updating when init is ran?
-From: "Nick Bartos" <spam99@2thebatcave.com>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+	Thu, 12 Feb 2004 08:15:47 -0500
+Received: from mail.gmx.de ([213.165.64.20]:53212 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266406AbUBLNPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 08:15:46 -0500
+X-Authenticated: #4512188
+Message-ID: <402B7C7F.1040103@gmx.de>
+Date: Thu, 12 Feb 2004 14:15:43 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm4
+References: <20040115225948.6b994a48.akpm@osdl.org> <4007B03C.4090106@gmx.de> <400EC908.4020801@gmx.de> <200401211920.i0LJKZ2a003504@turing-police.cc.vt.edu> <402AAB2C.8050207@gmx.de> <200402120552.i1C5qAHS024041@turing-police.cc.vt.edu>            <402B2BAE.9090208@gmx.de> <200402120846.i1C8k6x7006645@turing-police.cc.vt.edu>
+In-Reply-To: <200402120846.i1C8k6x7006645@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK yes I see that CONFIG_BLK_DEV_NBD is disabled.  Any other ideas?
+Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 12 Feb 2004 08:30:54 +0100, "Prakash K. Cheemplavam" said:
+> 
+> 
+>>Well, I don't know whether my system actually locks up, it is like it 
+>>seems the log gets flooded (when I wait long enough) but I cannot do 
+>>anything with the system at that point, ie it seems like frozen.
+> 
+> 
+> I don't think anybody's going to be able to shoot that bug report without more
+> info.  "seems like frozen" doesn't give us much to go on.  Does the machine
+> still ping/ssh/etc on the net?  Is it totally locked up?  Any disk activity
+> lights left on/flickering, indicating life? Can you get a serial console or
+> kgdb-ethernet or something to see if there's an oops/panic?
 
+Hmm, I'll test those bk-snapshots and when it locks up, I'll try to 
+access the pc form another machine. As I said it seems (when I wait long 
+enough, within the first minute nothing in the log survives the reboot, 
+probably due to reiserfs journalling) the log writes the oops I posted 
+in the first message infinite times.
 
-> No, it is 2.4.25-pre7.  I could technically go to 2.6.x, but it would take
-> a bit of work due to some other changes.  I would really like to get this
-> stable in 2.4.x.
->
-> What is nbd?
->
->
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->>
->> Is that happening in 2.6.2-rc3-mm1 or up?
->>
->> If yes, try unsetting nbd in your kernel config.
->>
->> Mind Booster Noori
->>
->> - --
->> ==================================================
->> Marcos Daniel Marado Torres AKA Mind Booster Noori
->> /"\               http://student.dei.uc.pt/~marado
->> \ /                       marado@student.dei.uc.pt
->>  X   ASCII Ribbon Campaign
->> / \  against HTML e-mail and Micro$oft attachments
->> ==================================================
->>
->> On Wed, 11 Feb 2004, Nick Bartos wrote:
->>
->>> I have a problem where it does not look like /proc/partitions is
->>> updated
->>> completely by the time init is ran.
->>>
->>> Basically I am booting from a usb flash device, and when I try to run
->>> fsck
->>> on the device on boot (using LABEL=, which is necessary since the
->>> actual
->>> device cannot be assumed in my config) it fails.  After further
->>> investigation /proc/partitions does not contain any scsi partitions
->>> right
->>> when init is starting, but if I do a "sleep 10" before running fsck
->>> then
->>> it works fine.
->>>
->>> I can of course put that sleep in there but that is ugly and I have no
->>> way
->>> of knowing the maximum delay, so if it took too long then it would not
->>> work and I would be screwed...
->>>
->>> Isn't /proc/partitions supposted to be finished updating when init
->>> starts?
->>>  If this is not a kernel bug (or it won't be fixed for a while), then
->>> what
->>> is the deal and how can I fix this cleanly?
->>> -
->>> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->>> in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>> Please read the FAQ at  http://www.tux.org/lkml/
->>>
->> -----BEGIN PGP SIGNATURE-----
->> Version: GnuPG v1.2.1 (GNU/Linux)
->> Comment: Made with pgp4pine 1.76
->>
->> iD8DBQFAKwf2mNlq8m+oD34RAvICAJ94Kv1Yspu0syE8MLAZwSHEgJ8i4ACdEOJy
->> KqWcNxWT9t3o1jm1gUq04Ew=
->> =u2Ds
->> -----END PGP SIGNATURE-----
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->> in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
+> Well, the 53.36 drivers are rock-solid on my Dell laptop with a GeForce4 440Go
+> and the 2.6.3-rc1-mm1 kernel.  There very well may be bugs in there, but
+> they're not ones I can replicate or diagnose...
+
+Maybe it is a nforce2 issue then. I think it is ACPI specific. I'll also 
+try compiling latest kernel without ACPI and report back.
+
+Thanx,
+
+Prakash
 

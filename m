@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUD0TQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264309AbUD0TRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUD0TQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 15:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUD0TQf
+	id S264309AbUD0TRo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbUD0TRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 15:16:35 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:10120 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S264308AbUD0TQe (ORCPT
+	Tue, 27 Apr 2004 15:17:44 -0400
+Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:22407
+	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
+	id S264309AbUD0TRm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 15:16:34 -0400
-Date: Tue, 27 Apr 2004 21:16:25 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: koke@sindominio.net
-Cc: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <200404272103.21925.koke_lkml@amedias.org>
-Message-ID: <Pine.LNX.4.58.0404272113110.9618@alpha.polcom.net>
-References: <20040427165819.GA23961@valve.mbsi.ca>
- <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net>
- <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
- <200404272103.21925.koke_lkml@amedias.org>
+	Tue, 27 Apr 2004 15:17:42 -0400
+Date: Tue, 27 Apr 2004 20:17:41 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Timothy Miller <miller@techsource.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE throughput in 2.6 - it's good!
+In-Reply-To: <408E7E79.9080405@techsource.com>
+Message-ID: <Pine.LNX.4.58.0404272016000.1170@ppg_penguin>
+References: <Pine.LNX.4.58.0404232237140.19797@ppg_penguin>
+ <408E7E79.9080405@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Jorge Bernal (Koke) wrote:
-> On Martes, 27 de Abril de 2004 20:54, Valdis.Kletnieks@vt.edu wrote:
-> > On Tue, 27 Apr 2004 19:53:39 +0200, Grzegorz Kulewski said:
-> > > Maybe kernel should display warning only once per given licence or even
-> > > once per boot (who needs warning about tainting tainted kernel?)
+On Tue, 27 Apr 2004, Timothy Miller wrote:
+
+>
+>
+> Ken Moffat wrote:
+>
 > >
-> > If your kernel is tainted by 3 different modules, it saves you 2 reboots
-> > when trying to replicate a problem with an untainted kernel.
-> >
-> 
-> what about something like a /proc/tainted list of modules?
+> > So, despite the numbers shown by hdparm looking worse, when only one
+> > user is doing anything the performance is actually improved.  I've no
+> > idea which changes have achieved this, but thanks to whoever were
+> > involved.
+>
+>
+> I've done tests using dd to and from the raw block device under 2.4 and
+> 2.6.  Memory size (kernel boot param mem=) doesn't seem to affect
+> performance, so I assume that means that dd to and from the raw block
+> device is unbuffered.  When I compare read and write speeds between 2.4
+> and 2.6, 2.6 is definately slower.  The last 2.6 kernel I tried this
+> with is 2.6.5.
+>
 
-I think that /proc/tainted would be better than spamming logs after each 
-load of tainted module...
-But probably modules should not be removed from /proc/tainted on unloading 
-(to prevent from "un-tainting" the kernel by "clever" users).
+ Well, my original test used cp, sync, rm, sync.  I've no statistics
+from running 2.4 on this box to compare against.
 
-
-Grzegorz Kulewski
+Ken
+-- 
+ das eine Mal als Tragödie, das andere Mal als Farce
 

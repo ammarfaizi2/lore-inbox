@@ -1,114 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUAOWj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUAOWj2
+	id S262048AbUAOWcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbUAOWcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:39:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39849 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263062AbUAOWjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:39:12 -0500
-Subject: Re: filesystem bug?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Tsuchiya Yoshihiro <xxtsuchiyaxx@ybb.ne.jp>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, tschiya@labs.fujitsu.com,
-       dlion2004@sina.com.cn, Stephen Tweedie <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <0586254E-46DA-11D8-B45E-00039341E01A@ybb.ne.jp>
-References: <E4E4EAA7-3879-11D8-8822-00039341E01A@ybb.ne.jp>
-	 <Pine.LNX.4.58L.0312301556380.23875@logos.cnet>
-	 <74964CA8-3B50-11D8-B879-00039341E01A@ybb.ne.jp>
-	 <1074109164.4538.8.camel@sisko.scot.redhat.com>
-	 <0586254E-46DA-11D8-B45E-00039341E01A@ybb.ne.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1074206327.4811.519.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jan 2004 22:38:48 +0000
+	Thu, 15 Jan 2004 17:32:41 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:51934 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262048AbUAOWch
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 17:32:37 -0500
+Date: Thu, 15 Jan 2004 18:19:40 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Cc: Simon Kirby <sim@netnation.com>
+Subject: Linux 2.4.25-pre5
+Message-ID: <Pine.LNX.4.58L.0401151816320.17528@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-On Wed, 2004-01-14 at 21:38, Tsuchiya Yoshihiro wrote:
+Here is -pre5.
 
-> I usually use two to seven boxes at a time, and I get about two problems
-> out of them within about two nights.
+This version fixes the "memory filled with unfreeable inodes" problem
+which occurs on high memory machines in some workloads.  That is the last
+big problem 2.4 VM had with highmem I believe.
 
-I was able to reproduce with your script, too: even on ramfs.  Curiouser
-and curiouser.
+It contains a few other important fixes:
+- fixes a SMP deadlock introduced during 2.4.23 (which could hang the
+machine on high filesystem activity).
+- fixes a memory allocation deadlock in USB
 
-Al Viro was a help getting further, and we nailed the reason for the
-failure.  I got a failure:
+Amongst others.
 
-"something wrong (diff) happened at ae:619-th trial"
+Please test it!
 
-corresponding to the script code:
+Detailed changelog follows
 
-                mkdir $TARGETDIR/dirXC$i || echo "Error $? making $TARGETDIR/dirXC$i" > $RDIR/MD-ERR-$1 2>&1
-                cd $TARGETDIR/dirXC$i > $RDIR/CD-ERR-$1 2>&1
 
-                if [ -s $RDIR/CD-ERR-$1 ]
-                then
-                        echo "something wrong (cd) happened at $1:$i-th trial "
-                        (df .; df -i .) > $RDIR/DF-$1
-                        exit;
-                fi
+Summary of changes from v2.4.25-pre4 to v2.4.25-pre5
+============================================
 
-                tar zxf $MOZSRC >> $ERRORF
+<bjorn.helgaas:hp.com>:
+  o ia64 Configure.help update
 
-#                echo "test dir for $TARGETDIR" >> $INOFILE-$1
-                ls -lid $SOURCE >> $INOFILE-$1
+<davej:redhat.com>:
+  o Add AGP support for Radeon IGP 345M
 
-                diff -rq $TARGETDIR/$SOURCE $TARGETDIR/dirXC$i/$SOURCE > $RESULTS/dirXC$i.result 2>&1
-                DIFFSIZE=`ls -l $RESULTS/dirXC$i.result | awk '{print $5}'`
-                if [ $DIFFSIZE != 0 ];
-                then
-                        echo "something wrong (diff) happened at $1:$i-th trial "
-                        (df .; df -i .) > $RDIR/DF-$1
-                        exit;
+<jack:ucw.cz>:
+  o Fix ext3/quota deadlock
 
-and psacct was able to trace the order in which stuff happened; lastcomm showed:
+<khali:linux-fr.org>:
+  o i2c cleanups: Config.in
+  o i2c cleanup: saa7146.h should include i2c-old.h, not i2c.h
+  o i2c cleanup: i2c-core fixes
 
-tee                     guest    ??         5.55 secs Thu Jan 15 22:15
-tar                     guest    ??         0.08 secs Thu Jan 15 22:24
-gzip                    guest    ??         0.25 secs Thu Jan 15 22:24
-xc-1.2                  guest    ??         0.02 secs Thu Jan 15 22:15
-xc-1.2             F    guest    ??         6.37 secs Thu Jan 15 22:15
-xc-1.2             F    guest    ??         0.00 secs Thu Jan 15 22:24
-df                      guest    ??         0.00 secs Thu Jan 15 22:24
-df                      guest    ??         0.01 secs Thu Jan 15 22:24
-xc-1.2             F    guest    ??         0.01 secs Thu Jan 15 22:24
-awk                     guest    ??         0.00 secs Thu Jan 15 22:24
-ls                      guest    ??         0.01 secs Thu Jan 15 22:24
-diff                    guest    ??         0.01 secs Thu Jan 15 22:24
-rm                      guest    ??         0.02 secs Thu Jan 15 22:24
-ls                      guest    ??         0.00 secs Thu Jan 15 22:24
-mkdir                   guest    ??         0.01 secs Thu Jan 15 22:24
+<len.brown:intel.com>:
+  o [ACPI] fix smpboot.c mis-merge http://bugzilla.kernel.org/show_bug.cgi?id=1706
 
-Reading from the bottom up: we get the "mkdir" and "ls -lid" of the new
-directory, but not the tar; then the "rm &" of the previous iteration
-completes; then there's the diff that failed, and the ls and awk from
-that; then the two "df"s, then we exit. 
+<marcelo:logos.cnet>:
+  o Cset exclude: rtjohnso@eecs.berkeley.edu|ChangeSet|20040109135735|05388
+  o Fix microcode update compilation error
+  o Fix Makefile typo
 
-And *then*, after all that, the tar/gunzip finishes.  Remember, lastcomm
-records the exit of each task, not its start.
+<moilanen:austin.ibm.com>:
+  o [PPC64] Improved NVRAM handling
+  o [PPC64] Buffer error log entries in NVRAM
 
-So the problem seems to be that the shell is continuing beyond the "tar
-xzf" before that command has finished, which is why we see ENOENT on
-"cd" to the dir or on the diff.
+<nitin.a.kamble:intel.com>:
+  o microcode update
 
-The trace above was on the last running thread of the test.  All other
-threads had completed, so there was no interleaving of test runs in the
-psacct records.
+<rtjohnso:eecs.berkeley.edu>:
+  o USB ioctl fixes (vicam.c, w9968cf.c)
 
-Now, I can't tell from this whether it's a bash bug or an exit/signal
-bug, but it doesn't look like a filesystem problem for now.  I'm going
-to try with a different shell to see if that helps.
+<sfr:au1.ibm.com>:
+  o [PPC64] Fix a compile warning that becomes an error with gcc 3.4
 
-Cheers,
- Stephen
+<thomas:winischhofer.net>:
+  o SiS Framebuffer driver update
+
+<xose:wanadoo.es>:
+  o ips SCSI driver update
+
+Adrian Bunk:
+  o fix CONFIG_DS1742 Config.in entry
+  o remove REPORT_LUNS from cpqfcTSstructs.h
+  o disallow modular CONFIG_COMX
+
+Alan Cox:
+  o Fix USB hangs
+  o Minimal fix for the R128 drivers
+
+Bartlomiej Zolnierkiewicz:
+  o create /proc/ide/hdX/capacity only once
+
+Ben Collins:
+  o [IEEE1394]: Fix bug in updating configrom
+
+David Engebretsen:
+  o [PPC64] Distribute processing of hypervisor events over all processors
+
+David Woodhouse:
+  o Fix SMP deadlock in __wait_on_freeing_inode() (introduced during 2.4.23)
+
+Hugh Dickins:
+  o tmpfs readdir does not update dir atime
+
+Paul Mackerras:
+  o [PPC64] Remove some unnecessary code from arch/ppc64/kernel/prom.c
+  o [PPC64] Make /dev/sda3 the default root device (rather than sda2)
+  o [PPC64] Add functions to update and manage flash ROM under Linux on pSeries
+  o [PPC64] Update defconfig and the example configs
+
+Pete Zaitcev:
+  o Unhork ymfpci broken by hasty janitors
+
+Rik van Riel:
+  o Reclaim inodes with highmem pages when low on memory
+
+Tom Rini:
+  o PPC32: Add support for the CPCI-405 board
+  o PPC32: Fix cross-compilation from Solaris or Cygwin
+  o PPC32: s/CONFIG_SMC2_UART/CONFIG_8xx_SMC2/g to match the code
 

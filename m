@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRDXJJk>; Tue, 24 Apr 2001 05:09:40 -0400
+	id <S132912AbRDXJJk>; Tue, 24 Apr 2001 05:09:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132909AbRDXJJc>; Tue, 24 Apr 2001 05:09:32 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:11025 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S132912AbRDXJJR>; Tue, 24 Apr 2001 05:09:17 -0400
-Date: Tue, 24 Apr 2001 11:05:32 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: read perf improved by mounting ext2?
-Message-ID: <20010424110532.E12624@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Jens Axboe <axboe@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010424013150.A6892@garloff.etpnet.phys.tue.nl> <20010424105858.C9357@suse.de>
+	id <S132914AbRDXJJb>; Tue, 24 Apr 2001 05:09:31 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:28600 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S132909AbRDXJJW>;
+	Tue, 24 Apr 2001 05:09:22 -0400
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <65256A38.0030A121.00@sandesh.hss.hns.com>
+Date: Tue, 24 Apr 2001 14:28:19 +0530
+Subject: Re: Delay Function
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6e7ZaeXHKrTJCxdu"
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010424105858.C9357@suse.de>; from axboe@suse.de on Tue, Apr 24, 2001 at 10:58:58AM +0200
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---6e7ZaeXHKrTJCxdu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 24, 2001 at 10:58:58AM +0200, Jens Axboe wrote:
-> On Tue, Apr 24 2001, Kurt Garloff wrote:
-> > There are enough partitions to see a clear pattern: Those with mounted =
-ext2
-> > filesystems perform better. Umounting them does not harm, they just nee=
-d to
-> > have been mounted once. reiser or (v)fat however don't improve anything.
-> > swap does, as does a ext2 over raid5.
->=20
-> You wouldn't happen to have 4kB ext2 filesystems on those?
+It may be possible that this is not the good choice...
+but u can try ... schedule_timeout(timeout) function.... see kernel/sched.c for
+more details about this function
 
-Sure I do.
+Amol
 
-> When ext2 mounts, it sets the soft blocksize to that then, I would expect
-> this to give at least some benefit over using 1kB blocks (as your IDE
-> partition otherwise would have).
 
-Why? Are the request sizes larger this way? This would mean that the
-overhead is very significant, turning a max of 26MB/s into 16MB/s!
 
-If so, shouldn't we try to get the same effect also for the whole disk or
-other filesystems? Most notably reiser?
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
---6e7ZaeXHKrTJCxdu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Rajeev Nigam <rajeev.nigam@dcmtech.co.in> on 04/24/2001 03:29:04 PM
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4h (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Amol Lad/HSS)
 
-iD8DBQE65UHbxmLh6hyYd04RAv0wAJ4w3thA5EaWuvC3e+xzAasZGVZuKACePxOV
-hiYVstyEe4mJlRbxJEV+zMA=
-=TBiU
------END PGP SIGNATURE-----
+Subject:  Delay Function
 
---6e7ZaeXHKrTJCxdu--
+
+
+
+What function i have to use to put a delay in a driver at kernel mode
+between reading from and writing to com port.
+
+Looking forward for ur help.
+
+Thanx & Regards
+Rajeev Nigam
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

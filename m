@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267209AbRGKGPb>; Wed, 11 Jul 2001 02:15:31 -0400
+	id <S267210AbRGKGVM>; Wed, 11 Jul 2001 02:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267210AbRGKGPV>; Wed, 11 Jul 2001 02:15:21 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:51925 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S267209AbRGKGPH>; Wed, 11 Jul 2001 02:15:07 -0400
-Message-ID: <3B4BEF6E.E8D6C155@idcomm.com>
-Date: Wed, 11 Jul 2001 00:17:18 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ADAPTEC AHA 29160N
-In-Reply-To: <001401c10998$6c1e7960$8364f9c8@elogica.com.br>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S267211AbRGKGVB>; Wed, 11 Jul 2001 02:21:01 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:38660 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267210AbRGKGUw>;
+	Wed, 11 Jul 2001 02:20:52 -0400
+Date: Tue, 10 Jul 2001 23:18:03 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linuxdrivers-foundry@lists.sourceforge.net
+Subject: [PATCH] Hotplug PCI driver for 2.4.7-pre6
+Message-ID: <20010710231803.B26745@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igor Maciel Macaúbas wrote:
-> 
-> Hello Everybody,
-> I'm in trouble with this SCSI controller.
-> I tried, but it's impossible to set up some version of linux with this SCSI
-> controller.
-> I need help .. is this device supported by the actual version of kernels?
-> What the hell is happening?
-> I've tried to install Mandrake (8.0), Red Hat (5.1, 6.0, 6.2), tried with
-> Debian too, and will try with Redhat 7.0 and 7.1
-> How can I get it working?
-> 
-> []'z
-> Igor
-> --
-> igor@br.inter.net
-> igor@nlink.com.br
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Here's another release of the Compaq/Intel Hotplug PCI driver.
+It's available at:
+	http://www.kroah.com/linux/hotplug/
+and is against 2.4.7-pre6, but applies with a bit of fuzz on 2.4.6.
 
-I don't know about this separate version of the controller, but the
-integrated versions of the 29160 work with the aic7xxx controller. There
-was some discussion a while back about the "rebuild firmware" option
-during kernel config, I suspect on regular and current kernels it is not
-needed; it was, however, required on some of the XFS patched kernels. Is
-the "N" version the 32 bit pci version (as opposed to the 64 bit pci
-slot versions)? If it fails to work, I'd wonder more if it is a pci
-setup issue than aic7xxx.
+Changes since last release:
+	- forward ported to 2.4.7-pre6
+	- lots better error handling on startup if things don't go quite
+	  right.
+	- Cleared up the printk message that everyone sees about the bus
+	  number.
+	- fixed the MOD_* handling (is not needed now.)
+	- made debug messages a module parameter, instead of compile
+	  time option.
+	- removed all direct addressing of PCI mmio space.  Now uses
+	  proper indirection functions, which will make other platforms
+	  happy.
+	- ioctl call now requires CAP_SYS_RAWIO privileges (can't shut
+	  down cards as a normal user anymore.)
+	- removed most of the NT like error codes.
+	- no longer sit and spin in a udelay() call for huge amounts of
+	  time.
 
-D. Stimits, stimits@idcomm.com
+There's a changelog available on the web page if you want some more
+detail.
+
+
+Things left to do:
+	- remove pci_access_config call and replace it with native
+	  kernel call.
+	- remove more global symbols
+	- incorporate native list types
+	- look into removing some of the native PCI bus probing logic to
+	  use the kernel provided functions where possible.
+	- add support for other archs (ia64)
+
+thanks,
+
+greg k-h

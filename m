@@ -1,44 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265173AbTIDQWl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTIDQVv
+	id S265165AbTIDQVo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTIDQVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:21:51 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35503 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265173AbTIDQTs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:19:48 -0400
-Date: Thu, 4 Sep 2003 09:09:51 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: dsaxena@mvista.com
-Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-Id: <20030904090951.7e678cb5.davem@redhat.com>
-In-Reply-To: <20030904155004.GA31420@xanadu.az.mvista.com>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-	<20030904083007.B2473@flint.arm.linux.org.uk>
-	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
-	<20030904023624.592f1601.davem@redhat.com>
-	<20030904104801.A7387@flint.arm.linux.org.uk>
-	<16215.14133.352143.660688@nanango.paulus.ozlabs.org>
-	<20030904155004.GA31420@xanadu.az.mvista.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 12:21:43 -0400
+Received: from mail1-106.ewetel.de ([212.6.122.106]:62140 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S265165AbTIDQTw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:19:52 -0400
+Date: Thu, 4 Sep 2003 18:19:49 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [NFS] attempt to use V1 mount protocol on V3 server (fwd)
+Message-ID: <Pine.LNX.4.44.0309041819190.1135-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 08:50:04 -0700
-Deepak Saxena <dsaxena@mvista.com> wrote:
 
-> I think we need to a have a resource tree per _bus_, not just PCI.
-> I have systems which have overlapping devices in multiple PCI domains
-> and devices on the local memory bus that also overlap.
+On Thu, 4 Sep 2003, Trond Myklebust wrote:
 
-The physical address ranges are unique, I really don't see
-any problem.
+> I assume that your server's RPC engine replying with a PROG_MISMATCH
+> the way it should when it cannot support NFSv2?
+
+Yes.
+
+> Hmm.. Looking at the code, we appear not to be handling that case very
+> well in the RPC client. PROG_UNAVAIL, PROG_MISMATCH, and PROC_UNAVAIL
+> are all handled incorrectly as if the replies were garbage...
+
+I see.
+
+> Althought this is harmless, we should really be returning an EIO
+> immediately, and report the error in the syslog...
+
+It is harmless, it only sends retries to the server that can never
+succeed.
+
+> Does the following patch (against 2.4.22) help?
+
+I've applied the patch to 2.4.23-pre3 (went okay with an offset) and 
+caused the fallback to happen by always returning NFS3ERR_ACCES from
+my GETATTR procedure.
+
+Before patch:
+
+nfs_get_root: getattr error = 13
+call_verify: server accept status: 2
+call_verify: server accept status: 2
+call_verify: server accept status: 2
+RPC: garbage, exit EIO
+nfs_get_root: getattr error = 5
+nfs_read_super: get root inode failed
+
+After patch:
+
+nfs_get_root: getattr error = 13
+RPC:    3 call_verify: program 100003, version 2 unsupported by server 127.0.0.1
+nfs_get_root: getattr error = 5
+nfs_read_super: get root inode failed
+
+So yes, it looks cleaner, and it does no longer send multiple NFSv2 
+GETATTR attempts.
+
+The problem with FSSTAT returning NOTSUPP hanging the kernel does not
+happen on 2.4, neither before nor after the patch. It just says:
+
+NFS: cannot retrieve file system info.
+nfs_read_super: get root inode failed
+
+Which is of course the right thing to do.
+
+-- 
+Ciao,
+Pascal
+

@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSHBMnD>; Fri, 2 Aug 2002 08:43:03 -0400
+	id <S313070AbSHBMiS>; Fri, 2 Aug 2002 08:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSHBMnD>; Fri, 2 Aug 2002 08:43:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59364 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313711AbSHBMm7>; Fri, 2 Aug 2002 08:42:59 -0400
-Date: Fri, 2 Aug 2002 18:16:28 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, axboe@kernel.org
-Subject: Re: [PATCH] Bio Traversal Changes (Patch 2/4: biotr8-blkusers.diff)
-Message-ID: <20020802181628.B1859@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20020802180513.A1802@in.ibm.com>
-Mime-Version: 1.0
+	id <S313087AbSHBMiS>; Fri, 2 Aug 2002 08:38:18 -0400
+Received: from pc2-oxfd3-5-cust41.oxf.cable.ntl.com ([213.107.67.41]:32267
+	"EHLO noetbook.telent.net") by vger.kernel.org with ESMTP
+	id <S313070AbSHBMiP>; Fri, 2 Aug 2002 08:38:15 -0400
+To: Camm Maguire <camm@enhanced.com>,
+       debian-alpha <debian-alpha@lists.debian.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SA_SIGINFO in Linux 2.4.x
+References: <E17aOg0-0002ub-00@intech19.enhanced.com>
+	<1028281936.17352.42.camel@satan.xko.dec.com>
+From: Daniel Barlow <dan@telent.net>
+Date: Fri, 02 Aug 2002 13:41:35 +0100
+In-Reply-To: <1028281936.17352.42.camel@satan.xko.dec.com> ("Aneesh Kumar
+ K.V"'s message of "02 Aug 2002 15:22:16 +0530")
+Message-ID: <87k7n9l9fk.fsf@noetbook.telent.net>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020802180513.A1802@in.ibm.com>; from suparna@in.ibm.com on Fri, Aug 02, 2002 at 06:05:13PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corresponding modifications needed in code above block layer
-to account for bio traversal changes, mainly ensuring correct 
-bi_voffset initialization when setting up bios.
+
+On Fri, 2002-08-02 at 04:14, Camm Maguire wrote:
+> Greetings!  The 2.4.x kernels on alpha don't appear to be filling in
+> the si_addr element of the siginfo_t structure when a signal handler
+> is setup with SA_SIGINFO.  Is this right?  Any other way to get this
+> address in the handler?
+
+You may be able to use the third argument to the signal handler:
+given a handler declared as (int n, siginfo_t *info,struct ucontext *context),
+look at context->uc_mcontext.sc_traparg_a0 
+
+SBCL has been doing this for a few months now and nobody has yet
+complained that it's broken for them.  Look for arch_get_bad_addr 
+in http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/sbcl/sbcl/src/runtime/alpha-arch.c?rev=1.14&content-type=text/vnd.viewcvs-markup
 
 
-diff -ur linux-2.5.30-pure/fs/direct-io.c linux-2.5.30-bio/fs/direct-io.c
---- linux-2.5.30-pure/fs/direct-io.c	Fri Aug  2 10:08:29 2002
-+++ linux-2.5.30-bio/fs/direct-io.c	Fri Aug  2 10:42:13 2002
-@@ -193,6 +193,9 @@
- 
- 	bio->bi_vcnt = bio->bi_idx;
- 	bio->bi_idx = 0;
-+	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
-+	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
-+		__BVEC_END(bio)->bv_len;
- 	bio->bi_private = dio;
- 	atomic_inc(&dio->bio_count);
- 	submit_bio(dio->rw, bio);
-diff -ur linux-2.5.30-pure/fs/jfs/jfs_logmgr.c linux-2.5.30-bio/fs/jfs/jfs_logmgr.c
---- linux-2.5.30-pure/fs/jfs/jfs_logmgr.c	Sat Jul 27 08:28:38 2002
-+++ linux-2.5.30-bio/fs/jfs/jfs_logmgr.c	Fri Aug  2 10:42:13 2002
-@@ -1817,6 +1817,9 @@
- 	bio->bi_vcnt = 1;
- 	bio->bi_idx = 0;
- 	bio->bi_size = LOGPSIZE;
-+	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
-+	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
-+		__BVEC_END(bio)->bv_len;
- 
- 	bio->bi_end_io = lbmIODone;
- 	bio->bi_private = bp;
-@@ -1959,6 +1962,9 @@
- 	bio->bi_vcnt = 1;
- 	bio->bi_idx = 0;
- 	bio->bi_size = LOGPSIZE;
-+	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
-+	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
-+		__BVEC_END(bio)->bv_len;
- 
- 	bio->bi_end_io = lbmIODone;
- 	bio->bi_private = bp;
-diff -ur linux-2.5.30-pure/fs/mpage.c linux-2.5.30-bio/fs/mpage.c
---- linux-2.5.30-pure/fs/mpage.c	Sat Jul 27 08:28:32 2002
-+++ linux-2.5.30-bio/fs/mpage.c	Fri Aug  2 10:42:13 2002
-@@ -82,6 +82,9 @@
- {
- 	bio->bi_vcnt = bio->bi_idx;
- 	bio->bi_idx = 0;
-+	bio->bi_voffset = __BVEC_START(bio)->bv_offset;
-+	bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
-+		__BVEC_END(bio)->bv_len;
- 	bio->bi_end_io = mpage_end_io_read;
- 	if (rw == WRITE)
- 		bio->bi_end_io = mpage_end_io_write;
-diff -ur linux-2.5.30-pure/mm/page_io.c linux-2.5.30-bio/mm/page_io.c
---- linux-2.5.30-pure/mm/page_io.c	Fri Aug  2 10:08:31 2002
-+++ linux-2.5.30-bio/mm/page_io.c	Fri Aug  2 10:42:13 2002
-@@ -42,6 +42,9 @@
- 		bio->bi_vcnt = 1;
- 		bio->bi_idx = 0;
- 		bio->bi_size = PAGE_SIZE;
-+		bio->bi_voffset = __BVEC_START(bio)->bv_offset;
-+		bio->bi_endvoffset = __BVEC_END(bio)->bv_offset +
-+		__BVEC_END(bio)->bv_len;
- 		bio->bi_end_io = end_io;
- 	}
- 	return bio;
+
+-dan
+
+-- 
+
+  http://ww.telent.net/cliki/ - Link farm for free CL-on-Unix resources 

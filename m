@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSH0NXf>; Tue, 27 Aug 2002 09:23:35 -0400
+	id <S316199AbSH0Nv0>; Tue, 27 Aug 2002 09:51:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316113AbSH0NXf>; Tue, 27 Aug 2002 09:23:35 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:26116 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S316088AbSH0NXe>; Tue, 27 Aug 2002 09:23:34 -0400
-Date: Tue, 27 Aug 2002 14:27:50 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: aia21@cantab.net, kernel@bonin.ca, linux-kernel@vger.kernel.org
-Subject: Re: Loop devices under NTFS
-Message-ID: <20020827142750.A26266@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Adam J. Richter" <adam@yggdrasil.com>, aia21@cantab.net,
-	kernel@bonin.ca, linux-kernel@vger.kernel.org
-References: <200208271323.GAA04833@adam.yggdrasil.com>
+	id <S316204AbSH0Nv0>; Tue, 27 Aug 2002 09:51:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:6868 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316199AbSH0NvZ>;
+	Tue, 27 Aug 2002 09:51:25 -0400
+Date: Tue, 27 Aug 2002 19:28:55 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, davej@suse.de, andrea@suse.de,
+       paul.mckenney@us.ibm.com
+Subject: Re: [BKPATCH] Read-Copy Update 2.5
+Message-ID: <20020827192855.A2391@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020827022239.C31269@in.ibm.com> <20020826193708.0C64C2C07B@lists.samba.org> <20020827114152.A2072@in.ibm.com> <20020826.231157.10296323.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208271323.GAA04833@adam.yggdrasil.com>; from adam@yggdrasil.com on Tue, Aug 27, 2002 at 06:23:48AM -0700
+In-Reply-To: <20020826.231157.10296323.davem@redhat.com>; from davem@redhat.com on Mon, Aug 26, 2002 at 11:11:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 06:23:48AM -0700, Adam J. Richter wrote:
-> 	Are you complaining about something in loop.c,
-
-Yes.  Anything but the filesystem itself and the generic read/write path
-is not supposed to use address space operations directly.
-
-> >Note that there is a more severe bug in loop.c:  it's abuse of
-> >do_generic_file_read.  
+On Mon, Aug 26, 2002 at 11:11:57PM -0700, David S. Miller wrote:
 > 
-> 	Could you please elaborate on this and give an example where
-> it return incorrect data, deadlock, generate a kernel oops, etc.?
+> I think it gets both static and non-static wrong.
 
-Depending on the filesystem implementation _anything_ may happen.
-With current intree filesystems the only real life problem is that
-it doesn't work on certain filesystems.  I think at least the network
-filesystems might be oopsable with some preparation.
+Is this problem specific to certain versions of 2.95 gcc ?
 
+For "static DEFINE_PER_CPU(atomic_t, fake_struct);", I get this
+with gcc 2.95.4 -
+
+.section        .percpu
+        .align 4
+        .type    fake_struct__per_cpu,@object
+        .size    fake_struct__per_cpu,4
+fake_struct__per_cpu:
+        .zero   4
+        .ident  "GCC: (GNU) 2.95.4 20011002 (Debian prerelease)"
+
+It seems to be in .percpu section. I can't go back to the gcc that gave 
+us problems at the moment.
+
+> 
+> Why don't we just specify that DEFINE_PER_CPU()'s must
+> have explicit initializers then we never need to think
+> about this ever again.
+
+Like DEFINE_PER_CPU(type, var, initializer) ?
+For now, I will remain paranoic and keep the initializers.
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267552AbTACPkP>; Fri, 3 Jan 2003 10:40:15 -0500
+	id <S267558AbTACPyc>; Fri, 3 Jan 2003 10:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267554AbTACPkP>; Fri, 3 Jan 2003 10:40:15 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:49132 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP
-	id <S267552AbTACPkO>; Fri, 3 Jan 2003 10:40:14 -0500
-Date: Fri, 3 Jan 2003 15:48:43 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030103154843.GB26906@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96.1030103095620.25100B-100000@gatekeeper.tmr.com> <3E15AB4E.6070409@walrond.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-In-Reply-To: <3E15AB4E.6070409@walrond.org>
-User-Agent: Mutt/1.4i
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
+	id <S267559AbTACPyc>; Fri, 3 Jan 2003 10:54:32 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:27297 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267558AbTACPya>;
+	Fri, 3 Jan 2003 10:54:30 -0500
+Date: Fri, 3 Jan 2003 07:57:52 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Mike Galbraith <efault@gmx.de>
+cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
+       <mark@mark.mielke.cc>, <billh@gnuppy.monkey.org>, <paul@clubi.ie>,
+       <riel@conectiva.com.br>, <Hell.Surfers@cwctv.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source  drivers?
+In-Reply-To: <5.1.1.6.2.20030103063451.00c7e750@pop.gmx.net>
+Message-ID: <Pine.LNX.4.33L2.0301030752250.32697-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Jan 2003, Mike Galbraith wrote:
 
---3uo+9/B/ebqu+fSQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+| At 08:06 PM 1/2/2003 -0800, Larry McVoy wrote:
+| >On Thu, Jan 02, 2003 at 10:32:30PM -0500, Richard Stallman wrote:
+| > > But we could make do with even less cooperation than that.  If they
+| > > just provide the necessary specs to a person who wants to extend the
+| > > free drivers that exist, that would be sufficient.
+| >
+| >Yeah, if only the company that has invested millions in trying to scratch
+| >out a place to stand, if only they would give us their intellectual
+| >property for free, if only, why then we could steal that IP and give it
+| >to other people.  And it would take us less time to do it if they would
+| >only cooperate.  Why won't they cooperate?
+| >
+| >How dare they not give of the fruits of their labors for free.
+|
+| <yank>
+| You're just saying that to justify your evil BK license ;-)
+| </yank> (hey, somebody was _gonna_ do it)
+|
+| Seriously though, just what is it that graphic CPU makers are
+| protecting?  I can't imagine "how to program our spiffy CPU'" docs exposing
+| anything important to their competition.  Imagine Intel or AMD trying that
+| tactic for _their_ next CPU.  What makes graphics CPUs so special?
 
-On Fri, Jan 03, 2003 at 03:25:02PM +0000, Andrew Walrond wrote:
-> Sesquipedalian comes from Latin sesquipedalis, "a foot and a half long, 
-> hence inordinately long," from sesqui, "one half more, half as much 
-> again" + pes, ped-, "a foot."
+Imagine them doing that for their current CPU.
+That's what Nvidia is doing, isn't it?
 
-   From the OED, sesquipedalian (n & v):
+At a LinuxWorld panel 2-3 years ago, Nicholas Petreley (sp?) chaired a
+group discussion about this.  There were 2 competing sound chip
+manufacturers represented, and they denied any interest in each other's
+hardware.
 
-   "Of words and expressions (after Horace's sesquipedalia verba 'words a
-foot and a half long', A.P. 97)"
-
-   Hugo.
+However, if one of them was well-documented, then someone could
+get info on their current product.  Well, that _could_
+be a bad thing for company #2 and put company #2 on a road that was one
+generation later than the first company was now designing/building.
+So in one scenario it could end up as a negative for the "copying"
+company.
 
 -- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
- PGP: 1024D/1C335860 from wwwkeys.eu.pgp.net or www.carfax.nildram.co.uk
-       --- Never underestimate the bandwidth of a Volvo filled ---       
-                           with backup tapes.                            
+~Randy
 
---3uo+9/B/ebqu+fSQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+FbDbssJ7whwzWGARAokaAKCfJqbmdHzs+UVBNPPHXSpwshf4KQCgpxT7
-osvnSWmpxVGrQgQKp5r5zns=
-=u0ps
------END PGP SIGNATURE-----
-
---3uo+9/B/ebqu+fSQ--

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbTKIPQg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 10:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTKIPQf
+	id S262291AbTKIP3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 10:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTKIP3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 10:16:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61446 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262274AbTKIPQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 10:16:33 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: kernel.bkbits.net off the air
-Date: 9 Nov 2003 07:16:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bollnv$uvt$1@cesium.transmeta.com>
-References: <20031107051048.GA6099@work.bitmover.com>
+	Sun, 9 Nov 2003 10:29:08 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:14581 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262291AbTKIP3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 10:29:06 -0500
+Date: Sun, 9 Nov 2003 10:29:00 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Marcel Lanz <marcel.lanz@ds9.ch>
+cc: David van Hoose <david.vanhoose@comcast.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: load 2.4.x binary only module on 2.6
+In-Reply-To: <20031106165401.GA7073@ds9.ch>
+Message-ID: <Pine.LNX.4.44.0311091028400.8977-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031107051048.GA6099@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
->
-> As many of you have figured out, I took kernel.bkbits.net (aka bk.kernel.org,
-> cvs.kernel.org, and svn.kernel.org) of the air yesterday due to the breakin
-> that attempted to add a trojan horse to the kernel source.
-> 
-> I took it down after talking with Linus and Dave about it, the point was to
-> shut down the disk drive so that we can go do forensics on it after the fact
-> and see what we can figure out.  Maybe someone can track down who caused the
-> problem.
-> 
-> This means someone has to go down to the colo with a new disk and do
-> an install and we've been too busy to do this.  Would anyone object if
-> this wasn't done until this weekend?  We're pretty booked up here with
-> other work.  Last I checked only about 6 IP addresses where using the CVS
-> server, I've never checked on the SVN server (Ben?  You have any idea?).
-> 
+On Thu, 6 Nov 2003, Marcel Lanz wrote:
 
-That doesn't include anyone who uses the mirrored repository on the
-main kernel.org machines.  Doubt it's a big deal with the timing,
-though.
+> ocdemonpp from macraigor for a parallel port JTAG device (RAVEN)
 
-	-hpa
+The easiest way to get that running on 2.6 is to ask
+the manufacturer to open source their driver ;)
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

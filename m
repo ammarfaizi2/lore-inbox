@@ -1,88 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267669AbTACV2g>; Fri, 3 Jan 2003 16:28:36 -0500
+	id <S267677AbTACVcq>; Fri, 3 Jan 2003 16:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267680AbTACV2f>; Fri, 3 Jan 2003 16:28:35 -0500
-Received: from smtp-server2.tampabay.rr.com ([65.32.1.39]:23453 "EHLO
-	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S267669AbTACV2e>; Fri, 3 Jan 2003 16:28:34 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: <rms@gnu.org>, <andre@linux-ide.org>
-Cc: <mark@mark.mielke.cc>, <billh@gnuppy.monkey.org>, <paul@clubi.ie>,
-       <riel@conectiva.com.br>, <Hell.Surfers@cwctv.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Fri, 3 Jan 2003 16:35:00 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJEEOPDPAA.scott@coyotegulch.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267678AbTACVcq>; Fri, 3 Jan 2003 16:32:46 -0500
+Received: from mx2.fcservices.com ([64.245.25.141]:57094 "HELO
+	mx2.fcservices.com") by vger.kernel.org with SMTP
+	id <S267677AbTACVcp>; Fri, 3 Jan 2003 16:32:45 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Disconnect <lkml@sigkill.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1041628789.1165.173.camel@fly>
+References: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org> 
+	<1041628789.1165.173.camel@fly>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E18UYTG-0004yu-00@fencepost.gnu.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Jan 2003 16:37:54 -0500
+Message-Id: <1041629874.25500.24.camel@sparky>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
+I just can't let anything this silly go by.. 
 
-I admire your staunch stand; I don't always agree with it, but I admire you
-nonetheless. I've been in the social justice business myself (and still am,
-to a new degree); it ain't easy. In fact, I burned out a while back, and
-decided to take a little rest.
+On Fri, 2003-01-03 at 16:19, Marco Monteiro wrote:
+> I ask you some questions.
+> 
+> You make software. You have a business model, to make money, where you
+> sell software. The software that you sell is NOT Free. Imagine, now,
+> that you change the business model, continuing to make money, where the
+> software you produce is Free. Wouldn't it be better?
 
-Five years is long enough for rest, I guess.
+It'd be even better if you could change the business model so that you
+made MORE money without having to even go through the effort of making
+software, or even doing much of anything at all.  But (as you may
+recall) that business model imploded rather dramatically last year or
+so...
 
-> Making a program non-free is denying other people the freedom to
-> study, change and/or redistribute it.  It is an act of domination.
+> In the end, the fundamental question is: Wouldn't it be a better world
+> if all software was Free and people continued to make money in other
+> ways? You know the advantages and disadvantages of Free Software, so
+> answer this question and you will understand my point of view.
 
-Quite true. nVidia wishes to maintain control -- to dominate -- the market
-for video cards. As such, they are reluctant to reveal details of their
-product which might be useful to a competitor. In a system that looks at
-benefit-loss in terms of dollars-euros-yen, there is no incentive for nVidia
-to open their drivers or provide proprietary information.
+Anyone who opens a statement with "wouldn't it be a better world..." has
+usually just found another variant on "..if wishing really hard for
+something made it come true?"  This is no different.
 
-Cash-strapped Universities accept corporate sponsorships, only to lose the
-freedom to publish new discoveries. Drug companies keep their research
-private, rather than combin efforts with other companies to produce better
-medicines. These same problems underly draconian laws that have twisted
-copyrights and patents into corporate "assets." From deforesting the planet
-to the fight for "GNU/Linux", it all comes down to one thing: corporate
-dominance of society.
+> Of course, I understand your point of view too. You think you can't make
+> money any other way other than sell non-Free Software. But maybe, just
+> maybe, that is possible, even for those that make games and don't see
+> any other possibility.
+> 
+> You understand now why I say that Free Software is good and non-Free
+> Software is bad?
 
-And Linux is the best thing that ever happend to GNU.
+Yep.  Because you have wishes and horses confused.  (Or, possibly, were
+hit on the head recently.)  Want to get them detangled?  Explain how he
+can recoup his millions of dollars worth of game development by giving
+it away; don't just say "it'd be swell if you did, and the world would
+be better, honest" but say HOW.  As in "it'd be swell if you did, and
+you can feed your family by <stealing/working in fast food/selling
+someone else's game instead/....>"
 
-Why?
+> I'm a pacifist. If I where called to fight, I would not do it. I would
+> not fight for my country, because I don't believe in war, no matter
+> what. I believe no one should fight. You may say it is a bad position:
+> my country can be invaded, etc. and I must defende it. I say NO, I WILL
+> NOT FIGHT. I am convicted that no one should fight and I tell every body
+> they should not fight. I tell you: Don't fight. I believe the world
+> would be better if there were no wars. Most people would probably say
+> that I'm a fool, or maybe a wimp, but that is my philosophy.
+> The same with Free Software. I believe in Free Software, I think that
+> every body should make their software Free. Maybe I'm just an asshole,
+> but if I am, at least, I'm an asshole with convictions. And I'm
+> convinced that the world would be a better place if ALL software was
+> Free Software.
 
-Because outside a few technorati "in the know", few people had *heard* of
-free software until Linux caught on. The term GNU/Linux is correct both
-technically and morally, but the *term* is less important than the theme.
-Linux has opened a door for the promotion of free ideals in the general
-population -- a truly remarkable event!
+Um.  Heh.  I'm gonna leave this to stand, there's very little I can add
+that wouldn't reduce its humour.
 
-Counterpoint: Linux would not exist without GNU.
+> -- 
+> Marco Monteiro
 
-The relationship of GNU and Linux should be mutually symbiotic, not
-confrontational. Would you be happy if it were called Linux/GNU, for
-example? Or does GNU need to be first for some symbolic or emotional reason?
-
-The goal is not the self-promotion of GNU, but the advancement of
-intellectual freedom. Instead of being ignored by nVidia, they are meeting
-us part way -- and that's better than not meeting them at all! nVidia
-produce good hardware, and they provide a free (as in beer) driver that in
-turn attracts people to use Linux/GNU. Those people increase the audience
-that hears about the value of intellectual freedom, and they (assuming they
-*are* educated by us) put market pressure on nVidia to release
-free-as-in-freedom drivers.
-
-In other words, we use market forces to open windows of opportunity, through
-which we illuminate the masses who were unreachable before.
-
-Confrontation builds walls; wedges break them down.
-
--- Scott Robert Ladd
 
 

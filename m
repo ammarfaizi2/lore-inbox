@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVANPfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVANPgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVANPfc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 10:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVANPfc
+	id S262011AbVANPgF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 10:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVANPgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 10:35:32 -0500
-Received: from fsmlabs.com ([168.103.115.128]:24746 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262010AbVANPfZ (ORCPT
+	Fri, 14 Jan 2005 10:36:05 -0500
+Received: from ns1.q-leap.de ([153.94.51.193]:8077 "EHLO mail.q-leap.de")
+	by vger.kernel.org with ESMTP id S262011AbVANPfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 10:35:25 -0500
-Date: Fri, 14 Jan 2005 08:35:08 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <20050114002352.5a038710.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0501140819521.4941@montezuma.fsmlabs.com>
-References: <20050114002352.5a038710.akpm@osdl.org>
+	Fri, 14 Jan 2005 10:35:54 -0500
+Message-ID: <41E7E6D7.10303@q-leap.com>
+Date: Fri, 14 Jan 2005 16:35:51 +0100
+From: Peter Kruse <pk@q-leap.com>
+Organization: Q-Leap Networks GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: Peter Kruse <pk@q-leap.com>
+Subject: Random packets loss under x86_64 - routing?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005, Andrew Morton wrote:
+kernel: 2.4.28 smp x86_64
 
-> - Added the Linux Trace Toolkit (and hence relayfs).  Mainly because I
->   haven't yet taken as close a look at LTT as I should have.  Probably neither
->   have you.
+Hello,
 
-Just a few things from a quick look;
+We experience a problem in our amd64 beowulf clusters and could need
+some help.
+When ping'ing other machines in a cluster on the same
+subnet, it fails for some machines.  But only right after boot
+and after a day or so of idle time.  After some time (a few minutes) the
+ping packets go through.
 
-- What's with all the ltt_*_bit? Please use the ones provided by the 
-kernel.
+Other things we observed:
 
-- i see cpu_has_tsc, can't you use sched_clock?
+1. it is not always the same machines that fail
+2. if it fails then no packets are sent or received (checked with
+    tcpdump on sending and target host) although all hosts are up.
+3. There is no difference if using a 64bit or 32bit ping
+4. It does not depend on the network adapter or other hardware, we have
+    machines with different NICs connected to different switches with the
+    same problem.
+5. It does however only happen on amd64 (biarch) systems and not on
+    pure i386 systems so it looks like related to the kernel.
+6. I have to reboot to reproduce the problem, it's not enough to
+    unload and load the network module.
+7. It only happens with ping, not with ssh.
 
-- ltt_log_event isn't preempt safe
+The ping always succeeds when running with the "-r" switch,
+that bypasses "the normal routing tables and send directly to a host
+on an attached interface".  This makes us think that it indeed it is
+related to routing - but how?
 
-- num_cpus isn't hotplug cpu safe, and you should be using the 
-for_each_online_cpu iterators
+I can provide an strace output if you think that could help.
+What else can I do to gather more information?
 
-- code style, you have large hunks of code with blocks of the following 
-form, you can save processor cycles by placing an if (incoming_process) 
-branch earlier. This code is in _ltt_log_event, which i presume executes 
-frequently.
+Please cc to me, as I'm not subscribed, thanks.
 
-if (event_id == LTT_EV_SCHEDCHANGE)
-	incoming_process = (struct task_struct *) ((ltt_schedchange *) event_struct)->in);
+	Peter
 
-if ((trace->tracing_gid == 1) && (current->egid != trace->traced_gid)) {
-	if (incoming_process == NULL)
-		return 0;
-	else if (incoming_process->egid != trace->traced_gid)
-		return 0;
-}
-... [ more of the same ]
-if ((trace->tracing_uid == 1) && (current->euid != trace->traced_uid)) {
-	if (incoming_process == NULL)
-		return 0;
-	else if (incoming_process->euid != trace->traced_uid)
-		return 0;
-}
+-- 
+Peter Kruse <pk@q-leap.com>, Chief Software Architect
+Q-Leap Networks GmbH
+phone: +497071-703171, mobile: +49172-6340044
+
+

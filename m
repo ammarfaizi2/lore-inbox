@@ -1,66 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265602AbUBPPUB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUBPPUA
+	id S265784AbUBPPxj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 10:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUBPPxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:20:00 -0500
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:8080 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S265602AbUBPPT4 convert rfc822-to-8bit (ORCPT
+	Mon, 16 Feb 2004 10:53:38 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34784 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265784AbUBPPxf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:19:56 -0500
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Ryan Reich <ryanr@uchicago.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Speaker static, vanishes with APIC
-Date: Mon, 16 Feb 2004 15:12:11 +0000
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
-In-Reply-To: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
+	Mon, 16 Feb 2004 10:53:35 -0500
+In-Reply-To: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
+Subject: Re: [LTP] [Announce] Strace Test
+To: "dan carpenter" <error27@email.com>
+Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF4AA08477.15BECB93-ON85256E3C.0056DF6E-86256E3C.0056FBB5@us.ibm.com>
+From: Robert Williamson <robbiew@us.ibm.com>
+Date: Mon, 16 Feb 2004 09:46:10 -0600
+X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 6.0.2CF2 HFB2 IGS HF12D|January
+ 21, 2004) at 02/16/2004 10:50:11
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200402161512.12171.m.watts@eris.qinetiq.com>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+This is awesome Dan!  I added the directory into the /tools section of the
+LTP and it will be included in the next release. Thanks!
 
-> This is really trivial and I solved it anyway, but in all incarnations of
-> 2.6 I have had static coming from my speakers shortly after boot.  It only
-> lasts a few seconds and sounds as though someone were jiggling the plug in
-> the sound card's socket.  It only happens right after boot.  Since I
-> enabled Local APIC and IO-APIC it hasn't happened.
+-Robbie
 
-Did you get a similar noise when shutting down?
+Robert V. Williamson <robbiew@us.ibm.com>
+Linux Test Project
+IBM Linux Technology Center
+Web: http://www.linuxtestproject.org
+IRC: #ltp on freenode.irc.net
+====================
+"Only two things are infinite, the universe and human stupidity, and I'm
+not sure about the former." -Albert Einstein
 
-My other half has an AMD motherboard with onboard Via sound which gives a 
-burst of static when KDE 3.1 starts and another when it shuts down. All other 
-sound is fine. (Kernel 2.4.22)
+ltp-list-admin@lists.sourceforge.net wrote on 02/15/2004 11:22:57 PM:
 
-APIC's are disabled on this board...
-
+> Good evening,
 >
-> Sound card module is snd-intel8x0, and my card is built into my Shuttle
-> AN35N motherboard.
+> I'm happy to announce the initial public release of
+> Strace Test.  I believe Strace Test is the most
+> aggressive general purpose kernel tester available.
+> Strace Test generally crashes my system within
+> 5 minutes (2.6.1-rc2).
+>
+> Strace Test uses a modified version of strace 4.5.1.
+> Instead of printing out information about system calls,
+> the modified version calls the syscalls with improper
+> values.  A patch and a binary for i386 are included
+> in the strace_test tar ball.
+>
+> Strace Test uses LTP to generate real world syscalls.
+> Just unpack ltp and type 'make -k'.  You don't
+> need to install the test if you don't want to.
+>
+> The modifications make the test scripts go haywire.
+> To keep the test on track we restart it every 10
+> seconds.  The first script is run as root and it
+> spawns off the test as a test user.  Every 10 seconds
+> root kills off all the test user's processes and
+> restarts the test.  The actual tests are run with
+> user permissions.
+>
+> Strace Test is available from:
+> http://67.113.20.209/strace_test.tar.bz2
+>
+> Test Instructions (for i386)
+> Create a test user
+> Download and untar ltp (ltp.sf.net)
+> Cd to ltp and `make -k`
+> Untar strace_test
+> cd strace_test && ./go_go.sh
+> Enter the path to ltp
+> Enter the test user
+>
+> regards,
+> dan carpenter
+> --
+> ___________________________________________________________
+> Sign-up for Ads Free at Mail.com
+> http://promo.mail.com/adsfreejump.htm
+>
+>
+>
+> -------------------------------------------------------
+> SF.Net is sponsored by: Speed Start Your Linux Apps Now.
+> Build and deploy apps & Web services for Linux with
+> a free DVD software kit from IBM. Click Now!
+> http://ads.osdn.com/?ad_id=1356&alloc_id=3438&op=click
+> _______________________________________________
+> Ltp-list mailing list
+> Ltp-list@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/ltp-list
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAMN3MBn4EFUVUIO0RAmhpAKDBdNa+o+oSxN3IzJr2r1Mxah2UMQCdFsAh
-AzdX+KW9ljMZg3Yr5a0fmNY=
-=yIyB
------END PGP SIGNATURE-----
 

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129396AbRBMJ6j>; Tue, 13 Feb 2001 04:58:39 -0500
+	id <S129258AbRBMKLx>; Tue, 13 Feb 2001 05:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129377AbRBMJ63>; Tue, 13 Feb 2001 04:58:29 -0500
-Received: from mons.uio.no ([129.240.130.14]:41139 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129169AbRBMJ6O>;
-	Tue, 13 Feb 2001 04:58:14 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: carlos@fisica.ufpr.br (Carlos Carvalho), linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-In-Reply-To: <E14SQqi-0008Bm-00@the-village.bc.nu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 13 Feb 2001 10:56:28 +0100
-In-Reply-To: Alan Cox's message of "Mon, 12 Feb 2001 21:49:29 +0000 (GMT)"
-Message-ID: <shslmra9a9f.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S129267AbRBMKLn>; Tue, 13 Feb 2001 05:11:43 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:24772 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129258AbRBMKLY>;
+	Tue, 13 Feb 2001 05:11:24 -0500
+Date: Tue, 13 Feb 2001 10:08:37 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: george anzinger <george@mvista.com>
+Cc: Rasmus Andersen <rasmus@jaquet.dk>, Rik van Riel <riel@conectiva.com.br>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+Message-ID: <20010213100837.O20696@redhat.com>
+In-Reply-To: <20010129222337.F603@jaquet.dk> <Pine.LNX.4.21.0101291929120.1321-100000@duckman.distro.conectiva> <20010129224311.H603@jaquet.dk> <3A88A6ED.6B51BCA9@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A88A6ED.6B51BCA9@mvista.com>; from george@mvista.com on Mon, Feb 12, 2001 at 07:15:57PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi,
 
-    >> net/network.a(sunrpc.o): In function `xprt_ping_reserve':
-    >> sunrpc.o(.text+0x4b94): undefined reference to `BUG'
-    >> sunrpc.o(.text+0x4b98): undefined reference to `BUG'
-    >>
-    >> Looks like a problem in Trond's patches, also it doesn't happen
-    >> with pre9. It links in intel machines. I didn't reboot to test
-    >> yet...
+On Mon, Feb 12, 2001 at 07:15:57PM -0800, george anzinger wrote:
+> Excuse me if I am off base here, but wouldn't an atomic operation be
+> better here.  There are atomic inc/dec and add/sub macros for this.  It
+> just seems that that is all that is needed here (from inspection of the
+> patch).
 
-     > The ideal solution would be for someone to provide BUG() on the
-     > Alpha platform as in 2.4. That would sort things cleanly
-
-Actually, since BUG() only seems to be defined on i386 platforms for
-2.2.x, perhaps the easiest thing to do (unless somebody wants to
-volunteer to backport all the `safe' definitions from 2.4.x) would be
-to add the generic `*(int *)0 = 0' definition for local use by ping()
-itself.
+The counter-argument is that we already hold the page table lock in
+the vast majority of places where the rss is modified, so overall it's
+cheaper to avoid the extra atomic update.
 
 Cheers,
-  Trond
-
---- net/sunrpc/ping.c.orig	Tue Feb 13 10:47:20 2001
-+++ net/sunrpc/ping.c	Tue Feb 13 10:50:03 2001
-@@ -25,6 +25,10 @@
- # define RPCDBG_FACILITY	RPCDBG_XPRT
- #endif
- 
-+#ifndef BUG
-+#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
-+#endif
-+
- static void ping_call_reserve(struct rpc_task *);
- static void ping_call_allocate(struct rpc_task *);
- static void ping_call_encode(struct rpc_task *);
+ Stephen

@@ -1,74 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbUKJOdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbUKJOZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbUKJOdO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUKJOdB
+	id S261986AbUKJOZI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbUKJOVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:33:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:12515 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261964AbUKJOcM (ORCPT
+	Wed, 10 Nov 2004 09:21:55 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5008 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261989AbUKJOR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:32:12 -0500
-Date: Wed, 10 Nov 2004 16:33:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Message-ID: <20041110153300.GB9875@elte.hu>
-References: <20041021132717.GA29153@elte.hu> <200411101452.36007.annabellesgarden@yahoo.de> <20041110150136.GA8668@elte.hu> <200411101520.43192.annabellesgarden@yahoo.de>
+	Wed, 10 Nov 2004 09:17:58 -0500
+Date: Wed, 10 Nov 2004 20:05:18 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sripathi Kodi <sripathik@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
+Message-ID: <20041110143518.GC4502@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org> <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org> <Pine.LNX.4.58.0411081708000.2301@ppc970.osdl.org> <20041109143118.GA8961@in.ibm.com> <Pine.LNX.4.58.0411090745250.2301@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="WYTEVAkct0FjGQmd"
 Content-Disposition: inline
-In-Reply-To: <200411101520.43192.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0411090745250.2301@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+--WYTEVAkct0FjGQmd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Yes, it always happens, when callling ./cvscompile script of a
-> project, that is mounted via nfs. Haven't tried to do that
-> ./cvscompile locally, should I?
+On Tue, Nov 09, 2004 at 08:11:41AM -0800, Linus Torvalds wrote:
+> 
+> I think I have a potentially better approach: make the rules for "flag" a 
+> bit more explicit, and make it have structure. We use "flag" for two 
+> things: we use it to determine if we should return -ECHILD (no children), 
+> and for whether we should wait for something that might become available 
+> later. So just split up "flag" into these two meanings, instead of just 
+> trying to use a single bit:
+> 
+>  - one bit that says "we found a child that _will_ wake us up when it's 
+>    ready". In other words, that's a child that is ours, and is not yet a 
+>    zombie.
+> 
+>  - one bit that says "we found a child that is ours".
+> 
+> Make "eligible_child()" follow these rules, and then instead of just 
+> setting "flag = 1", we'd set "flag |= ret".
+> 
+> Now, with these rules, we know just what to do: we only do the wait if the 
+> "we have children that will wake us up" bit is set. But we return ECHILD 
+> only if flag is totally clear.
+> 
+> Does that sound like it would fix the problem?
+> 
 
-very interesting, nfs is indeed one of the frequent BKL users.
+How about if we set the flag only in the cases when the exit state is not
+either TASK_DEAD or TASK_ZOMBIE. 
+Patch attached below. I confirmed that this fixes the problem and I also ran 
+some LTP tests
 
-a 'BKL leak' is an unbalanced lock, e.g.:
+Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
+Signed-off-by: Sripathi Kodi <sripathik@in.ibm.com>
 
-	lock_kernel();
-	... do stuff ...
-	if (error)
-		return;
-	... do more stuff ...
-	unlock_kernel();
 
-the BKL is a very special type of lock which fact has the side-effect
-that in the stock kernel a 'BKL leak' can go unnoticed very easily: it
-causes no problems other than hard-to-debug (but severe) scalability
-regressions. The moment the BKL count leaked from the NFS code that
-process has been 'scalability-poisoned' and will be handicapped until it
-exits.
 
-In the PREEMPT_RT patchset i added a strict locking checker to do_exit()
-that found this apparent NFS bug. Unfortunately the deadlock detector
-only reported a pretty common place where the BKL gets
-dropped/reacquired frequently so we dont know where the NFS code has the
-lock/unlock imbalance. Could you report this bug to the NFS maintainers
-(along with the above and the previous analysis)?
+--WYTEVAkct0FjGQmd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="do_wait.patch"
 
-	Ingo
+diff -Naurp linux-2.6.10-rc1.orig/kernel/exit.c linux-2.6.10-rc1/kernel/exit.c
+--- linux-2.6.10-rc1.orig/kernel/exit.c	2004-10-23 03:10:06.000000000 +0530
++++ linux-2.6.10-rc1/kernel/exit.c	2004-11-10 17:18:20.818103584 +0530
+@@ -1325,14 +1325,15 @@ repeat:
+ 			ret = eligible_child(pid, options, p);
+ 			if (!ret)
+ 				continue;
+-			flag = 1;
+ 
+ 			switch (p->state) {
+ 			case TASK_TRACED:
++				flag = 1;
+ 				if (!my_ptrace_child(p))
+ 					continue;
+ 				/*FALLTHROUGH*/
+ 			case TASK_STOPPED:
++				flag = 1;
+ 				if (!(options & WUNTRACED) &&
+ 				    !my_ptrace_child(p))
+ 					continue;
+@@ -1365,6 +1366,7 @@ repeat:
+ 						goto end;
+ 					break;
+ 				}
++				flag = 1;
+ check_continued:
+ 				if (!unlikely(options & WCONTINUED))
+ 					continue;
+
+--WYTEVAkct0FjGQmd--

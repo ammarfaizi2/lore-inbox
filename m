@@ -1,90 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRALLgQ>; Fri, 12 Jan 2001 06:36:16 -0500
+	id <S129401AbRALLg4>; Fri, 12 Jan 2001 06:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRALLgH>; Fri, 12 Jan 2001 06:36:07 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:54993 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129383AbRALLf5>; Fri, 12 Jan 2001 06:35:57 -0500
-Message-ID: <3A5EED14.88D8D9AF@uow.edu.au>
-Date: Fri, 12 Jan 2001 22:40:04 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S130078AbRALLgl>; Fri, 12 Jan 2001 06:36:41 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:1796 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S129401AbRALLg1>;
+	Fri, 12 Jan 2001 06:36:27 -0500
+Content-Type: text/plain;
+  charset="iso-8859-13"
+From: Andris Pavenis <pavenis@latnet.lv>
+To: rgooch@atnf.csiro.au
+Subject: Re: devfs breakage in 2.4.0 release
+Date: Fri, 12 Jan 2001 13:35:20 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01010615285000.00465@hal>
+In-Reply-To: <01010615285000.00465@hal>
 MIME-Version: 1.0
-To: Frank de Lange <frank@unternet.org>
-CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
- related?
-In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au> <20010111201819.B3269@unternet.org> <3A5E0849.EB428D70@mandrakesoft.com>,
-		<3A5E0849.EB428D70@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Jan 11, 2001 at 02:23:53PM -0500 <20010112012839.A11091@unternet.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01011213352000.00369@hal>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank de Lange wrote:
-> 
-> Quick and dirty conclusion: as soon as the apic comes in to play, things get
-> messy...
+On Saturday 06 January 2001 15:28, Andris Pavenis wrote:
+> Noticed following devfs related problems with kernel version 2.4.0 on one
+> Pentium 200MMX box (the same problem with 2.4.0-ac2, but earlier
+> 2.4.0-test10 doesn't have this problem)
+>
+> I was able to reproduce it reliably by following steps:
+>          - booted machine in runlevel 3
+>          - logged in as user and started MC (on first console)
+>          - logged out
+>          - logged in as different user (in this case root) and tried to
+> start MC again
+>
+> This time it hangs. The source of problem appears to be devfs related as
+> devfsd exited with error message that it cannot state vcc/1 as there is no
+> such file or directory. Related parts of log files (boot parameter
+> devfs=dall) and other related information (I hope...) is in attachment. Of
+> course MC is not behaving nicely, but the primary source of problem seems
+> to be devfs
 
-Yup.
+As I tested devfsd dies after I'm logging out (very often on P200MMX,
+much more seldom on P3 700). I suspect some devfs related race
 
-Frank, for over a year there have been sporadic reports
-of APIC's forgetting how to deliver interrupts.  Not only
-on BP6's.  Often with 3com NICs, so I've never been 100% sure
-that it's not a failure in the NIC.
+> On this machine kernel was compiled for Pentium CPUs. I tried to reproduce
+> the same on a different machine with Pentium III 700 using kernel 2.4.0.
+> It took more relogging as on Pentium 200, but I got the same problem once
+> (on slower machine I was able to reproduce it more reliably).
+>
 
-In your case, you have three devices on the same IRQ and
-they all go to lunch at the same time.  That's pretty
-convincing.
+I tries 2.4.1-pre3 and got the same. Modifying devfsd.c to retry stating
+some times before giving up workarounds the problem (As far as I tested 
+I'm getting only one retry ...)
 
-Nobody has been able to repeat this frequently enough
-for any useful debugging to be done. Don't go away!
+Perhaps it's kernel's bug anyway, but I think it's doesn't harm to make
+devfsd slightly more errorproof. I'm including patch for devfsd (I had also 
+to define __USE_GNU to get devfsd compile with glibc-2.2 at all ...)
 
-Here is a debugging patch.  Could you please apply this,
-rebuild and:
+Of course best solution would be to fix the race itself (it appeared sometimes
+between 2.4.0-test10 and 2.4.0-test12, first one is OK) ....
 
-1: Type ALT-SYSRQ-A when everything is good
-2: Type ALT-SYSRQ-A when everything is bad
-3: send the resulting logs.
+Andris
 
-I've Cc'ed Maciej, who understands this stuff.
-
-
-
-
-
---- linux-2.4.0-test11.macro/arch/i386/kernel/io_apic.c	Thu Oct  5 21:08:17 2000
-+++ linux-2.4.0-test11/arch/i386/kernel/io_apic.c	Sun Nov 26 12:39:01 2000
-@@ -692,7 +692,7 @@ void __init UNEXPECTED_IO_APIC(void)
- 	printk(KERN_WARNING "          to linux-smp@vger.kernel.org\n");
- }
- 
--void __init print_IO_APIC(void)
-+void /*__init*/ print_IO_APIC(void)
+--- devfsd/devfsd.c~1	Mon Jul  3 22:43:07 2000
++++ devfsd/devfsd.c	Fri Jan 12 13:19:33 2001
+@@ -189,6 +189,7 @@
+ #include <signal.h>
+ #include <regex.h>
+ #include <errno.h>
++#define __USE_GNU
+ #include <dlfcn.h>
+ #include <rpcsvc/ypclnt.h>
+ #include <rpcsvc/yp_prot.h>
+@@ -918,15 +919,29 @@
+     [RETURNS] Nothing.
+ */
  {
- 	int apic, i;
- 	struct IO_APIC_reg_00 reg_00;
-diff -up --recursive --new-file linux-2.4.0-test11.macro/drivers/char/sysrq.c linux-2.4.0-test11/drivers/char/sysrq.c
---- linux-2.4.0-test11.macro/drivers/char/sysrq.c	Tue Nov 14 10:24:52 2000
-+++ linux-2.4.0-test11/drivers/char/sysrq.c	Sun Nov 26 12:42:11 2000
-@@ -72,6 +72,15 @@ void handle_sysrq(int key, struct pt_reg
- 	console_loglevel = 7;
- 	printk(KERN_INFO "SysRq: ");
- 	switch (key) {
-+	case 'a':
-+		printk("\n");
-+		printk("print_PIC()\n");
-+		print_PIC();
-+		printk("print_IO_APIC()\n");
-+		print_IO_APIC();
-+		printk("print_all_local_APICs()\n");
-+		print_all_local_APICs();
-+		break;
- 	case 'r':					    /* R -- Reset raw mode */
- 		if (kbd) {
- 			kbd->kbdmode = VC_XLATE;
++    int tries=0;
+     mode_t new_mode;
+     struct stat statbuf;
+ 
++Retry:   
+     if (lstat (info->devname, &statbuf) != 0)
+     {
+-	SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
+-		info->devname, ERRSTRING);
+-	SYSLOG (LOG_ERR, "exiting\n");
+-	exit (1);
++	if (tries<10)
++	{
++	   tries++;
++           SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
++	   	   info->devname, ERRSTRING);
++           SYSLOG (LOG_ERR, "retrying (attempt %d) ...\n",tries);
++	   usleep (1000);  /* Let's sleep a bit  */
++	   goto Retry;
++	}
++	else
++	{
++	   SYSLOG (LOG_ERR, "error stat(2)ing: \"%s\"\t%s\n",
++	   	   info->devname, ERRSTRING);
++	   SYSLOG (LOG_ERR, "exiting\n");
++	   exit (1);
++	}
+     }
+     new_mode = (statbuf.st_mode & S_IFMT) |
+ 	(entry->u.permissions.mode & ~S_IFMT);
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbTJFTjq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTJFTjq
+	id S261656AbTJFT64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 15:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbTJFT64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:39:46 -0400
-Received: from dnsb1.cdh.it ([62.94.122.7]:24068 "EHLO dae.cdh.it")
-	by vger.kernel.org with ESMTP id S261645AbTJFTjj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:39:39 -0400
-Message-ID: <3F81C4F6.5010000@ampersand.it>
-Date: Mon, 06 Oct 2003 21:39:34 +0200
-From: Stefano Carlotto <stefano.carlotto@ampersand.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: it, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: highmem problem with lc2000
-References: <3F7DF868.809@ampersand.it>
-In-Reply-To: <3F7DF868.809@ampersand.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	Mon, 6 Oct 2003 15:58:56 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:61637 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S261656AbTJFT6x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 15:58:53 -0400
+Date: Tue, 7 Oct 2003 01:31:10 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Patrick Mochel <mochel@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006200110.GA9908@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20031006085915.GE4220@in.ibm.com> <Pine.LNX.4.44.0310061123110.985-100000@localhost.localdomain> <20031006192713.GE1788@in.ibm.com> <20031006193050.GT7665@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006193050.GT7665@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried some things, in the hope to find a solution: 2.4.23pre, some 
-patches, but no good news. Only one thing, that may help, I hope, if i 
-select HIGHMEM support 64GB, instead of 4GB, I have the same super 
-slowness problem asap the kernel had started, but it's less severe and i 
-can see without becoming old the fsck of mounted partition.
-I tried also to play with high memory buffers on or off, but no change. 
-I've read about some problem hanging around with some hardware driver 
-not correctly using highmem, but the scsi on these machine is a 
-sym53c896, and it's safe highmode written...
-I read of problems selecting mp1.1 on bios setup under linux, but i do 
-not manage to find any similar setup in bios. anyway, i upgraded to the 
-last bios from hp.
-any hint? any tactic you can suggest?
-thanks in advance
+On Mon, Oct 06, 2003 at 08:30:50PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Tue, Oct 07, 2003 at 12:57:13AM +0530, Dipankar Sarma wrote:
+> > sysfs currently uses dentries to represent filesystem hierarchy.
+> > We want to create the dentries on the fly and age them out.
+> > So, we can no longer use dentries to represent filesystem hierarchy.
+> > Now, *something* has to represent the actual filesystem
+> > hierarchy, so that dentries/inodes can be created on a lookup
+> > miss based on that. So, what do you do here ? kobject and
+> > its associates already represent most of the information necessary
+> > for a backing store. Maneesh just added a little more to complete
+> > what is equivalent of a on-disk filesystem. This allows vfs to
+> > create dentries and inodes on the fly and age later on. Granted
+> > that there are probably ugliness in the design to be sorted out
+> > and it may have taken kobjects in a slightly different direction
+> > than earlier, but it is not that odd when you look at it
+> > from the VFS point of view.
+> 
+> Rot.  First of all, *not* *all* *kobjects* *are* *in* *sysfs*.  And these
+> are pure loss in your case.
 
-Stefano Carlotto wrote:
+gregkh pointed out this as well and that is why I said that Maneesh's
+patch may have taken kobjects in a different direction than what
+it was intended earlier. I don't disagree with this and it may
+very well be that dentry ageing will have to be done differently.
 
-> I'm having this strange problem: hp lc2000 (sym53c896 scsi), 2 pentium 
-> III, kernel 2.4.22, just upgraded to 1664MB, raid software used, 
-> slackware 8.1.
-> Obviously, if i do not activate highmem support on kernel, I can see 
-> only 896MB, as I had before the memory upgrade.
-> If I activate high mem support (4GB), the system starts normally, 
-> until it goes multiuser: then it slows in a incredible way, almost 
-> stop, no disk activity, no ping answer, if I press return on keyboard, 
-> it scrolls very very slooooow... ( vesa framebuffer used)
-> any idea? :(
->
-> this is /proc/mtrr  ( no highmem support compiled)
-> reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
-> reg01: base=0x40000000 (1024MB), size= 512MB: write-back, count=1
-> reg02: base=0x60000000 (1536MB), size= 128MB: write-back, count=1
->
->
-> thanks
-> Stefano
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> What's more important, for leaves of the sysfs tree your overhead is also
+> a loss - we don't need to pin dentry down for them even with current sysfs
+> design.   And that can be done with minimal code changes and no data changes
+> at all.  Your patch will have to be more attractive than that.  What's the
+> expected ratio of directories to non-directories in sysfs?
 
+ISTR, a large number of files in sysfs are attributes which are leaves.
+So, keeping a kobject tree partially connected using dentries as backing 
+store as opposed to having everything connected might just be enough.
+It will be looked into.
 
-
+Thanks
+Dipankar

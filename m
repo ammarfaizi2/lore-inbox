@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVCHKwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVCHKyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVCHKwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVCHKwA
+	id S262001AbVCHKyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVCHKyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:52:00 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:13547 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261993AbVCHKpX
+	Tue, 8 Mar 2005 05:54:01 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:19691 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261978AbVCHKuJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 05:45:23 -0500
+	Tue, 8 Mar 2005 05:50:09 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 8 Mar 2005 11:43:54 +0100
+Date: Tue, 8 Mar 2005 11:45:08 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: IR common update
-Message-ID: <20050308104354.GA30665@bytesex>
+Subject: [patch] v4l: tuner update
+Message-ID: <20050308104508.GA30750@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,265 +23,96 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes:
- * add some keytables which are used by both bttv and cx88 driver
-   so they can be shared.
- * add IR decoding helper functions.
+Minor update for the tuner module:  Add some new entries,
+fix a bug in the tda8290 driver.
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
 ---
- drivers/media/common/ir-common.c |  164 ++++++++++++++++++++++++++++++-
- include/media/ir-common.h        |    6 -
- 2 files changed, 167 insertions(+), 3 deletions(-)
+ drivers/media/video/mt20xx.c       |    3 ++-
+ drivers/media/video/tda8290.c      |    4 ++--
+ drivers/media/video/tuner-simple.c |    9 ++++++++-
+ include/media/tuner.h              |    4 ++++
+ 4 files changed, 16 insertions(+), 4 deletions(-)
 
-Index: linux-2.6.11/include/media/ir-common.h
+Index: linux-2.6.11/include/media/tuner.h
 ===================================================================
---- linux-2.6.11.orig/include/media/ir-common.h	2005-03-07 10:15:15.000000000 +0100
-+++ linux-2.6.11/include/media/ir-common.h	2005-03-07 16:17:34.000000000 +0100
+--- linux-2.6.11.orig/include/media/tuner.h	2005-03-07 18:13:01.000000000 +0100
++++ linux-2.6.11/include/media/tuner.h	2005-03-08 10:32:50.000000000 +0100
+@@ -93,6 +93,10 @@
+ #define TUNER_THOMSON_DTT7610    52
+ #define TUNER_PHILIPS_FQ1286     53
+ #define TUNER_PHILIPS_TDA8290    54
++#define TUNER_LG_PAL_TAPE        55    /* Hauppauge PVR-150 PAL */
++
++#define TUNER_PHILIPS_FQ1216AME_MK4 56 /* Hauppauge PVR-150 PAL */
++#define TUNER_PHILIPS_FQ1236A_MK4 57   /* Hauppauge PVR-500MCE NTSC */
+ 
+ #define NOTUNER 0
+ #define PAL     1	/* PAL_BG */
+Index: linux-2.6.11/drivers/media/video/tuner-simple.c
+===================================================================
+--- linux-2.6.11.orig/drivers/media/video/tuner-simple.c	2005-03-07 18:13:01.000000000 +0100
++++ linux-2.6.11/drivers/media/video/tuner-simple.c	2005-03-08 10:32:50.000000000 +0100
 @@ -1,5 +1,5 @@
  /*
-- * $Id: ir-common.h,v 1.6 2004/09/15 16:15:24 kraxel Exp $
-+ * $Id: ir-common.h,v 1.8 2005/02/22 12:28:40 kraxel Exp $
+- * $Id: tuner-simple.c,v 1.4 2005/02/15 15:59:35 kraxel Exp $
++ * $Id: tuner-simple.c,v 1.10 2005/03/08 08:38:00 kraxel Exp $
   *
-  * some common structs and functions to handle infrared remotes via
-  * input layer ...
-@@ -47,7 +47,9 @@ struct ir_input_state {
+  * i2c tv tuner chip device driver
+  * controls all those simple 4-control-bytes style tuners.
+@@ -204,6 +204,13 @@ static struct tunertype tuners[] = {
+ 	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
+ 	{ "tda8290+75", Philips,PAL|NTSC,
+ 	  /* see tda8290.c for details */ },
++	{ "LG PAL (TAPE series)", LGINNOTEK, PAL,
++          16*170.00, 16*450.00, 0x01,0x02,0x08,0xce,623},
++
++        { "Philips PAL/SECAM multi (FQ1216AME MK4)", Philips, PAL,
++          16*160.00,16*442.00,0x01,0x02,0x04,0xce,623 },
++        { "Philips FQ1236A MK4", Philips, NTSC,
++          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
+ 
  };
- 
- extern IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB_SIZE];
-+extern IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_empty[IR_KEYTAB_SIZE];
-+extern IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE];
- 
- void ir_input_init(struct input_dev *dev, struct ir_input_state *ir,
- 		   int ir_type, IR_KEYTAB_TYPE *ir_codes);
-@@ -55,6 +57,8 @@ void ir_input_nokey(struct input_dev *de
- void ir_input_keydown(struct input_dev *dev, struct ir_input_state *ir,
- 		      u32 ir_key, u32 ir_raw);
- u32  ir_extract_bits(u32 data, u32 mask);
-+int  ir_dump_samples(u32 *samples, int count);
-+int  ir_decode_biphase(u32 *samples, int count, int low, int high);
- 
- /*
-  * Local variables:
-Index: linux-2.6.11/drivers/media/common/ir-common.c
+ unsigned const int tuner_count = ARRAY_SIZE(tuners);
+Index: linux-2.6.11/drivers/media/video/mt20xx.c
 ===================================================================
---- linux-2.6.11.orig/drivers/media/common/ir-common.c	2005-03-07 10:14:43.000000000 +0100
-+++ linux-2.6.11/drivers/media/common/ir-common.c	2005-03-07 16:17:34.000000000 +0100
+--- linux-2.6.11.orig/drivers/media/video/mt20xx.c	2005-03-07 18:13:01.000000000 +0100
++++ linux-2.6.11/drivers/media/video/mt20xx.c	2005-03-07 18:13:02.000000000 +0100
 @@ -1,5 +1,5 @@
  /*
-- * $Id: ir-common.c,v 1.6 2004/12/10 12:33:39 kraxel Exp $
-+ * $Id: ir-common.c,v 1.8 2005/02/22 12:28:40 kraxel Exp $
+- * $Id: mt20xx.c,v 1.3 2005/02/15 15:59:35 kraxel Exp $
++ * $Id: mt20xx.c,v 1.4 2005/03/04 09:24:56 kraxel Exp $
   *
-  * some common structs and functions to handle infrared remotes via
-  * input layer ...
-@@ -23,7 +23,6 @@
+  * i2c tv tuner chip device driver
+  * controls microtune tuners, mt2032 + mt2050 at the moment.
+@@ -7,6 +7,7 @@
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/videodev.h>
++#include <linux/moduleparam.h>
+ #include <media/tuner.h>
  
- #include <linux/module.h>
- #include <linux/moduleparam.h>
--
- #include <media/ir-common.h>
- 
- /* -------------------------------------------------------------------------- */
-@@ -45,6 +44,7 @@ module_param(debug, int, 0644);
- 
- /* generic RC5 keytable                                          */
- /* see http://users.pandora.be/nenya/electronics/rc5/codes00.htm */
-+/* used by old (black) Hauppauge remotes                         */
- IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB_SIZE] = {
- 	[ 0x00 ] = KEY_KP0,             // 0
- 	[ 0x01 ] = KEY_KP1,             // 1
-@@ -117,12 +117,102 @@ IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB
- };
- EXPORT_SYMBOL_GPL(ir_codes_rc5_tv);
- 
-+/* Table for Leadtek Winfast Remote Controls - used by both bttv and cx88 */
-+IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE] = {
-+	[  5 ] = KEY_KP1,
-+	[  6 ] = KEY_KP2,
-+	[  7 ] = KEY_KP3,
-+	[  9 ] = KEY_KP4,
-+	[ 10 ] = KEY_KP5,
-+	[ 11 ] = KEY_KP6,
-+	[ 13 ] = KEY_KP7,
-+	[ 14 ] = KEY_KP8,
-+	[ 15 ] = KEY_KP9,
-+	[ 18 ] = KEY_KP0,
-+
-+	[  0 ] = KEY_POWER,
-+//      [ 27 ] = MTS button
-+	[  2 ] = KEY_TUNER,     // TV/FM
-+	[ 30 ] = KEY_VIDEO,
-+//      [ 22 ] = display button
-+	[  4 ] = KEY_VOLUMEUP,
-+	[  8 ] = KEY_VOLUMEDOWN,
-+	[ 12 ] = KEY_CHANNELUP,
-+	[ 16 ] = KEY_CHANNELDOWN,
-+	[  3 ] = KEY_ZOOM,      // fullscreen
-+	[ 31 ] = KEY_SUBTITLE,  // closed caption/teletext
-+	[ 32 ] = KEY_SLEEP,
-+//      [ 41 ] = boss key
-+	[ 20 ] = KEY_MUTE,
-+	[ 43 ] = KEY_RED,
-+	[ 44 ] = KEY_GREEN,
-+	[ 45 ] = KEY_YELLOW,
-+	[ 46 ] = KEY_BLUE,
-+	[ 24 ] = KEY_KPPLUS,    //fine tune +
-+	[ 25 ] = KEY_KPMINUS,   //fine tune -
-+//      [ 42 ] = picture in picture
-+        [ 33 ] = KEY_KPDOT,
-+	[ 19 ] = KEY_KPENTER,
-+//      [ 17 ] = recall
-+	[ 34 ] = KEY_BACK,
-+	[ 35 ] = KEY_PLAYPAUSE,
-+	[ 36 ] = KEY_NEXT,
-+//      [ 37 ] = time shifting
-+	[ 38 ] = KEY_STOP,
-+	[ 39 ] = KEY_RECORD
-+//      [ 40 ] = snapshot
-+};
-+EXPORT_SYMBOL_GPL(ir_codes_winfast);
-+
- /* empty keytable, can be used as placeholder for not-yet created keytables */
- IR_KEYTAB_TYPE ir_codes_empty[IR_KEYTAB_SIZE] = {
- 	[ 42 ] = KEY_COFFEE,
- };
- EXPORT_SYMBOL_GPL(ir_codes_empty);
- 
-+/* Hauppauge: the newer, gray remotes (seems there are multiple
-+ * slightly different versions), shipped with cx88+ivtv cards.
-+ * almost rc5 coding, but some non-standard keys */
-+IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE] = {
-+	[ 0x00 ] = KEY_KP0,             // 0
-+	[ 0x01 ] = KEY_KP1,             // 1
-+	[ 0x02 ] = KEY_KP2,             // 2
-+	[ 0x03 ] = KEY_KP3,             // 3
-+	[ 0x04 ] = KEY_KP4,             // 4
-+	[ 0x05 ] = KEY_KP5,             // 5
-+	[ 0x06 ] = KEY_KP6,             // 6
-+	[ 0x07 ] = KEY_KP7,             // 7
-+	[ 0x08 ] = KEY_KP8,             // 8
-+	[ 0x09 ] = KEY_KP9,             // 9
-+	[ 0x0b ] = KEY_RED,             // red button
-+	[ 0x0c ] = KEY_OPTION,          // black key without text
-+	[ 0x0d ] = KEY_MENU,            // menu
-+	[ 0x0f ] = KEY_MUTE,            // mute
-+	[ 0x10 ] = KEY_VOLUMEUP,        // volume +
-+	[ 0x11 ] = KEY_VOLUMEDOWN,      // volume -
-+	[ 0x1e ] = KEY_NEXT,            // skip >|
-+	[ 0x1f ] = KEY_EXIT,            // back/exit
-+	[ 0x20 ] = KEY_CHANNELUP,       // channel / program +
-+	[ 0x21 ] = KEY_CHANNELDOWN,     // channel / program -
-+	[ 0x22 ] = KEY_CHANNEL,         // source (old black remote)
-+	[ 0x24 ] = KEY_PREVIOUS,        // replay |<
-+	[ 0x25 ] = KEY_ENTER,           // OK
-+	[ 0x26 ] = KEY_SLEEP,           // minimize (old black remote)
-+	[ 0x29 ] = KEY_BLUE,            // blue key
-+	[ 0x2e ] = KEY_GREEN,           // green button
-+	[ 0x30 ] = KEY_PAUSE,           // pause
-+	[ 0x32 ] = KEY_REWIND,          // backward <<
-+	[ 0x34 ] = KEY_FASTFORWARD,     // forward >>
-+	[ 0x35 ] = KEY_PLAY,            // play
-+	[ 0x36 ] = KEY_STOP,            // stop
-+	[ 0x37 ] = KEY_RECORD,          // recording
-+	[ 0x38 ] = KEY_YELLOW,          // yellow key
-+	[ 0x3b ] = KEY_SELECT,          // top right button
-+	[ 0x3c ] = KEY_ZOOM,            // full
-+	[ 0x3d ] = KEY_POWER,           // system power (green button)
-+};
-+EXPORT_SYMBOL(ir_codes_hauppauge_new);
-+
- /* -------------------------------------------------------------------------- */
- 
- static void ir_input_key_event(struct input_dev *dev, struct ir_input_state *ir)
-@@ -192,6 +282,8 @@ void ir_input_keydown(struct input_dev *
- #endif
- }
- 
-+/* -------------------------------------------------------------------------- */
-+
- u32 ir_extract_bits(u32 data, u32 mask)
- {
- 	int mbit, vbit;
-@@ -209,10 +301,78 @@ u32 ir_extract_bits(u32 data, u32 mask)
- 	return value;
- }
- 
-+static int inline getbit(u32 *samples, int bit)
-+{
-+	return (samples[bit/32] & (1 << (31-(bit%32)))) ? 1 : 0;
-+}
-+
-+/* sump raw samples for visual debugging ;) */
-+int ir_dump_samples(u32 *samples, int count)
-+{
-+	int i, bit, start;
-+
-+	printk(KERN_DEBUG "ir samples: ");
-+	start = 0;
-+	for (i = 0; i < count * 32; i++) {
-+		bit = getbit(samples,i);
-+		if (bit)
-+			start = 1;
-+		if (0 == start)
-+			continue;
-+		printk("%s", bit ? "#" : "_");
-+	}
-+	printk("\n");
-+	return 0;
-+}
-+
-+/* decode raw samples, biphase coding, used by rc5 for example */
-+int ir_decode_biphase(u32 *samples, int count, int low, int high)
-+{
-+	int i,last,bit,len,flips;
-+	u32 value;
-+
-+	/* find start bit (1) */
-+	for (i = 0; i < 32; i++) {
-+		bit = getbit(samples,i);
-+		if (bit)
-+			break;
-+	}
-+
-+	/* go decoding */
-+	len   = 0;
-+	flips = 0;
-+	value = 1;
-+	for (; i < count * 32; i++) {
-+		if (len > high)
-+			break;
-+		if (flips > 1)
-+			break;
-+		last = bit;
-+		bit  = getbit(samples,i);
-+		if (last == bit) {
-+			len++;
-+			continue;
-+		}
-+		if (len < low) {
-+			len++;
-+			flips++;
-+			continue;
-+		}
-+		value <<= 1;
-+		value |= bit;
-+		flips = 0;
-+		len   = 1;
-+	}
-+	return value;
-+}
-+
- EXPORT_SYMBOL_GPL(ir_input_init);
- EXPORT_SYMBOL_GPL(ir_input_nokey);
- EXPORT_SYMBOL_GPL(ir_input_keydown);
-+
- EXPORT_SYMBOL_GPL(ir_extract_bits);
-+EXPORT_SYMBOL_GPL(ir_dump_samples);
-+EXPORT_SYMBOL_GPL(ir_decode_biphase);
- 
+ /* ---------------------------------------------------------------------- */
+Index: linux-2.6.11/drivers/media/video/tda8290.c
+===================================================================
+--- linux-2.6.11.orig/drivers/media/video/tda8290.c	2005-03-07 18:13:01.000000000 +0100
++++ linux-2.6.11/drivers/media/video/tda8290.c	2005-03-07 18:13:02.000000000 +0100
+@@ -1,5 +1,5 @@
  /*
-  * Local variables:
+- * $Id: tda8290.c,v 1.5 2005/02/15 15:59:35 kraxel Exp $
++ * $Id: tda8290.c,v 1.7 2005/03/07 12:01:51 kraxel Exp $
+  *
+  * i2c tv tuner chip device driver
+  * controls the philips tda8290+75 tuner chip combo.
+@@ -123,7 +123,7 @@ static int tda8290_tune(struct i2c_clien
+ 	struct i2c_msg easy_mode =
+ 		{ I2C_ADDR_TDA8290, 0, 2, t->i2c_easy_mode };
+ 	struct i2c_msg set_freq =
+-		{ I2C_ADDR_TDA8290, 0, 8, t->i2c_set_freq  };
++		{ I2C_ADDR_TDA8275, 0, 8, t->i2c_set_freq  };
+ 
+ 	i2c_transfer(c->adapter, &easy_mode,      1);
+ 	i2c_transfer(c->adapter, i2c_msg_prolog, ARRAY_SIZE(i2c_msg_prolog));
 
 -- 
 #define printk(args...) fprintf(stderr, ## args)

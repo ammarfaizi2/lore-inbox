@@ -1,79 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbUCVEeH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 23:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUCVEeH
+	id S261687AbUCVEiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 23:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUCVEiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 23:34:07 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:39315
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261686AbUCVEeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 23:34:03 -0500
-Date: Mon, 22 Mar 2004 05:34:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Drop O_LARGEFILE from F_GETFL for POSIX compliance
-Message-ID: <20040322043454.GL3649@dualathlon.random>
-References: <20040322051318.597ad1f9.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040322051318.597ad1f9.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sun, 21 Mar 2004 23:38:16 -0500
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:20622 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S261687AbUCVEiL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 23:38:11 -0500
+Date: Sun, 21 Mar 2004 22:38:10 -0600 (CST)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: openlog() ; vsyslog(); closelog() has wrong time
+In-Reply-To: <Pine.GSO.4.21.0403211344560.25561-100000@dirac.phys.uwm.edu>
+Message-ID: <Pine.GSO.4.21.0403212232340.27080-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 05:13:18AM +0100, Andi Kleen wrote:
+OK, replying to my own email.  This is a glibc bug in localtime(); see
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=48184 for a report.
+
+Bugzilla for glibc seems to be broken, so I can't see if a bug report for
+glibc has been filed or not.  As more people travel between timezones with
+laptops, this annoying problem will crop up more and more often.
+
+Cheers,
+	Bruce
+
+On Sun, 21 Mar 2004, Bruce Allen wrote:
+
+> smartd runs on my laptop, using openlog() ; vsyslog(); closelog(); to
+> write to SYSLOG.  It's been running for a few days.  This is stock RH9
+> Linux lap 2.4.20-30.9 #1 Wed Feb 4 20:44:26 EST 2004 i686 i686 i386
+> GNU/Linux
 > 
-> On 64bit architectures open() sets O_LARGEFILE implicitely. This causes the LSB
-> testsuite to fail, which checks that F_GETFL only returns the flags set by 
-> a previous open.
+> I arrived in Berlin yesterday from the USA (dt is seven hours) and copied
+> /usr/share/zoneinfo/Europe/Berlin into /etc/localtime so that my desktop
+> would display the right local time.  System clock is UTC.
 > 
-> According to the POSIX standards gurus the Linux behaviour is not compliant.
+> I just noticed that smartd is logging the WRONG time into SYSLOG.  Here
+> are the entries, in order, with some comments from me inserted after "***"
 > 
-> This patch fixes this by just not reporting O_LARGEFILE in F_GETFL.
+> Mar 21 04:02:17 localhost syslogd 1.4.1: restart.
+> Mar 21 11:11:24 localhost su(pam_unix)[21417]: session opened for user
+> news by (uid=0)
+> Mar 21 11:11:24 localhost su(pam_unix)[21417]: session closed for user
+> news
+> Mar 21 12:10:30 localhost ntpd[3060]: synchronisation lost
 > 
-> This has been in several shipping SuSE releases and the x86-64.org CVS
-> treee for a long time, so is unlikely to break anything.
+> *** I run ntpd.
 > 
-> -Andi
+> Mar 21 12:11:38 localhost ntpd[3060]: time reset 2.738912 s
+> Mar 21 12:11:38 localhost ntpd[3060]: synchronisation lost
+> Mar 21 14:22:45 localhost ntpd[3060]: synchronisation lost
+> Mar 21 14:29:22 localhost ntpd[3060]: time reset 2.272984 s
+> Mar 21 14:29:22 localhost ntpd[3060]: synchronisation lost
+> Mar 21 15:45:01 localhost ntpd[3060]: synchronisation lost
+> Mar 21 16:00:53 localhost ntpd[3060]: time reset 4.989967 s
+> Mar 21 16:00:53 localhost ntpd[3060]: synchronisation lost
+> Mar 21 12:28:31 localhost smartd[2072]: Device: /dev/hda, starting
+> scheduled Short Self-Test.
 > 
-> diff -burpN -X ../KDIFX linux-2.4.26-pre5/fs/fcntl.c linux-merge/fs/fcntl.c
-> --- linux-2.4.26-pre5/fs/fcntl.c	2004-01-13 10:29:17.000000000 +0100
-> +++ linux-merge/fs/fcntl.c	2003-10-23 15:40:52.000000000 +0200
-> @@ -271,7 +271,7 @@ static long do_fcntl(unsigned int fd, un
->  			set_close_on_exec(fd, arg&1);
->  			break;
->  		case F_GETFL:
-> -			err = filp->f_flags;
-> +			err = filp->f_flags & ~O_LARGEFILE;
->  			break;
->  		case F_SETFL:
->  			lock_kernel();
+> *** And there's the problem. openlog/vslog/closelog have the wrong time!
+> *** I noticed this because I heard the disk starting a scheduled self-test
+> *** at the wrong time, which means that time(2) is returning the wrong
+> *** value within the smartd process (not just for syslog).
+> 
+> Mar 21 19:29:03 localhost su(pam_unix)[13096]: session opened
+> for user root by ballen(uid=500)
+> Mar 21 13:41:16 localhost smartd[2072]: Signal USR1 - checking devices now
+> rather than in 1035 seconds.
+> 
+> *** This time difference is exactly the difference between US Central time
+> *** and Berlin time: 7 hours.
+> 
+> Mar 21 20:42:28 localhost logger: here is the output of date Sun Mar 21
+> 20:42:27 CET 2004
+> 
+> *** I echoed the output of `date` into "logger" above
+> 
+> Mar 21 20:42:40 localhost logger: here is the output of ntptime
+> ntp_gettime() returns code 0 (OK) time c4086eb0.6ad0b000 Sun, Mar 21 2004
+> 20:42:40.417, (.417247), maximum error 312657 us, estimated error 6382 us
+> ntp_adjtime() returns code 0 (OK) modes 0x0 (), offset -17322.000
+> us, frequency 82.893 ppm, interval 4 s, maximum error 312657 us, estimated
+> error 6382 us, status 0x1 (PLL), time constant 6, precision 1.000 us,
+> tolerance 512 ppm, pps frequency 0.000 ppm, stability 512.000 ppm, jitter
+> 200.000 us, intervals 0, jitter exceeded 0, stability exceeded 0, errors
+> 0.
+> 
+> *** I echoed the output of `ntptime` into "logger" above
+> 
+> Mar 21 13:42:44 localhost smartd[2072]: Signal USR1 - checking devices now
+> rather than in 947 seconds.
+> 
+> *** and finally, I sent SIGUSR1 to smartd.  It's still logging US Central
+> *** time!
+> 
+> Is this glibc problem, an ntpd problem, a kernel problem, or is there
+> something wrong with my smartd code?  The following bit of code is
+> equivalent to what's in smartd:
+> 
+>  int main() {
+>    time_t now=time(NULL);
+>    openlog("smartd", LOG_PID, LOG_DAEMON);
+>    syslog(LOG_INFO, "local time is %s\n", ctime(&now));
+>    closelog();
+>    return 0;
+>  }
+> 
+> and it makes this (correct!) entry:
+> 
+> Mar 21 21:13:25 localhost experiment[13705]: local time is Sun Mar 21
+> 21:13:25 2004
+> 
+> This is making the jet lag even worse (;-)!
+> 
+> Cheers,
+> 	Bruce
+> 
 > -
-
-in my 2.4 tree I have this one instead (written in oct 2002):
-
---- x/fs/fcntl.c.~1~	Wed Oct 16 17:26:27 2002
-+++ x/fs/fcntl.c	Wed Oct 16 17:27:43 2002
-@@ -277,7 +277,11 @@ static long do_fcntl(unsigned int fd, un
- 			set_close_on_exec(fd, arg&1);
- 			break;
- 		case F_GETFL:
-+#if BITS_PER_LONG != 32
-+			err = filp->f_flags & ~O_LARGEFILE;
-+#else
- 			err = filp->f_flags;
-+#endif
- 			break;
- 		case F_SETFL:
- 			err = setfl(fd, filp, arg);
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 
-32bit archs needs to get O_LARGEFILE in return from getfl (if they set
-it [it's not set implicitly in 32bit archs] they will be able to handle
-it transparently in glibc too, and I believe they really want it). 64bit
-archs not, hence the fix.
+

@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTIMVNl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 17:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbTIMVNk
+	id S262191AbTIMVJH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 17:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTIMVJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 17:13:40 -0400
-Received: from aneto.able.es ([212.97.163.22]:59363 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262202AbTIMVNf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 17:13:35 -0400
-Date: Sat, 13 Sep 2003 23:13:32 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: libata update posted
-Message-ID: <20030913211332.GC3478@werewolf.able.es>
-References: <3F628DC7.3040308@pobox.com>
+	Sat, 13 Sep 2003 17:09:07 -0400
+Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:2016
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S262191AbTIMVJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 17:09:04 -0400
+Date: Sat, 13 Sep 2003 14:07:22 -0700
+To: linux-kernel@vger.kernel.org
+Cc: pavel@ucw.cz, mochel@osdl.org
+Subject: Swsusp weirdness with ACPI
+Message-ID: <20030913210722.GA264@anemic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3F628DC7.3040308@pobox.com>; from jgarzik@pobox.com on Sat, Sep 13, 2003 at 05:23:51 +0200
-X-Mailer: Balsa 2.0.14
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A few things to say about swsusp in 2.6.0-test5-mm1 on my Dell Smartstep
+laptop.
 
-On 09.13, Jeff Garzik wrote:
-> Just some minor updates.  The main one is that ATA software reset is now 
-> considered reliable, so it is now the default. 
-> Execute-Device-Diagnostic bus reset method remains in place and can be 
-> easily re-enabled with a flag.
-> 
-> libata has also moved (slightly) to a new home:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/libata/
-> 
-> The latest libata patches for 2.4.x and 2.6.x were uploaded to this URL, 
-> and future patches will appear in the same location.
-> 
-> Look for more updates this weekend, including bug fixes from Dell and 
-> Red Hat, and better MMIO support.  And maybe a special surprise.  :)
-> 
+Here is my /proc/acpi/sleep:
+S0 S3 S4 S4bios S5
 
-Any user documentation, like modules names and how to make it work ?
-I could write the Configure.help entries.
-I suppose you load the PIIX/VIA modules and you have one other scsi
-bus.
+- 0 doesn't seem to do anything.
+- 3 will ONLY 'suspend' my laptop if all my USB devices are disconnected
+  and I have removed my PCMCIA cards.
 
-Any pointer ?
+  Furthermore, it won't resume. The fan will spin up, etc., but the LCD
+  will not turn on.
+- 4 nearly works. When it's suspending there will be an oops that flies
+  by too quickly to read. It will turn off though, but when I reboot it,
+  my swap partition will have been hosed:
 
-Just adding it to -jam before publishing pre4-jam1.
+  "Unable to find swap-space signature" when trying to swapon
+  
+  "PM: Reading swsusp image.
+  swsusp: Resume From partition: hda7, Device: unknown-block(0,0)
+  Resume Machine: Error -6 resuming
+  PM: Resume from disk failed." when I try to resume.
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre4-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
+  I have to mkswap it again for stuff to work.
+- 4bios behaves the same way as 4.
+- 5 doesn't do anything.
+
+So overall swsusp on my laptop is fairly broken. Has anyone gotten it to
+work on a similar laptop? Any possible fixes?
+
+--
+Joshua Kwan

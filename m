@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261421AbSJUOml>; Mon, 21 Oct 2002 10:42:41 -0400
+	id <S261436AbSJUOlL>; Mon, 21 Oct 2002 10:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261430AbSJUOml>; Mon, 21 Oct 2002 10:42:41 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:32948 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261421AbSJUOmk>; Mon, 21 Oct 2002 10:42:40 -0400
-Subject: Re: [PATCH] shmem missing cache flush
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rmk@arm.linux.org.uk, hugh@veritas.com, willy@debian.org, akpm@zip.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021016.171626.112600105.davem@redhat.com>
-References: <Pine.LNX.4.44.0210170033320.1476-100000@localhost.localdomain>
-	<20021016.165834.71112730.davem@redhat.com>
-	<20021017011957.A9589@flint.arm.linux.org.uk> 
-	<20021016.171626.112600105.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 16:04:17 +0100
-Message-Id: <1035212657.27259.154.camel@irongate.swansea.linux.org.uk>
+	id <S261389AbSJUOlL>; Mon, 21 Oct 2002 10:41:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61361 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261436AbSJUOlK>;
+	Mon, 21 Oct 2002 10:41:10 -0400
+Date: Mon, 21 Oct 2002 16:46:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crunch time continues: the merge candidate list v1.1
+Message-ID: <20021021144656.GF11594@suse.de>
+References: <200210202303.46848.landley@trommello.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210202303.46848.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 01:16, David S. Miller wrote:
->    I similarly wish that were so.  Any cleanups in this area are most
->    welcome.  Alas m68k and sparc still use flush_page_to_ram().
+On Sun, Oct 20 2002, Rob Landley wrote:
+> Okay, I've got Rusty's list collated with my list, plus several replies to
+> each thread.
 > 
-> I'd consider it more than rude to break this 5 days before
-> feature freeze. :-)
-> 
-> Put this at the top of the list of 2.7.x todo and let's not
-> forget it this time.
+> There is no WAY all of this is making it into the 2.5 tree before the freeze,
+> but this is what's currently being submitted for consideration.
 
-I disagree here. Its a measurable performance item, and its actually
-going to break less code than for example the last minute scsi and bio
-changes have done
+One thing that at least has to make it in for generic cd recording to be
+useful, is my sgio patches. Latest dump of just that is here:
+
+*.kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.44/
+
+Same ones as posted under the 'zero copy dma cd writing and ripping' the
+other day, however patch also fixes several races and just plain sloppy
+code (sorry Linus). So that's pretty much a given.
+
+Some of the items on this list seems to be more driven by naive
+corporate hope rather than reality...
+
+Oh, and why
+
+> 9) Hans Reiser said:
+> 
+> > We will send Reiser4 out soon, probably around the 27th.
+> >
+> > Hans
+
+Hans thinks there's a chance in hell that anyone would want to merge
+code that's never actually been posted anywhere yet (do correct me if
+I'm wrong, but not even Hans gave me a straight answer on that one) is
+beyond me.
+
+-- 
+Jens Axboe
 

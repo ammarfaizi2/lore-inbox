@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265046AbRFZWAV>; Tue, 26 Jun 2001 18:00:21 -0400
+	id <S265077AbRFZWBW>; Tue, 26 Jun 2001 18:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265077AbRFZWAL>; Tue, 26 Jun 2001 18:00:11 -0400
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:35291 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S265046AbRFZV74>; Tue, 26 Jun 2001 17:59:56 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880ACB@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'Robert Love'" <rml@tech9.net>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: failed kernel 2.4.2 build after applying the patch ac28
-Date: Tue, 26 Jun 2001 15:59:53 -0600
+	id <S265084AbRFZWBN>; Tue, 26 Jun 2001 18:01:13 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:7073 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265077AbRFZWBA>;
+	Tue, 26 Jun 2001 18:01:00 -0400
+Message-ID: <3B39061A.4CFE75E8@candelatech.com>
+Date: Tue, 26 Jun 2001 15:00:58 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: linux-net <linux-net@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Does select (for write) work on PACKET_SOCKETs ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On 26 Jun 2001 15:35:09 -0600, MEHTA,HIREN (A-SanJose,ex1) wrote:
->> I tried to build the 2.4.2 kernel after applying patch ac28
->> (patch-2.4.2-ac28) and it failed :-((
->> 
->> When it failed it gave the following message :
->> 
->> *** Install db development libraries
->> 
->> I thought kernel build should be independent of any userland libraries.
+It does not seem to work for me like I want it to.  Basically,
+it seems that it always takes the entire timeout (50-80 ms in my
+case), but at least the socket descriptor is SET when select returns.  I want
+it to return as soon as the socket is writable, which at low (56kbps)
+speed on a 100bt NIC should be immediate, or certainly less than 50ms.
+
+I'm using kernel 2.4.6-pre3 with RH 7.1.
+
+Here is a snippet of code that does the socket creation (I am binding in this case.):
+
+int createPacketSocket(const char* dev_name, int ether_type, int dev_idx, int should_bind) {
+   LF_TRC_IN;
+   VLOG << "dev_name -:" << dev_name << ":- dev_idx: " << dev_idx 
+        << " type (decimal): " << ether_type << endl;
+
+   int s = socket(PF_PACKET, SOCK_RAW, htons(ether_type));
+   int r; //retval
+
+   if (s < 0) {
+      cerr << "ERROR: socket:  " << strerror(errno) << endl;
+      VLOG << "ERROR: socket:  " << strerror(errno) << endl;
+      return s;
+   }
+
+   if (should_bind) {
+      struct sockaddr_ll myaddr;
+
+      memset(&myaddr, '\0', sizeof(myaddr));
+      myaddr.sll_family = AF_PACKET;
+      myaddr.sll_protocol = htons(ether_type);
+      myaddr.sll_ifindex = dev_idx;
+      //strcpy(myaddr.sa_data, dev_name);
+      
+      r = bind(s, (struct sockaddr*)(&myaddr), sizeof(myaddr));
+      if (r < 0) {
+         cerr << "ERROR: bind:  " << strerror(errno) << endl;
+         VLOG << "ERROR: bind:  " << strerror(errno) << endl;
+         return r;
+      }
+   }
+
+   nonblock(s);
+   return s;
+}
 
 
->i think this is because aicasm (the assembler for the aha7xxx scsi
->firmware) uses db1 to build itself.  are you compiling aha7xxx support
->into the kernel?
+Any ideas?
 
-Yes, I am trying to compile aic7xxx support into the kernel.
+Thanks,
+Ben
 
->upgrade to the newest kernel (2.4.5-ac18) and rebuilding the firmware is
->optional, so you won't need the berekely db libraries.
-
-Do you know from where can I get the berkeley db libraries ? Currently I do 
-not want to upgrade my kernel. If you can suggest some changes to makefiles/
-config files which will skip the steps to build the firmware, that would
-also be great.
-
-TIA
--hiren
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

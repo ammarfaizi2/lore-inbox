@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285196AbRL2SV6>; Sat, 29 Dec 2001 13:21:58 -0500
+	id <S285216AbRL2SgJ>; Sat, 29 Dec 2001 13:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285161AbRL2SVs>; Sat, 29 Dec 2001 13:21:48 -0500
-Received: from waste.org ([209.173.204.2]:43983 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S285186AbRL2SVg>;
-	Sat, 29 Dec 2001 13:21:36 -0500
-Date: Sat, 29 Dec 2001 12:21:23 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Dave Jones <davej@suse.de>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
-In-Reply-To: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.43.0112291216360.18183-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285213AbRL2Sf7>; Sat, 29 Dec 2001 13:35:59 -0500
+Received: from khazad-dum.debian.net ([200.196.10.6]:16512 "EHLO
+	khazad-dum.debian.net") by vger.kernel.org with ESMTP
+	id <S285203AbRL2Sfv>; Sat, 29 Dec 2001 13:35:51 -0500
+Date: Sat, 29 Dec 2001 16:35:45 -0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon instabilities and VIA. "PCI latency" patch for Linux (for KT266A chipset only)
+Message-ID: <20011229163545.A2197@khazad-dum>
+In-Reply-To: <200112291436.GAA20655@quantum.cicese.mx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: =?iso-8859-1?Q?=3C200112291436=2EGAA20655=40quantum=2Ecicese=2Emx=3E=3B_?=
+ =?iso-8859-1?Q?from_mirsev=40cicese=2Emx_on_S=E1b=2C_Dez_29=2C_2001_at_0?=
+ =?iso-8859-1?Q?6:36:19_-0800?=
+X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
+X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Dave Jones wrote:
+On Sat, 29 Dec 2001, Serguei Miridonov wrote:
+> program from H.Oda! (http://www.h-oda.com/). Finally I wrote a very
+> dirty hack which fixes some issues in Linux too. Now I can playback
+> video using both DXR3 and DC10plus card but in some conditions the
+> system still freezes. It happens when video is played back by DC10plus
+> in xawtv window. This makes me to think that problem is caused by
+> multiple PCI bus master transfers.
 
-> On Thu, 27 Dec 2001, Arnaldo Carvalho de Melo wrote:
->
-> > > Patch is against kernel 2.4.17, should apply to 2.5 as well.
-> > Good job! But please consider splitting the patch per driver and sending it
-> > to the respective maintainers.
->
-> Someone with far too much time on their hands would be my personal
-> hero[*] if they were to write a script (in language of their choice) to
-> parse a diff, extract filename, and do lookup in a flat text file
-> to find a list of maintainers/interested parties.
->
-> Imagine a patch against devfs..
->
-> $ cclist my.devfs.patch.diff
-> Richard Gooch <rgooch@atnf.csiro.au>
-> Alexander Viro <viro@math.psu.edu>
->
-> SCNR 8-)
->
-> This 'little black book of addresses' doesn't have to be anything
-> wonderful, but its tedious work for someone to make the textfile
-> mapping the various source files to email addresses.
->
-> Someone (Alan?) suggested having something like a web interface
-> allowing anyone interested in any particular file to register
-> their interest, and get added to the cclist for that file.
-> Which is also a cool idea.
+Hmm... this is bad. Just to make it clear, the lockup was there before your
+module, right?
 
-The easy way to do this is to build a tree mirroring the kernel tree
-with each file containing the addresses of the interest list. Directories
-would contain a .interest file to indicate interest in the entire
-directory.
+BTW, disabling PCI Master Read Caching in BIOS appears to have decreased
+memory performance on my machine by a very small ammount (Asus A7V, KT133
+chipset, also affected by the low-performance PCI bug/misdesign in VIA
+chipsets).  Since your patch also does that, you may want to verify if that
+also happens in your machine and document it.
 
-Then a 'curl http://www.kernel.org/interest?file=foo/bar/baz' gets you the
-interest list.
+One can use setpci(1) to fix the device latency to a high value in the buses
+that have IDE controllers, btw. This, along with options in the system BIOS
+may allow one to test much of the suggested patches in a non-KT266A VIA
+chipset.
 
-Unfortunately you need some sort of confirmation step around the 'add
-interest' bit to avoid people adding you to the root of the tree.
+> The distribution also includes KT266A registers descriptions from H.Oda!
+> and configuration dumps. These files are _not_ covered by GNU License.
+
+Could you please send me the KT133 description files, if you have them?  I
+might merge in a change to your patch that deals with KT133 (and KT133A if
+you include that info as well). I can only test KT133.
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbRAGSvc>; Sun, 7 Jan 2001 13:51:32 -0500
+	id <S131063AbRAGSww>; Sun, 7 Jan 2001 13:52:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbRAGSvX>; Sun, 7 Jan 2001 13:51:23 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:63757 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S129774AbRAGSvP>;
-	Sun, 7 Jan 2001 13:51:15 -0500
-Message-ID: <3A58C97B.A3C5676B@candelatech.com>
-Date: Sun, 07 Jan 2001 12:54:35 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131124AbRAGSwm>; Sun, 7 Jan 2001 13:52:42 -0500
+Received: from gleb.nbase.co.il ([194.90.136.56]:35084 "EHLO gleb.nbase.co.il")
+	by vger.kernel.org with ESMTP id <S129994AbRAGSwb>;
+	Sun, 7 Jan 2001 13:52:31 -0500
+From: Gleb Natapov <gleb@nbase.co.il>
+Date: Sun, 7 Jan 2001 20:51:13 +0200
 To: jamal <hadi@cyberus.ca>
-CC: "David S. Miller" <davem@redhat.com>, ak@suse.de,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumissionpolicy!)
-In-Reply-To: <Pine.GSO.4.30.0101071026070.18916-100000@shell.cyberus.ca>
+Cc: Ben Greear <greearb@candelatech.com>, Chris Wedgwood <cw@f00f.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: routable interfaces  WAS( Re: [PATCH] hashed device lookup (DoesNOT  meet Linus' sumission policy!)
+Message-ID: <20010107205113.H28257@nbase.co.il>
+In-Reply-To: <3A58C1C9.1E4B6265@candelatech.com> <Pine.GSO.4.30.0101071321330.18916-100000@shell.cyberus.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.30.0101071321330.18916-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Sun, Jan 07, 2001 at 01:29:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
+On Sun, Jan 07, 2001 at 01:29:51PM -0500, jamal wrote:
+> 
+> 
+> On Sun, 7 Jan 2001, Ben Greear wrote:
+> 
+> > > My thought was to have the vlan be attached on the interface ifa list and
+> > > just give it a different label since it is a "virtual interface" on top
+> > > of the "physical interface". Now that you mention the SNMP requirement,
+> > > maybe an idea of major:minor ifindex makes sense. Say make the ifindex
+> > > a u32 with major 16 bit and minor 16 bit. This way we can have upto 2^16
+> > > physical interfaces and upto 2^16 virtual interfaces on the physical
+> > > interface. The search will be broken into two 16 bits.
+> >
+> > What problem does this fix?
+> >
+> > If you are mucking with the ifindex, you may be affecting many places
+> > in the rest of the kernel, as well as user-space programs which use
+> > ifindex to bind to raw devices.
+> >
+> 
+> I am talking about 2.5 possibilities now that 2.4 is out. I think
+> "parasitic/virtual" interfaces is not a issue specific to VLANs.
+> VLANs happen to use devices today to solve the problem.
+> As pointed by that example no routing daemons are doing aliased
+> interfaces (which are also virtual interfaces).
+> We need some more general solution.
+>
 
-> So instead of depending what ifconfig does, maybe a better test for Ben is
-> to measure the kernel level improvement in the lookup for example from
-> 2..6000 devices.
+And what about bonding device? What major number should they use? 
 
-In the benchmark I gave, the performance increase was in the kernel,
-not user space, and it was more than 10 times faster, at least with 4k
-VLANs.  Adding VLANs was about twice as fast, and deleting them was
-faster, though not as much.
+Ifindexes not reusable so in your scheme we should have separate minor 
+counter for each major interface, what for?
 
- Tests with the user space tools will also help. example
-> to add to Andi's flavor:
-> "date; time ifconfig -a; date" for each number of devices.
-> repeat for ip as well ;->
-
-I can show a range w/out much trouble.  I think I'll also tweak
-the hash code to just do linear lookups if the number of interfaces
-is below some number, (probably 20, or whatever the numbers show
-is good...)
-
-Ben
-
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+--
+			Gleb.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbTFMJcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 05:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTFMJcM
+	id S261196AbTFMJi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 05:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFMJi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 05:32:12 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:2574 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S265287AbTFMJcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 05:32:09 -0400
-Date: Fri, 13 Jun 2003 11:45:31 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "John Stoffel" <stoffel@lucent.com>
-Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org, willy@w.ods.org,
-       marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030613114531.2b7235e7.skraw@ithnet.com>
-In-Reply-To: <16103.39056.810025.975744@gargle.gargle.HOWL>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<41560000.1055306361@caspian.scsiguy.com>
-	<20030611222346.0a26729e.skraw@ithnet.com>
-	<16103.39056.810025.975744@gargle.gargle.HOWL>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 13 Jun 2003 05:38:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17166 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261196AbTFMJiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 05:38:55 -0400
+Date: Fri, 13 Jun 2003 10:52:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matt Porter <mporter@kernel.crashing.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] early_port_register
+Message-ID: <20030613105238.A29723@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com> <20030612225310.G3348@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030612225310.G3348@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jun 12, 2003 at 10:53:10PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Jun 12, 2003 at 10:53:10PM +0100, Russell King wrote:
+> Sigh, there seems to be one cset still pending in my serial BK tree:
+> 
+> ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
+>   acpi serial stuff
+> 
+> I'll request Linus pulls this tonight.
 
-this is the second day of stress-testing pure rc8 in SMP, apic mode. Today
-everything is fine, no freeze, no data corruption.
+FYI, its still sitting here...
 
-current standings:
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-2 days continuous test, one file data corruption on day 1
-
-Regards,
-Stephan

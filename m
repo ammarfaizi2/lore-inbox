@@ -1,46 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbTJ2OcX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 09:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTJ2OcX
+	id S261397AbTJ2Ofg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 09:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTJ2Off
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 09:32:23 -0500
-Received: from multiserv.relex.ru ([213.24.247.63]:27858 "EHLO
-	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
-	id S261471AbTJ2OcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 09:32:22 -0500
-From: Yaroslav Rastrigin <yarick@relex.ru>
-Organization: RELEX Inc.
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI && vortex still broken in latest 2.4 and 2.6.0-test9
-Date: Wed, 29 Oct 2003 18:32:22 +0300
-User-Agent: KMail/1.5.4
-References: <20031029134848.GA949@hello-penguin.com> <20031029140317.GF10693@merlin.emma.line.org>
-In-Reply-To: <20031029140317.GF10693@merlin.emma.line.org>
+	Wed, 29 Oct 2003 09:35:35 -0500
+Received: from mail1.neceur.com ([193.116.254.3]:3487 "EHLO mail1.neceur.com")
+	by vger.kernel.org with ESMTP id S261397AbTJ2OfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 09:35:25 -0500
+In-Reply-To: <3F9FCB1F.9080606@mcve.com>
+To: Brad House <brad@mcve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 stability on 2.6.0-test5 and 2.6.0-test9
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310291832.22650.yarick@relex.ru>
+X-Mailer: Lotus Notes Build V65_M1_04032003NP April 03, 2003
+Message-ID: <OFD0D30073.3921A657-ON80256DCE.004EDE5F-80256DCE.0050215F@uk.neceur.com>
+From: ross.alexander@uk.neceur.com
+Date: Wed, 29 Oct 2003 14:35:14 +0000
+X-MIMETrack: Serialize by Router on LDN-THOTH/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 10/29/2003 02:35:15 PM,
+	Serialize complete at 10/29/2003 02:35:15 PM,
+	Itemize by SMTP Server on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 10/29/2003 02:35:15 PM,
+	Serialize by Router on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
+ 10/29/2003 02:35:15 PM
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-On Wednesday 29 October 2003 17:03, Matthias Andree wrote:
-> > Affected are at least
-> > IBM Thinkpad T21  http://lkml.org/lkml/2003/6/15/111
-> > IBM Thinkpad A21p (3c556B Laptop Hurricane)
->
-> Might the problems you observe be related to the IBM BIOS?
-Yes. With IBM's DSDT, to be more specific. I've filed a bug in the bugzilla, 
-and tried to track it down, under careful guidance of Yu Luming, but general 
-lack of time stops me from actively pursuing this target. 
-Similar threads are appearing on this list regularly, and symptoms are very 
-close to this bug, so I'm sure this will be fixed eventually (someone's 
-comment about card not powering up (not entering D0) seems to be very close 
-to the truth).
+Brad,
 
--- 
-With all the best, yarick at relex dot ru.
+My problem is one of the infamous nforce2 hardlockups.  You don't get any
+kernel panic or anything that useful.  The system just locks up completely
+and has to be manually reset.
+
+The problem is known to associate with IDE activity and is thought (as far
+as I know) to originate somewhere in the IDE driver.
+
+Cheers,
+
+Ross
+
+---------------------------------------------------------------------------------
+Ross Alexander                           "We demand clearly defined
+MIS - NEC Europe Limited            boundaries of uncertainty and
+Work ph: +44 20 8752 3394         doubt."
+
+
+
+
+Brad House <brad@mcve.com>
+10/29/2003 02:13 PM
+ 
+        To:     ross.alexander@uk.neceur.com
+        cc:     Brad House <brad_mssw@gentoo.org>, 
+linux-kernel@vger.kernel.org
+        Subject:        Re: nforce2 stability on 2.6.0-test5 and 
+2.6.0-test9
+
+
+Hmm, interesting. The patches I submitted were strictly
+for IDE/ATA133 improvements, apparently your problems don't
+lie there.  I'd assume this was a kernel panic you had, any
+output available that would tell you where it paniced ?
+
+-Brad
+
+ross.alexander@uk.neceur.com wrote:
+> Brad,
+> 
+> I'm running an ASUS A7N8X Deluxe mobo (nforce2 chipset) and still
+> getting hardlockups.  I applied your patch but my system still locked
+> up after about a day.  However 2.6.0-test5 seems to be stable.  I have
+> had my system up for over three weeks with APIC and ACPI turned on.
+> 
+> Just to let you know,
+> 
+> Ross
+> 
+> 
+---------------------------------------------------------------------------------
+> Ross Alexander                           "We demand clearly defined
+> MIS - NEC Europe Limited            boundaries of uncertainty and
+> Work ph: +44 20 8752 3394         doubt."
+> 
+
+
+
 

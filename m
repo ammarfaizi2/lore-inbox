@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281087AbRLAFyh>; Sat, 1 Dec 2001 00:54:37 -0500
+	id <S281461AbRLAGMl>; Sat, 1 Dec 2001 01:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281144AbRLAFy2>; Sat, 1 Dec 2001 00:54:28 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:19754 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S281087AbRLAFyV>; Sat, 1 Dec 2001 00:54:21 -0500
-Message-Id: <4.3.2.7.2.20011130214001.00c21870@10.1.1.42>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 30 Nov 2001 21:54:12 -0800
-To: Tim Hockin <thockin@hockin.org>, torvalds@transmeta.com (Linus Torvalds)
-From: Stephen Satchell <satch@concentric.net>
+	id <S281470AbRLAGMa>; Sat, 1 Dec 2001 01:12:30 -0500
+Received: from dsl-213-023-038-163.arcor-ip.net ([213.23.38.163]:2057 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281461AbRLAGMN>;
+	Sat, 1 Dec 2001 01:12:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>
 Subject: Re: Coding style - a non-issue
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200112010202.fB122bE20177@www.hockin.org>
-In-Reply-To: <Pine.LNX.4.33.0111301643170.1224-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Date: Sat, 1 Dec 2001 07:13:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Larry McVoy <lm@bitmover.com>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0111302048200.1459-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111302048200.1459-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16A3PR-0000mS-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc list trimmed]
+On December 1, 2001 06:15 am, Linus Torvalds wrote:
+> On Fri, 30 Nov 2001, Victor Yodaiken wrote:
+> > Here's a characteristic good Linux design method ,( or call it "less than 
+> > random mutation method" if that makes you feel happy): read the 
+> > literature, think hard, try something, implement
+> 
+> Hah.
+> 
+> I don't think I've seen very many examples of that particular design
+> methodology.
 
-At 06:02 PM 11/30/01 -0800, Tim Hockin wrote:
-> > Linux sez:
-> > I'm deadly serious: we humans have _never_ been able to replicate
-> > something more complicated than what we ourselves are, yet natural
-> > selection did it without even thinking.
->
->a very interesting argument, but not very pertinent - we don't have 10's of
->thousands of year or even really 10's of years.  We have to use intellect
->to root out the obviously bad ideas, and even more importantly the
->bad-but-not-obviously-bad ideas.
+I do it a little differently: think hard, try something, implement, read the 
+literature, repeat as necessary.
 
-Disagree with your position strongly.  It's very pertinent.
-
-Most of the bad-but-not-obviously-bad ideas get rooted out by people trying 
-them and finding them to be wanting.  Take, for example, the VM flap in the 
-2.4.* tree:  an astonishing side effect of the operation of the VM system 
-caused people to come up with one that wasn't so astonishing.  We're not 
-sure why the original VM caused such problems.  We fixed it anyway.  (No, I 
-played no part in that particular adventure, I was just viewing from the 
-sidelines.)
-
-The "Linux Way" as I understand it is to release early and release 
-often.  That means that we go through a "generation" of released code every 
-few weeks, and a "generation" of beta candidates just about daily...and if 
-you include the patches that appear here during every 24 hours, the 
-generation cycle is even faster than that.  That means that any mutations 
-that are detrimental to the organism are exposed within days -- sometimes 
-even hours -- of their introduction into the code base.
-
-When we have a development tree open (as 2.5 is now freshly open) there are 
-even more generations of code, which further makes natural selection viable 
-as a weeding process for good and bad code.  The difference is that the 
-number of people affected by the weeding process is smaller, and the 
-probability of killing production systems with mutations becomes 
-smaller.  The population of the organism is thus healthier because 
-mutations affect a smaller fraction of the population, and the chances of 
-expensive illness is reduced.
-
-Beneficial mutations are "back-ported" into the 2.4 and even the 2.2 code 
-trees, mutations that have proven their worth by extensive experimentation 
-and experience.  Unlike the biological equivalent, this selective spreading 
-of mutations further improves the health of the population of organisms.
-
-Now that I've stretched the analogy as far as I care to, I will stop 
-now.  Please consider the life-cycle of the kernel when thinking about what 
-Linus said.
-
-Just my pair-o-pennies(tm).
-
-Stephen Satchell
-
+--
+Daniel

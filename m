@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVB1WYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVB1W0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVB1WYP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 17:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVB1WYP
+	id S261787AbVB1W0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 17:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVB1WZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 17:24:15 -0500
-Received: from guru.webcon.ca ([216.194.67.26]:64436 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S261795AbVB1WXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 17:23:13 -0500
-Date: Mon, 28 Feb 2005 17:23:04 -0500 (EST)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ALPS tapping disabled. WHY?
-In-Reply-To: <20050227075041.GA1722@ucw.cz>
-Message-ID: <Pine.LNX.4.62.0502281721210.21033@light.int.webcon.net>
-References: <Pine.LNX.4.62.0502241822310.8449@light.int.webcon.net>
- <200502242208.16065.dtor_core@ameritech.net> <20050227075041.GA1722@ucw.cz>
-Organization: "Webcon, Inc"
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 28 Feb 2005 17:25:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63725 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261787AbVB1WZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 17:25:23 -0500
+Date: Mon, 28 Feb 2005 22:25:09 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Mark_Salyzyn@adaptec.com
+Subject: Re: [2.6 patch] SCSI: possible cleanups
+Message-ID: <20050228222509.GB19376@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, James.Bottomley@SteelEye.com,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Mark_Salyzyn@adaptec.com
+References: <20050228213159.GO4021@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050228213159.GO4021@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Feb 2005, Vojtech Pavlik wrote:
+On Mon, Feb 28, 2005 at 10:31:59PM +0100, Adrian Bunk wrote:
+> Before I'm getting flamed to death:
+> This patch contains possible cleanups. If parts of this patch conflict 
+> with pending changes these parts of my patch have to be dropped.
+> 
+> This patch contains the following possible cleanups:
+> - make needlessly global code static
+> - remove or #if 0 the following unused functions:
+>   - scsi.h: print_driverbyte
+>   - scsi.h: print_hostbyte
 
-> Also, in my tree currently (and planned for 2.6.12) hardware tapping is
-> enabled again, because double taps don't work otherwise (hardware
-> limitation).
+these two please kill.
 
-You should really try to get that squeezed into 2.6.11 before it is
-released, or else I would anticipate a LOT more people whining about their
-broken touchpads.
+>   - constants.c: scsi_print_hostbyte
+>   - constants.c: scsi_print_driverbyte
 
-Regards,
-Ian Morgan
+these we'll probably keep for now.
 
--- 
--------------------------------------------------------------------
-  Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
-  imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-     *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
+>   - scsi_scan.c: scsi_scan_single_target
+
+this one will grow a user soon, but maybe it'll be completely
+rewritten before.
+
+> - remove the following unneeded EXPORT_SYMBOL's:
+>   - constants.c: __scsi_print_sense
+
+this was put in for a drivea and makes sense as API.
+
+>   - hosts.c: scsi_host_lookup
+
+we should probably kill this export.
+
+>   - scsi.c: scsi_device_cancel
+>   - scsi_lib.c: scsi_device_resume
+
+dito.
+
+>   - scsi_error.c: scsi_normalize_sense
+>   - scsi_error.c: scsi_sense_desc_find
+
+st is expected to use these soon.
+
+>   - scsi_scan.c: scsi_rescan_device
+
+aacraid was going to use that one, Mark, any chance to get a patch
+anytime soon?
+
+>   - scsi_scan.c: scsi_scan_single_target
+
+as mentioned above we'll need this one soon.

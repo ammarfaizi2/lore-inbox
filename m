@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313012AbSDYJUR>; Thu, 25 Apr 2002 05:20:17 -0400
+	id <S312997AbSDYJSE>; Thu, 25 Apr 2002 05:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSDYJUQ>; Thu, 25 Apr 2002 05:20:16 -0400
-Received: from krynn.axis.se ([193.13.178.10]:51114 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S313012AbSDYJUP>;
-	Thu, 25 Apr 2002 05:20:15 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <01c201c1ec3a$a78d5400$adb270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: "john slee" <indigoid@higherplane.net>, <ebuddington@wesleyan.edu>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020424224714.B19073@ma-northadams1b-46.bur.adelphia.net> <20020425085237.GE17717@higherplane.net>
-Subject: Re: Dissociating process from bin's filesystem
-Date: Thu, 25 Apr 2002 11:22:00 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S313016AbSDYJSD>; Thu, 25 Apr 2002 05:18:03 -0400
+Received: from surf.viawest.net ([216.87.64.26]:31390 "EHLO surf.viawest.net")
+	by vger.kernel.org with ESMTP id <S312997AbSDYJSC>;
+	Thu, 25 Apr 2002 05:18:02 -0400
+Date: Thu, 25 Apr 2002 02:17:55 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.9-dj1, fix for make xconfig in drivers/isdn/Config.in
+Message-ID: <20020425091755.GA9549@wizard.com>
+In-Reply-To: <1019619120.29017.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux/2.5.7 (i686)
+X-uptime: 2:09am  up 23:17,  2 users,  load average: 0.52, 0.21, 0.08
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doesn't mlockall() do this?
-man mlockall
-/Johan
+On Tue, Apr 23, 2002 at 09:31:59PM -0600, Steven Cole wrote:
+> I read that some of you got this while doing make xconfig.
+> 
+> [steven@localhost linux-2.5.9-dj1]$ make xconfig
+> rm -f include/asm
+> ( cd include ; ln -sf asm-i386 asm)
+> make -C scripts kconfig.tk
+> make[1]: Entering directory `/home/steven/kernels/linux-2.5.9-dj1/scripts'
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> drivers/isdn/Config.in: 10: incorrect argument
+> make[1]: *** [kconfig.tk] Error 1
+> make[1]: Leaving directory `/home/steven/kernels/linux-2.5.9-dj1/scripts'
+> make: *** [xconfig] Error 2
+> 
+> This fix seems to be the obvious one.
 
------ Original Message -----
-From: "john slee" <indigoid@higherplane.net>
-To: <ebuddington@wesleyan.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: den 25 april 2002 10:52
-Subject: Re: Dissociating process from bin's filesystem
+        This is definitely the right fix, now that I compare what I threw to 
+the list earlier, to the other Config.in scripts in the tree. Plus, this 
+applies to a vanilla 2.5.10.
 
+        Linus, Dave, please consider applying.
 
-> On Wed, Apr 24, 2002 at 10:47:14PM -0400, Eric Buddington wrote:
-> > Is there any way to dissociate a process from its on-disk binary?  In
-> > other words, I want to start 'foo_daemon', then unmount the filesystem
-> > it started from. It seems to me this would be reasonably accomplished
-> > by loading the binary completely into memory first ro eliminate the
-> > dependence.
-> >
-> > Is this possible, or planned? Are there intractable problems with it
-> > that I don't see?
->
-> as i understand it this precludes you from using shared libs as they are
-> mmap()'d on startup...
->
-> other than that the running daemon will cause the fs to be
-> un-umountable.
->
-> j.
->
-> --
-> R N G G   "Well, there it goes again... And we just sit
->  I G G G   here without opposable thumbs." -- gary larson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

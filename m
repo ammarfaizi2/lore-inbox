@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291623AbSBAJME>; Fri, 1 Feb 2002 04:12:04 -0500
+	id <S291626AbSBAJOe>; Fri, 1 Feb 2002 04:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291622AbSBAJLy>; Fri, 1 Feb 2002 04:11:54 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:13842 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S291621AbSBAJLp>;
-	Fri, 1 Feb 2002 04:11:45 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: mingo@elte.hu, anton@samba.org, torvalds@transmeta.com, andrea@suse.de,
-        riel@conectiva.com.br, stoffel@casc.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <87u1t1ws20.fsf@fadata.bg>
-	<Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain>
-	<20020201.010744.35469747.davem@redhat.com>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020201.010744.35469747.davem@redhat.com>
-Date: 01 Feb 2002 11:13:08 +0200
-Message-ID: <874rl1sgyj.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291627AbSBAJO1>; Fri, 1 Feb 2002 04:14:27 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:21413 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S291624AbSBAJMn>;
+	Fri, 1 Feb 2002 04:12:43 -0500
+Date: Fri, 1 Feb 2002 10:11:20 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: James Simmons <jsimmons@transvirtual.com>, Vojtech Pavlik <vojtech@ucw.cz>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] amiga input api drivers
+In-Reply-To: <20020201081442.G15571@suse.cz>
+Message-ID: <Pine.GSO.4.21.0202011010481.25104-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+On Fri, 1 Feb 2002, Vojtech Pavlik wrote:
+> On Thu, Jan 31, 2002 at 09:54:51PM +0100, Geert Uytterhoeven wrote:
+> > On Thu, 31 Jan 2002, James Simmons wrote:
+> > >   The amiga mouse and amiga joystick have been already ported over to the
+> > > input api. Now for the keyboard. This patch is the input api amiga
+> > > keyboard. I wanted people to try it out before I send it off to be
+> > > included in the DJ tree. Have fun!!!
 
-David>    From: Ingo Molnar <mingo@elte.hu>
-David>    Date: Fri, 1 Feb 2002 11:29:53 +0100 (CET)
-   
-David>    using read-write locks does not solve the scalability problem: the problem
-David>    is the bouncing of the spinlock cacheline from CPU to CPU.
+    [...]
 
-David> I so much wish more people understood this :(
+> > Oops, amikbd_messages[scancode-0x78]?
+> 
+> Thanks. And thanks to James for fixing this in the CVS as well.
+> Does it work otherwise?
 
-Amen. From now on I'll have it on an yellow sticker on my display ;)
+No idea (yet).
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

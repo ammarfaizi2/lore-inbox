@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTL1Qze (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 11:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTL1Qze
+	id S261758AbTL1RL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 12:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTL1RL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 11:55:34 -0500
-Received: from simmts7.bellnexxia.net ([206.47.199.165]:48874 "EHLO
-	simmts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261733AbTL1Qzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 11:55:33 -0500
-Message-ID: <3FEF0AFD.4040109@yahoo.com>
-Date: Sun, 28 Dec 2003 11:55:25 -0500
-From: Eugene <spamacct11@yahoo.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	Sun, 28 Dec 2003 12:11:58 -0500
+Received: from 12-211-64-253.client.attbi.com ([12.211.64.253]:47751 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S261758AbTL1RLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 12:11:55 -0500
+Message-ID: <3FEF0EDA.7090502@comcast.net>
+Date: Sun, 28 Dec 2003 09:11:54 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: best AMD motherboard for Linux
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH:  Alternate pdcraid superblock finder
+Content-Type: multipart/mixed;
+ boundary="------------040500050902050304010702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Sorry to bother you kernel hackers. I have a simple question.
+This is a multi-part message in MIME format.
+--------------040500050902050304010702
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I am about to buy a new AMD Athlon system and I want to make sure I get 
- the hardware that works best with Linux. I am wondering whether I 
-should get a nForce 2 or KT600 based motherboard. Specifically, I am 
-looking at
+Hi,
 
-Asus A7N8X-X
-http://usa.asus.com/products/mb/socketa/a7n8x-x/overview.htm
-nForce 2
-Realtek ALC650 sound card
-Realtek 8201BL network card
+This patch proposes an alternate method of finding the raid superblock on
+Promise raid devices. It hasn't received much testing, so I left the old routine
+intact and just check for ideinfo->head == 255 to use my method. I'm not aware
+of any reasons why my method wouldn't work for all drives, but I thought this
+was a safer change.
 
-and
-
-Gigabyte GA-7VT600-P-L
-http://www.giga-byte.com/MotherBoard/Products/Products_GA-7VT600-P-L.htm
-Northbridge : VIA KT600
-Southbridge : VIA VT8237
-Realtek ALC655 AC97 sound card
-Realtek 8101L NIC
+-Walt Holman
 
 
-My primary requiremnet is that it must work well with Linux. I can 
-handle downloading & installing drivers. If it works out of the box 
-(without downloading binary drivers) that's even better. I am also 
-planning to get GeForce FX graphics card, if it makes a difference. So 
-which board is more compatibile?
+--------------040500050902050304010702
+Content-Type: text/plain;
+ name="pdcraid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pdcraid.patch"
 
-thanks in advance,
+--- /usr/src/temp/linux-2.4.21-xfs/linux/drivers/ide/raid/pdcraid.c	2003-12-22 17:59:09.653139067 -0800
++++ linux/drivers/ide/raid/pdcraid.c	2003-07-21 20:47:14.000000000 -0700
+@@ -361,7 +361,11 @@
+ 	if (ideinfo->sect==0)
+ 		return 0;
+-	lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
+-	lba = lba * (ideinfo->head*ideinfo->sect);
+-	lba = lba - ideinfo->sect;
++	if (ideinfo->head!=255) {
++		lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
++		lba = lba * (ideinfo->head*ideinfo->sect);
++		lba = lba - ideinfo->sect; }
++	else {
++		lba = ideinfo->capacity - ideinfo->sect;
++	}
+ 
+ 	return lba;
 
-Eugene
+
+--------------040500050902050304010702--
+
 

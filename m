@@ -1,80 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261565AbSJURYJ>; Mon, 21 Oct 2002 13:24:09 -0400
+	id <S261524AbSJURZg>; Mon, 21 Oct 2002 13:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbSJURYI>; Mon, 21 Oct 2002 13:24:08 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:48768 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261565AbSJURYH>;
-	Mon, 21 Oct 2002 13:24:07 -0400
-Date: Mon, 21 Oct 2002 10:33:28 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Jurriaan <thunder7@xs4all.nl>
-cc: linux-kernel@vger.kernel.org, <andmike@us.ibm.com>, <patmans@us.ibm.com>
-Subject: Re: 2.5.44: problemn when shutting down, drivers/base/power.c and
- the global_device_list
-In-Reply-To: <20021021053622.GA493@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.44.0210211021560.963-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261556AbSJURZg>; Mon, 21 Oct 2002 13:25:36 -0400
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:35508 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S261524AbSJURZe>;
+	Mon, 21 Oct 2002 13:25:34 -0400
+Date: Mon, 21 Oct 2002 13:31:41 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: PoorMan's San
+Message-ID: <20021021173141.GA22824@rdlg.net>
+Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 21 Oct 2002, Jurriaan wrote:
 
-> I tried this patch:
-...
+  Back on the Kernel list after a long hiatis.  Need some experienced
+optinions.
 
-> and it didn't work - still hangs in 'Shutting down devices'.
+Current Setup:
 
-> and I see a loop when shutting down:
-> 
-> ID 'scsi0'
-> ID '0:0:1:0:gen'
-> ID '0:0:1:0'
-> ID '0:0:2:0:gen'
-> ID '0:0:5:0:gen'
-> ID '0:0:5:0'
-> ID 'scsi0'
-> 
-> and then it goes on to 0:0:1:0:gen and repeats itself.
-> 
-> With the crude '>128 devices, skip the rest of it' above, it actually
-> shuts down. I still wonder if this warning about might-sleep in my dmesg
-> can have anything to do with this; it occurs just when registering the
-> scsi card. A full dmesg has been attached.
+Linux Legato Backup server  (E1000 nic)   Linux-2.4.19-pre4
+5xLinux NFS servers         (E1000 nic)   Linux-2.4.19-pre4
 
-It is related to the __might_sleep() dump on boot, but not necessarily 
-because of it. In short, Mike Anderson posted the patch I've appended. 
-That should fix it. Could you please try it? 
+Legato mounts the NFS shares over a Gig ether and uses them as backup
+media for non-offsite/non-longterm.  This works very well when NFS
+behaves.
 
-The problem again is ncr_attach() in sym5c8xx.c. It's calling 
-scsi_set_pci_device(), which is registering the device a second time. 
+The probems is that every now and then the network/nfs just hang up for
+a while and gets VERY slow.  Some research has been done and it seems
+that the PCI latency is part of the problem, especially when IDE Raid
+hits the disks hard, this can overrun the buffers on the GigE card.
 
-[ A note on that: the reason I didn't find this before is that it's a
-static inline in drivers/scsi/host.h, and I was grepping through .c files
-only.  Does this really need to be static inline? It doesn't appear so. ]
+I've got a test NFS server coming in and will look at upgrading the
+kernel to 2.4.19-pre11 as there were some bugs associated with E1000 and
+NFS I saw in pre-[7-9] area. I'm also considering trying to use
+Network Block Device instead of NFS.  Has anyone tried this?
 
-The dump happens because ncr_attach(), on line 5838, NCR_LOCK()  
-(homebrewed locking macro wrappers for compatability) is called (which
-does a spin_lock_irqsave()), and is held until line 5908. That's not
-necessarily an ungodly long time, but probably unncessary.
-scsi_set_pci_device() is called on line 5893, which calls
-device_register(), which calls functions that can definitely sleep.
+Any suggestions that doesn't involve hitting up a non-existant budget?
 
-	-pat
 
---- 1.19/drivers/scsi/hosts.h	Wed Oct 16 17:53:47 2002
-+++ edited/drivers/scsi/hosts.h	Sun Oct 20 19:45:35 2002
-@@ -551,9 +551,6 @@
- {
- 	shost->pci_dev = pdev;
- 	shost->host_driverfs_dev.parent=&pdev->dev;
--
--	/* register parent with driverfs */
--	device_register(&shost->host_driverfs_dev);
- }
- 
- 
+Robert
+
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                
+                               
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
 

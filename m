@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263388AbTJKTu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 15:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbTJKTu3
+	id S263389AbTJKU1S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 16:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTJKU1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 15:50:29 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:5393 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263388AbTJKTuW
+	Sat, 11 Oct 2003 16:27:18 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:3972 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S263389AbTJKU1O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 15:50:22 -0400
-Date: Sat, 11 Oct 2003 12:50:15 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031011195015.GA8724@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <200310100830.03216.kevcorry@us.ibm.com> <20031010182918.GF1084@marowsky-bree.de> <20031011034951.GE4716@pegasys.ws> <20031011132422.GI1084@marowsky-bree.de>
+	Sat, 11 Oct 2003 16:27:14 -0400
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+X-message-flag: Please update my contact to send plain-text mail only.
+Message-Id: <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 11 Oct 2003 13:25:08 -0700
+To: "David S. Miller" <davem@redhat.com>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <20031011105843.074c6443.davem@redhat.com>
+References: <1065826508.1612.27.camel@localhost.localdomain>
+ <1065826508.1612.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031011132422.GI1084@marowsky-bree.de>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 11, 2003 at 03:24:22PM +0200, Lars Marowsky-Bree wrote:
-> On 2003-10-10T20:49:51,
->    jw schultz <jw@pegasys.ws> said:
-> 
-> > I concur with one caviat.  0+1 has the advantage of
-> > extendability that doesn't exist with 1+0.
-> 
-> Right, this annoying complicated approach you describe can be done much
-> easier with 1+0. With [EL]VMS?[12] you can simply create a new raid1 set
-> and add it as a physical volume to the volume group and then extend the
-> LVs accordingly. (I am unsure whether you can add a new disk to a raid0
-> set if you don't want to use a volume manager, but if it's not
-> currently, it sounds fairly straightforward to add.)
-> 
-> Your approach with breaking the mirrors etc includes prolonged periods
-> of no redundancy and makes me shiver.
+At 10:58 AM 10/11/2003 -0700, you wrote:
 
-I shivered as i wrote it.  I don't consider the periods of
-non-redundancy to be prolonged but they are periods of
-highest stress on the drives so they are more likely to fail
-(even sans Murphy) while doing that than they would
-otherwise.  And if you look back at my closing statement
-you'll see that i don't recommend it.  I only site it as a
-possibility.
+>By spamming job opennings to our kernel development lists where such
+>things are not considered allowed, you fucknuts are basically
+>guarenteeing that no kernel programmer with a brain is going to
+>respect your company enough to apply for these jobs.
+>
+>Please stop posting this crap now.
 
-Extendibility is i think the only rationalised excuse for
-0+1 when 1+0 is available.  I consider it a rationalisation
-because by the time you need to extend an array the value of
-same-size disks will be questionable.
+Are you speaking for yourself, or for Red Hat as well?
 
-> [book flogging]
-> I am going to recommend reading
-> some linux LVM and RAID howtos ;-)
-> 
-> So, I think, as far as RAID and Volume Management is concerned, Linux
-> does pretty well. There's some advanced and fancy stuff missing (>2
-> mirrors, online consistency check, etc), but the basics are pretty well
-> done.
+Just for grins, I took a look at http://www.redhat.com/about/careers/ to 
+see what your company was offering for work.  Hey, no TCP/IP Stack 
+programming jobs there.  In fact, very little in the way of work for 
+back-room types at all in the United States, nothing west of the Rockies, 
+and only Australia seems to have anything when you get outside of the CONUS.
 
-Absolutely.
+There are some people desperate enough to receive money for their efforts 
+that such job announcements may well be welcome, at least as long as they 
+are real positions. Obviously you are not that hungry.  I'm working right 
+now in a system admin position, changing the oil and wiping the windshield 
+of 200 Red Hat Linux servers, in a position that does not allow for any 
+kernel development at all.  What makes you believe that all 30,000+ readers 
+of LKML would not welcome short, tasteful, single-shot announcements of 
+such development positions?  Particularly if the announcement was for work 
+within moving distance of where a reader lives?
+
+(I suspect the poor guy was inundated with resumes, good taste or 
+no.  That's what seems to happen when a company makes any kind of public 
+announcement for work in California or Nevada.  Sometimes principles give 
+way to other necessities.)
+
+As an aside, I'm not happy with the few Linux-specific job boards that are 
+out there.  Has Red Hat considered hosting one that works, and advertising 
+its existence?
+
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+"Fragmentation is like classful addressing -- an interesting early 
+architectural error that shows how much experimentation was going on while 
+IP was being designed."   -- Paul Vixie  
 
-		Remember Cernan and Schmitt

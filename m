@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbUKNSVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbUKNS0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbUKNSVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 13:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUKNSVm
+	id S261327AbUKNS0p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 13:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUKNS0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 13:21:42 -0500
-Received: from mail.charite.de ([160.45.207.131]:46220 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S261326AbUKNSVk (ORCPT
+	Sun, 14 Nov 2004 13:26:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17570 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261327AbUKNS0o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 13:21:40 -0500
-Date: Sun, 14 Nov 2004 19:21:39 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-ac8
-Message-ID: <20041114182138.GF5708@charite.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1100186344.22254.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1100186344.22254.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Sun, 14 Nov 2004 13:26:44 -0500
+Date: Sun, 14 Nov 2004 18:26:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Manfred Spraul <manfred@colorfullife.com>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] __init in mm/slab.c
+In-Reply-To: <20041114111551.GA8680@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0411141823460.2216@ppc970.osdl.org>
+References: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com> <419714B8.3030804@colorfullife.com>
+ <20041114111551.GA8680@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> This just adds the binfmt fixes from Chris Wright. The other pending
-> changes have been bumped to ac9
-> 
-> Various chunks of new IDE stuff and related cleanups. Most users probably
-> don't want to upgrade to this kernel
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
-> 
-> 2.6.9-ac8
-> o	Fix binfmt_exec partial read problem		(Chris Wright)
-> o	Fix E820 overflow on x86-64 as per x86-32	(Andi Kleen)
 
-I'm seeing these with 2.6.9-ac8:
 
-Nov 14 18:40:09 kasbah kernel: retrans_out leaked.                      
-Nov 14 18:41:25 kasbah kernel: retrans_out leaked.                      
-Nov 14 18:42:44 kasbah kernel: retrans_out leaked.                      
+On Sun, 14 Nov 2004, Andries Brouwer wrote:
+>
+> So yesterday's series of __init patches is not because there were
+> bugs, but because it is desirable to have the situation where
+> static inspection of the object code shows absence of references
+> to .init stuff. Much better than having to reason that there is
+> a reference but that it will not be used.
 
-What is that?
+And I agree heartily with this. I love static checking (after all, that's 
+all that sparse does), and if you can make sure that there is one less 
+thing to be worried about, all the better.
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Of course, another option to just removing/fixing the __init is to have 
+some way to let the static checker know things are ok, but in this case, 
+especially with fairly small data structures, it seems much easier to just 
+make the checker happy.
+
+		Linus

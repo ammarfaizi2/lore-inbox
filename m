@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267636AbTCFBsr>; Wed, 5 Mar 2003 20:48:47 -0500
+	id <S267686AbTCFB60>; Wed, 5 Mar 2003 20:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbTCFBsr>; Wed, 5 Mar 2003 20:48:47 -0500
-Received: from [12.36.124.2] ([12.36.124.2]:1673 "EHLO intranet.resilience.com")
-	by vger.kernel.org with ESMTP id <S267636AbTCFBsq>;
-	Wed, 5 Mar 2003 20:48:46 -0500
+	id <S267688AbTCFB60>; Wed, 5 Mar 2003 20:58:26 -0500
+Received: from to-wiznet.redhat.com ([216.129.200.2]:61692 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S267686AbTCFB6Z>; Wed, 5 Mar 2003 20:58:25 -0500
+Date: Wed, 5 Mar 2003 21:08:56 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Better CLONE_SETTLS support for Hammer
+Message-ID: <20030305210856.B16093@redhat.com>
+References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
 Mime-Version: 1.0
-Message-Id: <p0521050dba8c56efeacb@[10.2.0.101]>
-In-Reply-To: <3E66964E.6050101@wmich.edu>
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz>
- <p05210507ba8c20241329@[10.2.0.101]>
- <3E66842F.9020000@WirelessNetworksInc.com>
- <200303061038.44872.kernel@kolivas.org>
- <20030305235057.M20511@flint.arm.linux.org.uk>
- <3E66964E.6050101@wmich.edu>
-Date: Wed, 5 Mar 2003 17:58:52 -0800
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: Re: Linux vs Windows temperature anomaly
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E668267.5040203@redhat.com>; from drepper@redhat.com on Wed, Mar 05, 2003 at 03:04:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 7:29pm -0500 3/5/03, Ed Sweetman wrote:
->I've never heard of running linux frying someone's cpu. I could see 
->frying a power supply because cheap power supplies will fail after a 
->while of idle/load cycles that linux is good at using. I really dont 
->see how else linux could be more "busy" than winows especially since 
->windows has 5 or 6 spyware ad programs running behind the scenes all 
->the time anyway and the virus scanner having to check every 
->instruction would definitly lead to a higher cpu average than a 
->linux box ding the same things minus the spyware and virus scanner. 
->It just doesn't make any sense. Erroring out more in linux than 
->windows...possibly yes depending on which version but not hardware 
->damage under normal use.
+On Wed, Mar 05, 2003 at 03:04:07PM -0800, Ulrich Drepper wrote:
+> I wouldn't want to either in your position.  You caused this whole mess
+> and now you're not willing to fix it.
 
-I don't think it's a case of "busy" per se. Both systems are 100% 
-occupied with a userland memory test (it just mallocs and locks a 
-biggish buffer, and does reads and writes of various patters). One 
-pass of the test takes about 104 seconds on both systems (presumably 
-it's memory-bound, so compiler differences aren't showing up).
+I disagree.  We don't need to use a segment register to get the thread 
+library equivalent of "current".  Changing the segment registers on a 
+per process basis is a waste of time in the context switch.  Instead, 
+making x86-64 TLS support based off of the stack pointer, or even using 
+a fixed per-cpu segment register such that gs:0 holds the pointer to the 
+thread "current" would be better.  Make the users of threads suffer, not 
+every single application and syscall in the system.
 
-It was suggested off-list that I compare the chipset config registers 
-to see if anything is different. I've been meaning to do that, but 
-just looking at the registers, I don't see anything that would affect 
-FSB timing, or the FSB at all, for that matter. Naetheless, I'll do 
-the comparison as soon as I dig up an lspci equivalent for Win2K.
-
-As for temperature differences, the heat sink temperature (at least) 
-doesn't seem to differ appreciably between the systems, which is what 
-I'd expect with essentially the same load on each.
-
-I'm wondering, somewhat ignorantly, if there might be some kind of 
-CPU configuration that Windows is adjusting, as some kind of 
-workaround or the like. I don't suppose that this is the best place 
-to ask how to read MSRs from Windows....
+		-ben
 -- 
-/Jonathan Lundell.
+Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>

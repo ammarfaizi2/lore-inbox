@@ -1,93 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269967AbTG1Opn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 10:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbTG1Opn
+	id S270243AbTG1Onr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 10:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTG1Onr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 10:45:43 -0400
-Received: from [24.241.190.29] ([24.241.190.29]:11934 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S269967AbTG1Opk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 10:45:40 -0400
-Date: Mon, 28 Jul 2003 11:00:51 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 -> 2.2 differences?
-Message-ID: <20030728150051.GE13260@rdlg.net>
-Mail-Followup-To: Bernd Eckenfels <ecki-lkm@lina.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <20030725142434.GS32585@rdlg.net> <E19gC0Z-0001RR-00@calista.inka.de>
+	Mon, 28 Jul 2003 10:43:47 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:64017 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S270243AbTG1Onq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 10:43:46 -0400
+Date: Mon, 28 Jul 2003 08:59:01 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>, davem@redhat.com,
+       alan@lxorguk.ukuu.org.uk, James.Bottomley@SteelEye.com, axboe@suse.de,
+       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030728145901.GA18738@dsl2.external.hp.com>
+References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723114006.GA28688@dsl2.external.hp.com> <20030728131513.5d4b1bd3.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BZaMRJmqxGScZ8Mx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E19gC0Z-0001RR-00@calista.inka.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030728131513.5d4b1bd3.ak@suse.de>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
+> Download reaim from sourceforge
 
---BZaMRJmqxGScZ8Mx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://lwn.net/Articles/20733/
+	"(couldn't think of a better name, sorry)"
 
+I was happy when "apt-get install reaim" just worked... *sigh*
+But figured out "reaim" != "re-aim-7".
+debian doesn't know anything about re-aim-7. :^(
 
-Thus spake Bernd Eckenfels (ecki-lkm@lina.inka.de):
+http://sourceforge.org/projects/re-aim-7
+	We're Sorry.
+	The SourceForge.net Website is currently down for maintenance.
+	We will be back shortly
 
-> In article <20030725142434.GS32585@rdlg.net> you wrote:
-> > With all the SCO fun going on I have people asking me what functionality
-> > we would loose if we rolled from 2.4.21 kernel to the last known stable
-> > 2.2 kernel.
->=20
-> it is easier to turn off SMP.
->=20
-> BTW: what will happen if there is some SMP code from IBM in the kernel wh=
-ich
-> is owned by SCO? Isnt it a matter of days to remove that code? Does anybo=
-dy
-> have to pay for past usage of the code?
+willy mentioned it's on OSDL too. Will look for that next.
 
-But would just turning off SMP shut up the lawyers?  They're saying it'd
-take a full roll back to 2.2.
+> Use the workfile.new_dbase test
+> Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
+> I tested with ext3 on a single SCSI disk.
 
-Having Gartner say not to take the suit seriously isn't helping calm
-down the lawyers, etc even if there is no proof.
+thanks Andi - hopefully I can generate results this afternoon
+when I've got connectivity again.
 
-http://www.nwfusion.com/news/2003/0523gartntous2.html
-
-Right now there's just a bunch of rumors and stories of people like M$
-paying license fees which argumentably provides a precedent.  (tactics
-of M$ asside, M$ isn't the topic here)
-
-Robert
-
-
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---BZaMRJmqxGScZ8Mx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/JTqj8+1vMONE2jsRAsaKAKC34pU0FSrJwmZeHLXo6kgrBdjw8QCgnuAJ
-wxQF9s9+xyLe0Od2s8+psxs=
-=qlfh
------END PGP SIGNATURE-----
-
---BZaMRJmqxGScZ8Mx--
+grant

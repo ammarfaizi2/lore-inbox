@@ -1,89 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUGFTJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUGFTOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbUGFTJj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 15:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUGFTJj
+	id S264307AbUGFTOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 15:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUGFTOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 15:09:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51591 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264299AbUGFTJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 15:09:36 -0400
-Date: Tue, 6 Jul 2004 21:09:35 +0200
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: *** Announcement: dmraid 1.0.0-rc1 available at http://people.redhat.com:~heinzm/sw/dmraid
-Message-ID: <20040706190935.GA26264@redhat.com>
-Reply-To: mauelshagen@redhat.com
+	Tue, 6 Jul 2004 15:14:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61959 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264307AbUGFTOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 15:14:51 -0400
+Date: Tue, 6 Jul 2004 20:14:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Kefalas Apostolos <akef@freemail.gr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: compiling 2.6.7
+Message-ID: <20040706201447.A28227@flint.arm.linux.org.uk>
+Mail-Followup-To: Kefalas Apostolos <akef@freemail.gr>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200407062123.09586.akef@freemail.gr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200407062123.09586.akef@freemail.gr>; from akef@freemail.gr on Tue, Jul 06, 2004 at 09:23:09PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 06, 2004 at 09:23:09PM +0300, Kefalas Apostolos wrote:
+> I am compiling kernel 2.6.5 and i get the following errors:
+> 
+> drivers/pcmcia/i82365.c: In function `is_alive':
+> drivers/pcmcia/i82365.c:672: warning: `check_region' is deprecated (declared 
+> at include/linux/ioport.h:121)
+> drivers/pcmcia/i82365.c: In function `isa_probe':
+> drivers/pcmcia/i82365.c:806: warning: `check_region' is deprecated (declared 
+> at include/linux/ioport.h:121)
+> drivers/pcmcia/i82365.c: In function `i365_set_io_map':
+> drivers/pcmcia/i82365.c:1134: warning: comparison is always false due to 
+> limited range of data type
+> drivers/pcmcia/i82365.c:1134: warning: comparison is always false due to 
+> limited range of data type
 
-               *** Announcement: dmraid 1.0.0-rc1 ***
+They're actually warnings and are harmless to the average user (but
+serve as reminders that stuff needs some work to the developer.)
 
-dmraid 1.0.0-rc1 available at http://people.redhat.com:/~heinzm/sw/dmraid/
-in source and i386 rpm.
-
-dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
-properties of software RAID sets (ie. ATARAID) and contained MSDOS
-partitions using the device-mapper runtime of the 2.6 kernel.
-
-The following ATARAID types are supported on Linux 2.6:
-
-Highpoint HPT37X
-Highpoint HPT45X
-Promise FastTrack
-Silicon Image Medley
-
-These ATARAID types can be discovered only in this version:
-Intel Software RAID
-LSI Logic MegaRAID
-
-Please provide insight to support those metadata formats completely.
-
-Thanks.
-
-See file README, which comes with the source tarball for prerequisites
-to run this software and further instructions on installing and using dmraid!
-
-
-Call for testers:
------------------
-
-I need testers with the above ATARAID types, to check that the mapping
-created by this tool is correct (see options "-t -ay") and access to the ATARAID
-data is proper.
-
-You can activate your ATARAID sets without danger of overwriting
-your metadata, because dmraid accesses it read-only unless you use
-option -E with -r in order to erase ATARAID metadata (see 'man dmraid')!
-
-This is a release candidate version so you want to have backups of your valuable
-data *and* you want to test accessing your data read-only first in order to
-make sure that the mapping is correct before you go for read-write access.
-
-
-The author is reachable at <Mauelshagen@RedHat.com>.
-
-For test results, mapping information, discussions, questions, patches,
-enhancement requests, free beer offers and the like, please subscribe and
-mail to <ataraid@redhat.com>.
-
---
-
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Red Hat GmbH
-Consulting Development Engineer                   Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbTCIW4x>; Sun, 9 Mar 2003 17:56:53 -0500
+	id <S262663AbTCIXEB>; Sun, 9 Mar 2003 18:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262661AbTCIW4x>; Sun, 9 Mar 2003 17:56:53 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:44202 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262660AbTCIW4w>;
-	Sun, 9 Mar 2003 17:56:52 -0500
-Message-ID: <35152.4.64.238.61.1047251250.squirrel@www.osdl.org>
-Date: Sun, 9 Mar 2003 15:07:30 -0800 (PST)
-Subject: Re: Reserving physical memory at boot time
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <hpa@zytor.com>
-In-Reply-To: <3E6BAD57.803@zytor.com>
-References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com>
-        <Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net>
-        <b442s0$pau$1@cesium.transmeta.com>
-        <32981.4.64.238.61.1046844111.squirrel@www.osdl.org>
-        <b453mj$qpi$1@cesium.transmeta.com>
-        <20030306212607.GA173@elf.ucw.cz>
-        <3E67D89B.1010308@zytor.com>
-        <20030307231954.GB164@elf.ucw.cz>
-        <3E6BAD57.803@zytor.com>
-X-Priority: 3
-Importance: Normal
-Cc: <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S262664AbTCIXEB>; Sun, 9 Mar 2003 18:04:01 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:27407
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S262663AbTCIXD6>; Sun, 9 Mar 2003 18:03:58 -0500
+Subject: Re: Kernel bug in dcache.h:266; 2.5.64, EIP at sysfs_remove_dir
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Tomasz Torcz, BG" <zdzichu@irc.pl>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.33.0303091604530.994-100000@localhost.localdomain>
+References: <Pine.LNX.4.33.0303091604530.994-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047251674.1418.1.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 09 Mar 2003 15:14:34 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pavel Machek wrote:
->>
->> Okay; which mem= options you want killed?
->>
->
-> Anything that doesn't match the regexp (in Perl syntax):
->
-> /^mem=(0[0-7]*|[1-9][0-9]*|0x[0-9a-f]+)[kmg]$/i
->
->> What about this?
->
-> Looks good to me.
+On Sun, 2003-03-09 at 14:06, Patrick Mochel wrote:
+> Bah, we're accidentally dropping the refcount on the directory one too 
+> many times, which is a different, though slightly related, problem to the 
+> one the previous patch fixed. 
+> 
+> Please try this patch (after removing the previous one).
 
-Thanks, Pavel.  You beat me to it.
+That looks like it fixed it.
 
-~Randy
-
-
+	J
 

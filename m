@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276114AbRI1PQ2>; Fri, 28 Sep 2001 11:16:28 -0400
+	id <S276113AbRI1PRa>; Fri, 28 Sep 2001 11:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276113AbRI1PQI>; Fri, 28 Sep 2001 11:16:08 -0400
-Received: from mail.berlin.de ([195.243.105.33]:54761 "EHLO
-	mailoutvl21.berlin.de") by vger.kernel.org with ESMTP
-	id <S276116AbRI1PP6>; Fri, 28 Sep 2001 11:15:58 -0400
-Message-ID: <3BB49438.1F2C59B3@berlin.de>
-Date: Fri, 28 Sep 2001 17:16:08 +0200
-From: Norbert Roos <n.roos@berlin.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: inverse mmap() available?
+	id <S276118AbRI1PRV>; Fri, 28 Sep 2001 11:17:21 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:17140 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S276113AbRI1PRE>;
+	Fri, 28 Sep 2001 11:17:04 -0400
+Date: Fri, 28 Sep 2001 17:17:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
+Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
+Message-ID: <20010928171717.D24922@athlon.random>
+In-Reply-To: <20010928052007.R14277@athlon.random> <Pine.LNX.4.33.0109280919210.1569-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109280919210.1569-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Sep 28, 2001 at 09:34:52AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 28, 2001 at 09:34:52AM +0200, Ingo Molnar wrote:
+> frankly, i dont understand what your problem is with the looping concept.
 
-Hello!
+There is no problem, it's just that I am _curious_ about is the
+"difference" in "numbers" not words. I'm not claiming there is no
+difference of course, obviously there is difference, I expect that.
 
-Is there a way to map user space memory into kernel address space, e.g.
-that i don't have to call get_user(var,...) but simply use var =
-*user_space_ptr?
-
-What i intend to do (as the next step) is to DMA-transfer data directly
-between a PCI device and user space memory. The buffer in user space
-should be allocated with malloc(), so allocating a buffer in kernel and
-mmap()-ping it to user space is not the solution..
-
-I guess this has been asked before, any links to further information
-would be great.
-
-Thanks
-Norbert
+Andrea

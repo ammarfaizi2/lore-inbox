@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbUBNI5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 03:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUBNI5R
+	id S261500AbUBNJN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 04:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUBNJN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 03:57:17 -0500
-Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:10880 "EHLO
-	mail.jg555.com") by vger.kernel.org with ESMTP id S261492AbUBNI5Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 03:57:16 -0500
-Message-ID: <0da201c3f2d8$78c9e1a0$d300a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6] -- Fixes KCONFIG for initrd
-Date: Sat, 14 Feb 2004 00:56:44 -0800
+	Sat, 14 Feb 2004 04:13:57 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:460 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261500AbUBNJN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 04:13:56 -0500
+From: Christian Borntraeger <kernel@borntraeger.net>
+To: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Date: Sat, 14 Feb 2004 10:13:50 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com> <20040214085110.GG5649@tinyvaio.nome.ca>
+In-Reply-To: <20040214085110.GG5649@tinyvaio.nome.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Disposition: inline
+Message-Id: <200402141013.50633.kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Prevents initrd from being built if ram device is built
-             as a module.
+Mike Bell wrote:
+> On Fri, Feb 13, 2004 at 01:19:20PM -0800, Greg KH wrote:
+> > > That's a pretty minor difference, from the kernel's point of view.
+> > > It's basically putting the same numbers in different fields.
+> >
+> > Heh, that's a HUGE difference!
+>
+> Only from userspace's point of view. To the kernel, it's basically the
+> same thing.
 
---- linux-2.6.2/drivers/block/Kconfig.orig    2004-02-14 08:47:03.911807371
-+0000
-+++ linux-2.6.2/drivers/block/Kconfig 2004-02-14 08:49:37.739118285 +0000
-@@ -313,6 +313,7 @@
+No. Giving a major and minor number is simple. 
+Creating a device node means: you have to define a policy. Now the kernel 
+has to think about:
+- user id
+- group id
+- access rights
+- naming
 
- config BLK_DEV_INITRD
-        bool "Initial RAM disk (initrd) support"
-+       depends on BLK_DEV_RAM && BLK_DEV_RAM!=m
-        help
-          The initial RAM disk is a RAM disk that is loaded by the boot
-loader
-          (loadlin or lilo) and that is mounted as root before the normal
-boot
+These are the reasons why devfsd was/is necessary for devfs.
+A Kernel should only enforce a policy, it should not define it.
 
+cheers
 
-
-----
-Jim Gifford
-maillist@jg555.com
+Christian
 

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267552AbRGZCZv>; Wed, 25 Jul 2001 22:25:51 -0400
+	id <S267564AbRGZCeL>; Wed, 25 Jul 2001 22:34:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267564AbRGZCZk>; Wed, 25 Jul 2001 22:25:40 -0400
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:63241 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S267552AbRGZCZ2>;
-	Wed, 25 Jul 2001 22:25:28 -0400
-From: tpepper@vato.org
-Date: Wed, 25 Jul 2001 19:25:33 -0700
-To: corbet-lk@lwn.net
-Cc: linux-kernel@vger.kernel.org
-Subject: TASK_EXCLUSIVE?
-Message-ID: <20010725192533.A17850@cb.vato.org>
-Mime-Version: 1.0
+	id <S267576AbRGZCeB>; Wed, 25 Jul 2001 22:34:01 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:32787 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S267564AbRGZCdn>; Wed, 25 Jul 2001 22:33:43 -0400
+Message-ID: <3B5F830D.CAC71A18@zip.com.au>
+Date: Thu, 26 Jul 2001 12:40:13 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gerald Walden <thepond@charter.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: debug of a kernel panic leading nowhere...
+In-Reply-To: <20010726015721Z267509-720+6404@vger.kernel.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I was reading through the new edition of Linux Device Drivers and decided to
-try the TASK_EXCLUSIVE flag to get a single member of a wait queue to wake.  I
-get a compile error though that it is undeclared.  Grepping the kernel source
-came up with nothing.
+Gerald Walden wrote:
+> ...
+> During the rmmod of a fairly simple driver, I get a kernel
+> panic which crashes the system.  I believe I have taken all
+> the proper steps to attempt to debug the problem to no
+> avail.
+> 
+> Any suggestions as to how to move further, or how to frame
+> this question in a more appropriate manner for this list (or
+> perhaps there is a more appropriate list that I should be
+> sending this to) would greatly be appreciated.
 
-Did something change before the book went to press?  I seem to recall reading
-something here about that but can't come up with anything searching the
-archives.  Maybe I'm just misremembering.  At any rate it seems to have gone
-somewhere...can somebody point me at its replacement?  Does WQ_FLAG_EXCLUSIVE
-do the job?
+You have the right list, although your email headers are
+strange.
 
-Tim
+>From the backtrace it appears that perhaps a pending timer has not
+been correctly removed prior to module removal, but that's really
+just a guess - the backtrace isn't clear.
+
+Is the problem repeatable?  What driver is being removed?
+
+
+-

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUG1GSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUG1GZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265847AbUG1GSW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 02:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUG1GSW
+	id S266183AbUG1GZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 02:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUG1GZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 02:18:22 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:37285 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265847AbUG1GSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 02:18:21 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <20040728045916.GA14474@elte.hu>
-References: <1090732537.738.2.camel@mindpipe>
-	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu>
-	 <1090969026.743.12.camel@mindpipe>  <20040728045916.GA14474@elte.hu>
-Content-Type: text/plain
-Message-Id: <1090995519.747.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 02:18:40 -0400
+	Wed, 28 Jul 2004 02:25:19 -0400
+Received: from mailhub2.uq.edu.au ([130.102.149.128]:60434 "EHLO
+	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S266183AbUG1GZP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 02:25:15 -0400
+From: Ben Hoskings <s4010227@student.uq.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Date: Wed, 28 Jul 2004 16:25:04 +1000
+User-Agent: KMail/1.6.2
+References: <E1Bouyq-0001OQ-00@calista.eckenfels.6bone.ka-ip.net>
+In-Reply-To: <E1Bouyq-0001OQ-00@calista.eckenfels.6bone.ka-ip.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407281625.05083.s4010227@student.uq.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 00:59, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > The obvious next feature to add would be to make certain IRQs
-> > non-schedulable, like you would for an RT system.  For an audio system
-> > this would be just the soundcard interrupt (and timer as stated
-> > above).  Then, while it still might not be hard-RT, it would blow away
-> > anything achievable on the other OS'es people do audio work with.
-> 
-> yes, this is the next step. Does v=3 work on your system? (even if the
-> delaying of the soundcard irq causes latencies.)
-> 
+On Monday 26 July 2004 12:12, Bernd Eckenfels wrote:
+> In article <200407261138.55020.ben@jeeves.gotdns.org> you wrote:
+> > I think the idea of forking off certain releases in the 2.6.x.0 form, to
+> > only recieve bugfixes and security updates, is a very good idea.
+>
+> Leave that to the vendors, they already do that.
+>
+> Whats wrong with adding features which touch major parts of the code only
+> to 2.7, and perhaps bacport them if they proof to be worth it?
 
-Yes, it works well, except for this behavior which is as expected.  I
-will test making this interrupt 'direct' tomorrow, it is not shared with
-anything too heavy.
+I guess it's pretty similar in practice. I brought it up because the idea of 
+freezing releases at 2.6.x.0 is more fine-grained, and as such it seemed to 
+me that it would be less of a maintenance overhead.
 
-Lee
+Although labels aside, I suppose the two systems are acheiving the same thing 
+in the end.
 
+>
+> Greetings
+> Bernd
 
-
+--
+	Ben

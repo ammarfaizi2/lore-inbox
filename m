@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTKDJ2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 04:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTKDJ2N
+	id S264027AbTKDJef (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 04:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTKDJef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 04:28:13 -0500
-Received: from eva.fit.vutbr.cz ([147.229.10.14]:45061 "EHLO eva.fit.vutbr.cz")
-	by vger.kernel.org with ESMTP id S264023AbTKDJ2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 04:28:12 -0500
-Date: Tue, 4 Nov 2003 10:26:52 +0100
-From: David Jez <dave.jez@seznam.cz>
-To: Faisal Malallah <hitman1_fm@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.22 oops with visor.o and pppd
-Message-ID: <20031104092652.GB35982@stud.fit.vutbr.cz>
-References: <LAW9-F105snqHs4rVPX0001384e@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <LAW9-F105snqHs4rVPX0001384e@hotmail.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 4 Nov 2003 04:34:35 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:8576
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264027AbTKDJee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 04:34:34 -0500
+Date: Tue, 4 Nov 2003 04:33:59 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6] Dont use cpu_has_pse for WP test branch
+In-Reply-To: <Pine.LNX.4.53.0311040155150.20595@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.53.0311040431140.20595@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0311040155150.20595@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I try to link my Palm Tungsten T to linux through USB using pppd to 
-> establish a network connection, the connection goes well for a while but 
-> then it disconnects and the kernel oops.
+On Tue, 4 Nov 2003, Zwane Mwaikambo wrote:
+
+> It appears that not all processors which support PSE have the PSE bit set, 
+> possibly we should be checking with PSE36 too. But instead i've opted to 
+> simply check for 586+
 > 
-> Using Kernel 2.4.22 on redhat 9
-> pppd version 2.4.1
-  Hi,
+> Celeron (Mendocino): fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca 
+> cmov pat pse36 mmx fxsr
+> 
+> Opteron 240: fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
+> pse36 clflush mmx fxsr sse sse2 syscall mmxext lm 3dnowext 3dnow
 
-  Try update for newer redhat kernel or 2.4.23-pre5. Tt is fixed since
-2.4.23-pre5.
+Please ignore this patch, turns out CONFIG_DEBUG_PAGEALLOC disables the 
+PSE bit in early_cpu_init.
 
--- 
--------------------------------------------------------
-  David "Dave" Jez                Brno, CZ, Europe
- E-mail: dave.jez@seznam.cz
-PGP key: finger xjezda00@eva.fit.vutbr.cz
----------=[ ~EOF ]=------------------------------------

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270664AbTG0E0K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 00:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270667AbTG0E0K
+	id S270666AbTG0EZD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 00:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270664AbTG0EZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 00:26:10 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:59532 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S270664AbTG0EZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 00:25:41 -0400
-Message-Id: <5.1.0.14.2.20030727061608.00a77960@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 27 Jul 2003 06:42:12 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: ZqYoj0ZAwef+RwExp-73iKWni8PV+TXKINbHrz1lVWhXbJ7hdMoYgs
+	Sun, 27 Jul 2003 00:25:03 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:3535 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S270666AbTG0EZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 00:25:00 -0400
+Message-ID: <3F235B73.70701@genebrew.com>
+Date: Sun, 27 Jul 2003 00:56:19 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+References: <200307262309.20074.adq_dvb@lidskialf.net>
+In-Reply-To: <200307262309.20074.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Attached is patch against 2.6.0-test1 that adds type_name to all in-tree
- > sensors; it sets it to the same values as corr. 2.4 senors and (in one case)
- > changes client name to match that of 2.4.
+Andrew de Quincey wrote:
+> Small patch for the latest nvidia nforce 1.0-261 nvnet drivers with kernel 2.5.
 
-Well, it certainly doesn't with the lm85.c  :-)
-Hint - names are in lib/chips.h in sensors package :-)
+Further nvnet musings (cc:ing Jeff as net driver maintainer and 
+knowledgeable person).
 
-Although, I will be working over lm85.c in the next week or so.
+As I reported here a few days earlier, I tried using the AMD8111 driver 
+with my NForce2 ethernet a few days ago, with the result that no MAC 
+address was being assigned to the card. I suspect that the MAC address 
+is being assigned by the Nvidia driver. Does that make sense?
 
- > +static const char *type_name = "";
- > +static ssize_t show_type_name(struct device *dev, char *buf)
- > +{
- > + return sprintf(buf, "%s\n", type_name);
- > +}
- > +static DEVICE_ATTR(type_name, S_IRUGO, show_type_name, NULL);
+If so, then using the option in the BIOS to manually set the MAC address 
+might make the AMD driver work. Unfortunately, I have no idea what I 
+should set it to without stomping on the MAC address for other devices.
 
- > - const char *type_name = "";
+Any ideas? I hate to rely on a binary only module for something as 
+"simple" as a 10/100 ethernet card.
 
- > + device_create_file(&new_client->dev, &dev_attr_type_name);
-
-
-
-Margit 
+Thanks,
+Rahul
 

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289673AbSAJUxL>; Thu, 10 Jan 2002 15:53:11 -0500
+	id <S289670AbSAJUyl>; Thu, 10 Jan 2002 15:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289672AbSAJUxC>; Thu, 10 Jan 2002 15:53:02 -0500
-Received: from quechua.inka.de ([212.227.14.2]:31778 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S289669AbSAJUwz>;
-	Thu, 10 Jan 2002 15:52:55 -0500
-From: Bernd Eckenfels <ecki-news2002-01@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C3DDEA9.E8FAB8DC@nortelnetworks.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16OmBx-0008K2-00@sites.inka.de>
-Date: Thu, 10 Jan 2002 21:52:53 +0100
+	id <S289674AbSAJUy3>; Thu, 10 Jan 2002 15:54:29 -0500
+Received: from laibach.mweb.co.za ([196.2.53.177]:52394 "EHLO
+	laibach.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S289405AbSAJUxv>; Thu, 10 Jan 2002 15:53:51 -0500
+Subject: [PATCH] Compilation error on 2.5.10 linux-2.5/drivers/ide/pdc4030.c
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: LKM <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Jan 2002 23:05:46 +0200
+Message-Id: <1010696751.5950.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C3DDEA9.E8FAB8DC@nortelnetworks.com> you wrote:
-> Imagine taking an input, doing dsp-type calculations on it, and sending it back
-> as output.  Now...imagine doing it in realtime with the output being fed back to
-> a monitor speaker.  Think about what would happen if the output of the monitor
-> speaker is 1/4 second behind the input at the mike.  Now do you see the
-> problem?  A few ms of delay might be okay.
+This fixes an error when compiling and removes a unused variable warning
+The following warning I'm not sure about though:
 
-What kind of signal run time do you normally have in digital sound processing
-equipment? AFAIK one can expect a feew frames with of delay (n x 13ms).
+pdc4030.c: In function `do_pdc4030_io':
+pdc4030.c:571: warning: control reaches end of non-void function
 
-Just dont feed back the processed signal to the singers monitor box.
+	-Bongani
 
-> If I'm trying to watch a DVD on my computer, and assuming my CPU is powerful
-> enough to decode in realtime, then I want the DVD player to take
-> priority--dropping frames just because I'm starting up netscape is not
-> acceptable.
+--- /usr/src/linux-2.5/drivers/ide/pdc4030.c    Wed Jan  9 21:46:15 2002
++++ /usr/src/linux-2.5-dev/drivers/ide/pdc4030.c        Thu Jan 10
+22:50:29 2002
+@@ -393,7 +393,6 @@
+ {
+        ide_hwgroup_t *hwgroup = HWGROUP(drive);
+        struct request *rq = hwgroup->rq;
+-       int i;
 
-You do not start up netscape while you do realtime av processing in
-professional environemnt.
+        if (GET_STAT() & BUSY_STAT) {
+                if (time_before(jiffies, hwgroup->poll_timeout)) {
+@@ -498,6 +497,7 @@
+ {
+        unsigned long timeout;
+        byte stat;
++       ide_startstop_t startstop;
 
-Well, an easy fix is to have the LL patch and do not use swap. Then you only
-need reliable/predictable hardware (which is not so easy to get for PC).
+ /* Check that it's a regular command. If not, bomb out early. */
+        if (!(rq->flags & REQ_CMD)) {
+@@ -543,7 +543,6 @@
+                break;
 
-Greetings
-Bernd
+        case WRITE:
+-               ide_startstop_t startstop;
+                OUT_BYTE(PROMISE_WRITE, IDE_COMMAND_REG);
+ /*
+  * Strategy on write is:
+
 

@@ -1,73 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262790AbSJRCR7>; Thu, 17 Oct 2002 22:17:59 -0400
+	id <S262795AbSJRCTj>; Thu, 17 Oct 2002 22:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSJRCR7>; Thu, 17 Oct 2002 22:17:59 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:30856
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S262790AbSJRCR5>; Thu, 17 Oct 2002 22:17:57 -0400
-Message-ID: <3DAF70B5.5010208@redhat.com>
-Date: Thu, 17 Oct 2002 19:23:49 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Mark Gross <markgross@thegnar.org>, Ingo Molnar <mingo@elte.hu>,
-       Alexander Viro <viro@math.psu.edu>,
-       S Vamsikrishna <vamsi_krishna@in.ibm.com>, linux-kernel@vger.kernel.org,
-       NPT library mailing list <phil-list@redhat.com>
-Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
-References: <200210081627.g98GRZP18285@unix-os.sc.intel.com> <Pine.LNX.4.44.0210171009240.12653-100000@localhost.localdomain> <m33cr4pn56.fsf@averell.firstfloor.org> <200210171835.21647.markgross@thegnar.org> <20021018021242.GA15853@averell>
-In-Reply-To: <200210081627.g98GRZP18285@unix-os.sc.intel.com>
-X-Enigmail-Version: 0.65.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262794AbSJRCTj>; Thu, 17 Oct 2002 22:19:39 -0400
+Received: from dp.samba.org ([66.70.73.150]:6635 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262788AbSJRCTD>;
+	Thu, 17 Oct 2002 22:19:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] change format of LSM hooks 
+In-reply-to: Your message of "Thu, 17 Oct 2002 19:20:10 +0200."
+             <E182EJl-0004Rd-00@starship> 
+Date: Fri, 18 Oct 2002 12:04:15 +1000
+Message-Id: <20021018022503.1E5F52C24A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In message <E182EJl-0004Rd-00@starship> you write:
+> > The current spinlock is horrible.
+> 
+> Is it?  You must be thinking about much more intensive use of the spinlock as
+> with per-op calls as opposed to per-attach (mount).  I'd planned to make the 
+> spinlocks per-module, but your per-cpu code looks just fine.
 
-Andi Kleen wrote:
+Actually, after I thought about it harder, I was inspired by your
+point that the race can be prevented with a spinlock (as currently
+done).  I spent last night writing a new solution to this (I'm testing
+it now), which works as follows:
 
-> I want the x86 CPU error code, which often has interesting clues on
-> the problem.
-> trapno would be useful too. I suspect other CPUs have similar extended
-> state for exceptions.
+/* We only need protection against local interrupts. */
+#ifndef __HAVE_ARCH_LOCAL_INC
+#define local_inc(x) atomic_inc(x)
+#define local_dec(x) atomic_dec(x)
+#endif
 
+static inline int try_module_get(struct module *module)
+{
+	int ret = 1;
 
-I don't know whether you refer to this but the si_erno and si_code field
-of the elf_siginfo structure are currently not used.  They are filled
-with zero all the time.
+	if (module) {
+		unsigned int cpu = get_cpu();
+		if (likely(module->live))
+			local_inc(&module->ref[cpu]);
+		else
+			ret = 0;
+		put_cpu();
+	}
+	return ret;
+}
 
+static inline void module_put(struct module *module)
+{
+	if (module) {
+		unsigned int cpu = get_cpu();
+		local_dec(&module->ref[cpu]);
+		/* Maybe they're waiting for us to drop reference? */
+		if (unlikely(!module->live))
+			wake_up_process(module->waiter);
+		put_cpu();
+	}
+}
 
-> Eventually (in a future kernel) I would love to have the exception
-> handler save the last branch debugging registers of the CPU and the
-> let the
-> core dumper put that into the dump too.  Then you could easily
-> figure out what the program did shortly before the crash.
+Now, these are both short, sweet, and cache-local.  The unload stage
+becomes harder.  We stop all the reference counts by scheduling a
+thread on every cpu, then having them all do a local_irq_disable.
+This means we know that the refcounts won't change, and we can safely
+sum them.  If they're zero (or the non-block flag isn't set), we set
+"module->live" to false and release the CPUs.
 
+Now, in the sleeping case, I sleep uninterruptible, but drop the
+module mutex first, so other module stuff can happen at the same time.
 
-One the 2.7 kernel development opens I hope *a lot* will change in the
-core dump handling.  The current format isn't even adequate to represent
-the currently represented information correctly (uid and gid are 16
-bits) and there is other information which isn't even available.
+This completely prevents the spurious unload race.
 
-I'm perfectly willing to consult anybody who wants to do some work in
-this area.  Actually, the kernel side should be mostly simple, it "just"
-means accessing and copying the right data.
+> > I don't know of any code which does this now, but it is at least a
+> > theoretical problem.
+> 
+> To resolve this, start the module in can-increment state, do the module 
+> initialization, register the notifiers, and finally register the interface.
+> In other words, the module never needs to be in can't-increment state at 
+> initialization.  (The module writer must ensure they have the correct, 
+> raceless initial state of whatever the notifiers are notifying about, which 
+> strikes me as a little tricky in itself.)
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Yes, this basically means two-state init for modules, which I shy
+clear of in general.  But if any modules care, they can do this
+themselves, though, by setting "THIS_MODULE.live = 1;" to activate
+the notifiers during their init routine.
 
-iD8DBQE9r3C22ijCOnn/RHQRAjIIAKCF8wlNJTAiHAjZPP8JdVHOI43NhQCfbqXc
-9qmjBBZcjGEZX7CUUhGODqs=
-=jIxX
------END PGP SIGNATURE-----
+Basically, with the other one solved, I'm happy to place this on the
+shoulders of any module which really cares.
 
+> > IMHO, the benifits of having it in-kernel outweigh the slight extra
+> > size.
+> 
+> I'll cast my vote for your in-kernel linker, in the mistaken belief that 
+> democracy has anything to do with the question.  Does this make progress 
+> towards eliminating one of create_module or init_module?
+
+Yes, query_module, create_module and /proc/ksyms all gone.
+
+> > > > ...The second is the "die-mother-fucker-die"
+> 
+> I'd use this feature in filesystem development, regardless of the risks, 
+> since I regularly do worse things to the kernel anyway.  But don't you think 
+> the rmmod parameter should be different for the ask-nicely vs the 
+> shoot-in-the-head flavor?  How about -f -f or -F for the latter?
+
+Yes, currently:
+	rusty@mingo:~$ /sbin/rmmod       
+	Usage: /sbin/rmmod [--wait|-f] <modulename>
+	  The --wait option begins a module removal even if it is used
+	  and will stop new users from accessing the module (so it
+	  should eventually fall to zero).
+	  The -f option forces a module unload, and may crash your
+	  machine.  This requires the Forced Module Removal option
+	  when the kernel was compiled.
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

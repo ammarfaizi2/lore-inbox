@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTD3XpU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTD3XpU
+	id S262547AbTD3Xov (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbTD3Xov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:45:20 -0400
-Received: from tomts12.bellnexxia.net ([209.226.175.56]:3052 "EHLO
-	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262562AbTD3XpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:45:18 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.68-mm3
-Date: Wed, 30 Apr 2003 19:57:58 -0400
-User-Agent: KMail/1.5.9
-References: <20030429235959.3064d579.akpm@digeo.com>
-In-Reply-To: <20030429235959.3064d579.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 30 Apr 2003 19:44:51 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:45581 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S262547AbTD3Xou (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 19:44:50 -0400
+Subject: Re: 2.5.68-bk10 blkmtd.c:219: warning: implicit declaration of
+	function `alloc_kiovec'
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rddunlap@osdl.org>
+In-Reply-To: <1051745126.5274.22.camel@flat41>
+References: <1051745126.5274.22.camel@flat41>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1051747119.5315.28.camel@flat41>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 May 2003 00:58:39 +0100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304301957.58729.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On April 30, 2003 02:59 am, Andrew Morton wrote:
-> Bits and pieces.  Nothing major, apart from the dynamic request allocation
-> patch.  This arbitrarily increases the maximum requests/queue to 1024, and
-> could well make large (and usually bad) changes to various benchmarks.
-> However some will be helped.
+On Thu, 2003-05-01 at 00:25, Grzegorz Jaskiewicz wrote:
+> Well, "burned" on ieee1394 i will not try to patch it my self :)
+> Anyway, i can live without those drivers :)
 
-Here is something a little broken.  Suspect it might be in 68-bk too:
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.68-mm3; fi
-WARNING: /lib/modules/2.5.68-mm3/kernel/sound/oss/cs46xx.ko needs unknown symbol cs4x_ClearPageReserved
+> drivers/mtd/devices/blkmtd.c:52:25: linux/iobuf.h: No such file or
+> directory
 
-Ed Tomlinson
+I've tried to investigate this. What happend to iobuf.{ch} ? 
+I guess bit more changes are required to make it running before 2.6 :)
+
+Btw, authors email in head of blkmtd.c is bad.
+
+Fanny thing, after removing this include there is declaration :
+
+/* readpage() - reads one page from the block device */
+static int blkmtd_readpage(mtd_raw_dev_data_t *rawdevice, struct page *page)
+{
+  int err;
+  int sectornr, sectors, i;
+  struct kiobuf *iobuf;
+	^^^^^^^
+  unsigned long *blocks;
+
+Fast fgrep in kernel sources gives me no answer about this structure declaration.
+
+any help guys ?
+
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 labs
+

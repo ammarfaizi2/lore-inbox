@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbQLEV1e>; Tue, 5 Dec 2000 16:27:34 -0500
+	id <S129985AbQLEVfz>; Tue, 5 Dec 2000 16:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129985AbQLEV1N>; Tue, 5 Dec 2000 16:27:13 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:56837 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129784AbQLEV1L>; Tue, 5 Dec 2000 16:27:11 -0500
-Date: Tue, 5 Dec 2000 14:55:41 -0600
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Athlon CPU [long]
-Message-ID: <20001205145541.E6567@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.30.0012051135361.1881-200000@lt.wsisiz.edu.pl> <Pine.LNX.4.30.0012050613240.620-100000@asdf.capslock.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0012050613240.620-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Tue, Dec 05, 2000 at 06:17:39AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130120AbQLEVfp>; Tue, 5 Dec 2000 16:35:45 -0500
+Received: from 194-73-188-168.btconnect.com ([194.73.188.168]:33288 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129985AbQLEVfk>;
+	Tue, 5 Dec 2000 16:35:40 -0500
+Date: Tue, 5 Dec 2000 21:07:16 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: [bug] vfsmount->count accounting broken again?
+Message-ID: <Pine.LNX.4.21.0012052102440.1683-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-  [Lukasz Trabinski]
-> > I know about it, but the compiler does.
+Imagine two ext2 filesystems
 
-[Mike A. Harris]
-> Not sure what you mean however no part of the linux kernel ever uses
-> glibc at all. It is not possible to do so in fact.
+/dev/hda1 mounted rw on /boot
+/dev/hda3 mounted rw on /usr/src
 
-He means that gcc is linked to libc, so a libc bug could possibly
-affect gcc.  I have not, however, ever heard of that happening.
+now mount /dev/hda3 also on /boot
 
-> Your hardware is likely faulty, especially if it conks out in a
-> different spot each time.
+mount -t ext2 /dev/hda3 /boot
 
-Yes.
+this succeeds, which is expected. Now umount it.
 
-Peter
+umount /boot
+
+this also succeeds, which is expected. Now do df(1) and notice that
+/etc/mtab is corrupted and no longer shows the old /boot filesystem even
+though we know (from /proc/mounts) that it is mounted. This is a bug but a
+userspace one (should mail Andries later, probably util-linux). Now, the
+interesting bit, i.e. the kernel bug:
+
+umount /boot
+
+this fails with EBUSY. So, I think the reference count has gone wrong
+somewhere -- I will put debugging code in do_umount() and see, but
+everyone is welcome to fix it before I do so...
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

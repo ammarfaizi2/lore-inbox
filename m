@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289299AbSANXio>; Mon, 14 Jan 2002 18:38:44 -0500
+	id <S289297AbSANXjO>; Mon, 14 Jan 2002 18:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289297AbSANXif>; Mon, 14 Jan 2002 18:38:35 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:63828 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S289296AbSANXiW>; Mon, 14 Jan 2002 18:38:22 -0500
-Date: Mon, 14 Jan 2002 18:38:20 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020114183820.G30639@redhat.com>
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com> <20020114180522.A24120@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114180522.A24120@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 06:05:22PM -0500
+	id <S289296AbSANXjF>; Mon, 14 Jan 2002 18:39:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:15888 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289297AbSANXit>;
+	Mon, 14 Jan 2002 18:38:49 -0500
+Date: Tue, 15 Jan 2002 00:38:45 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb fix, fixed
+In-Reply-To: <20020114031420.GA18525@codepoet.org>
+Message-ID: <Pine.LNX.4.33.0201150036150.22605-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0201150036152.22605@Appserv.suse.de>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 06:05:22PM -0500, Eric S. Raymond wrote:
-> Because fetchmail is doing the same thing any other MTA would do in that
-> situation -- throwing up its hands, because it doesn't have and can't get
-> the information to compensate for the misconfiguration.
+On Sun, 13 Jan 2002, Erik Andersen wrote:
 
-Nice cop out.  Fetchmail is a hybrid MTA+MUA.  Since it straddles the 
-line, it should follow the rules of least surprise, namely:
+> > This patch is needed to make radeonfb compile and work.
+> > It is based on an earlier patch on the list attributed to
+> > Ani Joshi, plus adds the needed devinit fix.
+> Oops.  That patch had some crap in it.  Lets try that again.
 
-	1. don't delete a messages without knowing they can be / are 
-	   delivered successfully
-	2. make sure error messages that come from temporary config 
-	   issues are sent to the person who can fix them.
+Uncompressed, that patch was just 4kb. When not too big, it's
+considered acceptable (and preferred) to send them as plaintext
+to the list for ease of quoting.
 
-FYI, it's easy to fix, just use the correct ordering of download, transmit, 
-delete that sendmail and other MTAs use.  Sendmail doesn't delete a message 
-out of its spool just because it was sent to the next MTA in the chain, 
-instead it *waits* for the next MTA to acknowledge the successful receipt 
-of the message.  Funnily, it even fsync()s the spool before acknowledging 
-incoming messages.
+Patch looks ok, but this bit..
 
-> If you have some magic patch to fix this, I'll take it.  If you have
-> nothing constructive to contribute, please take your venom elsewhere.
+diff -urN linux/drivers/video.virgin/radeonfb.c
+linux/drivers/video/radeonfb.c
+--- linux/drivers/video.virgin/radeonfb.c   Sun Jan 13 19:09:54 2002
++++ linux/drivers/video/radeonfb.c  Sun Jan 13 19:41:00 2002
+@@ -686,7 +686,7 @@
+    name:       "radeonfb",
+    id_table:   radeonfb_pci_table,
+    probe:      radeonfb_pci_register,
+-   remove:     radeonfb_pci_unregister,
++   remove:     __devexit_p(radeonfb_pci_unregister),
+ };
 
-Eric, you're asking kernel developers to trust that you are dealing with 
-the design issues correctly.  Part of that means understanding where the 
-priorities of the issues that concern you fit in with the rest of the 
-project.  That means understanding what current practice is, and what it 
-will be to all the players involved (core kernel developers, bleeding edge 
-users, end users who want a stable system, distro users, distro developers).  
-So far, I see proof that you are not good at understanding design issues 
-that don't interest you.  This flame war is proof that you're very out of 
-sync with the rest of the developers.  I'm asking you to show some goodwill 
-by going back and fixing the design issues in your own project in order 
-to better understand some of the currents at work.  Until then, I won't 
-use fetchmail, and I pity the poor users that do.
+Is that really needed ?  Hotplugable radeons ?
 
-		-ben
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

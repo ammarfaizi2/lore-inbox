@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUGGQJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUGGQLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUGGQJP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUGGQJO
+	id S265218AbUGGQLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbUGGQLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:09:14 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:8321 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S265219AbUGGQJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:09:09 -0400
-Message-ID: <40EC201C.2060906@nortelnetworks.com>
-Date: Wed, 07 Jul 2004 12:09:00 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Wed, 7 Jul 2004 12:11:22 -0400
+Received: from gate.corvil.net ([213.94.219.177]:39176 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S265218AbUGGQLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 12:11:21 -0400
+Message-ID: <40EC20A0.8000101@draigBrady.com>
+Date: Wed, 07 Jul 2004 17:11:12 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Brad Tilley <bradtilley@usa.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Directory where modules are loacted in 2.6.7 build
-References: <922iggP8L3328S17.1089215951@uwdvg017.cms.usa.net>
-In-Reply-To: <922iggP8L3328S17.1089215951@uwdvg017.cms.usa.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-ck5
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <40EC1C85.9030008@gmx.de>
+In-Reply-To: <40EC1C85.9030008@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Tilley wrote:
-> This is probably a stupid question, but here goes:
-> 
-> When a normal user on a x86 PC builds a 2.6.x kernel in his home 
-> directory by
-> issuing the 'make' command where are the modules placed?
+Prakash K. Cheemplavam wrote:
+> I don't know whether this was already discussed, but what about adding 
+> framework so that (like io-schedulers) the cpu scheduler could be chosen 
+> on boot time? This would make it easy to test different cpu schedulers.
 
-They're left where they are compiled.
+Discussed today actually :-)
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108875642724907&w=2
 
-To actually put them anywhere, you must do "make modules_install" as root.
-
-Chris
+Pádraig.

@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-X-Sieve: Server Sieve 2.2
-thread-index: AcQ36H3Sk9+cQm9FQmu9h5iCd+6BGw==
-X-Sieve: Server Sieve 2.2
-Date: Wed, 12 May 2004 07:30:26 +0100
-From: "Christoph Hellwig" <hch@infradead.org>
-To: <Administrator@osdl.org>
-Cc: <akpm@osdl.org>, <benh@kernel.crashing.org>,
-        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [PATCH 1/2] PPC32: New OCP core support
-Message-ID: <000001c437ea$9ce031f0$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,Matt Porter <mporter@kernel.crashing.org>, akpm@osdl.org,benh@kernel.crashing.org, linux-kernel@vger.kernel.org,linuxppc-dev@lists.linuxppc.org
-References: <20040511170150.A4743@home.com>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S264196AbUE2JEZ@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id S264196AbUE2JEZ (ORCPT <rfc822;akpm@zip.com.au>);
+	Sat, 29 May 2004 05:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264202AbUE2JEY
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 29 May 2004 05:04:24 -0400
+Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:10168 "EHLO
+	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264196AbUE2JEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 05:04:24 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: swappiness=0 makes software suspend fail.
+Date: Sat, 29 May 2004 19:05:20 +1000
+User-Agent: KMail/1.6.2
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
+        Rob Landley <rob@landley.net>, seife@suse.de
+References: <200405280000.56742.rob@landley.net> <20040528215642.GA927@elf.ucw.cz>
+In-Reply-To: <20040528215642.GA927@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-X-Mailer: Microsoft CDO for Exchange 2000
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040511170150.A4743@home.com>; from mporter@kernel.crashing.org on Tue, May 11, 2004 at 05:01:50PM -0700
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-X-me-spamlevel: not-spam
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
-X-OriginalArrivalTime: 12 May 2004 06:15:15.0921 (UTC) FILETIME=[7E01E410:01C437E8]
-Sender: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405291905.20925.cef-lkml@optusnet.com.au>
+Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-X-me-spamlevel: not-spam
-X-me-spamrating: 0.003132
-Priority: normal
 
+On Sat, 29 May 2004 07:56, Pavel Machek wrote:
+> Stefan, we may want to do echo 100 > /proc/sys/vm/swappiness in
+> suspend script...
 
+Really, you should save that value somewhere and then restore it after 
+suspend, or those people who do use /proc/sys/vm/swappiness will likely 
+complain about it (ie: me).
 
-On Tue, May 11, 2004 at 05:01:50PM -0700, Matt Porter wrote:
-> New OCP infrastructure ported from 2.4 along with several
-> enhancements. Please apply.
-
-The old-style PM callback (using struct pm_dev) is bogus, please kill
-that part.
-
-
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
-
-
+-- 
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

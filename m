@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315463AbSFYNVr>; Tue, 25 Jun 2002 09:21:47 -0400
+	id <S315468AbSFYNen>; Tue, 25 Jun 2002 09:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315468AbSFYNVq>; Tue, 25 Jun 2002 09:21:46 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:63178 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S315463AbSFYNVq>; Tue, 25 Jun 2002 09:21:46 -0400
-Message-ID: <180577A42806D61189D30008C7E632E8793954@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Question concerning PCI device driver
-Date: Tue, 25 Jun 2002 09:21:46 -0400
+	id <S315479AbSFYNen>; Tue, 25 Jun 2002 09:34:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:40191 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S315468AbSFYNem>; Tue, 25 Jun 2002 09:34:42 -0400
+Date: Tue, 25 Jun 2002 15:34:39 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] fix .text.exit error in mtd/maps/pci.c
+Message-ID: <Pine.NEB.4.44.0206251532090.14220-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have written a device driver for a cPCI board which is currently running
-under a 2.2 Kernel. When I load the driver via insmod, I register it it as a
-CHRDEV to get the major number assigned dynamically. My application uses
-this to build the node dynamically whenever it is started. This provides a
-clean interface for IOCTL commands. 
 
-I am now porting this driver to a 2.4 Kernel and in the Linux device driver
-book it talks about using pci_module_init. How do I get the major number to
-allow for IOCTL commands? Or alternatively is there a different way to
-interface IOCTL's to a PCI driver. By the way the board is not a network
-interface but a very specialized 8 bit serial interface. Please CC me
-directly in any responses.
+The following error occured at the final linking of 2.4.19-rc1:
+
+<--  snip  -->
+
+...
+drivers/mtd/mtdlink.o(.data+0x934): undefined reference to `local
+symbols in discarded section .text.exit'
+...
+
+<--  snip  -->
 
 
-Thanks in advance.
+The following patch fixes it (mtd_pci_remove is __devexit but the pointer
+to it didn't use __devexit_p):
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+
+--- drivers/mtd/maps/pci.c.old	Tue Jun 25 15:26:49 2002
++++ drivers/mtd/maps/pci.c	Tue Jun 25 15:27:25 2002
+@@ -361,7 +361,7 @@
+ static struct pci_driver mtd_pci_driver = {
+ 	name:		"MTD PCI",
+ 	probe:		mtd_pci_probe,
+-	remove:		mtd_pci_remove,
++	remove:		__devexit_p(mtd_pci_remove),
+ 	id_table:	mtd_pci_ids,
+ };
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

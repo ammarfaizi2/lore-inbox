@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268130AbTCFRBw>; Thu, 6 Mar 2003 12:01:52 -0500
+	id <S268212AbTCFRMH>; Thu, 6 Mar 2003 12:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbTCFRBw>; Thu, 6 Mar 2003 12:01:52 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:47026 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S268140AbTCFRBt>;
-	Thu, 6 Mar 2003 12:01:49 -0500
-Date: Thu, 6 Mar 2003 18:11:36 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
-       <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303060842270.7206-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0303061801250.13726-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268209AbTCFRMH>; Thu, 6 Mar 2003 12:12:07 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:36358 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S268201AbTCFRMC>; Thu, 6 Mar 2003 12:12:02 -0500
+Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Mike Anderson <andmike@us.ibm.com>, Andries.Brouwer@cwi.nl,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0303061213400.25282-100000@montezuma.mastecende.com>
+References: <UTC200303060639.h266dIo22884.aeb@smtp.cwi.nl>
+	<20030306064921.GA1425@beaverton.ibm.com>
+	<Pine.LNX.4.50.0303060256200.25282-100000@montezuma.mastecende.com>
+	<20030306083054.GB1503@beaverton.ibm.com>
+	<Pine.LNX.4.50.0303060331030.25282-100000@montezuma.mastecende.com>
+	<20030306085506.GB2222@beaverton.ibm.com>
+	<Pine.LNX.4.50.0303060354550.25282-100000@montezuma.mastecende.com>
+	<20030306091824.GA2577@beaverton.ibm.com> 
+	<Pine.LNX.4.50.0303060455560.25282-100000@montezuma.mastecende.com>
+	<1046968304.1746.20.camel@mulgrave> 
+	<Pine.LNX.4.50.0303061213400.25282-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 06 Mar 2003 11:21:40 -0600
+Message-Id: <1046971303.1998.23.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-06 at 11:15, Zwane Mwaikambo wrote:
+> On Thu, 6 Mar 2003, James Bottomley wrote:
+> 
+> > This log implies the error handling finished after the BDR.  That looks
+> > like the system doesn't have Mike's latest patch for the logic reversal
+> > problem in scsi_eh_ready_devs, could you check this?
+> 
+> static void scsi_eh_ready_devs(struct Scsi_Host *shost,
+>                               struct list_head *work_q,
+>                               struct list_head *done_q)
+> {
+>        if (scsi_eh_bus_device_reset(shost, work_q, done_q))
+>                if (scsi_eh_bus_reset(shost, work_q, done_q))
+>                        if (scsi_eh_host_reset(work_q, done_q))
+>                                scsi_eh_offline_sdevs(work_q, done_q);
+> }
+> 
+> That is what i currently have, i'll try a boot with;
+> 
+> -               if (scsi_eh_bus_reset(shost, work_q, done_q))
+> +               if (!scsi_eh_bus_reset(shost, work_q, done_q))
+> 
+> Thanks,
+> 	Zwane
 
-On Thu, 6 Mar 2003, Linus Torvalds wrote:
 
-> See, the thing is, I don't actually believe that X is _special_ in this
-> regard.
+Actually, all three if's need nots in front:
 
-X is special. Especially in Andrew's wild-window-dragging experiment X is
-a pure CPU-bound task that just eats CPU cycles no end. There _only_ thing
-that makes it special is that there's a human looking at the output of the
-X client. This is information that is simply not available to the kernel.
-
-Windows solves this problem by giving the application that owns 'the
-foreground window' a special boost - they have the window manager in the
-kernel after all. I do not like this approach, i could very well depend on
-an application's latency that is not directly connected to the foreground
-task.
-
-the only thing that is more or less a good sign of humans being involved,
-is delay. It's not always the case, but _most_ of the time, when a human
-is involved, there's lots of sleep time. The 2.4 scheduler kind of
-rewarded tasks based on this, the 2.5 scheduler does this more
-prominently.
-
-now which are those tasks that are CPU-bound but still have a human eye
-looking at them most of the time? The two main ones are games and video
-playback. Games tend to be CPU hogs for natural reasons, and video
-playback is something that is CPU-intensive but non-smooth output is still
-easily noticed by humans.
-
-note that there isnt all that much problem with any but these two
-categories.
-
-and for those two categories, we have to give up and just help the kernel
-a bit. We have to tell the kernel that there's a human looking at the
-output of these applications. One plan that i think might work would be to
-enable users to raise priority of applications by 2 or 3 priority levels,
-which the kernel would allow. If the interface only allows such priority
-setting for the current process, and if it's not inherited across fork(),
-then at least initially, it would be harder to abuse this mechanism for a
-'boost all of my processes' tool in .bashrc.
-
-another experiment (a really bad hack) was to do the boost in iopl() -
-recognizing the fact that if an application uses iopl(), it's privileged
-and it's special. This of course unacceptable, but it isolated X and a
-couple of other 'important' apps. It doesnt solve the 'xine problem'.
-
-	Ingo
+diff -Nru a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
+--- a/drivers/scsi/scsi_error.c	Thu Mar  6 11:21:22 2003
++++ b/drivers/scsi/scsi_error.c	Thu Mar  6 11:21:22 2003
+@@ -1490,9 +1490,9 @@
+ 			       struct list_head *work_q,
+ 			       struct list_head *done_q)
+ {
+-	if (scsi_eh_bus_device_reset(shost, work_q, done_q))
+-		if (scsi_eh_bus_reset(shost, work_q, done_q))
+-			if (scsi_eh_host_reset(work_q, done_q))
++	if (!scsi_eh_bus_device_reset(shost, work_q, done_q))
++		if (!scsi_eh_bus_reset(shost, work_q, done_q))
++			if (!scsi_eh_host_reset(work_q, done_q))
+ 				scsi_eh_offline_sdevs(work_q, done_q);
+ }
+ 
 

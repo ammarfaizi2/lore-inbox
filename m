@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVCQQdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVCQQgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVCQQdg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 11:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVCQQdf
+	id S262120AbVCQQgt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 11:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVCQQgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 11:33:35 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57305 "HELO
+	Thu, 17 Mar 2005 11:36:48 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7130 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261950AbVCQQdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 11:33:24 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+	id S262001AbVCQQgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 11:36:31 -0500
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
 From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1108845942.10705.27.camel@krustophenia.net>
-References: <20050204100347.GA13186@elte.hu>
-	 <1108789704.8411.9.camel@krustophenia.net> <20050219090036.GA30456@elte.hu>
-	 <20050219090312.GA30513@elte.hu>
-	 <1108845942.10705.27.camel@krustophenia.net>
+To: rostedt@goodmis.org
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0503171108510.17696@localhost.localdomain>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	 <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
+	 <20050315120053.GA4686@elte.hu>
+	 <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
+	 <20050315133540.GB4686@elte.hu>
+	 <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+	 <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org>
+	 <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org>
+	 <20050316101906.GA17328@elte.hu> <20050316024022.6d5c4706.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
+	 <20050316031909.08e6cab7.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
+	 <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
+	 <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
+	 <1111000818.21369.8.camel@mindpipe>
+	 <Pine.LNX.4.58.0503170210530.17019@localhost.localdomain>
+	 <1111074082.23171.8.camel@mindpipe>
+	 <Pine.LNX.4.58.0503171108510.17696@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 17 Mar 2005 11:33:22 -0500
-Message-Id: <1111077203.23171.23.camel@mindpipe>
+Date: Thu, 17 Mar 2005 11:36:22 -0500
+Message-Id: <1111077383.23171.26.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-19 at 15:45 -0500, Lee Revell wrote:
-> On Sat, 2005-02-19 at 10:03 +0100, Ingo Molnar wrote:
-> > * Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > > > Testing on an all SCSI 1.3Ghz Athlon XP system, I am seeing very long
-> > > > latencies in the journalling code with 2.6.11-rc4-RT-V0.7.39-02.
-> > > 
-> > > could you send me the full trace?
-> > 
-> > just in case the system in question is still running - could you also do 
-> > a 'verbose' trace via:
-> > 
-> > 	echo 1 > /proc/sys/kernel/trace_verbose
+On Thu, 2005-03-17 at 11:23 -0500, Steven Rostedt wrote:
 > 
-> OK, here is a 2912us verbose latency trace with "data=ordered", gzipped.
-> dbench 32 or 64 is the easiest way to trigger these.
+> On Thu, 17 Mar 2005, Lee Revell wrote:
 > 
-> I have not tried "data=journal".  As previously stated "data=writeback"
-> works perfectly - I ran JACK overnight while stressing the fs and did
-> not get one xrun.
+> >
+> > Sorry, it's hard to follow this thread.  Just to make sure we're all on
+> > the same page, what exactly is the symptom of this ext3 issue you are
+> > working on?  Is it a performance regression, or a latency issue, or a
+> > lockup - ?
+> >
+> > Whatever your problem is, I am not seeing it.
+> >
+> 
+> The root is a lockup.  I think you can get this lockup whether or not it
+> is PREEMPT_RT or PREEPMT_DESKTOP.  All you need is CONFIG_PREEMPT turned
+> on. Then this is what you want to do on a UP Machine.
 
-Any update on this?  The problem is still apparent in 2.6.11.  It seems
-to be a regression from 2.6.10.  And now I've heard 2.6.12-rc1 mentioned
-with no motion on this.
-
-Here's the trace again in case you missed it:
-
-http://www.alsa-project.org/~rlrevell/2912us
-
-The "latency regressions" thread was all sub-millisecond stuff which can
-be ignored IMHO.  Still interesting because they are regressions after
-all, but not a real world problem.
-
-However this one can be several milliseconds.  It's a real problem.
-
-I'd hate to have to ship 2.6.12 with a disclaimer that ext3 with
-"data=ordered" is not suitable for the desktop (as it clearly violates
-the stated desktop responsiveness goal of 1ms).
+OK, no need to cc: me on this one any more.  It's really low priority
+IMO compared to the big latencies I am seeing with ext3 and
+"data=ordered".  Unless you think there is any relation.
 
 Lee
 

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRKFI4M>; Tue, 6 Nov 2001 03:56:12 -0500
+	id <S278673AbRKFIyM>; Tue, 6 Nov 2001 03:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278701AbRKFI4C>; Tue, 6 Nov 2001 03:56:02 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:21127 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S278690AbRKFIzp>;
-	Tue, 6 Nov 2001 03:55:45 -0500
-Message-ID: <3BE7A58F.7BFEAAEE@pobox.com>
-Date: Tue, 06 Nov 2001 00:55:43 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+	id <S278690AbRKFIyC>; Tue, 6 Nov 2001 03:54:02 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:27155 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S278673AbRKFIxu>; Tue, 6 Nov 2001 03:53:50 -0500
+Message-ID: <3BE7A3DD.D98400FB@zip.com.au>
+Date: Tue, 06 Nov 2001 00:48:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "James A. Hillyerd" <james@hillyerd.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP Connections stuck in SYN_SENT state with 2.4.12, 2.4.13, 2.4.14
-In-Reply-To: <1005036240.978.6.camel@makita>
+To: Alexander Viro <viro@math.psu.edu>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <E1611lE-00086H-00@the-village.bc.nu> <Pine.GSO.4.21.0111060334590.27713-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James A. Hillyerd" wrote:
+Alexander Viro wrote:
+> 
+> On Tue, 6 Nov 2001, Alan Cox wrote:
+> 
+> > Surely the answer if you want short term write speed and long term balancing
+> > is to use ext3 not ext2 and simply ensure that the relevant stuff goes to
+> > the journal (which will be nicely ordered) first. That will give you some
+> > buffering at least.
+> 
+> Alan, the problem is present in ext3 as well as in all other FFS derivatives
+> (well, FreeBSD had tried to deal that stuff this Spring).
+> 
 
-> I have a strange problem, outgoing TCP packets get stuck at the SYN_SENT
-> point for certain websites.  Two of the sites I have this problem with
-> are zdnet.com and compusa.com.  When I try to telnet to port 80, the
-> connection will never be established, and netstat shows it in the
-> SYN_SENT state.
+Yep.  Once we're seek-bound on metadata and data, the occasional
+seek-and-squirt into the journal won't make much difference, and
+the other write patterns will be the same.
 
-Did you by chance enable ecn in the kernel?
+Interestingly, current ext3 can do a 600 meg write in fifty
+seconds, whereas ext2 takes seventy.  This will be related to the
+fact that ext3 just pumps all the buffers into submit_bh(), 
+whereas ext2 fiddles around with all the write_locked_buffers()
+stuff.  I think.  Or the intermingling of indirects with data
+is tripping ext2 up.  The additional seeking is audible.
 
-Try:
-
-echo "0" > /proc/sys/net/ipv4/tcp_ecn
-
-This is a FAQ IIRC -
-
-cu
-
-jjs
-
+-

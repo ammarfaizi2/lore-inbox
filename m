@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVCJR4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVCJSWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVCJR4L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVCJRxB
+	id S262922AbVCJSWe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 13:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbVCJSWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:53:01 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:18578 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S262729AbVCJRmk (ORCPT
+	Thu, 10 Mar 2005 13:22:30 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:55451 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262827AbVCJSRW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:42:40 -0500
-Date: Thu, 10 Mar 2005 18:42:19 +0100
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Nick Stoughton <nick@usenix.org>, Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: link(2) and symlinks
-Message-ID: <423086fb.nR9LluzfPxF0FN86%Gunnar.Ritter@pluto.uni-freiburg.de>
-References: <1110410075.18359.384.camel@collie>
- <20050310015535.GB4044@pclin040.win.tue.nl>
-In-Reply-To: <20050310015535.GB4044@pclin040.win.tue.nl>
-User-Agent: nail 11.22pre 3/5/05
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Mar 2005 13:17:22 -0500
+Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy (Version 9)
+	+ prezeroing (Version 4)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Mel Gorman <mel@csn.ul.ie>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050310092201.37bae9ba.pj@engr.sgi.com>
+References: <20050307193938.0935EE594@skynet.csn.ul.ie>
+	 <1110239966.6446.66.camel@localhost>
+	 <Pine.LNX.4.58.0503101421260.2105@skynet>
+	 <20050310092201.37bae9ba.pj@engr.sgi.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 10:16:53 -0800
+Message-Id: <1110478613.16432.36.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> wrote:
+On Thu, 2005-03-10 at 09:22 -0800, Paul Jackson wrote:
+> In particular, I am working on preparing a patch proposal for a policy
+> that would kill a task rather than invoke the swapper.  In
+> mm/page_alloc.c __alloc_pages(), if one gets down to the point of being
+> about to kick the swapper, if this policy is enabled (and you're not
+> in_interrupt() and don't have flag PF_MEMALLOC set), then ask
+> oom_kill_task() to shoot us instead.  For some big HPC jobs that are
+> carefully sized to fit on the allowed memory nodes, swapping is a fate
+> worse than death.
+>
+> The natural place (for me, anyway) to hang such policies is off the
+> cpuset.
+> 
+> I am hopeful that cpusets will soon hit Linus's tree.
+> 
+> Would it make sense to specify these buddy allocator fallback policies
+> per cpuset as well?
 
-> On Wed, Mar 09, 2005 at 03:14:36PM -0800, Nick Stoughton wrote:
-> > Most Unix implementations behave in the manner specified by POSIX.  One
-> > notable exception is Solaris 8 (I don't know about later Solarises). 
+That seems reasonable, but I don't think there necessarily be enough
+cpuset users to make this reasonable as the only interface.
 
-It's still the same on Solaris 10. /usr/bin/ln behaves like Linux, and
-/usr/xpg4/bin/ln behaves like POSIX.
+Seems like something VMA-based along the lines of madvise() or the NUMA
+binding API would be more appropriate.  Perhaps default policies
+inherited from a cpuset, but overridden by other APIs would be a good
+compromise.
 
-> > Would a patch to provide POSIX conforming behavior under some
-> > conditional case (e.g. if /proc/sys/posix has value 1) ever be accepted?
-> It sounds like a bad idea to have name resolution semantics dependent
-> upon some external variable. The result would be that nobody could be
-> sure anymore what the link() system call will do.
+I have the feeling that applications will want to give the same kind of
+notifications for swapping as they would for memory hotplug operations
+as well.  In decreasing order of pickiness:
 
-I second that.
+1. Don't touch me at all
+2. It's OK to migrate these pages elsewhere on this node
+3. It's OK to migrate these pages anywhere
+4. It's OK to swap these pages out
 
-> (Also, POSIX does not describe the kernel interface - it describes
-> a C interface. It would be possible for a libc to arrange that a
-> different link() routine was used.
-> Use of personality(2) does not sound like a good idea.)
+Although the node part, at least, can almost certainly be done in
+combination with the NUMA api.
 
-The Solaris implementation of the POSIX behavior is done mostly
-in userspace, as running truss with /usr/xpg4/bin/ln shows. The
-actual link system call seems to be always the same one, with a
-Linux-like behavior. /usr/xpg4/bin/ln only invokes resolvepath()
-(a realpath()-like system call) first.
+-- Dave
 
-> ((Maybe it would be beter to change POSIX here. Submit a defect report
-> and make the result of hard-linking to a symlink unspecified.
-> Since Linux and Solaris are non-POSIX here, programmers of portable
-> programs cannot rely on POSIX anyway.
-
-In the standards sense of portability, they can; the formally conforming
-Solaris environment behaves as POSIX specifies, and Linux has never been
-formally conforming to POSIX.1-2001 anyway.
-
-> Moreover, the Linux/Solaris behaviour sounds entirely reasonable,
-> preferable in fact above the POSIX behaviour.))
-
-I personally agree, but I doubt our opinion matters much.
-
-	Gunnar

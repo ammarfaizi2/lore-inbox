@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbUCLOOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLOOx
+	id S262136AbUCLOVW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:21:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUCLOVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:14:53 -0500
-Received: from colin2.muc.de ([193.149.48.15]:64525 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262120AbUCLOOv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:14:51 -0500
-Date: 12 Mar 2004 15:14:50 +0100
-Date: Fri, 12 Mar 2004 15:14:50 +0100
-From: Andi Kleen <ak@muc.de>
+	Fri, 12 Mar 2004 09:21:22 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:32608 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S262136AbUCLOVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:21:18 -0500
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
 To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andi Kleen <ak@muc.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040312141450.GB80958@colin2.muc.de>
-References: <7F740D512C7C1046AB53446D37200173FEB851@scsmsx402.sc.intel.com> <20040312031452.GA41598@colin2.muc.de> <40513B8B.9010301@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40513B8B.9010301@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mfedyk@matchmail.com, m.c.p@wolk-project.de,
+       owner-linux-mm@kvack.org, plate@gmx.tm
+X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
+Message-ID: <OF9DC8F5B1.0044A21E-ON86256E55.004DF368@raytheon.com>
+From: Mark_H_Johnson@Raytheon.com
+Date: Fri, 12 Mar 2004 08:18:15 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.0.2CF2|July 23, 2003) at
+ 03/12/2004 08:18:16 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 03:24:43PM +1100, Nick Piggin wrote:
-> 
-> 
-> Andi Kleen wrote:
-> 
-> >On Thu, Mar 11, 2004 at 07:04:50PM -0800, Nakajima, Jun wrote:
-> >
-> >>As we can have more complex architectures in the future, the scheduler
-> >>is flexible enough to represent various scheduling domains effectively,
-> >>and yet keeps the common scheduler code simple.
-> >>
-> >
-> >I think for SMT alone it's too complex and for NUMA it doesn't do
-> >the right thing for "modern NUMAs" (where NUMA factor is very low
-> >and you have a small number of CPUs for each node). 
-> >
-> >
-> 
-> For SMT it is a less complex than shared runqueues, it is actually
-> less lines of code and smaller object size.
 
-By moving all the complexity into arch/* ?
 
-> 
-> It is also more flexible than shared runqueues in that you can still
-> have control over each sibling's runqueue. Con's SMT nice patch for
-> example would probably be more difficult to do with shared runqueues.
-> Shared runqueues also gives zero affinity to siblings. While current
-> implementations may not (do they?) care, future ones might.
-> 
-> For Opteron type NUMA, it actually balances much more aggressively
-> than the default NUMA scheduler, especially when a CPU is idle. I
-> don't doubt you aren't seeing great performance, but it should be
-> able to be fixed.
-> 
-> The problem is just presumably your lack of time to investigate
-> further, and my lack of problem descriptions or Opterons.
 
-I didn't investigate further on your scheduler because I have my 
-doubts about it being the right approach and it seems to have
-some obvious design bugs (like the racy SMT setup) 
 
-The problem description is still the same as it was in the past.
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>Andrew Morton wrote:
 
-Basically it is: schedule as on SMP, but avoid local affinity for newly
-created tasks and balance early. Allow to disable all old style NUMA 
-heuristics.
+>>That effect is to cause the whole world to be swapped out when people
+>>return to their machines in the morning.  Once they're swapped back in
+the
+>>first thing they do it send bitchy emails to you know who.
+>>
+>>>From a performance perspective it's the right thing to do, but nobody
+likes
+>>it.
+>>
+>>
+>
+>Yeah. I wonder if there is a way to be smarter about dropping these
+>used once pages without putting pressure on more permanent pages...
+>I guess all heuristics will fall down somewhere or other.
 
-Longer term some homenode scheduling affinity may be still useful,
-but I tried to get that to work on 2.4 and failed, so I'm not sure
-it can be done. The right way may be to keep track how much memory
-each thread allocated on each node and preferably schedule on
-the node with the most memory. But that's future work.
+Just a question, but I remember from VMS a long time ago that
+as part of the working set limits, the "free list" was used to keep
+pages that could be freely used but could be put back into the working
+set quite easily (a "fast" page fault). Could you keep track of the
+swapped pages in a similar manner so you don't have to go to disk to
+get these pages [or is this already being done]? You would pull them
+back from the free list and avoid the disk I/O in the morning.
 
-> 
-> One thing you definitely want is a sched_balance_fork, is that right?
-> Have you been able to do any benchmarks on recent -mm kernels?
+By the way - with 2.4.24 I see a similar behavior anyway [slow to get
+going in the morning]. I believe it is due to our nightly backup walking
+through the disks. If you could FIX the retention of sequentially read
+disk blocks from the various caches - that would help a lot more in
+my mind.
 
-I sent the last benchmarks I did to you (including the tweaks you
-suggested). All did worse than the standard scheduler. Did you 
-change anything significant that makes rebenchmarking useful?
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
--Andi

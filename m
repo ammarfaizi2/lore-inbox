@@ -1,111 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTE2Rag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTE2Rag
+	id S262464AbTE2Rdn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTE2Rdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:30:36 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:55994 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262429AbTE2Rad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:30:33 -0400
-Subject: [PATCH 2.5.70 1/2] i_size atomic access
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-U0Qydlv/gZDuvW+i6isH"
-Organization: 
-Message-Id: <1054230227.2468.11.camel@ibm-c.pdx.osdl.net>
+	Thu, 29 May 2003 13:33:43 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:60937 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262464AbTE2Rdl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:33:41 -0400
+Date: Thu, 29 May 2003 19:46:26 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Willy TARREAU <willy@w.ods.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>, axboe@suse.de,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030529174626.GA27477@alpha.home.local>
+References: <3ED2DE86.2070406@storadinc.com> <20030529132431.GK1453@dualathlon.random> <20030529135508.GC21673@alpha.home.local> <200305291607.33211.m.c.p@wolk-project.de> <20030529160604.GA4985@pcw.home.local> <20030529164940.GS1453@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 29 May 2003 10:43:47 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529164940.GS1453@dualathlon.random>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 29, 2003 at 06:49:40PM +0200, Andrea Arcangeli wrote:
+> btw, were you running parallel reads or writes at the same time? (i.e.
+> launching xterms or ps etc.. in parallel?) I ask because if xterm
+> startups quick is because the write workload is getting more seeks in
+> its way.
 
---=-U0Qydlv/gZDuvW+i6isH
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-This adds a sequence counter only version of the reader/writer
-consistent mechanism to seqlock.h  This is used in the second
-part of this patch give atomic access to i_size.
-
-re-diff against 2.5.70.
-
-The patch is also available for download from OSDL's patch lifecycle 
-manager (PLM):
-
-
-https://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1873
--- 
-Daniel McNeil <daniel@osdl.org>
-
---=-U0Qydlv/gZDuvW+i6isH
-Content-Disposition: attachment; filename=patch-2.5.70-isize.1
-Content-Type: text/x-troff-man; name=patch-2.5.70-isize.1; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
---- linux-2.5.70/include/linux/seqlock.h	2003-05-26 18:00:39.000000000 -0700
-+++ linux-2.5.70-isize/include/linux/seqlock.h	2003-05-28 10:39:24.000000000 -0700
-@@ -94,6 +94,57 @@ static inline int read_seqretry(const se
- 	return (iv & 1) | (sl->sequence ^ iv);
- }
+Well, you're right, I was starting some xterms, but not that much perhaps
+a tens during all the test.
  
-+
-+/*
-+ * Version using sequence counter only. 
-+ * This can be used when code has its own mutex protecting the
-+ * updating starting before the write_seqcntbeqin() and ending
-+ * after the write_seqcntend().
-+ */
-+
-+typedef struct seqcnt {
-+	unsigned sequence;
-+} seqcnt_t;
-+
-+#define SEQCNT_ZERO { 0 }
-+#define seqcnt_init(x)	do { *(x) = (seqcnt_t) SEQCNT_ZERO; } while (0)
-+
-+/* Start of read using pointer to a sequence counter only.  */
-+static inline unsigned read_seqcntbegin(const seqcnt_t *s)
-+{
-+	unsigned ret = s->sequence;
-+	smp_rmb();
-+	return ret;
-+}
-+
-+/* Test if reader processed invalid data.
-+ * Equivalent to: iv is odd or sequence number has changed.
-+ *                (iv & 1) || (*s != iv)
-+ * Using xor saves one conditional branch.
-+ */
-+static inline int read_seqcntretry(const seqcnt_t *s, unsigned iv)
-+{
-+	smp_rmb();
-+	return (iv & 1) | (s->sequence ^ iv);
-+}
-+
-+
-+/* 
-+ * Sequence counter only version assumes that callers are using their
-+ * own mutexing.
-+ */
-+static inline void write_seqcntbegin(seqcnt_t *s)
-+{
-+	s->sequence++;
-+	smp_wmb();			
-+}	
-+
-+static inline void write_seqcntend(seqcnt_t *s) 
-+{
-+	smp_wmb();
-+	s->sequence++;
-+}
-+
- /*
-  * Possible sw/hw IRQ protected versions of the interfaces.
-  */
+> I'd be very interested if you can measure a bonnie performance change in
+> contigous reads and writes on a otherwise completely idle machine, the
+> size of the queue has to be big enough to keep the I/O pipeline full
+> during contigous writes at full speed.
 
---=-U0Qydlv/gZDuvW+i6isH--
+for this I'll have to install bonnie, I won't do it right now.
+
+> you can also try with:
+> 
+> 	echo 20 500 0 0 500 3000 30 10 >/proc/sys/vm/bdflush
+
+interestingly, it seems as the lower the last 2 values, the longer it takes.
+I retried without opening any xterm, and it took 130 seconds. With the above
+changes to bdflush, 135 s. With '80 50', 118s.
+
+vmstat also show me that the test begins at a sustained 16-19 MB/s write
+throughput during about the first minute. Then it starts to show regular drops
+to 5-7 MB/s for 6-7s, and goes back to full speed. Since this is on reiserfs,
+I wonder if this activity is not related to the journal.
+
+Moreover, the disk still writes during about 10s after the end of the dd, so
+I don't think that mesuring the time dd takes to complete is a good indicator
+of anything (or I should try with a final sync).
+
+If I write simultaneously to two 1G files, wait a few time and then read from
+them while still writing, I begin to wait a few seconds for xterm to give me
+the prompt. But when writes finish and there are only concurrent reads,
+everything gets smooth again, eventhough the disk emits a terrible seek sound !
+
+Cheers,
+Willy
 

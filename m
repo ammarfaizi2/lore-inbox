@@ -1,48 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVCAFur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVCAGCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVCAFur (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 00:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVCAFur
+	id S261247AbVCAGCu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 01:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCAGCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 00:50:47 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:9974 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261246AbVCAFul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 00:50:41 -0500
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH] Add PCI device ID for new Mellanox HCA
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 28 Feb 2005 21:50:38 -0800
-Message-ID: <52fyzfrk29.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Mar 2005 05:50:39.0065 (UTC) FILETIME=[98C44C90:01C51E22]
+	Tue, 1 Mar 2005 01:02:50 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:42527 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261247AbVCAGCm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 01:02:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=jHXzHSmtKAzP8zaOPN8frv6M14MHKKbvs17Zfa6QXp/Z8khDITxtfgnhIkHNlfKzzo8lolFpCHZGmH/e3xhvTeprsJxFWr6JFjOjKTA2czczc/1mx+Pcz0H6Mc/6JQHaHdZj3xa4xgSJ1451cjrWSbZz/ZU6eaiFBWXhOgliRQs=
+Message-ID: <8b46b8f1050228220257173ddf@mail.gmail.com>
+Date: Tue, 1 Mar 2005 14:02:05 +0800
+From: MingJie Chang <mingjie.tw@gmail.com>
+Reply-To: MingJie Chang <mingjie.tw@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: question about sockfd_lookup( )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Dear all,
 
-Here's a device ID for the new HCA that Mellanox just introduced.
-Please queue this up for 2.6.12.
+I want to get socket information by the sockfd while accetping,
 
-Thanks,
-  Roland
+so I write a module to test sockfd_lookup(),
+
+but I got some problems when I test it.
+
+I hope someone can help me...
+
+Thank you
+
+following text is my code and error message
+===========================================
+=== code ===
+
+int my_socketcall(int call,unsigned long *args)  
+{
+   int ret,err;
+   struct socket * sock;
+
+   ret = run_org_socket_call(call,args);   //orignal sys_sockcall()
+   
+   if(call==SYS_ACCEPT&&ret>=0) 
+   {
+          sock=sockfd_lookup(ret,&err);
+          printk("lookup done\n");
+   }
+   return ret;
+}
 
 
-Add PCI device ID for new Mellanox "Sinai" InfiniHost III Lx HCA.
+======================================
+=== test and state ===
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+after inserting module, I use "ftp localhost" to test it.
 
---- linux-svn.orig/include/linux/pci_ids.h	2005-02-28 21:08:38.592176783 -0800
-+++ linux-svn/include/linux/pci_ids.h	2005-02-28 21:10:37.198431351 -0800
-@@ -1992,6 +1992,7 @@
- #define PCI_DEVICE_ID_MELLANOX_TAVOR	0x5a44
- #define PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT 0x6278
- #define PCI_DEVICE_ID_MELLANOX_ARBEL	0x6282
-+#define PCI_DEVICE_ID_MELLANOX_SINAI	0x5e8c
- 
- #define PCI_VENDOR_ID_PDC		0x15e9
- #define PCI_DEVICE_ID_PDC_1841		0x1841
+And it has some error when I use "ls" or "mget"(I just try the 2 commands)
+
+EX1: ls  :file list is printed, but it will block until ctrl + c
+
+ftp> ls
+227 Entering Passive Mode (127,0,0,1,68,186)
+150 Here comes the directory listing.
+-rwxr-xr-x    1 0        0           13744 Feb 28 05:22 socktest
+-rw-r--r--    1 501      0           76288 Feb 27 19:05 vsftpd-1.1.0-1.i386.rpm
+-rw-------    1 501      0            3778 Feb 27 19:29 vsftpd.conf
+(blocking until ctrl+c)
+
+after ctrl+c
+receive aborted
+waiting for remote to finish abort
+226 Directory send OK.
+500 Unknown command.
+663 bytes received in 51 secs (0.013 Kbytes/sec)
+
+ftp>
+------------------------------------------------------------
+EX2:mget: block until ctrl + c ,and file is not got
+
+ftp> mget *
+(blocking until ctrl+c)
+receive aborted
+waiting for remote to finish abort
+Unknown command.
+
+ftp>
+(file is not got)
+
+==================================================
+== kernel message ==
+and than I remove the module, try to ftp localhost again, 
+and kernel will print some messages
+
+Unable to handle kernel paging request at virtual address c845a089
+ printing eip:
+c845a089
+*pde=02ab4067(01194067)
+*pte=00000000(00000000)
+Oops: 0000
+CPU:    0
+EIP:    0819:[<c845a089>]    Not tainted
+EFLAGS: 00213296
+eax: 00000004   ebx: c6f18000   ecx: 00000004   edx: 00000004
+esi: 00000005   edi: ffffffff   ebp: c6f19fbc   esp: c6f19f94
+ds: 0821   es: 0821   ss: 0821
+Process vsftpd (pid: 606, stackpage=c6f19000)<1>
+Stack: 00000005 bffffb80 00000000 00000000 c6f18000 00000000 00000000 c6f18000
+       c6f18000 00000004 bffffc58 c00ae4eb 00000005 bffffb80 bffffc30 00000004
+       ffffffff bffffc58 00000066 00000833 00000833 00000066 420daa02 0000082b
+Call Trace: [<c00ae4eb>]
+
+==================
+End of mail

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUB2QM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 11:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUB2QM2
+	id S262064AbUB2QPq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 11:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUB2QPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 11:12:28 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:11404 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262062AbUB2QM0 (ORCPT
+	Sun, 29 Feb 2004 11:15:46 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:30861 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262064AbUB2QPp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 11:12:26 -0500
-Date: Sun, 29 Feb 2004 17:12:17 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ben Collins <bcollins@debian.org>
-cc: linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] csr1212 compile fix
-Message-ID: <Pine.GSO.4.58.0402291708460.7483@waterleaf.sonytel.be>
+	Sun, 29 Feb 2004 11:15:45 -0500
+Date: Sun, 29 Feb 2004 17:15:35 +0100 (MET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Kai Germaschewski <kai.germaschewski@gmx.de>,
+       Paul Russell <rusty@rustcorp.com.au>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] scripts/modpost warning
+Message-ID: <Pine.GSO.4.58.0402291713230.7483@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Ben,
 
-in_interrupt() needs #include <linux/sched.h> on some platforms (e.g. m68k).
+I need the following patch to kill a warning (__endian() may be unused) when
+cross-compiling m68k kernels on an ia32 box.
 
-BTW, shouldn't most of the IEEE1394 stuff depend on CONFIG_PCI? E.g.
-drivers/ieee1394/dma.c uses struct pci_dev and needs pci_alloc_consistent() and
-friends.
+--- linux-2.6.4-rc1/scripts/modpost.h	2004-02-29 09:33:41.000000000 +0100
++++ linux-m68k-2.6.4-rc1/scripts/modpost.h	2004-02-29 10:39:56.000000000 +0100
+@@ -31,7 +31,7 @@
 
-(All found while trying to enable as many drivers as possible)
+ #if KERNEL_ELFDATA != HOST_ELFDATA
 
---- linux-2.6.4-rc1/drivers/ieee1394/csr1212.h	2004-02-29 09:31:37.000000000 +0100
-+++ linux-m68k-2.6.4-rc1/drivers/ieee1394/csr1212.h	2004-02-29 12:37:11.000000000 +0100
-@@ -37,6 +37,7 @@
- #include <linux/types.h>
- #include <linux/slab.h>
- #include <linux/interrupt.h>
-+#include <linux/sched.h>
-
- #define CSR1212_MALLOC(size)		kmalloc((size), in_interrupt() ? GFP_ATOMIC : GFP_KERNEL)
- #define CSR1212_FREE(ptr)		kfree(ptr)
+-static void __endian(const void *src, void *dest, unsigned int size)
++static inline void __endian(const void *src, void *dest, unsigned int size)
+ {
+ 	unsigned int i;
+ 	for (i = 0; i < size; i++)
 
 Gr{oetje,eeting}s,
 

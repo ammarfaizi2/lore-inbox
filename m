@@ -1,89 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272367AbTHNN65 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 09:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272369AbTHNN65
+	id S272369AbTHNOEw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 10:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272372AbTHNOEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 09:58:57 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:33506 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S272367AbTHNN6k convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 09:58:40 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Yury Umanets <umka@namesys.com>, Daniel Egger <degger@fhm.edu>,
-       Hans Reiser <reiser@namesys.com>, Nikita Danilov <Nikita@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <Pine.LNX.3.96.1030813160910.12417A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030813160910.12417A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1060869508.4803.35.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (dwmw2) 
-Date: Thu, 14 Aug 2003 14:58:28 +0100
-Content-Transfer-Encoding: 8BIT
+	Thu, 14 Aug 2003 10:04:52 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.30]:45999 "EHLO
+	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S272369AbTHNOEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 10:04:51 -0400
+Message-ID: <3F3BB38F.6060506@wanadoo.fr>
+Date: Thu, 14 Aug 2003 16:06:39 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kmem_cache_destroy: Can't free all objects (2.6)
+References: <Pine.LNX.4.33.0308141215430.7602-100000@blackhole.kfki.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-13 at 21:12, Bill Davidsen wrote:
-> The driver should do the logical to physical mapping, but the portability
-> vanishes if the filesystem to physical mapping is not the same for all
-> machines and operating systems. For pluggable devices this is important.
+Jozsef Kadlecsik wrote:
+> Hello,
+> 
+> I'm working on performance testing netfilter ip_conntrack.  The tested
+> machine is a dual Xeon PC with Serverworks chipset and e1000 cards.
+> 
+> "Calibrating" without ip_conntrack loaded in went fine. However as
+> the ip_conntrack module was removed after a test, sometimes I got the
+> message:
+> 
+> slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free all
+> objects
+> Call Trace:
+>  [<c0136fe9>] kmem_cache_destroy+0xd8/0x116
+>  [<f889f3ba>] ip_conntrack_cleanup+0x43/0x6c [ip_conntrack]
+>  [<f889d61a>] init_or_cleanup+0x131/0x190 [ip_conntrack]
+>  [<f889fc13>] fini+0xf/0x19 [ip_conntrack]
+>  [<c012dd76>] sys_delete_module+0x13c/0x169
+>  [<c01402ab>] sys_munmap+0x45/0x66
+>  [<c0108f9b>] syscall_call+0x7/0xb
+> 
+> I cannot reliably reproduce the error. Sometimes it comes at the
+> first test run, sometimes at say the 20th, but I have never been able to
+> run all the planned 150 tests.
+> 
+> This happens both with 2.5.74 and 2.6.0-test1.
 
-The portability also vanishes if the file system layout is not the same
-for all machines and operating systems... what's your point?
+I fixed a bug with exactly this symptom, all object freed but
+the cache was retaining some object internally. I look 2.6.0-test1
+and the fix is in, apologies if you already did it correctly
+but can you double check the bug is really in 2.6.0-test1.
 
-Just like there are standard file systems, there are also standard
-'translation layers' -- pseudofilesystems which are used to emulate a
-hard drive on flash storage -- and some of these are implemented for
-Linux.
-
-Take a PCMCIA flash card (real flash, not CF) with FTL and FAT on it,
-and it'll work just fine under both Windows and Linux, because they both
-use the standard FTL and FAT formats.
-
-FTL provides the logical<->physical mapping and the wear levelling, FAT
-is just normal FAT. 
-
-> The leveling seems to be done by JFFs2 in a portable way, and that's as it
-> should be. 
-
-You seem to be very confused here. JFFS2 works on flash directly;
-nothing's pretending to be a block device. It doesn't seem to be at all
-relevant to this discussion.
-
-JFFS2 does its own wear levelling and flash management, because it works
-directly on the flash. 
-
-FAT can't do that -- it needs some other code (like the FTL code) to
-emulate a normal hard drive for it, providing wear levelling and
-logical<->physical translation for it. 
-
-See http://www.infradead.org/~dwmw2/mtd-upper-layers.jpeg
-
-Wear levelling is not done in the driver -- the driver just drives the
-flash, and in fact is below the bottom of the diagram since it's largely
-irrelevant. It just gives you read/write/erase functions for the raw
-flash.
-
-Wear levelling is done either in the file system which works directly on
-the flash (JFFS2, YAFFS), or in the 'translation layer' which uses the
-flash to pretend to be a block device (FTL, NFTL, INFTL, SMTL). (In the
-case of the extremely naïve 'mtdblock' translation layer, no translation
-and no wear levelling is done at all.)
-
-> If the leveling were in the driver I don't believe even FAT
-> would work.
-
-I think that by 'driver' you actually mean the 'translation layer' or
-the combination of translation layer and underlying hardware driver, in
-which case you would be incorrect to say that it wouldn't work. That
-_is_ how it works, portably.
+> Slab cache ip_conntrack: 2052678 allocs vs 2052678 frees
 
 
--- 
-dwmw2
+> slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free all objects
+
+regards,
+Philippe Elie
+
 

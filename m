@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129753AbRCASSG>; Thu, 1 Mar 2001 13:18:06 -0500
+	id <S129758AbRCASZ0>; Thu, 1 Mar 2001 13:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129754AbRCASR4>; Thu, 1 Mar 2001 13:17:56 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36366 "EHLO
+	id <S129759AbRCASZR>; Thu, 1 Mar 2001 13:25:17 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42510 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129753AbRCASRs>; Thu, 1 Mar 2001 13:17:48 -0500
-Subject: Re: Kernel is unstable
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 1 Mar 2001 18:20:49 +0000 (GMT)
-Cc: matti.aarnio@zmailer.org (Matti Aarnio), iv@spylog.com (Ivan Stepnikov),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010301153935.G32484@athlon.random> from "Andrea Arcangeli" at Mar 01, 2001 03:39:35 PM
+	id <S129758AbRCASZE>; Thu, 1 Mar 2001 13:25:04 -0500
+Subject: Re: Stable Version?
+To: atm@pinky.penguinpowered.com (God)
+Date: Thu, 1 Mar 2001 18:28:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net> from "God" at Mar 01, 2001 10:26:46 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14YXh5-0008GQ-00@the-village.bc.nu>
+Message-Id: <E14YXo6-0008H7-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not broken, it's not there any longer as somebody dropped it between test7
-> and 2.4.2, may I ask why?
+> What version of the 2.4.x kernels is actually stable enough to use?  I
+> ask this because I see 2.4.2, but then the 2.4.2ac7 fix which from what I
+> have read on here, is a pretty important patch.   Is 2.4.2 or 2.4.1 stable
+> enough?  
 
-Linus took it out because it was breaking things.
+2.4.1 definitely isnt. 2.4.2 doesnt seem too bad for many users. In fact for
+lots of people its running quite nicely. Its by no means as stable as 2.2.18
+tho
+
 

@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVAURIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAURPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbVAURIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 12:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVAURIP
+	id S262423AbVAURPT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 12:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVAURPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 12:08:15 -0500
-Received: from pat.uio.no ([129.240.130.16]:1664 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262420AbVAURIN (ORCPT
+	Fri, 21 Jan 2005 12:15:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:63431 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262423AbVAURPM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 12:08:13 -0500
-Subject: Re: knfsd and append-only attribute:  "operation not permitted"
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Aaron D. Ball" <adb@bdi.com>
-Cc: Vladimir Saveliev <vs@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <41F12C75.5040007@bdi.com>
-References: <8381054C-6B13-11D9-BFA6-000D933B35AA@bdi.com>
-	 <1106318654.3200.38.camel@tribesman.namesys.com>
-	 <1106322787.30627.5.camel@lade.trondhjem.org>  <41F12C75.5040007@bdi.com>
-Content-Type: text/plain
-Date: Fri, 21 Jan 2005 12:08:00 -0500
-Message-Id: <1106327280.9849.32.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 21 Jan 2005 12:15:12 -0500
+Message-ID: <41F134DC.8020204@osdl.org>
+Date: Fri, 21 Jan 2005 08:59:08 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+CC: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: FATAL: Error inserting fm -- invalid module format
+References: <4EE0CBA31942E547B99B3D4BFAB348112B93D8@mail.esn.co.in>
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348112B93D8@mail.esn.co.in>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.004, required 12,
-	autolearn=disabled, AWL 0.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 21.01.2005 Klokka 11:23 (-0500) skreiv Aaron D. Ball:
+Srinivas G. wrote:
+> Dear All,
+> 
+> We were developed a block device driver on linux-2.6.x kernel. We want
+> to distribute our driver as a RPM Binary. We are using the SuSE 9.1 with
+> 2.6.5-7.71 kernel.
+> 
+> We build the RPM file using the fm.ko file on SuSE 9.1 with 2.6.5-7.71
+> kernel where fm.ko indicates our Block Driver module.  When I try to run
+> the RPM file on a different kernel version it has given the following
+> error message.
+> 
+> FATAL: Error inserting fm
+> (/lib/modules/2.6.4-52-default/kernel/drivers/block/fm.ko): Invalid
+> module format
+> 
+> As I know the error message indicates that I compiled the driver under
+> 2.6.5-7.71 kernel where as I am trying to insert the module in
+> 2.6.4-52-default kernel.
+> 
+> My question is: Is it possible to compile and build a .ko file with out
+> including the version information? (i.e. I want to build a RPM file
+> using fm.ko file which was compiled using 2.6.5-7.71 and to run the RPM
+> file on a different kernel versions.)
+> 
+> We are not very sure of how to achieve this. 
+> Please help us address this issue.
 
-> OK, but that certainly shouldn't preclude read access.  The way it is 
-> now, you can't even list append-only directories.  It seems like this 
-> check should treat append-only files as read-only, only failing to open 
-> them if write access is requested, rather than failing all the time like 
-> it does now.
+So you want to get around a mechanism that is preventing your driver
+from causing an Oops because of different data structures, different
+kernel APIs, etc., between those version?  or any versions?
 
-Agreed.
-
-> In this particular case, I'm not using append-only files, but rather 
-> using immutable files and append-only directories to create an archival 
-> space where things can be added but not changed.  Even if the protocol 
-> can't deal with append-only regular files, isn't it possible to allow 
-> mkdir but not rmdir?
-
-Append-only directories should be no problem as far as the protocol
-goes, and neither should immutable files.
-
-I suggest you take this bug to the NFS mailing list
-nfs@lists.sourceforge.net or talk directly to the knfsd maintainer Neil
-Brown (neilb@cse.unsw.edu.au).
-
-Cheers,
-  Trond
+This is just asking for trouble.  IOW, forget it.
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+~Randy

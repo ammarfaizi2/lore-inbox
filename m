@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129627AbQLHCYv>; Thu, 7 Dec 2000 21:24:51 -0500
+	id <S129736AbQLHC2v>; Thu, 7 Dec 2000 21:28:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129736AbQLHCYl>; Thu, 7 Dec 2000 21:24:41 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:10362 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S129627AbQLHCYY>; Thu, 7 Dec 2000 21:24:24 -0500
-Date: Thu, 7 Dec 2000 17:53:36 -0800
-From: Mike Kravetz <mkravetz@sequent.com>
-To: george anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Lock ordering, inquiring minds want to know.
-Message-ID: <20001207175336.A15623@w-mikek.des.sequent.com>
-In-Reply-To: <3A301826.B483D19D@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A301826.B483D19D@mvista.com>; from george@mvista.com on Thu, Dec 07, 2000 at 03:07:18PM -0800
+	id <S130396AbQLHC2l>; Thu, 7 Dec 2000 21:28:41 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22144 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129736AbQLHC2c>; Thu, 7 Dec 2000 21:28:32 -0500
+Date: Thu, 7 Dec 2000 20:58:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rainer Mager <rmager@vgkk.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>
+Message-ID: <Pine.LNX.3.95.1001207205043.5530A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George,
+On Fri, 8 Dec 2000, Rainer Mager wrote:
 
-I can't answer your question.  However, have  you noticed that this
-lock ordering has changed in the test11 kernel.  The new sequence is:
+> Hi all,
+> 
+> 	I've searched around for a answer to this with no real luck yet. If anyone
+> has some ideas I'd be very grateful.
 
-        read_lock_irq(&tasklist_lock);
-        spin_lock(&runqueue_lock);
+Signal 11 just means that you "seg-faulted". This is usually caused
+by a coding error. However, if you have tools (like the C compiler)
+that has been running fine, but starts to seg-fault, this points to
+the very real possibility of a hardware error.
 
-Perhaps the person who made this change could provide their reasoning.
+Modern RAM (with no error correction), running outside of its
+timing specifications, is often the culpret. Even power supplies can
+cause this problem. All you need is a single-bit error in a pointer's
+value and -- signal 11.
 
-An additional question I have is:  Is it really necessary to hold
-the runqueue lock (with interrupts disabled) for as long as we do
-in this routine (setscheduler())?  I suspect we only need the
-tasklist_lock while calling find_process_by_pid().  Isn't it
-possible to do the error checking (parameter validation) with just
-the tasklist_lock held?  Seems that we would only need to acquire
-the runqueue_lock (and disable interrupts) if we are in fact
-changing the task's scheduling policy.
--
-Mike
+Also, a bad opcode fetched from RAM with an error, also traps to
+the same handler.
 
-On Thu, Dec 07, 2000 at 03:07:18PM -0800, george anzinger wrote:
-> In looking over sched.c I find:
-> 
-> 	spin_lock_irq(&runqueue_lock);
-> 	read_lock(&tasklist_lock);
-> 
-> 
-> This seems to me to be the wrong order of things.  The read lock
-> unavailable (some one holds a write lock) for relatively long periods of
-> time, for example, wait holds it in a while loop.  On the other hand the
-> runqueue_lock, being a "irq" lock will always be held for short periods
-> of time.  It would seem better to wait for the runqueue lock while
-> holding the read_lock with the interrupts on than to wait for the
-> read_lock with interrupts off.  As near as I can tell this is the only
-> place in the system that both of these locks are held (of course, all
-> cases of two locks being held at the same time, both locker must use the
-> same order).  So...
-> 
-> 
-> What am I missing here? 
-> 
-> George
+Do:
+
+char main[]={0xff,0xff,0xff,0xff};
+
+
+Compile and run this (it will compile!). You will see what
+bad opcodes will do.
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

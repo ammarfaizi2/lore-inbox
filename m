@@ -1,101 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbUBDSRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 13:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbUBDSRW
+	id S263244AbUBDSYF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 13:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUBDSYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 13:17:22 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:51717 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263491AbUBDSRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 13:17:19 -0500
-Date: Wed, 4 Feb 2004 18:17:09 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Steve Lord <lord@xfs.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
-       Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
-Message-ID: <20040204181709.A21093@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steve Lord <lord@xfs.org>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <bv8qr7$m2v$1@news.cistron.nl> <20040129063009.GD2474@frodo> <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040129063009.GD2474@frodo> <20040129232033.GA10541@cistron.nl> <20040204000315.A12127@infradead.org> <401FAC70.8070104@xfs.org>
+	Wed, 4 Feb 2004 13:24:05 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:48593 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263244AbUBDSYB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 13:24:01 -0500
+Subject: Re: TSC and real-time clock slippage with 2.6.2
+From: john stultz <johnstul@us.ibm.com>
+To: Ian Chard <ian@chard.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075901679.5608.13.camel@tanagra>
+References: <1075901679.5608.13.camel@tanagra>
+Content-Type: text/plain
+Message-Id: <1075918985.794.4.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <401FAC70.8070104@xfs.org>; from lord@xfs.org on Tue, Feb 03, 2004 at 08:13:04AM -0600
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 04 Feb 2004 10:23:05 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a new diff, that should get rid of all the warnings except for
-O_DIRECT.  I've also addressed the comments from Dave and Steve.
+On Wed, 2004-02-04 at 05:34, Ian Chard wrote:
+> Ever since I upgraded from 2.4.20 to the 2.6 tree, I've had a problem
+> with real-time clock slippage and hard hangs on my Athlon XP 2500+
+> (1830MHz according to /proc/cpuinfo).  I've kept an eye on the list and
+> have applied new patches as the problem seems to be known about, but as
+> the problem's still there with 2.6.2 I thought it was about time I
+> reared my ugly head.
+> 
+> At or shortly after boot time, I get the "Losing too many ticks!"
+> message (this seems to be related to how hard the system is working --
+> if it runs an fsck, the message appears immediately).  Then, while the
+> system is running, the real-time clock will lose time: the more jobs use
+> the CPU, the more time I lose.  Occasionally, the system will oops or
+> hard-hang altogether (which could be an unrelated driver issue; it is
+> pretty unusual).
+> 
+> I'm willing to test any patches you clever folk want to throw at me, or
+> alternatively if there's an easy solution I'll try anything.
 
-Index: fs/xfs/linux-2.6/xfs_iops.c
-===================================================================
-RCS file: /cvs/linux-2.6-xfs/fs/xfs/linux-2.6/xfs_iops.c,v
-retrieving revision 1.212
-diff -u -p -r1.212 xfs_iops.c
---- fs/xfs/linux-2.6/xfs_iops.c	12 Dec 2003 04:17:52 -0000	1.212
-+++ fs/xfs/linux-2.6/xfs_iops.c	4 Feb 2004 17:56:34 -0000
-@@ -82,9 +82,14 @@ validate_fields(
+Are you using the amd76x_pm module?
+
+Also, does time still drift backward with the following patch?
+
+Could you also send me your dmesg and ntp drift file for both with and
+without this patch?
+
+thanks
+-john
+
+===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
+--- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
++++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
+@@ -226,7 +226,7 @@
+ 	delta += delay_at_last_interrupt;
+ 	lost = delta/(1000000/HZ);
+ 	delay = delta%(1000000/HZ);
+-	if (lost >= 2) {
++	if (0 && (lost >= 2)) {
+ 		jiffies_64 += lost-1;
  
- 	va.va_mask = XFS_AT_NLINK|XFS_AT_SIZE|XFS_AT_NBLOCKS;
- 	VOP_GETATTR(vp, &va, ATTR_LAZY, NULL, error);
--	ip->i_nlink = va.va_nlink;
--	ip->i_size = va.va_size;
--	ip->i_blocks = va.va_nblocks;
-+	if (likely(!error)) {
-+		ip->i_nlink = va.va_nlink;
-+		ip->i_blocks = va.va_nblocks;
-+
-+		/* we're under i_sem so i_size can't change under us */
-+		if (i_size_read(ip) != va.va_size)
-+			i_size_write(ip, va.va_size);
-+	}
- }
- 
- /*
-@@ -536,6 +541,7 @@ linvfs_setattr(
- 	if (error)
- 		return(-error);	/* Positive error up from XFS */
- 	if (ia_valid & ATTR_SIZE) {
-+		i_size_write(inode, vattr.va_size);
- 		error = vmtruncate(inode, attr->ia_size);
- 	}
- 
-Index: fs/xfs/linux-2.6/xfs_super.c
-===================================================================
-RCS file: /cvs/linux-2.6-xfs/fs/xfs/linux-2.6/xfs_super.c,v
-retrieving revision 1.294
-diff -u -p -r1.294 xfs_super.c
---- fs/xfs/linux-2.6/xfs_super.c	21 Jan 2004 16:46:06 -0000	1.294
-+++ fs/xfs/linux-2.6/xfs_super.c	4 Feb 2004 17:56:55 -0000
-@@ -178,7 +178,7 @@ xfs_revalidate_inode(
- 	}
- 	inode->i_blksize = PAGE_CACHE_SIZE;
- 	inode->i_generation = ip->i_d.di_gen;
--	i_size_write(inode, ip->i_d.di_size);
-+	inode->i_size = ip->i_d.di_size;
- 	inode->i_blocks =
- 		XFS_FSB_TO_BB(mp, ip->i_d.di_nblocks + ip->i_delayed_blks);
- 	inode->i_atime.tv_sec	= ip->i_d.di_atime.t_sec;
-Index: fs/xfs/linux-2.6/xfs_vnode.c
-===================================================================
-RCS file: /cvs/linux-2.6-xfs/fs/xfs/linux-2.6/xfs_vnode.c,v
-retrieving revision 1.120
-diff -u -p -r1.120 xfs_vnode.c
---- fs/xfs/linux-2.6/xfs_vnode.c	20 Oct 2003 02:08:58 -0000	1.120
-+++ fs/xfs/linux-2.6/xfs_vnode.c	4 Feb 2004 17:56:55 -0000
-@@ -213,7 +213,6 @@ vn_revalidate(
- 		inode->i_mtime	    = va.va_mtime;
- 		inode->i_ctime	    = va.va_ctime;
- 		inode->i_atime	    = va.va_atime;
--		i_size_write(inode, va.va_size);
- 		if (va.va_xflags & XFS_XFLAG_IMMUTABLE)
- 			inode->i_flags |= S_IMMUTABLE;
- 		else
+ 		/* sanity check to ensure we're not always losing ticks */
+
+
+

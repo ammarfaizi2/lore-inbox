@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291900AbSBNUzd>; Thu, 14 Feb 2002 15:55:33 -0500
+	id <S291906AbSBNU6Z>; Thu, 14 Feb 2002 15:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291889AbSBNUxJ>; Thu, 14 Feb 2002 15:53:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28685 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291900AbSBNUwI>;
-	Thu, 14 Feb 2002 15:52:08 -0500
-Message-ID: <3C6C2342.5044B738@zip.com.au>
-Date: Thu, 14 Feb 2002 12:51:14 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
-X-Accept-Language: en
+	id <S291890AbSBNU4k>; Thu, 14 Feb 2002 15:56:40 -0500
+Received: from gatekeeper-WAN.credit.com ([209.155.225.68]:18579 "EHLO
+	gatekeeper") by vger.kernel.org with ESMTP id <S291893AbSBNUz4>;
+	Thu, 14 Feb 2002 15:55:56 -0500
+Date: Thu, 14 Feb 2002 12:54:56 -0800 (PST)
+From: Eugene Chupkin <ace@credit.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
+Subject: Re: 2.4.x ram issues?
+In-Reply-To: <20020214191356.GB160@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.10.10202141253250.683-100000@mail.credit.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alexander Moibenko <moibenko@fnal.gov>, linux-kernel@vger.kernel.org
-Subject: Re: fsync delays for a long time.
-In-Reply-To: <Pine.SGI.4.31.0202140951330.3076325-100000@fsgi03.fnal.gov> from "Alexander Moibenko" at Feb 14, 2002 10:03:57 AM <E16bPqi-0000c5-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+On Thu, 14 Feb 2002, Pavel Machek wrote:
+
+> Hi!
 > 
-> > run my gdbm application and bonnie test on the same device.
-> > When gdbm comes to the point when it calls fsync it delays for a long
-> > time.
+> > I have a problem with high ram support on 2.4.7 to 2.4.17 all behave the
+> > same. I have a quad Xeon 700 box with 16gb of ram on an Intel SKA4 board.
+> > The ram is all the same 16 1gb PC100 SDRAM modules from Crucial. If I
+> > compile the kernel with high ram (64gb) support, my system runs very slow,
+> > it takes about 15 minutes for make menuconfig to come up. If I  recompile
+> > the kernel with 4gb support, it runs perfectly normal and very fast, but I
+> > have 12 gigs that I can't use. Is this a known issue? Is there a fix? I
+> > tried just about everything and I am all out of options. Please help!
 > 
-> fsync on a very large file is very slow on the 2.2 kernels
+> What happens with 8GB?
+> 									Pavel
+> -- 
 
-This could very well be due to request allocation starvation.
-fsync is sleeping in __get_request_wait() while bonnie keeps
-on stealing all the requests.
+I didn't test with 8gb since I administrate it remotely, but 16gb is still
+having issues with load jumping very high on IO. I think it needs more
+work.
 
-Recall that patch you dropped on Tuesday? :)
+-E
 
-> > result. IDE is even worse in our case. In the discussion it was also said
-> > that fsync for 2.4.x is modified. But does it fix a problem?
-> 
-> 2.4 is a lot smarter about flushing only the things it needs to. That
-> makes it dependant on the number of blocks to write not some embarrasingly
-> large power of the file size
-
-OBTW: It seems that fsync_inode_data_buffers() will livelock if
-another process is writing to the same file.  gargh.
-
--

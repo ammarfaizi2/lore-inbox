@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbSKBSEr>; Sat, 2 Nov 2002 13:04:47 -0500
+	id <S261401AbSKBSTx>; Sat, 2 Nov 2002 13:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261313AbSKBSEr>; Sat, 2 Nov 2002 13:04:47 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:63059 "EHLO
+	id <S261402AbSKBSTw>; Sat, 2 Nov 2002 13:19:52 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:2900 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261362AbSKBSEb>; Sat, 2 Nov 2002 13:04:31 -0500
-Date: Sun, 3 Nov 2002 03:10:42 +0900
+	id <S261401AbSKBSS5>; Sat, 2 Nov 2002 13:18:57 -0500
+Date: Sun, 3 Nov 2002 03:25:09 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linus Torvalds <torvalds@transmeta.com>
-Subject: [RFC][Patchset 13/20] Support for PC-9800 (parport)
-Message-ID: <20021103031042.Y1536@precia.cinet.co.jp>
+Subject: [RFC][Patchset 20/20] Support for PC-9800 (video)
+Message-ID: <20021103032509.O1536@precia.cinet.co.jp>
 References: <20021103023345.A1536@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
@@ -24,796 +24,1083 @@ X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 13/20 of patchset for add support NEC PC-9800 architecture,
+This is a part 20/20 of patchset for add support NEC PC-9800 architecture,
 against 2.5.45.
 
 Summary:
-  parallel drivers
-   - add new driver for support legacy PC-9800 printer port.
-   - IO address change (parport_pc)
-   - IRQ number change (parport_pc)
+  New driver support for PC-9800 standard text console.
 
 diffstat:
-  drivers/char/Kconfig         |   21 +
-  drivers/char/lp_old98.c      |  577 +++++++++++++++++++++++++++++++++++++++++++
-  drivers/parport/parport_pc.c |   68 ++++-
-  include/linux/parport_pc.h   |   10  4 files changed, 671 insertions(+), 5 deletions(-)
+  drivers/video/Makefile |    1  drivers/video/gdccon.c |  834 +++++++++++++++++++++++++++++++++++++++++++++++++
+  include/asm-i386/gdc.h |  217 ++++++++++++
+  3 files changed, 1052 insertions(+)
 
 patch:
-diff -urN linux/drivers/parport/parport_pc.c linux98/drivers/parport/parport_pc.c
---- linux/drivers/parport/parport_pc.c	Sat Oct 19 13:01:52 2002
-+++ linux98/drivers/parport/parport_pc.c	Sat Oct 26 17:01:09 2002
-@@ -85,6 +85,8 @@
-  #define DPRINTK(stuff...)
-  #endif
-  +/* Indicates PC-9800 architecture  No:0 Yes:1 */
-+extern int pc98;
-   #define NR_SUPERIOS 3
-  static struct superio_struct {	/* For Super-IO chips autodetection */
-@@ -332,7 +334,10 @@
-   unsigned char parport_pc_read_status(struct parport *p)
-  {
--	return inb (STATUS (p));
-+	if (pc98 && p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
-+	else
-+		return inb (STATUS (p));
-  }
-   void parport_pc_disable_irq(struct parport *p)
-@@ -1644,6 +1649,8 @@
-  {
-  	unsigned char r, w;
-  +	if (pc98 && pb->base == 0x40)
-+		return PARPORT_MODE_PCSPP;
-  	/*
-  	 * first clear an eventually pending EPP timeout  	 * I (sailer@ife.ee.ethz.ch) have an SMSC chipset
-@@ -1777,6 +1784,9 @@
-  {
-  	int ok = 0;
-    +	if (pc98 && pb->base == 0x40)
-+		return 0;  /* never support */
-+
-  	clear_epp_timeout(pb);
-   	/* try to tri-state the buffer */
-@@ -1908,6 +1918,9 @@
-  			config & 0x80 ? "Level" : "Pulses");
-   		configb = inb (CONFIGB (pb));
-+		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
-+			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
-+
-  		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
-  			pb->base, config, configb);
-  		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
-@@ -2048,6 +2061,9 @@
-  	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
-   	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
-+	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
-+		intrLine = 5; /* IRQ 14 */
-+
-  	irq = lookup[intrLine];
-   	ECR_WRITE (pb, oecr);
-@@ -2212,7 +2228,14 @@
-  	struct parport tmp;
-  	struct parport *p = &tmp;
-  	int probedirq = PARPORT_IRQ_NONE;
--	if (check_region(base, 3)) return NULL;
-+	if (pc98 && base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			if (check_region(base + i, 1)) return NULL;
-+	} else {
-+		if (check_region(base, 3)) return NULL;
-+	}
-+
-  	priv = kmalloc (sizeof (struct parport_pc_private), GFP_KERNEL);
-  	if (!priv) {
-  		printk (KERN_DEBUG "parport (0x%lx): no memory!\n", base);
-@@ -2245,7 +2268,7 @@
-  	if (base_hi && !check_region(base_hi,3))
-  		parport_ECR_present(p);
-  -	if (base != 0x3bc) {
-+	if (!pc98 && base != 0x3bc) {
-  		if (!check_region(base+0x3, 5)) {
-  			if (!parport_EPP_supported(p))
-  				parport_ECPEPP_supported(p);
-@@ -2343,7 +2366,12 @@
-  		printk(KERN_INFO "%s: irq %d detected\n", p->name, probedirq);
-  	parport_proc_register(p);
-  -	request_region (p->base, 3, p->name);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			request_region(p->base + i, 1, p->name);
-+	} else
-+		request_region (p->base, 3, p->name);
-  	if (p->size > 3)
-  		request_region (p->base + 3, p->size - 3, p->name);
-  	if (p->modes & PARPORT_MODE_ECP)
-@@ -2413,7 +2441,13 @@
-  		free_dma(p->dma);
-  	if (p->irq != PARPORT_IRQ_NONE)
-  		free_irq(p->irq, p);
--	release_region(p->base, 3);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			release_region(p->base + i, 1);
-+	} else
-+		release_region(p->base, 3);
-+
-  	if (p->size > 3)
-  		release_region(p->base + 3, p->size - 3);
-  	if (p->modes & PARPORT_MODE_ECP)
-@@ -2994,6 +3028,30 @@
-  {
-  	int count = 0;
-  +	if (pc98) {
-+		/* Set default resource settings for old style parport */
-+		int	base = 0x40;
-+		int	base_hi = 0;
-+		int	irq = PARPORT_IRQ_NONE;
-+		int	dma = PARPORT_DMA_NONE;
-+
-+		/* Check PC9800 old style parport */
-+		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
-+		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
-+			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
-+			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
-+				/* Set default settings for IEEE1284 parport */
-+				base = 0x140;
-+				base_hi = 0x14c;
-+				irq = 14;
-+				/* dma = PARPORT_DMA_NONE; */
-+			}
-+		}
-+
-+		if (parport_pc_probe_port(base, base_hi, irq, dma, NULL))
-+			count++;
-+	}
-+
-  	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
-  		count++;
-  	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
-diff -urN linux/include/linux/parport_pc.h linux98/include/linux/parport_pc.h
---- linux/include/linux/parport_pc.h	Tue Jun 12 11:15:27 2001
-+++ linux98/include/linux/parport_pc.h	Sun Aug 19 14:13:09 2001
-@@ -119,6 +119,11 @@
-  #endif
-  	ctr = (ctr & ~mask) ^ val;
-  	ctr &= priv->ctr_writable; /* only write writable bits. */
-+#ifdef CONFIG_PC9800
-+	if (p->base == 0x40 && ((priv->ctr) ^ ctr) & 0x01)
-+		outb(0x0e | ((ctr & 0x01) ^ 0x01), 0x46);
-+	else
-+#endif /* CONFIG_PC9800 */
-  	outb (ctr, CONTROL (p));
-  	priv->ctr = ctr;	/* Update soft copy */
-  	return ctr;
-@@ -191,6 +196,11 @@
-   extern __inline__ unsigned char parport_pc_read_status(struct parport *p)
-  {
-+#ifdef CONFIG_PC9800
-+	if (p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
-+	else
-+#endif /* CONFIG_PC9800 */
-  	return inb(STATUS(p));
-  }
-  diff -urN linux/drivers/char/Kconfig linux98/drivers/char/Kconfig
---- linux/drivers/char/Kconfig	Thu Oct 31 13:23:11 2002
-+++ linux98/drivers/char/Kconfig	Thu Oct 31 19:17:02 2002
-@@ -574,6 +574,17 @@
-  	  console. This driver allows each pSeries partition to have a console
-  	  which is accessed via the HMC.
-  +config PC9800_OLDLP
-+	tristate "NEC PC-9800 old-style printer port support"
-+	depends on PC9800 && !PARPORT
-+	---help---
-+	  If you intend to attach a printer to the parallel port of NEC PC-9801
-+	  /PC-9821 with OLD compatibility mode, Say Y.
-+
-+config PC9800_OLDLP_CONSOLE
-+	bool "Support for console on line printer"
-+	depends on PC9800_OLDLP
-+
-  source "drivers/i2c/Kconfig"
-   @@ -1053,6 +1064,7 @@
-   config RTC
-  	tristate "Enhanced Real Time Clock Support"
-+	depends on !PC9800
-  	---help---
-  	  If you say Y here and create a character special file /dev/rtc with
-  	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -1111,6 +1123,15 @@
-  	bool "EFI Real Time Clock Services"
-  	depends on IA64
-  +config RTC98
-+	tristate "NEC PC-9800 Real Time Clock Support"
-+	depends on PC9800
-+	default y
-+	---help---
-+	  If you say Y here and create a character special file /dev/rtc with
-+	  major number 10 and minor number 135 using mknod ("man mknod"), you
-+	  will get access to the real time clock (or hardware clock) built
-+
-  config H8
-  	bool "Tadpole ANA H8 Support (OBSOLETE)"
-  	depends on OBSOLETE && ALPHA_BOOK1
-diff -urN linux/drivers/char/lp_old98.c linux98/drivers/char/lp_old98.c
---- linux/drivers/char/lp_old98.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/char/lp_old98.c	Sat Oct 26 17:13:23 2002
-@@ -0,0 +1,577 @@
+diff -urN linux/drivers/video/Makefile linux98/drivers/video/Makefile
+--- linux/drivers/video/Makefile	Sat Oct 19 13:01:12 2002
++++ linux98/drivers/video/Makefile	Mon Oct 28 23:47:29 2002
+@@ -19,6 +19,7 @@
+  obj-$(CONFIG_PROM_CONSOLE)        += promcon.o promcon_tbl.o
+  obj-$(CONFIG_STI_CONSOLE)         += sticon.o sticon-bmode.o sticore.o
+  obj-$(CONFIG_VGA_CONSOLE)         += vgacon.o
++obj-$(CONFIG_GDC_CONSOLE)         += gdccon.o
+  obj-$(CONFIG_MDA_CONSOLE)         += mdacon.o
+   obj-$(CONFIG_FONT_SUN8x16)        += font_sun8x16.o
+diff -urN linux/drivers/video/gdccon.c linux98/drivers/video/gdccon.c
+--- linux/drivers/video/gdccon.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/video/gdccon.c	Mon Oct 28 17:53:54 2002
+@@ -0,0 +1,834 @@
 +/*
-+ *	linux/drivers/char/lp_old98.c
++ * linux/drivers/video/gdccon.c
++ * Low level GDC based console driver for NEC PC-9800 series
 + *
-+ * printer port driver for ancient PC-9800s with no bidirectional port support
++ * Created 24 Dec 1998 by Linux/98 project
 + *
-+ * Copyright (C)  1998,99  Kousuke Takai <tak@kmc.kyoto-u.ac.jp>,
-+ *			   Kyoto University Microcomputer Club
-+ *
-+ * This driver is based on and has compatibility with `lp.c',
-+ * generic PC printer port driver.
++ * based on:
++ * linux/drivers/video/vgacon.c in Linux 2.1.131 by Geert Uytterhoeven
++ * linux/char/gdc.c in Linux/98 2.1.57 by Linux/98 project
++ * linux/char/console.c in Linux/98 2.1.57 by Linux/98 project
 + */
 +
-+#include <linux/init.h>
-+#include <linux/module.h>
 +#include <linux/config.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/major.h>
++#include <linux/types.h>
 +#include <linux/sched.h>
-+#include <linux/malloc.h>
-+#include <linux/ioport.h>
-+#include <linux/fcntl.h>
-+#include <linux/delay.h>
++#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/tty.h>
 +#include <linux/console.h>
-+#include <linux/version.h>
++#include <linux/console_struct.h>
++#include <linux/string.h>
++#include <linux/kd.h>
++#include <linux/slab.h>
++#include <linux/vt_kern.h>
++#include <linux/selection.h>
++#include <linux/spinlock.h>
++#include <linux/ioport.h>
++#include <linux/init.h>
 +
 +#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
++#include <asm/pc9800.h>
 +
-+#if !defined(CONFIG_PC9800) && !defined(CONFIG_PC98)
-+#error This driver works only for NEC PC-9800 series
-+#endif
++static spinlock_t gdc_lock = SPIN_LOCK_UNLOCKED;
 +
-+#if LINUX_VERSION_CODE < 0x20200
-+# define LP_STATS
-+#endif
-+
-+#if LINUX_VERSION_CODE >= 0x2030b
-+# define CONFIG_RESOURCE98
-+#endif
-+
-+#include <linux/lp.h>
-+
-+/*
-+ *  I/O port numbers
-+ */
-+#define	LP_PORT_DATA	0x40
-+#define	LP_PORT_STATUS	(LP_PORT_DATA+2)
-+#define	LP_PORT_STROBE	(LP_PORT_DATA+4)
-+#define LP_PORT_CONTROL	(LP_PORT_DATA+6)
-+
-+#define	LP_PORT_H98MODE	0x0448
-+#define	LP_PORT_EXTMODE	0x0149
-+
-+/*
-+ *  bit mask for I/O
-+ */
-+#define	LP_MASK_nBUSY	(1 << 2)
-+#define	LP_MASK_nSTROBE	(1 << 7)
-+
-+#define LP_CONTROL_ASSERT_STROBE	(0x0e)
-+#define LP_CONTROL_NEGATE_STROBE	(0x0f)
-+
-+/*
-+ *  Acceptable maximum value for non-privileged user for LPCHARS ioctl.
-+ */
-+#define LP_CHARS_NOPRIV_MAX	65535
-+
-+#define	DC1	'\x11'
-+#define	DC3	'\x13'
-+
-+/* PC-9800s have at least and at most one old-style printer port. */
-+static struct lp_struct lp = {
-+	/* Following `TAG: INITIALIZER' notations are GNU CC extension. */
-+	flags:	LP_EXIST | LP_ABORTOPEN,
-+	chars:	LP_INIT_CHAR,
-+	time:	LP_INIT_TIME,
-+	wait:	LP_INIT_WAIT,
++static char str_gdc_master[] = "GDC (master)";
++static char str_gdc_slave[] = "GDC (slave)";
++static char str_crtc[] = "crtc";
++static struct resource gdc_console_resources[] = {
++    {str_gdc_master, 0x60, 0x60, 0},
++    {str_gdc_master, 0x62, 0x62, 0},
++    {str_gdc_master, 0x64, 0x64, 0},
++    {str_gdc_master, 0x66, 0x66, 0},
++    {str_gdc_master, 0x68, 0x68, 0},
++    {str_gdc_master, 0x6a, 0x6a, 0},
++    {str_gdc_master, 0x6c, 0x6c, 0},
++    {str_gdc_master, 0x6e, 0x6e, 0},
++    {str_crtc, 0x70, 0x70, 0},
++    {str_crtc, 0x72, 0x72, 0},
++    {str_crtc, 0x74, 0x74, 0},
++    {str_crtc, 0x76, 0x76, 0},
++    {str_crtc, 0x78, 0x78, 0},
++    {str_crtc, 0x7a, 0x7a, 0},
++    {str_gdc_slave, 0xa0, 0xa0, 0},
++    {str_gdc_slave, 0xa2, 0xa2, 0},
++    {str_gdc_slave, 0xa4, 0xa4, 0},
++    {str_gdc_slave, 0xa6, 0xa6, 0},
 +};
 +
-+static	int	dc1_check	= 1000;
++#define GDC_CONSOLE_RESOURCES (sizeof(gdc_console_resources)/sizeof(struct resource))
 +
-+#undef LP_OLD98_DEBUG
++#define BLANK 0x0020
++#define BLANK_ATTR 0x00e1
 +
-+#ifndef __udelay_val
-+# define __udelay_val current_cpu_data.loops_per_sec
++/* GDC/GGDC port# */
++#define GDC_COMMAND 0x62
++#define GDC_PARAM 0x60
++#define GDC_STAT 0x60
++#define GDC_DATA 0x62
++
++#define MODE_FF1	(0x0068)	/* mode F/F register 1 */
++
++#define  MODE_FF1_ATR_SEL	(0x00)	/* 0: vertical line 1: 8001 graphic */
++#define  MODE_FF1_GRAPHIC_MODE	(0x02)	/* 0: color 1: mono */
++#define  MODE_FF1_COLUMN_WIDTH	(0x04)	/* 0: 80col 1: 40col */
++#define  MODE_FF1_FONT_SEL	(0x06)	/* 0: 6x8 1: 7x13 */
++#define  MODE_FF1_GRP_MODE	(0x08)	/* 0: display odd-y raster 1: not */
++#define  MODE_FF1_KAC_MODE	(0x0a)	/* 0: code access 1: dot access */
++#define  MODE_FF1_NVMW_PERMIT	(0x0c)	/* 0: protect 1: permit */
++#define  MODE_FF1_DISP_ENABLE	(0x0e)	/* 0: enable 1: disable */
++
++#define GGDC_COMMAND 0xa2
++#define GGDC_PARAM 0xa0
++#define GGDC_STAT 0xa0
++#define GGDC_DATA 0xa2
++
++/* GDC status */
++#define GDC_DATA_READY		(1 << 0)
++#define GDC_FIFO_FULL		(1 << 1)
++#define GDC_FIFO_EMPTY		(1 << 2)
++#define GGDC_FIFO_EMPTY		GDC_FIFO_EMPTY
++#define GDC_DRAWING		(1 << 3)
++#define GDC_DMA_EXECUTE		(1 << 4)	/* nonsense on 98 */
++#define GDC_VERTICAL_SYNC	(1 << 5)
++#define GDC_HORIZONTAL_BLANK	(1 << 6)
++#define GDC_LIGHTPEN_DETECT	(1 << 7)	/* nonsense on 98 */
++
++#define ATTR_G		(1U << 7)
++#define ATTR_R		(1U << 6)
++#define ATTR_B		(1U << 5)
++#define ATTR_GRAPHIC	(1U << 4)
++#define ATTR_VERTBAR	ATTR_GRAPHIC	/* vertical bar */
++#define ATTR_UNDERLINE	(1U << 3)
++#define ATTR_REVERSE	(1U << 2)
++#define ATTR_BLINK	(1U << 1)
++#define ATTR_NOSECRET	(1U << 0)
++#define AMASK_NOCOLOR	(ATTR_GRAPHIC | ATTR_UNDERLINE | ATTR_REVERSE \
++			 | ATTR_BLINK | ATTR_NOSECRET)
++
++/*
++ *  Interface used by the world
++ */
++static const char *gdccon_startup(void);
++static void gdccon_init(struct vc_data *c, int init);
++static void gdccon_deinit(struct vc_data *c);
++static void gdccon_cursor(struct vc_data *c, int mode);
++static int gdccon_switch(struct vc_data *c);
++static int gdccon_blank(struct vc_data *c, int blank);
++static int gdccon_scrolldelta(struct vc_data *c, int lines);
++static int gdccon_set_origin(struct vc_data *c);
++static void gdccon_save_screen(struct vc_data *c);
++static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines);
++static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse);
++static void gdccon_invert_region(struct vc_data *c, u16 *p, int count);
++static unsigned long gdccon_uni_pagedir[2];
++
++/* Description of the hardware situation */
++static unsigned long   gdc_vram_base;		/* Base of video memory */
++static unsigned long   gdc_vram_end;		/* End of video memory */
++static unsigned int    gdc_video_num_columns = 80;
++						/* Number of text columns */
++static unsigned int    gdc_video_num_lines = 25;
++						/* Number of text lines */
++static int	       gdc_can_do_color = 1;	/* Do we support colors? */
++static unsigned char   gdc_video_type;		/* Card type */
++static unsigned char   gdc_hardscroll_enabled;
++static unsigned char   gdc_hardscroll_user_enable = 1;
++static int	       gdc_vesa_blanked = 0;
++static unsigned int    gdc_rolled_over = 0;
++
++#define DISP_FREQ_AUTO 0
++#define DISP_FREQ_25k  1
++#define DISP_FREQ_31k  2
++
++static unsigned int    gdc_disp_freq = DISP_FREQ_AUTO;
++
++#define gdc_attr_offset(x) ((typeof(x))((unsigned long)(x)+0x2000))
++
++#define	gdc_outb(val, port)	outb_p((val), (port))
++#define	gdc_inb(port)		inb_p(port)
++
++#define __gdc_write_command(cmd)	gdc_outb((cmd), GDC_COMMAND)
++#define __gdc_write_param(param)	gdc_outb((param), GDC_PARAM)
++
++static const char * __init gdccon_startup(void)
++{
++	const char *display_desc = NULL;
++	unsigned long hdots = gdc_video_num_lines * 16;
++	int i;
++
++	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++	while (!(inb_p(GGDC_STAT) & GDC_FIFO_EMPTY));
++	spin_lock_irq(&gdc_lock);	 
++	outb_p(0x0c, GDC_COMMAND);	/* STOP */
++	outb_p(0x0c, GGDC_COMMAND);	/* STOP */
++	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_AUTO) {
++		if (gdc_video_num_lines >= 30 || (inb(0x9a8) & 0x01)) {
++			gdc_disp_freq = DISP_FREQ_31k;
++		}
++	}
++
++	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_31k) {
++		outb_p(0x01, 0x9a8);   /* 31.47KHz */
++		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x4b, GDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
++		outb_p(0x0c, GDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
++		outb_p(0x03, GDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
++		outb_p(0x06, GDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
++		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
++		outb_p(0x94 | ((hdots >> 8) & 0x03), GDC_PARAM);
++						/* VBP = 37   ; LFH */
++		outb_p(0x47, GDC_COMMAND);  /* PITCH */
++		outb_p(0x50, GDC_PARAM);
++
++		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
++		outb_p(0x00, GDC_PARAM);
++		outb_p(0x00, GDC_PARAM);
++		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
++		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
++
++		outb_p(0x0e, GGDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GGDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GGDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x4b, GGDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
++		outb_p(0x0c, GGDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
++		outb_p(0x03, GGDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
++		outb_p(0x06, GGDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
++		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
++		outb_p(0x94 | ((hdots >> 8) & 0x03), GGDC_PARAM);
++						/* VBP = 37   ; LFH */
++	} else {
++		outb_p(0x00, 0x9a8);   /* 24.83 KHz */
++		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
++		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
++		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
++		outb_p(0x07, GDC_PARAM);  /* VSL = 0(3) ; HS = 7 */
++		outb_p(0x25, GDC_PARAM);  /* HFP = 9    ; VSH = 1(VS=8) */
++		outb_p(0x07, GDC_PARAM);  /* DS, PH = 0 ; HBP = 7 */
++		outb_p(0x07, GDC_PARAM);  /* VH, VL = 0 ; VFP = 7 */
++		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
++		outb_p(0x64 | ((hdots >> 8) & 0x03), GDC_PARAM);
++						/* VBP = 25   ; LFH */
++		outb_p(0x47, GDC_COMMAND);  /* PITCH */
++		outb_p(0x50, GDC_PARAM);
++
++		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
++		outb_p(0x00, GDC_PARAM);
++		outb_p(0x00, GDC_PARAM);
++		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
++		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
++
++		outb_p(0x0e, GGDC_COMMAND);  /* SYNC */
++		outb_p(0x00, GGDC_PARAM);
++		outb_p(0x4e, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(0x25, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(0x07, GGDC_PARAM);
++		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
++		outb_p(0x64 | ((hdots >> 8) & 0x03), GGDC_PARAM);
++						/* VBP = 25   ; LFH */
++	}
++
++	outb_p(0x47, GGDC_COMMAND);  /* PITCH */ +	outb_p(0x28, GGDC_PARAM);
++
++	outb_p(0x0d, GDC_COMMAND);	/* START */
++	outb_p(0x0d, GGDC_COMMAND);	/* START */
++	spin_unlock_irq(&gdc_lock);	 
++
++	gdc_vram_base = (unsigned long)phys_to_virt(0xa0000);
++	/* Last few bytes of text VRAM area are for NVRAM. */
++	gdc_vram_end = gdc_vram_base + 0x1fe0;
++
++	if (!PC9800_HIGHRESO_P()) {
++		gdc_video_type = VIDEO_TYPE_98NORMAL;
++		display_desc = "NEC PC-9800 Normal";
++	} else {
++		gdc_video_type = VIDEO_TYPE_98HIRESO;
++		display_desc = "NEC PC-9800 High Resolution";
++	}
++
++	gdc_hardscroll_enabled = gdc_hardscroll_user_enable;
++	 
++	for (i = 0; i < GDC_CONSOLE_RESOURCES; i++)
++		request_resource(&ioport_resource, gdc_console_resources + i);
++
++	return display_desc;
++}
++
++static void gdccon_init(struct vc_data *c, int init)
++{
++	unsigned long p;
++	 
++	/* We cannot be loaded as a module, therefore init is always 1 */
++	c->vc_can_do_color = gdc_can_do_color;
++	c->vc_cols = gdc_video_num_columns;
++	c->vc_rows = gdc_video_num_lines;
++	c->vc_complement_mask = ATTR_REVERSE << 8;
++	p = *c->vc_uni_pagedir_loc;
++	if (c->vc_uni_pagedir_loc == &c->vc_uni_pagedir
++	    || !--c->vc_uni_pagedir_loc[1])
++		con_free_unimap(c->vc_num);
++
++	c->vc_uni_pagedir_loc = gdccon_uni_pagedir;
++	gdccon_uni_pagedir[1]++;
++	if (!gdccon_uni_pagedir[0] && p)
++		con_set_default_unimap(c->vc_num);
++}
++
++static inline void gdc_set_mem_top(struct vc_data *c)
++{
++	unsigned long flags;
++	unsigned long origin = (c->vc_visible_origin - gdc_vram_base) / 2;
++
++	spin_lock_irqsave(&gdc_lock, flags);
++	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++	__gdc_write_command(0x70);			/* SCROLL */
++	__gdc_write_param(origin);			/* SAD1 (L) */
++	__gdc_write_param((origin >> 8) & 0x1f);	/* SAD1 (H) */
++	spin_unlock_irqrestore(&gdc_lock, flags);
++}
++
++static void gdccon_deinit(struct vc_data *c)
++{
++	/* When closing the last console, reset video origin */
++	if (!--gdccon_uni_pagedir[1]) {
++		c->vc_visible_origin = gdc_vram_base;
++		gdc_set_mem_top(c);
++		con_free_unimap(c->vc_num);
++	}
++
++	c->vc_uni_pagedir_loc = &c->vc_uni_pagedir;
++	con_set_default_unimap(c->vc_num);
++}
++
++#if 0
++/* Translate ANSI terminal color code to GDC color code.  */
++#define BGR_TO_GRB(bgr)	((((bgr) & 4) >> 2) | (((bgr) & 3) << 1))
++#else
++#define RGB_TO_GRB(rgb)	((((rgb) & 4) >> 1) | (((rgb) & 2) << 1) | ((rgb) & 1))
 +#endif
 +
-+static inline void nanodelay(unsigned long nanosecs)	/* Evil ? */
++static const u8 gdccon_color_table[] = {
++#define C(color)	((RGB_TO_GRB (color) << 5) | ATTR_NOSECRET)
++	C(0), C(1), C(2), C(3), C(4), C(5), C(6), C(7)
++#undef C
++};
++
++static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse)
 +{
-+	if( nanosecs ) {
-+		nanosecs *= (unsigned long)((1ULL << 40) / 1000000000ULL);
-+		__asm__("mul%L2 %2"
-+			: "=d"(nanosecs) : "a"(nanosecs), "g"(__udelay_val));
-+		__delay(nanosecs >> 8);
++	u8 attr = gdccon_color_table[color & 0x07];
++
++	if (!gdc_can_do_color)
++		attr = (intensity == 0 ? 0x61
++			: intensity == 2 ? 0xe1 : 0xa1);
++
++	if (underline)
++		attr |= 0x08;
++
++	/* ignore intensity */
++#if 0
++	if(intensity == 0)
++		;
++	else if (intensity == 2)
++		attr |= 0x10; /* virtical line */
++#else
++	if (intensity == 0) {
++		if (attr == c->vc_def_attr)
++			attr = c->vc_half_attr;
++		else
++			attr |= c->vc_half_attr & AMASK_NOCOLOR;
++	} else if (intensity == 2) {
++		if (attr == c->vc_def_attr)
++			attr = c->vc_bold_attr;
++		else
++			attr |= c->vc_bold_attr & AMASK_NOCOLOR;
++	}
++#endif
++	if (reverse)
++		attr |= ATTR_REVERSE;
++
++	if ((color & 0x07) == 0) {	/* foreground color == black */
++		/* Fake background color by reversed character
++		   as GDC cannot set background color.  */
++		attr |= gdccon_color_table[(color >> 4) & 0x07];
++		attr ^= ATTR_REVERSE;
++	}
++
++	if (blink)
++		attr |= ATTR_BLINK;
++
++	return attr;
++}
++
++static void gdccon_invert_region(struct vc_data *c, u16 *p, int count)
++{
++	while (count--) {
++		*((u16 *)(gdc_attr_offset(p))) ^= ATTR_REVERSE;
++		p++;
 +	}
 +}
 +
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+static struct console lp_old98_console;		/* defined later */
-+static __typeof__(lp_old98_console.flags) saved_console_flags;
-+#endif
++static u8 gdc_csrform_lr = 15;			/* Lines/Row */
++static u16 gdc_csrform_bl_bd = ((12 << 6)	/* BLinking Rate */
++				| (0 << 5));	/* Blinking Disable */
 +
-+static DECLARE_WAIT_QUEUE_HEAD (lp_old98_waitq);
-+
-+static void lp_old98_timer_function(unsigned long data);
-+
-+static void lp_old98_timer_function(unsigned long data)
++static inline void gdc_hide_cursor(void)
 +{
-+	if (inb(LP_PORT_STATUS) & LP_MASK_nBUSY)
-+		wake_up_interruptible(&lp_old98_waitq);
-+	else {
-+		struct timer_list *t = (struct timer_list *) data;
-+
-+		t->expires = jiffies + 1;
-+		add_timer(t);
-+	}
++    __gdc_write_command(0x4b);		/* CSRFORM */
++    __gdc_write_param(gdc_csrform_lr);	/* CS = 0, CE = 0, L/R = ? */
 +}
 +
-+static inline int
-+lp_old98_wait_ready(void)
++static inline void gdc_show_cursor(int cursor_start, int cursor_finish)
 +{
-+	struct timer_list timer;
-+
-+	init_timer(&timer);
-+	timer.function = lp_old98_timer_function;
-+	timer.expires = jiffies + 1;
-+	timer.data = (unsigned long) &timer;
-+	add_timer(&timer);
-+	interruptible_sleep_on(&lp_old98_waitq);
-+	del_timer(&timer);
-+	return signal_pending(current);
++    __gdc_write_command(0x4b);		/* CSRFORM */
++    __gdc_write_param(0x80 | gdc_csrform_lr);		/* CS = 1 */
++    __gdc_write_param(cursor_start | gdc_csrform_bl_bd);
++    __gdc_write_param((cursor_finish << 3) | (gdc_csrform_bl_bd >> 8));
 +}
 +
-+static inline int lp_old98_char(char lpchar)
++static void gdccon_cursor(struct vc_data *c, int mode)
 +{
-+	unsigned long count = 0;
-+#ifdef LP_STATS
-+	int tmp;
-+#endif
++    unsigned long flags;
++    u16 ead;
 +
-+	while( !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY) ) {
-+		count++;
-+		if (count >= lp.chars)
-+			return 0;
-+	}
++    if (c->vc_origin != c->vc_visible_origin)
++	gdccon_scrolldelta(c, 0);
 +
-+	outb(lpchar, LP_PORT_DATA);
++    spin_lock_irqsave(&gdc_lock, flags);
++    while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
++    spin_unlock_irqrestore(&gdc_lock, flags);
++    switch (mode) {
++	case CM_ERASE:
++	    gdc_hide_cursor();
++	    break;
 +
-+#ifdef LP_STATS
++	case CM_MOVE:
++	case CM_DRAW:
++	    switch (c->vc_cursor_type & 0x0f) {
++		case CUR_UNDERLINE:
++		    gdc_show_cursor(14, 15);	/* XXX font height */
++		    break;
++
++		case CUR_TWO_THIRDS:
++		    gdc_show_cursor(5, 15);	/* XXX */
++		    break;
++
++		case CUR_LOWER_THIRD:
++		    gdc_show_cursor(11, 15);	/* XXX */
++		    break;
++
++		case CUR_LOWER_HALF:
++		    gdc_show_cursor(8, 15);	/* XXX */
++		    break;
++
++		case CUR_NONE:
++		    gdc_hide_cursor();
++		    break;
++
++          	default:
++		    gdc_show_cursor(0, 15);	/* XXX */
++		    break;
++	    }
++
++	    spin_lock_irqsave(&gdc_lock, flags);
++	    __gdc_write_command(0x49);		/* CSRW */
++	    ead = (c->vc_pos - gdc_vram_base) >> 1;
++	    __gdc_write_param(ead);
++	    __gdc_write_param((ead >> 8) & 0x1f);
++	    spin_unlock_irqrestore(&gdc_lock, flags);
++	    break;
++    }
++
++}
++
++static int gdccon_switch(struct vc_data *c)
++{
 +	/*
-+	 *  Update lp statsistics here (and between next two outb()'s).
-+	 *  Time to compute it is part of storobe delay.
++	 * We need to save screen size here as it's the only way
++	 * we can spot the screen has been resized and we need to
++	 * set size of freshly allocated screens ourselves.
 +	 */
-+	if( count > lp.stats.maxwait ) {
-+#ifdef LP_OLD98_DEBUG
-+		printk(KERN_DEBUG "lp_old98: success after %d counts.\n",
-+		       count);
++	gdc_video_num_columns = c->vc_cols;
++	gdc_video_num_lines = c->vc_rows;
++	if (c->vc_origin != (unsigned long)c->vc_screenbuf
++	    && gdc_vram_base <= c->vc_origin && c->vc_origin < gdc_vram_end) {
++		_scr_memcpyw_to((u16 *)c->vc_origin,
++				(u16 *)c->vc_screenbuf,
++				c->vc_screenbuf_size);
++		_scr_memcpyw_to((u16 *)gdc_attr_offset(c->vc_origin),
++				(u16 *)((char *)c->vc_screenbuf
++					 + c->vc_screenbuf_size),
++				c->vc_screenbuf_size);
++	} else
++		printk(KERN_WARNING
++			"gdccon: switch (vc #%d) called on origin=%lx\n",
++			c->vc_num, c->vc_origin);
++
++	return 0;	/* Redrawing not needed */
++}
++
++static int gdccon_set_palette(struct vc_data *c, unsigned char *table)
++{
++	return -EINVAL;
++}
++
++#define RELAY0		0x01
++#define RELAY0_GDC	0x00
++#define RELAY0_ACCEL	0x01
++#define RELAY1		0x02
++#define RELAY1_INTERNAL	0x00
++#define RELAY1_EXTERNAL	0x02
++#define IO_RELAY	0x0fac
++#define IO_DPMS		0x09a2
++static unsigned char relay_mode = RELAY0_GDC | RELAY1_INTERNAL;
++
++static void gdc_vesa_blank(int mode)
++{
++    unsigned char stat;
++
++    spin_lock_irq(&gdc_lock);
++
++    relay_mode = inb_p(IO_RELAY);
++    if ((relay_mode & (RELAY0 | RELAY1)) != (RELAY0_GDC | RELAY1_INTERNAL)) {
++#ifdef CONFIG_DONTTOUCHRELAY
++	spin_unlock_irq(&gdc_lock);
++	return;
++#else
++	outb_p((relay_mode & ~(RELAY0 | RELAY1)) |
++	       RELAY0_GDC | RELAY1_INTERNAL , IO_RELAY);
 +#endif
-+		lp.stats.maxwait = count;
++    }
++
++    if (mode & VESA_VSYNC_SUSPEND) {
++	stat = inb_p(IO_DPMS);
++	outb_p(stat | 0x80, IO_DPMS);
++    }
++    if (mode & VESA_HSYNC_SUSPEND) {
++	stat = inb_p(IO_DPMS);
++	outb_p(stat | 0x40, IO_DPMS);
++    }
++
++    spin_unlock_irq(&gdc_lock);
++}
++
++static void gdc_vesa_unblank(void)
++{
++    unsigned char stat;
++
++#ifdef CONFIG_DONTTOUCHRELAY
++    if (relay_mode & (RELAY0 | RELAY1))
++	return;
++#endif
++
++    spin_lock_irq(&gdc_lock);
++
++    stat = inb_p(0x09a2);
++    outb_p(stat & ~0xc0, IO_DPMS);
++    if (relay_mode & (RELAY0 | RELAY1))
++	outb_p(relay_mode, IO_RELAY);
++
++    spin_unlock_irq(&gdc_lock);
++}
++
++static int gdccon_blank(struct vc_data *c, int blank)
++{
++	switch (blank) {
++	case 0:				/* Unblank */
++		if (gdc_vesa_blanked) {
++			gdc_vesa_unblank();
++			gdc_vesa_blanked = 0;
++		}
++
++		outb(MODE_FF1_DISP_ENABLE | 1, MODE_FF1);
++
++		/* Tell console.c that it need not to restore the screen */
++		return 0;
++
++	case 1:				/* Normal blanking */
++		/* Disable displaying */
++		outb(MODE_FF1_DISP_ENABLE | 0, MODE_FF1);
++
++		/* Tell console.c that it need not to reset origin */
++		return 0;
++
++	case -1:			/* Entering graphic mode */
++		return 1;
++
++	default:			/* VESA blanking */
++		if (gdc_video_type == VIDEO_TYPE_98NORMAL
++		    || gdc_video_type == VIDEO_TYPE_9840
++		    || gdc_video_type == VIDEO_TYPE_98HIRESO) {
++			gdc_vesa_blank(blank - 1);
++			gdc_vesa_blanked = blank;
++		}
++
++		return 0;
 +	}
-+	count *= 256;
-+	tmp = count - lp.stats.meanwait;
-+	if( tmp < 0 )
-+		tmp = -tmp;
-+#endif
-+	nanodelay(lp.wait);
-+    +	/* negate PSTB# (activate strobe)	*/
-+	outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
++}
 +
-+#ifdef LP_STATS
-+	lp.stats.meanwait = (255 * lp.stats.meanwait + count + 128) / 256;
-+	lp.stats.mdev = (127 * lp.stats.mdev + tmp + 64) / 128;
-+	lp.stats.chars++;
-+#endif
++static int gdccon_font_op(struct vc_data *c, struct console_font_op *op)
++{
++	return -ENOSYS;
++}
 +
-+	nanodelay(lp.wait);
++static int gdccon_scrolldelta(struct vc_data *c, int lines)
++{
++	if (!lines)			/* Turn scrollback off */
++		c->vc_visible_origin = c->vc_origin;
++	else {
++		int vram_size = gdc_vram_end - gdc_vram_base;
++		int margin = c->vc_size_row /* * 4 */;
++		int ul, we, p, st;
 +
-+	/* assert PSTB# (deactivate strobe)	*/
-+	outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
++		if (gdc_rolled_over > c->vc_scr_end - gdc_vram_base + margin) {
++			ul = c->vc_scr_end - gdc_vram_base;
++			we = gdc_rolled_over + c->vc_size_row;
++		} else {
++			ul = 0;
++			we = vram_size;
++		}
 +
++		p = (c->vc_visible_origin - gdc_vram_base - ul + we)
++			% we + lines * c->vc_size_row;
++		st = (c->vc_origin - gdc_vram_base - ul + we) % we;
++		if (p < margin)
++			p = 0;
++
++		if (p > st - margin)
++			p = st;
++		c->vc_visible_origin = gdc_vram_base + (p + ul) % we;
++	}
++
++	gdc_set_mem_top(c);
 +	return 1;
 +}
 +
-+#if LINUX_VERSION_CODE < 0x20200
-+static long lp_old98_write(struct inode * inode, struct file * file,
-+			   const char * buf, unsigned long count)
++static int gdccon_set_origin(struct vc_data *c)
++{
++	c->vc_origin = c->vc_visible_origin = gdc_vram_base;
++	gdc_set_mem_top(c);
++	gdc_rolled_over = 0;
++	return 1;
++}
++
++static void gdccon_save_screen(struct vc_data *c)
++{
++	static int gdc_bootup_console = 0;
++
++	if (!gdc_bootup_console) {
++		/* This is a gross hack, but here is the only place we can
++		 * set bootup console parameters without messing up generic
++		 * console initialization routines.
++		 */
++		gdc_bootup_console = 1;
++		c->vc_x = ORIG_X;
++		c->vc_y = ORIG_Y;
++	}
++
++	_scr_memcpyw_from((u16 *)c->vc_screenbuf,
++				(u16 *)c->vc_origin, c->vc_screenbuf_size);
++	_scr_memcpyw_from((u16 *)((char *)c->vc_screenbuf + c->vc_screenbuf_size), (u16 *)gdc_attr_offset(c->vc_origin), c->vc_screenbuf_size);
++}
++
++static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines)
++{
++	unsigned long oldo;
++	unsigned int delta;
++
++	if (t || b != c->vc_rows)
++		return 0;
++
++	if (c->vc_origin != c->vc_visible_origin)
++		gdccon_scrolldelta(c, 0);
++
++	if (!gdc_hardscroll_enabled || lines >= c->vc_rows / 2)
++		return 0;
++
++	oldo = c->vc_origin;
++	delta = lines * c->vc_size_row;
++	if (dir == SM_UP) {
++		if (c->vc_scr_end + delta >= gdc_vram_end) {
++			_scr_memcpyw((u16 *)gdc_vram_base,
++				    (u16 *)(oldo + delta),
++				    c->vc_screenbuf_size - delta);
++			_scr_memcpyw((u16 *)gdc_attr_offset(gdc_vram_base),
++				    (u16 *)gdc_attr_offset(oldo + delta),
++				    c->vc_screenbuf_size - delta);
++			c->vc_origin = gdc_vram_base;
++			gdc_rolled_over = oldo - gdc_vram_base;
++		} else
++			c->vc_origin += delta;
++
++		_scr_memsetw((u16 *)(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char & 0xff, delta);
++		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char >> 8, delta);
++	} else {
++		if (oldo - delta < gdc_vram_base) {
++			_scr_memmovew((u16 *)(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)oldo, c->vc_screenbuf_size - delta);
++			_scr_memmovew((u16 *)gdc_attr_offset(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)gdc_attr_offset(oldo), c->vc_screenbuf_size - 
+delta);
++			c->vc_origin = gdc_vram_end - c->vc_screenbuf_size;
++			gdc_rolled_over = 0;
++		} else
++			c->vc_origin -= delta;
++
++		c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
++		_scr_memsetw((u16 *)(c->vc_origin), c->vc_video_erase_char & 0xff, delta);
++		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin), c->vc_video_erase_char >> 8, delta);
++	}
++
++	c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
++	c->vc_visible_origin = c->vc_origin;
++	gdc_set_mem_top(c);
++	c->vc_pos = (c->vc_pos - oldo) + c->vc_origin;
++	return 1;
++}
++
++static int gdccon_setterm_command(struct vc_data *c)
++{
++	switch (c->vc_par[0]) {
++	case 1: /* set attr for underline mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_ul_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		} else {
++			if (c->vc_par[2] < 256)
++				c->vc_ul_attr = c->vc_par[2];
++		}
++
++		if (c->vc_underline)
++			goto update_attr;
++
++		return 1;
++
++	case 2:	/* set attr for half intensity mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_half_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		}
++		else {
++			if (c->vc_par[2] < 256)
++				c->vc_half_attr = c->vc_par[2];
++		}
++
++		if (c->vc_intensity == 0)
++			goto update_attr;
++
++		return 1;
++
++	case 3: /* set color for bold mode */
++		if (c->vc_npar < 2) {
++			if (c->vc_par[1] < 16)
++				c->vc_bold_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
++		} else {
++			if (c->vc_par[2] < 256)
++				c->vc_bold_attr = c->vc_par[2];
++		}
++
++		if (c->vc_intensity == 2)
++			goto update_attr;
++
++		return 1;
++	}
++
++	return 0;
++
++update_attr:
++	c->vc_attr = gdccon_build_attr(c,
++					c->vc_color, c->vc_intensity,
++					c->vc_blink, c->vc_underline,
++					c->vc_reverse);
++	return 1;
++}
++
++/*
++ *  The console `switch' structure for the GDC based console
++ */
++
++static int gdccon_dummy(struct vc_data *c)
++{
++	return 0;
++}
++
++#define DUMMY (void *) gdccon_dummy
++
++const struct consw gdc_con = {
++	.con_startup =		gdccon_startup,
++	.con_init =		gdccon_init,
++	.con_deinit =		gdccon_deinit,
++	.con_clear =		DUMMY,
++	.con_putc =		DUMMY,
++	.con_putcs =		DUMMY,
++	.con_cursor =		gdccon_cursor,
++	.con_scroll =		gdccon_scroll,
++	.con_bmove =		DUMMY,
++	.con_switch =		gdccon_switch,
++	.con_blank =		gdccon_blank,
++	.con_font_op =		gdccon_font_op,
++	.con_set_palette =	gdccon_set_palette,
++	.con_scrolldelta =	gdccon_scrolldelta,
++	.con_set_origin =	gdccon_set_origin,
++	.con_save_screen =	gdccon_save_screen,
++	.con_build_attr =	gdccon_build_attr,
++	.con_invert_region =	gdccon_invert_region,
++	.con_setterm_command =	gdccon_setterm_command
++};
++
++static int __init gdc_setup(char *str)
++{
++	unsigned long tmp_ulong;
++	char *opt, *orig_opt, *endp;
++
++	while ((opt = strsep(&str, ",")) != NULL) {
++		int force = 0;
++
++		orig_opt = opt;
++		if (!strncmp(opt, "force", 5)) {
++			force = 1;
++			opt += 5;
++		}
++
++		if (!strcmp(opt, "mono"))
++			gdc_can_do_color = 0;
++		else if ((tmp_ulong = simple_strtoul(opt, &endp, 0)) > 0) {
++			if (!strcmp(endp, "lines")
++			    || (!strcmp(endp, "linesforce") && (force == 1))) {
++				if (!force
++				    && (tmp_ulong < 20
++					|| (!PC9800_9821_P()
++					    && 25 < tmp_ulong)
++					|| 37 < tmp_ulong))
++					printk(KERN_ERR
++						"gdccon: %d is out of bound"
++						" for number of lines\n",
++						(int)tmp_ulong);
++				else
++					gdc_video_num_lines = tmp_ulong;
++			} else if (!strcmp(endp, "kHz")) {
++				if (tmp_ulong == 24 || tmp_ulong == 25)
++					gdc_disp_freq = DISP_FREQ_25k;
++				else
++					printk(KERN_ERR "gdccon: `%s' ignored\n",
++						orig_opt);
++			} else
++				printk(KERN_ERR "gdccon: unknown option `%s'\n",
++					orig_opt);
++		} else
++			printk(KERN_ERR "gdccon: unknown option `%s'\n",
++				orig_opt);
++	}
++
++	return 1; +}
++
++__setup("gdccon=", gdc_setup);
++ 
++/*
++ * We will follow Linus's indenting style...
++ *
++ * Local variables:
++ * c-basic-offset: 8
++ * End:
++ */
+diff -urN linux/include/asm-i386/gdc.h linux98/include/asm-i386/gdc.h
+--- linux/include/asm-i386/gdc.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/gdc.h	Mon Oct 28 21:44:40 2002
+@@ -0,0 +1,217 @@
++/*
++ *  gdc.h - macro & inline functions for accessing GDC text-VRAM
++ *
++ *  Copyright (C) 1997-2002   Osamu Tomita <tomita@cinet.co.jp>
++ *			      KITAGAWA Takurou,
++ *			      UGAWA Tomoharu,
++ *			      TAKAI Kosuke
++ *			      (Linux/98 Project)
++ */
++#ifndef _LINUX_ASM_GDC_H_
++#define _LINUX_ASM_GDC_H_
++
++#include <linux/config.h>
++
++#define PC9800_VRAM_ATTR_OFFSET 0x2000
++
++#define GDC_MAP_MEM(x) (unsigned long)phys_to_virt(x)
++
++#define gdc_readb(x) (*(x))
++#define gdc_writeb(x,y) (*(y) = (x))
++
++extern int	fbcon_softback_size;
++
++#ifdef CONFIG_FB_EGC
++#define pc9800_attr_offset(p) \
++		((u16 *)((u32)(p) + \
++		(((u32)(p) >= (u32)(vc_cons[currcons].d->vc_screenbuf) \
++			&& (u32)(p) < (u32)(vc_cons[currcons].d->vc_screenbuf) \
++				+ vc_cons[currcons].d->vc_screenbuf_size) ? \
++		vc_cons[currcons].d->vc_screenbuf_size : fbcon_softback_size)))
 +#else
-+static ssize_t lp_old98_write(struct file * file,
-+			      const char * buf, size_t count,
-+			      loff_t *dummy)
-+#endif    +{
-+	unsigned long total_bytes_written = 0;
-+
-+	if (!access_ok(VERIFY_READ, buf, count))
-+		return -EFAULT;
-+
-+#ifdef LP_STATS
-+	if( jiffies - lp.lastcall > lp.time )
-+		lp.runchars = 0;
-+	lp.lastcall = jiffies;
++#define pc9800_attr_offset(p) \
++		((u16 *)((u32)(p) + \
++			(((u32)(p) >= (u32)(__va(0xa0000)) \
++				&& (u32)(p) < (u32)(__va(0xa2000))) ? \
++			0x2000 : vc_cons[currcons].d->vc_screenbuf_size)))
 +#endif
 +
-+	do {
-+		unsigned long bytes_written = 0;
-+		unsigned long copy_size
-+			= (count < LP_BUFFER_SIZE ? count : LP_BUFFER_SIZE);
-+
-+		if (__copy_from_user(lp.lp_buffer, buf, copy_size))
-+			return -EFAULT;
-+
-+		while( bytes_written < copy_size ) {
-+			if( lp_old98_char(lp.lp_buffer[bytes_written]) )
-+				bytes_written++;
-+			else {
-+#ifdef LP_STATS
-+				int rc = lp.runchars + bytes_written;
-+
-+				if( rc > lp.stats.maxrun )
-+					lp.stats.maxrun = rc;
-+
-+				lp.stats.sleeps++;
-+#endif
-+#ifdef LP_OLD98_DEBUG
-+				printk(KERN_DEBUG
-+				       "lp_old98: sleeping at %d characters"
-+				       " for %d jiffies\n",
-+				       lp.runchars, lp.time);
-+				lp.runchars = 0;
-+#endif
-+				if (lp_old98_wait_ready())
-+					return ((total_bytes_written
-+						 + bytes_written)
-+						? : -EINTR);
-+			}
-+		}
-+		total_bytes_written += bytes_written;
-+		buf += bytes_written;
-+#ifdef LP_STATS
-+		lp.runchars += bytes_written;
-+#endif
-+		count -= bytes_written;
-+	} while( count > 0 );
-+
-+	return total_bytes_written;
-+}
-+
-+static long long lp_old98_llseek(struct file * file,
-+				long long offset, int whence)
-+{
-+	return -ESPIPE;	/* cannot seek like pipe */
-+}
-+
-+static int lp_old98_open(struct inode * inode, struct file * file)
-+{
-+	if( MINOR(inode->i_rdev) != 0 )
-+		return -ENXIO;
-+	if( lp.flags & LP_BUSY )
-+		return -EBUSY;
-+
-+	if ((lp.lp_buffer = kmalloc(LP_BUFFER_SIZE, GFP_KERNEL)) == NULL)
-+		return -ENOMEM;
-+
-+	if (dc1_check && (lp.flags & LP_ABORTOPEN)
-+	    && !(file->f_flags & O_NONBLOCK) ) {
-+		/*
-+		 *  Check whether printer is on-line.
-+		 *  PC-9800's old style port have only BUSY# as status input,
-+		 *  so that it is impossible to distinguish that the printer is
-+		 *  ready and that the printer is off-line or not connected
-+		 *  (in both case BUSY# is in the same state). So:
-+		 *
-+		 *    (1) output DC1 (0x11) to printer port and do strobe.
-+		 *    (2) watch BUSY# line for a while. If BUSY# is pulled
-+		 *	  down, the printer will be ready. Otherwise,
-+		 *	  it will be off-line (or not connected, or power-off,
-+		 *	   ...).
-+		 *
-+		 *  The source of this procedure:
-+		 *	Terumasa KODAKA, Kazufumi SHIMIZU, Yu HAYAMI:
-+		 *		`PC-9801 Super Technique', Ascii, 1992.
-+		 */
-+		int count;
-+		unsigned long eflags;
-+
-+		save_flags(eflags);
-+		cli();		/* interrupts while check is fairly bad */
-+
-+		if (!lp_old98_char(DC1)) {
-+			restore_flags(eflags);
-+			return -EBUSY;
-+		}
-+		count = (unsigned int)dc1_check > 10000 ? 10000 : dc1_check;
-+		while( inb(LP_PORT_STATUS) & LP_MASK_nBUSY )
-+			if( --count == 0 ) {
-+				restore_flags(eflags);
-+				return -ENODEV;
-+			}
-+		restore_flags(eflags);
++#define VT_BUF_HAVE_RW
++#define scr_writew(val, p) \
++	{ \
++		*((u16 *)(p)) = (u16)(((val) >> 16) & 0xff00) \
++			| (u16)((val) & 0xff); \
++		*(pc9800_attr_offset(p)) = (u16)((val) >> 8); \
 +	}
 +
-+	lp.flags |= LP_BUSY;
++#define scr_readw(p) \
++	( \
++		(*((u16 *)(p)) & 0xff) | ((*((u16 *)(p)) & 0xff00) << 16) \
++		| ((*(pc9800_attr_offset(p)) & 0xff) << 8) \
++	)
 +
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	saved_console_flags = lp_old98_console.flags;
-+	lp_old98_console.flags &= ~CON_ENABLED;
-+#endif
-+
-+	MOD_INC_USE_COUNT;
-+	return 0;
++#define VT_BUF_HAVE_MEMSETW
++extern inline void
++_scr_memsetw(u16 *s, u16 c, unsigned int count)
++{
++#ifdef CONFIG_GDC_32BITACCESS
++	__asm__ __volatile__ ("shr%L1 %1
++	jz 2f
++" /*	cld	kernel code now assumes DF = 0 any time */ "\
++	test%L0 %3,%0
++	jz 1f
++	stos%W2
++	dec%L1 %1
++1:	shr%L1 %1
++	rep
++	stos%L2
++	jnc 2f
++	stos%W2
++	rep
++	stos%W2
++2:"
++			      : "=D"(s), "=c"(count)
++			      : "a"((((u32) c) << 16) | c), "g"(2),
++			        "0"(s), "1"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tstosw"
++			      : "=D"(s), "=c"(count)
++			      : "0"(s), "1"(count / 2), "a"(c));
++#endif	 
 +}
 +
-+static int lp_old98_release(struct inode * inode, struct file * file)
-+{
-+	kfree(lp.lp_buffer);
-+	lp.lp_buffer = NULL;
-+	lp.flags &= ~LP_BUSY;
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	lp_old98_console.flags = saved_console_flags;
-+#endif
-+	MOD_DEC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int lp_old98_init_device(void)
-+{
-+	unsigned char data;
-+
-+	if( (data = inb(LP_PORT_EXTMODE)) != 0xFF && (data & 0x10) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down extended parallel port mode...\n");
-+		outb(data & ~0x10, LP_PORT_EXTMODE);
-+	}
-+#ifdef	PC98_HW_H98
-+	if( (pc98_hw_flags & PC98_HW_H98)
-+	    && ((data = inb(LP_PORT_H98MODE)) & 0x01) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down H98 full centronics mode...\n");
-+		outb(data & ~0x01, LP_PORT_H98MODE);
-+	}
-+#endif
-+	return 0;
-+}
-+
-+/*
-+ *  Many use of `put_user' macro enlarge code size...
-+ */
-+static /* not inline */ int lp_old98_put_user(int val, int *addr)
-+{
-+	return put_user(val, addr);
-+}
-+
-+static int lp_old98_ioctl(struct inode *inode, struct file *file,
-+			  unsigned int command, unsigned long arg)
-+{
-+	int retval = 0;
-+
-+	switch ( command ) {
-+	case LPTIME:
-+		lp.time = arg * HZ/100;
-+		break;
-+	case LPCHAR:
-+		lp.chars = arg;
-+		break;
-+	case LPABORT:
-+		if( arg )
-+			lp.flags |= LP_ABORT;
-+		else
-+			lp.flags &= ~LP_ABORT;
-+		break;
-+	case LPABORTOPEN:
-+		if( arg )
-+			lp.flags |= LP_ABORTOPEN;
-+		else
-+			lp.flags &= ~LP_ABORTOPEN;
-+		break;
-+	case LPCAREFUL:
-+		/* do nothing */
-+		break;
-+	case LPWAIT:
-+		lp.wait = arg;
-+		break;
-+	case LPGETIRQ:
-+		retval = lp_old98_put_user(0, (int *)arg);
-+		break;
-+	case LPGETSTATUS:
-+		/*
-+		 * convert PC-9800's status to IBM PC's one, so that tunelp(8)
-+		 * works in the same way on this driver.
-+		 */
-+		retval = lp_old98_put_user((inb(LP_PORT_STATUS)
-+					    & LP_MASK_nBUSY)
-+					   ? (LP_PBUSY | LP_PERRORP)
-+					   : LP_PERRORP,
-+					   (int *)arg);
-+		break;
-+	case LPRESET:
-+		retval = lp_old98_init_device();
-+		break;
-+#ifdef LP_STATS
-+	case LPGETSTATS:
-+		if( copy_to_user((struct lp_stats *)arg, &lp.stats,
-+				 sizeof(struct lp_stats)) )
-+			retval = -EFAULT;
-+		else if (suser())
-+			memset(&lp.stats, 0, sizeof(struct lp_stats));
-+		break;
-+#endif
-+	case LPGETFLAGS:
-+		retval = lp_old98_put_user(lp.flags, (int *)arg);
-+		break;
-+	case LPSETIRQ: +	default:
-+		retval = -EINVAL;
-+	}
-+	return retval;
-+}
-+
-+static struct file_operations lp_old98_fops = {
-+	owner:	THIS_MODULE,
-+	llseek:	lp_old98_llseek,
-+	read:	NULL,
-+	write:	lp_old98_write,
-+	ioctl:	lp_old98_ioctl,
-+	open:	lp_old98_open,
-+	release:lp_old98_release,
-+};
-+ 
-+/*
-+ *  Support for console on lp_old98
-+ */
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+
-+static inline void io_delay(void)
-+{
-+	unsigned char dummy;	/* actually not output */
-+
-+	asm volatile ("out%B0 %0,%1" : "=a"(dummy) : "N"(0x5f));
-+}
-+
-+static void lp_old98_console_write(struct console *console,
-+				    const char *s, unsigned int count)
-+{
-+	int i;
-+	static unsigned int timeout_run = 0;
-+
-+	while (count) {
-+		/* wait approx 1.2 seconds */
-+		for (i = 2000000;
-+		     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+		     io_delay())
-+			if (!--i) {
-+				if (++timeout_run >= 10)
-+					/* disable forever... */
-+					console->flags &= ~CON_ENABLED;
-+				return;
-+			}
-+
-+		timeout_run = 0;
-+
-+		if (*s == '\n') {
-+			outb('\r', LP_PORT_DATA);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			for (i = 1000000;
-+			     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+			     io_delay())
-+				if (!--i)
-+					return;
-+		}
-+
-+		outb(*s++, LP_PORT_DATA);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+
-+		--count;
-+	}
-+}
-+
-+static kdev_t lp_old98_console_device(struct console *console)
-+{
-+	return MKDEV(LP_MAJOR, 0);
-+}
-+
-+static struct console lp_old98_console = {
-+	name:	"lp_old98",
-+	write:	lp_old98_console_write,
-+	device:	lp_old98_console_device,
-+	flags:	CON_PRINTBUFFER,
-+	index:	-1,
-+};
-+
-+#endif	/* console on lp_old98 */
-+ 
-+#ifdef MODULE
-+#define lp_old98_init init_module
-+#endif
-+
-+int __init lp_old98_init(void)
-+{
-+	if (check_region(LP_PORT_DATA, 1) || check_region(LP_PORT_STATUS, 1)
-+	    || check_region(LP_PORT_STROBE, 1)
-+#ifdef	PC98_HW_H98
-+	    || ((pc98_hw_flags & PC98_HW_H98)
-+		&& check_region(LP_PORT_H98MODE, 1))
-+#endif
-+	    || check_region(LP_PORT_EXTMODE, 1)) {
-+		printk(KERN_ERR
-+		       "lp_old98: I/O ports already occupied, giving up.\n");
-+		return -EBUSY;
-+	}
-+	if (register_chrdev(LP_MAJOR, "lp", &lp_old98_fops)) {
-+		printk(KERN_ERR "lp_old98: unable to get major %d\n",
-+		       LP_MAJOR);
-+		return -EBUSY;
++#define scr_memsetw(s, c, count) \
++	{ \
++	_scr_memsetw((s), (u16)(((c) >> 16) & 0xff00) | (u16)((c) & 0xff), \
++		       	(count)); \
++	_scr_memsetw(pc9800_attr_offset(s), ((u16)(c)) >> 8, (count)); \
 +	}
 +
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	register_console(&lp_old98_console);
-+	printk(KERN_INFO "lp_old98: console ready\n");
-+#endif
-+
-+	request_region(LP_PORT_DATA,   1, "lp_old98");
-+	request_region(LP_PORT_STATUS, 1, "lp_old98");
-+	request_region(LP_PORT_STROBE, 1, "lp_old98");
-+
-+	/*
-+	 * rest are not needed by this driver,
-+	 * but for locking out other printer drivers...
-+	 */
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		request_region(LP_PORT_H98MODE, 1, "lp_old98");
-+#endif
-+	request_region(LP_PORT_EXTMODE, 1, "lp_old98");
-+	lp_old98_init_device();
-+
-+	return 0;
-+}
-+
-+#ifdef MODULE
-+void cleanup_module(void)
++#define VT_BUF_HAVE_MEMCPYW
++extern inline void
++_scr_memcpyw(u16 *d, u16 *s, unsigned int count)
 +{
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	unregister_console(&lp_old98_console);
++#if 1 /* def CONFIG_GDC_32BITACCESS */
++	__asm__ __volatile__ ("shr%L2 %2
++	jz 2f
++" /*	cld	*/ "\
++	test%L0 %3,%0
++	jz 1f
++	movs%W0
++	dec%L2 %2
++1:	shr%L2 %2
++	rep
++	movs%L0
++	jnc 2f
++	movs%W0
++2:"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "0"(d), "1"(s), "2"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tmovsw"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"(d), "1"(s), "2"(count / 2));
 +#endif
-+	unregister_chrdev(LP_MAJOR, "lp");
-+
-+	release_region(LP_PORT_DATA,   1);
-+	release_region(LP_PORT_STATUS, 1);
-+	release_region(LP_PORT_STROBE, 1);
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		release_region(LP_PORT_H98MODE, 1);
-+#endif
-+	release_region(LP_PORT_EXTMODE, 1);
 +}
 +
-+MODULE_PARM(dc1_check, "1i");
-+MODULE_AUTHOR("Kousuke Takai <tak@kmc.kyoto-u.ac.jp>");
++#define scr_memcpyw(d, s, count) \
++	{ \
++	_scr_memcpyw((d), (s), (count)); \
++	_scr_memcpyw(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
++	}
 +
++extern inline void
++_scr_memrcpyw(u16 *d, u16 *s, unsigned int count)
++{
++#if 1 /* def CONFIG_GDC_32BITACCESS */
++	u16 tmp;
++
++	__asm__ __volatile__ ("shr%L3 %3
++	jz 2f
++	std
++	lea%L1 -4(%1,%3,2),%1
++	lea%L2 -4(%2,%3,2),%2
++	test%L1 %4,%1
++	jz 1f
++	mov%W0 2(%2),%0
++	sub%L2 %4,%2
++	dec%L3 %3
++	mov%W0 %0,2(%1)
++	sub%L1 %4,%1
++1:	shr%L3 %3
++	rep
++	movs%L0
++	jnc 3f
++	mov%W0 2(%2),%0
++	mov%W0 %0,2(%1)
++3:	cld
++2:"
++			      : "=r"(tmp), "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "1"(d), "2"(s), "3"(count));
++#else
++	__asm__ __volatile__ ("std\n\trep\n\tmovsw\n\tcld"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"((void *) d + count - 2),
++			        "1"((void *) s + count - 2), "2"(count / 2));
++#endif	 
++}
++
++#define VT_BUF_HAVE_MEMMOVEW
++extern inline void
++_scr_memmovew(u16 *d, u16 *s, unsigned int count)
++{
++	if (d > s)
++		_scr_memrcpyw(d, s, count);
++	else
++		_scr_memcpyw(d, s, count);
++}	 
++
++#define scr_memmovew(d, s, count) \
++	{ \
++	_scr_memmovew((d), (s), (count)); \
++	_scr_memmovew(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
++	}
++
++#define VT_BUF_HAVE_MEMCPYF
++extern inline void
++_scr_memcpyw_from(u16 *d, u16 *s, unsigned int count)
++{
++#ifdef CONFIG_GDC_32BITACCESS
++	/* VRAM is quite slow, so we align source pointer (%esi)
++	   to double-word alignment. */
++	__asm__ __volatile__ ("shr%L2 %2
++	jz 2f
++" /*	cld	*/ "\
++	test%L0 %3,%0
++	jz 1f
++	movs%W0
++	dec%L2 %2
++1:	shr%L2 %2
++	rep
++	movs%L0
++	jnc 2f
++	movs%W0
++2:"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "g"(2), "0"(d), "1"(s), "2"(count));
++#else
++	__asm__ __volatile__ ("rep\n\tmovsw"
++			      : "=D"(d), "=S"(s), "=c"(count)
++			      : "0"(d), "1"(s), "2"(count / 2));
 +#endif
++}
++
++#define scr_memcpyw_from(d, s, count) \
++	{ \
++	_scr_memcpyw_from((d), (s), (count)); \
++	_scr_memcpyw_from(pc9800_attr_offset(d), pc9800_attr_offset(s), \
++				(count)); \
++	}
++
++#ifdef CONFIG_GDC_32BITACCESS
++# define _scr_memcpyw_to _scr_memcpyw
++#else
++# define _scr_memcpyw_to _scr_memcpyw_from
++#endif
++
++#endif /* _LINUX_ASM_GDC_H_ */

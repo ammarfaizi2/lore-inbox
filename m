@@ -1,73 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264114AbTIINn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTIINn0
+	id S264115AbTIINof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTIINof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:43:26 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:45769 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S264114AbTIINnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:43:22 -0400
-Date: Tue, 9 Sep 2003 16:43:20 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Majordomo results
-Message-ID: <20030909134320.GH16395@mea-ext.zmailer.org>
-References: <S264091AbTIINYd/20030909132434Z+3723@vger.kernel.org>
+	Tue, 9 Sep 2003 09:44:35 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:59781 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264115AbTIINnk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:43:40 -0400
+Date: Tue, 9 Sep 2003 06:43:31 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: bkcvs vs. -test5 diff
+Message-ID: <20030909134331.GB1990@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030909120706.GA12391@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S264091AbTIINYd/20030909132434Z+3723@vger.kernel.org>
+In-Reply-To: <20030909120706.GA12391@elf.ucw.cz>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is in the series of "don't do that" ...
+I'll look after I've had some coffee.
 
-Request originator had edited "From:" address to list address,
-and there was no "To:" or "Cc:" header at all.
-
-Overall, any request needing approval from listowner is likely to be
-_ignored_.   You do see the amount of traffic in these lists.
->From that you can have a vague idea of how much admin junk listowners 
-get...
-
-See  http://vger.kernel.org/majordomo-info.html   for futher guidance.
-
-
-On Tue, Sep 09, 2003 at 09:24:33AM -0400, Majordomo@vger.kernel.org wrote:
-> To:	linux-kernel@vger.kernel.org
-> From:	Majordomo@vger.kernel.org
-> Subject: Majordomo results
-> Date:	Tue, 9 Sep 2003 09:24:33 -0400
+On Tue, Sep 09, 2003 at 02:07:06PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> --
+> I did diff between 2.6.0-test5 and bkcvs, and it seems there are some
+> differences. Is it my fault or something wrong in bkcvs?
 > 
-> >>>> auth ffd69ec2 subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
-> Your request to Majordomo@vger.kernel.org:
+> 								Pavel
 > 
-> 	subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
+> --- clean/drivers/pcmcia/tcic.c	2003-08-27 12:00:29.000000000 +0200
+> +++ /usr/src/linux-cvs/drivers/pcmcia/tcic.c	2003-07-14 01:47:01.000000000 +0200
+> @@ -372,6 +372,9 @@
+>  static struct platform_device tcic_device = {
+>  	.name = "tcic-pcmcia",
+>  	.id = 0,
+> +	.dev = {
+> +		.name = "tcic-pcmcia",
+> +	},
+>  };
+>  
+>  
+> @@ -379,6 +382,15 @@
+>  {
+>      int i, sock, ret = 0;
+>      u_int mask, scan;
+> +    servinfo_t serv;
+> +
+> +    DEBUG(0, "%s\n", version);
+> +    pcmcia_get_card_services_info(&serv);
+> +    if (serv.Revision != CS_RELEASE_CODE) {
+> +	printk(KERN_NOTICE "tcic: Card Services release "
+> +	       "does not match!\n");
+> +	return -1;
+> +    }
+>  
+>      if (driver_register(&tcic_driver))
+>  	return -1;
+> --- clean/drivers/pcmcia/yenta_socket.h	2003-09-09 12:45:29.000000000 +0200
+> +++ /usr/src/linux-cvs/drivers/pcmcia/yenta_socket.h	2003-06-30 22:34:07.000000000 +0200
+> @@ -95,15 +95,6 @@
+>   */
+>  #define CB_MEM_PAGE(map)	(0x40 + (map))
+>  
+> -struct yenta_socket;
+> -
+> -struct cardbus_type {
+> -	int	(*override)(struct yenta_socket *);
+> -	void	(*save_state)(struct yenta_socket *);
+> -	void	(*restore_state)(struct yenta_socket *);
+> -	int	(*sock_init)(struct yenta_socket *);
+> -};
+> -
+>  struct yenta_socket {
+>  	struct pci_dev *dev;
+>  	int cb_irq, io_irq;
+> @@ -111,13 +102,9 @@
+>  	struct timer_list poll_timer;
+>  
+>  	struct pcmcia_socket socket;
+> -	struct cardbus_type *type;
+>  
+>  	/* A few words of private data for special stuff of overrides... */
+>  	unsigned int private[8];
+> -
+> -	/* PCI saved state */
+> -	u32 saved_state[18];
+>  };
+>  
+>  
+> --- clean/usr/initramfs_data.S	2003-07-27 22:31:46.000000000 +0200
+> +++ /usr/src/linux-cvs/usr/initramfs_data.S	2003-07-20 21:11:39.000000000 +0200
+> @@ -1,30 +1,2 @@
+> -/*
+> -  initramfs_data includes the compressed binary that is the
+> -  filesystem used for early user space.
+> -  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
+> -  released on 2001-07-14) dit not support .incbin.
+> -  If you are forced to use older binutils than that then the
+> -  following trick can be applied to create the resulting binary:
+> -
+> -
+> -  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
+> -  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
+> -   ld -m elf_i386  -r -o built-in.o initramfs_data.o
+> -
+> -  initramfs_data.scr looks like this:
+> -SECTIONS
+> -{
+> -       .init.ramfs : { *(.data) }
+> -}
+> -
+> -  The above example is for i386 - the parameters vary from architectures.
+> -  Eventually look up LDFLAGS_BLOB in an older version of the
+> -  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
+> -
+> -  Using .incbin has the advantage over ld that the correct flags are set
+> -  in the ELF header, as required by certain architectures.
+> -*/
+> -
+> -.section .init.ramfs,"a"
+> +	.section .init.ramfs,"a"
+>  .incbin "usr/initramfs_data.cpio.gz"
+> -
+> Only in /usr/src/linux-cvs/usr: initramfs_data.cpio
+> Only in /usr/src/linux-cvs/usr: initramfs_data.cpio.gz
 > 
-> has been forwarded to the owner of the "linux-kernel" list for approval. 
-> This could be for any of several reasons:
-> 
->     You might have asked to subscribe to a "closed" list, where all new
-> 	additions must be approved by the list owner. 
-> 
->     You might have asked to subscribe or unsubscribe an address other than
-> 	the one that appears in the headers of your mail message.
-> 
-> When the list owner approves your request, you will be notified.
-> 
-> If you have any questions about the policy of the list owner, please
-> contact "linux-kernel-approval@vger.kernel.org".
-> 
-> Thanks!
-> 
-> Majordomo@vger.kernel.org
-> >>>> 
+> -- 
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,41 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbUCHXnd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbUCHXnd
+	id S261406AbUCHXnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbUCHXnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:43:33 -0500
-Received: from ns.suse.de ([195.135.220.2]:5605 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261408AbUCHXna (ORCPT
+	Mon, 8 Mar 2004 18:43:25 -0500
+Received: from smtp05.web.de ([217.72.192.209]:5386 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261406AbUCHXnW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:43:30 -0500
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-References: <200403090014.03282.thomas.schlichter@web.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Half a mind is a terrible thing to waste!
-Date: Tue, 09 Mar 2004 00:43:29 +0100
-In-Reply-To: <200403090014.03282.thomas.schlichter@web.de> (Thomas
- Schlichter's message of "Tue, 9 Mar 2004 00:14:01 +0100")
-Message-ID: <jeptbmlxb2.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Mon, 8 Mar 2004 18:43:22 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix warning about duplicate 'const'
+Date: Tue, 9 Mar 2004 00:43:18 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ZUQTALwnphfQXII"
+Message-Id: <200403090043.21043.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <thomas.schlichter@web.de> writes:
 
-> P.S.: Wouldn't it be nice if gcc complained about these mistakes?
+--Boundary-00=_ZUQTALwnphfQXII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Among these 18 cases are 13 false positives. :-)
+Hi,
 
-Andreas.
+attached is a patch which fixes following wanings:
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+drivers/ide/ide-tape.c: In function `idetape_setup':
+drivers/ide/ide-tape.c:4701: Warnung: duplicate `const'
+drivers/video/matrox/matroxfb_g450.c: In function `g450_compute_bwlevel':
+drivers/video/matrox/matroxfb_g450.c:129: Warnung: duplicate `const'
+drivers/video/matrox/matroxfb_g450.c:130: Warnung: duplicate `const'
+drivers/video/matrox/matroxfb_maven.c: In function `maven_compute_bwlevel':
+drivers/video/matrox/matroxfb_maven.c:347: Warnung: duplicate `const'
+drivers/video/matrox/matroxfb_maven.c:348: Warnung: duplicate `const'
+
+This is done by removing the 'const' from the temporary variables of the min() 
+and max() macros. For me it seems to have no negative impact, so please 
+consider applying...
+
+Best regards
+   Thomas Schlichter
+
+--Boundary-00=_ZUQTALwnphfQXII
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="fix-duplicate-const-warning.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="fix-duplicate-const-warning.diff"
+
+--- linux-2.6.4-rc2/include/linux/kernel.h.orig	2004-03-04 07:16:34.000000000 +0100
++++ linux-2.6.4-rc2/include/linux/kernel.h	2004-03-09 00:34:21.980935992 +0100
+@@ -168,15 +168,15 @@ extern void dump_stack(void);
+  * "unnecessary" pointer comparison.
+  */
+ #define min(x,y) ({ \
+-	const typeof(x) _x = (x);	\
+-	const typeof(y) _y = (y);	\
+-	(void) (&_x == &_y);		\
++	typeof(x) _x = (x);	\
++	typeof(y) _y = (y);	\
++	(void) (&_x == &_y);	\
+ 	_x < _y ? _x : _y; })
+ 
+ #define max(x,y) ({ \
+-	const typeof(x) _x = (x);	\
+-	const typeof(y) _y = (y);	\
+-	(void) (&_x == &_y);		\
++	typeof(x) _x = (x);	\
++	typeof(y) _y = (y);	\
++	(void) (&_x == &_y);	\
+ 	_x > _y ? _x : _y; })
+ 
+ /*
+
+--Boundary-00=_ZUQTALwnphfQXII--
+

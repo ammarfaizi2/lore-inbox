@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282944AbRLCIvd>; Mon, 3 Dec 2001 03:51:33 -0500
+	id <S282056AbRLCIvj>; Mon, 3 Dec 2001 03:51:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282082AbRLCIuq>; Mon, 3 Dec 2001 03:50:46 -0500
-Received: from yuha.menta.net ([212.78.128.42]:27040 "EHLO yuha.menta.net")
-	by vger.kernel.org with ESMTP id <S284329AbRLBWhi>;
-	Sun, 2 Dec 2001 17:37:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ivanovich <ivanovich@menta.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>, Erik Elmore <lk@bigsexymo.com>
-Subject: Re: EXT3 - freeze ups during disk writes
-Date: Sun, 2 Dec 2001 23:37:17 +0100
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10112021310480.29688-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10112021310480.29688-100000@coffee.psychology.mcmaster.ca>
+	id <S284358AbRLCIud>; Mon, 3 Dec 2001 03:50:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52744 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284485AbRLCAXo>; Sun, 2 Dec 2001 19:23:44 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Date: 2 Dec 2001 16:23:11 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ueglf$ilu$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.40.0112021206040.28065-100000@waste.org> <3C0A70DE.65F54283@mandrakesoft.com> <000b01c17b68$2ff846e0$30d8fea9@ecce>
 MIME-Version: 1.0
-Message-Id: <01120223371700.01168@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Diumenge 02 Desembre 2001 19:15, Mark Hahn va escriure:
-> in other mail I asked Erik about the disk's mode: it is PIO,
-> so the pathetic speed and crippling VM/Ext2 performance is
-> entirely expected.  I'm guessing he's missing CONFIGs of either
-> the chipset-specific driver or one of:
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_BLK_DEV_ADMA=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_IDEDMA_AUTO=y
->
-> > > I've seen a couple of reports where ext3 appears to exacerbate
-> > > the effects of poor hdparm settings.  What is your raw disk
-> > > throughput, from `hdparm -t /dev/hda'?
-> >
-> > `hdparm -t /dev/hda` reports:
-> >
-> > # hdparm -t /dev/hda
-> >
-> > /dev/hda:
-> >  Timing buffered disk reads:  64 MB in 16.76 seconds =  3.82 MB/sec
+Followup to:  <000b01c17b68$2ff846e0$30d8fea9@ecce>
+By author:    "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
+In newsgroup: linux.dev.kernel
+> 
+> By the way, what happened to xiafs?
+> Back to 2.0.33 it even didn't work (complaints after newfs).
+> 
 
-maybe the only thing he is missing is the *AUTO configs
+It got ripped out because the vfs changed and noone ported it.
 
-you could try:
-# /sbin/hdparm -c 1 -d 1 /dev/hda
-which tries to do this:
-/dev/hda:
- setting 32-bit I/O support flag to 1
- setting using_dma to 1 (on)
-
-and then test again with -t to see if it gets better...
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264299AbTEGVjC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 17:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTEGVjC
+	id S264243AbTEGVs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 17:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTEGVs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 17:39:02 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:16145 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264299AbTEGVi7
+	Wed, 7 May 2003 17:48:59 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:63732 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S264243AbTEGVs5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 17:38:59 -0400
-Date: Wed, 7 May 2003 23:54:30 +0200
-To: "David S. Miller" <davem@redhat.com>
-Cc: wli@holomorphy.com, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, akpm@digeo.com
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030507215430.GA1109@hh.idb.hist.no>
-References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030507.064010.42794250.davem@redhat.com>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Wed, 7 May 2003 17:48:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Date: Wed, 7 May 2003 17:01:11 -0500
+X-Mailer: KMail [version 1.2]
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <03050716305002.07468@tabby> <3EB980AA.9060207@techsource.com>
+In-Reply-To: <3EB980AA.9060207@techsource.com>
+MIME-Version: 1.0
+Message-Id: <03050717011103.07468@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 06:40:10AM -0700, David S. Miller wrote:
->    From: William Lee Irwin III <wli@holomorphy.com>
->    Date: Wed, 7 May 2003 07:41:00 -0700
->    
->    In another thread, you mentioned that a certain netfilter cset had
->    issues; I think it might be good to add that as a second possible
->    cause.
-> 
-> Good point, Helge what netfilter stuff do you have in use?
-> Are you doing NAT?
+On Wednesday 07 May 2003 16:54, Timothy Miller wrote:
+> Jesse Pollard wrote:
+> > On Wednesday 07 May 2003 12:13, Jonathan Lundell wrote:
+> > [snip]
+> >
+> >>One thing that would help (aside from separate interrupt stacks)
+> >>would be a guard page below the stack. That wouldn't require any
+> >>physical memory to be reserved, and would provide positive indication
+> >>of stack overflow without significant runtime overhead.
+> >
+> > It does take up a page table entry, which may also be in short supply
+>
+> Now, I'm sure this has GOT to be a terribly ignorant question, but I'll
+> try anyhow:
+>
+> What happens if you simply neglect to provide a mapping for that page?
+> I'm sure that will cause some sort of page fault.  Why would you have to
+> do something different?
 
-I have compiled in almost everything from netfilter, except
-from "Amanda backup protocol support" and "NAT of local connections"
-
-I also have ipv6 compiled, but no ipv6-netfilter.
-
-I don't do any NAT.  I used to have some firewall rules, but not currently
-as some previous dev-kernel broke on that.  So I have iptables
-with no rules, just an ACCEPT policy for everything. I do no
-routing either, only one network card is used.
-
-Helge Hafting
-
+I believe it shifts the entire virtual range up(/down depending on your point
+of view). Each page in the virtual address range (whether it physically
+exists or not) has a descriptor. To reserve one requires that the descriptor
+be set to "does not exist, no read, no write". Then any access to that page
+can/will generate a trap.

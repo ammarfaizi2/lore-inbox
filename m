@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSFUMzb>; Fri, 21 Jun 2002 08:55:31 -0400
+	id <S316589AbSFUNAB>; Fri, 21 Jun 2002 09:00:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316588AbSFUMza>; Fri, 21 Jun 2002 08:55:30 -0400
-Received: from static62-99-146-174.adsl.inode.at ([62.99.146.174]:15520 "EHLO
-	silo.pitzeier.priv.at") by vger.kernel.org with ESMTP
-	id <S316580AbSFUMz3>; Fri, 21 Jun 2002 08:55:29 -0400
-From: "Oliver Pitzeier" <oliver@linux-kernel.at>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.24 on alpha; fls redefined!? HELP NEEDED
-Date: Fri, 21 Jun 2002 14:55:21 +0200
-Organization: Linux Kernel Austria
-Message-ID: <000601c21922$ea0c43d0$010b10ac@sbp.uptime.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <000501c21921$2ead26f0$010b10ac@sbp.uptime.at>
+	id <S316588AbSFUNAA>; Fri, 21 Jun 2002 09:00:00 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:51352 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S316589AbSFUM77>; Fri, 21 Jun 2002 08:59:59 -0400
+Date: Fri, 21 Jun 2002 07:59:15 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200206211259.HAA26820@tomcat.admin.navo.hpc.mil>
+To: dalecki@evision-ventures.com, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: latest linus-2.5 BK broken
+cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Pitzeier wrote:
-> Where comes this from and _why_???
-> 
-> /usr/src/linux-2.5.24/include/asm/bitops.h:471:1: warning: 
-> "fls" redefined
-> ^^^^^^^^^^^^^^^^^^^^^^^^
+Martin Dalecki <dalecki@evision-ventures.com>:
+>Yes HT gives 12%. naive SMP gives 50% and good SMP (aka corssbar bus)
+>gives 70% for two CPU. All those numbers are well below the level
+>where more then 2-4 makes hardly any sense... Amdahl bites you still if you
+>read it like:
+...
 
-OK. Found it... Here...
-    467 /*
-    468  * fls: find last bit set.
-    469  */
-    470
-    471 #define fls(x) generic_fls(x)
+I think your numbers are a little low - I've seen between 50%-80% on
+master/slave SMP depending on the job. 50% if both processess are heavily
+syscall oriented, 75% (or therabouts) when both processes are more normally
+balanced, and 80% if both processes are more compute bound.
 
-I took it out. I guess it's not needed anymore because of this:
+Good SMP, with a crossbar switch buss should give close to 95%. Good SMP
+alone should give about 75%.
 
-    318 /*
-    319  * fls: find last bit set.
-    320  */
-    321 #if defined(__alpha_cix__) && defined(__alpha_fix__)
-    322 static inline int fls(int word)
-    323 {
-    324         long result;
-    325         __asm__("ctlz %1,%0" : "=r"(result) : "r"(word &
-0xffffffff));
-    326         return 64 - result;
-    327 }
-    328 #else
-    329 #define fls     generic_fls
-    330 #endif
+My expierence with good crossbar switch is based on Cray UNICOS/YMP/SV
+hardware. A well tuned hardware platform, and slightly less well tuned
+SMP implementation, though the UNICOS 10 rewrite may have fixed the
+SMP implementation.
 
-Right? :o)
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Greetz,
-  Oliver
-
-
+Any opinions expressed are solely my own.

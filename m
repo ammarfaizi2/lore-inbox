@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTEWItt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 04:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTEWItt
+	id S263964AbTEWIzV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTEWIzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 04:49:49 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:60088 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263952AbTEWIts (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 04:49:48 -0400
+	Fri, 23 May 2003 04:55:21 -0400
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:32180 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S263964AbTEWIzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:55:19 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "Paul Mackerras" <paulus@samba.org>,
+       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Fix warning with ndelay
+Date: Fri, 23 May 2003 10:08:29 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAAELGDBAA.Riley@Williams.Name>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16077.58300.246307.48856@gargle.gargle.HOWL>
-Date: Fri, 23 May 2003 11:02:52 +0200
-From: mikpe@csd.uu.se
-To: brouard@ined.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Latitude with broken BIOS" ?
-In-Reply-To: <200305231055.14872.brouard@ined.fr>
-References: <200305231055.14872.brouard@ined.fr>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1053679084.1160.99.camel@gaston>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brouard Nicolas writes:
- > I am not well aware of what APIC is but I was running Mandrake 8.2 on my Linux 
- > partition of a Dell Pentium III latitude 550 MHz and I don't remember such a 
- > dmesg message. But when I upgraded to Mandrake 9.1 here it is. The problem I 
- > have is that I can't have any suspend mode any more neither battery 
- > indicators and /etc/rc.d/init.d/apm start claims that apm is no more in the 
- > kernel. Is it linked to that APIC problem and this BIOS problem, why did it 
- > work earlier? Do you think that if I found a new bios from Dell it will help?
+Hi Benjamin.
 
-The "$machine with broken BIOS detected, refusing to enable the local APIC"
-message only affects the local APIC and the few services using it like the
-NMI watchdog and some performance measurement/profiling tools.
-It has no impact on whether APM works or not.
+Did you forget to enclose the patch?
 
-Possibly Mandrake 9.1 detects ACPI (not APIC) which would disable APM.
-Try booting with "noacpi" or "acpi=off" or whatever the option is called.
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+
+ > -----Original Message-----
+ > From: linux-kernel-owner@vger.kernel.org
+ > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Benjamin
+ > Herrenschmidt
+ > Sent: Friday, May 23, 2003 9:38 AM
+ > To: Marcelo Tosatti
+ > Cc: Paul Mackerras; linux-kernel mailing list
+ > Subject: [PATCH] Fix warning with ndelay
+ > 
+ > 
+ > 
+ > -- 
+ > Benjamin Herrenschmidt <benh@kernel.crashing.org>
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe 
+ > linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
+ > 
+ > ---
+ > Incoming mail is certified Virus Free.
+ > Checked by AVG anti-virus system (http://www.grisoft.com).
+ > Version: 6.0.483 / Virus Database: 279 - Release Date: 19-May-2003
+ > 
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.483 / Virus Database: 279 - Release Date: 19-May-2003
+

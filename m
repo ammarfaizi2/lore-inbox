@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbTHKJP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 05:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270823AbTHKJP4
+	id S269696AbTHKJR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 05:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271380AbTHKJR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 05:15:56 -0400
-Received: from dyn-ctb-210-9-244-185.webone.com.au ([210.9.244.185]:53259 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S267561AbTHKJPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 05:15:54 -0400
-Message-ID: <3F375EBD.5030106@cyberone.com.au>
-Date: Mon, 11 Aug 2003 19:15:41 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Mon, 11 Aug 2003 05:17:26 -0400
+Received: from lidskialf.net ([62.3.233.115]:49539 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S269696AbTHKJRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 05:17:24 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Andrew Morton <akpm@osdl.org>, Benjamin Weber <shawk@gmx.net>
+Subject: Re: [BUG mm-tree of test2/test3] nforce2-acpi-fixes breaks via ide controller
+Date: Mon, 11 Aug 2003 10:17:22 +0100
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       akpm@digeo.com
+References: <1060533632.3886.19.camel@athxp.bwlinux.de> <20030810143220.0a4d1e69.akpm@osdl.org>
+In-Reply-To: <20030810143220.0a4d1e69.akpm@osdl.org>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Martin Schlemmer <azarah@gentoo.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]O14int
-References: <200308090149.25688.kernel@kolivas.org> <200308091904.19222.kernel@kolivas.org> <1060580691.13254.7.camel@workshop.saharacpt.lan> <200308111608.18241.kernel@kolivas.org>
-In-Reply-To: <200308111608.18241.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308111017.23100.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > Since the test2-mm1 sources I get the following error during boot:
+> >
+> > VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> > VP_IDE: (ide_setup_pci_device:) Could not enable device.
+> >
+> > This results in not being able to use DMA for any devices connected to
+> > my IDE controller. Hdparm says permission denied when I do a hdparm -d1
+> > /dev/hda e.g.
+> >
+> > I checked with a vanilla kernel and everything is working fine there.
+> > Going through the broken-out patches from Andrew Morton I found the one
+> > patch that caused the above behavior: nforce2-acpi-fixes.patch
 
-Con Kolivas wrote:
+Hi, thanks for tracking down the problem
 
->On Mon, 11 Aug 2003 15:44, Martin Schlemmer wrote:
+Can you send me: 
+a dmesg with the patch (i.e. when it fails (essential))
+a dmesg without the patch (i.e. when it succeeds)
+the output of /proc/interrupts (when it fails (if possible)) 
+the output of /proc/interrupts (when it succeeds) 
+the output of /proc/acpi/dsdt
+the output of lspci -vvv
+
+(the last two can be either with or without the patch)
+
+Sorry about the long list, but this is what I need to diagnose these problems.
+
+
+> > I do not know why it should interfere with my via stuff, but it does. A
+> > vanilla test3 kernel is working fine as well, whereas test3-mm1 shows
+> > the same error as before with test2-mmX.
 >
->>On Sat, 2003-08-09 at 11:04, Con Kolivas wrote:
->>
->>>On Sat, 9 Aug 2003 01:49, Con Kolivas wrote:
->>>
->>>>More duck tape interactivity tweaks
->>>>
->>>s/duck/duct
->>>
->>>
->>>>Wli pointed out an error in the nanosecond to jiffy conversion which
->>>>may have been causing too easy to migrate tasks on smp (? performance
->>>>change).
->>>>
->>>Looks like I broke SMP build with this. Will fix soon; don't bother
->>>trying this on SMP yet.
->>>
->>Not to be nasty or such, but all these patches have taken
->>a very responsive HT box to one that have issues with multiple
->>make -j10's running and random jerkyness.
->>
->
->A UP HT box you mean? That shouldn't be capable of running multiple make -j10s 
->without some noticable effect. Apart from looking impressive, there is no 
->point in having 30 cpu heavy things running with only 1 and a bit processor 
->and the machine being smooth as silk; the cpu heavy things will just be 
->unfairly starved in the interest of appearance (I can do that easily enough). 
->Please give details if there is a specific issue you think I've broken or 
->else I wont know about it.
->
+> Me either.  Unfortunately that patch does five different things so we
+> cannot easily narrow it down further.
 
-Yeah make -j10s won't be without impact, but I think for a lot of
-interactive stuff they don't need a lot of CPU, just to get it
-in a timely manner. And Martin did say it had been responsive.
-Sounds like in this case your changes are causing the interactive
-stuff to get less CPU or higher scheduling latency?
-
+Yeah, I know. My next patch is likely to have to do even more unfortunately. 
+Found quite a number more issues with IRQs.
 

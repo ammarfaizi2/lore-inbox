@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbTI0SNV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 14:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTI0SNV
+	id S262149AbTI0S1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 14:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTI0S1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 14:13:21 -0400
-Received: from [65.248.4.67] ([65.248.4.67]:28589 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S262131AbTI0SNQ (ORCPT
+	Sat, 27 Sep 2003 14:27:42 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:54458 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262149AbTI0S1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 14:13:16 -0400
-Message-ID: <001001c38523$04422860$f8e4a7c8@bsb.virtua.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: "Ingo Molnar" <mingo@elte.hu>, "Gabor MICSKO" <gmicsko@szintezis.hu>
-Cc: <linux-kernel@vger.kernel.org>
-References: <1064678738.3578.8.camel@sunshine> <Pine.LNX.4.56.0309271950450.21678@localhost.localdomain>
-Subject: Re: [Test] exec-shield-2.6.0-test5-G2 vs. paxtest & libsafe
-Date: Sat, 27 Sep 2003 15:13:11 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-XTmail: http://www.verdesmares.com
+	Sat, 27 Sep 2003 14:27:41 -0400
+Date: Sat, 27 Sep 2003 20:27:30 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] No Swap. Re: [BUG 2.6.90-test5] kernel shits itself with 48mb ram under moderate load
+Message-ID: <20030927182730.GA5315@k3.hellgate.ch>
+Mail-Followup-To: Ihar 'Philips' Filipau <filia@softhome.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Apl1.4ur.9@gated-at.bofh.it> <Ar3B.6UW.21@gated-at.bofh.it> <3F75D35C.9040609@softhome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F75D35C.9040609@softhome.net>
+X-Operating-System: Linux 2.6.0-test5 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-something like this:
-www.bandnet.com.br/~breno_silva/Kernel_linux/sec_stack.c
-www.bandnet.com.br/~breno_silva/Kernel_linux/sec_stack1.1v.c
+On Sat, 27 Sep 2003 20:13:48 +0200, Ihar 'Philips' Filipau wrote:
+> Roger Luethi wrote:
+> >On Sun, 28 Sep 2003 01:26:34 +1000, Jason Lewis wrote:
+> >>0 12      0   3424    816   6008    0    0 19712     0 5519  3184  0 12  
+> >>0 87
+> >
+> >          ^^^^
+> >Looks like you don't have swap enabled. Are successful 2.4 runs with or
+> >without swap?
+> >
+> 
+>    I'm running RH stock 2.4.20-20.9 without swap for around month.
+>    OOo, Mozilla, eDonkey & heaps of xterms. Even evaluation of VMware 
+> with Win2K inside was Ok.
+>    On average: much better experience.
 
+Better than with swap? Or better than 2.6?
 
-att,
-Breno
------ Original Message -----
-From: "Ingo Molnar" <mingo@elte.hu>
-To: "Gabor MICSKO" <gmicsko@szintezis.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, September 27, 2003 3:02 PM
-Subject: Re: [Test] exec-shield-2.6.0-test5-G2 vs. paxtest & libsafe
+> $ free
+>              total       used       free     shared    buffers     cached
+> Mem:        513872     507128       6744          0      32784     341404
 
+The initial post was about a 48 MB machine. 10% of what you have. The
+poster's system is paging like crazy -- since all dirty pages without a
+mapping are pinned in memory, it must shuffle around the rest.
 
->
-> On Sat, 27 Sep 2003, Gabor MICSKO wrote:
->
-> > Kernel:
-> > Linux sunshine 2.6.0-test5-exec-shield-nptl #3 SMP 2003. sze. 27.,
-> > szombat, 13.37.42 CEST i686 GNU/Linux
->
-> thanks for the testing. The ELF loader changes had a bug which ended up in
-> creating an extra executable page after .bss, failing some of the tests.
-> I've fixed this, could you try the -G3 patch?:
->
->   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-G3
->   redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test5-bk12-G3
->
-> Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Roger

@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269815AbRHIOgn>; Thu, 9 Aug 2001 10:36:43 -0400
+	id <S269817AbRHIOlZ>; Thu, 9 Aug 2001 10:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269817AbRHIOgd>; Thu, 9 Aug 2001 10:36:33 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:55307 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S269815AbRHIOgO>;
-	Thu, 9 Aug 2001 10:36:14 -0400
-Message-ID: <3B729FD7.7D8BCA5F@xss.co.at>
-Date: Thu, 09 Aug 2001 16:36:07 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S - *x Software + Systeme
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Dirk W. Steinberg" <dws@dirksteinberg.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <E15Ulnx-0006zZ-00@the-village.bc.nu> <3B729B96.D306185C@dirksteinberg.de>
+	id <S269819AbRHIOlP>; Thu, 9 Aug 2001 10:41:15 -0400
+Received: from ffmdi5-212-144-149-114.arcor-ip.net ([212.144.149.114]:51700
+	"EHLO merv") by vger.kernel.org with ESMTP id <S269817AbRHIOlJ>;
+	Thu, 9 Aug 2001 10:41:09 -0400
+Date: Thu, 9 Aug 2001 16:39:49 +0200
+To: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
+Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
+Subject: Re: Exporting kernel memory to application
+Message-ID: <20010809163949.B2854@bombe.modem.informatik.tu-muenchen.de>
+Reply-To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+Mail-Followup-To: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>,
+	imran.badr@cavium.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A01C650D2@dcmtechdom.dcmtech.co.in>
+User-Agent: Mutt/1.3.18i
+From: Andreas Bombe <andreas@bombe.modem.informatik.tu-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Aug 08, 2001 at 03:48:50PM +0530, Nitin Dhingra wrote:
+> You can do that by using kiobuf's ( only in kernel 2.4.x ).
+> That way you could lock the user buffers in kernel but you 
+> would have to allocate user buffer prior to using any kiobuf's functions 
+> like map_user_kiobuf() 
 
-"Dirk W. Steinberg" wrote:
-> 
-> Alan,
-> 
-> what you say sound a lot like a hacker solution ("check that it uses the
-> right GFP_ levels"). I think it's about time that this deficit of linux
-> as compared to SunOS or *BSD should be removed. Network paging should be
-> supported as a standard feature of a stock kernel compile.
-> 
-We have swapping over NBD running for some time now on
-our "xS+S Diskless Client" system, and it works really
-fine! No problem running StarOffice, Netscape, The Gimp
-and KDE on a 128MB Diskless Client and 250MB swap over a 
-100MBit switched ethernet!
+When someone asks how to lock user buffers into kernel space they are
+suggested to allocate the buffers in kernel and map them to user space
+which is much cleaner, safer and everything.
 
-Check <http://www.xss.co.at/linux/NBD/Applications.html>
-to find our solution for that.
-
-Kernel patches are a little bit outdated, but we have NBD swap
-for 2.2.19 running internally since this week, and we will
-update our web-page soon.
-
-Let us hear if it works for you.
-
-Regards,
-
-- andreas
+That guy got it right on the first attempt.  Don't confuse him with
+inferior solutions.
 
 -- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44

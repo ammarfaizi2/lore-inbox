@@ -1,119 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSLQTsP>; Tue, 17 Dec 2002 14:48:15 -0500
+	id <S266686AbSLQTwA>; Tue, 17 Dec 2002 14:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265636AbSLQTsP>; Tue, 17 Dec 2002 14:48:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39860 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265628AbSLQTsL>; Tue, 17 Dec 2002 14:48:11 -0500
-Date: Tue, 17 Dec 2002 14:58:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "White, Charles" <Charles.White@hp.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.21pre1 cpqfc 
-In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB039917AD@cceexc18.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.50L.0212171457560.26120-100000@freak.distro.conectiva>
-References: <A2C35BB97A9A384CA2816D24522A53BB039917AD@cceexc18.americas.cpqcorp.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266969AbSLQTwA>; Tue, 17 Dec 2002 14:52:00 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:48354 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S266686AbSLQTv6>; Tue, 17 Dec 2002 14:51:58 -0500
+Message-Id: <5.1.0.14.2.20021217115447.04860be0@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 17 Dec 2002 11:59:48 -0800
+To: Colin Paul Adams <colin@colina.demon.co.uk>, linux-kernel@vger.kernel.org
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: Alcatel speedtouch USB driver and SMP.
+In-Reply-To: <m3adj6gwus.fsf@colina.demon.co.uk>
+References: <20021216051300.GB12884@kroah.com>
+ <m3n0n7hi52.fsf@colina.demon.co.uk>
+ <20021215075913.GB2180@kroah.com>
+ <m3hedfhd5l.fsf@colina.demon.co.uk>
+ <20021216051300.GB12884@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 09:02 AM 12/16/2002 +0000, Colin Paul Adams wrote:
+>>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+>    >>  drivers/usb/misc/speedtouch.c
+>
+>    Greg> Ah good, you're using one that the source is available for
+>    Greg> :) I think the developer has said it will work on SMP
+>    Greg> machines, but what problems are you having, and have you
+>    Greg> asked the author of the code?
+>
+>I haven't any problems yet, as I haven't bought the modem yet. I don't
+>want to if it is going to give me problems.
+>
+>The 1.4 version of the driver (before integration into 2.5 series
+>kernel), is supposed to not work with SMP kernels (that's why I asked
+>in the first place). So I contacted the author (Johan Verrept) to ask on the status,
+>and he said he thought it was probably OK now, as it was in the 2.5
+>kernel.
+>
+>So I grabbed the 2.5.51 sources and looked at the see, and could see
+>no mention of a change to fix SMP. So I then contacted Richard Purdie,
+>who was the last person to make a change to the source. He said he
+>didn't know.
+>
+>So, is anyone using it on SMP?
+I was, until I got Bluetooth DSL access point :).
 
-Could you make a short list of the fixed bugs?
+I used to have PPPoE setup with Speedtouch modem on my Dual Athlon box. It was running 
+2.4.18 at that time. Most of the SMP problems were in the ATM code. I fixed some of them 
+and my patches went into 2.4.19. I did some hack to the driver itself but those
+were minor.
 
-On Tue, 17 Dec 2002, White, Charles wrote:
+Max
 
-> This patch fixes two minor bugs in cpqfc and makes it version 2.1.2.
->
-> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfc.Readme
-> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfc.Readme
-> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfc.Readme	Thu Oct 25
-> 16:53:50 2001
-> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfc.Readme	Tue Dec
-> 17 09:33:18 2002
-> @@ -22,6 +22,9 @@
->     * Makefile changes to bring cpqfc into line w/ rest of SCSI drivers
->       (thanks to Keith Owens)
->
-> +Ver 2.1.2  Jul 22, 2002
-> +   * initialize DumCmnd.lun (used as LUN index in fcFindLoggedInPort())
-> +
->  Ver 2.0.5  Aug 06, 2001
->     * Reject non-existent luns in the driver rather than letting the
->       hardware do it.  (some HW behaves differently than others in this
-> area.)
-> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSinit.c
-> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSinit.c
-> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSinit.c	Tue Dec 17
-> 09:25:01 2002
-> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSinit.c	Tue Dec
-> 17 13:18:20 2002
-> @@ -64,7 +64,7 @@
->
->  /* Embedded module documentation macros - see module.h */
->  MODULE_AUTHOR("Compaq Computer Corporation");
-> -MODULE_DESCRIPTION("Driver for Compaq 64-bit/66Mhz PCI Fibre Channel
-> HBA v. 2.1.1");
-> +MODULE_DESCRIPTION("Driver for Compaq 64-bit/66Mhz PCI Fibre Channel
-> HBA v. 2.1.2");
->  MODULE_LICENSE("GPL");
->
->  int cpqfcTS_TargetDeviceReset(Scsi_Device * ScsiDev, unsigned int
-> reset_flags);
-> @@ -411,6 +411,7 @@
->  	// can we find an FC device mapping to this SCSI target?
->  	DumCmnd.channel = ScsiDev->channel;	// For searching
->  	DumCmnd.target = ScsiDev->id;
-> +	DumCmnd.lun     = ScsiDev->lun;
->  	pLoggedInPort = fcFindLoggedInPort(fcChip, &DumCmnd,	//
-> search Scsi Nexus
->  					   0,	// DON'T search linked
-> list for FC port id
->  					   NULL,	// DON'T search
-> linked list for FC WWN
-> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSstructs.h
-> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSstructs.h
-> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSstructs.h	Tue Dec
-> 17 09:25:01 2002
-> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSstructs.h	Tue Dec
-> 17 09:33:18 2002
-> @@ -35,7 +35,7 @@
->  /* don't forget to also change MODULE_DESCRIPTION in cpqfcTSinit.c */
->  #define VER_MAJOR 2
->  #define VER_MINOR 1
-> -#define VER_SUBMINOR 1
-> +#define VER_SUBMINOR 2
->
->  /*
->   *	Macros for kernel (esp. SMP) tracing using a PCI analyzer
-> diff -urN linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSworker.c
-> linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSworker.c
-> --- linux-2.4.21-pre1.orig/drivers/scsi/cpqfcTSworker.c	Tue Dec 17
-> 09:25:01 2002
-> +++ linux-2.4.21-pre1.cpqfc212/drivers/scsi/cpqfcTSworker.c	Tue Dec
-> 17 09:41:11 2002
-> @@ -2706,6 +2706,10 @@
->  					// Report Luns command
->  					if
-> (pLoggedInPort->ScsiNexus.LunMasking == 1) {
->  						// we KNOW all the valid
-> LUNs... 0xFF is invalid!
-> +						if (Cmnd->lun >
-> sizeof(pLoggedInPort->ScsiNexus.lun)){
-> +							// printk("
-> cpqfcTS FATAL: Invalid LUN index !!!!\n ");
-> +							return NULL;
-> +						}
->  						Cmnd->SCp.have_data_in =
-> pLoggedInPort->ScsiNexus.lun[Cmnd->lun];
->  						if
-> (pLoggedInPort->ScsiNexus.lun[Cmnd->lun] == 0xFF)
->  							return NULL;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

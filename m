@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284300AbSBMOVz>; Wed, 13 Feb 2002 09:21:55 -0500
+	id <S285060AbSBMO0O>; Wed, 13 Feb 2002 09:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbSBMOVo>; Wed, 13 Feb 2002 09:21:44 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:47604
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S284300AbSBMOVf>; Wed, 13 Feb 2002 09:21:35 -0500
-Message-ID: <3C6A7657.9060708@debian.org>
-Date: Wed, 13 Feb 2002 15:21:11 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, en
+	id <S284732AbSBMOZ5>; Wed, 13 Feb 2002 09:25:57 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:19218 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S284933AbSBMOZq>; Wed, 13 Feb 2002 09:25:46 -0500
+Date: Wed, 13 Feb 2002 15:25:44 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Quick question on Software RAID support.
+In-Reply-To: <E16axOE-0004zX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202131414270.21300-100000@Megathlon.ESI>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Benjamin Pharr <ben@benpharr.com>, linux-kernel@vger.kernel.org
-Subject: Re: choice Help Sections 
-In-Reply-To: <fa.ntt6kfv.191g73i@ifi.uio.no> <fa.d3an46v.7mca03@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+On Wed, 13 Feb 2002, Alan Cox wrote:
 
-> ben@benpharr.com said:
+> > Is it supposed to detect a failed disk and *stop* using it?
 > 
->>Has anyone else noticed the availability of only one help section in
->>"choice" blocks when using make menuconfig (and others maybe?)? 
->>
+> Yes, it will stop using it and if appropriate try and do a rebuild
+
+So I guess something went wrong in my case. 
+The disk died bad. You could hear (from outsite the rack the PC was
+mounted on) a repeated sound of "Ziing -> TOC!". There's no way now to make
+a BIOS (or a DOS test tool) detect it.
+
+> > I had a raid1 IDE system, and it was continuosly raising hard errors on
+> > hdc (the disk was dead, non just some bad blocks): the net result was that
+> > it was unusable - too slow, too busy on IDE errors (a lot of them - even
+> > syslog wasn't happy).
 > 
->>The best example of this is selection of "Processor family". No matter
->>which option is highlighted when Help is selected, it always gives the
->>help for CONFIG_M386.
->>
+> Don't try and do "hot pluggable" IDE raid it really doesn't work out. With
+> scsi the impact of a sulking drive is minimal unless you get unlucky
+
+Does the above apply to ATA HW RAID controllers, too? I mean, is it
+something strictly related to electrical specs of the interface or
+is it possible to find workarounds? (whether a vendor apply them with
+success it's another story - I wonder if it's possible in theory)
+
+Anyway, the problem is not replacing the disk, is to have the system
+stop using it - automatically, without human action. If you say it is so,
+then I just must have been unlucky.
+
+> (I have here a failed SCSI SCA drive that hangs the entire bus merely by
+> being present - I use it to terrify HA people 8))
+
+the topic here is data safety, what do HA people know about it? B-)
+
+Again, do HW RAID ATA controllers have an hope to handle a failure better
+than the average IDE controllers you find integrated into a typical MB?
+
+Right now, to implement a 2+ disks RAID (sw) with IDE/ATA, I'd put
+one disk per channel, on some multi-channel controllers (i.e. some
+HPTs you've mentioned below). I'm just curious if RAID HW support brings
+something new into the game...  Here I'm considering resilience, not
+performance: I know (by experience) that 2 disks in the same channel
+is a small gain performance-wise.  I'm tempted to buy an HPT RocketRAID
+133 (just to name one): it supports (on paper / web) "disk mirroring,
+hot-spare options for automatic array-rebuilds, hot-swap support for
+swapping failed disks on the fly [...], and disk failure notification".
+I still think SW RAID is better, since I don't really like relying
+on a black box (read: some unknown firmware).
+
+> > BTW, given a 2 disks IDE raid1 setup (hda / hdc), does it pay to put a
+> > third disk in (say hdb) and configure it as "spare disk"? I've got 
+> > concerns about the slave not actually beeing able to operate if the
+> > master (hda) fails badly.
 > 
-> AFAIK the help text for choice entries has _always_ been implemented the 
-> way you observed - a single entry with the name of the first choice, which 
-> helps you decide what to choose - not individual entries for each possible 
-> choice.
+> Well placed concerns. I don't know what Andre thinks but IMHO spend the
+> extra $20 to put an extra highpoint controller in the machine for the third
+> IDE bus.
 > 
-> It looks like the current Configure.help is broken. I suggest you submit 
-> patches to correct it.
+> Alan
+> 
 
-
-The other items are ready for CML2. One of the Configure.help maintainers
-is also the maintainer of CML2, so...
-
-
-	giacomo
+TIA,
+.TM.
 

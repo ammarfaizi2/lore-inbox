@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315162AbSF3Mvq>; Sun, 30 Jun 2002 08:51:46 -0400
+	id <S315200AbSF3NCI>; Sun, 30 Jun 2002 09:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSF3Mvp>; Sun, 30 Jun 2002 08:51:45 -0400
-Received: from sto-vo-kor.koschikode.com ([213.61.61.142]:12819 "EHLO
-	sto-vo-kor.koschikode.com") by vger.kernel.org with ESMTP
-	id <S315162AbSF3Mvp>; Sun, 30 Jun 2002 08:51:45 -0400
-Message-ID: <3D1EFF5C.6010405@koschikode.com>
-Date: Sun, 30 Jun 2002 14:53:48 +0200
-From: Juri Haberland <juri@koschikode.com>
-Organization: totally unorganized
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: de-DE, en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S315202AbSF3NCH>; Sun, 30 Jun 2002 09:02:07 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:53637 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315200AbSF3NCH> convert rfc822-to-8bit;
+	Sun, 30 Jun 2002 09:02:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Juri Haberland <juri@koschikode.com>
 Subject: Re: Can't boot from /dev/md0 (RAID-1)
-References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301449.51190.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 30 Jun 2002 15:04:35 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301449.51190.roy@karlsbakk.net> <3D1EFF5C.6010405@koschikode.com>
+In-Reply-To: <3D1EFF5C.6010405@koschikode.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206301504.35221.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
->> Hi,
->> I had this once and resolved it with adding a "default" line to the
->> lilo.conf:
->> default = LinuxRaid
->>
->> Also have boot=/dev/md0, not boot=/dev/hda.
-> 
-> hm
-> 
-> I keep getting this one..
-> 
-> [root@jumbo root]# lilo
-> boot = /dev/hda, map = /boot/map.0301
-> Added linux2419rc1 *
-> Added linux2418
-> Added linux-orig
-> Fatal: Duplicate geometry definition for /dev/md0
-> 
-> Any ideas?
+> Hm, I'm no lilo nor raid expert, but I'd suggest to strip down the
+> lilo.conf to the defaults. E.g. I have:
+> prompt
+> timeout=50
+> default=linux
+> boot=/dev/md2
+> map=/boot/map
+> install=/boot/boot.b
+> message=/boot/message
+>
+> image=/boot/vmlinuz
+>         label=linux
+>         read-only
+>         root=/dev/md0
 
-Hm, I'm no lilo nor raid expert, but I'd suggest to strip down the
-lilo.conf to the defaults. E.g. I have:
-prompt
-timeout=50
-default=linux
-boot=/dev/md2
-map=/boot/map
-install=/boot/boot.b
-message=/boot/message
+hm...
+still gave me 'LI'
+I beleive it might be because LILO need to be installed on the first drive 
+BIOS finds (/dev/hdm). I might try to address it as 0x80? Do you think 
+that'll help?
 
-image=/boot/vmlinuz
-        label=linux
-        read-only
-        root=/dev/md0
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-
+Computers are like air conditioners.
+They stop working when you open Windows.
 

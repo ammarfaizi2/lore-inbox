@@ -1,70 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbSKLAbE>; Mon, 11 Nov 2002 19:31:04 -0500
+	id <S265361AbSKLAiK>; Mon, 11 Nov 2002 19:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSKLAbE>; Mon, 11 Nov 2002 19:31:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26893 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265725AbSKLAbD>; Mon, 11 Nov 2002 19:31:03 -0500
-Date: Tue, 12 Nov 2002 00:37:43 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] flush_cache_page while pte valid
-Message-ID: <20021112003743.A968@flint.arm.linux.org.uk>
-Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org
-References: <3DD01F1E.2040705@colorfullife.com>
+	id <S265385AbSKLAiK>; Mon, 11 Nov 2002 19:38:10 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:28317 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265361AbSKLAiJ>;
+	Mon, 11 Nov 2002 19:38:09 -0500
+Subject: [ANNOUNCE] linux-2.5.47-dcl1
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Nov 2002 16:44:57 -0800
+Message-Id: <1037061897.12335.43.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DD01F1E.2040705@colorfullife.com>; from manfred@colorfullife.com on Mon, Nov 11, 2002 at 10:20:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 10:20:30PM +0100, Manfred Spraul wrote:
-> > 	/* Nuke the page table entry. */
-> >+	flush_cache_page(vma, address);
-> > 	pte = ptep_get_and_clear(ptep);
-> > 	flush_tlb_page(vma, address);
-> >-	flush_cache_page(vma, address);
-> > 
-> 
-> Is it correct that this are 3 arch hooks that must appear back to back?
-> What about one hook with all parameters?
-> 
-> 	pte = ptep_get_and_clear_and_flush(ptep, vma, address);
-> 
-> The current implementation just asks for such errors.
+This is an early release version that enables common CGL and DCL
+development. It is in two pieces: a common subset of CGL and DCL; and a
+separate patch for DCL only stuff. The generic patches are for
+enhancements that are yet to make the main kernel stream but are
+requested by both Carrier Grade Linux (CGL) and Data Center (DCL). The
+second patch applies after the first one and has enhancements that are
+applicable mostly to large data center systems.
 
-Its actually a very simple rule.  The sequence must be:
+The latest release is available patches on 
+	http://sourceforge.net/projects/osdldcl
+or public BitKeeper repositories
+	Common code: bk://bk.osdl.org/linux-2.5-osdl 
+	DCL + common code: bk://bk.osdl.org/linux-2.5.-dcl
 
-- flush cache for area
-- change pte entries in area
-- flush tlb for area
+The kernel compiles and runs on SMP and UP systems; it passes the basic
+tests but has not been extensively stress tested yet.  The crash dump
+and trace code has not been validated yet. NUMA testing has not been
+done yet.
 
-Anything else is just buggy, and may very well be racy.  Think about the
-race when you flush the tlb entry before changing the pte.
+CGL+DCL common enhancements: linux-2.5.47-osdl.diff.bz2
+ * Linux Trace Toolkit (LTT)          (Karim Yaghmour)
 
-Rather than creating a new interface that's only useful for 10% of the
-cases, I'd prefer to keep the rule personally.  The smaller the number
-of functions each with their own particular set of behaviours doing
-almost the same job, the less chance of getting the wrong function.
-And, IMHO, the easier it is to audit the code.
+ * Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
+ *   Network crash dumps	      (Mohammed Abbas)
 
-grep -4 ptep_get_and_clear mm/*.c
+ * Kernel Config storage              (Khalid Aziz, Randy Dunlap)
 
-vs
+ * DAC960 driver fixes                (Dave Olien)
 
-"Is this the right function here?"
+DCL specific: dcl-2.5.47.diff.bz2
+  
+* NUMA scheduler enhancements         (Erich Focht, Michael Hohnbaum)
 
-PS, I see one place where "ptep_get_and_clear_and_flush" would be useful
-out of 6 uses.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Getting Involved
+----------------
+If interested in development of DCL, please subscribe to dcl_discussion
+mailing list at http://lists.osdl.org/mailman/listinfo
+
+This kernel has been built and run on a small set of machines, SMP
+and UP. Testers are encouraged to exercise the features especially on
+large SMP and NUMA architectures.  If a problem is found, please
+compare the result with a standard 2.5.46 kernel.  Please report any
+problems or successes to the mailing list.
+
+Developers are encouraged to send any enhancements or bug fixes
+patches. Patches should be tested by using the OSDL Scalable Test
+Platform (STP) and Patch Lifecycle Manager (PLM) facilities.
+
+
+
+
+
+
+
+
 

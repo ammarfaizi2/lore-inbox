@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271703AbTHDLLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 07:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271704AbTHDLLM
+	id S271704AbTHDLoz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 07:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271707AbTHDLoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 07:11:12 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:65523 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S271703AbTHDLLL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 07:11:11 -0400
-Subject: Re: [PATCH] (2.4.2x) Driver for Medley software RAID (Silicon
-	Image 3112 SATARaid, CMD680, etc?) for testing
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Thomas Horsten <thomas@horsten.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0308041242030.22732-100000@jehova.dsm.dk>
-References: <Pine.LNX.4.40.0308041242030.22732-100000@jehova.dsm.dk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Gtvx1sr92gNBniCFGmgS"
-Organization: Red Hat, Inc.
-Message-Id: <1059995461.5291.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 04 Aug 2003 13:11:01 +0200
+	Mon, 4 Aug 2003 07:44:55 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:19857
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271704AbTHDLox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 07:44:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] O12.3 for interactivity
+Date: Mon, 4 Aug 2003 21:50:01 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308042150.01715.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a small patch against O12.2. This should not change peformance in any 
+way but removes redundant code (which we all love to do). Ingo pointed out
+that new forks wont have any sleep time to earn as sleep_avg. It is also
+extrememly unlikely that there won't be any sleep time with nanosecond 
+timing. Patch applies to 2.6.0-test2-mm4 or test2 patched with O12.2.
 
---=-Gtvx1sr92gNBniCFGmgS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Con
 
-On Mon, 2003-08-04 at 12:49, Thomas Horsten wrote:
+diff -Naurp linux-2.6.0-test2-mm4/kernel/sched.c linux-2.6.0-test2-mm4-O12.3/kernel/sched.c
+--- linux-2.6.0-test2-mm4/kernel/sched.c	2003-08-04 20:16:02.000000000 +1000
++++ linux-2.6.0-test2-mm4-O12.3/kernel/sched.c	2003-08-04 20:19:10.000000000 +1000
+@@ -365,9 +365,6 @@ static void recalc_task_prio(task_t *p, 
+ 	unsigned long long __sleep_time = now - p->timestamp;
+ 	unsigned long sleep_time;
+ 
+-	if (unlikely(!p->timestamp))
+-		__sleep_time = 0;
+-
+ 	if (__sleep_time > NS_MAX_SLEEP_AVG)
+ 		sleep_time = NS_MAX_SLEEP_AVG;
+ 	else
+@@ -420,8 +417,7 @@ static void recalc_task_prio(task_t *p, 
+ 				p->interactive_credit++;
+ 			}
+ 		}
+-	} else if (!p->sleep_avg)
+-		p->interactive_credit--;
++	}
+ 
+ 	p->prio = effective_prio(p);
+ }
+@@ -454,9 +450,6 @@ static inline void activate_task(task_t 
+ 	 */
+ 		p->activated = 1;
+ 
+-	if (unlikely(!p->timestamp))
+-		p->activated = 0;
+-
+ 	p->timestamp = now;
+ 
+ 	__activate_task(p, rq);
+@@ -644,7 +637,6 @@ void wake_up_forked_process(task_t * p)
+ 	p->sleep_avg = JIFFIES_TO_NS(sleep_avg);
+ 
+ 	p->interactive_credit = 0;
+-	p->timestamp = 0;
+ 
+ 	p->prio = effective_prio(p);
+ 	set_task_cpu(p, smp_processor_id());
 
-> I was under the impression that silraid.c never worked at all (it
-> certainly didn't on my system), because the magic number it looks for is
-> incorrect (actually, part of the drive's serial number), and thus not
-> present on all systems with this RAID).
-
-well... that's a 1 line fix to silraid.c......
-
-
---=-Gtvx1sr92gNBniCFGmgS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/Lj9FxULwo51rQBIRAr2hAKCH70Stp9W+Enju9qgiUxjPnCIhuACdFdNH
-8nFTxUfLC13nm7lqrhUJXBQ=
-=iNeQ
------END PGP SIGNATURE-----
-
---=-Gtvx1sr92gNBniCFGmgS--

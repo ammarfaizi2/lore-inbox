@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290333AbSCCXZN>; Sun, 3 Mar 2002 18:25:13 -0500
+	id <S290587AbSCCXYx>; Sun, 3 Mar 2002 18:24:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290423AbSCCXZF>; Sun, 3 Mar 2002 18:25:05 -0500
-Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:9942 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S290333AbSCCXYo>; Sun, 3 Mar 2002 18:24:44 -0500
-Date: Sun, 03 Mar 2002 15:33:45 -0800
-From: Shaun Jackman <sjackman@shaw.ca>
-Subject: swsusp: Unable to find swap-space signature
-In-Reply-To: <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
+	id <S290423AbSCCXYe>; Sun, 3 Mar 2002 18:24:34 -0500
+Received: from mnh-1-08.mv.com ([207.22.10.40]:1802 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S290333AbSCCXY0>;
+	Sun, 3 Mar 2002 18:24:26 -0500
+Message-Id: <200203032327.SAA04176@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <E16hfU9-00009r-00@quince.jackman>
-MIME-version: 1.0
-X-Mailer: KMail [version 1.3.2]
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-In-Reply-To: <E16gLkD-0000KR-00@quince.jackman>
- <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Sun, 03 Mar 2002 22:01:30 GMT."
+             <E16he2s-0005ak-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 03 Mar 2002 18:27:20 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I'm making progress.
-I have 128 MB RAM, and a single 256 MB swap partition.
-I pressed SysRq-D, swsusp displayed all sorts of successful messages, and 
-then rebooted my computer. (can I get it to poweroff my computer instead of 
-reboot it?)
+alan@lxorguk.ukuu.org.uk said:
+> No - you think you want to dirty the pages - you want to account the
+> address space. What you want to do is run 2.4.18ac3 and do
+> 	echo "2" > /proc/sys/vm/overcommit_memory
+> which on a good day will give you overcommit protection. Your map
+> requests will fail without the pages being dirtied and the extra swap
+> that would cause.
 
-When it started up again, the kernel displayed the message "Unable to find 
-swap-space signature" and went on to fsck. The swap partition seemed dead. I 
-ran mkswap and swapon to get my swap partition back.
+That doesn't sound right to me.
 
-Any idea what went wrong? I'd love to get swsusp working.
+I don't have individual little map requests going on here.  I have a single
+large map happening at boot time which creates the UML "physical" memory
+area.  
 
-Thanks,
-Shaun
+So, say I have a 128M UML which is only ever going to use 32M of that.  If 
+there isn't 128M of address space, but there is 32M, this UML will never
+get off the ground, even though it really deserved to.
+
+About the swap allocation, I'd bet essentially all the time when a page
+is allocated, its dirtiness is imminent anyway.  So, I'm not adding anything
+to swap.  It'll be there a usec later anyway.  What I want is for the dirtying
+to happen in a controlled place where something sane can be done if the page
+isn't really there.
+
+				Jeff
+

@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293096AbSB1AUQ>; Wed, 27 Feb 2002 19:20:16 -0500
+	id <S293034AbSB1AfM>; Wed, 27 Feb 2002 19:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293095AbSB1ATc>; Wed, 27 Feb 2002 19:19:32 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:53936 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S293094AbSB1ATJ>; Wed, 27 Feb 2002 19:19:09 -0500
-To: linux-kernel@vger.kernel.org
-From: Jonathan Hudson <jonathan@daria.co.uk>
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-x-no-productlinks: yes
-X-Comment-To: Alan Cox
-In-Reply-To: <fa.kjtklqv.gnqri3@ifi.uio.no> <fa.g63p78v.1e7kv8e@ifi.uio.no>
-Subject: Re: Linux 2.4.19pre1-ac1
-X-Newsgroups: fa.linux.kernel
-Content-Type: text/plain; charset=iso-8859-1
-NNTP-Posting-Host: daria.co.uk
-Message-ID: <7180.3c7d7778.11315@trespassersw.daria.co.uk>
-Date: Thu, 28 Feb 2002 00:19:04 GMT
+	id <S293105AbSB1Aef>; Wed, 27 Feb 2002 19:34:35 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:2688
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S293034AbSB1Ad6>; Wed, 27 Feb 2002 19:33:58 -0500
+Date: Wed, 27 Feb 2002 16:33:41 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj2 oops
+In-Reply-To: <Pine.LNX.4.10.10202271301180.8641-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.33.0202271633120.11102-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <fa.g63p78v.1e7kv8e@ifi.uio.no>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
->> >> With 19-pre1-ac1 on a reiserfs partition I cannot patch a kernel. Patch
->> >> fails with "Invalid cross-device link" or "Out of disk space".
->> AF> 
->> AF> I can reproduce this too on ext2, so this does not seem to be FS related. 
->> 
->> Likewise (reiserfs here). Numerous fuzz or outright patch failures
->> with 2.4.19-pre1-ac1.
-AC> 
-AC> See the other mail for the questions - and reply to that too if you can. 
-AC> Right now I've not managed to reproduce it. Do you see the problem on
-AC> 2.4.19-pre1 (non -ac) [that has the same reiserfs changes in as -ac does]
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-There were no problems with 2.4.19-pre1, to which I reverted, pulled
-the full 2.4.18, and patched back up to 2.4.19-pre1-ac2.
+On Wed, 27 Feb 2002, James Simmons wrote:
 
-Booted into 2.4.19-pre1-ac2.
+> > Okay folks. Here is another patch to fix the oops. It is against a
+> > http://www.transvirtual.com/~jsimmons/console/console_8.diff
+>
+> Okay. This time I believe I see what caused the oops. Give it a try again.
 
-Patched back down to 2.4.18 and then back up to 2.4.19-pre1-ac2 again,
-no problems seen.
+Yes, that cures both the oopses when mingetty runs and the oops when X
+starts up.
 
-Rebuilt 2.4.19-pre1-ac2 in 2.4.19-pre1-ac2. Reboot.
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Ran the following twice.
-
-for i in $(seq 1 10)
-do 
- bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1-ac2.bz2 | patch -p1 -R
- bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1.bz2 | patch -p1 -R
- sleep 1
- bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1.bz2 | patch -p1  
- bzcat /net/tw/home/jrh/dl/patch-2.4.19-pre1-ac2.bz2 | patch -p1 
- echo "===========>" Step $i 
-done
-
-No problems seen. ac1 would have not have survived the above, so I'm
-pretty sure that 2.4.19-pre1-ac2 has fixed the pre1 problems.
-
+iD8DBQE8fXrpsYXoezDwaVARAnAbAJ9FBEkSADZvaKQBjqB5d4UkUhc7qACePtLZ
+VTP8NkCNQhTCGtyObrM6MTM=
+=qbAS
+-----END PGP SIGNATURE-----
 

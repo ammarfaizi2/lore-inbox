@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290113AbSA3Qq3>; Wed, 30 Jan 2002 11:46:29 -0500
+	id <S289918AbSA3QvH>; Wed, 30 Jan 2002 11:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290084AbSA3QpL>; Wed, 30 Jan 2002 11:45:11 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:21777 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S290018AbSA3QoM>; Wed, 30 Jan 2002 11:44:12 -0500
-Date: Wed, 30 Jan 2002 19:44:08 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Dave Jones <davej@suse.de>, Sebastian Dr?ge <sebastian.droege@gmx.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-Message-ID: <20020130194408.A2153@namesys.com>
-In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020130174011.L24012@suse.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S290119AbSA3Qtj>; Wed, 30 Jan 2002 11:49:39 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11529 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290120AbSA3Qsz>;
+	Wed, 30 Jan 2002 11:48:55 -0500
+Date: Wed, 30 Jan 2002 14:47:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Larry McVoy <lm@bitmover.com>, Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33.0201301933390.11022-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L.0201301445430.11594-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 30 Jan 2002, Ingo Molnar wrote:
+> On Wed, 30 Jan 2002, Larry McVoy wrote:
+>
+> > How much of the out order stuff goes away if you could send changes
+> > out of order as long as they did not overlap (touch the same files)?
+>
+> could this be made: 'as long as they do not touch the same lines of
+> code, taking 3 lines of context into account'? (ie. unified diff
+> definition of 'collisions' context.)
 
-On Wed, Jan 30, 2002 at 05:40:11PM +0100, Dave Jones wrote:
->  > I can reproduce this problem on IDE only.
->  > Hm, may be this is IDE corruption thing, Andre Hendrick spoke about,
->  > or was it fixed already?
->  > I am looking into it anyway.
->  There were no IDE changes in my tree recently, and its strange
->  that this only shows up in reiserfs since the new set of patches
->  went in. I've no reports from users of other filesystems with any
->  problems, so I'm suspecting a rogue change in your last update.
->  Finding a common factor seems tricky, as it works flawlessly here
->  on IDE [*], but dies instantly for others.
-You do not play with a hdparm in your boot scripts, do you?
-I do (will retry without this now).
-How about others?
+That would be _wonderful_ and fix the last bitkeeper
+problem I'm having once in a while.
 
-Bye,
-    Oleg
+cheers,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

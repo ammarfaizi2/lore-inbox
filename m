@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129038AbQKFKzD>; Mon, 6 Nov 2000 05:55:03 -0500
+	id <S129044AbQKFK7X>; Mon, 6 Nov 2000 05:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129098AbQKFKyx>; Mon, 6 Nov 2000 05:54:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56906 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129038AbQKFKyg>; Mon, 6 Nov 2000 05:54:36 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Mon, 6 Nov 2000 10:53:23 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), oxymoron@waste.org (Oliver Xymoron),
-        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
-In-Reply-To: <3A065CDD.BF15B3AC@mandrakesoft.com> from "Jeff Garzik" at Nov 06, 2000 02:25:17 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129098AbQKFK7N>; Mon, 6 Nov 2000 05:59:13 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:17658 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129044AbQKFK7G>;
+	Mon, 6 Nov 2000 05:59:06 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <2214.973473372@kao2.melbourne.sgi.com> 
+In-Reply-To: <2214.973473372@kao2.melbourne.sgi.com> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.0-test10-pre6 remove get_module_symbol MTD/DRM/AGP 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13sju0-00065u-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 06 Nov 2000 10:58:31 +0000
+Message-ID: <22235.973508311@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Implement a way for a userspace tool to get the correct mixer levels in
-> > place at the time the sound hardware is reset, so there are no glitches in
-> > the levels, and I'll agree with you.
-> 
-> Linux-Mandrake's initscripts run aumix on bootup and shutdown, to take
-> care of this...
 
-And they don't solve the problem David was talking about. There is a short
-deeply unpleasant scream from some soundcards on reload because the card init
-and the 0.5-1 second later aumix run dont stop the feedback loop fast enough
-when a mic is plugged in
+kaos@ocs.com.au said:
+>  Any comments before it goes to Linus? 
+
+I'd prefer to update MTD separately if and when the inter_module_xxx 
+support gets into both 2.2 and 2.4. 
+
+Could you first provide a patch which adds this support - when it's merged 
+into both 2.2 and 2.4 I'll update the MTD code without needing to keep 
+backwards-compatibility, and then we can remove get_module_symbol() altogether.
+
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

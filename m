@@ -1,39 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262685AbTCVMfZ>; Sat, 22 Mar 2003 07:35:25 -0500
+	id <S262769AbTCVMvN>; Sat, 22 Mar 2003 07:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262699AbTCVMfZ>; Sat, 22 Mar 2003 07:35:25 -0500
-Received: from holomorphy.com ([66.224.33.161]:11923 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262685AbTCVMfY>;
-	Sat, 22 Mar 2003 07:35:24 -0500
-Date: Sat, 22 Mar 2003 04:46:07 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jos Hulzink <josh@stack.nl>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.65: oops: EIP at current_kernel_time +0x0f/0x40
-Message-ID: <20030322124607.GB30140@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jos Hulzink <josh@stack.nl>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org
-References: <200303221252.12226.josh@stack.nl> <20030322041758.3ee1fed8.akpm@digeo.com> <200303221334.41355.josh@stack.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303221334.41355.josh@stack.nl>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262770AbTCVMvN>; Sat, 22 Mar 2003 07:51:13 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22797 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262769AbTCVMvL>; Sat, 22 Mar 2003 07:51:11 -0500
+Date: Sat, 22 Mar 2003 14:02:00 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Andries.Brouwer@cwi.nl, <linux-kernel@vger.kernel.org>, <akpm@digeo.com>
+Subject: Re: [PATCH] alternative dev patch
+In-Reply-To: <20030322013800.GD18835@kroah.com>
+Message-ID: <Pine.LNX.4.44.0303221306350.5042-100000@serv>
+References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
+ <Pine.LNX.4.44.0303202314210.5042-100000@serv> <20030321012455.GB10298@kroah.com>
+ <Pine.LNX.4.44.0303210936590.5042-100000@serv> <20030322013800.GD18835@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 01:34:41PM +0100, Jos Hulzink wrote:
-> Gee, you guys are good. Now I'm only left wondering how this setting could be 
-> reset to PIV, while I'm sure I set it to PII (as you can see from earlier 
-> postings, I managed to get it running till a SCSI lockup caused by probably 
-> IRQ prioblems). For now I'll not blame the kernel and tell myself I'm stupid 
-> ;-)
+Hi,
 
-Which SCSI? I've been seeing numerous aic7xxx badnesses ca. whatever bk
-snapshot 2.5.65-mm2 was based on. Still looking for the use-after-free...
+On Fri, 21 Mar 2003, Greg KH wrote:
 
+> > The BKL also shouldn't be a reason to make it unnecessary expensive? I 
+> > don't understand your argument.
+> 
+> I was trying to point out that pre-mature optimiziation of this code
+> should not be done before we get rid of the most expensive portion, the
+> bkl.  That's all.
 
--- wli
+Can we at least note, that my patch has a performance advantage?
+We can still deal with the BKL later.
+I hope we can agree, that we should avoid adding premature new 
+interfaces, which can be expensive later?
+
+> So only tty drivers currently do this.  But that might just be because
+> it's pretty hard to get a range of minors right now, as the api hasn't
+> been present.  Once we expand the range, I bet it will get quite common
+> (most character drivers only want from 1-16 minors normally.)
+
+There are a few options:
+1. Drivers can implement that themselves:
+a) The driver allocates the major itself and opens the real minor device 
+in its open function, (e.g. see the misc driver example). Especially tape 
+drivers have to do this anyway, because they encoded the open mode in 
+higher bits, so regions won't help you here at all.
+b) The driver allocates the major itself and installs the file_operations 
+directly in the char_device, e.g. that is something you might want to do 
+in the usb driver:
+
+register_usb_device(...)
+{
+	...
+	cdev = cdget(dev);
+	down(&cdev->sem);
+	if (cdev->fops)
+		...;
+	cdev->fops = fops;
+	up(&cdev->sem);
+}
+(see the misc driver again for a detailed example.)
+
+2. If it should be really needed, we can add simple region support by 
+adding a minor_shift argument to the major device, so get_chrfops() would 
+first try (major, minor & ((1 << shift) - 1)), before it tries directly 
+(major, 0).
+
+So I really don't see why we should support arbitrary regions, since 
+currently nobody needs it and if someone should need it in the future, he 
+can easily do it himself.
+
+> > /proc/devices, /proc/misc, /proc/tty/drivers, ... is currently mostly 
+> > needed to generate device nodes for dynamic device numbers. This badly 
+> > needs a more generic mechanism.
+> 
+> I agree.  But again, 2.7.  Remember our feature freeze?
+
+I agree too and nowhere in my patch did I change something about this.
+
+bye, Roman
+

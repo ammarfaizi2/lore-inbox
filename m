@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129932AbRCAVYw>; Thu, 1 Mar 2001 16:24:52 -0500
+	id <S130043AbRCAV0c>; Thu, 1 Mar 2001 16:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130043AbRCAVYn>; Thu, 1 Mar 2001 16:24:43 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56591 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129932AbRCAVYg>; Thu, 1 Mar 2001 16:24:36 -0500
-Message-ID: <3A9EBDF4.57C769AF@transmeta.com>
-Date: Thu, 01 Mar 2001 13:24:04 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Pavel Machek <pavel@suse.cz>, Bill Crawford <billc@netcomuk.co.uk>,
+	id <S130050AbRCAV0W>; Thu, 1 Mar 2001 16:26:22 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:55026 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S130043AbRCAV0K>; Thu, 1 Mar 2001 16:26:10 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103012123.f21LNNL30827@webber.adilger.net>
+Subject: Re: Hashing and directories
+In-Reply-To: <3A9EB984.C1F7E499@transmeta.com> from "H. Peter Anvin" at "Mar
+ 1, 2001 01:05:08 pm"
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Date: Thu, 1 Mar 2001 14:23:23 -0700 (MST)
+CC: Alexander Viro <viro@math.psu.edu>, Pavel Machek <pavel@suse.cz>,
+        Bill Crawford <billc@netcomuk.co.uk>,
         Linux Kernel <linux-kernel@vger.kernel.org>,
         Daniel Phillips <phillips@innominate.de>
-Subject: Re: Hashing and directories
-In-Reply-To: <Pine.GSO.4.21.0103011608360.11577-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> I _really_ don't want to trust the ability of shell to deal with long
-> command lines. I also don't like the failure modes with history expansion
-> causing OOM, etc.
-> 
-> AFAICS right now we hit the kernel limit first, but I really doubt that
-> raising said limit is a good idea.
-> 
+H. Peter Anvin writes [re hashed directories]:
+> I don't see there being any fundamental reason to not do such an
+> improvement, except the one Alan Cox mentioned -- crash recovery --
+> (which I think can be dealt with; in my example above as long as the leaf
+> nodes can get recovered, the tree can be rebuilt.
 
-Arbitrary limits are generally bad.  Yes, using a very long command line
-is usually a bad idea, but there are cases for which it is the only
-reasonable way to do something.  Categorically blocking them is not a
-good idea either.
+Actually, with Daniel's implementation, the index blocks will be in
+the same file as the directory leaf nodes, so there should be no problem
+in losing leaf blocks after a crash (not more so than the current ext2
+setup).
 
-> xargs is there for purpose...
-
-Well, yes; using xargs is a good idea, not the least because it enables
-some parallelism that wouldn't otherwise be there.
-
-	-hpa
-
+Cheers, Andreas
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbTIQVLD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 17:11:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbTIQVLD
+	id S262789AbTIQVMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTIQVMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 17:11:03 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:8883 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S262726AbTIQVLA convert rfc822-to-8bit (ORCPT
+	Wed, 17 Sep 2003 17:12:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54970 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262821AbTIQVMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 17:11:00 -0400
-Date: Wed, 17 Sep 2003 23:10:57 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Subject: Re: Patch: Make iBook1 work again
-In-Reply-To: <1063829278.600.184.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309172304470.8512-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 17 Sep 2003 17:12:17 -0400
+Date: Wed, 17 Sep 2003 13:53:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: aknuds-1@broadpark.no, linux-kernel@vger.kernel.org
+Subject: Re: Changes in siimage driver?
+Message-Id: <20030917135323.1f24c88a.akpm@osdl.org>
+In-Reply-To: <1063816835.12648.90.camel@dhcp23.swansea.linux.org.uk>
+References: <oprvnjyf2oq1sf88@mail.broadpark.no>
+	<1063816835.12648.90.camel@dhcp23.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Mer, 2003-09-17 at 17:26, Arve Knudsen wrote:
+> > X66 etc.) with hdparm, I get ~50MB/S. It's not an ideal solution since now 
+> > and then I get a bunch of "disabling irq #18" messages after running 
+> > hdparm (I think, its part of the startup scripts), and I have to restart.
+> 
+> That is a bug in the 2.6.0 core still.
 
+How come this driver is returning IRQ_NONE so much?
 
-On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
+> Just hack out the code which does
+> the IRQ disable on too many apparently unidentified interrupts.
 
-> Unfortunately, the wallstreet doesn't work neither. I get something strange on the
-> screen. It's somewhat sync'ed but divided in 4 vertical stripes, each one displaying
-> the left side of the display (+/- offseted), along with some fuzziness (clock wrong).
-
-Actually, is the problem perhaps this:
-
-Let's assume we have columns numbered from 0 to 79 i.e.
-
-00000000001111111111222222222233333333334444444444555555555566666666667777777777
-01234567890123456789012345678901234567890123456789012345678901234567890123456789
-
-Perhaps your display is like this:
-
-00000000001111111111000000000011111111110000000000111111111100000000001111111111
-01234567890123456789012345678901234567890123456789012345678901234567890123456789
-                   **                  **                  **              *****
-
-Around the areas marked with ** there can be a lot of noise.
-
-??
-
-
-If this is the case I know the cause.
-
-Greetings,
-
-Daniël
+You can boot with the `noirqdebug' option to disable it.
 

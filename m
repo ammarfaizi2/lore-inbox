@@ -1,111 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289224AbSBNAXh>; Wed, 13 Feb 2002 19:23:37 -0500
+	id <S289226AbSBNA0r>; Wed, 13 Feb 2002 19:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289226AbSBNAX2>; Wed, 13 Feb 2002 19:23:28 -0500
-Received: from iggy.triode.net.au ([203.63.235.1]:29374 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S289224AbSBNAXL>; Wed, 13 Feb 2002 19:23:11 -0500
-Date: Thu, 14 Feb 2002 11:22:20 +1100
-From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
-To: bob@dwcs.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x ALI IDE strangeness
-Message-ID: <20020214112220.A21385@iggy.triode.net.au>
-In-Reply-To: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net> <20020214100511.A11641@iggy.triode.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020214100511.A11641@iggy.triode.net.au>; from kernel@iggy.triode.net.au on Thu, Feb 14, 2002 at 10:05:11AM +1100
+	id <S289228AbSBNA0i>; Wed, 13 Feb 2002 19:26:38 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:398 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289226AbSBNA0Y>;
+	Wed, 13 Feb 2002 19:26:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [patch] sys_sync livelock fix
+Date: Thu, 14 Feb 2002 01:26:42 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+        lkml <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16b9jW-0002QL-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just compiled 2.4.17 with  patch-2.4.18-pre9-ac3, the result is
-that the machine locks up when compiling a kernel with DMA off
-or DMA on. 
+On February 13, 2002 11:24 pm, Bill Davidsen wrote:
+> On Wed, 13 Feb 2002, Daniel Phillips wrote:
+> 
+> > On February 13, 2002 04:46 am, Jeff Garzik wrote:
+> 
+> > > Yow, your message inspired me to re-read SuSv2 and indeed confirm,
+> > > sync(2) schedules I/O but can return before completion,
+> > 
+> > I think that's just stupid and we have a duty to fix it, it's an anachronism.
+> > The _natural_ expectation for the user is that sync means 'don't come back
+> > until data is on disk' and any other interpretation is just apologizing for
+> > halfway implementations.
+> 
+> Feel free to join a standards committee.
 
-With 2.4.17 and patch-2.4.18-pre9 my machine only locks up when 
-DMA is turned on. 
+I did, it's the LCSG (Linux Cabal Standards Group) :-)
 
-As part of the testing I've taken out all of the LILO append
-parameters.
+> In the mean time, I agree we have
+> a duty to fix it, since the current implementation can hang forever
+> without improving the securty of the data one bit, therefore sync(2)
+> should return after all data generated before the sync has been written
+> and not wait for all data written by all processes in the system to
+> complete.
 
-I'd appreciate any suggestions on how to proceed with testing
-on what I suspect is an ALI chipset related issue.
+Yes, absolutely, that's a bug.
 
-Regards.  Paul
+> BTW: I think users would expect the system call to work as the standard
+> specifies, not some better way which would break on non-Linux systems. Of
+> course now working programs which conform to the standard DO break on
+> Linux.
 
+No, it should work in the _best_ way, and if the standard got it wrong then
+the standard has to change.
 
+> > For dumb filesystems, this can degenerate to 'just try to write all the dirty
+> > blocks', the traditional Linux interpretation, but for journalling filesystems
+> > we can do the job properly.
+> 
+> It doesn't matter, if you write the existing dirty buffers the filesystem
+> type is irrelevant.
 
-On Thu, Feb 14, 2002 at 10:05:11AM +1100, Linux Kernel Mailing List wrote:
-> Bob,
-> 
-> I'm also experiencing strange hangs with DMA on and ALI15x3.
-> I'm using an ASUS A7A266 motherboard.
-> 
-> Make sure that the BIOS setting of "PNP OS" is off
-> 
-> I can turn DMA on using hdparm, however my system freezes up
-> if I try some heavy work like a kernel compile.
-> 
-> I'm sure there is a kernel bug here, I'm trying to find
-> a kernel developer who is interested in investigating it.
-> 
-> Regards.  Paul
-> 
-> 
-> 
-> On Wed, Feb 13, 2002 at 05:32:35PM -0500, bob@dwcs.net wrote:
-> > When using any 2.4.x kernel, including the very latest one, with my
-> > Fujitsu Lifebook P which uses the ALI  M5229 IDE controller it acts much
-> > different than when using any 2.2.x  kernels that I have tried.  When
-> > using the latest 2.2 kernels and not including specific support for the
-> > ALI controller the kernel detects the controller and lets me use DMA.
-> > When compiling in ALI IDE support in either 2.2 or 2.4 kernels the system
-> > hangs when the controller is detected.
-> > That isn't really much of a problem in the 2.2 kernels because I can just
-> > use the generic IDE support.  In the 2.4 kernel series though, I can't
-> > enable DMA.  When booting with a 2.4 kernel I get this:
+Incorrect.  The modern crop of filesystems has the concept of consistency
+points, and data written after a consistency point is irrelevant except to the
+next consistency point.  IOW, it's often ok to leave some buffers dirty on a
+sync.  But for a dumb filesystem you just have to guess at what's needed for
+a consistency point, and the best guess is 'whatever's dirty at the time of
+sync'.
+
+For metadata-only journalling the issues get more subtle and we need a ruling
+from the ext3 guys.
+
+> And if you have cache in your controller and/or drives
+> the data might be there and not on the disk.
+
+We're working on that, see Jen's recent series of patches re barriers.
+
+> If you have those IBM drives
+> discussed a few months ago and a bad sector, the drive may drop the data.
+> The point I'm making is that doing it really right is harder than it
+> seems.
+
+That's being worked on too, see Andre Hedrik's linuxdiskcert.org.
+
+> Also, there are applications which don't like journals because they create
+> and delete lots of little files, or update the file information
+> frequently, resulting in a write to the journal. Sendmail, web servers,
+> and usenet news do this in many cases. That's why the noatime option was
+> added.
+
+Sorry, I don't see the connection to sync.
+
+> > > while fsync(2) schedules I/O and waits for completion.
 > > 
-> > Uniform Multi-Platform E-IDE driver Revision: 6.31
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with
-> > idebus=xx
-> > ALI15X3: IDE controller on PCI bus 00 dev 78
-> > PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
-> > pci=biosirq.
-> > ALI15X3: chipset revision 195
-> > ALI15X3: not 100% native mode: will probe irqs later
-> > ALI15X3: simplex device:  DMA disabled
-> > ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
-> > ALI15X3: simplex device:  DMA disabled
-> > ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+> > Yes, right.
 > > 
-> > Then hdparm absolutely will not let me enable DMA giving me this error:
+> > > So we need to implement system call checkpoint(2) ?  schedule I/O,
+> > > introduce an I/O barrier, then sleep until that I/O barrier and all I/O
+> > > scheduled before it occurs.
 > > 
-> > /dev/hda:
-> >  setting using_dma to 1 (on)
-> >  HDIO_SET_DMA failed: Operation not permitted
-> >  using_dma    =  0 (off)
-> > 
-> > 
-> > Changing the PNP OS value in the BIOS to either Yes or No does absolutely
-> > nothing and using "pci=biosirq" just makes the part that says "Please try
-> > using pci=biosirq." go away.
-> > 
-> > However, on accident I discovered if I boot with a 2.2 kernel, reset the
-> > computer instead of powering off, then boot with a 2.4 kernel it will let
-> > me enable DMA.
-> > 
-> > Is there anything I could try to make DMA work with the 2.4 series?
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > How about adding: sync --old-broken-way
+> 
+> The problem is that the system call should work in a way which doesn't
+> violate the standard.
+
+Waiting until the data is on the platter doesn't violate SuS.
+
+> I think waiting for all existing dirty buffers is
+> conforming, waiting until hell freezes over isn't,
+
+Where does it say that in SuS?  I not arguing in favor of waiting longer
+than necessary, mind you.
+
+> nor does it have any
+> benefit to the user, since the sync is either an end of the execution
+> safety net or a checkpoint. In either case the user doesn't expect to have
+> the program hang after *his/her* data is safe.
+
+Have you asked any users about that?
+
+-- 
+Daniel

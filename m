@@ -1,49 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTFUWk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 18:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFUWk7
+	id S263547AbTFUWzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 18:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTFUWzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 18:40:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39632 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262872AbTFUWk6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 18:40:58 -0400
-Date: Sat, 21 Jun 2003 23:55:00 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Lou Langholtz <ldl@aros.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Pavel Machek <pavel@ucw.cz>, Steven Whitehouse <steve@chygwyn.com>
-Subject: Re: [PATCH] nbd driver for 2.5+: fix for module removal & new block device layer
-Message-ID: <20030621225500.GL6754@parcelfarce.linux.theplanet.co.uk>
-References: <3EF4D2C8.6060608@aros.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF4D2C8.6060608@aros.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 21 Jun 2003 18:55:31 -0400
+Received: from dm4-159.slc.aros.net ([66.219.220.159]:9098 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S263547AbTFUWz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 18:55:29 -0400
+Message-ID: <3EF4E5A9.5010802@aros.net>
+Date: Sat, 21 Jun 2003 17:09:29 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>, axboe@suse.de,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH] nbd driver 2.5+: fix for incorrect struct bio usage
+References: <3EF4D2C8.6060608@aros.net> <20030621151818.081139fc.akpm@digeo.com>
+In-Reply-To: <20030621151818.081139fc.akpm@digeo.com>
+Content-Type: multipart/mixed;
+ boundary="------------070001030504040203090600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21, 2003 at 03:48:56PM -0600, Lou Langholtz wrote:
-> This patch prevents memory corruption from "rmmod nbd" with the existing 
-> 2.5.72 (and earlier) nbd driver. It does this by updating the nbd driver 
-> to the new block layer requirement that every disk has its own 
-> request_queue structure. This is the first of a series of patchlets 
-> designed to break down the essential changes I proposed in my last 
-> "enormous" patch. Note that another patchlet will make the whole 
-> allocation of per nbd_device memory be dynamic (rather than staticly 
-> tied to MAX_NBD). Please try out this patch and let me know how nbd is 
-> working for you before versus after. With any luck, some of these 
-> smaller patch breakdowns can actually see there way into new kernel 
-> releases. Thanks.
+This is a multi-part message in MIME format.
+--------------070001030504040203090600
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	a) you don't have to have queue per device.  It often does make
-sense (for nbd it's almost certainly a win), but it's not required.
+Here's a possible patch #2... I believe the address pointed to by 
+bio_data(bio) is not always contiguous over the length of bio->bi_size 
+and was responsible for locking my machine up sometimes. My biggest 
+reason for apprehension on believeing that I'm 100% correct on this is 
+that there's still what appears to be a source of memory corruption in 
+the patchlet modified nbd driver even after this patch. I know the 
+driver is still not correctly notifying processes of the bytesize on 
+open but the size reported appears to be big enough. Anyway, thanks for 
+all of the feedback so far!!!!
 
-	b) you definitely don't have to use separate queue locks.  The
-thing will work fine with spinlock being shared and I doubt that there
-will be any noticable extra contention.
+--------------070001030504040203090600
+Content-Type: text/plain;
+ name="nbd-patch2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-patch2"
 
-	c) please, make allocation of queue dynamic _and_ separate from
-any other allocated objects.
+diff -urN linux-2.5.72-p1/drivers/block/nbd.c linux-2.5.72-p2/drivers/block/nbd.c
+--- linux-2.5.72-p1/drivers/block/nbd.c	2003-06-21 15:30:17.860967573 -0600
++++ linux-2.5.72-p2/drivers/block/nbd.c	2003-06-21 16:42:00.865099598 -0600
+@@ -28,7 +28,10 @@
+  *   the transmit lock. <steve@chygwyn.com>
+  * 02-10-11 Allow hung xmit to be aborted via SIGKILL & various fixes.
+  *   <Paul.Clements@SteelEye.com> <James.Bottomley@SteelEye.com>
+- * 03-06-21 Fix memory corruption from module removal. <ldl@aros.net>
++ * 03-06-21 Make nbd work with linux 2.5 block layer code. This fixes memory
++ *   corruption from module removal too. <ldl@aros.net>
++ * 03-06-21 Fix incorrect bio struct access that could have lead to memory
++ *   corruption on receiving disk data. <ldl@aros.net>
+  *
+  * possible FIXME: make set_sock / set_blksize / set_size / do_it one syscall
+  * why not: would need verify_area and friends, would share yet another 
+@@ -256,6 +259,12 @@
+ 	return NULL;
+ }
+ 
++static inline int sock_recv_bvec(struct socket *sock, struct bio_vec *bvec)
++{
++	return nbd_xmit(0, sock, page_address(bvec->bv_page) + bvec->bv_offset,
++			bvec->bv_len, MSG_WAITALL);
++}
++
+ #define HARDFAIL( s ) { printk( KERN_ERR "NBD: " s "(result %d)\n", result ); lo->harderror = result; return NULL; }
+ struct request *nbd_read_stat(struct nbd_device *lo)
+ 		/* NULL returned = something went wrong, inform userspace       */ 
+@@ -263,10 +272,11 @@
+ 	int result;
+ 	struct nbd_reply reply;
+ 	struct request *req;
++	struct socket *sock = lo->sock;
+ 
+ 	DEBUG("reading control, ");
+ 	reply.magic = 0;
+-	result = nbd_xmit(0, lo->sock, (char *) &reply, sizeof(reply), MSG_WAITALL);
++	result = nbd_xmit(0, sock, (char *) &reply, sizeof(reply), MSG_WAITALL);
+ 	if (result <= 0)
+ 		HARDFAIL("Recv control failed.");
+ 	req = nbd_find_request(lo, reply.handle);
+@@ -280,14 +290,17 @@
+ 		FAIL("Other side returned error.");
+ 
+ 	if (nbd_cmd(req) == NBD_CMD_READ) {
+-		struct bio *bio = req->bio;
++		int i;
++		struct bio *bio;
+ 		DEBUG("data, ");
+-		do {
+-			result = nbd_xmit(0, lo->sock, bio_data(bio), bio->bi_size, MSG_WAITALL);
+-			if (result <= 0)
+-				HARDFAIL("Recv data failed.");
+-			bio = bio->bi_next;
+-		} while(bio);
++		rq_for_each_bio(bio, req) {
++			struct bio_vec *bvec;
++			bio_for_each_segment(bvec, bio, i) {
++				result = sock_recv_bvec(sock, bvec);
++				if (result <= 0)
++					HARDFAIL("Recv data failed.");
++			}
++		}
+ 	}
+ 	DEBUG("done.\n");
+ 	return req;
+
+--------------070001030504040203090600--
+

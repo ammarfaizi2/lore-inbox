@@ -1,875 +1,1043 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbSJaXFW>; Thu, 31 Oct 2002 18:05:22 -0500
+	id <S265488AbSJaXIr>; Thu, 31 Oct 2002 18:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265478AbSJaXFU>; Thu, 31 Oct 2002 18:05:20 -0500
-Received: from kim.it.uu.se ([130.238.12.178]:30920 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S265469AbSJaXEI>;
-	Thu, 31 Oct 2002 18:04:08 -0500
-Date: Fri, 1 Nov 2002 00:10:33 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210312310.AAA07609@kim.it.uu.se>
-To: torvalds@transmeta.com
-Subject: [PATCH] performance counters 3.1 for 2.5.45 [2/4]: per-process counters
-Cc: linux-kernel@vger.kernel.org
+	id <S265483AbSJaXHh>; Thu, 31 Oct 2002 18:07:37 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:13228 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265470AbSJaXF1>;
+	Thu, 31 Oct 2002 18:05:27 -0500
+Message-ID: <3DC1B594.812B8200@us.ibm.com>
+Date: Thu, 31 Oct 2002 14:58:28 -0800
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: [PATCH] Latest IPC lock patch- 2.5.44
+References: <1036102379.3365.16.camel@dell_ss3.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------3E7808A0117B063146435ED0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 2 of 4 of perfctr-3.1 for the 2.5.45 kernel:
-the high-level driver for virtualised per-process counters.
+This is a multi-part message in MIME format.
+--------------3E7808A0117B063146435ED0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
- drivers/perfctr/virtual.c |  738 ++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/vperfctr.h  |  105 ++++++
- 2 files changed, 843 insertions(+)
+Stephen Hemminger wrote:
+> 
+> With all the discussion, I lost track of what the current IPC patch is
+> for 2.5.44 (or 2.5.45).  Where is it located? Could you send me a copy?
 
-diff -uN linux-2.5.45/drivers/perfctr/virtual.c linux-2.5.45.perfctr-3.1/drivers/perfctr/virtual.c
---- linux-2.5.45/drivers/perfctr/virtual.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.45.perfctr-3.1/drivers/perfctr/virtual.c	Thu Oct 31 23:16:59 2002
-@@ -0,0 +1,738 @@
-+/* $Id: virtual.c,v 1.56 2002/10/31 22:16:59 mikpe Exp $
-+ * Virtual per-process performance counters.
-+ *
-+ * Copyright (C) 1999-2002  Mikael Pettersson
-+ */
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/mm.h>
-+#include <linux/ptrace.h>
-+#include <linux/fs.h>
-+#include <linux/file.h>
-+#include <linux/vperfctr.h>
-+
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+#define VERSION "3.1"
-+
-+/****************************************************************
-+ *								*
-+ * Data types and macros.					*
-+ *								*
-+ ****************************************************************/
-+
-+struct vperfctr {
-+/* User-visible fields: (must be first for mmap()) */
-+	struct vperfctr_state state;
-+/* Kernel-private fields: */
-+	atomic_t count;
-+	spinlock_t owner_lock;
-+	struct task_struct *owner;
-+#ifdef CONFIG_SMP
-+	unsigned int sampling_timer;
-+#endif
-+#if PERFCTR_INTERRUPT_SUPPORT
-+	unsigned int iresume_cstatus;
-+#endif
-+};
-+#define IS_RUNNING(perfctr)	perfctr_cstatus_enabled((perfctr)->state.cpu_state.cstatus)
-+
-+static struct file_operations vperfctr_file_ops;	/* forward */
-+static struct file *vperfctr_get_filp(void);		/* forward */
-+
-+/****************************************************************
-+ *								*
-+ * Basic counter operations.					*
-+ * These must all be called by the owner process only.		*
-+ * These must all be called with preemption disabled.		*
-+ *								*
-+ ****************************************************************/
-+
-+/* PRE: perfctr == TASK_VPERFCTR(current) && IS_RUNNING(perfctr)
-+ * Suspend the counters.
-+ */
-+static inline void vperfctr_suspend(struct vperfctr *perfctr)
-+{
-+	perfctr_cpu_suspend(&perfctr->state.cpu_state);
-+}
-+
-+static inline void vperfctr_reset_sampling_timer(struct vperfctr *perfctr)
-+{
-+#ifdef CONFIG_SMP
-+	/* XXX: base the value on perfctr_cpu_info.khz instead! */
-+	perfctr->sampling_timer = HZ/2;
-+#endif
-+}
-+
-+/* PRE: perfctr == TASK_VPERFCTR(current) && IS_RUNNING(perfctr)
-+ * Restart the counters.
-+ */
-+static inline void vperfctr_resume(struct vperfctr *perfctr)
-+{
-+	perfctr_cpu_resume(&perfctr->state.cpu_state);
-+	vperfctr_reset_sampling_timer(perfctr);
-+}
-+
-+/* Sample the counters but do not suspend them. */
-+static void vperfctr_sample(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) ) {
-+		perfctr_cpu_sample(&perfctr->state.cpu_state);
-+		vperfctr_reset_sampling_timer(perfctr);
-+	}
-+}
-+
-+/****************************************************************
-+ *								*
-+ * Overflow interrupt support.					*
-+ *								*
-+ ****************************************************************/
-+
-+#if PERFCTR_INTERRUPT_SUPPORT
-+
-+/* PREEMPT note: called in IRQ context with preemption disabled. */
-+static void vperfctr_ihandler(unsigned long pc)
-+{
-+	struct task_struct *tsk = current;
-+	struct vperfctr *perfctr;
-+	unsigned int pmc_mask;
-+	siginfo_t si;
-+
-+	perfctr = tsk->thread.vperfctr;
-+	if( !perfctr ) {
-+		printk(KERN_ERR "%s: BUG! pid %d has no vperfctr\n",
-+		       __FUNCTION__, tsk->pid);
-+		return;
-+	}
-+	if( !perfctr_cstatus_has_ictrs(perfctr->state.cpu_state.cstatus) ) {
-+		printk(KERN_ERR "%s: BUG! vperfctr has cstatus %#x (pid %d, comm %s)\n",
-+		       __FUNCTION__, perfctr->state.cpu_state.cstatus, tsk->pid, tsk->comm);
-+		return;
-+	}
-+	vperfctr_suspend(perfctr);
-+	pmc_mask = perfctr_cpu_identify_overflow(&perfctr->state.cpu_state);
-+	if( !pmc_mask ) {
-+		printk(KERN_ERR "%s: BUG! pid %d has unidentifiable overflow source\n",
-+		       __FUNCTION__, tsk->pid);
-+		return;
-+	}
-+	/* suspend a-mode and i-mode PMCs, leaving only TSC on */
-+	perfctr->iresume_cstatus = perfctr->state.cpu_state.cstatus;
-+	if( perfctr_cstatus_has_tsc(perfctr->iresume_cstatus) ) {
-+		perfctr->state.cpu_state.cstatus = perfctr_mk_cstatus(1, 0, 0);
-+		vperfctr_resume(perfctr);
-+	} else
-+		perfctr->state.cpu_state.cstatus = 0;
-+	si.si_signo = perfctr->state.si_signo;
-+	si.si_errno = 0;
-+	si.si_code = SI_PMC_OVF;
-+	si.si_pmc_ovf_mask = pmc_mask;
-+	if( !send_sig_info(si.si_signo, &si, tsk) )
-+		send_sig(si.si_signo, tsk, 1);
-+}
-+
-+static inline void vperfctr_set_ihandler(void)
-+{
-+	perfctr_cpu_set_ihandler(vperfctr_ihandler);
-+}
-+
-+static inline void vperfctr_clear_iresume_cstatus(struct vperfctr *perfctr)
-+{
-+	perfctr->iresume_cstatus = 0;
-+}
-+
-+static int sys_vperfctr_iresume(struct vperfctr *perfctr, int is_remote)
-+{
-+	unsigned int iresume_cstatus;
-+
-+	iresume_cstatus = perfctr->iresume_cstatus;
-+	if( !perfctr_cstatus_has_ictrs(iresume_cstatus) )
-+		return -EPERM;
-+
-+	/* PREEMPT note: preemption is disabled over the entire
-+	   region because we're updating an active perfctr. */
-+	preempt_disable();
-+
-+	if( IS_RUNNING(perfctr) && !is_remote )
-+		vperfctr_suspend(perfctr);
-+
-+	perfctr->state.cpu_state.cstatus = iresume_cstatus;
-+	perfctr->iresume_cstatus = 0;
-+
-+	/* remote access note: perfctr_cpu_ireload() is ok */
-+	perfctr_cpu_ireload(&perfctr->state.cpu_state);
-+
-+	if( !is_remote )
-+		vperfctr_resume(perfctr);
-+
-+	preempt_enable();
-+
-+	return 0;
-+}
-+
-+#else /* PERFCTR_INTERRUPT_SUPPORT */
-+static inline void vperfctr_clear_iresume_cstatus(struct vperfctr *perfctr) { }
-+static inline void vperfctr_set_ihandler(void) { }
-+static inline int sys_vperfctr_iresume(struct vperfctr *perfctr, int is_remote)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* PERFCTR_INTERRUPT_SUPPORT */
-+
-+/****************************************************************
-+ *								*
-+ * Resource management.						*
-+ *								*
-+ ****************************************************************/
-+
-+/* XXX: perhaps relax this to number of _live_ perfctrs */
-+static spinlock_t nrctrs_lock = SPIN_LOCK_UNLOCKED;
-+int nrctrs = 0;
-+static const char this_service[] = __FILE__;
-+
-+static int inc_nrctrs(void)
-+{
-+	const char *other;
-+
-+	other = NULL;
-+	spin_lock(&nrctrs_lock);
-+	if( ++nrctrs == 1 )
-+		other = perfctr_cpu_reserve(this_service);
-+	spin_unlock(&nrctrs_lock);
-+	if( other ) {
-+		printk(KERN_ERR __FILE__
-+		       ": cannot operate, perfctr hardware taken by '%s'\n",
-+		       other);
-+		return -EBUSY;
-+	}
-+	vperfctr_set_ihandler();
-+	return 0;
-+}
-+
-+static void dec_nrctrs(void)
-+{
-+	spin_lock(&nrctrs_lock);
-+	if( --nrctrs == 0 )
-+		perfctr_cpu_release(this_service);
-+	spin_unlock(&nrctrs_lock);
-+}
-+
-+static struct vperfctr *vperfctr_alloc(void)
-+{
-+	unsigned long page;
-+
-+	if( inc_nrctrs() != 0 )
-+		return NULL;
-+	page = get_zeroed_page(GFP_KERNEL);
-+	if( !page ) {
-+		dec_nrctrs();
-+		return NULL;
-+	}
-+	SetPageReserved(virt_to_page(page));
-+	return (struct vperfctr*) page;
-+}
-+
-+static void vperfctr_free(struct vperfctr *perfctr)
-+{
-+	ClearPageReserved(virt_to_page(perfctr));
-+	free_page((unsigned long)perfctr);
-+	dec_nrctrs();
-+}
-+
-+static struct vperfctr *get_empty_vperfctr(void)
-+{
-+	struct vperfctr *perfctr = vperfctr_alloc();
-+	if( perfctr ) {
-+		perfctr->state.magic = VPERFCTR_MAGIC;
-+		atomic_set(&perfctr->count, 1);
-+		spin_lock_init(&perfctr->owner_lock);
-+	}
-+	return perfctr;
-+}
-+
-+static void put_vperfctr(struct vperfctr *perfctr)
-+{
-+	if( atomic_dec_and_test(&perfctr->count) )
-+		vperfctr_free(perfctr);
-+}
-+
-+/****************************************************************
-+ *								*
-+ * Process management operations.				*
-+ * These must all, with the exception of __vperfctr_exit(),	*
-+ * be called by the owner process only.				*
-+ *								*
-+ ****************************************************************/
-+
-+/* Called from exit_thread() or sys_vperfctr_unlink().
-+ * The vperfctr has just been detached from its owner.
-+ * If the counters are running, stop them and sample their final values.
-+ * Mark this perfctr as dead and decrement its use count.
-+ * PREEMPT note: exit_thread() does not run with preemption disabled.
-+ */
-+void __vperfctr_exit(struct vperfctr *perfctr)
-+{
-+	struct task_struct *owner;
-+
-+	spin_lock(&perfctr->owner_lock);
-+	owner = perfctr->owner;
-+	/* owner->thread.perfctr = NULL was done by the caller */
-+	perfctr->owner = NULL;
-+	spin_unlock(&perfctr->owner_lock);
-+
-+	if( IS_RUNNING(perfctr) && owner == current ) {
-+		preempt_disable();
-+		vperfctr_suspend(perfctr);
-+		preempt_enable();
-+	}
-+	perfctr->state.cpu_state.cstatus = 0;
-+	vperfctr_clear_iresume_cstatus(perfctr);
-+	put_vperfctr(perfctr);
-+}
-+
-+/* schedule() --> switch_to() --> .. --> __vperfctr_suspend().
-+ * If the counters are running, suspend them.
-+ * PREEMPT note: switch_to() runs with preemption disabled.
-+ */
-+void __vperfctr_suspend(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) )
-+		vperfctr_suspend(perfctr);
-+}
-+
-+/* schedule() --> switch_to() --> .. --> __vperfctr_resume().
-+ * PRE: perfctr == TASK_VPERFCTR(current)
-+ * If the counters are runnable, resume them.
-+ * PREEMPT note: switch_to() runs with preemption disabled.
-+ */
-+void __vperfctr_resume(struct vperfctr *perfctr)
-+{
-+	if( IS_RUNNING(perfctr) )
-+		vperfctr_resume(perfctr);
-+}
-+
-+#ifdef CONFIG_SMP
-+/* Called from update_one_process() [triggered by timer interrupt].
-+ * PRE: perfctr == TASK_VPERFCTR(current).
-+ * Sample the counters but do not suspend them.
-+ * Needed on SMP to avoid precision loss due to multiple counter
-+ * wraparounds between resume/suspend for CPU-bound processes.
-+ * PREEMPT note: called in IRQ context with preemption disabled.
-+ */
-+void __vperfctr_sample(struct vperfctr *perfctr)
-+{
-+	if( --perfctr->sampling_timer == 0 )
-+		vperfctr_sample(perfctr);
-+}
-+#endif
-+
-+/****************************************************************
-+ *								*
-+ * Virtual perfctr "system calls".				*
-+ * These can be called by the owner process, or by a monitor	*
-+ * process which has the owner under ptrace ATTACH control.	*
-+ *								*
-+ ****************************************************************/
-+
-+static int sys_vperfctr_control(struct vperfctr *perfctr,
-+				struct vperfctr_control *argp,
-+				int is_remote)
-+{
-+	struct vperfctr_control control;
-+	int err;
-+	unsigned int next_cstatus;
-+	unsigned int nrctrs, i;
-+
-+	if( copy_from_user(&control, argp, sizeof control) )
-+		return -EFAULT;
-+	/* PREEMPT note: preemption is disabled over the entire
-+	   region since we're updating an active perfctr. */
-+	preempt_disable();
-+	if( IS_RUNNING(perfctr) ) {
-+		if( !is_remote )
-+			vperfctr_suspend(perfctr);
-+		perfctr->state.cpu_state.cstatus = 0;
-+		vperfctr_clear_iresume_cstatus(perfctr);
-+	}
-+	perfctr->state.cpu_state.control = control.cpu_control;
-+	/* remote access note: perfctr_cpu_update_control() is ok */
-+	err = perfctr_cpu_update_control(&perfctr->state.cpu_state);
-+	if( err < 0 )
-+		goto out;
-+	next_cstatus = perfctr->state.cpu_state.cstatus;
-+	if( !perfctr_cstatus_enabled(next_cstatus) )
-+		goto out;
-+
-+	/* XXX: validate si_signo? */
-+	perfctr->state.si_signo = control.si_signo;
-+
-+	if( !perfctr_cstatus_has_tsc(next_cstatus) )
-+		perfctr->state.cpu_state.sum.tsc = 0;
-+
-+	nrctrs = perfctr_cstatus_nrctrs(next_cstatus);
-+	for(i = 0; i < nrctrs; ++i)
-+		if( !(control.preserve & (1<<i)) )
-+			perfctr->state.cpu_state.sum.pmc[i] = 0;
-+
-+	if( !is_remote )
-+		vperfctr_resume(perfctr);
-+ out:
-+	preempt_enable();
-+	return err;
-+}
-+
-+static int sys_vperfctr_unlink(struct vperfctr *perfctr, struct task_struct *tsk)
-+{
-+	(tsk ? tsk : current)->thread.vperfctr = NULL;
-+	__vperfctr_exit(perfctr);
-+	return 0;
-+}
-+
+Here is the latest ipc lock patch for 2.5.44 kernel. 
+
+Thanks for your interest.
+
+Mingming
+--------------3E7808A0117B063146435ED0
+Content-Type: text/plain; charset=us-ascii;
+ name="44-ipc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="44-ipc.patch"
+
+diff -urN linux-2.5.44/include/linux/ipc.h 2544-ipc/include/linux/ipc.h
+--- linux-2.5.44/include/linux/ipc.h	Fri Oct 18 21:00:42 2002
++++ 2544-ipc/include/linux/ipc.h	Thu Oct 31 09:05:46 2002
+@@ -56,6 +56,8 @@
+ /* used by in-kernel data structures */
+ struct kern_ipc_perm
+ {
++	spinlock_t	lock;
++	int		deleted;
+ 	key_t		key;
+ 	uid_t		uid;
+ 	gid_t		gid;
+diff -urN linux-2.5.44/ipc/msg.c 2544-ipc/ipc/msg.c
+--- linux-2.5.44/ipc/msg.c	Fri Oct 18 21:00:43 2002
++++ 2544-ipc/ipc/msg.c	Thu Oct 31 09:05:46 2002
+@@ -65,7 +65,7 @@
+ static struct ipc_ids msg_ids;
+ 
+ #define msg_lock(id)	((struct msg_queue*)ipc_lock(&msg_ids,id))
+-#define msg_unlock(id)	ipc_unlock(&msg_ids,id)
++#define msg_unlock(msq)	ipc_unlock(&(msq)->q_perm)
+ #define msg_rmid(id)	((struct msg_queue*)ipc_rmid(&msg_ids,id))
+ #define msg_checkid(msq, msgid)	\
+ 	ipc_checkid(&msg_ids,&msq->q_perm,msgid)
+@@ -93,7 +93,7 @@
+ 	int retval;
+ 	struct msg_queue *msq;
+ 
+-	msq  = (struct msg_queue *) kmalloc (sizeof (*msq), GFP_KERNEL);
++	msq  = ipc_rcu_alloc(sizeof(*msq));
+ 	if (!msq) 
+ 		return -ENOMEM;
+ 
+@@ -103,14 +103,14 @@
+ 	msq->q_perm.security = NULL;
+ 	retval = security_ops->msg_queue_alloc_security(msq);
+ 	if (retval) {
+-		kfree(msq);
++		ipc_rcu_free(msq, sizeof(*msq));
+ 		return retval;
+ 	}
+ 
+ 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
+ 	if(id == -1) {
+ 		security_ops->msg_queue_free_security(msq);
+-		kfree(msq);
++		ipc_rcu_free(msq, sizeof(*msq));
+ 		return -ENOSPC;
+ 	}
+ 
+@@ -122,7 +122,7 @@
+ 	INIT_LIST_HEAD(&msq->q_messages);
+ 	INIT_LIST_HEAD(&msq->q_receivers);
+ 	INIT_LIST_HEAD(&msq->q_senders);
+-	msg_unlock(id);
++	msg_unlock(msq);
+ 
+ 	return msg_buildid(id,msq->q_perm.seq);
+ }
+@@ -271,7 +271,7 @@
+ 
+ 	expunge_all(msq,-EIDRM);
+ 	ss_wakeup(&msq->q_senders,1);
+-	msg_unlock(id);
++	msg_unlock(msq);
+ 		
+ 	tmp = msq->q_messages.next;
+ 	while(tmp != &msq->q_messages) {
+@@ -282,7 +282,7 @@
+ 	}
+ 	atomic_sub(msq->q_cbytes, &msg_bytes);
+ 	security_ops->msg_queue_free_security(msq);
+-	kfree(msq);
++	ipc_rcu_free(msq, sizeof(struct msg_queue));
+ }
+ 
+ asmlinkage long sys_msgget (key_t key, int msgflg)
+@@ -308,7 +308,7 @@
+ 			ret = -EACCES;
+ 		else
+ 			ret = msg_buildid(id, msq->q_perm.seq);
+-		msg_unlock(id);
++		msg_unlock(msq);
+ 	}
+ 	up(&msg_ids.sem);
+ 	return ret;
+@@ -488,7 +488,7 @@
+ 		tbuf.msg_qbytes = msq->q_qbytes;
+ 		tbuf.msg_lspid  = msq->q_lspid;
+ 		tbuf.msg_lrpid  = msq->q_lrpid;
+-		msg_unlock(msqid);
++		msg_unlock(msq);
+ 		if (copy_msqid_to_user(buf, &tbuf, version))
+ 			return -EFAULT;
+ 		return success_return;
+@@ -541,7 +541,7 @@
+ 		 * due to a larger queue size.
+ 		 */
+ 		ss_wakeup(&msq->q_senders,0);
+-		msg_unlock(msqid);
++		msg_unlock(msq);
+ 		break;
+ 	}
+ 	case IPC_RMID:
+@@ -553,10 +553,10 @@
+ 	up(&msg_ids.sem);
+ 	return err;
+ out_unlock_up:
+-	msg_unlock(msqid);
++	msg_unlock(msq);
+ 	goto out_up;
+ out_unlock:
+-	msg_unlock(msqid);
++	msg_unlock(msq);
+ 	return err;
+ }
+ 
+@@ -651,7 +651,7 @@
+ 			goto out_unlock_free;
+ 		}
+ 		ss_add(msq, &s);
+-		msg_unlock(msqid);
++		msg_unlock(msq);
+ 		schedule();
+ 		current->state= TASK_RUNNING;
+ 
+@@ -684,7 +684,7 @@
+ 	msg = NULL;
+ 
+ out_unlock_free:
+-	msg_unlock(msqid);
++	msg_unlock(msq);
+ out_free:
+ 	if(msg!=NULL)
+ 		free_msg(msg);
+@@ -766,7 +766,7 @@
+ 		atomic_sub(msg->m_ts,&msg_bytes);
+ 		atomic_dec(&msg_hdrs);
+ 		ss_wakeup(&msq->q_senders,0);
+-		msg_unlock(msqid);
++		msg_unlock(msq);
+ out_success:
+ 		msgsz = (msgsz > msg->m_ts) ? msg->m_ts : msgsz;
+ 		if (put_user (msg->m_type, &msgp->mtype) ||
+@@ -777,7 +777,6 @@
+ 		return msgsz;
+ 	} else
+ 	{
+-		struct msg_queue *t;
+ 		/* no message waiting. Prepare for pipelined
+ 		 * receive.
+ 		 */
+@@ -795,7 +794,7 @@
+ 		 	msr_d.r_maxsize = msgsz;
+ 		msr_d.r_msg = ERR_PTR(-EAGAIN);
+ 		current->state = TASK_INTERRUPTIBLE;
+-		msg_unlock(msqid);
++		msg_unlock(msq);
+ 
+ 		schedule();
+ 		current->state = TASK_RUNNING;
+@@ -804,21 +803,19 @@
+ 		if(!IS_ERR(msg)) 
+ 			goto out_success;
+ 
+-		t = msg_lock(msqid);
+-		if(t==NULL)
+-			msqid=-1;
++		msq = msg_lock(msqid);
+ 		msg = (struct msg_msg*)msr_d.r_msg;
+ 		if(!IS_ERR(msg)) {
+ 			/* our message arived while we waited for
+ 			 * the spinlock. Process it.
+ 			 */
+-			if(msqid!=-1)
+-				msg_unlock(msqid);
++			if(msq)
++				msg_unlock(msq);
+ 			goto out_success;
+ 		}
+ 		err = PTR_ERR(msg);
+ 		if(err == -EAGAIN) {
+-			if(msqid==-1)
++			if(!msq)
+ 				BUG();
+ 			list_del(&msr_d.r_list);
+ 			if (signal_pending(current))
+@@ -828,8 +825,8 @@
+ 		}
+ 	}
+ out_unlock:
+-	if(msqid!=-1)
+-		msg_unlock(msqid);
++	if(msq)
++		msg_unlock(msq);
+ 	return err;
+ }
+ 
+@@ -862,7 +859,7 @@
+ 				msq->q_stime,
+ 				msq->q_rtime,
+ 				msq->q_ctime);
+-			msg_unlock(i);
++			msg_unlock(msq);
+ 
+ 			pos += len;
+ 			if(pos < offset) {
+diff -urN linux-2.5.44/ipc/sem.c 2544-ipc/ipc/sem.c
+--- linux-2.5.44/ipc/sem.c	Fri Oct 18 21:01:48 2002
++++ 2544-ipc/ipc/sem.c	Thu Oct 31 09:05:46 2002
+@@ -69,7 +69,7 @@
+ 
+ 
+ #define sem_lock(id)	((struct sem_array*)ipc_lock(&sem_ids,id))
+-#define sem_unlock(id)	ipc_unlock(&sem_ids,id)
++#define sem_unlock(sma)	ipc_unlock(&(sma)->sem_perm)
+ #define sem_rmid(id)	((struct sem_array*)ipc_rmid(&sem_ids,id))
+ #define sem_checkid(sma, semid)	\
+ 	ipc_checkid(&sem_ids,&sma->sem_perm,semid)
+@@ -126,7 +126,7 @@
+ 		return -ENOSPC;
+ 
+ 	size = sizeof (*sma) + nsems * sizeof (struct sem);
+-	sma = (struct sem_array *) ipc_alloc(size);
++	sma = ipc_rcu_alloc(size);
+ 	if (!sma) {
+ 		return -ENOMEM;
+ 	}
+@@ -138,14 +138,14 @@
+ 	sma->sem_perm.security = NULL;
+ 	retval = security_ops->sem_alloc_security(sma);
+ 	if (retval) {
+-		ipc_free(sma, size);
++		ipc_rcu_free(sma, size);
+ 		return retval;
+ 	}
+ 
+ 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
+ 	if(id == -1) {
+ 		security_ops->sem_free_security(sma);
+-		ipc_free(sma, size);
++		ipc_rcu_free(sma, size);
+ 		return -ENOSPC;
+ 	}
+ 	used_sems += nsems;
+@@ -156,7 +156,7 @@
+ 	/* sma->undo = NULL; */
+ 	sma->sem_nsems = nsems;
+ 	sma->sem_ctime = CURRENT_TIME;
+-	sem_unlock(id);
++	sem_unlock(sma);
+ 
+ 	return sem_buildid(id, sma->sem_perm.seq);
+ }
+@@ -189,7 +189,7 @@
+ 			err = -EACCES;
+ 		else
+ 			err = sem_buildid(id, sma->sem_perm.seq);
+-		sem_unlock(id);
++		sem_unlock(sma);
+ 	}
+ 
+ 	up(&sem_ids.sem);
+@@ -205,12 +205,12 @@
+ 	if(smanew==NULL)
+ 		return -EIDRM;
+ 	if(smanew != sma || sem_checkid(sma,semid) || sma->sem_nsems != nsems) {
+-		sem_unlock(semid);
++		sem_unlock(smanew);
+ 		return -EIDRM;
+ 	}
+ 
+ 	if (ipcperms(&sma->sem_perm, flg)) {
+-		sem_unlock(semid);
++		sem_unlock(smanew);
+ 		return -EACCES;
+ 	}
+ 	return 0;
+@@ -423,12 +423,12 @@
+ 		q->prev = NULL;
+ 		wake_up_process(q->sleeper); /* doesn't sleep */
+ 	}
+-	sem_unlock(id);
++	sem_unlock(sma);
+ 
+ 	used_sems -= sma->sem_nsems;
+ 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
+ 	security_ops->sem_free_security(sma);
+-	ipc_free(sma, size);
++	ipc_rcu_free(sma, size);
+ }
+ 
+ static unsigned long copy_semid_to_user(void *buf, struct semid64_ds *in, int version)
+@@ -456,6 +456,7 @@
+ static int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
+ {
+ 	int err = -EINVAL;
++	struct sem_array *sma;
+ 
+ 	switch(cmd) {
+ 	case IPC_INFO:
+@@ -489,7 +490,6 @@
+ 	}
+ 	case SEM_STAT:
+ 	{
+-		struct sem_array *sma;
+ 		struct semid64_ds tbuf;
+ 		int id;
+ 
+@@ -511,7 +511,7 @@
+ 		tbuf.sem_otime  = sma->sem_otime;
+ 		tbuf.sem_ctime  = sma->sem_ctime;
+ 		tbuf.sem_nsems  = sma->sem_nsems;
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		if (copy_semid_to_user (arg.buf, &tbuf, version))
+ 			return -EFAULT;
+ 		return id;
+@@ -521,7 +521,7 @@
+ 	}
+ 	return err;
+ out_unlock:
+-	sem_unlock(semid);
++	sem_unlock(sma);
+ 	return err;
+ }
+ 
+@@ -555,7 +555,7 @@
+ 		int i;
+ 
+ 		if(nsems > SEMMSL_FAST) {
+-			sem_unlock(semid);			
++			sem_unlock(sma);			
+ 			sem_io = ipc_alloc(sizeof(ushort)*nsems);
+ 			if(sem_io == NULL)
+ 				return -ENOMEM;
+@@ -566,7 +566,7 @@
+ 
+ 		for (i = 0; i < sma->sem_nsems; i++)
+ 			sem_io[i] = sma->sem_base[i].semval;
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		err = 0;
+ 		if(copy_to_user(array, sem_io, nsems*sizeof(ushort)))
+ 			err = -EFAULT;
+@@ -577,7 +577,7 @@
+ 		int i;
+ 		struct sem_undo *un;
+ 
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 
+ 		if(nsems > SEMMSL_FAST) {
+ 			sem_io = ipc_alloc(sizeof(ushort)*nsems);
+@@ -619,7 +619,7 @@
+ 		tbuf.sem_otime  = sma->sem_otime;
+ 		tbuf.sem_ctime  = sma->sem_ctime;
+ 		tbuf.sem_nsems  = sma->sem_nsems;
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		if (copy_semid_to_user (arg.buf, &tbuf, version))
+ 			return -EFAULT;
+ 		return 0;
+@@ -665,7 +665,7 @@
+ 	}
+ 	}
+ out_unlock:
+-	sem_unlock(semid);
++	sem_unlock(sma);
+ out_free:
+ 	if(sem_io != fast_sem_io)
+ 		ipc_free(sem_io, sizeof(ushort)*nsems);
+@@ -750,18 +750,18 @@
+ 		ipcp->mode = (ipcp->mode & ~S_IRWXUGO)
+ 				| (setbuf.mode & S_IRWXUGO);
+ 		sma->sem_ctime = CURRENT_TIME;
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		err = 0;
+ 		break;
+ 	default:
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		err = -EINVAL;
+ 		break;
+ 	}
+ 	return err;
+ 
+ out_unlock:
+-	sem_unlock(semid);
++	sem_unlock(sma);
+ 	return err;
+ }
+ 
+@@ -914,7 +914,7 @@
+ 	saved_add_count = 0;
+ 	if (current->sysvsem.undo_list != NULL)
+ 		saved_add_count = current->sysvsem.undo_list->add_count;
+-	sem_unlock(semid);
++	sem_unlock(sma);
+ 	unlock_semundo();
+ 
+ 	error = get_undo_list(&undo_list);
+@@ -1052,18 +1052,17 @@
+ 	current->sysvsem.sleep_list = &queue;
+ 
+ 	for (;;) {
+-		struct sem_array* tmp;
+ 		queue.status = -EINTR;
+ 		queue.sleeper = current;
+ 		current->state = TASK_INTERRUPTIBLE;
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 		unlock_semundo();
+ 
+ 		schedule();
+ 
+ 		lock_semundo();
+-		tmp = sem_lock(semid);
+-		if(tmp==NULL) {
++		sma = sem_lock(semid);
++		if(sma==NULL) {
+ 			if(queue.prev != NULL)
+ 				BUG();
+ 			current->sysvsem.sleep_list = NULL;
+@@ -1098,7 +1097,7 @@
+ 	if (alter)
+ 		update_queue (sma);
+ out_unlock_semundo_free:
+-	sem_unlock(semid);
++	sem_unlock(sma);
+ out_semundo_free:
+ 	unlock_semundo();
+ out_free:
+@@ -1185,7 +1184,7 @@
+ 			remove_from_queue(q->sma,q);
+ 		}
+ 		if(sma!=NULL)
+-			sem_unlock(semid);
++			sem_unlock(sma);
+ 	}
+ 
+ 	undo_list = current->sysvsem.undo_list;
+@@ -1233,7 +1232,7 @@
+ 		/* maybe some queued-up processes were waiting for this */
+ 		update_queue(sma);
+ next_entry:
+-		sem_unlock(semid);
++		sem_unlock(sma);
+ 	}
+ 	__exit_semundo(current);
+ 
+@@ -1265,7 +1264,7 @@
+ 				sma->sem_perm.cgid,
+ 				sma->sem_otime,
+ 				sma->sem_ctime);
+-			sem_unlock(i);
++			sem_unlock(sma);
+ 
+ 			pos += len;
+ 			if(pos < offset) {
+diff -urN linux-2.5.44/ipc/shm.c 2544-ipc/ipc/shm.c
+--- linux-2.5.44/ipc/shm.c	Fri Oct 18 21:01:54 2002
++++ 2544-ipc/ipc/shm.c	Thu Oct 31 09:09:44 2002
+@@ -37,9 +37,7 @@
+ static struct ipc_ids shm_ids;
+ 
+ #define shm_lock(id)	((struct shmid_kernel*)ipc_lock(&shm_ids,id))
+-#define shm_unlock(id)	ipc_unlock(&shm_ids,id)
+-#define shm_lockall()	ipc_lockall(&shm_ids)
+-#define shm_unlockall()	ipc_unlockall(&shm_ids)
++#define shm_unlock(shp)	ipc_unlock(&(shp)->shm_perm)
+ #define shm_get(id)	((struct shmid_kernel*)ipc_get(&shm_ids,id))
+ #define shm_buildid(id, seq) \
+ 	ipc_buildid(&shm_ids, id, seq)
+@@ -92,7 +90,7 @@
+ 	shp->shm_atim = CURRENT_TIME;
+ 	shp->shm_lprid = current->pid;
+ 	shp->shm_nattch++;
+-	shm_unlock(id);
++	shm_unlock(shp);
+ }
+ 
+ /* This is called by fork, once for every shm attach. */
+@@ -113,11 +111,11 @@
+ {
+ 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	shm_rmid (shp->id);
+-	shm_unlock(shp->id);
++	shm_unlock(shp);
+ 	shmem_lock(shp->shm_file, 0);
+ 	fput (shp->shm_file);
+ 	security_ops->shm_free_security(shp);
+-	kfree (shp);
++	ipc_rcu_free (shp, sizeof(struct shmid_kernel));
+ }
+ 
+ /*
+@@ -143,7 +141,7 @@
+ 	   shp->shm_flags & SHM_DEST)
+ 		shm_destroy (shp);
+ 	else
+-		shm_unlock(id);
++		shm_unlock(shp);
+ 	up (&shm_ids.sem);
+ }
+ 
+@@ -180,7 +178,7 @@
+ 	if (shm_tot + numpages >= shm_ctlall)
+ 		return -ENOSPC;
+ 
+-	shp = (struct shmid_kernel *) kmalloc (sizeof (*shp), GFP_USER);
++	shp = ipc_rcu_alloc(sizeof(*shp));
+ 	if (!shp)
+ 		return -ENOMEM;
+ 
+@@ -190,7 +188,7 @@
+ 	shp->shm_perm.security = NULL;
+ 	error = security_ops->shm_alloc_security(shp);
+ 	if (error) {
+-		kfree(shp);
++		ipc_rcu_free(shp, sizeof(*shp));
+ 		return error;
+ 	}
+ 
+@@ -216,14 +214,14 @@
+ 	file->f_dentry->d_inode->i_ino = shp->id;
+ 	file->f_op = &shm_file_operations;
+ 	shm_tot += numpages;
+-	shm_unlock (id);
++	shm_unlock(shp);
+ 	return shp->id;
+ 
+ no_id:
+ 	fput(file);
+ no_file:
+ 	security_ops->shm_free_security(shp);
+-	kfree(shp);
++	ipc_rcu_free(shp, sizeof(*shp));
+ 	return error;
+ }
+ 
+@@ -252,7 +250,7 @@
+ 			err = -EACCES;
+ 		else
+ 			err = shm_buildid(id, shp->shm_perm.seq);
+-		shm_unlock(id);
++		shm_unlock(shp);
+ 	}
+ 	up(&shm_ids.sem);
+ 	return err;
+@@ -409,14 +407,12 @@
+ 
+ 		memset(&shm_info,0,sizeof(shm_info));
+ 		down(&shm_ids.sem);
+-		shm_lockall();
+ 		shm_info.used_ids = shm_ids.in_use;
+ 		shm_get_stat (&shm_info.shm_rss, &shm_info.shm_swp);
+ 		shm_info.shm_tot = shm_tot;
+ 		shm_info.swap_attempts = 0;
+ 		shm_info.swap_successes = 0;
+ 		err = shm_ids.max_id;
+-		shm_unlockall();
+ 		up(&shm_ids.sem);
+ 		if(copy_to_user (buf, &shm_info, sizeof(shm_info)))
+ 			return -EFAULT;
+@@ -454,7 +450,7 @@
+ 		tbuf.shm_cpid	= shp->shm_cprid;
+ 		tbuf.shm_lpid	= shp->shm_lprid;
+ 		tbuf.shm_nattch	= shp->shm_nattch;
+-		shm_unlock(shmid);
++		shm_unlock(shp);
+ 		if(copy_shmid_to_user (buf, &tbuf, version))
+ 			return -EFAULT;
+ 		return result;
+@@ -481,7 +477,7 @@
+ 			shmem_lock(shp->shm_file, 0);
+ 			shp->shm_flags &= ~SHM_LOCKED;
+ 		}
+-		shm_unlock(shmid);
++		shm_unlock(shp);
+ 		return err;
+ 	}
+ 	case IPC_RMID:
+@@ -514,7 +510,7 @@
+ 			shp->shm_flags |= SHM_DEST;
+ 			/* Do not find it any more */
+ 			shp->shm_perm.key = IPC_PRIVATE;
+-			shm_unlock(shmid);
++			shm_unlock(shp);
+ 		} else
+ 			shm_destroy (shp);
+ 		up(&shm_ids.sem);
+@@ -554,12 +550,12 @@
+ 
+ 	err = 0;
+ out_unlock_up:
+-	shm_unlock(shmid);
++	shm_unlock(shp);
+ out_up:
+ 	up(&shm_ids.sem);
+ 	return err;
+ out_unlock:
+-	shm_unlock(shmid);
++	shm_unlock(shp);
+ 	return err;
+ }
+ 
+@@ -616,17 +612,17 @@
+ 		return -EINVAL;
+ 	err = shm_checkid(shp,shmid);
+ 	if (err) {
+-		shm_unlock(shmid);
++		shm_unlock(shp);
+ 		return err;
+ 	}
+ 	if (ipcperms(&shp->shm_perm, acc_mode)) {
+-		shm_unlock(shmid);
++		shm_unlock(shp);
+ 		return -EACCES;
+ 	}
+ 	file = shp->shm_file;
+ 	size = file->f_dentry->d_inode->i_size;
+ 	shp->shm_nattch++;
+-	shm_unlock(shmid);
++	shm_unlock(shp);
+ 
+ 	down_write(&current->mm->mmap_sem);
+ 	if (addr && !(shmflg & SHM_REMAP)) {
+@@ -655,7 +651,7 @@
+ 	   shp->shm_flags & SHM_DEST)
+ 		shm_destroy (shp);
+ 	else
+-		shm_unlock(shmid);
++		shm_unlock(shp);
+ 	up (&shm_ids.sem);
+ 
+ 	*raddr = (unsigned long) user_addr;
+@@ -727,7 +723,7 @@
+ 				shp->shm_atim,
+ 				shp->shm_dtim,
+ 				shp->shm_ctim);
+-			shm_unlock(i);
++			shm_unlock(shp);
+ 
+ 			pos += len;
+ 			if(pos < offset) {
+diff -urN linux-2.5.44/ipc/util.c 2544-ipc/ipc/util.c
+--- linux-2.5.44/ipc/util.c	Fri Oct 18 21:01:49 2002
++++ 2544-ipc/ipc/util.c	Thu Oct 31 09:05:46 2002
+@@ -8,6 +8,8 @@
+  *            Chris Evans, <chris@ferret.lmh.ox.ac.uk>
+  * Nov 1999 - ipc helper functions, unified SMP locking
+  *	      Manfred Spraul <manfreds@colorfullife.com>
++ * Oct 2002 - One lock per IPC id. RCU ipc_free for lock-free grow_ary().
++ *            Mingming Cao <cmm@us.ibm.com>
+  */
+ 
+ #include <linux/config.h>
+@@ -20,6 +22,7 @@
+ #include <linux/slab.h>
+ #include <linux/highuid.h>
+ #include <linux/security.h>
++#include <linux/workqueue.h>
+ 
+ #if defined(CONFIG_SYSVIPC)
+ 
+@@ -69,13 +72,12 @@
+ 		 	ids->seq_max = seq_limit;
+ 	}
+ 
+-	ids->entries = ipc_alloc(sizeof(struct ipc_id)*size);
++	ids->entries = ipc_rcu_alloc(sizeof(struct ipc_id)*size);
+ 
+ 	if(ids->entries == NULL) {
+ 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
+ 		ids->size = 0;
+ 	}
+-	ids->ary = SPIN_LOCK_UNLOCKED;
+ 	for(i=0;i<ids->size;i++)
+ 		ids->entries[i].p = NULL;
+ }
+@@ -84,7 +86,8 @@
+  *	ipc_findkey	-	find a key in an ipc identifier set	
+  *	@ids: Identifier set
+  *	@key: The key to find
+- *
++ *	
++ *	Requires ipc_ids.sem locked.
+  *	Returns the identifier if found or -1 if not.
+  */
+  
+@@ -92,8 +95,9 @@
+ {
+ 	int id;
+ 	struct kern_ipc_perm* p;
++	int max_id = ids->max_id;
+ 
+-	for (id = 0; id <= ids->max_id; id++) {
++	for (id = 0; id <= max_id; id++) {
+ 		p = ids->entries[id].p;
+ 		if(p==NULL)
+ 			continue;
+@@ -103,6 +107,9 @@
+ 	return -1;
+ }
+ 
 +/*
-+ * Sample the counters and update state.
-+ * This operation is used on processors like the pre-MMX Intel P5,
-+ * which cannot sample the counter registers in user-mode.
++ * Requires ipc_ids.sem locked
 + */
-+static int sys_vperfctr_sample(struct vperfctr *perfctr, int is_remote)
+ static int grow_ary(struct ipc_ids* ids, int newsize)
+ {
+ 	struct ipc_id* new;
+@@ -114,21 +121,21 @@
+ 	if(newsize <= ids->size)
+ 		return newsize;
+ 
+-	new = ipc_alloc(sizeof(struct ipc_id)*newsize);
++	new = ipc_rcu_alloc(sizeof(struct ipc_id)*newsize);
+ 	if(new == NULL)
+ 		return ids->size;
+ 	memcpy(new, ids->entries, sizeof(struct ipc_id)*ids->size);
+ 	for(i=ids->size;i<newsize;i++) {
+ 		new[i].p = NULL;
+ 	}
+-	spin_lock(&ids->ary);
+-
+ 	old = ids->entries;
+-	ids->entries = new;
+ 	i = ids->size;
++	
++	ids->entries = new;
++	wmb();
+ 	ids->size = newsize;
+-	spin_unlock(&ids->ary);
+-	ipc_free(old, sizeof(struct ipc_id)*i);
++
++	ipc_rcu_free(old, sizeof(struct ipc_id)*i);
+ 	return ids->size;
+ }
+ 
+@@ -166,7 +173,10 @@
+ 	if(ids->seq > ids->seq_max)
+ 		ids->seq = 0;
+ 
+-	spin_lock(&ids->ary);
++	new->lock = SPIN_LOCK_UNLOCKED;
++	new->deleted = 0;
++	rcu_read_lock();
++	spin_lock(&new->lock);
+ 	ids->entries[id].p = new;
+ 	return id;
+ }
+@@ -180,6 +190,8 @@
+  *	fed an invalid identifier. The entry is removed and internal
+  *	variables recomputed. The object associated with the identifier
+  *	is returned.
++ *	ipc_ids.sem and the spinlock for this ID is hold before this function
++ *	is called, and remain locked on the exit.
+  */
+  
+ struct kern_ipc_perm* ipc_rmid(struct ipc_ids* ids, int id)
+@@ -188,6 +200,7 @@
+ 	int lid = id % SEQ_MULTIPLIER;
+ 	if(lid >= ids->size)
+ 		BUG();
++	
+ 	p = ids->entries[lid].p;
+ 	ids->entries[lid].p = NULL;
+ 	if(p==NULL)
+@@ -202,6 +215,7 @@
+ 		} while (ids->entries[lid].p == NULL);
+ 		ids->max_id = lid;
+ 	}
++	p->deleted = 1;
+ 	return p;
+ }
+ 
+@@ -224,14 +238,14 @@
+ }
+ 
+ /**
+- *	ipc_free	-	free ipc space
++ *	ipc_free        -       free ipc space
+  *	@ptr: pointer returned by ipc_alloc
+  *	@size: size of block
+  *
+  *	Free a block created with ipc_alloc. The caller must know the size
+  *	used in the allocation call.
+  */
+- 
++
+ void ipc_free(void* ptr, int size)
+ {
+ 	if(size > PAGE_SIZE)
+@@ -240,6 +254,85 @@
+ 		kfree(ptr);
+ }
+ 
++struct ipc_rcu_kmalloc
 +{
-+	if( !is_remote ) {
-+		preempt_disable();
-+		vperfctr_sample(perfctr);
-+		preempt_enable();
-+	}
++	struct rcu_head rcu;
++	/* "void *" makes sure alignment of following data is sane. */
++	void *data[0];
++};
++
++struct ipc_rcu_vmalloc
++{
++	struct rcu_head rcu;
++	struct work_struct work;
++	/* "void *" makes sure alignment of following data is sane. */
++	void *data[0];
++};
++
++static inline int rcu_use_vmalloc(int size)
++{
++	/* Too big for a single page? */
++	if (sizeof(struct ipc_rcu_kmalloc) + size > PAGE_SIZE)
++		return 1;
 +	return 0;
 +}
 +
-+static int vperfctr_attach_task(struct task_struct *tsk, int creat)
++/**
++ *	ipc_rcu_alloc	-	allocate ipc and rcu space 
++ *	@size: size desired
++ *
++ *	Allocate memory for the rcu header structure +  the object.
++ *	Returns the pointer to the object.
++ *	NULL is returned if the allocation fails. 
++ */
++ 
++void* ipc_rcu_alloc(int size)
 +{
-+	struct file *filp;
-+	int err;
-+	int fd;
-+	struct vperfctr *perfctr;
-+
-+	filp = vperfctr_get_filp();
-+	err = -ENOMEM;
-+	if( !filp )
-+		return err;
-+	err = fd = get_unused_fd();
-+	if( err < 0 )
-+		goto out_filp;
-+	if( creat ) {
-+		perfctr = get_empty_vperfctr();
-+		err = -ENOMEM;
-+		if( !perfctr )
-+			goto out_fd;
-+		err = -EEXIST;
-+		if( tsk->thread.vperfctr )
-+			goto out_perfctr;
-+		perfctr->owner = tsk;
-+		tsk->thread.vperfctr = perfctr;
++	void* out;
++	/* 
++	 * We prepend the allocation with the rcu struct, and
++	 * workqueue if necessary (for vmalloc). 
++	 */
++	if (rcu_use_vmalloc(size)) {
++		out = vmalloc(sizeof(struct ipc_rcu_vmalloc) + size);
++		if (out) out += sizeof(struct ipc_rcu_vmalloc);
 +	} else {
-+		perfctr = tsk->thread.vperfctr;
-+		err = -ENODEV;
-+		if( !perfctr )
-+			goto out_fd;
++		out = kmalloc(sizeof(struct ipc_rcu_kmalloc)+size, GFP_KERNEL);
++		if (out) out += sizeof(struct ipc_rcu_kmalloc);
 +	}
-+	atomic_inc(&perfctr->count);
-+	filp->private_data = perfctr;
-+	fd_install(fd, filp);
-+	return fd;
-+ out_perfctr:
-+	put_vperfctr(perfctr);
-+ out_fd:
-+	put_unused_fd(fd);
-+ out_filp:
-+	fput(filp);
-+	return err;
++
++	return out;
 +}
 +
-+static int vperfctr_attach_pid(int pid, int creat)
-+{
-+	struct task_struct *tsk;
-+	int ret;
-+
-+	if( pid == 0 || pid == current->pid )
-+		return vperfctr_attach_task(current, creat);
-+	read_lock(&tasklist_lock);
-+	tsk = find_task_by_pid(pid);
-+	if( tsk )
-+		get_task_struct(tsk);
-+	read_unlock(&tasklist_lock);
-+	ret = -ESRCH;
-+	if( !tsk )
-+		return ret;
-+	ret = ptrace_check_attach(tsk, 0);
-+	if( ret == 0 )
-+		ret = vperfctr_attach_task(tsk, creat);
-+	put_task_struct(tsk);
-+	return ret;
-+}
-+
-+static int sys_vperfctr_info(struct perfctr_cpu_info *argp)
-+{
-+	if( copy_to_user(argp, &perfctr_cpu_info, sizeof perfctr_cpu_info) )
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static int init_done;
-+
-+asmlinkage int sys_vperfctr(unsigned int cmd, int whom, void *arg)
-+{
-+	struct vperfctr *perfctr;
-+	struct task_struct *tsk;
-+	struct file *filp;
-+	int ret;
-+
-+	if( !init_done )
-+		return -ENODEV;
-+	switch( cmd ) {
-+	case VPERFCTR_INFO:
-+		return sys_vperfctr_info((struct perfctr_cpu_info*)arg);
-+	case VPERFCTR_OPEN:
-+		return vperfctr_attach_pid(whom, 0);
-+	case VPERFCTR_CREAT:
-+		return vperfctr_attach_pid(whom, 1);
-+	}
-+	ret = -EBADF;
-+	filp = fget(whom);
-+	if( !filp )
-+		return ret;
-+	if( filp->f_op != &vperfctr_file_ops )
-+		goto out_filp;
-+	perfctr = filp->private_data;
-+	ret = -EINVAL;
-+	if( !perfctr )
-+		goto out_filp;
-+	tsk = NULL;
-+	if( perfctr != current->thread.vperfctr ) {
-+		spin_lock(&perfctr->owner_lock);
-+		tsk = perfctr->owner;
-+		if( tsk )
-+			get_task_struct(tsk);
-+		spin_unlock(&perfctr->owner_lock);
-+		ret = -ESRCH;
-+		if( !tsk )
-+			goto out_filp;
-+		ret = ptrace_check_attach(tsk, 0);
-+		if( ret < 0 )
-+			goto out_tsk;
-+	}
-+	switch( cmd ) {
-+	case VPERFCTR_CONTROL:
-+		ret = sys_vperfctr_control(perfctr, (struct vperfctr_control*)arg, tsk != NULL);
-+		break;
-+	case VPERFCTR_UNLINK:
-+		/* remote access note: unlink needs the owner task_struct */
-+		ret = sys_vperfctr_unlink(perfctr, tsk);
-+		break;
-+	case VPERFCTR_SAMPLE:
-+		ret = sys_vperfctr_sample(perfctr, tsk != NULL);
-+		break;
-+	case VPERFCTR_IRESUME:
-+		ret = sys_vperfctr_iresume(perfctr, tsk != NULL);
-+		break;
-+	default:
-+		ret = -EINVAL;
-+	}
-+ out_tsk:
-+	if( tsk )
-+		put_task_struct(tsk);
-+ out_filp:
-+	fput(filp);
-+	return ret;
-+}
-+
-+/****************************************************************
-+ *								*
-+ * Virtual perfctr file operations.				*
-+ *								*
-+ ****************************************************************/
-+
-+static int vperfctr_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct vperfctr *perfctr;
-+
-+	/* Only allow read-only mapping of first page. */
-+	if( (vma->vm_end - vma->vm_start) != PAGE_SIZE ||
-+	    vma->vm_pgoff != 0 ||
-+	    (pgprot_val(vma->vm_page_prot) & _PAGE_RW) ||
-+	    (vma->vm_flags & (VM_WRITE | VM_MAYWRITE)) )
-+		return -EPERM;
-+	perfctr = filp->private_data;
-+	if( !perfctr )
-+		return -EPERM;
-+	return remap_page_range(vma, vma->vm_start, virt_to_phys(perfctr),
-+				PAGE_SIZE, vma->vm_page_prot);
-+}
-+
-+static int vperfctr_release(struct inode *inode, struct file *filp)
-+{
-+	struct vperfctr *perfctr = filp->private_data;
-+	filp->private_data = NULL;
-+	if( perfctr )
-+		put_vperfctr(perfctr);
-+	return 0;
-+}
-+
-+static struct file_operations vperfctr_file_ops = {
-+	.mmap = vperfctr_mmap,
-+	.release = vperfctr_release,
-+};
-+
-+/****************************************************************
-+ *								*
-+ * Virtual perfctr file system. Based on pipefs.		*
-+ *								*
-+ ****************************************************************/
-+
-+static int vperfctrfs_delete_dentry(struct dentry *dentry)
-+{
-+	return 1;
-+}
-+
-+static struct dentry_operations vperfctrfs_dentry_operations = {
-+	.d_delete	= vperfctrfs_delete_dentry,
-+};
-+
-+static struct vfsmount *vperfctr_mnt;
-+
-+static struct inode *vperfctr_get_inode(void)
-+{
-+	struct inode *inode;
-+
-+	inode = new_inode(vperfctr_mnt->mnt_sb);
-+	if( !inode )
-+		return NULL;
-+	inode->i_fop = &vperfctr_file_ops;
-+	inode->i_state = I_DIRTY;
-+	inode->i_mode = S_IFCHR | S_IRUSR | S_IWUSR;
-+	inode->i_uid = current->fsuid;
-+	inode->i_gid = current->fsgid;
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	inode->i_blksize = 0;
-+	return inode;
-+}
-+
-+static struct dentry *vperfctr_d_alloc_root(struct inode *inode)
-+{
-+	struct qstr this;
-+	char name[32];
-+	struct dentry *dentry;
-+
-+	sprintf(name, "[%lu]", inode->i_ino);
-+	this.name = name;
-+	this.len = strlen(name);
-+	this.hash = inode->i_ino; /* will go */
-+	dentry = d_alloc(vperfctr_mnt->mnt_sb->s_root, &this);
-+	if( dentry ) {
-+		dentry->d_op = &vperfctrfs_dentry_operations;
-+		d_add(dentry, inode);
-+	}
-+	return dentry;
-+}
-+
-+static struct file *vperfctr_get_filp(void)
-+{
-+	struct file *filp;
-+	struct inode *inode;
-+	struct dentry *dentry;
-+
-+	filp = get_empty_filp();
-+	if( !filp )
-+		goto out;
-+	inode = vperfctr_get_inode();
-+	if( !inode )
-+		goto out_filp;
-+	dentry = vperfctr_d_alloc_root(inode);
-+	if( !dentry )
-+		goto out_inode;
-+
-+	filp->f_vfsmnt = mntget(vperfctr_mnt);
-+	filp->f_dentry = dentry;
-+
-+	filp->f_pos = 0;
-+	filp->f_flags = 0;
-+	filp->f_op = &vperfctr_file_ops; /* use fops_get() if MODULE */
-+	filp->f_mode = FMODE_READ;
-+	filp->f_version = 0;
-+
-+	return filp;
-+
-+ out_inode:
-+	iput(inode);
-+ out_filp:
-+	put_filp(filp);	/* doesn't run ->release() like fput() does */
-+ out:
-+	return NULL;
-+}
-+
-+#define VPERFCTRFS_MAGIC (('V'<<24)|('P'<<16)|('M'<<8)|('C'))
-+
-+static struct super_block *
-+vperfctrfs_get_sb(struct file_system_type *fs_type,
-+		  int flags, char *dev_name, void *data)
-+{
-+	return get_sb_pseudo(fs_type, "vperfctr:", NULL, VPERFCTRFS_MAGIC);
-+}
-+
-+static struct file_system_type vperfctrfs_type = {
-+	.name		= "vperfctrfs",
-+	.get_sb		= vperfctrfs_get_sb,
-+	.kill_sb	= kill_anon_super,
-+};
-+
-+static int __init vperfctrfs_init(void)
-+{
-+	int err = register_filesystem(&vperfctrfs_type);
-+	if( !err ) {
-+		vperfctr_mnt = kern_mount(&vperfctrfs_type);
-+		if( !IS_ERR(vperfctr_mnt) )
-+			return 0;
-+		err = PTR_ERR(vperfctr_mnt);
-+		unregister_filesystem(&vperfctrfs_type);
-+	}
-+	return err;
-+}
-+
-+static void __exit vperfctrfs_exit(void)
-+{
-+	unregister_filesystem(&vperfctrfs_type);
-+	mntput(vperfctr_mnt);
-+}
-+
-+/****************************************************************
-+ *								*
-+ * module_init/exit						*
-+ *								*
-+ ****************************************************************/
-+
-+static int __init vperfctr_init(void)
-+{
-+	int err;
-+
-+	err = perfctr_cpu_init();
-+	if( err ) {
-+		printk(KERN_INFO "vperfctr: not supported by this processor\n");
-+		return err;
-+	}
-+	err = vperfctrfs_init();
-+	if( err )
-+		return err;
-+	printk(KERN_INFO "vperfctr: version %s, cpu type %s at %lu kHz\n",
-+	       VERSION,
-+	       perfctr_cpu_name[perfctr_cpu_info.type],
-+	       cpu_khz);
-+	init_done = 1;
-+	return 0;
-+}
-+
-+static void __exit vperfctr_exit(void)
-+{
-+	vperfctrfs_exit();
-+	perfctr_cpu_exit();
-+}
-+
-+module_init(vperfctr_init)
-+module_exit(vperfctr_exit)
-diff -uN linux-2.5.45/include/linux/vperfctr.h linux-2.5.45.perfctr-3.1/include/linux/vperfctr.h
---- linux-2.5.45/include/linux/vperfctr.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.45.perfctr-3.1/include/linux/vperfctr.h	Thu Oct 31 22:36:50 2002
-@@ -0,0 +1,105 @@
-+/* $Id: vperfctr.h,v 1.1 2002/10/31 21:36:50 mikpe Exp $
-+ * Virtual Per-Process Performance-Monitoring Counters driver
-+ *
-+ * Copyright (C) 1999-2002  Mikael Pettersson
++/**
++ *	ipc_schedule_free	- free ipc + rcu space
++ * 
++ * Since RCU callback function is called in bh,
++ * we need to defer the vfree to schedule_work
 + */
-+#ifndef _LINUX_VPERFCTR_H
-+#define _LINUX_VPERFCTR_H
++static void ipc_schedule_free(void* arg)
++{
++	struct ipc_rcu_vmalloc *free = arg;
 +
-+#include <asm/perfctr.h>
++	INIT_WORK(&free->work, vfree, free);
++	schedule_work(&free->work);
++}
 +
-+/* user's view of mmap:ed virtual perfctr */
-+struct vperfctr_state {
-+	unsigned int magic;
-+	int si_signo;
-+	struct perfctr_cpu_state cpu_state;
-+};
++void ipc_rcu_free(void* ptr, int size)
++{
++	if (rcu_use_vmalloc(size)) {
++		struct ipc_rcu_vmalloc *free;
++		free = ptr - sizeof(*free);
++		call_rcu(&free->rcu, ipc_schedule_free, free);
++	} else {
++		struct ipc_rcu_kmalloc *free;
++		free = ptr - sizeof(*free);
++		/* kfree takes a "const void *" so gcc warns.  So we cast. */
++		call_rcu(&free->rcu, (void (*)(void *))kfree, free);
++	}
 +
-+/* `struct vperfctr_state' binary layout version number */
-+#define VPERFCTR_STATE_MAGIC	0x0201	/* 2.1 */
-+#define VPERFCTR_MAGIC	((VPERFCTR_STATE_MAGIC<<16)|PERFCTR_CPU_STATE_MAGIC)
++}
 +
-+/* parameter in VPERFCTR_CONTROL command */
-+struct vperfctr_control {
-+	int si_signo;
-+	struct perfctr_cpu_control cpu_control;
-+	unsigned long preserve;
-+};
-+
+ /**
+  *	ipcperms	-	check IPC permissions
+  *	@ipcp: IPC permission set
+diff -urN linux-2.5.44/ipc/util.h 2544-ipc/ipc/util.h
+--- linux-2.5.44/ipc/util.h	Fri Oct 18 21:01:57 2002
++++ 2544-ipc/ipc/util.h	Thu Oct 31 09:05:46 2002
+@@ -4,6 +4,7 @@
+  *
+  * ipc helper functions (c) 1999 Manfred Spraul <manfreds@colorfullife.com>
+  */
++#include <linux/rcupdate.h>
+ 
+ #define USHRT_MAX 0xffff
+ #define SEQ_MULTIPLIER	(IPCMNI)
+@@ -19,7 +20,6 @@
+ 	unsigned short seq;
+ 	unsigned short seq_max;
+ 	struct semaphore sem;	
+-	spinlock_t ary;
+ 	struct ipc_id* entries;
+ };
+ 
+@@ -27,7 +27,6 @@
+ 	struct kern_ipc_perm* p;
+ };
+ 
+-
+ void __init ipc_init_ids(struct ipc_ids* ids, int size);
+ 
+ /* must be called with ids->sem acquired.*/
+@@ -44,44 +43,69 @@
+  */
+ void* ipc_alloc(int size);
+ void ipc_free(void* ptr, int size);
++/* for allocation that need to be freed by RCU
++ * both function can sleep
++ */
++void* ipc_rcu_alloc(int size);
++void ipc_rcu_free(void* arg, int size);
+ 
+-extern inline void ipc_lockall(struct ipc_ids* ids)
+-{
+-	spin_lock(&ids->ary);
+-}
+-
 +/*
-+ * sys_vperfctr(unsigned int cmd, int whom, void *arg)
++ * ipc_get() requires ipc_ids.sem down, otherwise we need a rmb() here
++ * to sync with grow_ary();
 + *
-+ *	cmd			   whom, arg
++ * So far only shm_get_stat() uses ipc_get() via shm_get().  So ipc_get()
++ * is called with shm_ids.sem locked.  Thus a rmb() is not needed here,
++ * as grow_ary() also requires shm_ids.sem down(for shm).
++ *
++ * But if ipc_get() is used in the future without ipc_ids.sem down,
++ * we need to add a rmb() before accessing the entries array
 + */
-+#define VPERFCTR_INFO	 0	/* 0, struct perfctr_cpu_info* */
-+#define VPERFCTR_SAMPLE	 1	/* fd, NULL */
-+#define VPERFCTR_UNLINK	 2	/* fd, NULL */
-+#define VPERFCTR_CONTROL 3	/* fd, struct vperfctr_control* */
-+#define VPERFCTR_IRESUME 4	/* fd, NULL */
-+#define VPERFCTR_OPEN	 5	/* pid, NULL */
-+#define VPERFCTR_CREAT	 6	/* pid, NULL */
+ extern inline struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
+ {
+ 	struct kern_ipc_perm* out;
+ 	int lid = id % SEQ_MULTIPLIER;
+ 	if(lid >= ids->size)
+ 		return NULL;
+-
++	rmb();
+ 	out = ids->entries[lid].p;
+ 	return out;
+ }
+ 
+-extern inline void ipc_unlockall(struct ipc_ids* ids)
+-{
+-	spin_unlock(&ids->ary);
+-}
+ extern inline struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id)
+ {
+ 	struct kern_ipc_perm* out;
+ 	int lid = id % SEQ_MULTIPLIER;
+-	if(lid >= ids->size)
 +
-+#ifdef __KERNEL__
-+
-+#ifdef CONFIG_PERFCTR_VIRTUAL
-+
-+struct vperfctr;	/* opaque */
-+
-+/* process management operations */
-+extern struct vperfctr *__vperfctr_copy(struct vperfctr*);
-+extern void __vperfctr_exit(struct vperfctr*);
-+extern void __vperfctr_suspend(struct vperfctr*);
-+extern void __vperfctr_resume(struct vperfctr*);
-+extern void __vperfctr_sample(struct vperfctr*);
-+
-+static inline void vperfctr_copy_thread(struct thread_struct *thread)
-+{
-+	thread->vperfctr = NULL;
-+}
-+
-+static inline void vperfctr_exit_thread(struct thread_struct *thread)
-+{
-+	struct vperfctr *vperfctr = thread->vperfctr;
-+	if( vperfctr ) {
-+		thread->vperfctr = NULL;
-+		__vperfctr_exit(vperfctr);
++	rcu_read_lock();
++	if(lid >= ids->size) {
++		rcu_read_unlock();
+ 		return NULL;
 +	}
-+}
-+
-+static inline void vperfctr_suspend_thread(struct thread_struct *prev)
-+{
-+	struct vperfctr *vperfctr = prev->vperfctr;
-+	if( vperfctr )
-+		__vperfctr_suspend(vperfctr);
-+}
-+
-+/* PRE: next is current */
-+static inline void vperfctr_resume_thread(struct thread_struct *next)
-+{
-+	struct vperfctr *vperfctr = next->vperfctr;
-+	if( vperfctr )
-+		__vperfctr_resume(vperfctr);
-+}
-+
-+static inline void vperfctr_sample_thread(struct thread_struct *thread)
-+{
-+#ifdef CONFIG_SMP
-+	struct vperfctr *vperfctr = thread->vperfctr;
-+	if( vperfctr )
-+		__vperfctr_sample(vperfctr);
-+#endif
-+}
-+
-+#else	/* !CONFIG_PERFCTR_VIRTUAL */
-+
-+static inline void vperfctr_copy_thread(struct thread_struct *t) { }
-+static inline void vperfctr_exit_thread(struct thread_struct *t) { }
-+static inline void vperfctr_suspend_thread(struct thread_struct *t) { }
-+static inline void vperfctr_resume_thread(struct thread_struct *t) { }
-+static inline void vperfctr_sample_thread(struct thread_struct *t) { }
-+
-+#endif	/* CONFIG_PERFCTR_VIRTUAL */
-+
-+#endif	/* __KERNEL__ */
-+
-+#endif	/* _LINUX_VPERFCTR_H */
+ 
+-	spin_lock(&ids->ary);
++	/* we need a barrier here to sync with grow_ary() */
++	rmb();
+ 	out = ids->entries[lid].p;
+-	if(out==NULL)
+-		spin_unlock(&ids->ary);
++	if(out == NULL) {
++		rcu_read_unlock();
++		return NULL;
++	}
++	spin_lock(&out->lock);
++	
++	/* ipc_rmid() may have already freed the ID while ipc_lock
++	 * was spinning: here verify that the structure is still valid
++	 */
++	if (out->deleted) {
++		spin_unlock(&out->lock);
++		rcu_read_unlock();
++		return NULL;
++	}
+ 	return out;
+ }
+ 
+-extern inline void ipc_unlock(struct ipc_ids* ids, int id)
++extern inline void ipc_unlock(struct kern_ipc_perm* perm)
+ {
+-	spin_unlock(&ids->ary);
++	spin_unlock(&perm->lock);
++	rcu_read_unlock();
+ }
+ 
+ extern inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
+
+--------------3E7808A0117B063146435ED0--
+

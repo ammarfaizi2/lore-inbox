@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267372AbUG2AJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUG2AMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267372AbUG2AJV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 20:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUG2AJU
+	id S267368AbUG2AMz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 20:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267369AbUG2AJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:09:20 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:57833 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267369AbUG2AI0 (ORCPT
+	Wed, 28 Jul 2004 20:09:51 -0400
+Received: from holomorphy.com ([207.189.100.168]:1424 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267371AbUG2AI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:08:26 -0400
-Date: Thu, 29 Jul 2004 11:04:03 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [2.6.8-rc2][XFS] Page allocation failure
-Message-ID: <20040729010403.GC800@frodo>
-References: <20040725173022.GA8345@dreamland.darkstar.lan>
+	Wed, 28 Jul 2004 20:08:57 -0400
+Date: Wed, 28 Jul 2004 17:08:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Eduard Bloch <blade@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: memory not released after using cdrecord/cdrdao (was: audio cd writing causes massive swap and crash)
+Message-ID: <20040729000855.GI2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Eduard Bloch <blade@debian.org>, linux-kernel@vger.kernel.org
+References: <20040725094605.GA18324@zombie.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040725173022.GA8345@dreamland.darkstar.lan>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20040725094605.GA18324@zombie.inka.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+* Ed Sweetman [Sat, Jul 17 2004, 04:00:13PM]:
+>> Both with 2.6.7-rc3 and 2.6.8-rc1-mm1 I get the same behavior when 
+>> writing an audio cd on my plextor px-712a.  DMA is enabled and normal 
+>> data cds write as expected, but audio cds will cause (at any speed) the 
+>> box to start using insane amounts of swap (>150MB) and eventually cause 
 
-On Sun, Jul 25, 2004 at 07:30:23PM +0200, Kronos wrote:
-> ...
-> It seems that XFS failed an order 5 allocation (not atomic) on the read
+On Sun, Jul 25, 2004 at 11:46:05AM +0200, Eduard Bloch wrote:
+> Just FYI: we have a similar bug description in the Debian BTS, where the
+> user reports that kernel does not release memory assigned to userspace
+> after cdrdao or cdrecord have used it (writting in DAO mode), though he
+> could not find what allocated this memory. For details:
+> http://bugs.debian.org/256871 (dump attached).
 
-Hmm, that file is fragmented up the wazoo for some reason
-(see the xfs_bmap -vv output on the file).  Any chance you
-know how it was written originally?  In particular, was it
-written with O_SYNC set?  (or via a sync NFS mount?).
-Thanks.
+Is there any way we could get a characterization of the kind of memory
+that's proliferating here? e.g. could you snapshot /proc/meminfo,
+/proc/slabinfo, and /proc/vmstat at regular intervals during the run?
 
-> path two times (there are 80 secs between the warnings). Can I assume
-> that the FS is not harmed?
 
-Yes you can (those were warning messages & not oopsen).
-
-cheers.
-
--- 
-Nathan
+-- wli

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVCWN6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVCWOAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbVCWN6V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 08:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWN6U
+	id S261605AbVCWOAy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 09:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWN6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:58:20 -0500
-Received: from duempel.org ([81.209.165.42]:50375 "HELO swift.roonstrasse.net")
-	by vger.kernel.org with SMTP id S261468AbVCWNyC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:54:02 -0500
-Date: Wed, 23 Mar 2005 14:53:17 +0100
-From: Max Kellermann <max@duempel.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: forkbombing Linux distributions
-Message-ID: <20050323135317.GA22959@roonstrasse.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com> <20050322112628.GA18256@roll> <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Mar 2005 08:58:33 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:39440 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262552AbVCWN6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 08:58:03 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@osdl.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Samsung 40G drive locking up 2.6.11
+Date: Wed, 23 Mar 2005 15:57:42 +0200
+User-Agent: KMail/1.5.4
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+References: <200503221431.31549.vda@ilport.com.ua> <20050323023853.28c9a432.akpm@osdl.org>
+In-Reply-To: <20050323023853.28c9a432.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503231557.42614.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005/03/22 12:49, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> What if the few procs that he may spawn also grab so much memory so
-> your machine disappears in swap-t(h)rashing?
+On Wednesday 23 March 2005 12:38, Andrew Morton wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> >
+> > dd if=/dev/hdc of=/dev/null with this disk
+> >  kills the system. Drive may do it's work
+> >  for minute or two, but then it does 'klak' sound.
+> >  With udma5 (default) Linux froze solid, no SysRq key, nothing.
+> >  Powercycling helps.
+> > 
+> >  With udma3, it did not die, but still spews IDE errors.
+> >  I will try to collect more data points.
+> 
+> Did it work OK under earlier kernels?  If so, which?
 
-The number of processes is counted per user, but CPU time and memory
-consumption is counted per process.
+I've tried only 2.6.11.
 
-Going around RLIMIT_CPU is too easy by simply forkbombing. This
-renders RLIMIT_CPU unusable.
+In spite seeing it going belly up at least four times,
+taking the whole box with it, I cannot make this damned
+drive fail anymore.
 
-The memory limits aren't good enough either: if you set them low
-enough that memory-forkbombs are unperilous for
-RLIMIT_NPROC*RLIMIT_DATA, it's probably too low for serious
-applications.
-
-Now what about per-user (or per-session) CPU and memory limits?
-
-Another idea: RLIMIT_FORK (number of allowed fork() calls in that
-session). While that may not be useful for interactive login sessions,
-I can imagine several situations where it could help (like qmail child
-processes).
-
-Max
+Seems to be one of those nasty intermittent hardware failures.
+--
+vda
 

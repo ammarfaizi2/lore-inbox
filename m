@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSHGUwg>; Wed, 7 Aug 2002 16:52:36 -0400
+	id <S312560AbSHGVA2>; Wed, 7 Aug 2002 17:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSHGUwe>; Wed, 7 Aug 2002 16:52:34 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10250 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S315536AbSHGUvX>; Wed, 7 Aug 2002 16:51:23 -0400
-Date: Wed, 7 Aug 2002 17:54:50 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <wli@holomorphy.com>
-Subject: Re: [PATCH] Rmap speedup
-In-Reply-To: <E17cXlz-0004y0-00@starship>
-Message-ID: <Pine.LNX.4.44L.0208071753190.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312558AbSHGVA2>; Wed, 7 Aug 2002 17:00:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37339 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293203AbSHGU7q>;
+	Wed, 7 Aug 2002 16:59:46 -0400
+Date: Wed, 07 Aug 2002 13:50:38 -0700 (PDT)
+Message-Id: <20020807.135038.57454567.davem@redhat.com>
+To: zaitcev@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buglet in irq compat code in 2.5.30
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020807165443.A3730@devserv.devel.redhat.com>
+References: <20020807165443.A3730@devserv.devel.redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Daniel Phillips wrote:
+   From: Pete Zaitcev <zaitcev@redhat.com>
+   Date: Wed, 7 Aug 2002 16:54:43 -0400
 
-> > It may be a net loss for high sharing levels.  Dunno.
->
-> High sharing levels are exactly where the swap-in problem is going to
-> rear its ugly head.
-
-If the swap-in problem exists.
-
-I can see it being triggered artificially because we still
-unmap too many pages in the pageout path, but if we fix
-shrink_cache() to not unmap the whole inactive list when
-we're under continuous memory pressure but only the end of
-the list where we're actually reclaiming pages, maybe then
-many of the minor page faults we're seeing under such
-loads will just disappear.
-
-Not to mention the superfluous IO being scheduled today.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+   The save_flags used to save flags, while local_irq_save saves AND
+   closes interrupts, and local_irq_save_off simply does not exist.
+   I did not see anything on the list, perhaps nobody is bold enough
+   to use 2.5.30?
+   
+These things really will die very soon, probably best not
+to rely on them at all :-)

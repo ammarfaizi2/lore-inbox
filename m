@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUGLVNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUGLVVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUGLVNs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUGLVNs
+	id S263626AbUGLVVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGLVVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:13:48 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:8648 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263147AbUGLVNq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:13:46 -0400
-Message-Id: <200407122108.i6CL8puf027997@laptop10.inf.utfsm.cl>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.8-rc1 
-In-Reply-To: Your message of "Mon, 12 Jul 2004 17:42:04 +0200."
-             <20040712154204.GS4701@fs.tum.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Mon, 12 Jul 2004 17:08:51 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 12 Jul 2004 17:21:16 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:27015 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263626AbUGLVVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:21:13 -0400
+Date: Mon, 12 Jul 2004 14:20:20 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: Jan Knutar <jk-lkml@sci.fi>, L A Walsh <lkml@tlinx.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040712212020.GA22372@taniwha.stupidest.org>
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <20040710191914.GA5471@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040710191914.GA5471@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> said:
+On Sat, Jul 10, 2004 at 12:19:14PM -0700, Chris Wedgwood wrote:
 
-[...]
+> It would be nice for some people to prevent log-replay zeroing files
+> but then something would have to be able to determine whether or not
+> these blocks were newly allocated (and this might contain
+> confidential data and need to be zeroed) or previously part of the
+> file in which case we probably would like them left alone.
 
-> Unless he really knows what he's doing, no user should use anything 
-> other than the actual releases (i.e. 2.6.7, 2.6.8, 2.6.9,...).
+I told lies.
 
-Nope. They should use whatever $DISTRO gives them. Anything else is
-experimental (more or less so).
+> I don't know any of the code well enough to know how easy this is or
+> even if I'm telling the truth :) Hopefully someone who does can
+> speak up on this.
+
+I knew I was completely full of shit.
 
 
-[...]
+XFS does *not* zero files, it simply returns zeros for unwritten
+extents.  If you open an existing file and scribble all over it, you
+might see the old data during a crash, or the new data if it was
+flushed.  You shouldn't see zero's though.
 
-> It would be more important if Linus would release one last -rc that will 
-> be released unchanged (except for EXTRAVERSION a few days later to catch 
-> bugs in last minute changes. This might catch more problems like the JFS 
-> compile problem in 2.6.7.
+What does happen though, is that dotfiles are truncated and rewritten,
+if the data blocks aren't flushed you will get zeros back because the
+extents were unwritten.  This is really the only sensible thing to do
+given the circumstances.
 
-Just try and change Linus' ways...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+My guess is that with other fs' (when journaling metadata only) the
+blocks allocated for the newly written data are *usually* the same as
+the recently freed blocks from the truncate so things appear to work
+but in reality it's probably mostly luck.  XFS could behave the same
+way, but sooner or later you will still loose when you get crap back
+instead of old data.
+
+Some applications just need to be fixed.
+
+
+   --cw

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316182AbSGSNoe>; Fri, 19 Jul 2002 09:44:34 -0400
+	id <S316567AbSGSN4N>; Fri, 19 Jul 2002 09:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSGSNoe>; Fri, 19 Jul 2002 09:44:34 -0400
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:43688 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316182AbSGSNoe>; Fri, 19 Jul 2002 09:44:34 -0400
-Date: Fri, 19 Jul 2002 14:47:29 +0100 (BST)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: alastair@gerber
-To: lostlogic@gentoo.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile failure: 2.4.19-rc2-ac2
-Message-ID: <Pine.GSO.4.44.0207191444120.14419-100000@gerber>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316606AbSGSN4N>; Fri, 19 Jul 2002 09:56:13 -0400
+Received: from mnh-1-22.mv.com ([207.22.10.54]:24068 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S316567AbSGSN4N>;
+	Fri, 19 Jul 2002 09:56:13 -0400
+Message-Id: <200207191502.KAA02022@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] check shm mount succeeded in shmem_file_setup 
+In-Reply-To: Your message of "Fri, 19 Jul 2002 17:53:06 +1000."
+             <20020719080027.EEA964479@lists.samba.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Jul 2002 10:02:21 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I posted a crappity fix for this against -ac7, but I haven't seen the
->  problem in -rc2-acX,	do you get the same error if you do make
->  mrproper first?
->
->	--Brandon
+rusty@rustcorp.com.au said:
+> And if the initialization fails at boot, we're screwed anyway. 
 
-Yup - still fails....
+Why?  If it fails, it still boots fine until something tries using shared
+memory.  With UML and my Debian fs, that's Apache, which is the last thing
+before the gettys run.
 
-I was hoping to run a newer kernel because of the Athlon AGP "bug" fix,
-though I suspect that my max 2-day uptime problem is still down to the
-blasted nVidia driver :-(
-
-Never mind, I'll try the next -ac release.
-
-Cheers
-Alastair                            .-=-.
-__________________________________,'     `.
-                                           \   www.mrc-bsu.cam.ac.uk
-Alastair Stevens, Systems Management Team   \       01223 330383
-MRC Biostatistics Unit, Cambridge UK         `=.......................
+				Jeff
 

@@ -1,69 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUGMN1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265006AbUGMNda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUGMN1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 09:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbUGMN1W
+	id S265006AbUGMNda (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 09:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUGMNda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 09:27:22 -0400
-Received: from mail.euroweb.hu ([193.226.220.4]:7915 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S265137AbUGMN1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 09:27:03 -0400
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix inode state corruption (2.6.8-rc1-bk1)
-Message-Id: <E1BkNI0-0007j5-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 13 Jul 2004 15:25:44 +0200
+	Tue, 13 Jul 2004 09:33:30 -0400
+Received: from a4.complang.tuwien.ac.at ([128.130.173.65]:43971 "EHLO
+	a4.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S265006AbUGMNd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 09:33:26 -0400
+Subject: Re: XFS: how to NOT null files on fsck?
+To: cw@f00f.org (Chris Wedgwood)
+Date: Tue, 13 Jul 2004 15:33:23 +0200 (CEST)
+From: "Anton Ertl" <anton@mips.complang.tuwien.ac.at>
+Cc: linux-kernel@vger.kernel.org, jk-lkml@sci.fi (Jan Knutar),
+       lkml@tlinx.org (L A Walsh)
+In-Reply-To: <20040713095300.GA2986@taniwha.stupidest.org>
+Reply-To: anton@mips.complang.tuwien.ac.at
+X-Mailer: ELM [version 2.5 PL7]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1BkNPP-0002cI-Tl@a4.complang.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Chris Wedgwood wrote:
+> 
+> On Tue, Jul 13, 2004 at 11:34:54AM +0200, Anton Ertl wrote:
+> 
+> > It would be the former owner of the block.
+> 
+> there might not be a former owner (in most cases there probably isn't)
 
-This patch fixes a hard-to-trigger condition, where the inode is on
-the inode_in_use list while it's state is dirty.  In this state dirty
-pages are not written back in sync() or from kupdate, only from direct
-page reclaim.  And this causes a livelock in balance_dirty_pages after
-a while.
+If the owner of the file is not the former owner of the block, the FS
+certainly should not put the block in the file.
 
-Please apply!
+> > So, how do you tell?
+> 
+> code inspection and/or testing
 
-The actual sequence of events required to get into this state is:
+How do you test?
 
-thread   function                             inode state         inode list
-----------------------------------------------------------------------------
-1 __sync_single_inode (background)            I_DIRTY             sb->s_io
-1 do_writepages ...                           I_LOCKED
-2 __writeback_single_inode (sync) sleeps      I_LOCKED
-1 __sync_single_inode (background) finish     0                   inode_in_use
-2 __writeback_single_inode (sync) wakeup      0
-2 __sync_single_inode (sync)                  0  
-2 do_writepages ...                           I_LOCKED
-3 __mark_inode_dirty                          I_LOCKED | I_DIRTY
-2 __sync_single_inode (sync) finish           I_DIRTY             left on
-                                                                  inode_in_use
+Code inspection is good, but I think it needs to be complemented by
+testing.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> > Where is data not critical?
+> 
+> that depends on the person and situation, for me personally lots of my
+> data isn't critical.  certainly it's annoying to loose data but
+> probably not life threatening
 
-==============================================================================
---- linux-2.6.8-rc1-bk1/fs/fs-writeback.c.orig	2004-07-13 12:59:58.000000000 +0200
-+++ linux-2.6.8-rc1-bk1/fs/fs-writeback.c	2004-07-13 14:31:07.000000000 +0200
-@@ -213,8 +213,17 @@ __sync_single_inode(struct inode *inode,
- 		} else if (inode->i_state & I_DIRTY) {
- 			/*
- 			 * Someone redirtied the inode while were writing back
--			 * the pages: nothing to do.
-+			 * the pages.
- 			 */
-+			if (wait) {
-+				/*
-+				 * It is possible that this function is entered
-+				 * with the inode on the in_use list, and it
-+				 * is dirtied during being locked, in which
-+				 * case it must be moved onto the dirty list.
-+				 */
-+				list_move(&inode->i_list, &sb->s_dirty);
-+			}
- 		} else if (atomic_read(&inode->i_count)) {
- 			/*
- 			 * The inode is clean, inuse
+We are balancing three things: making the file system nicer; working
+around non-nice file-systems in the applications; and losing data
+(even if it's just annoying rather than life-threatening).  IMO losing
+data is the worst of these alternatives, and making file system nicer
+is the best one.
+
+> > I had such a problem even with a widely-used application like GNU
+> > Emacs (many years ago, may be fixed now), casting doubt on your
+> > claim that fixing the application is easy.
+> 
+> emacs will usually rename the old file so at the very least you have
+> that
+
+Emacs does that only once per session, and I tend to stay in an Emacs
+session for days or weeks (and others probably do so, too).  Then
+there is the auto-save file, but unfortunately eager meta-data updates
+trash that, too (see
+<http://www.complang.tuwien.ac.at/anton/sync-metadata-updates.html>).
+
+> > ext3 data=ordered will probably also work better in most cases than an
+> > FS with eager meta-data updates (like, apparently, XFS), but I don't
+> > think it guarantees in-order semantics.
+> 
+> i thought that was the point of it?  as best as i can tell the
+> metadata changes will become visible after the data has updated
+
+Right, but that's not sufficient.  I am not an expert on ext3, but
+from the description I have read that's all it guarantees.  If an
+application does a meta-data update, and then a data update, the disk
+state on crash might be that the data update was done and the
+meta-data update was not, which is not any of the states that ever
+existed logically.
+
+> however, in the case of something like kde/emacs/whatever you can
+> *still* loose data
+> 
+> consider something like:
+> 
+> 	open with truncate
+> 	crash
+> 
+> or more likely:
+> 
+> 	open with truncate
+> 	write some data
+> 	crash
+> 
+> there is also an even more common case than either of these:
+> 
+>         open with truncate
+> 	write data, get -ENOSPC
+> 	spplication terminates/aborts
+> 
+> at which point you've stomped on your file.  it's non uncommong for
+> KDE to do this (even though the window would apparently be very small)
+
+There are certainly ways that an application can lose data even with a
+fully synchronous file system (which is the semantically nicest thing
+you can ask for (ignoring transactions)), but I am not talking about
+that.  Applications can be tested against that relatively easily by
+killing the application and seeing if the files are ok.
+
+I am talking about ways that data can be lost because the file system
+does not have the nice semantics of a fully synchronous one.  The
+in-order guarantee is something that can be implemented relatively
+efficiently and that does not add any local ways that data can be lost
+or become inconsistent (it does add ways to become inconsistent in
+distibuted applications, though, but there are fewer of these
+applications around, and their programmers are more used to thinking
+about concurrency, and thus hopefully better prepared to insert fsybcs
+etc. at the right place).
+
+- anton

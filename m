@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281842AbRKZPrx>; Mon, 26 Nov 2001 10:47:53 -0500
+	id <S281897AbRKZPyE>; Mon, 26 Nov 2001 10:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281894AbRKZPrd>; Mon, 26 Nov 2001 10:47:33 -0500
-Received: from [168.159.129.100] ([168.159.129.100]:3334 "EHLO
-	mxic1.isus.emc.com") by vger.kernel.org with ESMTP
-	id <S281842AbRKZPra>; Mon, 26 Nov 2001 10:47:30 -0500
-Message-ID: <93F527C91A6ED411AFE10050040665D00241AB08@corpusmx1.us.dg.com>
-From: berthiaume_wayne@emc.com
-To: lk@tantalophile.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Multicast Broadcast
-Date: Mon, 26 Nov 2001 10:47:11 -0500
+	id <S281896AbRKZPxy>; Mon, 26 Nov 2001 10:53:54 -0500
+Received: from 24-240-35-67.hsacorp.net ([24.240.35.67]:2944 "HELO
+	majere.epithna.com") by vger.kernel.org with SMTP
+	id <S281897AbRKZPxp>; Mon, 26 Nov 2001 10:53:45 -0500
+Date: Mon, 26 Nov 2001 10:53:41 -0500 (EST)
+From: <listmail@majere.epithna.com>
+To: "Elgar, Jeremy" <JElgar@ndsuk.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Mixing Patches: pre-emptive + xfs
+In-Reply-To: <F128989C2E99D4119C110002A507409801C53035@topper.hrow.ndsuk.com>
+Message-ID: <Pine.LNX.4.33.0111261050140.5940-100000@majere.epithna.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	One potential work-around is a patch to
-net/ipv4/igmp.c:ip_mc_join_group.
-For example:
+You may need to do some custom work to get them to play well together,
+this is true of any double or Triple patched kernel.  I frequently patch
+with 2 sometimes 3 different patches (one less now that ext3 is in the
+kernel!) and find that it sometimes takes a little looking around in the
+diffs to make sure that the patches do not conflict.  But it can be done.
+I have not looked at these specific patches however.
 
-#ifdef DUAL_MCAST_BIND
-   if(!imr->imr_ifindex) {
-      imr->ifindex=2;  /* eth0 */
-      err=ip_mc_join_group(sk, imr);
-      if (!err) {
-        imr->ifindex=3; /* eth1 */
-        err=ip_mc_join_group(sk, imr);
-      }
-      return err;
-   }
-#else
-   if(!imr->imr_ifindex)
-     in_dev = ip_mc_find_dev(imr);
-#endif
+Bill Dunn
 
-	I'm hoping that there is another way.
+On Mon, 26 Nov 2001, Elgar, Jeremy wrote:
 
-Wayne
-EMC Corp
-ObjectStorEngineering
-4400 Computer Drive
-M/S F213
-Westboro,  MA    01580
+> Hello
+> Just wondering if anyone has try using these two patches together (or is
+> this a really bad idea)
+>
+> I'm thinking of adding the pre-emptive patch to my laptop and desk top.
+>
+> Cheers
+>
+> Jeremy
+>
+> (BTW both are 2.4.14)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-email:       Berthiaume_Wayne@emc.com
-
-"One man can make a difference, and every man should try."  - JFK
-
-
------Original Message-----
-From: Jamie Lokier [mailto:lk@tantalophile.demon.co.uk]
-Sent: Friday, November 23, 2001 3:53 PM
-To: berthiaume_wayne@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multicast Broadcast
-
-
-berthiaume_wayne@emc.com wrote:
-> 	I have a cluster that I wish to be able to perform a multicast
-> broadcast over two backbones, primary and secondary, simultaneously. The
-two
-> eth's are bound to the same VIP. When I perform the broadcast, it only
-goes
-> out on eth0. 
-
-I have seen this problem when trying to use an NTP server to multicast
-to two ethernets.  Unfortunately, NTP's output would only send to one of
-the networks (eth0).
-
-I never did find a workaround.
-
--- Jamie

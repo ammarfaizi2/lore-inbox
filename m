@@ -1,47 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264902AbSJOVY4>; Tue, 15 Oct 2002 17:24:56 -0400
+	id <S264903AbSJOVZ4>; Tue, 15 Oct 2002 17:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264903AbSJOVY4>; Tue, 15 Oct 2002 17:24:56 -0400
-Received: from zero.aec.at ([193.170.194.10]:37906 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S264902AbSJOVYz>;
-	Tue, 15 Oct 2002 17:24:55 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-References: <Pine.LNX.4.44.0210151438440.10496-100000@localhost.localdomain>
-	<3DAC59F7.18678FA6@digeo.com>
-From: Andi Kleen <ak@muc.de>
-Date: 15 Oct 2002 23:30:34 +0200
-In-Reply-To: <3DAC59F7.18678FA6@digeo.com>
-Message-ID: <m3bs5vl79h.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264904AbSJOVZ4>; Tue, 15 Oct 2002 17:25:56 -0400
+Received: from [129.46.51.59] ([129.46.51.59]:23697 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S264903AbSJOVZw>; Tue, 15 Oct 2002 17:25:52 -0400
+Message-Id: <5.1.0.14.2.20021015142910.051af2e8@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 15 Oct 2002 14:31:32 -0700
+To: davem@redhat.com
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: [PATCH] Export sockfd_lookup function
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+Dave,
 
-> Yup.  We'd need to be able to perform a search based on "size of hole"
-> rather than virtual address.  That really needs a whole new data structure
-> and supporting search code, I think...  It also may have side effects
-> to do with fragmentation of the virtual address space.
+Any comments on that one ?
 
-When you oprofile KDE startup you notice that a lot of time is spent in
-get_unmapped_area too. The reason is that every KDE process links with
-10-20 libraries and ends up with a 40-50 entry /proc/<pid>/maps.
+>Can we export sockfd_lookup function ?
+>I need it in one of the Bluetooth modules which has to look up 'struct socket'
+>from fd in the ioctl handler.
+>
+>Here is the patch
 
-Optimizing this case would be likely useful too, although I suspect
-Ingo's last hit cache would already help somewhat.
+----------
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#                  ChangeSet    1.741   -> 1.742
+#               net/socket.c    1.29    -> 1.30
+#       include/linux/net.h     1.4     -> 1.5
+#              net/netsyms.c    1.29    -> 1.30
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/13      maxk@qualcomm.com       1.742
+# Export sockfd_lookup and sockfd_put functions
+# --------------------------------------------
+#
+diff -Nru a/include/linux/net.h b/include/linux/net.h
+--- a/include/linux/net.h       Sun Oct 13 05:05:42 2002
++++ b/include/linux/net.h       Sun Oct 13 05:05:42 2002
+@@ -139,6 +139,9 @@
+                                   const struct iovec * iov, long count, 
+long size);
+  extern int     sock_map_fd(struct socket *sock);
 
-When you add a funky data structure please trigger it on the number
-of mappings at least. e.g. I bet a micro optimized (= uses prefetch) 
-single linked list or even array will be always best for <= 10 entries,
-which is still not that uncommon in the non KDE world.
++extern struct socket *sockfd_lookup(int fd, int *err);
++#define         sockfd_put(sock) fput(sock->file)
++
+  extern int     net_ratelimit(void);
+  extern unsigned long net_random(void);
+  extern void net_srandom(unsigned long);
+diff -Nru a/net/netsyms.c b/net/netsyms.c
+--- a/net/netsyms.c     Sun Oct 13 05:05:42 2002
++++ b/net/netsyms.c     Sun Oct 13 05:05:42 2002
+@@ -161,6 +161,7 @@
+  EXPORT_SYMBOL(sock_kmalloc);
+  EXPORT_SYMBOL(sock_kfree_s);
+  EXPORT_SYMBOL(sock_map_fd);
++EXPORT_SYMBOL(sockfd_lookup);
 
-Array would be attractive because you can trivially prefetch it,
-but would eat more space per mm_struct. Assuming each process has at 
-least 5 mappings the cost should be rather small though.
+  #ifdef CONFIG_FILTER
+  EXPORT_SYMBOL(sk_run_filter);
+diff -Nru a/net/socket.c b/net/socket.c
+--- a/net/socket.c      Sun Oct 13 05:05:42 2002
++++ b/net/socket.c      Sun Oct 13 05:05:42 2002
+@@ -447,11 +447,6 @@
+         return sock;
+  }
 
--Andi
+-extern __inline__ void sockfd_put(struct socket *sock)
+-{
+-       fput(sock->file);
+-}
+-
+  /**
+   *     sock_alloc      -       allocate a socket
+   *
+-------------
+
+Note. sockfd_put is #define instead of inline because fput() definition
+is not available at this point.
+
+
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
+

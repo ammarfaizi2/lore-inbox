@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263250AbUJ2MJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUJ2MJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbUJ2MJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 08:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbUJ2MJz
+	id S263295AbUJ2MJv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 08:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbUJ2MJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 08:09:55 -0400
-Received: from [202.141.25.89] ([202.141.25.89]:17797 "EHLO
-	cello.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id S263250AbUJ2MFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 08:05:20 -0400
-To: Danny Brow <dan@fullmotions.com>
-Subject: Re: SSH and 2.6.9
-References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
-	<Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
-	<1098912301.4535.1.camel@hanzo.fullmotions.com>
-	<1098913797.3495.0.camel@hanzo.fullmotions.com>
-	<m3u0sfs0fm.fsf@rajsekar.pc>
-	<1098985454.9722.9.camel@hanzo.fullmotions.com>
-From: Rajsekar <raj--cutme--sekar@cse.iDELTHISitm.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 29 Oct 2004 17:33:00 +0530
-In-Reply-To: <1098985454.9722.9.camel@hanzo.fullmotions.com> (Danny Brow's
- message of "Thu, 28 Oct 2004 13:44:14 -0400")
-Message-ID: <m3mzy5k9zf.fsf@rajsekar.pc>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 29 Oct 2004 08:09:50 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:47876 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263295AbUJ2MDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 08:03:37 -0400
+Date: Fri, 29 Oct 2004 13:03:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc32: Fix boot on PowerMac
+Message-ID: <20041029120331.GE11391@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1099020586.29693.105.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099020586.29693.105.camel@gaston>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 29, 2004 at 01:29:46PM +1000, Benjamin Herrenschmidt wrote:
+> Hi !
+> 
+> Tom's recent irq patch broke PowerMac (and possibly others). I think
+> he forgot that PReP, CHRP and PowerMac are all built together in a
+> single kernel image, thus all of those arch_initcall's will end up
+> beeing called, even on the wrong machine...
 
-I am talking only about the file /dev/tty (IMHO you mistook it to mean /dev/ttyXX)
-The permission should be 666 not 660 (for /dev/tty as its owner is always
-root).
-
-Try changing the permission of /dev/tty to 666 (rw-rw-rw-)
-
-
-
--- 
-    Rajsekar
+Better rewvert Tom's fix and switch all these early calls to setup_irq,
+like I did for pmac and a few other subarches (I missed the ones Tom
+fixed, sorry)
 

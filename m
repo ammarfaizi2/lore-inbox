@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135348AbRDLVhj>; Thu, 12 Apr 2001 17:37:39 -0400
+	id <S135352AbRDLVkJ>; Thu, 12 Apr 2001 17:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135350AbRDLVhV>; Thu, 12 Apr 2001 17:37:21 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:57022 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S135349AbRDLVfp>; Thu, 12 Apr 2001 17:35:45 -0400
-Date: Thu, 12 Apr 2001 17:33:52 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <3AD61E6A.10D6B654@uow.edu.au>
-Message-ID: <Pine.LNX.4.33.0104121732420.32198-100000@dystopia.lab43.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135350AbRDLVj4>; Thu, 12 Apr 2001 17:39:56 -0400
+Received: from t2.redhat.com ([199.183.24.243]:13310 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135349AbRDLVjh>; Thu, 12 Apr 2001 17:39:37 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <65256A2C.0032850D.00@sandesh.hss.hns.com> 
+In-Reply-To: <65256A2C.0032850D.00@sandesh.hss.hns.com> 
+To: npunmia@hss.hns.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RTC !! 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Apr 2001 22:39:29 +0100
+Message-ID: <19975.987111569@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 12 Apr 2001, Andrew Morton wrote:
-> Rod Stewart wrote:
-> >
-> > On Thu, 12 Apr 2001, Andrew Morton wrote:
-> > > Is there something unusual about your setup?
-> >
-> > One box is standard PIII with RH 7.0, the other is a custom Crusoe TM5400
-> > board.  But from further investigation it appears to be a kernel config
-> > option.  As I've got a 2.4.0 kernel which has very little compiled in and
-> > not showing the problem and another kernel which has many more networking
-> > options built in and showing the problem.  I've seen this problem
-> > since 2.4.0.test11.
-> >
->
-> Sorry.  I meant: what is process 1 on this machine?  Is it not
-> the normal init?  If not, then according to Alan, the fault
-> lies with your userspace.  Kernel requires that PID 1 reap
-> children.
+npunmia@hss.hns.com said:
+> The RTC interrupt  is programmable from 2 Hz to 8192 Hz, in powers of
+> 2. So the interrupts that you could get are one of the following:
+> 0.122ms, .244ms, .488ms, .977ms, 1.953ms, 3.906ms, 7.813ms, and so on.
+>    Is there any  workaround , so that i can use RTC for meeting my
+> requirement of an interrupt every 1.666..ms!!  ( I know that i can use
+> UTIME or #define HZ 600, but i want to know if i can use RTC for this
+> purpose ) 
 
-Yes, it is the normal init on both boxes.
+You could also use the RTC  for providing the system tick (You'd need to 
+make HZ a power of two, obviously) and then use the 8254 for providing your 
+600Hz interrupt.
 
--Rms
+--
+dwmw2
+
 

@@ -1,118 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbUB0OWR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 09:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUB0OWR
+	id S261697AbUB0OXb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 09:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUB0OXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 09:22:17 -0500
-Received: from gizmo12ps.bigpond.com ([144.140.71.22]:33954 "HELO
-	gizmo12ps.bigpond.com") by vger.kernel.org with SMTP
-	id S261687AbUB0OWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 09:22:14 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: linux-kernel@vger.kernel.org
-Subject: Busy system needs shutdown if nonzero e2fsck result, otherwise Oops, was 2.4.24 Paging Fault...
-Date: Sat, 28 Feb 2004 00:23:13 +1000
-User-Agent: KMail/1.5.1
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 09:23:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:51917 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261697AbUB0OX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 09:23:27 -0500
+Date: Sat, 28 Feb 2004 01:22:26 +1100
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] fix ppc64 kernel access of user pages
+Message-ID: <20040227142225.GG5801@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402280023.13854.ross@datscreative.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
 
-I have a puzzling fault occuring on a system 2.4.24 or 2.4.26-pre1 
-patched with lowlat, preempt, vhz jiffies, and my nforce2 lockups patches.
+Set the ks bit on userspace segments otherwise the kernel can read/write 
+into userspace mprotected pages.
 
-My previous postings on topic
-http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/1573.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0402.2/0042.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0402.2/0070.html
+--
 
-Debugging efforts have been on two systems with same
-type of hardware. Fault is reproducable.
-
-I have not included all config info with this email as my kernel is not
-standard, limited value? but this still may be of some benefit.
-
-I have not tried a standard 2.4 kernel with this system due to expected
-latency issues. Whilst a standard 2.6 series kern has all the latency features
-I need, the drivers I use have yet to be ported.
-
-Currently system is now stable with scripted reboot after a non zero return code
-from e2fsck.
-
-As such it has to go back out on the road imaging things. Unfortunately I do
-not have an complete duplicate system for immediate further testing on.
-
-Findings.
-
-If the e2fsck program exits with non zero i.e. drive was not clean then
-Oops guaranteed if I am grabbing from 3 cameras. If I switch off 2 cameras
-then no Oops (system less busy). 
-
-If I reboot after e2fsck nonzero result then no Oops occurs and system
-functions fine. Storage drives are not mounted at all prior to e2fsck.
-
-I have tried e2fsck 1.28 and 1.34 (static link) both with same result.
-Docs say reboot reqd on exit code of 2. This system needs reboot also with
-exit code of 1?
-
-More testing revealed when conditions for Oops are met the process listed in 
-Oops varies but Oops always occurred at roughly the same quantity of data
-written to drive or drives (estimated from distance, not measured).
-
-System is vehicle mounted so simulated travel distance in daytime is around
-8km to Oops with 1 storage drive. With 2 drives (not raid) writing duplicate of
-data then distance is around 4km. At night with basically black images
-(storage is mpeg compressed) then Oops is around 24km simulated distance
-for single drive.
-
-Varying distance indicates to me that Oops is not sensitive to drive transfer
-rate. Time to fault also varies.
-
-System is busy wrt dma from both a bt878 card (1 camera) and a meteor II
-mc card( 2 cameras). Raw image transfer is fairly constant for a constant speed
-(3 images per 4m to 6m up to 110kph) with raw 614K images on bt878 and 2.4M
-images on mc card. (30Mb per second at 80kph) Travelling slower lowers the
-average transfer rate from the meteor II mc card but Oops occurs at roughly
-the same distance for same image content.
-
-There is also serial, network and lpt activity as well. Problem still
-occurs without serial activity - seems somewhat insensitive to interrupts.
-
-I get same results with mount program from either suse 8.2 or busybox mount.
-
-The only daemons other than usual kernel ones are smbd and nmbd.
-
-Ramdrive swap does not help 2.4.26-pre1, no longer certain if it helps 2.4.24.
-
-My Questions if you please.
-
-Are there some further fixups going on in the Kernel ext2fs driver when the
-filesystem has been fixed on boot by e2fsck that don't occur with a clean
-boot? 
-
-And if so do these only occur after a certain amount of data has passed out
-of the kernel to drive?
-
-Does the e2fsck fixups without reboot alter the way the drive data is laid down?
-Resulting in a timing issue with interleave or something that isn't handled
-neatly with the PCI being busy?
-
-Any thoughts on nforce2 IDE? hypertransport? errors occuring that are not
-being handled by the existing driver?
-
-Thanks in advance,
-Ross Dickson
-
-
-
-
+diff -Nru a/arch/ppc64/kernel/head.S b/arch/ppc64/kernel/head.S
+--- a/arch/ppc64/kernel/head.S	Fri Feb 27 22:59:30 2004
++++ b/arch/ppc64/kernel/head.S	Fri Feb 27 22:59:30 2004
+@@ -826,7 +826,14 @@
+ _GLOBAL(do_hash_page_ISI)
+ 	li	r4,0
+ _GLOBAL(do_hash_page_DSI)
+-	rlwimi	r4,r23,32-13,30,30	/* Insert MSR_PR as _PAGE_USER */
++	/*
++	 * We need to set the _PAGE_USER bit if MSR_PR is set or if we are
++	 * accessing a userspace segment (even from the kernel). We assume
++	 * kernel addresses always have the high bit set.
++	 */
++	rotldi	r0,r3,15		/* Move high bit into MSR_PR position */
++	orc	r0,r23,r0
++	rlwimi	r4,r0,32-13,30,30	/* Insert into _PAGE_USER */
+ 	ori	r4,r4,1			/* add _PAGE_PRESENT */
+ 
+ 	mflr	r21			/* Save LR in r21 */
+diff -Nru a/arch/ppc64/kernel/stab.c b/arch/ppc64/kernel/stab.c
+--- a/arch/ppc64/kernel/stab.c	Fri Feb 27 22:59:30 2004
++++ b/arch/ppc64/kernel/stab.c	Fri Feb 27 22:59:30 2004
+@@ -73,6 +73,8 @@
+ 	unsigned long entry, group, old_esid, castout_entry, i;
+ 	unsigned int global_entry;
+ 	STE *ste, *castout_ste;
++	unsigned long kernel_segment = (REGION_ID(esid << SID_SHIFT) != 
++					USER_REGION_ID);
+ 
+ 	/* Search the primary group first. */
+ 	global_entry = (esid & 0x1f) << 3;
+@@ -85,6 +87,8 @@
+ 				ste->dw1.dw1.vsid = vsid;
+ 				ste->dw0.dw0.esid = esid;
+ 				ste->dw0.dw0.kp = 1;
++				if (!kernel_segment)
++					ste->dw0.dw0.ks = 1;
+ 				asm volatile("eieio":::"memory");
+ 				ste->dw0.dw0.v = 1;
+ 				return (global_entry | entry);
+@@ -131,6 +135,8 @@
+ 	old_esid = castout_ste->dw0.dw0.esid;
+ 	castout_ste->dw0.dw0.esid = esid;
+ 	castout_ste->dw0.dw0.kp = 1;
++	if (!kernel_segment)
++		castout_ste->dw0.dw0.ks = 1;
+ 	asm volatile("eieio" : : : "memory");   /* Order update */
+ 	castout_ste->dw0.dw0.v  = 1;
+ 	asm volatile("slbie  %0" : : "r" (old_esid << SID_SHIFT)); 
+@@ -340,6 +346,8 @@
+ 		vsid_data.data.l = 1;
+ 	if (kernel_segment)
+ 		vsid_data.data.c = 1;
++	else
++		vsid_data.data.ks = 1;
+ 
+ 	esid_data.word0 = 0;
+ 	esid_data.data.esid = esid;

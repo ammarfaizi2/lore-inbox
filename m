@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313682AbSD3Qmy>; Tue, 30 Apr 2002 12:42:54 -0400
+	id <S313707AbSD3Qve>; Tue, 30 Apr 2002 12:51:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313687AbSD3Qmx>; Tue, 30 Apr 2002 12:42:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24794 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313682AbSD3Qmw>; Tue, 30 Apr 2002 12:42:52 -0400
-Message-ID: <3CCEC978.2090602@us.ibm.com>
-Date: Tue, 30 Apr 2002 09:42:32 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
+	id <S313711AbSD3Qvd>; Tue, 30 Apr 2002 12:51:33 -0400
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:29824 "EHLO
+	Bluesong.NET") by vger.kernel.org with ESMTP id <S313707AbSD3Qvd>;
+	Tue, 30 Apr 2002 12:51:33 -0400
+Message-Id: <200204301700.g3UH01v04279@Bluesong.NET>
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@trane.bluesong.net>
+Reply-To: jfv@bluesong.net
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Andrew Theurer <habanero@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading and physical/logical CPU identification
+Date: Tue, 30 Apr 2002 10:00:01 -0700
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200204291849.NAA23906@popmail.austin.ibm.com> <26950000.1020120115@flay>
+Cc: cleverdj@us.ibm.com
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: devfs: BKL *not* taken while opening devices
-In-Reply-To: <20020429141301.B16778@flint.arm.linux.org.uk> <3CCD672E.5040005@us.ibm.com> <3CCD811E.8689F4B0@redhat.com> <20020430134557.C26943@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Apr 29, 2002 at 06:21:34PM +0100, Arjan van de Ven wrote:
-> 
->>I'm not convinced of that. It's not nearly a critical path and it's
->>better to get even the "dumb" drivers safe than to risk having big
->>security holes in there for years to come.
-> 
-> Would it be worth dropping a  BUG_ON(!kernel_locked()) in tty_open() to
-> catch this type of error?  The tty code heavily relies on the BKL.
-> 
-> This way, such locking problems would get caught early, since everyone
-> uses the tty code during boot, right?
+On Monday 29 April 2002 03:41 pm, Martin J. Bligh wrote:
+> > The problem is, I have 4 physical processors, but kernel.org kernels so
+> > far do not recognize all of them.  2.4.18 will find 3, while 2.5.11 will
+> > find only 2 (BIOS hyperthreading support off, no acpismp=force). 
+> > However, on 2.5.11, if I enable hyperthreading (thru BIOS and
+> > acpismp=force, I see 4 processors.
+>
+> When you say the kernel doesn't recognise all of the physical processors,
+> do you mean it doesn't see them in the MPS/ACPI table, or that they fail to
+> boot? Can you post your boot log?
+>
+> I see you have a "us.ibm.com" email address ... is this machine an x440,
+> one of it's smaller brethren, or something totally different?
 
-I like the idea.  But, while we're at it, does anyone have a good enough 
-grasp of locking the the TTY layer that we can start peeling some of the 
-BKL out of there?  Somebody was doing tests over a serial console here 
-and the lockmeter data showed horrible BKL contention and hold times.
+If it is the x440 then the problem is the xapic and you need James Cleverdon's
+summit patch for all processors to be seen and properly initialized. Email
+James or me if you need a pointer.
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Jack F. Vogel
+IBM  Linux Solutions
+jfv@us.ibm.com  (work)
+jfv@Bluesong.NET (home)

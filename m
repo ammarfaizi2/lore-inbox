@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSIXHBy>; Tue, 24 Sep 2002 03:01:54 -0400
+	id <S261589AbSIXHGh>; Tue, 24 Sep 2002 03:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261589AbSIXHBy>; Tue, 24 Sep 2002 03:01:54 -0400
-Received: from dp.samba.org ([66.70.73.150]:64186 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261587AbSIXHBx>;
-	Tue, 24 Sep 2002 03:01:53 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
-       Linus Torvalds <torvalds@home.transmeta.com>,
-       Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>
-Subject: Re: [PATCH-RFC} 3 of 4 - New problem logging macros, plus template generation 
-In-reply-to: Your message of "Tue, 24 Sep 2002 02:05:45 -0400."
-             <3D9000B9.4000001@pobox.com> 
-Date: Tue, 24 Sep 2002 17:06:27 +1000
-Message-Id: <20020924070706.D3A332C189@lists.samba.org>
+	id <S261590AbSIXHGh>; Tue, 24 Sep 2002 03:06:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:14233 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261589AbSIXHGg>;
+	Tue, 24 Sep 2002 03:06:36 -0400
+Date: Tue, 24 Sep 2002 00:11:16 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
+Message-ID: <20020924071116.GC3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rolf Fokkens <fokkensr@fokkensr.vertis.nl>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+References: <200209222207.g8MM7MM04998@fokkensr.vertis.nl> <200209232208.g8NM8bN05831@fokkensr.vertis.nl> <1032819194.25745.241.camel@phantasy> <200209240704.g8O74Ur01620@fokkensr.vertis.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <200209240704.g8O74Ur01620@fokkensr.vertis.nl>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3D9000B9.4000001@pobox.com> you write:
-> The backend is fairly sound.  And I agree in general event logging is 
-> useful, and I fully support integrating [sane] support into the kernel.
-> 
-> But the kernel API is utter crap.
-> 
-> Adding <foo>_problem.h for every subsystem?
+On Tuesday 24 September 2002 00:13, Robert Love wrote:
+>> Having arrays statically created at NR_CPUS inside the task_struct is
+>> just gross.  Especially with NR_CPUS=32.  That is 128 bytes each!  Now
+>> with your changes, it is 256 bytes each!
 
-<sigh>.  That's an extension, designed to make things *easier* on the
-author, for example to share code between network drivers.  But I'm
-more than happy to grow them on demand (you know IBM programmers,
-they're always want "completeness"). 
+On Tue, Sep 24, 2002 at 09:04:25AM +0200, Rolf Fokkens wrote:
+> I can understand that. However from a user point of view statistics are very 
+> usefull information, but not specifically the per-processor statistics.
+> I assume you mean to leave out the per-process statistics? Or do you mean to 
+> kmalloc the per-processor statistics when needed - that is: only when 
+> processes are running or maybe when the user has chosen to turn then on (some 
+> sysctl maybe)? 
 
-> Changing every printk() in the damn kernel?
-> 
-> Come on dude, I _know_ you have more taste than that.
+I'm in favor of removing them entirely.
 
-I'm not interested in changing all the printks.  I'm interested in
-designing the simplest regularized logging interface I can.  If it's
-done right, driver authors will migrate to it because it's easier for
-them, and their bug reports become clearer, and sysadmins get happier.
 
-And even though they don't care about the eventlogging tools, all that
-stuff becomes exponentially more useful as a bonus.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Cheers,
+Bill

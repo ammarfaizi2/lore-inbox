@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287747AbSAAEkp>; Mon, 31 Dec 2001 23:40:45 -0500
+	id <S287741AbSAAEkd>; Mon, 31 Dec 2001 23:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287740AbSAAEkd>; Mon, 31 Dec 2001 23:40:33 -0500
-Received: from wiproecmx1.wipro.com ([164.164.31.5]:33238 "EHLO
-	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S287739AbSAAEkV>; Mon, 31 Dec 2001 23:40:21 -0500
-From: "Raghavendra Koushik" <raghavendra.koushik@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Hot swap support in linux?
-Date: Tue, 1 Jan 2002 10:00:36 +0530
-Message-ID: <008001c1927d$0f175840$5408720a@M3NOR67026>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S287740AbSAAEkX>; Mon, 31 Dec 2001 23:40:23 -0500
+Received: from bitmover.com ([192.132.92.2]:1155 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S287742AbSAAEkL>;
+	Mon, 31 Dec 2001 23:40:11 -0500
+Date: Mon, 31 Dec 2001 20:40:09 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: samson swanson <intellectcrew@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+Message-ID: <20011231204009.E4802@work.bitmover.com>
+Mail-Followup-To: samson swanson <intellectcrew@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>; from intellectcrew@yahoo.com on Mon, Dec 31, 2001 at 08:11:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 31, 2001 at 08:11:11PM -0800, samson swanson wrote:
+> For a beginner to C++ what is your favorite book? A
+> book that goes in depth of teaching the language.
+> remeber i am  a beginner, new to c++.
 
-This is a multi-part message in MIME format.
-
-------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-Does the current linux kernel support hot swap feature for network interface
-cards(NICs). I would be glad if any of you can provide me some pointers or
-documentation regards the same...
-
-Regards
-Koushik
-
-
-
-
-
-
-
- 
-
-
-
-------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
-------=_NextPartTM-000-1db90c1d-fe6e-11d5-a940-00b0d0d06be8--
+I really like the original book by Bjarne Stroustrop, he's the guy that
+designed the language and wrote what was supposed to be the C book
+for C++.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

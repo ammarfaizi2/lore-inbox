@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262726AbTCPS71>; Sun, 16 Mar 2003 13:59:27 -0500
+	id <S262728AbTCPTJt>; Sun, 16 Mar 2003 14:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262727AbTCPS71>; Sun, 16 Mar 2003 13:59:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36842 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262726AbTCPS70>; Sun, 16 Mar 2003 13:59:26 -0500
-Date: Sun, 16 Mar 2003 20:10:13 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: 2.5.64-mm8: link error with CONFIG_NUMA and !CONFIG_SMP
-Message-ID: <20030316191012.GG10253@fs.tum.de>
+	id <S262730AbTCPTJt>; Sun, 16 Mar 2003 14:09:49 -0500
+Received: from dc-mx01.cluster1.charter.net ([209.225.8.11]:9407 "EHLO
+	dc-mx01.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S262728AbTCPTJt>; Sun, 16 Mar 2003 14:09:49 -0500
+Date: Sun, 16 Mar 2003 14:20:36 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-mm8
+Message-ID: <20030316192036.GA30075@cy599856-a>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <20030316024239.484f8bda.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20030316024239.484f8bda.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.5.64-mm6 i686
+X-Processor: Athlon XP 2000+
+X-Uptime: 14:03:02  up 2 days, 23:03,  2 users,  load average: 0.07, 0.03, 0.01
+User-Agent: Mutt/1.5.3i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get many errors at the final linking when compiling a kernel with
-CONFIG_NUMA enabled but CONFIG_SMP disabled:
+On approximately Sun, Mar 16, 2003 at 02:42:39AM -0800, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm8/
+> 
 
-<--  snip  -->
-
-...
-/home/bunk/linux/kernel-2.5/linux-2.5.64-mm8/include/asm/topology.h:41: 
-undefined reference to `cpu_2_node'
-...
-
-<--  snip  -->
-
-the problem is that include/asm-i386/topology.h says:
-
-<--  snip  -->
-
-...
-#ifdef CONFIG_NUMA
-...
-extern volatile int cpu_2_node[];
-...
-
-<--  snip  -->
-
-but cpu_2_node is in arch/i386/kernel/smpboot.c that only gets included 
-with CONFIG_SMP.
-
-cu
-Adrian
+Maybe I am just slow but it seems that -mm8 didn't make it to kernel.org from
+where I am sitting.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+Linux, the choice            | Mate, this parrot wouldn't VOOM if you put 
+of a GNU generation     -o)  | four million volts through it!   -- Monty
+Kernel 2.5.64-mm6        /\  | Python 
+on a Athlon-XP          _\_v | 
+                             | 

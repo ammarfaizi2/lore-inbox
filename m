@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286343AbSA2XRO>; Tue, 29 Jan 2002 18:17:14 -0500
+	id <S286692AbSA2XUE>; Tue, 29 Jan 2002 18:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286893AbSA2XP5>; Tue, 29 Jan 2002 18:15:57 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:55375 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S286411AbSA2XPI>; Tue, 29 Jan 2002 18:15:08 -0500
-Date: Tue, 29 Jan 2002 17:14:18 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200201292314.RAA23575@tomcat.admin.navo.hpc.mil>
-To: dalecki@evision-ventures.com, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-CC: Larry McVoy <lm@bitmover.com>, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S286411AbSA2XSs>; Tue, 29 Jan 2002 18:18:48 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:2953 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286723AbSA2XRh>;
+	Tue, 29 Jan 2002 18:17:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Wed, 30 Jan 2002 00:21:47 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0201291649490.25443-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.44.0201291649490.25443-100000@waste.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VhZT-0000Am-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com>:
+On January 30, 2002 12:02 am, Oliver Xymoron wrote:
+> On Tue, 29 Jan 2002, Daniel Phillips wrote:
+> > With fork/exec, for each page table there are two cases:
+> >
+> >   - The parent instantiated the page table.  In this case the extra work
+> >     to set the ptes RO (only for CoW pages) is insignificant.
 > 
-> Linus Torvalds wrote:
+> Marking the page table entries rather than the page directory entries
+> read-only is a lot of work on a large process.
+
+I'm still missing your point.  When the parent's page table was instantiated 
+we took a fault.  Later, we walk through up to 1024 ptes setting them RO, if 
+they are not already (which they probably are).  Don't you think the cost of 
+the former dwarves the latter?  In fact, if we are worried about this, we can 
+keep a flag on the page table telling us all the ptes are still set RO so we 
+don't have to do it again.
+
+> And it doesn't make a lot
+> of sense for a large process that wants to fork/exec something tiny.
+>
+> In
+> fact, I'm slightly worried about the possible growth of the page
+> directories on really big boxes. Detaching the entire mm is comparatively
+> cheap and doesn't grow with process size.
 > 
-> >On Mon, 28 Jan 2002, Larry McVoy wrote:
-> >
-> >>What you didn't do, Linus, is paint a picture which allows development
-> >>to scale up.
-> >>
-> >
-> >Actually, I thought I did.
-> >
-> >Basic premise: development is done by humans.
-> >
-> >Now, look at how humans work. I don't know _anybody_ who works with
-> >hundreds of people. You work with 5-10 people, out of a pool of maybe
-> >30-50 people. Agreed?
-> >
-> Not at all. Please have a look at the ARMY. (A tightly hierarchical 
-> system...)
+> >   - The parent is still sharing the page table with its parent and so the
+> >     ptes are still set RO.
+> 
+> Fork/exec is far and away the most common case, and the fork/fork case is
+> rare enough that it's not even worth thinking about.
 
-And at each level (outside of training) there are usually one supervisor
-for 8-15 people. At the lowest - a corpral. next sargent, ...
-Though I can accept the lowest defined as a sargent, with an assistant.
+I'm not sure I agree with this.  I matters a lot if that rare case happens to 
+be the application your using all the time, and then it becomes the common 
+case.
 
-And at the top - president, assisted by vice pres over the cabinet. next
-level down, Secretary of Defense over Joint Chiefs...
-
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+-- 
+Daniel

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268243AbRHBAu5>; Wed, 1 Aug 2001 20:50:57 -0400
+	id <S268377AbRHBAzr>; Wed, 1 Aug 2001 20:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268266AbRHBAus>; Wed, 1 Aug 2001 20:50:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4365 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268243AbRHBAuk>; Wed, 1 Aug 2001 20:50:40 -0400
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 2 Aug 2001 01:51:46 +0100 (BST)
-Cc: arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108010917540.20829-100000@penguin.transmeta.com> from "Linus Torvalds" at Aug 01, 2001 09:18:57 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268331AbRHBAzh>; Wed, 1 Aug 2001 20:55:37 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:8462 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S268358AbRHBAza>; Wed, 1 Aug 2001 20:55:30 -0400
+Date: Wed, 1 Aug 2001 18:58:36 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Scott Ransom <ransom@cfa.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 3ware Escalade problems
+Message-ID: <20010801185836.B22548@vger.timpanogas.org>
+In-Reply-To: <20010801184032.A22548@vger.timpanogas.org> <E15S6Xn-00088F-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15S6iI-00089C-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E15S6Xn-00088F-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 02, 2001 at 01:40:55AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 1 Aug 2001, Arjan van de Ven wrote:
-> > >
-> > > It should boot, and it looks like the problem may be a bad MP table.
-> >
-> > Oh it is. And it's due to a recommendation Intel makes to bios writers.
-> > As a result, every P4 I've encountered shares this bug. Intel knows it's
-> > an invalid MP table, but refuses to change the recommendation.
+On Thu, Aug 02, 2001 at 01:40:55AM +0100, Alan Cox wrote:
+> > Try putting four adapters into a system all at once with 32 drives, and 
+> > you will see all sorts of bugs.  I do not see problems with a single board,
+> > other than gendisk reporting junk.  If it's the scsi layer, then the driver 
+> > must not be calling the sd driver.  I will attempt to get on the phone with
+> > Adam, and get these issues resolved.
 > 
-> What's the recommendation? We might be able to change the specific code in
-> question..
+> The scsi disk layer does the entire gendisk stuff itself. Its actually
+> very hard for a scsi driver to screw that up - the scsi driver has no
+> real concept of a 'disk'. sd talks to a disk and the scsi driver just gets
+> messages posted around.
 > 
-> Or are they just trying to strongarm the move to the horrid ACPI tables?
+> Alan
 
-They are certainly involved in the latter but whether this is related  or 
-a seperate evil empire scheme is open to question
+Alan,
+
+If you have an adapter, install it, dumop and gendisk head, and take a 
+look at what's happening.  I am seeing drives being reported with 0 
+block lengths and other wierdness.    
+
+Jeff
+
 

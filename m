@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUBZSj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 13:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUBZSj3
+	id S262825AbUBZStM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 13:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbUBZStM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 13:39:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31204 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262874AbUBZSj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 13:39:28 -0500
-Date: Thu, 26 Feb 2004 10:45:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Deepak Saxena <dsaxena@plexity.net>
-cc: greg@kroah.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Fix dev_printk to work with unclaimed devices
-In-Reply-To: <20040226183439.GA17722@plexity.net>
-Message-ID: <Pine.LNX.4.58.0402261044220.7830@ppc970.osdl.org>
-References: <20040226183439.GA17722@plexity.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Feb 2004 13:49:12 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:59856 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S262825AbUBZStL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 13:49:11 -0500
+Date: Thu, 26 Feb 2004 13:48:45 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Jim Deas <jdeas0648@jadsystems.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel disables interrupts
+Message-ID: <20040226184845.GA5599@phunnypharm.org>
+References: <200402261025.AA3240886544@jadsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402261025.AA3240886544@jadsystems.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 26, 2004 at 10:25:02AM -0800, Jim Deas wrote:
+> I am trouble shooting a new driver and have found a new
+> kernel item that makes trouble shooting a bit harder.
+> When I unload my test driver and before I can reload it
+> (reseting the interrut controls)the Kernerl disables
+> the chattering interrupt.
+> Once the kernel has disable a spurious interrupt is there
+> a way to get it back?
 
-On Thu, 26 Feb 2004, Deepak Saxena wrote:
-> 
-> I need to do some fixup in platform_notify() and when trying to 
-> use the dev_* print functions for informational messages, they OOPs 
-> b/c the current code assumes that dev->driver exists. This is not the 
-> case since platform_notify() is called before a device has been attached
-> to any driver. 
+Shouldn't your driver just disable the interrupt before unloading?
 
-Make it a real function with varags, please.
-
-On the other hand, it also is probably just _wrong_ to use "dev_printk()" 
-if you aren't the driver for the device.
-
-		Linus
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

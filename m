@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbULUTVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbULUTYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbULUTVw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 14:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbULUTVw
+	id S261343AbULUTYS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 14:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULUTYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 14:21:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38863 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261355AbULUTVt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 14:21:49 -0500
-Date: Tue, 21 Dec 2004 11:20:45 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Scheduling while atomic (2.6.10-rc3-bk13)
-Message-ID: <20041221192044.GC9093@kroah.com>
-References: <20041219231015.GB4166@mail.muni.cz> <20041220184814.GA21215@kroah.com> <200412201152.16329.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412201152.16329.david-b@pacbell.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 21 Dec 2004 14:24:18 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:64140 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261343AbULUTX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 14:23:59 -0500
+Message-ID: <41C87825.8020901@grupopie.com>
+Date: Tue, 21 Dec 2004 19:23:17 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jesse <jessezx@yahoo.com>
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: Gurus, a silly question for preemptive behavior
+References: <20041221190339.24215.qmail@web52605.mail.yahoo.com>
+In-Reply-To: <20041221190339.24215.qmail@web52605.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.25; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 11:52:16AM -0800, David Brownell wrote:
-> On Monday 20 December 2004 10:48 am, Greg KH wrote:
-> 
-> > 
-> > David, it looks like you grab a spinlock, and then call msleep(20);
-> > which causes this warning.
-> > 
-> > Care to fix it?
-> 
-> How bizarre ... I must have been tested that without spinlock
-> debugging, for some reason.  Grr.  I usually leave that on,
-> just to prevent stuff like this.
-> 
-> Here's a quick'n'dirty patch, msleep --> mdelay.  I'd rather
-> not mdelay for that long, but this late in 2.6.10 it's safer.
-> (And this is also what OHCI does in that same code path.)
+jesse wrote:
+> Paulo:
+>  
+>    I already said in the messsage that my user space
+> application has a low nice priority, i set it to 10.
+> since my application has low priority compared to
+> other user space applications, it is supposed to be
+> interrupted. but it is not.
 
-Applied, thanks.
+The confusion comes from "low nice priority". The lower the nice value 
+the higher the priority.
 
-greg k-h
+Anyway, you still haven't give enough data to analyze. What does your 
+application do? Is it I/O intensive? If it is, it could be that the 
+kernel itself is hogging the CPU doing I/O on behalf of a low prio 
+process (priority, specially in 2.4, only affects CPU distribution and 
+not I/O). How do you know it's not being preempted? What is your 
+.config? What patches do you have applied? And finally, why don't you 
+upgrade to a 2.6 kernel :) ?
+
+-- 
+Paulo Marques - www.grupopie.com
+
+"A journey of a thousand miles begins with a single step."
+Lao-tzu, The Way of Lao-tzu
+

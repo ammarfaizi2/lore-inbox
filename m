@@ -1,186 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVBBDmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVBBDFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVBBDmd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 22:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVBBDkz
+	id S262240AbVBBDFc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 22:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVBBDFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 22:40:55 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:24203 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262268AbVBBDMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 22:12:40 -0500
-Date: Wed, 2 Feb 2005 12:12:38 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 29/29] ide: make data_phase explicit in NO_DATA cases
-Message-ID: <20050202031238.GN1187@htj.dyndns.org>
-References: <20050202024017.GA621@htj.dyndns.org>
+	Tue, 1 Feb 2005 22:05:24 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:55688 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S262240AbVBBC5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 21:57:42 -0500
+Message-Id: <5.1.0.14.2.20050202134106.041be8f8@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 02 Feb 2005 13:55:23 +1100
+To: Timothy Miller <theosib@gmail.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: ALSA HELP: Crackling and popping noises with via82xx
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9871ee5f05020118343effed7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202024017.GA621@htj.dyndns.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 29_ide_explicit_TASKFILE_NO_DATA.patch
-> 
-> 	Make data_phase explicit in NO_DATA cases.
+At 01:34 PM 2/02/2005, Timothy Miller wrote:
+>I've mentioned this problem before.  It seemed to go away around the
+>2.6.8 timeframe, but when I started using 2.6.9, it came back.   I'm
+>using 2.6.10, and it's still happening.
+
+almost identical system here, other than i'm using an ASUS A7V600 
+motherboard but otherwise have identical chipset, graphics card.
+(although the ASUS board has a rev60 version of the sound driver).
+
+no problems with audio crackling at all, using 2.6.10 and 2.6.1-rc2-mm2 
+with audio compiled into the kernel (not using modules for OSS/ALSA).
+
+perhaps the interrupt is shared with some other device?
+perhaps your speakers are dying?
+
+this is my mythtv box so i'd certainly notice if the audio was bung.
+
+[root@spam root]# uname -a
+Linux spam 2.6.10ltd1 #1 Sun Jan 30 21:06:01 EST 2005 i686 athlon i386 
+GNU/Linux
+
+[root@spam root]# lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP] Host 
+Bridge (rev 80)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
+00:0a.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
+Capture (rev 11)
+00:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
+(rev 11)
+00:0e.0 Multimedia video controller: Conexant Winfast TV2000 XP (rev 05)
+00:0e.2 Multimedia controller: Conexant: Unknown device 8802 (rev 05)
+00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID 
+Controller (rev 80)
+00:0f.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. 
+VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
+00:13.0 Multimedia video controller: Brooktree Corporation Bt848 Video 
+Capture (rev 12)
+01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200 
+SE] (rev 01)
+01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon 9200 SE] 
+(Secondary) (rev 01)
+
+[root@spam root]# cat /proc/interrupts
+            CPU0
+   0:  160440190    IO-APIC-edge  timer
+   1:       6157    IO-APIC-edge  i8042
+   7:     118047    IO-APIC-edge  parport0
+   9:          0   IO-APIC-level  acpi
+  12:     165567    IO-APIC-edge  i8042
+  14:     403308    IO-APIC-edge  ide0
+  15:    1685009    IO-APIC-edge  ide1
+  16:   59442009   IO-APIC-level  bttv0, bt878
+  17:          0   IO-APIC-level  cx88[0], cx88[0]
+  18:          3   IO-APIC-level  bttv1
+  21:         37   IO-APIC-level  ehci_hcd, uhci_hcd, uhci_hcd, uhci_hcd, 
+uhci_hcd
+  22:      48672   IO-APIC-level  VIA8237
+  23:     139365   IO-APIC-level  eth0
 
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
+cheers,
 
-
-Index: linux-ide-export/drivers/ide/ide-disk.c
-===================================================================
---- linux-ide-export.orig/drivers/ide/ide-disk.c	2005-02-02 10:28:07.852771465 +0900
-+++ linux-ide-export/drivers/ide/ide-disk.c	2005-02-02 10:28:08.121727827 +0900
-@@ -300,6 +300,7 @@ static unsigned long idedisk_read_native
- 	args.tfRegister[IDE_SELECT_OFFSET]	= 0x40;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_READ_NATIVE_MAX;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 	/* submit command request */
- 	ide_raw_taskfile(drive, &args, NULL);
-@@ -326,6 +327,7 @@ static unsigned long long idedisk_read_n
- 	args.tfRegister[IDE_SELECT_OFFSET]	= 0x40;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_READ_NATIVE_MAX_EXT;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
-         /* submit command request */
-         ide_raw_taskfile(drive, &args, NULL);
-@@ -362,6 +364,7 @@ static unsigned long idedisk_set_max_add
- 	args.tfRegister[IDE_SELECT_OFFSET]	= ((addr_req >> 24) & 0x0f) | 0x40;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SET_MAX;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 	/* submit command request */
- 	ide_raw_taskfile(drive, &args, NULL);
-@@ -395,6 +398,7 @@ static unsigned long long idedisk_set_ma
- 	args.hobRegister[IDE_SELECT_OFFSET]	= 0x40;
- 	args.hobRegister[IDE_CONTROL_OFFSET_HOB]= (drive->ctl|0x80);
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 	/* submit command request */
- 	ide_raw_taskfile(drive, &args, NULL);
-@@ -534,6 +538,7 @@ static ide_startstop_t idedisk_special (
- 			args.tfRegister[IDE_SELECT_OFFSET]  = ((drive->head-1)|drive->select.all)&0xBF;
- 			args.tfRegister[IDE_COMMAND_OFFSET] = WIN_SPECIFY;
- 			args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+			args.data_phase   = TASKFILE_NO_DATA;
- 			args.handler	  = &set_geometry_intr;
- 			do_taskfile(drive, &args);
- 		}
-@@ -545,6 +550,7 @@ static ide_startstop_t idedisk_special (
- 			args.tfRegister[IDE_NSECTOR_OFFSET] = drive->sect;
- 			args.tfRegister[IDE_COMMAND_OFFSET] = WIN_RESTORE;
- 			args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+			args.data_phase   = TASKFILE_NO_DATA;
- 			args.handler	  = &recal_intr;
- 			do_taskfile(drive, &args);
- 		}
-@@ -558,6 +564,7 @@ static ide_startstop_t idedisk_special (
- 			args.tfRegister[IDE_NSECTOR_OFFSET] = drive->mult_req;
- 			args.tfRegister[IDE_COMMAND_OFFSET] = WIN_SETMULT;
- 			args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+			args.data_phase   = TASKFILE_NO_DATA;
- 			args.handler	  = &set_multmode_intr;
- 			do_taskfile(drive, &args);
- 		}
-@@ -597,6 +604,7 @@ static int smart_enable(ide_drive_t *dri
- 	args.tfRegister[IDE_HCYL_OFFSET]	= SMART_HCYL_PASS;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SMART;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 	return ide_raw_taskfile(drive, &args, NULL);
- }
-@@ -720,6 +728,7 @@ static int idedisk_issue_flush(request_q
- 		args.tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE;
- 
- 	args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase = TASKFILE_NO_DATA;
- 	args.handler = task_no_data_intr;
- 
- 	rq = blk_get_request(q, WRITE, __GFP_WAIT);
-@@ -779,6 +788,7 @@ static int write_cache(ide_drive_t *driv
- 			SETFEATURES_EN_WCACHE : SETFEATURES_DIS_WCACHE;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SETFEATURES;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 
- 	err = ide_raw_taskfile(drive, &args, NULL);
-@@ -799,6 +809,7 @@ static int do_idedisk_flushcache (ide_dr
- 	else
- 		args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_FLUSH_CACHE;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= &task_no_data_intr;
- 	return ide_raw_taskfile(drive, &args, NULL);
- }
-@@ -813,6 +824,7 @@ static int set_acoustic (ide_drive_t *dr
- 	args.tfRegister[IDE_NSECTOR_OFFSET]	= arg;
- 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SETFEATURES;
- 	args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase   = TASKFILE_NO_DATA;
- 	args.handler	  = &task_no_data_intr;
- 	ide_raw_taskfile(drive, &args, NULL);
- 	drive->acoustic = arg;
-@@ -906,19 +918,22 @@ static ide_startstop_t idedisk_start_pow
- 		else
- 			args->tfRegister[IDE_COMMAND_OFFSET] = WIN_FLUSH_CACHE;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
-+		args->data_phase   = TASKFILE_NO_DATA;
- 		args->handler	   = &task_no_data_intr;
- 		return do_taskfile(drive, args);
- 
- 	case idedisk_pm_standby:	/* Suspend step 2 (standby) */
- 		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_STANDBYNOW1;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
-+		args->data_phase   = TASKFILE_NO_DATA;
- 		args->handler	   = &task_no_data_intr;
- 		return do_taskfile(drive, args);
- 
- 	case idedisk_pm_idle:		/* Resume step 1 (idle) */
- 		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
--		args->handler = task_no_data_intr;
-+		args->data_phase   = TASKFILE_NO_DATA;
-+		args->handler      = task_no_data_intr;
- 		return do_taskfile(drive, args);
- 
- 	case idedisk_pm_restore_dma:	/* Resume step 2 (restore DMA) */
-@@ -1195,6 +1210,7 @@ static int idedisk_open(struct inode *in
- 		memset(&args, 0, sizeof(ide_task_t));
- 		args.tfRegister[IDE_COMMAND_OFFSET] = WIN_DOORLOCK;
- 		args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+		args.data_phase   = TASKFILE_NO_DATA;
- 		args.handler	  = &task_no_data_intr;
- 		check_disk_change(inode->i_bdev);
- 		/*
-@@ -1218,6 +1234,7 @@ static int idedisk_release(struct inode 
- 		memset(&args, 0, sizeof(ide_task_t));
- 		args.tfRegister[IDE_COMMAND_OFFSET] = WIN_DOORUNLOCK;
- 		args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+		args.data_phase   = TASKFILE_NO_DATA;
- 		args.handler	  = &task_no_data_intr;
- 		if (drive->doorlocking && ide_raw_taskfile(drive, &args, NULL))
- 			drive->doorlocking = 0;
-Index: linux-ide-export/drivers/ide/ide.c
-===================================================================
---- linux-ide-export.orig/drivers/ide/ide.c	2005-02-02 10:28:07.855770979 +0900
-+++ linux-ide-export/drivers/ide/ide.c	2005-02-02 10:28:08.122727665 +0900
-@@ -1271,6 +1271,7 @@ static int set_xfer_rate (ide_drive_t *d
- 	args.tfRegister[IDE_FEATURE_OFFSET]	= SETFEATURES_XFER;
- 	args.tfRegister[IDE_NSECTOR_OFFSET]	= arg;
- 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
-+	args.data_phase				= TASKFILE_NO_DATA;
- 	args.handler				= task_no_data_intr;
- 
- 	err = ide_raw_taskfile(drive, &args, NULL);
+lincoln.

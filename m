@@ -1,77 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316571AbSGGUnZ>; Sun, 7 Jul 2002 16:43:25 -0400
+	id <S316573AbSGGUzT>; Sun, 7 Jul 2002 16:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSGGUnY>; Sun, 7 Jul 2002 16:43:24 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48651
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316571AbSGGUnX>; Sun, 7 Jul 2002 16:43:23 -0400
-Date: Sun, 7 Jul 2002 13:38:48 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] document that cmd64x.c supports the CMD649 and CMD680
- chipsets
-In-Reply-To: <Pine.NEB.4.44.0207071334520.14608-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.10.10207071337360.31523-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S316574AbSGGUzS>; Sun, 7 Jul 2002 16:55:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:37390 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316573AbSGGUzR>;
+	Sun, 7 Jul 2002 16:55:17 -0400
+Date: Sun, 7 Jul 2002 13:55:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+Message-ID: <20020707205543.GA18298@kroah.com>
+References: <Pine.LNX.4.44L.0207061306440.8346-100000@imladris.surriel.com> <3D27390E.5060208@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D27390E.5060208@us.ibm.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sun, 09 Jun 2002 19:34:23 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<copied to lkml, as people there deserve to also see this>
 
-CMD680 will be extracted out to siiimage.c as it is a differnet driver
-with dual transport modes.  I just need to resort patches first.
+On Sat, Jul 06, 2002 at 11:38:06AM -0700, Dave Hansen wrote:
+> Rik van Riel wrote:
+> >On Thu, 4 Jul 2002, Dave Hansen wrote:
+> >
+> >>Greg KH wrote:
+> >>
+> >>>How about another extreme example.  When you removed the BKL from the
+> >>>input subsystem, you created a zillion race conditions.  I can dig up
+> >>>the email reference if you really want.  Hopefully that mess is finally
+> >>>cleaned up now.
+> >>
+> >>But it is mostly BKL-free now, right?  It may have been painful for
+> >>some, but it is better than before I broke it.
+> >
+> >If there is no contention on the lock, why is the BKL a problem?
+> 
+> It is not just a matter of scalability, but maintainability.  I find 
+> it hard to read and understand code which uses the BKL.  As Greg said 
+> in his OLS coding style talk, I want you to be able to read my code to 
+> find _my_ mistakes.  Your ability to do that will be impaired by every 
+> bad indentation, typedef, and BKL use.
 
-Cheers,
+Excuse me, but please do NOT compare coding style with using the BKL!  I
+can use the BKL in my code just fine, and it does not impare your
+ability to use, modify, or understand my code.  As long as I comment why
+I am using the BKL.
 
+> A lock with a single purpose, guarding relatively small amounts of 
+> data is much easier to understand than one such as the BKL.  Would you 
+> want a simple VM operation to take 1 second as the TTY layer and ext3 
+> take their sweet time with the BKL?
 
-On Sun, 7 Jul 2002, Adrian Bunk wrote:
+If ext3 is spinning on the BKL, then try to fix that, as it seems like a
+worthwhile task (like the ext2 changes proved.)  If you want to remove
+the BKL from the tty layer, be my guest, that will involve rewriting
+that whole subsystem :)
 
-> Hi Marcelo,
-> 
-> the patch below documents that cmd64x.c supports the CMD649 and CMD680
-> chipsets. Since it's a pure documentation update it should be acceptable
-> for -rc2.
-> 
-> 
-> --- Documentation/Configure.help.old	Sun Jul  7 13:26:45 2002
-> +++ Documentation/Configure.help	Sun Jul  7 13:31:35 2002
-> @@ -1067,10 +1067,10 @@
->    This effect can be also invoked by calling "idex=ata66"
->    If unsure, say N.
-> 
-> -CMD64X chipset support
-> +CMD64X and CMD680 chipset support
->  CONFIG_BLK_DEV_CMD64X
->    Say Y here if you have an IDE controller which uses any of these
-> -  chipsets: CMD643, CMD646, or CMD648.
-> +  chipsets: CMD643, CMD646, CMD648, CMD649 or CMD680.
-> 
->  CY82C693 chipset support
->  CONFIG_BLK_DEV_CY82C693
-> --- drivers/ide/Config.in.old	Sun Jul  7 13:32:19 2002
-> +++ drivers/ide/Config.in	Sun Jul  7 13:32:46 2002
-> @@ -65,7 +65,7 @@
->  	    dep_mbool '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3
->  	    dep_bool '    AMD Viper support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDEDMA_PCI
->  	    dep_mbool '      AMD Viper ATA-66 Override (WIP)' CONFIG_AMD74XX_OVERRIDE $CONFIG_BLK_DEV_AMD74XX $CONFIG_IDEDMA_PCI_WIP
-> -	    dep_bool '    CMD64X chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDEDMA_PCI
-> +	    dep_bool '    CMD64X and CMD680 chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDEDMA_PCI
->  	    dep_bool '    CMD680 chipset tuning support' CONFIG_BLK_DEV_CMD680 $CONFIG_BLK_DEV_CMD64X
->  	    dep_bool '    CY82C693 chipset support' CONFIG_BLK_DEV_CY82C693 $CONFIG_BLK_DEV_IDEDMA_PCI
->  	    dep_bool '    Cyrix CS5530 MediaGX chipset support' CONFIG_BLK_DEV_CS5530 $CONFIG_BLK_DEV_IDEDMA_PCI
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
-> You only think this is a free country. Like the US the UK spends a lot of
-> time explaining its a free country because its a police state.
-> 								Alan Cox
-> 
+> There seems to be a lot of fear that we'll scale the kernel into 
+> oblivion by creating a different lock for every single bit in every 
+> single data structure in the kernel with horribly complex locking 
+> hierarchies.  We know the implications of locks which are too finely 
+> grained and we see them magnified 20-fold on our NUMA-Q boxes (cache 
+> bouncing there is painful).  Linux may approach that point sometime in 
+> the future, but BKL use is about as far from this situation as possible.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Yes, there is that fear of scaling into oblivion, because other
+operating systems have done this in the past.  Learn from their
+mistakes, don't redo them yourself.  Go talk to the IRIX developers, and
+ask their experiences.  I know one of them is a few rows away from you
+at work.
 
+> I would mind the BKL a lot less if it was as well understood 
+> everywhere as it is in VFS.  The funny part is that a lock like the 
+> BKL would not last very long if it were well understood or documented 
+> everywhere it was used.
+
+I would mind it a whole lot less if when you try to remove the BKL, you
+do it correctly.  So far it seems like you enjoy doing "hit and run"
+patches, without even fully understanding or testing your patches out
+(the driverfs and input layer patches are proof of that.)  This does
+nothing but aggravate the developers who have to go clean up after you.
+
+Also, stay away from instances of it's use WHERE IT DOES NOT MATTER for
+performance.  If I grab the BKL on insertion or removal of a USB device,
+who cares?  I know you are trying to remove it entirely out of the
+kernel, but please focus on places where it actually helps, and leave
+the other instances alone.
+
+thanks,
+
+greg k-h

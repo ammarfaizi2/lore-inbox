@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281633AbRKUHBi>; Wed, 21 Nov 2001 02:01:38 -0500
+	id <S281645AbRKUHA6>; Wed, 21 Nov 2001 02:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281638AbRKUHB3>; Wed, 21 Nov 2001 02:01:29 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:18181
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S281633AbRKUHBM>; Wed, 21 Nov 2001 02:01:12 -0500
-Message-Id: <5.1.0.14.2.20011121014157.01d557b0@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 21 Nov 2001 01:57:13 -0500
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: if (a & X || b & ~Y) in dasd.c
-In-Reply-To: <200111191938.fAJJckA14340@oboe.it.uc3m.es>
-In-Reply-To: <200111191840.fAJIej230821@deathstar.prodigy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281641AbRKUHAt>; Wed, 21 Nov 2001 02:00:49 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:18048 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S281643AbRKUHAe>; Wed, 21 Nov 2001 02:00:34 -0500
+Message-ID: <002501c1725a$19022a80$f5976dcf@nwfs>
+From: "Jeff Merkey" <jmerkey@timpanogas.org>
+To: "Jeff Merkey" <jmerkey@timpanogas.org>, <jmerkey@vger.timpanogas.org>,
+        "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
+Date: Tue, 20 Nov 2001 23:59:43 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:38 PM 11/19/2001 +0100, Peter T. Breuer wrote:
-
->"bill davidsen wrote:"
-> >   If the code does what I think it does, it works as written. However, I
-> > usually would throw in parenthesis on something like this to be sure
-> > that the next person reading the code won't waste time thinking about
+> > You are really a fucking pain in the ass to help Jeff.
 >
->Which is WHY you do not put in parentheses.
+> Dave,  I went and looked at this stuff.  I have been running this code for
+> over a year on 2.4 and I AM NOT CREATING A SLAB CACHE TWICE!!!!
+> I am building an NWFS module external of the kernel tree, and unless make
+> dep
+> has been run, the default behavior of the includes causes me to drop into
+> the
+> BUG() trap.
 
-<snip snip>
+This is a bug in how these includes are structured.  It may be ok to leave
+the damn
+thing the way it is, but warn folks who build custom drivers (like the SCI
+drivers I
+maintain for Dolphin, NWFS, etc.) that their f_cking code will be broken and
+generate these garbage errors if they have not run make dep against the tree
+they
+try to build against.
 
-So instead of using extra parentheses, we should include a copy of your 
-response in every potentially ambiguous location instead?
+I would not have expected you or most LKML folks to have seen this, since
+you live
+in a world where everything is in the kernel tree.   I am telling you there
+is a problem there,
+and it can bite.  After I build this module (since the generated code thatr
+ends up in
+the external module is crap) it will routinely crash over and over gain
+until it gets rebuilt
+against a kernel that has had make dep (and make bzImage) run against it.
 
-Two C constructs that have bitten me in the glutinous maximus on more than 
-one occasion:
+Jeff
 
-
-mem_address = mem_base + page_index << 12;      // Wrong!
-
-if ( bit_mask & BIT_FLAG == 0) { flag_not_set(); }      // Wrong!
-
-Of course C has precedence. It's not always obvious. And the difference 
-between this
-
-x = y + z << 2;
-
-and
-
-x = (y + z) << 2;
-
-is that the 2nd doesn't make me have to remember the relative precedences 
-of + and <<.
-
-
---
-Stevie-O
-
-REAL kernel hackers use
-# cat > /vmlinuz
-and
-# insmod /dev/stdin
+>
+> Jeff
+>
+>
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
 

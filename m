@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318734AbSHBHR3>; Fri, 2 Aug 2002 03:17:29 -0400
+	id <S318741AbSHBHUm>; Fri, 2 Aug 2002 03:20:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318741AbSHBHR3>; Fri, 2 Aug 2002 03:17:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64785 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318734AbSHBHR2>;
-	Fri, 2 Aug 2002 03:17:28 -0400
-Message-ID: <3D4A3500.F65887D@zip.com.au>
-Date: Fri, 02 Aug 2002 00:30:08 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
+	id <S318746AbSHBHUm>; Fri, 2 Aug 2002 03:20:42 -0400
+Received: from ds217-115-144-18.dedicated.hosteurope.de ([217.115.144.18]:60938
+	"EHLO mail.crapoud.com") by vger.kernel.org with ESMTP
+	id <S318741AbSHBHUl>; Fri, 2 Aug 2002 03:20:41 -0400
+Message-ID: <3D4A3396.9000500@crapoud.com>
+Date: Fri, 02 Aug 2002 09:24:06 +0200
+From: "Hartwig. Thomas" <t.hartwig@crapoud.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: de-de, en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: large page patch
-References: <20020801.211357.93822733.davem@redhat.com> <Pine.LNX.4.33.0208012128110.1857-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday clock jump bug
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 1 Aug 2002, David S. Miller wrote:
-> >
-> >    Of course, if you can actually measure it, that would be
-> >    interesting.  Naive math gives you a guess for the order of
-> >    magnitude effect, but nothing beats real numbers ;)
-> >
-> > The SYSV folks actually did have a buddy allocator a long time ago and
-> > they did implement lazy coalescing because is supposedly improved
-> > performance.
-> 
-> I bet that is mainly because of CPU scalability, and being able to avoid
-> touching the buddy lists from multiple CPU's - the same reason _we_ have
-> the per-CPU front-ends on various allocators.
-> 
-> I doubt it is because buddy matters past the 4MB mark. I just can't see
-> how you can avoid the naive math which says that it should be 1/512th as
-> common to coalesce to 4MB as it is to coalesce to 8kB.
+I was referenced to a gettimeofday problem spoken of in the kernel 
+discussion summary:
+http://kt.zork.net/kernel-traffic/kt20020708_174.html#1
 
-Buddy costs tend to be down in the noise compared with the cost
-of the zone->lock.
+There is spoken of .01% reproducibility and less of this problem.
 
-I did a per-cpu pages patch a while back which, when it takes that
-lock, grabs 16 pages or frees 16 pages.  Anton tested it on the
-12-way:  http://samba.org/~anton/linux/2.5.9/  blue -> purple
+I got to this problem here running a version of GNU wget (1.8.2) and 
+following kernel: Linux version 2.4.18 (gcc version 2.96 20000731 (Red 
+Hat Linux 7.3 2.96-110)) #4 Sun Jul 28 09:01:06 CEST 2002
 
-The cost of rmqueue() and __free_pages_ok went from 13% of system
-time down to 2%.  So that 2% speedup is all that's available by fiddling
-with the buddy algorithm (I think).  And I bet most of that is still taking
-the lock.
+In this configuration I get the error even more times. In 2300 calls I 
+get 319 failures, this is something about 0.07% not too much, but 
+significant.
 
-Didn't submit the patch because I think a per-cpu page buffer is a bit of
-a dopey cop-out.  I have patches here which make most of the page-intensive
-fastpaths in the kernel stop using single pages and start using 16-page batches.
+However it is not my skill to analyze nor get to deep in wget and the 
+kernel. It's just a note and a offer of some further tests if you need.
 
-That will make a 16-page allocation request just a natural thing
-to do.  But we will need a per-cpu buffer to wring the last drops
-out of anonymous pagefaults and generic_file_write(), which do not
-lend themselves to gang allocation.
+Greetings
+Thomas
+
+PS: I'm sorry this message is out of the thread index. I got to late on 
+the list.
+
+

@@ -1,83 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284686AbRLEU3q>; Wed, 5 Dec 2001 15:29:46 -0500
+	id <S284679AbRLEUdQ>; Wed, 5 Dec 2001 15:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284672AbRLEU3h>; Wed, 5 Dec 2001 15:29:37 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:47620 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S284666AbRLEU3U>;
-	Wed, 5 Dec 2001 15:29:20 -0500
-Date: Wed, 5 Dec 2001 21:28:44 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: erich@uruk.org
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, lm@bitmover.com,
-        jmerkey@timpanogas.org
-Subject: Re: Loadable drivers  [was  SMP/cc Cluster description ]
-Message-Id: <20011205212844.451f8781.skraw@ithnet.com>
-In-Reply-To: <E16Bhtn-0004xf-00@trillium-hollow.org>
-In-Reply-To: <E16BY3e-0005S9-00@the-village.bc.nu>
-	<E16Bhtn-0004xf-00@trillium-hollow.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S284682AbRLEUdG>; Wed, 5 Dec 2001 15:33:06 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:61706 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S284679AbRLEUc5>; Wed, 5 Dec 2001 15:32:57 -0500
+Date: Wed, 5 Dec 2001 21:32:53 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: PS/2 port on USB Keyboard
+Message-ID: <20011205213253.A6506@suse.cz>
+In-Reply-To: <20011205210420.A1581@wolverine.lohacker.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011205210420.A1581@wolverine.lohacker.net>; from emmanuele.bassi@iol.it on Wed, Dec 05, 2001 at 09:04:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Dec 2001 11:40:07 -0800
-erich@uruk.org wrote:
-
-> This really goes into a side-topic, but plainly:
+On Wed, Dec 05, 2001 at 09:04:20PM +0100, Emmanuele Bassi wrote:
+> Hi everyone,
 > 
-> The general driver/random module framework in Linux really needs to get
-> separated from the core kernel, and made so that it doesn't need to be
-> recompiled between minor kernel versions.  Perhaps even pulling the
-> drivers in general apart from each other, just aggregating releases for
-> convenience.
+> I have an USB Keyboard from BTC[1], with an onboard PS/2 mouse port.
+> When I use one of the mouse' buttons, the kernel complaints (with
+> a .warn):
+> 
+> keyboard.c: can't emulate rawmode for keycode 27[2-4]
+> 
+> The keycode depends on which mouse button I press (272 for the left,
+> 273 for the right and 274 for the middle one). While I'm using the mouse
+> under X11, this warning goes straight into the logs, but while I'm
+> under the console, this warning scramble up everything. A possible
+> workaround is to disable every kernel.warn directed (via syslog) to the
+> console, but, for obvious reasons, I'd like to keep this as a "last
+> resort" option.
+> 
+> While looking inside the source code for the Keyboard HID driver, I've
+> noticed that only the Mac driver enables mouse button emulation. Since
+> I'm no kernel hacker, my question is: could someone work on a possible
+> patch?
 
-You have just expressed my wildest nightmares. Just go ahead ...
+Comment the message out in drivers/input/keybdev.c ...
 
-> MS with Windows (and even DOS) went the right direction here.  In fact,
-> they have been hurting themselves by what lack of driver interoperability
-> there is even between Windows NT/2K/XP.  Admittedly they didn't have much
-> of a choice with their closed-source scheme, but it still is a better
-> solution from a usability and stability point of view in general.
+> 
+> TIA & best regards,
+>  Emmanuele.
+> 
+> +++
+> 
+> wolverine:~# cat /proc/bus/usb/devices
+> T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+> B:  Alloc=217/900 us (24%), #Int=  2, #Iso=  0
+> D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+> P:  Vendor=0000 ProdID=0000 Rev= 0.00
+> S:  Product=USB UHCI-alt Root Hub
+> S:  SerialNumber=6400
+> C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+> I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+> E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+> T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+> D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+> P:  Vendor=046e ProdID=6782 Rev=21.10
+> S:  Manufacturer=BTC
+> S:  Product=USB Keyboard and Mouse
+> 
+> wolverine:~# usbmodules --device /proc/bus/usb/001/002
+> hid
+> 
+> 
+> -- 
+> Emmanuele Bassi (Zefram)               [ http://digilander.iol.it/ebassi ]
+> GnuPG Key fingerprint = 4DD0 C90D 4070 F071 5738  08BD 8ECC DB8F A432 0FF4
 
-You can only be plain kidding with this statement. If you split the drivers
-from the rest of the kernel, you managed to get rid of this nice (yes, I really
-meant nice) monolithic design, where I only need a simple config file to
-_update_ to a new kernel revision (_up_, not _down_) and be happy (including
-all the drivers). Obviously you just prove yourself wrong - mentioning not
-working driver interoperability between NT/2K/XP whatever - with the idea that
-it is indeed possible to make major new kernel versions (which should be
-getting better btw) without _any_ changes in the driver framework that will
-break your nice and stable but _old_ drivers. What's the use of this? You are
-not talking about releasing driver-plugin-/framework-patches or the like just
-to load _old_ drivers into _new_ kernel-environment?
-Is this what they do at MS? Well if, they have not come that far.
-
-> Don't get me wrong, I only run MS Software on 2 of my 8 machines (and
-> have been trying to remove one of those with Wine/WineX), but I appreciate
-> a better overall solution when I see one.
-
-This brings up memories about reading Peter Nortons' latest hardcore books some
-years ago, brrrr.
-
-Reading between your lines, I can well see that you are most probably talking
-about closed-source linux-drivers breaking with permanently released new kernel
-revisions. But, in fact, this is the closed-source phenomenon, and _not_ linux.
-
-> I will go so far as to say, for the long term this is necessary for the
-> survival of Linux, and would help it's health even in the server arena.
-
-You just invented the circle with edges: you are talking about "long-term" and
-"MS drivers solution" at the same time. Remember, this company is currently
-saying the product cycle is 3 years. I know pretty big companies that haven't
-even managed to get the NT drivers really working under W2K, and were just shot
-down by XP release.
-I tend to believe we could just wait another two MS cycles to have even the
-biggest MS-fans converted to kernel-hackers, only because of being real fed up
-with the brilliant, long term driver design.
- 
-Regards,
-Stephan
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,103 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261940AbREPNTm>; Wed, 16 May 2001 09:19:42 -0400
+	id <S261939AbREPN2w>; Wed, 16 May 2001 09:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261939AbREPNTc>; Wed, 16 May 2001 09:19:32 -0400
-Received: from pD9004B0D.dip.t-dialin.net ([217.0.75.13]:43746 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S261932AbREPNTW>;
-	Wed, 16 May 2001 09:19:22 -0400
-Message-ID: <3B027E46.5095E8BB@pcsystems.de>
-Date: Wed, 16 May 2001 15:19:02 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S261941AbREPN2m>; Wed, 16 May 2001 09:28:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:14094 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261939AbREPN2d>; Wed, 16 May 2001 09:28:33 -0400
+Message-ID: <3B028063.67442F62@idb.hist.no>
+Date: Wed, 16 May 2001 15:28:03 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre2 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Philip.Blundell@pobox.com, tim@cyberelk.demon.co.uk,
-        campbell@torque.net, andrea@e-mind.com, linux-parport@torque.net
-Subject: parport problems with devfs
-Content-Type: multipart/mixed;
- boundary="------------4CDFF581E9F72400F74D57C7"
+To: Oystein Viggen <oysteivi@tihlde.org>, linux-kernel@vger.kernel.org
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it>
+		<3B0261EC.23BE5EF0@idb.hist.no> <031ypp1oi2.fsf@colargol.tihlde.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------4CDFF581E9F72400F74D57C7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Oystein Viggen wrote:
+> 
+> Quoth Helge Hafting:
+> 
+> > This could be extended to non-raid use - i.e. use the "raid autodetect"
+> > partition type for non-raid as well.  The autodetect routine could
+> > then create /dev/partitions/home, /dev/partitions/usr or
+> > /dev/partitions/name_of_my_choice
+> > for autodetect partitions not participating in a RAID.
+> 
+> What happens if I insert a hard drive from another computer which also
+> has partitions named "home", "usr", and soforth?
 
-Hello!
+This is the problem with all sorts of ID-based naming.  In this case
+the kernel could simply change the conflicting names a bit,
+and leave the cleanup to the administrator.  (Who probably
+is around as he just inserted those disks....)
 
-I attached the problem occured with parport and devfs.
-I don't exactly know where the problem in the parport source
-is. If someone has a patch for it, I will test it.
+The current scheme have problems if you move a disk
+from one controller to another, or in some cases
+if you merely add a new one.  So the question becomes - 
+what is most likely to go wrong?  And you can be
+smart and name your partitions /usr21042001, /home03042001
+and so on in order to minimize the risk of conflicts.
 
-Nico
-
-
---------------4CDFF581E9F72400F74D57C7
-Content-Type: text/plain; charset=us-ascii;
- name="DEVFS_parport"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="DEVFS_parport"
-
-
-# Loading the parport and parport_pc modules for my parallelport
-flapp:/home/user/nico/gpm-1.19.3 # modprobe parport_pc
-
-# is there an entry in /dev ?
-flapp:/home/user/nico/gpm-1.19.3 # ls /dev/
-.         cdroms   fb      initctl  mem   ptmx    root     usb
-..        console  full    input    misc  pts     shm      vc
-.devfsd   cpu      gpmctl  kmem     null  pty     tty      vcc
-apm_bios  discs    ide     log      port  random  urandom  zero
-
-# What does the kernel message say ?
-flapp:/home/user/nico/gpm-1.19.3 # dmesg  | tail -n 14
-usb.c: registered new driver hid
-mice: PS/2 mouse device common for all mice
-0x378: FIFO is 16 bytes
-0x378: writeIntrThreshold is 7
-0x378: readIntrThreshold is 7
-0x378: PWord is 8 bits
-0x378: Interrupts are ISA-Pulses
-0x378: ECP port cfgA=0x10 cfgB=0x49
-0x378: ECP settings irq=7 dma=1
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,COMPAT,ECP]
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-
-
-# Have a look what lp0 has been before
->From /usr/src/linux/Documentation/ :
-  6 char        Parallel printer devices
-                  0 = /dev/lp0          Parallel printer on parport0
-                  1 = /dev/lp1          Parallel printer on parport1
-
-# make our own device out of /dev
-flapp:/ # mknod /lp0 c 6 0
-
-# has anything happened ? No! 
-flapp:/ # ls /dev/
-.         cdroms   fb      initctl  mem   ptmx    root     usb
-..        console  full    input    misc  pts     shm      vc
-.devfsd   cpu      gpmctl  kmem     null  pty     tty      vcc
-apm_bios  discs    ide     log      port  random  urandom  zero
-
-# Use the printer the easiest way :)
-flapp:/ # cat /tmp/* > lp0
-
-# And now... 
-flapp:/ # ls /dev/
-.         cdroms   fb      initctl  mem   printers  random  urandom  zero
-..        console  full    input    misc  ptmx      root    usb
-.devfsd   cpu      gpmctl  kmem     null  pts       shm     vc
-apm_bios  discs    ide     log      port  pty       tty     vcc
-
-# there is now the entry printers/0.
-
---------------4CDFF581E9F72400F74D57C7--
-
+Helge Hafting

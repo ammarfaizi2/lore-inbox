@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280718AbRKJUtg>; Sat, 10 Nov 2001 15:49:36 -0500
+	id <S280722AbRKJU72>; Sat, 10 Nov 2001 15:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280719AbRKJUt0>; Sat, 10 Nov 2001 15:49:26 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:23813 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S280718AbRKJUtQ>; Sat, 10 Nov 2001 15:49:16 -0500
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-In-Reply-To: <Pine.LNX.4.21.0111102030150.12260-100000@Consulate.UFP.CX>
-From: Doug McNaught <doug@wireboard.com>
-Date: 10 Nov 2001 15:49:01 -0500
-In-Reply-To: Riley Williams's message of "Sat, 10 Nov 2001 20:35:34 +0000 (GMT)"
-Message-ID: <m3g07mpd1e.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S280723AbRKJU7S>; Sat, 10 Nov 2001 15:59:18 -0500
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:14092 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280722AbRKJU7N>; Sat, 10 Nov 2001 15:59:13 -0500
+Message-ID: <20011110205913.42522.qmail@web10406.mail.yahoo.com>
+Date: Sun, 11 Nov 2001 07:59:13 +1100 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Problem. 2.4.13-ac7 ; FIFO write timed out
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <00d701c169e2$2fe5f6d0$0201a8c0@HOMER>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams <rhw@MemAlpha.cx> writes:
 
-> Hi Pavel.
+> > 3; printing to HP laser Jet 6L I got the following
+> > error message in syslog
+> >
 > 
-> > It ... just is not that way. Kernel + modules run at ring 0,
-> > userland at ring 3.
+> So have you tried to set the parport to *either* EPP
+
+Yes, the first time I set ACP+EPP ; but I have also
+tried ECP only, it still happened.
+Now I have to set to SPP.
+
+
+> or ECP in BIOS?
 > 
-> I know that much. I was just curious whether there was any particular
-> reason why it was that way.
+> ECP+EPP has always been buggy to me (in Windows
+> also).
+> 
+> <snip>
+> 
+>
+_____________________________________________________
+> |  Martin Eriksson <nitrax@giron.wox.org>
+> |  MSc CSE student, department of Computing Science
+> |  Umeå University, Sweden
+> 
+> 
 
-Well, Unix has historically run on systems with at most two processor
-privilege levels, "user" and "supervisor"; ie, you're either in user
-or kernel mode.
+=====
+S.KIEU
 
-ix86 is one of the few Linux platforms that offers more than two
-levels, so having modules run in an in-between level would be a
-portability headache as well as a lot of work.
-
-Certainly not impossible, but you'd need to create task gates or
-whatever they're called at every point where modules called into the
-kernel (and vice versa as well I think).  Might be a serious
-performance hit...
-
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+http://briefcase.yahoo.com.au - Yahoo! Briefcase
+- Manage your files online.

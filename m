@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSEZA6G>; Sat, 25 May 2002 20:58:06 -0400
+	id <S315503AbSEZBCX>; Sat, 25 May 2002 21:02:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSEZA6F>; Sat, 25 May 2002 20:58:05 -0400
-Received: from tomts14.bellnexxia.net ([209.226.175.35]:4743 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S315513AbSEZA55> convert rfc822-to-8bit; Sat, 25 May 2002 20:57:57 -0400
-From: Pierre Cloutier <pcloutier@poseidoncontrols.com>
-Organization: POSEIDON CONTROLS INC
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Date: Sat, 25 May 2002 21:03:16 +0000
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Robert Schwebel <robert@schwebel.de>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205251739380.4355-100000@home.transmeta.com>
+	id <S315517AbSEZBCW>; Sat, 25 May 2002 21:02:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52228 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315503AbSEZBCV>;
+	Sat, 25 May 2002 21:02:21 -0400
+Message-ID: <3CF03526.78F89E24@zip.com.au>
+Date: Sat, 25 May 2002 18:06:46 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <02052521031600.04566@TheBox>
-Content-Transfer-Encoding: 7BIT
+To: Robert Schwebel <robert@schwebel.de>
+CC: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <20020524223950.D22643@work.bitmover.com> <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm> <20020525091444.H28795@work.bitmover.com> <3CEFB9C6.FC21D7CB@opersys.com> <20020525092557.K28795@work.bitmover.com> <3CEFBEA3.71611EDB@opersys.com> <20020526004710.A598@schwebel.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 May 2002, Linus Torvalds wrote:
-> On Sat, 25 May 2002, Pierre Cloutier wrote:
-> > Linus misses the most important feature of hard real time in user space.
-> >
-> > [ Short answer: debuggability ]
->
-> I didn't miss it, but it hasn't come up, and I don't think it's actually
-> all that much an issue of "RTLinux vs RTAI", but simply an issue of "do
-> you have the same API in user land as in a module"?
->
-> Because if you have the same API, you can do non-RT development in user
-> land, and then just move it over once you know the basic code "works".
->
-> Since the API is bound to be fairly limited, that shouldn't be much of a
-> problem, but I have no idea what the actual development environments
-> offer, and I have ansolutely zero interest in trying on the RT
-> "straighjacket" myself ;)
+Robert Schwebel wrote:
+> 
+> On Sat, May 25, 2002 at 12:41:07PM -0400, Karim Yaghmour wrote:
+> > Developers will simply not come out in the cold and say we chose OS xyz
+> > instead of Linux because of the rtlinux issues. But talk to them in
+> > private and then you get an entirely different picture.
+> 
+> That's also my experience:
+> 
+> - I have been on all major automation trade shows in Germany for about 5
+>   years
+> 
+> - I am the author of one of the two German books about Embedded Linux and
+>   of lots of articles about Linux for automation
+> 
+> - I have organized the largest developer conference in Germany about "Linux
+>   for industrial applications"
+> 
+> During all that activities I have talked to hundrets of people who are
+> either already working with Linux or considering it's use. What Karim says
+> here does exactly reflect the mood of the people.
+> 
 
-Hi:
+Could you please tell us, just so it is really clear, what these people's
+concerns are?  What obstacles they see to using Linux in this industry?
 
-Sorry but you have it wrong:
-
-"Because you have the same API, you can do the RT development in user space 
-and then move it into the kernel once you know the code works."
-
-Please do not underestimate the significance of this.
-
-The API is limited. Yes. But it does provide me with the QNX like IPC I so 
-cheerish - and that is all i need. Cheers!
-
-Best Regards,
-
-Pierre Cloutier
+-

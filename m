@@ -1,169 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261388AbSJMAQh>; Sat, 12 Oct 2002 20:16:37 -0400
+	id <S261386AbSJMAhB>; Sat, 12 Oct 2002 20:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261387AbSJMAPh>; Sat, 12 Oct 2002 20:15:37 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:59145 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261388AbSJMAPP>; Sat, 12 Oct 2002 20:15:15 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S261389AbSJMAhB>; Sat, 12 Oct 2002 20:37:01 -0400
+Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:18670 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S261386AbSJMAhA>; Sat, 12 Oct 2002 20:37:00 -0400
+Date: Sat, 12 Oct 2002 17:42:49 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: marcelo@conectiva.com.br, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] adds dmask option to fat (5/5)
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 13 Oct 2002 09:20:58 +0900
-Message-ID: <87y9939ok5.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Subject: [PATCH] 2.4.20-pre10: make PL-2303 hack work again
+Message-ID: <20021013004249.GC17162@ip68-4-86-174.oc.oc.cox.net>
+References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net> <20021009235332.GA19351@kroah.com> <20021011023925.GA9142@ip68-4-86-174.oc.oc.cox.net> <20021011170623.GB4123@kroah.com> <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net> <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The following patch allows the PL-2303 hack to work again. It applies
+to and has been tested with 2.4.20-pre10. Testing included using an ISDN
+"modem" connected to the PL-2303 to do some web browsing and some
+downloads (including a gzipped Linux 2.5.42 tarball).
 
-This adds the dmask option. Yes, the dmask option is the permission
-bitmask for directory.
+The patch resurrects a sanity check (or so it appears to me) which was
+removed in 2.4.20-pre2. However, the new version of the check is
+contained within the PL-2303 hack #ifdef's, and it no longer relies on
+variables like interrupt_pipe which have been removed from the USB
+serial code.
 
-Please apply.
+Given that 2.4.19 works with my PL-2303 and 2.4 is supposed to be a
+"stable" series, I'd appreciate if this patch (or another which fixes my
+problem) could be merged. If this patch needs improvements first, please
+let me know.
 
+-Barry K. Nathan <barryn@pobox.com>
 
- Documentation/filesystems/vfat.txt |    4 ++
- fs/fat/inode.c                     |   39 +++++++++++++++------------
- include/linux/msdos_fs_sb.h        |    1 
- 3 files changed, 28 insertions(+), 16 deletions(-)
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-
-diff -urNp fat_show_opt/Documentation/filesystems/vfat.txt fat_dmask/Documentation/filesystems/vfat.txt
---- fat_show_opt/Documentation/filesystems/vfat.txt	2002-10-13 07:39:16.000000000 +0900
-+++ fat_dmask/Documentation/filesystems/vfat.txt	2002-10-13 07:41:39.000000000 +0900
-@@ -8,6 +8,10 @@ if you want to format from within Linux.
- 
- VFAT MOUNT OPTIONS
- ----------------------------------------------------------------------
-+umask=###     -- The permission mask (see umask(1)) for the regulare file.
-+                 The default is the umask of current process.
-+dmask=###     -- The permission mask for the directory.
-+                 The default is the umask of current process.
- codepage=###  -- Sets the codepage for converting to shortname characters
- 		 on FAT and VFAT filesystems.  By default, codepage 437
- 		 is used.  This is the default for the U.S. and some
-diff -urNp fat_show_opt/fs/fat/inode.c fat_dmask/fs/fat/inode.c
---- fat_show_opt/fs/fat/inode.c	2002-10-13 07:40:36.000000000 +0900
-+++ fat_dmask/fs/fat/inode.c	2002-10-13 07:41:39.000000000 +0900
-@@ -227,6 +227,7 @@ static int fat_show_options(struct seq_f
- 	if (opts->fs_gid != 0)
- 		seq_printf(m, ",gid=%d", opts->fs_gid);
- 	seq_printf(m, ",umask=%04o", opts->fs_umask);
-+	seq_printf(m, ",dmask=%04o", opts->fs_dmask);
- 	if (sbi->nls_disk)
- 		seq_printf(m, ",codepage=%s", sbi->nls_disk->charset);
- 	if (isvfat) {
-@@ -290,7 +291,7 @@ static int parse_options(char *options, 
- 
- 	opts->fs_uid = current->uid;
- 	opts->fs_gid = current->gid;
--	opts->fs_umask = current->fs->umask;
-+	opts->fs_umask = opts->fs_dmask = current->fs->umask;
- 	opts->codepage = 0;
- 	opts->iocharset = NULL;
- 	if (is_vfat)
-@@ -368,6 +369,13 @@ static int parse_options(char *options, 
- 				if (*value) ret = 0;
+diff -ru linux-2.4.20-pre10/drivers/usb/serial/usbserial.c linux-2.4.20-pre10-bkn4/drivers/usb/serial/usbserial.c
+--- linux-2.4.20-pre10/drivers/usb/serial/usbserial.c	2002-09-26 02:23:00.000000000 -0700
++++ linux-2.4.20-pre10-bkn4/drivers/usb/serial/usbserial.c	2002-10-12 17:21:00.000000000 -0700
+@@ -1182,11 +1182,11 @@
+ #if defined(CONFIG_USB_SERIAL_PL2303) || defined(CONFIG_USB_SERIAL_PL2303_MODULE)
+ 	/* BEGIN HORRIBLE HACK FOR PL2303 */ 
+ 	/* this is needed due to the looney way its endpoints are set up */
+-	if (ifnum == 1) {
+-		if (((dev->descriptor.idVendor == PL2303_VENDOR_ID) &&
+-		     (dev->descriptor.idProduct == PL2303_PRODUCT_ID)) ||
+-		    ((dev->descriptor.idVendor == ATEN_VENDOR_ID) &&
+-		     (dev->descriptor.idProduct == ATEN_PRODUCT_ID))) {
++	if (((dev->descriptor.idVendor == PL2303_VENDOR_ID) &&
++	     (dev->descriptor.idProduct == PL2303_PRODUCT_ID)) ||
++	    ((dev->descriptor.idVendor == ATEN_VENDOR_ID) &&
++	     (dev->descriptor.idProduct == ATEN_PRODUCT_ID))) {
++		if (ifnum == 1) {
+ 			/* check out the endpoints of the other interface*/
+ 			interface = &dev->actconfig->interface[ifnum ^ 1];
+ 			iface_desc = &interface->altsetting[0];
+@@ -1201,6 +1201,15 @@
+ 				}
  			}
  		}
-+		else if (!strcmp(this_char,"dmask")) {
-+			if (!value || !*value) ret = 0;
-+			else {
-+				opts->fs_dmask = simple_strtoul(value,&value,8);
-+				if (*value) ret = 0;
-+			}
++
++		/* Now make sure the PL-2303 is configured correctly.
++		 * If not, give up now and hope this hack will work
++		 * properly during a later invocation of usb_serial_probe
++		 */
++		if (num_bulk_in == 0 || num_bulk_out == 0) {
++			info("PL-2303 hack: descriptors matched but endpoints did not");
++			return NULL;
 +		}
- 		else if (!strcmp(this_char,"debug")) {
- 			if (value) ret = 0;
- 			else *debug = 1;
-@@ -530,7 +538,7 @@ static int fat_read_root(struct inode *i
- 	inode->i_gid = sbi->options.fs_gid;
- 	inode->i_version++;
- 	inode->i_generation = 0;
--	inode->i_mode = (S_IRWXUGO & ~sbi->options.fs_umask) | S_IFDIR;
-+	inode->i_mode = (S_IRWXUGO & ~sbi->options.fs_dmask) | S_IFDIR;
- 	inode->i_op = sbi->dir_ops;
- 	inode->i_fop = &fat_dir_operations;
- 	if (sbi->fat_bits == 32) {
-@@ -1157,8 +1165,8 @@ static int fat_fill_inode(struct inode *
- 	
- 	if ((de->attr & ATTR_DIR) && !IS_FREE(de->name)) {
- 		inode->i_generation &= ~1;
--		inode->i_mode = MSDOS_MKMODE(de->attr,S_IRWXUGO &
--		    ~sbi->options.fs_umask) | S_IFDIR;
-+		inode->i_mode = MSDOS_MKMODE(de->attr,
-+			S_IRWXUGO & ~sbi->options.fs_dmask) | S_IFDIR;
- 		inode->i_op = sbi->dir_ops;
- 		inode->i_fop = &fat_dir_operations;
- 
-@@ -1278,9 +1286,9 @@ retry:
- 
- int fat_notify_change(struct dentry * dentry, struct iattr * attr)
- {
--	struct super_block *sb = dentry->d_sb;
-+	struct msdos_sb_info *sbi = MSDOS_SB(dentry->d_sb);
- 	struct inode *inode = dentry->d_inode;
--	int error = 0;
-+	int mask, error = 0;
- 
- 	lock_kernel();
- 
-@@ -1294,21 +1302,21 @@ int fat_notify_change(struct dentry * de
- 
- 	error = inode_change_ok(inode, attr);
- 	if (error) {
--		if( MSDOS_SB(sb)->options.quiet )
--		    error = 0; 
-+		if (sbi->options.quiet)
-+			error = 0;
-  		goto out;
  	}
- 
- 	if (((attr->ia_valid & ATTR_UID) && 
--	     (attr->ia_uid != MSDOS_SB(sb)->options.fs_uid)) ||
-+	     (attr->ia_uid != sbi->options.fs_uid)) ||
- 	    ((attr->ia_valid & ATTR_GID) && 
--	     (attr->ia_gid != MSDOS_SB(sb)->options.fs_gid)) ||
-+	     (attr->ia_gid != sbi->options.fs_gid)) ||
- 	    ((attr->ia_valid & ATTR_MODE) &&
- 	     (attr->ia_mode & ~MSDOS_VALID_MODE)))
- 		error = -EPERM;
- 
- 	if (error) {
--		if( MSDOS_SB(sb)->options.quiet )  
-+		if (sbi->options.quiet)  
- 			error = 0;
- 		goto out;
- 	}
-@@ -1317,11 +1325,10 @@ int fat_notify_change(struct dentry * de
- 		goto out;
- 
- 	if (S_ISDIR(inode->i_mode))
--		inode->i_mode |= S_IXUGO;
--
--	inode->i_mode = ((inode->i_mode & S_IFMT) | ((((inode->i_mode & S_IRWXU
--	    & ~MSDOS_SB(sb)->options.fs_umask) | S_IRUSR) >> 6)*S_IXUGO)) &
--	    ~MSDOS_SB(sb)->options.fs_umask;
-+		mask = sbi->options.fs_dmask;
-+	else
-+		mask = sbi->options.fs_umask;
-+	inode->i_mode &= S_IFMT | (S_IRWXUGO & ~mask);
- out:
- 	unlock_kernel();
- 	return error;
-diff -urNp fat_show_opt/include/linux/msdos_fs_sb.h fat_dmask/include/linux/msdos_fs_sb.h
---- fat_show_opt/include/linux/msdos_fs_sb.h	2002-10-13 07:39:16.000000000 +0900
-+++ fat_dmask/include/linux/msdos_fs_sb.h	2002-10-13 07:41:39.000000000 +0900
-@@ -10,6 +10,7 @@ struct fat_mount_options {
- 	uid_t fs_uid;
- 	gid_t fs_gid;
- 	unsigned short fs_umask;
-+	unsigned short fs_dmask;
- 	unsigned short codepage;  /* Codepage for shortname conversions */
- 	char *iocharset;          /* Charset used for filename input/display */
- 	unsigned short shortname; /* flags for shortname display/create rule */
+ 	/* END HORRIBLE HACK FOR PL2303 */
+ #endif
+Only in linux-2.4.20-pre10-bkn4/drivers/usb/serial: usbserial.c~

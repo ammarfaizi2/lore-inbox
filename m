@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266709AbUBQW4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUBQW4N
+	id S266718AbUBQW7s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:59:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266757AbUBQW5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:56:13 -0500
-Received: from mail.networld.com ([209.63.232.103]:60685 "EHLO networld.com")
-	by vger.kernel.org with ESMTP id S266718AbUBQWxZ (ORCPT
+	Tue, 17 Feb 2004 17:57:31 -0500
+Received: from s200-189-165-100.ipb.diveo.net.br ([200.189.165.100]:19471 "EHLO
+	webtb2311") by vger.kernel.org with ESMTP id S266718AbUBQW4T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:53:25 -0500
-Message-ID: <40329B57.9060901@networld.com>
-Date: Tue, 17 Feb 2004 15:53:11 -0700
-From: Charles Johnston <cjohnston@networld.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en, pt-br, pt, es, ko, ko-kr
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
-References: <403274D2.4020407@networld.com> <1077055997.1076.23.camel@gaston>
-In-Reply-To: <1077055997.1076.23.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 17:56:19 -0500
+From: MRBATESALAN@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: REPLY SOON
+X-Priority: 3
+Message-ID: <WEBTB2311xQEfQm5UpS00003102@webtb2311>
+X-OriginalArrivalTime: 17 Feb 2004 22:56:16.0330 (UTC) FILETIME=[3FB042A0:01C3F5A9]
+Date: 17 Feb 2004 19:56:16 -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Wed, 2004-02-18 at 07:08, Charles Johnston wrote:
-> 
->>Upon bootup, radeonfb is obviously not initializing the hardware 
->>correctly.  Massive amounts of random-looking garbage, plus a weird 
->>effect I've never seen before, like someone pouring milk _up_ the
->>screen. (Yeah, it's the best I could come up with)
->>
->>It's a Dell Inspiron 8600 with Mobile Radeon 9600 and 1920x1200 LCD.
-> 
-> 
-> Looks like the driver cannot find any info about your flat panel
-> in the BIOS ROM image. I suppose we can thank DELL for hacking the
-> BIOS in ways that aren't compatible with all others laptops...
-> 
-> Can you try commenting out the call to radeon_map_ROM() and let it
-> look for the RAM based BIOS instead ? Let me know...
->  
+Dear Friend,
 
-Ok, it worked fine with that line commented out.  I can switch vt's, be 
-in X, etc. no problems.
+As you read this, I don't want you to feel sorry for 
+me, because, I believe everyone will die someday. 
+My name is BATES ALAN a merchant in Dubai, in the 
+U.A.E.I have been diagnosed with Esophageal cancer.
+It has defiled all forms of medical treatment, and right now 
+I have only about a few months to live, according to medical experts. 
+I have not particularly lived my life so well, as I 
+never really cared for anyone(not even myself)but my 
+business. Though I am very rich, I was never 
+generous, I was always hostile to people and only 
+focused on my business as that was the only thing I 
+cared for. But now I regret all this as I now know 
+that there is more to life than just wanting to have 
+or make all the money in the world. 
+I believe when God gives me a second chance to come 
+to this world I would live my life a different way 
+from how I have lived it. Now that God has called 
+me, I have willed and given most of my property 
+and assets to my immediate and extended family 
+members as well as a few close friends. 
+I want God to be merciful to me and accept my soul 
+so, I have decided to give alms to charity 
+organizations, as I want this to be one of the last 
+good deeds I do on earth. So far, I have distributed 
+money to some charity organizations in the U.A.E, 
+Algeria and Malaysia. Now that my health has 
+deteriorated so badly, I cannot do this myself 
+anymore. I once asked members of my family to close one 
+of my accounts and distribute the money which I have 
+there to charity organization in Bulgaria and 
+Pakistan, they refused and kept the money to 
+themselves. Hence, I do not trust them anymore, as 
+they seem not to be contended with what I have left 
+for them. 
+The last of my money which no one knows of is the 
+huge cash deposit of eighteen million dollars 
+$18,000,000,00 that I have with a finance/Security Company 
+abroad. I will want you to help me collect this deposit 
+and dispatched it to charity organizations.
+I have set aside 10% for you and for your time.
+God be with you. 
+BATES ALAN
 
-The only issue I see is when I do a 'clear' on the vt, it doesn't clear 
-the text, but blanks every nth row of pixels.  Switching vt's and back 
-clears the screen.
-
-There are also a few rows of garbage pixels at the bottom that linger 
-across vt switches.
-
-
-Charles Johnston
-cjohnston@networld.com

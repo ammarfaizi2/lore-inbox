@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130063AbRB1FSV>; Wed, 28 Feb 2001 00:18:21 -0500
+	id <S130064AbRB1FjP>; Wed, 28 Feb 2001 00:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbRB1FSC>; Wed, 28 Feb 2001 00:18:02 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:63503 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S130064AbRB1FR4>;
-	Wed, 28 Feb 2001 00:17:56 -0500
-Date: Tue, 27 Feb 2001 23:24:40 -0600
-To: "Manfred H. Winter" <mahowi@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.2-ac5] X (4.0.1) crashes
-Message-ID: <20010227232440.A9376@austin.rr.com>
-In-Reply-To: <20010227150830.A739@marvin.mahowi.de>
+	id <S130065AbRB1Fiz>; Wed, 28 Feb 2001 00:38:55 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:23293 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130064AbRB1Fii>;
+	Wed, 28 Feb 2001 00:38:38 -0500
+Date: Tue, 27 Feb 2001 21:40:46 -0800
+From: Greg KH <greg@wirex.com>
+To: jt@hpl.hp.com
+Cc: Dag Brattli <dag@brattli.net>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] patch-2.4.2-irda1 (irda-usb)
+Message-ID: <20010227214046.A10265@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, jt@hpl.hp.com,
+	Dag Brattli <dag@brattli.net>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010227093329.A10482@wirex.com> <200102272032.UAA74232@tepid.osl.fast.no> <20010227135810.E910@wirex.com> <20010227184109.B6898@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010227150830.A739@marvin.mahowi.de>; from mahowi@gmx.net on Tue, Feb 27, 2001 at 03:08:30PM +0100
-From: Erik DeBill <edebill@austin.rr.com>
+In-Reply-To: <20010227184109.B6898@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Tue, Feb 27, 2001 at 06:41:09PM -0800
+X-Operating-System: Linux 2.4.2-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having no problems with 2.4.2-ac6, using XFree86 4.0.2 and the
-included nv (nvidia) driver.  Works great with my geForce2 GTS,
-without any binary only drivers.  4.0.2 seemed to have improved
-support for nvidia chips.
+On Tue, Feb 27, 2001 at 06:41:09PM -0800, Jean Tourrilhes wrote:
+> 
+> 	First thanks for Dag for bringing me into the conversation. I
+> may add my little bit of spice, especially that I was the one pushing
+> for having the driver in .../drivers/net/irda.
+> 	By the way, Greg, sorry if I hurt your feeling, I don't want
+> to put down any of the great work that has been done on the USB stack.
 
-If it's any help, I'm also using the rivafb for console (although not
-for X).
+Thanks, but it didn't bother me, or hurt any of my feelings at all.  I
+just wanted to point out that all of the other usb drivers (with 2
+exceptions) reside in the drivers/usb directory, and I didn't know if
+you knew that.
 
+(the exceptions are the input drivers, which are part of the input core,
+and the cpia video driver, which has the parallel port and the usb
+driver all together in one file.)
 
-Erik
+> 	My feeling is that devices are mostly defined by their higher
+> level interface, because this is what is closer to the user.
+> 	If I look at a Pcmcia Ethernet card, I will tend to associate
+> more with a PCI Ethernet card rather than a Pcmcia SCSI card. Both
+> card have the same high level interface (TCP/IP) even if their low
+> level interface is different (Pcmcia, PCI).
+> 	People tend to agree with that, and that's why you have
+> directories called drivers/net, drivers/scsi and driver/sound, rather
+> that drivers/pci, drivers/isa, drivers/mca and drivers/pcmcia.
 
+This argument has been discussed in the past (see the linux-usb-devel
+and linux-kernel mailing list archives) but from what I remember, Linus
+and others wanted them all to stay in the drivers/usb directory for now.
 
-On Tue, Feb 27, 2001 at 03:08:30PM +0100, Manfred H. Winter wrote:
-> Hi!
-> 
-> Yesterday I've upgraded my 2.4.2 kernel to ac5, because loop-device
-> seems not to work in plain 2.4.2. But now my X-server crashes.
-> 
-> When I start with startx, X comes up, gnome starts, sawfish starts. Then
-> the system freezes. Even SysRQ-keys don't work.
-> 
-> I use XFree86 4.0.1 with nvidia-drivers 0.96.
-> 
-> I can't find anything about the crash in the logs, even the output from
-> X doesn't get written to disk.
-> 
-> Is this a known problem?
-> 
-> I'm going back to vanilla 2.4.2 for now. Is there another way to get
-> loop to work?
-> 
-> Bye,
-> 
-> Manfred
-> -- 
->  /"\                        | PGP-Key available at Public Key Servers
->  \ /  ASCII ribbon campaign | or at "http://www.mahowi.de/"
->   X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
->  / \  and postings          | GPG: 0x88BC3576 * ICQ: 61597169
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Personally I don't care either way, but it has been easier to do usb
+core changes (such as the hotplug interface changes that I suggested for
+your driver) with all of the drivers in one place, not that I can't do a
+recursive grep :)
+
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg

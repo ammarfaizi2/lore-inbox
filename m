@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSJQKNM>; Thu, 17 Oct 2002 06:13:12 -0400
+	id <S261297AbSJQKMi>; Thu, 17 Oct 2002 06:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbSJQKNM>; Thu, 17 Oct 2002 06:13:12 -0400
-Received: from tailtiu.davidcoulson.net ([194.159.156.4]:19072 "EHLO
-	mail.mx.davidcoulson.net") by vger.kernel.org with ESMTP
-	id <S261300AbSJQKNG>; Thu, 17 Oct 2002 06:13:06 -0400
-Message-ID: <3DAE8EEA.4080804@davidcoulson.net>
-Date: Thu, 17 Oct 2002 11:20:26 +0100
-From: David Coulson <david@davidcoulson.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020915
-X-Accept-Language: en-gb
+	id <S261300AbSJQKMi>; Thu, 17 Oct 2002 06:12:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:28430 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261297AbSJQKMh>; Thu, 17 Oct 2002 06:12:37 -0400
+Message-ID: <3DAE8E90.D3E7CACF@aitel.hist.no>
+Date: Thu, 17 Oct 2002 12:18:56 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>, wstearns@posbox.com,
-       linux-kernel@vger.kernel.org,
-       UML devel <user-mode-linux-devel@lists.sourceforge.net>
-Subject: Re: [uml-devel] Re: swap_dup/swap_free errors with 2.4.20-pre10
-References: <200210170202.VAA05667@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: neilb@cse.unsw.edu.au, groudier@free.fr, axboe@suse.de
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.43 smp bootup crash, more info - probably scsi/raid
+References: <3DAE605F.3B744FFC@broadpark.no>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> I've seen this bug multiple times.  Basically, something is holding a
-> mm_sem and not letting go.  Anything that walks the process list hangs.
-> Ultimately, this hangs anything that's remotely useful, and you have to
-> crash the box.
+Helge Hafting wrote:
 
-Indeed. I experienced the problem every 24-36hrs around five times in a 
-row last week. Pretty much every morning, I'd come in and the box was 
-completly dead. It seems to be okay at the moment, but I'm not holding 
-my breath.
+> It produced a backtrace so long that most of it
+> scrolled off the screen, before stating that
+> it didn't sync in an interrupt handler.
+>
+Some of the functions in the trace was scsi stuff.
+I have a tekram scsi controller, driven by
+"SYM53C8XX Version 2 SCSI support"
 
-> One factoid that I forgot to mention there is that when it happens on my 
-> laptop, the disk activity light is stuck on.
+The crash happens immediately after initializing
+the controller and discovering the two
+disks.  This is where autodetection
+of RAID usually happens.
+So it seems to me that it is either some
+scsi problem, or a RAID problem.
 
-My box doesn't have a light, but what I got from SNMP before the box 
-died suggested that the system (e.g. the 'system' CPU usage MIB) was 
-using a considerable amount of CPU time (>95%), so I'm not sure if it 
-was swapping madly, or if something else was going on.
+The problem affects both 2.5.43 and 2.5.43-mm2.
 
-David
-
--- 
-David Coulson                                  http://davidcoulson.net/
-d@vidcoulson.com                       http://journal.davidcoulson.net/
-
+Helge Hafting

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292130AbSCRTPc>; Mon, 18 Mar 2002 14:15:32 -0500
+	id <S292339AbSCRTQC>; Mon, 18 Mar 2002 14:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSCRTPX>; Mon, 18 Mar 2002 14:15:23 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:4270 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S292130AbSCRTPM>; Mon, 18 Mar 2002 14:15:12 -0500
-Reply-To: <robertp@ustri.com>
-From: "Robert Pfister" <robertp@ustri.com>
-To: <prade@cs.sunysb.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Trapping all Incoming Network Packets 
-Date: Mon, 18 Mar 2002 12:15:07 -0700
-Message-ID: <003901c1ceb1$37268890$1e00a8c0@nomaam>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.GSO.4.33.0203181330530.5841-100000@compserv3>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S292316AbSCRTP4>; Mon, 18 Mar 2002 14:15:56 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23263 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S292231AbSCRTPp>; Mon, 18 Mar 2002 14:15:45 -0500
+Date: Mon, 18 Mar 2002 12:15:25 -0700
+Message-Id: <200203181915.g2IJFPe22729@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C963954.87168F84@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-prade@cs.sunysb.edu writes:
+Andrew Morton writes:
+> Richard Gooch wrote:
+> > 
+> > Andrew Morton writes:
+> > > Note that it applies to a file descriptor.  If
+> > > posix_fadvise(FADV_DONTNEED) is called against a file descriptor,
+> > > and someone else has an fd open against the same file, that other
+> > > user gets their foot shot off.  That's OK.
+> > 
+> > Let me verify that I understand what you're saying. Process A and B
+> > independently open the file. The file is already in the cache (because
+> > other processes regularly read this file). Process A is slowly reading
+> > stuff. Process B does FADV_DONTNEED on the whole file. The pages are
+> > dropped.
+> > 
+> > You're saying this is OK? How about this DoS attack:
+> >         int fd = open ("/lib/libc.so", O_RDONLY, 0);
+> >         while (1) {
+> >                 posix_fadvise (fd, 0, 0, FADVISE_DONTNEED);
+> >                 sleep (1);
+> >         }
+> > 
+> > Let me see that disc head move! Wheeee!
+> > 
+> 
+> POSIX_FADV_DONTNEED could only unmap pages from the caller's
+> VMA's, so the problem would only affect other processes which
+> share the same mm - CLONE_MM threads.
+> 
+> If some other process has a reference on the pages then they
+> wouldn't get unmapped as a result of this.  It's the same
+> as madvise(MADV_DONTNEED).
 
->To do it in user space, you have to use the raw socket interface. This
->by-passes the entire TCP/IP stack. I want to sniff the packets, and make a
->decision based on certain characteristics of each packet. So I need to
->have a filter between the IP and link-layer. Also, I do not want the
->filter to slow down traffic. Hence I believe implementing inside kernel
->will be more efficient.
+OK, I misparsed what you had said. Good.
 
-I've looked at an implementation of something similar. The approach was as
-follows:
+				Regards,
 
-* insert a "hook" into the netif_rx that would act as a filter
-* use a module that:
-	* activates hook
-	* apply filtering
-	* sends back packets to netif_rx for normal processing
-* when module is unloaded, deactivate the "hook"
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,135 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUHGSWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUHGSb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbUHGSWv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 14:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUHGSWv
+	id S264153AbUHGSb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 14:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUHGSb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 14:22:51 -0400
-Received: from imo-d02.mx.aol.com ([205.188.157.34]:49102 "EHLO
-	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S264098AbUHGSWq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 14:22:46 -0400
-Date: Sat, 07 Aug 2004 14:22:44 -0400
-From: consolebandit@netscape.net (Maurice)
+	Sat, 7 Aug 2004 14:31:58 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:6918 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S264153AbUHGSbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 14:31:49 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.xSMP and IPv4 issues
+Subject: [PATCH] cmpxchg(8b) fixes.
+Date: Sat, 7 Aug 2004 20:31:44 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Message-ID: <07C92DE0.0827324A.345005B1@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 216.227.167.63
-X-AOL-Language: english
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_QASFBRAec/wlGcA"
+Message-Id: <200408072031.44477.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note: I've posted this to the linux-smp list, also... Forgive the newbie in me.
 
+--Boundary-00=_QASFBRAec/wlGcA
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'm unable to get IPv4 running correctly when using a 2.6.xSMP kernel,
-but the "same" 2.6.x non-SMP kernel will allown IPv4 to function.
+Could someone look at this and fix/apply?
 
-I have tried a short list of the basics and searched google for help, I
-also posted to my local LUG and tried a few additional things.
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
 
-The hardware this is happening on is;
+                           #define say(x) lie(x)
 
-motherboard: ECS (elitegroup) D6VAA
-NIC: netgear FA311
-DHCP server: Coyote Linux, has run for about two years.
+--Boundary-00=_QASFBRAec/wlGcA
+Content-Type: text/x-diff;
+  charset="iso-8859-2";
+  name="2.6.8-atomic.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.8-atomic.patch"
 
+--- linux-2.6.8-rc3/arch/i386/Kconfig.orig	2004-08-07 07:52:57.000000000 +0200
++++ linux-2.6.8-rc3/arch/i386/Kconfig	2004-08-07 10:37:33.204220304 +0200
+@@ -342,6 +342,11 @@
+ 	depends on !M386
+ 	default y
+ 
++config X86_CMPXCHG8B
++	bool
++	depends on !M386 && !M486
++	default y
++
+ config X86_XADD
+ 	bool
+ 	depends on !M386
+--- linux-2.6.8-rc3/arch/x86_64/Kconfig.orig	2004-08-07 14:22:20.000000000 +0200
++++ linux-2.6.8-rc3/arch/x86_64/Kconfig	2004-08-07 14:42:35.503414192 +0200
+@@ -45,6 +45,10 @@
+ 	bool
+ 	default y
+ 
++config X86_CMPXCHG8B
++	bool
++	default y
++
+ config EARLY_PRINTK
+ 	bool
+ 	default y
+--- linux-2.6.8-rc3/drivers/acpi/Kconfig.orig	2004-08-03 23:28:51.000000000 +0200
++++ linux-2.6.8-rc3/drivers/acpi/Kconfig	2004-08-07 14:45:14.718209864 +0200
+@@ -5,11 +5,11 @@
+ menu "ACPI (Advanced Configuration and Power Interface) Support"
+ 	depends on !X86_VISWS
+ 	depends on !IA64_HP_SIM
+-	depends on IA64 || X86
++	depends on IA64 || X86_CMPXCHG
+ 
+ config ACPI
+ 	bool "ACPI Support"
+-	depends on IA64 || X86
++	depends on IA64 || X86_CMPXCHG
+ 
+ 	default y
+ 	---help---
+--- linux-2.6.8-rc3/drivers/char/drm/Kconfig.orig	2004-08-03 23:28:30.000000000 +0200
++++ linux-2.6.8-rc3/drivers/char/drm/Kconfig	2004-08-07 12:49:55.413820920 +0200
+@@ -6,6 +6,7 @@
+ #
+ config DRM
+ 	bool "Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)"
++	depends on !X86 || X86_CMPXCHG
+ 	help
+ 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+ 	  introduced in XFree86 4.0. If you say Y here, you need to select
+--- linux-2.6.8-rc3/include/asm-i386/system.h.orig	2004-08-07 20:13:02.385439072 +0200
++++ linux-2.6.8-rc3/include/asm-i386/system.h	2004-08-07 20:19:48.638679192 +0200
+@@ -5,7 +5,6 @@
+ #include <linux/kernel.h>
+ #include <asm/segment.h>
+ #include <asm/cpufeature.h>
+-#include <linux/bitops.h> /* for LOCK_PREFIX */
+ 
+ #ifdef __KERNEL__
+ 
+@@ -149,8 +148,14 @@
+ #define __xg(x) ((struct __xchg_dummy *)(x))
+ 
+ 
++#ifdef CONFIG_X86_CMPXCHG8B
++#define __HAVE_ARCH_CMPXCHG8B 1
++
+ /*
+- * The semantics of XCHGCMP8B are a bit strange, this is why
++ * CMPXCHG8B isn't supported on Intel processors earlier
++ * than the Pentium processors.
++ *
++ * The semantics of CMPXCHG8B are a bit strange, this is why
+  * there is a loop and the loading of %%eax and %%edx has to
+  * be inside. This inlines well in most cases, the cached
+  * cost is around ~38 cycles. (in the future we might want
+@@ -163,8 +168,9 @@
+  * of the instruction set reference 24319102.pdf. We need
+  * the reader side to see the coherent 64bit value.
+  */
+-static inline void __set_64bit (unsigned long long * ptr,
+-		unsigned int low, unsigned int high)
++static __inline__ void __set_64bit(unsigned long long * ptr,
++				    const unsigned int low,
++				    const unsigned int high)
+ {
+ 	__asm__ __volatile__ (
+ 		"\n1:\t"
+@@ -179,29 +185,19 @@
+ 		:	"ax","dx","memory");
+ }
+ 
+-static inline void __set_64bit_constant (unsigned long long *ptr,
+-						 unsigned long long value)
+-{
+-	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
+-}
+-#define ll_low(x)	*(((unsigned int*)&(x))+0)
+-#define ll_high(x)	*(((unsigned int*)&(x))+1)
+-
+-static inline void __set_64bit_var (unsigned long long *ptr,
+-			 unsigned long long value)
+-{
+-	__set_64bit(ptr,ll_low(value), ll_high(value));
+-}
++#define set_64bit(ptr, value) 						\
++	(__builtin_constant_p(value) ? 					\
++	    __set_64bit(ptr,						\
++			    (const unsigned int)(value),		\
++			    (const unsigned int)(value >> 32ULL)	\
++			) :						\
++	    __set_64bit(ptr,						\
++			    *(((const unsigned int *)&value) + 0),	\
++			    *(((const unsigned int *)&value) + 1)	\
++			)						\
++	)
+ 
+-#define set_64bit(ptr,value) \
+-(__builtin_constant_p(value) ? \
+- __set_64bit_constant(ptr, value) : \
+- __set_64bit_var(ptr, value) )
+-
+-#define _set_64bit(ptr,value) \
+-(__builtin_constant_p(value) ? \
+- __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
+- __set_64bit(ptr, ll_low(value), ll_high(value)) )
++#endif
+ 
+ /*
+  * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
+@@ -233,35 +229,38 @@
+ 	return x;
+ }
+ 
++#ifdef CONFIG_X86_CMPXCHG
++#define __HAVE_ARCH_CMPXCHG 1
++
+ /*
+  * Atomic compare and exchange.  Compare OLD with MEM, if identical,
+  * store NEW in MEM.  Return the initial value in MEM.  Success is
+  * indicated by comparing RETURN with OLD.
++ *
++ * CMPXCHG isn't supported on Intel processors earlier than
++ * the Intel486 processors.
+  */
+-
+-#ifdef CONFIG_X86_CMPXCHG
+-#define __HAVE_ARCH_CMPXCHG 1
+-#endif
+-
+-static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+-				      unsigned long new, int size)
++static __inline__ unsigned long __cmpxchg(volatile void *ptr,
++			    		    const unsigned long old,
++					    const unsigned long new,
++					    const int size)
+ {
+ 	unsigned long prev;
+ 	switch (size) {
+ 	case 1:
+-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgb %b1,%2"
++		__asm__ __volatile__(LOCK "cmpxchgb %b1,%2"
+ 				     : "=a"(prev)
+ 				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	case 2:
+-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgw %w1,%2"
++		__asm__ __volatile__(LOCK "cmpxchgw %w1,%2"
+ 				     : "=a"(prev)
+ 				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
+ 				     : "memory");
+ 		return prev;
+ 	case 4:
+-		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
++		__asm__ __volatile__(LOCK "cmpxchgl %1,%2"
+ 				     : "=a"(prev)
+ 				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
+ 				     : "memory");
+@@ -270,10 +269,14 @@
+ 	return old;
+ }
+ 
+-#define cmpxchg(ptr,o,n)\
+-	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+-					(unsigned long)(n),sizeof(*(ptr))))
+-    
++#define cmpxchg(ptr, o, n)					\
++	((__typeof__(*(ptr)))__cmpxchg((ptr),			\
++					(unsigned long)(o),	\
++					(unsigned long)(n),	\
++					sizeof(*(ptr))))
++
++#endif
++
+ #ifdef __KERNEL__
+ struct alt_instr { 
+ 	__u8 *instr; 		/* original instruction */
 
-
-Below is the posting, two parts, to my local LUG, seeking help with the issue;
-
-
-Part I
-
-I have a box at home that's ran RH9 for about two years (or when ever 
-RH9 first came out plus a month) and I've done regular RHN updates as 
-time went by.
-
-About a week ago I used some very good online directions to take my RH9 
-box to Fedora C1 (using some basic RPM's and YUM) and eventhing went 
-fairly well, just had to make a few adjustments...
-
-Then a week after the now FC1 box proved to be stable and correctly 
-operational I used the directions from the same site to update the FC1 
-to FC2, and that seemed to go well -- better than the RH9 to FC1, or so 
-it seemed.
-
-I re-booted to see what, if anything, would fail on start-up.
-
-I did have a failure, the FA311 NIC card could no longer get an address 
-from the DHCP server???
-Seems that the NIC now only "runs" IPv6, and the info I've gathered from
- the Net isn't helping me correct this -- I must be searching the wrong 
-phrase(s).
-
-Has anyone else followed this upgrade path and had the same problem?
-Has anyone else moved to the 2.6 kernel and had IPv4 problems?
-
-I've poked around and added line to certain system files and even gave 
-the card a static IPv4 number -- but nothing has corrected this problem.
-
---------
--Maurice
-
-
-"Linux -- it not just for breakfast anymore..."
--Moe
-
-
-
-
-
-Part II
-
-After a lot of off-list help from Phillip, the SMP kernel still wouldn't
- allow IPv4 activity...
-Thanks for all your help Phillip.
-
-I then did a fresh install of FC2, just to see, and guess what -- nope 
--- the SMP kernel still wouldn't allow IPv4 traffic, but the non-SMP 
-kernel worked fine.
-So then I installed SuSE 9.1 PRO, same deal, the SMP kernel would not 
-allow IPv4 traffic.
-
-I then tested several LiveCD's;
-Knoppix 3.3 ,        Kernel 2.4.24-xfs #1 smp  (NO)
-LindowsOS 4.5.212,   Kernel 2.4.24             (YES)
-Morphix KDE 0.4.1,   Kernel 2.4.21-xfs #13 smp (NO)
-SLAX 4.0.4,          Kernel 2.4.25             (YES)
-
-The past kernel's used on the SMP box were;
-RH 9,          Kernel 2.4.20-31.9           (YES)
-RH 9,          Kernel 2.4.20-31.9smp        (YES)
-FC1,           Kernel 2.4.22-1.2197.nptl    (YES)
-FC1,           Kernel 2.4.22-1.2197.nptlsmp (YES)
-FC2,           Kernel 2.6.6-1.435.2.3smp    (NO)
-FC2,           Kernel 2.6.6-1.4352.2.3      (YES)
-SuSE 9.1 PRO,  Kernel 2.6.4-52-smp          (NO)
-
-
-
-So there seems to be some issue with the 2.6 kernel and SMP, maybe based
- on my motherboard and/or NIC combination???
-
-
-
---------
--Maurice
-
-"Linux -- it not just for breakfast anymore..."
--Moe
-
-
-__________________________________________________________________
-Switch to Netscape Internet Service.
-As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
-
-Netscape. Just the Net You Need.
-
-New! Netscape Toolbar for Internet Explorer
-Search from anywhere on the Web and block those annoying pop-ups.
-Download now at http://channels.netscape.com/ns/search/install.jsp
+--Boundary-00=_QASFBRAec/wlGcA--

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbUKFJsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbUKFJv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbUKFJsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 04:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUKFJsU
+	id S261353AbUKFJv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 04:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbUKFJv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 04:48:20 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12750 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261349AbUKFJsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 04:48:17 -0500
-Date: Sat, 6 Nov 2004 09:47:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@novell.com>
-cc: Nick Piggin <piggin@cyberone.com.au>, Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages /
-    all_unreclaimable braindamage
-In-Reply-To: <20041106015051.GU8229@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0411060944150.2721-100000@localhost.localdomain>
+	Sat, 6 Nov 2004 04:51:27 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:37023 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261351AbUKFJvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 04:51:14 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: breakage: flex mmap patch for x86-64
+Date: Sat, 6 Nov 2004 10:50:27 +0100
+User-Agent: KMail/1.6.2
+Cc: Ricky Beam <jfbeam@bluetronic.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com
+References: <200411060026.48571.rjw@sisk.pl> <Pine.GSO.4.33.0411060252370.9358-100000@sweetums.bluetronic.net> <20041106091240.GA4996@wotan.suse.de>
+In-Reply-To: <20041106091240.GA4996@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411061050.27304.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Nov 2004, Andrea Arcangeli wrote:
+On Saturday 06 of November 2004 10:12, Andi Kleen wrote:
+> >  static inline int mmap_is_legacy(void)
+> >  {
+> > +       if (test_thread_flag(TIF_IA32))
+> > +               return 1;
 > 
-> all allocations should have a failure path to avoid deadlocks. But in
-> the meantime __GFP_REPEAT is at least localizing the problematic places ;)
+> That's definitely not the right fix because for 32bit you need flexmmap
+> more than for 64bit because it gives you more address space.
 
-Problematic, yes: don't overlook that GFP_REPEAT and GFP_NOFAIL _can_
-fail, returning NULL: when the process is being OOM-killed (PF_MEMDIE).
+So let's call it temporary, but I like 32-bit apps having less address space 
+rather than segfaulting.
 
-Hugh
+Greets,
+RJW
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

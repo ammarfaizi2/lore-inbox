@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUBZUeu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUBZUeu
+	id S261246AbUBZUiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUBZUiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:34:50 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:61571 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262974AbUBZUes
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:34:48 -0500
-Message-ID: <403E5853.2080702@matchmail.com>
-Date: Thu, 26 Feb 2004 12:34:27 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: lkml <linux-kernel@vger.kernel.org>, wolk-devel@lists.sourceforge.net,
-       wolk-announce@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] WOLK v1.0 for Kernel v2.6.3
-References: <200402260248.52516@WOLK>
-In-Reply-To: <200402260248.52516@WOLK>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Feb 2004 15:38:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8616 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261246AbUBZUiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:38:23 -0500
+Date: Thu, 26 Feb 2004 12:35:19 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: jt@hpl.hp.com
+Cc: jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org,
+       irda-users@lists.sourceforge.net
+Subject: Re: Bunch of janitor IrDA patches
+Message-Id: <20040226123519.76d4535b.davem@redhat.com>
+In-Reply-To: <20040226031054.GA32263@bougret.hpl.hp.com>
+References: <20040226031054.GA32263@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
-> o   added:    extend memstats					(me)
+On Wed, 25 Feb 2004 19:10:54 -0800
+Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 
-What does this do?
+> 	Stephen and Martin are still working on the stir4200 driver
+> and will send you a patch later (we are not forgetting about
+> it). Meanwhile, a problem did show up in smsc-ircc2 driver that need
+> fixing. I'm also taking this opportunity to send you the vast majority
+> of janitorial patches that Stephen sent me. There's many of them, but
+> most are really trivial.
+> 	Tested here on 2.6.3. Please send upwards.
 
-> o   added:    Application Layer 7 Packet Classifier v0.4.1b	(Ethan Sommer)
-
-Where can I find more info on this?
-
-> o   added:    initrd support for cramfs				(Herbert Xu)
-
-I'd love to see this merged upstream.
-
-Mike
+Phew!  All applied, thanks Jean.

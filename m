@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275193AbTHGH1x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 03:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275200AbTHGH1x
+	id S275227AbTHGHWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 03:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275229AbTHGHWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 03:27:53 -0400
-Received: from angband.namesys.com ([212.16.7.85]:3763 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S275193AbTHGH1w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 03:27:52 -0400
-Date: Thu, 7 Aug 2003 11:27:51 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs4
-Message-ID: <20030807072751.GA23912@namesys.com>
-References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu>
+	Thu, 7 Aug 2003 03:22:17 -0400
+Received: from iwoars.net ([217.160.110.113]:49935 "HELO iwoars.net")
+	by vger.kernel.org with SMTP id S275227AbTHGHWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 03:22:17 -0400
+Date: Thu, 7 Aug 2003 09:23:08 +0200
+From: Thomas Themel <themel@iwoars.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Device-backed loop broken in 2.6.0-test2?
+Message-ID: <20030807072308.GB3741@iwoars.net>
+References: <20030806224022.GA3741@iwoars.net> <20030806174043.27fd674a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F31DFCC.6040504@cornell.edu>
+In-Reply-To: <20030806174043.27fd674a.akpm@osdl.org>
 User-Agent: Mutt/1.4i
+X-Jabber-ID: themel0r@jabber.at
+X-ICQ-UIN: 8774749
+X-Postal: Hauptplatz 8/4, 9500 Villach, Austria
+X-Phone: +43 676 846623 13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
+Andrew Morton (akpm@osdl.org) wrote on 2003-08-07:
+> Thomas Themel <themel@iwoars.net> wrote:
+> > it seems that device backed loopback is broken in the 2.6.0-test2 series.
+> doh.
 
-On Thu, Aug 07, 2003 at 01:12:44AM -0400, Ivan Gyurdiev wrote:
+Patch applied, and it at least withstood the initial restoration of the
+8 GB of data onto it, which I never managed with the unpatched version.
 
-> >Why do people ever want a "converter"?
-> That's been discussed before.
-> Because people don't have the resources (hard disk space, tape drives, 
-> money)  to backup their data, and might still be interested in testing a 
-> new filesystem. They might be willing to take a risk with the new fs 
-> and converter. Amazing as it may sound, people do that. I am such a 
-> tester, and I'd find a converter to be a useful tool. But since the 
-> previous discussion on the subject concluded it'd be really hard to 
-> impossible to write one, I guess I'll have to settle for new hard drive(s).
+Thanks!
 
-This is no longer true.
-There is sort of "universal" fs convertor for linux that can convert almost
-any fs to almost any other fs.
-The only requirement seems to be that both fs types should have read/write support in Linux.
-http://tzukanov.narod.ru/convertfs/
-
-Bye,
-    Oleg
+ciao,
+-- 
+[*Thomas  Themel*] Great Goddess Discordia, Holy Mother Eris, 
+[extended contact] Joy of the Universe, Laughter of Space, Grant 
+[info provided in] us Life, Light, Love and Liberty and make the 
+[*message header*] bloody magick work!

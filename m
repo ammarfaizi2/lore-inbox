@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287400AbRL3MOF>; Sun, 30 Dec 2001 07:14:05 -0500
+	id <S287396AbRL3MMp>; Sun, 30 Dec 2001 07:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287395AbRL3MNu>; Sun, 30 Dec 2001 07:13:50 -0500
-Received: from web1.oops-gmbh.de ([212.36.232.3]:6674 "EHLO
-	sabine.freising-pop.de") by vger.kernel.org with ESMTP
-	id <S287390AbRL3MNd>; Sun, 30 Dec 2001 07:13:33 -0500
-Message-ID: <3C2F035C.92D492C5@sirius-cafe.de>
-Date: Sun, 30 Dec 2001 13:06:52 +0100
-From: Martin Knoblauch <knobi@sirius-cafe.de>
-Reply-To: knobi@knobisoft.de
-Organization: Knobisoft :-), Freising
-X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
+	id <S287393AbRL3MMf>; Sun, 30 Dec 2001 07:12:35 -0500
+Received: from ns.suse.de ([213.95.15.193]:32526 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287390AbRL3MMc>;
+	Sun, 30 Dec 2001 07:12:32 -0500
+Date: Sun, 30 Dec 2001 13:12:31 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Stewart Smith <stewart@softhome.net>
+Cc: <timothy.covell@ashavan.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+In-Reply-To: <734B32E2-FCE5-11D5-880A-00039350C45A@softhome.net>
+Message-ID: <Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: kaih@khms.westfalen.de
-Subject: Re: Configure.help editorial policy
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: Configure.help editorial policy
-> 
-> 
-> > Standards exist to make peoples lives easier, the fact the hard drive
-> > and memory vendors currently don't use these phrases right now doesn't
-> > make the standard wrong --- this world is full of clue-less marketing
-> > people and nothing will change this.
-> 
-> Oh, it can be changed. Just the way car advertising has been changed to
-> use kW. (Well, it has over here.) And the way monitor size advertising is
-> in the process of being changed to use SI units, not US ones.
-> 
-> Fair advertising laws can be rather effective.
-> 
+On Sun, 30 Dec 2001, Stewart Smith wrote:
 
- frankly speaking, the advertising on cars, monitors and other stuff
-only changed, because it is illegal to do otherwise (you can use the old
-units, but not alone and not prominently). IMHO in most peoples minds
-the old units are still prevalent.
+> Not really, bugzilla requires interaction from people to 'accept' a bug,
+> and then fix it etc. I'm talking about just logging them. Instead of
+> tracking 'things to fix', track 'things that were broken'.
 
- When looking at the new new notation for binary units, I just think the
-standards organisations made a huge maistake :-( But standard is
-standard. Better take it now.
+it still requires some dumb^Wpoor sap to go in pruning them,
+plus once it gets to a certain point, there will be dupes.
+Oh boy will there be dupes. People will check for them first you say?
+Some people are _still_ getting "Loop doesn't compile in 2.4.14"
+messages.
+Why search archives when you can be the 900th person to ask the
+same question.  Even Richard Gooch's page for showing whats wrong
+with the current kernel and how to fix it to get it to compile
+seems to be completly overlooked. Maybe if it were moved to
+www.kernel.org people would see it ? *shrug*
 
-Martin
+> agreed, it's a pain in the arse. plus you can't do it on the road, or on
+> the beach with a martini in hand lying next to a beautiful woman (or
+> man, if u like 'em :) but I guess not many of us would be thinking of
+> kernel code at a time like that.....
+
+*grin* One of my favorite quotes :
+"Holiday just means hacking from a different location" -- jgarzik ?
+
+Dave.
+
 -- 
-+-----------------------------------------------------+
-|Martin Knoblauch                                     |
-|-----------------------------------------------------|
-|http://www.knobisoft.de/cats                         |
-|-----------------------------------------------------|
-|e-mail: knobi@knobisoft.de                           |
-+-----------------------------------------------------+
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135783AbRDTCkX>; Thu, 19 Apr 2001 22:40:23 -0400
+	id <S135618AbRDTChD>; Thu, 19 Apr 2001 22:37:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135784AbRDTCkN>; Thu, 19 Apr 2001 22:40:13 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:32433 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135783AbRDTCkA>; Thu, 19 Apr 2001 22:40:00 -0400
-Date: Thu, 19 Apr 2001 22:38:50 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ac10 ide-cd oopses on boot
-Message-ID: <20010419223850.A2177@nostromo.devel.redhat.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010420004914.A1052@werewolf.able.es> <E14qNWF-0008Jc-00@the-village.bc.nu> <20010420013429.A1054@werewolf.able.es>
+	id <S135783AbRDTCgw>; Thu, 19 Apr 2001 22:36:52 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:38348 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S135618AbRDTCgk>;
+	Thu, 19 Apr 2001 22:36:40 -0400
+Date: Thu, 19 Apr 2001 20:36:39 -0600
+To: esr@thyrsus.com
+Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Message-ID: <20010419203639.H4217@zumpano.fc.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010420013429.A1054@werewolf.able.es>; from jamagallon@able.es on Fri, Apr 20, 2001 at 01:34:29AM +0200
+From: willy@ldl.fc.hp.com (Matthew Wilcox)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J . A . Magallon (jamagallon@able.es) said: 
-> > Can you back out the ide-cd changes Jens did and see if that fixes it ?
-> 
-> Reverted the changes in ide-cd.[hc], and same result.
+On Thu, Apr 19, 2001 at 18:50:34 EDT, Eric S. Raymond wrote:
+> Remove dead CONFIG_BINFMT_JAVA symbol.
 
-You want to back out the stuff from drivers/cdrom/cdrom.c; I backed
-out the parts of the patch new there to ac10, and it worked again
-for me...
+Please don't do this, it just makes merging our patches with Linus harder.
+This has already been done in our tree since Feb 1.  In fact, please
+don't touch anything in the tree which is PA specific; we have a large
+arch update pending.
 
-Bill
+http://puffin.external.hp.com/cvs/linux/arch/parisc/config.in?log=y
+
+shows the current state of our config.in, if you're curious.  If you
+have any changes you want to make, don't hesitate to coordinate with us
+by mailing parisc-linux@parisc-linux.org.
+

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290818AbSBLH4g>; Tue, 12 Feb 2002 02:56:36 -0500
+	id <S290822AbSBLIEQ>; Tue, 12 Feb 2002 03:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290817AbSBLH40>; Tue, 12 Feb 2002 02:56:26 -0500
-Received: from holomorphy.com ([216.36.33.161]:24225 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S290822AbSBLH4L>;
-	Tue, 12 Feb 2002 02:56:11 -0500
-Date: Mon, 11 Feb 2002 23:55:56 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anish Srivastava <anish@bidorbuyindia.com>, linux-kernel@vger.kernel.org
-Subject: Re: File BlockSize
-Message-ID: <20020212075556.GG767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anish Srivastava <anish@bidorbuyindia.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <20020212075203.GF767@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020212075203.GF767@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S290824AbSBLIEG>; Tue, 12 Feb 2002 03:04:06 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:38137 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S290822AbSBLID4>;
+	Tue, 12 Feb 2002 03:03:56 -0500
+Message-ID: <3C68CBB6.9050709@debian.org>
+Date: Tue, 12 Feb 2002 09:00:54 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Ford <david+cert@blue-labs.org>, kbuild-devel@lists.sourceforge.net
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel config core dump w/ bad inpu
+In-Reply-To: <fa.fhrqjcv.n7sq1s@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Feb 2002 08:03:55.0269 (UTC) FILETIME=[D11C7350:01C1B39B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 01:00:07PM +0530, Anish Srivastava wrote:
->> Hi!!
->> Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
->> I am trying to install Oracle on Linux with 8K DB_Block_size.
->> But it gives me a Block size mismatch saying that the File BlockSize is only
->> 4K
->> Maybe, there is a kernel patch available which enables Linux to create 8K
->> file blocks.
->> Thanks in anticipation....
+David Ford wrote:
 
-On Mon, Feb 11, 2002 at 11:52:03PM -0800, William Lee Irwin III wrote:
-> Unfortunately filesystem block sizes larger than PAGE_SIZE are unsupported.
-> I wish they were, though.
-
-Sorry -- I've been corrected elsewhere on this, and it's blocksizes greater
-than PAGE_CACHE_SIZE... and there is some plan to eventually allow a
-configurable PAGE_CACHE_SIZE.
+> SYM53C8XX Version 2 SCSI support (CONFIG_SCSI_SYM53C8XX_2) [N/y/m/?] 
+> (NEW) y
+>  DMA addressing mode (CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE) [1] 
+> (NEW) y
+> scripts/Configure: line 245: 14353 Segmentation fault      (core dumped) 
+> expr \( \( $ans + 0 \) \>= $min \) \& \( $ans \<= $max \) >/dev/null 2>&1
 
 
-Cheers,
-Bill
+This is a bug of 'expr/bash', but anyway the the Configure should discard
+non numeric value before to compare it.
+
+
+	giacomo
+
+ 
+
+

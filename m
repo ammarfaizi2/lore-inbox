@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUJQAQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUJQATq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268970AbUJQAQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 20:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUJQAQE
+	id S268961AbUJQATq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 20:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUJQATp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 20:16:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28607 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268977AbUJQAOL
+	Sat, 16 Oct 2004 20:19:45 -0400
+Received: from lennier.cc.vt.edu ([198.82.162.213]:23820 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP id S268961AbUJQASU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 20:14:11 -0400
-Date: Sun, 17 Oct 2004 01:14:09 +0100
-From: Joel Becker <jlbec@evilplan.org>
-To: Avi Kivity <avi@exanet.com>
-Cc: Yasushi Saito <ysaito@hpl.hp.com>, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-       Janet Morgan <janetmor@us.ibm.com>
-Subject: Re: [PATCH 1/2]  aio: add vectored I/O support
-Message-ID: <20041017001409.GH17142@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Avi Kivity <avi@exanet.com>, Yasushi Saito <ysaito@hpl.hp.com>,
-	linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-	suparna@in.ibm.com, Janet Morgan <janetmor@us.ibm.com>
-References: <416EDD19.3010200@hpl.hp.com> <20041016031301.GC17142@parcelfarce.linux.theplanet.co.uk> <4170AF35.7030806@exanet.com> <20041016053721.GD17142@parcelfarce.linux.theplanet.co.uk> <4170DF18.50004@exanet.com> <20041016162836.GG17142@parcelfarce.linux.theplanet.co.uk> <41715A5F.2060006@exanet.com>
+	Sat, 16 Oct 2004 20:18:20 -0400
+Subject: Re: AMD64 Swsusp on 2.6.9-rc4-mm1
+From: William Wolf <wwolf@vt.edu>
+Reply-To: wwolf@vt.edu
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200410162252.33347.rjw@sisk.pl>
+References: <417188EA.4090205@vt.edu>  <200410162252.33347.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Tue, 16 Nov 2004 01:19:14 -0600
+Message-Id: <1100589554.7496.2.camel@Xnix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41715A5F.2060006@exanet.com>
-User-Agent: Mutt/1.4.1i
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 07:29:03PM +0200, Avi Kivity wrote:
-> No. An iovec is already merged; it is known that adjacent segments of an 
-> iovec have adjacent offsets. a single IO_CMD_READV iovec can generate a 
-> single bio without any merging.
+Is this supposedly something new in rc4-mm1?  I have been having the
+same problems since around 2.6.8.1, though i havent gone through every
+single -mm patch, i have tried at least one in every -rcx candidate, and
+they have all done this same thing.
 
-	A slightly embarrassed glance at the manpage later, I recall
-that fact.  Something I never liked about writev(), but that's a moot
-point.
+On Sat, 2004-10-16 at 22:52 +0200, Rafael J. Wysocki wrote:
+> On Saturday 16 of October 2004 22:47, William Wolf wrote:
+> > Hey, Im running 2.6.9-rc4-mm1, and when i run either a echo 4 > 
+> > /proc/acpi/sleep or echo disk > /sys/power/state  I get the following 
+> > messages:
+> > 
+> > 
+> > Stopping tasks: =================|
+> > Freeing memory... done (0 pages freed)
+> > PM: Attempting to suspend to disk.
+> > PM: snapshotting memory.
+> > ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 18 (level, low) -> IRQ 18
+> > Restarting tasks... done
+> > 
+> > 
+> > 
+> > It basically just stops everything, then starts it all back up again 
+> > immediately.  Any idea whats going on here?  This was done right after 
+> > booting and just logging in with no X running.
+> 
+> IIRC, on 2.6.9-rc4-mm1 swsusp cannot free memory because of some unfinished VM 
+> patches that are in there, so it won't work (Andrew, please correct if I'm 
+> wrong).
+> 
+> Greets,
+> RJW
+> 
 
-> That's not what I meant. If you submit 16 iocbs which are merged by the 
-> kernel, and there is an error somewhere within the seventh iocb, I would 
-> expect to get 15 success completions and one error completion. so error 
-> information from the merged iocb must be demultiplexed into the originals.
-
-	This takes no effort, really, for the kernel.  The block layer
-handles it.
-
-> If you have a single iocb, then any error simply fails that iocb.
-
-	True, but in some senses (and this is application specific) you
-want to know that 15/16ths succeeded.  But we're talking about
-application needs, not kernel design.  So it's moot for the technical
-argument of whether READV is a useful operation.  I just wanted to have
-the discussion.  It wasn't an objection per se.
-
-> I think what happened was that the number of iocbs submitted (64 iocbs 
-> of 4K each) did not merge because the device queue depth was very large; 
-> no queuing occured because (I imagine) merging happens while a request 
-> is waiting for disk readiness.
-
-	Why did you submit 64 iocbs of 4K?  Was every page virtually
-discontiguous, or did you arbitrarily decide to create a worst-case?
-
-Joel
-
--- 
-
-Life's Little Instruction Book #510
-
-	"Count your blessings."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130047AbRBUCrh>; Tue, 20 Feb 2001 21:47:37 -0500
+	id <S129851AbRBUDBB>; Tue, 20 Feb 2001 22:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130115AbRBUCr1>; Tue, 20 Feb 2001 21:47:27 -0500
-Received: from [210.77.38.126] ([210.77.38.126]:64516 "EHLO
-	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
-	id <S130047AbRBUCrS>; Tue, 20 Feb 2001 21:47:18 -0500
-Date: Wed, 21 Feb 2001 10:44:30 +0800
-From: michaelc <michaelc@turbolinux.com.cn>
-X-Mailer: The Bat! (v1.48) UNREG / CD5BF9353B3B7091
-Reply-To: michaelc <michaelc@turbolinux.com.cn>
-X-Priority: 3 (Normal)
-Message-ID: <544126968.20010221104430@turbolinux.com.cn>
-To: linux-kernel@vger.kernel.org
-Subject: can somebody explain how linux support 64G memory
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129689AbRBUDAv>; Tue, 20 Feb 2001 22:00:51 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:33132 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129851AbRBUDAm>; Tue, 20 Feb 2001 22:00:42 -0500
+Date: Tue, 20 Feb 2001 19:00:12 -0800 (PST)
+From: James Cleverdon <jamesc@sequent.com>
+Message-Id: <200102210300.f1L30Cs03022@eng2.sequent.com>
+To: james@cleverdon.net
+Subject: RE: finding Tekram SCSI dc395U linux patch driver:
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   How does linux support more than 4G memory? I 've read the
-   documentation of  Intel IA-32 Architecture, I knew that OS
-   just address up to 4G physical address space, If OS want to
-   access additional 4-GByte section of physical memory, it must
-   change the pointer in register CR3 or entries in the
-   page-directory-pointer table. That means that Linux just has
-   up to 4-GByte page mapping at one time , is that right?
-
-  
-
--- 
-Best regards,
- michael chen                          mailto:michaelc@turbolinux.com.cn
+:From: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>
+:Date: 	Thu, 15 Feb 2001 22:46:22 +0100 (MEZ)
+:Reply-To: Juergen Schoew <Juergen.Schoew@unix-ag.uni-siegen.de>
+:Organization: UNIX-AG Siegen
+:To: Thomas Lau <lkthomas@hkicable.com>
+:Subject: RE: finding Tekram SCSI dc395U linux patch driver:
+:Cc: linux-kernel@vger.kernel.org
+:
+:Hi,
+:On 15-Feb-01 Thomas Lau wrote:
+:> hey, I found this driver on mandrake kernel sources, it's ac3, but I
+:> need ac14 code, also, why still not port this driver into kernel?
+:> the patch file already released 1 years ago
+:
+:Have you checked http://www.garloff.de/kurt/linux/dc395/index.html
+:there ist a driver Version 1.32 (2000-12-02).
+:
+:Regards
+:
+:Juergen Schoew
 
 

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277826AbRJLTiD>; Fri, 12 Oct 2001 15:38:03 -0400
+	id <S277831AbRJLTkx>; Fri, 12 Oct 2001 15:40:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277829AbRJLThp>; Fri, 12 Oct 2001 15:37:45 -0400
-Received: from nsd.netnomics.com ([216.71.84.35]:30797 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S277826AbRJLTha>; Fri, 12 Oct 2001 15:37:30 -0400
-Date: Fri, 12 Oct 2001 14:37:52 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups
-In-Reply-To: <Pine.LNX.4.33.0110121340140.17295-100000@lists.us.dell.com>
-Message-ID: <Pine.LNX.3.96.1011012143222.6594D-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277829AbRJLTkn>; Fri, 12 Oct 2001 15:40:43 -0400
+Received: from sushi.toad.net ([162.33.130.105]:52963 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277827AbRJLTkj>;
+	Fri, 12 Oct 2001 15:40:39 -0400
+Subject: Re: kapm-idled Funny in 2.4.10-ac12
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 12 Oct 2001 15:40:24 -0400
+Message-Id: <1002915626.10291.67.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More comments:
-* if ether_crc is always == ether_crc_be, then create a #define instead
-  of patching driver code
-* no need to inline ether_crc_be, stick it in lib/crc32.c also
-* using a ref-counting init_crc32 and cleanup_crc32, you do not need
-  CONFIG_xxx tests, per driver, in the code itself.  Either make
-  lib/crc32 a permanent part of the kernel, or make it a separate module
-  which is enabled by makefile rules.  Example:
+Just taking a walk through apm.c ...
 
-(linux/lib/Makefile)
-obj-$(CONFIG_TULIP) += crc32.o
-obj-$(CONFIG_NATSEMI) += crc32.o
-obj-$(CONFIG_DMFE) += crc32.o
-obj-$(CONFIG_ANOTHERDRIVER) += crc32.o
+I notice that set_time() calls get_cmos_time() with interrupts
+disabled, whereas get_time_diff calls it with interrupts
+enabled.
 
-makefile rules eliminate the duplicates...
+get_cmos_time is in time.c .  It does a bunch of CMOS_READs
+without taking rtc_lock.
+
+Methinks that the
+    save_flags(flags); ...; cli(); ...; restore_flags(flags);
+constructs in apm.c need some attention.
+
+Thomas
 

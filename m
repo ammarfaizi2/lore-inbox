@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135463AbREIVZR>; Wed, 9 May 2001 17:25:17 -0400
+	id <S135585AbREIV3H>; Wed, 9 May 2001 17:29:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135580AbREIVZF>; Wed, 9 May 2001 17:25:05 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:64760 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135463AbREIVYf>; Wed, 9 May 2001 17:24:35 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105092122.f49LMAVL019186@webber.adilger.int>
-Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-In-Reply-To: <01050701135600.07657@starship> "from Daniel Phillips at May 7,
- 2001 01:16:27 am"
-To: Daniel Phillips <phillips@bonn-fries.net>
-Date: Wed, 9 May 2001 15:22:10 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org, Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135635AbREIV26>; Wed, 9 May 2001 17:28:58 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23058 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135585AbREIV2q>; Wed, 9 May 2001 17:28:46 -0400
+Date: Wed, 9 May 2001 16:50:18 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <15097.45528.322497.299933@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105091638540.14172-100000@freak.distro.conectiva>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel writes [re index directories]:
-> This is lightly tested and apparently stable.
 
-I was looking at the new patch, and I saw something that puzzles me.
-Why do you set the EXT2_INDEX_FL on a new (empty) directory, rather
-than only setting it when the dx_root index is created?
+On Wed, 9 May 2001, David S. Miller wrote:
 
-Setting the flag earlier than that makes it mostly useless, since it
-will be set on basically every directory.  Not setting it would also
-make your is_dx() check simply a check for the EXT2_INDEX_FL bit (no
-need to also check size).
+> 
+> Marcelo Tosatti writes:
+>  > > Let me state it a different way, how is the new writepage() framework
+>  > > going to do things like ignore the referenced bit during page_launder
+>  > > for dead swap pages?
+>  > 
+>  > Its not able to ignore the referenced bit. 
+>  > 
+>  > I know we want that, but I can't see any clean way of doing that. 
+> 
+> Unfortunately, one way would involve pushing the referenced bit check
+> into the writepage() method.  But that is the only place we have the
+> kind of information necessary to make these decisions.
+> 
+> This is exactly the kind of issue Linus and myself were talking
+> about when the "cost analysis" parts of thie discussion began.
 
-Also no need to set EXT2_COMPAT_DIR_INDEX until such a time that we have
-a (real) directory with an index, to avoid gratuitous incompatibility
-with e2fsck.
+I'm not convinced that moving the referenced bit check inside writepage()
+is worth it. We will duplicate code which is purely a VM job (ie check the
+referenced bit and possibly remove the page from the inactive dirty list
+and add it to the active list, _with_ the pagemap_lru_lock held), not a
+pager job.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+The PageDirty bit handling is different IMHO --- the pager is the one who
+knows if it actually wrote the page or not. 
+
+
+
+
+
+
+
+
+
+

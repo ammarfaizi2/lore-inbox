@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272433AbTHIRIq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 13:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272437AbTHIRIp
+	id S274822AbTHIRLk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 13:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275065AbTHIRLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 13:08:45 -0400
-Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:24595 "EHLO gw.enyo.de")
-	by vger.kernel.org with ESMTP id S272433AbTHIRIo (ORCPT
+	Sat, 9 Aug 2003 13:11:40 -0400
+Received: from mail.kroah.org ([65.200.24.183]:60048 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S274822AbTHIRLf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 13:08:44 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test3] Hyperthreading gone
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sat, 09 Aug 2003 19:08:43 +0200
-Message-ID: <87llu2bvxg.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 9 Aug 2003 13:11:35 -0400
+Date: Fri, 8 Aug 2003 22:57:40 -0700
+From: Greg KH <greg@kroah.com>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I2C errors
+Message-ID: <20030809055739.GA6411@kroah.com>
+References: <20030809025124.7ed1395e.us15@os.inf.tu-dresden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030809025124.7ed1395e.us15@os.inf.tu-dresden.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI with CPU enumeration is enabled, but the sibling CPUs aren't
-activated.
+On Sat, Aug 09, 2003 at 02:51:24AM +0200, Udo A. Steinberg wrote:
+> 
+> Hi Greg,
+> 
+> Both under 2.4 and 2.5/2.6 I'm getting occasional I2C errors like these:
+> 
+> i2c-algo-bit.o: bt848 #0 i2c_write: error - bailout.
+> msp34xx: I/O error #1 (read 0x12/0x18)
+> 
+> They repeat every 5 minutes or so until the video device (bttv) is
+> reinitialized. 
+> 
+> Any ideas what's going on?
 
-This is all what I have of the boot message (standard buffer size is
-too small, apparently):
+I don't know, sorry.  Try asking on the sensors mailing list.
 
-CPU:     After all inits, caps: 3febfbff 00000000 00000000 00000080
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#3.
-CPU#3: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU#3: Thermal monitoring enabled
-CPU3: Intel(R) Xeon(TM) CPU 1.40GHz stepping 01
-Total of 4 processors activated (11034.62 BogoMIPS).
-WARNING: No sibling found for CPU 0.
-WARNING: No sibling found for CPU 1.
-WARNING: No sibling found for CPU 2.
-WARNING: No sibling found for CPU 3.
+Good luck,
 
-Recent 2.4.x kernels (starting with 2.4.20 IIRC) support
-Hyperthreading on this machine (Siemens Primergy H450).
+greg k-h

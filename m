@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUFFRlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUFFRq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUFFRlH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 13:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRlG
+	id S263851AbUFFRq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 13:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUFFRqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 13:41:06 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:1789 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263869AbUFFRkz (ORCPT
+	Sun, 6 Jun 2004 13:46:25 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:22912 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263851AbUFFRlL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 13:40:55 -0400
-Date: Sun, 6 Jun 2004 10:46:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: mikpe@csd.uu.se, Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org,
-       ashok.raj@intel.com, colpatch@us.ibm.com, hch@infradead.org,
-       jbarnes@sgi.com, joe.korty@ccur.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040606104627.6ef153b8.pj@sgi.com>
-In-Reply-To: <20040606164436.GW21007@holomorphy.com>
-References: <200406061507.i56F7xdS029391@harpo.it.uu.se>
-	<20040606164436.GW21007@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 6 Jun 2004 13:41:11 -0400
+Date: Sun, 6 Jun 2004 19:41:44 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: locking in psmouse
+Message-ID: <20040606174143.GA6561@ucw.cz>
+References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net> <20040429095830.GD390@elf.ucw.cz> <200404290740.18182.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404290740.18182.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William wrote:
-> I don't really care about the particular format exported to userspace,
-> but cpus_addr() is not a legitimate API.
+On Thu, Apr 29, 2004 at 07:40:17AM -0500, Dmitry Torokhov wrote:
 
-I'd like to thank-you for pointing out cpus_addr() to me several months
-ago, when I unwittingly proposed to replace it, with something else of
-a different name, doing the same thing.
+> On Thursday 29 April 2004 04:58 am, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > psmouse-base.c does not have any locking. For example psmouse_command
+> > > > could race with data coming from the mouse, resulting in problem. This
+> > > > should fix it.
+> > > 
+> > > Although I am not arguing that locking might be needed in psmouse module I
+> > > am somewhat confused how it will help in case of data stream coming from the
+> > > mouse... If mouse sent a byte before the kernel issue a command then it will
+> > > be delivered by KBC controller and will be processed by the interrupt handler,
+> > > probably messing up detection process. That's why as soon as we decide that
+> > > the device behind PS/2 port is some kind of mouse we disable the stream mode.
+> > 
+> > Does that mean that mouse can not talk while we are sending commands
+> > to it? That would help a bit.
+> > 
+> 
+> Yes, check psmouse_probe. As soon as PSMOUSE_CMD_RESET_DIS acknowledged mouse
+> should cease sending motion data. That still leaves possibility of screwing up
+> detection if you are moving mouse while psmouse doing PSMOUSE_CMD_GETID.
+> But I don't think we can do much about it as we'd like to know that the device
+> is some kind of a mouse before we start messing with it.
 
-I agree it is not legitimate - to the extent that it remains, the cleanup
-of cpumasks is not yet complete.  Though, with my patch set of this week,
-I think we're making good progress.
+I've updated the atkbd_command/atkbd_interrupt mechanism so that even
+bytes coming from the keyboard when we're issuing a command shouldn't
+disturb us. I've tested by banging my head at the keyboard while
+plugging it in. ;)
 
-I am a little puzzled at the strength of your latest objections to it.
-For all I know, it may well be your own invention.  It's been there a
-while, since before my time with this code.
+Something like that might be worth implementing for psmouse as well.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Vojtech Pavlik
+SuSE Labs, SuSE CR

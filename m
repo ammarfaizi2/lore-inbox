@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbUFNOg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUFNOis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263167AbUFNOg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUFNOg2
+	id S263159AbUFNOis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFNOis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:36:28 -0400
-Received: from trantor.org.uk ([213.146.130.142]:35221 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S263079AbUFNOgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:36:14 -0400
-Subject: Re: [PATCH] fix for Re: timer + fpu stuff locks my console race
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: stian@nixia.no, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <m3n038o76h.fsf@averell.firstfloor.org>
-References: <25iEn-7bv-3@gated-at.bofh.it>
-	 <m3n038o76h.fsf@averell.firstfloor.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xk0aWRGzJAwDQ3foW2yN"
-Date: Mon, 14 Jun 2004 15:36:03 +0100
-Message-Id: <1087223763.3375.23.camel@sherbert>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+	Mon, 14 Jun 2004 10:38:48 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:19766 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263159AbUFNOip
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:38:45 -0400
+Message-ID: <40CDB871.6070408@microgate.com>
+Date: Mon, 14 Jun 2004 09:38:41 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: areversat@tuxfamily.org
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in local_bh_enable with eciadsl driver and kernel 2.6
+References: <1087145610.2266.1.camel@hosts>	 <1087146654.2517.1.camel@doobie.pipehead.org> <1087221214.2270.6.camel@hosts>
+In-Reply-To: <1087221214.2270.6.camel@hosts>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+areversat wrote:
+> Ok someone tried the patch for me (i don't have the modem here). And it
+> seems to work just fine : it removes the message i reported. It may need
+> more extensive tests but it would be nice to think about including it to
+> the kernel.
 
---=-xk0aWRGzJAwDQ3foW2yN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patch is well tested and understood and I'm confident
+it will be accepted. But Linus indicated 2.6.7-rc is closed
+to new stuff so I have not pushed it to Andrew yet.
 
-On Sat, 2004-06-12 at 22:25 +0200, Andi Kleen wrote:
-> Please test.
+2.6.8 seems likely.
 
-Thats fixed it for me on PIII (Katmai) / 2.6.6.
-
-Exploit runs and runs, no oopsen.
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-xk0aWRGzJAwDQ3foW2yN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAzbfSkbV2aYZGvn0RAqHRAJ0ZQU9DgoTuD1t3MpLzmSnWw3TGpQCbB0lY
-OH8i9Jwu6nRxlAxy2EgwYGM=
-=TUmq
------END PGP SIGNATURE-----
-
---=-xk0aWRGzJAwDQ3foW2yN--
-
+--
+Paul Fulghum
+paulkf@microgate.com

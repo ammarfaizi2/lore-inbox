@@ -1,63 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbTA2P3P>; Wed, 29 Jan 2003 10:29:15 -0500
+	id <S265168AbTA2PdK>; Wed, 29 Jan 2003 10:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264673AbTA2P3P>; Wed, 29 Jan 2003 10:29:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54947 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261963AbTA2P3O>;
-	Wed, 29 Jan 2003 10:29:14 -0500
-Date: Wed, 29 Jan 2003 16:38:20 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE: Do not call bh_phys() on buffers with invalid b_page.
-Message-ID: <20030129153820.GF31566@suse.de>
-References: <1043852266.1690.63.camel@zion.wanadoo.fr> <20030129150000.GD31566@suse.de> <1043853614.1668.70.camel@zion.wanadoo.fr> <20030129152214.GE31566@suse.de> <1043853975.1668.74.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
+	id <S266233AbTA2PdK>; Wed, 29 Jan 2003 10:33:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57936 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S265168AbTA2PdI>; Wed, 29 Jan 2003 10:33:08 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: kexec reboot code buffer
+References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org>
+	<3E35AAE4.10204@us.ibm.com> <203100000.1043705004@flay>
+	<m1n0ll68jd.fsf@frodo.biederman.org> <1470350000.1043770519@titus>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jan 2003 08:41:44 -0700
+In-Reply-To: <1470350000.1043770519@titus>
+Message-ID: <m165s855fr.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043853975.1668.74.camel@zion.wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29 2003, Benjamin Herrenschmidt wrote:
-> On Wed, 2003-01-29 at 16:22, Jens Axboe wrote:
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
+
+> >> We talked about creating a new zone specifically for DMA32 (ie <4Gb)
+> >> for other reasons, but it's not there as yet. 
+> > 
+> > Right.  And because of that I don't feel bad about asking for a zone
+> > that ends at 4GB, as it is a fairly general need in the kernel, even
+> > if the rest of the interfaces have a little catching up to do before
+> > the can use it.  Although with IOMMUs I don't know how much such a
+> > DMA32 zone is worth.
 > 
-> > Ehm no, if b_data is < PAGE_SIZE, it's probably an offset and not a
-> > valid address. So it should be exactly where it is -- for b_page, it's
-> > _not_ buggy for b_data to be < PAGE_SIZE. That's expected. Submitter
-> > would have to be buggy for it to trigger, though, so you can just remove
-> > it if you want.
+> It's probably too late for that sort of thing now in 2.5 though. 
+
+Unless there are balancing issues adding a new zone is very trivial.
+However any code in that direction will be an additional patch so
+because ZONE_NORMAL works for most cases.  Alan Cox can have his high
+memory case if he wants it.
+
+> > I am fine with memory that is not physically contiguous.  The memory
+> > I really want the kernel is currently sitting on.....
 > 
-> Ah, I see what you wanted to check now :) Ok, I won't remove it, though
-> it would still make sense to extend the test to PAGE_OFFSET I beleive,
-> any b_data < PAGE_OFFSET is wrong.
+> Oh, in that case you should have no problem getting it from ZONE_NORMAL,
+> especially if you can wake up kswapd and wait for a few seconds.
 
-No, any b_data < PAGE_OFFSET is not wrong, that's the point. For highmem
-b_page, b_data will be the offset into the page. So it could be 2048,
-for instance.
+Nope, kswapd will not free the kernels text segment.  So in practice
+I can use anything below 4GB. 
+  
+> > The largest I have heard of is currently is 96MB.   Typical is
+> 
+> Eeek! ;-)
 
-The test is meant to catch an invalid buffer_head, where b_page is not
-set but b_data isn't valid either. So to make it complete, you could do:
+There is even a distribution built to be run completely out of a ramdisk. 
+http://warewulf-cluster.org/
+ 
+> > somewhere between 900K and 6MB.  You get some interesting
+> > kernel+ramdisk combinations when people are network booting a diskless
+> > system.   Theoretically I can accommodate a nearly 4GB image, with the
+> > current code structure. 
+> 
+> Personnally I don't have a problem setting aside that much space at boot
+> time, but it's probably not a good solution for small boxes.
+> 
+> > So the 4GB instead of 960MB limit, and not pesimizing the kernel for
+> > the cases where the new image sits in ram for a while (kexec on panic)
+> > is while I modified my code to use high memory.
+> 
+> Maybe IFF you want to suppork kexec on panic, it should be statically
+> reserved at boot time? You don't want to be mucking around in the panic
+> path trying to swap out memory, etc. when your kernel is halfway down
+> the toilet already ... and that has nothing to do with memory placement,
+> it's just a space issue.
 
-	if (bh->b_page) {
-		...
-		if (bh->b_data >= PAGE_SIZE)
-			BUG();
-	} else {
-		...
-		if (bh->b_data < PAGE_SIZE)
-			BUG();
-		if (bh->b_data < PAGE_OFFSET)
-			BUG();
-	}
+As it currently exists kexec happens in two stages sys_kexec_load that
+scatters the new image through out memory, with some care so that I can
+use memcpy, and some variant of memmove to place the image at it's
+final location in memory.   This is where all of the memory allocation
+happens.
 
-as they are two different bugs.
 
-> Anyway, let's leave 2.4 as it is now.
+Then there is sys_reboot(LINUX_REBOOT_CMD_KEXEC), (or a kernel panic)
+which triggers the work.  And except for cpu state changes nothing
+happens.
 
-:-)
+> > The nasty case comes with highmemory when I am allocating memory on a
+> > 32GB NUMA box and am allocating memory on the wrong node.  In which
+> > case my code needs to allocate 28GB before it starts getting the
+> > memory it wants.
+> 
+> Oh, just do alloc_pages_node(0) (works on non NUMA as well, will just 
+> fall back). But I can show you a 32Gb SMP box as well ;-) ZONE_NORMAL 
+> is probably still easiest, and most general.
 
--- 
-Jens Axboe
+Right it is not hard to do it just takes a little more work.
 
+Eric

@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131219AbRDPMBp>; Mon, 16 Apr 2001 08:01:45 -0400
+	id <S131308AbRDPMC1>; Mon, 16 Apr 2001 08:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbRDPMBf>; Mon, 16 Apr 2001 08:01:35 -0400
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:55812 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S131219AbRDPMBR>; Mon, 16 Apr 2001 08:01:17 -0400
-Date: Mon, 16 Apr 2001 04:59:46 -0700
-Message-Id: <200104161159.f3GBxkc06110@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: umam@delhi.tcs.co.in
+	id <S131300AbRDPMCR>; Mon, 16 Apr 2001 08:02:17 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:41221 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131254AbRDPMCF>;
+	Mon, 16 Apr 2001 08:02:05 -0400
+Date: Fri, 13 Apr 2001 00:26:46 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Miquel van Smoorenburg <miquels@cistron-office.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: VRRP related
-In-Reply-To: <3ADAFC74.3905C4D3@delhi.tcs.co.in>
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.19 (i586))
+Subject: Re: Let init know user wants to shutdown
+Message-ID: <20010413002645.B43@(none)>
+In-Reply-To: <20010405000215.A599@bug.ucw.cz> <9b04food@ncc1701.cistron.net> <9b052eod@ncc1701.cistron.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <9b052eod@ncc1701.cistron.net>; from miquels@cistron-office.nl on Tue, Apr 10, 2001 at 11:30:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Apr 2001 15:06:44 +0100, umam@delhi.tcs.co.in wrote:
+
+> In article <9b04food@ncc1701.cistron.net>,
+> Miquel van Smoorenburg <miquels@cistron-office.nl> wrote:
+> >SIGTERM is a bad choise. Right now, init ignores SIGTERM. For
+> >good reason; on some (many?) systems, the shutdown scripts
+> >include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
+> >"all processes except me". That means init will get hit with
+> >SIGTERM occasionally during shutdown, and that might cause
+> >weird things to happen.
+> >
+> >Perhaps SIGUSR1 ?
 > 
-> Hi,
-> I am trying to put virtual mac address at the place of physical mac
-> address , for that I have overwrite source hardware address with virtual
-> address.Now when I try to ping to this machine with some other
-> machine.It says request time out.While checking arp -a , gives me
-> virtual mac address in ARP-Table instead of physical mac address.I want
-> it should give response to ping  also.what I can do????
+> In the immortal words of Max Headroom, t-t-talking to myself ;)
+> 
+> In fact, the kernel should probably use a real-time signal
+> with si_code set to 1 for ctrl-alt-del, 2 for the powerbutton etc.
+> 
+> It should first check if process 1 (init) installed a handler
+> for that real-time signal. If not, it should use the old
+> signals (SIGINT for ctrl-alt-del, SIGWINCH for kbrequest).
 
-1. Get a card that accepts non-multicast MAC addresses in its hardware
-filter. eepro100, tulip, starfire will do. 3c59x won't (well newer cards
-have the capability, but the driver doesn't support it).
-
-2. Apply the attached patch and enable "Ethernet Virtual MAC support".
-
-3. Tell the card about your VMAC using ipmaddr.
-
-The patch slows down the fast receive patch, I know, but I don't see
-a way around it. It's against 2.4.recent, I haven't looked at 2.2.
-
-Ion
+This is ugly as night, but SIGUSR1 looks okay.
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
------------------------
---- linux-2.4/net/ethernet/eth.c.old	Tue Nov 14 20:18:52 2000
-+++ linux-2.4/net/ethernet/eth.c	Tue Nov 14 20:30:45 2000
-@@ -203,8 +203,21 @@
- 	 
- 	else if(1 /*dev->flags&IFF_PROMISC*/)
- 	{
--		if(memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN))
-+#ifdef CONFIG_NET_VMAC
-+		if (memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN)) {
-+			struct dev_mc_list *mc_addr = dev->mc_list;
-+			while (mc_addr) {
-+				if (memcmp(mc_addr->dmi_addr, dev->dev_addr, ETH_ALEN))
-+					goto loose_local;
-+				mc_addr = mc_addr->next;
-+			}
- 			skb->pkt_type=PACKET_OTHERHOST;
-+		loose_local:
-+		}
-+#else  /* not CONFIG_NET_VMAC */
-+		if (memcmp(eth->h_dest,dev->dev_addr, ETH_ALEN))
-+			skb->pkt_type=PACKET_OTHERHOST;
-+#endif /* not CONFIG_NET_VMAC */
- 	}
- 	
- 	if (ntohs(eth->h_proto) >= 1536)
---- linux-2.4/net/Config.in.old	Tue Nov 14 20:29:37 2000
-+++ linux-2.4/net/Config.in	Tue Nov 14 20:30:31 2000
-@@ -64,6 +64,7 @@
-    tristate 'LAPB Data Link Driver (EXPERIMENTAL)' CONFIG_LAPB
-    bool '802.2 LLC (EXPERIMENTAL)' CONFIG_LLC
-    bool 'Frame Diverter (EXPERIMENTAL)' CONFIG_NET_DIVERT
-+   bool 'Ethernet Virtual MAC support (EXPERIMENTAL)' CONFIG_NET_VMAC
- #   if [ "$CONFIG_LLC" = "y" ]; then
- #      bool '  Netbeui (EXPERIMENTAL)' CONFIG_NETBEUI
- #   fi
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

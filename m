@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131125AbRBXBWT>; Fri, 23 Feb 2001 20:22:19 -0500
+	id <S129402AbRBXBiz>; Fri, 23 Feb 2001 20:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131161AbRBXBWI>; Fri, 23 Feb 2001 20:22:08 -0500
-Received: from flathead.gate.net ([216.219.246.5]:30086 "EHLO
-	flathead.gate.net") by vger.kernel.org with ESMTP
-	id <S131127AbRBXBWB>; Fri, 23 Feb 2001 20:22:01 -0500
-From: "John E. Adams" <johna@onevista.com>
-Reply-To: johna@onevista.com
-Organization: One Vista Associates
-To: linux-kernel%vger.kernel.org@mailhost.gate.net
-Subject: Re: 2.4.2 broke gcd (or, audio CD's won't play)
-Date: Fri, 23 Feb 2001 20:22:03 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129525AbRBXBip>; Fri, 23 Feb 2001 20:38:45 -0500
+Received: from web3506.mail.yahoo.com ([204.71.203.73]:7439 "HELO
+	web3506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129402AbRBXBid>; Fri, 23 Feb 2001 20:38:33 -0500
+Message-ID: <20010224013821.18282.qmail@web3506.mail.yahoo.com>
+Date: Sat, 24 Feb 2001 01:38:21 +0000 (GMT)
+From: Michèl Alexandre Salim 
+	<salimma1@yahoo.co.uk>
+Subject: 2.42 broke PCMCIA IDE
+To: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <01022320220304.01755@flash>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> After upgrading to 2.4.2, gcd or any audio CD player will work.  The
->  attached chunk of dmesg is the messages produced by attempting to play
->  them.  The player just loops through all tracks, playing nothing.
->  Ripping CD's a la cdparanoia still works.
+Just installed a custom Debian system using kernel
+2.4.1 + ReiserFS (root running reiserfs) and it works
+just fine. Since kernel 2.4.2 has been released, when
+recompiling a new kernel (the 2.4.1 I used has been
+trimmed to fit my modified boot disks) I used that
+instead, after hearing about the multimode and
+reiserfs bugs.
 
-Xmcd works fine here. 2.4.2 
+Kernel boots, and... pcmcia-cs starts with a high and
+low beep. Card detected as a 5V using cardctl status,
+but silly me, forgot to note the reading given by
+cardctl ident.
+
+Running Debian woody, 02/18 snapshot, using gcc
+2.95.3. Hardware is the Sony Picturebook C1VE (Crusoe)
+
+Any idea?
+
+Cheers,
+
+Michel
+
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+or your free @yahoo.ie address at http://mail.yahoo.ie

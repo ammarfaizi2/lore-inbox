@@ -1,94 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVAQX6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVARACv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVAQX6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 18:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVAQX5v
+	id S261227AbVARACv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 19:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVARACv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 18:57:51 -0500
-Received: from [194.109.195.176] ([194.109.195.176]:63443 "EHLO
-	scrub.xs4all.nl") by vger.kernel.org with ESMTP id S261531AbVAQX5c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 18:57:32 -0500
-Date: Tue, 18 Jan 2005 00:57:11 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Karim Yaghmour <karim@opersys.com>
-cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>
+	Mon, 17 Jan 2005 19:02:51 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:58774
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261227AbVARACb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 19:02:31 -0500
 Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <41EC2DCA.50904@opersys.com>
-Message-ID: <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       LKML <linux-kernel@vger.kernel.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>
+In-Reply-To: <41EC4D18.3060100@opersys.com>
 References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
- <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
- <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
- <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
- <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
- <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
- <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home>
- <41EC2DCA.50904@opersys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+	 <41E7A7A6.3060502@opersys.com>
+	 <Pine.LNX.4.61.0501141626310.6118@scrub.home>
+	 <41E8358A.4030908@opersys.com>
+	 <Pine.LNX.4.61.0501150101010.30794@scrub.home>
+	 <41E899AC.3070705@opersys.com>
+	 <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+	 <41EA0307.6020807@opersys.com>
+	 <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com>
+	 <1105925842.13265.364.camel@tglx.tec.linutronix.de>
+	 <41EB21C2.3020608@opersys.com>
+	 <1105964417.13265.406.camel@tglx.tec.linutronix.de>
+	 <41EC20FB.9030506@opersys.com>
+	 <1106001113.13265.474.camel@tglx.tec.linutronix.de>
+	 <41EC4D18.3060100@opersys.com>
+Content-Type: text/plain
+Date: Tue, 18 Jan 2005 01:02:28 +0100
+Message-Id: <1106006548.13265.521.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 17 Jan 2005, Karim Yaghmour wrote:
-
-> > Periodically can also mean a buffer start call back from relayfs 
-> > (although that would mean the first entry is not guaranteed) or a 
-> > (per cpu) eventcnt from the subsystem. The amount of needed search would 
-> > be limited. The main point is from the relayfs POV the buffer structure 
-> > has always the same (simple) structure.
+On Mon, 2005-01-17 at 18:41 -0500, Karim Yaghmour wrote:
+> Thomas Gleixner wrote:
+> > I know, what I have said. I said reduce the filtering to the absolute
+> > minimum and do the rest in userspace.
 > 
-> But two e-mails ago, you told us to drop the start_reserve and end_reserve
-> and move the details of the buffer management into relayfs and out of
-> ltt? Either we have a callback, like you suggest, and then we need to
-> reserve some space to make sure that the callback is guaranteed to have
-> the first entry, or we drop the callback and provide an option to the
-> user for relayfs to write this first entry for him. Providing a callback
-> without reservation is no different than relying purely on the heartbeat,
-> which, like I said before and for the reasons illustrated below, is
-> unrealistic.
+> You keep adopting the interpretation which best suits you, taking
+> quotes out of context, and keep repeating things that have already
+> been answered. There are limits to one's patience.
 
-Why is so important that it's at the start of the buffer? What's wrong 
-with a special event _near_ the start of a buffer?
+I said before: "Sorting out disabled events is the filtering you 
+have to do in kernel and you should do it in the hot path or
+remove the unneccecary tracepoints at compiletime." 
 
-> > Why is it "totally unrealistic"?
+This is exactly what I stated above. I omitted the addon of "do the rest 
+in userspace", as it was obvious enough.
+
+> What you did is change your position twice. It's there for anyone to see.
+
+Sorry, I didn't know that you are representing anyone.
+
+> > The now builtin filters are defined to fit somebodys needs or idea of
+> > what the user should / wants to see. They will not fit everybodys
+> > needs / ideas. So we start modifying, adding and #ifdefing kernel
+> > filters, which is a scary vision.
 > 
-> Ok, let's expand a little here on the amount of data. Say you're getting
-> 2MB/s of data (which is not unrealistic on a loaded system.) That means
-> that if I'm tracing for 2 days, I've got 345GB of data (~7.5GB/hour).
-> In practice, users aren't necessarily interested in plowing through the
-> entire 345GB, they just want to view a given portion of it. Now, if I
-> follow what you are suggesting, I have to go through the entire 345GB to:
-> a) create indexes, b) reorder events, and likely c) have to rewrite
-> another 345GB of data. And I haven't yet discussed the kind of problems
-> you would encounter in trying to reorder such a beast that contains,
-> by definition, variable-sized events. For one thing, if event N+1 doesn't
-> follow N, then you would be forced to browse forward until you actually
-> found it before you could write a properly ordered trace. And it just
-> takes a few processes that are interrupted and forced to sleep here and
-> there to make this unusable. That's without the RAM or fs space required
-> to store those index tables ... At 3 to 12 bytes per events, that's a lot
-> of space for indexes ...
+> Ah, finally. Here's an actual suggestion. _IF_ you want, I'll just
+> export a ltt_set_filter(*callback) and rewrite the if in
+> _ltt_log_event() to:
+> if ((ltt_filter != NULL) && !(&ltt_filter(event_id, event_struct, data)))
+> 	return -EINVAL;
 > 
-> If I keep things as they are with ordered events and delimiters on buffer
-> boundaries, I can skip to any place within this 345GB and start processing
-> from there.
+> You're always welcome to do the following from anywhere in your code:
+> ltt_set_filter(NULL);
 
-What gives you the idea, that you can't do this with what I proposed?
-You can still seek freely within the data at buffer boundaries and you 
-only have to search a little into the buffer to find the delimiter. Events 
-are not completely at random, so that the little reordering can be done at 
-runtime. Sorry, but I don't get what kind of unsolvable problems you see 
-here.
+Provide a hook, export it and load your filters as a module, but keep
+the filters out of the mainline kernel code. 
 
-> Rhetorical: Couldn't the ad-hoc mode case be a special case of the
-> managed mode?
+> > Enabling and disabling events is a valid basic filter request, which
+> > should live in the kernel. Anything else should go into userspace, IMO.
+> 
+> What you are suggesting is that a system administator that wants to
+> monitor his sendmail server over a period of three weeks should
+> just postprocess 1.8TB (1MB/s) of data because Thomas Gleixner didn't
+> like the idea of kernel event filtering based on anything but events.
 
-Wrong question. What compromises can be made on both sides to create a 
-common simple framework? Your unwillingness to compromise a little on the 
-ltt requirements really amazes me.
+A real common scenario with a broad range of users. And everybody has to
+like the idea of hardwired filters in the kernel code to make the life
+of this sysadmin easier.
 
-bye, Roman
+See above about hooks.
+
+Maybe some simple pipe would be helpful too:
+	read_stream | prefilter | buildbuffers | storeit
+
+tglx
+
+

@@ -1,193 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVCODe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVCODgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVCODe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 22:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVCODe5
+	id S262225AbVCODgn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 22:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCODgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 22:34:57 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:13445 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S262224AbVCODeZ (ORCPT
+	Mon, 14 Mar 2005 22:36:42 -0500
+Received: from fire.osdl.org ([65.172.181.4]:63148 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262225AbVCODfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 22:34:25 -0500
-Date: Tue, 15 Mar 2005 14:34:12 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus <torvalds@osdl.org>, ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PPC64 iSeries: cleanup viopath
-Message-Id: <20050315143412.0c60690a.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 14 Mar 2005 22:35:17 -0500
+Date: Mon, 14 Mar 2005 19:34:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: alan@redhat.com, torvalds@osdl.org, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz,
+       vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
+Message-Id: <20050314193447.47ca6754.akpm@osdl.org>
+In-Reply-To: <4235ED35.1000405@aknet.ru>
+References: <42348474.7040808@aknet.ru>
+	<20050313201020.GB8231@elf.ucw.cz>
+	<4234A8DD.9080305@aknet.ru>
+	<Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
+	<4234B96C.9080901@aknet.ru>
+	<20050314192943.GG18826@devserv.devel.redhat.com>
+	<4235ED35.1000405@aknet.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__15_Mar_2005_14_34_12_+1100_wBUfWEXehAY.XIhx"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__15_Mar_2005_14_34_12_+1100_wBUfWEXehAY.XIhx
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Stas Sergeev <stsp@aknet.ru> wrote:
+>
+> Alan Cox wrote:
+>  >> Alan, can you please apply that to an -ac
+>  >> tree?
+>  > Ask Andrew Morton as it belongs in the -mm tree
+>  Actually I tried that already.
 
-Hi Andrew,
+I added this patch to -mm.
 
-Since you brought this file to my attention, I figured I might as well do
-some simple cleanups.  This patch does:
-	- single bit int bitfields are a bit suspect and Anndrew pointed
-	  out recently that they are probably slower to access than ints
-	- get rid of some more stufly caps
-	- define the semaphore and the atomic in struct alloc_parms
-	  rather than pointers to them since we just allocate them on
-	  the stack anyway.
-	- one small white space cleanup
-	- use the HvLpIndexInvalid constant instead of ita value
+> Andrew
+>  had nothing against that patch personally,
+>  as well as Linus, but after all that didn't
+>  work:
+>  http://lkml.org/lkml/2005/1/3/260
+> 
+>  So it can't be applied to -mm, and not
+>  depending on the kgdb-ga patch allowed for
+>  some extra optimization.
 
-Built and booted on iSeries (which is the only place it is used).
+The rule is:
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+- If the patch patches something which is in Linus's kernel, prepare a
+  diff against Linus's latest kernel.
 
-diff -ruNp linus/arch/ppc64/kernel/viopath.c linus-cleanup.1/arch/ppc64/kernel/viopath.c
---- linus/arch/ppc64/kernel/viopath.c	2005-03-13 04:07:42.000000000 +1100
-+++ linus-cleanup.1/arch/ppc64/kernel/viopath.c	2005-03-15 14:02:48.000000000 +1100
-@@ -42,6 +42,7 @@
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-+#include <asm/iSeries/HvTypes.h>
- #include <asm/iSeries/LparData.h>
- #include <asm/iSeries/HvLpEvent.h>
- #include <asm/iSeries/HvLpConfig.h>
-@@ -56,8 +57,8 @@
-  * But this allows for other support in the future.
-  */
- static struct viopathStatus {
--	int isOpen:1;		/* Did we open the path?            */
--	int isActive:1;		/* Do we have a mon msg outstanding */
-+	int isOpen;		/* Did we open the path?            */
-+	int isActive;		/* Do we have a mon msg outstanding */
- 	int users[VIO_MAX_SUBTYPES];
- 	HvLpInstanceId mSourceInst;
- 	HvLpInstanceId mTargetInst;
-@@ -81,10 +82,10 @@ static void handleMonitorEvent(struct Hv
-  * blocks on the semaphore and the handler posts the semaphore.  However,
-  * if system_state is not SYSTEM_RUNNING, then wait_atomic is used ...
-  */
--struct doneAllocParms_t {
--	struct semaphore *sem;
-+struct alloc_parms {
-+	struct semaphore sem;
- 	int number;
--	atomic_t *wait_atomic;
-+	atomic_t wait_atomic;
- 	int used_wait_atomic;
- };
- 
-@@ -97,9 +98,9 @@ static u8 viomonseq = 22;
- /* Our hosting logical partition.  We get this at startup
-  * time, and different modules access this variable directly.
-  */
--HvLpIndex viopath_hostLp = 0xff;	/* HvLpIndexInvalid */
-+HvLpIndex viopath_hostLp = HvLpIndexInvalid;
- EXPORT_SYMBOL(viopath_hostLp);
--HvLpIndex viopath_ourLp = 0xff;
-+HvLpIndex viopath_ourLp = HvLpIndexInvalid;
- EXPORT_SYMBOL(viopath_ourLp);
- 
- /* For each kind of incoming event we set a pointer to a
-@@ -200,7 +201,7 @@ EXPORT_SYMBOL(viopath_isactive);
- 
- /*
-  * We cache the source and target instance ids for each
-- * partition.  
-+ * partition.
-  */
- HvLpInstanceId viopath_sourceinst(HvLpIndex lp)
- {
-@@ -450,36 +451,33 @@ static void vio_handleEvent(struct HvLpE
- 
- static void viopath_donealloc(void *parm, int number)
- {
--	struct doneAllocParms_t *parmsp = (struct doneAllocParms_t *)parm;
-+	struct alloc_parms *parmsp = parm;
- 
- 	parmsp->number = number;
- 	if (parmsp->used_wait_atomic)
--		atomic_set(parmsp->wait_atomic, 0);
-+		atomic_set(&parmsp->wait_atomic, 0);
- 	else
--		up(parmsp->sem);
-+		up(&parmsp->sem);
- }
- 
- static int allocateEvents(HvLpIndex remoteLp, int numEvents)
- {
--	struct doneAllocParms_t parms;
--	DECLARE_MUTEX_LOCKED(Semaphore);
--	atomic_t wait_atomic;
-+	struct alloc_parms parms;
- 
- 	if (system_state != SYSTEM_RUNNING) {
- 		parms.used_wait_atomic = 1;
--		atomic_set(&wait_atomic, 1);
--		parms.wait_atomic = &wait_atomic;
-+		atomic_set(&parms.wait_atomic, 1);
- 	} else {
- 		parms.used_wait_atomic = 0;
--		parms.sem = &Semaphore;
-+		init_MUTEX_LOCKED(&parms.sem);
- 	}
- 	mf_allocate_lp_events(remoteLp, HvLpEvent_Type_VirtualIo, 250,	/* It would be nice to put a real number here! */
- 			    numEvents, &viopath_donealloc, &parms);
- 	if (system_state != SYSTEM_RUNNING) {
--		while (atomic_read(&wait_atomic))
-+		while (atomic_read(&parms.wait_atomic))
- 			mb();
- 	} else
--		down(&Semaphore);
-+		down(&parms.sem);
- 	return parms.number;
- }
- 
-@@ -558,8 +556,7 @@ int viopath_close(HvLpIndex remoteLp, in
- 	unsigned long flags;
- 	int i;
- 	int numOpen;
--	struct doneAllocParms_t doneAllocParms;
--	DECLARE_MUTEX_LOCKED(Semaphore);
-+	struct alloc_parms parms;
- 
- 	if ((remoteLp >= HvMaxArchitectedLps) || (remoteLp == HvLpIndexInvalid))
- 		return -EINVAL;
-@@ -580,11 +577,11 @@ int viopath_close(HvLpIndex remoteLp, in
- 
- 	spin_unlock_irqrestore(&statuslock, flags);
- 
--	doneAllocParms.used_wait_atomic = 0;
--	doneAllocParms.sem = &Semaphore;
-+	parms.used_wait_atomic = 0;
-+	init_MUTEX_LOCKED(&parms.sem);
- 	mf_deallocate_lp_events(remoteLp, HvLpEvent_Type_VirtualIo,
--			      numReq, &viopath_donealloc, &doneAllocParms);
--	down(&Semaphore);
-+			      numReq, &viopath_donealloc, &parms);
-+	down(&parms.sem);
- 
- 	spin_lock_irqsave(&statuslock, flags);
- 	for (i = 0, numOpen = 0; i < VIO_MAX_SUBTYPES; i++)
+- If the patch patches something which is only in -mm, prepare a patch
+  against -mm.
 
---Signature=_Tue__15_Mar_2005_14_34_12_+1100_wBUfWEXehAY.XIhx
-Content-Type: application/pgp-signature
+In this case, I merged the patch prior to the kgdb patch and then fixed
+up the fallout.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCNle64CJfqux9a+8RArCKAJ9L6FezPeJyQhUc8tDBHV36yOtOGgCgirxe
-GMnV54vkmX2+0oW80DvnSc8=
-=7l5Y
------END PGP SIGNATURE-----
-
---Signature=_Tue__15_Mar_2005_14_34_12_+1100_wBUfWEXehAY.XIhx--
+(If that causes kgdb to break in non-obvious-to-me ways then I might come
+calling "help".  We'll see)

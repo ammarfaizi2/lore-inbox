@@ -1,49 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273997AbRIYVYp>; Tue, 25 Sep 2001 17:24:45 -0400
+	id <S274500AbRIYV1F>; Tue, 25 Sep 2001 17:27:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273995AbRIYVY0>; Tue, 25 Sep 2001 17:24:26 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:21188 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S273990AbRIYVYR>; Tue, 25 Sep 2001 17:24:17 -0400
-Message-ID: <8FB7D6BCE8A2D511B88C00508B68C2081971BD@orsmsx102.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>
-Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: ACPI sleep, proc error checking, and proc info patches
-Date: Tue, 25 Sep 2001 14:24:34 -0700
+	id <S274185AbRIYV04>; Tue, 25 Sep 2001 17:26:56 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1029 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274590AbRIYV0j> convert rfc822-to-8bit; Tue, 25 Sep 2001 17:26:39 -0400
+Date: Tue, 25 Sep 2001 17:03:35 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Juan <piernas@ditec.um.es>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bad, bad, bad VM behaviour in 2.4.10
+In-Reply-To: <3BB0F483.69929A79@ditec.um.es>
+Message-ID: <Pine.LNX.4.21.0109251702240.2193-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
 
-I like the proc info and the error-checking patches. (although I think you
-meant to check against proc, not proc_entry, in a few places).
+Juan, 
 
-I don't like the sleep problem workaround. One, because it uses DMI
-information. The ACPI tables contain machine name and table version, and we
-want to use that, instead of DMI information that will not necessarily be
-updated when the BIOS is fixed. Two, I am extremely loathe to take
-workarounds for broken BIOSes. I know we don't have a blacklist at this
-point but I think having one would be cleaner - if *anything* is wrong, we
-shouldn't enable ACPI.
+It is a known problem which we are looking into.
 
-I admit, we *do* have one workaround in the code, for the PIIX4 C3 issue.
-That was a chipset problem, not an ACPI BIOS problem, and affected a huge
-number of machines.
+I need some information which may help confirm a guess of mine:
 
-ACPI BIOS problems usually are obviously wrong code, and I have had some
-success in getting vendors to fix them. If we do workarounds, vendors will
-never fix it. If we politely but insistently contact them and ask nicely,
-maybe they will, and if they don't, we can blacklist that table version for
-that machine.
+Do you have swap available ?
 
-So if you implement an ACPI bios blacklist I'd probably take that.
+If so, there was available anonymous memory to be swapped out ?
 
-Regards -- Andy
-	
+On Tue, 25 Sep 2001, Juan wrote:
+
+> Hi!
+> 
+> My test is very simple. I have started X-Window and XMMS in order to
+> listen to some songs. Then, I have executed
+> 
+> 	dd if=/dev/hdc1 of=/dev/null
+> 
+> as root within a terminal, and I have got the following a few seconds
+> later:
+> 
+> Sep 25 22:05:55 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:00 localhost last message repeated 2 times
+> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0xf0/0) from c012ff60
+> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:00 localhost last message repeated 2 times
+> Sep 25 22:06:00 localhost kernel: VM: killing process xmms
+> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:04 localhost last message repeated 11 times
+> Sep 25 22:06:04 localhost kernel: VM: killing process xmms
+> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:04 localhost kernel: VM: killing process kmix
+> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:04 localhost last message repeated 2 times
+> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0xf0/0) from c012ff60
+> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:04 localhost last message repeated 3 times
+> Sep 25 22:06:04 localhost kernel: VM: killing process gpm
+> Sep 25 22:06:05 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:06 localhost last message repeated 6 times
+> sep 25 22:06:06 localhost su(pam_unix)[2548]: session closed for user
+> root
+> Sep 25 22:06:06 localhost kernel: VM: killing process sendmail
+> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:07 localhost kernel: VM: killing process konsole
+> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:07 localhost kernel: VM: killing process named
+> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:07 localhost kernel: VM: killing process xmms
+> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:07 localhost last message repeated 3 times
+> Sep 25 22:06:07 localhost kernel: VM: killing process ksmserver
+> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:07 localhost kernel: VM: killing process kdeinit
+> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:08 localhost kernel: VM: killing process X
+> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0xf0/0) from c012ff60
+> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> f60
+> Sep 25 22:06:08 localhost last message repeated 2 times
+> Sep 25 22:06:08 localhost kernel: VM: killing process kdeinit
+> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:08 localhost kernel: VM: killing process startkde
+> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> Sep 25 22:06:09 localhost kernel: VM: killing process named
+> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+> failed (gfp=0x1d2/0) from c012ff60
+> 
+> The /dev/hdc1 partition capacity is 6 GB. My root partition is on
+> /dev/hda5. My computer is a Pentium III with 384 MB of RAM.
+> 
+> BTW, the same test in 2.4.6 works fine without any problem.
+> 
+> Regards.
+> 
+> 
+> -- 
+> D. Juan Piernas Cánovas
+> Departamento de Ingeniería y Tecnología de Computadores
+> Facultad de Informática. Universidad de Murcia
+> Campus de Espinardo - 30080 Murcia (SPAIN)
+> Tel.: +34968367657    Fax: +34968364151
+> email: piernas@ditec.um.es
+> PGP public key:
+> http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290075AbSBOQaL>; Fri, 15 Feb 2002 11:30:11 -0500
+	id <S290070AbSBOQ3V>; Fri, 15 Feb 2002 11:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290059AbSBOQaC>; Fri, 15 Feb 2002 11:30:02 -0500
-Received: from relay1.pair.com ([209.68.1.20]:13835 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S290012AbSBOQ3u>;
-	Fri, 15 Feb 2002 11:29:50 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C6D393A.92BBD4CF@kegel.com>
-Date: Fri, 15 Feb 2002 08:37:14 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S290012AbSBOQ3E>; Fri, 15 Feb 2002 11:29:04 -0500
+Received: from 216-42-72-167.ppp.netsville.net ([216.42.72.167]:40879 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S290056AbSBOQ26>; Fri, 15 Feb 2002 11:28:58 -0500
+Date: Fri, 15 Feb 2002 11:28:35 -0500
+From: Chris Mason <mason@suse.com>
+To: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] queue barrier support 
+Message-ID: <3998280000.1013790514@tiny>
+In-Reply-To: <200202151515.g1FFFw801733@localhost.localdomain>
+In-Reply-To: <200202151515.g1FFFw801733@localhost.localdomain>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Ken Brownfield <brownfld@irridia.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: tux officially in kernel?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Brownfield wrote:
-> The problem with X15 is that it's unavailable.  I've tried for months
-> and months to get someone at that company to respond or get a copy to
-> try.  Also, is it GPL?  Free?
 
-I have a copy -- they sent one to me readily back when it was new --
-but it's not open source, so I can't share it.
-It's not a huge program; the whole thing is 5000 lines of C.
-It uses the rtsignal method of readiness notification.
+On Friday, February 15, 2002 10:15:58 AM -0500 James Bottomley <James.Bottomley@steeleye.com> wrote:
 
-IMHO anyone writing a similar user-space server these days should start 
-with a clean encapsulation of the readiness notification code, e.g. http://www.kegel.com/dkftpbench/doc/Poller.html .
-The performance would be similar, the code would be
-a lot cleaner, and it'd be a heck of a lot more portable.
+> mason@suse.com said:
+>> I was wondering about this, we would need to change the error handler
+>> to  fail all the requests after the barrier.  I was hoping the driver
+>> did this for us ;-) 
+> 
+> Unfortunately, this is going to involve deep hackery inside the error handler. 
+>  The current initial premise is that it can simply retry the failing command 
+> by issuing an ABORT to the tag and resending it (which can cause a tag to move 
+> past your barrier).  In an error situation, it really wouldn't be wise to try 
+> to abort lots of potentially running tags to preserve the barrier ordering 
+> (because of the overload placed on a known failing component), so I think the 
+> error handler has to abandon the concept of aborting commands and move 
+> straight to device reset.  We then carefully resend the commands in FIFO order.
+> 
 
-> As for TUX, I would certainly prefer user-space if it was indeed as fast
-> in all cases.  But I don't think X15 is really a factor in TUX's
-> inclusion.  I'd say replacing khttpd with TUX2 is a no-brainer unless
-> X15's performance has been proven and it's GPL.  And while khttpd is an
-> interesting example, it really rocks at small image serving.  I've had
-> it in production since 2.4.0-test1.
+Ok, I'll try to narrow the barrier usage a bit, I'm waiting on the
+barrier write once it is sent, so I'm not worried about anything done
+after the ordered tag.
 
-Point taken.  One of my friends uses khttpd in production, too.
+write X log blocks   (simple tag)
+write 1 commit block (ordered tag)
+wait on all of them.
 
-Somebody needs to come up with a nice GPL'd userspace replacement
-for khttpd.  (Or does one already exist?  I haven't been following things
-too closely...)
+All I care about is knowing that all of the log blocks hit the disk
+before the commit.  So, if one of the log blocks aborts, I want it
+to abort the commit too.  Is this a little easier to implement?
 
-- Dan
+> Additionally, you must handle the case that a device is reset by something 
+> else (in error handler terms, the cc_ua [check condition/unit attention]).  
+> Here also, the tags would have to be sent back down in FIFO order as soon as 
+> the condition is detected.
+> 
+> mason@suse.com said:
+>> Yes, this could get sticky.  Does anyone know if other OSes have
+>> already done this? 
+> 
+> Other OSs (well the ones I've heard about: Solaris and HP-UX) try to avoid 
+> ordered tags, mainly because of the performance impact they have---the drive 
+> tag service algorithms become inefficient in the presence of ordered tags 
+> since they're usually optimised for all simple tags.
+
+I do see that on my drives ;-)  The main reason I think its worth trying
+is because the commit block is directly adjacent to the last log block,
+so I'm hoping the drive can optimize the commit (even though it is ordered)
+better when the OS sends it directly after the last log block.
+
+While I've got linux-scsi cc'd, I'll reask a question from yesterday.
+Do the targets with write back caches usually ignore the order tag, 
+doing the write in the most efficient way possible instead?
+
+-chris
+
+
+

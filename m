@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUBQVr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266651AbUBQVpF
+	id S266677AbUBQVsA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266664AbUBQVpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:45:05 -0500
-Received: from mho.net ([64.58.22.195]:59359 "EHLO sm1420")
-	by vger.kernel.org with ESMTP id S266664AbUBQVn0 (ORCPT
+	Tue, 17 Feb 2004 16:45:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12767 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266652AbUBQVme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:43:26 -0500
-Date: Tue, 17 Feb 2004 14:42:11 -0700 (MST)
-From: Alex Belits <abelits@belits.com>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: John Bradford <john@grabjohn.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       Jamie Lokier <jamie@shareable.org>, Marc <pcg@goof.com>,
-       Marc Lehmann <pcg@schmorp.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
- JFS default behavior)
-In-Reply-To: <Pine.LNX.4.58.0402171251130.2154@home.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402171407461.23115@sm1420.belits.com>
-References: <Pine.LNX.4.58.0402161040310.30742@home.osdl.org>
- <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
- <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
- <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
- <20040217163613.GA23499@mail.shareable.org> <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
- <20040217192917.GA24311@mail.shareable.org> <20040217195348.GQ8858@parcelfarce.linux.theplanet.co.uk>
- <200402172035.i1HKZM4j000154@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.58.0402171251130.2154@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 16:42:34 -0500
+Date: Tue, 17 Feb 2004 13:43:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Florian Schanda <ma1flfs@bath.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 99% System load
+Message-Id: <20040217134350.0da17784.akpm@osdl.org>
+In-Reply-To: <200402172116.18254.ma1flfs@bath.ac.uk>
+References: <200402111423.02217.ma1flfs@bath.ac.uk>
+	<20040211234413.3d90df5d.akpm@osdl.org>
+	<200402172116.18254.ma1flfs@bath.ac.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, Linus Torvalds wrote:
+Florian Schanda <ma1flfs@bath.ac.uk> wrote:
+>
+> Finally it happened again. I attached the output of that dmesg.
+> 
+> > It would help if you could make a note of the PIDs of the hung processes,
+> > so they can be correlated with the sysrq output.
+> 
+> The PIDs hanging are 3303, 3305, 3306, 3307.
 
-> In short: even if you hate Unicode with a passion, and refuse to touch it
-> and think standards are worthless, you should still use the same
-> transformation that UTF-8 does to your idiotic character set of the day.
-> Because the _transform_ makes sense regardless of character set encoding.
+It _looks_ like all four CPUs are madly taking timer interrupts.  Which
+tends to point at some APIC problem, failing to clear the interrupt source.
+But if that happened one wouldn't expect userspace to remain in a runnable
+state, and you say that you can still run commands.
 
-  Pretty much every charset other than Unicode does not NEED encoding
-because it was already designed to work with existing system. The decision
-to make the basic representation of charset full of zero bytes was the
-reason that created the need for UTF-8. People who use other charsets may
-not have planned for multilingual environments like they should've done,
-but they aren't stupid enough to require someone to "bless" them with a
-variable-length encoding.
+> An advance warning: I had the nvidia driver (yes, I know, closed source makes 
+> debugging impossible) loaded, and before the trace begins, there are some 
+> messages of that module:
 
--- 
-Alex
+It is probably unrelated, but I'd suggest that you not use the nvidia
+driver for a while, verify that the lockup happens without it loaded.
+

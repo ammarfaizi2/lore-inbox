@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267394AbTASGpP>; Sun, 19 Jan 2003 01:45:15 -0500
+	id <S267350AbTASGmN>; Sun, 19 Jan 2003 01:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267399AbTASGon>; Sun, 19 Jan 2003 01:44:43 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:60546 "EHLO
+	id <S267386AbTASGkr>; Sun, 19 Jan 2003 01:40:47 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:57474 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267394AbTASGnw>; Sun, 19 Jan 2003 01:43:52 -0500
-Date: Sun, 19 Jan 2003 15:52:44 +0900
+	id <S267276AbTASGkX>; Sun, 19 Jan 2003 01:40:23 -0500
+Date: Sun, 19 Jan 2003 15:49:14 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 sub-arch (19/29) ac-update
-Message-ID: <20030119065244.GR2965@yuzuki.cinet.co.jp>
+Subject: [PATCHSET] PC-9800 sub-arch (15/29) ac-update
+Message-ID: <20030119064914.GN2965@yuzuki.cinet.co.jp>
 References: <20030119051043.GA2662@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,131 +22,90 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.59 (19/29).
+against 2.5.59 (15/29).
 
-Updates files under arch/i386/mach-pc9800 in 2.5.50-ac1.
+Updates input driver for PC98 in 2.5.50-ac1.
 
-diff -Nru linux-2.5.50-ac1/arch/i386/mach-pc9800/Makefile linux98-2.5.52/arch/i386/mach-pc9800/Makefile
---- linux-2.5.50-ac1/arch/i386/mach-pc9800/Makefile	2002-12-17 09:07:10.000000000 +0900
-+++ linux98-2.5.52/arch/i386/mach-pc9800/Makefile	2002-12-16 11:07:52.000000000 +0900
-@@ -1,15 +1,7 @@
- #
- # Makefile for the linux kernel.
- #
--# Note! Dependencies are done automagically by 'make dep', which also
--# removes any old dependencies. DON'T put your own dependencies here
--# unless it's something special (ie not a .c file).
--#
--# Note 2! The CFLAGS definitions are now in the main makefile...
+diff -Nru linux-2.5.50-ac1/drivers/input/keyboard/Kconfig linux98-2.5.54/drivers/input/keyboard/Kconfig
+--- linux-2.5.50-ac1/drivers/input/keyboard/Kconfig	2003-01-04 10:47:57.000000000 +0900
++++ linux98-2.5.54/drivers/input/keyboard/Kconfig	2003-01-04 15:28:14.000000000 +0900
+@@ -92,7 +92,7 @@
  
- EXTRA_CFLAGS	+= -I../kernel
--export-objs     := 
+ config KEYBOARD_98KBD
+ 	tristate "NEC PC-9800 Keyboard support"
+-	depends on PC9800 && INPUT && INPUT_KEYBOARD && SERIO
++	depends on X86_PC9800 && INPUT && INPUT_KEYBOARD && SERIO
+ 	help
+ 	  Say Y here if you want to use the NEC PC-9801/PC-9821 keyboard (or
+ 	  compatible) on your system. 
+diff -Nru linux-2.5.50-ac1/drivers/input/mouse/98busmouse.c linux98-2.5.52/drivers/input/mouse/98busmouse.c
+--- linux-2.5.50-ac1/drivers/input/mouse/98busmouse.c	2002-12-17 09:07:10.000000000 +0900
++++ linux98-2.5.52/drivers/input/mouse/98busmouse.c	2002-12-17 13:58:53.000000000 +0900
+@@ -31,15 +31,16 @@
+  * 
+  */
+ 
+-#include <asm/io.h>
+-#include <asm/irq.h>
 -
--obj-y				:= setup.o
- 
--include $(TOPDIR)/Rules.make
-+obj-y				:= setup.o topology.o
-diff -Nru linux-2.5.50-ac1/arch/i386/mach-pc9800/setup.c linux98-2.5.52/arch/i386/mach-pc9800/setup.c
---- linux-2.5.50-ac1/arch/i386/mach-pc9800/setup.c	2002-12-11 13:09:57.000000000 +0900
-+++ linux98-2.5.52/arch/i386/mach-pc9800/setup.c	2002-12-20 15:08:00.000000000 +0900
-@@ -8,6 +8,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
  #include <linux/init.h>
- #include <linux/irq.h>
- #include <linux/interrupt.h>
-+#include <linux/apm_bios.h>
- #include <asm/setup.h>
- #include <asm/arch_hooks.h>
+ #include <linux/input.h>
++#include <linux/interrupt.h>
++
++#include <asm/io.h>
++#include <asm/irq.h>
  
-@@ -16,9 +17,6 @@
- 	unsigned char table[0];
- };
+ MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
+ MODULE_DESCRIPTION("PC-9801 busmouse driver");
+diff -Nru linux-2.5.50-ac1/drivers/input/mouse/Kconfig linux98-2.5.54/drivers/input/mouse/Kconfig
+--- linux-2.5.50-ac1/drivers/input/mouse/Kconfig	2003-01-04 10:47:57.000000000 +0900
++++ linux98-2.5.54/drivers/input/mouse/Kconfig	2003-01-04 15:31:55.000000000 +0900
+@@ -123,7 +123,7 @@
  
--/* Indicates PC-9800 architecture  No:0 Yes:1 */
--extern int pc98;
+ config MOUSE_PC9800
+ 	tristate "NEC PC-9800 busmouse"
+-	depends on PC9800 && INPUT && INPUT_MOUSE && ISA
++	depends on X86_PC9800 && INPUT && INPUT_MOUSE && ISA
+ 	help
+ 	  Say Y here if you have NEC PC-9801/PC-9821 computer and want its
+ 	  native mouse supported.
+diff -Nru linux-2.5.50-ac1/drivers/input/serio/98kbd-io.c linux98-2.5.52/drivers/input/serio/98kbd-io.c
+--- linux-2.5.50-ac1/drivers/input/serio/98kbd-io.c	2002-12-17 09:07:10.000000000 +0900
++++ linux98-2.5.52/drivers/input/serio/98kbd-io.c	2002-12-17 14:01:05.000000000 +0900
+@@ -11,16 +11,17 @@
+  * the Free Software Foundation.
+  */
+ 
+-#include <asm/io.h>
 -
- /**
-  * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
-  *
-@@ -68,7 +66,9 @@
- {
- 	SYS_DESC_TABLE.length = 0;
- 	MCA_bus = 0;
--	pc98 = 1;
-+	/* In PC-9800, APM BIOS version is written in BCD...?? */
-+	APM_BIOS_INFO.version = (APM_BIOS_INFO.version & 0xff00)
-+				| ((APM_BIOS_INFO.version & 0x00f0) >> 4);
- }
++#include <linux/config.h>
+ #include <linux/delay.h>
+ #include <linux/module.h>
++#include <linux/interrupt.h>
+ #include <linux/ioport.h>
+-#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/serio.h>
+ #include <linux/sched.h>
  
- /**
-diff -Nru linux-2.5.52/arch/i386/mach-pc9800/topology.c linux98-2.5.52/arch/i386/mach-pc9800/topology.c
---- linux-2.5.52/arch/i386/mach-pc9800/topology.c	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.52/arch/i386/mach-pc9800/topology.c	2002-12-16 11:08:16.000000000 +0900
-@@ -0,0 +1,68 @@
-+/*
-+ * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
-+ *
-+ * Written by: Matthew Dobson, IBM Corporation
-+ * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <colpatch@us.ibm.com>
-+ */
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <asm/cpu.h>
++#include <asm/io.h>
 +
-+struct i386_cpu cpu_devices[NR_CPUS];
-+
-+#ifdef CONFIG_NUMA
-+#include <linux/mmzone.h>
-+#include <asm/node.h>
-+#include <asm/memblk.h>
-+
-+struct i386_node node_devices[MAX_NUMNODES];
-+struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
-+
-+static int __init topology_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < num_online_nodes(); i++)
-+		arch_register_node(i);
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_possible(i)) arch_register_cpu(i);
-+	for (i = 0; i < num_online_memblks(); i++)
-+		arch_register_memblk(i);
-+	return 0;
-+}
-+
-+#else /* !CONFIG_NUMA */
-+
-+static int __init topology_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_possible(i)) arch_register_cpu(i);
-+	return 0;
-+}
-+
-+#endif /* CONFIG_NUMA */
-+
-+subsys_initcall(topology_init);
+ MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
+ MODULE_DESCRIPTION("NEC PC-9801 keyboard controller driver");
+ MODULE_LICENSE("GPL");
+diff -Nru linux-2.5.50-ac1/drivers/input/serio/Kconfig linux98-2.5.57/drivers/input/serio/Kconfig
+--- linux-2.5.50-ac1/drivers/input/serio/Kconfig	2003-01-14 09:33:34.000000000 +0900
++++ linux98-2.5.57/drivers/input/serio/Kconfig	2003-01-14 10:19:27.000000000 +0900
+@@ -109,7 +109,7 @@
+ 
+ config SERIO_98KBD
+ 	tristate "NEC PC-9800 keyboard controller"
+-	depends on PC9800 && SERIO
++	depends on X86_PC9800 && SERIO
+ 	help
+ 	  Say Y here if you have the NEC PC-9801/PC-9821 and want to use its
+ 	  standard keyboard connected to its keyboard controller.

@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S288490AbVBEFgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S290389AbVBEFqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S288490AbVBEFgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 00:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S288494AbVBEFgr
+	id S290389AbVBEFqF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 00:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S290387AbVBEFqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 00:36:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35994 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S288476AbVBEFgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 00:36:44 -0500
-Date: Sat, 5 Feb 2005 05:36:40 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Michael Frank at BerliOS <mhf@hornet.berlios.de>
-Cc: linux-kernel@vger.kernel.org, "Kernel Mailing List"@hornet.berlios.de
-Subject: Re: [PATCH] 2.6.11-rc3 fix compile failure in arch/i386/kernel/i387.c
-Message-ID: <20050205053640.GM8859@parcelfarce.linux.theplanet.co.uk>
-References: <420459A2.nailH9511F7VV@hornet.berlios.de>
+	Sat, 5 Feb 2005 00:46:05 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:21674
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S290364AbVBEFp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 00:45:57 -0500
+Date: Fri, 4 Feb 2005 21:38:13 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: mirko.parthey@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org, shemminger@osdl.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+Message-Id: <20050204213813.4bd642ad.davem@davemloft.net>
+In-Reply-To: <20050205052407.GA17266@gondor.apana.org.au>
+References: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de>
+	<20050205052407.GA17266@gondor.apana.org.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420459A2.nailH9511F7VV@hornet.berlios.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 06:29:06AM +0100, Michael Frank at BerliOS wrote:
-> Using patch-2.6.11-rc3.bz2 from kernel.org on top of 2.6.10, 
-> a compile failure in /arch/i386/kernel/i387.c due to tsk->used_math undef.
-> 
-> The patch log shows offsets but no rejects
-> 
-> patching file arch/i386/kernel/i387.c
-> Hunk #6 succeeded at 538 (offset 15 lines).
-> Hunk #7 succeeded at 553 (offset 15 lines).
+On Sat, 5 Feb 2005 16:24:07 +1100
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-No offsets (or compile problems) here.  Have you verified that your 2.6.10
-had no local changes?
+> This is the key to the problem.
+ ...
+> All of these bugs stem from the idev reference held in rtable/rt6_info.
+ ...
+> Anyway, this particular problem is due to IPv6 adding local addresses
+> with split devices.  That is, routes to local addresses are added with
+> rt6i_dev set to &loopback_dev and rt6i_idev set to the idev of the
+> device where the address is added.
+ ...
+> It also goes against the Linux philosophy where the addresses are owned
+> by the host, not the interface.
+> 
+> Therefore I propose the simple solution of not doing the split device
+> accounting in rt6_info.
+
+I agree with your analysis, however... this change is not sufficient.
+You have to then walk over all the uses of rt6i_dev and sanitize the
+cases that still expect the split semantics.  For example, things like
+this piece of coe in rt6_device_match():
+
+			if (dev->flags & IFF_LOOPBACK) {
+				if (sprt->rt6i_idev == NULL ||
+				    sprt->rt6i_idev->dev->ifindex != oif) {
+					if (strict && oif)
+						continue;
+					if (local && (!oif || 
+						      local->rt6i_idev->dev->ifindex == oif))
+						continue;
+				}
+				local = sprt;
+			}
+
+It is just the first such thing I found, scanning rt6i_idev uses
+will easily find several others.

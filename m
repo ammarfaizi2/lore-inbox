@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269452AbUINP72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269438AbUINP73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269452AbUINP72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269438AbUINPxk
+	id S269438AbUINP73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269447AbUINPxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:53:40 -0400
-Received: from colin2.muc.de ([193.149.48.15]:39952 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269452AbUINPuA (ORCPT
+	Tue, 14 Sep 2004 11:53:23 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:33182 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269438AbUINPso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:50:00 -0400
-Date: 14 Sep 2004 17:49:59 +0200
-Date: Tue, 14 Sep 2004 17:49:59 +0200
-From: Andi Kleen <ak@muc.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move domain setup and add dual core support.
-Message-ID: <20040914154959.GB47507@muc.de>
-References: <m3vfeigs5b.fsf@averell.firstfloor.org> <4146EB80.9090801@yahoo.com.au> <20040914132055.GA79737@muc.de> <4146F46A.6070800@yahoo.com.au>
+	Tue, 14 Sep 2004 11:48:44 -0400
+Date: Tue, 14 Sep 2004 17:47:50 +0200
+From: Roger Leuthi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sf.net>
+Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
+Message-ID: <20040914154750.GA13978@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sf.net>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch> <20040914154144.GQ9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4146F46A.6070800@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040914154144.GQ9106@holomorphy.com>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> include/linux/sched.h
+On Tue, 14 Sep 2004 08:41:44 -0700, William Lee Irwin III wrote:
+> On Mon, 13 Sep 2004 19:31:14 -0700, William Lee Irwin III wrote:
+> >> -#define PID_MAX_LIMIT (4*1024*1024)
+> >> +#define PID_MAX_LIMIT (sizeof(long) > 32 ? 4*1024*1024 : PID_MAX_DEFAULT)
 > 
-> I know we've been trying to move stuff *out* of there, but this is
-> something that actually fits. On the other hand, it is not really
-> going to be used by more than a few files outside sched.c, so maybe
-> it could go to its own file if anyone felt strongly about it.
+> On Tue, Sep 14, 2004 at 12:55:27PM +0200, Roger Luethi wrote:
+> > An architecture with sizeof(long) > 32? -- Most impressive.
+> 
+> Did the correction not arrive?
 
-I don't feel strongly about it. My main requirement is to just turn
-off the SD_SHAREPOWER for dual core. I would like to do that
-for 2.6.9. The more explicit tuning for dual core is not that urgent and 
-work in progress.
+Must have missed it.
 
--Andi
-
+Roger

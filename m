@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280709AbRKGAlQ>; Tue, 6 Nov 2001 19:41:16 -0500
+	id <S280723AbRKGAoq>; Tue, 6 Nov 2001 19:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280725AbRKGAlG>; Tue, 6 Nov 2001 19:41:06 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:5291 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280709AbRKGAk4>;
-	Tue, 6 Nov 2001 19:40:56 -0500
-Date: Wed, 07 Nov 2001 00:40:52 -0000
+	id <S280721AbRKGAog>; Tue, 6 Nov 2001 19:44:36 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:6059 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280723AbRKGAoY>;
+	Tue, 6 Nov 2001 19:44:24 -0500
+Date: Wed, 07 Nov 2001 00:44:21 -0000
 From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: dalecki@evision.ag, Ricky Beam <jfbeam@bluetopia.net>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+To: Riley Williams <rhw@MemAlpha.cx>, Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
         Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <812463125.1005093652@[195.224.237.69]>
-In-Reply-To: <3BE87CB9.43427FCF@evision-ventures.com>
-In-Reply-To: <3BE87CB9.43427FCF@evision-ventures.com>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+Message-ID: <812671195.1005093860@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.4.21.0111062347080.16087-100000@Consulate.UFP.CX>
+In-Reply-To: <Pine.LNX.4.21.0111062347080.16087-100000@Consulate.UFP.CX>
 X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -27,15 +26,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---On Wednesday, 07 November, 2001 1:13 AM +0100 Martin Dalecki 
-<dalecki@evision-ventures.com> wrote:
+--On Wednesday, 07 November, 2001 12:00 AM +0000 Riley Williams 
+<rhw@MemAlpha.cx> wrote:
 
-> around 6 years
-> ago people did just give up on adapting the parsers to the ever chaning
-> "wonderfull" ascii interfaces those times.
+>  2. The kernel makes no internal reference to the /dev/rtc driver,
+>     and it is left to userland tools to sync to the RTC on boot,
+>     and at other times as required.
 
-Must have passed me by - probably too busy with regedt32 and other
-such great /proc substitutes - cough...
+I think the kernel should set the machine time to the RTC time
+as an initializer on boot. Other than that, I agree.
 
 --
 Alex Bligh

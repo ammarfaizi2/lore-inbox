@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUHENQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267673AbUHENRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267294AbUHENQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENQI
+	id S267673AbUHENRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:16:08 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:63379 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S267294AbUHENNo
+	Thu, 5 Aug 2004 09:17:08 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:11156 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S267673AbUHENN7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:13:44 -0400
-Date: Thu, 5 Aug 2004 15:13:59 +0200
+	Thu, 5 Aug 2004 09:13:59 -0400
+Date: Thu, 5 Aug 2004 15:14:16 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: ctc driver changes.
-Message-ID: <20040805131359.GD8251@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390: zfcp host adapater.
+Message-ID: <20040805131416.GE8251@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,243 +21,248 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: ctc driver changes.
+[PATCH] s390: zfcp host adapater.
 
-From: Peter Tiedemann <ptiedem@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Andreas Herrmann <aherrman@de.ibm.com>
 
-Prefix debug feature variables with ctc to avoid name space problems.
+zfcp host adapater change:
+ - Fix call to close_physical_port to prevent devices going offline
+   after error recovery.
+ - Fix return value of sysfs port_remove attribute store function.
+ - Replace reboot notifier with device driver shutdown function.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/net/ctcdbug.c |   52 ++++++++++++++++++++++-----------------------
- drivers/s390/net/ctcdbug.h |   32 +++++++++++++--------------
- drivers/s390/net/ctcmain.c |   14 ++++++------
- 3 files changed, 49 insertions(+), 49 deletions(-)
+ drivers/s390/scsi/zfcp_aux.c        |   25 +------------------------
+ drivers/s390/scsi/zfcp_ccw.c        |   21 ++++++++++++++++++++-
+ drivers/s390/scsi/zfcp_def.h        |    8 +++-----
+ drivers/s390/scsi/zfcp_fsf.c        |    8 +++++++-
+ drivers/s390/scsi/zfcp_sysfs_port.c |    8 +++++---
+ 5 files changed, 36 insertions(+), 34 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/net/ctcdbug.c linux-2.6-s390/drivers/s390/net/ctcdbug.c
---- linux-2.6/drivers/s390/net/ctcdbug.c	Thu Aug  5 14:20:39 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcdbug.c	Thu Aug  5 14:21:00 2004
-@@ -1,6 +1,6 @@
- /*
-  *
-- * linux/drivers/s390/net/ctcdbug.c ($Revision: 1.2 $)
-+ * linux/drivers/s390/net/ctcdbug.c ($Revision: 1.4 $)
-  *
-  * CTC / ESCON network driver - s390 dbf exploit.
-  *
-@@ -9,7 +9,7 @@
-  *    Author(s): Original Code written by
-  *			  Peter Tiedemann (ptiedem@de.ibm.com)
-  *
-- *    $Revision: 1.2 $	 $Date: 2004/07/15 16:03:08 $
-+ *    $Revision: 1.4 $	 $Date: 2004/08/04 10:11:59 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -31,51 +31,51 @@
- /**
-  * Debug Facility Stuff
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c
+--- linux-2.6/drivers/s390/scsi/zfcp_aux.c	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c	Thu Aug  5 14:21:01 2004
+@@ -29,7 +29,7 @@
   */
--debug_info_t *dbf_setup = NULL;
--debug_info_t *dbf_data = NULL;
--debug_info_t *dbf_trace = NULL;
-+debug_info_t *ctc_dbf_setup = NULL;
-+debug_info_t *ctc_dbf_data = NULL;
-+debug_info_t *ctc_dbf_trace = NULL;
  
--DEFINE_PER_CPU(char[256], dbf_txt_buf);
-+DEFINE_PER_CPU(char[256], ctc_dbf_txt_buf);
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_AUX_REVISION "$Revision: 1.114 $"
++#define ZFCP_AUX_REVISION "$Revision: 1.115 $"
  
- void
--unregister_dbf_views(void)
-+ctc_unregister_dbf_views(void)
- {
--	if (dbf_setup)
--		debug_unregister(dbf_setup);
--	if (dbf_data)
--		debug_unregister(dbf_data);
--	if (dbf_trace)
--		debug_unregister(dbf_trace);
-+	if (ctc_dbf_setup)
-+		debug_unregister(ctc_dbf_setup);
-+	if (ctc_dbf_data)
-+		debug_unregister(ctc_dbf_data);
-+	if (ctc_dbf_trace)
-+		debug_unregister(ctc_dbf_trace);
+ #include "zfcp_ext.h"
+ 
+@@ -41,8 +41,6 @@
+ /* written against the module interface */
+ static int __init  zfcp_module_init(void);
+ 
+-int zfcp_reboot_handler(struct notifier_block *, unsigned long, void *);
+-
+ /* FCP related */
+ static void zfcp_ns_gid_pn_handler(unsigned long);
+ 
+@@ -338,9 +336,6 @@
+ 	/* initialise configuration rw lock */
+ 	rwlock_init(&zfcp_data.config_lock);
+ 
+-	zfcp_data.reboot_notifier.notifier_call = zfcp_reboot_handler;
+-	register_reboot_notifier(&zfcp_data.reboot_notifier);
+-
+ 	/* save address of data structure managing the driver module */
+ 	zfcp_data.scsi_host_template.module = THIS_MODULE;
+ 
+@@ -357,7 +352,6 @@
+ 	goto out;
+ 
+  out_ccw_register:
+-	unregister_reboot_notifier(&zfcp_data.reboot_notifier);
+ 	misc_deregister(&zfcp_cfdc_misc);
+  out_misc_register:
+ #ifdef CONFIG_S390_SUPPORT
+@@ -370,23 +364,6 @@
  }
- int
--register_dbf_views(void)
-+ctc_register_dbf_views(void)
- {
--	dbf_setup = debug_register(CTC_DBF_SETUP_NAME,
-+	ctc_dbf_setup = debug_register(CTC_DBF_SETUP_NAME,
- 					CTC_DBF_SETUP_INDEX,
- 					CTC_DBF_SETUP_NR_AREAS,
- 					CTC_DBF_SETUP_LEN);
--	dbf_data = debug_register(CTC_DBF_DATA_NAME,
-+	ctc_dbf_data = debug_register(CTC_DBF_DATA_NAME,
- 				       CTC_DBF_DATA_INDEX,
- 				       CTC_DBF_DATA_NR_AREAS,
- 				       CTC_DBF_DATA_LEN);
--	dbf_trace = debug_register(CTC_DBF_TRACE_NAME,
-+	ctc_dbf_trace = debug_register(CTC_DBF_TRACE_NAME,
- 					CTC_DBF_TRACE_INDEX,
- 					CTC_DBF_TRACE_NR_AREAS,
- 					CTC_DBF_TRACE_LEN);
  
--	if ((dbf_setup == NULL) || (dbf_data == NULL) ||
--	    (dbf_trace == NULL)) {
--		unregister_dbf_views();
-+	if ((ctc_dbf_setup == NULL) || (ctc_dbf_data == NULL) ||
-+	    (ctc_dbf_trace == NULL)) {
-+		ctc_unregister_dbf_views();
- 		return -ENOMEM;
- 	}
--	debug_register_view(dbf_setup, &debug_hex_ascii_view);
--	debug_set_level(dbf_setup, CTC_DBF_SETUP_LEVEL);
-+	debug_register_view(ctc_dbf_setup, &debug_hex_ascii_view);
-+	debug_set_level(ctc_dbf_setup, CTC_DBF_SETUP_LEVEL);
- 
--	debug_register_view(dbf_data, &debug_hex_ascii_view);
--	debug_set_level(dbf_data, CTC_DBF_DATA_LEVEL);
-+	debug_register_view(ctc_dbf_data, &debug_hex_ascii_view);
-+	debug_set_level(ctc_dbf_data, CTC_DBF_DATA_LEVEL);
- 
--	debug_register_view(dbf_trace, &debug_hex_ascii_view);
--	debug_set_level(dbf_trace, CTC_DBF_TRACE_LEVEL);
-+	debug_register_view(ctc_dbf_trace, &debug_hex_ascii_view);
-+	debug_set_level(ctc_dbf_trace, CTC_DBF_TRACE_LEVEL);
- 
- 	return 0;
- }
-diff -urN linux-2.6/drivers/s390/net/ctcdbug.h linux-2.6-s390/drivers/s390/net/ctcdbug.h
---- linux-2.6/drivers/s390/net/ctcdbug.h	Thu Aug  5 14:20:39 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcdbug.h	Thu Aug  5 14:21:00 2004
-@@ -1,6 +1,6 @@
  /*
+- * This function is called automatically by the kernel whenever a reboot or a 
+- * shut-down is initiated and zfcp is still loaded
+- *
+- * locks:       zfcp_data.config_sema is taken prior to shutting down the module
+- *              and removing all structures
+- * returns:     NOTIFY_DONE in all cases
+- */
+-int
+-zfcp_reboot_handler(struct notifier_block *notifier, unsigned long code,
+-		    void *ptr)
+-{
+-	zfcp_ccw_unregister();
+-	return NOTIFY_DONE;
+-}
+-
+-
+-/*
+  * function:    zfcp_cfdc_dev_ioctl
   *
-- * linux/drivers/s390/net/ctcdbug.h ($Revision: 1.2 $)
-+ * linux/drivers/s390/net/ctcdbug.h ($Revision: 1.3 $)
-  *
-  * CTC / ESCON network driver - s390 dbf exploit.
-  *
-@@ -9,7 +9,7 @@
-  *    Author(s): Original Code written by
-  *			  Peter Tiedemann (ptiedem@de.ibm.com)
-  *
-- *    $Revision: 1.2 $	 $Date: 2004/07/15 16:03:08 $
-+ *    $Revision: 1.3 $	 $Date: 2004/07/28 12:27:54 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -51,38 +51,38 @@
- 
- #define DBF_TEXT(name,level,text) \
- 	do { \
--		debug_text_event(dbf_##name,level,text); \
-+		debug_text_event(ctc_dbf_##name,level,text); \
- 	} while (0)
- 
- #define DBF_HEX(name,level,addr,len) \
- 	do { \
--		debug_event(dbf_##name,level,(void*)(addr),len); \
-+		debug_event(ctc_dbf_##name,level,(void*)(addr),len); \
- 	} while (0)
- 
--extern DEFINE_PER_CPU(char[256], dbf_txt_buf);
--extern debug_info_t *dbf_setup;
--extern debug_info_t *dbf_data;
--extern debug_info_t *dbf_trace;
-+extern DEFINE_PER_CPU(char[256], ctc_dbf_txt_buf);
-+extern debug_info_t *ctc_dbf_setup;
-+extern debug_info_t *ctc_dbf_data;
-+extern debug_info_t *ctc_dbf_trace;
- 
- 
- #define DBF_TEXT_(name,level,text...)				\
- 	do {								\
--		char* dbf_txt_buf = get_cpu_var(dbf_txt_buf);	\
--		sprintf(dbf_txt_buf, text);			  	\
--		debug_text_event(dbf_##name,level,dbf_txt_buf);	\
--		put_cpu_var(dbf_txt_buf);				\
-+		char* ctc_dbf_txt_buf = get_cpu_var(ctc_dbf_txt_buf);	\
-+		sprintf(ctc_dbf_txt_buf, text);			  	\
-+		debug_text_event(ctc_dbf_##name,level,ctc_dbf_txt_buf);	\
-+		put_cpu_var(ctc_dbf_txt_buf);				\
- 	} while (0)
- 
- #define DBF_SPRINTF(name,level,text...) \
- 	do { \
--		debug_sprintf_event(dbf_trace, level, ##text ); \
--		debug_sprintf_event(dbf_trace, level, text ); \
-+		debug_sprintf_event(ctc_dbf_trace, level, ##text ); \
-+		debug_sprintf_event(ctc_dbf_trace, level, text ); \
- 	} while (0)
- 
- 
--int register_dbf_views(void);
-+int ctc_register_dbf_views(void);
- 
--void unregister_dbf_views(void);
-+void ctc_unregister_dbf_views(void);
- 
- /**
-  * some more debug stuff
-diff -urN linux-2.6/drivers/s390/net/ctcmain.c linux-2.6-s390/drivers/s390/net/ctcmain.c
---- linux-2.6/drivers/s390/net/ctcmain.c	Thu Aug  5 14:20:39 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcmain.c	Thu Aug  5 14:21:00 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctcmain.c,v 1.62 2004/07/15 16:03:08 ptiedem Exp $
-+ * $Id: ctcmain.c,v 1.63 2004/07/28 12:27:54 ptiedem Exp $
-  *
-  * CTC / ESCON network driver
-  *
-@@ -36,7 +36,7 @@
-  * along with this program; if not, write to the Free Software
+  * purpose:     Handle control file upload/download transaction via IOCTL
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_ccw.c linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c
+--- linux-2.6/drivers/s390/scsi/zfcp_ccw.c	Wed Jun 16 07:19:02 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_ccw.c	Thu Aug  5 14:21:01 2004
+@@ -26,7 +26,7 @@
   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.62 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.63 $
-  *
   */
- 
-@@ -320,7 +320,7 @@
- print_banner(void)
- {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.62 $";
-+	char vbuf[] = "$Revision: 1.63 $";
- 	char *version = vbuf;
  
- 	if (printed)
-@@ -3250,7 +3250,7 @@
- {
- 	unregister_cu3088_discipline(&ctc_group_driver);
- 	ctc_tty_cleanup();
--	unregister_dbf_views();
-+	ctc_unregister_dbf_views();
- 	ctc_pr_info("CTC driver unloaded\n");
+-#define ZFCP_CCW_C_REVISION "$Revision: 1.55 $"
++#define ZFCP_CCW_C_REVISION "$Revision: 1.56 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -37,6 +37,7 @@
+ static int zfcp_ccw_set_online(struct ccw_device *);
+ static int zfcp_ccw_set_offline(struct ccw_device *);
+ static int zfcp_ccw_notify(struct ccw_device *, int);
++static void zfcp_ccw_shutdown(struct device *);
+ 
+ static struct ccw_device_id zfcp_ccw_device_id[] = {
+ 	{CCW_DEVICE_DEVTYPE(ZFCP_CONTROL_UNIT_TYPE,
+@@ -59,6 +60,9 @@
+ 	.set_online  = zfcp_ccw_set_online,
+ 	.set_offline = zfcp_ccw_set_offline,
+ 	.notify      = zfcp_ccw_notify,
++	.driver      = {
++		.shutdown = zfcp_ccw_shutdown,
++	},
+ };
+ 
+ MODULE_DEVICE_TABLE(ccw, zfcp_ccw_device_id);
+@@ -287,4 +291,19 @@
+ 	ccw_driver_unregister(&zfcp_ccw_driver);
  }
  
-@@ -3267,16 +3267,16 @@
++/**
++ * zfcp_ccw_shutdown - gets called on reboot/shutdown
++ *
++ * Makes sure that QDIO queues are down when the system gets stopped.
++ */
++static void
++zfcp_ccw_shutdown(struct device *dev)
++{
++	struct zfcp_adapter *adapter;
++
++	adapter = dev_get_drvdata(dev);
++	zfcp_erp_adapter_shutdown(adapter, 0);
++	zfcp_erp_wait(adapter);
++}
++
+ #undef ZFCP_LOG_AREA
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_def.h linux-2.6-s390/drivers/s390/scsi/zfcp_def.h
+--- linux-2.6/drivers/s390/scsi/zfcp_def.h	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_def.h	Thu Aug  5 14:21:01 2004
+@@ -33,7 +33,7 @@
+ #define ZFCP_DEF_H
  
- 	print_banner();
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_DEF_REVISION "$Revision: 1.78 $"
++#define ZFCP_DEF_REVISION "$Revision: 1.81 $"
  
--	ret = register_dbf_views();
-+	ret = ctc_register_dbf_views();
- 	if (ret){
--		ctc_pr_crit("ctc_init failed with register_dbf_views rc = %d\n", ret);
-+		ctc_pr_crit("ctc_init failed with ctc_register_dbf_views rc = %d\n", ret);
- 		return ret;
+ /*************************** INCLUDES *****************************************/
+ 
+@@ -42,6 +42,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/major.h>
+ #include <linux/blkdev.h>
++#include <linux/delay.h>
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_tcq.h>
+ #include <scsi/scsi_cmnd.h>
+@@ -55,7 +56,6 @@
+ #include <asm/qdio.h>
+ #include <asm/debug.h>
+ #include <asm/ebcdic.h>
+-#include <linux/reboot.h>
+ #include <linux/mempool.h>
+ #include <linux/syscalls.h>
+ #include <linux/ioctl.h>
+@@ -70,7 +70,7 @@
+ /********************* GENERAL DEFINES *********************************/
+ 
+ /* zfcp version number, it consists of major, minor, and patch-level number */
+-#define ZFCP_VERSION		"4.0.0"
++#define ZFCP_VERSION		"4.1.3"
+ 
+ static inline void *
+ zfcp_sg_to_address(struct scatterlist *list)
+@@ -1074,8 +1074,6 @@
+ 						       lists */
+ 	struct semaphore        config_sema;        /* serialises configuration
+ 						       changes */
+-	struct notifier_block	reboot_notifier;     /* used to register cleanup
+-							functions */
+ 	atomic_t		loglevel;            /* current loglevel */
+ 	char                    init_busid[BUS_ID_SIZE];
+ 	wwn_t                   init_wwpn;
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
+--- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Thu Aug  5 14:21:00 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Thu Aug  5 14:21:01 2004
+@@ -29,7 +29,7 @@
+  */
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_FSF_C_REVISION "$Revision: 1.53 $"
++#define ZFCP_FSF_C_REVISION "$Revision: 1.55 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -2619,6 +2619,7 @@
+ {
+ 	int retval = 0;
+ 	unsigned long lock_flags;
++	volatile struct qdio_buffer_element *sbale;
+ 
+ 	/* setup new FSF request */
+ 	retval = zfcp_fsf_req_create(erp_action->adapter,
+@@ -2635,6 +2636,11 @@
+ 		goto out;
  	}
- 	ctc_tty_init();
- 	ret = register_cu3088_discipline(&ctc_group_driver);
- 	if (ret) {
- 		ctc_tty_cleanup();
--		unregister_dbf_views();
-+		ctc_unregister_dbf_views();
+ 
++	sbale = zfcp_qdio_sbale_req(erp_action->fsf_req,
++				    erp_action->fsf_req->sbal_curr, 0);
++	sbale[0].flags |= SBAL_FLAGS0_TYPE_READ;
++	sbale[1].flags |= SBAL_FLAGS_LAST_ENTRY;
++
+ 	/* mark port as being closed */
+ 	atomic_set_mask(ZFCP_STATUS_PORT_PHYS_CLOSING,
+ 			&erp_action->port->status);
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c
+--- linux-2.6/drivers/s390/scsi/zfcp_sysfs_port.c	Wed Jun 16 07:20:04 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_sysfs_port.c	Thu Aug  5 14:21:01 2004
+@@ -26,7 +26,7 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.40 $"
++#define ZFCP_SYSFS_PORT_C_REVISION "$Revision: 1.41 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -125,7 +125,7 @@
+ 	struct zfcp_unit *unit;
+ 	fcp_lun_t fcp_lun;
+ 	char *endp;
+-	int retval = -EINVAL;
++	int retval = 0;
+ 
+ 	down(&zfcp_data.config_sema);
+ 
+@@ -136,8 +136,10 @@
  	}
- 	return ret;
- }
+ 
+ 	fcp_lun = simple_strtoull(buf, &endp, 0);
+-	if ((endp + 1) < (buf + count))
++	if ((endp + 1) < (buf + count)) {
++		retval = -EINVAL;
+ 		goto out;
++	}
+ 
+ 	write_lock_irq(&zfcp_data.config_lock);
+ 	unit = zfcp_get_unit_by_lun(port, fcp_lun);

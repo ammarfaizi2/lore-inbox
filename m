@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUBREnW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbUBREnV
+	id S263424AbUBREr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUBREr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:43:21 -0500
-Received: from elesy.tomsk.su ([217.18.140.178]:35476 "EHLO elesy.tomsk.su")
-	by vger.kernel.org with ESMTP id S263475AbUBREnT (ORCPT
+	Tue, 17 Feb 2004 23:47:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26029 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263424AbUBREr1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:43:19 -0500
-Date: Wed, 18 Feb 2004 10:42:16 +0600
-From: Alexey Shinkin <alex@elesy.tusur.ru>
-X-Mailer: The Bat! (v1.62r) Business
-Reply-To: Alexey Shinkin <alex@elesy.tusur.ru>
-Organization: ElesyTUSUR
-X-Priority: 3 (Normal)
-Message-ID: <1501881750.20040218104216@elesy.tusur.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 doesn't recognize some Cyrix Cpus ?
+	Tue, 17 Feb 2004 23:47:27 -0500
+Date: Tue, 17 Feb 2004 20:46:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Dave Jones <davej@redhat.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Santiago Leon <santil@us.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH][2.6] IBM PowerPC Virtual Ethernet Driver
+In-Reply-To: <20040218042340.GW8858@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0402172044321.2686@home.osdl.org>
+References: <40329A24.5070209@us.ibm.com> <1077065118.1082.83.camel@gaston>
+ <20040218040130.GC26304@redhat.com> <20040218042340.GW8858@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
-
-I am playing with Linux 2.6.0 on a PC-104 board with 
-ZFx86 CPU - it is Cyrix core based 486. Kernel 2.4.18 detects the CPU
-as Cyrix Cx486DX2, but 2.6.0 says it is 486.
-
-I looked through /arch/i386/kernel/setup.c in 2.4.18 sources,
-/arch/i386/kernel/cpu/common.c in 2.6.0 sources and found the
-identify_cpu() function that seems to be working a bit incorrectly in
-2.6.0.
-
-In 2.4.18 it checks if the CPU able to execute CPUID , if cannot - the
-id_and_try_enable_cpuid() is called, which identifies old Cyrixes and
-tries to turn on CPUID on some of them. Even if the CPU is not
-CPUID-capable,Cyrix is detected by test_cyrix_52div(), at least, the
-function fills x86_vendor & x86_vendorid fields in for Cyrixes. The
-fields are used later for vendor-specific initialization.
-
-In 2.6.0 identify_cpu() does not check CPUID-uncapable CPUs by
-test_cyrix_52div() and
-doesnt try to enable CPUID on them, so , further generic_identify()
-considers my CPU as usual 486, doesnt find vendor in get_cpu_vendor
-and after all default CPU init procedure is performed instead of
-vendor-specific.
-
-I understand that now people are more focused on newest P4's,
-Athlons64 etc , but I think that support for old CPUs also shouldnt be
-broken...
 
 
--- 
-Best regards,
-Alex Shinkin
+On Wed, 18 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > 
+> > That can't be right surely ? That would make them utterly useless afaics.
+> > I've not seen this happen in practice either with the 2 x86 cpufreq drivers
+> > I wrote that both use bitfields extensively.
+> 
+> It _is_ right and they are utterly useless.  Original rationale was, indeed,
+> "describe the layout of hardware registers" but it had gone to hell may years
+> ago.  Any assumptions regarding their allocation are non-portable.
 
+Well, to be fair, most compilers still aim to make them useful. 
+
+There's a difference between "the standard doesn't guarantee anything" and 
+"the implementation makes no sense". 
+
+(Sadly, a lot of compiler people do seem to look to standards more than
+actual users for guides to do things, but at the same time I do believe
+that gcc has useful semantics for bitfields and hardware accesses. You
+just have to know what the implementation-specific rules are)
+
+		Linus

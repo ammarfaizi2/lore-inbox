@@ -1,113 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262689AbTCYP5o>; Tue, 25 Mar 2003 10:57:44 -0500
+	id <S262693AbTCYP6D>; Tue, 25 Mar 2003 10:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262690AbTCYP5o>; Tue, 25 Mar 2003 10:57:44 -0500
-Received: from [170.210.46.46] ([170.210.46.46]:43528 "EHLO
-	scdt.frc.utn.edu.ar") by vger.kernel.org with ESMTP
-	id <S262689AbTCYP5m> convert rfc822-to-8bit; Tue, 25 Mar 2003 10:57:42 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Edgardo Hames <ehames@scdt.frc.utn.edu.ar>
-Organization: UTN
-To: linux-kernel@vger.kernel.org
-Subject: Error accessing memory between 0xc0000 and 0x100000
-Date: Tue, 25 Mar 2003 13:08:36 -0300
-User-Agent: KMail/1.4.1
+	id <S262695AbTCYP6C>; Tue, 25 Mar 2003 10:58:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12293 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262693AbTCYP6A>; Tue, 25 Mar 2003 10:58:00 -0500
+Date: Tue, 25 Mar 2003 11:04:51 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Thomas Duffy <tduffy@afara.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Deprecating .gz format on kernel.org
+In-Reply-To: <1048183475.3427.112.camel@biznatch>
+Message-ID: <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303251308.36565.ehames@scdt.frc.utn.edu.ar>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody. I'm trying to write a simple device driver to read and write 
-memory at addresses beween 0xc0000 and 0x100000, but when I try to load the 
-module I get the following error:
+On Thu, 20 Mar 2003, Thomas Duffy wrote:
 
-memalloc: successful request base=0xd0000, size=0x10000
-Unable to handle kernel paging request at virtual address 000d0001
- printing eip:
-c182b0b6
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c182b0b6>]    Not tainted
-EFLAGS: 00010282
+> On Thu, 2003-03-20 at 09:51, Eli Carter wrote:
+> > So, who can beat his 15.10 bogomips?
+> 
+> my firewall:
+> 
+> [tduffy@crackho ~]$ more /proc/cpuinfo
+> processor       : 0
+> vendor_id       : unknown
+> cpu family      : 4
+> model           : 0
+> model name      : 486
+> stepping        : unknown
+> fdiv_bug        : no
+> hlt_bug         : no
+> sep_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : no
+> fpu_exception   : no
+> cpuid level     : -1
+> wp              : yes
+> flags           :
+> bogomips        : 12.44
+> 
+> -- 
+> YOO-ESS-AYE! YOO-ESS-AYE!
 
-EIP is at  (2.4.18diskless)
-eax: 000d0000   ebx: 00010000   ecx: c026fed8   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: c058bf28   esp: c058bf10
-ds: 0018   es: 0018   ss: 0018
-Process insmod (pid: 220, stackpage=c058b000)
-Stack: c182b160 000d0000 00010000 c182b130 00000000 c182b000 0806a810 c01159f5
-       00000000 c07a2000 00000220 c07a5000 00000060 ffffffea 00000008 c0638640
-       00000060 c1819000 c182b060 000005a4 00000000 00000000 00000000 00000000
-Call Trace: [<c182b160>]
-[<c182b130>]
-[<c01159f5>]
-[<c182b060>]
-[<c0108ac3>]
+At one point I ran Linux on a 386SX-16 with 12MB. That machine ran 1.2.13
+(IIRC) until Dec 31 1999, when I was afraid it was not Y2k hardened. I
+still see spam to glacial.tmr.com today. The name was NOT because it was
+so cool ;-)
 
-Code: c6 40 01 41 83 c4 10 eb 1d 90 50 53 ff 35 9c b5 82 c1 68 a0
+I may still have that board, but I'm not about to put it back in service
+to measure speed. Your firewall is the slowest "real machine" I've seen,
+emulation and embedded machines are not really general purpose.
 
-
-Can you help me out, please? Here is the code for my driver:
-/***************************** DRIVER CODE ******************************/
-int major = 0;
-MODULE_PARM(major, "i");
-
-unsigned long isa_base = 0xc0000;
-MODULE_PARM(isa_base, "l");
-
-unsigned long isa_max = 0x100000;
-MODULE_PARM(isa_max, "l");
-
-MODULE_AUTHOR("Edgardo Hames");
-MODULE_LICENSE("GPL");
-
-//#define BUFFER "Hello, world!"
-
-int memalloc_init(void)
-{
-	int result = 0;
-	unsigned long region_size = isa_max - isa_base;
-
-	if (! check_mem_region(isa_base, region_size)) {
-		request_mem_region(isa_base, region_size, "memalloc");
-		printk("memalloc: successful request base=0x%lx, size=0x%lx\n",
-			isa_base, region_size);
-//		isa_memcpy_toio(isa_base, BUFFER, strlen(BUFFER));
-		writeb ('A', isa_base+1);
-	} else {
-		printk("memalloc: failed request base=0x%lx, size=0x%lx\n",
-			isa_base, region_size);
-		return -EBUSY;
-	}
-	return result;
-}
-
-void memalloc_cleanup(void)
-{
-//#define BUFSIZE 100
-
-	unsigned long region_size = isa_max - isa_base;
-//	char buf[BUFSIZE];
-	
-//	memset(buf, 0, BUFSIZE);
-//	isa_memcpy_fromio(buf, isa_base, BUFSIZE);
-	printk("Leí: %c\n", readb(isa_base+1));
-	release_mem_region(isa_base, region_size);
-	printk("Successfully unloading memalloc.\n");
-}
-
-module_init(memalloc_init);
-module_exit(memalloc_cleanup);
-
-/************************* END OF DRIVER CODE **************************/
-
-Thanks
-Ed
 -- 
-If you cannot convince them, confuse them.
-Truman's Law
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

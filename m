@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129110AbRBGWLI>; Wed, 7 Feb 2001 17:11:08 -0500
+	id <S129027AbRBGWN2>; Wed, 7 Feb 2001 17:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbRBGWK6>; Wed, 7 Feb 2001 17:10:58 -0500
-Received: from host217-32-158-240.hg.mdip.bt.net ([217.32.158.240]:27400 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129110AbRBGWKt>;
-	Wed, 7 Feb 2001 17:10:49 -0500
-Date: Wed, 7 Feb 2001 22:13:29 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: [bug] aic7xxx panic Re: Linux 2.4.1-ac5
-In-Reply-To: <E14QbMw-0001JD-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102072113080.1699-100000@penguin.homenet>
+	id <S129053AbRBGWNS>; Wed, 7 Feb 2001 17:13:18 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:22534 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129027AbRBGWNP>; Wed, 7 Feb 2001 17:13:15 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
+Date: Thu, 8 Feb 2001 09:12:45 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14977.51293.147436.164522@notabene.cse.unsw.edu.au>
+Cc: "'acl-devel@bestbits.at'" <acl-devel@bestbits.at>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Lock in with 2.4.1 and NFS
+In-Reply-To: message from Jean-Eric Cuendet on Wednesday February 7
+In-Reply-To: <B45465FD9C23D21193E90000F8D0F3DF68391C@mailsrv.linkvest.ch>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, Doug,
+On Wednesday February 7, Jean-Eric.Cuendet@linkvest.com wrote:
+> 
+> Hi,
+> I have a strange problem on one of our server.
+> I have 2.4.1 patched with ACLs 0.7.5 (from acl.bestbits.at) and some RAID +
+> LVM volumes.
+> At regular interval, NFS stops working (nfsd stops) and a stop/start of the
+> NFS service doesn't work. 
+> The NFS service stop blocks in "exportfs -auv" when trying to unmount a
+> client working apparently well. One time
+> it was a solaris 2.6 client, another time it was a linux 2.4 machine.
+> Any help appreciated.
+> Thanks
+> -jec
+> 
+> PS: I'm not in the kernel list. Please CC
+> 
 
-If this is a known problem -- ignore. Otherwise, I will gladly assist as
-much as you need.
+This scenario sounds a lot like one of the nfsd threads has oopsed
+while holding a readlock on the export table, and so exportfs cannot
+get a write lock.
 
-Just tried ac5 kernel and, behold (btw, why does serial console not work
-anymore, I had to copy these by hand):
+Could you check your kernel logs for an Oops message?
 
-(scsi0) BRKADRINT error(0x44):
-  Illegal Opcode in sequencer program
-  PCI Error detected
-(scsi0)  SEQADDR=0x58
-Kernel panic: aic7xxx: unrecoverable BRKADRINT
-
-The Linux 2.4.2-pre1 works fine. Next thing I was thinking was to try ac4
-and also to try on a different machine which has a different revision of
-the same type of aic7xxx HBA.
-
-Any more ideas?
-
-Regards,
-Tigran
+NeilBrown
 
 
+> 
+> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+> Jean-Eric Cuendet
+> Linkvest SA
+> Av des Baumettes 19, 1020 Renens Switzerland
+> Tel +41 21 632 9043  Fax +41 21 632 9090
+> http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
+> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

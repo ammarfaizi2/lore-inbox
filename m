@@ -1,122 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285386AbRLGCw4>; Thu, 6 Dec 2001 21:52:56 -0500
+	id <S285385AbRLGDAs>; Thu, 6 Dec 2001 22:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285387AbRLGCwi>; Thu, 6 Dec 2001 21:52:38 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:41109 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S285386AbRLGCwP>; Thu, 6 Dec 2001 21:52:15 -0500
-Date: Thu, 6 Dec 2001 19:56:50 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        "David S. Miller" <davem@redhat.com>, lm@bitmover.com,
-        rusty@rustcorp.com.au, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Rik vav Riel <riel@conectiva.com.br>, lars.spam@nocrew.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-        lkml <linux-kernel@vger.kernel.org>, jmerkey@timpanogas.org
+	id <S285387AbRLGDAj>; Thu, 6 Dec 2001 22:00:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45185 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285385AbRLGDAW>;
+	Thu, 6 Dec 2001 22:00:22 -0500
+Date: Thu, 06 Dec 2001 18:59:48 -0800 (PST)
+Message-Id: <20011206.185948.55509326.davem@redhat.com>
+To: lm@bitmover.com
+Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
+        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
+        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
 Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206195650.A25735@vger.timpanogas.org>
-In-Reply-To: <20011206123448.B23263@vger.timpanogas.org> <Pine.LNX.4.40.0112061515050.3629-100000@dlang.diginsite.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011206184327.B4235@work.bitmover.com>
+In-Reply-To: <20011206161744.V27589@work.bitmover.com>
+	<20011206.183709.71088955.davem@redhat.com>
+	<20011206184327.B4235@work.bitmover.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0112061515050.3629-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Thu, Dec 06, 2001 at 03:16:13PM -0800
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 03:16:13PM -0800, David Lang wrote:
-> also some applications (i.e. databases) are such that nobody has really
-> been able to rewrite them into the shared nothing model (although oracle
-> has attempted it, from what I hear it has problems)
-> 
-> David Lang
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Thu, 6 Dec 2001 18:43:27 -0800
+   
+   However, where it wins big is on everything else.  Please explain to me how
+   you are going to make a scheduler that works for 64 CPUS that doesn't suck?
 
-OPS (Oracle Parallel Server) is shared nothing.  
+What stops me from basically doing a scheduler which ends up doing
+what ccCluster does, groups of 4 cpu nodes?  Absolutely nothing of
+course.  How is ccCluster unique in this regard then?
 
-Jeff
+The scheduler is a mess right now only because Linus hates making
+major changes to it.
 
+   We can then go down the path of ... the networking stack ...
+   signals ...
 
-> 
->  On Thu, 6 Dec 2001,
-> Jeff V. Merkey wrote:
-> 
-> > Date: Thu, 6 Dec 2001 12:34:48 -0700
-> > From: Jeff V. Merkey <jmerkey@vger.timpanogas.org>
-> > To: Davide Libenzi <davidel@xmailserver.org>
-> > Cc: David S. Miller <davem@redhat.com>, lm@bitmover.com,
-> >      rusty@rustcorp.com.au, Martin J. Bligh <Martin.Bligh@us.ibm.com>,
-> >      Rik vav Riel <riel@conectiva.com.br>, lars.spam@nocrew.org,
-> >      Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-> >      lkml <linux-kernel@vger.kernel.org>, jmerkey@timpanogas.org
-> > Subject: Re: SMP/cc Cluster description
-> >
-> > On Thu, Dec 06, 2001 at 11:11:27AM -0800, Davide Libenzi wrote:
-> > > On Thu, 6 Dec 2001, Jeff V. Merkey wrote:
-> > >
-> > > > Guys,
-> > > >
-> > > > I am the maintaner of SCI, the ccNUMA technology standard.  I know
-> > > > alot about this stuff, and have been involved with SCI since
-> > > > 1994.  I work with it every day and the Dolphin guys on some huge
-> > > > supercomputer accounts, like Los Alamos and Sandia Labs in NM.
-> > > > I will tell you this from what I know.
-> > > >
-> > > > A shared everything approach is a programmers dream come true,
-> > > > but you can forget getting reasonable fault tolerance with it.  The
-> > > > shared memory zealots want everyone to believe ccNUMA is better
-> > > > than sex, but it does not scale when compared to Shared-Nothing
-> > > > programming models.  There's also a lot of tough issues for dealing
-> > > > with failed nodes, and how you recover when peoples memory is
-> > > > all over the place across a nuch of machines.
-> > >
-> > > If you can afford rewriting/rearchitecting your application it's pretty
-> > > clear that the share-nothing model is the winner one.
-> > > But if you can rewrite your application using a share-nothing model you
-> > > don't need any fancy clustering architectures since beowulf like cluster
-> > > would work for you and they'll give you a great scalability over the
-> > > number of nodes.
-> > > The problem arises when you've to choose between a new architecture
-> > > ( share nothing ) using conventional clusters and a
-> > > share-all/keep-all-your-application-as-is one.
-> > > The share nothing is cheap and gives you a very nice scalability, these
-> > > are the two mayor pros for this solution.
-> > > On the other side you've a vary bad scalability and a very expensive
-> > > solution.
-> > > But you've to consider :
-> > >
-> > > 1) rewriting is risky
-> > >
-> > > 2) good developers to rewrite your stuff are expensive ( $100K up to $150K
-> > > 	in my area )
-> > >
-> > > These are the reason that let me think that conventional SMP machines will
-> > > have a future in addition to my believing that technology will help a lot
-> > > to improve scalability.
-> > >
-> >
-> > There's a way through the fog.  Shared Nothing with explicit coherence.
-> > You are correct, applications need to be rewritten to exploit it.  It
-> > is possible to run existing SMP apps process -> process across nodes
-> > with ccNUMA, and this works, but you don't get the scaling as shared
-> > nothing.
-> >
-> > Jeff
-> >
-> > Jeff
-> >
-> >
-> > >
-> > >
-> > >
-> > > - Davide
-> > >
-> > >
-> > >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+Done and done.  Device drivers are mostly done, and what was your
+other category... oh process interfaces, those are done too.
+   
+In fact character devices are the only ugly area in 2.5.x, and
+who really cares if TTYs scale to 64 cpus :-)  But this will get
+mostly done anyways to kill off the global kernel lock completely.
+
+   There is a hell of a lot of threading that has to go on to get to
+   64 cpus and it screws the heck out of the uniprocessor performance.
+
+Not with CONFIG_SMP turned off.  None of the interesting SMP overhead
+hits the uniprocessor case.
+
+Why do you keep talking about uniprocessor being screwed?  This is why
+we have CONFIG_SMP, to nop the bulk of it out.
+
+   I think you want to prove how studly you are at threading, David,
+
+No, frankly I don't.
+
+What I want is for you to show what is really unique and new about
+ccClusters and what incredible doors are openned up by it.  So far I
+have been shown ONE, and that is the high availability aspect.
+
+To me, it is far from the holy grail you portray it to be.
+
+   Let's go have some beers and talk about it off line.
+
+How about posting some compelling arguments online first? :-)
+
+It all boils down to the same shit currently.  "ccClusters lets you do
+this", and this is leading to "but we can do that already today".
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

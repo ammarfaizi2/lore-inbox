@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133041AbRDRGsR>; Wed, 18 Apr 2001 02:48:17 -0400
+	id <S133040AbRDRHEu>; Wed, 18 Apr 2001 03:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133040AbRDRGsI>; Wed, 18 Apr 2001 02:48:08 -0400
-Received: from olsinka.site.cas.cz ([147.231.11.16]:1921 "EHLO
-	twilight.suse.cz") by vger.kernel.org with ESMTP id <S133041AbRDRGr5>;
-	Wed, 18 Apr 2001 02:47:57 -0400
-Date: Wed, 18 Apr 2001 08:46:52 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: monkeyiq@dingoblue.net.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: idebus=xx on a ISA only 486
-Message-ID: <20010418084652.A369@suse.cz>
-In-Reply-To: <3ADAE8A4.87DFBF92@dingoblue.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ADAE8A4.87DFBF92@dingoblue.net.au>; from monkeyiq@dingoblue.net.au on Mon, Apr 16, 2001 at 10:42:12PM +1000
+	id <S133042AbRDRHEl>; Wed, 18 Apr 2001 03:04:41 -0400
+Received: from mail.axisinc.com ([193.13.178.2]:18184 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S133040AbRDRHEa>;
+	Wed, 18 Apr 2001 03:04:30 -0400
+Message-ID: <E6FE4E054F02D511818E00025558B61D4B0A73@cluster01.axis.se>
+From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
+To: "'Eric S. Raymond'" <esr@snark.thyrsus.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
+        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: RE: Supplying missing entries for Configure.help, part 3
+Date: Wed, 18 Apr 2001 09:03:12 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 16, 2001 at 10:42:12PM +1000, monkeyiq@dingoblue.net.au wrote:
-> Hi,
->     This may be harmless but I noticed a warning msg when I went to
-> 2.4.3 on a ISA only 486 mobo.
-> 
-> Feb 18 18:01:41 speedy kernel: ide: Assuming 50MHz system bus speed for
-> PIO modes; override with idebus=xx
-> 
-> My first thought was to drop idebus to 8Mhz (I think this is the
-> ISA speed ?),
-> but using that
-> Feb 18 18:01:41 speedy kernel: Kernel command line: auto BOOT_IMAGE=243
-> ro root=301 BOOT_FILE=/boot/vmlinuz-2.4.3 idebus=8
-> Feb 18 18:01:41 speedy kernel: ide_setup: idebus=8 -- BAD BUS SPEED!
-> Expected value from 20 to 66
-> 
-> and then a quick grep/poke in the src gave this
-> 
-> ./drivers/ide/ide.c
-> Version 5.50         allow values as small as 20 for idebus=
-> 
-> and at line 350 it seems that its pci or nothing for the bus speed.
-> 
-> the only deterministic problem (so far that I can directly attribute to
-> that kernel) with the
-> 2.4.3 booted kernel is that ssh2 locks up for random amounts of time at
-> randomish intervals.
-> 
-> I can't seem to dig up other info on this problem, I am sorry if this is
-> the wrong place
-> to ask. If there are better places to be looking for this data I am
-> happy to RTFM there.
-> 
-> Now trying 2.4.3-ac6 to see what happens there.
+"Eric S. Raymond" <esr@snark.thyrsus.com> wrote:
+> This patch supplies sixteen more missing entries for the
+> Configure.help file, for a total of 48 so far.  It also corrects some
+> places where periods are run onto URLs.  It should be applied after my
+> previous patches 1 and 2 under the same title.  More to come...
 
-idebus= isn't used in case there is no VL-BUS or PCI bus in your system.
+Can we expect people adding entries in Configure.help to not write
+URLs followed by a period in the future? I do not think so.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Would it not be better to teach your URL extractor (as I guess that
+is the reason for this patch) what a URL followed by a period and a
+space looks like. Even though they are legal URLs, I think we can
+safely assume the writer intended the period to end the sentence and
+not be part of the URL. The same goes for URLs followed by other
+characters like comma, colon and so on.
+
+//Peter

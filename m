@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313130AbSDDKh0>; Thu, 4 Apr 2002 05:37:26 -0500
+	id <S313135AbSDDKyv>; Thu, 4 Apr 2002 05:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313131AbSDDKhE>; Thu, 4 Apr 2002 05:37:04 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27234 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S313130AbSDDKg7>; Thu, 4 Apr 2002 05:36:59 -0500
-Date: Thu, 4 Apr 2002 05:35:59 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S313136AbSDDKyk>; Thu, 4 Apr 2002 05:54:40 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:2575 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S313135AbSDDKyZ>;
+	Thu, 4 Apr 2002 05:54:25 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Rik van Riel <riel@conectiva.com.br>
+Date: Thu, 4 Apr 2002 12:54:11 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-Message-ID: <20020404053559.A20827@devserv.devel.redhat.com>
-In-Reply-To: <22511.1017902599@kao2.melbourne.sgi.com> <Pine.LNX.4.33.0204041041530.1475-100000@einstein.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Gerd Knorr <kraxel@bytesex.org>, <linux-kernel@vger.kernel.org>,
+        Hugh Dickins <hugh@veritas.com>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <165DB291417@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 11:22:15AM +0100, Tigran Aivazian wrote:
-> On Thu, 4 Apr 2002, Keith Owens wrote:
-> > When the flamers and lawyers agree on what they really mean by
-> > EXPORT_SYMBOL_GPL or its replacement and everybody agrees on what the
-> > keyword should be, let me know and I will roll a new modutils.
-> > Otherwise, leave me out of this flamewar.
+On  3 Apr 02 at 21:19, Rik van Riel wrote:
+> On Thu, 4 Apr 2002, Petr Vandrovec wrote:
+> >                                                 Petr Vandrovec
+> >                                          (also) petr@vmware.com
 > 
-> Let's look at the possible design for 2.5 first, then 2.4.
+> I guess Davem's comments apply, I see lots of VANDROVE@vc.cvut.cz
+> in my email archive but this is the first petr@vmware.com that I
+> see:
 > 
-> The meaning of EXPORT_SYMBOL_INTERNAL is that it can be used to export
-> symbols by base kernel subsystems (static or modular) to other base kernel
-> subsystems which can be compiled as a module. So, if the symbol is thus
-> exported by what is thought of as "base kernel" then only modules that
-> claim to be "base kernel" should use it. Similarly, if it is exported by a
-> driver, then only modules closely associated with that driver (for drivers
-> split in multiple modules) should be able to use it.
-> 
-> In other words, exporting symbols should not be based on the consumer's
-> license because that is technically inappropriate criterion.
-> 
-> As for implementation, perhaps EXPORT_SYMBOL_INTERNAL could look like:
-> 
-> EXPORT_SYMBOL_INTERNAL(runqueue_lock, "scheduler");
-> 
-> and the corresponding module that implements a "scheduler" can claim its
-> rights by:
-> 
-> MODULE_CLASS("scheduler");
+> $ grep -i Vandrov ~/mail/linux-kernel-Wk* | wc -l
+> 343
+> $ grep -i petr@vmware ~/mail/linux-kernel-Wk* | wc -l
+> 1
 
+I did not thought that I have to send changes in my CV and in positions
+to you or to linux-kernel. I try very hard to not disclose this type
+of information, because of I thought that nobody is interested in what
+I do and where I do that, and that presenting myself with one constant
+email address serves other to remember that this Petr is really still
+same Petr, and not someone else. Maybe SubmittingPatches need chapter #0,
+--
+When you send patch first time, please include list of all your positions,
+so we can track which companies participate on Linux kernel development
+through you.
 
-I sort of get the impression that this is overdesign. Either you're a
-"core subsystem" or a "external driver". I don't see much of a point
-of protecting core subsystems from eachother; they are (assumed to be) part
-of the upstream kernel source anyway so they are subject to peer review by
-the subsystem maintainers... Since such core subsystems use very initimate
-knowledge of "bzImage internals" I can even see the point in using a
-rather strict "modversions like" system to make 100% sure that the
-core subsystem modules and the base kernel match (random cookie that is
-generated for each build and not available outside the build environment
-??).
- 
-I say "external driver" even though the source can be in the
-kernel tree; for this that doesn't make much of a difference,
-most "drivers" don't need to know about core internal things and can
-be compiled outside the tree already; they're in tree for convenience (and
-for easing doing mass API changes etc etc etc).
+If you send patch later, please include list of changed positions, so
+we can properly update list of this companies.
+--
+and into lklm FAQ:
+--
+Q: Can I use my xxxx@yyyy.name, yyy@yahoo.com, xxx@mail.cz email addresses
+   for my posts?
+A: No. Please use one you randomly choose from all email addresses you
+   have (and do this random selection each time you post message, so grep 
+   through archive can reveal compaines supporting Linux kernel).
+--
 
-Greetings,
-   Arjan van de Ven
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
+                                        

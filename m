@@ -1,39 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136127AbRDVNvg>; Sun, 22 Apr 2001 09:51:36 -0400
+	id <S136118AbRDVNvQ>; Sun, 22 Apr 2001 09:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136125AbRDVNv0>; Sun, 22 Apr 2001 09:51:26 -0400
-Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:56707 "EHLO
-	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S136119AbRDVNvT>; Sun, 22 Apr 2001 09:51:19 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+	id <S136119AbRDVNvD>; Sun, 22 Apr 2001 09:51:03 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:2826 "EHLO
+	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
+	id <S136118AbRDVNui>; Sun, 22 Apr 2001 09:50:38 -0400
+Date: Sun, 22 Apr 2001 09:49:52 -0400 (CLT)
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: junio@siamese.dhis.twinsun.com, manuel@mclure.org (Manuel McLure),
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac12 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "Sun, 22 Apr 2001 14:10:41 BST." <E14rJdU-0005p0-00@the-village.bc.nu> 
-In-Reply-To: <E14rJdU-0005p0-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Apr 2001 14:51:03 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14rKGW-0005qT-00@kings-cross.london.uk.eu.org>
+cc: Andreas Hartmann <andihartmann@freenet.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.3ac11] clock timer configuration lost - probably a VIA686a
+ motherboard
+In-Reply-To: <E14rJGD-0005lO-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0104220946520.4950-100000@baltazar.tecnoera.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There are no gcc 2.97 snapshots that compile the kernel correctly because
->they have the broken bitfield packing ABI change. 
+Well... I remember this message showing on my console, although I was
+doing nothing special...
 
-Oh right.  I didn't know about that particular nicety.
+Apr 18 14:37:01 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:37:01 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:41:18 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:41:18 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:47:10 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:47:10 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:48:28 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:48:28 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:49:02 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:49:02 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:51:06 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:51:06 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:51:48 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:51:48 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
+Apr 18 14:52:01 blackbird kernel: probable hardware bug: clock timer
+configuration lost - probably a VIA686a.
+Apr 18 14:52:01 blackbird kernel: probable hardware bug: restoring chip
+configuration.
+--
 
->My belief however is that several million people have gcc 2.96-69+, about 50
->are likely to have random cvs snapshots and none of them are going to build
->kernels with them anyway, as they wont work __builtin_expect or otherwise.
-
-Fair enough.
-
-p.
+[root@blackbird log]# uname -a
+Linux blackbird.tecnoera.com 2.2.19 #2 Wed Apr 11 12:23:14 CLT 2001 i686
+unknown
+[root@blackbird log]#
 
 
+
+On Sun, 22 Apr 2001, Alan Cox wrote:
+
+> > I got a lot of messages while continuous writing / reading datas from one a
+> > harddisk to another harddisk (both at 1. ide-channel) during backup with
+> > rsync. Both harddisks use udma4. The data-stream was between 0,5 MB/s and
+> > 20MB/s.
+> > I never got these messages before and after the backup finished I couldn't
+> > see them anymore.
+>
+> Thy do trigger to easily. Im still investigating that
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

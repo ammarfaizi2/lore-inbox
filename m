@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131982AbQKJXhz>; Fri, 10 Nov 2000 18:37:55 -0500
+	id <S131713AbQKJXiF>; Fri, 10 Nov 2000 18:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbQKJXhp>; Fri, 10 Nov 2000 18:37:45 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37129 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131713AbQKJXhf>; Fri, 10 Nov 2000 18:37:35 -0500
-Message-ID: <3A0C86BB.4C87A630@transmeta.com>
-Date: Fri, 10 Nov 2000 15:37:31 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S132153AbQKJXh4>; Fri, 10 Nov 2000 18:37:56 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:30767 "EHLO
+	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S131713AbQKJXhq>; Fri, 10 Nov 2000 18:37:46 -0500
+Date: Sat, 11 Nov 2000 01:45:33 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, wmaton@ryouko.dgim.crc.ca,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <3A0C77DB.967732BE@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011110144250.6509-100000@server.serve.me.nl>
 MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: APIC errors w/ 2.4.0-test11-pre2
-In-Reply-To: <200011102225.XAA04339@cave.bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
+> > > Turn on encryption, and try sending attachements > 1MB and tell me if
+> > > you see any problems, like emails sitting in /var/spool/mqueue for a day
+> > > or two until they go out.  I can guarantee you will.
+> > 
+> > Are you talking client -> MTA encryption, or MTA -> MTA encryption ??
 > 
-> > I have seen the same problem on the same motherboard.  It appears to
-> > be a motherboard bug that 2.4 exposes and 2.2 doesn't.
-> 
-> This PRINT was added in 2.4.
-> 
-> You're seeing noise on the apic lines. The APICs notice, but every now
-> and then you may see a lockup due to this. (i.e. if the corruption
-> does not trigger a parity error, because two bits flipped!)
-> 
+> slow or blocked connection problems with all configs listed above.
 
-What I was seeing, though, was that 2.4 would lock up with an NMI deadman
-after a few days.  2.2 never did.  Even on other hardware I see very high
-NMI rates, but no lockups, using 2.4.
+Ah. I'll go kick this sendmail setup, and see what it does..
 
-	-hpa
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> Jeff
+
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbUK3HoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbUK3Hob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbUK3HoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 02:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUK3HoX
+	id S262002AbUK3Hob (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 02:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUK3Hob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 02:44:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59830 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262001AbUK3HoU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 02:44:20 -0500
-Date: Mon, 29 Nov 2004 23:43:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is
- broken
-Message-Id: <20041129234353.378586a9.akpm@osdl.org>
-In-Reply-To: <1101800060.2640.21.camel@laptop.fenrus.org>
-References: <200411292204.iATM4o4C005049@hera.kernel.org>
-	<1101800060.2640.21.camel@laptop.fenrus.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 30 Nov 2004 02:44:31 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:29714 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262002AbUK3Ho2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 02:44:28 -0500
+Subject: Re: [PATCH] CKRM: 2/10 CKRM:  Accurate delay accounting
+From: Arjan van de Ven <arjan@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Rik van Riel <riel@redhat.com>,
+       Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <20041129213825.GB19892@kroah.com>
+References: <E1CYqY1-00057E-00@w-gerrit.beaverton.ibm.com>
+	 <20041129213825.GB19892@kroah.com>
+Content-Type: text/plain
+Message-Id: <1101800656.2640.27.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 30 Nov 2004 08:44:16 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
->
-> On Mon, 2004-11-29 at 21:38 +0000, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.2251, 2004/11/29 13:38:43-08:00, mtk-lkml@gmx.net
-> >  
-> > -	spin_lock(&shmlock_user_lock);
-> > -	locked = size >> PAGE_SHIFT;
-> > +	locked = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> >  	lock_limit = current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur;
-> >  	lock_limit >>= PAGE_SHIFT;
-> > +	spin_lock(&shmlock_user_lock);
-> 
-> after this change... isn't the use to the
-> current->signal->rlim[RLIMIT_MEMLOCK] entirely unlocked and thus racey ?
+On Mon, 2004-11-29 at 13:38 -0800, Greg KH wrote:
 
-It always was - we don't modify rlimits under shmlock_user_lock.
+> So LGPL code can use EXPORT_SYMBOL_GPL?
 
-If some other thread goes and changes RLIMIT_MEMLOCK under your feet then
-this test will use either the old value or the new one, which is to be
-expected.
+yes it can; because LGPL code linked into the kernel (dynamic/static) is
+used under the terms of the GPL (as per the LGPL license)
 
-(I get the feeling that I'm missing your point here)
 

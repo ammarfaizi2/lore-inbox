@@ -1,99 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262022AbSJDPSA>; Fri, 4 Oct 2002 11:18:00 -0400
+	id <S262432AbSJDQ2K>; Fri, 4 Oct 2002 12:28:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbSJDOkF>; Fri, 4 Oct 2002 10:40:05 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:21682 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S261848AbSJDOhZ> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:25 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (11/27): 31 bit emulation.
-Date: Fri, 4 Oct 2002 16:29:05 +0200
-X-Mailer: KMail [version 1.4]
+	id <S262434AbSJDQ2J>; Fri, 4 Oct 2002 12:28:09 -0400
+Received: from packet.digeo.com ([12.110.80.53]:36566 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262432AbSJDQ2H>;
+	Fri, 4 Oct 2002 12:28:07 -0400
+Message-ID: <3D9DC2DE.F6CD0B50@digeo.com>
+Date: Fri, 04 Oct 2002 09:33:34 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041629.05585.schwidefsky@de.ibm.com>
+To: Matthew Wilcox <willy@debian.org>
+CC: Mark Peloquin <peloquin@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
+References: <OFDA00C8D3.E99FDDA0-ON85256C48.005322C4@pok.ibm.com> <20021004170021.F18545@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2002 16:33:35.0223 (UTC) FILETIME=[C8D8A070:01C26BC3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix bug in 31 bit emulation of sys_msgsnd and rename sys32_pread/sys32_pwrite
-to sys32_pread64/sys32_pwrite64.
+Matthew Wilcox wrote:
+> 
+> On Fri, Oct 04, 2002 at 10:48:33AM -0500, Mark Peloquin wrote:
+> > list_empty() can be used on check list heads *or*
+> > to check if a list element is currently in a list,
+> > assuming the coder uses list_del_init(). However,
+> > if the coder chooses to use list_del() [which sets
+> > the prev and next fields to 0] instead, there is no
+> > corresponding function to indicate if that element
+> > is currently on a list. This function does that.
+> 
+> That behaviour for list_del is new and, IMNSHO, bogus.  There's now _zero_
+> gain in using list_del instead of list_del_init.  akpm changed it about
+> 5 months ago with a comment that says:
+> 
+> "list_head debugging"
+> 
 
-diff -urN linux-2.5.40/arch/s390x/kernel/linux32.c linux-2.5.40-s390/arch/s390x/kernel/linux32.c
---- linux-2.5.40/arch/s390x/kernel/linux32.c	Fri Oct  4 16:14:59 2002
-+++ linux-2.5.40-s390/arch/s390x/kernel/linux32.c	Fri Oct  4 16:15:31 2002
-@@ -514,16 +514,15 @@
- 	if (!p)
- 		return -ENOMEM;
- 
-+	err = -EINVAL;
- 	if (second > MSGMAX || first < 0 || second < 0)
--		return -EINVAL;
-+		goto out;
- 
- 	err = -EFAULT;
- 	if (!uptr)
- 		goto out;
--
--	err = get_user (p->mtype, &up->mtype);
--	err |= __copy_from_user (p->mtext, &up->mtext, second);
--	if (err)
-+        if (get_user (p->mtype, &up->mtype) ||
-+	    __copy_from_user (p->mtext, &up->mtext, second))
- 		goto out;
- 	old_fs = get_fs ();
- 	set_fs (KERNEL_DS);
-@@ -3993,13 +3992,13 @@
- 
- typedef __kernel_ssize_t32 ssize_t32;
- 
--asmlinkage ssize_t32 sys32_pread(unsigned int fd, char *ubuf,
-+asmlinkage ssize_t32 sys32_pread64(unsigned int fd, char *ubuf,
- 				 __kernel_size_t32 count, u32 poshi, u32 poslo)
- {
- 	return sys_pread64(fd, ubuf, count, ((loff_t)AA(poshi) << 32) | AA(poslo));
- }
- 
--asmlinkage ssize_t32 sys32_pwrite(unsigned int fd, char *ubuf,
-+asmlinkage ssize_t32 sys32_pwrite64(unsigned int fd, char *ubuf,
- 				  __kernel_size_t32 count, u32 poshi, u32 poslo)
- {
- 	return sys_pwrite64(fd, ubuf, count, ((loff_t)AA(poshi) << 32) | AA(poslo));
-diff -urN linux-2.5.40/arch/s390x/kernel/wrapper32.S linux-2.5.40-s390/arch/s390x/kernel/wrapper32.S
---- linux-2.5.40/arch/s390x/kernel/wrapper32.S	Fri Oct  4 16:14:59 2002
-+++ linux-2.5.40-s390/arch/s390x/kernel/wrapper32.S	Fri Oct  4 16:15:31 2002
-@@ -872,23 +872,23 @@
- 
- #sys32_rt_sigsuspend_wrapper		# done in rt_sigsuspend_glue 
- 
--	.globl  sys32_pread_wrapper 
--sys32_pread_wrapper:
-+	.globl  sys32_pread64_wrapper 
-+sys32_pread64_wrapper:
- 	llgfr	%r2,%r2			# unsigned int
- 	llgtr	%r3,%r3			# char *
- 	llgfr	%r4,%r4			# size_t
- 	llgfr	%r5,%r5			# u32
- 	llgfr	%r6,%r6			# u32
--	jg	sys32_pread		# branch to system call
-+	jg	sys32_pread64		# branch to system call
- 
--	.globl  sys32_pwrite_wrapper 
--sys32_pwrite_wrapper:
-+	.globl  sys32_pwrite64_wrapper 
-+sys32_pwrite64_wrapper:
- 	llgfr	%r2,%r2			# unsigned int
- 	llgtr	%r3,%r3			# const char *
- 	llgfr	%r4,%r4			# size_t
- 	llgfr	%r5,%r5			# u32
- 	llgfr	%r6,%r6			# u32
--	jg	sys32_pwrite		# branch to system call
-+	jg	sys32_pwrite64		# branch to system call
- 
- 	.globl  sys32_chown16_wrapper 
- sys32_chown16_wrapper:
-
+It doesn't seem to have caught anyone out, so I guess we can
+put it back now.  I'll do a patch.

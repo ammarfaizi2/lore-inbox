@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbUCETS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 14:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUCETS5
+	id S262692AbUCETdA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 14:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUCETc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 14:18:57 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:32542 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S262681AbUCETSz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 14:18:55 -0500
-Date: Fri, 5 Mar 2004 20:18:45 +0100
-To: Pavel Machek <pavel@suse.cz>
-Cc: Dave Jones <davej@redhat.com>,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
-       paul.devriendt@amd.com
-Subject: Re: powernow-k8-acpi driver
-Message-ID: <20040305191845.GA18926@poupinou.org>
-References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303225405.GF222@elf.ucw.cz> <20040303233603.GA18722@redhat.com> <20040304000754.GK222@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040304000754.GK222@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
-From: Bruno Ducrot <poup@poupinou.org>
+	Fri, 5 Mar 2004 14:32:59 -0500
+Received: from dsl81-215-22733.adsl.ttnet.net.tr ([81.215.88.205]:54026 "helo
+	abc.com") by vger.kernel.org with SMTP id S262686AbUCETc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 14:32:57 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+To: linux-kernel@vger.kernel.org
+From: ibrahimpashahotel@yahoo.com
+Subject: S u l t a n a h m e t
+Message-Id: <S262686AbUCETc5/20040305193257Z+596@vger.kernel.org>
+Date: Fri, 5 Mar 2004 14:32:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 01:07:54AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> >  > >  > We could make that functionality depend on CONFIG_ACPI, and allow
-> >  > >  > runtime selection only if its defined... But those two drivers are
-> >  > >  > pretty different just now and acpi-dependend chunk is pretty big. (It
-> >  > >  > does funny stuff like polling for AC plug removal if we are in
-> >  > >  > high-power state  and battery would not handle that. Old driver simply
-> >  > >  > refused to use high-power states on such machines.)
-> >  > > 
-> >  > > you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
+ 
+SULTANAHMET ÝBRAHÝM PAÞA OTELÝ'NDE YARI FÝYATA KONAKLAMA FIRSATI
+ 
+Ýstanbul'un en güzel butik otellerinden Ýbrahim Paþa Oteli'nde bir veya birkaç gün geçirmek ister misiniz?
+ 
+"Ýbrahim Paþa Oteli Sultanahmet Meydaný'na iki adým uzaklýkta, uygar ve þýk bir küçük otel. Restore edilmiþ dört katlý kargir binada. Dekorasyon ölçülü ve çaðdaþ -biraz neoklasik, biraz yüzyýl baþý Paris. Ayný zamanda kafe olarak hizmet veren lobide thonet sandalyeler, mermer tablalý masalar, eski sepia fotograflar kullanýlmýþ. Resepsiyon masasý antik mermer sütun baþlýðý üzerinde masif cam. Yönetimde genç ve aydýn insanlar. Roof terastan Sultanahmet Camii ve Theodosius Dikilitaþý neredeyse dokunacak mesafede: nefes kesici." ('Türkiye'nin En Güzel Küçük Otelleri' kitabýndan)
+ 
+Ýbrahim Paþa'da konaklamanýzý kolaylaþtýrmak için fiyatlarýmýzda yerli müþterilerimiz için % 50'yi geçen indirimler yaptýk.
+ 
+Yerli konuklarýmýz için iki kiþilik odamýz haftanýn her günü 79 milyon TL.* Bu fiyata iki kiþilik konaklama, mükemmel bir açýk büfe kahvaltý ve KDV dahil. Ayrýca otelimizin þömineli lobisinde konuklarýmýz için gün boyunca ücretsiz çay ve kahve servisimiz var. 
+ 
+Sultanahmet bölgesi yürüyüþ yapmak için ideal, özellikle akþamlarý trafik yok denecek kadar az, ortalýk bomboþ. Akþam yemeði için Balýkçý Sabahattin veya Kumkapý restoranlarý yürüyerek beþ dakika mesafede. 
+ 
+Rezervasyon için telefonumuz: 0212-518 0394.
+ 
+Ýbrahim Paþa Oteli hakkýnda daha fazla bilgi almak veya bize e-mail göndermek için internet sitemizi ziyaret edebilirsiniz (linki týklayýn): http://www.ibrahimpasha.com/tr.index.htm
+ 
 
-Ahem, that's more Dominik work, not mine.
 
-> >  > > area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
-> >  > > and its senseless duplicating this code.
-> >  > 
-> >  > That [1] looks like promise of url, but I don't see that url.
-> > 
-> > Hmm, cpufreq mailing list archives are your best bet.
-> > What I meant to add was..
-> 
-> Ahha. Unfortunately, cpufreq mailing lists are only available to list
-> subscribers. Ouch.
-> 
 
-Yes.  But that a pretty low traffic mailing list anyway, and if really
-you have to touch to cpufreq, even only for a single driver, you should
-subscribe so that you know already of changes of cpufreq core which may
-impact your driver.
-
-For example, you may have a trouble with the new 'sticky bit' feature
-with powernow-k8, especially if you want ACPI perflib included in your
-driver.
-
--- 
-Bruno Ducrot
-
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+ 
+* Tek kiþilik odamýz 69 m., deluxe odamýz 119 m. TL'dir. Ýndirimli fiyatlarýmýz sadece yerli müþterilerimiz için geçerlidir ve bu fiyatlarýmýzdan en geç 7 gün sonrasý için rezervasyon alýnabilmektedir. 

@@ -1,94 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266478AbUFQMxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUFQNBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266478AbUFQMxq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 08:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUFQMxq
+	id S266476AbUFQNBb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 09:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUFQNBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 08:53:46 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:33200 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S266475AbUFQMxj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 08:53:39 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Thu, 17 Jun 2004 09:01:30 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:9234 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S266476AbUFQNB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 09:01:28 -0400
+Message-ID: <40D1961F.7090804@xss.co.at>
+Date: Thu, 17 Jun 2004 15:01:19 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH: Further aacraid work
-Date: Thu, 17 Jun 2004 08:53:36 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD23FF9@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH: Further aacraid work
-Thread-Index: AcRT7w0XfYUkRvixSj6RhkxA1dLpvAAeRysw
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Alan Cox" <alan@redhat.com>, "Christoph Hellwig" <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.27-pre6
+References: <20040616183343.GA9940@logos.cnet>
+In-Reply-To: <20040616183343.GA9940@logos.cnet>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------010701000206060508070808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using the 32 bit dma descriptors was used to optimize the transfer size
-and performance. There is a small performance hit by switching to a
-resultant larger FIB (adapter command packet) with 64 bit SG elements,
-and an accompanied reduced limit on the number of total SG elements
-available. Since the scsi layer has a propensity to provide sequentially
-decreasing pages (sequentially increasing would permit coalescing of SG
-elements) for the SG elements, we find that there is an average SG
-element size of 4K.
+This is a multi-part message in MIME format.
+--------------010701000206060508070808
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-The performance hit is up to 15% when the request has to be split to fit
-into the available SG element slots.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-An increase in performance of the scsi layer could occur if the
-allocator provided sequentially increasing pages to permit a larger SG
-element to be sent down to the adapter, and thus a larger request down
-to the adapter.
+Hi Marcelo,
 
-I *must* admit that the driver functions perfectly in other systems with
-more than 4G of memory; however we *are* having troubles specifically
-with AMD64 systems with more than 4G of memory in 2.6 kernels (the issue
-does not occur on 2.4 kernels). I have yet to investigate why this
-specific problem exists.
+Marcelo Tosatti wrote:
+> Hi,
+>
+> Here goes -pre6. It contains a significant amount of USB fixes, JFS update,
+> netfilter/sctp fixes, CDROM driver update, tg3 update, SPARC/Alpha fixes.
+>
+> And more importantly the FPU x86/x86-64 crash fix.
+>
+> Read the detailed changelog for more details.
+>
+As already reported for -pre5 and still valid for -pre6,
+"make xconfig" is broken due to changes in drivers/hotplug/Config.in
 
-One would expect that if we erroneously got the memory model wrong (ie,
-<4GB of memory, one slice at 0-2G, another slice at 4G-6G) that the 32
-dma limit would protect us from functional problems in this delicate
-area but with a performance hit resulting from the scsi layer providing
-bounce buffers. Ideally we would like to have a mechanism to know if the
-DMAable area is limited to a 32 bit address space in order to take
-advantage of the more efficient FIB utilization.
+The attached (trivial) patch fixes this problem.
 
-Sincerely -- Mark Salyzyn
+HTH
 
------Original Message-----
-From: linux-scsi-owner@vger.kernel.org
-[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Alan Cox
-Sent: Wednesday, June 16, 2004 6:06 PM
-To: Christoph Hellwig; Alan Cox; linux-kernel@vger.kernel.org;
-linux-scsi@vger.kernel.org
-Subject: Re: PATCH: Further aacraid work
+Regards,
 
-On Wed, Jun 16, 2004 at 10:58:34PM +0100, Christoph Hellwig wrote:
-> Yikes.  This looked like they usual use 32bit dma descriptors if not
-> enough memory hacks to me.  If aacraid is that royally fucked we
-should
-> probably add CONFIG_X86 to it.
+- - andreas
 
-Its working on x86-32, x86-64 and I believe (Mark can confirm this)
-IA-64.
-I'm fairly sure there are some platforms that aren't going to fit the
-hardware's view of the world which seems to be
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-0[DMAable area..................]defined limit   [4Gb+.. PAE mode on
-some]
+iD8DBQFA0ZYZxJmyeGcXPhERAvJ1AJ0dA82kQ+jk0sdQiF5whMa+nvfxVQCghCGh
+JSw80qVZNyIWwUZLslMdJ/k=
+=3eBJ
+-----END PGP SIGNATURE-----
 
-The later cards also have a 2Gb limit for the ring buffers, but not for
-the
-I/O you want to target
+--------------010701000206060508070808
+Content-Type: text/plain;
+ name="hotplug_xconfig_HRT.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hotplug_xconfig_HRT.patch"
 
+--- linux-2.4.27pre6/drivers/hotplug/Config.in.orig	2004-06-17 14:16:42.000000000 +0200
++++ linux-2.4.27pre6/drivers/hotplug/Config.in	2004-06-17 14:40:02.000000000 +0200
+@@ -17,7 +17,7 @@
+ dep_tristate '  SHPC PCI Hotplug driver' CONFIG_HOTPLUG_PCI_SHPC $CONFIG_HOTPLUG_PCI
+ dep_mbool '    Use polling mechanism for hot-plug events (for testing purpose)' CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE $CONFIG_HOTPLUG_PCI_SHPC
+ if [ "$CONFIG_ACPI" = "n" ]; then
+-dep_mbool '    For AMD SHPC only: Use $HRT for resource/configuration' CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY $CONFIG_HOTPLUG_PCI_SHPC 
++dep_mbool '    For AMD SHPC only: Use HRT for resource/configuration' CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY $CONFIG_HOTPLUG_PCI_SHPC 
+ fi
+ dep_tristate '  PCI Express Hotplug driver' CONFIG_HOTPLUG_PCI_PCIE $CONFIG_HOTPLUG_PCI
+ dep_mbool '    Use polling mechanism for hot-plug events (for testing purpose)' CONFIG_HOTPLUG_PCI_PCIE_POLL_EVENT_MODE $CONFIG_HOTPLUG_PCI_PCIE
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--------------010701000206060508070808--
+

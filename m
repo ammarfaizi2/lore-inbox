@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270240AbRHHAQ7>; Tue, 7 Aug 2001 20:16:59 -0400
+	id <S270246AbRHHASi>; Tue, 7 Aug 2001 20:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270242AbRHHAQu>; Tue, 7 Aug 2001 20:16:50 -0400
-Received: from ip240.cvd2.rb1.bel.nwlink.com ([207.202.151.240]:33548 "EHLO
-	zot.localdomain") by vger.kernel.org with ESMTP id <S270240AbRHHAQg>;
-	Tue, 7 Aug 2001 20:16:36 -0400
-To: Riley Williams <rhw@MemAlpha.CX>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org>
-From: Mark Atwood <mra@pobox.com>
-Date: 07 Aug 2001 17:16:45 -0700
-In-Reply-To: Riley Williams's message of "Wed, 8 Aug 2001 00:35:54 +0100 (BST)"
-Message-ID: <m3bslrv21e.fsf@flash.localdomain>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S270243AbRHHAS2>; Tue, 7 Aug 2001 20:18:28 -0400
+Received: from mail.ureach.com ([63.150.151.36]:58635 "EHLO ureach.com")
+	by vger.kernel.org with ESMTP id <S270242AbRHHASO>;
+	Tue, 7 Aug 2001 20:18:14 -0400
+Date: Tue, 7 Aug 2001 20:18:22 -0400
+Message-Id: <200108080018.UAA13390@www23.ureach.com>
+To: linux-kernel@vger.kernel.org
+From: Kapish K <kapish@ureach.com>
+Reply-to: <kapish@ureach.com>
+Subject: a query related to locks and smp
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-vsuite-type: e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(apologies for splitting my reply into multiple pieces, but each part
- covers different territory).
+Hello,
+      We have been getting a consistent oops on an smp box ( 2
+processors ), and when kdb is turned on, it oopses, but the oops
+message shows only the register information for the faulting
+process a on cpu x. cpu y shows a running process b which at
+that point seems to be in a lock_kernel routine from within
+sys_ioctl. We are unable to exactly figure out the code path for
+the process a, but there are a few other processes in run state
+on cpu a, which are the nfs daemons. A backtrace of those show
+that they are in the schedule routine near, switch_to(). Each
+instance of the nfsd daemons call into another daemon c each,
+each of which call the schedule routine, as part of a sleep
+on/interruptible sleep on routines, based along the same lines
+as the code in sched.c
+I am trying to understand what could possibly going wrong in the
+locking mechanism here, that could be causing the oops. Is there
+any way to debug code specific to such locks, like spinlocks,
+maybe try some kind of configuration parameter setup or
+something? If need be, I can attach portions of the kdb output. 
+Or if there are suggestions as to how to narrow this further,
+that would be helpful.
+Since I am not subscribed on this list, kindly cc to the id.
+TIA
 
-Riley Williams <rhw@MemAlpha.CX> writes:
-> 
->  2. Multiple identical static interfaces.
-> 
->     At the moment, you are required to initialise the interfaces in
->     ascending order of their name in the modules.conf file.
-> 
->     I've dealt with this situation on several occasions, and never
->     found this to be a problem in any way.
-
-Have you ever assembled a distribution that's going to be imaged into
-several thousands to several tens of thousands of hardware boxes, with
-evolving-into-the-future changes in hardware version and changes in
-component suppliers?
-
-If Linux really wants to break into the appliance market, this is
-going to be a bigger and bigger issue.
-
--- 
-Mark Atwood   | I'm wearing black only until I find something darker.
-mra@pobox.com | http://www.pobox.com/~mra
+________________________________________________
+Get your own "800" number
+Voicemail, fax, email, and a lot more
+http://www.ureach.com/reg/tag

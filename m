@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266902AbUAXKNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 05:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUAXKNN
+	id S266897AbUAXKHj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 05:07:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266900AbUAXKHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 05:13:13 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:8464 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S266902AbUAXKMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 05:12:48 -0500
-Date: Sat, 24 Jan 2004 19:13:24 +0900 (JST)
-Message-Id: <20040124.191324.128668023.yoshfuji@linux-ipv6.org>
-To: edi@gmx.de
-Cc: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] "smack the penguin"
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040124095208.GA20489@zombie.inka.de>
-References: <401177DB.8010901@nortelnetworks.com>
-	<20040124095208.GA20489@zombie.inka.de>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Sat, 24 Jan 2004 05:07:39 -0500
+Received: from main.gmane.org ([80.91.224.249]:34528 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266897AbUAXKHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 05:07:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+Date: Sat, 24 Jan 2004 11:07:34 +0100
+Message-ID: <yw1xbrot7j89.fsf@ford.guide>
+References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:GGz0JFn3R+suOuYK/xjW0sbSiFs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040124095208.GA20489@zombie.inka.de> (at Sat, 24 Jan 2004 10:52:09 +0100), Eduard Bloch <edi@gmx.de> says:
+Eduard Bloch <edi@gmx.de> writes:
 
 > #include <hallo.h>
 > * Chris Friesen [Fri, Jan 23 2004, 02:36:59PM]:
-> > Diversion for friday afternoon...how far can you get?
-> > 
-> > Personal best is 586
-> 
+>> Diversion for friday afternoon...how far can you get?
+>> 
+>> Personal best is 586
+>
 > Which means that you are playing it either on a Windows box (what a
 > shame) or cheating somehow or you have a 5Ghz box or something else is
 > wrong on regular Linux systems. I do not any Linux user who got
 > more than 325.5 with the Linux version of the Shockwave plugin.
 
-I got 578.7 on Linux box (of course).
+I've gotten over 500 on my 2 GHz laptop running Linux 2.6.1.  Even
+this fairly fast machine the flash thing frequently freezes for a
+split second.
 
---yoshfuji
+-- 
+Måns Rullgård
+mru@kth.se
 

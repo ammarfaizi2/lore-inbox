@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSGQSIZ>; Wed, 17 Jul 2002 14:08:25 -0400
+	id <S316135AbSGQSNi>; Wed, 17 Jul 2002 14:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316569AbSGQSIY>; Wed, 17 Jul 2002 14:08:24 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:15346 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316530AbSGQSIY>; Wed, 17 Jul 2002 14:08:24 -0400
-Subject: Re: [patch 1/13] minimal rmap
-From: Robert Love <rml@tech9.net>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E17Ut3V-0004OY-00@starship>
-References: <3D3500AA.131CE2EB@zip.com.au>  <E17Ut3V-0004OY-00@starship>
-Content-Type: text/plain
+	id <S316185AbSGQSNi>; Wed, 17 Jul 2002 14:13:38 -0400
+Received: from zipcon.net ([209.221.136.5]:43435 "HELO zipcon.net")
+	by vger.kernel.org with SMTP id <S316135AbSGQSNh>;
+	Wed, 17 Jul 2002 14:13:37 -0400
+Message-ID: <3D35B43A.4050804@tahomatech.com>
+Date: Wed, 17 Jul 2002 11:15:22 -0700
+From: William Waddington <waddington@tahomatech.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kiobufs and highmem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Jul 2002 11:11:16 -0700
-Message-Id: <1026929477.1085.19.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 10:57, Daniel Phillips wrote:
-> On Wednesday 17 July 2002 07:29, Andrew Morton wrote:
-> > 11: The nightly updatedb run is still evicting everything.
-> 
-> That is not a problem with rmap per se, it's a result of not properly 
-> handling streaming IO.  I don't think you want to get bogged down in this 
-> detail at the moment, it will only distract from the real issues.  My 
-> recommendation is to just pretend for the time being that this is correct 
-> behaviour.
+Hello All,
 
-A good argument for an O_STREAM... various semantics we can modify for
-it.
+I have a 2.4.x char driver which works fine, except in boxes with lots of
+memory.
 
-	Robert Love
+user_buffer -> write() -> map_user_kiobuf() -> pci_map_sg() -> Pci DMA
+
+I'm using the .page/.offset version of the scatterlist, but in the HIGHMEM case,
+map_user_kiobuf() seems to return peculiar page addresses.
+
+What is the state of kiobufs/HIGHMEM in 2.4.x?  Do I need to implement
+a bounce buffer in the driver?  Some email correspondence indicates so,
+but I would be grateful for a definitive word from the kernel folks.
+
+TIA,
+Bill Waddington
+
+-- 
+*** please note our new name and address ***
+
+Tahoma Technology (formerly Ikon Corporation)
+107 2nd Avenue North, Seattle, WA, USA, 98109
+Voice: 206.728.6465  Fax: 206.728.1633
+http://www.tahomatech.com  tahoma@tahomatech.com
+
 

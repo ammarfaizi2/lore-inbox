@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbSJYS1R>; Fri, 25 Oct 2002 14:27:17 -0400
+	id <S261532AbSJYSbI>; Fri, 25 Oct 2002 14:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSJYS1R>; Fri, 25 Oct 2002 14:27:17 -0400
-Received: from dsl-213-023-039-129.arcor-ip.net ([213.23.39.129]:39337 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261529AbSJYS1R>;
-	Fri, 25 Oct 2002 14:27:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.44-mm5
-Date: Fri, 25 Oct 2002 20:34:21 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <3DB8D94B.20D3D5BD@digeo.com>
-In-Reply-To: <3DB8D94B.20D3D5BD@digeo.com>
+	id <S261535AbSJYSbI>; Fri, 25 Oct 2002 14:31:08 -0400
+Received: from 653277hfc248.tampabay.rr.com ([65.32.77.248]:32527 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id <S261532AbSJYSbH>; Fri, 25 Oct 2002 14:31:07 -0400
+Message-ID: <3DB98EDE.6020808@davehollis.com>
+Date: Fri, 25 Oct 2002 14:35:10 -0400
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1859Hr-0008PO-00@starship>
+To: chrisl@vmware.com
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to get number of physical CPU in linux from user space?
+References: <20021024230229.GA1841@vmware.com> <2897727591.1035509219@[10.10.2.3]> <20021025182023.GA1397@vmware.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 October 2002 07:40, Andrew Morton wrote:
-> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.44/2.5.44-mm5/
-> 
-> We seem to have found the dud patch.  Things should be a little
-> more stable...
-> 
-> The CONFIG_PREEMPT+SMP problem I was having went away when gcc-2.95.3
-> was used in place of 2.91.66.  Which is a bit of a problem because
-> _someone_ has to keep an eye on 2.91.66 compatibility as long as it
-> continues to be required for sparc builds.
+chrisl@vmware.com wrote:
 
-Didn't davem say something about being ready to move to a more recent
-compiler, or does my memory not serve correctly?
+>On Fri, Oct 25, 2002 at 01:27:00AM -0700, Martin J. Bligh wrote:
+>  
+>
+>>Define "physical CPU number" ;-) If you want to deteact which
+>>    
+>>
+>
+>I mean the number of cpu chip you can count on the mother board.
+>
+>  
+>
+>>ones are paired up, I believe that if all but the last bit
+>>of the apicid is the same, they're siblings. You might have to
+>>dig the apicid out of the bootlog if the cpuinfo stuff doesn't
+>>tell you.
+>>    
+>>
+>
+>And you are right. Those apicid, after mask out the siblings,
+>are put in phys_cpu_id[] array in kernel.
+>
+>I think about look at bootlog too, but that is not a reliable
+>way because bootlog might already been flush out after some
+>time.
+>
+>Cheers
+>
+>Chris
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+Here is what RedHat does in some of their SRPMS to check if you have 
+multiple CPUs on your build machine so they can do some parallel builds 
+to speed up the build process (kernel, glibc, etc):
 
--- 
-Daniel
+egrep -c "^cpu[0-9]+" /proc/stat || :
+
+
+

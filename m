@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUFVSHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUFVSHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUFVSHM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUFVSEP
+	id S265054AbUFVSHI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbUFVSE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:04:15 -0400
-Received: from mail.kroah.org ([65.200.24.183]:43701 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265065AbUFVRn3 convert rfc822-to-8bit
+	Tue, 22 Jun 2004 14:04:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:41909 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265062AbUFVRn1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:43:29 -0400
+	Tue, 22 Jun 2004 13:43:27 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.7
-In-Reply-To: <10879261084005@kroah.com>
+In-Reply-To: <1087926109288@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Tue, 22 Jun 2004 10:41:49 -0700
-Message-Id: <1087926109433@kroah.com>
+Date: Tue, 22 Jun 2004 10:41:50 -0700
+Message-Id: <10879261101948@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,98 +23,78 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1722.85.6, 2004/06/03 17:37:14-07:00, mochel@digitalimplant.org
+ChangeSet 1.1722.89.51, 2004/06/04 11:09:29-07:00, greg@kroah.com
 
-[Driver Model] Add default device attributes to struct bus_type.
-
-- Add struct bus_type::dev_attrs, which is an array of device 
-  attributes that are added to each device as they are registered.
-
- - Also make sure that we don't hang when removing bus attributes
-   if adding one failed.. 
+Driver Model: And even more cleanup of silly scsi use of the *ATTR macros...
+  
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/base/bus.c     |   36 +++++++++++++++++++++++++++++++++++-
- include/linux/device.h |    1 +
- 2 files changed, 36 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c         |   10 +++++-----
+ drivers/scsi/scsi_transport_spi.c |    4 ++--
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
 
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	Tue Jun 22 09:48:35 2004
-+++ b/drivers/base/bus.c	Tue Jun 22 09:48:35 2004
-@@ -392,6 +392,38 @@
- 	
+diff -Nru a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+--- a/drivers/scsi/scsi_sysfs.c	Tue Jun 22 09:48:30 2004
++++ b/drivers/scsi/scsi_sysfs.c	Tue Jun 22 09:48:30 2004
+@@ -99,7 +99,7 @@
+  */
+ #define shost_rd_attr2(name, field, format_string)			\
+ 	shost_show_function(name, field, format_string)			\
+-static CLASS_DEVICE_ATTR(name, S_IRUGO, show_##name, NULL)
++static CLASS_DEVICE_ATTR(name, S_IRUGO, show_##name, NULL);
+ 
+ #define shost_rd_attr(field, format_string) \
+ shost_rd_attr2(field, field, format_string)
+@@ -228,8 +228,8 @@
+  * read only field.
+  */
+ #define sdev_rd_attr(field, format_string)				\
+-	sdev_show_function(field, format_string)				\
+-static DEVICE_ATTR(field, S_IRUGO, sdev_show_##field, NULL)
++	sdev_show_function(field, format_string)			\
++static DEVICE_ATTR(field, S_IRUGO, sdev_show_##field, NULL);
+ 
+ 
+ /*
+@@ -247,7 +247,7 @@
+ 	snscanf (buf, 20, format_string, &sdev->field);			\
+ 	return count;							\
+ }									\
+-static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, sdev_show_##field, sdev_store_##field)
++static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, sdev_show_##field, sdev_store_##field);
+ 
+ /* Currently we don't export bit fields, but we might in future,
+  * so leave this code in */
+@@ -272,7 +272,7 @@
+ 	}								\
+ 	return ret;							\
+ }									\
+-static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, sdev_show_##field, sdev_store_##field)
++static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, sdev_show_##field, sdev_store_##field);
+ 
+ /*
+  * scsi_sdev_check_buf_bit: return 0 if buf is "0", return 1 if buf is "1",
+diff -Nru a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
+--- a/drivers/scsi/scsi_transport_spi.c	Tue Jun 22 09:48:30 2004
++++ b/drivers/scsi/scsi_transport_spi.c	Tue Jun 22 09:48:30 2004
+@@ -152,7 +152,7 @@
+ 	spi_transport_store_function(field, format_string)		\
+ static CLASS_DEVICE_ATTR(field, S_IRUGO | S_IWUSR,			\
+ 			 show_spi_transport_##field,			\
+-			 store_spi_transport_##field)
++			 store_spi_transport_##field);
+ 
+ /* The Parallel SCSI Tranport Attributes: */
+ spi_transport_rd_attr(offset, "%d\n");
+@@ -173,7 +173,7 @@
+ 	spi_dv_device(sdev);
+ 	return count;
  }
+-static CLASS_DEVICE_ATTR(revalidate, S_IWUSR, NULL, store_spi_revalidate)
++static CLASS_DEVICE_ATTR(revalidate, S_IWUSR, NULL, store_spi_revalidate);
  
-+static int device_add_attrs(struct bus_type * bus, struct device * dev)
-+{
-+	int error = 0;
-+	int i;
-+
-+	if (bus->dev_attrs) {
-+		for (i = 0; attr_name(bus->dev_attrs[i]); i++) {
-+			error = device_create_file(dev,&bus->dev_attrs[i]);
-+			if (error)
-+				goto Err;
-+		}
-+	}
-+ Done:
-+	return error;
-+ Err:
-+	while (--i >= 0)
-+		device_remove_file(dev,&bus->dev_attrs[i]);
-+	goto Done;
-+}
-+
-+
-+static void device_remove_attrs(struct bus_type * bus, struct device * dev)
-+{
-+	int i;
-+	
-+	if (bus->dev_attrs) {
-+		for (i = 0; attr_name(bus->dev_attrs[i]); i++)
-+			device_remove_file(dev,&bus->dev_attrs[i]);
-+	}
-+}
-+
-+
- /**
-  *	bus_add_device - add device to bus
-  *	@dev:	device being added
-@@ -411,6 +443,7 @@
- 		list_add_tail(&dev->bus_list,&dev->bus->devices.list);
- 		device_attach(dev);
- 		up_write(&dev->bus->subsys.rwsem);
-+		device_add_attrs(bus,dev);
- 		sysfs_create_link(&bus->devices.kobj,&dev->kobj,dev->bus_id);
- 	}
- 	return error;
-@@ -429,6 +462,7 @@
- {
- 	if (dev->bus) {
- 		sysfs_remove_link(&dev->bus->devices.kobj,dev->bus_id);
-+		device_remove_attrs(dev->bus,dev);
- 		down_write(&dev->bus->subsys.rwsem);
- 		pr_debug("bus %s: remove device %s\n",dev->bus->name,dev->bus_id);
- 		device_release_driver(dev);
-@@ -569,7 +603,7 @@
-  Done:
- 	return error;
-  Err:
--	while (i >= 0)
-+	while (--i >= 0)
- 		bus_remove_file(bus,&bus->bus_attrs[i]);
- 	goto Done;
- }
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Tue Jun 22 09:48:35 2004
-+++ b/include/linux/device.h	Tue Jun 22 09:48:35 2004
-@@ -55,6 +55,7 @@
- 	struct kset		devices;
- 
- 	struct bus_attribute	* bus_attrs;
-+	struct device_attribute	* dev_attrs;
- 
- 	int		(*match)(struct device * dev, struct device_driver * drv);
- 	struct device * (*add)	(struct device * parent, char * bus_id);
+ /* Translate the period into ns according to the current spec
+  * for SDTR/PPR messages */
 

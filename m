@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287598AbSALWZr>; Sat, 12 Jan 2002 17:25:47 -0500
+	id <S287599AbSALW1r>; Sat, 12 Jan 2002 17:27:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287599AbSALWZi>; Sat, 12 Jan 2002 17:25:38 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:39391 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S287598AbSALWZ0>;
-	Sat, 12 Jan 2002 17:25:26 -0500
-Date: Sat, 12 Jan 2002 23:25:22 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020112232522.A6541@fafner.intra.cogenit.fr>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au>
-Mime-Version: 1.0
+	id <S287609AbSALW1i>; Sat, 12 Jan 2002 17:27:38 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6163 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287599AbSALW1U>; Sat, 12 Jan 2002 17:27:20 -0500
+Message-ID: <3C40B6F3.1531F931@zip.com.au>
+Date: Sat, 12 Jan 2002 14:21:39 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+CC: linux-kernel@vger.kernel.org, linux-audio-dev@music.columbia.edu
+Subject: Re: [PATCH] Additions to full lowlatency patch
+In-Reply-To: <3C40AF23.18C811A8@kolumbus.fi>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C409B2D.DB95D659@zip.com.au>; from akpm@zip.com.au on Sat, Jan 12, 2002 at 12:23:09PM -0800
-X-Organisation: Marie's fan club - II
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc: trimmed]
+Jussi Laako wrote:
+> 
+> Hi,
+> 
+> I've done some changes to lowlatency patched kernel. Mainly "fixes" to DRM
+> drivers and few network drivers. Most probably I have done something really
+> stupid, but those work here(tm). Especially the Radeon driver patch has got
+> a lot of testing and seems to have huge impact to latencies in my system.
+> 
 
-Andrew Morton <akpm@zip.com.au> :
-[mini-ll]
-> And guess what?   Nobody has tested the damn thing, so it's going
-> nowhere.
+Thanks, Jussi - I'll crunch on this, merge the bits I agree with :)
 
-It allows me to del^W read NFS-mounted mail behind a linux router while I 
-copy files locally on the router. If I don't apply mini-ll to the router, 
-it's a "server foo not responding, still trying" fest. You know what
-"interactivity feel" means when it happens.
+As Arjan points out, the eepro100 change will cause deadlocks on SMP,
+and general badness on uniprocessor.  But I've done a heap of testing
+on a eepro100 machine and it hasn't been a problem.  I expect that
+wait_for_cmd_done() is only a problem during device startup and shutdown.
+And possibly in error recovery.
 
-If someone suspects the hardware is crap, it's a PIV motherboard with 
-built-in Promise20265 and four IBM IC35L060AVER07-0 on their own channel.
-Each disk has been able to behave normally during RAID1 rebuild.
+I take the position that device driver startup and shutdown functions
+are a complete basket case, and they are on the "don't do that" list.
+Generally, this is OK.  Latency-critical applications should be
+careful to ensure that all required kernel modules are loaded beforehand,
+and that the cron jobs which reap idle kernel modules be disabled.
+Maybe, they should also ensure that any device-special files are held
+open across the life of the application.
 
-Without mini-ll:
-  well choosen file I/O => no file I/O, no networking, no console, *big pain*.
-With mini-ll:
-  well choosen file I/O => *only* those I/O suck (less than before btw).
+I used to take the same position on fileystem mount and unmount,  however
+things like autofs and some applciations which poll cdrom drives made this
+impractical, so filesystem mounts and unmounts are on the "do do that"
+list.  I hope.
 
--- 
-Ueimor
+-

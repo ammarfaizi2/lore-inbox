@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTIOWjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTIOWjQ
+	id S261684AbTIOWkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbTIOWkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:39:16 -0400
-Received: from lidskialf.net ([62.3.233.115]:41196 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S261683AbTIOWjP (ORCPT
+	Mon, 15 Sep 2003 18:40:23 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:47883 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261684AbTIOWkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:39:15 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ACPI fixes
-Date: Mon, 15 Sep 2003 23:37:42 +0100
-User-Agent: KMail/1.5.3
-Cc: "Brown, Len" <len.brown@intel.com>
-References: <Pine.LNX.4.44.0309151824360.2914-100000@logos.cnet>
-In-Reply-To: <Pine.LNX.4.44.0309151824360.2914-100000@logos.cnet>
+	Mon, 15 Sep 2003 18:40:17 -0400
+Date: Tue, 16 Sep 2003 00:40:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Norman Diamond <ndiamond@wta.att.ne.jp>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.6.0-test5: serio config broken?
+In-Reply-To: <20030915212015.GA9102@ip68-0-152-218.tc.ph.cox.net>
+Message-ID: <Pine.LNX.4.44.0309160003290.19512-100000@serv>
+References: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
+ <20030915144939.GA29517@ip68-0-152-218.tc.ph.cox.net>
+ <Pine.LNX.4.44.0309152136110.19512-100000@serv> <20030915212015.GA9102@ip68-0-152-218.tc.ph.cox.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309152337.42851.adq_dvb@lidskialf.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 Sep 2003 10:33 pm, Marcelo Tosatti wrote:
-> Len,
->
-> What about merging this patches in linux-acpi.bkbits.com ?
->
-> They seem to be in the ACPI tree for some time now.
->
-> ASUS A7V BIOS version 1011 from  blacklist (Eric Valette)
-> support non ACPI compliant SCI over-ride  specs (Jun Nakajima)
-> Fix ACPI oops on ThinkPad T32/T40 (Shaohua
-> Extended IRQ resource type for nForce (Andrew
-> Handle BIOS with _CRS that fails (Jun Nakajima)
->
-> Andrew, your fallback to PIC mode patch seems to be doing well, right?
+Hi,
 
-I've not had any complaints, apart from that pci=noacpi bug (which is fixed).
+On Mon, 15 Sep 2003, Tom Rini wrote:
 
-> Did you try to get it into the ACPI tree?
+> > You have to define what "inconsistency" means, right now the kconfig 
+> > design makes ambigous configurations impossible (provided that there are 
+> > no recursive dependencies, which kconfig warns about). I have no plans to 
+> > give up this property, as it keeps kconfig reasonably simple, it's already 
+> > complex enough as is.
+> 
+> So long as it doesn't involve 'select', it won't let you be
+> inconsistent, yes.
 
-I believe it should be in there already.. or if not, the core ACPI guys wanted 
-to test it a bit first because it made quite large changes to how IRQs were 
-setup.
+No, this is even true with the current select.
+
+>  How exactly are items that come in from a select
+> evaluated right now?
+
+'select' adds a reverse dependency to the selected option, e.g.
+
+config FOO
+	select BAR if BAZ
+
+BAR has now a reverse dependency of "FOO && BAZ" and the value of BAR is 
+calculated as "(user value && visibility) || reverse dependency" 
+(visibility is the dependencies of all BAR prompts). The details are in 
+symbol.c:sym_calc_value().
+This allows to calculate the configuration in a single pass and as a side 
+effect avoids inconsistencies.
+
+bye, Roman
 

@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbUKXOvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbUKXOz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbUKXOvY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKXOo6
+	id S262701AbUKXOz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUKXOzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:44:58 -0500
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:19426 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S262742AbUKXOnM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 09:43:12 -0500
-Message-ID: <41A49DA5.9090900@ttnet.net.tr>
-Date: Wed, 24 Nov 2004 16:41:41 +0200
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20041003
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: status of cdrom patches for 2.4 ?
-References: <41A3C391.8070609@ttnet.net.tr> <20041124074336.GB8718@logos.cnet> <20041124125319.GB13847@suse.de>
-In-Reply-To: <20041124125319.GB13847@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Nov 2004 09:55:02 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16512 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262701AbUKXOxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 09:53:04 -0500
+Subject: Suspend 2 merge: 28/51: Suspend memory pool hooks.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+Content-Type: text/plain
+Message-Id: <1101297022.5805.302.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 24 Nov 2004 23:59:32 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Nov 24 2004, Marcelo Tosatti wrote:
-> 
->>On Wed, Nov 24, 2004 at 01:11:13AM +0200, O.Sezer wrote:
->>
->>>Hi all:
->>>
->>>What are the status of the cdrom patches for 2.4 series?
->>>Namely the dvd patches which are dropped while in the
->>>27-rc era, and the cd-mrw patch which never had a chance
->>>trying to go in to 2.4. Jens? Mancelo?
->>
->>There were problems with the DVD-RW patches so I reverted them.
+We save the image in two pages (LRU and the rest). In order to maintain
+a consistent image, we satisfy all page allocations from our own memory
+pool while saving the image and reloading the LRU. This allows us to
+safely use high level routines which might allocate slab etc and not
+free it again by the time we do our atomic copy. We simply save all of
+the pages in the pool when making our atomic copy of the non-LRU pages,
+without having to worry about exactly how they were or weren't used.
 
-Yup.  Pat then posted a patch which supposedly fixed it by placing
-something like
-	else if (CDROM_CAN(CDC_DVD_RAM))
-		ret = 0;
-in cdrom_open_write():
-http://marc.theaimsgroup.com/?t=109156838400001&r=1&w=2
-http://marc.theaimsgroup.com/?l=linux-scsi&m=109156820507518&w=2
+diff -ruN 815-add-suspend-memory-pool-hooks-old/mm/page_alloc.c 815-add-suspend-memory-pool-hooks-new/mm/page_alloc.c
+--- 815-add-suspend-memory-pool-hooks-old/mm/page_alloc.c	2004-11-06 09:26:49.168250960 +1100
++++ 815-add-suspend-memory-pool-hooks-new/mm/page_alloc.c	2004-11-04 16:27:41.000000000 +1100
+@@ -277,6 +277,11 @@
+ 
+ 	arch_free_page(page, order);
+ 
++	if (unlikely(test_suspend_state(SUSPEND_USE_MEMORY_POOL))) {
++		suspend2_free_pool_pages(page, order);
++		return;
++	}
++
+ 	mod_page_state(pgfree, 1 << order);
+ 	for (i = 0 ; i < (1 << order) ; ++i)
+ 		free_pages_check(__FUNCTION__, page + i);
+@@ -507,6 +512,11 @@
+ 
+ 	arch_free_page(page, 0);
+ 
++	if (unlikely(test_suspend_state(SUSPEND_USE_MEMORY_POOL))) {
++		suspend2_free_pool_pages(page, 0);
++		return;
++	}
++
+ 	kernel_map_pages(page, 1, 0);
+ 	inc_page_state(pgfree);
+ 	if (PageAnon(page))
+@@ -609,6 +619,20 @@
+ 	int do_retry;
+ 	int can_try_harder;
+ 
++	if (unlikely(test_suspend_state(SUSPEND_USE_MEMORY_POOL))) {
++		/*
++		 * When pool enabled, processes get allocations
++		 * from a special pool so the image size doesn't
++		 * vary (all the pages in the pool are saved, 
++		 * used or not).
++		 *
++		 * The only process that should be running is
++		 * suspend, so the demand should be very
++		 * predicatable.
++		 */
++		return suspend2_get_pool_pages(gfp_mask, order);
++	}
++
+ 	might_sleep_if(wait);
+ 
+ 	/*
 
-Jens' MRW patch also introduces a new function: cdrom_dvdram_open_write
-(which, in turn, calls cdrom_media_erasable), CDROM_CAN(CDC_DVD_RAM)
-check in cdrom_open_write() is assigned to it; which again is supposed
-to fix it.
-
->>Jens, what do you think?
-> 
-> 
-> I don't think it's worth the bother, the support is in 2.6. And I don't
-> want to maintain new atapi stuff for 2.4. Pat used to care about the
-> patches, but as he is no longer with Iomega I don't think there's anyone
-> to look after it.
-
-Which is truly a pity. Yes I can understand that a maintainer needs
-to concentrate on new trees etc, but it's pity.  Especially hearing
-the pre-recorded "Hey 2.6 already has it, upgrade to it" message is
-always nice ;)
-
-Ozkan Sezer
 

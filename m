@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSGXFTX>; Wed, 24 Jul 2002 01:19:23 -0400
+	id <S316856AbSGXFWD>; Wed, 24 Jul 2002 01:22:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSGXFTX>; Wed, 24 Jul 2002 01:19:23 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:27403 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316853AbSGXFTV>; Wed, 24 Jul 2002 01:19:21 -0400
-Date: Tue, 23 Jul 2002 22:22:19 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
+	id <S316899AbSGXFWD>; Wed, 24 Jul 2002 01:22:03 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.131]:54478 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316856AbSGXFWC>; Wed, 24 Jul 2002 01:22:02 -0400
+Date: Tue, 23 Jul 2002 23:25:06 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] fbdev updates.
-Message-ID: <Pine.LNX.4.44.0207230810540.5796-100000@www.transvirtual.com>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
+In-Reply-To: <Pine.LNX.4.44.0207230918090.5645-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0207232324440.3200-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi!
+On Tue, 23 Jul 2002, Linus Torvalds wrote:
+> Maybe "member_to_container()" would be even better?
 
-  This changeset includes updates from the m68k group and removal of the
-obsolete XPMAC code for the PPC platform. A few bug fixes as well.
+That sounds like trashing the member...
 
-http://fbdev.bkbits.net/fbdev-2.5
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-
-
-
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

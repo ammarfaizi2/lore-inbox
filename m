@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268174AbUBRWDE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268232AbUBRWDD
+	id S267664AbUBSCUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 21:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUBSCUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:03:03 -0500
-Received: from [202.65.75.150] ([202.65.75.150]:60038 "EHLO
-	pythia.bakeyournoodle.com.") by vger.kernel.org with ESMTP
-	id S268174AbUBRWDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:03:00 -0500
-From: Tony Breeds <tony@bakeyournoodle.com>
-Date: Thu, 19 Feb 2004 05:58:46 +0800
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.2: "-" or "_", thats the question
-Message-ID: <20040218215846.GI2681@bakeyournoodle.com>
-Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <1o903-5d8-7@gated-at.bofh.it> <1pkw6-3BU-3@gated-at.bofh.it> <1prnS-4x8-1@gated-at.bofh.it> <402F8A00.8030501@uchicago.edu> <40306F65.8060702@t-online.de>
+	Wed, 18 Feb 2004 21:20:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3024 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267664AbUBSCUO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 21:20:14 -0500
+Date: Thu, 19 Feb 2004 02:20:09 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How should delete_resource() handle children?
+Message-ID: <20040219022009.GP11824@parcelfarce.linux.theplanet.co.uk>
+References: <20040210193349.GI13351@parcelfarce.linux.theplanet.co.uk> <20040218174800.0a3183ec.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40306F65.8060702@t-online.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040218174800.0a3183ec.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 08:21:09AM +0100, Harald Dunkel wrote:
+On Wed, Feb 18, 2004 at 05:48:00PM -0800, Randy.Dunlap wrote:
+> Ideally (or if nothing depends on the current behavior), I think it
+> should just be an error (return -EINVAL), not a BUG_ON().  I.e.,
+> releasing a resource should be an explicit action.
 
-> I know. But this requires some very ugly workarounds outside
-> of module-init-tools. For example, if you want to check
-> whether a module $module_name has already been loaded, you
-> cannot use
-> 
->     grep -q "^${module_name} " /proc/modules
->
-> Instead you have to use a workaround like
-> 
->     x="`echo $module_name | sed -e 's/-/_/g'`"
->     cat /proc/modules | sed -e 's/-/_/g' | grep -q "^${x} "
-> 
-> This is inefficient and error-prone.
-> 
-> Maybe somebody has another idea for the workaround,
-> but I like the first version.
+-EBUSY, perhaps?
 
-just run modprobe?  Then you don't have to care.
+> Do we know of cases where parents are removed but children need to
+> remain?  Examples?
 
-IN_KERNEL=$(/sbin/modprobe -vn "${module_name}")
-if [ -z "${IN_KERNEL}" ; then
-	/bin/echo "Module: ${module_name} is in the kernel"
-else
-	/bin/echo "Module: ${module_name} would need to be loaded"
-	/bin/echo "${IN_KERNEL}"
-fi
+I don't know of any in-tree.  I was originally just looking at this code
+while writing adjust_resource() and insert_resource() and noticed this
+corner case.
 
-Or similar.  Yeah it's a little ugly but only as prone to failure as
-module-init-tools
+But now, I was thinking about using the resource management code to handle
+the PCI hotplug resource management (which currently is done independently
+by each hotplug driver).  Since the drivers can be loaded independently
+of everything under them, they'd need to use insert_resource() and
+remove_resource() to avoid disturbing the child resources.
 
-Yours Tony
-
-        linux.conf.au       http://lca2005.linux.org.au/
-	Apr 18-23 2005      The Australian Linux Technical Conference!
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287905AbSABTZU>; Wed, 2 Jan 2002 14:25:20 -0500
+	id <S287908AbSABT3U>; Wed, 2 Jan 2002 14:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287913AbSABTZL>; Wed, 2 Jan 2002 14:25:11 -0500
-Received: from waste.org ([209.173.204.2]:60581 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S287905AbSABTYv>;
-	Wed, 2 Jan 2002 14:24:51 -0500
-Date: Wed, 2 Jan 2002 13:24:25 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Extern variables in *.c files
-In-Reply-To: <02010216180403.01928@manta>
-Message-ID: <Pine.LNX.4.43.0201021322120.30079-100000@waste.org>
+	id <S287913AbSABT3K>; Wed, 2 Jan 2002 14:29:10 -0500
+Received: from pop.gmx.net ([213.165.64.20]:50923 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S287908AbSABT2z>;
+	Wed, 2 Jan 2002 14:28:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian Roth <xsebbi@gmx.de>
+Reply-To: xsebbi@gmx.de
+Message-Id: <200201022028.04945@xsebbi.de>
+To: adrian kok <adriankok2000@yahoo.com.hk>, linux-kernel@vger.kernel.org
+Subject: Re: system.map
+Date: Wed, 2 Jan 2002 20:30:00 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com>
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, vda wrote:
+> Hi all
 
-> I grepped kernel *.c (not *.h!) files for extern variable definitions.
-> Much to my surprize, I found ~1500 such defs.
->
-> Isn't that bad C code style? What will happen if/when type of variable gets
-> changed? (int->long).
+hello,
 
-Yes; Int->long won't change anything on 32-bit machines and will break
-silently on 64-bit ones. The trick is finding appropriate places to put
-such definitions so that all the things that need them can include them
-without circular dependencies.
+> Why sometimes I don't need to copy the system.map to
+> /boot when I update the kernel
+> and the system also can boot?
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> Is it correct?
 
+yes, this is correct. I think this System.map contains only some useful 
+information about modules for the kernel. At my system works that too. But I 
+think it's better when you copy this file to /boot. :-)
+
+> Thank you
+
+
+Bye,
+Sebastian

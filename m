@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316712AbSHGDLs>; Tue, 6 Aug 2002 23:11:48 -0400
+	id <S316715AbSHGDP0>; Tue, 6 Aug 2002 23:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316715AbSHGDLs>; Tue, 6 Aug 2002 23:11:48 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22544 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316712AbSHGDLr>; Tue, 6 Aug 2002 23:11:47 -0400
-Date: Tue, 6 Aug 2002 23:09:14 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Nick Orlov <nick.orlov@mail.ru>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <20020806043304.GA8272@nikolas.hn.org>
-Message-ID: <Pine.LNX.3.96.1020806230434.9964C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316728AbSHGDP0>; Tue, 6 Aug 2002 23:15:26 -0400
+Received: from mesatop.com ([216.234.213.189]:19211 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S316715AbSHGDPZ>;
+	Tue, 6 Aug 2002 23:15:25 -0400
+Subject: Re: Linux v2.4.19-rc5
+From: Steven Cole <elenstev@mesatop.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <Pine.LNX.3.96.1020806205643.9199C-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1020806205643.9199C-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Aug 2002 20:54:39 -0600
+Message-Id: <1028688882.2376.105.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002, Nick Orlov wrote:
+On Tue, 2002-08-06 at 19:09, Bill Davidsen wrote:
+> On Tue, 6 Aug 2002, Rik van Riel wrote:
+> 
+> > On Mon, 5 Aug 2002, Bill Davidsen wrote:
+> > 
+> > > > Here are some dbench numbers, from the "for what it's worth" department.
+> > >
+> > > Call me an optimist, but after all the reliability problems we had win the
+> > > 2.5 series, I sort of hoped it would be better in performance, not
+> > > increasingly worse. Am I misreading this? Can we fall back to the faster
+> > > 2.4 code :-(
+> > 
+> > Dbench is at its best when half (or more) of the dbench processes
+> > are stuck semi-infinitely in __get_request_wait and the others can
+> > operate in RAM without ever touching the disk.
+> > 
+> > In effect, if you want the best dbench throughput you should make
+> > the system completely unsuitable for real world applications ;)
+> 
+> I assumed that the posted results were apples and apples. That may not be
 
-> 1. ide0/1 reserved for onboard controllers.
+Well, maybe Granny Smiths and Red Delicious. The problem with dbench is
+that it checks how well they roll and bounce.  But even that can be
+important sometimes. ;)
 
-Not sure about that, I've run 2.4.x (ie. x<10} on machines so old that
-they had no onboard anything, and were using "VESA bus" ide controllers. I
-think they were ide0/1.
+> the case. If this was one kernel tuned for dbench and one for something
+> else, then the information content is pretty low, to me at least. But if
+> it is both tuned or both stock, then I would hope 2.5 would be better. If
+> the text said that and I read past it, I apologise.
 
-> 2. on most hardware, pdc20xxx is really additional controller.
+All kernels were stock as patched with no special changes to 
+/proc/sys/vm/bdflush for 2.4.x or to /proc/sys/vm/dirty* for 2.5.x.
+Sorry, I didn't explicitly state that in the initial report.
 
-That's the problem, most not all. No matter what we assume it will be
-wrong part of the time.
-
-> 3. if we put pdc20265 in "onboard" list on some hardware (mine for example)
-> pdc20265 is assigned to ide0/1 (even if it's really ide2/3)
-
-Does this matter as long as we can force it to be where we want? 
-
-> 4. ide0=<what> ??? (do we have this option?)
-
-I made that up, I believe we do/did if my memory isn't totally kidding me.
- 
-> Correct me, if I'm wrong.
-
-This is lkml, count on it. Sometimes they correct you if you're right ;-)
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Steven
 

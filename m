@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317476AbSFHXts>; Sat, 8 Jun 2002 19:49:48 -0400
+	id <S317477AbSFHXoL>; Sat, 8 Jun 2002 19:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317479AbSFHXtr>; Sat, 8 Jun 2002 19:49:47 -0400
-Received: from p50887457.dip.t-dialin.net ([80.136.116.87]:28039 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317476AbSFHXtq>; Sat, 8 Jun 2002 19:49:46 -0400
-Date: Sat, 8 Jun 2002 17:49:39 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dan Aloni <da-x@gmx.net>, Brian Gerst <bgerst@didntduck.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More list_del_init cleanups
-In-Reply-To: <Pine.LNX.4.44.0206081628390.11630-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0206081744280.15675-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317479AbSFHXoK>; Sat, 8 Jun 2002 19:44:10 -0400
+Received: from mail.interware.hu ([195.70.32.130]:29352 "EHLO
+	mail.interware.hu") by vger.kernel.org with ESMTP
+	id <S317477AbSFHXoK>; Sat, 8 Jun 2002 19:44:10 -0400
+Date: Sun, 9 Jun 2002 01:44:01 +0200
+From: DP <dani@apaczai.rulez.org>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre10-ac2 tulip.o
+Message-ID: <20020608234400.GA5542@mx3.roons.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-Operating-System: Debian GNU/Linux 2.2 potato
+X-System: Cx486SLC - kernel 2.2.21
+X-Server: mx3.roons.dyndns.org
+X-Organization: choma co. - http://tokmindegy.mine.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi!
 
-On Sat, 8 Jun 2002, Linus Torvalds wrote:
-> Ehh.. Am I the only one who thinks "move()" would make more sense than
-> "del_add()"?
-> 
-> How many such users are there? I don't want to make up new abstractions if
-> they aren't widely used - it's not as if "del + add" is all that hard to
-> understand in itself..
+ i compiled kernel 2.4.19-pre10-ac2 with the tulip.o module
+(Linux Tulip driver version 0.9.15-pre11 (May 11, 2002))
+but i've problems with it. it recognizes the card, and ifconfig
+shows it, but i can not ping/dhcp/whatever.
 
-There are 57 uses of list_del(); list_add(); plus 1 use of 
-remove_parent(); add_parent().
-There are 29 uses of list_del(); list_add_tail();.
+debian gnu/linux woody fresh install. the old driver in 2.2.20 (debian kernel)
+works just fine. (tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov)
 
-Regards,
-Thunder
+is it me or the module? :)
+
 -- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+       daniel path * choma co.
+    http://www.roons.dyndns.org

@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318234AbSIFCYs>; Thu, 5 Sep 2002 22:24:48 -0400
+	id <S318240AbSIFDQq>; Thu, 5 Sep 2002 23:16:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318237AbSIFCYr>; Thu, 5 Sep 2002 22:24:47 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:56206 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S318234AbSIFCYr>; Thu, 5 Sep 2002 22:24:47 -0400
-Date: Fri, 6 Sep 2002 04:29:21 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
-Message-ID: <20020906042921.B23940@vestdata.no>
-References: <20020905174902.A32687@namesys.com> <1031234624.1726.224.camel@tiny> <20020905181721.D32687@namesys.com> <1031244334.1684.264.camel@tiny> <20020905212545.A5349@namesys.com> <20020905211849.GA3942@pegasys.ws> <20020906000249.A10844@vestdata.no> <20020905225706.GC3942@pegasys.ws> <20020906020138.A23940@vestdata.no> <20020906014122.GE3942@pegasys.ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020906014122.GE3942@pegasys.ws>; from jw@pegasys.ws on Thu, Sep 05, 2002 at 06:41:22PM -0700
+	id <S318248AbSIFDQq>; Thu, 5 Sep 2002 23:16:46 -0400
+Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:17070 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318240AbSIFDQp>;
+	Thu, 5 Sep 2002 23:16:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: bert hubert <ahu@ds9a.nl>, Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+Date: Fri, 6 Sep 2002 05:23:48 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20020904220055.21349.qmail@linuxmail.org> <20020905134830.GA16149@outpost.ds9a.nl>
+In-Reply-To: <20020905134830.GA16149@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17n9im-0006Ef-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 06:41:22PM -0700, jw schultz wrote:
-> > > So a value of 0 would have the same effect.
-> > > (0 - 2 == -2 vs 1 - 2 == -1) Yes?
-> > 
-> > Yes, it will. For GNU find.
-> > 
-> > But the reasoning for using nlink==1 is that that's how "all non-unix
-> > filesystems" behaved, so applications out there could potentially check
-> > for it. 
-> 
-> But we aren't talking about filesystems with different ideas
-> about directory linking.  We are talking about directories
-> with an overflowed link-count.
+On Thursday 05 September 2002 15:48, bert hubert wrote:
+> Arithmetic Test (type = arithoh)        3598100.4 lps    3435944.6 lps
+> Arithmetic Test (type = register)        201521.0 lps     197870.4 lps
+> Arithmetic Test (type = short)           190245.9 lps     145140.8 lps
+> Arithmetic Test (type = int)             201904.5 lps     104440.5 lps
+> Arithmetic Test (type = long)            201906.4 lps     177757.4 lps
+> Arithmetic Test (type = float)           210562.7 lps     208476.4 lps
+> Arithmetic Test (type = double)          210385.9 lps     208443.3 lps
 
-No, but from an application's point of view they're the same. They're
-both directories unable to report the number of subdirectories they
-have. So, they should be handled the same. Either with nlink==1, or
-nlink==0, but I think it will be difficult to migrate to the later if a
-lot of existing software implement the first one.
-
-> The value of 1 can't be used for regular files because it
-> would mean the file doesn't need checking for other links.
-> Coding for NLINK_MAX would mean the apps would have to
-> adjust every time NLINK_MAX changed.  Yes, it could be done
-> through #define in stat.h.  It is a corner case right now
-> but these apps could know that
-> 
-> 	1 == no other links
-> 	>1 == known number of other links
-> 	0 == unknown number of other links
-
-I agree.
-
-
+What kind of arithmetic is this?  Why on earth would arithmetic vary
+from one kernel to another?
 
 -- 
-Ragnar Kjørstad
+Daniel

@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265947AbSKOIGk>; Fri, 15 Nov 2002 03:06:40 -0500
+	id <S265909AbSKOIJK>; Fri, 15 Nov 2002 03:09:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSKOIFd>; Fri, 15 Nov 2002 03:05:33 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:46209 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265895AbSKOIEb>;
-	Fri, 15 Nov 2002 03:04:31 -0500
-Date: Fri, 15 Nov 2002 09:11:19 +0100
+	id <S265939AbSKOIHz>; Fri, 15 Nov 2002 03:07:55 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:52865 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265909AbSKOIHc>;
+	Fri, 15 Nov 2002 03:07:32 -0500
+Date: Fri, 15 Nov 2002 09:14:22 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [patch] Input - Only check for SET_LEDS in atkbd.c when really needed [4/13]
-Message-ID: <20021115091119.C16779@ucw.cz>
-References: <20021115090818.A16761@ucw.cz> <20021115090922.A16779@ucw.cz> <20021115091011.B16779@ucw.cz>
+Subject: [patch] Input - fix open counting in usbmouse/usbkbd [8/13]
+Message-ID: <20021115091422.G16779@ucw.cz>
+References: <20021115090818.A16761@ucw.cz> <20021115090922.A16779@ucw.cz> <20021115091011.B16779@ucw.cz> <20021115091119.C16779@ucw.cz> <20021115091214.D16779@ucw.cz> <20021115091247.E16779@ucw.cz> <20021115091347.F16779@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021115091011.B16779@ucw.cz>; from vojtech@suse.cz on Fri, Nov 15, 2002 at 09:10:11AM +0100
+In-Reply-To: <20021115091347.F16779@ucw.cz>; from vojtech@suse.cz on Fri, Nov 15, 2002 at 09:13:47AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -28,91 +28,70 @@ You can import this changeset into BK by piping this whole message to:
 
 ===================================================================
 
-ChangeSet@1.781.10.6, 2002-10-19 23:17:51+02:00, vojtech@suse.cz
-  atkbd.c: Only issue the set LED command during probe when absolutely needed.
+ChangeSet@1.786.54.5, 2002-10-24 12:56:59+02:00, vojtech@suse.cz
+  Fix open counting in usbkbd.c and usbmouse.c in case the irq urb
+  submit fails. Bug spotted by Thiemo Seufer.
 
 
- atkbd.c |   27 ++++++++++++++++++---------
- 1 files changed, 18 insertions(+), 9 deletions(-)
+ usbkbd.c   |    4 +++-
+ usbmouse.c |    4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Fri Nov 15 08:31:42 2002
-+++ b/drivers/input/keyboard/atkbd.c	Fri Nov 15 08:31:42 2002
-@@ -380,30 +380,39 @@
- 			printk(KERN_WARNING "atkbd.c: keyboard reset failed\n");
- 
- /*
-- * Next we check we can set LEDs on the keyboard. This should work on every
-- * keyboard out there. It also turns the LEDs off, which we want anyway.
-- */
--
--	param[0] = 0;
--	if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
--		return -1;
--
--/*
-  * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
-  * Some keyboards report different values, but the first byte is always 0xab or
-  * 0xac. Some old AT keyboards don't report anything.
-  */
- 
- 	if (atkbd_command(atkbd, param, ATKBD_CMD_GETID)) {
-+
-+/*
-+ * If the get ID command failed, we check if we can at least set the LEDs on
-+ * the keyboard. This should work on every keyboard out there. It also turns
-+ * the LEDs off, which we want anyway.
-+ */
-+		param[0] = 0;
-+		if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
-+			return -1;
- 		atkbd->id = 0xabba;
+diff -Nru a/drivers/usb/input/usbkbd.c b/drivers/usb/input/usbkbd.c
+--- a/drivers/usb/input/usbkbd.c	Fri Nov 15 08:31:06 2002
++++ b/drivers/usb/input/usbkbd.c	Fri Nov 15 08:31:06 2002
+@@ -163,8 +163,10 @@
  		return 0;
- 	}
-+
- 	if (param[0] != 0xab && param[0] != 0xac)
- 		return -1;
- 	atkbd->id = param[0] << 8;
- 	if (atkbd_command(atkbd, param, ATKBD_CMD_GETID2))
- 		return -1;
- 	atkbd->id |= param[0];
-+
-+/*
-+ * Set the LEDs to a defined state.
-+ */
-+
-+	param[0] = 0;
-+	if (atkbd_command(atkbd, param, ATKBD_CMD_SETLEDS))
-+		return -1;
  
- /*
-  * Disable autorepeat. We don't need it, as we do it in software anyway,
+ 	kbd->irq->dev = kbd->usbdev;
+-	if (usb_submit_urb(kbd->irq, GFP_KERNEL))
++	if (usb_submit_urb(kbd->irq, GFP_KERNEL)) {
++		kbd->open--;
+ 		return -EIO;
++	}
+ 
+ 	return 0;
+ }
+diff -Nru a/drivers/usb/input/usbmouse.c b/drivers/usb/input/usbmouse.c
+--- a/drivers/usb/input/usbmouse.c	Fri Nov 15 08:31:06 2002
++++ b/drivers/usb/input/usbmouse.c	Fri Nov 15 08:31:06 2002
+@@ -86,8 +86,10 @@
+ 		return 0;
+ 
+ 	mouse->irq->dev = mouse->usbdev;
+-	if (usb_submit_urb(mouse->irq, GFP_KERNEL))
++	if (usb_submit_urb(mouse->irq, GFP_KERNEL)) {
++		mouse->open--;
+ 		return -EIO;
++	}
+ 
+ 	return 0;
+ }
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-1.781.10.6
+1.786.54.5
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch16496
-M'XL(`-ZBU#T``[5576^;0!!\]OV*E?+2-#'<`09#Y"H?CEHKJ1+%R5-310>W
-M&&K,6=P1RY5_?`_L.%&JMDG4`-*QL+O,S`ZP`S<*JZAS+W]H3#*R`U^DTE%'
-MU0JMY*>)KZ0TL9W)&=J;+#N>VGDYKS4Q]R^Y3C*XQTI%'6:YVRMZ.<>H<W7Z
-M^>;\Z(J0P0!.,EY.<(P:!@.B977/"Z$.N<X*65JZXJ6:H>96(F>K;>K*H=0Q
-M>X\%+NWY*^93+U@E3##&/8:".E[?]\@&V.$&]K-Z1EE(`R]LZFFO[Y(A,"OH
-M,XM1RP?JV(S:+`3'C5@0]=@>=2)*X5E/V&/0I>08_B_R$Y(`U]-86$D$%V6Q
-MA%RI&D%G",I(=7XZ!--WQDL!HJ[R<@+S2L8(BPQ+X+&21:W1E)6(`H5%SB`,
-MPAZY?)2;=%^Y$4(Y)9^V"NA%7N233%MULFC4%57>S'OM`7N*RUCR2M@;&FOB
-M`7692_L>7;&PS]@JCD6(#D7!7#\,W.?JOJ1G,T:'L<#(V//"(&A-]?>ZQFGO
-MR()4.CL44ELJC?G2JE!D7+<V>!D=9I:@YZP\A_IAZTKG-S]ZP1_]V(=N^"Z&
-M?+4/'\VWGLP%=*M%>Q@W7?YC2&_PY]#MNQ"2D1L&9KDE]D<"'V&4MG`G!N[H
-M$6W*\P+%/BP0D@R3*>1I>\[-ZZ.A0*YTR[`I-2P5R+)IUH0/2"VXSG(%*I-U
-M(6`AJZE)`C2<EML<D'7;HT(+1AIXH23HNBK50[-U[S0U2++<?"`-A@4O36:Y
-M7!CSF#2;=#IS7O'9-_H=!D`/3&S`?FAUNMOP64?[T";NP]'UV?'P[N3K\&Y\
-M>FT>,=[=-56="IMG0Y<=D)%GS,.,2.;$A_Y6K?%3SEH"!X%I7J(`I;G&-:!;
-?\AS1VP`]P;/]0[334/5LD/;0%VGBDU]P3G%4C@8`````
+begin 664 bkpatch16379
+M'XL(`+JBU#T``\V56V^;,!B&K_&O^*3>M.H"/G'*E"KK<5.K+4K7Z\J`"2P%
+M,C#9NK'_/D/24]JL335-XRAC^]7KC^>%+;BH9-DWYL47)<,$;<'[HE)]HZHK
+M:88_='M<%+IM)44FK>4H*YA::3ZK%=+](Z'"!.:RK/H&,=GM$W4]DWUC?'1R
+M<?9NC-!@``>)R"?R7"H8#)`JRKFXBJJA4,E5D9NJ%'F5227,L,B:VZ$-Q9CJ
+MW28NP[;3$`=SMPE)1(C@1$:8<L_A:&ELN+2],I_H400SQGA#&<$<'0(Q7<\Q
+M;6[:@*E%L$4Y$-JWG;[M[V+:QQA6-&&70@^C??B[S@]0",?I=RAF,H>PJ'.5
+MYA-(<ZBK8!I$9@@BC]I&5G0^VJY05!)4(B$MOT)=!EJBJH,L51"+]*HR8;^>
+M0#4KE)(1!-?P.4EE5L"YK&-9FN@4**/$1J.[-X)Z&VX(88'1WC/%B,JT!</2
+M]JV[)=RK#,?$;6SF.Z1A3B"E9V,W"&/!8KE:_P=B'7VKDHO7;#LV;PCS?+:I
+MO:[<J^8X=SW:L-B/.?9<%LE8"!R\S-R=X#UKW.74[_*P?L[S`7F]=12)N<R&
+MI8P2H1YI/>E=GQYWJ59T"':[]%#R*#=\76X8],B_R4W+]J*^GZ!7?NL.S>KH
+M#Z5^!?F'Q'&`H`_MC2(CC6%;JUTN(GBI\[BME7M[.IQOX.1X='EZ-/YX=+:S
+M`S^1871=K>E>[VTKX6HEX]=Z'FYBORD1&V4-34HY&4[+0B3KB7B@Z!.'$N90
+MUA#],6$=$\3[7YE8?`Y>PL1RD:^APO-;*/3U:28ZY754+#MON?#Q$HN;OVF8
+5R'!:U=E`B)`SX4;H-US`1&"Z!P``
 `
 end

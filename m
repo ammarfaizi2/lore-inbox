@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135227AbRDLQwj>; Thu, 12 Apr 2001 12:52:39 -0400
+	id <S135228AbRDLQx3>; Thu, 12 Apr 2001 12:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135228AbRDLQwb>; Thu, 12 Apr 2001 12:52:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26640 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135227AbRDLQwB>; Thu, 12 Apr 2001 12:52:01 -0400
-Date: Thu, 12 Apr 2001 12:10:36 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <Pine.LNX.4.21.0104121207130.2774-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0104121209000.2774-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135229AbRDLQxU>; Thu, 12 Apr 2001 12:53:20 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:23816 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S135228AbRDLQxE>; Thu, 12 Apr 2001 12:53:04 -0400
+Message-Id: <200104121651.f3CGpZHQ002137@pincoya.inf.utfsm.cl>
+To: elenstev@mesatop.com
+cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Re: CML2 1.0.0 release announcement 
+In-Reply-To: Message from Steven Cole <elenstev@mesatop.com> 
+   of "Thu, 12 Apr 2001 06:00:24 CST." <01041206002400.19748@gopnik.dom-duraki> 
+Date: Thu, 12 Apr 2001 12:51:35 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Cole <elenstev@mesatop.com> said:
 
+[...]
 
+> It would seem to me that if someone is using an older and slower machine
+> to build a kernel, they are probably doing this somewhat infrequently,
+> and the longer build process, although more painful for those few users,
+> should be endurable if it is indeed infrequent.
 
-On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
-> 
-> I did :)
-> 
-> This should fix it 
-> 
-> --- mm/page_alloc.c.orig   Thu Apr 12 13:47:53 2001
-> +++ mm/page_alloc.c        Thu Apr 12 13:48:06 2001
-> @@ -454,7 +454,7 @@
->                 if (gfp_mask & __GFP_WAIT) {
->                         memory_pressure++;
->                         try_to_free_pages(gfp_mask);
-> -                       wakeup_bdflush(0);
-> +                       balance_dirty(NODEV);
->                         goto try_again;
->                 }
+Please stop a moment and _think_.
 
-This patch is broken, ignore it. 
-
-Just removing wakeup_bdflush() is indeed correct. 
-
-We already wakeup bdflush at try_to_free_buffers() anyway.
-
+There are people out there that have got a P/90 or less, or just a Sun IPX,
+no network access (or slow phone lines at high prices). That _you_ have a
+dual P3/733 doesn't help them one bit, now does it.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

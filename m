@@ -1,64 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSCaWke>; Sun, 31 Mar 2002 17:40:34 -0500
+	id <S288748AbSCaXLC>; Sun, 31 Mar 2002 18:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSCaWkZ>; Sun, 31 Mar 2002 17:40:25 -0500
-Received: from mathsun1.math.utk.edu ([160.36.50.30]:23310 "HELO
-	mathsun1.math.utk.edu") by vger.kernel.org with SMTP
-	id <S287817AbSCaWkI>; Sun, 31 Mar 2002 17:40:08 -0500
-Date: Sun, 31 Mar 2002 17:40:03 -0500
-From: Geoffrey Hoff <ghoff@math.utk.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.4.19-pre3 udma ide hang with heavy disk activity
-Message-ID: <20020331224003.GA17534@MATHSUN1.MATH.UTK.EDU>
-In-Reply-To: <20020331203726.GB16709@MATHSUN1.MATH.UTK.EDU> <Pine.LNX.4.10.10203311335400.10681-300000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S289484AbSCaXKx>; Sun, 31 Mar 2002 18:10:53 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:53237 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S288748AbSCaXKd>; Sun, 31 Mar 2002 18:10:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Randy Hron <rwhron@earthlink.net>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Subject: Re: Linux 2.4.19-pre5
+Date: Sun, 31 Mar 2002 18:11:17 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020330135333.A16794@rushmore> <E16reZK-0001IL-00@pintail.mail.pas.earthlink.net> <1017605142.641.119.camel@psuedomode>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16roT1-0005al-00@pintail.mail.pas.earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just took a look at these two patches and they are already
-incorporated in linux-2.4.19-pre5 which gives me the same results as
-2.4.19-pre3.  Do you have any other suggestions?
+> the problem.  You said it makes the box look like it's halted in your
+> tests, I saw no such thing.  
 
-Thanks to everyone who works on the IDE subsystem.  I'm sure someone
-will point me to a solution in no time flat.
+I haven't directly observed any box tightening up for
+more than a few seconds.  There have been a few reports
+on lkml of things like that happening.  Based on tiotest
+results, I can see if the I/O request you are waiting for 
+is one of those few that isn't serviced for dozens or
+hundreds of seconds, you'll be annoyed.  
 
-* Andre Hedrick <andre@linux-ide.org> [020331 16:38]:
-> 
-> Please apply these which have been submitted to Alan Cox but originate
-> from Vojtech.
-> 
-> Cheers,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> On Sun, 31 Mar 2002, Geoffrey Hoff wrote:
-> 
-> > On kernels 2.4.19-pre3 and later I get a disk hang any time I generate
-> > heavy disk activity.  My test is a quick script that untars 2.4.0 and
-> > then applys patch up to 2.4.19 and repeats.  With kernels 19-pre3
-> > through 19-pre5, I can usually get through about the third patch and then
-> > my hard drive activity led goes solid and I can no longer access any
-> > disk.  This is happening specifically with a VIA controller (vt82c596b
-> > rev 22) with a Maxtor 91536U6.  Attached are part of my dmesg,
-> > proc/ide/via, hdinfo of /dev/hda and part of my .config.  If I use
-> > hdparm to set the drive to mdma2 in 19-pre3 I never see any problems.  It
-> > only happens in any udma mode.  I compiled 19-pre3 with the via
-> > driver disabled, but the problem continues.  I also tried 19-pre5 as I
-> > looked and saw that it contains more ide updates, but I get the same
-> > results.
-> > 
-> > In 19-pre2 and previous kernels, If the drive is running in UDMA66, I
-> > ocassionally get checksum errors and retries so I usually on boot put
-> > the drive in UDMA33 mode.  I have never seen any error of any kind in
-> > this mode.  I have tried modes udma0, 2, and 4 on 2.4.19-pre3 and they
-> > all eventually hang.  When this hang occurs, I get no kernel messages at
-> > all.  I set dmesg to level 8 so I should see any message on the console.
-> > If it weren't for ext3 and reiserfs, I would be very tired of fscks by
-> > now.  If there is anything that I can try to help narrow this problem
-> > down, please let me know.
+The number of requests that takes over 10 seconds is 
+often just 3 in 10,000.  There may be only 1 request in 
+500,000 that takes 500 seconds to service.  The chance 
+of your interactive i/o being the "longest" is small, unless
+your interactive work is producing enough I/O to compete
+with tiotest.  
+
+What I like about read_latency2 is that most latencies
+are less, and the highest latency is much less.
+ 
+> Heh, maybe i'm confused on your definition of the wall. 
+
+Sorry if that wasn't clear.  "The wall" is the point where
+the highest latency in the test skyrockets.
+
+For instance, in recent ac kernels, the _highest_ latency for 
+sequential reads is less than 5 seconds at 64 threads in all 
+the ac's I've tested.  At 128 threads, the _lowest_ max
+latency figure is 200 seconds.   So, I used the "wall" term 
+for 128 in the ac series.
+
+Similarly, in the Marcelo tree, 1.7 seconds is the _highest_
+latency with 16 threads in all the mainline kernels I've tested.
+At 32 threads, 137 seconds is the _lowest_ maximum latency.
+So I used the idea "wall = 32 threads" for 2.4 mainline.
+
+The actual number of seconds will vary depending on the
+hardware.  I've observed the "skyrocketing" max latency
+or "wall" phenomemon on several boxes though.
+
+The max latency growth before and after "the wall" is similar
+as threads increase.  That is max latency grows slowly, then
+jumps enormously, then grows gradually again.
+
+A little picture, not to scale:
+m                                        x
+a                               x
+x                       x                *
+
+l
+a
+t
+e
+n
+c
+y
+
+s
+e
+q
+                                         #
+r
+e ........ the wall ......................
+a                               #
+d                       #       *
+s               x       * 
+       x*#      *#
+threads 8       16      32      64      128
+
+* = ac
+x = mainline
+# = read_latency2
+
+The "not to scale" means the distance between points 
+above and below "the wall" is actually much greater.
+
+If you feel like it, perhaps you could test ac with preempt 
+and 8 16 32 64 128 256 threads and see if exhibits a wall
+pattern or not.  
+
+Thanks for your interest.

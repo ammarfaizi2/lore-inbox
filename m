@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVATWjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVATWnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVATWjr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVATWjq
+	id S261455AbVATWnX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVATWnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:39:46 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:32934 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262192AbVATWjT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:39:19 -0500
-Date: Thu, 20 Jan 2005 16:39:16 -0600
-To: Paul Mackerras <paulus@samba.org>
-Cc: anton@samba.org, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64: EEH Recovery
-Message-ID: <20050120223916.GJ9140@austin.ibm.com>
-References: <20050106192413.GK22274@austin.ibm.com> <20050117201415.GA11505@austin.ibm.com> <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 20 Jan 2005 17:43:22 -0500
+Received: from [63.81.117.10] ([63.81.117.10]:13762 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261455AbVATWmj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:42:39 -0500
+Message-ID: <41F033DD.6090406@xfs.org>
+Date: Thu, 20 Jan 2005 16:42:37 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: LVM2
+References: <1106250687.3413.6.camel@localhost.localdomain>	 <200501202240.02951.Norbert@edusupport.nl> <1106259457.3413.19.camel@localhost.localdomain>
+In-Reply-To: <1106259457.3413.19.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Jan 2005 22:42:39.0008 (UTC) FILETIME=[58265200:01C4FF41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, Jan 19, 2005 at 05:06:05PM +1100, Paul Mackerras was heard to remark:
-> Linas Vepstas writes:
+Trever L. Adams wrote:
+> It is for a group. For the most part it is data access/retention. Writes
+> and such would be more similar to a desktop. I would use SATA if they
+> were (nearly) equally priced and there were awesome 1394 to SATA bridge
+> chips that worked well with Linux. So, right now, I am looking at ATA to
+> 1394.
 > 
-> > p.s.  It was not clear to me if the EEH patch previously sent 
-> > (6 January 2005, same subject line) will be wending its way into 
-> > the main Torvalds kernel tree, or not.  I hadn't really gotten
-> > confirmation one way or another.
+> So, to get 2TB of RAID5 you have 6 500 GB disks right? So, will this
+> work within on LV? Or is it 2TB of diskspace total? So, are volume
+> groups pretty fault tolerant if you have a bunch of RAID5 LVs below
+> them? This is my one worry about this.
 > 
-> I'm not really totally happy with it yet, on a number of fronts:
+> Second, you mentioned file systems. We were talking about ext3. I have
+> never used any others in Linux (barring ext2, minixfs, and fat). I had
+> heard XFS from IBM was pretty good. I would rather not use reiserfs.
 > 
-> 1. You're adding more PCI-specific stuff to the device_node struct,
->    which I don't like.  I would prefer that the device_node tree
->    contains basically just what we get from OF, and that we have a
->    separate struct for storing ppc64-specific information for each PCI
->    device.  Fixing that is outside the scope of your patch, though.
+> Any recommendations.
+> 
+> Trever
+> 
 
-I wrote this down on my to-do list.  Its the sort of thing that 
-evaporates from my consciousness when other things come along,
-but I'll give it a shot.  
+They all forgot to mention one more limitation, the maximum filesystem
+size supported by the address_space structure in linux. If you are running
+on ia32, then you get stuck with 2^32 filesystem blocks, or 16 Tbytes in
+one filesystem because of the way an address space structure is used to
+cache the metadata. If you use an Athlon 64 that limitation goes away.
 
-> 2. I don't see why the device nodes for the PCI subtree being reset
->    would go away, and thus I don't see the need for your eeh_cfg_tree
->    struct.
-
-Its not the reset, its the hot-plug remove.  The hot plug code assumes
-that you are going to physically remove the device from the slot, so
-it removes the device_node as part of the "unconfig".  
-
-Of course, I found this out only after performing a null-pointer deref.
-Note only does the node go away, but all of the various pointers it holds
-are zeroed in the process.  
-
-The cfg tree holds on to those pointers, so that I wouldn't have to
-muck with the device_node removal code to do something tricky.
-
-> 3. Is there a good reason why we can't use the assigned-addresses
->    property on the relevant device tree nodes to tell us what to set
->    the BARs to?
-
-Yes, the reason is that after a reset, that property doesn't hold any 
-decent data.   I discussed this with the firmware developers, and thier 
-response was that it is the kernel's responsibility to compute 
-(or save/restore) such values.  (Except for bridges, which they will do for us).
-
-> 4. I think the 5 second sleep is quite bogus, and shows that we have
->    the flow of control wrong.  
-
-:)  Yes, well, indeed it is.  Don't look at me, not my idea.
-
-> In particular I think it should be a
->    userland write to a sysfs file that kicks off the restart process
->    rather than it just happening after 5 seconds.  Anyway, what
->    process or thread is executing that 5 second sleep?  Is it keventd
->    or something?
-
-Its a workqueue.
-
-> 5. AFAICS userland will get an unplug notification for the device, but
->    nothing to indicate that is due to an EEH slot isolation event.  I
->    think userland should be told about EEH events.
-
-In principle, I'd agree. In practice, this would seem to require changes
-or additions or enhancements to udev that I don't quite understand, as
-well as potential changes to udev scripts.  Maybe I don't understand
-sysfs sufficiently well.  I am very tempted to punt on this, and wait 
-for the Intel-backed PCI-E code to get to this point, and then do whatever 
-they're doing.
-
---linas
+Steve

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129114AbRBMNHs>; Tue, 13 Feb 2001 08:07:48 -0500
+	id <S131313AbRBMNI6>; Tue, 13 Feb 2001 08:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131313AbRBMNHi>; Tue, 13 Feb 2001 08:07:38 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:27432 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131312AbRBMNHT> convert rfc822-to-8bit; Tue, 13 Feb 2001 08:07:19 -0500
-Date: Tue, 13 Feb 2001 07:06:44 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Jes Sorensen <jes@linuxcare.com>
-cc: Gérard Roudier <groudier@club-internet.fr>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Donald Becker <becker@scyld.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <d3n1brafoj.fsf@lxplus015.cern.ch>
-Message-ID: <Pine.LNX.3.96.1010213070337.31857F-100000@mandrakesoft.mandrakesoft.com>
+	id <S131347AbRBMNIs>; Tue, 13 Feb 2001 08:08:48 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:32273 "EHLO
+	nt1.antefacto.com") by vger.kernel.org with ESMTP
+	id <S131313AbRBMNIj>; Tue, 13 Feb 2001 08:08:39 -0500
+Message-ID: <3A8931C1.4090601@AnteFacto.com>
+Date: Tue, 13 Feb 2001 13:08:17 +0000
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+To: mas9483@ksu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: gzipped executables
+In-Reply-To: <20010213084031.8598.qmail@www1.nameplanet.com> <20010213130949.A472@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Feb 2001, Jes Sorensen wrote:
-> >>>>> "Gérard" == Gérard Roudier <groudier@club-internet.fr> writes:
-> Gérard> In PCI, it is the Memory Write and Invalidate PCI transaction
-> Gérard> that is intended to allow core-logics to optimize DMA this
-> Gérard> way. For normal Memory Write PCI transactions or when the
-> Gérard> core-logic is aliasing MWI to MW, the snooping may well
-> Gérard> happen. All that stuff, very probably, varies a lot depending
-> Gérard> on the core-logic.
+You might consider UPX (http://upx.tsx.org)
+Very cool. The beta version supports compressing the kernel
+and "direct-to-memory" compression. I think it still
+has the disadvantage of not sharing segments between many
+instances of the same program. Is there any way of fixing
+this? (probably would have to hack a bit with the loader?)
+
+For a general solution I would look @ changing the filesystem
+so that particular files (not just executables) can be compressed/
+decompressed transparently. (I.E. for ext2 implement `chattr +c`).
+
+Padraig.
+
+Ingo Oeser wrote:
+
+> On Tue, Feb 13, 2001 at 08:40:31AM -0000, ketil@froyn.com wrote:
 > 
-> In fact one has to look out for this and disable the feature in some
-> cases. On the acenic not disabling Memory Write and Invalidate costs
-> ~20% on performance on some systems.
-
-And in another message, On Mon, 12 Feb 2001, David S. Miller wrote:
-> 3) The acenic/gbit performance anomalies have been cured
->    by reverting the PCI mem_inval tweaks.
-
-
-Just to be clear, acenic should or should not use MWI?
-
-And can a general rule be applied here?  Newer Tulip hardware also
-has the ability to enable/disable MWI usage, IIRC.
-
-	Jeff
-
-
-
+>> On Mon, 12 Feb 2001 23:09:39 -0600 (CST) Matt Stegman <mas9483@ksu.edu> wrote:
+>> 
+>>> Is there any kernel patch that would allow Linux to properly recognize,
+>>> and execute gzipped executables?
+>> 
+>> Perhaps you could put it in the filesystem. Look at the
+>> "chattr" manpage, which shows how this is meant to work with
+>> ext2. It seems not to have been implemented yet. This way you
+>> could also compress any files, not just executables.
+> 
+> 
+> A nice way already implemented in 2.4.x is cramfs. Many embedded
+> people (like me) use it to fill up their flash disks.
+> 
+> Look at linux/Documentation/filesystems/cramfs.txt for more info.
+> 
+> Regards
+> 
+> Ingo Oeser
 

@@ -1,82 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266744AbUKAQmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270596AbUKAQmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266744AbUKAQmx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 11:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270616AbUKAQmw
+	id S270596AbUKAQmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 11:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270603AbUKAQmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 11:42:52 -0500
-Received: from dfw-gate3.raytheon.com ([199.46.199.232]:52421 "EHLO
-	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S266744AbUKAQiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 11:38:46 -0500
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF45B54BA4.2C7A16BA-ON86256F3F.0059443C@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Mon, 1 Nov 2004 10:34:22 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/01/2004 10:35:40 AM
+	Mon, 1 Nov 2004 11:42:12 -0500
+Received: from av1-1-sn1.fre.skanova.net ([81.228.11.107]:18603 "EHLO
+	av1-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S265244AbUKAQkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 11:40:43 -0500
+Message-ID: <418666FF.6080404@lanil.mine.nu>
+Date: Mon, 01 Nov 2004 17:40:31 +0100
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040927)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: ipw2100-devel@lists.sourceforge.net, Oliver Neukum <oliver@neukum.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ipw2100-devel] Re: [2.6.10-rc1-mm2] Firmware loader gone bogus?
+References: <200410311627.02116.shawn.starr@rogers.com> <200411010134.19922.oliver@neukum.org> <200410312050.48975.shawn.starr@rogers.com> <200410312134.46587.shawn.starr@rogers.com>
+In-Reply-To: <200410312134.46587.shawn.starr@rogers.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've uploaded -V0.6.5 to the usual place:
->
->  http://redhat.com/~mingo/realtime-preempt/
+Yep, this fixes it
 
-I built with this patch and had some problems with the system
-locking up.
+Shawn Starr wrote:
+> See: http://marc.theaimsgroup.com/?l=linux-kernel&m=109919609211671&w=2
+> 
+> This will appear in the next -bk automated snapshot soon.
+> 
+> That should fix everyone's firmware load failures.
+> 
+> Shawn.
+> 
+> On October 31, 2004 20:50, Shawn Starr wrote:
+> 
+>>0.0.20040329-1 Linux Hotplug Scripts
+>>
+>>hotplug_20040329 from Debian unstable/testing.
+>>
+>>Using 2.6.9-rc4-xx I had no problems with loading the firmware. As in my
+>>previous emails on the subject, I posted some debug that from the firmware
+>>module and kobject_hotplug, and from there I couldn't see why it was
+>>failing.
+>>
+>>I know lots of changes have been made to hotplug in the kernel recently.
+>>
+>>Shawn.
+>>
+>>On October 31, 2004 19:34, Oliver Neukum wrote:
+>>
+>>>Am Sonntag, 31. Oktober 2004 22:27 schrieb Shawn Starr:
+>>>
+>>>>Yeah I noticed my ipw2200 firmware broke in 2.6.10-rc1-bk5
+>>>>
+>>>>Does 2.6.10-rc1 non-bk snapshots work for you?
+>>>
+>>>Which script do you use to load the firmware?
+>>>
+>>> Regards
+>>>  Oliver
+>>
+>>-------------------------------------------------------
+>>This SF.Net email is sponsored by:
+>>Sybase ASE Linux Express Edition - download now for FREE
+>>LinuxWorld Reader's Choice Award Winner for best database on Linux.
+>>http://ads.osdn.com/?ad_id=5588&alloc_id=12065&op=click
+>>_______________________________________________
+>>ipw2100-devel mailing list
+>>ipw2100-devel@lists.sourceforge.net
+>>https://lists.sourceforge.net/lists/listinfo/ipw2100-devel
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-First attempt:
- - booted to single user without problem
- - telinit 5 was OK as well
- - logged in. After first window popped up, I did
-  su -
-to get root access and the system locked up. No display updates
-nor any mouse movement. Entering Alt-SysRq-L displayed
-  SysRq : Show Regs On All CPUs
-and no other messages appeared on the serial console. Attempts
-to use other Alt-SysRq keys were ignored, hard reset to reboot.
 
-Second attempt:
- - booted to single user without problem
- - telinit 5 failed after kudzu timed out (had "detected" a
-change due to the serial console)
-
-No messages on serial console after the kudzu timeout. This time
-Alt-SysRq-L did work. Also did Alt-SysRq-T and -D and will send
-the all the serial console messages separately.
-
-Did notice an odd message during the dump of tasks...
-Losing too many ticks!
-TSC cannot be used as a timesource.
-Possible reasons for this are:
-  You're running with Speedstep.   [almost surely not]
-  You don't have DMA enabled for your hard disk (see hdparm), [udma4 should
-be set at this point]
-  Incorrect TSC synchronization on an SMP system (see dmesg). [can't look
-at that, system is hung]
-Falling back to a sane timesource now.
-
-Alas, this "sane timesource" didn't help either, system still
-not responding right. Alt-SysRq-S said
-  SysRq : Emergency Sync
-[without any complete messages]
-and Alt-SysRq-B did reboot the system.
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+-- 
+Regards,
+Christian

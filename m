@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTFJUbh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTFJShT
+	id S262390AbTFJU3s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 16:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTFJU2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:37:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3228 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262543AbTFJSgw convert rfc822-to-8bit
+	Tue, 10 Jun 2003 16:28:38 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:63112 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S262409AbTFJU2G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:36:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1055270969809@kroah.com>
-Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <10552709691672@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:29 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 10 Jun 2003 16:28:06 -0400
+Message-ID: <3EE64161.5010102@rackable.com>
+Date: Tue, 10 Jun 2003 13:36:49 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Appleby <john@dnsworld.co.uk>
+CC: xyko_ig@ig.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Wrong number of cpus detected/reported
+References: <434747C01D5AC443809D5FC540501131569E@bobcat.unickz.com>
+In-Reply-To: <434747C01D5AC443809D5FC540501131569E@bobcat.unickz.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jun 2003 20:41:47.0646 (UTC) FILETIME=[B647C9E0:01C32F90]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1369, 2003/06/09 16:12:47-07:00, greg@kroah.com
+John Appleby wrote:
 
-PCI: remove pci_present() from drivers/video/pm2fb.c
+>>After the upgrade the system is reporting that the machine has 8 cpu
+>>instead of 4. I have been looking for some kind of information on the
+>>Internet (www.google.com/linux) about that but I didn't have success.
+>>    
+>>
+>
+>I suspect that it is identifying 4 Xeon CPUs with Hyperthreading, which
+>will correctly double the amount of processors your kernel thinks you
+>have. Intel's Hyperthreading
+>
+>This ought to be a good thing... the only thing I don't quite understand
+>is that I thought Hyperthreading was added in 2.4.17.
+>
+>  
+>
 
+  Red Hat enabled basic hyperthreading support in their 2.4.9 eratta 
+kernels some where along the line.  I just didn't think 1.4 Xeons did 
+HT.  (Maybe the MP Xeons are different from the DP xeons.)
 
- drivers/video/pm2fb.c |    4 ----
- 1 files changed, 4 deletions(-)
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-
-diff -Nru a/drivers/video/pm2fb.c b/drivers/video/pm2fb.c
---- a/drivers/video/pm2fb.c	Tue Jun 10 11:18:15 2003
-+++ b/drivers/video/pm2fb.c	Tue Jun 10 11:18:15 2003
-@@ -1186,10 +1186,6 @@
- #endif
- 
- 	memset(pci, 0, sizeof(struct pm2pci_par));
--	if (!pci_present()) {
--		DPRINTK("no PCI bus found.\n");
--		return 0;
--	}
- 	DPRINTK("scanning PCI bus for known chipsets...\n");
- 
- 	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
 

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130304AbRAaAJG>; Tue, 30 Jan 2001 19:09:06 -0500
+	id <S130846AbRAaAJn>; Tue, 30 Jan 2001 19:09:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130993AbRAaAIo>; Tue, 30 Jan 2001 19:08:44 -0500
-Received: from [209.245.157.113] ([209.245.157.113]:5383 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130092AbRAaAIe>; Tue, 30 Jan 2001 19:08:34 -0500
-Date: Tue, 30 Jan 2001 16:08:32 -0800
-From: Christopher Neufeld <neufeld@linuxcare.com>
-Message-Id: <200101310008.f0V08Wv23250@localhost.localdomain>
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+	id <S130993AbRAaAJf>; Tue, 30 Jan 2001 19:09:35 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:40175 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S130846AbRAaAJ2>; Tue, 30 Jan 2001 19:09:28 -0500
+Date: Tue, 30 Jan 2001 18:09:26 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
 To: linux-kernel@vger.kernel.org
-Subject: Request: increase in PCI bus limit
+In-Reply-To: <3A7756F0.8B589FC7@innominate.de>
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+	<Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+	<Mdiqd.A.qe.yEvd6@dinero.interactivesi.com>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <27QDuD.A.1CC.2e1d6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Hello,
+** Reply to message from Daniel Phillips <phillips@innominate.de> on Wed, 31
+Jan 2001 01:06:08 +0100
 
-   I'm working at a customer site with custom hardware.  The 2.4.0 series
-kernel almost works out of the box, but the machine has 52 PCI busses.
-Plans are to produce a 4-way box which would have over 80 PCI busses.  The
-file include/asm-i386/mpspec.h allocates space for 32 busses in the
-definition of the macro MAX_MP_BUSSES.  When 52 busses are probed, some
-arrays are filled out past their ends (there is no bounds checking
-performed on the array filling), and the kernel oopses out.  The only patch
-which has to be applied to make Linux run stably on these systems is to
-increase that limit.  Would it be possible to bump it up to 128, or even
-256, in later 2.4.* kernel releases?  That would allow this customer to
-work with an unpatched kernel, at the cost of an additional 3.5 kB of
-variables in the kernel.
 
-   Thank you for any help.
-   For completeness, here's the patch (against 2.4.0):
+> > What is wrong with sleep_on()?
+> 
+> If you have a task that looks like:
+> 
+>     loop:
+>         <do something important>
+>         sleep_on(q)
+> 
+> And you do wakeup(q) hoping to get something important done, then if the
+> task isn't sleeping at the time of the wakeup it will ignore the wakeup
+> and go to sleep, which imay not be what you wanted.
 
---- linux-2.4.0/include/asm-i386/mpspec.h.orig  Tue Jan 30 16:06:08 2001
-+++ linux-2.4.0/include/asm-i386/mpspec.h       Tue Jan 30 16:06:21 2001
-@@ -157,7 +157,7 @@
-  */
- 
- #define MAX_IRQ_SOURCES 128
--#define MAX_MP_BUSSES 32
-+#define MAX_MP_BUSSES 256
- enum mp_bustype {
-        MP_BUS_ISA = 1,
-        MP_BUS_EISA,
-
+Ok, so how should this code have been written?
 
 
 -- 
- Christopher Neufeld		 		 neufeld@linuxcare.com
- Home page:  http://caliban.physics.utoronto.ca/neufeld/Intro.html
- "Don't edit reality for the sake of simplicity"
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

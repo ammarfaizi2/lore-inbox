@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265147AbUEZEog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265150AbUEZEpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265147AbUEZEog (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 00:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUEZEog
+	id S265150AbUEZEpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 00:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUEZEpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 00:44:36 -0400
-Received: from mail.kroah.org ([65.200.24.183]:62601 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265147AbUEZEod (ORCPT
+	Wed, 26 May 2004 00:45:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22922 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265150AbUEZEp3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 00:44:33 -0400
-Date: Tue, 25 May 2004 21:43:23 -0700
+	Wed, 26 May 2004 00:45:29 -0400
+Date: Tue, 25 May 2004 21:29:38 -0700
 From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7-rc1] BUG: ibmasm doesn't compile
-Message-ID: <20040526044323.GC22071@kroah.com>
-References: <c901ne$4f9$1@gatekeeper.tmr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+Message-ID: <20040526042938.GA22071@kroah.com>
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525130116.GA16852@devserv.devel.redhat.com> <20040525132413.GD29154@parcelfarce.linux.theplanet.co.uk> <20040525144149.GB7252@kroah.com> <40B405D5.5080407@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c901ne$4f9$1@gatekeeper.tmr.com>
+In-Reply-To: <40B405D5.5080407@pobox.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 02:08:35PM -0400, Bill Davidsen wrote:
-> Actually the ibmasm driver (driver->misc->ibmasm) hasn't compiled in 
-> some versions. However, it will compile as a module, so at the expecse 
-> of having all the stuff to do modules you can use it. Given the size of 
-> the machines which use that hardware, that's hardly an issue ;-) But not 
-> compiling built-in indicates a problem.
+On Tue, May 25, 2004 at 10:49:57PM -0400, Jeff Garzik wrote:
+> Greg KH wrote:
+> >As no one really has PCI Express devices at this time, who knows how
+> 
+> This is not really true...
 
-What are the build errors?
-
-> Does anyone know if there will be a driver for the current hardware? The 
-> one in 2.6.recent can see an RSA-I card, but doesn't seem to speak to 
-> the RSA-II card, which is required for security.
-
-The RSA-II card is controlled by a userspace program which uses libusb
-to talk to the device.  No kernel driver is needed.
-
-thanks,
+Ok, I have seen a few of them in labs, but I'm having a _real_ hard time
+finding one at the local Fry's to purchase :)
 
 greg k-h

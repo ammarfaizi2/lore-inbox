@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUENWg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUENWjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUENWg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 18:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUENWg6
+	id S263079AbUENWjO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 18:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUENWjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 18:36:58 -0400
-Received: from mail.kroah.org ([65.200.24.183]:19664 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263040AbUENWg5 (ORCPT
+	Fri, 14 May 2004 18:39:14 -0400
+Received: from gate.crashing.org ([63.228.1.57]:23441 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263079AbUENWjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 18:36:57 -0400
-Date: Fri, 14 May 2004 14:59:27 -0700
-From: Greg KH <greg@kroah.com>
-To: jdgaston@snoqualmie.dp.intel.com
-Cc: linux-kernel@vger.kernel.org, jason.d.gaston@intel.com,
-       steven.carbonari@intel.com, dely.l.sy@intel.com,
-       david.h.patterson@intel.com
-Subject: Re: [PATCH] ICH6/6300ESB i2c support
-Message-ID: <20040514215927.GC16000@kroah.com>
-References: <200405121952.i4CJqNSc009474@snoqualmie.dp.intel.com>
+	Fri, 14 May 2004 18:39:13 -0400
+Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040514153407.0879b930.akpm@osdl.org>
+References: <20040513145640.GA3430@dreamland.darkstar.lan>
+	 <1084488901.3021.116.camel@gaston>
+	 <20040514164154.GA3852@dreamland.darkstar.lan>
+	 <1084571316.31315.35.camel@gaston>  <20040514153407.0879b930.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1084574160.31001.39.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405121952.i4CJqNSc009474@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 15 May 2004 08:36:00 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 12:52:23PM -0700, jdgaston@snoqualmie.dp.intel.com wrote:
+
 > 
-> Please let me know if there are any questions or if there are any
-> changes needed.  Greg k-h, please apply patch if accaptable.
+> Can we remove them for now?  People's machines are crashing...
 
-Applied to my trees, thanks.
+The proper fix is the kmalloc I suppose, but yes, remove them for
+now.
 
-greg k-h
+Ben.
+
+

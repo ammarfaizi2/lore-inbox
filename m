@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272417AbTHNPTq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 11:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272423AbTHNPTq
+	id S272410AbTHNPW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 11:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272412AbTHNPWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 11:19:46 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:51719 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S272417AbTHNPTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 11:19:44 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: extra ttyS in /sys/class/tty
-Date: Thu, 14 Aug 2003 18:55:31 +0400
-User-Agent: KMail/1.5
+	Thu, 14 Aug 2003 11:22:55 -0400
+Received: from as2-4-3.an.g.bonet.se ([194.236.34.191]:37829 "EHLO
+	zigo.dhs.org") by vger.kernel.org with ESMTP id S272410AbTHNPWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 11:22:53 -0400
+Date: Thu, 14 Aug 2003 17:22:27 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dennis_Bj=F6rklund?= <db@zigo.dhs.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+cc: Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, <vojtech@suse.cz>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+In-Reply-To: <20030811163913.GA16568@bytesex.org>
+Message-ID: <Pine.LNX.4.44.0308141719460.2191-100000@zigo.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308141855.31137.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-{pts/1}% dmesg | grep ttyS
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-ttyS2 at I/O 0xd000 (irq = 9) is a 16550A
+On Mon, 11 Aug 2003, Gerd Knorr wrote:
 
-{pts/1}% l -d /sys/class/tty/ttyS*
-/sys/class/tty/ttyS0/  /sys/class/tty/ttyS1/  /sys/class/tty/ttyS2/
-/sys/class/tty/ttyS3/
-{pts/1}% cat /sys/class/tty/ttyS*/dev
-4:64
-4:65
-4:66
-4:67
+> This is no reason for keeping lircd as event dispatcher, the input layer
+> would do equally well (with liblirc_client picking up events from
+> /dev/input/event<x> instead of lircd).
 
-not that I find sysfs that useful for cdevs in general but I am just curiouos 
-- where does it come from?
+Would this allow you to have one reciever and different remote controles
+(used for different programs in the end)?
 
-I have irtty_sir loaded if it matters.
+You don't want both remotes map button 1 to the same BTN_1 or whatever
+symbol is used.
 
--andrey
+-- 
+/Dennis
+

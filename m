@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290965AbSCRRd6>; Mon, 18 Mar 2002 12:33:58 -0500
+	id <S290593AbSCRRi2>; Mon, 18 Mar 2002 12:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSCRRdt>; Mon, 18 Mar 2002 12:33:49 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:57868 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S290423AbSCRRdi>;
-	Mon, 18 Mar 2002 12:33:38 -0500
-Date: Mon, 18 Mar 2002 12:29:17 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Jan Hudec <bulb@ucw.cz>, linux-fsdevel@vger.kernel.org,
+	id <S290767AbSCRRiS>; Mon, 18 Mar 2002 12:38:18 -0500
+Received: from ns.suse.de ([213.95.15.193]:60167 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290593AbSCRRiB>;
+	Mon, 18 Mar 2002 12:38:01 -0500
+Date: Mon, 18 Mar 2002 18:37:59 +0100
+From: Dave Jones <davej@suse.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
         linux-kernel@vger.kernel.org
-Subject: Re: fadvise syscall?
-Message-ID: <20020318122917.A27252@mark.mielke.cc>
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020317190303.03289ec0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020318000057.051d30e0@pop.cus.cam.ac.uk> <a73ujs$5mc$1@cesium.transmeta.com> <20020318085811.GA21981@artax.karlin.mff.cuni.cz> <3C95BC82.2070003@mandrakesoft.com>
+Subject: Re: [-ENOCOMPILE] ataraid as module in linux-2.5.7-pre2
+Message-ID: <20020318183759.E17410@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203180938.g2I9c1q27846@Port.imtp.ilyichevsk.odessa.ua> <20020318142240.D3025@suse.de> <200203181341.g2IDfbq28679@Port.imtp.ilyichevsk.odessa.ua> <20020318145313.E3025@suse.de> <20020318164215.GI2254@matchmail.com> <20020318174527.C17410@suse.de> <20020318172304.GJ2254@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 05:08:02AM -0500, Jeff Garzik wrote:
-> Jan Hudec wrote:
-> >Then posix_fadvise interface can be implemented in libc using fcntl.
-> It is far better for future-proofing the interface IMO if fadvise is 
-> implementing directly.  Hints are less important than open O_xxx flags 
-> or F_xxx flags, because an implementation can safely ignore 100% of the 
-> fadvise hints, if it so chooses.  One cannot say the same thing for 
-> open/fcntl flags.
+ >     * Some reports of unknown cause of ext2 corruption since 2.5.3 (not
+ > related to the missing i_fsize clearing from .3pre3-5)
+ > 
+ > It would be good to report the last version that this problem was reported
+ > against, and this type of problem can't really be tested on each pre patch.
+ > That's basically what I was asking for before...
 
-There is nothing to say that fadvise(...) shouldn't call fcntl(F_ADVISE, ...).
+Gotcha. Point taken.
 
-If it fits in with open(), then it might just fit in with F_GETFL /
-F_SETFL as well.
+ > # IDE floppy oops on some (zip100) setups. (Triggers BUG_ON() in
+ > elevator.c:237)
+ > 
+ > If the version is reported for this then you can see what function was being
+ > reported at the time.  Otherwise some other patch could shift the contents
+ > to make line 237 point to another function (rewrites and such...)
 
-I prefer generalization, especially for non-critical functions that should
-not be called 1,000,000 a second, such as fadvise().
+ I'll make those BUG() descriptions include the function name & BUG condition
+ in future descriptions.
 
-mark
-
+ Thanks for the feedback
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

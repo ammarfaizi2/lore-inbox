@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316226AbSEQOCq>; Fri, 17 May 2002 10:02:46 -0400
+	id <S316228AbSEQOHm>; Fri, 17 May 2002 10:07:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316229AbSEQOCp>; Fri, 17 May 2002 10:02:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61340 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316226AbSEQOCn>;
-	Fri, 17 May 2002 10:02:43 -0400
-Date: Fri, 17 May 2002 06:49:21 -0700 (PDT)
-Message-Id: <20020517.064921.80183164.davem@redhat.com>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 16-CPU #s for lockfree rtcache (rt_rcu)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020517192116.G12631@in.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316229AbSEQOHl>; Fri, 17 May 2002 10:07:41 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:14343 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S316228AbSEQOHk>; Fri, 17 May 2002 10:07:40 -0400
+Date: Fri, 17 May 2002 16:07:37 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <linux-kernel@vger.kernel.org>
+cc: <linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: [ANN] NTFS 2.0.7c for Linux 2.4.18
+In-Reply-To: <Pine.LNX.4.33.0205170249300.377-100000@bzzzt.slackware.pl>
+Message-ID: <Pine.LNX.4.33.0205171603450.493-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dipankar Sarma <dipankar@in.ibm.com>
-   Date: Fri, 17 May 2002 19:21:16 +0530
-   
-   2.5.3 : ip_route_output_key [c01bab8c]: 12166
-   2.5.3+rt_rcu : ip_route_output_key [c01bb084]: 6027
-   
-Thanks for doing the testing.  Are you able to do this
-test on some 4 or 8 processor non-NUMA system?
+On Fri, 17 May 2002, Pawel Kot wrote:
 
-Basically halfing the profile hits for this function
-is wonderful and I'd love to see how much of this translates to a
-non-NUMA system.
+Hi,
 
-   I have seen moderately significant profile counts
-   for ip_route_input() in preliminary webserver benchmark runs.
-   It is not however clear to me that bucket lock cache line
-   bouncing is the reason behind it. That one needs more investigation.
+> As Arek Miskiewicz reported to me, the previous NTFS TNG versions didn't
+> compile with CONFIG_HIGHMEM. The compilation failed due to lack of the
+> definition of the KM_BIO_IRQ used in the NTFS code.
+>
+> In this release KM_BIO_IRQ was added to km_type enum on all platforms
+> supporting it (sparc, ppm, i386).
+>
+> If you don't use HIGHMEM support or use other architecture the changes
+> don't touch you.
 
-This is where most of the routing heavy work is done on
-a web server, so this doesn't surprise me.  Once packet
-is input and routed, we have destination and just grab a reference to
-and use it for output back to that remote host.
+Unfortunately the patch fixes only the case when NTFS is compiled into the
+kernel. There are missing exports of kmap_pte and kmap_prot when you use
+ntfs as the kernel module and depmod fails then.
+
+The following patch adresses this issue. Could anyone please test it with
+a highmem box? The patch will be included in the next release (2.0.7d or
+2.0.8a).
+
+--- kernel/ksyms.c~	Thu May 16 10:39:39 2002
++++ kernel/ksyms.c	Fri May 17 14:12:04 2002
+@@ -121,6 +121,8 @@
+ EXPORT_SYMBOL(kunmap_high);
+ EXPORT_SYMBOL(highmem_start_page);
+ EXPORT_SYMBOL(create_bounce);
++EXPORT_SYMBOL(kmap_pte);
++EXPORT_SYMBOL(kmap_prot);
+ #endif
+
+ /* filesystem internal functions */
+
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+

@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280805AbRKOJ4I>; Thu, 15 Nov 2001 04:56:08 -0500
+	id <S280806AbRKOJ66>; Thu, 15 Nov 2001 04:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280809AbRKOJz7>; Thu, 15 Nov 2001 04:55:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16395 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280805AbRKOJzl>; Thu, 15 Nov 2001 04:55:41 -0500
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-To: pgallen@randomlogic.com (Paul G. Allen)
-Date: Thu, 15 Nov 2001 10:01:56 +0000 (GMT)
-Cc: alastair.stevens@mrc-bsu.cam.ac.uk (Alastair Stevens),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3BF31C42.469BF2B2@randomlogic.com> from "Paul G. Allen" at Nov 14, 2001 05:37:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S280804AbRKOJ6s>; Thu, 15 Nov 2001 04:58:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63373 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280803AbRKOJ6p>;
+	Thu, 15 Nov 2001 04:58:45 -0500
+Date: Thu, 15 Nov 2001 01:58:36 -0800 (PST)
+Message-Id: <20011115.015836.55572138.davem@redhat.com>
+To: sgy@amc.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What Athlon chipset is most stable in Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.0.20011115111324.01f0c540@mail.amc.localnet>
+In-Reply-To: <Pine.LNX.4.30.0111131910440.9658-100000@anime.net>
+	<20011113.191607.00304518.davem@redhat.com>
+	<5.1.0.14.0.20011115111324.01f0c540@mail.amc.localnet>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E164JLI-0007m8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only problem I still have is IDE. I can not run the IDE drive using DMA or the system will hang HARD, usually with the drive access light on. Even with DMA
-> disabled it might hang under high IDE usage. I will replace the IDE drive with a SCSI drive soon as the SCSI interface works perfectly and very fast. Early MP
-> chipsets had AGP and DMA hardware bugs, but according to AMD errata, the revision in my MoBo should not have these bugs (that doesn't mean it doesn't have them
-> though).
 
-The earlier MP chipsets die if you have IDE prefetching enabled (see the
-errata doc). I'd be suprised if a BIOS had left that on.
+You won't see the problem with the GeForce3 because it has stricter
+AGP timings.
+
+The problem is going to show up with cards that are a little bit out
+of the AGP spec, this includes the Radeon and the GeForce2.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262795AbSJaQQf>; Thu, 31 Oct 2002 11:16:35 -0500
+	id <S262697AbSJaQKw>; Thu, 31 Oct 2002 11:10:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262791AbSJaQQf>; Thu, 31 Oct 2002 11:16:35 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:18822 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262795AbSJaQQ3>; Thu, 31 Oct 2002 11:16:29 -0500
-Subject: RE: Kernel bug in 2.4.7-10smp...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adriano Galano <adriano@satec.es>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <002101c280f4$1e91c380$6f20a4d5@adriano>
-References: <002101c280f4$1e91c380$6f20a4d5@adriano>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 16:42:57 +0000
-Message-Id: <1036082577.8575.77.camel@irongate.swansea.linux.org.uk>
+	id <S262707AbSJaQKw>; Thu, 31 Oct 2002 11:10:52 -0500
+Received: from main.gmane.org ([80.91.224.249]:7866 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262697AbSJaQKv>;
+	Thu, 31 Oct 2002 11:10:51 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
+Date: Thu, 31 Oct 2002 11:18:16 -0500
+Message-ID: <aprkvt$flg$1@main.gmane.org>
+References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF5A08.9090407@pobox.com> <20021029201110.A29661@work.bitmover.com> <200210300853.09342.pollard@admin.navo.hpc.mil> <3DBFF649.9030906@corvil.com> <3DBFFDEF.4040004@sxb.bsf.alcatel.fr>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036080957 16048 130.127.121.177 (31 Oct 2002 16:15:57 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Thu, 31 Oct 2002 16:15:57 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 15:42, Adriano Galano wrote:
-> I don't apply the patches for possible incompatibility with Compaq Remote
-> Insight Manager card, the drivers of this card are for 2.4.7
-> (http://www.compaq.com/support/files/server/us/download/15084.html). Now I'm
-> trying to make one upgrade to 2.4.18 recompiling the drivers source...  Why
-> happen this errors in 2.4.7?
+Denis RICHARD wrote:
 
-2.4.7 had various bugs that got fixed, like any other software. The old
-kernel you are running also has security holes fixed which is a very
-good reason to upgrade
+> 
+> A new version of the patch (0.4.43) is available here :
+> http://www.alizt.com
+> But I have not tested the patch on ext3.
+> 
+
+Any possibility for a forward port to 2.5?
+
+Cheers,
+Nicholas
+
 

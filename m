@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSENPfZ>; Tue, 14 May 2002 11:35:25 -0400
+	id <S315786AbSENPmu>; Tue, 14 May 2002 11:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSENPfY>; Tue, 14 May 2002 11:35:24 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:61966 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315783AbSENPfW>; Tue, 14 May 2002 11:35:22 -0400
-Message-ID: <3CE11F90.5070701@evision-ventures.com>
-Date: Tue, 14 May 2002 16:30:40 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315787AbSENPms>; Tue, 14 May 2002 11:42:48 -0400
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:23013 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S315786AbSENPml> convert rfc822-to-8bit; Tue, 14 May 2002 11:42:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: mark.gross@intel.com
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Date: Tue, 14 May 2002 17:35:36 +0200
+X-Mailer: KMail [version 1.4]
+In-Reply-To: <200205132218.g4DMIEw14788@unix-os.sc.intel.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Vamsi Krishna S ." <vamsi@in.ibm.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Neil Conway <nconway.list@ukaea.org.uk>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.15 IDE 61
-In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200205141735.36262.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alan Cox napisa?:
->>I think you're wrong Alan.  Take a good IDE chipset as an example: both
->>channels can be active at the same time, but you still can't talk to one
->>drive while the other drive on the same channel is DMAing.
-> 
-> 
-> Sure.
-> 
-> 
->>I'm not a block layer expert, but it appears to me that the block layer
->>only synchronises requests by use of the spinlock.  If I'm right, then
->>the block layer has no way of knowing that hda is DMAing when a request
->>is initiated for hdb.  This was the whole reason (as I see it) that
->>hwgroup->busy existed: to prevent attempts to use the same IDE cable for
->>two things at the same time.
-> 
-> 
-> The newer block code has queues. Its up to the block layer to deal with
-> the queue locking.
-> 
-> 
->>It doesn't matter how you perform the queue abstraction in this case:
->>the fact that the device+channel+cable is busy in an asynchronous manner
->>makes it impossible for the block layer to deal with this.  [[Or am I
->>way off base?!]]
-> 
-> 
-> I think you are way off base. If you have a single queue for both hda and
-> hdb then requests will get dumped into that in a way that processing that
-> queue implicitly does the ordering you require.
-> 
->>From an abstract hardware point of view each ide controller is a queue not
-> each device. Not following that is I think the cause of much of the existing
-> pain and suffering.
+Hi Mark!
 
+Thanks for sending the new patch, I'd be interested in the testprograms :-)
 
-Yes thinking about it longer and longer I tend to the same conclusion,
-that we just shouldn't have per device queue but per channel queues instead.
-The only problem here is the fact that some device properties
-are attached to the queue right now. Like for example sector size and friends.
+BTW: any idea what happens when a thread which is suspended happens to be in 
+kernel mode? Guess this could be possible with 2.5.X... Does gdb handle that?
 
-I didn't have a too deep look in to the generic blk layer. But I would
-rather expect that since the lower layers are allowed to pass
-an spin lock up to the queue intialization, sharing a spin lock
-between two request queues should just serialize them with respect to
-each other. And this is precisely what 63 does.
+Regards,
+Erich
 
-BTW> FreeBSD does simple use per channel queues.
+On Monday 13 May 2002 21:17, you wrote:
+> The following patch for 2.5.14 kernel, applies cleanly to the 2.5.15
+> kernel.
+>
+> This work has been tested on the 2.5.14 kernel using a few pthread
+> applications to dump core, from SIGQUIT and SIGSEV. This unit test has been
+> done on both 2 and 4 way systems.  Further, some stress testing has been
+> done where, the core files have been created while the system is under
+> schedule stress from the chat room benchmark running while creating the
+> core files.  This implementation seems to be quit stable under a busy
+> scheduler, YMMV.  These test programs are available uppon request ;)
+
 
 

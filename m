@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUHVJsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266633AbUHVLAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266616AbUHVJsd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 05:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUHVJsd
+	id S266633AbUHVLAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 07:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUHVLAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 05:48:33 -0400
-Received: from qfep05.superonline.com ([212.252.122.162]:5110 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S266616AbUHVJsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 05:48:30 -0400
-From: "Josan Kadett" <corporate@superonline.com>
-To: "'Brad Campbell'" <brad@wasp.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sun, 22 Aug 2004 12:48:32 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <41286915.9090209@wasp.net.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcSIK2fRyUjvimvKT/+v9WkSY+b3kQACHpaw
-Message-Id: <S266616AbUHVJsa/20040822094830Z+232@vger.kernel.org>
+	Sun, 22 Aug 2004 07:00:06 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:34054 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S266633AbUHVLAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 07:00:01 -0400
+Date: Sun, 22 Aug 2004 13:04:01 +0200
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, V13 <v13@priest.com>,
+       "Barry K. Nathan" <barryn@pobox.com>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>
+Subject: Re: Possible dcache BUG
+Message-ID: <20040822110401.GA14172@hh.idb.hist.no>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040821092556.GA14991@ip68-4-98-123.oc.oc.cox.net> <200408212131.38019.v13@priest.com> <200408211455.14118.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200408211455.14118.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am still persistent on the fact that NAT should work with this sense.
+On Sat, Aug 21, 2004 at 02:55:13PM -0400, Gene Heskett wrote:
+> On Saturday 21 August 2004 14:31, V13 wrote:
+> 
+> So not only has the problem moved from the 2nd LSB to the MSB of the 
+> fetch, but it is a lot more severe in terms of the amount of time to 
+> catch one error, now nearly 17 hours.  I'm now up 25 hours and the 
+> machine feels good, no Oops so far and I've restarted memburn in 
+> addition to konstruct working on kde-3.3 final.  I'm over 100 megs 
+> into the swap, and 2.6.8.1-mm2 seems to handling the situation 
+> admirably so far.  That knocking sound?  Thats me, knocking on wood 
+> for good luck.  :-)
 
-I just enable NAT with the following command
+Seems it is the memory, then.
+Things getting *better*�when moving memory may mean:
+* slight timing problem - in that case the memory might be fine
+  at a slower setting.  (Reason for complaints if you must go below spec.)
+* Moving memory around rubs dirt, dust and oxide off the contacts, both on
+  the memory sticks and the mainboard connectors.  This gives
+  better contact and may improve things.  Consider cleaning the
+  connectors further.  Also look for dust and hair lying in
+  the mainboard connectors.  It happens, especially when some
+  slots are free for a long time until memory is added.
 
-iptables -t nat -A POSTROUTING -o eth1 -j SNAT --to 192.168.1.5
-
-This IP 192.168.1.5 is our patched linux server which is allowed to acccess
-192.168.1.77
-
-Now all protocols in the linux system is working fine as ever, and even ping
-sent to 192.168.77.1 returns from 192.168.77.1 that is visible in the
-presumably lowest layer of network stack (as tcpdump also sees it that way).
-
-However; the client on the interface eth0 which has the IP address of
-192.168.0.30 gets its IP address translated to 192.168.1.5, the ping is sent
-and a response is received (tcpdump shows it)
-
-But the patched linux system does not translate it back to the client that
-requested that ping. That means, only our patched linux system can access to
-the node, but nothing else.
-
-I tested NAT for another interface (not eth1 whose connection is now somehow
-patched) to send a request to google.com, the NAT ensuredly works for any
-other IP but 192.168.77.1.  
-
-I am suspiciuous about the fact that IPTables might still see the wrong IP
-address of the device before it is changed by the patch (192.168.1.1), thus
-it drops the packet there. However; this event is rather odd...
-
-BTW, the problem is at the edge of being resolved, since the hardest part is
-now gone. But I could not believe all this would be gone by two lines of
-code... The solution must be there;
-
-*You could test the NAT to see whether it works for your configuration, this
-time I am totally out of ideas...
-
-
-
-
-
------Original Message-----
-From: Brad Campbell [mailto:brad@wasp.net.au] 
-Sent: Sunday, August 22, 2004 11:36 AM
-To: Josan Kadett
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-
-You have 192.168.0.x NAT to 192.168.1.1?
-I thought you wanted to NAT to 192.168.77.1?
-
-My understanding was you sent a packet to 192.168.77.1 and the device sent
-it back from 192.168.1.1
-
-Can you send me your iptables configuration?
+Helge Hafting
 
 
 

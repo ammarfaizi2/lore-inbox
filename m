@@ -1,151 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUDHEIV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 00:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUDHEIU
+	id S261568AbUDHETY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 00:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDHETY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 00:08:20 -0400
-Received: from web40508.mail.yahoo.com ([66.218.78.125]:58961 "HELO
-	web40508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261576AbUDHEIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 00:08:04 -0400
-Message-ID: <20040408040756.95337.qmail@web40508.mail.yahoo.com>
-Date: Wed, 7 Apr 2004 21:07:56 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge 
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200404080243.i382hG6K003775@eeyore.valparaiso.cl>
-MIME-Version: 1.0
+	Thu, 8 Apr 2004 00:19:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:490 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261568AbUDHETW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 00:19:22 -0400
+Date: Thu, 8 Apr 2004 13:56:45 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       anton@samba.org, paulus@samba.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: RFC: COW for hugepages
+Message-ID: <20040408035645.GC29551@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, benh@kernel.crashing.org, ak@suse.de,
+	linux-kernel@vger.kernel.org, anton@samba.org, paulus@samba.org,
+	linuxppc64-dev@lists.linuxppc.org
+References: <20040407074239.GG18264@zax> <20040407143447.4d8f08af.ak@suse.de> <1081386710.1401.86.camel@gaston> <20040407190126.06a9c38f.akpm@osdl.org> <20040408030923.GA29551@zax> <20040407202443.78078b59.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040407202443.78078b59.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
-> > --- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+On Wed, Apr 07, 2004 at 08:24:43PM -0700, Andrew Morton wrote:
+> David Gibson <david@gibson.dropbear.id.au> wrote:
+> >
+> > > I don't see much in the COW code which is ppc64-specific.  All the hardware
+> >  > needs to do is to provide a way to make the big pages readonly.  With a bit
+> >  > of an abstraction for the TLB manipulation in there it should be pretty
+> >  > straightforward.
+> >  > 
+> >  > Certainly worth the attempt, no?
+> > 
+> >  Yes, you have a point.  However doing it in a cross-arch way will
+> >  require building more of a shared abstraction about hugepage pte
+> >  entries that exists currently.  And that will mean making significant
+> >  changes to all the archs to create that abstraction.  I don't know
+> >  enough about the other archs to be confident of debugging such
+> >  changes, but I'll see what I can do.
 > 
-> [...]
-> 
-> > > And then there is the technology of _inventing_
-> a
-> > > language tailored to the
-> > > task at hand... even better than your list of
-> > > high-level languages.
-> 
-> > I started exactly with that. I found out shortly
-> that
-> > have no idea of functionality needed for such kind
-> of
-> > system.
-> 
-> Come back when you have found out.
+> Well the first step is to consolidate the existing duplication in 2.6.5
+> before thinking about new features.  That's largely a cut-n-paste job which
+> I've been meaning to get onto but alas have not.  I don't want to dump it
+> on you just because you want to tend to your COWs so if you have other
+> things to do, please let me know.
 
-Sorry. I live in the real world. In 1999 I had servers
-to protect. One of them was hacked and I started to
-look for tools which could protect servers. I found
-NOTHING. (there were some Intrusion Detection Systems,
-which would alert you when your server was ALREADY
-hacked - it was completely unacceptable for me).
+Well, I do have other things to do, so I'll try to look at the
+consolidation when I get a chance.
 
-So I created VXE. Problem was solved. I could not sit
-and think about some perfect design while my servers
-were in the net unprotected, it's too expensive.
+> We could use the `weak' attribute in mm/hugetlbpage.c for those cases where
+> one arch really needs to do something different.
 
-Speed is not most important for me. If I have fast but
-unprotected server - it is of no use for me.
+Yes, that's an idea.
 
-> 
-> >         It was clear that requirments for this
-> sytem
-> > can change rapidly.
-> 
-> I would not trust anything with "rapidly changing
-> requirements" as security
-> infrastructure.
-
-VXE worked for me. It was much better than nothing.
-
-> >                     Only general purpose language
-> can
-> > address this problem (if we want to save time of
-> > development and introduction of new security
-> models).
-> 
-> A security model has to be exhaustively scrutinized,
-> proved correct and
-> complete, and well-tested. The implementation
-> language is completely
-> irrelevant, the hard work is _not_ programming.
-> 
-> > Example. Current security policies are 'static'.
-> 
-> In what sense?
-
-Actually one 'dynamic' feature is implemented in VXE.
-In ordinary system resource has permissions which
-allows access or not. For higher security VXE can
-count number of allowed accesses. For example, we are
-securing POP server. We allow it to open /etc/passwd,
-/etc/shadow for reading only once (counter is 1). So,
-if hacker breaks to POP server after it opened
-/etc/passwd - there is no way hacker can open this
-file.
-
-Another 'dynamic' feature is changing policy on the
-fly. For now POP server can access all mailboxes in
-/var/spool/mail - it's easy to add ability to modify
-policy. After POP server authorized user it changes
-it's UID - at that point we can set access to
-/var/spool/mail/user_1 only. So POPD couldn't access
-other files in all mailbox directories.
-
-> >                                                 
-> It
-> > seems, that it would be nice to have 'dynamic'
-> > policies (with support from security model).
-> 
-> Again, what does this mean?
-> 
-> >                                              Now,
-> > policy describes resources available for
-> subsystem.
-> 
-> No...
-> 
-> >                                                   
->  It
-> > may be useful to limit the sequence of access to
-> > resources - 'behaviour' of subsystem. I'm not sure
-> if
-> > I want to implement that right away, but there is
-> > commercial system which does exactly that already
-> (it
-> > was created later than VXE).
-> 
-> What is the use of restricting access sequences? If
-> sequence A, B, C is
-> forbidden, chances are that C, B, A (or any of the
-> other 4 permutations)
-> will give an attacker exactly what he wants.
-
-VXE can have counters assigned to syscall parameters.
-More sophisticated way is to have determined sequence
-of syscalls. So, if hackers broke in the system
-(sendmail for example) he can just follow logic of the
-system - do the work of sendmail for you :-)
-
-I can't say how easy to use this, but the company (my
-competitors :-) which created this is entercept.com -
-it seems, that they were very successful - I went to
-their site right now and was redirected to Network
-Associates - they were bought out, my guess. 
-
-Serge.
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

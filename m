@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTIYUSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 16:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTIYUSR
+	id S261862AbTIYUQq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 16:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTIYUQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 16:18:17 -0400
-Received: from web40902.mail.yahoo.com ([66.218.78.199]:60198 "HELO
-	web40902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261872AbTIYUSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 16:18:15 -0400
-Message-ID: <20030925201814.5680.qmail@web40902.mail.yahoo.com>
-Date: Thu, 25 Sep 2003 13:18:14 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
-To: David T Hollis <dhollis@davehollis.com>
+	Thu, 25 Sep 2003 16:16:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:21709 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261862AbTIYUQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 16:16:45 -0400
+Date: Thu, 25 Sep 2003 22:16:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F734762.4020600@davehollis.com>
-MIME-Version: 1.0
+Subject: Re: unable to mount (UN-encrypted) dvds or view any dvd-video
+Message-ID: <20030925201633.GR15415@suse.de>
+References: <m33cesskla.fsf@lugabout.jhcloos.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m33cesskla.fsf@lugabout.jhcloos.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Hollis,
-
---- David T Hollis <dhollis@davehollis.com> wrote:
-> Bradley Chapman wrote:
+On Fri, Sep 19 2003, James H. Cloos Jr. wrote:
+> For the last several kernels I've run I've been unable to do anything
+> with dvds -- including software dvds.  Watching dvd-video discs also
+> also fails, again including those w/o css.
 > 
-> >
-> >I tried it the first way and I got the same error. I've already upgraded my
-> glibc;
-> >do I need to reboot to 2.4.22-ac2 and upgrade some other system component, like
-> >ld.so?
-> >
-> >Brad
-> >
-> >
-> >=====
-> >Brad Chapman
-> >
-> >
-> >  
-> >
-> A few ways to solve this:
-> What I did before upgrading RPM was:
-> export LD_ASSUME_KERNEL=2.2.5
-> rpm -Uvh blah.rpm
+> CDroms continue to work, only the dvds fail.
 > 
-> If you upgrade to rpm that is in RedHat Rawhide (current 4.2.1-0.30), 
-> this problem goes away.  You may need to upgrade your glibc as well, I'm 
-> currently at 2.3.2-91 from Rawhide.
+> Drive is a SONY CD-RW/DVD-ROM CRX810E, FwRev=1.4c laptop ide drive.
 > 
+> I'd estimate it broke starting around 2.5.6x or so.  +/-.
 
-Thanks! Using 2.2.5 works!
+It would help a lot if you could pin point where it broke.
 
-Thanks to everyone who helped out. Perhaps this needs to go into an FAQ somewhere?
+-- 
+Jens Axboe
 
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

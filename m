@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSJONxl>; Tue, 15 Oct 2002 09:53:41 -0400
+	id <S262823AbSJON6p>; Tue, 15 Oct 2002 09:58:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262825AbSJONxl>; Tue, 15 Oct 2002 09:53:41 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:48127 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262821AbSJONxk>; Tue, 15 Oct 2002 09:53:40 -0400
-Date: Tue, 15 Oct 2002 07:00:29 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Jeff Dike <jdike@karaya.com>, user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: uml-patch-2.5.42-1
-Message-ID: <20021015140029.GA1378@beaverton.ibm.com>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Jeff Dike <jdike@karaya.com>,
-	user-mode-linux-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20021015104210.A1335@namesys.com> <200210151352.IAA02057@ccure.karaya.com> <20021015170558.A6060@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021015170558.A6060@namesys.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S262824AbSJON6p>; Tue, 15 Oct 2002 09:58:45 -0400
+Received: from mta03ps.bigpond.com ([144.135.25.135]:65006 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262823AbSJON6o> convert rfc822-to-8bit; Tue, 15 Oct 2002 09:58:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2 oops report. [solved])
+Date: Wed, 16 Oct 2002 00:13:02 +1000
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <fd1cf102287.102287fd1cf@bigpond.com> <200210152305.32641.harisri@bigpond.com>
+In-Reply-To: <200210152305.32641.harisri@bigpond.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210160013.02220.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin [green@namesys.com] wrote:
-> Hello!
-> 
-> On Tue, Oct 15, 2002 at 08:52:17AM -0500, Jeff Dike wrote:
-> 
-> > > For some reason I now need this patch to make bk-current to compile 
-> > That patch is against stock 2.5.42, so I don't make any guarantees about
-> > bk-current.
+Hello,
 
-I was seeing the same failure on 2.5.42.
+> That precisely is the reason. The bad news is that system crashes when
+> agpgart and radeon are compiled as modules, and the good news is that I am
+> unable to crash it when they are not.
 
-> 
-> I am in no way inplying that you are making any guarantees about your patches to
-> work with something but the kernels they are released for.
-> On the other hand I thought you might find it useful if I report to you
-> problems with more modern kernels that I encounter so that when you will
-> update UML to never kernel you do not need to hit all the problems by yourself.
-> 
-> > However the __i386__ thing should be taken care of by Makefile-i386 doing
-> > 	CFLAGS += -U__i386__
-> > I might have messed up the patch, I'll check and fix it if so.
-> 
-> Yes, it seems to be the case.
-> 
-> CFLAGS is defined first in arch/um/Makefile and only then you do
-> include Makefile-{SUBARCH}
-> 
-> Moving 'include $(ARCH_DIR)/Makefile-$(SUBARCH)' in front of CFLAGS
-> helped.
+My goodness, I have spoken too early I guess. The -aa kernel crashes whether 
+agpgart and radeon are modules or not.
+ 
+> Mainline (2.4.20-pre10) is stable when agpgart and radeon are compiled as
+> modules.
 
-This fixed the __i386__ issue, but messed up the header symlinks. I
-moved CFLAGS after the includes and this appears to have fixed both
-problems, but makefile magic is not my thing so YMMV.
+That holds true still.
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+> The problem is much easier to reproduce than I thought, just log in and log
+> out of XFree86/Gnome few times (3 or more times in my case) is more than
+> adequate to crash it.
+
+That is still the case.
+-- 
+Hari
+harisri@bigpond.com
 

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269328AbUJQXPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269330AbUJQXRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269328AbUJQXPf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 19:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUJQXPf
+	id S269330AbUJQXRa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 19:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269329AbUJQXR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 19:15:35 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61662 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S269328AbUJQXOY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 19:14:24 -0400
-Message-ID: <4172FA8B.6010308@osdl.org>
-Date: Sun, 17 Oct 2004 16:04:43 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>, jolt@tuxbox.org
-Subject: [PATCH] bt878: discarded reference
-Content-Type: multipart/mixed;
- boundary="------------060000000900040709030504"
+	Sun, 17 Oct 2004 19:17:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41477 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269325AbUJQXQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 19:16:30 -0400
+Date: Mon, 18 Oct 2004 01:15:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Mark Goodman <mgoodman@CSUA.Berkeley.EDU>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix NFS3 krb5 clients on x86-64 (fwd)
+Message-ID: <20041017231557.GP2466@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060000000900040709030504
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+
+The patch below by Mark Goodman (already ACK'ed bt Trond) still applies 
+against both 2.6.9-rc4 and 2.6.9-rc4-mm1.
+
+I've rediffed it since the original patch seems to have suffered from 
+some whitespace damage.
 
 
 
+----- Forwarded message from Mark Goodman <mgoodman@CSUA.Berkeley.EDU> -----
 
---------------060000000900040709030504
-Content-Type: text/x-patch;
- name="bt878_devexit.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bt878_devexit.patch"
+Date:	Mon, 20 Sep 2004 18:32:50 -0700
+From: Mark Goodman <mgoodman@CSUA.Berkeley.EDU>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix NFS3 krb5 clients on x86-64
 
+This patch is necessary to make NFS3 krb5 clients work on x86-64. It 
+applies to 2.6.9-rc2. Please apply.
 
-Error: ./drivers/media/dvb/bt8xx/bt878.o .data refers to 0000000000000048 R_X86_64_64       .exit.text
+Signed-off-by: Mark Goodman <mgoodman@csua.berkeley.edu>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- drivers/media/dvb/bt8xx/bt878.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naurp ./drivers/media/dvb/bt8xx/bt878.c~bt878_devexit ./drivers/media/dvb/bt8xx/bt878.c
---- ./drivers/media/dvb/bt8xx/bt878.c~bt878_devexit	2004-10-11 21:17:56.000000000 -0700
-+++ ./drivers/media/dvb/bt8xx/bt878.c	2004-10-17 11:27:29.000000000 -0700
-@@ -559,7 +559,7 @@ static struct pci_driver bt878_pci_drive
-       .name 	= "bt878",
-       .id_table = bt878_pci_tbl,
-       .probe 	= bt878_probe,
--      .remove 	= bt878_remove,
-+      .remove 	= __devexit_p(bt878_remove),
- };
+--- linux-2.6.9-rc4-full/net/sunrpc/auth_gss/auth_gss.c.old	2004-10-18 01:06:10.000000000 +0200
++++ linux-2.6.9-rc4-full/net/sunrpc/auth_gss/auth_gss.c	2004-10-18 01:08:14.000000000 +0200
+@@ -246,7 +246,7 @@
+ 	spin_lock_init(&ctx->gc_seq_lock);
+ 	atomic_set(&ctx->count,1);
  
- static int bt878_pci_driver_registered = 0;
-
-
---------------060000000900040709030504--
+-	if (simple_get_bytes(&p, end, uid, sizeof(uid)))
++	if (simple_get_bytes(&p, end, uid, sizeof(*uid)))
+ 		goto err_free_ctx;
+ 	/* FIXME: discarded timeout for now */
+ 	if (simple_get_bytes(&p, end, &timeout, sizeof(timeout)))

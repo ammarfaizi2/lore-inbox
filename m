@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129307AbRBSURw>; Mon, 19 Feb 2001 15:17:52 -0500
+	id <S129421AbRBSU2E>; Mon, 19 Feb 2001 15:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129479AbRBSURl>; Mon, 19 Feb 2001 15:17:41 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:62471 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129307AbRBSUR1>;
-	Mon, 19 Feb 2001 15:17:27 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200102192017.f1JKHO952286@saturn.cs.uml.edu>
-Subject: Re: The lack of specification (was Re: [LONG RANT] Re: Linux stifles innovation... )
-To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
-Date: Mon, 19 Feb 2001 15:17:24 -0500 (EST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <Pine.LNX.3.96.1010219191533.6201A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Feb 19, 2001 08:11:14 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129429AbRBSU1y>; Mon, 19 Feb 2001 15:27:54 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:25105 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129421AbRBSU1m>; Mon, 19 Feb 2001 15:27:42 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14993.33186.622147.313411@wire.cadcamlab.org>
+Date: Mon, 19 Feb 2001 14:27:14 -0600 (CST)
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx (and sym53c8xx) plans 
+In-Reply-To: <20010217180547.B28785@cadcamlab.org>
+	<200102181714.f1IHE8O94912@aslan.scsiguy.com>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka writes:
 
-> Imagine that there is specification of mark_buffer_dirty. That
-> specification says that
-> 	1. it may not block
-> 	2. it may block
-> 
-> In case 1. implementators wouldn't change it to block in stable kernel
-> 	relese because they don't want to violate the specification.
+[Justin Gibbs]
+> I've verified the driver's functionality on 25 different cards thus
+> far covering the full range of chips from aic7770->aic7899.
 
-One of these things must happen:
+That's very good to hear.  I know the temptation of only testing on new
+hardware; that's why I was concerned.
 
-a. follow the specification, even if that makes code slow and contorted
-b. change the specification
-c. ignore the specification
-d. get rid of the specification
+> Lots of people here at Adaptec look at me funny when I pull a PC from
+> the scrap-heap, or pull an old, discontinued card from an unused
+> marketing display for use in my lab
 
-Option "a" will not be accepted around here. Sorry. The best you can
-hope for is option "b". Since that is hard work (want to help?) we
-often end up not using a specification... hopefully by just not
-having one, instead of by ignoring one.
+Heh. (:
 
-Not saying it doesn't suck to have things undocumented, but at least
-you don't have to reverse-engineer a multi-megabyte binary kernel to
-find out what is going on.
+BTW, is there really enough common ground between the whole series of
+AIC chips to justify a single huge driver?  I know they ship three
+separate NT drivers to cover this range..
 
->> Anytime you change implementation, you gotta check all drivers that use
->> them.  I know, I'm one of the grunts that does such reviews and changes.
->
-> Anytime you change implementation of syscalls, you gotta check all
-> applications that use them ;-) Luckily not - because there is
-> specification and you can check that syscalls conform to the
-> specification, not apps. 
-
-Syscalls are more stable, but they may be changed after many years
-of a transition period. The C library hides some of this from users.
-
-> Now implementators of TCP will say: that driver is buggy. Everybody should
-> set state=TASK_RUNNING before calling schedule to yield the process. 
-> 
-> Implementators of driver will say: TCP is buggy - no one should call my
-> driver in TASK_[UN]INTERRUPTIBLE state.
-> 
-> Who is right? If there is no specification....
-
-The driver is buggy, unless the TCP maintainer can be convinced
-that TCP is buggy. TCP is a big chunk of code that most people use,
-while the driver is not so huge or critical.
-
-The TCP maintainers do not seem to be sadistic bastards hell-bent on
-breaking your drivers. API changes usually have a good reason.
+Peter

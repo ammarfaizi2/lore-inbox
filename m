@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136482AbRD3IrN>; Mon, 30 Apr 2001 04:47:13 -0400
+	id <S136490AbRD3JKA>; Mon, 30 Apr 2001 05:10:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136483AbRD3IrD>; Mon, 30 Apr 2001 04:47:03 -0400
-Received: from [194.128.63.73] ([194.128.63.73]:50571 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S136482AbRD3Iqs>; Mon, 30 Apr 2001 04:46:48 -0400
-Message-ID: <3AED26B0.8598C241@ukaea.org.uk>
-Date: Mon, 30 Apr 2001 09:47:44 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-Organization: UKAEA Fusion
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.4.21.0104270953280.2067-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136488AbRD3JJl>; Mon, 30 Apr 2001 05:09:41 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:10113 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S136487AbRD3JJi>; Mon, 30 Apr 2001 05:09:38 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: [Moving rapidly offtopic] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+Date: Mon, 30 Apr 2001 09:09:36 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9cja4g$3nr$1@forge.intermeta.de>
+In-Reply-To: <Pine.LNX.4.20.0104300303530.4671-100000@node2.localnet.net> <Pine.GSO.4.21.0104300317250.4113-100000@weyl.math.psu.edu> <20010430034001.A5520@thyrsus.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 988621776 9712 212.34.181.4 (30 Apr 2001 09:09:36 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 30 Apr 2001 09:09:36 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya.
+"Eric S. Raymond" <esr@thyrsus.com> writes:
 
-Linus Torvalds wrote:
-> So anybody who depends on "dump" getting backups right is already playing
-> russian rulette with their backups.  It's not at all guaranteed to get the
-> right results - you may end up having stale data in the buffer cache that
-> ends up being "backed up".
-> 
-> Dump was a stupid program in the first place. Leave it behind.
+>@hd{McQuary limit} @p{} 4 lines of at most 80 characters each,
+>   sometimes still cited on Usenet as the maximum acceptable size of a
+>   @es{sig block}.  Before the great bandwidth explosion of the early
+>   1990s, long sigs actually cost people running Usenet servers
+>   significant amounts of money.  Nowadays social pressure against
+>   long sigs is intended to avoid waste of human attention rather
+>   than machine bandwidth.  Accordingly, the McQuary limit should 
+>   be considered a rule of thumb rather than a hard limit; it's
+>   best to avoid sigs that are large, repetitive, and distracting.
+>   See also @es{warlording}.
 
-Ouch.  I just re-read the man page and it doesn't caution (*) against
-using it on mounted filesystems.  That probably means that there are
-thousands of other losers like me using it on production machines. 
-Volunteers to (a) change the man page, (b) talk to the distros about
-dumping "dump"?
+Don't tell me how to live my life
+Don't tell me what to do
+Repression is always brought about
+By people with politics
+and attitudes like you
 
-> However, it may be that in the long run it would be advantageous to have a
-> "filesystem maintenance interface" for doing things like backups and
-> defragmentation..
+ -- Anne Clark, The power game, 1982
 
-Yup, sounds good.
 
-Neil
+	Regards
+		Henning
 
-(*) The KNOWNBUGS file mentions "possible" problems while dumping active
-mounted filesystems, but I've (elsewhere) seen these characterised as no
-real problem; also, this falls a long way short of discouraging use in
-this fashion.
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130463AbRAKAyM>; Wed, 10 Jan 2001 19:54:12 -0500
+	id <S131094AbRAKA6w>; Wed, 10 Jan 2001 19:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbRAKAyB>; Wed, 10 Jan 2001 19:54:01 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:52490 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129584AbRAKAxt>; Wed, 10 Jan 2001 19:53:49 -0500
-Date: Wed, 10 Jan 2001 19:54:46 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Jeremy Huddleston <jeremyhu@uclink4.berkeley.edu>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with module versioning in 2.4.0
-In-Reply-To: <3A5CFE41.D6064638@uclink4.berkeley.edu>
-Message-ID: <Pine.LNX.4.31.0101101950520.701-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129868AbRAKA6d>; Wed, 10 Jan 2001 19:58:33 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30471 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129584AbRAKA6V>; Wed, 10 Jan 2001 19:58:21 -0500
+Subject: Re: [PATCH] 2.2.18pre21 ide-disk.c for OB800
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Thu, 11 Jan 2001 00:15:58 +0000 (GMT)
+Cc: grundler@cup.hp.com (Grant Grundler), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, taggart@fc.hp.com, m.ashley@unsw.edu.au
+In-Reply-To: <Pine.LNX.4.10.10101101517290.26053-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 10, 2001 03:18:22 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14GVPN-0001Iu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Jeremy Huddleston wrote:
+> Wrong method.
+> 
+> APMD has to have the ablity to remember the state.
+> Spindown is basically a power reset to the drive.
 
-O - K then.  Nice sig.  Too bad that it is at least as big as
-most spam mailings themselves.  Instead of preventing spam,
-all you're doing is contributing to it.
-
-I just delete spam now as it is easiest most of the time.
-However fortunately, the below sig comes from a static and easily
-procmailable address.
-
-One more note is that no law of California, nor anywhre else
-means jack shit 50 meters away from your keyboard, so it is all
-just a waste of bandwidth.
-
-
->---- A notice to spammers ----
->Unsolicited electronic mail advertisements to my email address is
->strictly prohibited. Pursuant to California Business and Professions
->Code, Section 17538.45, senders of unsolicited electronic mail
->advertisements to me may be subject to a civil penalty of $50 per
->message plus attorney's fees.
-[SNIP long sig]
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
+Wrong answer, apmd if its swapped out doesnt get back in on some drives
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

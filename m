@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292293AbSB0Jru>; Wed, 27 Feb 2002 04:47:50 -0500
+	id <S292312AbSB0JuU>; Wed, 27 Feb 2002 04:50:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292295AbSB0Jrl>; Wed, 27 Feb 2002 04:47:41 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:14096 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S292293AbSB0Jri>; Wed, 27 Feb 2002 04:47:38 -0500
-Date: Wed, 27 Feb 2002 10:47:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Simon Turvey <turveysp@ntlworld.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE error on 2.4.17
-Message-ID: <20020227104735.A29316@ucw.cz>
-In-Reply-To: <E16fmJt-0001Xi-00@the-village.bc.nu> <006e01c1bef6$6dd78e40$030ba8c0@mistral>
-Mime-Version: 1.0
+	id <S292304AbSB0JuL>; Wed, 27 Feb 2002 04:50:11 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:50186 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S292294AbSB0Jtx>; Wed, 27 Feb 2002 04:49:53 -0500
+To: Todor Todorov <ttodorov@web.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.5-dj2 and vfat oopses (ksymoops output included)
+In-Reply-To: <3C7C72C3.60906@web.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 27 Feb 2002 18:49:39 +0900
+In-Reply-To: <3C7C72C3.60906@web.de>
+Message-ID: <87zo1vi79o.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <006e01c1bef6$6dd78e40$030ba8c0@mistral>; from turveysp@ntlworld.com on Tue, Feb 26, 2002 at 06:50:15PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 06:50:15PM -0000, Simon Turvey wrote:
-> The drive's less than a year old :-(
-> 
-> Should I try disabling some of the UDMA stuff?
+Todor Todorov <ttodorov@web.de> writes:
 
-That won't help, this indeed is a media error. The drive is heading to
-hell. You have about another six months of life before it goes belly up
-completely.
+> Hello everyone,
+> 
+> trying to copy a file to a fat 32 partition, the kernel oopses. Here
+> is the information
+> % uname -r
+>         2.5.5-dj2
+> distro:
+>         Debian GNU/Linux unstable
+> machine:
+>         Dell Inspiron 8000
+> partition:
+>         hda7, type c (FAT 32 LBA) on a 40 GB Toshiba HD
+> fstab entry for the partition:
+>         /dev/hda7   /mnt/data   vfat
+> rw,quiet,uid=1000,gid=100,codepage=850  0  0
 
-Any chance it's one of those fast IBM 30 or 45 gig drives? They seem to
-be dying pretty fast ...
+Thanks for good bug report. Probably, the following patch fix this
+bug. Could you try the following patch?
 
-> 
-> ----- Original Message ----- 
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> To: "Simon Turvey" <turveysp@ntlworld.com>
-> Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, February 26, 2002 6:27 PM
-> Subject: Re: IDE error on 2.4.17
-> 
-> 
-> > > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> > > hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=250746,
-> > > sector=250680
-> > > end_request: I/O error, dev 03:01 (hda), sector 250680
-> > 
-> > Uncorrectable error is a message from your disk, along the lines of "Hey
-> > pal I wonder if the warranty has expired yet"
-> > 
-> > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- linux-2.5.5-dj2/fs/nls/nls_cp850.c.orig	Wed Feb 27 16:55:36 2002
++++ linux-2.5.5-dj2/fs/nls/nls_cp850.c	Wed Feb 27 18:31:20 2002
+@@ -296,6 +296,7 @@
+ 	uni2char:	uni2char,
+ 	char2uni:	char2uni,
+ 	charset2lower:	charset2lower,
++	charset2upper:	charset2upper,
+ 	owner:		THIS_MODULE,
+ };
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

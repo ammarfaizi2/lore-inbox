@@ -1,32 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263983AbRFIGdg>; Sat, 9 Jun 2001 02:33:36 -0400
+	id <S263996AbRFIG6L>; Sat, 9 Jun 2001 02:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263996AbRFIGdZ>; Sat, 9 Jun 2001 02:33:25 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:23820 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S263983AbRFIGdT>; Sat, 9 Jun 2001 02:33:19 -0400
-Date: Sat, 9 Jun 2001 06:33:13 +0000 (GMT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B218BA8.6A8C2EB0@uow.edu.au>
-Message-ID: <Pine.LNX.4.10.10106090628460.19907-100000@coffee.psychology.mcmaster.ca>
+	id <S264073AbRFIG6B>; Sat, 9 Jun 2001 02:58:01 -0400
+Received: from [64.213.193.140] ([64.213.193.140]:9968 "EHLO
+	mail.monrovia.datadirectnet.com") by vger.kernel.org with ESMTP
+	id <S263996AbRFIG5q>; Sat, 9 Jun 2001 02:57:46 -0400
+Message-ID: <3B21C8DE.60775BED@monrovia.datadirectnet.com>
+Date: Fri, 08 Jun 2001 23:57:34 -0700
+From: Alexander Beyn <abeyn@monrovia.datadirectnet.com>
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: workaround for all this weirdness in vm?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> reads the RTC device.  The patched RTC driver can then
-> measure the elapsed time between the interrupt and the
-> read from userspace.  Voila: latency.
+Is running without swap a possible workaround for all this vm weirdness
+folks are reporting?
 
-interesting, but I'm not sure there's much advantage over
-doing it entirely in user-space with the normal /dev/rtc:
-
-	http://brain.mcmaster.ca/~hahn/realfeel.c
-
-it just prints out the raw time difference from when
-rtc should have woken up the program.  you can do your own histogram;
-for summary purposes, something like stdev is probably best.
-
+Alexander

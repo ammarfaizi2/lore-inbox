@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266476AbUA2Wqv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 17:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUA2Wqv
+	id S266489AbUA2W64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUA2W6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 17:46:51 -0500
-Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:53167 "EHLO
-	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S266476AbUA2Wqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 17:46:50 -0500
-Message-ID: <01c501c3e6b9$67225f70$0700000a@irrosa>
-From: "Curt Hartung" <curt@northarc.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Raw devices broken in 2.6.1?
-Date: Thu, 29 Jan 2004 17:44:01 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 29 Jan 2004 17:58:52 -0500
+Received: from main.gmane.org ([80.91.224.249]:63433 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266489AbUA2W6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:58:24 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Axel Boldt <axelboldt@yahoo.com>
+Subject: Re: [PATCH] [APM] Is this the correct way to fix suspend bug introduced
+ in 2.6.0-test4?
+Date: Fri, 30 Jan 2004 00:00:09 +0100
+Message-ID: <40199079.5030908@yahoo.com>
+References: <13zy7qdcyz1q7$.50e5l3rpbsyx$.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Complaints-To: usenet@sea.gmane.org
+Gmane-NNTP-Posting-Host: p213.54.80.244.tisdip.tiscali.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en
+In-Reply-To: <13zy7qdcyz1q7$.50e5l3rpbsyx$.dlg@40tude.net>
+Cc: linux-laptop@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New to the list, checked the FAQ and nothing on this. I'm using raw devices
-for a large database application (highwinds-software) and under 2.4 it runs
-fine, but under 2.6 I get: Program terminated with signal 25, File size
-limit exceeded. (SIGXFSZ) As soon as it tries to grow the raw device pase 2G
-(might be 4G, I'll go back and check)
+Michael Schierl wrote:
 
-ulimit reports: file size (blocks)          unlimited
-but running the process as root and setrlimit RLIMIT_FSIZE to RLIM_INFINITY
-just to be sure yields the same result.
+> the patch below (against 2.6.1-mm5) fixes my APM problems 
 
-I can easily provide a short test program to trigger it, the call I'm using
-is pwrite64(...);
+And mine as well (Dell Inspiron 5000 laptop).
 
--Curt
+Axel
 

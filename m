@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUAJRnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUAJRnU
+	id S265264AbUAJRuF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUAJRuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:43:20 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:62882 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265294AbUAJRm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:42:59 -0500
-Date: Sat, 10 Jan 2004 18:42:56 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jon Westgate <oryn@oryn.fsck.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.1 synaptics problems tapping and tap'n'drag
-Message-ID: <20040110174256.GA22095@ucw.cz>
-References: <3FFF337E.3040603@oryn.fsck.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFF337E.3040603@oryn.fsck.tv>
-User-Agent: Mutt/1.5.4i
+	Sat, 10 Jan 2004 12:50:05 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:41636 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265264AbUAJRuB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:50:01 -0500
+Date: Sat, 10 Jan 2004 15:46:38 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+Cc: marcelo.tosatti@cyclades.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.23: user/kernel pointer bugs (drivers/char/vt.c,
+ drivers/char/drm/gamma_dma.c)
+In-Reply-To: <1073592494.18588.77.camel@dooby.cs.berkeley.edu>
+Message-ID: <Pine.LNX.4.58L.0401101543410.4057@logos.cnet>
+References: <1073592494.18588.77.camel@dooby.cs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 09, 2004 at 11:04:30PM +0000, Jon Westgate wrote:
-> Hi,
-> I'm not sure if this is the right place to ask but if I run 2.6.1
-> I get mouse problems that I didn't get with 2.6.0
-> I'm running a compaq m300 (600MHz PIII) with a synaptics touch pad.
-> 
-> In 2.6.0 there was an option to include or not include support for the 
-> synaptics touchpad (I found that my touchpad worked just fine with that 
-> option unchecked) in 2.6.1 that option is nolonger there.
-> 
-> In 2.6.1 I find that the operation of the mouse is very erratic its 
-> almost impossible to take your finger off the pad without the cursor 
-> moving, Tapping doesn't work, The pad seems very accelerated (ie you 
-> drag your finger a short distance and the cursor is at the other side of 
-> the screen before you know it), Lastly if you dragged your finger to the 
-> edge of the pad it used to continue on smoothly. This no longer works.
-> 
-> My question is:
-> Is there a command line or append option I can put in lilo.conf to 
-> prevent the synaptics driver from trying to reprogram my touchpad? I 
-> quite like its default behavior. There is definatly something trying to 
-> reprogram it as I have to turn off my laptop for it's behavior to return 
-> to normal. Even if I reset it still needs a power cycle to fix it.
-> dmesg says my touchpad is this:
-> input: PS/2 Synaptics TouchPad on isa0060/serio4
-> 
-> I'm not running any special drivers or settings in XF86Config
-> I just have /dev/input/mice setup with protocol set as ImPS/2
 
-The default simple backward-compatibility mousedev module doesn't
-support taps and drags. You need the XFree86 synaptics driver from
-http://w1.894.telia.com/~u89404340/touchpad/index.html. It'll work
-together with the in-kernel driver and give you all the features the pad
-has.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+On Thu, 8 Jan 2004, Robert T. Johnson wrote:
+
+> Both of these bugs look exploitable.  The vt.c patch is
+> self-explanatory.
+>
+> Thanks for looking at this, and let me know if you have any questions.
+>
+> Best,
+> Rob
+>
+> P.S. Both of these bugs were found using the source code verification
+> tool, CQual, developed by Jeff Foster, myself, and others, and available
+> from http://www.cs.umd.edu/~jfoster/cqual/.
+>
+>
+> --- drivers/char/vt.c.orig	Thu Jan  8 10:53:01 2004
+> +++ drivers/char/vt.c	Wed Jan  7 15:22:17 2004
+> @@ -288,7 +288,7 @@
+>  	case KDGKBSENT:
+>  		sz = sizeof(tmp.kb_string) - 1; /* sz should have been
+>  						  a struct member */
+> -		q = user_kdgkb->kb_string;
+> +		q = tmp.kb_string;
+>  		p = func_table[i];
+>  		if(p)
+>  			for ( ; *p && sz; p++, sz--)
+
+The "q" variable is only used as an argument to put_user() (the kernel is
+not reading from that address), so I think it is not a problem.
+
+I think your patch will break the ioctl.
+

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316693AbSGHBBg>; Sun, 7 Jul 2002 21:01:36 -0400
+	id <S316695AbSGHBDy>; Sun, 7 Jul 2002 21:03:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSGHBBf>; Sun, 7 Jul 2002 21:01:35 -0400
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:11529 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S316693AbSGHBBe>;
-	Sun, 7 Jul 2002 21:01:34 -0400
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Sun, 7 Jul 2002 18:04:08 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.5.25
-Message-ID: <20020707180408.A11779@vato.org>
-Mail-Followup-To: Tim Pepper <tpepper@vato.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com>
+	id <S316705AbSGHBDx>; Sun, 7 Jul 2002 21:03:53 -0400
+Received: from port17.cvx2-mal.ppp.netlink.se ([62.66.13.18]:20718 "EHLO
+	tix.pir.eli") by vger.kernel.org with ESMTP id <S316695AbSGHBDw>;
+	Sun, 7 Jul 2002 21:03:52 -0400
+Date: Mon, 8 Jul 2002 03:09:26 +0200
+From: Daniel Mose <imcol@unicyclist.com>
+To: linux-kernel@vger.kernel.org
+Cc: lixmeta@unicyclist.com
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+Message-ID: <20020708030532.A8799@unicyclist.com>
+References: <20020705134816.GA112@elf.ucw.cz> <9171.1026053813@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jul 05, 2002 at 04:54:20PM -0700
-X-Mailer: None of your business.
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <9171.1026053813@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 05 Jul at 16:54:20 -0700 torvalds@transmeta.com done said:
-> 
-> The other thing that we should sort out eventually is the unified naming
-> for disk devices, now that both IDE and SCSI are starting to have some
-> support for driverfs.  Let's make sure that we _can_ have sane ways of
-> accessing a disk, without having to care whether it is IDE or SCSI or
-> anything else.
+Keith Owens wrote:
+> On Fri, 5 Jul 2002 15:48:17 +0200, 
+> Pavel Machek <pavel@ucw.cz> wrote:
+> >Keith Owens wrote
+> >> Modules can run their own kernel threads.  When the module shuts down
+> >> it terminates the threads but we must wait until the process entries
+> >> for the threads have been reaped.  If you are not careful, the zombie
+> >> clean up code can refer to the module that no longer exists.  You must
+> >> not freeze any threads that belong to the module.
 
-...and a way that scales better when naming large numbers of disks than
-disk_name()'s stuff like:
-     sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
+I am just out to share a possible angle. -all though not really a programmer.
+
+Can one module replace another -running- twin-module without having to hand-
+shake with the kernel? -and without freezing ? (transparently)
+
+If obvious no - no need to read further.
+ 
+Otherwhise, there might be a possibility to create a shut-down module out of 
+the existing module it self?
+In this case it could probably be a smooth solution to ask the module creator.
+(if known, and available) if he/she would be able to make this modification 
+on the fly, as he/she probably knows the most about how the signals operate. 
+That is to strip down the existing loadable module into sort of a dummy. 
+Of course this won't work if hazardous removal issues are shared among all or 
+most of the existing kernel modules.
+
+An apology for taking up time and bandwith. But rmmod is such a neat command 
+to have a round.
+
+/Daniel Mose
 
 
-t.
+    
+
+
+
+
+

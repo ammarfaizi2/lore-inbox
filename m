@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263829AbTIIAvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 20:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTIIAvM
+	id S263883AbTIIA5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 20:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbTIIA5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 20:51:12 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:7646 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S263829AbTIIAvK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 20:51:10 -0400
-content-class: urn:content-classes:message
+	Mon, 8 Sep 2003 20:57:08 -0400
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:50390 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S263883AbTIIA5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 20:57:05 -0400
+Message-ID: <3F5D2455.9070004@upb.de>
+Date: Tue, 09 Sep 2003 02:52:37 +0200
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle kernel NULL pointer dereference at virtual address 00000000)
-Date: Mon, 8 Sep 2003 17:51:04 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E01022294A8@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle kernel NULL pointer dereference at virtual address 00000000)
-Thread-Index: AcN0TTD9MW5IDEF6SpGB1/A21BmVTgCHx+lw
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Frederic Trudeau" <ftrudeau@zesolution.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Sep 2003 00:51:05.0030 (UTC) FILETIME=[72C0F660:01C3766C]
+To: Paul Clements <Paul.Clements@SteelEye.com>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [NBD] patch and documentation
+References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com> <3F5CE3E6.8070201@upb.de> <3F5CF045.DDDE475C@SteelEye.com> <3F5CFF0B.6080609@upb.de> <20030908222111.GG429@elf.ucw.cz> <3F5D0186.4030001@upb.de> <20030908232824.GH429@elf.ucw.cz> <3F5D2336.A1AF2EBF@SteelEye.com>
+In-Reply-To: <3F5D2336.A1AF2EBF@SteelEye.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please see http://imap.upb.de for details
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-25.4, required 4,
+	IN_REP_TO -3.30, QUOTED_EMAIL_TEXT -3.20, REFERENCES -6.60,
+	REPLY_WITH_QUOTES -6.50, USER_AGENT_MOZILLA_UA -5.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>EIP; f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
+>>I believe that 1MB is good, and good enough for close future. If that
+>>ever proves to be problem, we can add handshake at that point. But I
+>>do not believe it will be neccessary.
 > 
-> >>ecx; 00031988 Before first symbol
-> >>edx; f770b980 <_end+3728d080/3838e760>
-> >>esp; f54a1e98 <_end+35023598/3838e760>
-> 
-> Trace; f8b051dd <[e1000]e1000_free_rx_resources+1d/70>
-> Trace; f8b04a26 <[e1000]e1000_open+46/60>
+> But, who ever said the buffer in the nbd-server had to be statically
+> allocated? I have a version of nbd-server that is modified to handle any
+> size request that the client side throws at it -- if the buffer is not
+> large enough, it simply reallocates it.
 
-Fix in newer e1000 drivers.  Your failing request_irq().  Need to remove
-some code in e1000_up so we don't try to free resources twice:
+Well, imagine that somebody develops a server implementation (well, that 
+was what some friends and me did in the past few days) than it is just 
+good to know, that there is a limit for the length field of the 
+request-packet. If there is no limit, the server implementation has to 
+be abled to answer requests of any size. That is very complicated.
+For example if the server has only 64MB of memeory, and the kernel would 
+be abled to send a 128MB request, how would you handle that?
 
-        if(request_irq(netdev->irq, &e1000_intr, SA_SHIRQ |
-SA_SAMPLE_RANDOM,
-                       netdev->name, netdev)) {
--               e1000_reset_hw(&adapter->hw);
--               e1000_free_tx_resources(adapter);
--               e1000_free_rx_resources(adapter);
-                return -1;
-        }
-
--scott

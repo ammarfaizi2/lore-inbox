@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262130AbSLBKKp>; Mon, 2 Dec 2002 05:10:45 -0500
+	id <S262089AbSLBKLY>; Mon, 2 Dec 2002 05:11:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSLBKKp>; Mon, 2 Dec 2002 05:10:45 -0500
-Received: from ns.javad.ru ([62.105.138.7]:9222 "EHLO ns.javad.ru")
-	by vger.kernel.org with ESMTP id <S262130AbSLBKKo>;
-	Mon, 2 Dec 2002 05:10:44 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Q: problems interfacing with tty ldisc using flipbufs.
-X-attribution: osv
-From: Sergei Organov <osv@javad.ru>
-Date: 02 Dec 2002 13:18:09 +0300
-Message-ID: <87ptskafmm.fsf@osv.javad.ru>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262314AbSLBKLV>; Mon, 2 Dec 2002 05:11:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:61376 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262089AbSLBKLT>;
+	Mon, 2 Dec 2002 05:11:19 -0500
+Date: Mon, 02 Dec 2002 02:16:29 -0800 (PST)
+Message-Id: <20021202.021629.93360250.davem@redhat.com>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021202090756.GA26034@wotan.suse.de>
+References: <p737kesu9bt.fsf@oldwotan.suse.de>
+	<20021202.002815.58826951.davem@redhat.com>
+	<20021202090756.GA26034@wotan.suse.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+   From: Andi Kleen <ak@suse.de>
+   Date: Mon, 2 Dec 2002 10:07:56 +0100
+   
+   > BTW, I bet your dynamic relocation tables are a bit larger too.
+   
+   Somewhat, but does it matter?  They are not kept in memory anyways.
 
-I'm rather new to the Linux kernel drivers and I need some help from you.
+It's all about how much data a ld.so relocation has to touch.  But
+preloading will help out here, even though that isn't in wide spread
+use just yet.
 
-I'm trying to design kernel module that reads data from a USB device and
-transfers them to the tty ldisc. I'm interested only in the n_tty line
-discipline. I have rather large internal buffer to which data from the device
-are stored from the IRQ handler. The question is how to transfer the data from
-this buffer to the ldisc reliably (i.e., without data loss). Currently to
-transfer data from the internal buffer to the line discipline I'm scheduling a
-tasklet. Assuming the `tty->low_latency' field is set to 1, the following two
-problems may (and do in fact) occur when I attempt to call
-`tty_flip_buffer_push':
+And I was talking about user stack usage, not the kernel kind
+:-)
 
-1. Let free space in the ldisc input buffer be `F' bytes and number of bytes
-   in the flipbuf be `N'. Suppose F > TTY_THRESHOLD_THROTTLE and N > F. In
-   this case the buffer flips but (N - F) bytes are silently lost. To prevent
-   this unfortunate situation I'm forced to never put more than
-   TTY_THRESHOLD_THROTTLE bytes into flipbuf. Not only this is inefficient,
-   but also error-prone as TTY_THRESHOLD_THROTTLE is private to the `n_tty.c'
-   file so I need to make similar definition in my own C file. Is there a
-   better method for passing data to ldisc without loss? Wouldn't it be a
-   good idea to change TTY_THRESHOLD_THROTTLE to be at least as large as
-   TTY_FLIPBUF_SIZE?
+Andi, do something very simple like run -m32 vs -m64 microbenchmarks,
+I bet -m32 beats -m64 in all the lmbench lat_proc tests.  On sparc64
+it's (on a 2-way SMP system):
 
-2. If TTY_DONT_FLIP flag is set, the buffer doesn't flip. Instead, flipping is
-   queued to the tq_timer and I don't have more space to copy data to. As far
-   as I understand, the only option I have at this point is to queue my own
-   procedure to the tq_timer that will eventually retry to pass data through
-   the flipbufs, right? If so, I'll end up with the same code running from 3
-   places: 1. tasklet 2. tq_timer queue, and 3. `unthrottle' method of the
-   driver. I don't know why TTY_DONT_FLIP is at all necessary, but all this
-   seems rather over-complicated to me for the task of transferring data from
-   one buffer to another. Is there a better way (from my side) to deal with
-   it? Maybe I should better get rid of the tasklet and always queue my
-   copy-to-tty routine to the tq_timer instead?
+-m32 fork+exit:		360.8328 microseconds
+-m32 fork+execve:	1342.2213 microseconds
+-m32 fork+/bin/sh:	5497.0149 microseconds
 
+-m64 fork+exit:		553.9076 microseconds
+-m64 fork+execve:	1904.6315 microseconds
+-m64 fork+/bin/sh:	6268.6932 microseconds
 
-Thanks for advance for any hints.
+NOTE: make sure you change /bin/sh to be 32-bit/64-bit as
+      appropriate in the tests above.
 
-BR,
-Sergei.
+So what is this on x86_64? :-) I think lat_proc is great becuase it
+shows pure libc overhead in continually relocating the exit()
+etc. symbols in the child for fork+exit, for example.
 
+The reason I'm making such a stink about this is that I don't want
+people believing that "the code generation improvements due to the
+extra x86_64 registers available nullifies the bloat cost from
+going to 64-bit"
+
+To me, believe that is an utterly bogus claim and completely
+misleading.

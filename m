@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263716AbUCVWLx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUCVWLx
+	id S263718AbUCVWVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUCVWVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:11:53 -0500
-Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:31156 "EHLO
-	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263716AbUCVWLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:11:46 -0500
-Message-Id: <200403222211.i2MMBcu20944@mail005.syd.optusnet.com.au>
-Content-Type: text/plain
+	Mon, 22 Mar 2004 17:21:15 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:5102 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263718AbUCVWVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 17:21:12 -0500
+Date: Mon, 22 Mar 2004 23:22:16 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Enhanced" MD code avaible for review
+Message-ID: <20040322222216.GR25331@marowsky-bree.de>
+References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com> <4058C089.9060603@adaptec.com> <200403172245.31842.bzolnier@elka.pw.edu.pl> <4058EBEC.8070309@adaptec.com> <1079788027.5225.4.camel@laptop.fenrus.com> <405E287E.3080706@adaptec.com> <1079946343.5296.5.camel@laptop.fenrus.com> <405F61C1.9090907@adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: binary
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-From: chakkerz_dev@optusnet.com.au
-To: Eric Brunner-Williams in Portland Maine <brunner@nic-naa.net>
-Cc: linux-kernel@vger.kernel.org
-Date: Tue, 23 Mar 2004 09:11:38 +1100
-Subject: T21 config wanted, 2.4 or 2.6, both USB mouse and eth0 (3c556
-    MiniPCI)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <405F61C1.9090907@adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-03-22T14:59:29,
+   Scott Long <scott_long@adaptec.com> said:
 
-a T21 is a ThinkPad 21 i take it
+> Ok, the technical arguments I've heard in favor of the DM approach is 
+> that it reduces kernel bloat.  That fair, and I certainly agree with not
+> putting the kitchen sink into the kernel.  Our position on EMD is that
+> it's a special case because you want to reduce the number of failure
+> modes, and that it doesn't contribute in a significant way to the kernel
+> size.  Your response to that our arguments don't matter since your mind
+> is already made up.  That's the barrier I'm trying to break through and
+> have a techincal discussion on.
 
-now from what i can see here there are a few
-t21s out there, with different CPUs in them
-but the network card appears to be
-consistently 3Com made, which one isn't all
-that clear to me here. Just check the cat
-/proc/pci and you should get something like this:
+The problematic point is that the failure modes which you want to
+protect against all basically amount to -EUSERTOOSTUPID (if he forgot to
+update the initrd and thus basically missed a vital part of the kernel
+update), or -EFUBAR (in which case even the kernel image itself won't
+help you). In those cases, not even being linked into the kernel helps
+you any.
 
- Bus  6, device   0, function  0:
-    Ethernet controller: Realtek
-Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
-(rev 16).
-      IRQ 11.
-      Master Capable.  Latency=64.  Min
-Gnt=32.Max Lat=64.
-      I/O at 0x4800 [0x48ff].
-      Non-prefetchable 32 bit memory at
-0x11000000 [0x110001ff].
-(NOTE i've got a realtek PCMCIA card in this
-notebook)
+All of these cases are well understood, and have been problematic in the
+past already, and will fuck the user up whether he has EMD enabled or
+not. That EMD is coming up is not going to help him much, because he
+won't be able to mount the root filesystem w/o the filesystem module,
+or without the LVM2/EVMS2 stuff etc. initrd has long been mostly
+mandatory already for such scenarios.
 
-So under Device Drivers > Network Support 
+This is the way how the kernel has been developing for a while. Your
+patch does something different, and the reasons you give are not
+convincing.
 
-You've got "Networking support" and "Network
-device support" enabled
+In particular, if EMD is going to be stacked with other stuff (ie, EMD
+RAID1 on top of multipath or whatever), having the autodiscovery in the
+kernel is actually cumbersome. And yes, right now you have only one
+format. But bet on it, the spec will change, vendors will not 100%
+adhere to it, new formats will be supported by the same code etc, and
+thus the discovery logic will become bigger. Having such complexity
+outside the kernel is good, and its also not time critical, because it
+is only done once.
 
-go into "Ethernet (10 or 100 MBti)" and
-enable support for you card (as determined by
-the cat /proc/pci) there is support for 3com
-there.
 
-good luck
-  Christian Unger / Chakkerz
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+

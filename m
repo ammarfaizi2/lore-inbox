@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVCTX1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCTX2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVCTX1g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVCTXX5
+	id S261359AbVCTX2A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVCTX16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:23:57 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:56748 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261380AbVCTXUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:20:20 -0500
-Message-Id: <200503202319.j2KNJXg29946@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <christoph@graphe.net>
-Subject: RE: [patch] del_timer_sync scalability patch
-Date: Sun, 20 Mar 2005 15:19:33 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUto0YejS9y0yYTS5ul1UGa2UQxnA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Sun, 20 Mar 2005 18:27:58 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56846 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261380AbVCTXYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:24:43 -0500
+Date: Sun, 20 Mar 2005 23:24:38 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pete Popov <ppopov@embeddedalley.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: Bitrotting serial drivers
+Message-ID: <20050320232438.B31657@flint.arm.linux.org.uk>
+Mail-Followup-To: Pete Popov <ppopov@embeddedalley.com>,
+	Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+References: <20050319172101.C23907@flint.arm.linux.org.uk> <20050319141351.74f6b2a5.akpm@osdl.org> <20050320224028.GB6727@linux-mips.org> <423DFE7C.7040406@embeddedalley.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <423DFE7C.7040406@embeddedalley.com>; from ppopov@embeddedalley.com on Sun, Mar 20, 2005 at 02:51:40PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We did exactly the same thing about 10 months back.  Nice to
-see that independent people came up with exactly the same
-solution that we proposed 10 months back.  In fact, this patch
-is line-by-line identical to the one we post.
+On Sun, Mar 20, 2005 at 02:51:40PM -0800, Pete Popov wrote:
+> >>>- __register_serial, register_serial, unregister_serial
+> >>>  (this driver doesn't support PCMCIA cards, all of which are based on
+> >>>   8250-compatible devices.)
+>
+> I tried a couple of times to cleanly add support to the 8250 for the Au1x 
+> serial. The uart is just different enough to make that hard, though I admit I 
+> never spent too much time on it. Sounds like it's time to revisit it again.
 
-Hope Andrew is going to take the patch this time.
+I would prefer to have a patch to remove (or ack to do so myself) the
+above three mentioned functions so I can avoid breaking your driver,
+rather than a large update to it.
 
-See our original posting:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108422767319822&w=2
+Thanks.
 
-- Ken
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTJQSGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 14:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTJQSGP
+	id S263573AbTJQR4g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 13:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJQR4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 14:06:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56712 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263415AbTJQSGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 14:06:13 -0400
-Date: Fri, 17 Oct 2003 20:06:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide write barrier support
-Message-ID: <20031017180612.GB8230@suse.de>
-References: <3F902E0A.5060908@colorfullife.com>
+	Fri, 17 Oct 2003 13:56:36 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:19817 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263573AbTJQR4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 13:56:35 -0400
+Subject: ICH5 - CMI9739A - AC'97 sound driver support
+From: Saravanan Subbiah <saravanan_subbiah@sbcglobal.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1066413060.13867.24.camel@dude.saravan.dns2go.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F902E0A.5060908@colorfullife.com>
-X-OS: Linux 2.4.22aa1-axboe i686
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.3.99 
+Date: Fri, 17 Oct 2003 10:51:01 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17 2003, Manfred Spraul wrote:
-> Jens wrote:
-> 
-> >The problem is that as far as I can see the best way to make fsync
-> >really work is to make the last write a barrier write. That
-> >automagically gets everything right for you - when the last block goes
-> >to disk, you know the previous ones have already. And when the last
-> >block completes, you know the whole lot is on platter.
-> >
-> Are you sure?
-> What prevents the io scheduler from writing the last block before other 
-> blocks?
+I am trying to make sound work in my motherboard with CMI9739A chipset.
 
-Very sure, the io scheduler will never put the barrier write before
-previously comitted writes. So yes, it will work as described.
+The driver from c-media works but freezes my SMP (HT) kernel.
 
-Jens
+So I tried the i810_audio driver in 2.4.22-ac4 kernel. This driver works
+but I cannot change the volume. It always outputs at high volume
+irrespective what level I set.
+
+I even tried alsa driver snd-intel8x0 and got the same result. no volume
+control support.'
+
+I read somewhere that this is a basic deficiency in the codec and that
+the driver has to "something special" to achieve this ? Is it true ?
+Is someone looking into this ?
+
+If someone can give me some pointers, I can look into this.
+
+thanks,
+Saravanan
 

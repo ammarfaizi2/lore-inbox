@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262033AbRETPSw>; Sun, 20 May 2001 11:18:52 -0400
+	id <S262042AbRETP1W>; Sun, 20 May 2001 11:27:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262030AbRETPSl>; Sun, 20 May 2001 11:18:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18572 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262033AbRETPSY>;
-	Sun, 20 May 2001 11:18:24 -0400
-Date: Sun, 20 May 2001 11:18:22 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+	id <S262038AbRETP1C>; Sun, 20 May 2001 11:27:02 -0400
+Received: from unthought.net ([212.97.129.24]:12203 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S262036AbRETP06>;
+	Sun, 20 May 2001 11:26:58 -0400
+Date: Sun, 20 May 2001 17:26:56 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Abramo Bagnara <abramo@alsa-project.org>,
+        Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
 Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNum
-In-Reply-To: <3B07DC23.F905DE7B@alsa-project.org>
-Message-ID: <Pine.GSO.4.21.0105201107110.8940-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010520172656.A20174@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Abramo Bagnara <abramo@alsa-project.org>,
+	Kai Henningsen <kaih@khms.westfalen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B07D519.5184BFA@alsa-project.org> <Pine.GSO.4.21.0105201034090.8940-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0105201034090.8940-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, May 20, 2001 at 10:45:07AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 20 May 2001, Abramo Bagnara wrote:
-
-> > Face it, we _already_ have more than one side band.
+On Sun, May 20, 2001 at 10:45:07AM -0400, Alexander Viro wrote:
 > 
-> This does not imply it's necessarily a good idea.
-> We are comparing
 > 
-> echo "9600" > /proc/self/fd/0/speed (or /dev/ttyS0/speed)
-> echo "8" > /proc/self/fd/0/bits (or /dev/ttyS0/bits)
+> On Sun, 20 May 2001, Abramo Bagnara wrote:
 > 
-> with 
+> > > It may have several. Which one?
+> > 
+> > Can you explain better this?
 > 
-> echo -e "speed 9600\nbits 8" > /proc/self/fd/0/ioctl (or
-> /dev/ttyS0/ioctl).
-
-How about reading from them? You are forcing restriction that may make
-sense in some cases, but doesn't look good for everything.
-
-> > Moreover, we have channels that are not tied to a particular device -
-> > they are for a group of them. Example: setting timings for IDE controller.
-> > Sure, we can just say "open /dev/hda instead of /dev/hda5", but then we
-> > are back to the "find related file" problem you tried to avoid.
+> Example: console. You want to be able to pass font changes. I'm
+> less than sure that putting them on the same channel as, e.g.,
+> keyboard mapping changes is a good idea. We can do it, but I don't
+> see why it's natural thing to do. Moreover, you already have
+> /dev/vcs<n> and /dev/vcsa<n>. Can you explain what's the difference
+> between them (per-VC channels) and keyboard mapping (also per-VC)?
 > 
-> It does not seems appropriate to permit to change IDE timings using an
-> handle to a partition... nor it seems very safe under a permissions
-> point of view.
+> Face it, we _already_ have more than one side band.
 
-However, we _do_ allow that. Right now. And yes, I agree that we should
-go to separate file for that. And we are right back to finding a related
-file.
+Wouldn't it be natural to
+  write(fd, <control type>)
+  write(fd, <control information)
+  read(fd, reply)
 
-It's not a function of descriptor. Sorry. Just as with /dev/tty1 -> /dev/vcs1
-and its ilk.
+Only one control file for all controls a device understands
 
+> 
+> Moreover, we have channels that are not tied to a particular device -
+> they are for a group of them. Example: setting timings for IDE controller.
+> Sure, we can just say "open /dev/hda instead of /dev/hda5", but then we
+> are back to the "find related file" problem you tried to avoid.
+
+If the IDE controller is a device we can control, it should have a device
+file and a control device file.
+
+Problem solved, AFAICS.
+
+Controlling an IDE controller by writing to a device that's hanging on one
+of it's busses is a hack, IMO.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,71 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262888AbTDAWSv>; Tue, 1 Apr 2003 17:18:51 -0500
+	id <S262885AbTDAWVB>; Tue, 1 Apr 2003 17:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262889AbTDAWSv>; Tue, 1 Apr 2003 17:18:51 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12611 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S262888AbTDAWSs>; Tue, 1 Apr 2003 17:18:48 -0500
-Date: Tue, 1 Apr 2003 23:32:09 +0100 (BST)
+	id <S262886AbTDAWVB>; Tue, 1 Apr 2003 17:21:01 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13404 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S262885AbTDAWUy>; Tue, 1 Apr 2003 17:20:54 -0500
+Date: Tue, 1 Apr 2003 23:34:15 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
 cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs 2/6 remove shmem_readpage
+Subject: [PATCH] tmpfs 4/6 use mark_page_accessed
 In-Reply-To: <Pine.LNX.4.44.0304012328390.1730-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0304012331180.1730-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0304012333220.1730-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shmem_readpage was created to give tmpfs sendfile and loop ability; but
-they're both using shmem_file_sendfile now, so remove shmem_readpage.
+tmpfs pages should be surfing the LRUs in the company of their filemap
+friends: I was expecting the rules to change, but they've been stable
+so long, let's sprinkle mark_page_accessed in the equivalent places
+here; but (don't ask me why) SetPageReferenced in shmem_file_write.
+Ooh, and shmem_populate was missing a flush_page_to_ram.
 
---- tmpfs1/mm/shmem.c	Tue Apr  1 21:34:48 2003
-+++ tmpfs2/mm/shmem.c	Tue Apr  1 21:34:59 2003
-@@ -750,9 +750,9 @@
- 	 * Normally, filepage is NULL on entry, and either found
- 	 * uptodate immediately, or allocated and zeroed, or read
- 	 * in under swappage, which is then assigned to filepage.
--	 * But shmem_readpage and shmem_prepare_write pass in a locked
--	 * filepage, which may be found not uptodate by other callers
--	 * too, and may need to be copied from the swappage read in.
-+	 * But shmem_prepare_write passes in a locked filepage,
-+	 * which may be found not uptodate by other callers too,
-+	 * and may need to be copied from the swappage read in.
- 	 */
- repeat:
- 	if (!filepage)
-@@ -1102,20 +1102,10 @@
- static struct inode_operations shmem_symlink_inline_operations;
+--- tmpfs3/mm/shmem.c	Tue Apr  1 21:35:10 2003
++++ tmpfs4/mm/shmem.c	Tue Apr  1 21:35:21 2003
+@@ -951,6 +951,7 @@
+ 	if (error)
+ 		return (error == -ENOMEM)? NOPAGE_OOM: NOPAGE_SIGBUS;
  
- /*
-- * tmpfs itself makes no use of generic_file_read, generic_file_mmap
-- * or generic_file_write; but shmem_readpage, shmem_prepare_write and
-- * simple_commit_write let a tmpfs file be used below the loop driver.
-+ * Normally tmpfs makes no use of shmem_prepare_write, but it
-+ * lets a tmpfs file be used read-write below the loop driver.
-  */
- static int
--shmem_readpage(struct file *file, struct page *page)
--{
--	struct inode *inode = page->mapping->host;
--	int error = shmem_getpage(inode, page->index, &page, SGP_CACHE);
--	unlock_page(page);
--	return error;
--}
--
--static int
- shmem_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
- {
- 	struct inode *inode = page->mapping->host;
-@@ -1751,7 +1741,6 @@
- 	.writepage	= shmem_writepage,
- 	.set_page_dirty	= __set_page_dirty_nobuffers,
- #ifdef CONFIG_TMPFS
--	.readpage	= shmem_readpage,
- 	.prepare_write	= shmem_prepare_write,
- 	.commit_write	= simple_commit_write,
- #endif
++	mark_page_accessed(page);
+ 	flush_page_to_ram(page);
+ 	return page;
+ }
+@@ -978,6 +979,8 @@
+ 		if (err)
+ 			return err;
+ 		if (page) {
++			mark_page_accessed(page);
++			flush_page_to_ram(page);
+ 			err = install_page(mm, vma, addr, page, prot);
+ 			if (err) {
+ 				page_cache_release(page);
+@@ -1192,6 +1195,8 @@
+ 			break;
+ 		}
+ 
++		if (!PageReferenced(page))
++			SetPageReferenced(page);
+ 		set_page_dirty(page);
+ 		page_cache_release(page);
+ 
+@@ -1264,13 +1269,20 @@
+ 		}
+ 		nr -= offset;
+ 
+-		/* If users can be writing to this page using arbitrary
+-		 * virtual addresses, take care about potential aliasing
+-		 * before reading the page on the kernel side.
+-		 */
+-		if (!list_empty(&mapping->i_mmap_shared) &&
+-		    page != ZERO_PAGE(0))
+-			flush_dcache_page(page);
++		if (page != ZERO_PAGE(0)) {
++			/*
++			 * If users can be writing to this page using arbitrary
++			 * virtual addresses, take care about potential aliasing
++			 * before reading the page on the kernel side.
++			 */
++			if (!list_empty(&mapping->i_mmap_shared))
++				flush_dcache_page(page);
++			/*
++			 * Mark the page accessed if we read the beginning.
++			 */
++			if (!offset)
++				mark_page_accessed(page);
++		}
+ 
+ 		/*
+ 		 * Ok, we have the page, and it's up-to-date, so
+@@ -1523,6 +1535,7 @@
+ 		return res;
+ 	res = vfs_readlink(dentry, buffer, buflen, kmap(page));
+ 	kunmap(page);
++	mark_page_accessed(page);
+ 	page_cache_release(page);
+ 	return res;
+ }
+@@ -1535,6 +1548,7 @@
+ 		return res;
+ 	res = vfs_follow_link(nd, kmap(page));
+ 	kunmap(page);
++	mark_page_accessed(page);
+ 	page_cache_release(page);
+ 	return res;
+ }
 

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312074AbSCXVwR>; Sun, 24 Mar 2002 16:52:17 -0500
+	id <S311866AbSCXWLZ>; Sun, 24 Mar 2002 17:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312077AbSCXVv5>; Sun, 24 Mar 2002 16:51:57 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:7945 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312074AbSCXVvw>; Sun, 24 Mar 2002 16:51:52 -0500
-Message-ID: <3C9E4A18.7DDC68AB@zip.com.au>
-Date: Sun, 24 Mar 2002 13:50:16 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S312081AbSCXWLP>; Sun, 24 Mar 2002 17:11:15 -0500
+Received: from hofw1.ceridian.ca ([206.186.27.2]:32978 "EHLO mail.ceridian.ca")
+	by vger.kernel.org with ESMTP id <S311866AbSCXWLK>;
+	Sun, 24 Mar 2002 17:11:10 -0500
+Subject: inode-max missing?
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
+Message-ID: <OFF1E4D08F.3F7F86A6-ON86256B86.0079B50E@ho.ceridian.ca>
+From: John_Delisle@Ceridian.ca
+Date: Sun, 24 Mar 2002 16:09:43 -0600
+X-MIMETrack: Serialize by Router on SvrNotesMain/Comcheq(Release 5.0.5 |September 22, 2000) at
+ 2002/03/24 04:11:06 PM
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: [patch] speed up ext3 synchronous mounts
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Again, we don't need to sync indirects as we dirty them because
-we run a commit if IS_SYNC(inode) prior to returning to the
-caller of write(2).
+I'm trying to fix a problem "too many open files" by adjusting
+/proc/sys/fs/inode-max but I don't have one, it's missing.  I've gone
+through the docs and they all reference it, but it's missing from parts of
+the source susch as sysctl.c.
 
-Writing a 10 meg file in 0.1 meg chunks is sped up by, err,
-a factor of fifty.  That's a best case.
+I'm running 2.4.18, btw.
 
---- linux-2.4.18-pre8/fs/ext3/inode.c	Tue Feb  5 00:33:05 2002
-+++ linux-akpm/fs/ext3/inode.c	Wed Feb  6 23:40:48 2002
-@@ -581,8 +581,6 @@ static int ext3_alloc_branch(handle_t *h
- 			
- 			parent = nr;
- 		}
--		if (IS_SYNC(inode))
--			handle->h_sync = 1;
- 	}
- 	if (n == num)
- 		return 0;
+Any help would be appreciated.
+
+Thanks!
+
+John Delisle
+Corporate Technology
+Ceridian Canada Ltd
+204-975-5909
 
 
--
+
+**********************************************************************
+This e-mail and any files transmitted with it are considered 
+confidential and are intended solely for the use of the 
+individual or entity to whom they are addressed (intended).  
+This communication is subject to agent/client privilege. 
+If you are not the intended recipient (received in error) or 
+the person responsible for delivering the e-mail to the 
+intended recipient, be advised that you have received this 
+e-mail in error and that any use, dissemination, forwarding, 
+printing or copying of this e-mail is strictly prohibited.  If 
+you have received this e-mail in error please notify the 
+sender immediately.
+
+**********************************************************************
+

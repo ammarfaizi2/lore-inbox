@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132537AbQLQLV5>; Sun, 17 Dec 2000 06:21:57 -0500
+	id <S132487AbQLQL1r>; Sun, 17 Dec 2000 06:27:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132536AbQLQLVr>; Sun, 17 Dec 2000 06:21:47 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:21011 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132537AbQLQLVh>;
-	Sun, 17 Dec 2000 06:21:37 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
-In-Reply-To: Your message of "Sun, 17 Dec 2000 10:44:09 -0000."
-             <Pine.LNX.4.30.0012171039400.14423-100000@imladris.demon.co.uk> 
+	id <S132536AbQLQL1h>; Sun, 17 Dec 2000 06:27:37 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:4868 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
+	id <S132487AbQLQL1Z>; Sun, 17 Dec 2000 06:27:25 -0500
+Date: Sun, 17 Dec 2000 12:56:56 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre2
+Message-ID: <20001217125656.A309@elektroni.ee.tut.fi>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Dec 2000 21:51:04 +1100
-Message-ID: <2181.977050264@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 16, 2000 at 07:11:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000 10:44:09 +0000 (GMT), 
-David Woodhouse <dwmw2@infradead.org> wrote:
->The conditional compilation is far more obvious to people than subtle
->issues with link order. So I prefer to avoid the latter at all costs.
+I guess the new memory detect does not work correctly with my old work
+horse. It is a 100 MHz pentium with 56 Megs RAM. AMIBIOS dated 10/10/94 with
+a version number of 51-000-0001169_00111111-101094-SIS550X-H.
 
-The rest of the kernel already depends totally on these "subtle" issues
-with link order.  Why should mtd be different?
+2.2.18 reports:
+Memory: 55536k/57344k available (624k kernel code, 412k reserved, 732k data, 40k init)
 
+2.2.19pre2 reports:
+Memory: 53000k/54784k available (628k kernel code, 408k reserved, 708k data, 40k init)
+
+57344k is 56 Megs which is correct.
+54784k is only 53.5 Megs.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

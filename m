@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUHRVbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUHRVd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267792AbUHRVbS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267758AbUHRVa2
+	id S267826AbUHRVd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267796AbUHRVdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:30:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:43961 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267746AbUHRV2b (ORCPT
+	Wed, 18 Aug 2004 17:33:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56254 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267826AbUHRVdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:28:31 -0400
-Date: Wed, 18 Aug 2004 14:28:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: "'DervishD'" <disposable1@telefonica.net>,
-       "'Linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: setproctitle
-Message-ID: <20040818212824.GI11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert White <rwhite@casabyte.com>,
-	'DervishD' <disposable1@telefonica.net>,
-	'Linux-kernel' <linux-kernel@vger.kernel.org>
-References: <20040818085850.GW11200@holomorphy.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAvgXAGuUD20CaadqFIQ1OWQEAAAAA@casabyte.com>
+	Wed, 18 Aug 2004 17:33:42 -0400
+Date: Wed, 18 Aug 2004 14:30:29 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Does io_remap_page_range() take 5 or 6 args?
+Message-Id: <20040818143029.23db8740.davem@redhat.com>
+In-Reply-To: <20040818210503.GG11200@holomorphy.com>
+References: <20040818133348.7e319e0e.pj@sgi.com>
+	<20040818205338.GF11200@holomorphy.com>
+	<20040818135638.4326ca02.davem@redhat.com>
+	<20040818210503.GG11200@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAvgXAGuUD20CaadqFIQ1OWQEAAAAA@casabyte.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]
-> On Behalf Of William Lee Irwin III
-> Sent: Wednesday, August 18, 2004 1:59 AM
-> To: DervishD
-> Cc: Linux-kernel
-> Subject: Re: setproctitle
-> > The command-line arguments are being fetched from the process address
-> > space, i.e. simply editing argv[] in userspace will have the desired
-> > effect. Though this code is butt ugly.
+On Wed, 18 Aug 2004 14:05:03 -0700
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Please fix your quoting style.
+> We should pass 64-bit values to remap_page_range() also, then. Or
+> perhaps passing pfn's to both suffices, as it all has to be page
+> aligned anyway.
 
+Does not work on a system who has more physical address bits
+than 32 + PAGE_SHIFT
 
-On Wed, Aug 18, 2004 at 02:21:36PM -0700, Robert White wrote:
-> What prevents overrun when updating arg[]?
-> What happens to all the little ps (etc.) programs when I munge
-> together a *really* *long* title?
-> Can the entirety of arg[] be moved to a newly allocated region, if so
-> how?  (e.g. wouldn't I have to have access to overwrite mm->arg_start
-> etc?
-> I'd prefer a setthreadtitle(char * new_title) such that the individual
-> threads in a process (including the master thread, and so
-> setproctitle() function is covered) could be re-titled to declare
-> their purposes.  It would make debugging and logging a lot easier
-> and/or more meaningful sometimes. 8-)
-> It would also let the system preserve the original invocation and
-> args for the lifetime of the process to prevent masquerading.  You
-> know, by default the title is the args, but the set operation would
-> build the new title in a new kernel-controlled place and move the
-> pointer.
-> I'd be willing to work on this if there is interest.
-
-Well, I pointed the code out to you, so you should be all set to find
-the answers to these questions and/or implement the proposed changes.
-When you have patches for such proposed changes I'll review them then.
-
-
--- wli
+Sparc32 does not fall into this category... but some other
+might.

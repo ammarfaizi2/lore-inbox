@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVAEOSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVAEOSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVAEOSf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 09:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVAEOSf
+	id S262442AbVAEOSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 09:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVAEOSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 09:18:35 -0500
-Received: from cpc2-colc3-4-0-cust236.colc.cable.ntl.com ([81.107.32.236]:25256
-	"EHLO sofa.co.uk") by vger.kernel.org with ESMTP id S262440AbVAEOSd
+	Wed, 5 Jan 2005 09:18:39 -0500
+Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:54802 "EHLO
+	www.dewire.com") by vger.kernel.org with ESMTP id S262442AbVAEOSf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 09:18:33 -0500
-Subject: Re: PROBLEM: 2.6.10 oops on startup
-From: Paul Bain <prbain@essex.ac.uk>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <2cd57c9005010422241a1e36da@mail.gmail.com>
-References: <1104605177.6137.92.camel@sofa.co.uk>
-	 <41DAE494.1020807@osdl.org> <1104899778.1992.45.camel@sofa.co.uk>
-	 <2cd57c9005010422241a1e36da@mail.gmail.com>
-Content-Type: text/plain
+	Wed, 5 Jan 2005 09:18:35 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: data rescue
+Date: Wed, 5 Jan 2005 15:18:29 +0100
+User-Agent: KMail/1.7.1
+References: <00e801c4f32e$bde1e600$7861a8c0@pcp40702>
+In-Reply-To: <00e801c4f32e$bde1e600$7861a8c0@pcp40702>
+Cc: sujeet.kumar@patni.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104934699.1652.49.camel@sofa.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 05 Jan 2005 14:18:19 +0000
+Content-Disposition: inline
+Message-Id: <200501051518.29918.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 06:24, Coywolf Qi Hunt wrote:
-> This is a quick fix. Please try the attached patch.
-> 
-> 
->  coywolf
-> 
+onsdagen den 5 januari 2005 14.59 skrev Sujeet Kumar:
+> I ran
+> blockdev -v --rereadpt ....
+> on my harddisk .
+> It gave re-read partition succeded. Then after rebooting the machine it
+> shows no partitions.
+>
+> I tried running linux-rescue from bootable disk and it shows no valid
+> partition table.
+> How do i rescue my data . 
+gpart can recover partition tables. I used it to recover a failed disk where 
+the extended partitions were screwed due to a disk  failure. Every attempt to 
+restore the tables on disk failed. The partion table grew stranger each time, 
+but I could recover data from a disk image. 
 
-Still gives the same oops, but now I get a new message during ACPI
-initialization:
-acpi-thermal-0400 [11] acpi_thermal_get_trip_: invalid active threshold
-[0]
+> Tell me what rereadpt basically does 
+no idea other than the man page....,sorry.
 
--- 
-Paul Bain <prbain@essex.ac.uk>
+-- robin

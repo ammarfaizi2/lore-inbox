@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271550AbTGQVfl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271551AbTGQVfh
+	id S271544AbTGQVel (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271550AbTGQVel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:35:37 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:15747 "EHLO server")
-	by vger.kernel.org with ESMTP id S271550AbTGQVf3 (ORCPT
+	Thu, 17 Jul 2003 17:34:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38101 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271544AbTGQVei (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:35:29 -0400
-Message-ID: <016401c34cad$5b1f58a0$3400a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Fw: about the crash of the 2.4.20
-Date: Thu, 17 Jul 2003 14:49:52 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-15"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 17 Jul 2003 17:34:38 -0400
+Date: Thu, 17 Jul 2003 14:49:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+Message-ID: <20030717214907.GA3255@kroah.com>
+References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com> <20030717120121.GA15061@bytesex.org> <20030717145749.GA5067@kroah.com> <20030717163715.GA19258@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030717163715.GA19258@bytesex.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 17, 2003 at 06:37:15PM +0200, Gerd Knorr wrote:
+> 
+> Version (1) can be done without breaking the build, with a hack along 
+> the lines "if (no release callback) printk(KERN_WARN please fix your
+> driver)", so the drivers can be fixed step-by-step afterwards.
 
------ Original Message ----- 
-From: "Arnaud Ligot" <spyroux@freegates.be>
-To: "Jim Gifford" <maillist@jg555.com>
-Sent: Thursday, July 17, 2003 1:59 PM
-Subject: about the crash of the 2.4.20
+That sounds like a nice way to start.
 
+> Fixing the drivers might be non-trivial through.  Some drivers are
+> hot-pluggable (usb cams), some drivers register more than one v4l device
+> (bttv wants up to three).  Those drivers can't just call kfree() in the
+> ->release callback because there might be other references, some open
+> file handle for a unplugged usb cam, another not-yet unregistered
+> v4l device, whatever.  Probably they must implement some reference
+> counting scheme to get that right.  The very simple ones (in
+> drivers/media/radio for example) likely just need the kfree() moved
+> from the ->remove function into the new ->release() callback.
 
-Le jeu 17/07/2003 à 21:50, Jim Gifford a écrit :
-> ----- Original Message ----- 
-> From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-> To: "Jim Gifford" <maillist@jg555.com>
-> Cc: "lkml" <linux-kernel@vger.kernel.org>
-> Sent: Thursday, July 17, 2003 11:46 AM
-> Subject: Re: 2.4.22-pre6 deadlock
->
->
-> >
-> > Jim,
-> >
-> > I just noticed your kernel is tained.
-> >
-> > For what reason?
-> >
-> >
->
-> The only patches I use are for netfilter options and the updated megaraid
-> driver everything else is stock.
->
-> Do you think some of the netfilter options could be causing the problems??
-I don't know I use a vanilla kernel (without any patch) and my problem
-seems to come from the Reiserfs support.
+I don't think it will be that bad for them.  Just have them change the
+v4l device from being a structure included in their structure, into a
+pointer, and then create it before registering, and free it in the
+release() callback.
 
+That being said, I haven't actually looked at the code to verify that
+this is all that is needed :)
 
-Marcelo,
-    I thought you should see this.
+> Version (2) needs every v4l driver touched to make it compile again.
+> Not sure how hard it is to fixup them.  I'd guess it is pretty straigt
+> forward to do the conversion, it's just alot of work.  I also could do
+> a number of other cleanups along the way.  Maybe I trap into some hidden
+> pitfalls through, havn't looked at all the drivers in detail yet.
 
+Breaking the build is a very good thing to do at times, to ensure that
+stuff gets fixed properly.  Users might go for a while without realizing
+that there really is a problem in their driver.
 
+But in the end, it's up to you...
+
+thanks,
+
+greg k-h

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281678AbRKUONg>; Wed, 21 Nov 2001 09:13:36 -0500
+	id <S281762AbRKUOU4>; Wed, 21 Nov 2001 09:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281675AbRKUONZ>; Wed, 21 Nov 2001 09:13:25 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:52612 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S281381AbRKUONL>; Wed, 21 Nov 2001 09:13:11 -0500
-Date: Wed, 21 Nov 2001 09:12:56 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jan Hudec <bulb@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-In-Reply-To: <20011121143738.D2196@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com>
+	id <S281675AbRKUOUq>; Wed, 21 Nov 2001 09:20:46 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61709 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281381AbRKUOUg>; Wed, 21 Nov 2001 09:20:36 -0500
+Date: Wed, 21 Nov 2001 12:20:23 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "David S. Miller" <davem@redhat.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 + Bug in swap_out.
+In-Reply-To: <m1hero1c8o.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, Jan Hudec wrote:
+On 21 Nov 2001, Eric W. Biederman wrote:
 
-> > >     *a++ = byte_rev[*a]
-> > It looks perferctly okay to me. Anyway, whenever would you listen to a
-> > C++ book talking about good C coding :p
-> 
+> We only hold a ref count for the duration of swap_out_mm.
+> Not for the duration of the value in swap_mm.
 
-It's simple. If any object is modified twice without an intervening
-sequence point, the results are undefined. The sequence-point in
+In that case, why can't we just take the next mm from
+init_mm and just "roll over" our mm to the back of the
+list once we're done with it ?
 
-	*a++ = byte_rev[*a];
+Removing magic is good ;)
 
-... is the ';'.
+regards,
 
-So, we look at 'a' and see if it's modified twice. It isn't. It
-gets modified once with '++'. Now we look at the object to which
-'a' points. Is it modified twice? No, it's read once in [*a], and
-written once in "*a++ =".
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-So, it's perfectly good code with a well defined behavior as far as
-'C' is concerned. I think it is ugly, however, the writer probably
-thought it was beautiful. If somebody went around and fixed all
-the ugly code, it would still be ugly in someone else's eyes.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

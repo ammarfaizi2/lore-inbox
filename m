@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265936AbSKBLq7>; Sat, 2 Nov 2002 06:46:59 -0500
+	id <S265940AbSKBLtp>; Sat, 2 Nov 2002 06:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265938AbSKBLq7>; Sat, 2 Nov 2002 06:46:59 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:40460 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265936AbSKBLq6>; Sat, 2 Nov 2002 06:46:58 -0500
-Date: Sat, 2 Nov 2002 12:53:21 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Fix 2.5-bk build error
-In-Reply-To: <20021102065444.GA16100@think.thunk.org>
-Message-ID: <Pine.LNX.4.44.0211021246560.6949-100000@serv>
-References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net>
- <20021101004751.GB1683@rivenstone.net> <20021101010607.GC1683@rivenstone.net>
- <Pine.LNX.4.44.0211011239290.6949-100000@serv> <20021101172807.GA982@caphernaum.rivenstone.net>
- <20021102065444.GA16100@think.thunk.org>
+	id <S265941AbSKBLtp>; Sat, 2 Nov 2002 06:49:45 -0500
+Received: from packet.digeo.com ([12.110.80.53]:51117 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265940AbSKBLto>;
+	Sat, 2 Nov 2002 06:49:44 -0500
+Message-ID: <3DC3BD57.DDFCBB9C@digeo.com>
+Date: Sat, 02 Nov 2002 03:56:07 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45-bk1: kernel BUG at drivers/block/ll_rw_blk.c:1949!
+References: <3DC3B5AE.E91AF724@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Nov 2002 11:56:07.0504 (UTC) FILETIME=[D4030D00:01C28266]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 2 Nov 2002, Theodore Ts'o wrote:
-
-> On Fri, Nov 01, 2002 at 12:28:07PM -0500, Joseph Fannin wrote:
-> > > BTW2 in the future above can be simplified into
-> > > 
-> > > config FS_MBCACHE
-> > > 	tristate
-> > > 	depends on EXT2_FS_XATTR || EXT3_FS_XATTR
-> > > 	default EXT2_FS || EXT3_FS
-> >
-> >     Okay, here's a patch that does that.  Linus, this fixes a build
-> > error in your current -bk tree that happens when one of ext[23] is a
-> > module and the other is built-in.  Please apply it.
+Helge Hafting wrote:
 > 
-> Um, Roman, am I right in understanding that when you say, "in the
-> future above can be simplified" means that infrastructure to support
-> this construct isn't merged into the 2.5 kernel yet?  
+> I got this during boot. Kernel 2.5.45-bk1,
+> compiled with gcc 2.95.4, SMP+preempt
+> The machine has 2 scsi disks and a
+> tekram controller.
+> 
+> Helge Hafting
+> 
+> kernel BUG at drivers/block/ll_rw_blk.c:1949!
+> invalid operand: 0000
+> CPU:    1
+> EIP:    0060:[<c0236c86>]    Not tainted
+> EFLAGS: 00010246
+> EIP is at submit_bio+0x16/0xa8
 
-No, it means that the support for this isn't written yet. I have looked 
-into it, but it's not actually done yet.
-
-bye, Roman
-
+RAID0 does that.  Are you using raid?

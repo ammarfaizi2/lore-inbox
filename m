@@ -1,29 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbULKTwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbULKT66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbULKTwv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 14:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULKTvu
+	id S262006AbULKT66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 14:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbULKT66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 14:51:50 -0500
-Received: from adsl-70-241-115-85.dsl.hstntx.swbell.net ([70.241.115.85]:2432
-	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
-	id S262005AbULKTvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 14:51:35 -0500
-Date: Sat, 11 Dec 2004 13:51:33 -0600
-From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-To: linux-kernel@vger.kernel.org
-Subject: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-Message-ID: <20041211195133.GA2210@leamonde.no-ip.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Sat, 11 Dec 2004 14:58:58 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:6587 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262006AbULKT64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 14:58:56 -0500
+Date: Sat, 11 Dec 2004 13:58:45 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Matt Mackall <mpm@selenic.com>, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Concurrent access to /dev/urandom
+In-Reply-To: <20041211173317.GA28382@thunk.org>
+Message-ID: <Pine.LNX.4.58.0412111358150.2173@gradall.private.brainfood.com>
+References: <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org>
+ <20041209015705.GB6978@thunk.org> <20041209212936.GO8876@waste.org>
+ <20041210044759.GQ8876@waste.org> <20041210163558.GB10639@thunk.org>
+ <20041210182804.GT8876@waste.org> <20041210212815.GB25409@thunk.org>
+ <20041210222306.GV8876@waste.org> <Pine.LNX.4.58.0412101821330.2173@gradall.private.brainfood.com>
+ <20041211173317.GA28382@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if this has been raised before, but I get this error message
-every time I try to load a module, it is not the modprobe program it self
-causing the problem since I updated it to version 2.4.9 which is the
-latest out there...
+On Sat, 11 Dec 2004, Theodore Ts'o wrote:
 
-Any suggestions? Please cc me as I am not on the list.
+> On Fri, Dec 10, 2004 at 06:22:37PM -0600, Adam Heath wrote:
+> >
+> > Actually, I think this is a security issue.  Since any plain old program can
+> > read from /dev/urandom at any time, an attacker could attempt to read from
+> > that device at the same moment some other program is doing so, and thereby
+> > gain some knowledge as to the other program's state.
+>
+> It could be a potential exploit, but....
+>
+> 	(a) it only applies on SMP machines
+> 	(b) it's not a remote exploit; the attacker needs to have
+> 		the ability to run arbitrary programs on the local
+> 		machine
+> 	(c) the attacker won't get all of other programs' reads of
+> 		/dev/urandom, and
+> 	(d) the attacker would have to have a program continuously
+> 		reading from /dev/urandom, which would take up enough
+> 		CPU time that it would be rather hard to hide.
+>
+> That's not to say that we shouldn't fix it at our earliest
+> convenience, and I'd urge Andrew to push this to Linus for 2.6.10 ---
+> but I don't think we need to move heaven and earth to try to
+> accelerate the 2.6.10 release process, either.
+
+Is it a problem for other kernel versions?  2.4?  Shouldn't this patch be
+pushed out separately to distributions?

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263152AbTC0P7A>; Thu, 27 Mar 2003 10:59:00 -0500
+	id <S263241AbTC0QGP>; Thu, 27 Mar 2003 11:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263232AbTC0P6v>; Thu, 27 Mar 2003 10:58:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42468 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263152AbTC0P6t>;
-	Thu, 27 Mar 2003 10:58:49 -0500
-Date: Thu, 27 Mar 2003 08:06:27 -0800 (PST)
-Message-Id: <20030327.080627.71980411.davem@redhat.com>
-To: shmulik.hen@intel.com
-Cc: bonding-devel@lists.sourceforge.net,
-       bonding-announce@lists.sourceforge.net, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [Bonding][patch] Adding Transmit load balancing mode to bonding
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0303271705580.7106-100000@jrslxjul4.npdj.intel.com>
-References: <Pine.LNX.4.44.0303271705580.7106-100000@jrslxjul4.npdj.intel.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263277AbTC0QGP>; Thu, 27 Mar 2003 11:06:15 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:15515 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S263241AbTC0QGP>; Thu, 27 Mar 2003 11:06:15 -0500
+Date: Thu, 27 Mar 2003 17:17:25 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Larry McVoy <lm@bitmover.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ECC error in 2.5.64 + some patches
+In-Reply-To: <20030327160220.GA29195@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0303271713160.26648-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: shmulik.hen@intel.com
-   Date: Thu, 27 Mar 2003 17:38:02 +0200 (IST)
+On Thu, 27 Mar 2003, Larry McVoy wrote:
 
-   Balancing is connection oriented (e.g. by IPv4 destination address)
-   so packet order is always kept.
+> I'm getting these on the machine we use to do the BK->CVS conversions.
+> My guess is that this means there was a memory error and ECC fixed it.
+> The only problem is that I'm reasonably sure that there isn't ECC on
+> these DIMMs.  Does anyone have the table of error codes to explanations?
+> Google didn't find anything for this one.
 
-You could also key off of the destination/source port as well for
-UDP/TCP/SCTP.  Have you experimented with this?
+No, I don't have a table of error codes either, but it's probably the
+on-die Cache which has ECC for all recent (>=350 MHz iirc) Pentii.
+
+Tim
+

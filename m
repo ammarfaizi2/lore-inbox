@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132716AbRDCXfk>; Tue, 3 Apr 2001 19:35:40 -0400
+	id <S132718AbRDCXxF>; Tue, 3 Apr 2001 19:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132717AbRDCXfb>; Tue, 3 Apr 2001 19:35:31 -0400
-Received: from a8004.upc-a.chello.nl ([62.163.8.4]:31104 "EHLO hypernet.eu.org")
-	by vger.kernel.org with ESMTP id <S132716AbRDCXfS>;
-	Tue, 3 Apr 2001 19:35:18 -0400
-Date: Wed, 4 Apr 2001 03:33:13 +0200 (CEST)
-From: Olaf Woudenberg <olaf@hypernet.eu.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Digital DS21143 in Compaq & kernel 2.4.2
-Message-ID: <Pine.LNX.4.33.0104040325001.10257-100000@hypernet.eu.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132720AbRDCXw4>; Tue, 3 Apr 2001 19:52:56 -0400
+Received: from mail.cnsp.com ([206.206.97.197]:15366 "EHLO mail.cnsp.com")
+	by vger.kernel.org with ESMTP id <S132718AbRDCXws>;
+	Tue, 3 Apr 2001 19:52:48 -0400
+Mime-Version: 1.0
+Message-Id: <a05010402b6f00bdebe5b@[204.134.47.72]>
+Date: Tue, 3 Apr 2001 17:51:53 -0600
+To: linux-kernel@vger.kernel.org
+From: pi <pi_ichat@bigfoot.com>
+Subject: Kernel v2.4.3 segfault on any network send
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Please cc me the messages, i'm not subscribed...
+Hey,
+I just upgraded to kernel 2.4.3 on a k6 (233 mhz) with the processor 
+type set accordingly, all the proper drivers compiled in and I get 
+this big disgusting error message (my friend said that means i f***ed 
+up) Sorry I don't have it, but I'll try to get it, because i'd have 
+to write it down... I can't telnet-and-copy/paste for obvious reasons.
+If I boot to kernel 2.4.2, it won't do that, so I know that lynx 
+isn't the problem (and ftp has it too).
 
-I tried to install redhat 7.0 on a compaq presario 5685 with onboard
-networkcard. According to the linux-kernel this card needs drivers for the
-Digital DS21143 card.
-But when loaded, this card wouldn't work. So i tried a diverent version of
-the kernel by trying to install redhat rawhide. The driver complains it
-cannot found the MII transever.
-Because I need this networkcard to install to install the distribution
-from the internet. I would really like to know how to get this working.
+Pi
 
-I hope anyone had this problem before and can provide me with a solution.
-If more information is required, just let me know.
+PS:
+The SysRq key is a little funky in all kernels since 2.4.0... it 
+doesn't accept help with the letter H, i have to hit the spacebar, 
+and the log levels only change with the number pad...
 
-Best Regards,
-Olaf Woudenberg.
+Pi
+-- 
+use begin;
+begin::signature;
+Anthony "3.14159" Martinez
+AIM name - LittleManTheGeek
+---PERL-SIGNATURE---
+#! /usr/bin/perl -w
+while () {
+	my $sig1;
+	my $sig2;
+	my $name;
+	$sig1="What we have here is a failure to deallocate";
+	$sig2="This file provides programmers with information
+	proving that it was really a hardware problem";
+	$name="Anthony \"3.14159 iMacTinez\" Martinez"
+}
 
-
+=pod
+ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL 
+YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR 
+BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE 
+ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
+BELONG TO US! ALL YOUR BASE ARE BELONG TO US!
+Pi
+=cut

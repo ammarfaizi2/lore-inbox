@@ -1,67 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269338AbTGJPEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269341AbTGJPEK
+	id S269321AbTGJPHs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbTGJPHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:04:10 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:59111 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S269338AbTGJPEF
+	Thu, 10 Jul 2003 11:07:47 -0400
+Received: from sea2-f47.sea2.hotmail.com ([207.68.165.47]:64013 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S269321AbTGJPHp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:04:05 -0400
-Date: Thu, 10 Jul 2003 08:15:07 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@bitmover.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org,
-       Wayne Scott <wscott@bitmover.com>
-Subject: Re: Linux 2.4.22-pre3
-Message-ID: <20030710151507.GA27605@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
-	Larry McVoy <lm@bitmover.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org,
-	Wayne Scott <wscott@work.bitmover.com>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <20030706134156.GG502@phunnypharm.org> <Pine.LNX.4.55L.0307062157300.30827@freak.distro.conectiva> <20030707010527.GA30154@work.bitmover.com> <20030708180520.GJ6848@fs.tum.de> <20030708191817.GB17115@gtf.org>
+	Thu, 10 Jul 2003 11:07:45 -0400
+X-Originating-IP: [63.173.114.243]
+X-Originating-Email: [kambo77@hotmail.com]
+From: "Kambo Lohan" <kambo77@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH pktgen hang, memleak, fixes 
+Date: Thu, 10 Jul 2003 11:22:24 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030708191817.GB17115@gtf.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F47vJo8jUbRX8z000320b1@hotmail.com>
+X-OriginalArrivalTime: 10 Jul 2003 15:22:25.0186 (UTC) FILETIME=[10F4F020:01C346F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 03:18:17PM -0400, Jeff Garzik wrote:
-> On Tue, Jul 08, 2003 at 08:05:21PM +0200, Adrian Bunk wrote:
-> > On Sun, Jul 06, 2003 at 06:05:27PM -0700, Larry McVoy wrote:
-> > > On Sun, Jul 06, 2003 at 10:00:34PM -0300, Marcelo Tosatti wrote:
-> > > > On Sun, 6 Jul 2003, Ben Collins wrote:
-> > > > > Any chance you could be consistent in tagging the -pre's? Neither pre2,
-> > > > > nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
-> > > > 
-> > > > I guess I have tagged -pre2 and -pre3:
-> > > > 
-> > > > Maybe I'm missing something?
-> > > 
-> > > Hmm.   Ben, look again in the CVS tree and make sure that the tags aren't
-> > > there.  Maybe the converter screwed up?  
-> > 
-> > -pre2 and -pre3 are also missing at
-> >   http://ftp.kernel.org/pub/linux/kernel/v2.4/testing/cset/
-> 
-> hrm.  Well, it's definitely tagged correctly in Marcelo's main 2.4 BK
-> repo.
+This should fix about 3 things.  My first patch, be gentle...
 
-I think I've found the bug - it's in the code that collapses multiple 
-changesets into one CVS checkin.  It looks like we are picking up 
-tags only if the tag was on the last changeset in the sequence instead
-of any changeset in the sequence.  We're fixing it.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+2.5 has the same problem but I do not know if this will apply or not, we run 
+2.4.
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+--- linux-2.4.21/net/core/pktgen.c	2002-11-28 18:53:15.000000000 -0500
++++ linux-2.4-kjp/net/core/pktgen.c	2003-07-10 11:08:31.000000000 -0400
+@@ -34,6 +34,7 @@
+  *   *  The new changes seem to have a performance impact of around 1%,
+  *       as far as I can tell.
+  *   --Ben Greear <greearb@candelatech.com>
++ * Fix refcount off by one if first packet fails, potential null deref, 
+memleak 030710- KJP
+  *
+  * Renamed multiskb to clone_skb and cleaned up sending core for two 
+distinct
+  * skb modes. A clone_skb=0 mode for Ben "ranges" work and a clone_skb != 0
+@@ -84,9 +85,9 @@
+#define cycles()	((u32)get_cycles())
+
+
+-#define VERSION "pktgen version 1.2"
++#define VERSION "pktgen version 1.2.1"
+static char version[] __initdata =
+-  "pktgen.c: v1.2: Packet Generator for packet performance testing.\n";
++  "pktgen.c: v1.2.1: Packet Generator for packet performance testing.\n";
+
+/* Used to help with determining the pkts on receive */
+
+@@ -613,12 +614,11 @@
+                                 kfree_skb(skb);
+                                 skb = fill_packet(odev, info);
+                                 if (skb == NULL) {
+-                                        break;
++					goto out_reldev;
+                                 }
+                                 fp++;
+                                 fp_tmp = 0; /* reset counter */
+                         }
+-                        atomic_inc(&skb->users);
+                 }
+
+                 nr_frags = skb_shinfo(skb)->nr_frags;
+@@ -634,9 +634,10 @@
+				last_ok = 0;
+			}
+                         else {
+-		           last_ok = 1;
+-                           info->sofar++;
+-                           info->seq_num++;
++				atomic_inc(&skb->users);
++				last_ok = 1;
++				info->sofar++;
++				info->seq_num++;
+                         }
+		}
+		else {
+@@ -707,6 +708,7 @@
+		}
+	}/* while we should be running */
+
++
+	do_gettimeofday(&(info->stopped_at));
+
+	total = (info->stopped_at.tv_sec - info->started_at.tv_sec) * 1000000 +
+@@ -731,6 +733,8 @@
+			     (unsigned long long) info->errors
+			     );
+	}
++
++	kfree_skb(skb);
+
+out_reldev:
+         if (odev) {
+
+_________________________________________________________________
+STOP MORE SPAM with the new MSN 8 and get 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
+

@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbTJ3FnU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 00:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTJ3FnU
+	id S262129AbTJ3FgN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 00:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTJ3FgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 00:43:20 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:8625 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262130AbTJ3FnT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 00:43:19 -0500
-Date: Wed, 29 Oct 2003 23:42:54 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Ref-count problem in kset_find_obj?
-Message-ID: <20031029234254.A13162@lists.us.dell.com>
-References: <20031029123820.GA1141@mschwid3.boeblingen.de.ibm.com> <Pine.LNX.4.44.0310291623420.1023-100000@cherise>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Oct 2003 00:36:13 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13731
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262129AbTJ3FgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 00:36:11 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: Suspend to disk panicked in -test9.
+Date: Wed, 29 Oct 2003 23:33:06 -0600
+User-Agent: KMail/1.5
+References: <200310291857.40722.rob@landley.net> <200310291935.28554.elenstev@mesatop.com>
+In-Reply-To: <200310291935.28554.elenstev@mesatop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0310291623420.1023-100000@cherise>; from mochel@osdl.org on Wed, Oct 29, 2003 at 04:24:58PM -0800
+Message-Id: <200310292333.06470.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 29, 2003 at 04:24:58PM -0800, Patrick Mochel wrote:
-> 
-> > The reference count of the kobject to be returned is not
-> > increased before the semaphore is released. A kobject_del/unlink
-> > could remove the object before the called of kset_find_obj is
-> > able to increase the reference count. This makes kset_find_obj
-> > more or less unusable, doesn't it?
-> 
-> Yes, you're right. The function is pretty much unused, and I don't have a 
-> problem removing it, provided we can fix up the one user 
-> (arch/i386/kernel/edd.c). Unless of course, you're planning on using it..
+On Wednesday 29 October 2003 20:35, Steven Cole wrote:
+> On Wednesday 29 October 2003 05:57 pm, Rob Landley wrote:
+> > Unfortunately, while I was writing down the panic on a piece of paper,
+> > the screen blanking code kicked in while I was still copying down the
+> > register values.  I remember that the call trace mentioned some variant
+> > of a write_stuff_to_disk call, but that's not that useful...
+> >
+> > When is the last time that the screen blanking code actually accomplished
+> > something useful?  These days it seems to exist for the purpose of
+> > destroying panic call traces and annoying people.  (I seem to remember
+> > that pressing a key used to make it come back, but now we're forced to
+> > use the input core that no longer seems to be the case...)
+> >
+> > I also seem to remember a patch floating by on the list that would make
+> > console screen blanking go away.  I really think console screen blanking
+> > NOT being enabled should be the default these days.  Or at the very
+> > least, when there's a panic it should get shut off.  I'll add looking
+> > into that to my to-do list, but will probably get to it somewhere around
+> > 2009...
+> >
+> > Rob
+>
+> In the meantime, keeping a digital camera close by when testing is a
+> low tech/high tech solution to this.
 
-At the moment, edd.c doesn't actually use it.  It wants to -
-find_bus() is a useful concept, but I haven't proven that the scsi_bus
-list only has scsi_devices on it, so that code isn't compiled in at
-present.  If the scsi_bus list is clean now, then yes, I'll want to
-turn it back on (after 2.6.0 is out) and will need find_bus() to be
-possible.
+Very few McDonalds have a digital camera behind the register to loan out.  I 
+was lucky they printed out some blank cash register paper for me to write the 
+panic down on.  (Ordinarily, I take notes on my laptop...)
 
-Thanks,
-Matt
+If this was easily reproducible, I'd recreate it at home under a serial 
+console.  (Well, this being a "modern" laptop with no serial port, maybe I 
+could I could rig up a parallel port console or something.  But the 
+principle's the same.  No, don't ask me why this thing has no serial port but 
+does have a parallel port.  Ask IBM.)
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Does netconsole handle panics?  (Would it work through a wireless card on an 
+internal cardbus?  I also have a pcmcia 10baseT card around here somewhere I 
+could plug a some cat5 into, if I can get any untangled from the big ball of 
+miscelanous obsolete computer stuf in the "old parts" box.  It's been a 
+couple months since I needed to reclaim anything that box, but I think I know 
+where I left it.  I vaguely remember a friend asking me what an 
+unrecognizable component was...  For the record, it was a 5 1/4 to 3.5 floppy 
+cable adapter...)
+
+> Steven
+
+Rob

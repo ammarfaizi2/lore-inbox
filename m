@@ -1,63 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264611AbTFVKUL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 06:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTFVKUL
+	id S264534AbTFVKPq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 06:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbTFVKPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 06:20:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9098 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264611AbTFVKUH (ORCPT
+	Sun, 22 Jun 2003 06:15:45 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:51726 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264534AbTFVKPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 06:20:07 -0400
-Date: Sun, 22 Jun 2003 12:30:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lou Langholtz <ldl@aros.net>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, Steven Whitehouse <steve@chygwyn.com>,
-       akpm@digeo.com
-Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
-Message-ID: <20030622103002.GK608@suse.de>
-References: <3EF3F08B.5060305@aros.net> <20030621073224.GJ6754@parcelfarce.linux.theplanet.co.uk> <3EF48A30.3010203@aros.net> <20030621193124.GK6754@parcelfarce.linux.theplanet.co.uk> <3EF4BEC5.1060301@aros.net>
+	Sun, 22 Jun 2003 06:15:44 -0400
+Date: Sun, 22 Jun 2003 12:30:19 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Cc: wa@almesberger.net, lm@work.bitmover.com, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-Id: <20030622123019.0ca12f30.skraw@ithnet.com>
+In-Reply-To: <3EF50289.8000700@coyotegulch.com>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
+	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
+	<03061908145500.25179@tabby>
+	<20030619141443.GR29247@fs.tum.de>
+	<bcsolt$37m$2@news.cistron.nl>
+	<20030619165916.GA14404@work.bitmover.com>
+	<3EF50289.8000700@coyotegulch.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF4BEC5.1060301@aros.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21 2003, Lou Langholtz wrote:
-> >Because often that lock protects driver-internal objects that are used
-> >by all queues.
-> >
-> Not sure I understand what you're saying... I was going by the kernel 
-> blk_init_queue(q, rfn, lock) source that assigns q->queue_lock to the 
-> given lock pointer. Given how big struct request_queue was compared to a 
-> spinlock_t and since we require all disks to have there very own 
-> seperate struct request_queue (by virtue of all the sysfs stuff imbedded 
-> now in there), I'm pursauded to find requiring each request_queue to 
-> have its very own lock (by making queue_lock a spinlock_t rather than a 
-> pointer to such) a relatively low weighted addition for worthwhile gain. 
-> I don't doubt that I've missed something though. So unless some more 
-> experienced folks chime in for having queue_lock become a spinlock_t 
-> instead of spinlock_t *, I'll just not say anymore about queue_lock.
+On Sat, 21 Jun 2003 21:12:41 -0400
+Scott Robert Ladd <coyote@coyotegulch.com> wrote:
 
-I don't know how to express what Al says any more clearly, looks very
-clear to me. One example of such is IDE, which has two drives on one
-channel and the channel is the syncronization point. So it actually
-makes sense to have one lock per channel, and have that lock be shared
-by the two queues (drives) on that channel.
+> I most certainly agree. Knowledge is built on knowledge, and if a Homo 
+> erectus had patented the flaked stone tool, we would all still be living 
+> in caves.
 
-Seems to me, you are suffering somewhat from the 'more locks is just
-faster' disease. This is often not the case. ->queue_lock being a
-pointer is just more powerful than having the lock embedded, because it
-gives you the option to make your locking hierachy the way you want it.
+Hear, hear ...
+ 
+> Of course, not everyone is capable of creating a sharp edge by banging 
+> the rocks together. And that's why different people do different things.
 
-So please, leave the single global nbd_lock and just use that for all
-queues until you have anything close to resembling real evidence that
-splitting it up is worth it. I do guarentee you that for X busy queues,
-the patch you sent will be _slower_ than maintaining one single lock due
-to dirty cache line bouncing.
+And there is nothing wrong with that.
 
--- 
-Jens Axboe
+>  > If you can simply use the wheel and go on producing a
+>  > car "on top" of it, you _saved_ money, time and manpower.
+> 
+> The mere act of making code open (or object-oriented) does not make 
+> people reuse it. I am constantly amazed by the amount of available 
+> information, and am disturbed by how few people take advantage of it.
+> 
+> Almost every company *does* reinvent the wheel -- and that can not be 
+> legitimately blamed on closed-source software. Witness the massive 
+> duplication of effort in the free software community -- KDE, Gnome, and 
+> other "desktops" being a salient example. Egos, license disputes, 
+> business concerns, and technical choices lead to duplication of effort; 
+> as a former evangelist of object-oriented programming, I'm more than 
+> aware that it is not technology that prevents code re-use, but psychology.
 
+Well, see it as an evolutionary process. Of course you will always see
+duplication as a try to re-invent something _better_. Anyway you will notice,
+that evolution lives by the possibility to reuse and refine things that have
+proven good.
+It is a matter of time simply. It is no matter of black and white, rather of
+darker and lighter grey. The more time the more the positive effects of the
+"lighter grey" open source strategy (compared to "darker grey" closed source)
+will take effect. See we are still at the very beginning of the "open source
+age".
+Since we all do not know what mission-critical questions for mankind will arise
+in upcoming years,  we, too, cannot make claims about the resources needed to
+solve - or at least survive - them. To me it is very clear that open source has
+the capability to set resources free (see Larry: "will Sun survive the open
+source") that can be very well needed in other important areas. This is not
+bad, it is a chance. Reaching the same goal with less resources is never a bad
+thing.
+Just step back and watch the big picture, not only our "backstage area". A tool
+can be very important, but you also need the people to use it for reaching the
+right goal. Handing the car key to Homo erectus may not have been the right
+thing to do, though the "car tool" itself is brilliant.
+
+Regards,
+Stephan

@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVAGBVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVAGA6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVAGBVa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 20:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVAGBV1
+	id S261205AbVAGA6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVAGAs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 20:21:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58245 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261266AbVAGBUr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 20:20:47 -0500
-Date: Fri, 7 Jan 2005 01:20:41 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050107012040.GU26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com>
+	Thu, 6 Jan 2005 19:48:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4225 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261153AbVAGApb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:45:31 -0500
+Date: Thu, 6 Jan 2005 16:49:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Cc: bzolnier@gmail.com, drab@kepler.fjfi.cvut.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: APIC/LAPIC hanging problems on nForce2 system.
+Message-Id: <20050106164952.0a46df7e.akpm@osdl.org>
+In-Reply-To: <41DDD7C3.8040406@gmx.de>
+References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
+	<41DC1AD7.7000705@gmx.de>
+	<Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
+	<41DC2113.8080604@gmx.de>
+	<Pine.LNX.4.60.0501051821430.25946@kepler.fjfi.cvut.cz>
+	<41DC2353.7010206@gmx.de>
+	<Pine.LNX.4.60.0501060046450.26952@kepler.fjfi.cvut.cz>
+	<41DCFEF0.5050105@gmx.de>
+	<58cb370e05010605527f87297e@mail.gmail.com>
+	<41DD537B.9030304@gmx.de>
+	<20050106154650.33c3b11c.akpm@osdl.org>
+	<41DDD7C3.8040406@gmx.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050107010119.GS1292@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 05:01:19PM -0800, Paul E. McKenney wrote:
-> Thank you for the pointer!  By this, you mean do mount operations in
-> conjunction with namespaces, right?
+"Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
+>
+> Perhaps firfox fscked up the inlined patch, so please
+> try the attached version. If it goes alright, I'll resubmit it,
+> inlcuding more detailed description.
 
-Namespaces or chroots, not much difference...  The point is that you want
-to duplicate the mount tree with your stuff added at some point.  Instead
-of doing duplication on directory tree level (i.e. having your fs code
-try and mirror the stuff from other filesystems), you can do that completely
-outside of fs code; either by cloning the namespace first or by building
-a chroot jail with mount --rbind / <location of jail> and chrooting in
-there.  Then just mount the stuff that really comes from your data at
-whatever place you want.
+There was no attachment.
 
-> I will follow up with more detail as I learn more.  The current issue
-> seems to be with removeable devices.  Their users want to be accessing
-> a particular version, but still see a memory stick that was subsequently
-> mounted outside of the view.  Straightforward use of mounts and namespaces
-> would prevent the memory stick from being visible to users that were
-> already in view.
-
-There is a way to deal with that and since 2.7 is not going to materialize,
-we'd better go and resurrect that project in 2.6...  Basically, having
-shared and asymmetrically shared subtrees between namespaces/locations
-in the same namespace.
-
-I'll try to get the detailed description of that stuff (partial sharing)
-written down in a couple of days and post an RFC on l-k and fsdevel.
-
-It's doable, it's not particulary scary, but it sure as hell *far* easier
-to do in generic code; there we have access to vfsmount trees and there
-lives all code that modifies them, so we don't have to screw with mirroring
-directory trees of other filesystems.
-
-	Note that even now you can simply go ahead and mount that stick inside
-of view explicitly.  That will work; the question is how to make it automatic
-and do that in a sane way.
+Please go ahead and prepare a final patch against Linus's latest tree.  The
+simplest way to obtain that is via the topmost link at
+http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/.

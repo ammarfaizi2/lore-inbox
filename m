@@ -1,52 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbUJZGVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUJZG2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbUJZGVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 02:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUJZGVu
+	id S261914AbUJZG2x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 02:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbUJZG2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 02:21:50 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:53681 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262144AbUJZGVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 02:21:49 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: ncunningham@linuxmail.org
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Date: Tue, 26 Oct 2004 01:21:46 -0500
-User-Agent: KMail/1.6.2
-Cc: Stelian Pop <stelian@popies.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200410210154.58301.dtor_core@ameritech.net> <200410250822.46023.dtor_core@ameritech.net> <1098744035.7191.49.camel@desktop.cunninghams>
-In-Reply-To: <1098744035.7191.49.camel@desktop.cunninghams>
-MIME-Version: 1.0
+	Tue, 26 Oct 2004 02:28:53 -0400
+Received: from mailsc1.simcon-mt.com ([195.27.129.236]:64327 "EHLO
+	mailsc1.simcon-mt.com") by vger.kernel.org with ESMTP
+	id S261914AbUJZG2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 02:28:49 -0400
+Date: Tue, 26 Oct 2004 08:32:33 +0200
+From: "Andrei A. Voropaev" <av@simcon-mt.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cyclades.h in 2.6.9 use __iomem but don't include compiler.h
+Message-ID: <20041026063233.GA7598@avorop.local>
+References: <20041025154645.GB1105@avorop.local> <20041025195342.GC23133@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410260121.46633.dtor_core@ameritech.net>
+In-Reply-To: <20041025195342.GC23133@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 October 2004 09:28 pm, Nigel Cunningham wrote:
-> Hi.
+On Mon, Oct 25, 2004 at 05:53:43PM -0200, Marcelo Tosatti wrote:
+> On Mon, Oct 25, 2004 at 05:46:45PM +0200, Andrei A. Voropaev wrote:
+> > Hi!
+> > 
+> > I'm not sure if this is a bug or a feature. But in 2.6.9 cyclades.h have
+> > different definition for struct cyclades_card. This definition uses
+> > __iomem attribute which is defined in linux/compiler.h. This is not
+> > included in cyclades.h, which leads to compilation problems for
+> > util-linux package.
 > 
-> On Mon, 2004-10-25 at 23:22, Dmitry Torokhov wrote:
-> > The change from sysdev to a platform device is the main reason I did
-> > the change (and getting rid of old pm_register stuff which is useless
-> > now) because swsusp2 (and seems that swsusp1 as well) have trouble
-> > resuming system devices. The rest was just fluff really.
+> Hi Andrei,
 > 
-> I'm not sure why we're not trying to resume system devices. I'll give it
-> a whirl and see if anything breaks :> Feel free to tell me if/when you
-> notice things like this in future; I try to be approachable and
-> responsive.
+> cyclades.h should not do business with util-linux, only
+> the driver itself (cyclades.c) and the userspace configuration 
+> utility (which now includes should linux/compiler.h accordingly 
+> to define __iomem to NULL).
+
+Well. All I know is that util-linux has cytune utility that does not
+compile with 2.6.9 kernel headers. But compiles with older ones.
+> 
+> What is the complete error message, and why is util-linux 
+> including cyclades.h?
 > 
 
-Hi Nigel,
+Here's the error message.
+
+cc -O2 -fomit-frame-pointer -I../lib -Wall  -Wstrict-prototypes -DNCH=1   -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\" -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\" -DLOCALEDIR=\"/usr/share/locale\" -O2 -c cytune.c -o cytune.o
+cytune.c:58:86: linux/tqueue.h: No such file or directory
+In file included from cytune.c:61:
+/usr/include/linux/cyclades.h:514: error: variable or field `__iomem' declared void
+/usr/include/linux/cyclades.h:514: error: parse error before '*' token
+/usr/include/linux/cyclades.h:515: error: parse error before '*' token
+/usr/include/linux/cyclades.h:528: error: parse error before '}' token
+make[1]: *** [cytune.o] Error 1
+make[1]: Leaving directory `/tools/src/util-linux-2.12b/sys-utils'
+make: *** [all] Error 1
+
+The first problem with linux/tqueue.h happens because during config it
+tries to do it with only cyclades.h and fails on __iomem. So it decides
+to include tqueue.h. Only to make things worse.
+
+Here's the patch that I had to apply.
+
+diff -ur util-linux-2.12b/configure util-linux-2.12b-adj/configure
+--- util-linux-2.12b/configure  2004-08-25 02:32:19.000000000 +0200
++++ util-linux-2.12b-adj/configure      2004-10-25 19:43:29.259856848 +0200
+@@ -367,6 +367,7 @@
+ #
+ echo "
+ #include <sys/types.h>
++#include <linux/compiler.h>
+ #include <linux/cyclades.h>
+ int main(){ exit(0); }
+ " > conftest.c
+diff -ur util-linux-2.12b/sys-utils/cytune.c util-linux-2.12b-adj/sys-utils/cytune.c
+--- util-linux-2.12b/sys-utils/cytune.c 2002-03-09 00:04:30.000000000 +0100
++++ util-linux-2.12b-adj/sys-utils/cytune.c     2004-10-25 19:44:27.892943264 +0200
+@@ -58,6 +58,7 @@
+ #include <linux/tqueue.h>      /* required for old kernels (for struct tq_struct) */
+                                /* compilation errors on other kernels */
+ #endif
++#include <linux/compiler.h>
+ #include <linux/cyclades.h>
  
-System devices are resumed when you call device_power_up and I could
-not find references to it in swsusp2 code, it goes straight to
-device_resume_tree... Am I missng something?
+ #if 0
 
--- 
-Dmitry

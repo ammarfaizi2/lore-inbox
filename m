@@ -1,26 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281932AbRLDFHY>; Tue, 4 Dec 2001 00:07:24 -0500
+	id <S281817AbRLDFLI>; Tue, 4 Dec 2001 00:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281248AbRLDFHI>; Tue, 4 Dec 2001 00:07:08 -0500
-Received: from h24-76-32-221.vf.shawcable.net ([24.76.32.221]:2982 "EHLO
-	soul.blemished.net") by vger.kernel.org with ESMTP
-	id <S281161AbRLDFGu>; Tue, 4 Dec 2001 00:06:50 -0500
-Date: Mon, 3 Dec 2001 21:06:44 -0800 (PST)
-From: supermike <supermike@blemished.net>
-X-X-Sender: <mbethune@eternity.blemished.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: console on serial 2.4.16
-Message-ID: <Pine.LNX.4.33.0112032103210.31373-100000@eternity.blemished.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281248AbRLDFK6>; Tue, 4 Dec 2001 00:10:58 -0500
+Received: from mail12.speakeasy.net ([216.254.0.212]:12421 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S281161AbRLDFKo>; Tue, 4 Dec 2001 00:10:44 -0500
+Subject: Re: Compilation error with Kernels 2.4.16 && 2.5.X
+From: safemode <safemode@speakeasy.net>
+To: real <haxmail@subdimension.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C0B921F.80206@subdimension.com>
+In-Reply-To: <3C0B921F.80206@subdimension.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 04 Dec 2001 00:10:42 -0500
+Message-Id: <1007442642.5959.1.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compiled a 2.4.14 and 16 kernel w/same options,
-console on serial works fine in 14 but won't accept input on 16.
-tried on 2 different hw sets, many different options, etc.
-anyone else have this problem?  is it a bug?
+On Mon, 2001-12-03 at 09:54, real wrote:
+> drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols 
+> in discarded section .text.exit'
+> drivers/net/net.o(.data+0xbb4): undefined reference to `local symbols in 
+> discarded section .text.exit'
+> drivers/sound/sounddrivers.o(.data+0xb4): undefined reference to `local 
+> symbols in discarded section .text.exit'
+> drivers/usb/usbdrv.o(.data+0x234): undefined reference to `local symbols 
+> in discarded section .text.exit'
+> make: *** [vmlinux] Error 1
 
-mike
+Same here.  How many other people are finding this to be a problem?   
+same problem with 2.4.17-pre2  
 

@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130882AbRCMV3r>; Tue, 13 Mar 2001 16:29:47 -0500
+	id <S131193AbRCMVcR>; Tue, 13 Mar 2001 16:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131171AbRCMV3i>; Tue, 13 Mar 2001 16:29:38 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:47378 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S131151AbRCMV3c>; Tue, 13 Mar 2001 16:29:32 -0500
-Date: Tue, 13 Mar 2001 21:28:51 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: system hang with "__alloc_page: 1-order allocation failed"
-In-Reply-To: <3AAE6963.66301F61@colorfullife.com>
-Message-ID: <Pine.LNX.4.30.0103132128110.20010-100000@ferret.lmh.ox.ac.uk>
+	id <S131199AbRCMVcJ>; Tue, 13 Mar 2001 16:32:09 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:7373 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131187AbRCMVbz>;
+	Tue, 13 Mar 2001 16:31:55 -0500
+X-Sent: 13 Mar 2001 20:35:48 GMT
+Date: Tue, 13 Mar 2001 12:37:16 -0800 (PST)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>
+Subject: [PATCH] 2.4.3-pre3 add PBG4 native LCD mode to modedb.c
+Message-ID: <Pine.LNX.4.33.0103131224340.252-200000@desktop>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="655872-432902778-984515836=:252"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Tue, 13 Mar 2001, Manfred Spraul wrote:
+--655872-432902778-984515836=:252
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> * bugfixes for get_pid(). This is the longest part of the patch, but
-> it's only necessary if you have more than 10.000 threads running. If you
-> have enough memory: launch a forkbomb. If ~ 32760 thread are running the
-> kernel enters an endless loop in get_pid() (or around 11000 threads if
-> they intentionally create additional sessions and process groups)
+The attached patch adds the a new mode to the modedb, used by the ATI,
+3Dfx, and Amiga frame buffer devices.  The new mode is the native,
+slightly wide resolution of the new Apple laptops.  It isn't obvious how
+popular a mode has to be before it goes into modedb.c.
 
-I thought (on Intel) there was a 4092 hard limit?
+-jwb
 
-Chers
-Chris
+--655872-432902778-984515836=:252
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="mode.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0103131237160.252@desktop>
+Content-Description: Patch to drivers/video/modedb.c
+Content-Disposition: attachment; filename="mode.diff"
 
+LS0tIGRyaXZlcnMvdmlkZW8vbW9kZWRiLmMub3JpZwlUdWUgTWFyIDEzIDA0
+OjIwOjQzIDIwMDENCisrKyBkcml2ZXJzL3ZpZGVvL21vZGVkYi5jCVR1ZSBN
+YXIgMTMgMDQ6MTY6MjAgMjAwMQ0KQEAgLTkxLDYgKzkxLDEwIEBADQogCU5V
+TEwsIDYwLCAxMDI0LCA3NjgsIDE1Mzg0LCAxNjgsIDgsIDI5LCAzLCAxNDQs
+IDYsDQogCTAsIEZCX1ZNT0RFX05PTklOVEVSTEFDRUQNCiAgICAgfSwgew0K
+KwkvKiAxMTUyeDc2OCBAIDU1IEh6LCA0NC4xNTQga0h6IGhzeW5jLCBQb3dl
+ckJvb2sgRzQgTENEICovDQorICAgICAgICBOVUxMLCA1NSwgMTE1MiwgNzY4
+LCAxNTM4NiwgMTI2LCA1OCwgMjksIDMsIDEzNiwgNiwNCisgICAgICAgIDAs
+IEZCX1ZNT0RFX05PTklOVEVSTEFDRUQgDQorICAgIH0sIHsNCiAJLyogNjQw
+eDQ4MCBAIDEwMCBIeiwgNTMuMDEga0h6IGhzeW5jICovDQogCU5VTEwsIDEw
+MCwgNjQwLCA0ODAsIDIxODM0LCA5NiwgMzIsIDM2LCA4LCA5NiwgNiwNCiAJ
+MCwgRkJfVk1PREVfTk9OSU5URVJMQUNFRA0K
+--655872-432902778-984515836=:252--

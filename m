@@ -1,106 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265633AbUFIHU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUFIHYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265633AbUFIHU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 03:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUFIHUZ
+	id S265661AbUFIHYm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 03:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUFIHYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 03:20:25 -0400
-Received: from mail.kroah.org ([65.200.24.183]:11471 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265633AbUFIHUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 03:20:20 -0400
-Date: Tue, 8 Jun 2004 22:45:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Hanna Linder <hannal@us.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
-Message-ID: <20040609054541.GA9483@kroah.com>
-References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com> <40BE6CA9.9030403@zytor.com> <20040603193256.GD23564@kroah.com> <7430000.1086729016@dyn318071bld.beaverton.ibm.com> <10660000.1086732946@dyn318071bld.beaverton.ibm.com> <Pine.LNX.4.58.0406082248360.23469@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406082248360.23469@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 9 Jun 2004 03:24:42 -0400
+Received: from 178-194.leased.cust.tie.cl ([200.54.178.194]:450 "EHLO
+	calvomackenna.cl") by vger.kernel.org with ESMTP id S265661AbUFIHYk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 03:24:40 -0400
+Message-Id: <200406090821.i598LcC3010436@calvomackenna.cl>
+Reply-To: lsblpm@yahoo.com.br
+From: "Sr. Milton" <lsblpm@yahoo.com.br>
+To: gravador@digital.com
+Subject: Saiba como usam seu telefone em sua ausencia !                                             MFPDGPYTDX
+Date: Wed, 9 Jun 2004 04:22:20 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 08, 2004 at 10:52:09PM -0400, Zwane Mwaikambo wrote:
-> My understanding is that the above removes the class for each online cpu.
+GRAVADOR DIGITAL TELEFONICO AUTOMÁTICO
+ 
+www.gigitech.com.br/gravador
 
-Ick, good catch.  This change should fix this.  Thanks for letting me
-know.
+gravador@gigitech.com.br
+ 
+Telefone: 11 3851-2704 Plantão: 9780-6340 / 9822-0364 
+ 
+VOCê CONHECE O NOSSO PRODUTO ? 
+ 
+- Gravador  telefônico  digital  automático, para monitoramento de ligações telefonicas.
 
-greg k-h
 
-# cpuid: fix hotplug cpu remove bug for class device.
-#
-# Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-#
-diff -Nru a/arch/i386/kernel/cpuid.c b/arch/i386/kernel/cpuid.c
---- a/arch/i386/kernel/cpuid.c	2004-06-08 22:44:26 -07:00
-+++ b/arch/i386/kernel/cpuid.c	2004-06-08 22:44:26 -07:00
-@@ -158,35 +158,27 @@
- 	.open = cpuid_open,
- };
+- Indicado para uso em empresas que necessitam monitorar seus contatos telefônicos para avaliar a qualidade de atendimento  para  seus  clientes, além do uso doméstico (monitorar ligações telefônicas de filhos, empregados, etc).
+
+As gravações podem serem efetuadas de modo automático ou manual em formato mp3 que podem serem ouvidas em qualquer computador ou armazenadas em qualquer tipo de midia para serem ouvidas em qualquer lugar, inclusive seu CD player.
+
+Visite nosso site: www.gigitech.com.br/gravador
+
+
+Para aquisição ou  duvidas entre em contato pelos meios abaixo:
+
+Telefone:  11 3851-2704 plantão: 9780-6340 / 9822-0364
+
+E-mail: gravador@gigitech.com.br
+
+
+Para sair da lista por favor envie um e-mail para remover2@gigitech.com.br 
+
  
--static void cpuid_class_simple_device_remove(void)
--{
--	int i = 0;
--	for_each_online_cpu(i)
--		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
--	return;
--}
--
- static int cpuid_class_simple_device_add(int i) 
- {
- 	int err = 0;
- 	struct class_device *class_err;
- 
- 	class_err = class_simple_device_add(cpuid_class, MKDEV(CPUID_MAJOR, i), NULL, "cpu%d",i);
--	if (IS_ERR(class_err)) {
-+	if (IS_ERR(class_err))
- 		err = PTR_ERR(class_err);
--	}
- 	return err;
- }
-+
- static int __devinit cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
- {
- 	unsigned int cpu = (unsigned long)hcpu;
- 
--	switch(action) {
-+	switch (action) {
- 	case CPU_ONLINE:
- 		cpuid_class_simple_device_add(cpu);
- 		break;
- 	case CPU_DEAD:
--		cpuid_class_simple_device_remove();
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, cpu));
- 		break;
- 	}
- 	return NOTIFY_OK;
-@@ -224,7 +216,10 @@
- 	goto out;
- 
- out_class:
--	cpuid_class_simple_device_remove();
-+	i = 0;
-+	for_each_online_cpu(i) {
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
-+	}
- 	class_simple_destroy(cpuid_class);
- out_chrdev:
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");	
-@@ -234,7 +229,10 @@
- 
- void __exit cpuid_exit(void)
- {
--	cpuid_class_simple_device_remove();
-+	int cpu = 0;
-+
-+	for_each_online_cpu(cpu)
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, cpu));
- 	class_simple_destroy(cpuid_class);
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
- 	unregister_cpu_notifier(&cpuid_class_cpu_notifier);

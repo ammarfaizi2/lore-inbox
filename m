@@ -1,101 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271331AbTGQCLz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 22:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271332AbTGQCLz
+	id S271044AbTGQCZb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 22:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271333AbTGQCZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 22:11:55 -0400
-Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:32907 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S271331AbTGQCLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 22:11:53 -0400
-Message-ID: <3F160965.7060403@comcast.net>
-Date: Wed, 16 Jul 2003 19:26:45 -0700
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030704
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pdcraid and weird IDE geometry
-X-Enigmail-Version: 0.76.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050608000009070307090203"
+	Wed, 16 Jul 2003 22:25:31 -0400
+Received: from host.atlantavirtual.com ([209.239.35.47]:19135 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S271044AbTGQCZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 22:25:30 -0400
+Subject: Re: Partitioned loop device..
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: Josh Litherland <josh@emperorlinux.com>
+Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030715155317.317B461FDE@sade.emperorlinux.com>
+References: <20030715155317.317B461FDE@sade.emperorlinux.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058409892.4211.29.camel@thong>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Jul 2003 22:44:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050608000009070307090203
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Josh
 
-Hello all,
+coming in late on this thread, hope I'm not showing my better half.
 
-I ran into a weird problem when I received my latest replacement
-DeskStar drive from Hitachi. It was the same size as the GXP60 it
-replaced, but had much different geometry. I use these two 40GB drives
-with a Promise FastTrak 20276 controller as a raid0 array. The
-controller finds the drives and sets up the raid no problem. The pdcraid
-module from vanilla 2.4.21 only found 1 drive however, and it was the
-original existing drive. Testing with Promise's partial opensource
-driver shows that the array does indeed work correctly with their driver.
+You may want to look at the work NASA has done on their enhanced
+loopback driver;
 
-A few printk's later, I determined the problem. The geometry of the two
-drives are as follows:
+ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/
 
-cat /proc/ide/hde/geometry   (Old Drive)
-physical     79780/16/63
-logical      79780/16/63
+Allows you to take a physical image of a device (such as one created by
+'dd') and mount the logical volumes contained within, even if starting
+FS code is beyond the 2GB puke limit.   It will mount the volumes 'ro'
+for you.
 
-cat /proc/ide/hdg/geometry (New Drive)
-physical     5005/255/63
-logical      5005/255/63
+However, be careful if you need true 'ro' on the reiserfs and ext3
+filesystems.  So far in our testing mounting these 'ro' via loop device
+files (/dev/loop0, etc.) *fails*.  The journal count *is* incremented on
+the 'ro' filesystem and writes *can* still occur.
+
+cheers!
+
+farmerdude
 
 
-The calc_pdcblock_offset function calculates lba by taking the capacity
-of the drive and dividing it by (head * sector), multiplying the result
-times (head * sector) and subtracting the sector (SPT) count.
-Unfortunately, with the strange geometry reported by the new drive,
-using INTs to store these values will fail. The capacity of each drive
-is exactly the same of 80418240 as reported by procfs and
-ideinfo->capacity. In order to return the superblock offset correctly I
-had to use non-integer vars. I've tested the resulting module and it now
-correctly locates both drives, read and writes as expected and is
-compatible with the binary FastTrak.o module. I'm not much of a coder,
-so if this could be done more efficiently than my attached patch, please
-let me know. Please CC any replies. Thanks,
-
--Walt Holman
-
-
-
---------------050608000009070307090203
-Content-Type: text/plain;
- name="pdcraid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pdcraid.patch"
-
---- /usr/src/temp/linux-2.4.21/drivers/ide/raid/pdcraid.c       2003-06-13 07:51:34.000000000 -0700
-+++ pdcraid.c   2003-07-16 19:03:15.000000000 -0700
-@@ -361,8 +361,14 @@
-        if (ideinfo->sect==0)
-                return 0;
--       lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
--       lba = lba * (ideinfo->head*ideinfo->sect);
--       lba = lba - ideinfo->sect;
-+
-+       float lbatemp = 0;
-+       float head = ideinfo->head;
-+       float sect = ideinfo->sect;
-+       float capacity = ideinfo->capacity;
-+       lbatemp = (capacity / (head*sect));
-+       lbatemp = lbatemp * (head*sect);
-+       lbatemp = lbatemp - sect;
-
-+       lba = lbatemp;
-        return lba;
- }
-
---------------050608000009070307090203--
+On Tue, 2003-07-15 at 11:53, Josh Litherland wrote:
+> In article <200307151001.44218.kevcorry@us.ibm.com> you wrote:
+> 
+> > so there's not much of a reason to add partitioning support to the loop 
+> > driver itself.
+> 
+> Working with sector images of hard drives?  I use Linux for data
+> recovery jobs and it would be very helpful to me to be able to look at
+> DOS partitions inside a loopback device.  As it is I must chunk it up
+> into seperate files by hand.
 

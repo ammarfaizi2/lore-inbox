@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUFGGIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUFGGOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUFGGIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 02:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUFGGIG
+	id S264296AbUFGGOK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 02:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbUFGGOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 02:08:06 -0400
-Received: from lakermmtao10.cox.net ([68.230.240.29]:63409 "EHLO
-	lakermmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S264297AbUFGGIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 02:08:04 -0400
-Subject: linux-abi dead?
-From: Steve Bergman <steve@rueb.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>
+	Mon, 7 Jun 2004 02:14:10 -0400
+Received: from spy10.spymac.net ([213.218.8.210]:45188 "EHLO spy10.spymac.net")
+	by vger.kernel.org with ESMTP id S264296AbUFGGOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 02:14:08 -0400
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 07 Jun 2004 01:07:19 -0500
-Content-Transfer-Encoding: 7bit
+From: <ckkashyap@spymac.com>
+To: linux-kernel@vger.kernel.org
+Subject: building MINIX on LINUX using gcc
+Reply-To: ckkashyap@spymac.com
+Content-Type: text/plain
+X-Mailer: AtMail Corp 3.64 - http://webbasedemail.com/
+X-Origin: 203.145.179.173
+Message-Id: <20040607061407.37FF54C0BE@spy10.spymac.net>
+Date: Mon,  7 Jun 2004 00:14:07 -0600 (MDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just moved a server over to Fedora Core 2 (kernel 2.6.6) and
-discovered that there is a need to run an old SCO binary.
+Hi everybody,
 
-linux-abi.sf.net seems quite dead as a project.  Is there any comparable
-support for for foreign binaries in for the 2.6.x series?
+I would like to build the MINIX kerenel on a LINUX machine using gcc + nasm!
 
-Since even the developer and user mailing lists of the linux-abi project
-seem quite dead, this seems an appropriate place to ask.
+Is there MINIX source that is buildable on LINUX platform available?
 
-Thanks,
-Steve Bergman
+thanks,
+Kashyap
 
 
 
+
+---- Msg sent via Spymac Mail - http://www.spymac.com

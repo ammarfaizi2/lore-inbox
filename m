@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUEJTPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUEJTX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUEJTPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 15:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUEJTPq
+	id S261300AbUEJTX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 15:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUEJTX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 15:15:46 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:15775 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261252AbUEJTPo (ORCPT
+	Mon, 10 May 2004 15:23:59 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:61581 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S261300AbUEJTX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 15:15:44 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] hci-usb bugfix
-Date: Mon, 10 May 2004 21:15:26 +0200
-User-Agent: KMail/1.6.2
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Sebastian Schmidt <yath@yath.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org> <200405101836.35239.oliver@neukum.org> <1084207959.9639.23.camel@pegasus>
-In-Reply-To: <1084207959.9639.23.camel@pegasus>
+	Mon, 10 May 2004 15:23:57 -0400
+Date: Mon, 10 May 2004 21:23:57 +0200 (CEST)
+From: Michal Ludvig <michal@logix.cz>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
+In-Reply-To: <Xine.LNX.4.44.0405101152550.1943-100000@thoron.boston.redhat.com>
+Message-ID: <Pine.LNX.4.53.0405102109240.18545@maxipes.logix.cz>
+References: <Xine.LNX.4.44.0405101152550.1943-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405102115.26504.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 10. Mai 2004 18:52 schrieb Marcel Holtmann:
-> Hi Oliver,
-> 
-> > > > It looks like the problem is that hci_usb_disconnect() is trying to do too 
-> > > > much.  When called for the SCO interface it should simply return.
-> > > 
-> > > I came to the same conclusion, but I used the attached patch.
-> > 
-> > Which is wrong. It assumes that interfaces are disconnected in a certain
-> > order, which happens only by chance in your case.
-> 
-> why is it wrong? If interface 0 is disconnected first then we go into
-> the disconnect routine and cleanup. But if interface 1 is disconnected
-> first, we don't do anything and "wait" for the disconnect on first
-> interface.
+On Mon, 10 May 2004, James Morris wrote:
 
-Which not necessarily will ever come. It is possible that just one
-interface is disconnected.
+> On Mon, 10 May 2004, Michal Ludvig wrote:
+>
+> > It adds two new config options in the Cryptography section and if
+> > these are selected, aes.ko is built with the support for PadLock ACE.
+> > It can always be disabled with 'disable_via_padlock=1' module option
+> > in this case, or if the PadLock is not found in the CPU, aes.ko
+> > reverts to the software encryption.
+>
+> We really need a proper framework for this (i.e. per-arch hardware and asm
+> support), not just hacks to the software AES module.
 
-	Regards
-		Oliver
+Yes, I know the presented approach wasn't too generic.
+
+How about doing it in a device-like model? There would be different
+providers for e.g. AES encryption and the kernel would autoload one of
+them depending on say modprobe.conf settings. This way we'd have AES
+implemented in software in one module and the PadLock AES in another.
+By default the software versions would be used, but the user could choose
+the one specific for their hardware.
+Comments?
+
+And how about the first patch for crypto/cipher.c? It extends the
+interface for not only encryption/decryption of one block for given
+algorithms, but also provides a way to do the transform of the whole
+buffer in a given mode (ECB, CBC, ...). Is this acceptable in this form?
+Should I do something similar for hash and compress functions to stay
+consistent?
+
+Michal Ludvig
+-- 
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal

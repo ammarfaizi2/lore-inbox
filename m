@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbTDINYU (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 09:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTDINYU (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 09:24:20 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:2437 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S263305AbTDINYT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 09:24:19 -0400
-Date: Wed, 9 Apr 2003 16:35:56 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030409133556.GF29167@mea-ext.zmailer.org>
-References: <200304081354_MC3-1-3386-1A33@compuserve.com> <20030408180225.GC27912@work.bitmover.com> <20030408231949.GB31923@mail.jlokier.co.uk> <20030409020921.GA16313@mark.mielke.cc> <Pine.LNX.4.53.0304090911140.12211@filesrv1.baby-dragons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263309AbTDINmv (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 09:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTDINmu (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 09:42:50 -0400
+Received: from siaag2ae.compuserve.com ([149.174.40.135]:58816 "EHLO
+	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
+	id S263309AbTDINmt (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 09:42:49 -0400
+Date: Wed, 9 Apr 2003 09:51:57 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.5.67-mm1 cause framebuffer crash at bootup
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304090954_MC3-1-33A8-2B27@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0304090911140.12211@filesrv1.baby-dragons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 09:14:03AM -0400, Mr. James W. Laferriere wrote:
-> 	Hello All ,  In the last week rather than the discussion of
-> 	technical merit of an idea We have decent (i'll admit) discussion
-> 	of (imo) legal & emotive matters have surround the idea .
-> 
-> 	Also imo doing it on a list devoted to the discussions on the
-> 	linux kernel ,  Instead of on it own list or privately .
-> 	Please move the discussion of the Kernel list !  Tia ,  JimL
 
-Are you waiting to see, as to how long will it take, until list-managers
-get sufficiently pissed at resulting flamewars, and block the discussion 
-topic ?    (This topic has been one of the more fire sensitive ones...)
+> Unfortunately, as proven by i2c, kobjects infrastructure does not like if
+> you reference non-existing bus type before it is registered.
 
-> -- 
->  | James   W.   Laferriere | System    Techniques | Give me VMS     |
->  | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
 
-/Matti Aarnio
+  AFAICT sysfs itself sort of has this problem in 2.5.66 -- it tries
+to register itself as a filesystem before the set 'fs' is registered.
+It retries later and succeeds but I could never figure out if that was
+by design or accident. 8)
+
+  This patch helps find some of these problems but I don't think it will
+help in this case:
+
+
+diff -ur --exclude-from=/home/me/exclude linux-2.5.66-ref/lib/kobject.c linux-2.5.66-uni/lib/kobject.c
+--- linux-2.5.66-ref/lib/kobject.c	Tue Mar  4 22:29:36 2003
++++ linux-2.5.66-uni/lib/kobject.c	Sat Mar 29 20:43:26 2003
+@ -57,10 +57,15 @
+ 				sysfs_remove_dir(kobj);
+ 		}
+ 	}
++	if (error) {
++		printk("Badness name:%s, err:%d, set:%s\n",
++		       kobj->name, error,
++		       kobj->kset ? kobj->kset->kobj.name : "<NULL>");
++		WARN_ON(1);
++	}
+ 	return error;
+ }
+ 
+-
+ static inline struct kobject * to_kobj(struct list_head * entry)
+ {
+ 	return container_of(entry,struct kobject,entry);
+@ -149,7 +154,6 @
+ 	if (kobj) {
+ 		kobject_init(kobj);
+ 		error = kobject_add(kobj);
+-		WARN_ON(error);
+ 	} else
+ 		error = -EINVAL;
+ 	return error;
+
+--
+ Chuck

@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbRK2RYv>; Thu, 29 Nov 2001 12:24:51 -0500
+	id <S283331AbRK2RZl>; Thu, 29 Nov 2001 12:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283339AbRK2RYl>; Thu, 29 Nov 2001 12:24:41 -0500
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:26755 "EHLO
-	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S283331AbRK2RYY>; Thu, 29 Nov 2001 12:24:24 -0500
-Message-Id: <200111291724.fATHOMP4005554@backfire.WH8.TU-Dresden.De>
-Content-Type: text/plain; charset=US-ASCII
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Networkadministrator WH8/DD/Germany
-To: linux-kernel@vger.kernel.org
-Subject: msdos.o and vfat.o doesn't have a valid licence
-Date: Thu, 29 Nov 2001 18:24:22 +0100
-X-Mailer: KMail [version 1.3.2]
-X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
+	id <S283339AbRK2RZc>; Thu, 29 Nov 2001 12:25:32 -0500
+Received: from c1238376-a.parker1.co.home.com ([65.6.124.144]:48903 "HELO
+	mail.ecnerwal.com") by vger.kernel.org with SMTP id <S283331AbRK2RZU> convert rfc822-to-8bit;
+	Thu, 29 Nov 2001 12:25:20 -0500
+Date: Thu, 29 Nov 2001 10:17:55 -0700 (MST)
+From: Ron Lawrence <rlawrence@netraverse.com>
+X-X-Sender: <rjlawre@monster.jayfay.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: CDROM ioctl bug (fwd)
+In-Reply-To: <m2elmi1mjx.fsf@ppro.localdomain>
+Message-ID: <Pine.LNX.4.33.0111291006290.1704-100000@monster.jayfay.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I just discovered that vfat.o and msdos.o doen't have a licence.
+On 29 Nov 2001, Peter Osterlund wrote:
+>Ron Lawrence <rlawrence@netraverse.com> writes:
+>> busy. Here are the symptoms of my problem : doing reads from a CDROM
+>> device intermingled with CDROM_MEDIA_CHANGED ioctls causes long pauses
+>> during the ioctl. This behavior started in 2.4.10. The ioctl can take a
+>> very long time to return, especially if reading large chunks.
+>This patch fixes the problem for my USB CDROM device. Maybe a similar
+>patch is needed for the IDE case, I haven't looked yet.
 
-Why?
+Thanks! I should have mentioned that it affects CDROM drives when accessed
+via ide-scsi, but not when accessed "normally" via ide.  So, your patch
+helps this case too. It is still significantly slower than "normal"
+access, and I will run some tests to see if it's still slower in this case
+than it was in 2.4.9.
 
-backfire:~# modprobe vfat
-Warning: loading /lib/modules/2.4.16-pre1/kernel/fs/vfat/vfat.o will taint 
-the kernel: no license
+>In general, who is responsible for unplugging the request queue after
+>queuing an ioctl command?
+>
+>Peter Österlund             petero2@telia.com
+>Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
+>S-128 66 Sköndal            +46 8 942647
+>Sweden
 
-This warning is bogus because the kernel _is_ already tainted.
+Ron Lawrence
+rlawrence@NeTraverse.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--Gregor
+iD8DBQE8Bm3GU0yq8UBYK2oRAsH/AJ9fy5LQSTiES5PD0BczAb82EXrsYgCaA3sI
+zeX3IuZnQzh7B80TT4oJH4M=
+=+UKy
+-----END PGP SIGNATURE-----
+
+

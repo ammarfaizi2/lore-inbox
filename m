@@ -1,78 +1,641 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbTGHSMT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 14:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTGHSMT
+	id S265177AbTGHSPG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 14:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbTGHSPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 14:12:19 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:43911 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265161AbTGHSMR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 14:12:17 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 8 Jul 2003 11:19:17 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <200307081309.30651.phillips@arcor.de>
-Message-ID: <Pine.LNX.4.55.0307080846520.4544@bigblue.dev.mcafeelabs.com>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307080307.18018.phillips@arcor.de>
- <Pine.LNX.4.55.0307072314490.3597@bigblue.dev.mcafeelabs.com>
- <200307081309.30651.phillips@arcor.de>
+	Tue, 8 Jul 2003 14:15:06 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:4486 "HELO
+	develer.com") by vger.kernel.org with SMTP id S265177AbTGHSMr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 14:12:47 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix do_div() for all architectures
+Date: Tue, 8 Jul 2003 20:27:26 +0200
+User-Agent: KMail/1.5.9
+Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>,
+       Peter Chubb <peter@chubb.wattle.id.au>, Andrew Morton <akpm@digeo.com>,
+       Ian Molton <spyro@f2s.com>
+References: <200307060133.15312.bernie@develer.com> <200307070626.08215.bernie@develer.com>
+In-Reply-To: <200307070626.08215.bernie@develer.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307082027.26233.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Daniel Phillips wrote:
+On Sunday 06 July 2003 01:33, Bernardo Innocenti wrote:
 
-> On Tuesday 08 July 2003 09:48, Davide Libenzi wrote:
-> > On Tue, 8 Jul 2003, Daniel Phillips wrote:
-> > > 4. So how do you propose to "program timings" so that it's really hard to
-> > > miss those deadlines?
-> >
-> > Having a backup of 400-500ms gives you an average hang-over of 200-250ms
-> > that are hardly noticeable by a human in this topic. The issue is not if
-> > you always meet the deadline, the issue is what amount of load will make
-> > you miss it.
->
-> With realtime scheduling, you will make the deadline regardless of load (and
-> there is the normal fudge when you add the word "soft").  You're arguing that
-> having your sound skip, so long as it only skips under load, is good enough.
-> I'm arguing that, no, that sucks too much, it should never skip.  I'll also
-> argue that even on 2.4, sound skips under normal loads if your machine isn't
-> very fast.
->
-> So let's fix this properly, instead of wrapping on more duct tape.
->
-> Now, I will not argue that -nice+mingo+con is a proper realtime approach, but
-> I will argue that it's considerably better than just fiddling with buffer
-> size and hoping for the best.
+ > >  - add __attribute__((pure)) to __div64_32() prototype so
+ > >    the compiler knows global memory isn't clobbered;
+ >
+ >  Hmmm... I've just found out that the pure attribute wasn't
+ > supported until gcc 2.96. Shall I get rid of it or maybe add
+ > something in linux/compiler.h?
 
-If you seek to meet the dead under any load, there's no patch that uses
-the timeslice driven scheduling that will work. You need a non-timeslice
-driven scheduling like SCHED_RR (and talking about realtime, it is not
-even sufficent with Linux). Since the POSIX SCHED_RR definition cannot be
-allowed to be used w/out superuser rights for obvious starvation issues
-that might cause of other tasks, we would really need either to push
-a new POSIX defintion or to modify the SCHED_RR behaviour if called from a
-non-superuser account. For example, a slot above all standard priorities
-and below RT priorities should be reserved to host those pseudo-rt tasks,
-whose dynamic priority will not decay but that they might expire if they
-abuse of a predetermined CPU utilization policy. Basically their timeslice
-will vary depending on the CPU utilization pattern and they might end up
-in the expired array if they abuse it. For example, when one of those
-internally mapped SCHED_SOFTRR tasks will expire we will recalc their
-timelisce like we are doing now and we will also register for the
-timestamp (jiffies) when the got recharged. If (jiffies - last_charge) is
-lower then a pre-defined threshold we drop the task in expired array,
-otherwise in the active one. This will make our SCHED_SOFTRR to be able to
-always preempt SCHED_OTHER tasks and the above trick will also avoid
-starvation.
+ Ok, I've now placed a new __attribute_pure__ macro in
+linux/compiler.h to workaround this. New patch follows.
 
+ Andrew, would you like to pick this patch up for me and forward it
+to Linus after it received some testing in -mm?
 
+-----------------------------------------------------------------
 
-- Davide
+ - add generic C implementations of the do_div() for 32bit and 64bit
+   archs in asm-generic/div64.h;
+
+ - add generic library support function __div64_32() to handle the
+   full 64/32 case on 32bit archs;
+
+ - kill multiple copies of generic do_div() in architecture
+   specific subdirs. Most copies were either buggy or not doing
+   what they were supposed to do;
+
+ - ensure all surviving instances of do_div() have their parameters
+   correctly parenthesized to avoid funny side-effects;
+
+ include/asm-alpha/div64.h     |   15 -----------
+ include/asm-arm26/div64.h     |   15 -----------
+ include/asm-cris/div64.h      |   17 ------------
+ include/asm-generic/div64.h   |   54 +++++++++++++++++++++++++++++++++++++++++
+ include/asm-h8300/div64.h     |   14 ----------
+ include/asm-ia64/div64.h      |   21 ----------------
+ include/asm-m68k/div64.h      |    9 ------
+ include/asm-m68knommu/div64.h |   14 ----------
+ include/asm-mips64/div64.h    |   19 --------------
+ include/asm-parisc/div64.h    |   55 ------------------------------------------
+ include/asm-ppc/div64.h       |   24 ------------------
+ include/asm-ppc64/div64.h     |   19 --------------
+ include/asm-s390/div64.h      |    8 ------
+ include/asm-sh/div64.h        |   21 ----------------
+ include/asm-sparc/div64.h     |   12 ---------
+ include/asm-sparc64/div64.h   |   15 -----------
+ include/asm-v850/div64.h      |   12 ---------
+ include/asm-x86_64/div64.h    |   15 -----------
+ include/linux/compiler.h      |   18 +++++++++++++
+ lib/Makefile                  |    2 -
+ lib/div64.c                   |   52 +++++++++++++++++++++++++++++++++++++++
+ 21 files changed, 141 insertions(+), 290 deletions(-)
+
+diff -Nru linux-2.5.74.orig/include/asm-generic/div64.h linux-2.5.74/include/asm-generic/div64.h
+--- linux-2.5.74.orig/include/asm-generic/div64.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.74/include/asm-generic/div64.h	2003-07-03 09:55:04.000000000 +0200
+@@ -0,0 +1,54 @@
++#ifndef _ASM_GENERIC_DIV64_H
++#define _ASM_GENERIC_DIV64_H
++/*
++ * Copyright (C) 2003 Bernardo Innocenti <bernie@develer.com>
++ * Based on former asm-ppc/div64.h and asm-m68knommu/div64.h
++ *
++ * The semantics of do_div() are:
++ *
++ * uint32_t do_div(uint64_t *n, uint32_t base)
++ * {
++ * 	uint32_t remainder = *n % base;
++ * 	*n = *n / base;
++ * 	return remainder;
++ * }
++ *
++ * NOTE: macro parameter n is evaluated multiple times,
++ *       beware of side effects!
++ */
++
++#include <linux/types.h>
++#include <linux/compiler.h>
++
++#if BITS_PER_LONG == 64
++
++# define do_div(n,base) ({					\
++	uint32_t __base = (base);				\
++	uint32_t __rem;						\
++	__rem = ((uint64_t)(n)) % __base;			\
++	(n) = ((uint64_t)(n)) / __base;				\
++	__rem;							\
++ })
++
++#elif BITS_PER_LONG == 32
++
++extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor) __attribute_pure__;
++
++# define do_div(n,base) ({				\
++	uint32_t __base = (base);			\
++	uint32_t __rem;					\
++	if (likely(((n) >> 32) == 0)) {			\
++		__rem = (uint32_t)(n) % __base;		\
++		(n) = (uint32_t)(n) / __base;		\
++	} else 						\
++		__rem = __div64_32(&(n), __base);	\
++	__rem;						\
++ })
++
++#else /* BITS_PER_LONG == ?? */
++
++# error do_div() does not yet support the C64
++
++#endif /* BITS_PER_LONG */
++
++#endif /* _ASM_GENERIC_DIV64_H */
+diff -Nru linux-2.5.74.orig/include/linux/compiler.h linux-2.5.74/include/linux/compiler.h
+--- linux-2.5.74.orig/include/linux/compiler.h	2003-07-02 22:50:12.000000000 +0200
++++ linux-2.5.74/include/linux/compiler.h	2003-07-08 19:24:41.000000000 +0200
+@@ -56,6 +56,24 @@
+ #define __attribute_used__	__attribute__((__unused__))
+ #endif
+ 
++/*
++ * From the GCC manual:
++ *
++ * Many functions have no effects except the return value and their
++ * return value depends only on the parameters and/or global
++ * variables.  Such a function can be subject to common subexpression
++ * elimination and loop optimization just as an arithmetic operator
++ * would be.
++ * [...]
++ * The attribute `pure' is not implemented in GCC versions earlier
++ * than 2.96.
++ */
++#if (__GNUC__ == 2 && __GNUC_MINOR >= 96) || __GNUC__ > 2
++#define __attribute_pure__	__attribute__((pure))
++#else
++#define __attribute_pure__	/* unimplemented */
++#endif
++
+ /* This macro obfuscates arithmetic on a variable address so that gcc
+    shouldn't recognize the original var, and make assumptions about it */
+ #define RELOC_HIDE(ptr, off)					\
+diff -Nru linux-2.5.74.orig/lib/div64.c linux-2.5.74/lib/div64.c
+--- linux-2.5.74.orig/lib/div64.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.74/lib/div64.c	2003-07-03 09:37:22.000000000 +0200
+@@ -0,0 +1,52 @@
++/*
++ * Copyright (C) 2003 Bernardo Innocenti <bernie@develer.com>
++ *
++ * Based on former do_div() implementation from asm-parisc/div64.h:
++ *	Copyright (C) 1999 Hewlett-Packard Co
++ *	Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
++ *
++ *
++ * Generic C version of 64bit/32bit division and modulo, with
++ * 64bit result and 32bit remainder.
++ *
++ * The fast case for (n>>32 == 0) is handled inline by do_div(). 
++ *
++ * Code generated for this function might be very inefficient
++ * for some CPUs. __div64_32() can be overridden by linking arch-specific
++ * assembly versions such as arch/ppc/lib/div64.S and arch/sh/lib/div64.S.
++ */
++
++#include <linux/types.h>
++#include <linux/module.h>
++#include <asm/div64.h>
++
++/* Not needed on 64bit architectures */
++#if BITS_PER_LONG == 32
++
++uint32_t __div64_32(uint64_t *n, uint32_t base)
++{
++	uint32_t low, low2, high, rem;
++
++	low   = *n   & 0xffffffff;
++	high  = *n  >> 32;
++	rem   = high % (uint32_t)base;
++	high  = high / (uint32_t)base;
++	low2  = low >> 16;
++	low2 += rem << 16;
++	rem   = low2 % (uint32_t)base;
++	low2  = low2 / (uint32_t)base;
++	low   = low  & 0xffff;
++	low  += rem << 16;
++	rem   = low  % (uint32_t)base;
++	low   = low  / (uint32_t)base;
++
++	*n = low +
++		((uint64_t)low2 << 16) +
++		((uint64_t)high << 32);
++
++	return rem;
++}
++
++EXPORT_SYMBOL(__div64_32);
++
++#endif /* BITS_PER_LONG == 32 */
+diff -Nru linux-2.5.74.orig/include/asm-alpha/div64.h linux-2.5.74/include/asm-alpha/div64.h
+--- linux-2.5.74.orig/include/asm-alpha/div64.h	2003-07-02 22:54:43.000000000 +0200
++++ linux-2.5.74/include/asm-alpha/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,14 +1 @@
+-#ifndef __ALPHA_DIV64
+-#define __ALPHA_DIV64
+-
+-/*
+- * Hey, we're already 64-bit, no
+- * need to play games..
+- */
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) (n)) % (unsigned) (base); \
+-	(n) = ((unsigned long) (n)) / (unsigned) (base); \
+-	__res; })
+-
+-#endif
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-arm26/div64.h linux-2.5.74/include/asm-arm26/div64.h
+--- linux-2.5.74.orig/include/asm-arm26/div64.h	2003-07-02 22:42:11.000000000 +0200
++++ linux-2.5.74/include/asm-arm26/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,14 +1 @@
+-#ifndef __ASM_ARM_DIV64
+-#define __ASM_ARM_DIV64
+-
+-/* We're not 64-bit, but... */
+-#define do_div(n,base)						\
+-({								\
+-	int __res;						\
+-	__res = ((unsigned long)n) % (unsigned int)base;	\
+-	n = ((unsigned long)n) / (unsigned int)base;		\
+-	__res;							\
+-})
+-
+-#endif
+-
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-cris/div64.h linux-2.5.74/include/asm-cris/div64.h
+--- linux-2.5.74.orig/include/asm-cris/div64.h	2003-07-02 22:42:06.000000000 +0200
++++ linux-2.5.74/include/asm-cris/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,16 +1 @@
+-#ifndef __ASM_CRIS_DIV64
+-#define __ASM_CRIS_DIV64
+-
+-/* copy from asm-arm */
+-
+-/* We're not 64-bit, but... */
+-#define do_div(n,base)						\
+-({								\
+-	int __res;						\
+-	__res = ((unsigned long)n) % (unsigned int)base;	\
+-	n = ((unsigned long)n) / (unsigned int)base;		\
+-	__res;							\
+-})
+-
+-#endif
+-
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-h8300/div64.h linux-2.5.74/include/asm-h8300/div64.h
+--- linux-2.5.74.orig/include/asm-h8300/div64.h	2003-07-02 22:39:25.000000000 +0200
++++ linux-2.5.74/include/asm-h8300/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,13 +1 @@
+-#ifndef H8300_DIV64_H
+-#define H8300_DIV64_H
+-
+-/* n = n / base; return rem; */
+-
+-#define do_div(n,base) ({					\
+-	int __res;						\
+-	__res = ((unsigned long) n) % (unsigned) base;		\
+-	n = ((unsigned long) n) / (unsigned) base;		\
+-	__res;							\
+-})
+-
+-#endif /* _H8300_DIV64_H */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-ia64/div64.h linux-2.5.74/include/asm-ia64/div64.h
+--- linux-2.5.74.orig/include/asm-ia64/div64.h	2003-07-02 22:58:14.000000000 +0200
++++ linux-2.5.74/include/asm-ia64/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,20 +1 @@
+-#ifndef _ASM_IA64_DIV64_H
+-#define _ASM_IA64_DIV64_H
+-
+-/*
+- * Copyright (C) 1999 Hewlett-Packard Co
+- * Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
+- *
+- * vsprintf uses this to divide a 64-bit integer N by a small integer BASE.
+- * This is incredibly hard on IA-64...
+- */
+-
+-#define do_div(n,base)						\
+-({								\
+-	int _res;						\
+-	_res = ((unsigned long) (n)) % (unsigned) (base);	\
+-	(n) = ((unsigned long) (n)) / (unsigned) (base);	\
+-	_res;							\
+-})
+-
+-#endif /* _ASM_IA64_DIV64_H */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-m68k/div64.h linux-2.5.74/include/asm-m68k/div64.h
+--- linux-2.5.74.orig/include/asm-m68k/div64.h	2003-07-02 22:55:53.000000000 +0200
++++ linux-2.5.74/include/asm-m68k/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -3,7 +3,6 @@
+ 
+ /* n = n / base; return rem; */
+ 
+-#if 1
+ #define do_div(n, base) ({					\
+ 	union {							\
+ 		unsigned long n32[2];				\
+@@ -23,13 +22,5 @@
+ 	(n) = __n.n64;						\
+ 	__rem;							\
+ })
+-#else
+-#define do_div(n,base) ({					\
+-	int __res;						\
+-	__res = ((unsigned long) n) % (unsigned) base;		\
+-	n = ((unsigned long) n) / (unsigned) base;		\
+-	__res;							\
+-})
+-#endif
+ 
+ #endif /* _M68K_DIV64_H */
+diff -Nru linux-2.5.74.orig/include/asm-m68knommu/div64.h linux-2.5.74/include/asm-m68knommu/div64.h
+--- linux-2.5.74.orig/include/asm-m68knommu/div64.h	2003-07-03 10:40:35.000000000 +0200
++++ linux-2.5.74/include/asm-m68knommu/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,13 +1 @@
+-#ifndef _M68KNOMMU_DIV64_H
+-#define _M68KNOMMU_DIV64_H
+-
+-/* n = n / base; return rem; */
+-
+-#define do_div(n,base) ({					\
+-	int __res;						\
+-	__res = ((unsigned long) n) % (unsigned) base;		\
+-	n = ((unsigned long) n) / (unsigned) base;		\
+-	__res;							\
+-})
+-
+-#endif /* _M68K_DIV64_H */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-mips64/div64.h linux-2.5.74/include/asm-mips64/div64.h
+--- linux-2.5.74.orig/include/asm-mips64/div64.h	2003-07-02 22:47:26.000000000 +0200
++++ linux-2.5.74/include/asm-mips64/div64.h	2003-07-03 09:39:28.000000000 +0200
+@@ -27,23 +27,6 @@
+ 	(res) = __quot; \
+ 	__mod; })
+ 
+-/*
+- * Hey, we're already 64-bit, no
+- * need to play games..
+- */
+-#define do_div(n, base) ({ \
+-	unsigned long __quot; \
+-	unsigned int __mod; \
+-	unsigned long __div; \
+-	unsigned int __base; \
+-	\
+-	__div = (n); \
+-	__base = (base); \
+-	\
+-	__mod = __div % __base; \
+-	__quot = __div / __base; \
+-	\
+-	(n) = __quot; \
+-	__mod; })
++#include <asm-generic.h>
+ 
+ #endif /* _ASM_DIV64_H */
+diff -Nru linux-2.5.74.orig/include/asm-parisc/div64.h linux-2.5.74/include/asm-parisc/div64.h
+--- linux-2.5.74.orig/include/asm-parisc/div64.h	2003-07-02 22:48:40.000000000 +0200
++++ linux-2.5.74/include/asm-parisc/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,54 +1 @@
+-#ifndef __ASM_PARISC_DIV64
+-#define __ASM_PARISC_DIV64
+-
+-#ifdef __LP64__
+-
+-/*
+- * Copyright (C) 1999 Hewlett-Packard Co
+- * Copyright (C) 1999 David Mosberger-Tang <davidm@hpl.hp.com>
+- *
+- * vsprintf uses this to divide a 64-bit integer N by a small integer BASE.
+- * This is incredibly hard on IA-64 and HPPA
+- */
+-
+-#define do_div(n,base)						\
+-({								\
+-	int _res;						\
+-	_res = ((unsigned long) (n)) % (unsigned) (base);	\
+-	(n) = ((unsigned long) (n)) / (unsigned) (base);	\
+-	_res;							\
+-})
+-
+-#else
+-/*
+- * unsigned long long division.  Yuck Yuck!  What is Linux coming to?
+- * This is 100% disgusting
+- */
+-#define do_div(n,base)							\
+-({									\
+-	unsigned long __low, __low2, __high, __rem;			\
+-	__low  = (n) & 0xffffffff;					\
+-	__high = (n) >> 32;						\
+-	if (__high) {							\
+-		__rem   = __high % (unsigned long)base;			\
+-		__high  = __high / (unsigned long)base;			\
+-		__low2  = __low >> 16;					\
+-		__low2 += __rem << 16;					\
+-		__rem   = __low2 % (unsigned long)base;			\
+-		__low2  = __low2 / (unsigned long)base;			\
+-		__low   = __low & 0xffff;				\
+-		__low  += __rem << 16;					\
+-		__rem   = __low  % (unsigned long)base;			\
+-		__low   = __low  / (unsigned long)base;			\
+-		n = __low  + ((long long)__low2 << 16) +		\
+-			((long long) __high << 32);			\
+-	} else {							\
+-		__rem = __low % (unsigned long)base;			\
+-		n = (__low / (unsigned long)base);			\
+-	}								\
+-	__rem;								\
+-})
+-#endif
+-
+-#endif
+-
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-ppc/div64.h linux-2.5.74/include/asm-ppc/div64.h
+--- linux-2.5.74.orig/include/asm-ppc/div64.h	2003-07-02 22:57:06.000000000 +0200
++++ linux-2.5.74/include/asm-ppc/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,23 +1 @@
+-#ifndef __PPC_DIV64
+-#define __PPC_DIV64
+-
+-#include <linux/types.h>
+-
+-extern u32 __div64_32(u64 *dividend, u32 div);
+-
+-#define do_div(n, div)	({			\
+-	u64 __n = (n);				\
+-	u32 __d = (div);			\
+-	u32 __q, __r;				\
+-	if ((__n >> 32) == 0) {			\
+-		__q = (u32)__n / __d;		\
+-		__r = (u32)__n - __q * __d;	\
+-		(n) = __q;			\
+-	} else {				\
+-		__r = __div64_32(&__n, __d);	\
+-		(n) = __n;			\
+-	}					\
+-	__r;					\
+-})
+-
+-#endif
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-ppc64/div64.h linux-2.5.74/include/asm-ppc64/div64.h
+--- linux-2.5.74.orig/include/asm-ppc64/div64.h	2003-07-02 22:39:34.000000000 +0200
++++ linux-2.5.74/include/asm-ppc64/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,18 +1 @@
+-#ifndef __PPC_DIV64
+-#define __PPC_DIV64
+-
+-/* Copyright 2001 PPC64 Team, IBM Corp
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) (n)) % (unsigned) (base); \
+-	(n) = ((unsigned long) (n)) / (unsigned) (base); \
+-	__res; })
+-
+-#endif
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-s390/div64.h linux-2.5.74/include/asm-s390/div64.h
+--- linux-2.5.74.orig/include/asm-s390/div64.h	2003-07-02 22:50:17.000000000 +0200
++++ linux-2.5.74/include/asm-s390/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -43,13 +43,7 @@
+ })
+ 
+ #else /* __s390x__ */
+-
+-#define do_div(n,base) ({ \
+-int __res; \
+-__res = ((unsigned long) n) % (unsigned) base; \
+-n = ((unsigned long) n) / (unsigned) base; \
+-__res; })
+-
++#include <asm-generic/div64.h>
+ #endif /* __s390x__ */
+ 
+ #endif
+diff -Nru linux-2.5.74.orig/include/asm-sh/div64.h linux-2.5.74/include/asm-sh/div64.h
+--- linux-2.5.74.orig/include/asm-sh/div64.h	2003-07-02 22:39:36.000000000 +0200
++++ linux-2.5.74/include/asm-sh/div64.h	2003-07-03 09:38:59.000000000 +0200
+@@ -1,20 +1 @@
+-#ifndef __ASM_SH_DIV64
+-#define __ASM_SH_DIV64
+-
+-extern u64 __div64_32(u64 n, u32 d);
+-
+-#define do_div(n,base) ({ \
+-u64 __n = (n), __q; \
+-u32 __base = (base); \
+-u32 __res; \
+-if ((__n >> 32) == 0) { \
+-	__res = ((unsigned long) __n) % (unsigned) __base; \
+-	(n) = ((unsigned long) __n) / (unsigned) __base; \
+-} else { \
+-	__q = __div64_32(__n, __base); \
+-	__res = __n - __q * __base; \
+-	(n) = __q; \
+-} \
+-__res; })
+-
+-#endif /* __ASM_SH_DIV64 */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-sparc/div64.h linux-2.5.74/include/asm-sparc/div64.h
+--- linux-2.5.74.orig/include/asm-sparc/div64.h	2003-07-02 22:51:01.000000000 +0200
++++ linux-2.5.74/include/asm-sparc/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,11 +1 @@
+-#ifndef __SPARC_DIV64
+-#define __SPARC_DIV64
+-
+-/* We're not 64-bit, but... */
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) n) % (unsigned) base; \
+-	n = ((unsigned long) n) / (unsigned) base; \
+-	__res; })
+-
+-#endif /* __SPARC_DIV64 */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-sparc64/div64.h linux-2.5.74/include/asm-sparc64/div64.h
+--- linux-2.5.74.orig/include/asm-sparc64/div64.h	2003-07-02 22:46:06.000000000 +0200
++++ linux-2.5.74/include/asm-sparc64/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,14 +1 @@
+-#ifndef __SPARC64_DIV64
+-#define __SPARC64_DIV64
+-
+-/*
+- * Hey, we're already 64-bit, no
+- * need to play games..
+- */
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) n) % (unsigned) base; \
+-	n = ((unsigned long) n) / (unsigned) base; \
+-	__res; })
+-
+-#endif /* __SPARC64_DIV64 */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-v850/div64.h linux-2.5.74/include/asm-v850/div64.h
+--- linux-2.5.74.orig/include/asm-v850/div64.h	2003-07-02 22:53:46.000000000 +0200
++++ linux-2.5.74/include/asm-v850/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,11 +1 @@
+-#ifndef __V850_DIV64_H__
+-#define __V850_DIV64_H__
+-
+-/* We're not 64-bit, but... */
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) n) % (unsigned) base; \
+-	n = ((unsigned long) n) / (unsigned) base; \
+-	__res; })
+-
+-#endif /* __V850_DIV64_H__ */
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/include/asm-x86_64/div64.h linux-2.5.74/include/asm-x86_64/div64.h
+--- linux-2.5.74.orig/include/asm-x86_64/div64.h	2003-07-02 22:54:30.000000000 +0200
++++ linux-2.5.74/include/asm-x86_64/div64.h	2003-07-03 09:37:22.000000000 +0200
+@@ -1,14 +1 @@
+-#ifndef __X86_64_DIV64
+-#define __X86_64_DIV64
+-
+-/*
+- * Hey, we're already 64-bit, no
+- * need to play games..
+- */
+-#define do_div(n,base) ({ \
+-	int __res; \
+-	__res = ((unsigned long) (n)) % (unsigned) (base); \
+-	(n) = ((unsigned long) (n)) / (unsigned) (base); \
+-	__res; })
+-
+-#endif
++#include <asm-generic/div64.h>
+diff -Nru linux-2.5.74.orig/lib/Makefile linux-2.5.74/lib/Makefile
+--- linux-2.5.74.orig/lib/Makefile	2003-07-02 22:40:29.000000000 +0200
++++ linux-2.5.74/lib/Makefile	2003-07-03 09:37:22.000000000 +0200
+@@ -5,7 +5,7 @@
+ 
+ lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
+ 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
+-	 kobject.o idr.o
++	 kobject.o idr.o div64.o
+ 
+ lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
+ lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLSJNZ>; Tue, 19 Dec 2000 04:13:25 -0500
+	id <S129228AbQLSJUR>; Tue, 19 Dec 2000 04:20:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLSJNP>; Tue, 19 Dec 2000 04:13:15 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:18441 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129370AbQLSJNE>; Tue, 19 Dec 2000 04:13:04 -0500
-Date: Tue, 19 Dec 2000 09:42:05 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Pavel Machek <pavel@suse.cz>, Chris Lattner <sabre@nondot.org>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001219012714.B26127@athlon.random>
-Message-ID: <Pine.LNX.3.96.1001219092835.20423A-100000@artax.karlin.mff.cuni.cz>
+	id <S129561AbQLSJUI>; Tue, 19 Dec 2000 04:20:08 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:29213 "EHLO
+	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129289AbQLSJT7>; Tue, 19 Dec 2000 04:19:59 -0500
+Date: Tue, 19 Dec 2000 10:56:51 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: jgoins@sunmine.com
+cc: Andrew Morton <andrewm@uow.edu.au>, netdev@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: RE: Problem with 3c59x and 3C905B
+In-Reply-To: <NCBBIGEIEDLIBLJACBEOEEECDGAA.jgoins@sunmine.com>
+Message-ID: <Pine.LNX.4.21.0012191055170.9556-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2000, Andrea Arcangeli wrote:
+On Mon, 18 Dec 2000 jgoins@sunmine.com wrote:
 
-> On Mon, Dec 18, 2000 at 10:57:44PM +0100, Mikulas Patocka wrote:
-> > You have small posibility that interrupt will eat up memory - interrupt in
-> > process that has PF_MEMALLOC. Patch: 
+> Andrew Morton wrote:
+> >
+> > Working out why your switch isn't talking full-duplex would
+> > probably make things work too, but it's not a fix.
+> >
 > 
-> this is not the point of getblk, to fix the getblk deadlock the only way is to
-> implement a fail path in each caller and allow getblk to return NULL (as every
-> other memory allocation function can do).
+> He said he has a 10/100 hub (NG DS104) -- it is a half-duplex only 10/100
+> hub.
 
-Failing getblk would likely introduce filesystem corruption. Look at
-getblk in 2.0 - when allocating new page fails it tries to reuse existing
-clean buffers or wakes up bdflush and waits until it writes them. This is
-the right thing to do. 
+10/100 hub doesn't imply half-duplex to me. I've also got a 10/100 thingy,
+but it is full duplex.
 
-Mikulas
+Bit that still doesn't explainn why the driver lies :)
+
+> Regards,
+> JGoins
+> jgoins@sunmine.com
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

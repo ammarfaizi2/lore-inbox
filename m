@@ -1,85 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136149AbRECHd2>; Thu, 3 May 2001 03:33:28 -0400
+	id <S136159AbRECHgL>; Thu, 3 May 2001 03:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136161AbRECHbl>; Thu, 3 May 2001 03:31:41 -0400
-Received: from tpau.muc.eurocyber.net ([195.143.108.12]:42250 "EHLO
-	tpau.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S136149AbRECHbP>; Thu, 3 May 2001 03:31:15 -0400
-Message-ID: <3AF10956.7580E25F@TeraPort.de>
-Date: Thu, 03 May 2001 09:31:34 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac7 i686)
-X-Accept-Language: en, de
+	id <S136168AbRECHf6>; Thu, 3 May 2001 03:35:58 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:21646 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S136159AbRECHfo>; Thu, 3 May 2001 03:35:44 -0400
+Date: Thu, 3 May 2001 09:34:20 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: John Stoffel <stoffel@casc.com>, <cate@dplanet.ch>,
+        Peter Samuelson <peter@cadcamlab.org>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Hierarchy doesn't solve the problem
+In-Reply-To: <20010503030431.A25141@thyrsus.com>
+Message-ID: <Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pcmcia problems after upgrading from 2.4.3-ac7 to 2.4.4
-Content-Type: multipart/mixed;
- boundary="------------4E4847E4D074EF9B64F11C3A"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------4E4847E4D074EF9B64F11C3A
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, 3 May 2001, Eric S. Raymond wrote:
 
-Hi,
+> In many cases there is no way to define "upper" or "lower".  (X86 and
+> SMP) implies RTC!=n is actually a good example.  Here's where they fit
+> in the tree:
+> 
+>  main                   'Linux Kernel Configuration System'
+>      arch               'Processor type'
+>          X86            'Intel or compatible 80x86 processor'
+>      generic            'Architecture-independent feature selections'
+>          SMP            'Symmetric Multi-Processing support'
+>      archihacks         'Architecture-specific hardware hacks'
+>          RTC            'Enhanced Real Time Clock Support'
+> 
+> Yes, that's right -- they're all at the same level.  OK, X86 is frozen
+> by hypothesis.  So now give me a rule for telling which of SMP and RTC
+> is "superior".  Note that in order to make the rule usable by the
+> deducer, it can't know anything about the semantics of the symbols.
 
- my DE-620 pccard stopped working after upgrading the kernel from
-2.4.3-ac7 to 2.4.4. This is on a Toshiba 4080XCDT. I used the "good"
-.config from the 2.4.3-ac7 build to do a make "oldconfig". The symptoms
-at startup are:
+Doesn't 'make config' still ask the user about config options one-by-one?
+(If not you can ignore the rest of this, I'd test it but I don't have time
+ to mess with python2 right now).
 
->PCMCIA: Starting services:
->PCMCIA: using scheme: SuSE
->/lib/modules/2.4.4/kernel/drivers/pcmcia/i82365.o: init_module: No such device
->Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ >parameters
->/lib/modules/2.4.4/kernel/drivers/pcmcia/i82365.o: insmod >/lib/modules/2.4.4/kernel/drivers/pcmcia/i82365.o failed
->/lib/modules/2.4.4/kernel/drivers/pcmcia/i82365.o: insmod i82365 failed
->/lib/modules/2.4.4/kernel/drivers/pcmcia/ds.o: init_module: Operation not permitted
->/lib/modules/2.4.4/kernel/drivers/pcmcia/ds.o: insmod >/lib/modules/2.4.4/kernel/drivers/pcmcia/ds.o failed
->/lib/modules/2.4.4/kernel/drivers/pcmcia/ds.o: insmod ds failed
->cardmgr[189]: starting, version is 3.1.22
->PCMCIA: cardmanager is running
->cardmgr[189]: no pcmcia driver in /proc/devices
->cardmgr[189]: exiting
+Then it must somehow handle me trying to (incorrectly) answer X86=Y,
+SMP=Y, RTC=N in some order?
 
- As I said, worked fine until/including 2.4.3-ac7. Any ideas? And before
-I forget, the base System is SuSe7.1 and all the packages mentioned in
-Documentation/Changes are at the required (or better) levels.
+The old oldconfig uses the existing .config as default answers, not as
+initial state (right?). If an answer is missing or invalid then the user
+gets a question. It never looks at all options at once. Doesn't that work
+here?
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-IT Services              |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
---------------4E4847E4D074EF9B64F11C3A
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Martin.Knoblauch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Martin.Knoblauch
-Content-Disposition: attachment;
- filename="Martin.Knoblauch.vcf"
 
-begin:vcard 
-n:Knoblauch;Martin
-tel;cell:+49-170-4904759
-tel;fax:+49-89-510857-111
-tel;work:+49-89-510857-309
-x-mozilla-html:FALSE
-url:http://www.teraport.de
-org:TeraPort GmbH;IT-Services
-adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
-version:2.1
-email;internet:Martin.Knoblauch@TeraPort.de
-title:Senior System Engineer
-x-mozilla-cpt:;32160
-fn:Martin Knoblauch
-end:vcard
+When running make config I am guessing that this would happen:
 
---------------4E4847E4D074EF9B64F11C3A--
+The first symbol hit may be X86. The config-input has Y here, so it is
+answered Y (I assume that is valid, otherwise do whatever the tty version
+would normally do).
+
+The second symbol would be SMP, the config-input says Y so it is set.
+Since this requires RTC also I don't know what the tty version does, but
+it must allow me to set it somehow.
+
+The third symbol is RTC, the config-input has no defined value but it is
+required by other settings so we ask. Possibly this is done automatically
+right after setting SMP to Y.
+
+
+There would be no 3^n problem as there is a defined order between the
+symbols (whatever order 'make config' wants answers on an empty initial
+state).
+
+Perhaps I have missed something, but I really prefer the old oldconfig
+over the new oldconfig.
+
+/Urban
 

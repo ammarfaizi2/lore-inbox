@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286987AbRL1T1b>; Fri, 28 Dec 2001 14:27:31 -0500
+	id <S286997AbRL1TYB>; Fri, 28 Dec 2001 14:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286998AbRL1T1W>; Fri, 28 Dec 2001 14:27:22 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:33805 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S286987AbRL1T1F>;
-	Fri, 28 Dec 2001 14:27:05 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Fri Dec 28 19:26:59 2001
-Message-ID: <3C2CC783.7040406@nothing-on.tv>
-Date: Fri, 28 Dec 2001 19:26:59 +0000
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011224
-X-Accept-Language: en
-MIME-Version: 1.0
-Newsgroups: lists.linux-kernel
-To: Samuel Maftoul <maftoul@esrf.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs + ipv6 hanging???
-In-Reply-To: <3C2BCAED.2030908@nothing-on.tv> <20011228152228.A928@pcmaftoul.esrf.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286993AbRL1TXw>; Fri, 28 Dec 2001 14:23:52 -0500
+Received: from mailhost.uni-koblenz.de ([141.26.64.1]:16827 "EHLO
+	uni-koblenz.de") by vger.kernel.org with ESMTP id <S286990AbRL1TXk>;
+	Fri, 28 Dec 2001 14:23:40 -0500
+Date: Fri, 28 Dec 2001 14:26:14 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+        Amber Palekar <amber_palekar@yahoo.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Again:syscall from modules
+Message-ID: <20011228142614.A1915@dea.linux-mips.net>
+In-Reply-To: <20011225131441.60811.qmail@web20306.mail.yahoo.com> <1009468465.15846.0.camel@eggis1> <15403.28458.153083.961800@charged.uio.no> <20011228134106.B1323@dea.linux-mips.net> <15404.37994.476173.804713@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15404.37994.476173.804713@charged.uio.no>; from trond.myklebust@fys.uio.no on Fri, Dec 28, 2001 at 04:48:58PM +0100
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Maftoul wrote:
+On Fri, Dec 28, 2001 at 04:48:58PM +0100, Trond Myklebust wrote:
 
-> On Fri, Dec 28, 2001 at 01:29:17AM +0000, Tony Hoyle wrote:
+>      > Many sys_*() functions may be in the generic code but that
+>      > still doesn't mean the ports are actually using it or that no
+>      > special calling sequence which normally would be done in libc
+>      > is required.  Only people doing syscalls themselfes and not
+>      > through libc wrappers is worse ...
 > 
->>Kernel 2.4.17, gcc-2.95.4, mount 2.11n
->>
->>nfs clients seem to hang when ipv6 is on the machine.  No idea why...
->>the mount process gets stuck in 'D' state and the only way out is to
->>reboot.
->>
->>If I remove ipv6 from the box & perform exactly the same operations then 
->>it works perfectly.  The mount is definately using the ipv4 address (I 
->>don't think the portmapper/nfsd is ipv6 enabled anyway).
->>
-> Not really sure about this: 
-> I'm at work using SuSE 7.2 wich is shipped with a native IpV6 support
-> and our nfs client / server works almost perfectly ( with low testing on
-> gigabit ethernet machines I've got 26 MB/sec)
->         Sam
+> Please read the beginning of the thread. The question was about
+> calling from within kernel space. No libc is or can be involved...
 
-It started working after I did a 'make mrproper' on both the client & 
-server and recompiled.  Still no idea why it broke in the first place..
+I was just comparing ...
 
-Tony
-
+  Ralf

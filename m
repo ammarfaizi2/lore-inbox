@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUGLTIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUGLTKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUGLTIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUGLTIR
+	id S261169AbUGLTKk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGLTKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:08:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7142 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261763AbUGLTIP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:08:15 -0400
-Date: Mon, 12 Jul 2004 11:03:09 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: parport - interrupt sharing possible?
-Message-ID: <20040712140309.GA3755@logos.cnet>
-References: <20040712035119.GA1865@dbz.icequake.net>
-Mime-Version: 1.0
+	Mon, 12 Jul 2004 15:10:40 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:16082 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261184AbUGLTKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:10:37 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040712035119.GA1865@dbz.icequake.net>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16626.57892.533203.683465@napali.hpl.hp.com>
+Date: Mon, 12 Jul 2004 12:10:28 -0700
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jakub Jelinek <jakub@redhat.com>,
+       davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407121428270.22224@devserv.devel.redhat.com>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+	<20040711123803.GD21264@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+	<20040712182431.GB28281@infradead.org>
+	<Pine.LNX.4.58.0407121428270.22224@devserv.devel.redhat.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Mon, 12 Jul 2004 14:29:16 -0400 (EDT), Ingo Molnar <mingo@redhat.com> said:
 
-On Sun, Jul 11, 2004 at 10:51:19PM -0500, Ryan Underwood wrote:
-> 
-> Hi,
-> 
-> Does anyone know if the generic parport interrupt handler is okay (or not)
-> for sharing interrupts?  The reason I ask is that I have a PCI parallel
-> card with two ports on it.  Without a IRQ sharing capability, it is not
-> possible for both of them to operate in interrupt-driven mode.  I tested
-> a quick hack to enable IRQ sharing:
-> http://home.icequake.net/~nemesis/parport.diff
-> 
-> and it seems to work okay with both ports in use.  I'm hoping someone
-> more knowledgeable on the parallel port subject (Tim Waugh?) can shed
-> some light on whether this is acceptable or not.  The interrupt handler
-> eventually ends up in parport_ieee1284_interrupt which really doesn't do
-> much besides wake up sleepers.
-> 
-> Thanks!
-> 
-> PS: Heh, the power just went out and back on as I wrote this.  Giving thanks
-> for having multiple UPS units around!
+  >> Well, it's not.  We probably want each new port start to have the ia64
+  >> behaviour, so it should be abstracted out nicer.
 
-Hi Ryan,
+  Ingo> is it an issue? Each new port will have PT_GNU_STACK, unless they base
+  Ingo> themselves on old compilers.
 
-Quoting Tim Waugh:
+PT_GNU_STACK is pure bloat on new architectures (and ia64).
 
-> 2) Allows PCI parallel port to share an IRQ if possible.  In limited testing
-> this seems to be ok, but maybe the interrupt handler was not written for
-> sharing.  Someone else will need to ok this.
-                                                                                
-This seems dangerous to me.  There are some issues with IRQs in
-parport, although I think they are known and there is a fix around:
-http://lists.infradead.org/pipermail/linux-parport/2004-March/000048.html
-                                                                                
-Incidentally, I have asked if there is anyone with more time than me
-who would like to maintain the paride/parport bits, but no-one has
-stepped forward.  I see that Al Viro has fixed a lot of problems while
-I've been busy with other things.
+	--david

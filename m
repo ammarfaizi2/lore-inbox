@@ -1,68 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268040AbUJLWqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUJLWro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268040AbUJLWqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268043AbUJLWqn
+	id S268049AbUJLWro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268048AbUJLWro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:46:43 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:10383 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268040AbUJLWqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:46:24 -0400
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Erich Focht <efocht@hpce.nec.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-In-Reply-To: <200410101445.58897.efocht@hpce.nec.com>
-References: <1097110266.4907.187.camel@arrakis>
-	 <200410090051.18693.efocht@hpce.nec.com>
-	 <1097283956.6470.152.camel@arrakis>
-	 <200410101445.58897.efocht@hpce.nec.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097621107.6239.30.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 12 Oct 2004 15:45:08 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 18:47:44 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:57774 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268043AbUJLWrD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 18:47:03 -0400
+Message-ID: <416C5ECF.6060402@intel.com>
+Date: Tue, 12 Oct 2004 15:46:39 -0700
+From: Arun Sharma <arun.sharma@intel.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
+References: <41643EC0.1010505@intel.com>	 <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com>	 <mailman.1097223239.25078@unix-os.sc.intel.com>	 <41671696.1060706@intel.com>	 <mailman.1097403036.11924@unix-os.sc.intel.com>	 <416AF599.2060801@intel.com> <1097617824.5178.20.camel@localhost.localdomain>
+In-Reply-To: <1097617824.5178.20.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------080803090603090003000700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-10 at 05:45, Erich Focht wrote:
-> On Saturday 09 October 2004 03:05, Matthew Dobson wrote:
-> > I personally like to think of it from the top down.  The internal API I
-> > came up with looks like:
-> > 
-> > create_domain(parent_domain, type);
-> > destroy_domain(domain);
-> > add_cpu_to_domain(cpu, domain);
-> I'd suggest adding:
-> reparent_domain(domain, new_parent_domain);
-> 
-> When I said that the domains tree is standing on its leaves I meant
-> that the core components are the CPUs. Or the Nodes, if you already
-> have them. Or some supernodes, if you already have them. In a "normal"
-> filesystem you have the root directory, create subdirectories and
-> create files in them. Here you already have the files but not the
-> structure (or the simplest possible structure).
-> 
-> Anyhow, the 4 command API can well be the guts of the directory
-> operations API which I proposed.
-> 
-> Regards,
-> Erich
+This is a multi-part message in MIME format.
+--------------080803090603090003000700
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I like that suggestion.  As Paul has been sucked away to other work,
-thus giving me a chance to work on my code.  I will be focusing on
-getting the cpusets/CKRM style interface working with my sched_domains
-API.  I like the reparent_domain() suggestion, and it makes sense with
-the 'mv' command, in regards to the filesystem model that cpusets/CKRM
-currently uses.
+David Woodhouse wrote:
 
--Matt
+> If you make it generic so that qemu can use it for emulating i386 even
+> on machines like ppc64, perhaps it would be saner.
+> 
 
+There is already an architecture independent solution to the problem - 
+set_fs_altroot(). The only problem is that it's not easily accessible 
+from userland. Accessing it via set_personality() works only if there 
+are multiple exec domains.
+
+I can't see how anyone would accept a patch that adds linux-i386 exec 
+domain in generic code.
+
+Christoph doesn't like the idea of adding exec-domains just for this 
+purpose and has suggested adding a new system call to set the altroot. A 
+prototype patch to do this already exists. I will be cleaning it up and 
+  posting it to LKML later this week. The main purpose of moving the 
+discussion to LKML was to see how receptive people were to the proposed 
+new system call.
+
+So far I haven't heard anyone complaining :)
+
+	-Arun
+
+PS: Prototype patch with known bugs attached.
+
+--------------080803090603090003000700
+Content-Type: text/plain;
+ name="sys-altroot.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="sys-altroot.patch"
+
+SW5kZXg6IGxpbnV4LTIuNi1jdnMvYXJjaC9pYTY0L2tlcm5lbC9lbnRyeS5TCj09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT0KUkNTIGZpbGU6IC9ob21lL2Fkc2hhcm1hL2Rpc2syL2N2cy9saW51eC0yLjUvYXJj
+aC9pYTY0L2tlcm5lbC9lbnRyeS5TLHYKcmV0cmlldmluZyByZXZpc2lvbiAxLjQ5CmRpZmYg
+LXUgLXIxLjQ5IGVudHJ5LlMKLS0tIGxpbnV4LTIuNi1jdnMvYXJjaC9pYTY0L2tlcm5lbC9l
+bnRyeS5TCTI0IEF1ZyAyMDA0IDE4OjI3OjA3IC0wMDAwCTEuNDkKKysrIGxpbnV4LTIuNi1j
+dnMvYXJjaC9pYTY0L2tlcm5lbC9lbnRyeS5TCTggT2N0IDIwMDQgMTc6MzU6NTMgLTAwMDAK
+QEAgLTE1MjcsNyArMTUyNyw3IEBACiAJZGF0YTggc3lzX21xX2dldHNldGF0dHIKIAlkYXRh
+OCBzeXNfbmlfc3lzY2FsbAkJCS8vIHJlc2VydmVkIGZvciBrZXhlY19sb2FkCiAJZGF0YTgg
+c3lzX25pX3N5c2NhbGwKLQlkYXRhOCBzeXNfbmlfc3lzY2FsbAkJCS8vIDEyNzAKKwlkYXRh
+OCBzeXNfYWx0cm9vdAkJCS8vIDEyNzAKIAlkYXRhOCBzeXNfbmlfc3lzY2FsbAogCWRhdGE4
+IHN5c19uaV9zeXNjYWxsCiAJZGF0YTggc3lzX25pX3N5c2NhbGwKSW5kZXg6IGxpbnV4LTIu
+Ni1jdnMvZnMvbmFtZWkuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ClJDUyBmaWxlOiAvaG9tZS9hZHNoYXJt
+YS9kaXNrMi9jdnMvbGludXgtMi41L2ZzL25hbWVpLmMsdgpyZXRyaWV2aW5nIHJldmlzaW9u
+IDEuMTEwCmRpZmYgLXUgLXIxLjExMCBuYW1laS5jCi0tLSBsaW51eC0yLjYtY3ZzL2ZzL25h
+bWVpLmMJMiBPY3QgMjAwNCAxNzo1OTo1NSAtMDAwMAkxLjExMAorKysgbGludXgtMi42LWN2
+cy9mcy9uYW1laS5jCTggT2N0IDIwMDQgMTg6MTQ6MTEgLTAwMDAKQEAgLTg5Nyw3ICs4OTcs
+NyBAQAogCXJldHVybiAxOwogfQogCi12b2lkIHNldF9mc19hbHRyb290KHZvaWQpCitpbnQg
+c2V0X2ZzX2FsdHJvb3QoY29uc3QgY2hhciBfX3VzZXIgKmFsdHJvb3QpCiB7CiAJY2hhciAq
+ZW11bCA9IF9fZW11bF9wcmVmaXgoKTsKIAlzdHJ1Y3QgbmFtZWlkYXRhIG5kOwpAQCAtOTA1
+LDEyICs5MDUsMjAgQEAKIAlzdHJ1Y3QgZGVudHJ5ICpkZW50cnkgPSBOVUxMLCAqb2xkZGVu
+dHJ5OwogCWludCBlcnI7CiAKKwlpZiAoYWx0cm9vdCkgeworCQllbXVsID0gZ2V0bmFtZShh
+bHRyb290KTsKKwkJaWYgKElTX0VSUihlbXVsKSkKKwkJCXJldHVybiBQVFJfRVJSKGVtdWwp
+OworCX0KKwogCWlmICghZW11bCkKIAkJZ290byBzZXRfaXQ7CiAJZXJyID0gcGF0aF9sb29r
+dXAoZW11bCwgTE9PS1VQX0ZPTExPV3xMT09LVVBfRElSRUNUT1JZfExPT0tVUF9OT0FMVCwg
+Jm5kKTsKIAlpZiAoIWVycikgewogCQltbnQgPSBuZC5tbnQ7CiAJCWRlbnRyeSA9IG5kLmRl
+bnRyeTsKKwl9IGVsc2UgeworCQlyZXR1cm4gZXJyOwogCX0KIHNldF9pdDoKIAl3cml0ZV9s
+b2NrKCZjdXJyZW50LT5mcy0+bG9jayk7CkBAIC05MjMsNiArOTMxLDMzIEBACiAJCWRwdXQo
+b2xkZGVudHJ5KTsKIAkJbW50cHV0KG9sZG1udCk7CiAJfQorCXJldHVybiAwOworfQorCith
+c21saW5rYWdlIGludCBzeXNfYWx0cm9vdChjb25zdCBjaGFyIF9fdXNlciAqIGFsdHJvb3Qp
+Cit7CisJaWYgKGF0b21pY19yZWFkKCZjdXJyZW50LT5mcy0+Y291bnQpICE9IDEpIHsKKwkJ
+c3RydWN0IGZzX3N0cnVjdCAqZnNwLCAqb2ZzcDsKKworCQlmc3AgPSBjb3B5X2ZzX3N0cnVj
+dChjdXJyZW50LT5mcyk7CisJCWlmIChmc3AgPT0gTlVMTCkgeworCQkJcmV0dXJuIC1FTk9N
+RU07CisJCX0KKworCQl0YXNrX2xvY2soY3VycmVudCk7CisJCW9mc3AgPSBjdXJyZW50LT5m
+czsKKwkJY3VycmVudC0+ZnMgPSBmc3A7CisJCXRhc2tfdW5sb2NrKGN1cnJlbnQpOworCisJ
+CXB1dF9mc19zdHJ1Y3Qob2ZzcCk7CisJfQorCisJLyoKKwkgKiBBdCB0aGF0IHBvaW50IHdl
+IGFyZSBndWFyYW50ZWVkIHRvIGJlIHRoZSBzb2xlIG93bmVyIG9mCisJICogY3VycmVudC0+
+ZnMuCisJICovCisKKwlyZXR1cm4gc2V0X2ZzX2FsdHJvb3QoYWx0cm9vdCk7CiB9CiAKIGlu
+dCBmYXN0Y2FsbCBwYXRoX2xvb2t1cChjb25zdCBjaGFyICpuYW1lLCB1bnNpZ25lZCBpbnQg
+ZmxhZ3MsIHN0cnVjdCBuYW1laWRhdGEgKm5kKQpJbmRleDogbGludXgtMi42LWN2cy9mcy9v
+cGVuLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PQpSQ1MgZmlsZTogL2hvbWUvYWRzaGFybWEvZGlzazIvY3Zz
+L2xpbnV4LTIuNS9mcy9vcGVuLmMsdgpyZXRyaWV2aW5nIHJldmlzaW9uIDEuNzEKZGlmZiAt
+dSAtcjEuNzEgb3Blbi5jCi0tLSBsaW51eC0yLjYtY3ZzL2ZzL29wZW4uYwk4IEF1ZyAyMDA0
+IDAxOjU0OjE4IC0wMDAwCTEuNzEKKysrIGxpbnV4LTIuNi1jdnMvZnMvb3Blbi5jCTggT2N0
+IDIwMDQgMTc6Mzg6MDMgLTAwMDAKQEAgLTU4NCw3ICs1ODQsNyBAQAogCQlnb3RvIGRwdXRf
+YW5kX291dDsKIAogCXNldF9mc19yb290KGN1cnJlbnQtPmZzLCBuZC5tbnQsIG5kLmRlbnRy
+eSk7Ci0Jc2V0X2ZzX2FsdHJvb3QoKTsKKwlzZXRfZnNfYWx0cm9vdChOVUxMKTsKIAllcnJv
+ciA9IDA7CiBkcHV0X2FuZF9vdXQ6CiAJcGF0aF9yZWxlYXNlKCZuZCk7CkluZGV4OiBsaW51
+eC0yLjYtY3ZzL2luY2x1ZGUvbGludXgvZnNfc3RydWN0LmgKPT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpSQ1Mg
+ZmlsZTogL2hvbWUvYWRzaGFybWEvZGlzazIvY3ZzL2xpbnV4LTIuNS9pbmNsdWRlL2xpbnV4
+L2ZzX3N0cnVjdC5oLHYKcmV0cmlldmluZyByZXZpc2lvbiAxLjcKZGlmZiAtdSAtcjEuNyBm
+c19zdHJ1Y3QuaAotLS0gbGludXgtMi42LWN2cy9pbmNsdWRlL2xpbnV4L2ZzX3N0cnVjdC5o
+CTE3IE5vdiAyMDAyIDAzOjUyOjIzIC0wMDAwCTEuNworKysgbGludXgtMi42LWN2cy9pbmNs
+dWRlL2xpbnV4L2ZzX3N0cnVjdC5oCTggT2N0IDIwMDQgMTc6Mzk6MTYgLTAwMDAKQEAgLTE5
+LDcgKzE5LDcgQEAKIH0KIAogZXh0ZXJuIHZvaWQgZXhpdF9mcyhzdHJ1Y3QgdGFza19zdHJ1
+Y3QgKik7Ci1leHRlcm4gdm9pZCBzZXRfZnNfYWx0cm9vdCh2b2lkKTsKK2V4dGVybiBpbnQg
+c2V0X2ZzX2FsdHJvb3QoY29uc3QgY2hhciBfX3VzZXIgKik7CiBleHRlcm4gdm9pZCBzZXRf
+ZnNfcm9vdChzdHJ1Y3QgZnNfc3RydWN0ICosIHN0cnVjdCB2ZnNtb3VudCAqLCBzdHJ1Y3Qg
+ZGVudHJ5ICopOwogZXh0ZXJuIHZvaWQgc2V0X2ZzX3B3ZChzdHJ1Y3QgZnNfc3RydWN0ICos
+IHN0cnVjdCB2ZnNtb3VudCAqLCBzdHJ1Y3QgZGVudHJ5ICopOwogZXh0ZXJuIHN0cnVjdCBm
+c19zdHJ1Y3QgKmNvcHlfZnNfc3RydWN0KHN0cnVjdCBmc19zdHJ1Y3QgKik7CkluZGV4OiBs
+aW51eC0yLjYtY3ZzL2tlcm5lbC9leGVjX2RvbWFpbi5jCj09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZp
+bGU6IC9ob21lL2Fkc2hhcm1hL2Rpc2syL2N2cy9saW51eC0yLjUva2VybmVsL2V4ZWNfZG9t
+YWluLmMsdgpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMTgKZGlmZiAtdSAtcjEuMTggZXhlY19k
+b21haW4uYwotLS0gbGludXgtMi42LWN2cy9rZXJuZWwvZXhlY19kb21haW4uYwk4IFNlcCAy
+MDA0IDE0OjUwOjUzIC0wMDAwCTEuMTgKKysrIGxpbnV4LTIuNi1jdnMva2VybmVsL2V4ZWNf
+ZG9tYWluLmMJOCBPY3QgMjAwNCAxNzozMzowMCAtMDAwMApAQCAtMTY3LDcgKzE2Nyw3IEBA
+CiAJY3VycmVudC0+cGVyc29uYWxpdHkgPSBwZXJzb25hbGl0eTsKIAlvZXAgPSBjdXJyZW50
+X3RocmVhZF9pbmZvKCktPmV4ZWNfZG9tYWluOwogCWN1cnJlbnRfdGhyZWFkX2luZm8oKS0+
+ZXhlY19kb21haW4gPSBlcDsKLQlzZXRfZnNfYWx0cm9vdCgpOworCXNldF9mc19hbHRyb290
+KE5VTEwpOwogCiAJbW9kdWxlX3B1dChvZXAtPm1vZHVsZSk7CiAJcmV0dXJuIDA7Cg==
+--------------080803090603090003000700--

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264619AbTEPXsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTEPXsM
+	id S264632AbTEPXtX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTEPXtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:48:12 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:7040 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264619AbTEPXsL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:48:11 -0400
-Message-Id: <200305170001.h4H0113n001351@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional 
-In-Reply-To: Your message of "Fri, 16 May 2003 22:55:42 BST."
-             <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
-            <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 16 May 2003 19:49:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:48809 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264632AbTEPXtU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 19:49:20 -0400
+Date: Fri, 16 May 2003 17:03:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Manuel Estrada Sainz <ranty@debian.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030517000338.GA17466@kroah.com>
+References: <20030515200324.GB12949@ranty.ddts.net> <20030516223624.GA16759@kroah.com> <200305170155.15295.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_607840616P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 16 May 2003 20:01:01 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305170155.15295.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_607840616P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 16 May 2003 22:55:42 BST, Alan Cox said:
-
-> There are arguments in some cases for avoiding the selections (notably
-> adding a zillion ifdefs to remove something thats utterly trivial) but
-> providing most users see only
+On Sat, May 17, 2003 at 01:55:15AM +0200, Oliver Neukum wrote:
 > 
-> 	Remove kernel features for embedded systems (Y/N)
+> > > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> > > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> > > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
+> >
+> > Nice, but can't you get rid of the loading file by just relying on
+> > open() and close()?  Oh wait, sysfs doesn't pass that down to you, hm,
+> > looks like you need that info.  But does the new binary interface in
+> > sysfs that just got merged into the tree provide that info for you?
 > 
-> its no more dangerous/hassle than the kernel debug menu
+> But what if the close() is due to irregular termination?
+> If the script is killed, do you download half a firmware?
 
-OK.. I know I argued against making it visible to the user at all, but if it's
-phrased like that, it will at least (hopefully) dissuade everybody who
-doesn't know what an embedded system is.
+Good point.  Actually I don't think that the binary interface for sysfs
+passes open and close down to the lower levels, so it's a moot point.
 
-And after all, Linux isn't about dissuading the truly determined, nor is it
-about making moral judgements regarding their wizardry/idiocy ratio....
+echo... works for me.
 
---==_Exmh_607840616P
-Content-Type: application/pgp-signature
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+xXu8cC3lWbTT17ARAqJ5AKCw/aroGXLDb41fwQ7e0NJql4Fw0gCg9p/m
-iVHErVmrPWLkUDgqPo5o66k=
-=V2Oo
------END PGP SIGNATURE-----
-
---==_Exmh_607840616P--
+greg k-h

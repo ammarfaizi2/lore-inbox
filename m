@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266965AbTBXMtE>; Mon, 24 Feb 2003 07:49:04 -0500
+	id <S266615AbTBXMs7>; Mon, 24 Feb 2003 07:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbTBXMtD>; Mon, 24 Feb 2003 07:49:03 -0500
-Received: from www4.mail.lycos.com ([209.202.220.170]:55914 "HELO mailcity.com")
-	by vger.kernel.org with SMTP id <S266965AbTBXMtC>;
-	Mon, 24 Feb 2003 07:49:02 -0500
-To: linux-kernel@vger.kernel.org
-Date: Mon, 24 Feb 2003 12:58:57  0000
-From: "vijay srinath" <vijaysrinath@lycos.com>
-Message-ID: <AFIFLLKIMJDOIDAA@mailcity.com>
-Mime-Version: 1.0
-X-Sent-Mail: on
-Reply-To: vijaysrinath@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Question on scsi disk driver
-X-Sender-Ip: 203.200.195.2
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	id <S266968AbTBXMs7>; Mon, 24 Feb 2003 07:48:59 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:12988 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266615AbTBXMs6>;
+	Mon, 24 Feb 2003 07:48:58 -0500
+Date: Mon, 24 Feb 2003 13:58:48 +0100 (MET)
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+Message-Id: <200302241258.h1OCwmSs013918@harpo.it.uu.se>
+To: rusty@rustcorp.com.au
+Subject: Re: [BUG] 2.5.62 kmod rewrite broke modprobe's install command
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
+On Mon, 24 Feb 2003 13:52:18 +1100, Rusty Russell wrote:
+>--- linux-2.5.62-bk6/kernel/kmod.c	2003-02-18 11:18:57.000000000 +1100
+>+++ working-2.5.62-bk6-usermode-sig/kernel/kmod.c	2003-02-24 12:18:55.000000000 +1100
+>@@ -152,6 +152,14 @@ static int ____call_usermodehelper(void 
+> 	struct subprocess_info *sub_info = data;
+> 	int retval;
+> 
+>+	/* Unblock all signals. */
+>+	flush_signals(curtask);
+>+	flush_signal_handlers(curtask);
+>+	spin_lock_irq(&curtask->sighand->siglock);
+>+	sigemptyset(&curtask->blocked);
+>+	recalc_sigpending();
+>+	spin_unlock_irq(&curtask->sighand->siglock);
+>+
+> 	retval = -EPERM;
+> 	if (current->fs->root)
+> 		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
+>
 
-	Iam running Linux Kernel 2.4.9. I have a disk array with a more than 128 luns. Since the maximum number of disk luns that sd driver can see is 128, i expected to see atleast 128. But i noticed that i was not able to access any lun at all.
-	I investigated further and saw that sd_init() in sd.c was returning a failure. This was because the code where memory is alloc'd for 'hd_struct' structures was failing. The code snippet is below
+Doesn't compile (curtask undeclared) and doesn't work (SIGCHLD is
+still SIG_IGN causing system() to fail). The problem is that
+kernel/workqueue.c:worker_thread() [which is what runs modprobe now]
+sets SIGCHLD to SIG_IGN, and your patch doesn't unbreak that.
 
-<snip>
-/*
-* FIXME: should unregister blksize_size, hardsect_size and max_sectors
-when
-* the module is unloaded.
-*/
-   sd = kmalloc((sd_template.dev_max << 4) *
-                 sizeof(struct hd_struct),
-                 GFP_ATOMIC);
-   if (!sd)
-        goto cleanup_sd;
-<snip>
-   
-	The reason is if dev_max is 128, then the total mem size being malloc'd becomes 139264. The highest value in the cache_size table is 131072 (slab.c) and apparently this seems to be causing the kmalloc to fail. In fact the kmalloc fails for any dev_max value greater than 120
-	
-	Also, if i rebuild my kernel with CONFIG_SD_EXTRA_DEVS set to 128, then no matter how many devices i have connected to my host, sd_init() will always fail.
+The patch below, applied on top of your patch, makes it work for me.
 
-	I did not have this problem with kernel 2.4.2-2, where in i notice that the check to see if 'sd' kmalloc was successful, was absent.
-		
-	Iam not sure what the fix needs to be (whether to include the next size 262144 in the cache_sizes table or whether to remove the check like in 2.4.2-2).
+/Mikael
 
-	Appreciate any response on this. Thanks so much in advance..
-
-regards
-vijay
-
-
-_____________________________________________________________
-Get 25MB, POP3, Spam Filtering with LYCOS MAIL PLUS for $19.95/year.
-http://login.mail.lycos.com/brandPage.shtml?pageId=plus&ref=lmtplus
+--- linux-2.5.62/kernel/kmod.c.~2~	2003-02-24 12:39:01.000000000 +0100
++++ linux-2.5.62/kernel/kmod.c	2003-02-24 13:27:51.000000000 +0100
+@@ -150,10 +150,12 @@
+ static int ____call_usermodehelper(void *data)
+ {
+ 	struct subprocess_info *sub_info = data;
++	struct task_struct *curtask = current;
+ 	int retval;
+ 
+ 	/* Unblock all signals. */
+ 	flush_signals(curtask);
++	curtask->sighand->action[SIGCHLD-1].sa.sa_handler = SIG_DFL;
+ 	flush_signal_handlers(curtask);
+ 	spin_lock_irq(&curtask->sighand->siglock);
+ 	sigemptyset(&curtask->blocked);

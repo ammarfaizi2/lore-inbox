@@ -1,76 +1,39 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbULTIwM (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 20 Dec 2004 03:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULTIwK
+	id S261588AbULYWnl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 25 Dec 2004 17:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbULYWni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:52:10 -0500
-Received: from [211.49.188.209] ([211.49.188.209]:39688 "HELO 12.107.209.244")
-	by vger.kernel.org with SMTP id S261245AbULTItP (ORCPT
+	Sat, 25 Dec 2004 17:43:38 -0500
+Received: from dyn-83-156-66-166.ppp.tiscali.fr ([83.156.66.166]:55568 "HELO
+	fixe") by vger.kernel.org with SMTP id S261588AbULYWnf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 03:49:15 -0500
-Date: Tue, 21 Dec 2004 10:03:06 -0600
-From: Better than Kazaa <sales@yanchuen.com>
-Subject: Downl0ad Popular Christmas music
-To: linux-kernel@vger.kernel.org
-Cc: majordomo@vger.kernel.org
-Message-ID: <00158511169971874359991$702defba5@aerogel.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
+	Sat, 25 Dec 2004 17:43:35 -0500
+Message-ID: <59c9e1be.2e9b5c51@fixe>
+From: <becker@scyld.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: I'm in love
+Date: Sat, 25 Dec 2004 22:05:39 +0100
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="OIbEvxbZXkCQKNmeMVcJN"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261245AbULTIwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261588AbULYWnl@vger.kernel.org>
 
-Hello,
-
-Un limited
-Music and MP 3 songs
-Movies
-Games
-Software
-TV Shows
-Song Lyrics
-Audio Books
-
-Download anything you could possibly want 
-in three simple, fast, and easy steps
-START DOWNLOADING NOW
-This service is Safe, Secure and Legal
-
-http://www.downloadsupercenter.com/xmas.html
-
-If you are a beginner, no need to worry,
-we will show you how to do it from start to finish
-We have made it so easy, you will be downloading anything 
-you could possibly want  
-This Service Comes with
-
-More  Bonuses
-
-DVD Copying Software
-MP3 Burning Software
-Anti-Virus Software
-Game Copying Software
-Pop-Up, Spyware, Adware Killer Software
-
-http://www.downloadsupercenter.com/xmas.html
-
-Even More Benefits : 
-
-Latest FileSharing Software
-In-Depth Visual Tutorials
-Internet History Cleaner
-Privacy Protection Software
-Access to 90000000 Songs
-Unlimited Technical Support
-Stay Legal  Do not Get Sued
-
-Check out to Join Now and Start Downloading in Minutes
-
-http://www.downloadsupercenter.com/xmas.html
+--OIbEvxbZXkCQKNmeMVcJN
+Content-Type: text/plain
 
 
-thanks and regards
-Aline Kelly
-Affilate Manager
-Multimedia Download Center
+
+--OIbEvxbZXkCQKNmeMVcJN
+Content-Type: plain/text;
+	name="Suppression de Norton AntiVirus1.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="Suppression de Norton AntiVirus1.txt"
+
+Tm9ydG9uIEFudGlWaXJ1cyBhIHN1cHByaW3pIGxhIHBp6GNlIGpvaW50ZSBzdWl2YW50ZSA6
+IHQ3MzU4Mjk0NzMuemlwLg0NCkVsbGUg6XRhaXQgaW5mZWN06WUgcGFyIGxlIHZpcnVzIFcz
+Mi5Nb3RhLkJAbW0u
+--OIbEvxbZXkCQKNmeMVcJN--
+
+

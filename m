@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbUCSWc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 17:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbUCSWc7
+	id S263134AbUCSWco (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 17:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbUCSWco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 17:32:59 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:44727 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263137AbUCSWc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 17:32:56 -0500
-Message-ID: <002501c40e02$1ff8f7b0$0716a8c0@carbon>
-From: "Rob Roschewsk" <bangzoom@comcast.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6 newbie question RE: MODULES
-Date: Fri, 19 Mar 2004 17:32:55 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 19 Mar 2004 17:32:44 -0500
+Received: from main.gmane.org ([80.91.224.249]:4527 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263134AbUCSWcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 17:32:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: CDFS
+Date: Fri, 19 Mar 2004 23:32:40 +0100
+Message-ID: <yw1x65d05uyf.fsf@kth.se>
+References: <Pine.LNX.4.44.0403191640460.3892-100000@einstein.homenet> <Pine.LNX.4.53.0403191200120.3752@chaos>
+ <405B681F.3050702@stesmi.com> <Pine.LNX.4.53.0403191642590.6876@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:hUdDkNQ1ih/n612970pse8pibrc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
+> On Fri, 19 Mar 2004, Stefan Smietanowski wrote:
+>
+>> Hi.
+>>
+>> > Script started on Fri Mar 19 12:01:38 2004
+>> > # umount /mnt
+>> > # umount /mnt
+>> > umount: /mnt: not mounted
+>> > # umount -t iso9660 /dev/cdrom /mnt
+>> ^^^^^^^^
+>>
+>> use "mount" instead of "umount" to mount something.
+>>
+>
+> I did. Note that `mount` replies below. I don't know why there
+> is a 'u' in the echo...
 
-Hi all,
-    Taking my first try at compiling a 2.6 kernel ..... 2.6.4 to be exact.
+Maybe it's related to the backspace at the end of the line.
 
-Got a clean compile ... and I'm building an initrd by hand just to kick the
-tires .... I can't get my modules to load.
-
-I've compiled and installed module-init-tools-3.0 .... and I copied
-insmod.static to the initrd. When I boot and linuxrc runs on the initrd I
-get this message:
-
-Version magic '2.6.4 686 gcc-3.2' should be '2.6.4 SMP preempt PENTIUM III
-gcc-3.2'
-
-insmod: error inserting '/lib/scsi_mod.ko':-1 Invalid Module Format
-
-I've been googling all day without a lot of luck. Any direct would be
-appreciated.
-
-Thanks,
-
---> Rob
+-- 
+Måns Rullgård
+mru@kth.se
 

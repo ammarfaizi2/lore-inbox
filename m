@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTJWXVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJWXVB
+	id S261869AbTJWXUP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTJWXUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:21:01 -0400
-Received: from mail-06.iinet.net.au ([203.59.3.38]:35249 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261871AbTJWXU4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:20:56 -0400
-Message-ID: <3F986276.4010409@cyberone.com.au>
-Date: Fri, 24 Oct 2003 09:21:26 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-References: <20031013140858.GU1107@suse.de> <200310231822.36023.phillips@arcor.de> <20031023162310.GQ6461@suse.de> <200310231920.39888.phillips@arcor.de>
-In-Reply-To: <200310231920.39888.phillips@arcor.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 19:20:15 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49620 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261869AbTJWXUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:20:09 -0400
+Date: Fri, 24 Oct 2003 01:20:06 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, daniel@osdl.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: Patch for Retry based AIO-DIO (Was AIO and DIO testing on2.6.0-test7-mm1)
+Message-ID: <20031023232006.GH21490@fs.tum.de>
+References: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net> <20031020142727.GA4068@in.ibm.com> <1066693673.22983.10.camel@ibm-c.pdx.osdl.net> <20031021121113.GA4282@in.ibm.com> <1066869631.1963.46.camel@ibm-c.pdx.osdl.net> <20031023104923.GA11543@in.ibm.com> <20031023135030.GA11807@in.ibm.com> <20031023155937.41b0eeda.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031023155937.41b0eeda.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 23, 2003 at 03:59:37PM -0700, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >
+> > It turns out that backing out gcc-Os.patch (on RH 9) or switching 
+> > to a system with an older compiler version made those errors go away.
+> 
+> Ho hum, so we have our answer.
+> 
+> Adrian, how do you feel about slotting this under CONFIG_EMBEDDED?
 
+That was in the first version of the patch, but Christoph Hellwig asked 
+to drop the EMBEDDED.
 
-Daniel Phillips wrote:
+The version I sent to you contained a dependency on EXPERIMENTAL, to 
+indicate that -Os is less tested, and the help text says
+  If unsure, say N.
 
->On Thursday 23 October 2003 18:23, Jens Axboe wrote:
->
->>On Thu, Oct 23 2003, Daniel Phillips wrote:
->>
->>>I'm specifically interested in working out the issues related to stacked
->>>virtual devices, and there are many.  Let me start with an easy one.
->>>
->>>Consider a multipath virtual device that is doing load balancing and
->>>wants to handle write barriers efficiently, not just allow the
->>>downstream queues to drain before allowing new writes.  This device
->>>wants to send a write barrier to each of the downstream devices,
->>>however, we have only one write request to carry the barrier bit.  How
->>>do you recommend handling this situation?
->>>
->>That needs something to hold the state in, and a bio per device. As
->>they complete, mark them as such. When they all have completed, barrier
->>is done.
->>
->>That's just an idea, I'm sure there are other ways. Depending on how
->>complex it gets, it might not be a bad idea to just let the queues drain
->>though. I think I'd prefer that approach.
->>
->
->These are essentially the same, they both rely on draining the downstream 
->queues.  But if we could keep the downstream queues full, bus transfers for 
->post-barrier writes will overlap the media transfers for pre-barrier writes, 
->which would seem to be worth some extra effort.
->
->To keep the downstream queues full, we must submit write barriers to all the 
->downstream devices and not wait for completion.  That is, as soon as a 
->barrier is issued to a given downstream device we can start passing through 
->post-barrier writes to it.
->
->Assuming this is worth doing, how do we issue N barriers to the downstream 
->devices when we have only one incoming barrier write?
->
+IMHO this should be enough, so that only people who know what they are 
+doing use this option.
 
-You would do this in the multipath code, wouldn't you?
+cu
+Adrian
 
-Anyway, I might be missing something, but I don't think draining the
-queue will guarantee that writeback caches will go to permanent storage.
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

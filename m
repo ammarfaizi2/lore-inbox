@@ -1,107 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268148AbTBNAF2>; Thu, 13 Feb 2003 19:05:28 -0500
+	id <S268151AbTBNALM>; Thu, 13 Feb 2003 19:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268149AbTBNAF2>; Thu, 13 Feb 2003 19:05:28 -0500
-Received: from jazz-1.trumpet.com.au ([203.5.119.62]:37897 "EHLO
-	jazz-1.trumpet.com.au") by vger.kernel.org with ESMTP
-	id <S268148AbTBNAFR>; Thu, 13 Feb 2003 19:05:17 -0500
-Date: Fri, 14 Feb 2003 11:14:59 +1100 (EST)
-From: Peter Tattam <peter@jazz-1.trumpet.com.au>
-To: Andi Kleen <ak@suse.de>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-In-Reply-To: <20030213180705.GB27560@wotan.suse.de>
-Message-ID: <Pine.BSF.3.96.1030214103845.369E-100000@jazz-1.trumpet.com.au>
+	id <S268152AbTBNALM>; Thu, 13 Feb 2003 19:11:12 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:37589 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S268151AbTBNALI>; Thu, 13 Feb 2003 19:11:08 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "David S. Miller" <davem@redhat.com>
+Date: Fri, 14 Feb 2003 11:20:07 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15948.13879.734412.313081@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Routing problem with udp, and a multihomed host in 2.4.20
+In-Reply-To: message from David S. Miller on Thursday February 13
+References: <15946.54853.37531.810342@notabene.cse.unsw.edu.au>
+	<1045120278.5115.0.camel@rth.ninka.net>
+	<15947.25922.785515.945307@notabene.cse.unsw.edu.au>
+	<20030213.011903.32136660.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Andi Kleen wrote:
-
-> [Hmm, this is becomming a FAQ]
+On Thursday February 13, davem@redhat.com wrote:
+>    From: Neil Brown <neilb@cse.unsw.edu.au>
+>    Date: Thu, 13 Feb 2003 20:28:34 +1100
 > 
-> > Switching in and out of long mode is evil enough that I don't think it
-> > is worth it.  And encouraging people to write good JIT compiling
+>    On  February 12, davem@redhat.com wrote:
+>    > On Wed, 2003-02-12 at 15:18, Neil Brown wrote:
+>    > > Is this a bug, or is there some configuration I can change?
+>    > 
+>    > Specify the correct 'src' parameter in your 'ip' route
+>    > command invocations.
+>    
+>    Thanks... but I think I need a bit more help.
+>    
+> Sorry, I forgot to add that you need to enable the
+> arp_filter sysctl as well to make this work properly.
 > 
-> Forget it. It is completely undefined in the architecture what happens
-> then. You'll lose interrupts and everything. Nothing for an operating
-> system intended to be stable.
-> 
-> I have no plans at all to even think about it for Linux/x86-64.
+> It should work once you do this.
 
-I have given this some thought even though the accepted wisdom is to avoid it.
+Nope...
 
-As far as I can tell, there are only two critical structures which need to be
-warped.  You would need to have a legacy set of page tables ready to go, and a
-new IDT which is used only for legacy mode.  If an IRQ or execption happens in
-legacy mode, you warp the CPU back to long mode to handle it and then warp
-back.  
+Maybe I'm not explaining myself well enough.  
+So I expermented a bit more and did some "strace"ing, and read some
+man pages....
 
-The concept of warping the CPU is being formalized in the plex86 project anyway
-and is likely to become more common as time goes on.  (warping is replacing
-GDT/IDT/LDT/CR3 etc by stubs which then warp back to the host when anything
-"interesting" happens) 
+It turns out that the problem occurs when send_msg is used to send a
+UDP packet, and the control information contains
+              struct in_pktinfo {
+                  unsigned int   ipi_ifindex;  /* Interface index */
+                  struct in_addr ipi_spec_dst; /* Local address */
+                  struct in_addr ipi_addr;     /* Header Destination address */
+              };
+specifying the address and interface of the message that we are
+replying to.
+I'll include all the numbers below for completenes, but the brief
+description goes:
+ Three subnets, A,B,C  all connected by a router.
+ Client X on subnet B - default route to router.
+ 
+ Server Y: three interfaces:
+     eth0 on A -  default route to router on A
+     eth1 on B  ( and so directly connected to client X)
+     eth2 on C
 
-So as far as I can tell, a switch to v86 mode requires reloading page tables
-(this would happen on a typical task context switch anyway), and switching the
-IDT. GDT,LDT and TR can stay as is since these should trap to #GP which is
-handled by the IDT change. I can't see why you would want to touch the PIC or
-APIC at all, and this is usually what causes the loss of interrupts when
-handling this kind of thing.
+ Packet from X to Y:C  (i.e. address of eth2 on Y) goes through router
+ to Y.
+ Y responds with sendmsg specifying that the incoming packet was on
+ eth2 and was addressed to Y:C.
 
-The only other unknown quantity is the time it takes for the CPU to
-enable/disable long mode, but with modern CPU speeds, the interrupt latency may
-only be mildy affect by such a process, unless the CPU is broken in some way. 
-I see no discussion in the AMD manuals regarding the cost of the mode switch,
-only what AMD engineers have hinted at.
+ What *should* (IMO) happen is the response should have Y:C as the
+ source address, and that packet should be routed with a preference
+ to eth2.  As eth2 in not on B, and there are no known routes to B via
+ eth2, the reply should be routed normally: i.e. directly to eth1.
 
-> 
-> > emulators sounds much better, especially in the long run.  But it can
-> > be written.
-> 
-> For DOS even a slow emulator should be good enough. After all most
-> DOS Programs are written for slow machines. Bochs running on a K8
-> will be hopefully fast enough. If not an JIT can be written, perhaps
-> you can extend valgrind for it.
-> 
-> Or if you really rely on a DOS program executing fast you can
-> always boot a 32bit kernel which of course still supports vm86
-> in legacy mode.
+ What *does* happen is that the reply is sent on eth2 as though the
+ client X were local to eth2.  i.e. an ARP request is sent to find the
+ MAC address, and then the packets is sent to this MAC address.
 
-While an emulator sounds like a good idea, it is baggage that needs to be
-included.  JIT is probably overkill if the hardware can already do it.
+ It might be reasonable that my *should* case would require
+ ip_forwarding begin turned on, but I have ip_forwarding turned on and
+ it doesn't help.
+ 
+ In any case the *does* case is wrong because it sends a packet on an
+ interface to a neighbour that in known not to be directly attached to
+ that interface.
 
-If the use for running v86 code is infrequent, the cost in CPU cycles to change
-modes may be neglible anyway.  
+Does that make my situation clearer?
 
-If it's for regular use (e.g. an MSDOS box), I am sure the scheduler could take
-into account that a v86 context switch is more expensive than a normal one and
-steps could be taken to avoid it.
+Thanks,
 
-I contend that if the thunking code is reasonably well defined and thought out,
-jumping in & out of long mode might not be as big a hassle as originally
-thought.
+NeilBrown
+-------------------------
+The numbers: 
 
-I have a need to run v86 code from ring 0, so I'm not keen to slip other
-people's code in there.  This would mean I'd need to write a v86 emulator from
-scratch which I think is more time than writing the warping code that I've
-suggested.
+On a multi homed host with the following interfaces:
 
-I am going have a go at doing it anyway and I'll let you know my results when I
-get some real hardware. 
-
-> 
-> -Andi
-> 
+bartok # ./ip address show
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
+    link/ether 00:10:4b:1c:a3:a4 brd ff:ff:ff:ff:ff:ff
+    inet 129.94.242.45/24 brd 129.94.242.255 scope global eth0
+3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
+    link/ether 00:a0:c9:8f:7f:3c brd ff:ff:ff:ff:ff:ff
+    inet 129.94.172.12/22 brd 129.94.242.255 scope global eth1
+4: eth2: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
+    link/ether 00:90:27:37:bb:d5 brd ff:ff:ff:ff:ff:ff
+    inet 129.94.208.2/22 brd 129.94.242.255 scope global eth2
 
 
-Peter
+and the following routes:
 
---
-Peter R. Tattam                            peter@trumpet.com
-Managing Director,    Trumpet Software International Pty Ltd
-Hobart, Australia,  Ph. +61-3-6245-0220,  Fax +61-3-62450210
+bartok # ./ip route show
+129.94.232.0/24 via 129.94.172.66 dev eth1 
+129.94.242.0/24 dev eth0  proto kernel  scope link  src 129.94.242.45 
+129.94.241.0/24 via 129.94.174.2 dev eth1 
+129.94.172.0/22 dev eth1  proto kernel  scope link  src 129.94.172.12 
+129.94.208.0/22 dev eth2  proto kernel  scope link  src 129.94.208.2 
+default via 129.94.242.1 dev eth0 
 
+
+1/ A TCP SYN/ACK with 
+	source 129.94.172.12 dest 129.94.211.194 
+  that is in response to a TCP SYN with
+	source 129.94.211.194 dest 129.94.172.12
+  that arrived on eth1 will be sent directly to
+    129.94.211.194 on eth2
+
+  This is what you would expect.
+
+2/ A UDP packet with 
+	source 129.94.172.12 dest 129.94.211.194 
+   that is sent (sendto) on a newly created and bound
+   SOCK_DGRAM socket will be sent directly to
+    129.94.211.194 on eth2
+
+   This is also what you would expect.
+
+3/ A UDP packet sent on a newly created unbound
+   socket (bound to 0.0.0.0) to 129.94.211.194
+   will have
+
+	source 129.94.208.2 dest 129.94.211.194
+   and will be sent directly on eth2
+
+   Again as you would expect.
+
+However:
+
+4/ A UDP packet send on an unbound socket (bound to a port but not an
+   IP address) to 129.94.211.194, via a sendmsg request with
+   in_pktinfo specifing that the incoming packet was recieved on eth1
+   and had
+	source 129.94.211.194 dest 129.94.172.12
+   will have
+	source 129.94.172.12 dest 129.94.211.194
+
+   and will be sent directly to 129.94.211.194 ON ETH1
+
+   By 'sent directly' I mean if the arp table has an entry for 
+   129.94.211.194 on eth1, it will be sent to that MAC address, and if
+   it doesn't an ARP request will be broadcast on eth1 to find an
+   appropriate MAC address.
+
+   This is *wrong*.
+
+   I am happy that the source address is 129.94.172.12 in this case
+   while in case 3 it is 129.94.208.2.  I am not happy that it
+   directly sends to eth1.

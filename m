@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSJVIYO>; Tue, 22 Oct 2002 04:24:14 -0400
+	id <S262296AbSJVI2x>; Tue, 22 Oct 2002 04:28:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSJVIYO>; Tue, 22 Oct 2002 04:24:14 -0400
-Received: from almesberger.net ([63.105.73.239]:36358 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262303AbSJVIYN>; Tue, 22 Oct 2002 04:24:13 -0400
-Date: Tue, 22 Oct 2002 05:30:05 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+	id <S262314AbSJVI2x>; Tue, 22 Oct 2002 04:28:53 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30254 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262296AbSJVI2w>; Tue, 22 Oct 2002 04:28:52 -0400
+To: ebiederm@xmission.com (Eric W. Biederman)
 Cc: Andy Pfiffer <andyp@osdl.org>,
        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
 Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
-Message-ID: <20021022053005.F1421@almesberger.net>
-References: <m1k7kfzffk.fsf@frodo.biederman.org> <1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
+	<m1ptu3t3ec.fsf@frodo.biederman.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Oct 2002 02:33:04 -0600
+In-Reply-To: <m1ptu3t3ec.fsf@frodo.biederman.org>
+Message-ID: <m1fzuyub3z.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m13cqzumx3.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Oct 21, 2002 at 10:18:00PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Oh, wait as I recall bootimg simply copies the BIOS results
-> from the current kernel to the freshly booted kernel, so it skips
-> the BIOS calls altogether.
+Ok as promised kexec-tools-1.3.tar.gz is released.
 
-Yes, I don't trust the BIOS very much under normal conditions,
-so I wouldn't even dream of running it with a largely undefined
-system state. I'm actually quite surprised that kexec has so
-few problems doing that :-)
+The new test case it provides is
+kexec -debug bzImage
 
-In any case, since the kexec kernel code is more or less just a
-generic loader, this is something you can always decide to
-change in user space. The only thing bootimg did that kexec
-doesn't do is to explicitly mark BIOS-provided data tables
-(mainly SMP stuff) as reserved so that they won't be
-overwritten. But it seems that mpparse.c now reserves that
-already, so kexec should be fine.
+The serial console must be initialized before using this.
 
-- Werner
+[root@p4dp8-0 root]# kexec -debug bzImage-2.4.17.eb-amd768-eepro100-kexec-apic-lb-mtd2 ip=dhcp root=/dev/nfs console=tty0 console=ttyS0,9600 reboot=hard panic=5 ide0=ata66 verbose
+setup16_end: 00091ac4
+Shutting down devices
+kexecing image
+a
+b
+c
+d
+e
+f
+g
+h
+< All above are various points in x86-setup-16.S >
+i < Printed from the first callback in setup.S, before protected mode is entered >
+j < Printed from the second callback in setup.S, just before the kernel decompresser is run >
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+I have a very strange node that makes it all of the way to 'j' before rebooting.
+The concept that something is dying in protected mode will all of the interrupts
+disabled is so novel that I really don't know what to make of it, yet.
+
+But I would be very interested if other people had similar experiences. 
+
+Eric
+
+

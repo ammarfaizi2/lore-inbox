@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315178AbSEaHOj>; Fri, 31 May 2002 03:14:39 -0400
+	id <S315179AbSEaHnt>; Fri, 31 May 2002 03:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315179AbSEaHOi>; Fri, 31 May 2002 03:14:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40391 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315178AbSEaHOg>;
-	Fri, 31 May 2002 03:14:36 -0400
-Date: Fri, 31 May 2002 09:14:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.19 : drivers/mtd/nftlcore.c
-Message-ID: <20020531071425.GH841@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0205301946500.22691-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315182AbSEaHns>; Fri, 31 May 2002 03:43:48 -0400
+Received: from mailrelay.nefonline.de ([212.114.153.196]:32525 "EHLO
+	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
+	id <S315179AbSEaHnr>; Fri, 31 May 2002 03:43:47 -0400
+Message-Id: <200205310743.JAA28657@myway.myway.de>
+From: "Daniela Engert" <dani@ngrt.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "system_lists@nullzone.org" <system_lists@nullzone.org>
+Date: Fri, 31 May 2002 09:43:39 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
+In-Reply-To: <5.1.0.14.2.20020530205439.02cb50e8@192.168.2.131>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Halt on 2.5.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30 2002, Frank Davis wrote:
-> @@ -899,7 +899,7 @@
->  			DEBUG(MTD_DEBUG_LEVEL2,"NFTL read request completed OK\n");
->  			up(&nftl->mutex);
->  			goto repeat;
-> -		} else if (req->cmd == WRITE) {
-> +		} else if ((int)req->cmd == WRITE) {
+On Thu, 30 May 2002 20:57:04 +0200, system_lists@nullzone.org wrote:
 
-Irk, this is very wrong :-)
+>I got next message some hours ago on a kernel 2.5.18
 
-		} else if (rq_data_dir(rq) == WRITE) {
+>May 30 18:39:10 server01 kernel: hdc: dma_intr: status=0x7f { DriveReady 
+>DeviceF
+>ault SeekComplete DataRequest CorrectedError Index Error }
+>May 30 18:39:10 server01 kernel: hdc: dma_intr: error=0x00 { }
+>
+>Any guru can tell me what this exactly mean?
 
-should work.
+The driver tried to read the disk's status register at the wrong
+instant of time. Most likely, the host chip's dma engine was still
+active, preventing access to the task file registers.
 
-> @@ -1015,10 +1015,11 @@
->  };
->  
->  extern char nftlmountrev[];
-> +static spinlock_t nftl_lock = SPIN_LOCK_UNLOCKED;
->  
->  int __init init_nftl(void)
->  {
-> -	int i;
-> +spin_lock_init(&nftl_lock);
+Ciao,
+  Dani
 
-You don't need the spin_lock_init(), you just set it SPIN_LOCK_UNLOCKED
-above.
-
-The rest looks ok.
-
--- 
-Jens Axboe
 

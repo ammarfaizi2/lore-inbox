@@ -1,286 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265418AbUGZPCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUGZPBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265418AbUGZPCS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 11:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265492AbUGZPCS
+	id S265799AbUGZPBw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 11:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUGZPBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 11:02:18 -0400
-Received: from adsl-65-68-136-66.dsl.stlsmo.swbell.net ([65.68.136.66]:2774
-	"EHLO demigod.technicalworks.net") by vger.kernel.org with ESMTP
-	id S265418AbUGZOrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 10:47:51 -0400
-Message-ID: <003101c47320$0f3ead10$010a300a@drightler2k>
-From: "Dwayne Rightler" <drightler@technicalogic.com>
-To: "Dhruv Matani" <dhruvbird@gmx.net>
-Cc: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
-       <linux-kernel@vger.kernel.org>
-References: <2E314DE03538984BA5634F12115B3A4E62E88D@email1.mitretek.org> <011601c469de$9456f700$010a300a@drightler2k> <1090852188.3128.24.camel@localhost.localdomain>
-Subject: Re: DriveReady SeekComplete Error...
-Date: Mon, 26 Jul 2004 09:51:36 -0500
+	Mon, 26 Jul 2004 11:01:51 -0400
+Received: from monster.roma2.infn.it ([141.108.255.100]:13523 "EHLO
+	monster.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S265521AbUGZOrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 10:47:46 -0400
+From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: linux-kernel@vger.kernel.org
+Subject: tty1 and italian charset ...
+Date: Mon, 26 Jul 2004 16:47:40 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-Spam-DCC: :
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200407261647.40006.AlberT@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-demigod:/usr/src/linux-2.6.7-kexec# zgrep CONFIG_IDEDMA_PCI_AUTO
-/proc/config.gz
-# CONFIG_IDEDMA_PCI_AUTO is not set
+Hi all,
 
-I have DMA disabled by default in my kernel already and still have the
-problem with the Samsung drive.
+  I'm not sure not to be OT, if so plz apologize me...
 
------ Original Message ----- 
-From: "Dhruv Matani" <dhruvbird@gmx.net>
-To: "Dwayne Rightler" <drightler@technicalogic.com>
-Cc: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>;
-<linux-kernel@vger.kernel.org>
-Sent: Monday, July 26, 2004 9:32 AM
-Subject: Re: DriveReady SeekComplete Error...
+I'm fighting against a problem with "òàèìù" characters on my laptop since I 
+switched to 2.6.0 ... The problem persists nowaday with 2.67 (various 
+recompilations, with or without nvidia module loaded, and so on ...)
 
+I already used "loadkeys it" and it seems to success, but tty1 still doesn't 
+prints "òàèìù" characters.
 
-> Hi,
->         I think I've gotten to the bottom of the matter. It turns out
-> that from
-> 2.4.0, Kernel keeps DMA enabled by default, while previous versions had
-> it disabled by default. And Samsung Hard Disks have some whacky
-> non-standard interface, which is not supported, so every time the kernel
-> tried to do the DMA hand-shaking dance with the HDD, it got confused,
-> and reset the HDD. However, DMA data transfers were working at a slower
-> speed. So, I decided to disable DMA by re-compiling the kernel with the
-> Default DMA switch disable.. And viola, all the DMA errors vanished,
-> however data transfer became significantly slower, and every time the
-> ext3 journal was commited to the disk, XMMS would hang! This was
-> amazing, so currently I am running a kernel with DMA disabled by
-> default, but as soon as RedHat takes over, it enables DMA! So no kernel
-> errors and I also get the speed benefit!
->
-> Hope this works!
->
-> Anyone know why this works! (If at all?)
->
-> -Dhruv.
->
->
-> On Thu, 2004-07-15 at 01:40, Dwayne Rightler wrote:
-> > demigod:/proc/ide/hda# cat model
-> > SAMSUNG SV2044D
-> >
-> >
-> > lspci -vvv output is attached.  /dev/hda is attached to the VIA chipset.
-I
-> > have another hard drive /dev/hdb and a cdrom drive /dev/hdc connected to
-> > that chipset as well and they can do DMA transfers.
-> >
-> > The Promise controller has 2 hard drives hooked to it which can also do
-DMA
-> > transfers.
-> >
-> > Thanks,
-> > Dwayne
-> > ----- Original Message ----- 
-> > From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-> > To: "Dwayne Rightler" <drightler@technicalogic.com>;
-> > <linux-kernel@vger.kernel.org>
-> > Cc: "Dhruv Matani" <dhruvbird@gmx.net>
-> > Sent: Tuesday, July 13, 2004 12:23 PM
-> > Subject: RE: DriveReady SeekComplete Error...
-> >
-> >
-> > > Hrmm, does anyone else have that same drive or chipset you use, do
-they
-> > > also experience the problem?
-> > >
-> > > What is the exact model of the drive and what chipset do you use?
-> > >
-> > > cd /proc/ide/hda ; cat model
-> > >
-> > > lspci -vvv # as root
-> > >
-> > > -----Original Message-----
-> > > From: Dwayne Rightler [mailto:drightler@technicalogic.com]
-> > > Sent: Tuesday, July 13, 2004 11:58 AM
-> > > To: Piszcz, Justin Michael; linux-kernel@vger.kernel.org
-> > > Cc: Dhruv Matani
-> > > Subject: Re: DriveReady SeekComplete Error...
-> > >
-> > > The CONFIG_IDEDISK_MULTI_MODE setting makes no difference as seen
-below:
-> > >
-> > > demigod:~# uname -a
-> > > Linux demigod 2.6.7-kexec #2 Tue Jul 13 08:31:56 CDT 2004 i686
-GNU/Linux
-> > >
-> > > demigod:~# zgrep CONFIG_IDEDISK_MULTI_MODE /proc/config.gz
-> > > CONFIG_IDEDISK_MULTI_MODE=y
-> > >
-> > > demigod:~# dmesg | grep ^hda
-> > > hda: SAMSUNG SV2044D, ATA DISK drive
-> > > hda: max request size: 128KiB
-> > > hda: 39862368 sectors (20409 MB) w/472KiB Cache, CHS=39546/16/63
-> > > hda: DMA disabled
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: DMA disabled
-> > >
-> > > ##########################################
-> > >
-> > > demigod:~# uname -a
-> > > Linux demigod 2.6.7-kexec #1 Mon Jul 5 11:30:36 CDT 2004 i686
-GNU/Linux
-> > >
-> > > demigod:~# zgrep CONFIG_IDEDISK_MULTI_MODE /proc/config.gz
-> > > # CONFIG_IDEDISK_MULTI_MODE is not set
-> > >
-> > > demigod:~# dmesg | grep ^hda
-> > > hda: SAMSUNG SV2044D, ATA DISK drive
-> > > hda: max request size: 128KiB
-> > > hda: 39862368 sectors (20409 MB) w/472KiB Cache, CHS=39546/16/63
-> > > hda: DMA disabled
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: DMA disabled
-> > > hda: dma_timer_expiry: dma status == 0x41
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > hda: dma_timer_expiry: dma status == 0x61
-> > > hda: DMA timeout error
-> > > hda: dma timeout error: status=0x58 { DriveReady SeekComplete
-> > > DataRequest }
-> > > ----- Original Message ----- 
-> > > From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-> > > To: "Dwayne Rightler" <drightler@technicalogic.com>;
-> > > <linux-kernel@vger.kernel.org>
-> > > Cc: "Dhruv Matani" <dhruvbird@gmx.net>
-> > > Sent: Tuesday, July 13, 2004 7:44 AM
-> > > Subject: RE: DriveReady SeekComplete Error...
-> > >
-> > >
-> > > > <*>     Include IDE/ATA-2 DISK support
-> > > > [*]       Use multi-mode by default
-> > > >
-> > > > Have you tried recompiling the kernel and checking off the second
-> > > option
-> > > > show above?
-> > > >
-> > > > CONFIG_IDEDISK_MULTI_MODE
-> > > > If you get this error, try to say Y here:
-> > > > hda: set_multmode: status=0x51 { DriveReady SeekComplete Error }
-> > > > hda: set_multmode: error=0x04 { DriveStatusError }
-> > > > If in doubt, say N.
-> > > >
-> > > >
-> > > > -----Original Message-----
-> > > > From: linux-kernel-owner@vger.kernel.org
-> > > > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Dwayne
-> > > Rightler
-> > > > Sent: Tuesday, July 13, 2004 8:33 AM
-> > > > To: linux-kernel@vger.kernel.org
-> > > > Cc: Dhruv Matani
-> > > > Subject: Re: DriveReady SeekComplete Error...
-> > > >
-> > > > I have a similar problem with a Samsung hard drive. Model SV2044D.
-> > > The
-> > > > output of 'hdparm -i' below indicates it supports several multiword
-> > > and
-> > > > ultra DMA modes but if i run the drive in anything other than PIO
-mode
-> > > > it
-> > > > gets DMA timeouts and SeekComplete Errors.  This has been on every
-> > > > kernel I
-> > > > can recall in the 2.4 and 2.6 series.
-> > > >
-> > > > demigod:~# hdparm -i /dev/hda
-> > > >
-> > > > /dev/hda:
-> > > >
-> > > >  Model=SAMSUNG SV2044D, FwRev=MM200-53, SerialNo=0228J1FN905733
-> > > >  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-> > > >  RawCHS=16383/16/63, TrkSize=34902, SectSize=554, ECCbytes=4
-> > > >  BuffType=DualPortCache, BuffSize=472kB, MaxMultSect=16, MultSect=16
-> > > >  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39862368
-> > > >  IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
-> > > >  PIO modes:  pio0 pio1 pio2 pio3 pio4
-> > > >  DMA modes:  mdma0 mdma1 mdma2
-> > > >  UDMA modes: udma0 udma1 udma2 udma3 *udma4
-> > > >  AdvancedPM=no WriteCache=enabled
-> > > >  Drive conforms to: ATA/ATAPI-4 T13 1153D revision 17:  1 2 3 4
-> > > >
-> > > >  * signifies the current active mode
-> > > >
-> > > >
-> > > >
-> > > > ----- Original Message ----- 
-> > > > From: "Dhruv Matani" <dhruvbird@gmx.net>
-> > > > To: <linux-kernel@vger.kernel.org>
-> > > > Sent: Tuesday, July 13, 2004 7:30 AM
-> > > > Subject: DriveReady SeekComplete Error...
-> > > >
-> > > >
-> > > > > Hi,
-> > > > > I've been getting this error for my brand new (2 months old)
-Samsung
-> > > > > HDD. The model Number is: SV0411N, and it is a 40GB disk. I'm
-using
-> > > > the
-> > > > > kernel version 2.4.20-8 provided by RedHat. When I used
-> > > RH-7.2(before
-> > > > > upgrading to RH-9), the same HDD worked fine. Also, when I
-> > > > re-installed
-> > > > > RH-7.2, it worked fine?
-> > > > >
-> > > > > Any suggestions?
-> > > > >
-> > > > > Please cc me the reply, sine I'm not subscribed.
-> > > > > Thanks ;-)
-> > > > >
-> > > > > -- 
-> > > > >         -Dhruv Matani.
-> > > > > http://www.geocities.com/dhruvbird/
-> > > > >
-> > > > > As a rule, man is a fool. When it's hot, he wants it cold.
-> > > > > When it's cold he wants it hot. He always wants what is not.
-> > > > > -Anon.
-> > > > >
-> > > > >
-> > > > > -
->
-> -- 
-> -Dhruv Matani.
-> http://www.geocities.com/dhruvbird/
->
-> template<typename Signature>
->   class CustomSignature : public Signature
-> { };
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The very strange thing, that let me suppose some kerenl-related issue, is that 
+_every_ other tty is working fine, as it does every xterm session...
 
+I'mwriteing now becouse just iesterday I installed a new server and I got the 
+same problem here.
+
+My laptop is running a Debian SID, the new server is running a Debian Sarge.
+
+On both machines I'm using 2.6.7 (both debian binaries and a self compiled 
+vanilla) with udev, sysfs and hotplug... my console-tools version is 0.2.3
+
+Any suggestion ???
+
+thank you in advance
+
+-- 
+<?php echo '       Emiliano `AlberT` Gabrielli       ',"\n",
+           '  E-Mail: AlberT_AT_SuperAlberT_it  ',"\n",
+           '  Web:    http://SuperAlberT.it  ',"\n",
+'  IRC:    #php,#AES azzurra.com ',"\n",'ICQ: 158591185'; ?>

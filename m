@@ -1,30 +1,24 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316957AbSFFLZ3>; Thu, 6 Jun 2002 07:25:29 -0400
+	id <S316763AbSFFGuO>; Thu, 6 Jun 2002 02:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316958AbSFFLZ2>; Thu, 6 Jun 2002 07:25:28 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22775 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316957AbSFFLZ2>; Thu, 6 Jun 2002 07:25:28 -0400
-Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S316831AbSFFGuN>; Thu, 6 Jun 2002 02:50:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26256 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316763AbSFFGuN>;
+	Thu, 6 Jun 2002 02:50:13 -0400
+Date: Wed, 05 Jun 2002 23:46:49 -0700 (PDT)
+Message-Id: <20020605.234649.66334355.davem@redhat.com>
 To: lei_hu@ali.com.tw
 Cc: alan@redhat.com, linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
+From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <OF7057B5B9.A6CA3C3B-ON48256BD0.0020BE4E@ali.com.tw>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Jun 2002 13:18:27 +0100
-Message-Id: <1023365907.22186.9.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-06-06 at 07:27, lei_hu@ali.com.tw wrote:
-> Dear all
->  I rewrite the part to read/write registers of the audio codec  for Ali 5451
-> Audio Driver.
 
-The formatting seems to have gone a bit strange but I'll clean that up
-and merge the change
-
+Please read linux/Documentation/CodingStyle

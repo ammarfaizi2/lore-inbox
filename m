@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTD0XCt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 19:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbTD0XCt
+	id S261927AbTD0XJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 19:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTD0XJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 19:02:49 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36750
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261921AbTD0XCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 19:02:48 -0400
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0304280002190.17059-100000@sphinx.mythic-beasts.com>
-References: <Pine.LNX.4.33.0304280002190.17059-100000@sphinx.mythic-beasts.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051481778.15485.38.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Apr 2003 23:16:19 +0100
+	Sun, 27 Apr 2003 19:09:24 -0400
+Received: from smtp-out.comcast.net ([24.153.64.109]:8353 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261927AbTD0XJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 19:09:23 -0400
+Date: Sun, 27 Apr 2003 19:20:11 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: CRAP it crashes
+In-reply-to: <200304271832150570.027F05E9@smtp.comcast.net>
+To: linux-kernel@vger.kernel.org
+Message-id: <200304271920110140.02AAE835@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200304271832150570.027F05E9@smtp.comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-28 at 00:08, Matthew Kirkwood wrote:
-> > And government if it is smart will reply by enforcing reverse
-> > engineering rights *for compatibility* (not cloning), or business (the
-> > surviving bits anyway) will figure it out and do it themselves.
-> 
-> Alan -- could you please explain what you see as the real
-> differences between reverse engineering for "compatibility"
-> and for "cloning"?
-> 
-> It isn't obvious to me that there is a line-in-the-sand.
 
-Oh indeed it is not. Have a look at EU reverse engineering law and
-caselaw if you are really that curious to see where the line lands
-(I'm not). A lot of it depends how you define "a product". 
 
-Writing a tool to extract BK repositories into an open format (ok
-except that BK is basically already in an open format at the
-moment but suppose it changed..) would be an obvious example.
+*********** REPLY SEPARATOR  ***********
 
-You might however get your backside kicked if you had people
-reverse engineer BK and then write a copy of it.
+On 4/27/2003 at 6:32 PM rmoser wrote:
 
-It isnt entirely that complex: Are a laser printer and its ink
-cartridge two products, or a mobile phone and its battery ?
+>Segfault in fcomp_push() in test.  Debugging.
 
-Alan
+fcomp_scan() being dumb.  I have to alter it.  Also a little bit in fcomp_push()
+(I thought realloc(0, n) would be like malloc(n)).
+
+BruteForce() needs to be altered a bit because of a compiler bug:
+
+for (j = 0; blah blah; j++){ }
+
+must become
+
+for (j = 0; blah blah; ) { j++; }
+
+For some odd reason.  Debugging, it seems to infinitely loop here and
+leave j as 0.
+
+You know it would help if someone would grab GDB, grab the source,
+and debug it!  My head is starting to hurt....
+
+Any takers?
+
+--Bluefox Icy
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

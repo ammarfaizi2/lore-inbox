@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316778AbSE0WsC>; Mon, 27 May 2002 18:48:02 -0400
+	id <S314433AbSE0W4c>; Mon, 27 May 2002 18:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316779AbSE0WsB>; Mon, 27 May 2002 18:48:01 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:50822 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316778AbSE0WsA>; Mon, 27 May 2002 18:48:00 -0400
-Date: Mon, 27 May 2002 17:47:58 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] gcc3 arch options
-In-Reply-To: <20020527214248.GA1848@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0205271738160.25398-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314468AbSE0W4c>; Mon, 27 May 2002 18:56:32 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:17157 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314433AbSE0W4b>; Mon, 27 May 2002 18:56:31 -0400
+Message-Id: <200205272256.g4RMuRH03974@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] initrd fails again in 2.5.18
+Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_18786864270"
+Date: Mon, 27 May 2002 18:56:27 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 May 2002, J.A. Magallon wrote:
+This is a multipart MIME message.
 
-> >CFLAGS is initially defined with ':=', which, as opposed to '=' means to 
-> >evaluate directly and store the resulting string, so it should be fine. 
-> 
-> It even does not depend on that. That is exactly the difference between
-> $(shell ) and backquoting.
-> 
-> Try this (with both = and :=):
-> 
-> # Makefile
-> 
-> A=
-> B=
-> #A:=
-> #B:=
-> A+=$(shell date)
-> B+=`date`
-> 
-> all:
->     @echo "A="$(A)
->     @sleep 2
->     @echo "A="$(A)
->     @sleep 2
->     @echo "B="$(B)
->     @sleep 2
->     @echo "B="$(B)
+--==_Exmh_18786864270
+Content-Type: text/plain; charset=us-ascii
 
-Actually, it makes a difference. Backquoting doesn't really have anything 
-to do with the problem at all, since make doesn't understand it, it
-just puts literally "`date`" into the variable, so you pass
-echo "B="`date` to the shell, which will then to the substitution.
+The initial ramdisk fails to work with a slew of errors like:
 
-(Try
+generic_make_request: Trying to access nonexistent block-device 01:00 (2)
 
-C = `echo all.c`
+The problem was caused by change
 
-all: $(C)
+kdev_t -> bdev cleanups [2/2]
 
-it won't compile all, even if there is all.c - backquoting can only work
-in the command part of a rule.)
+which took out the ability of bdev_get_queue() to create a queue if one didn't 
+already exist for the device.  The functionality was moved to 
+block_dev.c:do_open() where it exists within the if(!bdev->bd_openers) which 
+the ramdisk never gets to.
 
-Anyway, A= vs A:=, A += $(shell ...) behaves differently, as I 
-conjectured. Example:
+The (tested) fix, I think, is to set bd_queue as part of ramdisk 
+initialisation, which is what the attached patch does.
 
-VAR =
-#VAR :=
-VAR += $(shell echo $$RANDOM)
-
-all:
-	@echo $(VAR)
-	@echo $(VAR)
+James Bottomley
 
 
-Not that it really matters...
+--==_Exmh_18786864270
+Content-Type: text/plain ; name="rd-2.5.18.diff"; charset=us-ascii
+Content-Description: rd-2.5.18.diff
+Content-Disposition: attachment; filename="rd-2.5.18.diff"
 
---Kai
+===== drivers/block/rd.c 1.38 vs edited =====
+--- 1.38/drivers/block/rd.c	Thu May 23 08:18:38 2002
++++ edited/drivers/block/rd.c	Mon May 27 17:11:40 2002
+@@ -379,6 +379,7 @@
+ 		rd_bdev[unit]->bd_openers++;
+ 		rd_bdev[unit]->bd_block_size = rd_blocksize;
+ 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
++		rd_bdev[unit]->bd_queue = BLK_DEFAULT_QUEUE(MAJOR_NR);
+ 	}
+ 
+ 	return 0;
 
-
-
+--==_Exmh_18786864270--
 
 

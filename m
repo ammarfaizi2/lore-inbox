@@ -1,143 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316381AbSEOMSI>; Wed, 15 May 2002 08:18:08 -0400
+	id <S316382AbSEOMSf>; Wed, 15 May 2002 08:18:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316382AbSEOMSH>; Wed, 15 May 2002 08:18:07 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54789 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316381AbSEOMSG>; Wed, 15 May 2002 08:18:06 -0400
-Message-Id: <200205151214.g4FCEqY13273@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC][PATCH] iowait statistics
-Date: Wed, 15 May 2002 15:17:26 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20020514153956.GI15756@holomorphy.com> <Pine.LNX.4.44L.0205141335080.9490-100000@duckman.distro.conectiva> <20020514165414.GC27957@holomorphy.com>
+	id <S316383AbSEOMSe>; Wed, 15 May 2002 08:18:34 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:55696 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S316382AbSEOMSd>; Wed, 15 May 2002 08:18:33 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
+Date: Wed, 15 May 2002 22:18:05 +1000 (EST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15586.20989.992591.474108@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: knfsd misses occasional writes
+In-Reply-To: message from Sverker Wiberg on Wednesday May 15
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 May 2002 14:54, William Lee Irwin III wrote:
-> On Tue, 14 May 2002, William Lee Irwin III wrote:
-> >> This appears to be global across all cpu's. Maybe nr_iowait_tasks
-> >> should be accounted on a per-cpu basis, where
->
-> On Tue, May 14, 2002 at 01:36:00PM -0300, Rik van Riel wrote:
-> > While your proposal should work, somehow I doubt it's worth
-> > the complexity. It's just a statistic to help sysadmins ;)
->
-> I reserved judgment on that in order to present a possible mechanism.
-> I'm not sure it is either; we'll know it matters if sysadmins scream.
+On Wednesday May 15, Sverker.Wiberg@uab.ericsson.se wrote:
+> 
+> Hello everyone, 
+> 
+> When copying lots of small files from multiple NFS clients to a kNFSd
+> filesystem (i.e. doing backup of a cluster), exported with `sync', I
+> find that some few files (1 out of 1000) were silently truncated to zero
+> size when checking locally with `ls' (the clients reported total
+> success). With `asynch' instead, all files were correctly copied. 
 
-Hi Rik,
+How are you mounting the file systems on the clients?
+The symptoms sound exactly like you are using "soft" mounts.  "soft"
+is a very bad mount option.  Use "hard".
 
-Since you are working on this piece of kernel,
+If you aren't using "soft", let me know and I will look harder.
 
-I was investigating why sometimes in top I see idle % like
-9384729374923.43%. It was caused by idle count in /proc/stat
-going backward sometimes.
+NeilBrown
 
-I found the race responsible for that and have a fix for it
-(attached below). It checks for jiffies change and regenerate
-stats if jiffies++ hit us.
-
-Unfortunately it is for UP case only, in SMP race still exists,
-even on SMP kernel on UP box.
-
-Why: system/user/idle[/iowait] stats are collected at timer int
-on UP but _on local APIC int_ on SMP.
-
-It can be fixed for SMP:
-* add spinlock
-or
-* add per_cpu_idle, account it too at timer/APIC int
-  and get rid of idle % calculations for /proc/stat
-
-As a user, I vote for glitchless statistics even if they
-consume extra i++ cycle every timer int on every CPU.
-
-Now you hear very first scream :-)
---
-vda
-
---- fs/proc/proc_misc.c.orig	Wed Nov 21 03:29:09 2001
-+++ fs/proc/proc_misc.c	Thu Apr 25 13:57:55 2002
-@@ -239,38 +239,47 @@
- 				 int count, int *eof, void *data)
- {
- 	int i, len;
--	extern unsigned long total_forks;
--	unsigned long jif = jiffies;
--	unsigned int sum = 0, user = 0, nice = 0, system = 0;
-+	extern unsigned long total_forks; /*FIXME: move into a .h */
-+	unsigned long jif, sum, user, nice, system;
- 	int major, disk;
-
--	for (i = 0 ; i < smp_num_cpus; i++) {
--		int cpu = cpu_logical_map(i), j;
--
--		user += kstat.per_cpu_user[cpu];
--		nice += kstat.per_cpu_nice[cpu];
--		system += kstat.per_cpu_system[cpu];
-+	do {
-+		jif=jiffies;
-+		sum = user = nice = system = 0;
-+		for (i = 0 ; i < smp_num_cpus; i++) {
-+			int cpu = cpu_logical_map(i), j;
-+			user += kstat.per_cpu_user[cpu];
-+			nice += kstat.per_cpu_nice[cpu];
-+			system += kstat.per_cpu_system[cpu];
- #if !defined(CONFIG_ARCH_S390)
--		for (j = 0 ; j < NR_IRQS ; j++)
--			sum += kstat.irqs[cpu][j];
-+			for (j = 0 ; j < NR_IRQS ; j++)
-+				sum += kstat.irqs[cpu][j];
- #endif
--	}
--
--	len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
--		      jif * smp_num_cpus - (user + nice + system));
--	for (i = 0 ; i < smp_num_cpus; i++)
--		len += sprintf(page + len, "cpu%d %u %u %u %lu\n",
--			i,
--			kstat.per_cpu_user[cpu_logical_map(i)],
--			kstat.per_cpu_nice[cpu_logical_map(i)],
--			kstat.per_cpu_system[cpu_logical_map(i)],
--			jif - (  kstat.per_cpu_user[cpu_logical_map(i)] \
--				   + kstat.per_cpu_nice[cpu_logical_map(i)] \
--				   + kstat.per_cpu_system[cpu_logical_map(i)]));
-+		}
-+
-+		len = sprintf(page, "cpu  %lu %lu %lu %lu\n",
-+			    user, nice, system,
-+			    jif*smp_num_cpus - (user+nice+system)
-+			    );
-+		for (i = 0 ; i < smp_num_cpus; i++) {
-+			int cpu = cpu_logical_map(i);
-+			len += sprintf(page + len, "cpu%d %lu %lu %lu %lu\n",
-+				i,
-+				(unsigned long)kstat.per_cpu_user[cpu],
-+				(unsigned long)kstat.per_cpu_nice[cpu],
-+				(unsigned long)kstat.per_cpu_system[cpu],
-+				jif - ( kstat.per_cpu_user[cpu]
-+					+ kstat.per_cpu_nice[cpu]
-+					+ kstat.per_cpu_system[cpu]));
-+		}
-+	} while(jif!=jiffies); /* regenerate if there was a timer interrupt */
-+				/* TODO: check SMP case: SMP uses local APIC ints
-+				for kstat updates, not a timer int... */
-+
- 	len += sprintf(page + len,
- 		"page %u %u\n"
- 		"swap %u %u\n"
--		"intr %u",
-+		"intr %lu",
- 			kstat.pgpgin >> 1,
- 			kstat.pgpgout >> 1,
- 			kstat.pswpin,
+> 
+> I have seen this behaviour in 2.4.17 (UP and SMP builds, UP hardware) as
+> well as 2.4.18, when using the NFSv2 protocol. I have not tried 2.5.x
+> and NFSv3 yet. The full /etc/exports line is:
+> 
+>    /opt/telorb 172.16.0.0/255.255.0.0(rw,sync,no_wdelay)
+> 
+> Removing `no_wdelay' makes no difference.
+> 
+> The clients are all 2.4.17, and the relevant .config lines (for both
+> server and clients) are:
+> 
+>    CONFIG_NFS_FS=y
+>    CONFIG_NFS_V3=y
+>    CONFIG_ROOT_NFS=y
+>    CONFIG_NFSD=y
+>    CONFIG_NFSD_V3=y
+>    CONFIG_SUNRPC=y
+>    CONFIG_LOCKD=y
+>    CONFIG_LOCKD_V4=y
+> 
+> Reading the source (fs/nfsd/*) seems to show that knfsd tries to do the
+> right thing.
+> 
+> /Sverker Wiberg
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

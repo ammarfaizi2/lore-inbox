@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290218AbSAWXue>; Wed, 23 Jan 2002 18:50:34 -0500
+	id <S290216AbSAWXwY>; Wed, 23 Jan 2002 18:52:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290216AbSAWXuY>; Wed, 23 Jan 2002 18:50:24 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:33543 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S290218AbSAWXuL>; Wed, 23 Jan 2002 18:50:11 -0500
-Date: Thu, 24 Jan 2002 00:49:57 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Justin A <justin@bouncybouncy.net>
-cc: Andrew Morton <akpm@zip.com.au>, Martin Eriksson <nitrax@giron.wox.org>,
-        Andy Carlson <naclos@swbell.net>, <linux-kernel@vger.kernel.org>,
-        Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: via-rhine timeouts
-In-Reply-To: <20020123234138.GA12264@bouncybouncy.net>
-Message-ID: <Pine.LNX.4.33.0201240042460.3190-100000@cola.teststation.com>
+	id <S290220AbSAWXwP>; Wed, 23 Jan 2002 18:52:15 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:28054 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S290216AbSAWXwB>; Wed, 23 Jan 2002 18:52:01 -0500
+Date: Wed, 23 Jan 2002 23:53:35 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Hans Reiser <reiser@namesys.com>,
+        Andreas Dilger <adilger@turbolabs.com>, Chris Mason <mason@suse.com>,
+        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Possible Idea with filesystem buffering.
+In-Reply-To: <20020123203500.L1930@redhat.com>
+Message-ID: <Pine.LNX.4.21.0201232350280.2148-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Justin A wrote:
-
-> I don't think thats the full problem, I just noticed I had been getting
-> errors too with the via driver, but it's been working fine otherwise:
+On Wed, 23 Jan 2002, Stephen C. Tweedie wrote:
 > 
-[snip]
-> Jan 23 09:45:52 bouncybouncy kernel: eth0: Transmit error, Tx status 8100.
-> Jan 23 09:49:33 bouncybouncy kernel: eth0: Transmit error, Tx status 8100.
-> Jan 23 09:51:50 bouncybouncy kernel: eth0: Transmit error, Tx status 8100.
-> Jan 23 17:55:15 bouncybouncy kernel: eth0: Transmit error, Tx status 8100.
+> This is actually really important --- writepage on its own cannot
+> distinguish between requests to flush something to disk (eg. msync or
+> fsync), and requests to evict dirty data from memory.
 
-0100 is that it sees too many collisions. The netdev watchdog I can
-trigger seems to be caused by a lot of collisions.
+Actually, that much can now be distinguished:
+ PageLaunder(page) when evicting from memory,
+!PageLaunder(page) when msync or fsync.
 
-
-> Is it possible that the problem is with the hub and via-rhine resetting
-> the card repetedly just makes it worse?
-
-The hub can be the problem and I suppose resetting could make something
-worse (if it is done wrong, for example).
-
-/Urban
+Hugh
 

@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVDFRwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVDFRzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbVDFRwa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 13:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVDFRwa
+	id S262267AbVDFRzr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 13:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVDFRzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 13:52:30 -0400
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:42250 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262264AbVDFRwY convert rfc822-to-8bit (ORCPT
+	Wed, 6 Apr 2005 13:55:47 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:49567 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S262267AbVDFRzo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 13:52:24 -0400
-In-Reply-To: <20050406173336.GA17413@wohnheim.fh-wedel.de>
-References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <20050406113233.GD7031@wohnheim.fh-wedel.de> <14410feafdb3a83e1ae457b93e593b81@xs4all.nl> <20050406122750.GE7031@wohnheim.fh-wedel.de> <20050406154648.GA28638@kroah.com> <c9f1f9c86f38a0dc3ff50ac93d2f9979@xs4all.nl> <20050406173336.GA17413@wohnheim.fh-wedel.de>
+	Wed, 6 Apr 2005 13:55:44 -0400
+In-Reply-To: <Pine.LNX.4.58.0504061006120.4635@graphe.net>
+References: <Pine.LNX.4.58.0504061006120.4635@graphe.net>
 Mime-Version: 1.0 (Apple Message framework v619.2)
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <09119e1fa05596980af4b69fb18637fa@xs4all.nl>
+Message-Id: <1a0fc11558f3bf76d1a8ab889278dcc7@freescale.com>
 Content-Transfer-Encoding: 8BIT
-Cc: jdike@karaya.com, Blaisorblade <blaisorblade@yahoo.it>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Greg KH <gregkh@suse.de>
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: [stable] Re: [08/08] uml: va_copy fix
-Date: Wed, 6 Apr 2005 19:58:06 +0200
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "LKML list" <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: return value of ptep_get_and_clear
+Date: Wed, 6 Apr 2005 12:55:36 -0500
+To: "Christoph Lameter" <christoph@lameter.com>
 X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Apr 6, 2005, at 7:33 PM, Jörn Engel wrote:
+On Apr 6, 2005, at 12:09 PM, Christoph Lameter wrote:
 
-> On Wed, 6 April 2005 19:29:46 +0200, Renate Meijer wrote:
->>
->> I think its worth the time and trouble to take this up with the gcc
->> crowd. So if you could provide a list of things 3.3 misses, i'm sure
->> the gcc-crowd would like it.
+> On Thu, 7 Apr 2005, Nick Piggin wrote:
 >
-> If you volunteer to do work with the gcc-crowd, I can dig up some old
-> stuff and send you testcases.  Sure.
+> > Kumar Gala wrote:
+>  > > ptep_get_and_clear has a signature that looks something like:
+> > >
+>  > > static inline pte_t ptep_get_and_clear(struct mm_struct *mm, 
+> unsigned
+> > > long addr,
+>  > >                                        pte_t *ptep)
+>  > >
+>  > > It appears that its suppose to return the pte_t pointed to by ptep
+>  > > before its modified.  Why do we bother doing this?  The caller 
+> seems
+>  > > perfectly able to dereference ptep and hold on to it.  Am I 
+> missing
+>  > > something here?
+>  > >
+>  >
+>  > You need to be able to *atomically* clear the pte and retrieve the
+>  > old value.
+>
+> The effect of the clearing is that the present bit is cleared which 
+> makes
+>  the CPU generate a fault if this pte is referenced.
+>
+> The problem with replacing pte values is that the code executing is 
+> racing
+>  with cpu mmu access to the pte (which may set bits on i386 I 
+> believe). So
+>  if you would access the pte and then clear it later then there would 
+> be a
+>  small window where the MMU could modify the pte. These changes would 
+> not
+>  be detected since you later overwrite the pte.
+>
+> Using ptep_get_and_clear insures that this does not happen...
 
-I'll volunteer. As I said, i think it's worth the time and trouble. But 
-i can't do it on my own,
-at least i need some backup from thee development community around 
-here. You telling
-me what's up, for one. I found one mail by Greg KH spelling out some of 
-the problems, but you
-suggest there's more to worry about.
+Thanks, I was guessing that getting the value atomically was why this 
+was done after I give it a bit more thought.
 
-Problem is, i'll be spending 5 weeks prety much scattered around 
-europe, starting next friday and have
-no idea on my online-ness yet. As it is, my trusty mac is my only 
-digital companion, and my linux-box is in
-storage for the time being.
-
-So don't expect any results before May 17. But hey... Somebody has to 
-do it. Just don't be surprised if the
-folks at gcc do not agree with you "a prima vista". They may have a 
-different idea on what exactly constitutes
-a bug.
-
-Upside is, i'll be taking my Mac anyway, so at least i'll have the 
-sources handy. I'll start downloading tonight, so if you have data, 
-please, lets have it.
-
-Nevertheless, the points made in previous posts stand.
-
-
-Regards,
-
-Renate Meijer.
---
-
-timeo hominem unius libri
-
-Thomas van Aquino
+- kumar
 

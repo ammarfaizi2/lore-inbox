@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284254AbRLMPb6>; Thu, 13 Dec 2001 10:31:58 -0500
+	id <S284258AbRLMPeI>; Thu, 13 Dec 2001 10:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284280AbRLMPbt>; Thu, 13 Dec 2001 10:31:49 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:57586 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S284258AbRLMPbk>;
-	Thu, 13 Dec 2001 10:31:40 -0500
-Subject: TUX 2
-From: Paulo Schreiner <paulo@bewnet.com.br>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99 (Preview Release)
-Date: 13 Dec 2001 10:27:54 -0200
-Message-Id: <1008246475.874.11.camel@gandalf>
-Mime-Version: 1.0
+	id <S284280AbRLMPd6>; Thu, 13 Dec 2001 10:33:58 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:56130 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S284258AbRLMPdw>; Thu, 13 Dec 2001 10:33:52 -0500
+Date: Thu, 13 Dec 2001 09:33:28 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200112131533.JAA51038@tomcat.admin.navo.hpc.mil>
+To: riel@conectiva.com.br, James Simmons <jsimmons@transvirtual.com>
+Subject: Re: [OT] DRM OS 
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, folks, i just downloaded the 2.4.16 kernel and applied the latest
-tux2 patch (tux2-full-2.4.16-final-D1.bz2), but the kernel does not
-compile.
-I get the following error:
+Rik van Riel <riel@conectiva.com.br>:
+> 
+> On Wed, 12 Dec 2001, James Simmons wrote:
+> 
+> > Microsoft patents loading a trusted OS into a trusted CPU. The OS prevents
+> > untrusted applications from accessing Rights Managed Data.
+> 
+> I haven't looked up the link, but this sounds suspiciously like
+> what UNIX permission bits have been doing since the 1970s.
+> 
+> I guess MS trying to enforce their patent against anyone would
+> just get it invalidated, or the claim is narrow enough that
+> people can work around it.
+> 
+> > http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=/netahtml/search-adv.htm&r=1&f=G&l=50&d=CR99&S1=5,892,900.UREF.&OS=ref/5,892,900&RS=REF/5,892,900
+> 
+> Then again, this only applies to people unlucky enough to live
+> in the US. No need to worry.
 
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/parport/driver.o drivers/char/char.o
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o
-drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o
-drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o
-drivers/sound/sounddrivers.o drivers/pci/driver.o
-drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o
-drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
-/usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-net/network.o: In function `_tr_flush_block':
-net/network.o(.text+0x45810): multiple definition of `_tr_flush_block'
-drivers/net/net.o(.text+0x9dd0): first defined here
-net/network.o: In function `_tr_stored_type_only':
-net/network.o(.text+0x45510): multiple definition of
-`_tr_stored_type_only'
-drivers/net/net.o(.text+0x9ad0): first defined here
-net/network.o: In function `_tr_stored_block':
-net/network.o(.text+0x45460): multiple definition of `_tr_stored_block'
-drivers/net/net.o(.text+0x9a20): first defined here
-net/network.o(.data+0x49c0): multiple definition of `deflate_copyright'
-drivers/net/net.o(.data+0xe80): first defined here
-net/network.o: In function `_tr_init':
-net/network.o(.text+0x443a0): multiple definition of `_tr_init'
-drivers/net/net.o(.text+0x8960): first defined here
-net/network.o: In function `_tr_tally':
-net/network.o(.text+0x45a60): multiple definition of `_tr_tally'
-drivers/net/net.o(.text+0xa020): first defined here
-net/network.o: In function `_tr_align':
-net/network.o(.text+0x45590): multiple definition of `_tr_align'
-drivers/net/net.o(.text+0x9b50): first defined here
-make: *** [vmlinux] Error 1
+Besides, there are several technical flaws in the patent itself. First
+and formost is that it isn't new (check the Orange book on trusted computer
+systems and object reuse). It doesn't include the memory controled by
+peripherals - graphics frame buffers and device cache buffers - (the TSEC
+object reuse specifications do).
 
-Any help will be GREATLY appreciated.
-I am currently running slackware 8.0 with linux 2.4.15-pre2 with ext3
-filesystems.
+It doesn't even include controlling access to the "trusted OS".
 
-Paulo Schreiner
+If it did, then owners/users would no longer be able to apply any of the
+hundreds of patches such a system (if from M$) would require...:-)
 
+Never mind having access to a "trusted time server" by a disconnected laptop.
+
+Or defining what happens under a power failure...
+
+I wouldn't expect this to last even a first challenge, as long as the
+governments own documents were presented as "prior art".
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

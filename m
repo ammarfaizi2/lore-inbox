@@ -1,122 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315300AbSEGEKO>; Tue, 7 May 2002 00:10:14 -0400
+	id <S315325AbSEGER2>; Tue, 7 May 2002 00:17:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315297AbSEGEKN>; Tue, 7 May 2002 00:10:13 -0400
-Received: from gear.torque.net ([204.138.244.1]:37128 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S315296AbSEGEKL>;
-	Tue, 7 May 2002 00:10:11 -0400
-Message-ID: <3CD74E41.D39C1F23@torque.net>
-Date: Mon, 06 May 2002 23:47:13 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: angus <angus@mcm.net>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.5.14 error: ini9100u.c
-In-Reply-To: <1020675649.20692.6.camel@localhost.localdomain>
+	id <S315327AbSEGER1>; Tue, 7 May 2002 00:17:27 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:25040 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S315325AbSEGER1>;
+	Tue, 7 May 2002 00:17:27 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "06 May 2002 08:40:07 GMT."
+             <slrnadcgb7.8b3.kraxel@bytesex.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 07 May 2002 14:14:54 +1000
+Message-ID: <22636.1020744894@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-angus wrote:
-> 
-> Just a bug report of compilation which perdure since several 2.5 release
-> concerning the driver of initio scsi card and which prevents me from
-> testing any 2.5.x :(
+On 6 May 2002 08:40:07 GMT, 
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>Just curious:  If kbuild does all the work usually done by make (i.e.
+>check timestamps, look what needs rebuilding, ...), why do you need make
+>at all?
 
-Angus,
-The following patch makes that driver compile ok. Can you
-report back whether it works or not (as I don't have
-that adapter to test).
+kbuild does not do all the work.  It is a wrapper around make to
+overcome problems which have bitten kbuild in the past and will
+continue to bite us as long as we do things that make was not designed
+to handle.  Check out the replacements being written for make, you find
+that almost all of them handle timestamps going backwards.
 
-Doug Gilbert
+kbuild requires other processing that is not handled by make nor by any
+of the proposed replacements.  In particular, the two level dependency
+chain on configs as well as timestamps.
 
+>IMHO this is bad designed:  People know what make is and how it
+>works, but kbuild (ab)uses make in different ways.  Which is bad from
+>the usability point of view because people simply don't expect that.
 
---- linux/drivers/scsi/ini9100u.h	Thu Dec 20 17:38:10 2001
-+++ linux/drivers/scsi/ini9100u.h2514hak	Mon May  6 23:38:10 2002
-@@ -82,8 +82,11 @@
- extern int i91u_release(struct Scsi_Host *);
- extern int i91u_command(Scsi_Cmnd *);
- extern int i91u_queue(Scsi_Cmnd *, void (*done) (Scsi_Cmnd *));
-+#if 0
- extern int i91u_abort(Scsi_Cmnd *);
- extern int i91u_reset(Scsi_Cmnd *, unsigned int);
-+#endif
-+static int i91u_eh_bus_reset(Scsi_Cmnd * SCpnt);
- extern int i91u_biosparam(Scsi_Disk *, kdev_t, int *);	/*for linux v2.0 */
- 
- #define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.03g"
-@@ -102,10 +105,8 @@
-  	eh_strategy_handler: NULL, \
-  	eh_abort_handler: NULL, \
-  	eh_device_reset_handler: NULL, \
-- 	eh_bus_reset_handler: NULL, \
-+ 	eh_bus_reset_handler: i91u_eh_bus_reset, \
-  	eh_host_reset_handler: NULL, \
--	abort:		i91u_abort, \
--	reset:		i91u_reset, \
- 	slave_attach:	NULL, \
- 	bios_param:	i91u_biosparam, \
- 	can_queue:	1, \
---- linux/drivers/scsi/ini9100u.c	Sun Feb 10 23:51:42 2002
-+++ linux/drivers/scsi/ini9100u.c2514hak	Mon May  6 23:39:28 2002
-@@ -108,7 +108,7 @@
- 
- #define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
- 
--#error Please convert me to Documentation/DMA-mapping.txt
-+/* #error Please convert me to Documentation/DMA-mapping.txt */
- 
- #ifndef LINUX_VERSION_CODE
- #include <linux/version.h>
-@@ -491,7 +491,9 @@
- 	if (SCpnt->use_sg) {
- 		pSrbSG = (struct scatterlist *) SCpnt->request_buffer;
- 		if (SCpnt->use_sg == 1) {	/* If only one entry in the list *//*      treat it as regular I/O */
--			pSCB->SCB_BufPtr = (U32) VIRT_TO_BUS(pSrbSG->address);
-+			pSCB->SCB_BufPtr = (U32) VIRT_TO_BUS(
-+				(unsigned char *)page_address(pSrbSG->page) + 
-+				pSrbSG->offset);
- 			TotalLen = pSrbSG->length;
- 			pSCB->SCB_SGLen = 0;
- 		} else {	/* Assign SG physical address   */
-@@ -500,7 +502,9 @@
- 			for (i = 0, TotalLen = 0, pSG = &pSCB->SCB_SGList[0];	/* 1.01g */
- 			     i < SCpnt->use_sg;
- 			     i++, pSG++, pSrbSG++) {
--				pSG->SG_Ptr = (U32) VIRT_TO_BUS(pSrbSG->address);
-+				pSG->SG_Ptr = (U32) VIRT_TO_BUS(
-+				  (unsigned char *)page_address(pSrbSG->page) + 
-+				  pSrbSG->offset);
- 				TotalLen += pSG->SG_Len = pSrbSG->length;
- 			}
- 			pSCB->SCB_SGLen = i;
-@@ -552,6 +556,7 @@
- 	return -1;
- }
- 
-+#if 0
- /*
-  *  Abort a queued command
-  *  (commands that are on the bus can't be aborted easily)
-@@ -579,6 +584,16 @@
- 	else
- 		return tul_device_reset(pHCB, (ULONG) SCpnt, SCpnt->target, reset_flags);
- }
-+#endif
-+
-+static int i91u_eh_bus_reset(Scsi_Cmnd * SCpnt)
-+{
-+	HCS *pHCB;
-+
-+        pHCB = (HCS *) SCpnt->host->base;
-+	tul_reset_scsi_bus(pHCB);
-+	return SUCCESS;
-+}
- 
- /*
-  * Return the "logical geometry"
+kbuild has abused make for years.  Look at all the code in the top
+level Makefile, in Rules.make, the .depend and .hdepend files.  All of
+it is special processing for kbuild to do things that make does not do
+automatically.  Those requirements did not go away, I just handled it
+in a cleaner method in kbuild 2.5.
+
+>I think you should either use make the usual way, i.e. let make do all
+>the timestamp checking (I know it is less strict, but I don't think it
+>is a big issue because developers know how make works and what the
+>pitfalls are).
+
+You obviously believe in the "every kernel builder is an expert who
+never makes mistakes" model.  I don't.  Everybody makes mistakes,
+kernel build is too important to rely on fallible human actions.
+
+>Or don't use make at all.
+
+make does a very good job once it has been given a global makefile and
+the timestamp skew has been handled.  If I did not use make, I would
+have write my own program which did exactly the same, pointless.
 

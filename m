@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbVCWXno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVCWXtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbVCWXno (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbVCWXnn
+	id S262087AbVCWXtY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVCWXtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:43:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63709 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262947AbVCWXme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:42:34 -0500
-Date: Wed, 23 Mar 2005 15:42:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: aebr@win.tue.nl, cmm@us.ibm.com, andrea@suse.de,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
-Message-Id: <20050323154232.376f977f.akpm@osdl.org>
-In-Reply-To: <25760000.1111620606@flay>
-References: <20050315204413.GF20253@csail.mit.edu>
-	<20050316003134.GY7699@opteron.random>
-	<20050316040435.39533675.akpm@osdl.org>
-	<20050316183701.GB21597@opteron.random>
-	<1111607584.5786.55.camel@localhost.localdomain>
-	<20050323144953.288a5baf.akpm@osdl.org>
-	<17250000.1111619602@flay>
-	<20050323152055.6fc8c198.akpm@osdl.org>
-	<20050323232656.GA5704@pclin040.win.tue.nl>
-	<25760000.1111620606@flay>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 23 Mar 2005 18:49:23 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:53007 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262087AbVCWXox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 18:44:53 -0500
+Date: Thu, 24 Mar 2005 00:44:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sound/oss/sscape.c: remove dead code
+Message-ID: <20050323234451.GG1948@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> >> Nothing beats poking around in a dead machine's guts with kgdb though.
-> > 
-> > Everyone his taste.
-> > 
-> > But I was surprised by
-> > 
-> >> SwapTotal:     1052216 kB
-> >> SwapFree:      1045984 kB
-> > 
-> > Strange that processes are killed while lots of swap is available.
-> 
-> I don't think we're that smart about it. If we're really low on mem, it
-> seems we invoke the OOM killer whether processes are causing the problem
-> or not. 
-> 
-> OTOH, if we can't free the kernel mem, we don't have much choice, but 
-> it's not really helping much ;-)
-> 
+The Coverity checker found that sscape_sb_enable never get's assigned 
+any value different from 0, and therefore some code paths are 
+impossible.
 
-I'm suspecting here that we simply leaked a refcount on every darn
-pagecache page in the machine.  Note how mapped memory has shrunk down to
-less than a megabyte and everything which can be swapped out has been
-swapped out.
+This patch removes this variable and the dead code paths.
 
-If so, then oom-killing everything in the world is pretty inevitable.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ sound/oss/sscape.c |    8 +-------
+ 1 files changed, 1 insertion(+), 7 deletions(-)
+
+--- linux-2.6.12-rc1-mm1-full/sound/oss/sscape.c.old	2005-03-23 01:10:35.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/sound/oss/sscape.c	2005-03-23 01:11:38.000000000 +0100
+@@ -991,7 +991,6 @@ static void __init sscape_pnp_init_hw(ss
+ 	unsigned i;
+ 	static	char code_file_name[23] = "/sndscape/sndscape.cox";
+ 	
+-	int sscape_sb_enable		= 0;
+ 	int sscape_joystic_enable	= 0x7f;
+ 	int sscape_mic_enable		= 0;
+ 	int sscape_ext_midi		= 0;		
+@@ -1015,14 +1014,9 @@ static void __init sscape_pnp_init_hw(ss
+ 	sscape_write( devc, 2, devc->ic_type == IC_ODIE ? 0x70 : 0x40);
+ 	sscape_write( devc, 3, ( devc -> dma << 4) | 0x80);
+ 
+-	if ( sscape_sb_enable )
+-		sscape_write (devc, 4, 0xF0 | (sb_irq << 2) | midi_irq);
+-	else	
+-		sscape_write (devc, 4, 0xF0 | (midi_irq<<2) | midi_irq);
++	sscape_write (devc, 4, 0xF0 | (midi_irq<<2) | midi_irq);
+ 
+ 	i = 0x10; //sscape_read(devc, 9) & (devc->ic_type == IC_ODIE ? 0xf0 : 0xc0);
+-	if ( sscape_sb_enable )
+-		i |= devc->ic_type == IC_ODIE ? 0x05 : 0x07;	    
+ 	if (sscape_joystic_enable) i |= 8;
+ 	
+ 	sscape_write (devc, 9, i);
+

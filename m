@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270136AbTGPMGb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGPMGb
+	id S270682AbTGPMIo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270702AbTGPMIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:06:31 -0400
-Received: from main.gmane.org ([80.91.224.249]:51399 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270136AbTGPMGa (ORCPT
+	Wed, 16 Jul 2003 08:08:44 -0400
+Received: from holomorphy.com ([66.224.33.161]:4577 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S270682AbTGPMIm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:06:30 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: ALSA timer and 2.6.0-test1 panic
-Date: Wed, 16 Jul 2003 14:16:32 +0200
-Message-ID: <yw1x3ch6650f.fsf@users.sourceforge.net>
-References: <yw1xlluyln01.fsf@users.sourceforge.net>
+	Wed, 16 Jul 2003 08:08:42 -0400
+Date: Wed, 16 Jul 2003 05:24:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+Message-ID: <20030716122454.GJ15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, "Barry K. Nathan" <barryn@pobox.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030715225608.0d3bff77.akpm@osdl.org> <20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net> <20030716035848.560674ac.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:OB6vjb66eqP9rpOOn0nJG8UOtIg=
-Cc: alsa-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716035848.560674ac.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@users.sourceforge.net (Måns Rullgård) writes:
+"Barry K. Nathan" <barryn@pobox.com> wrote:
+>>  arch/ppc/kernel/irq.c: At top level:  
+>>  arch/ppc/kernel/irq.c:575: braced-group within expression allowed only
+>>  inside a function
 
-> I get thousands of these messages when using the ALSA timer in kernel
-> 2.6.0-test1:
->
-> bad: scheduling while atomic!
-> Call Trace:
->  [<c0118408>] schedule+0x3ab/0x3b0
->  [<c0123190>] schedule_timeout+0x5f/0xb3
->  [<d08fffb6>] snd_timer_user_poll+0x2a/0x41 [snd_timer]
->  [<c0123128>] process_timeout+0x0/0x9
->  [<c0160aa7>] do_poll+0xa1/0xc0
->  [<c0160c62>] sys_poll+0x19c/0x28e
->  [<c0160035>] __pollwait+0x0/0xc6
->  [<c010911b>] syscall_call+0x7/0xb
->
-> bad: scheduling while atomic!
-> Call Trace:
->  [<c0118408>] schedule+0x3ab/0x3b0
->  [<c014ed0e>] sys_read+0x61/0x63
->  [<c0109142>] work_resched+0x5/0x16
->
-> bad: scheduling while atomic!
-> Call Trace:
->  [<c0118408>] schedule+0x3ab/0x3b0
->  [<c014ed0e>] sys_read+0x61/0x63
->  [<c0109142>] work_resched+0x5/0x16
->
-> Everything works like it should anyhow, until the program stops.  At
-> that time the kernel panics (killing interrupt handler).
+On Wed, Jul 16, 2003 at 03:58:48AM -0700, Andrew Morton wrote:
+> Bill?
 
-If I disable the preemptive kernel it works fine.
+Building a cross-compiler and taking a stab at fixing it...
 
--- 
-Måns Rullgård
-mru@users.sf.net
 
+-- wli

@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267558AbTACPyc>; Fri, 3 Jan 2003 10:54:32 -0500
+	id <S267554AbTACPyE>; Fri, 3 Jan 2003 10:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267559AbTACPyc>; Fri, 3 Jan 2003 10:54:32 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:27297 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267558AbTACPya>;
-	Fri, 3 Jan 2003 10:54:30 -0500
-Date: Fri, 3 Jan 2003 07:57:52 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Mike Galbraith <efault@gmx.de>
-cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
-       <mark@mark.mielke.cc>, <billh@gnuppy.monkey.org>, <paul@clubi.ie>,
-       <riel@conectiva.com.br>, <Hell.Surfers@cwctv.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source  drivers?
-In-Reply-To: <5.1.1.6.2.20030103063451.00c7e750@pop.gmx.net>
-Message-ID: <Pine.LNX.4.33L2.0301030752250.32697-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267558AbTACPyE>; Fri, 3 Jan 2003 10:54:04 -0500
+Received: from mx2.fcservices.com ([64.245.25.141]:56326 "HELO
+	mx2.fcservices.com") by vger.kernel.org with SMTP
+	id <S267554AbTACPyD>; Fri, 3 Jan 2003 10:54:03 -0500
+Subject: Re: [STUPID] Best looking code to transfer to a t-shirt
+From: Disconnect <lkml@sigkill.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
+References: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Jan 2003 10:59:06 -0500
+Message-Id: <1041609546.15509.2.camel@sparky>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Mike Galbraith wrote:
+For a halloween party a few years back, I trimmed and used panic.c (the
+theme was that you had to go as something starting with K.. so I went as
+a kernel panic.  Tracedump on the front, source on the back, debian logo
+on the sleeves.)
 
-| At 08:06 PM 1/2/2003 -0800, Larry McVoy wrote:
-| >On Thu, Jan 02, 2003 at 10:32:30PM -0500, Richard Stallman wrote:
-| > > But we could make do with even less cooperation than that.  If they
-| > > just provide the necessary specs to a person who wants to extend the
-| > > free drivers that exist, that would be sufficient.
-| >
-| >Yeah, if only the company that has invested millions in trying to scratch
-| >out a place to stand, if only they would give us their intellectual
-| >property for free, if only, why then we could steal that IP and give it
-| >to other people.  And it would take us less time to do it if they would
-| >only cooperate.  Why won't they cooperate?
-| >
-| >How dare they not give of the fruits of their labors for free.
-|
-| <yank>
-| You're just saying that to justify your evil BK license ;-)
-| </yank> (hey, somebody was _gonna_ do it)
-|
-| Seriously though, just what is it that graphic CPU makers are
-| protecting?  I can't imagine "how to program our spiffy CPU'" docs exposing
-| anything important to their competition.  Imagine Intel or AMD trying that
-| tactic for _their_ next CPU.  What makes graphics CPUs so special?
+Its not particularly frightening looking, however.
 
-Imagine them doing that for their current CPU.
-That's what Nvidia is doing, isn't it?
+On Fri, 2003-01-03 at 08:25, Maciej Soltysiak wrote:
+> Hi,
+> 
+> I am in a t-shirt transfering frenzy and was wondering which part of the
+> kernel code it would be best to have on my t-shirt.
+> I was looking at my favourite: netfilter code, but it is to clean, short
+> and simple functions, no tons of pointers, no mallocs, no hex numbers, too
+> many defines used. I was looking for something terribly complicated and
+> looking awesome to the eye.
+> 
+> How about we have a poll of the most frightening pieces of the kernel ?
+> What are your ideas?
+> 
+> Regards,
+> Maciej Soltysiak
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-At a LinuxWorld panel 2-3 years ago, Nicholas Petreley (sp?) chaired a
-group discussion about this.  There were 2 competing sound chip
-manufacturers represented, and they denied any interest in each other's
-hardware.
 
-However, if one of them was well-documented, then someone could
-get info on their current product.  Well, that _could_
-be a bad thing for company #2 and put company #2 on a road that was one
-generation later than the first company was now designing/building.
-So in one scenario it could end up as a negative for the "copying"
-company.
-
--- 
-~Randy
 

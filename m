@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbUCXK1J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 05:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbUCXK1J
+	id S263253AbUCXKnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 05:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbUCXKnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 05:27:09 -0500
-Received: from gprs214-213.eurotel.cz ([160.218.214.213]:44929 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263280AbUCXK0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 05:26:46 -0500
-Date: Wed, 24 Mar 2004 11:26:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: ncunningham@users.sourceforge.net,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040324102632.GD512@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <200403232352.58066.dtor_core@ameritech.net> <1080104698.3014.4.camel@calvin.wpcb.org.au> <opr5cry20s4evsfm@smtp.pacific.net.th> <1080107188.2205.10.camel@laptop-linux.wpcb.org.au> <opr5cu6ngl4evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 24 Mar 2004 05:43:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:11251 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263253AbUCXKnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 05:43:24 -0500
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Andrei Mikhailovsky <mlists@arhont.com>
+Subject: Re: VMware-workstation-4.5.1 on linux-2.6.4-x86_64 host fails on virtual ethernet setup
+Date: Wed, 24 Mar 2004 11:43:04 +0100
+User-Agent: KMail/1.5.4
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+References: <200403232233.46879.hpj@urpla.net> <4060B4C7.8060107@arhont.com>
+In-Reply-To: <4060B4C7.8060107@arhont.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <opr5cu6ngl4evsfm@smtp.pacific.net.th>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200403241143.04211.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 23 March 2004 23:05, Andrei Mikhailovsky wrote:
+> I have successfully installed (well actually upgraded) to 4.5.1
+> from 4.0.5. No patches where required and everything seems to work
+> like a charm.
 
-> >On Wed, 2004-03-24 at 18:22, Michael Frank wrote:
-> >>Error messages should be handled on a seperate VT eliminating the issue.
-> >
-> >While I definitely like the idea, I'm not sure that's feasible; as Pavel
-> >pointed out, Suspend doesn't generate all the error messages that might
-> >possibly appear. Maybe I'm just ignorant.. I'll take a look when I get
-> >the change.
-> 
-> printk is central and could do the switch when swsusp is active
+Am I right, that you're running on i586, while the problem expose
+on x86_64 arch?
 
-You *could* do it, but it is bad idea. You don't want to patch
-printk.c, that driver printk could be done from interrupt (and you
-can't switch consoles at that point), you loose context, etc. What
-about doing the simple thing, maybe hack with CRs and be done with
-that?
+Pete
 
-If someone wants more eye candy, they have to patch their kernel with
-bootsplash.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

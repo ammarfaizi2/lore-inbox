@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265726AbUF2LMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265715AbUF2LMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265726AbUF2LMP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 07:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265727AbUF2LMP
+	id S265715AbUF2LMc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 07:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265716AbUF2LMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 07:12:15 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:41939 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S265719AbUF2LMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 07:12:08 -0400
-Date: Tue, 29 Jun 2004 04:11:55 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [BUG FIX] [PATCH] fork_init() max_low_pfn fixes potential OOM bug on big highmem machine
-Message-ID: <20040629111155.GB25061@taniwha.stupidest.org>
-References: <40E03F71.8010902@greatcn.org> <20040628175325.B9214@flint.arm.linux.org.uk>
+	Tue, 29 Jun 2004 07:12:32 -0400
+Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:64273 "EHLO
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S265715AbUF2LM0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 07:12:26 -0400
+Subject: Re: Process hangs copying large file to cifs
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: Steve French <smfltc@us.ibm.com>
+Cc: linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1088459930.5666.8.camel@stevef95.austin.ibm.com>
+References: <1088459930.5666.8.camel@stevef95.austin.ibm.com>
+Content-Type: text/plain
+Organization: Graycell
+Date: Tue, 29 Jun 2004 12:12:24 +0100
+Message-Id: <1088507544.2418.1.camel@taz.graycell.biz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628175325.B9214@flint.arm.linux.org.uk>
+X-Mailer: Evolution 1.5.9.1 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jun 2004 11:12:24.0804 (UTC) FILETIME=[F4AD8A40:01C45DC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 05:53:25PM +0100, Russell King wrote:
+On Seg, 2004-06-28 at 16:58 -0500, Steve French wrote:
+> >  > This is copying a 197Mb from an my laptop's IDE hardisk to a cifs 
+> > mounted share that's on a Win2000 Server
+> 
+> Linus had suggested hashing cifs inodes, which makes sense as related to
+> the problem that you reported.  I have coded that and it tested out ok
+> today. If you have a chance could you try the patch at:
+> 
+> http://cifs.bkbits.net:8080/linux-2.5cifs/gnupatch@40e0925dAlasT6JDoPqQE2q3e-zYiw
 
-> This is wrong - max_low_pfn can be high on systems where physical
-> RAM doesn't start at address 0.
+I applied it by hand to plain 2.6.7 (had some rejects) and it appears to
+work. Thank you.
+I just copied a 600Mb from my laptop to the server with no problems,
+continued to work on my desktop with no visible effects.
+Great work.
+-- 
+Nuno Ferreira
 
-FWIW sn2 also doesn't have memory at 0 either.
-
-
-  --cw

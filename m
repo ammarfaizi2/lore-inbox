@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbULNVkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbULNVkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbULNVkX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 16:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbULNVkX
+	id S261671AbULNVkj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 16:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbULNVkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 16:40:23 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:31369 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261669AbULNVkO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 16:40:14 -0500
-Date: Tue, 14 Dec 2004 12:10:57 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Brent Casavant <bcasavan@sgi.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <19950000.1103055057@flay>
-In-Reply-To: <Pine.SGI.4.61.0412141319100.22462@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com><9250000.1103050790@flay> <Pine.SGI.4.61.0412141319100.22462@kzerza.americas.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 14 Dec 2004 16:40:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57782 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261671AbULNVkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 16:40:16 -0500
+Message-ID: <41BF5D41.6030001@redhat.com>
+Date: Tue, 14 Dec 2004 13:38:09 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Christoph Lameter <clameter@sgi.com>
+CC: Roland McGrath <roland@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
+ clock_* syscalls
+References: <200412140355.iBE3t7KL008040@magilla.sf.frob.com> <Pine.LNX.4.58.0412140939010.1546@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0412140939010.1546@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4DC89F830BDC64559FFE7C2E"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Yup, makes a lot of sense to me to stripe these, for the caches that
->> are global (ie inodes, dentries, etc).  Only question I'd have is 
->> didn't Manfred or someone (Andi?) do this before? Or did that never
->> get accepted? I know we talked about it a while back.
-> 
-> Are you thinking of the 2006-06-05 patch from Andi about using
-> the NUMA policy API for boot time allocation?
-> 
-> If so, that patch was accepted, but affects neither allocations
-> performed via alloc_bootmem nor __get_free_pages, which are
-> currently used to allocate these hashes.  vmalloc, however, does
-> behave as desired with Andi's patch.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4DC89F830BDC64559FFE7C2E
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Nope, was for the hashes, but I think maybe it was all vapourware.
- 
-> Which is why vmalloc was chosen to solve this problem.  There were
-> other more complicated possible solutions (e.g. multi-level hash tables,
-> with the bottommost/largest level being allocated across all nodes),
-> however those would have been so intrusive as to be unpalatable.
-> So the vmalloc solution seemed reasonable, as long as it is used
-> only on architectures with plentiful vmalloc space.
+Christoph Lameter wrote:
 
-Yup, seems like a reasonable approach.
+> Posix does not prescribe any access limitations for those clocks and as
+> far as I understand the standard, access to all process clocks needs to
+> be possible.
 
-M.
+And how exactly do you plan to address clocks of various threads in 
+another process?  Threads are only identified by the pthread_t 
+descriptor.  These values have no meaning outside the process the 
+threads are in.  The TIDs we use in the implementation cannot be used. 
+They are an implementation detail and a thread might very well have 
+different TIDs over time in future versions of the thread library.
 
+The pthread_getcpuclockid() and similar uses return clock IDs which are 
+only meaningful in the calling process.  Using the value in another 
+process has undefined results.  I.e., what Roland says is correct, the 
+limitation is needed.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+
+--------------enig4DC89F830BDC64559FFE7C2E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBv11B2ijCOnn/RHQRArFrAJ47rmmDMVZTkDayHcMrJY5Ey2xigACfarbF
+ceaYYCRSdI8dAsCy63kq48E=
+=FcSX
+-----END PGP SIGNATURE-----
+
+--------------enig4DC89F830BDC64559FFE7C2E--

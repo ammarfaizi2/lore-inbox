@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316912AbSFZVib>; Wed, 26 Jun 2002 17:38:31 -0400
+	id <S316928AbSFZVlh>; Wed, 26 Jun 2002 17:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSFZVia>; Wed, 26 Jun 2002 17:38:30 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:59778 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316912AbSFZVi3>; Wed, 26 Jun 2002 17:38:29 -0400
-Date: Wed, 26 Jun 2002 16:37:55 -0500
-From: Amos Waterland <apw@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Cc: Tom Gall <tom_gall@vnet.ibm.com>
-Subject: Re: O_ASYNC question
-Message-ID: <20020626163755.A10713@kvasir.austin.ibm.com>
-References: <20020625113052.A7510@kvasir.austin.ibm.com> <20020626211122.GL22961@holomorphy.com>
+	id <S316960AbSFZVlg>; Wed, 26 Jun 2002 17:41:36 -0400
+Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:39600 "EHLO
+	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S316928AbSFZVlg>; Wed, 26 Jun 2002 17:41:36 -0400
+Date: Wed, 26 Jun 2002 17:45:35 -0400
+To: Bongani <bonganilinux@mweb.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+Message-ID: <20020626214535.GA2877@lnuxlab.ath.cx>
+References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org> <20020626204721.GK22961@holomorphy.com> <1025125214.1911.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020626211122.GL22961@holomorphy.com>; from wli@holomorphy.com on Wed, Jun 26, 2002 at 02:11:22PM -0700
+In-Reply-To: <1025125214.1911.40.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+From: khromy@lnuxlab.ath.cx (khromy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 26, 2002 at 02:11:22PM -0700, William Lee Irwin III wrote:
-> On Tue, Jun 25, 2002 at 11:30:52AM -0500, Amos Waterland wrote:
-> > The man page for fcntl() says:
-> >     If you set the O_ASYNC status flag on a file descriptor (either by
-> >     providing this flag with the open(2) call, or by using the F_SETFL
-> >     command of fcntl), a SIGIO signal is sent whenever input or output
-> >     becomes possible on that file descriptor.
-> 
-> Not done for files and you need fsetown() for sockets and tty's.
+On Wed, Jun 26, 2002 at 11:00:08PM +0200, Bongani wrote:
+> IIRC the preemptive patch is now part of -ac
 
-Thanks for the reply.
+I don't think that's correct.  I currently have to apply rml's
+preempt-kernel-rml-2.4.19-pre9-ac3-a.patch on top of 2.4.19-pre10-ac2 in
+order to get preempt support.
 
-The reason that I was interested is that this behavior, if implemented
-for all fd types, would be useful for a scalable user-space
-implementation of POSIX aio.
-
-When you say that it is 'not done for files', does that mean that it is
-not done by design, and no plans exist to implement it for files
-(perhaps because completion notification is fundamentally different than
-readiness notification?), or that the work just has yet to be done?
-Thanks.
-
-Amos W.
+-- 
+L1:	khromy		;khromy(at)lnuxlab.ath.cx

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbULEHx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbULEIcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbULEHx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 02:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbULEHx2
+	id S261282AbULEIcO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 03:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbULEIcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 02:53:28 -0500
-Received: from holomorphy.com ([207.189.100.168]:21961 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261284AbULEHxX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 02:53:23 -0500
-Date: Sat, 4 Dec 2004 23:53:10 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rudolf Usselmann <rudi@asics.ws>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9, 64bit, 4GB memory => panics ...
-Message-ID: <20041205075310.GP2714@holomorphy.com>
-References: <1102072834.31282.1450.camel@cpu0> <20041203113704.GD2714@holomorphy.com> <1102225183.3779.15.camel@cpu0> <Pine.LNX.4.61.0412042321080.6378@montezuma.fsmlabs.com> <1102230225.3778.75.camel@cpu0> <Pine.LNX.4.61.0412050025240.6378@montezuma.fsmlabs.com> <1102232685.3777.93.camel@cpu0>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102232685.3777.93.camel@cpu0>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 5 Dec 2004 03:32:13 -0500
+Received: from av7-2-sn2.hy.skanova.net ([81.228.8.109]:28349 "EHLO
+	av7-2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261282AbULEIcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 03:32:11 -0500
+Date: Sun, 5 Dec 2004 09:32:09 +0100 (CET)
+Message-Id: <200412050832.iB58W9104024@d1o408.telia.com>
+From: "Voluspa" <lista4@comhem.se>
+Reply-To: "Voluspa" <lista4@comhem.se>
+To: andrea@suse.de
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oom killer (Core)
+X-Mailer: SF Webmail
+X-SF-webmail-clientstamp: [213.64.150.229] 2004-12-05 09:32:09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 05, 2004 at 02:44:45PM +0700, Rudolf Usselmann wrote:
-> I think I got it !!!
-> After fixing my mem eater program (per Adam and Zwane's
-> suggestions), I get the attached "end-less" panic ...
-> This happens immediately when I start the a.out ...
-> So does this make any sense to you guys ? What is wrong with
-> my kernel/system ?
-> Thanks a lot guys !!!
 
-Much better. Looks like someone broke the VM from that.
+I know... Said that I wouldn't come back unless there was a problem. But 
+with these results! The patch is fantastic.
 
+My problem app, blender, allocated all remaining physical memory and 360 
+megs (of the 1 gig) swap but remained running. No oom-kill involved at 
+all. This is a first with that app (in such a mode, with such a large 
+working set of pictures). 500 1.2 meg uncompressed targa pictures 
+animated in the graphical window of "Sequence Editor" on my system (256 
+meg real mem). Wow.
 
--- wli
+The oom-kill/swap/memory handling/whatever must have been really sick.
+
+Thank You!
+Mats Johannesson (time to pay back by trying 2.6.10-rc3)
+

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbTIWPyl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 11:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTIWPyl
+	id S261630AbTIWQCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 12:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTIWQCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 11:54:41 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:16790 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261537AbTIWPyk (ORCPT
+	Tue, 23 Sep 2003 12:02:38 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:13500 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261630AbTIWQCh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 11:54:40 -0400
-Date: Tue, 23 Sep 2003 17:54:39 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Bind Mount Extensions (RO --bind mounts)
-Message-ID: <20030923155439.GA7470@DUK2.13thfloor.at>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 23 Sep 2003 12:02:37 -0400
+Date: Tue, 23 Sep 2003 12:02:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Christoph Hellwig <hch@dolly1.pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] drivers/Kconfig
+Message-ID: <20030923160236.GA20000@gtf.org>
+References: <20030923152032.GA16599@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030923152032.GA16599@lst.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 23, 2003 at 05:20:32PM +0200, Christoph Hellwig wrote:
+> What do people think about creating a common drivers/Kconfig
+> that includes the drivers/*/Kconfig files?  This saves quite
+> a few superflous Kconfig lines and is a natural way to avoid
+> the architectyures going out of sync.  Yes, this requires
+> every driver having proper bus-depencies but we should be
+> almost there already.
+> 
+> Sample patch (for ppc, i386 and x86_64) attached.  
 
-Hi All!
+Yes, this is the goal.
 
-just verified that the patches still apply on  
-linux-2.6.0-test5-bk9 and linux-2.4.23-pre5  
-without any issues ...
+This won't be very useful to the more exotic architectures like S/390,
+which use almost none of drivers/* except for drivers/s390/*, so for
+non-PCI, non-ISA architectures I have a feeling that including
+drivers/Kconfig would be a waste.
 
-FYI, this patch (hopefully) allows RO --bind mounts 
-to 'behave' like other ro mounted filesystems ...
+	Jeff
 
-AFAIK, it handles the following cases as expected:
 
- - open (read/write/trunc), create
- - link, symlink, unlink
- - mknod (reg/block/char/fifo), mkfifo
- - mkdir, rmdir
- - (f)chown, (f)chmod, utimes
- - ioctl (gen/ext2/ext3/reiser)
- - access, truncate
-
-it doesn't handle update_atime() yet (Al Viro is still
-busy ;) and it doesn't change current intermezzo code 
-(but this would be easy to add, because it's almost the 
-same as the vfs_*()s at least regarding ro --bind mounts)
-
-you can get them at:
-
-http://vserver.13thfloor.at/Experimental/patch-2.4.22-rc2-bme0.03.diff
-http://vserver.13thfloor.at/Experimental/patch-2.4.22-rc2-bme0.03.diff.bz2
-http://vserver.13thfloor.at/Experimental/patch-2.6.0-test3-bme0.03.diff
-http://vserver.13thfloor.at/Experimental/patch-2.6.0-test3-bme0.03.diff.bz2
-
-enjoy,
-Herbert
 
 

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVBOTgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVBOTi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVBOTgw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOTe6
+	id S261832AbVBOTi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVBOThT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:34:58 -0500
-Received: from nevyn.them.org ([66.93.172.17]:29826 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261832AbVBOTd1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:33:27 -0500
-Date: Tue, 15 Feb 2005 14:33:04 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, paulus@samba.org, anton@samba.org,
-       davem@davemloft.net, ralf@linux-mips.org, tony.luck@intel.com,
-       ak@suse.de, willy@debian.org, schwidefsky@de.ibm.com
-Subject: Re: [PATCH] Consolidate compat_sys_waitid
-Message-ID: <20050215193304.GA1175@nevyn.them.org>
-Mail-Followup-To: Stephen Rothwell <sfr@canb.auug.org.au>,
-	LKML <linux-kernel@vger.kernel.org>, paulus@samba.org,
-	anton@samba.org, davem@davemloft.net, ralf@linux-mips.org,
-	tony.luck@intel.com, ak@suse.de, willy@debian.org,
-	schwidefsky@de.ibm.com
-References: <20050215140149.0b06c96b.sfr@canb.auug.org.au>
+	Tue, 15 Feb 2005 14:37:19 -0500
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:39943 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261832AbVBOTfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:35:38 -0500
+Date: Tue, 15 Feb 2005 20:35:36 +0100
+From: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.cx>
+To: linux-kernel@vger.kernel.org
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: RTC Inappropriate ioctl for device
+Message-ID: <20050215193536.GP12421@roxor.cx>
+Reply-To: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.cx>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	"Randy.Dunlap" <rddunlap@osdl.org>
+References: <20050213214145.GN12421@roxor.cx> <42117047.6020209@osdl.org> <20050215111636.GO12421@roxor.cx> <421227DF.8060209@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pWOmaDnDlrCGjNh4"
 Content-Disposition: inline
-In-Reply-To: <20050215140149.0b06c96b.sfr@canb.auug.org.au>
+In-Reply-To: <421227DF.8060209@osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 02:01:49PM +1100, Stephen Rothwell wrote:
-> Hi all,
-> 
-> This patch does:
-> 	- consolidate the three implementations of compat_sys_waitid
-> 	  (some were called sys32_waitid).
-> 	- adds sys_waitid syscall to ppc
-> 	- adds sys_waitid and compat_sys_waitid syscalls to ppc64
-> 
-> Parisc seemed to assume th existance of compat_sys_waitid.  The MIPS
-> syscall tables have me confused and may need updating.  I have arbitrarily
-> chosen the next available syscall number on ppc and ppc64, I hope this is
-> correct.
 
-I posted a (not-consolidated) sys32_waitid to the MIPS list on Sunday.
-The syscall tables should confuse you :-)  N32 needs to use compat
-versions of most structures, but not siginfo_t.  O32 needs to use
-compat versions of everything.  Your new version can replace the
-sys32_waitid from my patch, but not sysn32_waitid.
+--pWOmaDnDlrCGjNh4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ralf, I'll let you sort it out :-)
+On Tue, Feb 15, 2005 at 08:48:31AM -0800, Randy.Dunlap wrote:
+> Please add/enable the second line here:
+> CONFIG_HPET_TIMER=3Dy
+> # CONFIG_HPET_EMULATE_RTC is not set
+>=20
+> and try it again.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+It works now. Well, I had not seen "Provide RTC interrupt" in
+menuconfig... :)
+
+Thanks for the tip.
+
+Cheers.
+
+--pWOmaDnDlrCGjNh4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCEk8II2xgxmW0sWIRAga3AKCWflEvjgZrsxBpAf2xNBykZPv3HACaAxJ0
+2Hiysb7z69lbpdK9CeFG1SE=
+=AeVT
+-----END PGP SIGNATURE-----
+
+--pWOmaDnDlrCGjNh4--

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317435AbSGEMyj>; Fri, 5 Jul 2002 08:54:39 -0400
+	id <S317443AbSGENZS>; Fri, 5 Jul 2002 09:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317437AbSGEMyi>; Fri, 5 Jul 2002 08:54:38 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:25218 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317435AbSGEMyh> convert rfc822-to-8bit;
-	Fri, 5 Jul 2002 08:54:37 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Init Skript / RPM =?iso-8859-15?q?f=FCr=20SuSE=20&?= RedHat
-Date: Fri, 5 Jul 2002 14:57:12 +0200
-User-Agent: KMail/1.4.1
-References: <1025873207.30422.29.camel@biker.pdb.fsc.net>
-In-Reply-To: <1025873207.30422.29.camel@biker.pdb.fsc.net>
+	id <S317444AbSGENZR>; Fri, 5 Jul 2002 09:25:17 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:10765 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S317443AbSGENZR>;
+	Fri, 5 Jul 2002 09:25:17 -0400
+Date: Fri, 5 Jul 2002 15:27:49 +0200 (CEST)
+From: venom@sns.it
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
+In-Reply-To: <20020705104037.GM1007@suse.de>
+Message-ID: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207051457.12094.roy@karlsbakk.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Det hadde vært fint om vi kunne holde lista på engelsk, da de fleste ikke 
-snakker tysk.
+On Fri, 5 Jul 2002, Jens Axboe wrote:
 
-or in English
+> Date: Fri, 5 Jul 2002 12:40:37 +0200
+> From: Jens Axboe <axboe@suse.de>
+> To: venom@sns.it
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: IBM Desktar disk problem?
+>
+> On Fri, Jul 05 2002, venom@sns.it wrote:
+> >
+> > HI,
+> > I was trying kernel 2.5 with TCQ enabled.
+> > I tried it on three Desktar disk (manufactured in Thailand
+> > in february 2001) model dtla 305020.
+> >
+> > All three disk died after some week, without
+> > any signal of being dying.
+> > I was starting to suspect about an HW problem.
+> >
+> > With 2.4 kernels, no tcq, they could work
+> > without any problem for almost 8 months, but now,
+> > I moved those disk to test systems to test tcq support
+> > and all died badly. This is not an heat problem, since
+> > thay staty in a CED conditioned at 18C.
+>
+> This is a puzzling report. I wouldn't recommend that anyone use tcq in
+> 2.5 actually, since even I do not know what state it is currently in. I
+> would seriously recommend 2.4 + tcq patches instead.
+>
+> That said, are your disks completely dead now? As in they do not work
+> with a regular 2.4 kernel anymore?!
 
-It'd be nice to keep this list in English, as most members don't speak German
+Right now they are good just for the trash box.
+There is no way they could work, and I listen a noisy
+tic-tac frrr tic-tac from the head of the disks...
 
-roy
 
-On Friday 05 July 2002 14:46, Martin Wilck wrote:
-> Das hier ist sicherlich keine endgültige Lösung, aber es zeigt
-> im Prinzip, wie man die Distributions-Unterschiede im init.d Skript bzw.
-> SPEC-file abfangen kann.
+I would think to an HW problem, but why all three together?
+and why exacly when I tested tcq?
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSHZKuf>; Mon, 26 Aug 2002 06:50:35 -0400
+	id <S318045AbSHZLHN>; Mon, 26 Aug 2002 07:07:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318045AbSHZKuf>; Mon, 26 Aug 2002 06:50:35 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:59071 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S318044AbSHZKue>; Mon, 26 Aug 2002 06:50:34 -0400
-Date: Mon, 26 Aug 2002 12:54:41 +0200
-Message-Id: <200208261054.g7QAsfX06008@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: <joerg.beyer@email.de>
-To: joerg.beyer@email.de, "ZwaneMwaikambo" <zwane@linuxpower.ca>
+	id <S318047AbSHZLHN>; Mon, 26 Aug 2002 07:07:13 -0400
+Received: from relay.muni.cz ([147.251.4.35]:11724 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S318045AbSHZLHN>;
+	Mon, 26 Aug 2002 07:07:13 -0400
+To: alan@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: <no subject>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Compilation error in 2.4.20-pre4-ac2
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 26 Aug 2002 13:11:26 +0200
+Message-ID: <qwwr8glzxgh.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> schrieb am 25.08.02 14:10:12:
-> On Sun, 25 Aug 2002 joerg.beyer@email.de wrote:
-> 
-> > you are right, I had no dma enabled. Now I recomiled the kernel with this
-> > dma-related options:
-> > 
-> > CONFIG_BLK_DEV_IDEDMA_PCI=y
-> > # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> > CONFIG_IDEDMA_PCI_AUTO=y
-> > # CONFIG_IDEDMA_ONLYDISK is not set
-> > CONFIG_BLK_DEV_IDEDMA=y
-> > # CONFIG_IDEDMA_PCI_WIP is not set
-> > # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
-> > # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-> > CONFIG_BLK_DEV_ADMA=y
-> > # CONFIG_HPT34X_AUTODMA is not set
-> > CONFIG_IDEDMA_AUTO=y
-> > # CONFIG_IDEDMA_IVB is not set
-> > # CONFIG_DMA_NONPCI is not set
-> > 
-> > 
-> > and I still get many many errors on the nic. Do I need something more in .config?
-> 
-> That should fix your slowdown during untarring/disk access, as for your 
-> NIC problem looks like you might be having a receive FIFO overflow, so 
-> perhaps the card stops processing incoming packets? I have no clue, 
-> Jeff?
+Hi Alan,
 
-is it possible, that I made a simmilar mistake at the NIC module configuration
-and that I dont use dma at the NIC?
+I got an error when compiling 2.4.20-pre4-ac2. Compiled on debian
+unstable with gcc-3.2.
 
-Put it the ohter way round: how could I see if the 8139too NIC module
-uses DMA?
+                                                Petr
 
-It is supposed to use DMA, right?
+gcc-3.2 -D__KERNEL__ -I/home/pekon/linux/linux-2.4.19/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup_pci  -DEXPORT_SYMTAB -c setup-pci.c
+rm -f idedriver.o
+ld -m elf_i386  -r -o idedriver.o ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-disk.o ide-cd.o ide-dma.o ide-proc.o setup-pci.o pci/idedriver-pci.o legacy/idedriver-legacy.o ppc/idedriver-ppc.o arm/idedriver-arm.o raid/idedriver-raid.o
+ld: cannot open pci/idedriver-pci.o: No such file or directory
+make[4]: *** [idedriver.o] Error 1
+make[4]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers/ide'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers/ide'
+make[2]: *** [_subdir_ide] Error 2
+make[2]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers'
+make[1]: *** [_dir_drivers] Error 2
+make[1]: Leaving directory `/home/pekon/linux/linux-2.4.19'
+make: *** [stamp-build] Error 2
 
-   Joerg
 

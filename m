@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263816AbTDULjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 07:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTDULji
+	id S263815AbTDULne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 07:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTDULne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 07:39:38 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:50181 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S263816AbTDULjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 07:39:37 -0400
-From: Peter Benie <peterb@chiark.greenend.org.uk>
-MIME-Version: 1.0
+	Mon, 21 Apr 2003 07:43:34 -0400
+Received: from angband.namesys.com ([212.16.7.85]:17545 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP id S263815AbTDULnd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 07:43:33 -0400
+Date: Mon, 21 Apr 2003 15:55:30 +0400
+From: Oleg Drokin <green@namesys.com>
+To: hch@lst.de, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: "[PATCH] devfs: switch over ubd to ->devfs_name" breaks ubd/sysfs
+Message-ID: <20030421155530.A7544@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16035.56139.893197.189080@chiark.greenend.org.uk>
-Date: Mon, 21 Apr 2003 12:51:39 +0100
-To: Andrew Clayton <andrew@sol-1.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Log your dead hard disk drives here
-In-Reply-To: <1050891929.1091.29.camel@alpha.digital-domain.net>
-References: <1050883793.1089.16.camel@alpha.digital-domain.net>
-	<20030421014801.GA21949@ip68-101-124-193.oc.oc.cox.net>
-	<1050891929.1091.29.camel@alpha.digital-domain.net>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clayton writes:
- > On Mon, 2003-04-21 at 02:48, Barry K. Nathan wrote:
- > > On Mon, Apr 21, 2003 at 01:09:54AM +0100, Andrew Clayton wrote:
- > > > http://digital-domain.net/fscked-disk/
- > > 
- > > What does your site do that the StorageReview.com Reliability Survey
- > > doesn't? (i.e., the SR.com survey has been around for a while, why do we
- > > need another?)
- > 
- > Perhaps we don't, I wasn't aware of the above site. Looking at it
- > though, mine is obviously much more to the point and is targeting one
- > specific area, in that it is just logging drive failures.
+Hello!
 
-I'm not convinced that you are collecting enough information to get
-useful statistics, in particular, you lack any data about drives that
-haven't failed yet.
+   The "[PATCH] devfs: switch over ubd to ->devfs_name" patch that was included into 2.5.68,
+   have broken UML's ubd/sysfs interaction.
+   Sysfs is very upset when something tries to register several devices with 
+   same name, so I was forced to use following patch.
+   If this is wrong, then please explain to me why, and suggest the correct way of handling
+   this situation.
 
-Suppose that there are two vendors sell drives with identical
-characteristics, one of which sells twice as many drives as the
-other. In your statistics, you will give the appearance that the more
-popular drive performs less well because you see twice as many
-failures.
+   Thank you.
+   
+Bye,
+    Oleg
 
-A better approach would be for people to register their drives with
-you when they are new, and then to inform you when the drive fails or
-is otherwise disposed of. The problem here would be to keep track of
-the drives to ensure that failures really do get logged.
-
-Peter
+===== arch/um/drivers/ubd_kern.c 1.32 vs edited =====
+--- 1.32/arch/um/drivers/ubd_kern.c	Sun Apr 20 01:17:05 2003
++++ edited/arch/um/drivers/ubd_kern.c	Mon Apr 21 15:52:54 2003
+@@ -494,7 +494,7 @@
+ 	disk->first_minor = unit << UBD_SHIFT;
+ 	disk->fops = &ubd_blops;
+ 	set_capacity(disk, size / 512);
+-	sprintf(disk->disk_name, "ubd");
++	sprintf(disk->disk_name, "ubd%d", unit);
+ 	sprintf(disk->devfs_name, "ubd/disc%d", unit);
+ 
+ 	disk->private_data = &ubd_dev[unit];
+@@ -527,7 +527,7 @@
+ 	if(err) 
+ 		return(err);
+  
+-	if(fake_major)
++	if(fake_major != MAJOR_NR)
+ 		ubd_new_disk(fake_major, dev->size, n, 
+ 			     &fake_gendisk[n]);
+ 

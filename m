@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313238AbSEMNCK>; Mon, 13 May 2002 09:02:10 -0400
+	id <S313163AbSEMNHB>; Mon, 13 May 2002 09:07:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313242AbSEMNCJ>; Mon, 13 May 2002 09:02:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10250 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313238AbSEMNCI>; Mon, 13 May 2002 09:02:08 -0400
-Date: Mon, 13 May 2002 14:01:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020513140158.B6024@flint.arm.linux.org.uk>
-In-Reply-To: <20020512145802Z313578-22651+30503@vger.kernel.org> <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com> <20020513115800.GC4258@louise.pinerecords.com> <3CDFB41A.6070701@treblig.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313242AbSEMNHA>; Mon, 13 May 2002 09:07:00 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17168 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313163AbSEMNHA>; Mon, 13 May 2002 09:07:00 -0400
+Message-ID: <3CDFABAC.3020802@evision-ventures.com>
+Date: Mon, 13 May 2002 14:03:56 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: pdc202xx.c fails to compile in 2.5.15
+In-Reply-To: <5.1.1.2.2.20020513144903.02885310@mail.lauterbach.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 13, 2002 at 01:39:54PM +0100, Dave Gilbert (Home) wrote:
-> Tomas Szepe wrote:
+Uz.ytkownik Franz Sirl napisa?:
+> Alan Cox wrote:
 > 
-> > Alright, another one.
-> > 
-> > $ ./fmtcl2.pl /usr/src/ChangeLog-2.5.14
-> > 
-> > Summary of changes from v2.5.13 to v2.5.14
-> > ============================================
-> > 
-> > o  kd.h                                                                             (Andries.Brouwer@cwi.nl)
-> > o  NTFS: Release 2.0.6 - Major bugfix to make compatible with other kernel changes. (aia21@cantab.net)
-> > o  mm/memory.c:                                                                     (aia21@cantab.net)
-> > o  suppress allocation warnings for radix-tree allocations                          (akpm@zip.com.au)
+>> > Because of there are apparently devices on which you must check 
+>> device class
+>> > (2.5.14 talks about CY82C693 and IT8172G), I'll leave proper fix on 
+>> Martin,
+>> > but simple fix below work fine on my Asus A7V.
+>>
+>> You need to do specific checks for the device in question. Removing the
+>> class check btw is something anyone reading this message should not do
+>> even in the same situation unless they know precisely what other
+>> mass storage class devices they have present. You can easily trash a
+>> raid array otherwise
 > 
-> <snip>
 > 
-> Ah - thats it!
+> I think you are probably talking about the class check for unknown 
+> devices a few lines above in 2.5.15. Removing the class check when a 
+> driver already claimed responsibility just reinstates what we had in 
+> 2.4. The removal is in IDE 61.
 
-Not quite.  In mutt, it looks like this:
-
-o  kd.h
-+(Andries.Brouwer@cwi.nl)
-o  NTFS: Release 2.0.6 - Major bugfix to make compatible with other kernel
-+changes. (aia21@cantab.net)
-o  mm/memory.c:
-+(aia21@cantab.net)
-o  suppress allocation warnings for radix-tree allocations
-+(akpm@zip.com.au)
-o  radix-tree locking fix
-+(akpm@zip.com.au)
-o  Allow truncate to discard unmapped buffers
-+(akpm@zip.com.au)
-o  decouple swapper_space treatment from other address_spaces
-
-NOT easy to read.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Witht the exception that there are not proper vendor id cheks in
+2.4 there. Oh well...
 

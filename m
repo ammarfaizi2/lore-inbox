@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313861AbSDFBZI>; Fri, 5 Apr 2002 20:25:08 -0500
+	id <S313687AbSDFEO1>; Fri, 5 Apr 2002 23:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313862AbSDFBYt>; Fri, 5 Apr 2002 20:24:49 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:22276 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S313861AbSDFBYi>; Fri, 5 Apr 2002 20:24:38 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A775F@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
-Subject: [PATCH] serial driver in-use bug 2.4.19-pre6
-Date: Fri, 5 Apr 2002 17:24:38 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313688AbSDFEOR>; Fri, 5 Apr 2002 23:14:17 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26221 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313687AbSDFEOC>; Fri, 5 Apr 2002 23:14:02 -0500
+Date: Fri, 5 Apr 2002 23:13:59 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Tony.P.Lee@nokia.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mprotect() api overhead.
+Message-ID: <20020405231359.A25663@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds code to function set_serial_info() to fix two issues: 
+> From: <Tony.P.Lee@nokia.com>
+> Date: Fri, 22 Mar 2002 22:10:20 PST
 
-1. Function returned -EADDRINUSE when attempt was made to change fields 
-such as "baud_base" on a memory based serial port with the setserial 
-command. A check was added to bypass the port-in-use test loop if the 
-existing "iomem_base" field is nonzero, indicating a memory based 
-serial port that cannot be moved by this function. 
+> We like to design a software in certain module way.  For example,
+> a libForwardTableManager.so for infiniband switch manager 
+> might manager 128 MBytes of share memory data.  10 or more 
+> applications will call the APIs in the libForwardTableManager.so 
+> to get/set the forward table data.
+>[...]
+> What I like to do is to use the mprotect() api to turn on/off the 
+> memory read/write access to the globally share memory.  This
+> way, the only possible memory corruption to the share table 
+> is from the APIs in the libForwardTableManager.so
 
-2. Function allowed attempts to set "port" field on memory based serial 
-ports to a nonzero value. The iomem_base field cannot be changed by this 
-function, so a test was added to return -EINVALID when new "port" field 
-is nonzero and existing "iomem_base" field is also nonzero. 
+Tony, I think you need to rethink your API.
+E.g. what does the switch manager do and why did you
+decide to keep any data in a shared memory, of all things?
+Why do you need several applications to access the
+switch forwarding table? Perhaps, if you answer those
+questions, you do not need to bang mprotect() so hard
+anymore.
 
-Applies cleanly to 2.14.19-pre6
-
-Contributor: Roman Kurakin <rik@cronyx.ru>
-
-Please apply.
-
-Thanks,
-Ed Vance
-
- ---------------------
-
- Subject: Serial.c Bug
- Date: Wed, 14 Nov 2001 13:02:47 +0300
- From: Roman Kurakin <rik@cronyx.ru>
- To: linux-kernel@vger.kernel.org
-
-   I have found a bug. It is in support of serial cards which uses
-   memory for I/O instead of ports. I made a patch for serial.c and
-   fix one place, but probably the problem like this one could be
-   somewhere else.
-
-   If you try to use setserial with such cards you will get "Address in use"
-   (-EADDRINUSE)
-
-   Best regards,
-   Roman Kurakin
-
-diff -urN -X dontdiff.txt linux-2.4.19-pre6/drivers/char/serial.c
-patched/drivers/char/serial.c
---- linux-2.4.19-pre6/drivers/char/serial.c	Fri Apr  5 16:19:02 2002
-+++ patched/drivers/char/serial.c	Fri Apr  5 17:06:06 2002
-@@ -2131,6 +2131,7 @@
- 	if ((new_serial.irq >= NR_IRQS) || (new_serial.irq < 0) || 
- 	    (new_serial.baud_base < 9600)|| (new_serial.type < PORT_UNKNOWN)
-||
- 	    (new_serial.type > PORT_MAX) || (new_serial.type == PORT_CIRRUS)
-||
-+	    (new_port && state->iomem_base) ||
- 	    (new_serial.type == PORT_STARTECH)) {
- 		return -EINVAL;
- 	}
-@@ -2141,7 +2142,7 @@
- 			uart_config[new_serial.type].dfl_xmit_fifo_size;
- 
- 	/* Make sure address is not already in use */
--	if (new_serial.type) {
-+	if (!state->iomem_base && new_serial.type) {
- 		for (i = 0 ; i < NR_PORTS; i++)
- 			if ((state != &rs_table[i]) &&
- 			    (rs_table[i].port == new_port) &&
-
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
-
+-- Pete

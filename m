@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263535AbVBDGnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVBDGqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263535AbVBDGnm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 01:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVBDGlj
+	id S261639AbVBDGqD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 01:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVBDGoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 01:41:39 -0500
-Received: from av3-1-sn1.fre.skanova.net ([81.228.11.109]:38558 "EHLO
-	av3-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S263143AbVBDGk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 01:40:58 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net
-Subject: Re: Touchpad problems with 2.6.11-rc2
-References: <20050123190109.3d082021@localhost.localdomain>
-	<m3acqr895h.fsf@telia.com>
-	<20050201234148.4d5eac55@localhost.localdomain>
-	<m3lla64r3w.fsf@telia.com>
-	<20050202141117.688c8dd3@localhost.localdomain>
-	<Pine.LNX.4.58.0502022345320.18555@telia.com>
-	<20050203064645.GA2342@ucw.cz> <m31xbxxqac.fsf@telia.com>
-	<20050204061703.GB2329@ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 04 Feb 2005 07:40:43 +0100
-In-Reply-To: <20050204061703.GB2329@ucw.cz>
-Message-ID: <m38y64x1xw.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Feb 2005 01:44:14 -0500
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:53951 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263534AbVBDGn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 01:43:29 -0500
+Subject: Re: A scrub daemon (prezeroing)
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Paul Mackerras <paulus@samba.org>, Rik van Riel <riel@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+	 <1106828124.19262.45.camel@hades.cambridge.redhat.com>
+	 <20050202153256.GA19615@logos.cnet>
+	 <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
+	 <20050202163110.GB23132@logos.cnet>
+	 <Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com>
+	 <16898.46622.108835.631425@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
+	 <16899.2175.599702.827882@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 04 Feb 2005 17:43:23 +1100
+Message-Id: <1107499403.5461.32.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
-
-> On Thu, Feb 03, 2005 at 10:54:51PM +0100, Peter Osterlund wrote:
+On Thu, 2005-02-03 at 22:26 -0800, Christoph Lameter wrote:
+> On Fri, 4 Feb 2005, Paul Mackerras wrote:
 > 
-> > * Removes the xres/yres scaling so that you get the same speed in the
-> >   X and Y directions even if your screen is not square.
+> > As has my scepticism about pre-zeroing actually providing any benefit
+> > on ppc64.  Nevertheless, the only definitive answer is to actually
+> > measure the performance both ways.
 > 
-> The old code assumed that both the pad and the screen are 4:3, not
-> square. It was wrong still.
+> Of course. The optimization depends on the type of load. If you use a
+> benchmark that writes to all pages in a page then you will see no benefit
+> at all. For a kernel compile you will see a slight benefit. For processing
+> of a sparse matrix (page tables are one example) a significant benefit can
+> be obtained.
 
-alps.c currently contains:
+If you have got to the stage of doing "real world" tests, I'd be
+interested to see results of tests that best highlight the improvements.
 
-	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
-	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1023, 0, 0);
-	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
+I imagine many general purpose server things wouldn't be helped much,
+because they'll typically have little free memory, and will be
+continually working and turning things over.
 
-Maybe it should set the ABS_Y max value to 767 in that case.
+A kernel compile on a newly booted system? Well that is a valid test.
+It is great that performance doesn't *decrease* in that case :P
 
---- linux/drivers/input/mouse/alps.c~	2005-01-12 22:02:19.000000000 +0100
-+++ linux/drivers/input/mouse/alps.c	2005-02-04 07:38:12.203436768 +0100
-@@ -394,7 +394,7 @@
- 
- 	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
- 	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
--	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1023, 0, 0);
-+	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 767, 0, 0);
- 	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
- 
- 	psmouse->dev.keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
+Of course HPC things may be a different story. It would be good to
+see your gross improvement on typical types of workloads that can best
+leverage this - and not just initial ramp up phases while memory is
+being faulted in, but the the full run time.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Thanks,
+Nick
+
+
+

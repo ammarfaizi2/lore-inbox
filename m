@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTJUBMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 21:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbTJUBMz
+	id S263294AbTJUBDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 21:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTJUBDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 21:12:55 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:39096 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262844AbTJUBMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 21:12:53 -0400
-Date: Mon, 20 Oct 2003 21:06:10 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: marcelo.tosatti@cyclades.com.br, linux1394-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, James Goodwin <jamesg@filanet.com>
-Subject: Re: patch for 2.4.22 sbp2 hang when loaded with devices already connected
-Message-ID: <20031021010610.GB866@phunnypharm.org>
-References: <ord6csra7h.fsf@free.redhat.lsd.ic.unicamp.br> <orbrsba0eg.fsf@free.redhat.lsd.ic.unicamp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 20 Oct 2003 21:03:48 -0400
+Received: from mra01.ex.eclipse.net.uk ([212.104.129.110]:2024 "EHLO
+	mra01.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S263294AbTJUBDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 21:03:47 -0400
+From: Ian Hastie <ianh@iahastie.clara.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Uncorrectable Error on IDE, significant accumulation
+Date: Tue, 21 Oct 2003 02:03:44 +0100
+User-Agent: KMail/1.5.4
+References: <20031020132705.GA1171@synertronixx3> <20031020215401.GB15563%konsti@ludenkalle.de> <20031020230510.GD15563%konsti@ludenkalle.de>
+In-Reply-To: <20031020230510.GD15563%konsti@ludenkalle.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <orbrsba0eg.fsf@free.redhat.lsd.ic.unicamp.br>
+Message-Id: <200310210203.45512.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 10:40:23PM -0200, Alexandre Oliva wrote:
-> We were free()ing a packet before sbp2_agent_reset() had a chance to
-> wake up on its semaphore, which would often cause sbp2 to hang in
-> `initializing' state if it was loaded when firewire devices were
-> already connected to the host.  Details of the symptoms at
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=103821
-> 
-> This patch fixes it.  I guess Ben likes it because he sent me a very
-> similar patch to test just as I was finishing testing this one :-)
-> 
-> Thanks, Ben, for helping me figure out what was going on!
+On Tuesday 21 Oct 2003 00:05, Konstantin Kletschke wrote:
+> The new K7S5A Pro behaves strange.
+>
+> When lilo comes up, it gets keyboard input containing of 4-6 lines
+> "t:t:t:t:t:t:t:t:t:t:t:t:"...
+> When hitting backspace whole line gets cleared, enter boots default then.
+> WTF?
+> even with no keyboard plugged in. My first thought was disabling
+> "usb-keyboard support for dos" but... only a usb printer, ethernet and
+> serial modem are plugged in...
 
-Please let me send the patch to Marcelo. I have to get this into our
-repo, and merge things around back to Marcelo, else it makes things
-harder later.
-
-Thanks for following through with the debug to track this down.
+Kernel configuration optins aren't going to affect LILO unless it's some 
+strange data being left over from before reboot.  Complete guess, but could 
+it be some kind of BIOS test data that isn't getting cleared?
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Ian.
+

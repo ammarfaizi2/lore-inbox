@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136903AbRAHGEe>; Mon, 8 Jan 2001 01:04:34 -0500
+	id <S137025AbRAHGFE>; Mon, 8 Jan 2001 01:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136929AbRAHGEY>; Mon, 8 Jan 2001 01:04:24 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49932 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136903AbRAHGEH>; Mon, 8 Jan 2001 01:04:07 -0500
+	id <S137024AbRAHGE7>; Mon, 8 Jan 2001 01:04:59 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:13691 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S136929AbRAHGEq>; Mon, 8 Jan 2001 01:04:46 -0500
+Date: Sun, 7 Jan 2001 22:04:43 -0800 (PST)
+From: David Ford <david@linux.com>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Subtle MM bug
-Date: 7 Jan 2001 22:04:04 -0800
-Organization: Transmeta Corporation
-Message-ID: <93bl8k$sb3$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.30.0101072014300.17414-100000@mf1.private> <20010108064225.B29026@gruyere.muc.suse.de>
+Subject: Broken tty handling
+Message-ID: <Pine.LNX.4.10.10101072145070.12242-100000@Huntington-Beach.Blue-Labs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010108064225.B29026@gruyere.muc.suse.de>,
-Andi Kleen  <ak@suse.de> wrote:
->On Sun, Jan 07, 2001 at 09:29:29PM -0800, Wayne Whitney wrote:
->> The application is some mathematics computations (modular symbols) using a
->> package called MAGMA;  at times this requires very large matrices.  The
->> RSS can get up to 870MB; for some reason a MAGMA process under linux
->> thinks it has run out of memory at 870MB, regardless of the actual
->> memory/swap in the machine.  MAGMA is single-threaded.
->
->I think it's caused by the way malloc maps its memory. 
->Newer glibc should work a bit better by falling back to mmap even for smaller
->allocations (older does it only for very big ones) 
+Every once in a while I have a very frustrating problem develop.  All tty
+handling stops.  Packets flow in and out of the machine fine, but anything
+with a tty halts.  I don't know exactly what is happening but I have found
+that killing the last user that logged in (all his processes) usually fixes
+everything.
 
-That doesn't resolve the "2.4.x behaves badly" thing, though.
+It just happened to me and I realize this is vague but there's nothing I
+have been able to attribute it to other than a problem in tty handling.  I
+know it isn't ssh v.s. telnet v.s. xyz because it doesn't matter, they all
+stall.
 
-I've seen that one myself, and it seems to be simply due to the fact
-that we're usually so good at gettign memory from page_launder() that we
-never bother to try to swap stuff out. And when we _do_ start swapping
-stuff out it just moves to the dirty list, and page_launder() will take
-care of it.
+Here's the data I had.  Aaron was the last person to log in when it broke, I
+was the first after it broke.
 
-So far so good. The problem appears to be that we don't swap stuff out
-smoothly: we start doing the VM scanning, but when we get enough dirty
-pages, we'll let it be, and go back to page_launder() again. Which means
-that we don't walk theough the whole VM space, we just do some "spot
-cleaning".
+# grep aaron brokettyspseo
+aaron    22843 do_adj -bash
+aaron    22865 write_ pine
+aaron    23211 do_adj -bash
+aaron    23228 tty_wa stty icanon echo
+aaron    23277 read_c -bash
 
-		Linus 
+# w|grep aaron
+.aaron    pts/13  dur-cas1-cs-26.d  9:12pm 26:44   0.14s  0.10s  pine 
+.aaron    pts/14  dur-cas1-cs-26.d  9:28pm 15:09   0.01s  0.01s  -bash 
+.aaron    pts/15  dur-cas1-cs-26.d  9:29pm 14:26   0.06s  0.06s  -bash 
+
+An 'skill aaron' didn't solve it but 'skill -9 aaron' did.
+
+Here's a snippet from my /etc/profile which the stty from above comes into
+play:
+
+# does the user want his titlebar set?
+if [ "x$TITLEBAR" = "xyes" ]; then
+  echo -ne Checking for titlebar capability
+  stty -icanon -echo min 0 time 20
+  echo -ne '\033[7n'
+  read term_id
+  display=$(echo $term_id|sed '/.*:0/!d')
+  if [ x$display != x ]; then
+    PS1='\[\033]2; ($(date +%l:%M%p)) \u@\h \w\007\033]1;\u@\h\007\]\$ '
+  else
+    PS1='\h:\w\$ '
+  fi
+  echo -ne '\033[2K\r'
+  stty icanon echo
+else
+  PS1='\h:\w\$ '
+fi
+
+
+# uname -r
+2.4.0-test11
+
+# sed '/C [lL]ibrary /!d; s/[^0-9]*\([0-9.]*\).*/\1/' /lib/libc.so.6
+2.1.3
+
+# mount|grep pts
+none on /dev/pts type devpts (rw,gid=5,mode=640)
+
+
+Any suggestions?  Should this be addressed elsewhere?  The reason I bring it
+up here is because ALL ttys halt except those on the console.
+
+-d
+
+--
+---NOTICE--- fwd: fwd: fwd: type emails will be deleted automatically.
+      "There is a natural aristocracy among men. The grounds of this are
+      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

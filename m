@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263630AbRFKTgl>; Mon, 11 Jun 2001 15:36:41 -0400
+	id <S263658AbRFKTjB>; Mon, 11 Jun 2001 15:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263634AbRFKTgb>; Mon, 11 Jun 2001 15:36:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:16147 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263630AbRFKTgR>;
-	Mon, 11 Jun 2001 15:36:17 -0400
-Date: Mon, 11 Jun 2001 21:37:22 +0200 (CEST)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0106101659380.2242-100000@penguin.transmeta.com>
+	id <S263649AbRFKTiv>; Mon, 11 Jun 2001 15:38:51 -0400
+Received: from m215-mp1-cvx1a.col.ntl.com ([213.104.68.215]:27274 "EHLO
+	[213.104.68.215]") by vger.kernel.org with ESMTP id <S263634AbRFKTii>;
+	Mon, 11 Jun 2001 15:38:38 -0400
+To: Jeff Golds <jgolds@resilience.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with arch/i386/kernel/apm.c
+In-Reply-To: <3B25068B.53F2968A@resilience.com>
+From: John Fremlin <vii@users.sourceforge.net>
+Date: 11 Jun 2001 20:37:58 +0100
+In-Reply-To: <3B25068B.53F2968A@resilience.com> (Jeff Golds's message of "Mon, 11 Jun 2001 10:57:31 -0700")
+Message-ID: <m266e2lsdl.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010611213516.13CFBA885@Nicole.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jun, Linus Torvalds wrote:
+	Jeff Golds <jgolds@resilience.com> writes:
+[...]
 
-> I have to say that I have absolutely no idea. I only use little-endian
-> machines myself (and 99% x86).
+> Please let me know if this is correct, I can provide a simple patch
+> if needed.  What I am really desiring to know is if there are any
+> devices that depend on the apm::send_event(APM_NORMAL_RESUME)
+> happening while interrupts are disabled.
 
-> Also, which ATI Xv stuff are you talking about?
+Yes, USB host controllers
 
- I'm talking about original ATI Xv stuff in X 4.1.0 making trouble.
- I'm really ccurious whether they fixed the problem in the GATOS
- driver.
+-- 
 
-> Has the Gatos code (or some other code) maybe been integrated into 4.1.0
-> now? I haven't followed X CVS for the last months very closely..
-
- Doesn't seem so, at least the linuxvideo people advertise their "ati.2"
- module for 4.1.0 on their website, but only in source or i386 binary.
- :/
-
-Servus,
-       Daniel
-
+	http://ape.n3.net

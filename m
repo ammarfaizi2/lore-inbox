@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVA0RtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVA0Rs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVA0RtH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVA0Rs6
+	id S262686AbVA0Rs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVA0RoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:48:58 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:15375 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262670AbVA0RpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:45:11 -0500
-Date: Thu, 27 Jan 2005 18:45:06 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andries Brouwer <aebr@win.tue.nl>,
-       dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: i8042 access timings
-Message-ID: <20050127174506.GB6010@pclin040.win.tue.nl>
-References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com> <20050125194647.GB3494@pclin040.win.tue.nl> <1106685456.10845.40.camel@krustophenia.net> <1106838875.14782.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106838875.14782.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: MessageCare: pastinakel.tue.nl 1108; Body=1 Fuz1=1 Fuz2=1
+	Thu, 27 Jan 2005 12:44:12 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:39626 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262679AbVA0Rlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 12:41:45 -0500
+Message-ID: <41F927F2.2080100@comcast.net>
+Date: Thu, 27 Jan 2005 12:42:10 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@infradead.org>
+CC: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Patch 0/6  virtual address space randomisation
+References: <20050127101117.GA9760@infradead.org>	 <41F8D44D.9070409@francetelecom.REMOVE.com> <1106827050.5624.81.camel@laptopd505.fenrus.org>
+In-Reply-To: <1106827050.5624.81.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Discussion:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Dmitry:
-Here are patches with some delays. One never knows - maybe they
-help someone.
 
-Andries:
-Only insert delays in the kernel source when either we know about
-at least one person who reports that it helps, or about data sheets
-that specify that the delay is required. Otherwise one creates
-myths and superstition.
 
-Lee Revell:
-> > Seems like a comment along the lines of "foo hardware doesn't work right
-> > unless we delay a bit here" is the obvious solution.  Then someone can
-> > easily disprove it later.
+Arjan van de Ven wrote:
+> On Thu, 2005-01-27 at 12:45 +0100, Julien TINNES wrote:
+> 
+>>Arjan van de Ven wrote:
+>>
+>>>The randomisation patch series introduces infrastructure and functionality
+>>>that causes certain parts of a process' virtual address space to be
+>>>different for each invocation of the process. The purpose of this is to
+>>>raise the bar on buffer overflow exploits; full randomisation makes it not
+>>>possible to use absolute addresses in the exploit.
+>>>
+>>
+>>I think it is worth mentioning that this is part of PaX ASLR, but with 
+>>some changes and simplification.
+> 
+> 
+> it actually came from Exec-Shield not PaX
+> 
 
-At present the comment would be
-"Here is a delay - nobody knows why we are adding it".
+Yeah, if it came from PaX the randomization would actually be useful.
+Sorry, I've just woken up and already explained in another post.
 
-Alan:
-> Myths are not really involved here. The IBM PC hardware specifications
-> are fairly well defined
+[...]
 
-If there is a data sheet that requires the delay I am of course happy.
-If there are test results that show that it helps, I am happy as well.
-But the given motivation was "you never know - it might help". Bad.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The present situation is that often 2.4 works and 2.6 fails.
-Not because of some delay that is also absent in 2.4.
-Often because of all those keyboard commands we send to the hardware.
-Sometimes also because of ACPI.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-Andries
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB+SfwhDd4aOud5P8RArzvAJ91+7oeFvQyhfH5ovHkkWG7FQcazgCfchDA
+4lxXXLmMA5PcZuICxoxnQGU=
+=oXcE
+-----END PGP SIGNATURE-----

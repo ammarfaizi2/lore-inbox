@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbULOSX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbULOSWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbULOSX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbULOSXZ
+	id S262440AbULOSWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 13:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbULOSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:23:25 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:53093 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262432AbULOSVH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:21:07 -0500
-Date: Wed, 15 Dec 2004 20:21:09 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com
-Subject: Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041215182109.GA13539@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <200412151847.09598.arnd@arndb.de>
+	Wed, 15 Dec 2004 13:21:13 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:24773 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262436AbULOSUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 13:20:46 -0500
+Date: Wed, 15 Dec 2004 19:20:12 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Message-ID: <20041215182012.GH16322@dualathlon.random>
+References: <20041213002751.GP16322@dualathlon.random> <200412142159.23488.gene.heskett@verizon.net> <20041215091741.GA16322@dualathlon.random> <200412151144.38785.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412151847.09598.arnd@arndb.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200412151144.38785.gene.heskett@verizon.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Arnd Bergmann (arnd@arndb.de) "Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.":
-> On Middeweken 15 Dezember 2004 17:57, Andi Kleen wrote:
-> > > Do you mean it should call back
-> > > from its private ioctl_compat() function to the global
-> ioctl32_hash_table[]
-> > > lookup?
-> > 
-> > Yes.
-> > 
-> > Some ioctl paths already work this way, e.g. in the block layer.
-> 
-> Hmm. I just had another idea. Maybe it's easier to return -ENOIOCTLCMD
-> from ->ioctl_compat() in order to get back to the hash lookup. How
-> about the change below?
-> 
->       Arnd <><
-> 
-> --- mst/fs/compat.c
-> +++ arnd/fs/compat.c
-> @@ somewhere in compat_sys_ioctl() @@
->         else if (filp->f_op && filp->f_op->ioctl_compat) {
->                 error =
-> filp->f_op->ioctl_compat(filp->f_dentry->d_inode,
->                                                  filp, cmd, arg);
-> -               goto out;
-> +               if (error != -ENOIOCTLCMD)
-> +                        goto out;
->         }
->  
+On Wed, Dec 15, 2004 at 11:44:38AM -0500, Gene Heskett wrote:
+> The HZ=1000 is the culprit?
 
-But what if you really wanted to return -ENOIOCTLCMD?
-And, the idea was to get rid of the hash eventually?
+HZ=1000 isn't the culprit. The culprit is the >1msec latency of the usb
+irq, but that wouldn't be visible with HZ 100 (for this specific case
+HZ=100 would only be a band-aid). 
 
-MST
+> Onboard AC-97 audio of course.  Crappy stuff... [..]
+
+I doubt it's the chip, but only the motherboard to blame. My laptop has
+the ac97 but no HZ sound out of it.
+
+> translate to 10 millisecond intervals.  If you had a 4 millisecond 
+> latency,
+> that would be spread over 4 of the 1000 hz interrupts.  That sounds
+> rather confusing to the service routine I imagine.
+
+The ones that get confused are the system time and the jiffies, the rest
+of the system can deal with long irq delays. The tick adjustment was
+exactly implemented so that the jiffies and system time wouldn't get
+confused anymore, but it just confuses it the other way around in my
+current experience.
+
+> I'll do that just for grins & report back.
+
+Ok.

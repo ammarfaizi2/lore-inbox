@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUCUXsv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 18:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUCUXsv
+	id S261517AbUCUXvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 18:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUCUXvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 18:48:51 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:37132 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261497AbUCUXss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 18:48:48 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Richard Browning <richard@redline.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Mon, 22 Mar 2004 01:33:21 +0200
-User-Agent: KMail/1.5.4
-Cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-References: <200403210333.i2L3XQiw024997@eeyore.valparaiso.cl> <200403212032.28474.richard@redline.org.uk>
-In-Reply-To: <200403212032.28474.richard@redline.org.uk>
+	Sun, 21 Mar 2004 18:51:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9693 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261517AbUCUXvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 18:51:42 -0500
+Date: Sun, 21 Mar 2004 15:51:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+In-Reply-To: <405E23A5.7080903@pobox.com>
+Message-ID: <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
+References: <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com>
+ <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com>
+ <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org>
+ <1079902670.17681.324.camel@imladris.demon.co.uk>
+ <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk>
+ <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org> <405E23A5.7080903@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403220133.21659.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 March 2004 22:32, Richard Browning wrote:
-> On Sunday 21 March 2004 03:33, Horst von Brand wrote:
-> > In my experience, when Linux crashes, Windows works fine it is flaky
-> > hardware. Has variously been overclocking, bad fans (CPU overheating),
-> > bad RAM. You have to rule all that out first. Might need a BIOS update...
->
-> Done all that. Changed motherboards, changed CPUs, changed RAM. Haven't
-> changed graphics card, though. I don't know where else to get a
-> Radeon9800Pro from on loan! I don't overclock either. I'm confident it's
-> not the hardware.
 
-But it must be SOMETHING, right?
 
-Kernel compile is too broad. Can you try to narrow it down?
-Does burnCPU trigger it? Several burnCPUs?
-dd if=/dev/hda of=/dev/null?
-dd if=/dev/zero of=file bs=1M count=128?
-network flood? (/me uses netcat and UDP)
-Combination of above?
+On Sun, 21 Mar 2004, Jeff Garzik wrote:
+> 
+> That would be nice, though the reason I avoided remap_page_range() in 
+> via82cxxx_audio is that it discourages S/G.  Because remap_page_range() 
+> is easier and more portable, several drivers allocate one-big-area and 
+> then create an S/G list describing individual portions of that area.
 
-Then, you will be able to call for testing.
-You can post your kernel version and .config
-and ask folks who has identical hardware to try
-to duplicate.
---
-vda
+Note that there is really two different kinds of IO memory:
+ - real IO-mapped memory on the other side of a bus
+ - real RAM which is on the CPU side of the bus, but that has additionally 
+   been "mapped" some way as to be visible from devices.
 
+The second kind is what you seem to be talking about, and it actually
+_does_ have a "struct page" associated with it, and as such you can
+happily return it from "nopage()". It's just that you had better be sure
+that you find the page properly. Just doing a "virt_to_page()" doesn't do
+it - you have to make sure to undo the mapping that was done for DMA
+reasons.
+
+So the minimal fix for any misuses would be to just have a
+"dma_map_to_page()" reverse mapping for "dma_alloc_coherent()". For x86,
+that's just the same thing as "virt_to_page()". For others, you have to
+look more carefully at undoing whatever mapping the iommu has been set up
+for.
+
+That might be the minimal fix, since it would basically involve:
+ - change whatever offensive "virt_to_page()" calls into 
+   "dma_map_to_page()".
+ - implement "dma_map_to_page()" for all architectures.
+
+Would that make people happy?
+
+(Architectures that have cache coherency issues will obviously also have 
+to set cache disable bits in the vma information, that's they broken 
+architecture problem)
+
+		Linus

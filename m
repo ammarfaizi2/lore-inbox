@@ -1,95 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280974AbRKLU3j>; Mon, 12 Nov 2001 15:29:39 -0500
+	id <S280978AbRKLUb7>; Mon, 12 Nov 2001 15:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280978AbRKLU3b>; Mon, 12 Nov 2001 15:29:31 -0500
-Received: from [213.235.52.105] ([213.235.52.105]:59399 "EHLO
-	morpheus.streamgroup.co.uk") by vger.kernel.org with ESMTP
-	id <S280974AbRKLU3L>; Mon, 12 Nov 2001 15:29:11 -0500
-Date: Mon, 12 Nov 2001 22:29:57 +0000 (GMT)
-From: "mike@morpheus" <mike@morpheus.streamgroup.co.uk>
-To: L A Walsh <law@sgi.com>
-cc: <Linux-kernel@vger.kernel.org>
-Subject: Re: mysterious power off problem 2.4.10-2.4.14 on laptop
-In-Reply-To: <3BF028D4.C131A42D@sgi.com>
-Message-ID: <Pine.LNX.4.33.0111122227140.24454-100000@morpheus.streamgroup.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280980AbRKLUbt>; Mon, 12 Nov 2001 15:31:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54284 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280978AbRKLUbn>; Mon, 12 Nov 2001 15:31:43 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.4.15-pre4 compile problem
+Date: Mon, 12 Nov 2001 20:27:39 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9spbbr$1qi$1@penguin.transmeta.com>
+In-Reply-To: <200111121939.fACJdX309798@danapple.com>
+X-Trace: palladium.transmeta.com 1005597088 28429 127.0.0.1 (12 Nov 2001 20:31:28 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 12 Nov 2001 20:31:28 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200111121939.fACJdX309798@danapple.com>,
+Daniel I. Applebaum <kernel@danapple.com> wrote:
+>
+>While compiling 2.4.15-pre4:
+>+++++++++++++++
+>gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o setup.o setup.c
+>setup.c: In function `c_start':
+>setup.c:2791: subscripted value is neither array nor pointer
 
-On Mon, 12 Nov 2001, L A Walsh wrote:
+Ugh. That's because a buggy #define on UP in x86.
 
-> I haven't had time to track this down since I found it.  I'm throwing
-> it out in case anyone has seen anything that might figure in to this.
->
-> Machine: Dell Inspiron 8000.
-> Problem: using same options, (starting with 249.config, and using make oldconfig
-> for new kernel version), I get a kernel that has a bad habit of turning
-> itself off after some period of time -- not shutting down, just turning off.
-> This started in 2.4.10 and, and not having the time to debug it, I just
-> went back to using 2.4.9 which didn't exhibit the problem.
->
-> Things tried that haven't worked (not necessarily in any particular order)
-> 1) 2.4.14 kernel
-> 2) disabling power management from the KDE desktop.
-> 3) renaming the apm binary would allow apm control.
-> 4) Turning off apm support in the kernel.
-> 5) Turning off BIOS apm management completely.
-> 	a) BIOS PM on AC-power was set to
-> 		i) turn off inactive video in 10 minutes
-> 		ii) turn off inactive hard disk in 30 minutes
-> 		iii) Suspend: disabled.
-> 		iv) S2D Timeout: disabled
->
-> 	b) BIOS PM on battery still _is_ set to
-> 		i) turn off inactive video in 3 minutes
-> 		ii) turn off in hard disks in 5 minutes
-> 		iii) Suspend: disabled
-> 		iv) S2D Timeout: 1 hour
->
-> 	common options:
-> 		v) Smart CPU: enabled
-> 		vi) Display lid closed: <don't shut down, remain active>
-> 		vii) all auto 'wake'/'resume' (on lan, alarm, ring, at time)
-> 			disabled
-> 		viii) CPU Mode: Battery Optimized
-> ----
-> Other details:
-> 1) I noticed when the machine was on battery -- it turned off in about
->    3 minutes -- it might have been 5, but seemed closer to 3.  I note this
->    coincides with the Video timeout.  Previously when the timeout
->    would occur on AC power -- it seemed that the inactivity timeout was
->    about 10 minutes.  My estimations may be wrong, but part of the problem
->    could be related to the video timeout.
-> 2) testing this problem is a pain, since my disks are still the
->    primitive 'ext2' file system and the multi-gig, laptop-speed disks
->    are slow to check.
->
-> So am just wondering if someone has seen this, or its a known 'feature change'
-> with the workaround or solution being 'X'.
->
-> I note in the changelog that ACPI changes went into 2.4.10.  I am still using
-> APM, not ACPI, but it it possible there is common code to both that got
-> changed?
->
-> Thanks for any help.
->
-> -linda
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+It should be trivially fixed by changing include/asm-i386/processor.h:
 
-Give ACPI a try, for a while I've noticed APM getting mixed up
-on my home box (its a VIA chipset, I've been told that probably
-why :), doing things like not powering off and changing the instant-off
-powerbutton to a wait-5-seconds powerbutton.
+	#define cpu_data &boot_cpu_data
 
-I switched to ACPI and everythings been working fine :)
+to
 
-mike
+	#define cpu_data (&boot_cpu_data)
 
+in order to get the right parsing order for all users of cpu_data. Ie
+just add the parenthesis around the thing.
+
+Oh, well.  "Always put parentesis around define-expands" is a really
+really good rule.  Along with "Always put parenthesis around the
+argument expansion too". 
+
+Oh, and cleaning up the particular offending user will hide the problem
+too, if you just use
+
+	cpu_data+*pos
+
+instead of using
+
+	&cpu_data[*pos]
+
+in arch/i386/kernel/setup.c: c_start().  Which is cleaner and simpler
+anyway, and which is defined by C to be exactly the same thing (as long
+as "cpu_data" behaves like a real array, not a broken #define that
+depends on operator precedence around it). 
+
+I'll do both in my tree. Thanks,
+
+		Linus

@@ -1,86 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUEAVfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUEAVdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUEAVfB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 17:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUEAVfB
+	id S261551AbUEAVdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 17:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUEAVdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 17:35:01 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:20874
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S261635AbUEAVe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 17:34:57 -0400
-Date: Sat, 1 May 2004 17:34:50 -0400
-From: Sean Estabrooks <seanlkml@rogers.com>
-To: Marc Boucher <marc@linuxant.com>
-Cc: nico@cam.org, marc@linuxant.com, mbligh@aracnet.com, riel@redhat.com,
-       rusty@rustcorp.com.au, torvalds@osdl.org,
-       tconnors+linuxkernel1083378452@astro.swin.edu.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clarify message and give support contact for non-GPL
- modules
-Message-Id: <20040501173450.006bae55.seanlkml@rogers.com>
-In-Reply-To: <20040501205336.GA27607@valve.mbsi.ca>
-References: <772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com>
-	<Pine.LNX.4.44.0405011529541.30657-100000@xanadu.home>
-	<20040501205336.GA27607@valve.mbsi.ca>
-Organization: 
-X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.2.4; i386-redhat-linux-gnu)
+	Sat, 1 May 2004 17:33:13 -0400
+Received: from outmx009.isp.belgacom.be ([195.238.3.4]:25550 "EHLO
+	outmx009.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261551AbUEAVdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 17:33:09 -0400
+Subject: [OOPS 2.6.6-rc2] quota / sda1
+From: FabF <Fabian.Frederick@skynet.be>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1083447548.6718.12.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 01 May 2004 23:39:10 +0200
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.103.219.176] using ID <seanlkml@rogers.com> at Sat, 1 May 2004 17:34:02 -0400
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx009.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 May 2004 16:53:36 -0400
-Marc Boucher <marc@linuxant.com> wrote:
+Hi,
 
-> Constructive comments/improvements welcome.
+       Using quota v2 / Linux 2.6.6-rc2 on usb storage, I've got
+following results :
 
-I think the following patch is more respectful of the Linux license.  
-It also explains to the user why their kernel is now tainted so they
-won't be confused when they see "tainted" messages elsewhere.
-Also it may encourage more open source drivers which you agree
-are better Marc:
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 240k freed
+usb 2-1: new full speed USB device using address 2
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: xxx   Model: xxx      Rev: 1.30
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 31745 512-byte hdwr sectors (16 MB)
+sda: assuming Write Enabled
+sda: assuming drive cache: write through
+ sda: sda1
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+USB Mass Storage device found at 2
+hub 3-0:1.0: over-current change on port 2
+...
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on sda1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+scsi: Device offlined - not ready after error recovery: host 0 channel 0
+id 0 lun 0
+SCSI error : <0 0 0 0> return code = 0x70000
+end_request: I/O error, dev sda, sector 11298
+Buffer I/O error on device sda1, logical block 5633
+scsi0 (0:0): rejecting I/O to offline device
+Buffer I/O error on device sda1, logical block 5634
+Buffer I/O error on device sda1, logical block 5635
+Buffer I/O error on device sda1, logical block 5636
+Buffer I/O error on device sda1, logical block 5637
+Buffer I/O error on device sda1, logical block 5638
+Buffer I/O error on device sda1, logical block 5639
+scsi0 (0:0): rejecting I/O to offline device
+Buffer I/O error on device sda1, logical block 5638
+scsi0 (0:0): rejecting I/O to offline device
+Buffer I/O error on device sda1, logical block 5633
+Buffer I/O error on device sda1, logical block 5634
+Buffer I/O error on device sda1, logical block 5635
+usb 2-1: USB disconnect, address 2
+sd 0:0:0:0: Illegal state transition offline->cancel
+Badness in scsi_device_set_state at drivers/scsi/scsi_lib.c:1640
+Call Trace:
+ [<c0218bdd>] scsi_device_set_state+0xcd/0x120
+ [<c0214029>] scsi_device_cancel+0x29/0xf5
+ [<c0214140>] scsi_device_cancel_cb+0x0/0x20
+ [<c01dac79>] device_for_each_child+0x49/0x80
+ [<c0214195>] scsi_host_cancel+0x35/0xb0
+ [<c0214140>] scsi_device_cancel_cb+0x0/0x20
+ [<c022aa82>] usb_buffer_free+0x52/0x60
+ [<c021422b>] scsi_remove_host+0x1b/0x60
+ [<c02423f8>] storage_disconnect+0x38/0x48
+ [<c02297d8>] usb_unbind_interface+0x78/0x80
+ [<c01dbb96>] device_release_driver+0x66/0x70
+ [<c01dbcd4>] bus_remove_device+0x54/0xa0
+ [<c01dabbd>] device_del+0x5d/0xa0
+ [<c01dac13>] device_unregister+0x13/0x30
+ [<c022f5e0>] usb_disable_device+0x70/0xb0
+ [<c022a3c6>] usb_disconnect+0x96/0xf0
+ [<c022c4c1>] hub_port_connect_change+0x281/0x290
+ [<c022be53>] hub_port_status+0x43/0xb0
+ [<c022c7e6>] hub_events+0x316/0x360
+ [<c022c865>] hub_thread+0x35/0xf0
+ [<c0114100>] default_wake_function+0x0/0x20
+ [<c022c830>] hub_thread+0x0/0xf0
+ [<c0103ea5>] kernel_thread_helper+0x5/0x10
 
---- linux-2.6.6-rc3-bk3/kernel/module.c	2004-05-01 16:06:46.769778360 -0400
-+++ linux-2.6.6-rc3-bk3-mb/kernel/module.c	2004-05-01 16:38:02.563614352 -0400
-@@ -1125,15 +1125,19 @@
- 		|| strcmp(license, "Dual MPL/GPL") == 0);
- }
- 
--static void set_license(struct module *mod, const char *license)
-+static void set_license(struct module *mod, const char *license, const char *author)
- {
- 	if (!license)
- 		license = "unspecified";
- 
- 	mod->license_gplok = license_is_gpl_compatible(license);
--	if (!mod->license_gplok) {
--		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
--		       mod->name, license);
-+	if (!mod->license_gplok && !(tainted & TAINT_PROPRIETARY_MODULE)) {
-+		printk(KERN_INFO "%s: module has non-GPL license (%s).\n", mod->name, license);
-+		printk(KERN_INFO "%s: Please consider supporting vendors that provide open source drivers\n", mod->name);
-+		if(author)
-+			printk(KERN_INFO "%s: kernel now tainted, for all support contact: %s\n", mod->name, author);
-+		else
-+			printk(KERN_INFO "%s: kernel now tainted, for all support contact author of this driver\n", mod->name);
- 		tainted |= TAINT_PROPRIETARY_MODULE;
- 	}
- }
-@@ -1470,7 +1473,9 @@
- 	module_unload_init(mod);
- 
- 	/* Set up license info based on the info section */
--	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
-+	set_license(mod,
-+		get_modinfo(sechdrs, infoindex, "license"),
-+		get_modinfo(sechdrs, infoindex, "author"));
- 
- 	/* Fix up syms, so that st_value is a pointer to location. */
- 	err = simplify_symbols(sechdrs, symindex, strtab, versindex, pcpuindex,
+It appears on both ext2/ext3 and should be scsi (emulation) relevant
+only...
+
+I tried adding usrquota in fstab after boot.It works perfectly...
+
+Regards,
+FabF
 
 
 

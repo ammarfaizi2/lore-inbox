@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266207AbUBJTvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 14:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUBJTvW
+	id S266187AbUBJTsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 14:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUBJTsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 14:51:22 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35071 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266207AbUBJTs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 14:48:59 -0500
-Subject: Re: 2.6.2 - System clock runs too fast
-From: john stultz <johnstul@us.ibm.com>
-To: Markus Hofmann <markus@gofurther.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402101332.26552.markus@gofurther.de>
-References: <200402101332.26552.markus@gofurther.de>
-Content-Type: text/plain
-Message-Id: <1076442533.1351.35.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 10 Feb 2004 11:48:53 -0800
+	Tue, 10 Feb 2004 14:48:09 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:10757 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S266187AbUBJTr4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 14:47:56 -0500
+Message-ID: <4029364F.9030905@tmr.com>
+Date: Tue, 10 Feb 2004 14:51:43 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Does anyone still care about BSD ptys?
+References: <1ne1M-1Oc-1@gated-at.bofh.it>
+In-Reply-To: <1ne1M-1Oc-1@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-10 at 04:32, Markus Hofmann wrote:
-> Hello together
+H. Peter Anvin wrote:
+> Hi all,
 > 
-> I've a problem with my system clock. It runs too fast. In realtime 5 minutes 
-> my notebook runs 8 minutes. The BIOS-Time doesn't run.
-> With kernel 2.4.24 everything is ok but when I boot my new 2.6.2 the clock 
-> runs.
-> 
-> Could it be that the compiled speedstepping caused this problem?
-> Or is there an another causing?
+> Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?  I'm
+> thinking of restructuring the pty system slightly to make it more
+> dynamic and to make use of the new larger dev_t, and I'd like to get
+> rid of the BSD ptys as part of the same patch.
 
-Could you send me your dmesg?
+Sorry, last reply "just went" for some reason... ijn any case I hope the 
+number and tone of replies has shown that a number of people DO care, 
+and that "you can just program around it with your effort instead of 
+mine" isn't going to be popular.
 
-thanks
--john
+In other words, this sounds more like 2.7 material where people expect 
+things to change than something which should just suddenly break in 2.6. 
+Violation of Plauger's Law of Least Astonishment and all that.
 
-
+-- 
+I doubt like hell this mailer has a sig...

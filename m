@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbTEEMYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 08:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbTEEMYX
+	id S262162AbTEEM2O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 08:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTEEM2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 08:24:23 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:11759 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S262160AbTEEMYW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 08:24:22 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org, Devilkin-lkml@blindguardian.org
-Subject: [2.5.69] Irda troubles
-Date: Mon, 5 May 2003 14:37:24 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Mon, 5 May 2003 08:28:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:64009 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262162AbTEEM2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 08:28:13 -0400
+Date: Mon, 5 May 2003 14:40:42 +0200
+From: Dave Jones <davej@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [CFT] re-slabify i386 pgd's and pmd's
+Message-ID: <20030505144042.B19403@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030505105213.GO8931@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305051437.30347.devilkin-lkml@blindguardian.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030505105213.GO8931@holomorphy.com>; from wli@holomorphy.com on Mon, May 05, 2003 at 03:52:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 05, 2003 at 03:52:13AM -0700, William Lee Irwin III wrote:
 
-Hello list,
+ > I would very much appreciate outside testers. Even though I've been
+ > able to verify this boots and runs properly and survives several cycles
+ > of restarting X on my non-PAE Thinkpad T21, that environment has never
+ > been able to reproduce the bug. Those with the proper graphics hardware
+ > to prod the affected codepaths into action are the ones best suited to
+ > verify proper functionality.
 
-Today I've tried to get my infrared synchronisation to my palm pilot working. 
-Unfortunately, it doesn't work - I get nothing at all. It worked fine under 
-2.4.20.
+For reference, Linus was seeing problems on i830 chipset with onboard
+graphics. Testers from all i8xx would be equally useful, as there are
+a lot of shared paths in agpgart for these chipsets.
+The onboard graphics part also seemed to be a factor. People using
+proper agp-slot graphics cards never saw this issue.
 
-The modules in question are irda, ircomm and ircomm_tty.
+        Dave
 
-Upon load of the modules, this is shown in the logs:
-
-IrCOMM protocol (Dag Brattli)
-Module ircomm_tty cannot be unloaded due to unsafe usage in 
-include/linux/module.h:457
-ircomm_tty_attach_cable()
-ircomm_tty_ias_register()
-ircomm_tty_close()
-ircomm_tty_shutdown()
-ircomm_tty_detach_cable()
-ircomm_close()
-
-And that's all. I cannot open /dev/ircomm0 or ircomm1, which are:
-
-laptop:/usr/src/linux/net/irda/ircomm# ls -l /dev/ircomm*
-crw-rw----    1 root     dialout  161,   0 Dec 16 14:34 /dev/ircomm0
-crw-rw----    1 root     dialout  161,   1 Dec 16 14:34 /dev/ircomm1
-
-Any ideas what i can try?
-
-Thanks!
-
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+tlsGpuyeqyCEh60RAtT6AJ0Zk6OtrGusNclRDCUaW+WUns+W/gCeJIGT
-/HSsVfdmKWay1z29zJG5xzE=
-=CRAC
------END PGP SIGNATURE-----
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

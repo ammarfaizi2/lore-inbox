@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132717AbRDIKq5>; Mon, 9 Apr 2001 06:46:57 -0400
+	id <S132719AbRDILFO>; Mon, 9 Apr 2001 07:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132719AbRDIKqs>; Mon, 9 Apr 2001 06:46:48 -0400
-Received: from [217.13.10.51] ([217.13.10.51]:61108 "HELO mushkin.ii.uib.no")
-	by vger.kernel.org with SMTP id <S132717AbRDIKqi>;
-	Mon, 9 Apr 2001 06:46:38 -0400
-Date: Mon, 9 Apr 2001 11:43:51 +0200
-From: Jan-Frode Myklebust <janfrode@ii.uib.no>
-To: linux-kernel@vger.kernel.org
-Subject: spurious APIC interrupt on CPU#0
-Message-ID: <20010409114351.A18170@ii.uib.no>
-Mail-Followup-To: Jan-Frode Myklebust <janfrode@ii.uib.no>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132720AbRDILFE>; Mon, 9 Apr 2001 07:05:04 -0400
+Received: from [212.115.175.146] ([212.115.175.146]:25080 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S132719AbRDILE4>; Mon, 9 Apr 2001 07:04:56 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F1193@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Sources of entropy - /dev/random problem for network servers
+Date: Mon, 9 Apr 2001 13:04:47 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just had a (quite) hard hang with 2.4.3-XFS (cvs from oss.sgi.com).
-The machine got totally unresponsive in X, and it barely managed to execute
-any commands from the serial console. After issuing a reboot, and waiting
-for quite some time, I flipped the powerswitch.
+>> However, only 3 drivers in drivers/net actually set
+>> SA_SAMPLE_RANDOM when calling request_irq(). I believe
+>> all of them should.
+> No, because an attacker can potentially control input and make it
+> non-random.
+AB> 2. Given that otherwise in at least my application (and machine
+AB> without keyboard and mouse can't be too uncommon) there is *no*
+AB> entropy otherwise, which is rather easier for a hacker. At least
 
-Frm the syslog it looks like it started with:
-
-kernel: spurious APIC interrupt on CPU#0, should never happen.
-
-then there's repeated messages like:
-
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-kernel: hdc: lost interrupt
-
-
-This was on a K6-2, kernel config and hardware information available upon
-request.
-
-
-   -jf
+Put a soundcard in your system and install audio-entropyd.
+Works pretty nice.

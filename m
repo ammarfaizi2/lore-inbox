@@ -1,24 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264313AbTLESnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbTLESmu
+	id S264315AbTLESnm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbTLESmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:42:50 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:65261 "EHLO
+	Fri, 5 Dec 2003 13:42:55 -0500
+Received: from mail.scitechsoft.com ([63.195.13.67]:65517 "EHLO
 	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S264313AbTLESmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S264315AbTLESmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 5 Dec 2003 13:42:42 -0500
 From: "Kendall Bennett" <KendallB@scitechsoft.com>
 Organization: SciTech Software, Inc.
-To: "David Schwartz" <davids@webmaster.com>
+To: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
 Date: Fri, 05 Dec 2003 10:44:03 -0800
 MIME-Version: 1.0
-Subject: RE: Linux GPL and binary module exception clause? 
+Subject: Re: Linux GPL and binary module exception clause?
 CC: <linux-kernel@vger.kernel.org>
-Message-ID: <3FD06173.4829.4801EFD4@localhost>
-In-reply-to: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
-References: <200312050513.hB55D1ps030713@turing-police.cc.vt.edu>
+Message-ID: <3FD06173.22096.4801F022@localhost>
+In-reply-to: <BAY7-DAV37GkZcFUjvZ0000328a@hotmail.com>
 X-mailer: Pegasus Mail for Windows (v4.02)
 Content-type: text/plain; charset=US-ASCII
 Content-transfer-encoding: 7BIT
@@ -26,33 +25,44 @@ Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> wrote:
+"Jason Kingsland" <Jason_Kingsland@hotmail.com> wrote:
 
-> > That's 6,288 chances for you to #include GPL code and end up
-> > with executable derived from it in *your* .o file, not the kernel's.
+> Modules are essentially dynamically linked extensions to the GPL
+> kernel. In some cases they can be shown to be independent, prior
+> works where GPL can reasonably be argued not to apply - which as
+> Linus stated earlier on this thread was the original intention of
+> allowing binary-only modules. 
 > 
->  I'm sorry, but that just doesn't matter. The GPL gives you the
-> unrestricted right to *use* the original work. This implicitly
-> includes the right to peform any step necessary to use the work.
-> (This is why you can 'make a copy' of a book on your retina if you
-> have the right to read it.) Please tell me how you use a kernel
-> header file, other than by including it in a code file, compiling
-> that code file, and executing the result. 
+> But in most of the more recent cases the driver/module code is
+> written specifically for Linux, so it seems more appropriate that
+> they would be considered as derived works of the kernel. But those
+> various comments from Linus are being taken out of context to
+> somehow justify permission for the non-release of source code for
+> binary loadable modules. 
 
-Another point worth mentioning is that if the Linux kernel headers are 
-pure GPL, then user land programs that use the Linux kernel headers 
-themselves would also be pure GPL by extension if the above argument 
-holds water. Clearly the Linux developers would like to believe 
-otherwise, but there are many Linux user mode programs that will make use 
-of GPL kernel headers in their non-GPL programs. And some of that code 
-will include inline assembler and inline functions to make calls into the 
-kernel.
+I would agree that a module/driver written specifically for Linux would 
+fall under the GPL. By extension however, any user program written 
+specifically for Linux that does *not* run anywhere else would also fall 
+under the GPL. Clearly there are not many programs that fit into this 
+category, as most are portable to other platforms. However there are 
+clear instances of code that is Linux specific such as the installers 
+used by distro vendors to install their version of Linux. By extension if 
+Linux specific modules must be GPL, so too must Linux specific 
+installation programs. 
 
-Likewise, by extension, any runtime library that uses GPL header files 
-from the kernel directly would have to also be pure GPL. This means glibc 
-folks. We all know glibc is LGPL, but if you link pure GPL code with LGPL 
-code the entire work must be *GPL*, not LGPL if it is considered a 
-derived work.
+Which means all the proprietry installers done by many distro vendors 
+that are not GPL would be in violation.
+
+> Linux is not pure GPL, it also has the Linus "user program"
+> preamble in copying.txt - that preamble plus other LKML posts from
+> Linus are commonly used as justifications for non-disclosure of
+> source code to some classes of modules. 
+
+No, Linux is pure GPL. I always thought the same but Linus and others 
+have cleared this up in the last few days within this discussion. The pre-
+amble at the top of the COPYING file is not legalese and not legally 
+binding. It is just Linus' interpretation of the GPL as it applies to 
+user programs, and as such is certainly not legally binding.
 
 Regards,
 

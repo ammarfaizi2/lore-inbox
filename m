@@ -1,89 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTLFAzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 19:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbTLFAzb
+	id S264867AbTLFA7J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbTLFA7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 19:55:31 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:40335
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S262652AbTLFAzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 19:55:11 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Cc: cbradney@zip.com.au, prakashpublic@gmx.de, cheuche+lkml@free.fr
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CyTghudFEoIEjFShsfc+"
-Message-Id: <1070672114.2759.8.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 01:55:14 +0100
+	Fri, 5 Dec 2003 19:59:09 -0500
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:59652 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S264867AbTLFA6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 19:58:55 -0500
+Message-ID: <3FD127D4.9030007@lougher.demon.co.uk>
+Date: Sat, 06 Dec 2003 00:50:28 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: Erez Zadok <ezk@cs.sunysb.edu>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: partially encrypted filesystem
+References: <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk> <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu> <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Wilcox wrote:
+> On Fri, Dec 05, 2003 at 02:47:56PM -0500, Erez Zadok wrote:
+> 
+>>Thanks for the info, Matthew.  Yes, clearly a scheme that keeps some "holes"
+>>in compressed files can help; one of our ideas was to leave sparse holes
+>>every N blocks, exactly for this kind of expansion, and to update the index
+>>file's format to record where the spaces are (so we can efficiently
+>>calculate how many holes we need to consume upon a new write).
 
---=-CyTghudFEoIEjFShsfc+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+FYI, Acorn's scheme was described in "Compressed Executables: An 
+Exercise in Thinking Small" by Mark Taunton, in the Usenix Spring '91 
+conference, it doesn't seem to be online, but a search on google groups 
+for "group:comp.unix.internals taunton compressed executables" brings up 
+a description.  I used to work with Mark Taunton at Acorn.
 
-Craig Bradney wrote:
-> Sounds great.. maybe you have come across something. Yes, the CPU
-> Disconnect function arrived in your BIOS in revision of 2003/03/27
-> "6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset
-> does not support C2 disconnect; thus, disable C2 function."
+> 
+> But the genius is that you don't need to calculate anything.  If the
+> data block turns out to be incompressible (those damn .tar.bz2s!), you
+> just write the block in-place.  If it is compressible, you write as much
+> into that block's entry as you need and leave a gap.  The underlying
+> file system doesn't write any data there.  There's no need for an index
+> file -- you know exactly where to start reading each block.
+> 
 
-I doubt thats related, i run ACPI with powersave anyways...=20
+Of course this is all being done at the file level, which relies on 
+proper support of holes in the underlying filesystem (which Acorn's BSD 
+FFS filesystem did).  FiST's scheme is much more how it would be 
+implemented without hole support, where you *have* to pack the data, 
+otherwise the "unused" space would physically consume disk blocks. In 
+this case an index to find the start of each compressed block is essential.
 
-> For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can
-> see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS
-> that has been discussed.
+I'm guessing that FiST lacks support for holes or data insertion in the 
+  filesystem model, which explains why on writing to the middle of a 
+file, the entire file from that point has to be re-written.
 
-I don't have it either...=20
+Of course, all this is at the logical file level, and ignores the 
+physical blocks on disk.  All filesystems assume physical data blocks 
+can be updated in place.  With compression it is possible a new physical 
+block has to be found, especially if blocks are highly packed and not 
+aligned to block boundaries.  I expect this is at least partially why 
+JFFS2 is a log structured filesystem.
 
-I'm more hopeful about the patch from Mathieu <cheuche+lkml () free ! fr>..=
-.
-
-           CPU0
-  0:     267486    IO-APIC-edge  timer
-  1:       9654    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  8:          1    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
- 14:      28252    IO-APIC-edge  ide0
- 15:        103    IO-APIC-edge  ide1
- 16:     251712   IO-APIC-level  eth0
- 17:      90632   IO-APIC-level  EMU10K1
- 19:     415529   IO-APIC-level  nvidia
- 20:          0   IO-APIC-level  usb-ohci
- 21:        153   IO-APIC-level  ehci_hcd
- 22:      58257   IO-APIC-level  usb-ohci
-NMI:        479
-LOC:     265875
-ERR:          0
-MIS:          0
-
-this far and it feels like a closer match to what windows does from what
-i have read on the ml.=20
-
-I haven't even come close to testing this yet, I've only been up 45 mins
-but i'll leave it running and do what i usually do when it hangs... =3D)
-
-I'll get back to you about how it goes...=20
-
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-CyTghudFEoIEjFShsfc+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/0Sjy7F3Euyc51N8RAiigAKCIM7EAmtdzaNzyGUFnmi+wH8DQ2gCfUONi
-S2k0hr4/ICd5ISpPD1QpK+Y=
-=Eg5R
------END PGP SIGNATURE-----
-
---=-CyTghudFEoIEjFShsfc+--
+Phillip
 

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131040AbRBSEPq>; Sun, 18 Feb 2001 23:15:46 -0500
+	id <S129315AbRBSF0Z>; Mon, 19 Feb 2001 00:26:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131098AbRBSEPg>; Sun, 18 Feb 2001 23:15:36 -0500
-Received: from anime.net ([63.172.78.150]:46865 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S131040AbRBSEPV>;
-	Sun, 18 Feb 2001 23:15:21 -0500
-Date: Sun, 18 Feb 2001 20:15:11 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Gregory Maxwell <greg@linuxpower.cx>
-cc: <brian@worldcontrol.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Money stifles innovation
-In-Reply-To: <20010218222903.A32459@xi.linuxpower.cx>
-Message-ID: <Pine.LNX.4.30.0102182003210.20856-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129447AbRBSF0Q>; Mon, 19 Feb 2001 00:26:16 -0500
+Received: from ohiper1-108.apex.net ([209.250.47.123]:24844 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S129315AbRBSF0G>; Mon, 19 Feb 2001 00:26:06 -0500
+Date: Sun, 18 Feb 2001 23:27:57 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: "i810_audio: DMA overrun on send" countless times in logs
+Message-ID: <20010218232757.A2963@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 11:19pm  up 1 day,  2:48,  1 user,  load average: 2.24, 2.28, 2.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001, Gregory Maxwell wrote:
-> On Sun, Feb 18, 2001 at 05:47:10PM -0800, Dan Hollis wrote:
-> > Actually the problem is lack of morals and bad people who are really evil
-> > at the core (you wouldnt want them for your neighbor).
-> Actually, it's because we've made it illegal to corporations to behave
-> ethically when it conflicts with short-term shareholder profits.
-> http://www.ratical.com/corporations/
-> It would be nice if it were so simple as to declare the involved parties as
-> evil.
+This message pops up in my logs countless times, often accompanied by
+temporarily freezes of the system, and pops in the sound.  It seems to
+occur more often when under load, i.e. playing a DVD.  In fact, they
+degrade the performance so badly as to make DVDs unwatchable.
 
-I know both good and bad people at corporations. The bad people were mean
-and nasty before they joined the corporation, the corporation became a
-vehicle for them to abuse others and directly translated to the
-misbehaviour of that corporation. Doing bad things comes naturally to
-them.
+I would chock this up to crappy hardware, accept that these errors don't
+occur with the ALSA drivers, even under the same situations.  Not just
+the absense of the messages, but the absense of the symptoms.
 
-The good people went out of their way to prevent the corporation from
-doing evil things, or left the corporation so they would not be party to
-the unethical behaviour.
-
--Dan
-
+Thanks
+-- 
+-Steven
+Never ask a geek why, just nod your head and slowly back away.

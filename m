@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUEFRIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUEFRQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUEFRIq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUEFRIl
+	id S261474AbUEFRQm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 13:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUEFRQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:08:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:11698 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261474AbUEFRIV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:08:21 -0400
-Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Sourav Sen <souravs@india.hp.com>
-Cc: "HELGAAS,BJORN (HP-Ft. Collins)" <bjorn_helgaas@am.exch.hp.com>,
-       "'Matt Domsch'" <Matt_Domsch@dell.com>,
-       Matthew E Tolentino <matthew.e.tolentino@intel.com>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tony.luck@intel.com
-In-Reply-To: <004f01c43386$c3301900$39624c0f@india.hp.com>
-References: <004f01c43386$c3301900$39624c0f@india.hp.com>
-Content-Type: text/plain
-Message-Id: <1083862182.2811.266.camel@nighthawk>
+	Thu, 6 May 2004 13:16:42 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1670 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261474AbUEFRQl (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 13:16:41 -0400
+Message-Id: <200405061716.i46HGZAP020550@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: viro@parcelfarce.linux.theplanet.co.uk,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] code for raceless /sys/fs/foofs/* 
+In-Reply-To: Your message of "Thu, 06 May 2004 20:35:37 +0400."
+             <16538.26969.343294.164709@laputa.namesys.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <16536.61900.721224.492325@laputa.namesys.com> <20040505162802.GN17014@parcelfarce.linux.theplanet.co.uk> <20040505163650.GO17014@parcelfarce.linux.theplanet.co.uk>
+            <16538.26969.343294.164709@laputa.namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 06 May 2004 09:49:43 -0700
+Content-Type: multipart/signed; boundary="==_Exmh_1072157501P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 06 May 2004 13:16:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-06 at 09:25, Sourav Sen wrote:
-> From: Bjorn Helgaas [mailto:bjorn.helgaas@hp.com]
-> + For this application, the EFI memory map isn't what you want.
-> + It's a pretty good approximation today, but the day when we'll
-> + be able to hot-add memory is fast approaching, and the EFI map
-> + won't mention anything added after boot.  We'll discover all
-> + that via ACPI (on ia64).
->
-> 	Why not also update the efi memory table on a hotplug :-)
+--==_Exmh_1072157501P
+Content-Type: text/plain; charset=us-ascii
 
-That's actually what ppc64 does.  But, they do it via /proc (not even
-from inside the kernel).  I'm not very fond of that solution :)
+On Thu, 06 May 2004 20:35:37 +0400, Nikita Danilov said:
 
-> (Now also it gets modified a little on a call to efi_memmap_walk()).
-> Otherwise clients of efi_memmap_walk() will also get stale 
-> information after a hotplug, isn't it (assuming they want to
-> know about available physical ranges)?
+> But isn't this a problem with sysfs in general? Restricted process still
+> observes all devices, busses, etc. through /sys. If such information is
+> sensitive, shouldn't there be some way to selectively mount only
+> portions of kobject trees?
 
-We'll probably end up having to lock down hotplug around the time that
-someone *needs* persistent information about memory layout from
-userspace.  Think crashdump...
+Alternatively, there's a nice security module infrastructure - use that to
+restrict who can view given subtrees of /sys.  Currently, SELinux is able
+to slice-n-dice the /proc filesystem for different accesses, but code
+would need to be written to do it for /sys.
 
-> Also, kernel may not exactly use all the memory added via hotplug
+--==_Exmh_1072157501P
+Content-Type: application/pgp-signature
 
-That's a good point.  Some of the happy consumers of this should be
-things like crashdump and kexec.  They might want a choice to either
-dump only the memory that Linux is currently using, or to know about all
-of the memory that is present.  
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
->  and there may be some truncation (just as efi_memmap_walk()
-> does today). And it isn't help us if we get to know about those
-> extents. Additionally we get to know about various mmio ranges and
-> other ranges thru that table -- may be useful opportunistically.
+iD8DBQFAmnLzcC3lWbTT17ARAgscAJ4tqFG2AVNQVs01e4cyD9fLsO5dlwCcCpwM
+DsiC4Y9bWlMF5pfBKyburpw=
+=ndFQ
+-----END PGP SIGNATURE-----
 
-There can be some pretty generic (although asynchronous) events given
-via /sbin/hotplug.  I'm currently planning on having the memory hotplug
-"drivers" get the hot-added memory ready, but keep it offline.  It then
-creates some kobjects, which generate hotplug events, and *then* the
-decision can be made in the hotplug scripts about what to do with it.
-
--- Dave
-
+--==_Exmh_1072157501P--

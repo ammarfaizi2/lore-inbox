@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbUKJO2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbUKJOch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbUKJO2o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUKJO0H
+	id S262014AbUKJOch (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbUKJOZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:26:07 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7618 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261978AbUKJOWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:22:44 -0500
-Date: Wed, 10 Nov 2004 08:56:21 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Stefan Schmidt <zaphodb@zaphods.net>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041110105621.GA11097@logos.cnet>
-References: <20041109144607.2950a41a.akpm@osdl.org> <20041109235201.GC20754@zaphods.net> <20041110012733.GD20754@zaphods.net> <20041109173920.08746dbd.akpm@osdl.org> <20041110020327.GE20754@zaphods.net> <419197EA.9090809@cyberone.com.au> <20041110102854.GI20754@zaphods.net> <20041110120624.GF28163@zaphods.net> <20041110085831.GB10740@logos.cnet> <20041110124810.GG28163@zaphods.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041110124810.GG28163@zaphods.net>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 10 Nov 2004 09:25:43 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:44514 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261982AbUKJOVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:21:11 -0500
+Date: Wed, 10 Nov 2004 14:20:42 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Brent Casavant <bcasavan@sgi.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
+       "Adam J. Richter" <adam@yggdrasil.com>, <colpatch@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+In-Reply-To: <Pine.SGI.4.58.0411092020550.101942@kzerza.americas.sgi.com>
+Message-ID: <Pine.LNX.4.44.0411101406360.2806-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 01:48:11PM +0100, Stefan Schmidt wrote:
-> On Wed, Nov 10, 2004 at 06:58:31AM -0200, Marcelo Tosatti wrote:
-> > > > > Can you try the following patch, please? It is diffed against 2.6.10-rc1,
-> > > I did. No apparent change with mm4 and vm.min_free_kbytes = 8192. I will try
-> > > latest bk next.
+On Tue, 9 Nov 2004, Brent Casavant wrote:
+> On Tue, 9 Nov 2004, Hugh Dickins wrote:
 > 
-> > > > I set it back to CONFIG_PACKET_MMAP=y and if the application does not freeze
-> > > > for some hours at this load we can blame at least this issue (-1 EAGAIN) on
-> > > > that parameter.
-> > > Nope, that didn't change anything, still getting EAGAIN, checked two times.
-> > Its not clear to me - do you have Nick's watermark patch in? 
-> Yes i have vm.min_free_kbytes=8192 and Nick's patch in mm4. I'll try
-> rc1-bk19 with his restore-atomic-buffer patch in a few minutes.
+> > Doesn't quite play right with what was my "NULL sbinfo" convention.
+> 
+> Howso?  I thought it played quite nicely with it.  We've been using
+> NULL sbinfo as an indicator that an inode is from tmpfs rather than
+> from SysV or /dev/zero.  Or at least that's the way my brain was
+> wrapped around it.
 
-Stefan, 
+That was the case you cared about, but remember I extended yours so
+that tmpfs mounts could also suppress limiting, and get NULL sbinfo.
 
-Please always run your tests with show_free_area() call at the 
-page allocation failure path.
+> The NULL sbinfo scheme worked perfectly for me, with very little hassle.
 
-I fully disagree with Andrew when he says  
-"I don't think it'd help much - we know what's happening."
+Yes, it would have worked just right for the important cases.
+
+> > but they're two hints that I should rework that to get out of people's
+> > way.  I'll do a patch for that, then another something like yours on
+> > top, for you to go back and check.
+> 
+> Is this something imminent, or on the "someday" queue?  Just asking
+> because I'd like to avoid doing additional work that might get thrown
+> away soon.
+
+I understand your concern ;)  I'm working on it, today or tomorrow.
+
+> > I'm irritated to realize that we can't change the default for SysV
+> > shared memory or /dev/zero this way, because that mount is internal.
+> 
+> Well, the only thing preventing this is that I stuck the flag into
+> sbinfo, since it's an filesystem-wide setting.  I don't see any reason
+> we couldn't add a new flag in the inode info flag field instead.  I
+> think there would also be some work to set pvma.vm_end more precisely
+> (in mpol_shared_policy_init()) in the SysV case.
+
+It's not a matter of where to store the info, it's that we don't have
+a user interface for remounting something that's not mounted anywhere.
+
+Hugh
 

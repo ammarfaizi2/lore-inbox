@@ -1,98 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132895AbRECQPE>; Thu, 3 May 2001 12:15:04 -0400
+	id <S132898AbRECQRe>; Thu, 3 May 2001 12:17:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132898AbRECQOy>; Thu, 3 May 2001 12:14:54 -0400
-Received: from picard.csihq.com ([204.17.222.1]:54747 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S132895AbRECQOk>;
-	Thu, 3 May 2001 12:14:40 -0400
-Message-ID: <04e601c0d3ec$32ed29c0$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: <linux-kernel@vger.kernel.org>,
-        "Christian Iseli" <chris@ludwig-alpha.unil.ch>
-In-Reply-To: <200105021613.SAA22580@ludwig-alpha.unil.ch>
-Subject: Re: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS
-Date: Thu, 3 May 2001 12:14:57 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S132922AbRECQRY>; Thu, 3 May 2001 12:17:24 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:51464 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132898AbRECQRE>;
+	Thu, 3 May 2001 12:17:04 -0400
+Date: Thu, 3 May 2001 12:16:57 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: Urban Widmark <urban@teststation.com>, John Stoffel <stoffel@casc.com>,
+        cate@dplanet.ch, Peter Samuelson <peter@cadcamlab.org>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Hierarchy doesn't solve the problem
+Message-ID: <20010503121657.K31960@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Juan Quintela <quintela@mandrakesoft.com>,
+	Urban Widmark <urban@teststation.com>,
+	John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
+	Peter Samuelson <peter@cadcamlab.org>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010503030431.A25141@thyrsus.com> <Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com> <20010503034620.A27880@thyrsus.com> <m2bspa7b9e.fsf@trasno.mitica>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m2bspa7b9e.fsf@trasno.mitica>; from quintela@mandrakesoft.com on Thu, May 03, 2001 at 04:33:33PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like if you remove the "inline" from the function definition this
-compiles OK.
+Juan Quintela <quintela@mandrakesoft.com>:
+> linux 2.4.(x+1) has more drivers/options/whatever that linux-2.4.x.  I
+> want to be prompted only for the new drivers/options/whatever it
+> chooses the old ones from the .config file.  Note that my old .config
+> file is not a valid configuration because it misses symbols (or I am
+> wrong and this is a valid configuration ?).
 
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
------ Original Message -----
-From: "Christian Iseli" <chris@ludwig-alpha.unil.ch>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, May 02, 2001 12:13 PM
-Subject: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS
+Yes, you're wrong.  This is a valid configuration.  If any of the
+missing values have to be non-N, CML2 will deduce this and tell 
+you what it's changing them to and why.
 
+In CML2's world "symbol not set" is different from "symbol set to n".
+When a symbol is not set, the deducer can force it to value that 
+satisfies constraints.
 
-Hi folks,
+Your second scenario is addressed by the samne correction.
 
-I currently fail to compile the 2.4.4-ac3 kernel using latest GCC 3.0 from
-CVS:
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
- -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
- -mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c sys.c
-sys.c: In function `sys_gethostname':
-/usr/src/linux/include/asm/rwsem.h:152:
- inconsistent operand constraints in an `asm'
+>                                Otherwise I will be happy if
+> you provide me something like:
+> 
+>     make "CONFIG_SCSI=n" oldconfig
+> 
+> or similar, i.e. _I_ know what I want to change, and I want to change
+> only that.  Notice that I want also be able to do the other way
+> around:
+> 
+>     make "CONFIG_SCSI=m" oldconfig
+> 
+> and then be prompted for all the SCSI drivers (because they was not in
+> the .config before).
 
-Here is the code exerpt:
-/*
- * unlock after reading
- */
-static inline void __up_read(struct rw_semaphore *sem)
-{
-        __s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
-        __asm__ __volatile__(
-                "# beginning __up_read\n\t"
-LOCK_PREFIX     "  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the
-old value */
-                "  js        2f\n\t" /* jump if the lock is being waited
-upon */
-                "1:\n\t"
-                ".section .text.lock,\"ax\"\n"
-                "2:\n\t"
-                "  decw      %%dx\n\t" /* do nothing if still outstanding
-active readers */
-                "  jnz       1b\n\t"
-                "  pushl     %%ecx\n\t"
-                "  call      rwsem_wake\n\t"
-                "  popl      %%ecx\n\t"
-                "  jmp       1b\n"
-                ".previous\n"
-                "# ending __up_read\n"
-                : "+m"(sem->count), "+d"(tmp)
-                : "a"(sem)
-                : "memory", "cc");
-}
+There is such an option.  It's -d, which sets a symbol from the
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-I'm afraid I know zilch about asm constraints...
-Can anybody spot the trouble (and fix it :) ?
-
-Thanks,
-Christian
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Love your country, but never trust its government.
+	-- Robert A. Heinlein.

@@ -1,123 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbUL2WYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUL2W2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbUL2WYk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 17:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbUL2WYk
+	id S261276AbUL2W2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 17:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbUL2W2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 17:24:40 -0500
-Received: from web52002.mail.yahoo.com ([206.190.39.58]:28011 "HELO
-	web52002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261174AbUL2WYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 17:24:35 -0500
-Message-ID: <20041229222434.67496.qmail@web52002.mail.yahoo.com>
-Date: Wed, 29 Dec 2004 19:24:34 -0300 (ART)
-From: =?iso-8859-1?q?V=EDtor=20De=20Ara=FAjo?= 
-	<xyzinformatica@yahoo.com.br>
-Subject: Linux 2.6.10 compile-time error
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 29 Dec 2004 17:28:48 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:22437 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261269AbUL2W2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 17:28:45 -0500
+Subject: Re: PATCH: 2.6.10 - IT8212 IDE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <58cb370e041229092919c1b4a8@mail.gmail.com>
+References: <1104246926.22366.97.camel@localhost.localdomain>
+	 <58cb370e041229092919c1b4a8@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104355483.31622.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 29 Dec 2004 21:24:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This error ocurred while I'm compiling the Linux 2.6.10:
+On Mer, 2004-12-29 at 17:29, Bartlomiej Zolnierkiewicz wrote:
+> ide_get_best_pio_mode(drive, 4, 5, NULL) always returns 4
+> [ quick fix == hardcode 4 for now and add FIXME ]
 
-  Using /mnt/docs/docs/Install/Kernel/linux-2.6.10 as source for kernel
-  GEN    /mnt/docs/docs/Install/Kernel/linux-2.6.10-build/Makefile
-  CHK     include/linux/version.h
-make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  CC      fs/dquot.o
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:1: error: parse error
-before '/' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:14: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:16: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:19: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:32: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:38:51: missing
-terminating ' character
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:38:51: warning: character
-constant too long for its type
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:40: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:43: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:47: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:50: error: syntax error
-at '@' token
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:53: error: syntax error
-at '@' token
-In file included from
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:10,
-                 from /mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:59:
-/usr/lib/gcc-lib/i486-linux/3.3.4/include/stdarg.h:105: error: parse error
-before "va_list"
-In file included from /mnt/docs/docs/Install/Kernel/linux-2.6.10/fs/dquot.c:59:
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:82: error:
-parse error before "va_list"
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:82: warning:
-function declaration isn't a prototype
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:85: error:
-parse error before "va_list"
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:85: warning:
-function declaration isn't a prototype
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:88: error:
-parse error before "va_list"
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:88: warning:
-function declaration isn't a prototype
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:92: error:
-parse error before "va_list"
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:92: warning:
-function declaration isn't a prototype
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:102: error:
-parse error before "va_list"
-/mnt/docs/docs/Install/Kernel/linux-2.6.10/include/linux/kernel.h:102: warning:
-function declaration isn't a prototype
-make[2]: *** [fs/dquot.o] Error 1
-make[1]: *** [fs] Error 2
-make: *** [all] Error 2
+Doesn't seem that way reading the code.
 
-The output of scripts/ver_linux follows:
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux XYZ001-tst 2.6.6 #3 Fri Dec 10 20:59:31 GMT-2 2004 i586 GNU/Linux
-
-Gnu C                  3.3.4
-Gnu make               3.80
-binutils               2.15
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.1
-e2fsprogs              1.35
-reiserfsprogs          line
-reiser4progs           line
-nfs-utils              1.0.6
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.2.1
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.2.1
-Modules Loaded         apm snd_mixer_oss snd pcspkr 3c59x rtc
-
-                                                                               
-                                                                
-
-=====
-Vítor De Araújo
+I've folded the other changes (except moving the fixup) into my code
+base and will give it a testing over the next few days and check for any
+reversions.
 
 
-	
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis - Instale o discador do Yahoo! agora. http://br.acesso.yahoo.com/ - Internet rápida e grátis

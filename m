@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTEIW1V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 18:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbTEIW1V
+	id S263511AbTEIWXU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 18:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263516AbTEIWXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 18:27:21 -0400
-Received: from mail.ccur.com ([208.248.32.212]:24585 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S263542AbTEIW1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 18:27:20 -0400
-Date: Fri, 9 May 2003 18:39:28 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Riley Williams <Riley@Williams.Name>
-Cc: Andy Pfiffer <andyp@osdl.org>, Christophe Saout <christophe@saout.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext3/lilo/2.5.6[89] (was: [KEXEC][2.5.69] kexec for 2.5.69available)
-Message-ID: <20030509223928.GA21887@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <1052513725.15923.45.camel@andyp.pdx.osdl.net> <BKEGKPICNAKILKJKMHCACEJHCLAA.Riley@Williams.Name>
+	Fri, 9 May 2003 18:23:20 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:59050 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S263511AbTEIWXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 18:23:18 -0400
+Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update.  
+	Support for SCO over HCI USB.
+From: Max Krasnyansky <maxk@qualcomm.com>
+To: Greg KH <greg@kroah.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20030509192908.GA2233@kroah.com>
+References: <200304290317.h3T3HOdA027579@hera.kernel.org>
+	 <200304290317.h3T3HOdA027579@hera.kernel.org>
+	 <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
+	 <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com>
+	 <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com>
+	 <3EBBFC33.7050702@pacbell.net>  <20030509192908.GA2233@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052517274.10458.206.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BKEGKPICNAKILKJKMHCACEJHCLAA.Riley@Williams.Name>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 15:35:45 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One suggestion: ext3 is a journalled version of ext2, so if you can
-> boot with whatever is needed to specify that the boot partition is
-> to be mounted as ext2 rather than ext3, you can isolate the journal
-> system: If the problem's still there in ext2 then the journal is
-> not involved, but if the problem vanishes there, it's something to
-> do with the journal.
+On Fri, 2003-05-09 at 12:29, Greg KH wrote:
+> On Fri, May 09, 2003 at 12:06:27PM -0700, David Brownell wrote:
+> > 
+> > I'd certainly like the list_head.  Patch attached,
+> > in case Greg agrees enough.
 > 
-> I have to admit that the above sounds very much like the details
-> are being recorded in the journal, but the journal isn't being
-> played back to update the actual files.
+> I agree, but will only take the patch if a driver is modified to
+> actually use this.  I'll take both patches at once :)
 
-I recall reading on lkml once that an ext3 sync(2) merely pushes volatile
-data/metadata out to the journal rather than to to files themselves.
+Ok. Sounds good to me. 
+But I also need ->drv_cb[].   
 
-Joe
+Max
+

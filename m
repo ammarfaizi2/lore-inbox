@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316158AbSEJWmF>; Fri, 10 May 2002 18:42:05 -0400
+	id <S316156AbSEJWmc>; Fri, 10 May 2002 18:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316156AbSEJWmA>; Fri, 10 May 2002 18:42:00 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:2043 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316153AbSEJWlJ>;
-	Fri, 10 May 2002 18:41:09 -0400
-Date: Fri, 10 May 2002 15:41:08 -0700
+	id <S316153AbSEJWmN>; Fri, 10 May 2002 18:42:13 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:16635 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316154AbSEJWlk>;
+	Fri, 10 May 2002 18:41:40 -0400
+Date: Fri, 10 May 2002 15:41:39 -0700
 To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] : ir253_smc_msg.diff
-Message-ID: <20020510154108.B14407@bougret.hpl.hp.com>
+Subject: [PATCH] : ir253_long_set_bit.diff
+Message-ID: <20020510154139.C14407@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,60 +23,60 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir253_smc_msg.diff :
-------------------
-	        <Following patch from Jeff Snyder>
-	o [CRITICA] Release the proper region and not NULL pointer
-	o [FEATURE] Fix messages
+ir253_long_set_bit.diff :
+-----------------------
+	        <Following patch from Paul Mackerras>
+	o [CORRECT] Argument of set_bit and friends should be unsigned long
+		Should fix all compile warnings ;-)
 
 
-diff -u -p linux/drivers/net/irda/smc-ircc.d8.c linux/drivers/net/irda/smc-ircc.c
---- linux/drivers/net/irda/smc-ircc.d8.c	Fri May  3 18:52:33 2002
-+++ linux/drivers/net/irda/smc-ircc.c	Fri May  3 18:54:44 2002
-@@ -10,6 +10,8 @@
-  * Modified by:   Dag Brattli <dag@brattli.net>
-  * Modified at:   Tue Jun 26 2001
-  * Modified by:   Stefani Seibold <stefani@seibold.net>
-+ * Modified at:   Thur Apr 18 2002
-+ * Modified by:   Jeff Snyder <je4d@pobox.com>
-  * 
-  *     Copyright (c) 2001      Stefani Seibold
-  *     Copyright (c) 1999-2001 Dag Brattli
-@@ -539,7 +541,7 @@ static int __init ircc_open(unsigned int
- 	if (ircc_irq < 255) {
- 		if (ircc_irq!=irq)
- 			MESSAGE("%s, Overriding IRQ - chip says %d, using %d\n",
--				driver_name, self->io->irq, ircc_irq);
-+				driver_name, irq, ircc_irq);
- 		self->io->irq = ircc_irq;
- 	}
- 	else
-@@ -547,13 +549,13 @@ static int __init ircc_open(unsigned int
- 	if (ircc_dma < 255) {
- 		if (ircc_dma!=dma)
- 			MESSAGE("%s, Overriding DMA - chip says %d, using %d\n",
--				driver_name, self->io->dma, ircc_dma);
-+				driver_name, dma, ircc_dma);
- 		self->io->dma = ircc_dma;
- 	}
- 	else
- 		self->io->dma = dma;
+diff -u -p linux/include/net/irda/irlmp.d8.h linux/include/net/irda/irlmp.h
+--- linux/include/net/irda/irlmp.d8.h	Fri May  3 18:53:43 2002
++++ linux/include/net/irda/irlmp.h	Fri May  3 18:56:45 2002
+@@ -100,7 +100,7 @@ struct lsap_cb {
+ 	irda_queue_t queue;      /* Must be first */
+ 	magic_t magic;
  
--	request_region(fir_base, CHIP_IO_EXTENT, driver_name);
-+	request_region(self->io->fir_base, CHIP_IO_EXTENT, driver_name);
+-	int  connected;
++	unsigned long connected;	/* set_bit used on this */
+ 	int  persistent;
  
- 	/* Initialize QoS for this device */
- 	irda_init_max_qos_capabilies(&irport->qos);
-@@ -1191,10 +1193,9 @@ static int __exit ircc_close(struct ircc
-         outb(IRCC_CFGB_IR, iobase+IRCC_SCE_CFGB);
- #endif
- 	/* Release the PORT that this driver is using */
--	IRDA_DEBUG(0, __FUNCTION__ "(), releasing 0x%03x\n", 
--		   self->io->fir_base);
-+	IRDA_DEBUG(0, __FUNCTION__ "(), releasing 0x%03x\n", iobase);
+ 	__u8 slsap_sel;   /* Source (this) LSAP address */
+diff -u -p linux/include/net/irda/irttp.d8.h linux/include/net/irda/irttp.h
+--- linux/include/net/irda/irttp.d8.h	Fri May  3 18:54:03 2002
++++ linux/include/net/irda/irttp.h	Fri May  3 18:56:45 2002
+@@ -139,7 +139,7 @@ struct tsap_cb {
+ 	__u32 tx_max_sdu_size; /* Max transmit user data size */
  
--	release_region(self->io->fir_base, self->io->fir_ext);
-+	release_region(iobase, CHIP_IO_EXTENT);
+ 	int close_pend;        /* Close, but disconnect_pend */
+-	int disconnect_pend;   /* Disconnect, but still data to send */
++	unsigned long disconnect_pend; /* Disconnect, but still data to send */
+ 	struct sk_buff *disconnect_skb;
+ };
  
- 	if (self->tx_buff.head)
- 		kfree(self->tx_buff.head);
+diff -u -p linux/net/irda/irnet/irnet.d8.h linux/net/irda/irnet/irnet.h
+--- linux/net/irda/irnet/irnet.d8.h	Fri May  3 18:54:31 2002
++++ linux/net/irda/irnet/irnet.h	Fri May  3 18:56:45 2002
+@@ -409,8 +409,8 @@ typedef struct irnet_socket
+ 
+   /* ------------------------ IrTTP part ------------------------ */
+   /* We create a pseudo "socket" over the IrDA tranport */
+-  int			ttp_open;	/* Set when IrTTP is ready */
+-  int			ttp_connect;	/* Set when IrTTP is connecting */
++  unsigned long		ttp_open;	/* Set when IrTTP is ready */
++  unsigned long		ttp_connect;	/* Set when IrTTP is connecting */
+   struct tsap_cb *	tsap;		/* IrTTP instance (the connection) */
+ 
+   char			rname[NICKNAME_MAX_LEN + 1];
+diff -u -p linux/net/irda/irnet/irnet_ppp.d8.c linux/net/irda/irnet/irnet_ppp.c
+--- linux/net/irda/irnet/irnet_ppp.d8.c	Fri May  3 18:56:38 2002
++++ linux/net/irda/irnet/irnet_ppp.c	Fri May  3 18:56:45 2002
+@@ -860,7 +860,7 @@ ppp_irnet_send(struct ppp_channel *	chan
+       irda_irnet_connect(self);
+ #endif /* CONNECT_IN_SEND */
+ 
+-      DEBUG(PPP_INFO, "IrTTP not ready ! (%d-%d)\n",
++      DEBUG(PPP_INFO, "IrTTP not ready ! (%ld-%ld)\n",
+ 	    self->ttp_open, self->ttp_connect);
+ 
+       /* Note : we can either drop the packet or block the packet.

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262398AbSIUSye>; Sat, 21 Sep 2002 14:54:34 -0400
+	id <S262525AbSIUTCW>; Sat, 21 Sep 2002 15:02:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262525AbSIUSye>; Sat, 21 Sep 2002 14:54:34 -0400
-Received: from florin.dsl.visi.com ([209.98.146.184]:23638 "EHLO
-	bird.iucha.org") by vger.kernel.org with ESMTP id <S262398AbSIUSyd>;
-	Sat, 21 Sep 2002 14:54:33 -0400
-Date: Sat, 21 Sep 2002 13:59:39 -0500
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.37 won't run X?
-Message-ID: <20020921185939.GA1771@iucha.net>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <20020921161702.GA709@iucha.net> <597384533.1032600316@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Content-Disposition: inline
-In-Reply-To: <597384533.1032600316@[10.10.2.3]>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+	id <S262536AbSIUTCW>; Sat, 21 Sep 2002 15:02:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16888 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262525AbSIUTCW>; Sat, 21 Sep 2002 15:02:22 -0400
+Date: Sat, 21 Sep 2002 21:07:24 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Jurriaan <thunder7@xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problems building bzImage with 2.5.*
+In-Reply-To: <20020921185013.GA1320@middle.of.nowhere>
+Message-ID: <Pine.NEB.4.44.0209212057440.10334-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 21 Sep 2002, Jurriaan wrote:
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > I'm quite new to the list and I'm not sure if this has been posted
+> > already but I thought I would give it a shot. I've been trying to
+> > build the 2.5.* kernels (2.5.37 at the moment but this has happened
+> > with previous version as well) and when doing a make bzImage i keep
+> > getting the following error during the final linkage:
+> >
+> > drivers/built-in.o(.data+0xac34): undefined reference to `local
+> > symbols in discarded section .text.exit'
+> > make: *** [vmlinux] Error 1
+> >
+> I think this means you need to update your binutils.
 
-On Sat, Sep 21, 2002 at 09:25:18AM -0700, Martin J. Bligh wrote:
-> >> > X won't start on 2.5.37, but works with 2.5.36
-> >> > The screen goes black as usual, but then nothing else happens.
-> >> > ssh'ing in from another machine shows XFree86 using 50% cpu,
-> >> > i.e. one of the two cpu's in this machine.
-> >>=20
-> >> Looks like Linus fixed this already in his BK tree ... want
-> >> to grab that and see if it fixes your problem?
-> >=20
-> > What changeset do you think fixed this?
->=20
-> Well, this bit looked hopeful:
->=20
-> 23 hours torvalds 1.575 Fix vm86 system call interface to entry.S.=20
-> This has been broken since the thread_info support went in (early July),=
-=20
-> and can cause lockups at X startup etc.=20
+You are wrong. One workaround would be to _downgrade_ binutils.
 
-X is not locked up, as it eats all the CPU. And 2.5.36 works just fine.
+> Kind regards,
+> Jurriaan
 
-florin
+cu
+Adrian
 
---=20
+-- 
 
-"If it's not broken, let's fix it till it is."
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
 
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9jMGaNLPgdTuQ3+QRAsTiAJ9n1zkllylmGbre/qYInLI4K9hcGgCbBY5S
-2e5tlSc2+QGuBJ8JNKXUa94=
-=FiJs
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--

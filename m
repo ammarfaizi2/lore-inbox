@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278471AbRJOWto>; Mon, 15 Oct 2001 18:49:44 -0400
+	id <S278470AbRJOWtO>; Mon, 15 Oct 2001 18:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278472AbRJOWtf>; Mon, 15 Oct 2001 18:49:35 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:15260 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278471AbRJOWtX>; Mon, 15 Oct 2001 18:49:23 -0400
-Message-Id: <m15tIR9-005ZFZC@andiunx.t-online.de>
+	id <S278473AbRJOWtE>; Mon, 15 Oct 2001 18:49:04 -0400
+Received: from jalon.able.es ([212.97.163.2]:2499 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S278470AbRJOWsu>;
+	Mon, 15 Oct 2001 18:48:50 -0400
+Date: Tue, 16 Oct 2001 00:49:15 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: magallon@posta.unizar.es,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Status of ServerWorks UDMA
+Message-ID: <20011016004915.A28798@werewolf.able.es>
+In-Reply-To: <20011016003812.A28638@werewolf.able.es> <E15tGWg-0003fP-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: andikies@t-online.de (Andreas Kies)
-To: linux-kernel@vger.kernel.org
-Subject: Hard lockup with 2.4.19 and ide-scsi
-Date: Tue, 16 Oct 2001 00:50:26 +0000
-X-Mailer: KMail [version 1.3]
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E15tGWg-0003fP-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Oct 16, 2001 at 00:48:02 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading a CD with somewhat "slight" defects causes my machine to lock up
-solidly ( No keyboard, no more disk activity ) . The bug is totally 
-reproducible if you manage to cause a timeout during reading.
 
-CDs with hard surface defects do not cause a timeout and therefore do not
-provoke the bug.
+On 20011016 Alan Cox wrote:
+>> I have just installed a system with kernel 2.4.20, and it stops booting
+>> with a message like:
+>>
 
-Used kernel :
-  2.4.9 ( no extra patches, no unofficial modules )
-  ide-scsi module is used instead of ide-cd.
-  No automount, no user space programs like autorun that access the cd drive.
+He, he, I meant 2.4.10....
 
-Used Hardware :
+>> 	Controller is in an impossible state. Disable UDMA.
+>
+>That is triggered when we see a case that can cause disk corruption.
+>
+>> Board is a SuperMicro 370DLE (SW LE chipset). I have tried disabling 
+>> ide channels on the bios, but kernel still sees them. I have tried to
+>
+>At some point I'll sort this properly if Andre doesnt do it first.
+>
+>> boot with ide0=nodma (is this options real, or I just have invented it ??)
+>> No solution.
+>
+>ide=nodma
+>
 
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: Memorex   Model: SixteenMAXX 1040  Rev: TWS1
-  Type:   CD-ROM                             ANSI SCSI revision: 02
+TNX!!
 
+>Please send me details on the system. lspci -v output too.
+>
 
-The syslog only shows some IDE errors, which are not unusual in this 
-situation.
+As I said, it is a SUPER P3TDLE, with 2 UDMA/33 channels, and a cdrom
+in hda and a zip in hdc (nothing in any slave).
+I will send you details tomorrow from work.
 
-Using ide-cd instead of ide-scsi works fine, no more lockups, the read
-operation even completes successful after some time.
-
-Using kernel 2.2.19 also works fine.
-
-Any important information missing ?
-
-Thanks
-
-Andreas.
-
-Crash 1 :
-
-Sep 24 23:02:04 au kernel: scsi : aborting command due to timeout : pid 0,
-scsi1, channel 0, id 0, lun 0 Read (10) 00 00 03 d2 83 00 00 3f 00
-Sep 24 23:02:04 au kernel: hdc: timeout waiting for DMA
-Sep 24 23:02:04 au kernel: ide_dmaproc: chipset supported ide_dma_timeout 
-func only: 14
-Sep 24 23:02:04 au kernel: hdc: status timeout: status=0xd0 { Busy }
-Sep 24 23:02:04 au kernel: hdc: drive not ready for command
-Sep 24 23:02:04 au kernel: scsi : aborting command due to timeout : pid 0,
-scsi1, channel 0, id 0, lun 0 Read (10) 00 00 03 d2 c2 00 00 01 00
-Sep 24 23:02:04 au kernel: hdc: ATAPI reset complete
-# crash occurs here
-
-------
-Crash 2 :
-
-Oct 12 22:08:21 au kernel: scsi : aborting command due to timeout : pid 0,
-scsi0, channel 0, id 0, lun 0 Read (10) 00 00 04 83 82 00 00 08 00
-Oct 12 22:08:21 au kernel: hdc: timeout waiting for DMA
-Oct 12 22:08:21 au kernel: ide_dmaproc: chipset supported ide_dma_timeout 
-func only: 14
-Oct 12 22:08:21 au kernel: hdc: status timeout: status=0xd0 { Busy }
-Oct 12 22:08:21 au kernel: hdc: drive not ready for command
-Oct 12 22:08:21 au kernel: hdc: ATAPI reset complete
-Oct 12 22:08:21 au kernel: hdc: irq timeout: status=0x80 { Busy }
-
-# crash occurs here
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.12-ac2-beo #1 SMP Mon Oct 15 00:23:19 CEST 2001 i686

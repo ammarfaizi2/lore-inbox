@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSHGLhF>; Wed, 7 Aug 2002 07:37:05 -0400
+	id <S317165AbSHGLrr>; Wed, 7 Aug 2002 07:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSHGLhF>; Wed, 7 Aug 2002 07:37:05 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:33540 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S316878AbSHGLhE>; Wed, 7 Aug 2002 07:37:04 -0400
-Date: Wed, 7 Aug 2002 13:40:43 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at tg3.c:1557
-Message-ID: <Pine.LNX.4.44.0208071332110.3394-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S317170AbSHGLrq>; Wed, 7 Aug 2002 07:47:46 -0400
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:65295 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S317165AbSHGLrp>;
+	Wed, 7 Aug 2002 07:47:45 -0400
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, gam3@acm.org
+Subject: Re: Problems with NFS exports
+References: <87eldchtr2.fsf@deneb.enyo.de> <87k7n3t3zm.fsf@deneb.enyo.de>
+	<15696.63765.38094.618742@notabene.cse.unsw.edu.au>
+	<8765ymsyzh.fsf@deneb.enyo.de>
+	<15697.511.36832.939913@notabene.cse.unsw.edu.au>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+ linux-kernel@vger.kernel.org,  gam3@acm.org
+Date: Wed, 07 Aug 2002 13:51:22 +0200
+In-Reply-To: <15697.511.36832.939913@notabene.cse.unsw.edu.au> (Neil Brown's
+ message of "Wed, 7 Aug 2002 21:18:23 +1000")
+Message-ID: <87d6surio5.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear kernel hackers!
+Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-I've been chasing this bug now for weeks without further ideas, so please 
-tell me your thoughts about it:
+>> > And "BUSY" probably isn't correct ....
+>> 
+>> Why not? The ressource (the directory tree) is already being used, and
+>> therefore the export fails.
+>
+> I guess... I just feel it isn't really clear what it is that is
+> 'busy'.
 
-On a dual Athlon MP with a 3ware-7850 RAID (640GB RAID-5) and 3C996B-T GE 
-NIC I can crash the machine with the above BUG message in virtually no 
-time simply by copying data both ways between the RAID and the NIC. The 
-BUG message shows that this can happen any time, it doesn't matter if the 
-interrupt is received in cpu_idle or something else. I tried noapic, but 
-to no avail.
+And it implies that it is just a temporary error condition, not a
+configuration issue.
 
-Does anybody know about this problem?
-How can I get more debugging information?
-Can the driver be patched to gracefully handle this situation, e.g. by 
-resetting the card and trying again?
-
-What I've found out till now is only that the kernel's and the NIC's view 
-of the world seem to be inconsistent :-(
-
-For our application stability is much more important than a few TCP 
-retransmits...
-
-Thanks in advance,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
-
+Maybe EEXIST is better?

@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUBQTEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 14:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUBQTEf
+	id S266511AbUBQTJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266510AbUBQTJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 14:04:35 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:11712 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266465AbUBQTE0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 14:04:26 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alex Bennee <kernel-hacker@bennee.com>
-Subject: Re: Any guides for adding new IDE chipset drivers?
-Date: Tue, 17 Feb 2004 20:10:34 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <1077028026.31892.153.camel@cambridge.braddahead.com>
-In-Reply-To: <1077028026.31892.153.camel@cambridge.braddahead.com>
+	Tue, 17 Feb 2004 14:09:26 -0500
+Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:23690 "EHLO
+	stud.fbi.fh-darmstadt.de") by vger.kernel.org with ESMTP
+	id S266511AbUBQTIk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 14:08:40 -0500
+From: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Radeonfb problem 
+Date: Tue, 17 Feb 2004 20:08:29 +0100
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200402172010.34114.bzolnier@elka.pw.edu.pl>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 of February 2004 15:27, Alex Bennee wrote:
-> On Monday 16 of Febuary 2004 09:40:21 PST, Bart wrote:
-> >On Monday 16 of February 2004 18:04, Alex Bennee wrote:
-> >> Is there a driver that can be held of as an example of good taste and
-> >> the "right" way to implement a chipset driver?
-> >
-> >Yep.  Please take a look at drivers/ide/arm/icside.c.
-> >It is well written, quite simple and has DMA support.
->
-> Thanks. I'll base my driver on this one as it does seem quite easy
-> to follow. However I'm wondering what the point of the begin/end functions
-> are. The dma_read/write functions just seem to call dma_count which starts
-> the dma requests going.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-hwif->ide_dma_count() is gone in 2.6.3-rc4.
+Hi,
+I'v 2.6.3-rc3-mm1 up and running on an t40p.
+ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 02)
+The problem i observe was that reset won't clean my display just draw the new 
+commandline on the upper left. The screen still old display. 
 
-ATAPI drivers (ie. ide-cd.c) and TCQ code (ide-tcq.c)
-use ->ide_dma_begin() and ->ide_dma_end() directly.
+Don't know if anyone can aprove that.
 
-DMA timeout recovery functions also call ->ide_dma_end().
+Cu Sergio 
 
-> Am I missing something here? Is all that required from the higher level a
-> single call to dma_read/write or should I be expecting a series of calls to
-> setup a transfer?
+- -- 
+Microsoft is to operating systems & security ....
+             .... what McDonalds is to gourmet cooking
 
-To setup a DMA transfer:
+PGP-Key http://vergata.it/GPG/F17FDB2F.asc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-ATA: ->ide_dma_{read,write}() (they call ->ide_dma_begin()) or
-     __ide_dma_queued_{read,write}() (they may call ->ide_dma_begin())
-
-ATAPI: ->ide_dma_{read,write}() + ->ide_dma_begin()
-
-Hope this helps.
-
+iD8DBQFAMma0VP5w5vF/2y8RAqJLAJ9Ca4B/Et/foy+b620B1udvg5E8HgCgyCWN
+YyjSsPf8nLzd6lLph+gzWZY=
+=JcF9
+-----END PGP SIGNATURE-----

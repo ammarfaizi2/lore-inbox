@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264822AbTBOXpm>; Sat, 15 Feb 2003 18:45:42 -0500
+	id <S265096AbTBPAC2>; Sat, 15 Feb 2003 19:02:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbTBOXpm>; Sat, 15 Feb 2003 18:45:42 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:52970 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S264822AbTBOXpl>; Sat, 15 Feb 2003 18:45:41 -0500
-Date: Sun, 16 Feb 2003 00:55:37 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: lkml <linux-kernel@vger.kernel.org>
-cc: Arador <diegocg@teleline.es>
-Subject: Re: 2.5.61 SMP -> solid lockup
-In-Reply-To: <Pine.LNX.4.33.0302152051130.6495-100000@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.33.0302160046280.7624-100000@gans.physik3.uni-rostock.de>
+	id <S265097AbTBPAC2>; Sat, 15 Feb 2003 19:02:28 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:15879 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S265096AbTBPAC1>;
+	Sat, 15 Feb 2003 19:02:27 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61-mm1
+References: <20030214231356.59e2ef51.akpm@digeo.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20030214231356.59e2ef51.akpm@digeo.com>
+Date: 15 Feb 2003 19:12:13 -0500
+Message-ID: <m365rlf5ia.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003, Tim Schmielau wrote:
+I just tried 2.5.61 and 2.5.61-mm1 on a dell inspiron 8100.
 
-> 2.4.61 on a dual PIII will lock up hard in less than 5 minutes for me.
-> No output on the console. CONFIG_PREEMPT makes no difference.
-> UP works, with and without CONFIG_PREEMPT, CONFIG_X86_LOCAL_APIC,
-> CONFIG_X86_IO_APIC. My full .config is below.
->
-> The problem was introduced between 2.5.59 and 2.5.60. Unfortunately,
-> I don't have the 2.5.59-bk patches to do a further binary search.
+2.5.61 is working OK, but -mm1 hung as soon as it tried to exec init.
+init=/bin/bash showed the same failure.
 
-Thanks to Diego Calleja, who provided me with a working .config,
-I found that turning off ACPI fixes it.
+init(8) was able to print out it's first line, announcing its version
+but then stopped.  with init=/bin/bash bash did not output anything.
 
-Since I enabled it unintentionally, anyways, I'm happy again and will
-just enter this case into Bugzilla and forget about it.
+-JimC
 
-Thanks again,
-Tim
 
 

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbTBNQi3>; Fri, 14 Feb 2003 11:38:29 -0500
+	id <S261354AbTBNQe6>; Fri, 14 Feb 2003 11:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbTBNQi2>; Fri, 14 Feb 2003 11:38:28 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:8064 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261356AbTBNQi1>; Fri, 14 Feb 2003 11:38:27 -0500
-Date: Fri, 14 Feb 2003 17:47:20 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
+	id <S261370AbTBNQe6>; Fri, 14 Feb 2003 11:34:58 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:2499 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261354AbTBNQe4>; Fri, 14 Feb 2003 11:34:56 -0500
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+From: Rusty Lynch <rusty@linux.co.intel.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, David Lang <david.lang@digitalinsight.com>,
-       "Matthew D. Pitts" <mpitts@suite224.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-Message-ID: <20030214164720.GC200@louise.pinerecords.com>
-References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com> <1045233701.7958.14.camel@irongate.swansea.linux.org.uk> <20030214153039.GB3188@work.bitmover.com> <1045241763.1353.19.camel@irongate.swansea.linux.org.uk>
+Cc: Matt Porter <porter@cox.net>, Scott Murray <scottm@somanetworks.com>,
+       Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045234137.7958.17.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0302131603500.23407-100000@rancor.yyz.somanetworks.com>
+	<20030213155817.B1738@home.com>  <1045173941.1009.4.camel@vmhack>
+	<1045183679.1009.7.camel@vmhack> 
+	<1045234137.7958.17.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Feb 2003 07:32:33 -0800
+Message-Id: <1045236757.12974.14.camel@vmhack>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045241763.1353.19.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [alan@lxorguk.ukuu.org.uk]
+On Fri, 2003-02-14 at 06:48, Alan Cox wrote:
+> On Fri, 2003-02-14 at 00:47, Rusty Lynch wrote:
+> > Ok, I had to go and read the driver-model documentation a couple of more
+> > times, but after I actually started writing some code it finally started
+> > to make sense.  
 > 
-> On Fri, 2003-02-14 at 15:30, Larry McVoy wrote:
-> > Second of all, all of those reverse engineering clauses are dependent on
-> > you having a legal copy of the software, full stop.  You can't get a 
-> > legal copy if what you want to do, now or in the future, is to reverse
-> > engineer the software.  
+> The watchdog_ops is probably a good thing anyway. If you also use that
+> same structure with the base watchdog module having the ioctl parser all
+> the ioctl handling funnies and quirks in the drivers go away except
+> for driver private stuff.
 > 
-> Go talk to an EU lawyer. These laws exist to stop people locking down
-> formats and its one of the reasons you actually have things like
-> open office
+> Two for the price of one
 > 
-> All I want is to be able to review the 3c990 patch. Right now I can't
+> Alan
+> 
 
-Larry, would it be a problem to implement something like:
+Since only one driver can register as the /dev/watchdog (ie
+major=10/minor=130 char device), would it be better if:
 
-alan@wherever$ echo 'rq unidiff for {1.967,1.968} of typhoon/typhoon-2.4'| \
-	mail diffmail@bkbits.net
-...
-You have mail in /var/spool/alan.
-alan@wherever$ tail -17 /var/spool/alan
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h  --- a/include/linux/pci_ids.h	Mon Feb  3 16:41:40 2003
-+++ b/include/linux/pci_ids.h	Thu Feb 13 22:42:01 2003
-@@ -829,6 +829,14 @@
- #define PCI_DEVICE_ID_3COM_3C905TX	0x9050
- #define PCI_DEVICE_ID_3COM_3C905T4	0x9051
- #define PCI_DEVICE_ID_3COM_3C905B_TX	0x9055
-+#define PCI_DEVICE_ID_3COM_3CR990	0x9900
-+#define PCI_DEVICE_ID_3COM_3CR990_TX_95	0x9902
-+#define PCI_DEVICE_ID_3COM_3CR990_TX_97	0x9903
-+#define PCI_DEVICE_ID_3COM_3CR990B	0x9904
-+#define PCI_DEVICE_ID_3COM_3CR990_FX	0x9905
-+#define PCI_DEVICE_ID_3COM_3CR990SVR95	0x9908
-+#define PCI_DEVICE_ID_3COM_3CR990SVR97	0x9909
-+#define PCI_DEVICE_ID_3COM_3CR990SVR	0x990a
- 
- #define PCI_VENDOR_ID_SMC		0x10b8
- #define PCI_DEVICE_ID_SMC_EPIC100	0x0005
+* the first watchdog driver to register with the base also gets
+registered as the watchdog misc device, and when that driver unregisters
+then the second watchdog to register now gets registered as the misc
+device, etc.
+* each watchdog driver gets an additional sysfs file named 'misc', where
+writing a '1' to the file causes the driver to become the registered
+misc watchdog device.
+* something else
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+    --rustyl
+
+

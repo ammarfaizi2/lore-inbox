@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131811AbQLIPdQ>; Sat, 9 Dec 2000 10:33:16 -0500
+	id <S129710AbQLIPoJ>; Sat, 9 Dec 2000 10:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131870AbQLIPdG>; Sat, 9 Dec 2000 10:33:06 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64782 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131811AbQLIPc7>; Sat, 9 Dec 2000 10:32:59 -0500
-Date: Sat, 9 Dec 2000 16:04:03 +0100
-From: Martin Mares <mj@suse.cz>
-To: davej@suse.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pdev_enable_device no longer used ?
-Message-ID: <20001209160403.A28562@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.21.0012091122460.3465-100000@neo.local>
+	id <S129781AbQLIPoA>; Sat, 9 Dec 2000 10:44:00 -0500
+Received: from isolaweb.it ([213.82.132.2]:15626 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S129710AbQLIPnt>;
+	Sat, 9 Dec 2000 10:43:49 -0500
+Message-Id: <4.3.2.7.2.20001209160215.00c901e0@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sat, 09 Dec 2000 16:07:03 +0100
+To: "David S. Miller" <davem@redhat.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
+Cc: rasmus@jaquet.dk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200012091442.GAA20532@pizda.ninka.net>
+In-Reply-To: <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
+ <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
+ <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
+ <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.21.0012091122460.3465-100000@neo.local>; from davej@suse.de on Sat, Dec 09, 2000 at 11:30:44AM +0000
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+At 06.42 09/12/00 -0800, David S. Miller wrote:
 
->  I noticed a lot of drivers are setting the PCI_CACHE_LINE_SIZE
-> themselves, some to L1_CACHE_BYTES/sizeof(u32), others
-> to arbitrary values (4, 8, 16).
-> 
-> Then I spotted that we have a routine in the PCI subsystem
-> (pdev_enable_device) that sets all these to L1_CACHE_BYTES/sizeof(u32)
-> Further digging revealed that this routine was not getting called.
-> 
-> On my Athlon box, I've noticed some devices are getting their
-> default values set to 8 (where (I think) it should be 16 ?)
-> 
-> Questions:
-> 1. Is there reason for the drivers to be setting this themselves
->    to hardcoded values ?
+>    Date: Sat, 09 Dec 2000 15:48:05 +0100
+>    From: Roberto Fichera <kernel@tekno-soft.it>
+>
+>    >atomic_t does not guarentee a large enough range necessary for mm->rss
+>
+>    If we haven't some atomic_t that can be negative we could define atomic_t
+>    as unsigned long for all arch,
+>    this is sufficient to fitting all the range for the mm->rss.
+>
+>32-bit Sparc has unsigned long as 32-bit, and the top 8 bits of the
+>atomic_t are used for a spinlock, thus a 27-bit atomic_t, there
+>is not enough precision.
 
-Definitely not unless the devices are buggy and need a work-around.
+8 bits for a spinlock ? What kind of use we have here ? All arch except Sparc32
+don't have this trick.
 
-For PC's, we've until now relied on the BIOS setting up cache line sizes
-correctly. Are the "8"'s you've spotted due to drivers messing with the
-cache line register or do they come from the BIOS?
+Roberto Fichera.
 
-> 2. Why is pdev_device_enable no longer used ?
-
-I haven't written this function, but I guess it's expected to be called
-from the architecture specific device enabling code and that some architectures
-have to call it, some don't.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-bug, n: A son of a glitch.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

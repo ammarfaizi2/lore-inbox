@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265043AbRGEMl5>; Thu, 5 Jul 2001 08:41:57 -0400
+	id <S264998AbRGEMkg>; Thu, 5 Jul 2001 08:40:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbRGEMlq>; Thu, 5 Jul 2001 08:41:46 -0400
-Received: from mail.ftr.nl ([212.115.175.146]:60153 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S265043AbRGEMlc>; Thu, 5 Jul 2001 08:41:32 -0400
-Message-ID: <27525795B28BD311B28D00500481B7601F1558@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Anuradha Ratnaweera <anuradha@gnu.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: chuckw@altaserv.net, Vipin Malik <vipin.malik@daniel.com>,
-        Aaron Lehmann <aaronl@vitelus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: Cosmetic JFFS patch.
-Date: Thu, 5 Jul 2001 14:41:26 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265042AbRGEMk0>; Thu, 5 Jul 2001 08:40:26 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:3588 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S264998AbRGEMkL>; Thu, 5 Jul 2001 08:40:11 -0400
+Date: Thu, 5 Jul 2001 14:39:44 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Cyril ADRIAN <c.adrian@alplog.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unresolved symbols since 2.4.5 ?
+Message-ID: <20010705143944.J30999@arthur.ubicom.tudelft.nl>
+In-Reply-To: <873d8b4kve.fsf@galaxie.alplog.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <873d8b4kve.fsf@galaxie.alplog.net>; from c.adrian@alplog.fr on Thu, Jul 05, 2001 at 02:32:21PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Leave the copyright messages alone is all I can say. And as to your flag,
-> well we've got one. Try the 'quiet' boot option
-YOU> Leaving copyright messages also saves the purpose of motivating - not
-all but
-YOU> many - developers.  People who _see_ the printk copyright messages is a
-_very_
-YOU> large superset of people who _look_ at source code, or ChangeLog /
-CREDITS /
-YOU> MAINTAINERS files.
-YOU> After all many copyright messages are not that annoying.
+On Thu, Jul 05, 2001 at 02:32:21PM +0200, Cyril ADRIAN wrote:
+>     In short, since  2.4.5 I seem not  to be able to install  a kernel (depmod
+> says "unresolved  symbols").  2.4.6  shows the  same problem but  as far  as I
+> remember  2.4.4 did  not.   The sources  I  use are  downloaded  straight from
+> www.kernel.org and I always use the same .config file.
+> 
+>     Relevant data  about my machine: PC  Pentium III, 320 Mo,  UDMA disks, and
+> the OS is Debian GNU/Linux 2.2r3 ("Potato"). Currently I run a 2.4.1 kernel.
 
-Suggestion: make the buffer-size for these messages configurable at make
-config -time.
-So; people can define wether they want the message or not. If size=0, the
-printk-thing
-could be replaced with
-#define printk(x)  /*nothing*/
-Nice for the embedded linux-system people.
+Looks like your system has an old version of modutils. You need Adrian
+Bunk's linux-2.4 packages for running linux-2.4.* with Debian potato.
+Add the following two lines to /etc/apt/sources.list:
+
+deb http://people.debian.org/~bunk/debian potato main
+deb-src http://people.debian.org/~bunk/debian potato main
+
+Now run 'apt-get update ; apt-get dist-upgrade' and rebuild the kernel.
 
 
-Greetings,
+Erik
+[happily running linux-2.4.6-pre8 on potato]
 
-Folkert van Heusden
-[ www.vanheusden.com ]
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbTHVMnr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 08:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbTHVMkv
+	id S263123AbTHVNLg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 09:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTHVNLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 08:40:51 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:20495 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263168AbTHVL4M
+	Fri, 22 Aug 2003 09:11:36 -0400
+Received: from dyn-ctb-210-9-245-150.webone.com.au ([210.9.245.150]:19974 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S263277AbTHVNJD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 07:56:12 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test3-mm3 ACPI config broken
-Date: Fri, 22 Aug 2003 19:54:04 +0800
-User-Agent: KMail/1.5.2
-Cc: acpi-devel-request@lists.sourceforge.net
-X-OS: KDE 3 on GNU/Linux
+	Fri, 22 Aug 2003 09:09:03 -0400
+Message-ID: <3F4615D8.9030200@cyberone.com.au>
+Date: Fri, 22 Aug 2003 23:08:40 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Roger Luethi <rl@hellgate.ch>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+References: <3F4182FD.3040900@cyberone.com.au> <20030822085508.GA10215@k3.hellgate.ch>
+In-Reply-To: <20030822085508.GA10215@k3.hellgate.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308221954.06089.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last line of the block below in drivers/acpi/Kconfig disables ACPI in most configs. Please check.
 
-config ACPI
-	bool "Full ACPI Support"
-	depends on !X86_VISWS
-	depends on !IA64_HP_SIM
-	depends on IA64 || (X86 && ACPI_HT)
 
-Regards
-Michael
+Roger Luethi wrote:
 
--- 
-Powered by linux-2.6. Compiled with gcc-2.95-3 - mature and rock solid
+>On Tue, 19 Aug 2003 11:53:01 +1000, Nick Piggin wrote:
+>  
+>
+>>I haven't run many tests on it - my mind blanked when I tried to
+>>remember the scores of scheduler "exploits" thrown around. So if
+>>anyone would like to suggest some, or better still, run some,
+>>please do so. And be nice, this isn't my type of scheduler :P
+>>    
+>>
+>
+>I timed a pathological benchmark from hell I've been playing with lately.
+>Three consecutive runs following a fresh boot. Time is in seconds:
+>
+>2.4.21			821	21	25
+>2.6.0-test3-mm1		724	946	896
+>2.6.0-test3-mm1-nick	905	987	997
+>
+>Runtime with ideal scheduling: < 2 seconds (we're thrashing).
+>  
+>
 
-2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
-2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
+Cool. Can you post the benchmark source please?
 
-More info on swsusp: http://sourceforge.net/projects/swsusp/
 

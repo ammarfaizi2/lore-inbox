@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288854AbSBDKk1>; Mon, 4 Feb 2002 05:40:27 -0500
+	id <S288870AbSBDKnh>; Mon, 4 Feb 2002 05:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288859AbSBDKkS>; Mon, 4 Feb 2002 05:40:18 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:5319 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288854AbSBDKkC>;
-	Mon, 4 Feb 2002 05:40:02 -0500
-Date: Mon, 4 Feb 2002 13:36:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <20020204044055.EF0579251@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0202041330401.4090-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288867AbSBDKn1>; Mon, 4 Feb 2002 05:43:27 -0500
+Received: from dsl-213-023-060-020.arcor-ip.net ([213.23.60.20]:33800 "EHLO
+	spot.local") by vger.kernel.org with ESMTP id <S288870AbSBDKnR>;
+	Mon, 4 Feb 2002 05:43:17 -0500
+Date: Mon, 4 Feb 2002 11:46:44 +0100
+From: Oliver Feiler <kiza@gmx.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] (was: Re: fixup descriptions in pci-pc.c)
+Message-ID: <20020204114644.A331@gmx.net>
+In-Reply-To: <20020203152913.A533@gmx.net> <Pine.LNX.4.30.0202032342400.1158-100000@rtlab.med.cornell.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.30.0202032342400.1158-100000@rtlab.med.cornell.edu>; from calin@ajvar.org on Sun, Feb 03, 2002 at 11:49:42PM -0500
+X-Operating-System: Linux 2.4.16 i686
+X-Species: Snow Leopard
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Sun, 3 Feb 2002, Ed Tomlinson wrote:
+	This just changes the printk in the via_northbridge_bug fixup to some 
+more meaningful output as it is already in 2.5.3. Please apply.
 
-> One point that seems to get missed is that a group of java threads,
-> posix threads or sometimes forked processes combine to make an
-> application. [...]
+Oliver
 
-yes - but what makes them an application is not really the fact that they
-share the VM (i can very much imagine thread-based login servers where
-different users use different threads - a single application as well?),
-but the intention of the application designer, which is hard to guess.
+--- linux-2.4.18-pre7/arch/i386/kernel/pci-pc.c	Sun Feb  3 14:56:48 2002
++++ linux-2.4.18-pre7_testing/arch/i386/kernel/pci-pc.c	Mon Feb  4 11:30:37 2002
+@@ -1129,7 +1129,7 @@
+ 
+ 	pci_read_config_byte(d, where, &v);
+ 	if (v & 0xe0) {
+-		printk("Trying to stomp on VIA Northbridge bug...\n");
++		printk("Disabling broken memory write queue.\n");
+ 		v &= 0x1f; /* clear bits 5, 6, 7 */
+ 		pci_write_config_byte(d, where, v);
+ 	}
 
-if this becomes inevitable then perhaps a better line we can guess along
-is the child-parent relationship. Looking at 'pstree' output shows some
-clear application boundaries. I'd say an application are 'all children of
-a parent'. Ie. if two threads (shared VM or not shared VM, does not
-matter) have the same parent (which is not init) then they form an
-'application'. This will cover FreeNet java threads just as well as
-hundreds of Apache processes.
 
-but this method is guesswork as well, so it could mishandle certain cases.
-Eg. i'm quite certain that most people would notice the interactive
-effects if we handled all processes forked by kdeinit as a single
-application. So lets do it only if everything else fails to fix your
-workload.
-
-	Ingo
-
+-- 
+Oliver Feiler                                               kiza@gmx.net
+http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
+http://www.lionking.org/~kiza/

@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130372AbQKAURw>; Wed, 1 Nov 2000 15:17:52 -0500
+	id <S129713AbQKAUUC>; Wed, 1 Nov 2000 15:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130348AbQKAURm>; Wed, 1 Nov 2000 15:17:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28960 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129713AbQKAURd>; Wed, 1 Nov 2000 15:17:33 -0500
-Subject: Re: 2.2.18p18 eepro100 issues (packets per irq, shared irqs)
-To: pc_pimp@hotmail.com (KJ Pickett)
-Date: Wed, 1 Nov 2000 20:18:15 +0000 (GMT)
-Cc: eepro100@scyld.com, linux-kernel@vger.kernel.org
-In-Reply-To: <F14h29cM3oryKFRJrzd00005763@hotmail.com> from "KJ Pickett" at Nov 01, 2000 07:35:32 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130348AbQKAUTw>; Wed, 1 Nov 2000 15:19:52 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:21401 "EHLO
+	mail.mirai.cx") by vger.kernel.org with ESMTP id <S129713AbQKAUTg>;
+	Wed, 1 Nov 2000 15:19:36 -0500
+Date: Wed, 1 Nov 2000 12:19:31 -0800 (PST)
+From: J J Sloan <jjs@mirai.cx>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-lvm@msede.com
+Subject: [Fixed] - Repeatable oops mounting snapshots w/ test 10
+Message-ID: <Pine.LNX.4.10.10011011214490.12293-100000@mirai.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13r4Kv-0000nC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> They share an irq, no matter if I'm using intels e100.o driver or the stock 
-> linux one.  For performance reasons, can I make them each have a different 
-> irq?  Doing it from ifconfig gives me a notsupported error, with either 
-> driver.
+Thanks Andrea, it all works like a charm with your lvm utils.
 
-Under 2.2 no. Under 2.4 maybe
+But why is the "official" release of the lvm utils so buggy?
 
-> no kernel hacker...can I get the stock linux driver to do multiple packets 
-> per irq with some config settings?
+Regards,
 
-We dont have sufficient docs to figure this out easily. Intel upload magic
-numbers to the card microcode
+jjs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpG/7GGzmIKWeQaSbhX4jWfkK5g==
+thread-index: AcQVpHYsaE/NwDq1Sx+8yKOpD27qoQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 09:56:05 +0000
-Message-ID: <01b901c415a4$6ffb5a60$d100000a@sbs2003.local>
-From: "Peter Chubb" <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Delivery-date: Sun, 04 Jan 2004 13:07:15 +0000
+Message-ID: <01eb01c415a4$762cbdc0$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
+Date: Mon, 29 Mar 2004 16:42:37 +0100
 Importance: normal
 Priority: normal
-Content-Transfer-Encoding: 7bit
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:42:27 +0100
+From: "Thomas Molina" <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Hugang" <hugang@soulinfo.com>, "Bart Samwel" <bart@samwel.tk>,
-        "Andrew Morton" <akpm@osdl.org>, <smackinlay@mail.com>,
-        "Bartek Kania" <mrbk@gnarf.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
-In-Reply-To: <20040102120327.GA19822@suse.de>
-References: <20031231210756.315.qmail@mail.com><3FF3887C.90404@samwel.tk><20031231184830.1168b8ff.akpm@osdl.org><3FF43BAF.7040704@samwel.tk><3FF457C0.2040303@samwel.tk><20040101183545.GD5523@suse.de><20040102170234.66d6811d@localhost><20040102112733.GA19526@suse.de><20040102193849.6ff090da@localhost><20040102120327.GA19822@suse.de>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h# !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9% \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Cc: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: make modules_install problem in 2.6.0-rc1-mm1
+In-Reply-To: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
+References: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN;
+	charset="US-ASCII"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:28.0203 (UTC) FILETIME=[70A703B0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:38.0578 (UTC) FILETIME=[76D61D20:01C415A4]
 
->>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
+On Sun, 4 Jan 2004, Thomas Molina wrote:
 
-Jens> The dump printk() needs to be changed anyways, the rw
-Jens> deciphering is not correct. Something like this is more
-Jens> appropriate:
+> I get the following message when compiling profile suport into 
+> 2.6.0-rc1-mm1:
+> 
+> WARNING: /lib/modules/2.6.1-rc1-mm1/kernel/arch/i386/oprofile/oprofile.ko needs unknown symbol cpu_possible
+> 
+> My .config file is attached.
 
-Jens>	if (unlikely(block_dump)) { 
-Jens>		char b[BDEVNAME_SIZE];
-Jens>		printk("%s(%d): %s block %Lu on %s\n", current->comm, current-> pid, (rw & WRITE) ? "WRITE" : "READ",
-Jens>		(u64) bio->bi_sector, bdevname(bio->bi_bdev, b)); 
-Jens>	}
-
-Please cast to (unsigned long long) not (u64) because on 64-bit
-architectures u64 is unsigned long, and you'll get a compiler warning.
-
+Sorry about that.  The Subject should obviously refer to 2.6.1-rc1-mm1, 
+not 2.6.0.

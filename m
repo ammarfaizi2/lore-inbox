@@ -1,68 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277653AbRKSLC2>; Mon, 19 Nov 2001 06:02:28 -0500
+	id <S278042AbRKSLI6>; Mon, 19 Nov 2001 06:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277738AbRKSLCT>; Mon, 19 Nov 2001 06:02:19 -0500
-Received: from [195.25.229.189] ([195.25.229.189]:26905 "EHLO
-	mailrennes.rennes.si.fr.atosorigin.com") by vger.kernel.org
-	with ESMTP id <S277653AbRKSLB7> convert rfc822-to-8bit; Mon, 19 Nov 2001 06:01:59 -0500
-Message-ID: <012101c170e9$4c5b5770$8a140237@rennes.si.fr.atosorigin.com>
-From: "Yann E. MORIN" <yann.morin@atosorigin.com>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: Manifesto for GPL source code
-Date: Mon, 19 Nov 2001 11:59:44 +0100
-Organization: ATOS-ORIGIN
+	id <S277942AbRKSLIt>; Mon, 19 Nov 2001 06:08:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9996 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277798AbRKSLIk>; Mon, 19 Nov 2001 06:08:40 -0500
+Subject: Re: IPV4 socket layer,  was: nfs problem: aix-server --- linux 2.4.15pre5 client
+To: b.lammering@science-computing.de (Birger Lammering)
+Date: Mon, 19 Nov 2001 11:16:43 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15352.56551.709659.146271@stderr.science-computing.de> from "Birger Lammering" at Nov 19, 2001 11:20:23 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 19 Nov 2001 10:59:45.0443 (UTC) FILETIME=[4C647F30:01C170E9]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E165mPr-0006F5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+> 13:47:28.337776317 truncated-ip - 18 bytes missing!capc25.muc.796 > caes04.muc.shilp: P 2059179904:2059180060(156) ack 4022052897 win 17520 (DF)
 
-I'm in the process (well, no realy, but soon) of writing a driver
-for a telephony board (manufacturer has decided not to support the
-Linux plateform, sad...).
-
-I've got the LDD2, the LKMPG, the Linux code. I know about
-KernelNewbies and have spent quite a few weeks reading through LKML.
-Everything is getting well in place both in my head and in my
-employer's.
-
-Anyhow, some pointers to this kind of work, to other source of
-information, anything you might be worth reading/downloading/compiling
-will be welcome.
-
-But then, we'll have to 'deal' with the board manufacturer to obtain
-the specifications. What we'd like to do is sign no NDA, as to provide
-the community with yet another driver (I need assistance to write such
-a piece of code and I feel it GOOD to release that driver _free_).
-
-So here's the question:
-Where could I find some kind of a manifesto to show the manufacturer
-to have him understand the pros (and cons) of GPL Software, so they
-release the HW specs.
-
-When the manufacturer doesn't agree with GPL, what kind of NDA would
-be most valuable to sign, as to provide the most possible info to
-the comunity? I know some have signed NDAs and release only binaries.
-Would that be a satisfactory agreement?
-
-Thanx all!
-Yann, hoppefully futur linux device driver writer! ;-)
-
---
-.---------------------------.----------------------.------------------.
-|       Yann E. MORIN       |  Real-Time Embedded  | ASCII RIBBON /"\ |
-| phone (+33/0) 299 055 231 |  Software  Designer  |   CAMPAIGN   \ / |
-|   fax (+33/0) 299 055 221 °----------------------:   AGAINST     X  |
-| yann.morin@atosorigin.com    www.atosorigin.com  |  HTML MAIL   / \ |
-°--------------------------------------------------°------------------°
-
-
+Right so someone is truncating frames. I'd start with the hub then work
+outwards. 

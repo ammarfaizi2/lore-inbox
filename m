@@ -1,73 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbSJaRaE>; Thu, 31 Oct 2002 12:30:04 -0500
+	id <S262743AbSJaR0Q>; Thu, 31 Oct 2002 12:26:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262878AbSJaRaE>; Thu, 31 Oct 2002 12:30:04 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:52199 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262824AbSJaRaC>; Thu, 31 Oct 2002 12:30:02 -0500
-Date: Thu, 31 Oct 2002 10:36:15 -0700
-Message-Id: <200210311736.g9VHaF820663@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Stephen Wille Padnos <stephen.willepadnos@verizon.net>,
-       Dax Kelson <dax@gurulabs.com>, Chris Wedgwood <cw@f00f.org>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-In-Reply-To: <Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
-References: <3DC15931.9030601@verizon.net>
-	<Pine.GSO.4.21.0210311126450.16688-100000@weyl.math.psu.edu>
+	id <S262712AbSJaR0Q>; Thu, 31 Oct 2002 12:26:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64251 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262743AbSJaR0F>; Thu, 31 Oct 2002 12:26:05 -0500
+Subject: Re: How to get a local IPv4 address from within a kernel module?
+To: jt@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OF3A0A864F.BCE2D0BA-ON87256C63.006000B8@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Thu, 31 Oct 2002 09:32:29 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
+ 10/31/2002 10:32:29
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> On Thu, 31 Oct 2002, Stephen Wille Padnos wrote:
-> 
-> > >Then give them all the same account and be done with that.  Effect will
-> > >be the same.
-> > 
-> > Unless I'm missing something, that only works if all the users need 
-> > *exactly* the same permissions to all files, which isn't a good assumption.
-> 
-> That's the point.  In practice shared writable access to a directory
-> can be easily elevated to full control of each others' accounts,
-         ^^^^^^
-While that may be true in theory, in practice it's not necessarily the
-case. Many people don't have the expertise to make use of such
-exploits. And before you say that they can download a pre-cooked
-exploit kit, let me tell you that there are plenty of people who don't
-have the time or inclination to do that.
+                                                                                                               
+                                                                                                               
+                                                                                                               
 
-I've seen you talk about these kinds of things before, and you always
-seem to be talking about the typical nightmarish undergrad CS lab
-where the kids spend all their time trying to crack each other and the
-system. And I'm not saying that these don't exist: I've seen it.
 
-But there are other environments (say a research lab with grad
-students, post-docs and faculty) where the inhabitants either don't
-have the skills or don't have the interest in cracking accounts.
-Everyone is too busy doing their own research. Cracking the mysteries
-of the universe seems to be more interesting.
+Jean,
 
-So group write access and ACL's *can* lead to wanton cracking, but for
-many environments it's not an issue. For many, the dangers lie outside
-the firewall, not inside.
+I am aware of all this, however, my application will be happy to get any
+IPv4 assigned to any of the local interfaces as far as you consistently
+get the same on repeated calls.
+I think there should be an interface to query this from within the kernel
+so since I did not find it I am proposing to get one
+or may be there is something hidden which I missed so I decided to ask
+here.
 
-Note that I'm not specifically advocating ACL's, I'm just letting you
-know that the problem you're concerned about is, for good reason, not
-a problem for everyone.
+Juan
 
-I will note that one appealing aspect of ACL's is that they do not
-require administrator intervention. That's good for a user who just
-wants to set something up without having to wait for the sysadmin.
-It's also good for the sysadmin (excepting control freaks) who doesn't
-want to do things that the users can (or should) actually be doing by
-themselves.
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+|---------+---------------------------------->
+|         |           Jean Tourrilhes        |
+|         |           <jt@bougret.hpl.hp.com>|
+|         |           Sent by:               |
+|         |           linux-kernel-owner@vger|
+|         |           .kernel.org            |
+|         |                                  |
+|         |                                  |
+|         |           10/30/02 06:38 PM      |
+|         |           Please respond to jt   |
+|         |                                  |
+|---------+---------------------------------->
+  >------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                  |
+  |       To:       Linux kernel mailing list <linux-kernel@vger.kernel.org>                                         |
+  |       cc:                                                                                                        |
+  |       Subject:  Re: How to get a local IPv4 address from within a kernel module?                                 |
+  |                                                                                                                  |
+  |                                                                                                                  |
+  >------------------------------------------------------------------------------------------------------------------|
+
+
+
+Juan Gomez wrote :
+>
+> Is there any standard way of doing this? I looked into ipv4 code but I
+did
+> not find a function that would provide a direct, clean way to query the
+> local IPv4 addresses of a given node.
+
+             There is no such thing as the local IPv4 addresses of a given
+node. IP addresses are assigned for each network interfaces, so you
+may have more than one IP address. Note that I have many systems that
+don't have any "eth0" and still have many IP addresses (on wlan0,
+ppp0, bnep0...).
+             On top of that, the DNS may assign an IP address that map to
+your current hostname (which may correspond to one of the addresses
+above). That's purely a user space stuff.
+
+             So, you are basically starting on a wrong assumption, the
+information you are looking for doesn't exist, and I therefore suspect
+that you need to rethink the thing you want to do.
+
+             I suggest you use a user space application to pick the IP
+address most relevant to your setup (i.e. policy decision) and inject
+it in your module.
+
+             Good luck,
+
+             Jean
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

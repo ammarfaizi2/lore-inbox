@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278004AbRJ3UoU>; Tue, 30 Oct 2001 15:44:20 -0500
+	id <S278072AbRJ3Uru>; Tue, 30 Oct 2001 15:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278038AbRJ3UoK>; Tue, 30 Oct 2001 15:44:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:59523 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278004AbRJ3Un5>;
-	Tue, 30 Oct 2001 15:43:57 -0500
-Date: Tue, 30 Oct 2001 12:44:30 -0800 (PST)
-Message-Id: <20011030.124430.66056222.davem@redhat.com>
-To: guus@warande3094.warande.uu.nl
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Fix check if device is ethernet in alloc_divert_blk
+	id <S278038AbRJ3Urk>; Tue, 30 Oct 2001 15:47:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:132 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S278076AbRJ3UrZ>;
+	Tue, 30 Oct 2001 15:47:25 -0500
+Date: Tue, 30 Oct 2001 12:47:40 -0800 (PST)
+Message-Id: <20011030.124740.77059418.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: hugh@veritas.com, Frank.dekervel@student.kuleuven.ac.Be, andrea@suse.de,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: need help interpreting 'free' output.
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011030162235.B5566@sliepen.warande.net>
-In-Reply-To: <20011030162235.B5566@sliepen.warande.net>
+In-Reply-To: <Pine.LNX.4.33.0110300839360.8603-200000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0110301557560.1229-100000@localhost.localdomain>
+	<Pine.LNX.4.33.0110300839360.8603-200000@penguin.transmeta.com>
 X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -21,14 +23,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-   Date: Tue, 30 Oct 2001 16:22:35 +0100
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Tue, 30 Oct 2001 08:52:58 -0800 (PST)
    
-   Instead of checking for the actual device type, alloc_divert_blk was
-   just checking if the string "eth" occured in the name of the interface.
-   Attached patch makes it do the right thing instead (I hope).
+   My _preferred_ approach would actually be to move the slab pages to the
+   LRU list too, and have a special "slab" address space (we don't need to
+   actually hash them, we just make page->mapping point to it), and have the
+   cache shrink be done naturally as part of writepage().
 
-I've applied your patch.
+This is a cool idea.
+
+So when a SLAB block gets allocated from, we "reference" the
+underlying page?
 
 Franks a lot,
 David S. Miller

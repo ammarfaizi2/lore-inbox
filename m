@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316677AbSFJGBl>; Mon, 10 Jun 2002 02:01:41 -0400
+	id <S316678AbSFJGHI>; Mon, 10 Jun 2002 02:07:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316678AbSFJGBk>; Mon, 10 Jun 2002 02:01:40 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:54029 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S316677AbSFJGBj>;
-	Mon, 10 Jun 2002 02:01:39 -0400
-Date: Mon, 10 Jun 2002 01:55:42 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "David S. Miller" <davem@redhat.com>
-Cc: greearb@candelatech.com, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-Message-ID: <20020610015542.B18388@mark.mielke.cc>
-In-Reply-To: <3D029DAF.5040006@candelatech.com> <20020608.175108.84748597.davem@redhat.com> <3D039D22.2010805@candelatech.com> <20020609.213440.04716391.davem@redhat.com>
-Mime-Version: 1.0
+	id <S316679AbSFJGHH>; Mon, 10 Jun 2002 02:07:07 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:31636 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S316678AbSFJGHG>;
+	Mon, 10 Jun 2002 02:07:06 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200206100607.XAA17282@csl.Stanford.EDU>
+Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
+To: adilger@clusterfs.com (Andreas Dilger)
+Date: Sun, 9 Jun 2002 23:07:05 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+In-Reply-To: <20020610052807.GB20388@turbolinux.com> from "Andreas Dilger" at Jun 09, 2002 11:28:07 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 09:34:40PM -0700, David S. Miller wrote:
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Sun, 09 Jun 2002 11:23:30 -0700
->    I need to account for packets on a per-session basis, where a
->    session endpoint is a UDP port.  So, knowing global protocol numbers is
->    good, but it is not very useful for the detailed accounting I
->    need.
-> Why can't you just disable the other UDP services, and then there is
-> no question which UDP server/client is causing the drops.
+> > /u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c
+> > 	 * Do we need to do a data copy?
+> > 	 */
+> > 
+> > 	if (need_copy_out && !done_copy_out) {
+> > 		char *tmp;
+> > Start --->
+> > 		tmp = jbd_rep_kmalloc(jh2bh(jh_in)->b_size, GFP_NOFS);
+> > 
+> > 		jh_in->b_frozen_data = tmp;
+> > Error --->
+> > 		memcpy (tmp, mapped_data, jh2bh(jh_in)->b_size);
+> 
+> Note that jbd_rep_kmalloc() is a special case, and will not currently
+> return NULL.  This macro calls  __jbd_rep_kmalloc(..., retry=1) which
+> means "repeat the allocation until it succeeds" so the code path
+> "if (!retry) return NULL" can never actually happen from this caller.
+> The logic is somewhat convoluted, so it is not surprising that the
+> checker didn't distinguish this case (it would have to have done the
+> "constant" evaluation to drop the NULL return path from the code).
 
-If the application only had 10 or fewer, non-critical UDP ports
-sending data, this conclusion might apply. However, even then, this
-suggestions seems a little silly. "Why don't you call for a full stop
-and then try them one by one?" is what I read this suggestion as
-being.
+Interesting.  The checker infers which functions can plausibly return
+null by counting, for each function f:
+	1.  how many callsites check f's return value against null
+ versus 
+	2.how many do not.  
+In this case the reason we were checking jbd_rep_kmalloc (actually
+__jbd_kmalloc) was because five other callers in jbd checked it:
 
-> Every argument I hear is one out of lazyness.  And that is not a
-> reason to add something.  Simply put, I don't want to add all of this
-> per-socket counter bumping that only, at best, 1 tenth of 1 percent
-> of people will use.  This means that the rest of the world eats the
-> overhead just for this small group that actually uses it.
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c:695:journal_init_common: NOTE:NULL:692:695:[EXAMPLE=__jbd_kmalloc:692]
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:54:get_transaction: NOTE:NULL:50:54:[EXAMPLE=__jbd_kmalloc:50]
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:233:journal_start: NOTE:NULL:230:233:[EXAMPLE=__jbd_kmalloc:230]
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:339:journal_try_start: NOTE:NULL:336:339:[EXAMPLE=__jbd_kmalloc:336]
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:895:journal_get_undo_access: NOTE:NULL:885:895:[EXAMPLE=__jbd_kmalloc:885]
 
-Is it 'laziness' that the application needs to be able to minimize every
-last CPU cycle, or is it 'optimization'?
+which means there are indeed bugs in jbd, just not the one we flagged ;-)
 
-To many designers, the determination that one should *be* lazy is
-considered a virtue. The opposite extreme would suggest that "well
-TCP/IP shouldn't be built into the kernel anyways... application
-writers are just too lazy to implement the TCP/IP stack in user
-space... it doesn't belong in the kernel..."
+Dawson
 
-As for the "rest of the world eats the overhead just for this small group
-that actually uses it"... this would be true... if every single Linux
-kernel was built with the exact same configuration.
+PS this is the meaning of the rather opaque "[ex=5] [counter=1]" in the
+error message:  5 checks of __jbd_kmalloc versus 1 use-without-check of it.
 
-What am I saying? I haven't seen an effective argument against the
-requirement, and I can see potential uses *for* the requirement.
-
-Feel free to provide an effective argument against. :-)
-
-Until then...
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+/u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c:441:journal_write_metadata_buffer: ERROR:NULL:438:441:Passing unknown ptr "tmp"! as arg 0 to call "memcpy"! set by '__jbd_kmalloc':438 [COUNTER=__jbd_kmalloc:438] [fit=22] [fit_fn=1] [fn_ex=0] [fn_counter=1] [ex=5] [counter=1] [z = -1.31122013621437] [fn-z = -4.35889894354067]

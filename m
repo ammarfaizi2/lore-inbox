@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUGBRCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUGBRET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUGBRCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 13:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUGBRCZ
+	id S264750AbUGBRET (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 13:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGBRET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 13:02:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2286 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264746AbUGBRCW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 13:02:22 -0400
-Message-ID: <40E5950F.2090308@pobox.com>
-Date: Fri, 02 Jul 2004 13:02:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: linux-ide@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       cova@ferrara.linux.it, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question about SATA and IDE DVD/CD drives.
-References: <Pine.LNX.4.44.0407021745400.2190-100000@einstein.homenet>
-In-Reply-To: <Pine.LNX.4.44.0407021745400.2190-100000@einstein.homenet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 13:04:19 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:64670 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264750AbUGBRER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 13:04:17 -0400
+Date: Fri, 2 Jul 2004 19:04:10 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       "K.G." <k_guillaume@libertysurf.fr>,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+Message-ID: <20040702170410.GC25914@apps.cwi.nl>
+References: <s5gwu1mwpus.fsf@patl=users.sf.net> <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> On Fri, 2 Jul 2004, Jeff Garzik wrote:
-> 
->>Enable CONFIG_IDE, and disable CONFIG_BLK_DEV_IDE_SATA, and that will 
->>fix things I bet.
-> 
-> 
-> Tried this as well on the latest snapshot (2.6.7-bk9) and it failed as 
-> well. Namely, SATA disk works fine but IDE subsystem doesn't see the DVD 
-> drive.
-> 
-> Are you sure that I only need to enable CONFIG_IDE and not some of the
-> other IDE options (disk, cdrom, chipset-specific etc)?
+On Fri, Jul 02, 2004 at 06:17:53PM +0200, Szakacsits Szabolcs wrote:
 
-Sorry, I was summarizing...  you definitely need a "personality" driver 
-such as the ide-cdrom driver in order to make use of your DVD drive.
+> Does anybody find the new HDIO_GETGEO semantic useful? Did it help
+> _anything_? 
 
-Really, though, I need to get off my butt and finish ATAPI in libata. 
-Then, libata can drive PATA devices and we can get rid of all these 
-headaches with combined mode being split between two drivers.
+Yes. I do.
 
-I'm going to be doing some libata hacking this weekend, looking 
-particularly at a regression not caused by ACPI (hi Fabio).  I'll see if 
-I can finish up ATAPI at that time.
+There was a steady stream of people reporting on geometry problems.
+All these problems were caused by kernel guessing stuff.
+If the kernel no longer volunteers a guess, then we no longer have
+the situation that the guess can be wrong.
 
-	Jeff
+We lived in a world where things got more and more complicated
+with programs guessing what values other programs might want
+to satisfy a third program.
 
+The new world is getting much simpler. Only the programs that need a value
+have to invent it. Many of these can in fact do without. LILO survives
+well without geometry information.
 
+The only case I see where absolutely something is needed is the
+case of partitioning an empty disk.
+Telling the user at that point: "if you have no idea I'll use
+H=255 S=63, that is very often correct, but note that if you also
+want to use Windows on this disk it might be better to let Windows
+partition first; also, enabling CONFIG_EDD might allow me to guess
+what the BIOS uses" may be enough.
+
+Andries

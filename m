@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbTIKRvl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbTIKRvT
+	id S261425AbTIKRdg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTIKRbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:51:19 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:55697 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261445AbTIKRsu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:48:50 -0400
-Date: Thu, 11 Sep 2003 18:48:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@suse.de>
-Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030911174839.GM29532@mail.jlokier.co.uk>
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com> <20030911012708.GD3134@wotan.suse.de> <20030911165845.GE29532@mail.jlokier.co.uk> <20030911190516.64128fe9.ak@suse.de> <20030911173245.GJ29532@mail.jlokier.co.uk> <20030911193954.63724a82.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030911193954.63724a82.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Sep 2003 13:31:53 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:59281 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S261456AbTIKR0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 13:26:17 -0400
+Message-ID: <009f01c3788a$08b7f780$9f0210ac@forumci.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: <Valdis.Kletnieks@vt.edu>
+Cc: "Stan Bubrouski" <stan@ccs.neu.edu>, <linux-kernel@vger.kernel.org>
+References: <001b01c39047$d65cf580$f8e4a7c8@bsb.virtua.com.br> <20030911002755.GA13177@triplehelix.org> <3F5FD993.2060900@ccs.neu.edu>            <009201c37860$f0d3c5f0$131215ac@poslab219> <200309111419.h8BEJbSo010948@turing-police.cc.vt.edu>
+Subject: Re: Size of Tasks during ddos 
+Date: Thu, 11 Sep 2003 14:27:51 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-XTmail: http://www.verdesmares.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> signal exception path is thousands of cycles, we're talking about tens
-> of cycles here.
+This is a Syn Flood DDoS 
 
-<hand-waving>
+att
+Breno
+----- Original Message ----- 
+From: <Valdis.Kletnieks@vt.edu>
+To: "Breno Silva" <brenosp@brasilsec.com.br>
+Cc: "Stan Bubrouski" <stan@ccs.neu.edu>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, September 11, 2003 11:19 AM
+Subject: Re: Size of Tasks during ddos 
 
-Tens vs thousands == percentage points.
 
-Isn't it about 20 cycles per mispredicted branch on a P4?
 
-Five of those and we're talking several percent slowdown, ridiculous
-as it seems.
-
-</hand-waving>
-
--- Jamie

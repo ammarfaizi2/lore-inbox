@@ -1,197 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317636AbSGJVls>; Wed, 10 Jul 2002 17:41:48 -0400
+	id <S317638AbSGJVxF>; Wed, 10 Jul 2002 17:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSGJVlq>; Wed, 10 Jul 2002 17:41:46 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:5665 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S317637AbSGJVlY>; Wed, 10 Jul 2002 17:41:24 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A7B86@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Jens Axboe'" <axboe@suse.de>,
-       Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: RE: (RE:  using 2.5.25 with IDE) On sparc64.....
-Date: Wed, 10 Jul 2002 16:42:37 -0500
+	id <S317639AbSGJVxE>; Wed, 10 Jul 2002 17:53:04 -0400
+Received: from dsl-213-023-043-112.arcor-ip.net ([213.23.43.112]:46308 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317638AbSGJVxE>;
+	Wed, 10 Jul 2002 17:53:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rik van Riel <riel@conectiva.com.br>,
+       Sebastian Droege <sebastian.droege@gmx.de>
+Subject: Re: [PATCH][RFT](2) minimal rmap for 2.5 - akpm tested
+Date: Wed, 10 Jul 2002 23:56:48 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>, <linux-mm@kvack.org>
+References: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17SPS5-00028e-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Bruce,
+On Wednesday 10 July 2002 22:42, Rik van Riel wrote:
+> On Wed, 10 Jul 2002, Sebastian Droege wrote:
+> > On Sat, 6 Jul 2002 02:31:38 -0300 (BRT)
+> > Rik van Riel <riel@conectiva.com.br> wrote:
+> >
+> > > If you have some time left this weekend and feel brave,
+> > > please test the patch which can be found at:
+> > >
+> > > 	http://surriel.com/patches/2.5/2.5.25-rmap-akpmtested
 > 
-> I checked in your previous patch already. Care to really forward port
-> asm-sparc64/ide.h from 2.4.19-pre10-rc2 and send me an incremental
-> patch?
+> > after running your patch some time I have to say that the old VM
+> > implementation and the full rmap patch (by Craig Kulesa) was better. The
+> > system becomes very slow and has to swap in too much after some uptime
+> > (4 hours - 2 days) and memory intensive tasks...
+> > Maybe this happens only to me but it's fully reproducable
 > 
+> It's a known problem with use-once. Users of plain 2.4.18
+> are complaining about it, too.
 
-I have done some Preliminary work on this, but not had a lot of time to look
-at it.  In comparing the sparc64 old/new to i386, I replaced a couple of the
-#define's with the static __inline__ that were in the 2.4.19 sparc64
-version.  
+Hey, thanks Rik, I know something about that :-)  And I'd be testing right
+now to see if you're right, if the DAC960 driver compiled successfully.
+But it doesn't, and since my test machine won't boot without it... given a
+choice between diving into the driver and going back to work on directory
+hashing on 2.4...
 
-At this point, I say Preliminary, as it DOESN'T work yet on sparc64, and
-this is the first IDE code I've really looked at.  It will compile, but
-right now, it's falling down at the partition check still, but displaying
-"unknown partition" and also a "bad csum" for the sun label. 
+The tree that builds wins this time.
 
-Jen's can you take a quick look at this, and let me know what your thoughts
-are on this patch?  Again, it doesn't do much right now...
+> This is something to touch on after the rmap mechanism
+> has been merged, Linus has indicated that he wants to merge
+> the thing in small bits so that's what we'll be doing ;)
 
-This is an interim diff against your updated ide24 bk tree...
+I bet it's something a lot dumber, like a memory leak.
 
---- spideclean/include/asm-sparc64/ide.h	Wed Jul 10 13:44:03 2002
-+++ sparctest/include/asm-sparc64/ide.h	Wed Jul 10 12:18:54 2002
-@@ -182,19 +182,132 @@
- #endif
- }
- 
--#define ide_request_irq(irq,hand,flg,dev,id)
-request_irq((irq),(hand),(flg),(dev),(id))
--#define ide_free_irq(irq,dev_id)		free_irq((irq), (dev_id))
--#define ide_check_region(from,extent)		check_region((from),
-(extent))
--#define ide_request_region(from,extent,name)	request_region((from),
-(extent), (name))
--#define ide_release_region(from,extent)	release_region((from),
-(extent))
-+#if defined(CONFIG_IDE_24)
-+static __inline__ void ide_fix_driveid(struct hd_driveid *id)
-+{
-+        int i;
-+        u16 *stringcast;
-+
-+        id->config         = __le16_to_cpu(id->config);
-+        id->cyls           = __le16_to_cpu(id->cyls);
-+        id->reserved2      = __le16_to_cpu(id->reserved2);
-+        id->heads          = __le16_to_cpu(id->heads);
-+        id->track_bytes    = __le16_to_cpu(id->track_bytes);
-+        id->sector_bytes   = __le16_to_cpu(id->sector_bytes);
-+        id->sectors        = __le16_to_cpu(id->sectors);
-+        id->vendor0        = __le16_to_cpu(id->vendor0);
-+        id->vendor1        = __le16_to_cpu(id->vendor1);
-+        id->vendor2        = __le16_to_cpu(id->vendor2);
-+        stringcast = (u16 *)&id->serial_no[0];
-+        for (i = 0; i < (20/2); i++)
-+                stringcast[i] = __le16_to_cpu(stringcast[i]);
-+        id->buf_type       = __le16_to_cpu(id->buf_type);
-+        id->buf_size       = __le16_to_cpu(id->buf_size);
-+        id->ecc_bytes      = __le16_to_cpu(id->ecc_bytes);
-+        stringcast = (u16 *)&id->fw_rev[0];
-+        for (i = 0; i < (8/2); i++)
-+                stringcast[i] = __le16_to_cpu(stringcast[i]);
-+        stringcast = (u16 *)&id->model[0];
-+        for (i = 0; i < (40/2); i++)
-+                stringcast[i] = __le16_to_cpu(stringcast[i]);
-+        id->dword_io       = __le16_to_cpu(id->dword_io);
-+        id->reserved50     = __le16_to_cpu(id->reserved50);
-+        id->field_valid    = __le16_to_cpu(id->field_valid);
-+        id->cur_cyls       = __le16_to_cpu(id->cur_cyls);
-+        id->cur_heads      = __le16_to_cpu(id->cur_heads);
-+        id->cur_sectors    = __le16_to_cpu(id->cur_sectors);
-+        id->cur_capacity0  = __le16_to_cpu(id->cur_capacity0);
-+        id->cur_capacity1  = __le16_to_cpu(id->cur_capacity1);
-+        id->lba_capacity   = __le32_to_cpu(id->lba_capacity);
-+        id->dma_1word      = __le16_to_cpu(id->dma_1word);
-+        id->dma_mword      = __le16_to_cpu(id->dma_mword);
-+        id->eide_pio_modes = __le16_to_cpu(id->eide_pio_modes);
-+        id->eide_dma_min   = __le16_to_cpu(id->eide_dma_min);
-+        id->eide_dma_time  = __le16_to_cpu(id->eide_dma_time);
-+        id->eide_pio       = __le16_to_cpu(id->eide_pio);
-+        id->eide_pio_iordy = __le16_to_cpu(id->eide_pio_iordy);
-+        for (i = 0; i < 2; i++)
-+                id->words69_70[i] = __le16_to_cpu(id->words69_70[i]);
-+        for (i = 0; i < 4; i++)
-+                id->words71_74[i] = __le16_to_cpu(id->words71_74[i]);
-+        id->queue_depth    = __le16_to_cpu(id->queue_depth);
-+        for (i = 0; i < 4; i++)
-+                id->words76_79[i] = __le16_to_cpu(id->words76_79[i]);
-+        id->major_rev_num  = __le16_to_cpu(id->major_rev_num);
-+        id->minor_rev_num  = __le16_to_cpu(id->minor_rev_num);
-+        id->command_set_1  = __le16_to_cpu(id->command_set_1);
-+        id->command_set_2  = __le16_to_cpu(id->command_set_2);
-+        id->cfsse          = __le16_to_cpu(id->cfsse);
-+        id->cfs_enable_1   = __le16_to_cpu(id->cfs_enable_1);
-+        id->cfs_enable_2   = __le16_to_cpu(id->cfs_enable_2);
-+        id->csf_default    = __le16_to_cpu(id->csf_default);
-+        id->dma_ultra      = __le16_to_cpu(id->dma_ultra);
-+        id->word89         = __le16_to_cpu(id->word89);
-+        id->word90         = __le16_to_cpu(id->word90);
-+        id->CurAPMvalues   = __le16_to_cpu(id->CurAPMvalues);
-+        id->word92         = __le16_to_cpu(id->word92);
-+        id->hw_config      = __le16_to_cpu(id->hw_config);
-+        id->acoustic       = __le16_to_cpu(id->acoustic);
-+        for (i = 0; i < 5; i++)
-+                id->words95_99[i]  = __le16_to_cpu(id->words95_99[i]);
-+        id->lba_capacity_2 = __le64_to_cpu(id->lba_capacity_2);
-+        for (i = 0; i < 22; i++)
-+                id->words104_125[i]   = __le16_to_cpu(id->words104_125[i]);
-+        id->last_lun       = __le16_to_cpu(id->last_lun);
-+        id->word127        = __le16_to_cpu(id->word127);
-+        id->dlf            = __le16_to_cpu(id->dlf);
-+        id->csfo           = __le16_to_cpu(id->csfo);
-+        for (i = 0; i < 26; i++)
-+                id->words130_155[i] = __le16_to_cpu(id->words130_155[i]);
-+        id->word156        = __le16_to_cpu(id->word156);
-+        for (i = 0; i < 3; i++)
-+                id->words157_159[i] = __le16_to_cpu(id->words157_159[i]);
-+        id->cfa_power      = __le16_to_cpu(id->cfa_power);
-+        for (i = 0; i < 14; i++)
-+                id->words161_175[i] = __le16_to_cpu(id->words161_175[i]);
-+        for (i = 0; i < 31; i++)
-+                id->words176_205[i] = __le16_to_cpu(id->words176_205[i]);
-+        for (i = 0; i < 48; i++)
-+                id->words206_254[i] = __le16_to_cpu(id->words206_254[i]);
-+        id->integrity_word  = __le16_to_cpu(id->integrity_word);
-+}
-+
-+static __inline__ int ide_request_irq(unsigned int irq,
-+                                      void (*handler)(int, void *, struct
-pt_regs *),
-+                                      unsigned long flags, const char
-*name, void *devid)
-+{
-+        return request_irq(irq, handler, SA_SHIRQ, name, devid);
-+}
-+
-+static __inline__ void ide_free_irq(unsigned int irq, void *dev_id)
-+{
-+        free_irq(irq, dev_id);
-+}
-+
-+static __inline__ int ide_check_region(ide_ioreg_t base, unsigned int size)
-+{
-+        return check_region(base, size);
-+}
-+
-+static __inline__ void ide_request_region(ide_ioreg_t base, unsigned int
-size,
-+                                          const char *name)
-+{
-+        request_region(base, size, name);
-+}
-+
-+static __inline__ void ide_release_region(ide_ioreg_t base, unsigned int
-size)
-+{
-+        release_region(base, size);
-+}
- 
- /*
-  * The following are not needed for the non-m68k ports
-  */
- #define ide_ack_intr(hwif)		(1)
--#define ide_fix_driveid(id)		do {} while (0)
- #define ide_release_lock(lock)		do {} while (0)
- #define ide_get_lock(lock, hdlr, data)	do {} while (0)
-+
-+#endif /* CONFIG_IDE_24 */
-  
- #endif /* __KERNEL__ */
- 
+-- 
+Daniel

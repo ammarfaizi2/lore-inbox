@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265928AbSKBKpB>; Sat, 2 Nov 2002 05:45:01 -0500
+	id <S265929AbSKBKvc>; Sat, 2 Nov 2002 05:51:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265927AbSKBKpA>; Sat, 2 Nov 2002 05:45:00 -0500
-Received: from sullivan.realtime.net ([205.238.132.76]:65293 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id <S265926AbSKBKo7>; Sat, 2 Nov 2002 05:44:59 -0500
-Date: Sat, 2 Nov 2002 04:51:29 -0600 (CST)
-Message-Id: <200211021051.gA2ApTZ17164@sullivan.realtime.net>
-From: <miltonm@bga.com> Milton Miller
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
-In-Reply-To: <3DC38939.90001@pobox.com>
+	id <S265930AbSKBKvc>; Sat, 2 Nov 2002 05:51:32 -0500
+Received: from [202.88.171.30] ([202.88.171.30]:5770 "EHLO dikhow.hathway.com")
+	by vger.kernel.org with ESMTP id <S265929AbSKBKvb>;
+	Sat, 2 Nov 2002 05:51:31 -0500
+Date: Sat, 2 Nov 2002 16:24:19 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dcache_rcu [performance results]
+Message-ID: <20021102162419.A7894@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <20021030161912.E2613@in.ibm.com.suse.lists.linux.kernel> <20021031162330.B12797@in.ibm.com.suse.lists.linux.kernel> <3DC32C03.C3910128@digeo.com.suse.lists.linux.kernel> <20021102144306.A6736@dikhow.suse.lists.linux.kernel> <p734rb0s2qb.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <p734rb0s2qb.fsf@oldwotan.suse.de>; from ak@suse.de on Sat, Nov 02, 2002 at 11:08:44AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Items For Discussion
+On Sat, Nov 02, 2002 at 11:08:44AM +0100, Andi Kleen wrote:
+> Dipankar Sarma <woofwoof@hathway.com> writes:
+> > 
+> > I should add that this is a general trend we see in all workloads
+> > that do a lot of open/closes and so much so that performance is very
+> > sensitive to how close to / your application's working directory
+> > is. You would get much better system time if you compile a kernel
+> > in /linux as compared to say /home/fs01/users/akpm/kernel/linux ;-)
 > 
-> #1 - shared kinit
-> 
-> "kinit" is _the_ early userspace binary -- but not necessarily the only
-> one. Peter Anvin and Russell King have several binaries in the klibc
-> tarball, gzip, ash, and several smaller utilities. Peter also put work
-> into making klibc a shared object -- that doesn't need an shlib loader.
->  It's pretty nifty how he does it, IMO: klibc.so becomes an ELF
-> interpreter for any klibc-linked binaries. klibc-linked binaries are,
-> to the ELF system, static binaries, but they wind up sharing klibc.so
-> anyway due to this trick.
-> 
-> Anyway, there is a certain elegance in adding coding to kinit instead of
-> an explosion of binaries and shell scripts. The other side of that coin
-> is that with elegance you sacrifice some ease of making changes. I am
-> 60% certain we want a shared klibc and multiple binaries, but am willing
-> to be convinced in either direction. If you think about it, there _are_
-> several benefits to leaving kinit as the lone binary in the stock kernel
-> early userspace build, so the decision is not as cut-n-dry as it may
-> immediately seem. 
+> That's interesting. Perhaps it would make sense to have a fast path
+> that just does a string match of the to be looked up path to a cached copy 
+> of cwd and if it matches works as if cwd was the root. Would need to be 
+> careful with chroot where cwd could be outside the root and clear the
+> cached copy in this case. Then you could avoid all the locking overhead
+> for directories above your cwd if you stay in there.
 
+Well, on second thoughts I can't see why the path length for pwd
+would make difference for kernel compilation - it uses relative
+path and for path lookup, if the first character is not '/', then
+lookup is done relative to current->fs->pwd. I will do some more
+benchmarking on and verify.
 
-One idea I experimented some time ago with (and can revive after
-some sleep) is, rather than interpreting cpio in the kernel, objcopy
-a binary into a init and copy that into pagecache in a ramfs/libfs
-file system.   The population was all initfunctions, trying to make
-it disappear at runtime.  /dev/initrd was left for userspace to
-expand the rest of the loaders.  With libfs, the write code reinstated
-so standard directories, device nodes, console and initrd nodes
-can be created and opened in userspace, further shrinking the static
-linked-in code.
+I did get inputs from Troy Wilson who does specweb measurements
+that the path name length of the location of the served files
+make a difference. I presume his webserver setup used full path names.
 
-This argues that this initial code is unshared and uncompressed
-(or rather, compressed like the rest of the kernel); for shared we
-would have to copy a couple of pieces this way.  It traded off a
-table of offset,length,mode,name with cpio headers and parsing.
-
-I had this running on 2.4.19-pre10 (around the time of the kernel
-summit, just before the fixed directory link counts went in) with
-busybox.  (I seperated the 2.4 compat vs 2.5 stuff at that time).
-
-Comments?
-
-milton
+Thanks
+Dipankar

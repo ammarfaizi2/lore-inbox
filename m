@@ -1,55 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312694AbSCVGgd>; Fri, 22 Mar 2002 01:36:33 -0500
+	id <S311322AbSCVGcn>; Fri, 22 Mar 2002 01:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312695AbSCVGgX>; Fri, 22 Mar 2002 01:36:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:61446
+	id <S312694AbSCVGcd>; Fri, 22 Mar 2002 01:32:33 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60166
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312694AbSCVGgT>; Fri, 22 Mar 2002 01:36:19 -0500
-Date: Thu, 21 Mar 2002 22:35:46 -0800 (PST)
+	id <S311322AbSCVGcV>; Fri, 22 Mar 2002 01:32:21 -0500
+Date: Thu, 21 Mar 2002 22:31:49 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: CaT <cat@zip.com.au>
-cc: Stephen Williams <mrsteve@midsouth.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.19pre3-ac5
-In-Reply-To: <20020322061116.GO880@zip.com.au>
-Message-ID: <Pine.LNX.4.10.10203212235160.9319-100000@master.linux-ide.org>
+To: David Schwartz <davids@webmaster.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.7, IDE, 'handler not null', 'kernel timer added twice'
+In-Reply-To: <20020322055523.AAA14461@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.4.10.10203212229250.9319-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-NO, just that one line 790
+It is not harmless, it can be fatal.  Leaving a dangling interrupt handler
+set for the next device is a bad thing.  I know what it is and where but
+how and why is an issue to be resolved.
 
-Cheers,
+Regards,
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Fri, 22 Mar 2002, CaT wrote:
 
-> On Thu, Mar 21, 2002 at 09:23:36PM -0800, Andre Hedrick wrote:
-> > It is a BUG() check to see if there are cases where the interrupt handler
-> > is being set (re armed) while it is currently set for another event.
-> > 
-> > if (HWGROUP(drive)->handler != NULL)
-> >      BUG();
-> > ide_set_handler(drive, handler, timeout, expirey);
-> > 
-> > If we are reloading the handler but it was set but something else , never
-> > called during a completion, and/or is dangling.  It is a typo my bad :-(
-> > 
-> > Edit and change it from "==" to "!="
+On Thu, 21 Mar 2002, David Schwartz wrote:
+
 > 
-> Now I'm confused. Should that be != to ==? :) And every instance I find?
+> 	I got the following from a 2.5.7 machine.
+> 
+> hdc: ide_set_handler: handler not null; old=c01e5af0, new=c01e5af0
+> bug: kernel timer added twice at c01e6925.
+> hdc: ide_set_handler: handler not null; old=c01e5af0, new=c01e5af0
+> bug: kernel timer added twice at c01e6925.
+> 
+> 	The first two occured at about the same time. The second two occured the 
+> next day. HDC is a WDC WD307AA ATA drive. The controller is a PIIX4 (82371AB) 
+> using DMA (UDMA33).
+> 
+> 	The relevant section of the system map is :
+> 
+> c01e52c0 T do_rw_taskfile
+> c01e5450 T do_taskfile
+> c01e55b0 T set_multmode_intr
+> c01e5610 T set_geometry_intr
+> c01e5670 T recal_intr
+> c01e56b0 T task_no_data_intr
+> c01e5720 t task_in_intr
+> c01e5840 t pre_task_out_intr
+> c01e5940 t task_out_intr
+> c01e5a90 t pre_bio_out_intr
+> c01e5af0 t bio_mulout_intr
+> c01e5ce0 t task_mulin_intr
+> c01e5e70 T ide_cmd_type_parser
+> c01e5ff0 t ide_init_drive_taskfile
+> c01e6010 T ide_wait_taskfile
+> c01e6120 T ide_raw_taskfile
+> c01e6180 t ide_wait_cmd
+> c01e6210 T ide_cmd_ioctl
+> c01e6420 T ide_task_ioctl
+> c01e64e0 t init_hwif_data
+> c01e66a0 T drive_is_flashcard
+> c01e67d0 T __ide_end_request
+> c01e68c0 T ide_set_handler
+> c01e6940 t ata_pre_reset
+> c01e6a00 T ata_capacity
+> c01e6a40 t ata_special
+> 
+> 	This looks harmless, like something was set twice.
 > 
 > -- 
-> SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
-> friends that I thought would have no importance until this morning when
-> I got up and saw all  the commotion in the news,"  Gallardo told a news
-> conference. "It stunned me."
-> Reyes told Marca that he had "felt a slight pinch."
->       -- http://www.azcentral.com/offbeat/articles/1129soccer29-ON.html
+> David Schwartz
+> <davids@webmaster.com>
+> Looking for news feed peering arrangements in Northern California
+> Email for info
+> 
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

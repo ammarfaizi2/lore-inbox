@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUEGMq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUEGMj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUEGMq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 08:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUEGMq0
+	id S263484AbUEGMj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 08:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbUEGMj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 08:46:26 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:15292 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263573AbUEGMqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 08:46:25 -0400
-From: Jan Killius <jkillius@arcor.de>
-Reply-To: jkillius@arcor.de
-To: linux-kernel@vger.kernel.org
-Subject: Problem with rtc and cpufreq
-Date: Fri, 7 May 2004 14:46:22 +0200
-User-Agent: KMail/1.6.52
+	Fri, 7 May 2004 08:39:59 -0400
+Received: from zone3.gcu-squad.org ([217.19.50.74]:50185 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S263484AbUEGMj6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 08:39:58 -0400
+Date: Fri, 7 May 2004 14:42:17 +0200 (CEST)
+Message-Id: <200405071242.i47CgHPE027360@zone3.gcu-squad.org>
+To: greg@kroah.com, sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Fix memory leaks in w83781d and asb100
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.12 (On: webmail.gcu.info)
+In-Reply-To: <20040505221804.GE29885@kroah.com>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: vsu@altlinux.ru, "Mark M. Hoffman" <mhoffman@lightlink.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405071446.22771.jkillius@arcor.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-There's a problem with the realtime clock and cpufreq. If cpufreq scale down 
-my CPU frequency this message came from the kernel: 
-rtc: lost some interrupts at 1024Hz
 
-I'm using 2.6.6-rc3-mm2.
-The cpu is a athlon64 3200+.
-The CPU scales between 2000 Mhz and 800 Mhz.
--- 
-        Jan
+>> Greg, please apply if it looks good to you. Sorry for introducing the
+>> leak in the first place...
+>
+>Looks a bit odd, but ok.
+
+Odd? Why that? If you can think of something better, just tell me. The
+only other way I could think of was faking subclient's private data so
+that it points to the i2c_client structure itself. That way, freeing
+i2c_get_clientdata(client) would always work. However, I was fearing
+some side effect. Maybe the code makes use of the NULL data for
+remembering which clients are subclients at some point? I think I
+remember that the 2.4 drivers did, but maybe the 2.6 ones don't. I can
+take another look and propose that different solution if you want.
+
+Thanks.

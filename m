@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUJ3XVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUJ3XY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbUJ3XVp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUJ3XUG
+	id S261420AbUJ3XY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUJ3XWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:20:06 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:65493 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261424AbUJ3XT3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:19:29 -0400
-Date: Sun, 31 Oct 2004 01:19:12 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       Margit Schubert-While <margitsw@t-online.de>,
-       kernel-janitors@lists.osdl.org, mcgrof@studorgs.rutgers.edu,
-       prism54-devel@prism54.org, Domen Puncer <domen@coderock.org>,
-       linux-kernel@vger.kernel.org, hvr@gnu.org
-Subject: Re: [KJ] Re: [patch 2.4] back port msleep(), msleep_interruptible()
-Message-ID: <20041030231912.GC1456@stro.at>
-Mail-Followup-To: Nish Aravamudan <nish.aravamudan@gmail.com>,
-	Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-	Margit Schubert-While <margitsw@t-online.de>,
-	kernel-janitors@lists.osdl.org, mcgrof@studorgs.rutgers.edu,
-	prism54-devel@prism54.org, Domen Puncer <domen@coderock.org>,
-	linux-kernel@vger.kernel.org, hvr@gnu.org
-References: <20040923221303.GB13244@us.ibm.com> <5.1.0.14.2.20040924074745.00b1cd40@pop.t-online.de> <415CD9D9.2000607@pobox.com> <20041030222228.GB1456@stro.at> <41841886.2080609@pobox.com> <29495f1d041030155953a9a776@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Oct 2004 19:22:22 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:15012 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261377AbUJ3XPu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:15:50 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC (xSeries Solutions
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [Patch] x86-64: fix sibling map again!
+Date: Sat, 30 Oct 2004 16:15:23 -0700
+User-Agent: KMail/1.5.4
+Cc: Suresh Siddha <suresh.b.siddha@intel.com>, ak@suse.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <20041029170215.A26372@unix-os.sc.intel.com> <200410291735.32175.jamesclv@us.ibm.com> <20041030125604.GF14735@wotan.suse.de>
+In-Reply-To: <20041030125604.GF14735@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <29495f1d041030155953a9a776@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200410301615.23066.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004, Nish Aravamudan wrote:
+I suppose not.  It seems a bit unnecessary, but OK if it makes
+them happy.  Maybe Intel has something in mind for 2008.
 
-> On Sat, 30 Oct 2004 18:41:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > maximilian attems wrote:
-> > > diff -puN include/linux/delay.h~add-msleep-2.4 include/linux/delay.h
-> > > --- a/include/linux/delay.h~add-msleep-2.4    2004-10-30 22:48:46.000000000 +0200
-> > > +++ b/include/linux/delay.h   2004-10-30 22:48:46.000000000 +0200
-> > > @@ -34,4 +34,12 @@ extern unsigned long loops_per_jiffy;
-> > >       ({unsigned long msec=(n); while (msec--) udelay(1000);}))
-> > >  #endif
-> > >
-> > > +void msleep(unsigned int msecs);
-> > > +unsigned long msleep_interruptible(unsigned int msecs);
-> > > +
-> > > +static inline void ssleep(unsigned int seconds)
-> > [...]
-> > > +static inline unsigned int jiffies_to_msecs(const unsigned long j)
-> > 
-> > > +static inline unsigned int jiffies_to_usecs(const unsigned long j)
-> > 
-> > > +static inline unsigned long msecs_to_jiffies(const unsigned int m)
-> > 
-> > 
-> > I'm pretty sure more than one of these symbols clashes with a symbol
-> > defined locally in a driver.  I like the patch but we can't apply it
-> > until the impact on existing code is evaluated.
-> 
-> More than likely much of the code cleanup that was done before I began
-> my patches, like removing custom msleep()s from drivers will need to
-> be done again, as Jeff points out.
-> 
-> -Nish
 
-thanks Jeff for your quick response,
-ooh i seee libata is defining an msleep().
-so there seems to be need for it.
+On Saturday 30 October 2004 05:56 am, Andi Kleen wrote:
+> On Fri, Oct 29, 2004 at 05:35:32PM -0700, James Cleverdon wrote:
+> > Hey Suresh,
+> >
+> > Can you tell me why Intel considers cpuid to be The One True
+> > Way(TM) to get sibling info?  Especially on x86-64, which
+> > doesn't have the same level of APIC weirdness that i386 does.
+> >
+> > (I won't even mention the fact that someone messed up on the
+> > MSR the BIOS can use to set bits 7:5 in the cpuid ID value.
+> > It should allow the BIOS to set bits 7:3.)
+>
+> I have no great opinion on either ways, but I suppose
+> it is best to do the same thing as i386 and apply Suresh's patch.
+>
+> James, any strong objections?
+>
+> -Andi
 
-ok we'll come up with tougher patchset.
-
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+-- 
+James Cleverdon
+IBM LTC (xSeries Linux Solutions)
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
 

@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275337AbTHGNju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275314AbTHGNju
+	id S275358AbTHGNyy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275359AbTHGNyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:39:50 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:46299 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S275337AbTHGNic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:38:32 -0400
-Date: Thu, 7 Aug 2003 15:21:11 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Andreas Dilger <adilger@clusterfs.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: reiserfs4
-Message-ID: <20030807132111.GB7094@louise.pinerecords.com>
-References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu> <20030807072751.GA23912@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807072751.GA23912@namesys.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Aug 2003 09:54:53 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:59871 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S275358AbTHGNyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:54:52 -0400
+Message-ID: <3F325A28.3010304@namesys.com>
+Date: Thu, 07 Aug 2003 17:54:48 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] Bugzilla bug # 1043 - help message for CONFIG_REISERFS_FS
+ is outdated
+References: <200308061642.26925.jeffpc@optonline.net>
+In-Reply-To: <200308061642.26925.jeffpc@optonline.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [green@namesys.com]
-> 
-> > >Why do people ever want a "converter"?
-> > That's been discussed before.
-> > Because people don't have the resources (hard disk space, tape drives, 
-> > money)  to backup their data, and might still be interested in testing a 
-> > new filesystem. They might be willing to take a risk with the new fs 
-> > and converter. Amazing as it may sound, people do that. I am such a 
-> > tester, and I'd find a converter to be a useful tool. But since the 
-> > previous discussion on the subject concluded it'd be really hard to 
-> > impossible to write one, I guess I'll have to settle for new hard drive(s).
-> 
-> This is no longer true.
-> There is sort of "universal" fs convertor for linux that can convert almost
-> any fs to almost any other fs.
-> The only requirement seems to be that both fs types should have read/write support in Linux.
-> http://tzukanov.narod.ru/convertfs/
+Josef 'Jeff' Sipek wrote:
 
-I'm afraid I cannot recommend using this tool.
-
-A test conversion from reiserfs to ext3 (inside a vmware machine)
-screwed up the data real horrorshow: directory structure seems
-ok but file contents are apparently shifted.
+>Pretty self explanatory...The URLs should not be pointing to www.reiserfs.org since
+>that has been turned into an ad site.
+>
+>Josef 'Jeff' Sipek
+>
+>--- linux-2.6.0-test2-vanilla/fs/Kconfig	2003-07-27 13:03:14.000000000 -0400
+>+++ linux-2.6.0-test2-js/fs/Kconfig	2003-08-06 16:08:03.000000000 -0400
+>@@ -210,7 +210,7 @@
+> 
+> 	  In general, ReiserFS is as fast as ext2, but is very efficient with
+> 	  large directories and small files.  Additional patches are needed
+>-	  for NFS and quotas, please see <http://www.reiserfs.org/> for links.
+>+	  for NFS and quotas, please see <http://www.namesys.com/> for links.
+> 
+> 	  It is more easily extended to have features currently found in
+> 	  database and keyword search systems than block allocation based file
+>@@ -218,7 +218,7 @@
+> 	  plugins consistent with our motto ``It takes more than a license to
+> 	  make source code open.''
+> 
+>-	  Read <http://www.reiserfs.org/> to learn more about reiserfs.
+>+	  Read <http://www.namesys.com/> to learn more about reiserfs.
+> 
+> 	  Sponsored by Threshold Networks, Emusic.com, and Bigstorage.com.
+> 
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+thanks.  we got cybersquatted.
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Hans
+
+

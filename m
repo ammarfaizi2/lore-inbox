@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265321AbUAMRuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 12:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265327AbUAMRuP
+	id S264463AbUAMRoT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 12:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUAMRoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 12:50:15 -0500
-Received: from [195.166.20.93] ([195.166.20.93]:60388 "EHLO
-	frumious.unidec.co.uk") by vger.kernel.org with ESMTP
-	id S265321AbUAMRuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 12:50:11 -0500
-Message-Id: <200401131750.i0DHoMF2009244@frumious.unidec.co.uk>
-Content-Type: text/plain; charset=US-ASCII
-From: dr john halewood <john@frumious.unidec.co.uk>
-Reply-To: john@frumious.unidec.co.uk
-To: gj@pointblue.com.pl, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24+grsec compilation issue
-Date: Tue, 13 Jan 2004 17:50:21 +0000
-X-Mailer: KMail [version 1.3.2]
-References: <200401122142.06931.gj@pointblue.com.pl>
-In-Reply-To: <200401122142.06931.gj@pointblue.com.pl>
+	Tue, 13 Jan 2004 12:44:19 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:1956 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S264463AbUAMRna
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 12:43:30 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: ANother debugging Q
+Date: Tue, 13 Jan 2004 12:43:27 -0500
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401131243.27614.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.56.190] at Tue, 13 Jan 2004 11:43:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 Jan 2004 9:42 pm, Grzegorz Jaskiewicz wrote:
->Recently i tried to compile 2.4.24+grsec kernel.
->I am getting error:
->
->/usr/src/linux-2.4.24/arch/i386/vmlinux.lds:116 invalid assignment to
-> location counter
+Greetings all;
 
-It's a problem with the grsecurity patch., not the kernel, and should really 
-be on a grsecurity mailling list. However, I can tell you that it works 
-properly if you use stock kernel 2.4.24 with the grsecurity 
-1.9.13-2.4.23.patch.
+I have a problem running a kde app (ksysguard or kpm) that forks the 
+actual app from the script that runs it, but the actual app itself 
+has connection problems.  An strace only traces the apps invocation 
+up to the point of the fork call, and it is therefore no help with 
+the application proper as it doesn't get traced.
 
-cheers
-john
+Is there a way to make the app itself inherit the strace so that its 
+errors can be located/defined and fixed?
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

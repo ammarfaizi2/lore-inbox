@@ -1,112 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbUCRWAV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 17:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbUCRWAV
+	id S263210AbUCRWCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 17:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUCRWCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 17:00:21 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:48806 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263192AbUCRV7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:59:52 -0500
-Message-Id: <200403182159.i2ILxhF12208@unix-os.sc.intel.com>
-From: "Kenneth Chen" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-Subject: RE: add lowpower_idle sysctl
-Date: Thu, 18 Mar 2004 13:59:44 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQMmQ3XUwfZca8KQ+uWbka6friIQQAmbWdQ
-In-Reply-To: <20040317192821.1fe90f24.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 18 Mar 2004 17:02:42 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:43536 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263210AbUCRWCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 17:02:30 -0500
+Date: Thu, 18 Mar 2004 22:42:30 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Mark <mark@harddata.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Dual Athlon CPU detection..
+Message-ID: <20040318214230.GE14537@alpha.home.local>
+References: <4059FCB9.4070204@lbl.gov> <200403181352.34737.mark@harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403181352.34737.mark@harddata.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton wrote on Wed, March 17, 2004 7:28 PM
-> > "Kenneth Chen" <kenneth.w.chen@intel.com> wrote:
+On Thu, Mar 18, 2004 at 01:52:34PM -0700, Mark wrote:
+> On March 18, 2004 12:47 pm, Thomas Davis <tadavis@lbl.gov> wrote:
 > >
-> >  Writing to sysctl should be a bool, reading the value can be number of
-> >  module currently disabled low power idle.  I think the original intent
-> >  is to use ref count for enabling/disabling.  (granted, we copied the
-> >  code from other arch).
->
-> OK, so why not give us:
->
-> #define IDLE_HALT			0
-> #define IDLE_POLL			1
-> #define IDLE_SUPER_LOW_POWER_HALT	2
->
-> and so forth (are there any others?).
->
-> Set some system-wide integer via a sysctl and let the particular
-> architecture decide how best to implement the currently-selected
-> idle mode?
+> > Is this a bad CPU, or a kernel bug?
+> 
+> AFAIK this information comes from the Bios. Some bioses don't verify that the 
+> second CPU as being an MP. It's been known for some time. Some people were 
+> using this to run 1 MP and 1 XP to save money on processors. However if you 
+> were to update your bios, it might start checking both for being MPs. 
+> Original bioses didn't even check for the first processor at one time but AMD 
+> complained and the bioses were modified.
 
+I can confirm this. I have two XP 1800 on my A7M266D, and the earlier bioses
+reported different CPUs. Now after the bios upgrade, it simply reports that
+they both are real MPs ! I even removed the fans once to be sure !
 
-Sounds good, Thanks for the suggestion. I just coded it up:
-
-
-diff -Nur linux-2.6.4/include/linux/cpu.h linux-2.6.4.halt/include/linux/cpu.h
---- linux-2.6.4/include/linux/cpu.h	2004-03-10 18:55:23.000000000 -0800
-+++ linux-2.6.4.halt/include/linux/cpu.h	2004-03-18 13:47:43.000000000 -0800
-@@ -52,6 +52,12 @@
-
- #endif /* CONFIG_SMP */
- extern struct sysdev_class cpu_sysdev_class;
-+extern int idle_mode;
-+
-+#define IDLE_NOOP	0
-+#define IDLE_HALT	1
-+#define IDLE_POLL	2
-+#define IDLE_ACPI	3
-
- #ifdef CONFIG_HOTPLUG_CPU
- /* Stop CPUs going up and down. */
-diff -Nur linux-2.6.4/include/linux/sysctl.h linux-2.6.4.halt/include/linux/sysctl.h
---- linux-2.6.4/include/linux/sysctl.h	2004-03-10 18:55:28.000000000 -0800
-+++ linux-2.6.4.halt/include/linux/sysctl.h	2004-03-18 12:00:40.000000000 -0800
-@@ -131,6 +131,7 @@
- 	KERN_PRINTK_RATELIMIT_BURST=61,	/* int: tune printk ratelimiting */
- 	KERN_PTY=62,		/* dir: pty driver */
- 	KERN_NGROUPS_MAX=63,	/* int: NGROUPS_MAX */
-+	KERN_IDLE_MODE=64,	/* int: arch specific cpu idle mode */
- };
-
-
-diff -Nur linux-2.6.4/kernel/cpu.c linux-2.6.4.halt/kernel/cpu.c
---- linux-2.6.4/kernel/cpu.c	2004-03-10 18:55:44.000000000 -0800
-+++ linux-2.6.4.halt/kernel/cpu.c	2004-03-18 13:29:28.000000000 -0800
-@@ -64,3 +64,5 @@
- 	up(&cpucontrol);
- 	return ret;
- }
-+
-+int idle_mode = IDLE_HALT;
-diff -Nur linux-2.6.4/kernel/sysctl.c linux-2.6.4.halt/kernel/sysctl.c
---- linux-2.6.4/kernel/sysctl.c	2004-03-10 18:55:22.000000000 -0800
-+++ linux-2.6.4.halt/kernel/sysctl.c	2004-03-18 13:52:27.000000000 -0800
-@@ -39,6 +39,7 @@
- #include <linux/initrd.h>
- #include <linux/times.h>
- #include <linux/limits.h>
-+#include <linux/cpu.h>
- #include <asm/uaccess.h>
-
- #ifdef CONFIG_ROOT_NFS
-@@ -615,6 +616,14 @@
- 		.mode		= 0444,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+	{
-+		.ctl_name	= KERN_IDLE_MODE,
-+		.procname	= "idle_mode",
-+		.data		= &idle_mode,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
- 	{ .ctl_name = 0 }
- };
-
-
+Cheers,
+Willy
 

@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261657AbSKCFkU>; Sun, 3 Nov 2002 00:40:20 -0500
+	id <S261659AbSKCFpk>; Sun, 3 Nov 2002 00:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261659AbSKCFkU>; Sun, 3 Nov 2002 00:40:20 -0500
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:63752 "EHLO
-	skarpsey.dyndns.org") by vger.kernel.org with ESMTP
-	id <S261657AbSKCFkT> convert rfc822-to-8bit; Sun, 3 Nov 2002 00:40:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-Subject: Re: AlphaPC+Sym53c8xx driver failure--solved!
-Date: Sun, 3 Nov 2002 00:42:29 -0500
-User-Agent: KMail/1.4.3
-To: linux-kernel@vger.kernel.org
+	id <S261660AbSKCFpj>; Sun, 3 Nov 2002 00:45:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44048 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261659AbSKCFpj>; Sun, 3 Nov 2002 00:45:39 -0500
+Date: Sat, 2 Nov 2002 21:52:08 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <20021103050344.GF18884@waste.org>
+Message-ID: <Pine.LNX.4.44.0211022144070.2934-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211022342.29243.kelledin+LKML@skarpsey.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem solved, thanks to Jay Estabrook from the debian-alpha
-mailing list.  As one might guess, it turned out to my My Own
-Damn Fault(tm)--I configured the kernel for LX164, then left out
-"Use SRM as bootloader" because I wasn't sure I'd need it.
 
-One thing I might change about the documentation for "Use SRM as
-bootloader"--I'd probably have it mention that it should be
-checked if using SRM, plus any boot loader besides MILO.  I
-wasn't quite sure what it meant (silly me)--now I know better.
+On Sat, 2 Nov 2002, Oliver Xymoron wrote:
+> 
+> Yes, but this has annoying side effects like booting single-user and
+> discovering things like /sbin/ping doesn't exist because mount -a
+> didn't run yet.
 
-On Saturday 02 November 2002 06:22 am, Martin Brulisauer wrote:
-> With that patch aplied I run 2.4.18 and 2.4.19
-> on my alphas.
-> Regards
-> Martin
->
-> On 1 Nov 2002, at 18:22, Kelledin wrote:
-> > On Friday 01 November 2002 01:24 pm, Martin Brulisauer wrote:
-> > > Did you apply the core_cia.c patch?
-> > > You can find it at
-> > > http://knowledge.bruli.net/uploads/core_cia-patch.txt
-> >
-> > Thx, I did not know about that one...
-> >
-> > Are there any other commonly-used patches to get 2.4 working
-> > on the Alpha?  It seems Alpha support is just not seriously
-> > maintained in the stock kernel...
-> >
-> > --
-> > Kelledin
-> > "If a server crashes in a server farm and no one pings it,
-> > does it still cost four figures to fix?"
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in the body of a message to
-> > majordomo@vger.kernel.org
-> > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html Please read the
-> > FAQ at  http://www.tux.org/lkml/
+No, /sbin/ping _would_ exist, it just wouldn't have gotten the elevated 
+capabilities yet. 
 
---
-Kelledin
-"If a server crashes in a server farm and no one pings it, does
-it still cost four figures to fix?"
+But that shouldn't matter in single-user mode, since it doesn't _need_ any
+elevated capabilities (unless you've somehow made your single-user mode
+run as a normal user - that's really secure, but you can't do anything
+with it ;)
+
+[ In general the schenario you bring up is actually a good thing: a
+  failure mode would fail with _less_ provileges rather than more. Which 
+  on the whole is exactly what you want - failure to initialize something 
+  should not leave nasty security holes around. ]
+
+On the other hand, I have this suspicion that the most secure setup is one 
+that the sysadmin is _used_ to, and knows all the pitfalls of. Which 
+obviously is a big argument for just maintaining the status quo with suid 
+binaries.
+
+We have decades of knowledge on how to minimize the negative impact of
+suid (I've used sendmail as an example of a suid program, and yet last I
+looked sendmail was actually pretty careful about dropping all unnecessary
+privileges very early on).
+
+And as Al points out, new security features don't mean that you can just
+stop being careful. 
+
+		Linus
+

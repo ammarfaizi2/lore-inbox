@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291836AbSBHVMf>; Fri, 8 Feb 2002 16:12:35 -0500
+	id <S291818AbSBHVMp>; Fri, 8 Feb 2002 16:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291818AbSBHVMQ>; Fri, 8 Feb 2002 16:12:16 -0500
-Received: from holomorphy.com ([216.36.33.161]:55443 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S291813AbSBHVMJ>;
-	Fri, 8 Feb 2002 16:12:09 -0500
-Date: Fri, 8 Feb 2002 13:11:51 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Balbir Singh <balbir_soni@hotmail.com>
-Cc: tigran@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] larger kernel stack (8k->16k) per task (fwd)
-Message-ID: <20020208211151.GD767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Balbir Singh <balbir_soni@hotmail.com>, tigran@veritas.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <F39q2pNdXfH4Ryzp5fO0000a02b@hotmail.com>
+	id <S291813AbSBHVMg>; Fri, 8 Feb 2002 16:12:36 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:41477 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S291826AbSBHVMR>;
+	Fri, 8 Feb 2002 16:12:17 -0500
+Date: Fri, 8 Feb 2002 20:18:24 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] read() from driverfs files can read more bytes
+Message-ID: <20020208191824.GA561@elf.ucw.cz>
+In-Reply-To: <1124DDDD7FF9@vcnet.vc.cvut.cz> <Pine.LNX.4.33.0202071021280.25114-100000@segfault.osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <F39q2pNdXfH4Ryzp5fO0000a02b@hotmail.com>
+In-Reply-To: <Pine.LNX.4.33.0202071021280.25114-100000@segfault.osdlab.org>
 User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 12:42:02PM -0800, Balbir Singh wrote:
-> It is highly recommended to use the existing stack size of
-> 8KB, increasing the stack size to 16KB with an 200
-> processes running on an average causes 1.5MB of
-> extra memory to be used.
+Hi!
 
-This sounds small compared to the costs of struct page.
-Of course, I would be concerned regardless if this patch
-were for anything but debugging.
+> Ok, I agree with your argument concerning read(). 
+> 
+> Concerning reading/writing from offsets, it's up to the drivers for them 
+> to either support it or not. In the files I've done so far, I return 0 if 
+> show() is called with an offset. Which will give different results if you 
+> read byte-by-byte or an entire chunk. 
+> 
+> It makes the callbacks simpler, but it is not technically correct. 
 
-Excellent work!
+[snip solution]
 
-
-Cheers,
-Bill
+Why not just say those files are character devices? It is okay for
+character device to behave like crazy ;-).
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

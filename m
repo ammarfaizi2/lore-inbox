@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbSJ2RWG>; Tue, 29 Oct 2002 12:22:06 -0500
+	id <S262210AbSJ2Rb1>; Tue, 29 Oct 2002 12:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262083AbSJ2RWG>; Tue, 29 Oct 2002 12:22:06 -0500
-Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:16037 "EHLO
-	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262100AbSJ2RWF>; Tue, 29 Oct 2002 12:22:05 -0500
-Date: Tue, 29 Oct 2002 15:28:00 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: 2.5.44-mm6
-In-Reply-To: <Pine.LNX.3.96.1021029065944.6113B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44L.0210291526560.1697-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262215AbSJ2Rb1>; Tue, 29 Oct 2002 12:31:27 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:47366 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262210AbSJ2Rb0>; Tue, 29 Oct 2002 12:31:26 -0500
+Date: Tue, 29 Oct 2002 12:11:03 -0500 (EST)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Khalid Aziz <khalid@fc.hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
+In-Reply-To: <E186ZA8-00086R-00@lyra.fc.hp.com>
+Message-ID: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, Bill Davidsen wrote:
-> On Mon, 28 Oct 2002, Andrew Morton wrote:
-> > Rik van Riel wrote:
-> > > Just let me know if you're interested in my load control mechanism
-> > > and I'll send it to you.
-> > It would also be interesting to know if we really care?
->
-> I think there is a need for keeping an overloaded machine in some way
-> usable, not because anyone is really running it that way, but because
-> the sysadmin needs a way to determine why a correctly sized machine is
-> suddenly seeing a high load.
+On Tue, 29 Oct 2002, Khalid Aziz wrote:
 
-Indeed, it's a stability thing, not a performance thing.
+> I am including a revised patch that allows a user to embed kernel
+> configuration in the kernel and retrieve it later either from a running
+> kernel or from the kernel image file. This is an enhancement to Randy's
+> patch that was discussed on LKML before and is part of -ac series
+> kernels.
+> 
+> This patch provides three choices for embedding kernel configuration:
+> 
+> 1. Include configuration in running kernel image. This adds to the
+> footprint of the running kernel but allows configuration to be retrieved
+> using "cat /proc/ikconfig/config".
 
-It's Not Good(tm) to have a system completely crap out because
-of a load spike. Instead it should survive the load spike and
-go on with life.
+Have you considered compressing the config info in order to reduce
+the space wastage in the loaded kernel image? Could easily be 10's of KB 
+(not that that's a lot these days). The info would then be retrieved via 
+"gunzip -c", et al. instead of a simple "cat".
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+--
+Paul
 

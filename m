@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135399AbRDRWJ7>; Wed, 18 Apr 2001 18:09:59 -0400
+	id <S135403AbRDRWKu>; Wed, 18 Apr 2001 18:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135403AbRDRWJt>; Wed, 18 Apr 2001 18:09:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41856 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135399AbRDRWJb>;
-	Wed, 18 Apr 2001 18:09:31 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135404AbRDRWKk>; Wed, 18 Apr 2001 18:10:40 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:30675 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S135403AbRDRWKa>;
+	Wed, 18 Apr 2001 18:10:30 -0400
+From: Khalid Aziz <khalid@lyra.fc.hp.com>
+Message-Id: <200104182211.QAA09466@lyra.fc.hp.com>
+Subject: [PATCH] SCSI command bytes are copied twice
+To: linux-kernel@vger.kernel.org
+Date: Wed, 18 Apr 2001 16:11:04 -0600 (MDT)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15070.4248.813990.765006@pizda.ninka.net>
-Date: Wed, 18 Apr 2001 15:09:28 -0700 (PDT)
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'John Fremlin'" <chief@bandits.org>,
-        "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        "'Pavel Machek'" <pavel@suse.cz>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Let init know user wants to shutdown
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SCSI subsystem needs to copy the SCSI command bytes into a Scsi_Request 
+structure for a SCSI command being issued by one of the higher level
+drivers before it queues the command up. It does this copy twice. Even
+though this will cause no more than 12 bytes to be copied twice, this
+code is still invoked frequently enough to justify not incurring the 
+overhead of a redundant copy. Following patch should fix this.
 
-Grover, Andrew writes:
- > IMHO an abstracted interface at this point is overengineering.
+Thanks,
+Khalid
 
-ACPI is the epitome of overengineering.
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO
 
-An abstracted interface would allow simpler systems to avoid all of
-the bloated garbage ACPI brings with it.  Sorry, Alan hit it right on
-the head, ACPI is not much more than keeping speedstep proprietary.
 
-Later,
-David S. Miller
-davem@redhat.com
+
+--- linux-2.4.3-orig/drivers/scsi/scsi.c	Fri Feb  9 12:30:23 2001
++++ linux-2.4.3/drivers/scsi/scsi.c	Wed Apr 18 14:22:00 2001
+@@ -832,9 +832,6 @@
+ 	SRpnt->sr_allowed = retries;
+ 	SRpnt->sr_done = done;
+ 	SRpnt->sr_timeout_per_command = timeout;
+-
+-	memcpy((void *) SRpnt->sr_cmnd, (const void *) cmnd, 
+-	       sizeof(SRpnt->sr_cmnd));
+ 
+ 	if (SRpnt->sr_cmd_len == 0)
+ 		SRpnt->sr_cmd_len = COMMAND_SIZE(SRpnt->sr_cmnd[0]);

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293057AbSB0XdD>; Wed, 27 Feb 2002 18:33:03 -0500
+	id <S292984AbSB0Xdi>; Wed, 27 Feb 2002 18:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293055AbSB0XcQ>; Wed, 27 Feb 2002 18:32:16 -0500
-Received: from r198m97.cybercable.tm.fr ([195.132.198.97]:4612 "EHLO lsinitam")
-	by vger.kernel.org with ESMTP id <S292965AbSB0XbV> convert rfc822-to-8bit;
-	Wed, 27 Feb 2002 18:31:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Laurent <laurent@augias.org>
-To: Val Henson <val@nmt.edu>, "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: read_proc issue
-Date: Thu, 28 Feb 2002 00:32:34 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16fmE1-0000Mu-00@lsinitam> <Pine.LNX.4.33L2.0202271122040.1463-100000@dragon.pdx.osdl.net> <20020227140432.L20918@boardwalk>
-In-Reply-To: <20020227140432.L20918@boardwalk>
+	id <S293061AbSB0XdE>; Wed, 27 Feb 2002 18:33:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61458 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293059AbSB0Xc0>; Wed, 27 Feb 2002 18:32:26 -0500
+Subject: Re: disk transfer speed problem
+To: wolfy@pcnet.ro (lonely wolf)
+Date: Wed, 27 Feb 2002 23:46:42 +0000 (GMT)
+Cc: hahn@physics.mcmaster.ca (Mark Hahn), linux-kernel@vger.kernel.org
+In-Reply-To: <3C7D632C.46CE687@pcnet.ro> from "lonely wolf" at Feb 28, 2002 12:52:28 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16gDYp-0000FG-00@lsinitam>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gDmU-0006PG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've encountered this problem before, too.  What is the "One True Way"
-> to do this cleanly?  In other words, if you want to do a calculation
-> once every time someone runs "cat /proc/foo", what is the cleanest way
-> to do that?  The solution we came up with was to check the file offset
-> and only do the calculation if offset == 0, which seems pretty
-> hackish.
+> > >  Timing buffered disk reads:  64 MB in  3.24 seconds = 19.75 MB/sec
+> >
+> > well, 109 MB/s is pretty low for buffer-cache reads; this reflects
+> > the relative crippled-ness of your cpu/dram/chipset.
+> 
+> well... i would't name a Celeron 900 MHz crippled. PC133 is the best the
+> board gets... and now the speed is lower then the previous server which was
+> an Athlon 600 pluggede in an Asus VIA KX133 based mobo.
 
-I've tried it and... it works ! :)
-Many many thanks :)
+I get 25MB/sec off my i815 board. It is pretty starved - I seem stuck at
+about 25MB/sec total even doing hdparm across both controllers.
 
-In the meantime, I've also followed Tommy Reynolds' advice to not modify 
-global state variables within read_procmem. I've intercepted a syscall which 
-does the calculation (I've used the open syscall since it allowed me to 
-increase the counter by just running vi on any file ;) ) and put it into a 
-buffer which is dumped when the /proc entry is read. Works great that way too.
-By the way, as the final module will intercept syscalls like open, creat, 
-close, link, unlink, mkdir, etc. , I'm wondering if there'll be a dramatic 
-negative impact on file operations performance. Is there any efficient method 
-to measure this ?
-In any case, thanks for all the help you gave me :)
-
-Regards, 
-Laurent Sinitambirivoutin
-laurent@augias.org
+Using an external video card might make a small difference

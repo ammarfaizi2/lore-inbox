@@ -1,47 +1,174 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267116AbSKMHCC>; Wed, 13 Nov 2002 02:02:02 -0500
+	id <S267119AbSKMHF0>; Wed, 13 Nov 2002 02:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267118AbSKMHCB>; Wed, 13 Nov 2002 02:02:01 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:37649 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267116AbSKMHB5>; Wed, 13 Nov 2002 02:01:57 -0500
-Message-Id: <200211130703.gAD73Up13033@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "J.A. Magall?n" <jamagallon@able.es>
-Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
-Date: Wed, 13 Nov 2002 09:54:50 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <200211031928.gA3JSSp29136@Port.imtp.ilyichevsk.odessa.ua> <20021113012854.GA1806@werewolf.able.es>
-In-Reply-To: <20021113012854.GA1806@werewolf.able.es>
+	id <S267121AbSKMHFZ>; Wed, 13 Nov 2002 02:05:25 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3217 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267119AbSKMHFX>;
+	Wed, 13 Nov 2002 02:05:23 -0500
+Date: Tue, 12 Nov 2002 23:06:44 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Ray Lee <ray-lk@madrabbit.org>
+cc: <hps@intermeta.de>, <schwab@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+In-Reply-To: <1037046334.22906.117.camel@orca>
+Message-ID: <Pine.LNX.4.33L2.0211122241490.29595-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 November 2002 23:28, J.A. Magall?n wrote:
-> On 2002.11.04 Denis Vlasenko wrote:
-> [...]
->
-> > __constant_c_and_count_memset *has to* be inlined.
-> > There is large switch statement which meant to be optimized out.
-> > It does optimize out *only if* count is compile-time constant.
->
-> I also got tons of __copy_to_user and __copy_from_user in 2.4.
-> Do not show in 2.5 ?
+On 11 Nov 2002, Ray Lee wrote:
 
-I haven't looked.
-Maybe GCC can be told to emit warnings when it does this...
+| I probably didn't state it very clearly, but that was what I was getting
+| at. It's the same value after a cast. As Andreas points out though, it
+| may not be bit-for-bit identical on machines that don't use two's
+| complement. That's why the conversion code cares about the format
+| specifiers, it seems.
+|
+| > Now what does it mean to "convert the value to an unsigned and return
+| > that."  This is the same as above, isn't it?
+|
+| Explicitly, in the scan conversion you'd do a:
+|
+|   unsigned int *u = (unsigned int *) va_arg(args,long long *);
+|   *u = (unsigned int) converted_value;
+|
+| ...from wherever you get converted_value from (simple_strtoul? I haven't
+| looked at that routine). (The cast here is implied if left off, I'm just
+| being explicit.)
+|
+| > I.e., on the scanf() side, there is no conversion needed; just store the
+| > value.
+|
+| Almost true, as Andreas pointed out. You have to be careful that the
+| target you're storing to has the correctly declared type inside the
+| conversion routine.
 
-> This i what I applied to my 2.4 tree:
-> [snip]
+See if this is close...
 
-Although patch seems to achieve desired effect, it isn't
-included in 2.5 yet (last time I checked). I'd like to know
-verdict for 2.5 first.
---
-vda
+For 'h' (short), 'l' (long), 'L' (long long), and default
+('d' and 'i'), signed input is allowed, even for octal or hex
+(as well as decimal), so scan/convert signed values.
+Then if the destination type is not signed (!is_sign),
+store the value in an unsigned <length> var so that
+conversion can be done as needed.
+
+Here are a few sample conversions:
+
+scanning input string:{-42}:
+  %o level = 037777777736 = 0xffffffde
+  %x level = -66 = 0xffffffbe
+  %i level = -42 = 0xffffffd6
+scanning input string:{-100}:
+  %o level = 037777777700 = 0xffffffc0
+  %x level = -256 = 0xffffff00
+  %i level = -100 = 0xffffff9c
+scanning input string:{-10}:
+  %o level = 037777777770 = 0xfffffff8
+  %x level = -16 = 0xfffffff0
+  %i level = -10 = 0xfffffff6
+
+I think that this patch (to 2.5.47) gets the kernel close
+to the same semantics as C's sscanf() function, which is
+usually a good thing.  What say you?
+
+-- 
+~Randy
+  "I read part of it all the way through." -- Samuel Goldwyn
+
+
+
+
+--- ./lib/vsprintf.c%scan	Sun Nov 10 19:28:30 2002
++++ ./lib/vsprintf.c	Tue Nov 12 20:51:23 2002
+@@ -640,7 +640,7 @@
+ 			str++;
+
+ 		digit = *str;
+-		if (is_sign && digit == '-')
++		if (digit == '-')
+ 			digit = *(str + 1);
+
+ 		if (!digit
+@@ -652,46 +652,50 @@
+
+ 		switch(qualifier) {
+ 		case 'h':
+-			if (is_sign) {
+-				short *s = (short *) va_arg(args,short *);
+-				*s = (short) simple_strtol(str,&next,base);
+-			} else {
+-				unsigned short *s = (unsigned short *) va_arg(args, unsigned short *);
+-				*s = (unsigned short) simple_strtoul(str, &next, base);
++		{
++			short *s = (short *) va_arg(args, short *);
++			*s = (short) simple_strtol(str, &next, base);
++			if (!is_sign) {
++				unsigned short *us = s;
++				*us = (unsigned short) *s;
+ 			}
++		}
+ 			break;
+ 		case 'l':
+-			if (is_sign) {
+-				long *l = (long *) va_arg(args,long *);
+-				*l = simple_strtol(str,&next,base);
+-			} else {
+-				unsigned long *l = (unsigned long*) va_arg(args,unsigned long*);
+-				*l = simple_strtoul(str,&next,base);
++		{
++			long *l = (long *) va_arg(args, long *);
++			*l = simple_strtol(str, &next, base);
++			if (!is_sign) {
++				unsigned long *ul = l;
++				*ul = (unsigned long) *l;
+ 			}
++		}
+ 			break;
+ 		case 'L':
+-			if (is_sign) {
+-				long long *l = (long long*) va_arg(args,long long *);
+-				*l = simple_strtoll(str,&next,base);
+-			} else {
+-				unsigned long long *l = (unsigned long long*) va_arg(args,unsigned long long*);
+-				*l = simple_strtoull(str,&next,base);
++		{
++			long long *l = (long long *) va_arg(args, long long *);
++			*l = simple_strtoll(str, &next, base);
++			if (!is_sign) {
++				unsigned long long *ul = l;
++				*ul = (unsigned long long) *l;
+ 			}
++		}
+ 			break;
+ 		case 'Z':
+ 		{
+-			size_t *s = (size_t*) va_arg(args,size_t*);
+-			*s = (size_t) simple_strtoul(str,&next,base);
++			size_t *s = (size_t *) va_arg(args, size_t *);
++			*s = (size_t) simple_strtoul(str, &next, base);
+ 		}
+-		break;
++			break;
+ 		default:
+-			if (is_sign) {
+-				int *i = (int *) va_arg(args, int*);
+-				*i = (int) simple_strtol(str,&next,base);
+-			} else {
+-				unsigned int *i = (unsigned int*) va_arg(args, unsigned int*);
+-				*i = (unsigned int) simple_strtoul(str,&next,base);
++		{
++			int *i = (int *) va_arg(args, int *);
++			*i = (int) simple_strtol(str, &next, base);
++			if (!is_sign) {
++				unsigned int *ui = i;
++				*ui = (unsigned int) *i;
+ 			}
++		}
+ 			break;
+ 		}
+ 		num++;
+

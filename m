@@ -1,107 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbTHUHZl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 03:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbTHUHZl
+	id S262489AbTHUHjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 03:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTHUHjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 03:25:41 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:14976 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S262469AbTHUHZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 03:25:38 -0400
-Date: Thu, 21 Aug 2003 09:25:34 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t3: vfs/ext3 do_lookup bug?!
-Message-Id: <20030821092534.0eb08a89.martin.zwickel@technotrend.de>
-In-Reply-To: <20030820234119.33362f7a.akpm@osdl.org>
-References: <20030820171431.0211930e.martin.zwickel@technotrend.de>
-	<20030820113625.6a75d699.akpm@osdl.org>
-	<bi0grq$49r$1@build.pdx.osdl.net>
-	<20030821083337.6fc701b9.martin.zwickel@technotrend.de>
-	<20030820234119.33362f7a.akpm@osdl.org>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.3claws36 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Thu, 21 Aug 2003 03:39:23 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:25869
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S262489AbTHUHjV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 03:39:21 -0400
+Subject: [PATCH] Allow either tid or pid in SCM_CREDENTIALS struct ucred
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Andrew Morton <akpm@osdl.org>, kuznet@ms2.inr.ac.ru
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1061451559.4386.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.fTG7o/4mAiH2fH"
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 21 Aug 2003 00:39:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.fTG7o/4mAiH2fH
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Andrew,
 
-On Wed, 20 Aug 2003 23:41:19 -0700
-Andrew Morton <akpm@osdl.org> bubbled:
+Could you stick this in -mm and see if anyone complains?  It fixes an
+apparent bug in the validation of the SCM_CREDENTIALS structure in a
+unix-domain socket sendmsg().
 
-> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-> >
-> > cutted-dmesg.txt  text/plain (15496 bytes)
-> 
-> Try `dmesg -s 1000000'.   The silly thing has too small a buffer.
+I found this because with Valgrind, the sendmsg call is being done in a
+different thread from the one which did a getpid() to fill out the
+SCM_CREDENTIALS structure, which causes the kernel to fail the sendmsg
+with EPERM.  In the general case, this would cause a multithreaded
+program sending messages with SCM_CREDENTIALS to appear schizophrenic to
+a recipient, because every message would have a different pid depending
+on which thread happened to send it.
 
-too late.. :(
-rebooted and fscked.
-on reboot, my console did hang up while unmounting fs's and i got tons of
-strange errors about something on my fs(where the processes got stuck). can't
-remeber the outputs, was too much and too fast.
-only a sysrq-b helped.
+If you use SCM_CREDENTIALS with a unix domain socket, and you're
+non-root, then the kernel double-checks the values you supply for pid,
+uid and gid in struct ucred.  In the case of uid or gid, it allows any
+of effective, saved or real uid/gid.  In the case of pid, it only allows
+current->pid, which is actually the tid.
 
-on another fs i got some "Deleted inode ###### has zero dtime.  Fix<y>?".
-(on other boxes i get them sometimes too if i manually check a ext3
-fs)
-shouldnt ext3 prevent those errors, since it has a journal and should
-recover them???
+This patch also makes it accept tgid in the SCM_CREDENTIALS pid field. 
+That is, a threaded program can either supply the ID of the whole
+process (tgid) or a particular thread (pid).  
 
-on the fs where the processes got stuck i got some unattached inodes:
-Unattached inode 1035466
-Connect to /lost+found<y>? yes
+Thanks,
+	J
 
-Inode 1035466 ref count is 2, should be 1.  Fix<y>? yes
+ net/core/scm.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Unattached inode 1053163
-Connect to /lost+found<y>? yes
+diff -puN net/core/scm.c~scm_allow_tgid net/core/scm.c
+--- local-2.6/net/core/scm.c~scm_allow_tgid	2003-08-20 19:52:40.000000000 -0700
++++ local-2.6-jeremy/net/core/scm.c	2003-08-21 00:28:10.295629745 -0700
+@@ -41,7 +41,8 @@
+ 
+ static __inline__ int scm_check_creds(struct ucred *creds)
+ {
+-	if ((creds->pid == current->pid || capable(CAP_SYS_ADMIN)) &&
++	if (((creds->pid == current->pid || creds->pid == current->tgid) ||
++	     capable(CAP_SYS_ADMIN)) &&
+ 	    ((creds->uid == current->uid || creds->uid == current->euid ||
+ 	      creds->uid == current->suid) || capable(CAP_SETUID)) &&
+ 	    ((creds->gid == current->gid || creds->gid == current->egid ||
 
-Inode 1053163 ref count is 2, should be 1.  Fix<y>? yes
+_
 
-Inode 1053382 ref count is 1, should be 2.  Fix<y>? yes
 
-Pass 5: Checking group summary information
-
-is this the normal behaviour, to e2fsck the ext3 fs's after some time?
-i thought that ext3 handles those errors itself.
-
-well, after the reboot and fsck i can access my files again.
-
-ps.: 2.6.0-t3 scheduler performance is not that good...
-
-Regards,
-Martin
-
--- 
-MyExcuse:
-Zombie processes detected, machine is haunted.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---=.fTG7o/4mAiH2fH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/RHPxmjLYGS7fcG0RAjB7AJ9qWNsnJ5WoYaJdURPRlKIQWck94ACgqulC
-B5b44CXhZG58fnTD6PxSBBI=
-=spOD
------END PGP SIGNATURE-----
-
---=.fTG7o/4mAiH2fH--

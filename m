@@ -1,58 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUBLXSH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 18:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266675AbUBLXSH
+	id S266656AbUBLXPS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 18:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266660AbUBLXPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 18:18:07 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:37354 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S266666AbUBLXSE (ORCPT
+	Thu, 12 Feb 2004 18:15:18 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:43995 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S266656AbUBLXPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 18:18:04 -0500
-Date: Fri, 13 Feb 2004 00:18:02 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Strange problem with emu10k1 and gcc-3.4
-Message-ID: <20040212231802.GG4092@werewolf.able.es>
+	Thu, 12 Feb 2004 18:15:10 -0500
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+	instead of apic ack delay.
+From: Craig Bradney <cbradney@zip.com.au>
+To: Jesse Allen <the3dfxdude@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040212230456.GA911@tesore.local>
+References: <200402120122.06362.ross@datscreative.com.au>
+	 <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
+	 <20040212214407.GA865@tesore.local>
+	 <Pine.LNX.4.58.0402121544470.962@gonopodium.signalmarketing.com>
+	 <1076623565.16585.11.camel@athlonxp.bradney.info>
+	 <20040212230456.GA911@tesore.local>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Nx1Ah7y0185gVN0GS8Pe"
+Message-Id: <1076627706.16600.20.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.16
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 13 Feb 2004 00:15:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi al...
 
-I have tried to build 2.6.3-rc2-mm1 with gcc-3.4, and it works apart from this:
+--=-Nx1Ah7y0185gVN0GS8Pe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-werewolf:/boot# modprobe emu10k1
-FATAL: Error inserting emu10k1 (/lib/modules/2.6.3-rc1-jam1-gcc34/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown symbol in module, or unknown parameter (see dmesg)
+On Fri, 2004-02-13 at 00:04, Jesse Allen wrote:
+> On Thu, Feb 12, 2004 at 11:06:05PM +0100, Craig Bradney wrote:
+>=20
+> > so what does "My
+> > Shuttle AN35N nforce2 board can run vanilla kernels with the 12-5-2003
+> > dated bios version and not lock up." mean?
+> >=20
+>=20
+> vanilla kernels =3D 2.6.0-test11 through 2.6.3-rc2 and no patches.  APIC =
+is on.
 
-dmesg:
-...
-emu10k1: Unknown symbol strcpy
+and local APIC and ACPI?
 
-I think this solves the problem:
+> 12-5-2003 BIOS:
+> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107124823504332&w=3D2
+>=20
+> not lock up:
+> I could reproduce the lockup consistantly.  With the 12-5-2003 bios, I ca=
+nnot.  Two months have passed since the original report.
 
---- linux-2.6.3-rc2-jam1/sound/oss/emu10k1/efxmgr.h.orig	2004-02-12 23:55:14.210762109 +0100
-+++ linux-2.6.3-rc2-jam1/sound/oss/emu10k1/efxmgr.h	2004-02-12 23:56:02.771954542 +0100
-@@ -32,6 +32,8 @@
- #ifndef _EFXMGR_H
- #define _EFXMGR_H
- 
-+#include <linux/string.h>
-+
- struct emu_efx_info_t{
- 	int opcode_shift;
- 	int high_operand_shift;
+If thats the case you are a lucky person!
+>=20
+> > Whenthis thread first(?) started way back when in Nov or Dec last year =
+I
+> > was pretty happy.. no lockups until the 5th day.
+>=20
+> The different nforce boards react differently because of different hardwa=
+re an=20
+> manufacterers.  But they all do have a common symptom. =20
+>=20
+> I don't know how to identify a fix from my bioses.  If someone has any cl=
+ue, I=20
+> will help out.
 
-The strange thing is: why depmod -ae does not show any problem ?
+No idea either.. but the "uber bios"
+(http://homepage.ntlworld.com/michael.mcclay/)
+guy might be able to help some of us out if the changes were found... if
+you trust someone other than your motherboard manufacturer writing
+BIOSes.. but I guess thats the same as any OS project in some ways.
 
-TIA
+I notice ASUS have updated theri A7V8X BIOS to 1008.. maybe they will
+release updates for their nForce2 boards soon too. One can only hope!
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.3-rc1-jam1-gcc34 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.1mdk))
+Craig
+
+--=-Nx1Ah7y0185gVN0GS8Pe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBALAj6i+pIEYrr7mQRAqKSAJ0WnxL6aJkogloxbY1QpQoxH7bmigCfdWXc
+zF8LTpW0uLGIxgt1XPnZcWA=
+=PufJ
+-----END PGP SIGNATURE-----
+
+--=-Nx1Ah7y0185gVN0GS8Pe--
+

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129072AbRBFMfv>; Tue, 6 Feb 2001 07:35:51 -0500
+	id <S129057AbRBFMmn>; Tue, 6 Feb 2001 07:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbRBFMfl>; Tue, 6 Feb 2001 07:35:41 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:3602 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S129072AbRBFMfh>; Tue, 6 Feb 2001 07:35:37 -0500
-Message-ID: <3A7FE803.98740090@namesys.com>
-Date: Tue, 06 Feb 2001 15:03:15 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Wenzhuo Zhang <wenzhuo@zhmail.com>
-CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] mongo.sh 2.2.18: do_try_to_free_pages failed ...
-In-Reply-To: <20010206102048.A816@zhmail.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S129058AbRBFMmd>; Tue, 6 Feb 2001 07:42:33 -0500
+Received: from [211.100.91.213] ([211.100.91.213]:26862 "EHLO
+	marvin.zhlinux.com") by vger.kernel.org with ESMTP
+	id <S129057AbRBFMmT>; Tue, 6 Feb 2001 07:42:19 -0500
+Date: Tue, 6 Feb 2001 20:41:43 +0800
+From: Wenzhuo Zhang <wenzhuo@zhmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: solics@icafe.ro, reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] mongo.sh 2.2.18: do_try_to_free_pages failed
+Message-ID: <20010206204143.A5260@zhmail.com>
+In-Reply-To: <Pine.LNX.4.21.0102061140530.16736-100000@mail.icafe.ro> <E14Q6CX-0005Ok-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14Q6CX-0005Ok-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 06, 2001 at 11:22:22AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wenzhuo Zhang wrote:
+On Tue, Feb 06, 2001 at 11:22:22AM +0000, Alan Cox wrote:
+> > This is a bad RAM problem, or insufficient RAM (slightly less possible)
 > 
-> Hi,
+> Unlikely to be either of those. My guess is its the reiserfs stuff interacting
+> with the 2.2 VM code badly. 2.2.19pre8 fixes the VM behaviour in the general
+> case and that might well make it handle the extra vm pressure reiserfs causes
 > 
-> I got the VM error "VM: do_try_to_free_pages failed for mongo_read..."
-> and then I couldn't log into the system, when stress testing
-> reiserfs+raid0 setup on a 2.2.18 box using the reiserfs benchmark
-> mongo.sh. The problem was reporduceable on each run of mongo.sh.
-> 
-> ./mongo.sh reiserfs /dev/md0 /mnt/testfs raid0-rfs 3
-> 
-> Thinking the raid code might cause the problem, I tested on reiserfs
-> only, but I got the same error message. Later, I found the same
-> problem running mongo.sh on an ext2 partition (stock kernel without
-> any patches).
-> 
-> I guess this problem is not reiserfs specific. What can I do now to
-> solve the problem?
-> 
-> Here is the hardware configuration of my test box:
-> PIII 600, 256M, Adaptec AIC-7896 SCSI controller, two Quantum SCSI
-> disks.
-> 
-> Regards,
-> --
-> Wenzhuo
+But I got the same VM error when I was testing on an ext2 partition
+under stock kernel (without any external patches).
 
-Honestly, the best thing to do is to upgrade to 2.4.1.  VM on 2.2.recent is
-not in good condition, and reiserfs exacerbates it.  
+> Certainly I'd try 2.2.19pre3 or higher. I don't think its hardware or
+> reiserfs problems
+> 
+> 
+> 
+OK, I'll give 2.2.19pre8 a try.
 
-Hans
+-- 
+Wenzhuo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

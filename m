@@ -1,56 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbTIEACi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 20:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTIEACi
+	id S261274AbTIEAKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 20:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTIEAKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 20:02:38 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:56053 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S261353AbTIEACh
+	Thu, 4 Sep 2003 20:10:16 -0400
+Received: from 176.Red-217-125-42.pooles.rima-tde.net ([217.125.42.176]:8943
+	"EHLO falafell") by vger.kernel.org with ESMTP id S261274AbTIEAKJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 20:02:37 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: Wes Felter <wesley@felter.org>, linux-kernel@vger.kernel.org
-Date: Thu, 4 Sep 2003 16:59:20 -0700 (PDT)
-Subject: Re: Remote SCSI Emulation
-In-Reply-To: <3F57CC2E.2030708@vgertech.com>
-Message-ID: <Pine.LNX.4.44.0309041656240.18624-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 20:10:09 -0400
+Date: Fri, 5 Sep 2003 02:09:49 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4, 2.6.0-test4-mm4  usb problems fixed in mm5
+Message-ID: <20030905000949.GA1258@barcelonawireless.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Pedro Larroy <piotr@barcelonawireless.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Sep 2003, Nuno Silva wrote:
+Hi
 
-> Wes Felter wrote:
-> > On Wed, 03 Sep 2003 20:38:14 +0000, Muthian S wrote:
-> >
-> >>Certain SCSI adapters like the Adaptec AHA 29160 are reportedly capable of
-> >>acting as a target and can receive SCSI commands from initiators.  Such an
-> >>adapter can be used to facilitate remote SCSI emulation by a PC.
-> >>For instance, if two PCs have the adapter, the two adapters can be
-> >>directly connected by a SCSI bus and the second PC can in effect serve as
-> >>an "emulated SCSI disk".  Such a setup is extremely helpful in various
-> >>scenarios.
-> >
-> >
-> > Search the archives/Web for "SCSI target", "LinuxDisk", etc. There are
-> > plenty of half-finished implementations of this.
-> >
->
-> Another, more generic, solution is "ip over scsi":
->
-> http://www.google.com/search?q=%22ip+over+scsi%22
+I've been experiencing problems with an external usb ata disk with kernels 2.6.0-test4 
+that seems to be fixed with -mm5 patch
 
-Actually, ip over scsi cannot accomplish the goal listed above.
+So there is no problem with 2.4.21 nor with 2.6.0-test4-mm5
 
-what is beeing looked for here is the scsi equivalent of the USB 'gadget'
-driver, letting linux be at the slave end of things as well as the master.
+Regards.
+--
+piotr.
 
-does anyone have an idea why *BSD was able to do this, but all the linux
-projects seem to get stuck half-finished? is this just added complexity
-due to the large number of linux scsi drivers or is there something deeper
-in the system?
+Here is the usb-storage debug in case it helps:
 
-David Lang
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand called
+usb-storage: *** thread awakened.
+usb-storage: Command WRITE_10 (10 bytes)
+usb-storage:  2a 00 0d a7 0f 9f 00 04 00 00
+usb-storage: Bulk command S 0x43425355 T 0x1dd8 Trg 0 LUN 0 L 524288 F 0 CL 10
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+usb-storage: Status code 0; transferred 31/31
+usb-storage: -- transfer complete
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 127 entries
+usb-storage: Status code 0; transferred 524288/524288
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+usb-storage: command_abort called
+usb-storage: usb_stor_stop_transport called
+usb-storage: -- cancelling URB
+usb-storage: Status code -104; transferred 0/13
+usb-storage: -- transfer cancelled
+usb-storage: Bulk status result = 4
+usb-storage: -- command was aborted
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+
+.....
+
+
+usb-storage: -- transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+usb-storage: command_abort called
+usb-storage: usb_stor_stop_transport called
+usb-storage: -- cancelling URB
+usb-storage: Status code -104; transferred 0/13
+usb-storage: -- transfer cancelled
+usb-storage: Bulk status result = 4
+usb-storage: -- command was aborted
+usb-storage: usb_stor_Bulk_reset called
+usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+[ACPI Debug] String: ==Battery1 _BST==
+[ACPI Debug] String: ==Battery1 _BST==
+usb-storage: Soft reset: clearing bulk-in endpoint halt
+

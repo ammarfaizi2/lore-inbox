@@ -1,94 +1,463 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269954AbTGPAEv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 20:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269958AbTGPAEv
+	id S269926AbTGPAHe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 20:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269923AbTGPAHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 20:04:51 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:17085 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S269954AbTGPAEp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 20:04:45 -0400
-Date: Wed, 16 Jul 2003 02:19:43 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Jan Kara <jack@ucw.cz>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Quota Hash Abstraction 2.4.22-pre6
-Message-ID: <20030716001942.GA17459@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Jan Kara <jack@ucw.cz>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20030715164049.GA27550@www.13thfloor.at> <20030715234507.GA25420@atrey.karlin.mff.cuni.cz>
+	Tue, 15 Jul 2003 20:07:34 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:16808 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S269919AbTGPAHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 20:07:22 -0400
+Date: Wed, 16 Jul 2003 01:22:08 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0test1 broken /dev/mem mmap ?
+Message-ID: <20030716002208.GA446@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
 Content-Disposition: inline
-In-Reply-To: <20030715234507.GA25420@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Honza!
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, Jul 16, 2003 at 01:45:07AM +0200, Jan Kara wrote:
-> > 
-> > this is the first step, and it is neither tuned for
-   ~~~~~~~~~~~~~~~~~~~~~~~
-> > performance nor the final implementation, it's just 
-> > a in-between step to some future quota enhancements 
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > like the folowing ...
-> > 
-> >  - faster and smaller quota hashes
->   Actually I think we don't care too much about performance here - the
-> number of dquots is rougly #active_users*#filesystems_with_quota and we
-> do lookup only on open()...
+The attached program works fine on some boxes, but not
+all in 2.6.0test1. It also works fine in 2.4, and up
+until recently, in all 2.5's.
 
-hmm, actually we do the lookup in each dqget, which from
-dquot_initialize (open), dquot_transfer (chown,chgrp), 
-and vfs_get_dqblk/vfs_set_dqblk (quota ctls) ...
+Ideas?
 
-but I agree that we do not care too much about performance ...
+		Dave
 
-> >  - not only per super_block hashes, maybe per vfsmount?
->   For current quota you must have per super_block hashes. If you'd like
-> to have some "directory based" one the per vfsmount makes sense.
 
-exactly, this is one of the future quota enhancements, 
-I have in mind ... not exactly directory based, but more
-vfsmount based ... (which includes the superblock case)
+--vkogqOf2sHV7VnPd
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="mptable.c"
 
-> >  - not hardcoded user/group quota ...
->   After a quick look I don't see any changes wrt this. What exactly do
-> you mean by this?
+/*
+ * Copyright (c) 1996, by Steve Passe
+ * All rights reserved.
+ *
+ * hacked to make it work in userspace Linux by Ingo Molnar, same copyright
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *	notice, this list of conditions and the following disclaimer.
+ * 2. The name of the developer may NOT be used to endorse or promote products
+ *	derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
-as I wrote "first step", "future quota enhancements" ...
+#define MP_SIG				  0x5f504d5f	  /* _MP_ */
 
-this hopefully will be in the next step, or the step after ...
+#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
-> >  - better interface for quota extensions
-> > 
-> > please, if somebody has any quota tests, which he/she
-> > is willing to do on this code, or just want to do some 
-> > testing with this code, do it and send me the results ...
-> > 
-> > I'm not interested in getting this into 2.4 without
->   Actually I don't think you'll be able to get some change like this to
-> 2.4 but 2.6 might be possible.
 
-at the moment, I do not care if this is for 2.4, 2.6 
-or 2.8 or for my personal tree ;) I just want to test 
-some of my ideas regarding quota improvements/extensions, 
-and the current design isn't flexible enough to allow it ... 
+#define	SMP_NO	0
+#define SMP_YES	1
 
->   BTW: don't you need some locking on dqhash list when
-> creating/destorying hashes?
+typedef unsigned int vm_offset_t;
 
-I guess this is right, but I assume the kernel lock 
-will do nicely (any objections? if not I'll add that)
 
-thanks for looking at it ... ;)
+/* EBDA is @ 40:0e in real-mode terms */
+#define EBDA_POINTER			0x040e		  /* location of EBDA pointer */
 
-best,
-Herbert 
+/* CMOS 'top of mem' is @ 40:13 in real-mode terms */
+#define TOPOFMEM_POINTER		0x0413		  /* BIOS: base memory size */
 
+#define DEFAULT_TOPOFMEM		0xa0000
+
+#define BIOS_BASE			   0xf0000
+#define BIOS_BASE2			  0xe0000
+#define BIOS_SIZE			   0x10000
+#define ONE_KBYTE			   1024
+
+#define GROPE_AREA1			 0x80000
+#define GROPE_AREA2			 0x90000
+#define GROPE_SIZE			  0x10000
+
+#define PROCENTRY_FLAG_EN	   0x01
+#define PROCENTRY_FLAG_BP	   0x02
+#define IOAPICENTRY_FLAG_EN	 0x01
+
+#define MAXPNSTR				132
+
+typedef struct TABLE_ENTRY {
+	u_char	type;
+	u_char	length;
+	char	name[32];
+} tableEntry;
+
+tableEntry basetableEntryTypes[] =
+{
+	{ 0, 20, "Processor" },
+	{ 1,  8, "Bus" },
+	{ 2,  8, "I/O APIC" },
+	{ 3,  8, "I/O INT" },
+	{ 4,  8, "Local INT" }
+};
+
+/* MP Floating Pointer Structure */
+typedef struct MPFPS {
+	char	signature[4];
+	void*	pap;
+	u_char	length;
+	u_char	spec_rev;
+	u_char	checksum;
+	u_char	mpfb1;
+	u_char	mpfb2;
+	u_char	mpfb3;
+	u_char	mpfb4;
+	u_char	mpfb5;
+} mpfps_t;
+
+/* MP Configuration Table Header */
+typedef struct MPCTH {
+	char	signature[4];
+	u_short	base_table_length;
+	u_char	spec_rev;
+	u_char	checksum;
+	u_char	oem_id[8];
+	u_char	product_id[12];
+	void*	oem_table_pointer;
+	u_short	oem_table_size;
+	u_short	entry_count;
+	void*	apic_address;
+	u_short	extended_table_length;
+	u_char	extended_table_checksum;
+	u_char	reserved;
+} mpcth_t;
+
+typedef struct PROCENTRY {
+	u_char	type;
+	u_char	apicID;
+	u_char	apicVersion;
+	u_char	cpuFlags;
+	u_long	cpuSignature;
+	u_long	featureFlags;
+	u_long	reserved1;
+	u_long	reserved2;
+} ProcEntry;
+
+static int MPConfigTableHeader(void* pap);
+
+static int readType(void);
+static void seekEntry(vm_offset_t addr);
+static void readEntry(void* entry, int size);
+
+static void processorEntry(void);
+
+/* global data */
+int	pfd;			/* physical /dev/mem fd */
+
+int	busses[16];
+int	apics[16];
+
+int	ncpu;
+int	nbus;
+int	napic;
+int	nintr;
+int	verbose;
+
+/*
+ * set PHYSICAL address of MP floating pointer structure
+ */
+#define NEXT(X)		((X) += 4)
+static void apic_probe(vm_offset_t* paddr, int* where)
+{
+	/*
+	 * c rewrite of apic_probe() by Jack F. Vogel
+	 */
+
+	unsigned int x;
+	u_short segment;
+	vm_offset_t target;
+	u_int buffer[ BIOS_SIZE / sizeof(int) ];
+
+	/* search Extended Bios Data Area, if present */
+	seekEntry((vm_offset_t)EBDA_POINTER);
+	readEntry(&segment, 2);
+	if (segment) {				/* search EBDA */
+		target = (vm_offset_t)segment << 4;
+		seekEntry(target);
+		readEntry(buffer, ONE_KBYTE);
+
+		for (x = 0; x < ONE_KBYTE / sizeof (unsigned int); NEXT(x)) {
+			if (buffer[ x ] == MP_SIG) {
+				*where = 1;
+				*paddr = (x * sizeof(unsigned int)) + target;
+				return;
+			}
+		}
+	}
+
+	/* read CMOS for real top of mem */
+	seekEntry((vm_offset_t)TOPOFMEM_POINTER);
+	readEntry(&segment, 2);
+	--segment;						  /* less ONE_KBYTE */
+	target = segment * 1024;
+	seekEntry(target);
+
+	/*
+	 * GOES SPLAT HERE ON A 2.6 KERNEL. --davej
+	 */
+	readEntry(buffer, ONE_KBYTE);
+
+
+	for (x = 0; x < ONE_KBYTE / sizeof (unsigned int); NEXT(x)) {
+		if (buffer[ x ] == MP_SIG) {
+			*where = 2;
+			*paddr = (x * sizeof(unsigned int)) + target;
+			return;
+		}
+	}
+
+	/* we don't necessarily believe CMOS, check base of the last 1K of 640K */
+	if (target != (DEFAULT_TOPOFMEM - 1024)) {
+		target = (DEFAULT_TOPOFMEM - 1024);
+		seekEntry(target);
+		readEntry(buffer, ONE_KBYTE);
+
+		for (x = 0; x < ONE_KBYTE / sizeof (unsigned int); NEXT(x)) {
+			if (buffer[ x ] == MP_SIG) {
+				*where = 3;
+				*paddr = (x * sizeof(unsigned int)) + target;
+				return;
+			}
+		}
+	}
+
+	/* search the BIOS */
+	seekEntry(BIOS_BASE);
+	readEntry(buffer, BIOS_SIZE);
+
+	for (x = 0; x < BIOS_SIZE / sizeof(unsigned int); NEXT(x)) {
+		if (buffer[ x ] == MP_SIG) {
+			*where = 4;
+			*paddr = (x * sizeof(unsigned int)) + BIOS_BASE;
+			return;
+		}
+	}
+
+	/* search the extended BIOS */
+	seekEntry(BIOS_BASE2);
+	readEntry(buffer, BIOS_SIZE);
+
+	for (x = 0; x < BIOS_SIZE / sizeof(unsigned int); NEXT(x)) {
+		if (buffer[ x ] == MP_SIG) {
+			*where = 5;
+			*paddr = (x * sizeof(unsigned int)) + BIOS_BASE2;
+			return;
+		}
+	}
+
+	/* search additional memory */
+	target = GROPE_AREA1;
+	seekEntry(target);
+	readEntry(buffer, GROPE_SIZE);
+
+	for (x = 0; x < GROPE_SIZE / sizeof(unsigned int); NEXT(x)) {
+		if (buffer[ x ] == MP_SIG) {
+			*where = 6;
+			*paddr = (x * sizeof(unsigned int)) + GROPE_AREA1;
+			return;
+		}
+	}
+
+	target = GROPE_AREA2;
+	seekEntry(target);
+	readEntry(buffer, GROPE_SIZE);
+
+	for (x = 0; x < GROPE_SIZE / sizeof(unsigned int); NEXT(x)) {
+		if (buffer[ x ] == MP_SIG) {
+			*where = 7;
+			*paddr = (x * sizeof(unsigned int)) + GROPE_AREA2;
+			return;
+		}
+	}
+
+	*where = 0;
+	*paddr = (vm_offset_t)0;
+}
+
+
+int issmp(int *numcpu, int verb)
+{
+	vm_offset_t paddr;
+	mpfps_t mpfps;
+	int where;
+	int defaultConfig;
+
+	verbose=verb;
+	/* open physical memory for access to MP structures */
+	if ((pfd = open("/dev/mem", O_RDONLY)) < 0) {
+		fprintf(stderr, "issmp(): /dev/mem: %s\n", strerror(errno));
+		return -1;
+	}
+
+	/* probe for MP structures */
+	apic_probe(&paddr, &where);
+	if (where <= 0) {
+		if(numcpu)
+			*numcpu=1;
+		return SMP_NO;
+	}
+
+	/* read in mpfps structure*/
+	seekEntry(paddr);
+	readEntry(&mpfps, sizeof(mpfps_t));
+
+	/* check whether an MP config table exists */
+	if (! (defaultConfig = mpfps.mpfb1))
+		MPConfigTableHeader(mpfps.pap);
+
+	if(numcpu)
+		*numcpu=ncpu;
+	return SMP_YES;
+}
+
+
+static int MPConfigTableHeader(void* pap)
+{
+	vm_offset_t paddr;
+	mpcth_t	 cth;
+	int x;
+	int totalSize, t;
+	int count, c;
+
+	if (pap == 0) {
+		printf("MP Configuration Table Header MISSING!\n");
+		return SMP_NO;
+	}
+
+	/* convert physical address to virtual address */
+	paddr = (vm_offset_t)pap;
+
+	/* read in cth structure */
+	seekEntry(paddr);
+	readEntry(&cth, sizeof(cth));
+
+	totalSize = cth.base_table_length - sizeof(struct MPCTH);
+	count = cth.entry_count;
+
+	/* initialze tables */
+	for (x = 0; x < 16; ++x)
+		busses[ x ] = apics[ x ] = 0xff;
+
+	ncpu = 0;
+	nbus = 0;
+	napic = 0;
+	nintr = 0;
+
+	/* process all the CPUs */
+	if (verbose)
+		printf("MP Table:\n#\tAPIC ID\tVersion\tState\t\tFamily\tModel\tStep\tFlags\n");
+	for (t = totalSize, c = count; c; c--) {
+		if (readType() == 0)
+			processorEntry();
+		totalSize -= basetableEntryTypes[ 0 ].length;
+	}
+	if (verbose)
+		printf ("\n");
+	
+	return SMP_YES;
+}
+
+static int readType(void)
+{
+	u_char type;
+
+	if (read(pfd, &type, sizeof(u_char)) != sizeof(u_char)) {
+		perror("type read");
+		exit(1);
+	}
+
+	if (lseek(pfd, -1, SEEK_CUR) < 0) {
+		perror("type seek");
+		exit(1);
+	}
+
+	return (int)type;
+}
+
+static void seekEntry(vm_offset_t addr)
+{
+	if (lseek(pfd, (off_t)addr, SEEK_SET) < 0) {
+		perror("/dev/mem seek");
+		exit(1);
+	}
+}
+
+static void readEntry(void* entry, int size)
+{
+	if (read(pfd, entry, size) != size) {
+		perror("readEntry");
+		exit(1);
+	}
+}
+
+static void processorEntry(void)
+{
+	ProcEntry entry;
+
+	/* read it into local memory */
+	readEntry(&entry, sizeof(entry));
+
+	/* count it */
+	++ncpu;
+
+	if(verbose)
+	{
+		printf("#\t%2d", entry.apicID);
+		printf("\t 0x%2x", entry.apicVersion);
+		
+		printf("\t %s, %s",
+				(entry.cpuFlags & PROCENTRY_FLAG_BP) ? "BSP" : "AP",
+				(entry.cpuFlags & PROCENTRY_FLAG_EN) ? "usable" : "unusable");
+		
+		printf("\t %ld\t %ld\t %ld",
+				(entry.cpuSignature >> 8) & 0x0f,
+				(entry.cpuSignature >> 4) & 0x0f,
+				entry.cpuSignature & 0x0f);
+		
+		printf("\t 0x%04lx\n", entry.featureFlags);
+	}
+}
+
+
+int main()
+{
+	int	numcpu, smp;
+
+	smp=issmp(&numcpu, 1);
+	printf("SMP: %d\nCPU: %d\n", smp, numcpu);
+	return 0;
+}
+
+--vkogqOf2sHV7VnPd--

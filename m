@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULaBvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbULaCBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbULaBvt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 20:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbULaBvt
+	id S261808AbULaCBi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 21:01:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbULaCBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 20:51:49 -0500
-Received: from mail.dif.dk ([193.138.115.101]:48842 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261807AbULaBvr (ORCPT
+	Thu, 30 Dec 2004 21:01:37 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:57769 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261808AbULaCBe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 20:51:47 -0500
-Date: Fri, 31 Dec 2004 03:02:57 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: David Howells <dhowells@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch] add loglevel to printk in fs/afs/cmservice.c
-Message-ID: <Pine.LNX.4.61.0412310259230.4725@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Dec 2004 21:01:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Vd2n0BdG00Fs4mS/bIKgGVem7Nbtjod4dKNTRonBbV160VilahC4YRaEwTk5asJJJHFhk5TNMLlY1P2O3pwSfykPc87QrqLWlatxTY3WAxBR438ifFu/EaJD7HCeAWG0R60f4IfJK/lV20cWTzoK/rNj27VVPfrEdwFbwicQBEo=
+Message-ID: <2cd57c900412301801b7794be@mail.gmail.com>
+Date: Fri, 31 Dec 2004 10:01:34 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.6.10-ac2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <2cd57c90041230174037300542@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1104450153.3415.1.camel@localhost.localdomain>
+	 <2cd57c90041230174037300542@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi, 
-
-below is a small patch that adds loglevel to a printk in 
-fs/afs/cmservice.c
-
-If considered OK please consider applying.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-bk2-orig/fs/afs/cmservice.c linux-2.6.10-bk2/fs/afs/cmservice.c
---- linux-2.6.10-bk2-orig/fs/afs/cmservice.c	2004-12-24 22:34:44.000000000 +0100
-+++ linux-2.6.10-bk2/fs/afs/cmservice.c	2004-12-31 02:59:13.000000000 +0100
-@@ -118,7 +118,7 @@ static int kafscmd(void *arg)
- 	_SRXAFSCM_xxxx_t func;
- 	int die;
- 
--	printk("kAFS: Started kafscmd %d\n", current->pid);
-+	printk(KERN_INFO "kAFS: Started kafscmd %d\n", current->pid);
- 
- 	daemonize("kafscmd");
- 
+Suppose index is 0 or 1,  pci_find_device calling could be avoided also.
 
 
+On Fri, 31 Dec 2004 09:40:19 +0800, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> On Thu, 30 Dec 2004 23:42:34 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >
+> > Forward ported from 2.6.9-ac
+> > o       Don't probe legacy ISA ide2,3,4,5 on PCI boxes  (Alan Cox)
+> 
+> Below is a cut from the 2.6.10-ac2 patch. I think since
+> pci_find_device() == NULL is more unlikely, please consider this patch
+> previousely posted on your original thread:
+> http://lkml.org/lkml/2004/12/27/195
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude
+> linux.vanilla-2.6.10/include/asm-i386/ide.h
+> linux-2.6.10/include/asm-i386/ide.h
+> --- linux.vanilla-2.6.10/include/asm-i386/ide.h 2004-12-25
+> 21:13:51.000000000 +0000
+> +++ linux-2.6.10/include/asm-i386/ide.h 2004-12-29 22:34:05.000000000 +0000
+> @@ -41,16 +41,20 @@
+> 
+>  static __inline__ unsigned long ide_default_io_base(int index)
+>  {
+> +       if(pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+> +               switch(index) {
+> +                       case 2: return 0x1e8;
+> +                       case 3: return 0x168;
+> +                       case 4: return 0x1e0;
+> +                       case 5: return 0x160;
+> +                       }
+> +       }
+>         switch (index) {
+>                 case 0: return 0x1f0;
+>                 case 1: return 0x170;
+> -               case 2: return 0x1e8;
+> -               case 3: return 0x168;
+> -               case 4: return 0x1e0;
+> -               case 5: return 0x160;
+>                 default:
+>                         return 0;
+> -       }
+> +       }
+>  }
+> 
+>  #define IDE_ARCH_OBSOLETE_INIT
+> 
+> 
+> --
+> Coywolf Qi Hunt
+> Homepage http://sosdg.org/~coywolf/
+> 
 
 
+-- 
+Coywolf Qi Hunt
+Homepage http://sosdg.org/~coywolf/

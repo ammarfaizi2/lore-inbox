@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUHRPIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267168AbUHRPLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUHRPIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 11:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUHRPIt
+	id S267168AbUHRPLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 11:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266919AbUHRPKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 11:08:49 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:56181 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266808AbUHRPIr
+	Wed, 18 Aug 2004 11:10:50 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:30642 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266898AbUHRPKk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 11:08:47 -0400
-Subject: 2.6.8-rc4+ ide errors causes system freeze
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 18 Aug 2004 17:08:46 +0200
-Message-Id: <1092841726.11739.4.camel@localhost>
+	Wed, 18 Aug 2004 11:10:40 -0400
+Date: Wed, 18 Aug 2004 20:42:40 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: paulus@samba.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: Fix v_regs pointer setup
+Message-ID: <20040818151240.GB9524@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey, i notice that after beginning to use a 2.6.8rc4 kernel my system
-crashed some times - and i just accepted it and thought it would be
-fixed in 2.6.8 (i couldnt just find the error)
+During some signal test, we found that v_regs pointer was not setup correctly.
+v_regs was made to point to itself, as a result of which the pointer was
+corrupted when vec registers were copied over. When the signal handler
+returned, restore_sigcontext tried derefering the invalid pointer and in
+the process killed the app with SIGSEGV.
 
-but its still here - then i digged down in the syslog, and found some
-interresting stuff
-this happens mostly with videos and stuff.
-when the system does this it will just completely lockup, i cant sync
-disk, remount readonly, or kill any processes(all with magic sysrq key),
-i can only use the sysrq key to reboot or shutdown.
-
-i hope you can help me :>
-thanks!
-
-log:
-
-Aug 18 16:46:30 redeeman hdb: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Aug 18 16:46:30 redeeman hdb: dma_intr: error=0x84 { DriveStatusError
-BadCRC }
-Aug 18 16:46:30 redeeman ide: failed opcode was: unknown
-Aug 18 16:46:36 redeeman hdc: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Aug 18 16:46:36 redeeman hdc: dma_intr: error=0x84 { DriveStatusError
-BadCRC }
-Aug 18 16:46:36 redeeman ide: failed opcode was: unknown
-Aug 18 16:46:49 redeeman hdd: dma_intr: status=0x51 { DriveReady
-SeekComplete Error }
-Aug 18 16:46:49 redeeman hdd: dma_intr: error=0x84 { DriveStatusError
-BadCRC }
-Aug 18 16:46:49 redeeman ide: failed opcode was: unknown
-^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^$
-<AE>3<95>QQ<E5>^
-\<8F><DA>d<D4><F9><B2>e<B4><94><DE>5<CB><E9><B9>f<C3>`<ED><A7><C2>>@^O<A9><C7><85><E5>IM<A8>.<8F><A4><F0>4<DC>T<B5>^_g<85><BD><A8>Q>S<C7><99><8C>r<E9>`j^Z<D0><B7><86><E1><94>^Ta^?$
-<DC>^_<D7>^]:*<B4><D2>8<FC><8B><FB><8F>%]`<8A><B6>~Qi^Zf
-#<B3><9B>^E<BD><AE>^Op^F5<E0><C2><AF>(K<D3>$<AF>+<A3>+<C1>$<C5>y<8A><DC><BD><AD>m<EF><E7><D7><A7><CB>^R<F3><C0><EA><BF>"<BD>^D<A7><F1>eHc<A6>
-<94><B4><93>IN<A4>F<A0>k-<E0>^Gr<A5>@<EE>|A<BB>[^Z
-$<CC><ED>P<AA><AA><E1>Ti<C5>2&<E9><C9>^E<CF><88><DD>A<F0>^Q<D2><C0><8D><CE>%<F2>;<CE>^AA
+Following patch should fix it. Please review and apply:
 
 
+Signed-off-by: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+
+---
+
+ linux-2.6.8.1-vatsa/arch/ppc64/kernel/signal.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN arch/ppc64/kernel/signal.c~signal_fix arch/ppc64/kernel/signal.c
+--- linux-2.6.8.1/arch/ppc64/kernel/signal.c~signal_fix	2004-08-18 20:30:23.000000000 +0530
++++ linux-2.6.8.1-vatsa/arch/ppc64/kernel/signal.c	2004-08-18 20:31:35.000000000 +0530
+@@ -127,7 +127,7 @@ static long setup_sigcontext(struct sigc
+ 	 * v_regs pointer or not
+ 	 */
+ #ifdef CONFIG_ALTIVEC
+-	elf_vrreg_t __user *v_regs = (elf_vrreg_t __user *)(((unsigned long)sc->vmx_reserve) & ~0xful);
++	elf_vrreg_t __user *v_regs = (elf_vrreg_t __user *)(((unsigned long)sc->vmx_reserve + 16) & ~0xful);
+ #endif
+ 	long err = 0;
+ 
+
+_
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

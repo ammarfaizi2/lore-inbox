@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbTJRSHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 14:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTJRSHg
+	id S261939AbTJRSV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 14:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbTJRSV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 14:07:36 -0400
-Received: from play.smurf.noris.de ([192.109.102.42]:59574 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S261793AbTJRSH3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 14:07:29 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se	ctors numbered strangely, and what happens to them?)
-Date: Sat, 18 Oct 2003 20:06:13 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2003.10.18.18.06.12.173887@smurf.noris.de>
-References: <785F348679A4D5119A0C009027DE33C105CDB2EF@mcoexc04.mlm.maxtor.com>
-NNTP-Posting-Host: linux.smurf.noris.de
+	Sat, 18 Oct 2003 14:21:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30345 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261939AbTJRSVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 14:21:55 -0400
+Date: Sat, 18 Oct 2003 11:22:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olivier NICOLAS <olivn@trollprod.org>
+Cc: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.0-test8: panic on boot
+Message-Id: <20031018112217.19841708.akpm@osdl.org>
+In-Reply-To: <3F917EFC.7020102@trollprod.org>
+References: <3F917EFC.7020102@trollprod.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: play.smurf.noris.de 1066500396 22905 192.109.102.39 (18 Oct 2003 18:06:36 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sat, 18 Oct 2003 18:06:36 +0000 (UTC)
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Mudama, Eric wrote:
+Olivier NICOLAS <olivn@trollprod.org> wrote:
+>
+>  NULL pointer dereference at virtual address 00000004
+>    printing eip:
+>  c01de05e
+>  *pde = 00000000
+>  Oops: 0000 [#1]
+>  CPU:    0
+>  EIP:    0060:[<c01de05e>]    Not tainted
+>  EFLAGS: 00010213
+>  EIP is at vsnprintf+0x28e/0x4e0
+>  eax: 00000004   ebx: 0000000a   ecx: 00000004   edx: 00000003
+>  esi: c03efae7   edi: ffffffff   ebp: 00000000   esp: c114bac0
+>  ds: 007b   es: 007b   ss: 0068
+>  Process swapper (pid: 1, threadinfo=c114a000 task=c117b8c0)
+>  Stack: c114bb08 ffffffff 000004a0 00000000 0000000a ffffffff 00000003 
+>  00000002
+>          00000004 00000004 ffffffff 00000001 c114bb68 c7f02c48 c7f02ee8 
+>  c01de307
+>          c03efac0 3fc10540 c03292ea c114bb60 c01e6579 c03efac0 c03292c0 
+>  c114bb54
+>  Call Trace:
+>    [<c01de307>] vsprintf+0x27/0x30
+>    [<c01e6579>] acpi_os_vprintf+0x12/0x2a
+>    [<c020992b>] acpi_ut_debug_print+0x97/0x9d
+>    [<c01e91d2>] acpi_ds_init_buffer_field+0x18d/0x20c
+>    [<c01e93ac>] acpi_ds_eval_buffer_field_operands+0x15b/0x17d
+>    [<c01e9f8f>] acpi_ds_exec_end_op+0x22c/0x409
 
-> If current trends hold, in the next few years, hard drives are going to have
-> to pick up and rewrite their data continuously to avoid signal decay on the
-> media...
+Well clearly one of the strings in this debug message in
+acpi_ds_init_buffer_field() is null:
 
-I expect I'd be VERY unhappy if I couldn't put a complete computer in
-storage any more, and expect it to work when I turn it back on in two
-months / years.
+	/* Entire field must fit within the current length of the buffer */
 
-What timeframe are you talking about here anyway?
+	if ((bit_offset + bit_count) >
+		(8 * (u32) buffer_desc->buffer.length)) {
+		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR,
+			"Field [%4.4s] size %d exceeds Buffer [%4.4s] size %d (bits)\n",
 
-Oh well, I do remember the times when disks didn't work the next
-_day_ because they developed stiction and the only way to get them to run
-again was to peel off the label near the center and give the thing a
-not-so-gentle push with a screwdriver... in fact we had a contest how long
-an 80-MB disk would continue to work with the top off. :-)
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-:mouse belt: n. See {rat belt}.
+
+It is perhaps desirable to make printk() a bit more robust about this sort
+of thing.
+
+
+diff -puN lib/vsprintf.c~printk-handle-bad-pointers lib/vsprintf.c
+--- 25/lib/vsprintf.c~printk-handle-bad-pointers	2003-10-18 11:19:05.000000000 -0700
++++ 25-akpm/lib/vsprintf.c	2003-10-18 11:19:25.000000000 -0700
+@@ -348,7 +348,7 @@ int vsnprintf(char *buf, size_t size, co
+ 
+ 			case 's':
+ 				s = va_arg(args, char *);
+-				if (!s)
++				if ((unsigned long)s < PAGE_SIZE)
+ 					s = "<NULL>";
+ 
+ 				len = strnlen(s, precision);
+
+_
 

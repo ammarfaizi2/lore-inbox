@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbUKOBtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbUKOCCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbUKOBtR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 20:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKOBtR
+	id S261402AbUKOCCR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 21:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbUKOCCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 20:49:17 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:45582 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261394AbUKOBtN
+	Sun, 14 Nov 2004 21:02:17 -0500
+Received: from mail.shareable.org ([81.29.64.88]:56706 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261402AbUKOCCL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 20:49:13 -0500
-Date: Mon, 15 Nov 2004 01:49:07 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Stas Sergeev <stsp@aknet.ru>, Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-mm5
-In-Reply-To: <Pine.LNX.4.61.0411141759250.3754@musoma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58L.0411150143580.22313@blysk.ds.pg.gda.pl>
-References: <41967669.3070707@aknet.ru> <Pine.LNX.4.61.0411131504360.4183@musoma.fsmlabs.com>
- <41968F16.1080706@aknet.ru> <Pine.LNX.4.61.0411141759250.3754@musoma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 14 Nov 2004 21:02:11 -0500
+Date: Mon, 15 Nov 2004 02:01:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: mingo@elte.hu, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, ahu@ds9a.nl
+Subject: Re: Futex queue_me/get_user ordering
+Message-ID: <20041115020148.GA17979@mail.shareable.org>
+References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4197FF42.9070706@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004, Zwane Mwaikambo wrote:
+Hidetoshi Seto wrote:
+> >So I don't know if NPTL is buggy, but the pseudo-code given in the bug
+> >report is (because of unconditional wake++), and so is the failure
+> >example (because it doesn't use a mutex).
+> 
+> from glibc-2.3.3(RHEL4b2):
+> 
+>   31 int
+>   32 __pthread_cond_signal (cond)
+>   33      pthread_cond_t *cond;
+>   34 {
+>   35   /* Make sure we are alone.  */
+>   36   lll_mutex_lock (cond->__data.__lock);
+>   37
+>   38   /* Are there any waiters to be woken?  */
+>   39   if (cond->__data.__total_seq > cond->__data.__wakeup_seq)
+>   40     {
+>   41       /* Yes.  Mark one of them as woken.  */
+>   42       ++cond->__data.__wakeup_seq;
+>   43       ++cond->__data.__futex;
+>   44
+>   45       /* Wake one.  */
+>   46       lll_futex_wake (&cond->__data.__futex, 1);
+>   47     }
+>   48
+>   49   /* We are done.  */
+>   50   lll_mutex_unlock (cond->__data.__lock);
+>   51
+>   52   return 0;
+>   53 }
+> 
+> Ingo, is this buggy?
+> 
+> We should start again with a question:
+>   Is this a kernel's bug or NPTL's bug?
 
-> @@ -453,12 +453,12 @@ asmlinkage void __init start_kernel(void
->  	preempt_disable();
->  	build_all_zonelists();
->  	page_alloc_init();
-> -	trap_init();
->  	printk("Kernel command line: %s\n", saved_command_line);
->  	parse_early_param();
->  	parse_args("Booting kernel", command_line, __start___param,
->  		   __stop___param - __start___param,
->  		   &unknown_bootoption);
-> +	trap_init();
->  	sort_main_extable();
->  	rcu_init();
->  	init_IRQ();
+Third possibility: your test is buggy.  Do you actually use a mutex in
+your test when you call pthread_cond_wait, and does the waker hold it
+when it calls pthread_cond_signal?
 
- Are you sure you want to make exception handling not to be set up as soon
-as possible?  Please note this also includes stuff in cpu_init().
+If you don't use a mutex as you are supposed to with condvars, then it
+might not be a kernel or NPTL bug.  I'm not sure if POSIX-specified
+behaviour is defined when you use condvars without a mutex.
 
-  Maciej
+If you do use a mutex (and you just didn't mention it), then the code
+above is not enough to decide if there's an NPTL bug.  We need to look
+at pthread_cond_wait as well, to see how it does the "atomic" wait and
+mutex release.
+
+-- Jamie

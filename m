@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUEFTe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUEFTkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUEFTe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 15:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUEFTe2
+	id S262065AbUEFTkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 15:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUEFTkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 15:34:28 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:9746 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262418AbUEFTe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 15:34:26 -0400
-Date: Thu, 6 May 2004 21:34:55 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       greg@kroah.com, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH][2.6]
-Message-Id: <20040506213455.29154c51.khali@linux-fr.org>
-In-Reply-To: <409923F7.7050101@convergence.de>
-References: <409923F7.7050101@convergence.de>
-Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 15:40:41 -0400
+Received: from rtp-iport-2.cisco.com ([64.102.122.149]:33286 "EHLO
+	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S262065AbUEFTki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 15:40:38 -0400
+X-BrightmailFiltered: true
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] crypto/crc32c.c (was Re: CRC32c warning on sparc64)
+References: <Pine.GSO.4.44.0405061921290.21792-100000@math.ut.ee>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Thu, 06 May 2004 14:40:32 -0500
+In-Reply-To: <Pine.GSO.4.44.0405061921290.21792-100000@math.ut.ee> (Meelis
+ Roos's message of "Thu, 6 May 2004 20:38:52 +0300 (EEST)")
+Message-ID: <yqujr7tx1gzz.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5 (chayote, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With the new I2C_CLASS_ALL flag it will be possible that an adapter
-> can request that really all drivers are probed on the adapter. On the
-> other hand, drivers can make sure that they get the chance to probe on
-> every i2c adapter out there (this is not encouraged, though)
+On Thu, 6 May 2004, Meelis Roos uttered the following:
+> This is 2.6.6-rc3+BK as of today on a sparc64 (gcc 3.3.3 on Debian):
+> 
+>   CC [M] crypto/crc32c.o crypto/crc32c.c:89: warning: initialization
+>   from incompatible pointer type
+> 
+> This is because chksum_update uses size_t (64-bit unsigned long on
+> sparc64) length argument but dia_update seems to want unsigned int
+> as the type of length.
+> 
+> What is the right fix - change the length in chksum_update() and
+> crc32c() to unsigned int?
 
-Depends. For example the eeprom driver will do that, and this is
-correct. That said, I agree that this is a collaborative approach and
-everybody will have to play the game.
+Well, it's my opinion that using "size_t" is correct usage of type in
+this case.  So here's my thinking:
 
-> - rename I2C_ADAP_CLASS_xxx to I2C_CLASS_xxx (to be used both for 
-> drivers and adapters)
-> - add new I2C_CLASS_ALL and I2C_CLASS_SOUND classes
+* we leave lib/crc32c() as it is with size_t, as it is meant to be
+derived from crc32() and that uses size_t.
 
-Mmm, I once proposed that I2C_ADAP_CLASS_SMBUS would be better renamed
-I2C_ADAP_CLASS_SENSORS (so I2C_CLASS_SENSORS now). What about that? I
-think it would be great to embed that change into your patch, so that
-the name changes only once.
-
-Now that we come to speak about that, I wonder if we would _also_ need a
-SMBUS class. SMBus is mostly a subset of I2C, essentially (but not
-completely) compatible. It may be useful at some point to know if a chip
-is compliant with SMBus or not. I don't think that i2c-core can make use
-of this at the moment, nor can I think of concrete examples where this
-would be needed. It's just a thought at the moment and I mention it here
-in case anyone has comments ;)
-
-For now we can stick to the classes we have (with the SMBUS->SENSORS
-change and the new SOUND class). The true SMBUS class can always be
-added later if needed, I guess.
-
-BTW, if HWMON is prefered to SENSORS, this is fine with me too, I have
-no strong preference.
-
-Thanks.
-
+* crypto/crc32c is a wrapper for lib/crc32c.  The interface it
+presents to the rest of the crypto routines should agree.  My bad.
+So, let us let it translate with a cast, as in the patch below.
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+  "Oh, *that* Physics Prize.  Well, I just substituted 'stupidity' for
+      'dark matter' in the equations, and it all came together."
+
+--- linux-2.6.6-rc3-bk.orig/crypto/crc32c.c	2004-05-06 14:11:54.000000000 -0500
++++ linux-2.6.6-rc3-bk/crypto/crc32c.c	2004-05-06 14:12:56.000000000 -0500
+@@ -56,12 +56,12 @@
+ 	return 0;
+ }
+ 
+-static void chksum_update(void *ctx, const u8 *data, size_t length)
++static void chksum_update(void *ctx, const u8 *data, unsigned int length)
+ {
+ 	struct chksum_ctx *mctx = ctx;
+ 	u32 mcrc;
+ 
+-	mcrc = crc32c(mctx->crc, data, length);
++	mcrc = crc32c(mctx->crc, data, (size_t)length);
+ 
+ 	mctx->crc = mcrc;
+ }

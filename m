@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSGBEye>; Tue, 2 Jul 2002 00:54:34 -0400
+	id <S316611AbSGBEu4>; Tue, 2 Jul 2002 00:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316616AbSGBEyd>; Tue, 2 Jul 2002 00:54:33 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:16795 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316615AbSGBEyc>; Tue, 2 Jul 2002 00:54:32 -0400
-Date: Tue, 2 Jul 2002 06:50:53 +0200
-From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
-Message-ID: <20020702045053.GA9522@sky.net>
-References: <Pine.GSO.4.30.0207012214430.15254-200000@balu> <20020701221651.10653.qmail@nextgeneration.speedroad.net> <1025563853.27901.56.camel@bip>
+	id <S316615AbSGBEuz>; Tue, 2 Jul 2002 00:50:55 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:19151 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S316611AbSGBEuz>;
+	Tue, 2 Jul 2002 00:50:55 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal 
+In-reply-to: Your message of "Tue, 02 Jul 2002 00:08:55 -0400."
+             <3D212757.5040709@quark.didntduck.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <1025563853.27901.56.camel@bip>
-User-Agent: Mutt/1.4i
-X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.17-rc2)
-Organization: Using Linux Only
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 02 Jul 2002 14:53:15 +1000
+Message-ID: <32193.1025585595@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 02 Jul 2002 00:08:55 -0400, 
+Brian Gerst <bgerst@quark.didntduck.org> wrote:
+>Keith Owens wrote:
+>> 1) Do the reference counting outside the module, before it is entered.
+>>    Not only does this pollute all structures that contain function
+>>    pointers, it introduces overhead on every function dereference.  All
+>>    of this just to cope with the relatively low possibility that a
+>>    module will be removed.
+>
+>Only "first use" (ie. ->open) functions need gaurding against unloads. 
+>Any subsequent functions are guaranteed to have a reference to the 
+>module, and don't need to bother with the refcount.  I have a few ideas 
+>to optimize the refcounting better than it is now.
 
-my kernel (still 2.4.17-rc2) boots from hde and finds hde and hdg during
-bootup.
-After the boot-prozess is finished, I can't access the drives anymore.
-(I have only /boot on hde1, the rest on scsi-disks).
+Also the close routine, otherwise there is a window where the use count
+is 0 but code is still executing in the module.
 
-I will try 2.4.19 if it's finish.
+Network operations such as SIOCGIFHWADDR take an interface name and do
+not call any 'open' routine.  The only lock I can see around dev_ifsioc
+is dev_base_lock, AFAICT that will not protect against a module being
+unloaded while SIOCGIFHWADDR is running.  If dev_base_lock does protect
+against module unload, it is not clear that it does so.
 
-If you find a solution, pls msg me as well, thanks.
+For netfilter, the use count reflects the number of packets being
+processed.  Complex and potentially high overhead.
 
-Uli
+All of this requires that the module information be passed in multiple
+structures and assumes that all code is careful about reference
+counting the code it is about to execute.  There has to be a better
+way!
 
--- 
-'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUJNK1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270023AbUJNKbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUJNK1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 06:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUJNK1Q
+	id S270023AbUJNKbA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 06:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270024AbUJNKbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 06:27:16 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:16273 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S266663AbUJNK1N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 06:27:13 -0400
-Date: Thu, 14 Oct 2004 10:27:12 +0000
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: Documentation approach bugreport.
-Message-ID: <20041014102712.GC8837@beton.cybernet.src>
+	Thu, 14 Oct 2004 06:31:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33296 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270023AbUJNKa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 06:30:59 -0400
+Date: Thu, 14 Oct 2004 11:30:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hirokazu Takata <takata.hirokazu@renesas.com>, jgarzik@pobox.com,
+       takata@linux-m32r.org, linux-kernel@vger.kernel.org,
+       paul.mundt@nokia.com, nico@cam.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
+Message-ID: <20041014113044.A5076@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Hirokazu Takata <takata.hirokazu@renesas.com>, jgarzik@pobox.com,
+	takata@linux-m32r.org, linux-kernel@vger.kernel.org,
+	paul.mundt@nokia.com, nico@cam.org, netdev@oss.sgi.com
+References: <416BFD79.1010306@pobox.com> <20041013.105243.511706221.takata.hirokazu@renesas.com> <416C8E0B.4030409@pobox.com> <20041013.121547.863739114.takata.hirokazu@renesas.com> <20041012223227.45a62301.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041012223227.45a62301.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 12, 2004 at 10:32:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux kernel documentation redirects the user sometimes to manpages which is
-a bad practice according to my opinion, which I am going to explain why
-later.
+On Tue, Oct 12, 2004 at 10:32:27PM -0700, Andrew Morton wrote:
+> smc91x-assorted-minor-cleanups.patch
 
-make menuconfig, Loadable module support,  Enable loadable module support,
-< Help >: "For more information, see the man pages for               x   
-  modprobe, lsmod, modinfo, insmod and rmmod."
+This patch removes a comment I added to satisfy Jeff's review which
+explains how the link state is initialised - it probably isn't a good
+idea to remove this.
 
-There are various reasons why I think this is a bad practice:
-* Linux is a kernel. The place where Linux ends and other things (like programs)
-  begin lies in a syscall modprobe makes. The user could use another
-  program that complies to the same interface specification and does the same
-  job as insmod, modprobe etc. If he used such a program, he wouldn't
-  need neither modprobe nor insmod on his system and logically wouldn't have
-  installed corresponding manpages. The redirect in the Linux documentation
-  in the <Help> would be invalid then.
-* Sometimes Linux is used in a restricted environment for example embedded
-  system where the manpages would take up unnecessary space and are omitted
-  for this reason. The redicrect in the Linux documentation would be invalid
-  then too.
-* Manpages are different project than Linux. It isn't then clear, if e. g. man
-  modprobe contains a bug, whether it should be reported to them or to Linux.
-* Linux kernel is subject to changes as well as manpages are. They are being
-  on the system independently and it easily becomes that manpages get out of
-  sync with Linux kernel. Then the pointed-to information could be
-  too old or too new (for example when old Linux version is being employed
-  for some technical reason). 
-
-I suggest the following:
-* the manpage pointers to be removed and the information that is being referred
-  to be copied into Linux source tree and further maintained there
-* If the above should prove too much burden for the size of the source tarball
-  , separate information page to be made on http://www.kernel.org in the style
-  of Exim 4.40 Specification http://exim.org/exim-html-4.40/doc/html/spec.html
-
-Cl<
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

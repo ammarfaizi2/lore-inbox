@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262619AbSI0Wau>; Fri, 27 Sep 2002 18:30:50 -0400
+	id <S262638AbSI0Wcu>; Fri, 27 Sep 2002 18:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262626AbSI0Wau>; Fri, 27 Sep 2002 18:30:50 -0400
-Received: from adsl-xs4all.ds9a.nl ([213.84.159.51]:51972 "HELO spaans.ds9a.nl")
-	by vger.kernel.org with SMTP id <S262619AbSI0War>;
-	Fri, 27 Sep 2002 18:30:47 -0400
-Date: Sat, 28 Sep 2002 00:35:57 +0200
-From: Jasper Spaans <jasper@spaans.ds9a.nl>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.39
-Message-ID: <20020927223555.GA6850@mayo.ds9a.tudelft.nl>
-References: <Pine.LNX.4.33.0209271459210.1807-100000@penguin.transmeta.com> <20020928002703.1ab4583b.us15@os.inf.tu-dresden.de>
+	id <S262639AbSI0Wcu>; Fri, 27 Sep 2002 18:32:50 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:58361 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262638AbSI0Wcs>; Fri, 27 Sep 2002 18:32:48 -0400
+Subject: Re: 2.5.38: modular IDE broken
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bob_Tracy <rct@gherkin.frus.com>
+Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m17v1rZ-0005khC@gherkin.frus.com>
+References: <m17v1rZ-0005khC@gherkin.frus.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Sep 2002 23:41:36 +0100
+Message-Id: <1033166496.17717.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20020928002703.1ab4583b.us15@os.inf.tu-dresden.de>
-User-Agent: Mutt/1.4i
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2002 C. Jasper Spaans - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 28, 2002 at 12:27:03AM +0200, Udo A. Steinberg wrote:
-> On Fri, 27 Sep 2002 15:02:48 -0700 (PDT) Linus Torvalds (LT) wrote:
-> 
-> LT> Summary of changes from v2.5.38 to v2.5.39
-> LT> ============================================
-> 
-> Following compile error with 2.5.39 has been in 2.5.38, too.
-> 
-[zap]
+On Fri, 2002-09-27 at 21:37, Bob_Tracy wrote:
+> Understood.  My position is simply that I noted something broken, and
+> I reported it during the development cycle.  Would you prefer that I
+> had waited until after 2.5.X became 2.6?  I didn't think so...  I was
+> not (and am not) presuming to dictate what any developer's priorities
+> should be.
 
-Try compiling with a clean tree, I saw the same error here too, but it
-disappeared after cleaning the tree.
+Nod.. its just I've had lots of equally helpful reports 8)
 
--- 
-Jasper Spaans
-http://jsp.ds9a.nl/contact/
-``Got no clue? Too bad for you.''

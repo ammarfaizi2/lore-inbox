@@ -1,65 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267169AbSLEAxR>; Wed, 4 Dec 2002 19:53:17 -0500
+	id <S267166AbSLEA4n>; Wed, 4 Dec 2002 19:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267170AbSLEAxR>; Wed, 4 Dec 2002 19:53:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62468 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267169AbSLEAxQ>;
-	Wed, 4 Dec 2002 19:53:16 -0500
-Message-ID: <3DEEA521.5080101@pobox.com>
-Date: Wed, 04 Dec 2002 20:00:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix netlink compile breakage
-References: <3DEEA2EF.3040004@pobox.com>
-In-Reply-To: <3DEEA2EF.3040004@pobox.com>
-Content-Type: multipart/mixed;
- boundary="------------040400010001050401080802"
+	id <S267170AbSLEA4n>; Wed, 4 Dec 2002 19:56:43 -0500
+Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:60039 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267166AbSLEA4n>; Wed, 4 Dec 2002 19:56:43 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 4 Dec 2002 17:02:49 -0800
+Message-Id: <200212050102.RAA03231@adam.yggdrasil.com>
+To: andrew@erlenstar.demon.co.uk
+Subject: Re: bincancels in linux.kernel
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040400010001050401080802
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew Gierth wrote:
+>the only reason I do it at all is because the alternative is to do
+>nothing and watch the problem get worse.
 
-More viro breakage.  I wonder if 'int i' is missing from several other 
-files I did not compile...
+	At this time, it sounds like the existing spam countermeasures
+on the lkml mailing list work well enough that your bincancels were
+doing more harm than good.  That could change in future.  At that
+point, I suspect that the bincanelling would be done at the mailing
+list.  So, I'd say leave bincanceling of linux.kernel off and that'll
+be the end of this issue (at least until someone specifically requests
+otherwise).
 
-
---------------040400010001050401080802
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== net/netlink/netlink_dev.c 1.10 vs edited =====
---- 1.10/net/netlink/netlink_dev.c	Mon Dec  2 18:45:41 2002
-+++ edited/net/netlink/netlink_dev.c	Wed Dec  4 19:58:43 2002
-@@ -180,7 +180,7 @@
- 	{"route6", 11},
- 	{"ip6_fw", 13},
- 	{"dnrtmsg", 13},
--}
-+};
- 
- static void __init make_devfs_entries (const char *name, int minor)
- {
-@@ -192,6 +192,8 @@
- 
- int __init init_netlink(void)
- {
-+	int i;
-+
- 	if (register_chrdev(NETLINK_MAJOR,"netlink", &netlink_fops)) {
- 		printk(KERN_ERR "netlink: unable to get major %d\n", NETLINK_MAJOR);
- 		return -EIO;
-
---------------040400010001050401080802--
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,15 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S283870AbRLITjr>; Sun, 9 Dec 2001 14:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S283871AbRLITjh>; Sun, 9 Dec 2001 14:39:37 -0500
-Received: from mx7.port.ru ([194.67.57.17]:15527 "EHLO mx7.port.ru") by vger.kernel.org with ESMTP id <S283870AbRLITj2>; Sun, 9 Dec 2001 14:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S284467AbRLIVtz>; Sun, 9 Dec 2001 16:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S284469AbRLIVtq>; Sun, 9 Dec 2001 16:49:46 -0500
+Received: from mx3.port.ru ([194.67.57.13]:44810 "EHLO smtp3.port.ru") by vger.kernel.org with ESMTP id <S284467AbRLIVtf>; Sun, 9 Dec 2001 16:49:35 -0500
 From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200112082158.fB8Lw4012155@vegae.deep.net>
+Message-Id: <200112092150.fB9Lot906422@vegae.deep.net>
 Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-To: gandalf@wlug.westbo.se (Martin Josefsson)
-Date: Sun, 9 Dec 2001 00:58:03 +0300 (MSK)
+To: hahn@physics.mcmaster.ca (Mark Hahn)
+Date: Mon, 10 Dec 2001 00:50:55 +0300 (MSK)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0110252234270.27907-100000@tux.rsn.bth.se>
- from "Martin Josefsson" at Oct 25, 2001 10:40:49 PM
+In-Reply-To: <Pine.LNX.4.33.0112091619190.6428-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at Dec 09, 2001 04:21:06 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -17,60 +16,38 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Martin Josefsson wrote:"
+"  Mark Hahn wrote:"
 > 
-> > > >        Hello folks...
-> > > > 
-> > > > 	Host A: p166, ISA NE2K, linux-2.4.12-ac4
-> > > > 	Host B: p2-400, rtl-8129, WinXP (heh, not my box though ;)
-> > > > 
-> > > > 	Load: smbmount connection from host A to the host B, and getting
-> > > >      large files.
-> > > 
-> > > Solution: replace NE2K with a decent network card.
-> > 
-> > The ne2k driver goes to great pains to keep interrupts enabled it isnt the
-> > culprit as far as I can tell
+> > > I had an AMD K6 200 with an ISA NE2K card whan I started using Linux...
+> ...
+> >   such broken behaviour.
 > 
-> I had an AMD K6 200 with an ISA NE2K card whan I started using Linux...
-> I started using kernel 2.0 and that card worked very nice.
-> I could even play quake while sending out data at 10Mbit/s, I didn't even
-> notice that the transfer had started.
+> the only thing broken is that the nic is pitiful and eats CPU.
 > 
-> Then I upgraded to kernel 2.2 and I was no longer able to play quake while
-> tranmitting at 10Mbit/s with the exact same hardware. Sometimes I could
-> hardly even play mp3's :(
+> >     i`ve made a further research and discovered the fact that
+> > 	ping -l 99999999 		- does not corrupt the sound
+> > 	ping -l 99999999 -s 256		- does not corrupt the sound
+> > 	ping -l 99999999 -s 512		- significantly corrupts the sound
+> > 	ping -l 99999999 -s 16384 	- heavily corrupts the sound with stalls
 > 
-> Then a friend of mine that also upgraded to kernel 2.2 began complaining
-> that his machine also became extremely slow and unresponsive while
-> transitting at 10Mbit/s, in fact that machine was even slower than mine
-> during the transfers and his cpu was a bit faster than mine (also AMD).
+> right, so more fragmentation-assembly increases the CPU load,
+> no surprise there.
+    damn, i have a mtu of 1500 and i dont quite see abt what frag/reassembly
+   are you talking about while the problems start to pop out on _256_ bytes
+   large packets (yes 256+smth like 32 or more)
 > 
-> Then I upgraded that machine to pIII 700 and even that machine slows to a
-> crawl while transmitting with that bloody ISA NE2K. It's the same thing in
-> kernel 2.4 too. These days I simply don't use that card anymore...
+> >     My thinking is that if 2.0 was better than 2.4 in this case, we definitely
+> >    need to find out why was it so and use its strong side.
 > 
-> So something seems to have taken a wrong turn between 2.0 and 2.2
-> I don't think this is a problem intruduced in 2.4.
-    The question is whether anybody is interesting in investigation of
-  such broken behaviour.
-    i`ve made a further research and discovered the fact that
-	ping -l 99999999 		- does not corrupt the sound
-	ping -l 99999999 -s 256		- does not corrupt the sound
-	ping -l 99999999 -s 512		- significantly corrupts the sound
-	ping -l 99999999 -s 16384 	- heavily corrupts the sound with stalls
+> your particular case is not worth fixing; I doubt it applies to machines
+> with modern CPU, modern dram, modern nics.
+> 
+> 
+   but why? 2.0 is ok, 2.4 is broken.
 
-    as a reminder -l xxxx option forces ping to spit out data as fast as possible
-    making it a great bandwidth loader...
+   look: we have 2.0 serving NIC interrupts more efficintly than 2.4, and you
+   say that we even dont need to know _why_ its so!?
 
+   why do you neglect the possible improvement of that case?
 
-    Initial look at the result makes me think that at certain level the
-   interrupt handler just takes too long time and preempts the sound driver
-   or whatever.
-    My thinking is that if 2.0 was better than 2.4 in this case, we definitely
-   need to find out why was it so and use its strong side.
-
-
-regards, Samium Gromoff
-  
-
+cheers, Samium Gromoff

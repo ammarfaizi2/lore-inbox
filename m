@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129339AbRB0VWS>; Tue, 27 Feb 2001 16:22:18 -0500
+	id <S129284AbRB0VTs>; Tue, 27 Feb 2001 16:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129435AbRB0VWJ>; Tue, 27 Feb 2001 16:22:09 -0500
-Received: from hilbert.umkc.edu ([134.193.4.60]:1288 "HELO tesla.umkc.edu")
-	by vger.kernel.org with SMTP id <S129339AbRB0VVy>;
-	Tue, 27 Feb 2001 16:21:54 -0500
-Message-ID: <3A9C1A3A.8BC1BCF2@kasey.umkc.edu>
-Date: Tue, 27 Feb 2001 15:20:58 -0600
-From: "David L. Nicol" <david@kasey.umkc.edu>
-Organization: University of Missouri - Kansas City   supercomputing infrastructure
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S129537AbRB0VTj>; Tue, 27 Feb 2001 16:19:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:55818 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129339AbRB0VTd>; Tue, 27 Feb 2001 16:19:33 -0500
+Message-ID: <3A9C19CB.7176092B@transmeta.com>
+Date: Tue, 27 Feb 2001 13:19:07 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Zack Brown <zbrown@tumblerings.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Will Mosix go into the standard kernel?
-In-Reply-To: <Pine.LNX.3.96.1010227091255.780M-100000@renegade>
+To: Thorsten Glaser Geuer <eccesys@topmail.de>
+CC: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ISO-8859-1 completeness of kernel fonts?
+In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com> <000001c0a0ed$1ea188d0$742c9c3e@tp.net> <97h0bq$kdc$1@cesium.transmeta.com> <036601c0a0f8$bd0ad070$742c9c3e@tp.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Brown wrote:
+Thorsten Glaser Geuer wrote:
 > 
-> Just curious, are there any plans to put Mosix into the standard kernel,
-> maybe in 2.5, so folks could just configure it and go? it seems that the
-> number of people with more than one computer might make this a feature many
-> would at least want to try, especially if it was available as an option by
-> default. Is there anything in the Mosix folks' implementation that would
-> prevent this?
+> I always do it by a BASIC programme under DOS (yep I know
+> this isn't pure but I have a font editor from S-DOS aka
+> PTS-DOS (the free version)). The SFE.COM allows me to design
+> 8x8 8x12 8x14 8x16 fonts; the unicode table I write in the
+> MC or VC (NC clone for DOS) editor; my BASIC pgm converts
+> them together to PSFU. It's very easy once you read the psf
+> docs.
+> It's a pity that I've to mkfs the DOS partitions of my HDDs
+> every handfull of weeks, otherwise I'd put them onto a ftp
+> server somewhere. But I call you to try it by yourself.
+> (perl prolly isn't that easy coz it goes to binary values,
+> but GW-BASIC is fine)
+> 
 
-I'm not a knowledgeable person, but I've been following Mosix/beowulf/? for
-a few years and trying to keep up.
+I published a DOS-based PSF editor a long, long time ago (look for
+fontedit.exe; if it isn't on the net anywhere remind me and I'll put it
+back up.)  Use psfaddtable then to combine it into PSFU.
 
-I've thought that it would be good to break up the different clustering
-frills -- node identification, process migration, process hosting, distributed
-memory, yadda yadda blah, into separate bite-sized portions.  
+However, having something running under Linux would make more sense.
 
-Centralization would be good for standardizing on what /proc/?/?/? you read to
-find out what clusters you are in, and whatis your node number there.  There
-is a lot of theorhetical work to be done.
-
-Until then, I don't expect to see the Complete Mosix Patch Set available
-from ftp.kernel.org in its current form, as a monolithic set that does many things,
-including its Very Own Distributed File System Architecture.
-
-If any of the work from Mosix will make it Into The Standard Kernel it will be
-by backporting and standardization.
-
-
-Is there a good list to discuss this on?  Is this the list?  Which pieces of
-clustering-scheme patches would be good to have? 
-
-I think a good place to start would be node numbering.
-
-The standard node numbering would need to be flexible enough to have one machine
-participating in multiple clusters at the same time.
-
-/proc/cluster/....	this would be standard root point for clustering stuff
-
-/proc/mosix would go away, become proc/cluster/mosix
-
-and the same with whatever bproc puts into /proc; that stuff would move to
-/proc/cluster/bproc
-
-
-Or, the status quo will endure, with cluster hackers playing catch-up.
-
-
-
+	-hpa
 
 -- 
-                      David Nicol 816.235.1187 dnicol@cstp.umkc.edu
-             "Americans are a passive lot, content to let so-called
-                              experts run our lives" -- Dr. Science
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

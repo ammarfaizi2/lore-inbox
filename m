@@ -1,75 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135663AbRALXYm>; Fri, 12 Jan 2001 18:24:42 -0500
+	id <S135599AbRALX0c>; Fri, 12 Jan 2001 18:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135717AbRALXYd>; Fri, 12 Jan 2001 18:24:33 -0500
-Received: from ziggy.one-eyed-alien.net ([216.120.107.189]:2566 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S135663AbRALXYV>; Fri, 12 Jan 2001 18:24:21 -0500
-Date: Fri, 12 Jan 2001 15:24:15 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "Robert J. Bell" <rob@bellfamily.org>
-Cc: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mass Storage in 2.4.0
-Message-ID: <20010112152415.B5798@one-eyed-alien.net>
-Mail-Followup-To: "Robert J. Bell" <rob@bellfamily.org>,
-	kernel-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net> <3A5F9108.4030706@bellfamily.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3A5F9108.4030706@bellfamily.org>; from rob@bellfamily.org on Fri, Jan 12, 2001 at 03:19:36PM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S135619AbRALX0W>; Fri, 12 Jan 2001 18:26:22 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38917 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135599AbRALX0N>; Fri, 12 Jan 2001 18:26:13 -0500
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 12 Jan 2001 23:27:28 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <93nich$1uq$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 10:28:33 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14HDbX-0005E0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> interrupt controllers (io-apic definitely included).  Drivers would
+> generally be better off if they disabled their own chip from sending
+> interrupts, rather than disabling the interrupt line the chip is on. 
 
---TakKZr9L6Hm6aLOc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That doesn't work very well because the device irq can arrive a measurable
+number of clocks after you disable it on the source and there is no way to
+say 'and be sure the stupid thing has propogated the apic bus'
 
-Hrm... from these logs, everything looks okay, except for the fact that the
-device refuses to return any INQUIRY data.
+Alan
 
-Can you reproduce the conditions under which it was working and send logs
-from that?  Or at least remember what the /proc/scsi/scsi info looked like?
-
-Matt
-
-On Fri, Jan 12, 2001 at 03:19:36PM -0800, Robert J. Bell wrote:
-> Matthew here is the info you requested, thanks for your help.
->=20
->=20
-
-
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-What the hell are you?
-					-- Pitr to Dust Puppy=20
-User Friendly, 12/3/1997
-
---TakKZr9L6Hm6aLOc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6X5Ifz64nssGU+ykRAmkmAKDIMbA6AQbnlL2+jTmf4796O4XarwCg41OS
-NhSXRiEjAS9kohT39exDgU4=
-=EMLH
------END PGP SIGNATURE-----
-
---TakKZr9L6Hm6aLOc--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTHVHfn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 03:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbTHVHfb
+	id S262990AbTHVHmH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 03:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263070AbTHVHlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 03:35:31 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:34535 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263053AbTHVHdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 03:33:41 -0400
-Date: Fri, 22 Aug 2003 09:33:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030822073328.GA7473@ucw.cz>
-References: <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl> <20030815141328.GA16176@ucw.cz> <16189.58357.516036.664166@gargle.gargle.HOWL> <20030821003606.A3165@pclin040.win.tue.nl> <20030820225812.GB24639@mail.jlokier.co.uk> <20030821015258.A3180@pclin040.win.tue.nl> <20030821080145.GA11263@ucw.cz> <20030822022709.A3640@pclin040.win.tue.nl>
+	Fri, 22 Aug 2003 03:41:52 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:30989 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263063AbTHVHfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 03:35:47 -0400
+Date: Fri, 22 Aug 2003 04:35:03 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dag@brattli.net>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH][resend] 12/13 2.4.22-rc2 fix __FUNCTION__ warnings net/irda
+ [6/7]
+Message-Id: <20030822043503.4845bbdf.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030822022709.A3640@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 02:27:09AM +0200, Andries Brouwer wrote:
+Hi people,
+this patch fix the warning: concatenation of string literals with __FUNCTION__ is deprecated
 
-> On Thu, Aug 21, 2003 at 10:01:45AM +0200, Vojtech Pavlik wrote:
-> 
-> > > > UNLESS there are keys which do report UP when the key
-> > > > is released (as opposed to immediately after the DOWN),
-> > > > and also don't repeat.
-> > > 
-> > > And there are keyboards with such keys.
-> > 
-> > Are there?
-> 
-> I owe you an example. See, for example,
-> 	http://www.win.tue.nl/~aeb/linux/kbd/scancodes-5.html#ss5.29
+ irnet.h |   30 +++++++++++++++---------------
+ 1 files changed, 15 insertions(+), 15 deletions(-)
 
-Thanks.
+--- linux-2.4.22-rc2/net/irda/irnet/irnet.h	2003-06-13 11:51:39.000000000 -0300
++++ linux-2.4.22-rc2-fix/net/irda/irnet/irnet.h	2003-08-21 00:08:28.000000000 -0300
+@@ -322,29 +322,29 @@
+  * compiler will optimise away the if() in all cases.
+  */
+ /* All error messages (will show up in the normal logs) */
+-#define DERROR(dbg, args...) \
+-	{if(DEBUG_##dbg) \
+-		printk(KERN_INFO "irnet: " __FUNCTION__ "(): " args);}
++#define DERROR(dbg, format, args...) \
++   {if(DEBUG_##dbg) \
++      printk(KERN_INFO "irnet: %s(): " format, __FUNCTION__ , ##args);}
+ 
+ /* Normal debug message (will show up in /var/log/debug) */
+-#define DEBUG(dbg, args...) \
+-	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: " __FUNCTION__ "(): " args);}
++#define DEBUG(dbg, format, args...) \
++   {if(DEBUG_##dbg) \
++      printk(KERN_DEBUG "irnet: %s(): " format, __FUNCTION__ , ##args);}
+ 
+ /* Entering a function (trace) */
+-#define DENTER(dbg, args...) \
+-	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: ->" __FUNCTION__ args);}
++#define DENTER(dbg, format, args...) \
++   {if(DEBUG_##dbg) \
++      printk(KERN_DEBUG "irnet: -> %s" format, __FUNCTION__ , ##args);}
+ 
+ /* Entering and exiting a function in one go (trace) */
+-#define DPASS(dbg, args...) \
+-	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: <>" __FUNCTION__ args);}
++#define DPASS(dbg, format, args...) \
++   {if(DEBUG_##dbg) \
++      printk(KERN_DEBUG "irnet: <>%s" format, __FUNCTION__ , ##args);}
+ 
+ /* Exiting a function (trace) */
+-#define DEXIT(dbg, args...) \
+-	{if(DEBUG_##dbg) \
+-		printk(KERN_DEBUG "irnet: <-" __FUNCTION__ "()" args);}
++#define DEXIT(dbg, format, args...) \
++   {if(DEBUG_##dbg) \
++      printk(KERN_DEBUG "irnet: <-%s()" format, __FUNCTION__ , ##args);}
+ 
+ /* Exit a function with debug */
+ #define DRETURN(ret, dbg, args...) \
 
-> Abbreviated version:
->   Serge van den Boom reports that his LiteOn MediaTouch Keyboard has 18
->   additional keys: Suspend, Coffee, WWW, Calculator, Xfer, Switch window,
->   Close, |<<, >|, [], >>|, Record, Rewind, Menu, Eject, Mute, Volume +,
->   and Volume -. Of these, the keys |<<, >>|, Volume +, Volume - repeat.
->   The others do not, except for the rather special Switch window key.
->   Upon press it produces the LAlt-down, LShift-down, Tab-down, Tab-up sequence;
->   it repeats Tab-down; and upon release it produces the sequence Tab-up,
->   LAlt-up, LShift-up.
-> (Up events are as usual for the other 17 keys.)
+ciao
+ djgera
 
-The code as is now (with the autorepeat and the forced up if the
-keyboard itself doesn't start repeating) won't have any problems with
-this keyboard.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

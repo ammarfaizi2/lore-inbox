@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270702AbTG0I5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 04:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270703AbTG0I5g
+	id S270695AbTG0Iy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 04:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTG0Iy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 04:57:36 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40615 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270702AbTG0I5e (ORCPT
+	Sun, 27 Jul 2003 04:54:29 -0400
+Received: from mailf.telia.com ([194.22.194.25]:60899 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S270695AbTG0Iy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 04:57:34 -0400
-Date: Sun, 27 Jul 2003 11:12:12 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       Daniel Phillips <phillips@arcor.de>, <ed.sweetman@wmich.edu>,
-       <eugene.teo@eugeneteo.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-In-Reply-To: <20030727073920.GG643@alpha.home.local>
-Message-ID: <Pine.LNX.4.44.0307271110140.7393-100000@localhost.localdomain>
+	Sun, 27 Jul 2003 04:54:28 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: Oliver Neukum <oliver@neukum.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] System stalls using usb-storage
+References: <20030723200051.C18354@one-eyed-alien.net>
+	<200307270824.44851.oliver@neukum.org>
+	<20030726233545.B20751@one-eyed-alien.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 27 Jul 2003 11:09:22 +0200
+In-Reply-To: <20030726233545.B20751@one-eyed-alien.net>
+Message-ID: <m27k64z67x.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Dharm <mdharm-kernel@one-eyed-alien.net> writes:
 
-On Sun, 27 Jul 2003, Willy Tarreau wrote:
+> On Sun, Jul 27, 2003 at 08:24:44AM +0200, Oliver Neukum wrote:
+> > Am Donnerstag, 24. Juli 2003 05:00 schrieb Matthew Dharm:
+> > > The question is, what is the best way to handle this.  I'm guessing that
+> > > increasing the priority of the usb-storage control thread will help, but
+> > > that's just a guess.  I'm not even sure how to go about doing that, tho...
+> > 
+> > A kernel thread in the block io path has to have a higher priority than
+> > any user task. Otherwise a priority inversion is possible.
+> 
+> Reasonable.  So, other than renice at the command line, how does one go
+> about setting this?
 
-> just a thought : have you tried to set the timer to 100Hz instead of
-> 1kHz to compare with 2.4 ? It might make a difference too.
+Try this patch. The loop device thread is doing the same thing.
 
-especially for X, a HZ of 1000 has caused performance problems before -
-short-timeout select()s were looping 10 times faster, which can be
-noticeable.
+diff -puN drivers/usb/storage/usb.c~usb-priority drivers/usb/storage/usb.c
+--- linux/drivers/usb/storage/usb.c~usb-priority	Sun Jul 27 10:56:02 2003
++++ linux-petero/drivers/usb/storage/usb.c	Sun Jul 27 10:56:47 2003
+@@ -302,6 +302,8 @@ static int usb_stor_control_thread(void 
+ 
+ 	current->flags |= PF_IOTHREAD;
+ 
++	set_user_nice(current, -20);
++
+ 	unlock_kernel();
+ 
+ 	/* signal that we've started the thread */
 
-	Ingo
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

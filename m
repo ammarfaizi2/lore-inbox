@@ -1,50 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbTEBOrd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 10:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTEBOrc
+	id S263020AbTEBRI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 13:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTEBRI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 10:47:32 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37275
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261747AbTEBOrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 10:47:31 -0400
-Subject: Re: [PATCH 0/4] NE2000 driver updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Muizelaar <muizelaar@rogers.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EB1ADEC.6080007@rogers.com>
-References: <3EB15127.2060409@rogers.com>
-	 <1051817031.21546.23.camel@dhcp22.swansea.linux.org.uk>
-	 <3EB1ADEC.6080007@rogers.com>
-Content-Type: text/plain
+	Fri, 2 May 2003 13:08:27 -0400
+Received: from pop.gmx.de ([213.165.65.60]:57684 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263020AbTEBRIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 13:08:24 -0400
+Message-ID: <3EB2A8E9.8000705@gmx.net>
+Date: Fri, 02 May 2003 19:20:41 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: John Jasen <jjasen@realityfailure.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
+References: <Pine.LNX.4.44.0305021237020.23347-100000@bushido>
+In-Reply-To: <Pine.LNX.4.44.0305021237020.23347-100000@bushido>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 May 2003 15:01:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-02 at 00:29, Jeff Muizelaar wrote:
-> Are we stuck with Space.c forever? Anyone have any plans for replacing 
-> it with something more driver-model friendly?
+John Jasen wrote:
 
-Is it worth the effort. Why not just let the old isa stuff live out its
-life in peace ? There is certainly no reason we couldnt make it more
-driver model like by splitting probe and activity
+> On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
+> 
+> 
+>>me@linux:~> whois scoloses.org
+>>
+>>Whois Server Version 1.3
+>>
+>>No match for "SCOLOSES.ORG".
+>>
+>>
+>>>>>Last update of whois database: Fri, 2 May 2003 05:57:11 EDT <<<
+> 
+> 
+> .org has been moved, and whois has not worked right since then for all 
+> .org domains. Really. Check out whois for spca.org, redcross.org, etc ...
 
-ie ne2000 probing would do
+whois has worked right since then for all .org domains. Really.
 
-	poke around for ISA device
-	Found one ?
-		Alloc isadevice
-		Fill in ports/range/irq
-		Fill in vendor/product with invented idents
-		Announce it
+me@linux:~> whois -h whois.pir.org scoloses.org
+NOT FOUND
 
-Then have ne2000 driver model code do the actual setup
+me@linux:~> whois -h whois.pir.org redcross.org
+NOTICE: Access to .ORG WHOIS information is provided to assist persons
+in determining the contents of a domain name registration record in the
+PIR registry database.
+[rest of legalese snipped]
 
+Domain ID:D3201715-LROR
+Domain Name:REDCROSS.ORG
+Created On:05-Sep-1995 04:00:00 UTC
+Last Updated On:14-Mar-2003 21:46:12 UTC
+Expiration Date:04-Sep-2010 04:00:00 UTC
+Sponsoring Registrar:R63-LROR
+Status:OK
+[rest of status snipped]
+
+This should be enough to prove my point.
+
+> 
+>>    _---________---__________
+>>   |                         }
+>>  /    DO NOT FEED THE TROLL \
+>>  \____                    __/
+>>       -------------------`
+>>               |#:|
+>>               |#:|
+>>               |#:|
+>>            \\\|#:|/ /
+>>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> 
+> Depends on who the troll is.
+
+Exactly.
+
+
+Carl-Daniel
 

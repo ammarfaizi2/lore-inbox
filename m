@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUHTSBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUHTSE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268578AbUHTSBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 14:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268568AbUHTSBZ
+	id S268582AbUHTSE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 14:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268595AbUHTSE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 14:01:25 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56225 "EHLO
+	Fri, 20 Aug 2004 14:04:26 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59297 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S268476AbUHTSAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 14:00:50 -0400
+	id S268582AbUHTSDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 14:03:10 -0400
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/14] kexec: apic-virtwire-on-shutdown.i386.patch
+Subject: [PATCH 5/14] kexec: ioapic-virtwire-on-shutdown.i386
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Aug 2004 11:59:36 -0600
-Message-ID: <m1vffd667r.fsf@ebiederm.dsl.xmission.com>
+Date: 20 Aug 2004 12:01:53 -0600
+Message-ID: <m1n00p663y.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Restore an ioapic to virtual wire mode on reboot if it has an ExtInt
+input.
 
-Restore the local apic to virtual wire mode on reboot.
-
-diff -uNr linux-2.6.8.1-mm2-i8259-sysfs.x86_64/arch/i386/kernel/apic.c linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.i386/arch/i386/kernel/apic.c
---- linux-2.6.8.1-mm2-i8259-sysfs.x86_64/arch/i386/kernel/apic.c	Fri Aug 20 09:56:25 2004
-+++ linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.i386/arch/i386/kernel/apic.c	Fri Aug 20 10:26:22 2004
-@@ -202,6 +202,36 @@
- 		outb(0x70, 0x22);
- 		outb(0x00, 0x23);
- 	}
-+	else {
-+		/* Go back to Virtual Wire compatibility mode */
-+		unsigned long value;
+diff -uNr linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.x86_64/arch/i386/kernel/io_apic.c linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.i386/arch/i386/kernel/io_apic.c
+--- linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.x86_64/arch/i386/kernel/io_apic.c	Fri Aug 20 09:56:25 2004
++++ linux-2.6.8.1-mm2-ioapic-virtwire-on-shutdown.i386/arch/i386/kernel/io_apic.c	Fri Aug 20 10:42:32 2004
+@@ -1628,11 +1628,42 @@
+  */
+ void disable_IO_APIC(void)
+ {
++	int pin;
+ 	/*
+ 	 * Clear the IO-APIC before rebooting:
+ 	 */
+ 	clear_IO_APIC();
+ 
++	/*
++	 * If the i82559 is routed through an IOAPIC
++	 * Put that IOAPIC in virtual wire mode
++	 * so legacy interrups can be delivered.
++	 */
++	pin = find_isa_irq_pin(0, mp_ExtINT);
++	if (pin != -1) {
++		struct IO_APIC_route_entry entry;
++		unsigned long flags;
 +
-+		/* For the spurious interrupt use vector F, and enable it */
-+		value = apic_read(APIC_SPIV);
-+		value &= ~APIC_VECTOR_MASK;
-+		value |= APIC_SPIV_APIC_ENABLED;
-+		value |= 0xf;
-+		apic_write_around(APIC_SPIV, value);
++		memset(&entry, 0, sizeof(entry));
++		entry.mask            = 0; /* Enabled */
++		entry.trigger         = 0; /* Edge */
++		entry.irr             = 0;
++		entry.polarity        = 0; /* High */
++		entry.delivery_status = 0;
++		entry.dest_mode       = 0; /* Physical */
++		entry.delivery_mode   = 7; /* ExtInt */
++		entry.vector          = 0;
++		entry.dest.physical.physical_dest = 0;
 +
-+		/* For LVT0 make it edge triggered, active high, external and enabled */
-+		value = apic_read(APIC_LVT0);
-+		value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
-+			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
-+			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
-+		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
-+		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXINT);
-+		apic_write_around(APIC_LVT0, value);
 +
-+		/* For LVT1 make it edge triggered, active high, nmi and enabled */
-+		value = apic_read(APIC_LVT1);
-+		value &= ~(
-+			APIC_MODE_MASK | APIC_SEND_PENDING |
-+			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
-+			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
-+		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
-+		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
-+		apic_write_around(APIC_LVT1, value);
++		/*
++		 * Add it to the IO-APIC irq-routing table:
++		 */
++		spin_lock_irqsave(&ioapic_lock, flags);
++		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
++		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
++		spin_unlock_irqrestore(&ioapic_lock, flags);
 +	}
+ 	disconnect_bsp_APIC();
  }
  
- void disable_local_APIC(void)
-diff -uNr linux-2.6.8.1-mm2-i8259-sysfs.x86_64/include/asm-i386/apicdef.h linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.i386/include/asm-i386/apicdef.h
---- linux-2.6.8.1-mm2-i8259-sysfs.x86_64/include/asm-i386/apicdef.h	Wed Mar 10 19:55:28 2004
-+++ linux-2.6.8.1-mm2-apic-virtwire-on-shutdown.i386/include/asm-i386/apicdef.h	Fri Aug 20 10:26:22 2004
-@@ -86,6 +86,7 @@
- #define			APIC_LVT_REMOTE_IRR		(1<<14)
- #define			APIC_INPUT_POLARITY		(1<<13)
- #define			APIC_SEND_PENDING		(1<<12)
-+#define			APIC_MODE_MASK			0x700
- #define			GET_APIC_DELIVERY_MODE(x)	(((x)>>8)&0x7)
- #define			SET_APIC_DELIVERY_MODE(x,y)	(((x)&~0x700)|((y)<<8))
- #define				APIC_MODE_FIXED		0x0

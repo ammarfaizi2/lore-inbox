@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286868AbRLWLiS>; Sun, 23 Dec 2001 06:38:18 -0500
+	id <S286873AbRLWLki>; Sun, 23 Dec 2001 06:40:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286873AbRLWLiH>; Sun, 23 Dec 2001 06:38:07 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:33746 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S286868AbRLWLhz>; Sun, 23 Dec 2001 06:37:55 -0500
-Date: Sun, 23 Dec 2001 06:37:33 -0500
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference to `local symbols...
-Message-ID: <20011223113733.GA26429@opeth.ath.cx>
-In-Reply-To: <Pine.LNX.4.33.0112231226260.1032-100000@doom.bastun.net> <23624.1009106899@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-In-Reply-To: <23624.1009106899@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.24i
-From: Dan Chen <crimsun@email.unc.edu>
+	id <S286872AbRLWLk2>; Sun, 23 Dec 2001 06:40:28 -0500
+Received: from oe20.law9.hotmail.com ([64.4.8.124]:3336 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286875AbRLWLkQ>;
+	Sun, 23 Dec 2001 06:40:16 -0500
+X-Originating-IP: [66.108.21.174]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011221134034.B11147@thyrsus.com> <4.3.2.7.2.20011221140707.00c0e290@10.1.1.42>
+Subject: Re: Configure.help editorial policy
+Date: Sat, 22 Dec 2001 14:40:01 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE203xbYiMCIqtQvAau00006e8e@hotmail.com>
+X-OriginalArrivalTime: 23 Dec 2001 11:40:10.0725 (UTC) FILETIME=[9404A950:01C18BA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    After reading this longish thread, or waste of bandwidth as you may look
+at it, I wonder if people have realized how familiar this entire argument
+is.  Seams like we have another bunch of elitist snobs trying to tell the
+common folk what is or isn't standard.  Wasn't that long ago that teachers
+were punishing students for using the word "ain't" because it wasn't
+standard Engish despite it being used by virtually everyone else out in the
+real world.  Now last I heard a few years back, from an Engish teacher at
+that, was that "ain't" was now fully allowed.  Guess it became standard.
+Perhaps some people should come off of their high horse and hang around with
+the common people for a bit.  For virtually everybody, including my grandma,
+KB == kilobytes, MB == megabytes, and GB == Gigabytes.  Memory-wise, at
+least, kilos == 1024, Megas == 1024 * 1024.  And as far as network speeds
+I've always seen Kbits, Mbits, or Gbits (with lowercase or uppercase 'B').
+For all practical purposes its always been like that.  And while computers
+haven't been around for ages yet its been around long enougth that the new
+standards complient kernel source will be out of sync with the countless
+amounts of documentation (of all kinds) out there as well as the standard
+operating procedure in the real world.
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    Now aren't there better things to do in the world rather that going
+around confusing and chastizing people with more talk of "Kibbles and Bits"
+and "Men In Black".  Not that pointless flamewars aren't always fun.
 
-On Sun, Dec 23, 2001 at 10:28:19PM +1100, Keith Owens wrote:
-> AFAICT dmfe.c is hotplug aware, it has the required probe and remove
-> pci_driver functions.  But dmfe_remove_one is defined as __exit instead
-> of __devexit, it should probably be changed to __devexit and change
->         remove: dmfe_remove_one
-> to
->         remove:         __devexit_p(dmfe_remove_one)
->=20
-> The dmfe maintainer and/or Jeff Garzik needs to decide.
+    I already gotta put up with Python just to configure my kernel, now
+this, and I read he's going after my symbols next.
 
-This is one of the hunks I submitted and is in .17-rc2 but was
-removed (along with a bunch of incorrect ones I did, oops) in
--final.
-
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8JcH9MwVVFhIHlU4RApTgAJ4qNlvKgYJmoPPmXocAu1EgONyGjwCfZiL2
-lauj/mZXs6AWbJU7xRu4KVo=
-=LYCy
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--
+    Sorry if this seams a bit terse (I did tone it down a lot), however I
+was hoping to get some help debugging my lockup problem on the VP6 instead
+of corrections from language nannies informing me that the common folk and I
+have been speaking and writing incorrectly all this time.  Yes baby, there
+is such a thing as a kiwibit.

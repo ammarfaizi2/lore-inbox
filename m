@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUDWUYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUDWUgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUDWUYG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUDWUYG
+	id S261369AbUDWUgL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUDWUgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:24:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261340AbUDWUYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:24:03 -0400
-Date: Fri, 23 Apr 2004 13:17:56 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] blkdev.h: functions no longer inline
-Message-Id: <20040423131756.708e8c36.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 23 Apr 2004 16:36:11 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44041 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261369AbUDWUfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:35:55 -0400
+Date: Fri, 23 Apr 2004 21:35:46 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Message-ID: <20040423213546.C2896@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Simon Kelley <simon@thekelleys.org.uk>
+References: <200404230142.46792.dtor_core@ameritech.net> <200404230802.42293.dtor_core@ameritech.net> <1082730412.23959.118.camel@pegasus> <200404231156.03106.dtor_core@ameritech.net> <20040423171614.GA13835@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040423171614.GA13835@kroah.com>; from greg@kroah.com on Fri, Apr 23, 2004 at 10:16:14AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 23, 2004 at 10:16:14AM -0700, Greg KH wrote:
+> On Fri, Apr 23, 2004 at 11:55:59AM -0500, Dmitry Torokhov wrote:
+> > --- 1.11/drivers/net/wireless/atmel_cs.c	Thu Feb  5 05:04:40 2004
+> > +++ edited/drivers/net/wireless/atmel_cs.c	Fri Apr 23 11:43:42 2004
+> > @@ -348,17 +348,13 @@
+> >  	{ 0, 0, "11WAVE/11WP611AL-E", "atmel_at76c502e%s.bin", "11WAVE WaveBuddy" } 
+> >  };
+> >  
+> > -/* This is strictly temporary, until PCMCIA devices get integrated into the device model. */
+> > -static struct device atmel_device = {
+> > -        .bus_id    = "pcmcia",
+> > -};
+> > -
+> 
+> <snip>
+> 
+> Much nicer (well, in a wierd way at least.)  It seems that the pcmcia
+> system is intregrated into the driver model.  Why not push it down into
+> the individual pcmcia drivers so you don't have to do this GetSysDevice
+> kind of hack still?
 
-// linux-266-rc2
-// These are EXPORTed SYMBOLs; 'inline' was removed from them
-// in ll_rw_blk.c on 2002-11-25.
+They're actually getting at is the PCI device, or statically allocated
+platform device, rather than anything specific to the card.
 
-diffstat:=
- include/linux/blkdev.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Obviously this is going to create the silly scenario where people
+can attach PCMCIA device attributes to the bridge device, which
+provides the wrong API to userspace.
 
-
-diff -Naurp ./include/linux/blkdev.h~extern_inline ./include/linux/blkdev.h
---- ./include/linux/blkdev.h~extern_inline	2004-04-20 15:54:29.000000000 -0700
-+++ ./include/linux/blkdev.h	2004-04-23 12:01:30.000000000 -0700
-@@ -513,8 +513,8 @@ extern void blk_requeue_request(request_
- extern void blk_plug_device(request_queue_t *);
- extern int blk_remove_plug(request_queue_t *);
- extern void blk_recount_segments(request_queue_t *, struct bio *);
--extern inline int blk_phys_contig_segment(request_queue_t *q, struct bio *, struct bio *);
--extern inline int blk_hw_contig_segment(request_queue_t *q, struct bio *, struct bio *);
-+extern int blk_phys_contig_segment(request_queue_t *q, struct bio *, struct bio *);
-+extern int blk_hw_contig_segment(request_queue_t *q, struct bio *, struct bio *);
- extern int scsi_cmd_ioctl(struct gendisk *, unsigned int, unsigned long);
- extern void blk_start_queue(request_queue_t *q);
- extern void blk_stop_queue(request_queue_t *q);
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

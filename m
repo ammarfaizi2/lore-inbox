@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUFINYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUFIN3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265789AbUFINYt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 09:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUFINW5
+	id S265781AbUFIN3K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUFIN1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 09:22:57 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:45840 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S265795AbUFINVT convert rfc822-to-8bit (ORCPT
+	Wed, 9 Jun 2004 09:27:49 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:19864 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S265780AbUFIN1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 09:21:19 -0400
-Subject: Breaking Ext3/VFS file size limit
-Reply-To: goldwyn_r@myrealbox.com
-From: "Goldwyn Rodrigues" <goldwyn_r@myrealbox.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 09 Jun 2004 18:51:20 +0530
-X-Mailer: NetMail ModWeb Module
+	Wed, 9 Jun 2004 09:27:06 -0400
+Message-ID: <40C71031.2050500@vision.ee>
+Date: Wed, 09 Jun 2004 16:27:13 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-ID: <1086787280.98272bfcgoldwyn_r@myrealbox.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI / cpu temperature problem
+References: <1086783539.14784.24.camel@linux.local>
+In-Reply-To: <1086783539.14784.24.camel@linux.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I am building a custom kernel which could break the max file size limit from 2TB. I found the dependancy on number of 512-byte blocks, as i_blocks.
+Hans Kristian Rosbach wrote:
 
-i_blocks is a 32 bit unsigned long in structures struct inode and struct ext3_inode. I changed it to unsigned long long in struct inode (in fs.h) and used a reserved field in ext3_inode to carry the higher order bits.
+>Now, the problem with all these supermicro servers is that the
+>temperature seems to be stuck at 27 C. No matter what load or
+>temperature in the room. Something is clearly wrong.
+>What can be done to fix this? We tried setting polling_frequency
+>to '10', but that made no difference.
+>  
+>
+To confirm this I've found this:
 
-Also changed a checking function which returns the maximun possible size as 2TB.
+Last kernel I used was 2.6.7-rc1-mm1. There "acpi -t" was reporting 
+correct temperatures (as lm-sensors).
+Now with 2.6.7-rc2-mm2 It reports 22C constantly. lm-sensors gives 40-43C.
 
-My question is:
-Would changing the data type of i_blocks in struct inode (in fs.h) result in any breakdowns. It could happen if the inode structure is directly mapped to some other structure.
+This is on nForce2 MB with Athlon XP2500+
 
-I tested at my end with a low end PC and it seems to work fine, for the past 6 hours.
+Same .config.
 
-Thanks,
-
--- 
-Goldwyn :o)
-
-PS: I am posting for the first time, so please forgive me (but do tell me, personally if possible) if I commit a mistake.
-
+Lenar

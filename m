@@ -1,120 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135983AbRDTSzX>; Fri, 20 Apr 2001 14:55:23 -0400
+	id <S135989AbRDTS6y>; Fri, 20 Apr 2001 14:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135978AbRDTSzO>; Fri, 20 Apr 2001 14:55:14 -0400
-Received: from lysithea.xerox.com ([208.140.33.22]:23541 "EHLO
-	lysithea.eastgw.xerox.com") by vger.kernel.org with ESMTP
-	id <S135983AbRDTSzI>; Fri, 20 Apr 2001 14:55:08 -0400
-Message-Id: <200104201854.OAA06769@mailhost.eng.mc.xerox.com>
-To: linux-kernel@vger.kernel.org
-cc: leisner@rochester.rr.com
-Subject: Re: kernel threads and close method in a device driver
-Date: Fri, 20 Apr 2001 14:54:53 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+	id <S135987AbRDTS6p>; Fri, 20 Apr 2001 14:58:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:49501 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135978AbRDTS6b>; Fri, 20 Apr 2001 14:58:31 -0400
+Date: Fri, 20 Apr 2001 20:58:12 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, dhowells@redhat.com,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [andrea@suse.de: Re: generic rwsem [Re: Alpha "process table hang"]]
+Message-ID: <20010420205812.C32159@athlon.random>
+In-Reply-To: <torvalds@transmeta.com> <24526.987755027@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24526.987755027@warthog.cambridge.redhat.com>; from dhowells@cambridge.redhat.com on Fri, Apr 20, 2001 at 09:23:47AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 20, 2001 at 09:23:47AM +0100, David Howells wrote:
+> Andrea seems to have changed his mind on the non-inlining in the generic case.
 
-I ment to send this correspondence to the list.
-It seems to be working much better now -- but is this
-CLONE_FILES flag correct?
+I changed my mind because if you benchmark the fast path you will do it without
+running out of icache (basically only down_* and up_* will be in the icache
+during the tight loop). And either ways shouldn't make a measurable difference
+in a real life benchmark.
 
-Is there a device to look at which does a kernel_thread on open,
-and kills the thread on close (I'd like to see an example).
-
-Thanks for the help...
-
-Marty
-
-- ------- Forwarded Message
-
-To: Andi Kleen <ak@suse.de>
-Subject: Re: kernel threads and close method in a device driver 
-In-Reply-To: Your message of "Tue, 17 Apr 2001 23:43:39 +0200."
-             <20010417234339.A18288@gruyere.muc.suse.de> 
-Date: Wed, 18 Apr 2001 10:49:04 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
-
-In message <20010417234339.A18288@gruyere.muc.suse.de>,   you write:
->On Tue, Apr 17, 2001 at 05:04:28PM -0400, Marty Leisner wrote:
->> 	open device
->> 	do IOCTL (spinning a kernel thread and doing initialization)
->> 
->> There is currently an IOCTL which short-circuits to the close method.
->> Turns out it seems necessary to do this IOCTL -- close never gets 
->> invoked.
->
->Call daemonize() in the kernel thread.
->
->-Andi
-
-It seemed like daemonize was a good idea (after thinking about it,
-it makes a lot of sense...there are multiple instances of the file
-open...[I'm not used to opening files NOT in user space ;-))]
-
-daemonize wasn't in 2.2.12 (I copied it from 2.2.18):
-
-static void daemonize(void)
-{  
-        struct fs_struct *fs;
-
-        /*
-         * If we were started as result of loading a module, close all of the
-         * user space pages.  We don't need them, and if we didn't close them
-         * they would be locked into memory.
-         */                
-        printk("want to daemonize");
-        exit_mm(current);
-
-        current->session = 1;
-        current->pgrp = 1;
-
-        /* Become as one with the init task */
-
-        exit_fs(current);       /* current->fs->count--; */
-        fs = init_task.fs;
-        current->fs = fs;
-        atomic_inc(&fs->count);
-}
-
-This seems reasonable, get rid of your files and inherit init's
-
-However, 
-:1 mleisner@piquin; lsof -p 630
-COMMAND   PID     USER   FD   TYPE DEVICE SIZE NODE NAME
-aicCtrlTh 630 mleisner  cwd    DIR    3,1 1024    2 /
-aicCtrlTh 630 mleisner  rtd    DIR    3,1 1024    2 /
-aicCtrlTh 630 mleisner    0u   CHR  136,0         2 /dev/pts/0
-aicCtrlTh 630 mleisner    1u   CHR  136,0         2 /dev/pts/0
-aicCtrlTh 630 mleisner    2u   CHR  136,0         2 /dev/pts/0
-aicCtrlTh 630 mleisner    3u   CHR   43,0      8034 /dev/aicdrv
-
-which is the original file handles from the application...
-
-Any hints?  I played around with the CLONE_FILES flag on thread_creation,
-and at least now I can get through to close (I have to look at the thread kill strategy).
-
-But now I have (after an open, create thread, close cycle)
-bash3 :3 mleisner@piquin; lsof -p 584
-COMMAND   PID     USER   FD   TYPE DEVICE SIZE NODE NAME
-aicCtrlTh 584 mleisner  cwd    DIR    3,1 1024    2 /
-aicCtrlTh 584 mleisner  rtd    DIR    3,1 1024    2 /
-aicCtrlTh 584 mleisner    0u   CHR  136,0         2 /dev/pts/0
-aicCtrlTh 584 mleisner    1u   CHR  136,0         2 /dev/pts/0
-aicCtrlTh 584 mleisner    2u   CHR  136,0         2 /dev/pts/0
-bash3 :3 mleisner@piquin; lsmod
-Module                  Size  Used by
-aicdrv                 18104   0 
-nfs                    29656   1  (autoclean)
-nfsd                  144060   8  (autoclean)
-lockd                  30984   1  (autoclean) [nfs nfsd]
-sunrpc                 52516   1  (autoclean) [nfs nfsd lockd]
-fa311                   4404   1  (autoclean)
-
-marty
-mleisner@eng.mc.xerox.com
-
-- ------- End of Forwarded Message
-
-
+Andrea

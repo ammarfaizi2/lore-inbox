@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPUjn>; Thu, 16 Nov 2000 15:39:43 -0500
+	id <S129076AbQKPUsx>; Thu, 16 Nov 2000 15:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131392AbQKPUjX>; Thu, 16 Nov 2000 15:39:23 -0500
-Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:30728 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S129069AbQKPUjS>;
-	Thu, 16 Nov 2000 15:39:18 -0500
-Subject: Re: APM oops with Dell 5000e laptop
-From: Brad Douglas <brad@neruo.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0011161054420.16124-100000@ultra1.inconnect.com>
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 17 Nov 2000 04:08:55 +0800
-Mime-Version: 1.0
-Message-Id: <20001116203922Z129069-521+734@vger.kernel.org>
+	id <S131227AbQKPUse>; Thu, 16 Nov 2000 15:48:34 -0500
+Received: from unimur.um.es ([155.54.1.1]:26042 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S129076AbQKPUsY>;
+	Thu, 16 Nov 2000 15:48:24 -0500
+Message-ID: <3A144436.BF9CB986@ditec.um.es>
+Date: Thu, 16 Nov 2000 21:31:50 +0100
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.75 [es] (X11; U; Linux 2.2.18pre21 i686)
+X-Accept-Language: es-ES, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: eth0: trigger_send() called with the transmitter busy.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox said once upon a time (Thu, 16 Nov 2000):
-> 
-> > > I just got a Sceptre 6950 (also known as a Dell 5000e), I just installed
-> > > Red Hat 7.0 on it, and got an APM related oops at boot.
-> >
-> > Yep. This is not a Linux problem
-> 
-> The kernel works around/ignores/disables other broken hardware or broken
-> features of otherwise working hardware with black lists.  There will be
-> many *many* of these laptops sold.
+Hi!
 
-Unlike other BIOS, this cannot be fixed up and I don't believe there is an easy way to identify every single "version" of this machine (Stephen Rothwell, can you comment here?).
-That broken call is a major part of the Linux APM system.  The simplest (and arguably, best) solution is to just not compile it into the kernel or add "apm=off" to lilo.conf until the problem is fixed.
+This error ocurrs when "named" is executed. It exists since
+2.4.0-test10preX or so.
 
-> Is there a way to uniquely identify the affected BIOSes at boot time and
-> turn off APM?  According to Brad Douglas, the 32-bit Get Power Status
-> (0AH) call is broken.
+I'm using RedHat 7.0 and my ethernet card is a "Kingston EtheRx KNE20
+Plug and Play ISA Adapter". I'm unable to access the Internet because
+the ethernet card doesn't work :-(
 
-I do not believe so.  I tend to think that detecting these broken models is a waste of kernel code (especially, if there's an effort to correct the problem).
-
-> Supposedly there will be a BIOS update in the "future" to correct this
-> problem.
-
-This is what we have been led to believe.  I have no ETA at this time.
-
-Brad Douglas
-brad@neruo.com
-brad@tuxtops.com
-
-
+Bye!
+-- 
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

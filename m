@@ -1,289 +1,345 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262727AbSI1FsF>; Sat, 28 Sep 2002 01:48:05 -0400
+	id <S262732AbSI1FsF>; Sat, 28 Sep 2002 01:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262731AbSI1Fqs>; Sat, 28 Sep 2002 01:46:48 -0400
-Received: from waste.org ([209.173.204.2]:21393 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262724AbSI1FqF>;
-	Sat, 28 Sep 2002 01:46:05 -0400
+	id <S262725AbSI1Frt>; Sat, 28 Sep 2002 01:47:49 -0400
+Received: from waste.org ([209.173.204.2]:22929 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262727AbSI1FqL>;
+	Sat, 28 Sep 2002 01:46:11 -0400
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/7] /dev/random cleanup: 05-urandom-pool
-Message-Id: <E17vAVf-0002Jy-00@ash>
+Subject: [PATCH 2/7] /dev/random cleanup: 02-untrusted
+Message-Id: <E17vAVZ-0002Jg-00@ash>
 From: Oliver Xymoron <oxymoron@waste.org>
-Date: Sat, 28 Sep 2002 00:51:23 -0500
+Date: Sat, 28 Sep 2002 00:51:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stop /dev/urandom readers from starving /dev/random for entropy by
-creating a separate pool and not reseeding if doing so would prevent
-/dev/random from reseeding.
+This makes irq and blkdev interrupts untrusted and allows adding a bit
+of entropy for a configurable percentage of untrusted samples,
+controlled by a new sysctl. This defaults to 0 for safety, but can be
+used on headless machines without a hardware RNG to continue to use
+/dev/random with some confidence.
 
-This factors pool reseeding out of normal entropy transfer. This allows
-different pools to have different policy on how to reseed.
-
-This patch also makes random_read actually use the entropy count in
-the secondary pool rather than tracking off the primary.
+This also smartens up and simplifies the batch entropy pool to allow
+unlimited amounts of untrusted mixing without blocking out trusted
+samples.
 
 diff -urN -x '.patch*' -x '*.orig' orig/drivers/char/random.c work/drivers/char/random.c
---- orig/drivers/char/random.c	2002-09-28 00:16:15.000000000 -0500
-+++ work/drivers/char/random.c	2002-09-28 00:16:15.000000000 -0500
-@@ -263,14 +263,14 @@
-  * The minimum number of bits of entropy before we wake up a read on
-  * /dev/random.  Should be enough to do a significant reseed.
-  */
--static int random_read_wakeup_thresh = 64;
-+static int read_thresh = 64;
+--- orig/drivers/char/random.c	2002-09-28 00:16:14.000000000 -0500
++++ work/drivers/char/random.c	2002-09-28 00:16:14.000000000 -0500
+@@ -544,7 +544,7 @@
+ }
  
  /*
-  * If the entropy count falls under this number of bits, then we
-  * should wake up processes which are selecting or polling on write
-  * access to /dev/random.
-  */
--static int random_write_wakeup_thresh = 128;
-+static int write_thresh = 128;
+- * This function adds a byte into the entropy "pool".  It does not
++ * This function adds a word into the entropy "pool".  It does not
+  * update the entropy estimate.  The caller should call
+  * credit_entropy_store if this is appropriate.
+  * 
+@@ -618,25 +618,19 @@
+  *
+  **********************************************************************/
+ 
+-static __u32	*batch_entropy_pool;
+-static int	*batch_entropy_credit;
+-static int	batch_max;
+-static int	batch_head, batch_tail;
++static __u32 *batch_entropy_pool=0;
++static int batch_max, batch_pos, batch_credit, batch_samples;
+ static struct tq_struct	batch_tqueue;
+ static void batch_entropy_process(void *private_);
+ 
+ /* note: the size must be a power of 2 */
+ static int __init batch_entropy_init(int size, struct entropy_store *r)
+ {
+-	batch_entropy_pool = kmalloc(2*size*sizeof(__u32), GFP_KERNEL);
++	batch_entropy_pool = kmalloc(size*sizeof(__u32), GFP_KERNEL);
+ 	if (!batch_entropy_pool)
+ 		return -1;
+-	batch_entropy_credit =kmalloc(size*sizeof(int), GFP_KERNEL);
+-	if (!batch_entropy_credit) {
+-		kfree(batch_entropy_pool);
+-		return -1;
+-	}
+-	batch_head = batch_tail = 0;
++
++	batch_pos = batch_credit = batch_samples = 0;
+ 	batch_max = size;
+ 	batch_tqueue.routine = batch_entropy_process;
+ 	batch_tqueue.data = r;
+@@ -644,56 +638,61 @@
+ }
  
  /*
-  * A pool of size .poolwords is stirred with a primitive polynomial
-@@ -381,7 +381,7 @@
- /*
-  * Static global variables
+- * Changes to the entropy data is put into a queue rather than being added to
+- * the entropy counts directly.  This is presumably to avoid doing heavy
+- * hashing calculations during an interrupt in add_timer_randomness().
++ * Changes to the entropy data are put into a queue rather than being
++ * added to the entropy counts directly.  This is to avoid doing heavy
++ * hashing calculations during an interrupt in add_timing_entropy().
+  * Instead, the entropy is only added to the pool once per timer tick.
++ *
++ * The batch pool intentionally allows wrap-around, to protect against
++ * flooding of untrusted data. Non-random data will not correlate with
++ * random data and can be safely XORed over existing data.
   */
--static struct entropy_store *input_pool, *blocking_pool;
-+static struct entropy_store *input_pool, *blocking_pool, *nonblocking_pool;
- static DECLARE_WAIT_QUEUE_HEAD(random_read_wait);
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
+-void batch_entropy_store(u32 a, u32 b, int num)
+-{
+-	int	new;
  
-@@ -617,6 +617,7 @@
++void batch_entropy_store(u32 val, int bits)
++{
+ 	if (!batch_max)
+ 		return;
+ 	
+-	batch_entropy_pool[2*batch_head] = a;
+-	batch_entropy_pool[(2*batch_head) + 1] = b;
+-	batch_entropy_credit[batch_head] = num;
+-
+-	new = (batch_head+1) & (batch_max-1);
+-	if (new != batch_tail) {
+-		queue_task(&batch_tqueue, &tq_timer);
+-		batch_head = new;
+-	} else {
+-		DEBUG_ENT("batch entropy buffer full\n");
+-	}
++	batch_entropy_pool[batch_pos] ^= val;
++	batch_credit+=bits;
++	batch_samples++;
++	batch_pos = (batch_pos+1) & (batch_max-1);
++
++	queue_task(&batch_tqueue, &tq_timer);
+ }
  
- 	/* switch pools if current full */
- 	if (r->entropy_count >= r->poolinfo->POOLBITS) r = blocking_pool;
-+	if (r->entropy_count >= r->poolinfo->POOLBITS) r = nonblocking_pool;
+ /*
+- * Flush out the accumulated entropy operations, adding entropy to the passed
+- * store (normally random_state).  If that store has enough entropy, alternate
+- * between randomizing the data of the primary and secondary stores.
++ * Flush out the accumulated entropy operations, adding entropy to the
++ * passed store (normally random_state). Alternate between randomizing
++ * the data of the primary and secondary stores.
+  */
+ static void batch_entropy_process(void *private_)
+ {
+-	struct entropy_store *r	= (struct entropy_store *) private_, *p;
+-	int max_entropy = r->poolinfo.POOLBITS;
+-
++	struct entropy_store *r	= (struct entropy_store *) private_;
++	int samples, credit;
++	
+ 	if (!batch_max)
+ 		return;
  
- 	/* Don't allow more credit BITS than pool WORDS */
- 	if(credit > batch_max) credit=batch_max;
-@@ -626,7 +627,7 @@
- 	add_entropy_words(r, batch_entropy_pool, samples);
- 	credit_entropy_store(r, credit);
- 
--	if (input_pool->entropy_count >= random_read_wakeup_thresh)
-+	if (input_pool->entropy_count >= read_thresh)
+-	p = r;
+-	while (batch_head != batch_tail) {
+-		if (r->entropy_count >= max_entropy) {
+-			r = (r == sec_random_state) ?	random_state :
+-							sec_random_state;
+-			max_entropy = r->poolinfo.POOLBITS;
+-		}
+-		add_entropy_words(r, batch_entropy_pool + 2*batch_tail, 2);
+-		credit_entropy_store(r, batch_entropy_credit[batch_tail]);
+-		batch_tail = (batch_tail+1) & (batch_max-1);
++	/* switch pools if current full */
++	if (r->entropy_count >= r->poolinfo.POOLBITS) {
++		r = (r == sec_random_state) ? 
++			random_state : sec_random_state;
+ 	}
+-	if (p->entropy_count >= random_read_wakeup_thresh)
++
++	credit=batch_credit;
++	samples=batch_samples;
++	batch_pos = batch_credit = batch_samples = 0;
++
++	/* Don't allow more credit BITS than pool WORDS */
++	if(credit > batch_max) credit=batch_max;
++	/* Check for pool wrap-around */
++	if(samples > batch_max) samples=batch_max;
++
++	add_entropy_words(r, batch_entropy_pool, samples);
++	credit_entropy_store(r, credit);
++
++	if (r->entropy_count >= random_read_wakeup_thresh)
  		wake_up_interruptible(&random_read_wait);
  }
  
-@@ -1159,37 +1160,9 @@
-  *********************************************************************/
+@@ -707,14 +706,12 @@
+ struct timer_rand_state {
+ 	__u32		last_time;
+ 	__s32		last_delta,last_delta2;
+-	int		dont_count_entropy:1;
+ };
  
- #define EXTRACT_ENTROPY_USER		1
--#define EXTRACT_ENTROPY_SECONDARY	2
- #define TMP_BUF_SIZE			(HASH_BUFFER_SIZE + HASH_EXTRA_SIZE)
- #define SEC_XFER_SIZE			(TMP_BUF_SIZE*4)
+ static struct timer_rand_state keyboard_timer_state;
+ static struct timer_rand_state mouse_timer_state;
+ static struct timer_rand_state extract_timer_state;
+-static struct timer_rand_state *irq_timer_state[NR_IRQS];
+-static struct timer_rand_state *blkdev_timer_state[MAX_BLKDEV];
++static int trust_break=50, trust_pct=0, trust_min=0, trust_max=100;
  
--static ssize_t extract_entropy(struct entropy_store *r, void * buf,
--			       size_t nbytes, int flags);
+ /*
+  * This function adds entropy to the entropy "pool" by using timing
+@@ -751,7 +748,7 @@
+ 	 * We take into account the first, second and third-order deltas
+ 	 * in order to make our estimate.
+ 	 */
+-	if (!state->dont_count_entropy) {
++	if (state) {
+ 		delta = time - state->last_time;
+ 		state->last_time = time;
+ 
+@@ -782,7 +779,18 @@
+ 
+ 		entropy = int_ln_12bits(delta);
+ 	}
+-	batch_entropy_store(num, time, entropy);
++	else if(trust_pct)
++	{
++		/* Count an untrusted bit as entropy trust_pct% of the time */
++		trust_break+=trust_pct;
++		if(trust_break >= 100)
++		{
++			entropy=1;
++			trust_break-=100;
++		}
++	}
++
++	batch_entropy_store(num^time, entropy);
+ }
+ 
+ void add_keyboard_randomness(unsigned char scancode)
+@@ -802,24 +810,12 @@
+ 
+ void add_interrupt_randomness(int irq)
+ {
+-	if (irq >= NR_IRQS || irq_timer_state[irq] == 0)
+-		return;
 -
--/*
-- * This utility inline function is responsible for transfering entropy
-- * from the primary pool to the secondary extraction pool.  We pull
-- * randomness under two conditions; one is if there isn't enough entropy
-- * in the secondary pool.  The other is after we have extracted 1024 bytes,
-- * at which point we do a "catastrophic reseeding".
-- */
--static void xfer_entropy(struct entropy_store *r, size_t nbytes)
--{
--	__u32 tmp[TMP_BUF_SIZE];
+-	add_timer_randomness(irq_timer_state[irq], 0x100+irq);
++	add_timer_randomness(0, irq);
+ }
+ 
+ void add_blkdev_randomness(int major)
+ {
+-	if (major >= MAX_BLKDEV)
+-		return;
 -
--	if (r->entropy_count < nbytes * 8 &&
--	    r->entropy_count < r->poolinfo->POOLBITS) {
--		int bytes = min_t(int, nbytes, sizeof(tmp));
--
--		DEBUG_ENT("xfer %d to %s (have %d, need %d)\n", 
--			  bytes * 8, r->name, r->entropy_count, nbytes * 8);
--
--		extract_entropy(input_pool, tmp, bytes, 0);
--		add_entropy_words(r, tmp, bytes);
--		credit_entropy_store(r, bytes*8);
+-	if (blkdev_timer_state[major] == 0) {
+-		rand_initialize_blkdev(major, GFP_ATOMIC);
+-		if (blkdev_timer_state[major] == 0)
+-			return;
 -	}
--}
+-		
+-	add_timer_randomness(blkdev_timer_state[major], 0x200+major);
++	add_timer_randomness(0, 0x200+major);
+ }
+ 
+ /******************************************************************
+@@ -1270,8 +1266,6 @@
+ 	__u32 tmp[TMP_BUF_SIZE];
+ 	__u32 x;
+ 
+-	add_timer_randomness(&extract_timer_state, nbytes);
 -
- /*
-  * This function extracts randomness from the "entropy pool", and
-  * returns it in a buffer.  This function computes how many remaining
-@@ -1197,10 +1170,6 @@
-  * number of bytes that are actually obtained.  If the EXTRACT_ENTROPY_USER
-  * flag is given, then the buf pointer is assumed to be in user space.
-  *
-- * If the EXTRACT_ENTROPY_SECONDARY flag is given, then we are actually
-- * extracting entropy from the secondary pool, and can refill from the
-- * primary pool if needed.
-- *
-  * Note: extract_entropy() assumes that .poolwords is a multiple of 16 words.
-  */
- static ssize_t extract_entropy(struct entropy_store *r, void * buf,
-@@ -1214,9 +1183,6 @@
- 	if (r->entropy_count > r->poolinfo->POOLBITS)
- 		r->entropy_count = r->poolinfo->POOLBITS;
+ 	/* Redundant, but just in case... */
+ 	if (r->entropy_count > r->poolinfo.POOLBITS)
+ 		r->entropy_count = r->poolinfo.POOLBITS;
+@@ -1352,7 +1346,6 @@
+ 		nbytes -= i;
+ 		buf += i;
+ 		ret += i;
+-		add_timer_randomness(&extract_timer_state, nbytes);
+ 	}
  
--	if (flags & EXTRACT_ENTROPY_SECONDARY)
--		xfer_secondary_pool(r, nbytes);
+ 	/* Wipe data just returned from memory */
+@@ -1429,53 +1422,18 @@
+ #ifdef CONFIG_SYSCTL
+ 	sysctl_init_random(random_state);
+ #endif
+-	for (i = 0; i < NR_IRQS; i++)
+-		irq_timer_state[i] = NULL;
+-	for (i = 0; i < MAX_BLKDEV; i++)
+-		blkdev_timer_state[i] = NULL;
+ 	memset(&keyboard_timer_state, 0, sizeof(struct timer_rand_state));
+ 	memset(&mouse_timer_state, 0, sizeof(struct timer_rand_state));
+-	memset(&extract_timer_state, 0, sizeof(struct timer_rand_state));
+-	extract_timer_state.dont_count_entropy = 1;
+ }
+ 
+ void rand_initialize_irq(int irq)
+ {
+-	struct timer_rand_state *state;
+-	
+-	if (irq >= NR_IRQS || irq_timer_state[irq])
+-		return;
 -
- 	DEBUG_ENT("%s has %d bits, want %d bits\n",
- 		  r->name, r->entropy_count, nbytes * 8);
- 
-@@ -1225,7 +1191,7 @@
- 	else
- 		r->entropy_count = 0;
- 
--	if (r->entropy_count < random_write_wakeup_thresh)
-+	if (r->entropy_count < write_thresh)
- 		wake_up_interruptible(&random_write_wait);
- 
- 	ret = 0;
-@@ -1296,6 +1262,31 @@
- 	return ret;
+-	/*
+-	 * If kmalloc returns null, we just won't use that entropy
+-	 * source.
+-	 */
+-	state = kmalloc(sizeof(struct timer_rand_state), GFP_KERNEL);
+-	if (state) {
+-		memset(state, 0, sizeof(struct timer_rand_state));
+-		irq_timer_state[irq] = state;
+-	}
  }
  
-+/* Reseed pool with pull bits from input pool, provided input pool has
-+ * more than thresh bits available. Pullbits should be sufficient for a
-+ * "catastrophic reseed" - enough to make the destination pool
-+ * unguessable should it be compromised
-+ */
-+void reseed_pool(struct entropy_store *r, int thresh, int pullbits)
-+{
-+	__u32 tmp[TMP_BUF_SIZE];
-+	int bytes;
-+
-+	if (r->entropy_count > 8 || 
-+	    input_pool->entropy_count < thresh ||
-+	    pullbits < 0)
-+		return;
-+
-+	bytes = min_t(int, pullbits/8, sizeof(tmp));
-+
-+	DEBUG_ENT("xfer %d to %s (have %d, want %d)\n",
-+		  bytes * 8, r->name, r->entropy_count, pullbits);
-+
-+	extract_entropy(input_pool, tmp, bytes, 0);
-+	add_entropy_words(r, tmp, bytes);
-+	credit_entropy_store(r, bytes*8);
-+}
-+
- /*
-  * This function is the exported kernel interface.  It returns some
-  * number of good random numbers, suitable for seeding TCP sequence
-@@ -1303,14 +1294,16 @@
-  */
- void get_random_bytes(void *buf, int nbytes)
+ void rand_initialize_blkdev(int major, int mode)
  {
--	if (blocking_pool)  
--		extract_entropy(blocking_pool, (char *) buf, nbytes, 
--				EXTRACT_ENTROPY_SECONDARY);
--	else if (input_pool)
--		extract_entropy(input_pool, (char *) buf, nbytes, 0);
--	else
--		printk(KERN_NOTICE "get_random_bytes called before "
--				   "random driver initialization\n");
-+	if (!nonblocking_pool)  
-+ 	{
-+ 		printk(KERN_NOTICE "get_random_bytes called before "
-+		       "random driver initialization\n");
-+ 		return;
-+ 	}
-+
-+	/* Leave enough for blocking pool to reseed itself */
-+	reseed_pool(nonblocking_pool, read_thresh*2, read_thresh);
-+	extract_entropy(nonblocking_pool, (char *) buf, nbytes, 0);
+-	struct timer_rand_state *state;
+-	
+-	if (major >= MAX_BLKDEV || blkdev_timer_state[major])
+-		return;
+-
+-	/*
+-	 * If kmalloc returns null, we just won't use that entropy
+-	 * source.
+-	 */
+-	state = kmalloc(sizeof(struct timer_rand_state), mode);
+-	if (state) {
+-		memset(state, 0, sizeof(struct timer_rand_state));
+-		blkdev_timer_state[major] = state;
+-	}
  }
  
- /*********************************************************************
-@@ -1352,8 +1345,9 @@
+-
+ static ssize_t
+ random_read(struct file * file, char * buf, size_t nbytes, loff_t *ppos)
  {
- 	input_pool = create_entropy_store(512, "input");
- 	blocking_pool = create_entropy_store(128, "blocking");
-+	nonblocking_pool = create_entropy_store(128, "nonblocking");
+@@ -1872,6 +1830,10 @@
+ 	{RANDOM_UUID, "uuid",
+ 	 NULL, 16, 0444, NULL,
+ 	 &proc_do_uuid, &uuid_strategy},
++	{RANDOM_TRUST_PCT, "trust_pct",
++	 &trust_pct, sizeof(int), 0644, NULL,
++	 &proc_dointvec_minmax, &sysctl_intvec, 0,
++	 &trust_min, &trust_max},
+ 	{0}
+ };
  
--	if(!(input_pool && blocking_pool)) return;
-+	if(!(input_pool && blocking_pool && nonblocking_pool)) return;
- 	if(batch_entropy_init(256)) return;
+diff -urN -x '.patch*' -x '*.orig' orig/include/linux/random.h work/include/linux/random.h
+--- orig/include/linux/random.h	2002-07-20 14:11:18.000000000 -0500
++++ work/include/linux/random.h	2002-09-28 00:16:14.000000000 -0500
+@@ -46,7 +46,7 @@
+ extern void rand_initialize_irq(int irq);
+ extern void rand_initialize_blkdev(int irq, int mode);
  
- 	init_std_data(input_pool);
-@@ -1382,8 +1376,11 @@
- 		return 0;
+-extern void batch_entropy_store(u32 a, u32 b, int num);
++extern void batch_entropy_store(u32 val, int bits);
  
- 	add_wait_queue(&random_read_wait, &wait);
-+
- 	while (nbytes > 0) {
- 		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		reseed_pool(input_pool, read_thresh, read_thresh);
- 		
- 		n = nbytes;
- 		if (n > SEC_XFER_SIZE)
-@@ -1408,8 +1405,7 @@
- 			  blocking_pool->entropy_count);
+ extern void add_keyboard_randomness(unsigned char scancode);
+ extern void add_mouse_randomness(__u32 mouse_data);
+diff -urN -x '.patch*' -x '*.orig' orig/include/linux/sysctl.h work/include/linux/sysctl.h
+--- orig/include/linux/sysctl.h	2002-09-20 11:03:37.000000000 -0500
++++ work/include/linux/sysctl.h	2002-09-28 00:16:14.000000000 -0500
+@@ -185,7 +185,8 @@
+ 	RANDOM_READ_THRESH=3,
+ 	RANDOM_WRITE_THRESH=4,
+ 	RANDOM_BOOT_ID=5,
+-	RANDOM_UUID=6
++	RANDOM_UUID=6,
++	RANDOM_TRUST_PCT=7
+ };
  
- 		n = extract_entropy(blocking_pool, buf, n,
--				    EXTRACT_ENTROPY_USER |
--				    EXTRACT_ENTROPY_SECONDARY);
-+				    EXTRACT_ENTROPY_USER);
- 
- 		if (n < 0) {
- 			retval = n;
-@@ -1438,9 +1434,10 @@
- urandom_read(struct file * file, char * buf,
- 		      size_t nbytes, loff_t *ppos)
- {
--	return extract_entropy(blocking_pool, buf, nbytes,
--			       EXTRACT_ENTROPY_USER |
--			       EXTRACT_ENTROPY_SECONDARY);
-+	reseed_pool(nonblocking_pool, read_thresh*2, read_thresh);
-+ 
-+	return extract_entropy(blocking_pool, buf, nbytes, 
-+			       EXTRACT_ENTROPY_USER);
- }
- 
- static unsigned int
-@@ -1451,9 +1448,9 @@
- 	poll_wait(file, &random_read_wait, wait);
- 	poll_wait(file, &random_write_wait, wait);
- 	mask = 0;
--	if (input_pool->entropy_count >= random_read_wakeup_thresh)
-+	if (input_pool->entropy_count >= read_thresh)
- 		mask |= POLLIN | POLLRDNORM;
--	if (input_pool->entropy_count < random_write_wakeup_thresh)
-+	if (input_pool->entropy_count < write_thresh)
- 		mask |= POLLOUT | POLLWRNORM;
- 	return mask;
- }
-@@ -1513,7 +1510,7 @@
- 		 * Wake up waiting processes if we have enough
- 		 * entropy.
- 		 */
--		if (input_pool->entropy_count >= random_read_wakeup_thresh)
-+		if (input_pool->entropy_count >= read_thresh)
- 			wake_up_interruptible(&random_read_wait);
- 		return 0;
- 	case RNDGETPOOL:
-@@ -1551,7 +1548,7 @@
- 		 * Wake up waiting processes if we have enough
- 		 * entropy.
- 		 */
--		if (input_pool->entropy_count >= random_read_wakeup_thresh)
-+		if (input_pool->entropy_count >= read_thresh)
- 			wake_up_interruptible(&random_read_wait);
- 		return 0;
- 	case RNDZAPENTCNT:
-@@ -1756,11 +1753,11 @@
- 	 NULL, sizeof(int), 0444, NULL,
- 	 &proc_dointvec},
- 	{RANDOM_READ_THRESH, "read_wakeup_threshold",
--	 &random_read_wakeup_thresh, sizeof(int), 0644, NULL,
-+	 &read_thresh, sizeof(int), 0644, NULL,
- 	 &proc_dointvec_minmax, &sysctl_intvec, 0,
- 	 &min_read_thresh, &max_read_thresh},
- 	{RANDOM_WRITE_THRESH, "write_wakeup_threshold",
--	 &random_write_wakeup_thresh, sizeof(int), 0644, NULL,
-+	 &write_thresh, sizeof(int), 0644, NULL,
- 	 &proc_dointvec_minmax, &sysctl_intvec, 0,
- 	 &min_write_thresh, &max_write_thresh},
- 	{RANDOM_BOOT_ID, "boot_id",
+ /* /proc/sys/bus/isa */

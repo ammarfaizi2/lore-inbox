@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129150AbQKVRTl>; Wed, 22 Nov 2000 12:19:41 -0500
+        id <S129521AbQKVRXn>; Wed, 22 Nov 2000 12:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129521AbQKVRTb>; Wed, 22 Nov 2000 12:19:31 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:4360 "HELO Cantor.suse.de")
-        by vger.kernel.org with SMTP id <S129150AbQKVRTQ>;
-        Wed, 22 Nov 2000 12:19:16 -0500
-Date: Wed, 22 Nov 2000 17:49:13 +0100
-Message-Id: <200011221649.eAMGnDr23208@hawking.suse.de>
-To: Igmar Palsenberg <maillist@chello.nl>
-Cc: Pauline Middelink <middelink@polyware.nl>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
-In-Reply-To: <Pine.LNX.4.21.0011221803520.27178-100000@server.serve.me.nl>
-X-Yow: Hello.  I know the divorce rate among unmarried Catholic
- Alaskan females!!
-From: Andreas Schwab <schwab@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0011221803520.27178-100000@server.serve.me.nl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
+        id <S130800AbQKVRXe>; Wed, 22 Nov 2000 12:23:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39528 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129521AbQKVRXY>; Wed, 22 Nov 2000 12:23:24 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
+Date: Wed, 22 Nov 2000 16:47:31 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
+        mingo@chiara.elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.3.96.1001122160510.24845A-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Nov 22, 2000 04:48:23 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yd3V-0006BD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igmar Palsenberg <maillist@chello.nl> writes:
+> APICs (probably due to the fact there was no standalone I/O APIC chip
+> available at that time) so CPUs report no APIC flag.  And it starts in the
+> PIC mode as opposed to the Virtual Wire.  I may send you his bootstrap log
+> if you want to (but not today -- I don't have it handy). 
 
-|> > > #define __bad_udelay() panic("Udelay called with too large a constant")
-|> 
-|> Can't we change that to :
-|> #error "Udelay..."
+Ok. That means my check is over zealous. 
 
-No.
+>  Could you please tell me what these broken boards report in MP-tables
+> when there is no APIC?  Maybe we could find a way to distinguish them. 
+> All 82489DX-based boards I've met report 0x1 as the APIC revision (I don't
+> think there are higher 82489DX revisions). 
 
-Andreas.
+I think it reports 1.1 apics from memory. Its simply hardcoded in the bios
+rather than the configurable flash area.
 
--- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+The following change should make all of this work
+
+	if(vendor!=INTEL && !has_apic)
+		/* No SMP */
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,340 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTLNRRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 12:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTLNRRX
+	id S262251AbTLNR3M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 12:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTLNR3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 12:17:23 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21636 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262139AbTLNRRW
+	Sun, 14 Dec 2003 12:29:12 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:38794 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262251AbTLNR2y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 12:17:22 -0500
-Date: Sun, 14 Dec 2003 17:16:37 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Peter Horton <pdh@colonel-panic.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-mips@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
-Message-ID: <20031214171637.GA28923@mail.shareable.org>
-References: <20031213114134.GA9896@skeleton-jack> <20031213222626.GA20153@mail.shareable.org> <Pine.LNX.4.58.0312131740120.14336@home.osdl.org> <20031214103803.GA916@skeleton-jack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031214103803.GA916@skeleton-jack>
-User-Agent: Mutt/1.4.1i
+	Sun, 14 Dec 2003 12:28:54 -0500
+Message-ID: <3FDC9DC5.2070302@intel.com>
+Date: Sun, 14 Dec 2003 19:28:37 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: PCI Express support for 2.4 kernel
+Content-Type: multipart/mixed;
+ boundary="------------060508020505050709020206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Horton wrote:
-> I've seen code written for X86 use MAP_FIXED to create self wrapping
-> ring buffers. Surely it's better to fail the mmap() on other archs
-> rather than for the code to fail in unexpected ways?
+This is a multi-part message in MIME format.
+--------------060508020505050709020206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Such code should test the buffers or just not create ring buffers on
-architectures it doesn't know about.  (You can usually simulate them
-by copying data).  On some architectures there is _no_ alignment which
-works, and even on x86 aligning aliases to 32k results in faster
-memory accesses on some chips (AMD ones).
+Hi,
+PCI-Express platforms will soon appear on the market. It is worth to 
+support it.
 
-Also, sometimes a self wrapping ring buffer can work even when the
-separation isn't coherent, provided the code using it forces cache
-line flushes at the appropriate points.
+Following is patch for 2.4.23 kernel. I tested it on my host, it works 
+properly.
+I did it for i386 only, I have no other architecture to test.
 
--- Jamie
+It was patch on the same subject from* Seshadri, Harinarayanan* 
+(/harinarayanan.seshadri@intel.com/ 
+<mailto:harinarayanan.seshadri@intel.com>) 
+http://www.cs.helsinki.fi/linux/linux-kernel/2003-17/0247.html
+My version differ in several aspects: it is for 2.4 (vs. 2.6); it do not 
+ioremap/unmap page for each transaction.
+
+How about inclusion in 2.4.24?
+
+I am not subscribed to lkml, thus please CC me
+(Vladimir Kondratiev <vladimir.kondratiev@intel.com>) in replies.
+
+Vladimir.
+
+--------------060508020505050709020206
+Content-Type: text/plain;
+ name="pciexp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pciexp.patch"
+
+Enable PCI Express access method for configuration space
+This path includes:
+ * access routines itself
+ * command line argument "pci=exp" to force PCI Express, similar to "conf1" and "conf2"
+ * full 4k config accessed through /proc/bus/pci/...
+
+How it works:
+
+With PCI-E, config space accessed through memory. Each device gets its own 4k memory mapped config,
+total 256M for all devices.
+
+At init time, I map whole region to not spent time for mapping later.
+
+For /proc/bus/pci/..., I changed PCI_CFG_SPACE_SIZE to variable and changed it to 4k for PCI-E.
+
+It is tested on 1 platform.
+
+Author: "Vladimir Kondratiev" <vladimir.kondratiev@intel.com> 
+
+diff -bBdur linux-2.4.23/arch/i386/kernel/pci-i386.h linux-2.4.23-pciexp/arch/i386/kernel/pci-i386.h
+--- linux-2.4.23/arch/i386/kernel/pci-i386.h	2003-11-28 20:26:19.000000000 +0200
++++ linux-2.4.23-pciexp/arch/i386/kernel/pci-i386.h	2003-12-14 11:08:17.000000000 +0200
+@@ -15,6 +15,7 @@
+ #define PCI_PROBE_BIOS		0x0001
+ #define PCI_PROBE_CONF1		0x0002
+ #define PCI_PROBE_CONF2		0x0004
++#define PCI_PROBE_EXP		0x0008
+ #define PCI_NO_SORT		0x0100
+ #define PCI_BIOS_SORT		0x0200
+ #define PCI_NO_CHECKS		0x0400
+diff -bBdur linux-2.4.23/arch/i386/kernel/pci-pc.c linux-2.4.23-pciexp/arch/i386/kernel/pci-pc.c
+--- linux-2.4.23/arch/i386/kernel/pci-pc.c	2003-11-28 20:26:19.000000000 +0200
++++ linux-2.4.23-pciexp/arch/i386/kernel/pci-pc.c	2003-12-14 18:30:52.000000000 +0200
+@@ -20,7 +20,7 @@
+ 
+ #include "pci-i386.h"
+ 
+-unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2;
++unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2 | PCI_PROBE_EXP;
+ 
+ int pcibios_last_bus = -1;
+ struct pci_bus *pci_root_bus = NULL;
+@@ -427,6 +427,169 @@
+ 	pci_conf2_write_config_dword
+ };
+ 
++/**
++ * PCI Express routines
++ * "Vladimir Kondratiev" <vladimir.kondratiev@intel.com>
++ */
++/**
++ * RRBAR (memory base for PCI-E config space) resides here.
++ * Initialized to default address. Actually, it is platform specific, and
++ * value may vary.
++ * I don't know how to detect it properly, it is chipset specific.
++ */
++static u32 rrbar_phys=0xe0000000UL;
++/**
++ * RRBAR is always 256M
++ */
++static u32 rrbar_size=0x10000000UL;
++/**
++ * Virtual address for RRBAR
++ */
++static void* rrbar_virt=NULL;
++/**
++ * It used to be #define, but I am going to change it.
++ */
++extern int PCI_CFG_SPACE_SIZE;
++
++union pci_exp_data {
++    u32 l;
++    u16 w[2];
++    u8  b[4];
++} __attribute__((packed));
++
++/**
++ * Initializes PCI Express method for config space access.
++ * 
++ * There is no standard method to recognize presence of PCI Express,
++ * thus we will assume it is PCI-E, and rely on sanity check to
++ * deassert PCI-E presense. If PCI-E not present,
++ * there is no physical RAM on RRBAR address, and we should read
++ * something like 0xff.
++ * 
++ * Creates mapping for whole 256M area.
++ * 
++ * @return 1 if OK, 0 if error
++ */
++static int pci_express_init(void)
++{
++    /* TODO: check PCI-Ex presense */
++    rrbar_virt=ioremap(rrbar_phys,rrbar_size);
++    if (!rrbar_virt) return 0;
++    return 1;
++}
++
++/**
++ * Shuts down PCI-E resources.
++ */
++static void pci_express_fini(void)
++{
++    if (rrbar_virt) {
++        iounmap(rrbar_virt);
++    }
++}
++
++static int pci_exp_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
++{
++    union pci_exp_data d;
++    void* addr=rrbar_virt+(bus << 20)+(dev << 15)+(fn << 12)+(reg &~ 3);
++    d.l=readl(addr);
++    switch (len) {
++    case 1:
++        *value=d.b[reg & 3];
++        break;
++    case 2:
++        *value=d.w[(reg & 2)>>1];
++        break;
++    case 4:
++        *value=d.l;
++        break;
++    }
++	return 0;
++}
++
++static int pci_exp_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
++{
++    void* addr=rrbar_virt+(bus << 20)+(dev << 15)+(fn << 12)+(reg &~ 3);
++	switch (len) {
++    case 1:
++    case 2:
++        {
++            unsigned long flags;
++            union pci_exp_data d;
++            spin_lock_irqsave(&pci_config_lock, flags);
++            switch (len) {
++            case 1:
++                d.l=readl(addr);
++                d.b[reg & 3]=value;
++                break;
++            case 2:
++                d.l=readl(addr);
++                d.w[(reg & 2)>>1]=value;
++                break;
++            }
++            writel(d.l,addr);
++            spin_unlock_irqrestore(&pci_config_lock, flags);
++        }
++        break;
++    case 4:
++        writel(value,addr);
++        break;
++    }
++	return 0;
++}
++
++static int pci_exp_read_config_byte(struct pci_dev *dev, int where, u8 *value)
++{
++	int result; 
++	u32 data;
++	result = pci_exp_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 1, &data);
++	*value = (u8)data;
++	return result;
++}
++
++static int pci_exp_read_config_word(struct pci_dev *dev, int where, u16 *value)
++{
++	int result; 
++	u32 data;
++	result = pci_exp_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 2, &data);
++	*value = (u16)data;
++	return result;
++}
++
++static int pci_exp_read_config_dword(struct pci_dev *dev, int where, u32 *value)
++{
++	return pci_exp_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 4, value);
++}
++
++static int pci_exp_write_config_byte(struct pci_dev *dev, int where, u8 value)
++{
++	return pci_exp_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 1, value);
++}
++
++static int pci_exp_write_config_word(struct pci_dev *dev, int where, u16 value)
++{
++	return pci_exp_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 2, value);
++}
++
++static int pci_exp_write_config_dword(struct pci_dev *dev, int where, u32 value)
++{
++	return pci_exp_write(0, dev->bus->number, PCI_SLOT(dev->devfn), 
++		PCI_FUNC(dev->devfn), where, 4, value);
++}
++
++static struct pci_ops pci_express_conf = {
++	pci_exp_read_config_byte,
++	pci_exp_read_config_word,
++	pci_exp_read_config_dword,
++	pci_exp_write_config_byte,
++	pci_exp_write_config_word,
++	pci_exp_write_config_dword
++};
+ 
+ /*
+  * Before we decide to use direct hardware access mechanisms, we try to do some
+@@ -465,6 +628,21 @@
+ 
+ 	__save_flags(flags); __cli();
+ 
++    /**
++     * Check if PCI-express access work
++     */
++    if (pci_express_init()) {
++        if (pci_sanity_check(&pci_express_conf)) {
++            PCI_CFG_SPACE_SIZE=4096;
++			__restore_flags(flags);
++			printk(KERN_INFO "PCI: Using configuration type PCI Express\n");
++			request_mem_region(rrbar_phys, rrbar_size, "PCI-Express config space");
++			return &pci_express_conf;
++        } else {
++            pci_express_fini();
++        }
++    }
++
+ 	/*
+ 	 * Check if configuration type 1 works.
+ 	 */
+@@ -1398,16 +1576,18 @@
+ #endif
+ 
+ #ifdef CONFIG_PCI_DIRECT
+-	if ((pci_probe & (PCI_PROBE_CONF1 | PCI_PROBE_CONF2)) 
++	if ((pci_probe & (PCI_PROBE_CONF1 | PCI_PROBE_CONF2 | PCI_PROBE_EXP)) 
+ 		&& (tmp = pci_check_direct())) {
+ 		pci_root_ops = tmp;
+ 		if (pci_root_ops == &pci_direct_conf1) {
+ 			pci_config_read = pci_conf1_read;
+ 			pci_config_write = pci_conf1_write;
+-		}
+-		else {
++		} else if (pci_root_ops == &pci_direct_conf2) {
+ 			pci_config_read = pci_conf2_read;
+ 			pci_config_write = pci_conf2_write;
++		} else if (pci_root_ops == &pci_express_conf) {
++			pci_config_read = pci_exp_read;
++			pci_config_write = pci_exp_write;
+ 		}
+ 	}
+ #endif
+@@ -1489,6 +1669,10 @@
+ 		pci_probe = PCI_PROBE_CONF2 | PCI_NO_CHECKS;
+ 		return NULL;
+ 	}
++	else if (!strcmp(str, "exp")) {
++		pci_probe = PCI_PROBE_EXP | PCI_NO_CHECKS;
++		return NULL;
++	}
+ #endif
+ 	else if (!strcmp(str, "rom")) {
+ 		pci_probe |= PCI_ASSIGN_ROMS;
+diff -bBdur linux-2.4.23/drivers/pci/proc.c linux-2.4.23-pciexp/drivers/pci/proc.c
+--- linux-2.4.23/drivers/pci/proc.c	2002-11-29 01:53:14.000000000 +0200
++++ linux-2.4.23-pciexp/drivers/pci/proc.c	2003-12-14 14:18:58.000000000 +0200
+@@ -16,7 +16,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+ 
+-#define PCI_CFG_SPACE_SIZE 256
++int PCI_CFG_SPACE_SIZE=256;
+ 
+ static loff_t
+ proc_bus_pci_lseek(struct file *file, loff_t off, int whence)
+
+--------------060508020505050709020206--

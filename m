@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUITMWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUITMYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266459AbUITMWF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 08:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUITMWF
+	id S266362AbUITMYt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUITMYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 08:22:05 -0400
-Received: from cantor.suse.de ([195.135.220.2]:53229 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266459AbUITMWD (ORCPT
+	Mon, 20 Sep 2004 08:24:49 -0400
+Received: from holomorphy.com ([207.189.100.168]:50621 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266362AbUITMYr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 08:22:03 -0400
-Date: Mon, 20 Sep 2004 14:19:49 +0200
-From: Olaf Hering <olh@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920121949.GA24304@suse.de>
-References: <20040920094602.GA24466@suse.de> <Pine.LNX.4.61.0409201220200.3460@scrub.home> <20040920105618.GB24928@suse.de> <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de> <Pine.LNX.4.61.0409201331320.3460@scrub.home> <20040920115032.GA21631@suse.de> <Pine.LNX.4.61.0409201357540.877@scrub.home> <20040920120752.GA23315@suse.de> <Pine.LNX.4.61.0409201413030.877@scrub.home>
+	Mon, 20 Sep 2004 08:24:47 -0400
+Date: Mon, 20 Sep 2004 05:24:10 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] why switch_exec_pids() changes thread group leader pid?
+Message-ID: <20040920122410.GU9106@holomorphy.com>
+References: <414EBF2B.5090909@sw.ru> <20040920114616.GT9106@holomorphy.com> <414EC805.8070105@sw.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0409201413030.877@scrub.home>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <414EC805.8070105@sw.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Sep 20, Roman Zippel wrote:
+On Mon, Sep 20, 2004 at 03:29:47PM +0400, Kirill Korotaev wrote:
+>>> I've been looking through switch_exec_pids() function and found that it 
+>>> changes thread group leader PID/TGID. Is it really a good idea to change 
+>>> pid of the process during it's lifetime? I could understand if it was 
+>>> happenning in the context of that process, but pid changes everytime a 
+>>> thread calls do_execve().
+>>> As far as I can see, leader doesn't have to do any of detach_pid()'s. 
+>>> Instead thread should change it's PID/TGID.
 
-> What happens to /dev/loop0?
+William Lee Irwin III wrote:
+>> It's only done when a thread that is not a thread group leader
+>> execve()'s. This is actually pretty rare and confined to threaded
+>> applications, so it should be almost never called.
 
-I dont know, whats supposed to happen? losetup -d?
+On Mon, Sep 20, 2004 at 04:07:33PM +0400, Kirill Korotaev wrote:
+> Heh, rare doesn't mean correct, yeah? :)
 
--- 
-USB is for mice, FireWire is for men!
+The semantic it implements is that the thread calling execve() kills
+all other threads of the process and assumes the identity of the thread
+group leader. It should be clear that when the thread were already the
+group leader, such as it is for unthreaded processes, one need only
+kill the other threads, of which there are none for unthreaded
+processes. I'm largely not involved with the implementation of POSIX
+threading semantics, so there is some limit regarding the amount of
+detail in which I can go on about it without resorting to research.
 
-sUse lINUX ag, nÜRNBERG
+Ingo Molnar, Roland McGrath, and Ulrich Drepper will likely have more
+information if you should care to question so deeply as to ask e.g.
+whether this is actually faithful to whatever standard they followed.
+
+
+-- wli

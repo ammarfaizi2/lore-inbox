@@ -1,144 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272653AbTHPI4e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 04:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272661AbTHPI4e
+	id S272661AbTHPJKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 05:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272672AbTHPJKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 04:56:34 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:22989
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272653AbTHPI4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 04:56:30 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] O16.2int
-Date: Sat, 16 Aug 2003 19:02:52 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
+	Sat, 16 Aug 2003 05:10:53 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:1497 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S272661AbTHPJKw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 05:10:52 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: George Anzinger <george@mvista.com>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Sat, 16 Aug 2003 05:10:44 -0400
+User-Agent: KMail/1.5
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200308132024.36967.rob@landley.net> <3F3B41C7.1000906@mvista.com>
+In-Reply-To: <3F3B41C7.1000906@mvista.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_8MfP/MaiVsmWoQA"
-Message-Id: <200308161902.52337.kernel@kolivas.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308160510.44627.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 14 August 2003 04:01, George Anzinger wrote:
 
---Boundary-00=_8MfP/MaiVsmWoQA
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> >>Well said :)
+> >
+> > Actually, I didn't really consider that list of straw man arguments to be
+> > worth commenting on the first time around.  (I thought he was being
+> > sarcastic...)
+>
+> Well, I think he was too, but I am trying to say (as I think you are
+> too) that it is not far from being a realistic goal.
 
-Much simpler
+2.5 already seems to be scheduling better for me, although I'm still mostly 
+running 2.4 on my new laptop until I figure out how to properly configure all 
+the new hardware.  (APM suspends, and then never comes back until you yank 
+the #*%(&# battery.  Great.  Trying it with the real mode bios calls next 
+reboot...)
 
-Con
+> As to timing, I just changed ISPs and was off line for a few days...
 
---Boundary-00=_8MfP/MaiVsmWoQA
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O16.1-O16.2int"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="patch-O16.1-O16.2int"
+I got caught in a downpour with my laptop in my backpack, and didn't realise 
+the water resistant coating on my backpack had worn away until I turned the 
+thing on and the display shorted out.  After two days of drying out, the 
+display was still screwed up, so I just bought a used thinkpad (iseries 1300, 
+quite a nice little machine) and swapped the hard drive and some ram from my 
+old toshiba.  (Kudzu actually did something useful for once. :)
 
---- linux-2.6.0-test3-mm2-O16/kernel/sched.c	2003-08-16 17:38:49.000000000 +1000
-+++ linux-2.6.0-test3-mm2-O16.2/kernel/sched.c	2003-08-16 17:38:28.000000000 +1000
-@@ -143,6 +143,9 @@
- #define VARYING_CREDIT(p) \
- 	(!(HIGH_CREDIT(p) || LOW_CREDIT(p)))
- 
-+#define TASK_PREEMPTS_CURR(p, rq) \
-+	((p)->prio < (rq)->curr->prio)
-+
- /*
-  * BASE_TIMESLICE scales user-nice values [ -20 ... 19 ]
-  * to time slice values.
-@@ -463,24 +466,15 @@ static inline void activate_task(task_t 
- 		 * of time they spend on the runqueue, waiting for execution
- 		 * on a CPU, first time around:
- 		 */
--		if (in_interrupt()){
-+		if (in_interrupt())
- 			p->activated = 2;
--			p->waker = p;
--		} else {
-+		else
- 		/*
- 		 * Normal first-time wakeups get a credit too for on-runqueue
- 		 * time, but it will be weighted down:
- 		 */
- 			p->activated = 1;
--			p->waker = current;
- 		}
--	} else {
--		if (in_interrupt())
--			p->waker = p;
--		else
--			p->waker = current;
--	}
--
- 	p->timestamp = now;
- 
- 	__activate_task(p, rq);
-@@ -564,20 +558,6 @@ repeat:
- }
- #endif
- 
--static inline int task_preempts_curr(task_t *p, runqueue_t *rq)
--{
--	if (p->prio < rq->curr->prio) {
--			/*
--			 * Prevent a task preempting it's own waker
--			 * to avoid starvation
--			 */
--			if (unlikely(rq->curr == p->waker))
--				return 0;
--			return 1;
--	}
--	return 0;
--}
--
- /***
-  * try_to_wake_up - wake up a thread
-  * @p: the to-be-woken-up thread
-@@ -629,8 +609,9 @@ repeat_lock_task:
- 				__activate_task(p, rq);
- 			else {
- 				activate_task(p, rq);
--				if (task_preempts_curr(p, rq))
--					resched_task(rq->curr);
-+				if (TASK_PREEMPTS_CURR(p, rq) &&
-+					(in_interrupt() || !p->mm))
-+						resched_task(rq->curr);
- 			}
- 			success = 1;
- 		}
-@@ -684,7 +665,6 @@ void wake_up_forked_process(task_t * p)
- 	p->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(p) *
- 		CHILD_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
- 
--	p->waker = p->parent;
- 	p->interactive_credit = 0;
- 
- 	p->prio = effective_prio(p);
-@@ -1131,7 +1111,7 @@ static inline void pull_task(runqueue_t 
- 	 * Note that idle threads have a prio of MAX_PRIO, for this test
- 	 * to be always true for them.
- 	 */
--	if (task_preempts_curr(p, this_rq))
-+	if (TASK_PREEMPTS_CURR(p, this_rq))
- 		set_need_resched();
- }
- 
---- linux-2.6.0-test3-mm2-O16/include/linux/sched.h	2003-08-15 15:18:36.000000000 +1000
-+++ linux-2.6.0-test3-mm2-O16.2/include/linux/sched.h	2003-08-16 17:39:20.000000000 +1000
-@@ -378,7 +378,6 @@ struct task_struct {
- 	 */
- 	struct task_struct *real_parent; /* real parent process (when being debugged) */
- 	struct task_struct *parent;	/* parent process */
--	struct task_struct *waker;	/* waker process */
- 	struct list_head children;	/* list of my children */
- 	struct list_head sibling;	/* linkage in my parent's children list */
- 	struct task_struct *group_leader;
+I think I've figured out why X is giving me an 800x600 window on a 1024x768 
+display screen (with a big black border).  Why XFree86 freezes the box solid 
+for ten seconds at a time while KDE is probing the hardware devices, that I 
+don't know.  (Google suggests the USB is funky.  I'll see if 2.5 fixes it, 
+all I know of 2.5 on this box is that it booted to text mode and then shut 
+down again ok...)
 
---Boundary-00=_8MfP/MaiVsmWoQA--
+I'm likely to be a bit distracted for a while yet, not counting catching up, 
+being out of town for a weekend, and of course the fall semester starting in 
+two weeks.  Luckily, they make caffeine for just such occasions...
 
+Rob

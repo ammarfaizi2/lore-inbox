@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVBQNFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVBQNIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVBQNFO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 08:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVBQNFN
+	id S262133AbVBQNIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 08:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVBQNIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 08:05:13 -0500
-Received: from alog0254.analogic.com ([208.224.222.30]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262147AbVBQNFA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 08:05:00 -0500
-Date: Thu, 17 Feb 2005 08:04:13 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Davide Rossetti <davide.rossetti@roma1.infn.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rmmod while module is in use
-In-Reply-To: <4214926B.3030707@roma1.infn.it>
-Message-ID: <Pine.LNX.4.61.0502170757150.15033@chaos.analogic.com>
-References: <4214926B.3030707@roma1.infn.it>
+	Thu, 17 Feb 2005 08:08:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:4871 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262133AbVBQNIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 08:08:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=uBRgGb6awC1FZQN49KRpmEAt+3tF8+c6TGTzXV5ujDdNk0VO1ZGtgsehdDdtdzEgmYaS8NDqNcRoGiHNveBc036IoV9ocfjMitIxuOgcsbMcvRpNftEZuLjCvFed6DV3Lg9OlfZPEdJw1SnVnTdmTAi6eGQRDZAPt2Z6XQcuHP0=
+Reply-To: marc.cramdal@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: AMD 64 and Kernel AGPart support
+Date: Thu, 17 Feb 2005 15:08:32 +0100
+User-Agent: KMail/1.7.92
+References: <4213AB2B.2050604@giesskaennchen.de>
+In-Reply-To: <4213AB2B.2050604@giesskaennchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502171508.33052.marc.cramdal@gmail.com>
+From: Marc Cramdal <bruno.virlet@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005, Davide Rossetti wrote:
+Hello,
 
-> maybe RTFM...
-> a module:
-> - char device driver for..
-> - a PCI device
->
-> any clue as to how to protect from module unloading while there is still some 
-> process opening it??? have I to sleep in the remove_one() pci driver function 
-> till last process closes its file descriptor???
->
+I have an AMD 64 (gentoo compiled for amd64) and I would like to succeed in my 
+video driver installation (ATI Radeon 9250 :-/). I would need the agpgart 
+support for the Sis Chipset, but all the entry for agpgart are grayed, I 
+can't change anything (Kernel 2.6.9, 2.6.10 ...)
 
-The kernel code is supposed to prevent module removal when it
-is still in use. Have you discovered a bug where the kernel
-will allow unloading when it's still being used???
+So is it normal or a bug ?? , or am I making a mistake.
 
-There used to be MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT
-macros to be using in open() and close(). However their
-use has been depreciated in favor of some internal kernel
-magic. So, unless you have discovered a bug, your code
-doesn't have to worry anymore.
+NB: one of my friends made the test, without AMD64 and exactly the same kernel 
+he can check these options within agpgart...
 
-> static void __devexit apedev_remove_one(struct pci_dev *pdev)
-> {
->   ApeDev* apedev = pci_get_drvdata(pdev);
->
->   if(test_bit(APEDEV_FLAG_OPEN, &apedev->flags)) {
->       PERROR("still open flag on!!! (flags=0x%08x)\n", apedev->flags);
->
->       // sleep here till it gets closed...
->
->   }
->   ...
-> }
->
-> static struct pci_driver apedev_driver = {
->   .name     =  DEVNAME,
->   .id_table =  apedev_pci_tbl,
->   .probe    =  apedev_init_one,
->   .remove   =  __devexit_p(apedev_remove_one),
-> };
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Thanks,
+Marc

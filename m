@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261276AbSIWSbe>; Mon, 23 Sep 2002 14:31:34 -0400
+	id <S261311AbSIWSfj>; Mon, 23 Sep 2002 14:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261390AbSIWSad>; Mon, 23 Sep 2002 14:30:33 -0400
-Received: from packet.digeo.com ([12.110.80.53]:57224 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261385AbSIWS32>;
-	Mon, 23 Sep 2002 14:29:28 -0400
-Message-ID: <3D8F5C41.35EBE979@digeo.com>
-Date: Mon, 23 Sep 2002 11:24:01 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S261313AbSIWSfj>; Mon, 23 Sep 2002 14:35:39 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:49037 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261311AbSIWSfi>;
+	Mon, 23 Sep 2002 14:35:38 -0400
+Date: Mon, 23 Sep 2002 11:42:21 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: devicefs & sleep support for IDE
+In-Reply-To: <20020921210456.GA31784@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0209231136100.6409-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Con Kolivas <conman@kolivas.net>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-References: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain> <1032777021.3d8eed3d55f53@kolivas.net> <20020923124730.GA7556@codepoet.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Sep 2002 18:24:01.0820 (UTC) FILETIME=[640FD5C0:01C2632E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+
+> New patch, rediffed against 2.5.36.
 > 
-> On Mon Sep 23, 2002 at 08:30:21PM +1000, Con Kolivas wrote:
-> > Yes you make a very valid point and something I've been stewing over privately
-> > for some time. contest runs benchmarks in a fixed order with a "priming" compile
-> > to try and get pagecaches etc back to some sort of baseline (I've been trying
-> > hard to make the results accurate and repeatable).
-> 
-> It would sure be nice for this sortof test if there were
-> some sort of a "flush-all-caches" syscall...
-> 
+> More patches will be needed to support IDE properly (like DVD burners
+> you mentioned), but this is known to fix data corruption. It has zero
+> impact on actual I/O. It affects initialization and suspend only.
+> Please apply this time.
 
-Yes, it would be nice.
+Basic driver model support for IDE is in 2.5.38. This just involves 
+creating an IDE bus type, and registering drives as devices. I.e. there is 
+no driver set for any of the drives. 
 
-Unmounting and remounting the test filesystem is usually
-sufficient.  Or you can run
+I do have a couple of comments though.
 
-main()
-{
-	memset(malloc(1024*1024*1024), 0, 1024*1024*1024);
-}
+> +static struct device_driver idedisk_devdrv = {
+> +	.lock = RW_LOCK_UNLOCKED,
+> +	.suspend = idedisk_suspend,
+> +	.resume = idedisk_resume,
+> +};
 
-a couple of times.
+You don't need to initialize .lock. But, you do need a .name and .bus. The 
+driver won't even be registered unless .bus is set. 
+
+> @@ -835,6 +837,7 @@
+>  	int		crc_count;	/* crc counter to reduce drive speed */
+>  	struct list_head list;
+>  	struct gendisk *disk;
+> +	struct device	device;		/* for driverfs */
+>  } ide_drive_t;
+
+There is a struct device in struct gendisk; that should suffice. But note 
+that you may have to do an extra conversion in order to access it in the 
+driver callbacks. 
+
+> +	struct device	device;		/* for devicefs */
+
+Please: it's driver model support, not driverfs. And devicefs does not 
+even exist. :)
+
+
+Thanks,
+
+	-pat
+

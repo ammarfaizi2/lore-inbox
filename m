@@ -1,43 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbTDFKvr (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 06:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbTDFKvr (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 06:51:47 -0400
-Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:22792
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262927AbTDFKvp (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 06:51:45 -0400
-Date: Sun, 6 Apr 2003 06:58:24 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] small fix for printk KERN_WARNING in mpparse
-Message-ID: <Pine.LNX.4.50.0304060650230.2268-100000@montezuma.mastecende.com>
+	id S262914AbTDFKva (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 06:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbTDFKva (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 06:51:30 -0400
+Received: from kestrel.vispa.uk.net ([62.24.228.12]:47122 "EHLO
+	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
+	id S262914AbTDFKv2 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 06:51:28 -0400
+Message-ID: <3E9016FE.5030806@walrond.org>
+Date: Sun, 06 Apr 2003 13:01:02 +0100
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Oops 2.4-bk : kernel BUG at dcache.c:653!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-before:
-OEM ID: IBM NUMA Product ID: SBB          <6>Found an OEM MPC table at   601320 - parsing it ...
+I've not used ksymoops before, so tell me if I can do something better...
 
-after:
-OEM ID: IBM NUMA Product ID: SBB          Found an OEM MPC table at 00601320 - parsing it ...
+ksymoops 2.4.9 on i686 2.4.21-pre7.  Options used
+      -V (default)
+      -k /proc/ksyms (default)
+      -l /proc/modules (default)
+      -o /lib/modules/2.4.21-pre7/ (default)
+      -m /usr/src/linux/System.map (default)
 
-Index: linux-2.5.66/arch/i386/kernel/mpparse.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/arch/i386/kernel/mpparse.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 mpparse.c
---- linux-2.5.66/arch/i386/kernel/mpparse.c	24 Mar 2003 23:40:27 -0000	1.1.1.1
-+++ linux-2.5.66/arch/i386/kernel/mpparse.c	6 Apr 2003 10:56:09 -0000
-@@ -295,7 +295,7 @@ static void __init smp_read_mpc_oem(stru
- 	unsigned char *oemptr = ((unsigned char *)oemtable)+count;
- 	
- 	mpc_record = 0;
--	printk(KERN_INFO "Found an OEM MPC table at %8p - parsing it ... \n", oemtable);
-+	printk("Found an OEM MPC table at %p - parsing it ... \n", oemtable);
- 	if (memcmp(oemtable->oem_signature,MPC_OEM_SIGNATURE,4))
- 	{
- 		printk(KERN_WARNING "SMP mpc oemtable: bad signature [%c%c%c%c]!\n",
--- 
-function.linuxpower.ca
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid 
+lsmod file?
+Warning (compare_maps): ksyms_base symbol 
+__io_virt_debug_R__ver___io_virt_debug not found in System.map. 
+Ignoring ksyms_base entry
+kernel BUG at dcache.c:653!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0162b3d>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: c2841294   ebx: c28412c4   ecx: 00000500   edx: 000021b6
+esi: f6e6d63c   edi: c2841294   ebp: f6e83e70   esp: f6e83e54
+ds: 0018   es: 0018   ss: 0018
+Process urandom (pid: 12, stackpage=f6e83000)
+Stack: f6e87908 080c5766 f6e83f28 00000001 c036b300 00000000 c284261c 
+f6e83eb8
+        c019c74f c2841294 f6e6d63c c2841294 f6e8de28 c28347ac 00000000 
+f6e82000
+        00000000 00000000 00000000 f6e82000 00000000 00000000 c2841294 
+f79b6008
+Call Trace:    [<c019c74f>] [<c0156e83>] [<c01576cc>] [<c0157cda>] 
+[<c01582da>]
+   [<c0148191>] [<c0156a03>] [<c01485a1>] [<c0107bff>]
+Code: 0f 0b 8d 02 c1 b5 31 c0 81 3d 04 17 3d c0 ad 4e ad de 74 1c
+
+
+ >>EIP; c0162b3d <d_instantiate+1d/b0>   <=====
+
+Trace; c019c74f <devfs_d_revalidate_wait+bf/190>
+Trace; c0156e83 <cached_lookup+43/60>
+Trace; c01576cc <link_path_walk+45c/840>
+Trace; c0157cda <path_lookup+3a/40>
+Trace; c01582da <open_namei+6a/610>
+Trace; c0148191 <filp_open+41/70>
+Trace; c0156a03 <getname+93/d0>
+Trace; c01485a1 <sys_open+51/d0>
+Trace; c0107bff <system_call+33/38>
+
+Code;  c0162b3d <d_instantiate+1d/b0>
+00000000 <_EIP>:
+Code;  c0162b3d <d_instantiate+1d/b0>   <=====
+    0:   0f 0b                     ud2a      <=====
+Code;  c0162b3f <d_instantiate+1f/b0>
+    2:   8d 02                     lea    (%edx),%eax
+Code;  c0162b41 <d_instantiate+21/b0>
+    4:   c1                        (bad)
+Code;  c0162b42 <d_instantiate+22/b0>
+    5:   b5 31                     mov    $0x31,%ch
+Code;  c0162b44 <d_instantiate+24/b0>
+    7:   c0 81 3d 04 17 3d c0      rolb   $0xc0,0x3d17043d(%ecx)
+Code;  c0162b4b <d_instantiate+2b/b0>
+    e:   ad                        lods   %ds:(%esi),%eax
+Code;  c0162b4c <d_instantiate+2c/b0>
+    f:   4e                        dec    %esi
+Code;  c0162b4d <d_instantiate+2d/b0>
+   10:   ad                        lods   %ds:(%esi),%eax
+Code;  c0162b4e <d_instantiate+2e/b0>
+   11:   de 74 1c 00               fidiv  0x0(%esp,%ebx,1)
+
+
+3 warnings issued.  Results may not be reliable.
+

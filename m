@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbUBWXzH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 18:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUBWXzH
+	id S262098AbUBWX7e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 18:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUBWX7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 18:55:07 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:1301 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262099AbUBWXzA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 18:55:00 -0500
-Date: Tue, 24 Feb 2004 10:53:39 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blkdev_open/bd_claim vs BLKBSZSET
-Message-ID: <20040223235339.GC773@frodo>
-References: <20040223231705.GB773@frodo> <20040223232803.GD31035@parcelfarce.linux.theplanet.co.uk>
+	Mon, 23 Feb 2004 18:59:34 -0500
+Received: from mail.shareable.org ([81.29.64.88]:42882 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262098AbUBWX7d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 18:59:33 -0500
+Date: Mon, 23 Feb 2004 23:59:24 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Hansjoerg Lipp <hjlipp@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-ID: <20040223235924.GB1277@mail.shareable.org>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com> <20040223202524.GC13914@hobbes> <20040223140027.5c035157.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040223232803.GD31035@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20040223140027.5c035157.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 11:28:04PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Feb 24, 2004 at 10:17:05AM +1100, Nathan Scott wrote:
-> > Hi there,
-> > 
-> > I was modifying mkfs.xfs to use O_EXCL for 2.6, and hit a snag.
-> > It seems that once I've opened a block dev with O_EXCL I can no
-> > longer issue the BLKBSZSET ioctl to it.  (Is that the expected
-> > behavior?  If so, ignore...)
->  
-> > And mkfs gets EBUSY back from the ioctl.  Using the patch
-> > below, the ioctl succeeds cos the original filp bdev owner
-> > from open now matches with the owner in the ioctl call.  I
-> > suspect that would be the correct behavior, but perhaps I'm
-> > overlooking some good reason for it being this way?
+Paul Jackson wrote:
+>  1) If argv[1] starts with a '-', consume and handle as an option
+>     (or possibly as a space separated list of options).
+>  2) Presume the next argument, if any, is a shell script file.
 > 
-> <shrug> it can be done that way, but I really wonder why the hell does
-> mkfs.xfs bother with BLKBSZSET in the first place?
+> I would be surprised if any of the major shells are coded this way.
 
-Thats taking me back a few years - IIRC this was originally added
-because mkfs.xfs zeroes out the last N KB of the device before it
-goes on to creating the XFS filesystem.  Waaay back (~3 years now?)
-there was a problem when someone had, say, a 4K block size ext2 fs
-on the device - mount/unmount of that left the device block size at
-4K in the kernel, when mkfs.xfs then came along it would not be able
-to zero the last small-amount-less-than-4K of the device (on devices
-where the size was not 4K aligned only - heh, that was a fun wrinkle)
-and mkfs would see write-past-end-of-device errors.
+It would have been a "smart" thing for Perl to do, extra friendly for
+programmers, auto-configuring with a test at installation time of
+course.  I doubt Perl does that but it wouldn't surprise me - it seems
+like quite a good idea - Perl scripts using the capability would even
+be portable :)
 
-No idea if that can still happen in 2.6, I imagine it can in 2.4
-where we originally saw the problem.
-
-> FWIW, that ioctl is practically never the right thing to do these days.
-> I'm not saying that we shouldn't apply the patch - it looks sane - but
-> it looks like mkfs.xfs is doing something bogus.
-
-At least for some older kernel versions this was needed - possibly
-still is, I'm not sure.
-
-cheers.
-
--- 
-Nathan
+-- Jamie

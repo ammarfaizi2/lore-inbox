@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129994AbQL1Mex>; Thu, 28 Dec 2000 07:34:53 -0500
+	id <S132457AbQL1Mkd>; Thu, 28 Dec 2000 07:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130003AbQL1Men>; Thu, 28 Dec 2000 07:34:43 -0500
-Received: from mail.explainerdc.com ([212.72.36.220]:52230 "EHLO
-	mail.explainerdc.com") by vger.kernel.org with ESMTP
-	id <S129994AbQL1Med> convert rfc822-to-8bit; Thu, 28 Dec 2000 07:34:33 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-content-class: urn:content-classes:message
+	id <S130003AbQL1MkO>; Thu, 28 Dec 2000 07:40:14 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:37616 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129835AbQL1MkL>; Thu, 28 Dec 2000 07:40:11 -0500
+Date: Thu, 28 Dec 2000 13:06:59 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ralf Baechle <ralf@uni-koblenz.de>
+cc: Joe deBlaquiere <jadb@redhat.com>, the list <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com, linux-mips@fnet.fr
+Subject: Re: sysmips call and glibc atomic set
+In-Reply-To: <20001226140204.D894@bacchus.dhis.org>
+Message-ID: <Pine.GSO.3.96.1001228123903.21148B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: aacraid
-Date: Thu, 28 Dec 2000 13:04:06 +0100
-Message-ID: <73300040777B0F44B8CE29C87A0782E15E5987@exchange.nt.explainerdc.net>
-Thread-Topic: aacraid
-Thread-Index: AcBwxkdQUp6dosa0Q4GizwrvDMpkoQ==
-From: "David Uriot" <davidu@explainerdc.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 26 Dec 2000, Ralf Baechle wrote:
 
-I want to run kernel 2.2.18 with aacraid support. Does anyone know where I can get the aacraid patches?
+> The semantics of this syscall were previously defined by Risc/OS and later
+> on continued to be used by IRIX.
 
-Greetings,
-David
+ Ralf, could you please provide me a copy of a man page for the call?  I
+don't have access to either of the systems and a search of the Net
+returned nothing. 
+
+> Don't think about SMP without ll/sc.  There's algorithems available for
+> that but their complexity leaves them a unpractical, theoretical construct.
+
+ For SMP there is a simple kernel solution available.  It suitable for a
+syscall or a ll/sc emulation.  There is no easy userland-only solution
+AFAIK.
+
+> Above code will break if the old content of memory has bit 31 set or you take
+> pagefaults.  The latter problem is a problem even on UP - think multi-
+> threading.
+
+ If the code is written carefully you don't ever get a pagefault that
+would break consistency.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,123 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUEEEbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUEEEz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUEEEbU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 00:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUEEEbU
+	id S261221AbUEEEz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 00:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEEEz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 00:31:20 -0400
-Received: from web12823.mail.yahoo.com ([216.136.174.204]:26725 "HELO
-	web12823.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261928AbUEEEbQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 00:31:16 -0400
-Message-ID: <20040505043115.92441.qmail@web12823.mail.yahoo.com>
-Date: Tue, 4 May 2004 21:31:15 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of mapped pages
-To: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040504195753.0a9e4a54.akpm@osdl.org>
-MIME-Version: 1.0
+	Wed, 5 May 2004 00:55:28 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:22469 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261221AbUEEEzI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 00:55:08 -0400
+Date: Tue, 4 May 2004 18:38:26 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 2/2] kobject_set_name - error handling
+Message-ID: <20040504130826.GD2900@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040421101104.GA7921@in.ibm.com> <20040422213736.GL17014@parcelfarce.linux.theplanet.co.uk> <20040423085218.GB27638@in.ibm.com> <20040423092641.GM17014@parcelfarce.linux.theplanet.co.uk> <20040429130353.GC11624@in.ibm.com> <20040429154104.GI17014@parcelfarce.linux.theplanet.co.uk> <20040430100543.GA25296@in.ibm.com> <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com> <20040430101718.GD25296@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040430101718.GD25296@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> > > And what were the effects of this patch?
-
-Below are some results of an iozone run on
-ext3 with ordered data mode.  The machine is 2xXeon
-with HT and 1.25GB of memory and a 15000rpm SCSI disk.
-
-iozone was run with the following parameters:
-  iozone -c -B -R -i 0 -r <record length> -s 1944978
-
-The file size is 50% more than the amount of RAM.
-
-2.6.6-rc3-bk5 stock (all KBytes):
-
-        record        write        re-write
-             4       110752           19143
-             8       109818           17726
-            16       112165           17053
-            32       109824           17096
-
-2.6.6-rc3-bk5 patched (all KBytes):
-
-        record        write        re-write
-             4       114284           17467
-             8       117902           17149
-            16       117835           18742
-            32       118102           18961
-
-Difference from stock (%):
-
-        record        write        re-write
-             4         +3.0             -8.7
-             8         +7.3             -3.2
-            16         +5.0             +9.9
-            32         +7.5            +10.9
-
-It seems this patch helps writes a bit but hurts
-re-writes for smaller record sizes.  My guess is the
-larger block size enables this patch to reduce the #
-I/O requests.  I'll investigate this further and also
-run the random write test when I get a chance.
-
-> In this case, given that we have an actively mapped
-> MAP_SHARED pagecache
-> page, marking it dirty will cause it to be written
-> by pdflush.  Even though
-> we're not about to reclaim it, and even though the
-> process which is mapping
-> the page may well modify it again.  This patch will
-> cause additional I/O.
+On Fri, Apr 30, 2004 at 03:47:18PM +0530, Maneesh Soni wrote:
 > 
-
-True, but is that really very different from normal
-file I/O where we actively balance # dirty pages? 
-Also, the I/O will only happen if the dirty thresholds
-are exceeded.  It probably makes sense though to skip
-SwapCache pages to more closely mimic file I/O
-behaviour.
-
-> So we need to understand why it was written, and
-> what effects were
-> observed, with what workload, and all that good
-> stuff.
 > 
+The previous one had compilation problems. Corrected now. 
 
-My motivation was the NFS/WRITEPAGE_ACTIVATE
-discussion and gobs of mmap'ed sequential writes.  If
-we can detect dirty pages before they need to be
-reclaimed and submit them for writeback, the NFS layer
-will be hopefully be able to combine them into bigger
-requests thereby reducing # RPCs.  This works well in
-the file I/O case so I figured it might work equally
-well in the mmap case.  The results are still pending
-though.  I posted the patch to get feedback on whether
-people see any fundamental flaw in this approach.
-
-> > It doesn't do the wakeup_bdflush thing, but that
-> sounds
-> > like a good idea. What does wakeup_bdflush(-1)
-> mean?
-> 
-> It appears that it will cause pdflush to write out
-> down to
-> dirty_background_ratio.
-
-Yup, the idea is to mimic the balance_dirty_pages()
-behaviour but not to force writes unless required by
-the dirty ratios.
-
-Thanks,
-Shantanu
+Thanks
+Maneesh
 
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Win a $20,000 Career Makeover at Yahoo! HotJobs  
-http://hotjobs.sweepstakes.yahoo.com/careermakeover 
+o The following patch cleans up sysfs_rename_dir(). It now checks the 
+  return code of kobject_set_name() and propagates the error code to its
+  callers. Because of this there are changes in the following two APIs. Both
+  return int instead of void.
+
+int sysfs_rename_dir(struct kobject * kobj, const char *new_name)
+int kobject_rename(struct kobject * kobj, char *new_name)
+
+
+ drivers/base/class.c    |    6 ++++--
+ fs/sysfs/dir.c          |   14 +++++++++-----
+ include/linux/kobject.h |    2 +-
+ include/linux/sysfs.h   |    2 +-
+ lib/kobject.c           |   10 +++++++---
+ net/core/dev.c          |   16 ++++++++++------
+ 6 files changed, 32 insertions(+), 18 deletions(-)
+
+diff -puN fs/sysfs/dir.c~sysfs_rename_dir-cleanup fs/sysfs/dir.c
+--- linux-2.6.6-rc3-mm1/fs/sysfs/dir.c~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/fs/sysfs/dir.c	2004-05-04 14:55:43.000000000 +0530
+@@ -162,15 +162,16 @@ restart:
+ 	dput(dentry);
+ }
+ 
+-void sysfs_rename_dir(struct kobject * kobj, const char *new_name)
++int sysfs_rename_dir(struct kobject * kobj, const char *new_name)
+ {
++	int error = 0;
+ 	struct dentry * new_dentry, * parent;
+ 
+ 	if (!strcmp(kobject_name(kobj), new_name))
+-		return;
++		return -EINVAL;
+ 
+ 	if (!kobj->parent)
+-		return;
++		return -EINVAL;
+ 
+ 	down_write(&sysfs_rename_sem);
+ 	parent = kobj->parent->dentry;
+@@ -179,13 +180,16 @@ void sysfs_rename_dir(struct kobject * k
+ 	new_dentry = sysfs_get_dentry(parent, new_name);
+ 	if (!IS_ERR(new_dentry)) {
+ 		if (!new_dentry->d_inode) {
+-			d_move(kobj->dentry, new_dentry);
+-			kobject_set_name(kobj,new_name);
++			error = kobject_set_name(kobj,new_name);
++			if (!error)
++				d_move(kobj->dentry, new_dentry);
+ 		}
+ 		dput(new_dentry);
+ 	}
+ 	up(&parent->d_inode->i_sem);	
+ 	up_write(&sysfs_rename_sem);
++
++	return error;
+ }
+ 
+ EXPORT_SYMBOL(sysfs_create_dir);
+diff -puN include/linux/sysfs.h~sysfs_rename_dir-cleanup include/linux/sysfs.h
+--- linux-2.6.6-rc3-mm1/include/linux/sysfs.h~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/include/linux/sysfs.h	2004-05-04 14:55:44.000000000 +0530
+@@ -44,7 +44,7 @@ sysfs_create_dir(struct kobject *);
+ extern void
+ sysfs_remove_dir(struct kobject *);
+ 
+-extern void
++extern int
+ sysfs_rename_dir(struct kobject *, const char *new_name);
+ 
+ extern int
+diff -puN lib/kobject.c~sysfs_rename_dir-cleanup lib/kobject.c
+--- linux-2.6.6-rc3-mm1/lib/kobject.c~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/lib/kobject.c	2004-04-30 16:07:28.000000000 +0530
+@@ -385,13 +385,17 @@ EXPORT_SYMBOL(kobject_set_name);
+  *	@new_name: object's new name
+  */
+ 
+-void kobject_rename(struct kobject * kobj, char *new_name)
++int kobject_rename(struct kobject * kobj, char *new_name)
+ {
++	int error = 0;
++
+ 	kobj = kobject_get(kobj);
+ 	if (!kobj)
+-		return;
+-	sysfs_rename_dir(kobj, new_name);
++		return -EINVAL;
++	error = sysfs_rename_dir(kobj, new_name);
+ 	kobject_put(kobj);
++
++	return error;
+ }
+ 
+ /**
+diff -puN include/linux/kobject.h~sysfs_rename_dir-cleanup include/linux/kobject.h
+--- linux-2.6.6-rc3-mm1/include/linux/kobject.h~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/include/linux/kobject.h	2004-04-30 16:07:28.000000000 +0530
+@@ -48,7 +48,7 @@ extern void kobject_cleanup(struct kobje
+ extern int kobject_add(struct kobject *);
+ extern void kobject_del(struct kobject *);
+ 
+-extern void kobject_rename(struct kobject *, char *new_name);
++extern int kobject_rename(struct kobject *, char *new_name);
+ 
+ extern int kobject_register(struct kobject *);
+ extern void kobject_unregister(struct kobject *);
+diff -puN drivers/base/class.c~sysfs_rename_dir-cleanup drivers/base/class.c
+--- linux-2.6.6-rc3-mm1/drivers/base/class.c~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/drivers/base/class.c	2004-04-30 16:07:28.000000000 +0530
+@@ -361,6 +361,8 @@ void class_device_unregister(struct clas
+ 
+ int class_device_rename(struct class_device *class_dev, char *new_name)
+ {
++	int error = 0;
++
+ 	class_dev = class_device_get(class_dev);
+ 	if (!class_dev)
+ 		return -EINVAL;
+@@ -370,11 +372,11 @@ int class_device_rename(struct class_dev
+ 
+ 	strlcpy(class_dev->class_id, new_name, KOBJ_NAME_LEN);
+ 
+-	kobject_rename(&class_dev->kobj, new_name);
++	error = kobject_rename(&class_dev->kobj, new_name);
+ 
+ 	class_device_put(class_dev);
+ 
+-	return 0;
++	return error;
+ }
+ 
+ struct class_device * class_device_get(struct class_device *class_dev)
+diff -puN net/core/dev.c~sysfs_rename_dir-cleanup net/core/dev.c
+--- linux-2.6.6-rc3-mm1/net/core/dev.c~sysfs_rename_dir-cleanup	2004-04-30 16:07:28.000000000 +0530
++++ linux-2.6.6-rc3-mm1-maneesh/net/core/dev.c	2004-05-04 14:56:17.000000000 +0530
+@@ -792,6 +792,8 @@ int dev_alloc_name(struct net_device *de
+  */
+ int dev_change_name(struct net_device *dev, char *newname)
+ {
++	int err = 0;
++
+ 	ASSERT_RTNL();
+ 
+ 	if (dev->flags & IFF_UP)
+@@ -801,7 +803,7 @@ int dev_change_name(struct net_device *d
+ 		return -EINVAL;
+ 
+ 	if (strchr(newname, '%')) {
+-		int err = dev_alloc_name(dev, newname);
++		err = dev_alloc_name(dev, newname);
+ 		if (err < 0)
+ 			return err;
+ 		strcpy(newname, dev->name);
+@@ -811,12 +813,14 @@ int dev_change_name(struct net_device *d
+ 	else
+ 		strlcpy(dev->name, newname, IFNAMSIZ);
+ 
+-	hlist_del(&dev->name_hlist);
+-	hlist_add_head(&dev->name_hlist, dev_name_hash(dev->name));
++	err = class_device_rename(&dev->class_dev, dev->name);
++	if (!err) {
++		hlist_del(&dev->name_hlist);
++		hlist_add_head(&dev->name_hlist, dev_name_hash(dev->name));
++		notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
++	}
+ 
+-	class_device_rename(&dev->class_dev, dev->name);
+-	notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
+-	return 0;
++	return err;
+ }
+ 
+ /**
+
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

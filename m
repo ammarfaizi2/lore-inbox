@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264336AbTDKMF7 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 08:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbTDKMF7 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 08:05:59 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:8405 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S264336AbTDKMF6 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 08:05:58 -0400
-Date: Fri, 11 Apr 2003 11:27:28 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: george anzinger <george@mvista.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 kernel/timer.c may incorrectly reenable interrupts
-Message-ID: <20030411112728.M626@nightmaster.csn.tu-chemnitz.de>
-References: <24294.1050043625@kao2.melbourne.sgi.com> <3E966BAA.804@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3E966BAA.804@mvista.com>; from george@mvista.com on Fri, Apr 11, 2003 at 12:15:54AM -0700
-X-Spam-Score: -32.5 (--------------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *193xTQ-0002cx-00*NtjA9X/c/g6*
+	id S264338AbTDKMR4 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 08:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTDKMR4 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 08:17:56 -0400
+Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:11622
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264338AbTDKMR4 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 08:17:56 -0400
+Date: Fri, 11 Apr 2003 08:22:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: John Bradford <john@grabjohn.com>
+cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] first try for swap prefetch
+In-Reply-To: <200304111221.h3BCLiHv000820@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.50.0304110819180.540-100000@montezuma.mastecende.com>
+References: <200304111221.h3BCLiHv000820@81-2-122-30.bradfords.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 12:15:54AM -0700, george anzinger wrote:
-> As machines get faster and faster, it will be come more and more of a 
-> burden to "stop the world" and sync with the interrupt system, which 
-> is running at a much slower speed.  This is what the cli / sti/ 
-> restore flags causes.  I saw one test where the time to do the cli was 
-> as long as the run_timer_list code, for example.
+On Fri, 11 Apr 2003, John Bradford wrote:
 
-Maybe we could replace some cli/sti pairs with spinlocks? If it
-takes more time to cli/sti than to run the whole code section
-that will be protected by the spinlock, then it might be better
-to use that instead and block in the IRQ dispatch code.
+> Actually, it could potentially do something very useful - if you are
+> using a laptop, or other machine where disks are spun down to save
+> power, you might be swapping in data while the disk still happens to
+> be spinning, rather than letting it spin down, then having to spin it
+> up again - in that instance you are definitely gaining something,
+> (more battery life).
 
-But I have no measures, how fast the spinlocks are in the
-non-/contention case
+That sounds like a rather short disk spin down time (in which case you 
+might not be gaining all that much battery life given the constant spin 
+up/down), either that or you're paging in way too much stuff.
 
-Problems: 
-   - The total amount of CLI/STI doesn't matter, for spinlocks it
-     does (they are not recursive)
-
-   - spinlocks are usally not compiled in
-
-   - Older CPUs may still benefit from cli/sti.
-
-What do you think?
-
-Regards
-
-Ingo Oeser
--- 
-Marketing ist die Kunst, Leuten Sachen zu verkaufen, die sie
-nicht brauchen, mit Geld, was sie nicht haben, um Leute zu
-beeindrucken, die sie nicht moegen.
+	Zwane

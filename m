@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUHFRGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268181AbUHFROR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266013AbUHFRGT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHFRC7
+	id S268181AbUHFROR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUHFRMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:02:59 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:65479 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268198AbUHFQ4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:56:12 -0400
-Subject: Re: [RFC] initialize all arches mem_map in one place
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-mm <linux-mm@kvack.org>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408060857.18641.jbarnes@engr.sgi.com>
-References: <1091779673.6496.1021.camel@nighthawk>
-	 <200408060857.18641.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1091811353.6496.2608.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 06 Aug 2004 09:55:53 -0700
+	Fri, 6 Aug 2004 13:12:24 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:42756 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S268195AbUHFRGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 13:06:46 -0400
+Message-ID: <4113BA65.8050901@lougher.demon.co.uk>
+Date: Fri, 06 Aug 2004 18:05:41 +0100
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+References: <Pine.LNX.4.44.0408052104420.2241-100000@dyn319181.beaverton.ibm.com> <411322E8.4000503@yahoo.com.au>
+In-Reply-To: <411322E8.4000503@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-06 at 08:57, Jesse Barnes wrote:
-> On Friday, August 6, 2004 1:07 am, Dave Hansen wrote:
-> > The following patch does what my first one did (don't pass mem_map into
-> > the init functions), incorporates Jesse Barnes' ia64 fixes on top of
-> > that, and gets rid of all but one of the global mem_map initializations
-> > (parisc is weird).  It also magically removes more code than it adds.
-> > It could be smaller, but I shamelessly added some comments.
+Nick Piggin wrote:
+> Ram Pai wrote:
 > 
-> Doesn't apply cleanly to the latest BK tree, which patch am I missing?
+>>
+>> there is a check in __do_page_cache_readahead()  that validates this.
+>> But it is still not guaranteed to work correctly against races.
+>> The filesystem has to handle such out-of-bound requests gracefully.
+>>
+>> However with Nick's fix in do_generic_mapping_read() the filesystem is 
+>> gauranteed to be called with out-of-bound index, if the file size is a 
+>> multiple of 4k. Without the fix, the filesystem might get
+>> called with out-of-bound index only in racy conditions.
+>>
+> 
+> How's this?
+> 
 
-It should only be against the latest mm: 2.6.8-rc3-mm1
-
--- Dave
+It doesn't work.  It correctly handles the case where *ppos is equal
+to i_size on entry to the function (and this does work for files 0, 4k
+and n * 4k in length), but it doesn't handle readahead inside the for
+loop.  The check needs to be in the for loop.
 

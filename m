@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132503AbRD0XWc>; Fri, 27 Apr 2001 19:22:32 -0400
+	id <S132520AbRD0X1v>; Fri, 27 Apr 2001 19:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132520AbRD0XWV>; Fri, 27 Apr 2001 19:22:21 -0400
-Received: from nrg.org ([216.101.165.106]:33085 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S132503AbRD0XWS>;
-	Fri, 27 Apr 2001 19:22:18 -0400
-Date: Fri, 27 Apr 2001 16:22:14 -0700 (PDT)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: #define HZ 1024 -- negative effects?
-In-Reply-To: <Pine.LNX.4.33.0104272225120.354-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.05.10104271609400.3283-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132548AbRD0X1l>; Fri, 27 Apr 2001 19:27:41 -0400
+Received: from cerebus.wirex.com ([216.161.55.93]:16883 "EHLO
+	blue.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S132520AbRD0X1i>; Fri, 27 Apr 2001 19:27:38 -0400
+Date: Fri, 27 Apr 2001 16:28:24 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Latest linux security module patch against 2.4.3
+Message-ID: <20010427162824.O6479@wirex.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Mike Galbraith wrote:
-> On Fri, 27 Apr 2001, Nigel Gamble wrote:
-> > > What about SCHED_YIELD and allocating during vm stress times?
-> 
-> snip
-> 
-> > A well-written GUI should not be using SCHED_YIELD.  If it is
-> 
-> I was refering to the gui (or other tasks) allocating memory during
-> vm stress periods, and running into the yield in __alloc_pages()..
-> not a voluntary yield.
+The latest version of the linux security module patch is available at:
+	http://lsm.immunix.org/patches/lsm-2001_04_27-2.4.3.patch.gz
 
-Oh, I see.  Well, if this were causing the problem, then running the GUI
-at a real-time priority would be a better solution than increasing the
-clock frequency, since SCHED_YIELD has no effect on real-time tasks
-unless there are other runnable real-time tasks at the same priority.
-The call to schedule() would just reschedule the real-time GUI task
-itself immediately.
 
-However, in times of vm stress it is more likely that GUI performance
-problems would be caused by parts of the GUI having been paged out,
-rather than by anything which could be helped by scheduling differences.
+Changes in this version include:
+	- typo and null pointer dereference fixes from Seth Arnold
+	- changed the extra version of the kernel to "lsm" from
+	  "immunix"
+	- update ptrace hook and fixes
+	- added dummy_binprm_compute_creds so no oops on booting.
+	- mount and umount changes by Stephen Smalley
+	- added inode parameter to inode_ops->alloc_security
+	- moved the set and reset label functions to the task group as
+	  per Serge Hallyn's comments.
+	- can now load capability module
+	- removed SubDomain specific values in sysctl.h
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
-
+thanks,
+greg k-h

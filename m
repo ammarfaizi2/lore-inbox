@@ -1,71 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUC3WPx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUC3WPq
+	id S261433AbUC3WRy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUC3WRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:15:46 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:41732 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S261366AbUC3WPk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:15:40 -0500
-Date: Tue, 30 Mar 2004 15:12:36 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       dm-devel@redhat.com
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <1001500000.1080684755@aslan.btc.adaptec.com>
-In-Reply-To: <4069EB03.9000202@pobox.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com> <4069B289.9030807@pobox.com> <866290000.1080669880@aslan.btc.adaptec.com> <4069EB03.9000202@pobox.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
+	Tue, 30 Mar 2004 17:17:54 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:41723 "EHLO
+	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S261433AbUC3WR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:17:28 -0500
+From: Andrew Theurer <habanero@us.ibm.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>, "Ingo Molnar" <mingo@elte.hu>,
+       <piggin@cyberone.com.au>
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Date: Tue, 30 Mar 2004 16:15:50 -0600
+User-Agent: KMail/1.5
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <kernel@kolivas.org>,
+       <rusty@rustcorp.com.au>, <ricklind@us.ibm.com>, <anton@samba.org>,
+       <lse-tech@lists.sourceforge.net>, <mbligh@aracnet.com>,
+       "Andi Kleen" <ak@suse.de>
+References: <7F740D512C7C1046AB53446D3720017301226482@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017301226482@scsmsx402.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200403301615.50983.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> So you are saying that this presents an unrecoverable situation?
-> 
-> No, I'm saying that the data phase need not have a bunch of in-kernel
-> checks, it should be generated correctly from the source.
+Any idea what the context switch rate was on the large wh runs?  Any 
+sched_yield type locking can put a lot of demand on the scheduler, and with a 
+lower balance frequency it can make the problem worse, one side affect being 
+idle time.  Do you have increased idle time with the lower throughput?
 
-The SCSI drivers validate the controller's data phase based on the
-expected phase presented to them from an upper layer.  I never talked
-about adding checks that make little sense or are overly expensive.  You
-seem to equate validation with huge expense.  That is just not the
-general case.
+Also, what JVM are you using?
 
->> Hmm.  I've never had someone tell me that my SCSI drivers are slow.
-> 
-> This would be noticed in the CPU utilization area.  Your drivers are
-> probably a long way from being CPU-bound.
-
-I very much doubt that.  There are perhaps four or five tests in the
-I/O path where some value already in a cache line that has to be accessed
-anyway is compared against a constant.  We're talking about something
-down in the noise of any type of profiling you could perform.  As I said,
-validation makes sense where there is basically no-cost to do it.
-
->> I don't think that your statement is true in the general case.  My
->> belief is that validation should occur where it is cheap and efficient
->> to do so.  More expensive checks should be pushed into diagnostic code
->> that is disabled by default, but the code *should be there*.  In any event,
->> for RAID meta-data, we're talking about code that is *not* in the common
->> or time critical path of the kernel.  A few dozen lines of validation code
->> there has almost no impact on the size of the kernel and yields huge
->> benefits for debugging and maintaining the code.  This is even more
->> the case in Linux the end user is often your test lab.
-> 
-> It doesn't scale terribly well, because the checks themselves become a
-> source of bugs.
-
-So now the complaint is that validation code is somehow harder to write
-and maintain than the rest of the code?
-
---
-Justin
+On Tuesday 30 March 2004 15:40, Nakajima, Jun wrote:
+> The problem we observed was that the performance was lower with a large
+> number of threads (># of CPUs, such as 2x) with SPECjbb. With fewer
+> threads, the sched-domain scheduler performed slightly better. What we
+> found was that the sched-domain changes balance_interval (between
+> min_interaval and max_interval) reflecting success/failure of load
+> balancing, whereas the base scheduler does not. That value determines
+> how often we do inter and intra node baloancing, and we see the same
+> performance if we use the same hard code value as the base scheduler
+> does.
+>
+> Nick,
+> That algorithm sounds reasonable to me, but how did you pick up
+> min_interval and max_interval, especially for NUMA?
+>
+> Jun
+>
+> >-----Original Message-----
+>
+> From: lse-tech-admin@lists.sourceforge.net [mailto:lse-tech-
+>
+> >admin@lists.sourceforge.net] On Behalf Of Nakajima, Jun
+> >Sent: Thursday, March 25, 2004 7:15 AM
+> >To: Andi Kleen; Ingo Molnar
+> >Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
+>
+> akpm@osdl.org;
+>
+> >kernel@kolivas.org; rusty@rustcorp.com.au; ricklind@us.ibm.com;
+> >anton@samba.org; lse-tech@lists.sourceforge.net; mbligh@aracnet.com
+> >Subject: RE: [Lse-tech] [patch] sched-domain cleanups,
+>
+> sched-2.6.5-rc2-mm2-
+>
+> >A3
+> >
+> >We have found some performance regressions (e.g. SPECjbb) with the
+> >scheduler on a large IA-64 NUMA machine, and we are debugging it. On
+>
+> SMP
+>
+> >machines, we haven't seen performance regressions.
+> >
+> >Jun
+> >
+> >>-----Original Message-----
+> >>From: Andi Kleen [mailto:ak@suse.de]
+> >>Sent: Wednesday, March 24, 2004 8:56 PM
+> >>To: Ingo Molnar
+> >>Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
+> >
+> >akpm@osdl.org;
+> >
+> >>kernel@kolivas.org; rusty@rustcorp.com.au; Nakajima, Jun;
+> >>ricklind@us.ibm.com; anton@samba.org; lse-tech@lists.sourceforge.net;
+> >>mbligh@aracnet.com
+> >>Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
+> >
+> >sched-2.6.5-rc2-mm2-
+> >
+> >>A3
+> >>
+> >>On Thu, 25 Mar 2004 09:28:09 +0100
+> >>
+> >>Ingo Molnar <mingo@elte.hu> wrote:
+> >>> i've reviewed the sched-domains balancing patches for upstream
+> >
+> >inclusion
+> >
+> >>> and they look mostly fine.
+> >>
+> >>The main problem it has is that it performs quite badly on Opteron
+>
+> NUMA
+>
+> >>e.g. in the OpenMP STREAM test (much worse than the normal scheduler)
+> >>
+> >>-Andi
+> >
+> >-------------------------------------------------------
+> >This SF.Net email is sponsored by: IBM Linux Tutorials
+> >Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> >GenToo technologies. Learn everything from fundamentals to system
+> >administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
+> >_______________________________________________
+> >Lse-tech mailing list
+> >Lse-tech@lists.sourceforge.net
+> >https://lists.sourceforge.net/lists/listinfo/lse-tech
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: IBM Linux Tutorials
+> Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> GenToo technologies. Learn everything from fundamentals to system
+> administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=Click
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
 

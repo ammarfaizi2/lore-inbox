@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUFRSew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266690AbUFRSjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUFRSew (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 14:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266717AbUFRSew
+	id S266690AbUFRSjD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 14:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266710AbUFRSjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 14:34:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45546 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266680AbUFRScS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 14:32:18 -0400
-Date: Fri, 18 Jun 2004 11:32:12 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: <marcelo.tosatti@cyclades.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Patch for USB 2.4.26 - jumpshot's capacity
-Message-Id: <20040618113212.0016be5a@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jun 2004 14:39:02 -0400
+Received: from mailhost.ulb.ac.be ([164.15.59.220]:22934 "EHLO
+	bonito.ulb.ac.be") by vger.kernel.org with ESMTP id S266690AbUFRSgr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:36:47 -0400
+Message-ID: <40D3363D.8040402@vub.ac.be>
+Date: Fri, 18 Jun 2004 20:36:45 +0200
+From: Michael Van Damme <michael.vandamme@vub.ac.be>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7 snmp: Bridge does not support ioctl 0x8947
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet another victim of SCSI standards which make devices return
-the address of the last sector instead of the number of sectors.
-Just about every other driver which emulates SCSI fails to report
-capacity right. I blame Shurgart & Associates for this.
 
-Made from a 2.6 patch by Alan Stern.
+Every time I run mrtg (which uses snmp), I see al lot of these messages 
+in my kernel logs (running kernel 2.6.7)
 
--- Pete
+Jun 18 20:19:28 localhost Bridge does not support ioctl 0x8947
 
-diff -urp -X dontdiff linux-2.4.27-pre6/drivers/usb/storage/jumpshot.c linux-2.4.27-pre5-usbx/drivers/usb/storage/jumpshot.c
---- linux-2.4.27-pre6/drivers/usb/storage/jumpshot.c	2003-06-13 07:51:37.000000000 -0700
-+++ linux-2.4.27-pre5-usbx/drivers/usb/storage/jumpshot.c	2004-06-17 22:21:12.000000000 -0700
-@@ -710,15 +710,8 @@ int jumpshot_transport(Scsi_Cmnd * srb, 
- 
- 		// build the reply
- 		//
--		ptr[0] = (info->sectors >> 24) & 0xFF;
--		ptr[1] = (info->sectors >> 16) & 0xFF;
--		ptr[2] = (info->sectors >> 8) & 0xFF;
--		ptr[3] = (info->sectors) & 0xFF;
--
--		ptr[4] = (info->ssize >> 24) & 0xFF;
--		ptr[5] = (info->ssize >> 16) & 0xFF;
--		ptr[6] = (info->ssize >> 8) & 0xFF;
--		ptr[7] = (info->ssize) & 0xFF;
-+		((u32 *) ptr)[0] = cpu_to_be32(info->sectors - 1);
-+		((u32 *) ptr)[1] = cpu_to_be32(info->ssize);
- 
- 		return USB_STOR_TRANSPORT_GOOD;
- 	}
+This didn't happen under 2.6.6. I tried upgrading net-snmp to version 
+5.1.1, but that didn't help.
+Everything seems to work ok, though, including snmp.
+
+Cheers,
+Michael
+
+
+
+

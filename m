@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132573AbRDHRbl>; Sun, 8 Apr 2001 13:31:41 -0400
+	id <S132579AbRDHRjN>; Sun, 8 Apr 2001 13:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132576AbRDHRbb>; Sun, 8 Apr 2001 13:31:31 -0400
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:26271 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S132573AbRDHRbU>; Sun, 8 Apr 2001 13:31:20 -0400
-Message-ID: <3AD0A029.C17C3EFC@rcn.com>
-Date: Sun, 08 Apr 2001 12:30:17 -0500
-From: Marvin Stodolsky <stodolsk@rcn.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 i686)
+	id <S132578AbRDHRjD>; Sun, 8 Apr 2001 13:39:03 -0400
+Received: from pop.gmx.net ([194.221.183.20]:26628 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S132576AbRDHRir>;
+	Sun, 8 Apr 2001 13:38:47 -0400
+Message-ID: <3AD0A38A.FB1FB9DB@gmx.at>
+Date: Sun, 08 Apr 2001 19:44:42 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: build -->/usr/src/linux
-In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <20010408161620.A21660@flint.arm.linux.org.uk>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA(66) drive coming up as UDMA(33)?
+In-Reply-To: <986664971.1224.4.camel@bugeyes.wcu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell
-
-Thanks for responding.  But I would still like to understand what the
-functionality is of the build --> /usr/src/linuc.  Is it dispensable,
-once the module tree has been installed? 
-
-Incidentally, per below, my own modutils is current, though some of the
-folks using our ltmodem.o compiler/installer kits may indeed need to
-update. 
-> You need to update your modutils package - there have been a number of
-> important bug fixes, including some which allow it to work properly with
-> 2.4 kernels.
-
-# insmod -V
-insmod version 2.4.2
-# grep " # " /usr/src/linux-2.4.3/Documentation/Changes
-o  Gnu C                  2.91.66                 # gcc --version
-o  Gnu make               3.77                    # make --version
-o  binutils               2.9.1.0.25              # ld -v
-o  util-linux             2.10o                   # fdformat --version
-o  modutils               2.4.2                   # insmod -V
-etc.
-
-MarvS
-
-
-> Russell King wrote:
+"David St.Clair" wrote:
 > 
-> On Sun, Apr 08, 2001 at 09:47:06AM -0500, Marvin Stodolsky wrote:
-> > It's presence has required some gymnastics, per below, during module
-> > installation for the Winmodem driver, ltmodem.o requiring a subsequent
-> > "depmod -a"
+> I'm trying to get my hard drive to use UDMA/66.  I'm thinking the cable
+> is not being detected.  When the HPT366 bios is set to UDMA 4; using
+
+I think that should be UDMA 5 for 66? As far as I can remember UDMA4 is 33MHz with S.M.A.R.T. which
+add some reporting functionality. But I might be wrong...
+
+> hdparm -t, I get a transfer rate of 19.51 MB/s. When the HPT366 bios is
+> set to PIO 4 the transfer rate is the same. Is this normal for a UDMA/66
+> drive? What makes me think something is wrong is that the log says
 > 
-> You need to update your modutils package - there have been a number of
-> important bug fixes, including some which allow it to work properly with
-> 2.4 kernels.
+> "ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio" <-- PIO?
 > 
-> --
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
+> and
+> 
+> "hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
+> UDMA(33)" <--- UDMA(33)? shouldn't it be UDMA(66)?
+
+I got (kernel 2.2.18):
+
+HPT370: IDE controller on PCI bus 00 dev 98
+HPT370: chipset revision 3
+HPT370: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc:DMA, hdd:pio
+
+hda and hdc are my hd's. My mainboard is a Abit KT7-RAID.
+
+> 
+> Any ideas what might be wrong? Possible bug?
+
+I would set the UDMA5 for the HDs in the HPT bios.
+
+good luck,
+Wilfried

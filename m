@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbUKRS0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbUKRS0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbUKRS0j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbUKRS0h
+	id S262828AbUKRS0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbUKRSXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:26:37 -0500
-Received: from fsmlabs.com ([168.103.115.128]:64228 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262841AbUKRSYz (ORCPT
+	Thu, 18 Nov 2004 13:23:39 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:53469 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S262805AbUKRSVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:24:55 -0500
-Date: Thu, 18 Nov 2004 11:24:38 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: kernel-stuff@comcast.net, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: X86_64: Many Lost ticks
-In-Reply-To: <1100797816.6019.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0411181122480.4034@musoma.fsmlabs.com>
-References: <111820041702.27846.419CD5AD000313A800006CC6220588448400009A9B9CD3040A029D0A05@comcast.net>
- <1100797816.6019.24.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 13:21:48 -0500
+To: torvalds@osdl.org
+CC: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+In-reply-to: <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> (message from
+	Linus Torvalds on Thu, 18 Nov 2004 10:01:40 -0800 (PST))
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
+ <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
+Message-Id: <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 18 Nov 2004 19:21:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Alan Cox wrote:
+> Why do you think it would kill the FUSE process? And why do you think 
+> killing _any_ process would make the system come back to life? After all, 
+> memory wasn't filled by process usage, it was filled by dirty FS pages.
 
-> On Iau, 2004-11-18 at 17:02, kernel-stuff@comcast.net wrote:
-> > I tried all the newer kernels including -ac. All have the same 
-> > problem.
-> > 
-> > Andi - On a side note, your change "NVidia ACPI timer override" 
-> > present in 2.6.9-ac8 breaks on my laptop - I get some NMI errors ("Do 
-> > you have a unusual power management setup?") and DMA timeouts - 
-> > happens regularly.
-> 
-> Ok ACPI timer override probably goes back into the broken bucket and out
-> of -ac in -ac11 then.
+Well, killing the fuse process _will_ make the system come back to
+life, since then all the dirty pages belonging to the filesystem will
+be discarded. 
 
-I think it's more a broken system, booting with noapic (as is what 
-happened before) should get things back to normal. Parry, have you updated 
-the BIOS on your laptop?
+> I really do believe that user-space filesystems have problems. There's a 
+> reason we tend to do them in kernel space. 
+
+Well, NFS with a network failure has the same problem.  It's not the
+userspace that's the problem, it's the non-reliability.
+
+> But limiting the outstanding writes some way may at least hide the thing.
+
+Currently shared writable mappings aren't allowed for non-root by
+default in FUSE.  And since non-mmap writes do not dirty pages on the
+long run, it's harder to run out of space with them: you need a new
+filedescriptor for each page you want to steal, and you will run out
+of them sooner than of pages.
+
+So I believe that FUSE is quite secure in this respect.  Please prove
+me wrong!
 
 Thanks,
-	Zwane
-
+Miklos

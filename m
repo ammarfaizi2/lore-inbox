@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269614AbUJLLIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUJLLJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269614AbUJLLIl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 07:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbUJLLIl
+	id S269628AbUJLLJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 07:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269629AbUJLLJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 07:08:41 -0400
-Received: from relay.pair.com ([209.68.1.20]:14610 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269614AbUJLLIi (ORCPT
+	Tue, 12 Oct 2004 07:09:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7562 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269628AbUJLLJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 07:08:38 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <416BBB34.3030107@cybsft.com>
-Date: Tue, 12 Oct 2004 06:08:36 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Tue, 12 Oct 2004 07:09:30 -0400
+Message-ID: <416BBB55.6020509@redhat.com>
+Date: Tue, 12 Oct 2004 07:09:09 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <416B54BA.9050606@cybsft.com> <20041012060213.GD1479@elte.hu>
-In-Reply-To: <20041012060213.GD1479@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: suthambhara nagaraj <suthambhara@gmail.com>
+CC: main kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack
+References: <46561a79041011231549ea310a@mail.gmail.com>
+In-Reply-To: <46561a79041011231549ea310a@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
+suthambhara nagaraj wrote:
+> Hi all,
 > 
+> I have not understood how the common kernel stack in the
+> init_thread_union(2.6 ,init_task_union in case of 2.4) works for all
+> the processes which run on the same processor. The scheduling is round
+> robin and yet the things on the stack (saved during SAVE_ALL) have to
+> be maintained after a switch without them getting erased. I am
+> familiar with only the i386 arch implementation.
 > 
->>>i've uploaded -T5 which should fix most of the build issues:
->>>
->>
->>This fixed the build problems for me (SMP). I did get one unresolved
->>symbol when building this with REALTIME enabled.
+> Please help
 > 
-> 
-> (which symbol was this?)
+There is no such thing as "the common kernel stack".  Each process 
+(represented by a task_struct in the kernel) has its own private data 
+space to be used as a kernel stack when that process traps into the 
+kernel.  You can see where this per task_struct stack space is reserved 
+in the definition of task_union.  init_[task|thread]_union just defines 
+the first task union in the system.  Because of the way unions are laid 
+out in memory, The kernel knows that when a process traps into kernel 
+space, it just needs to round the current task pointer to the nearest 8k 
+(prehaps 4k in 2.6) boundary, and thats the start of that processes 
+kernel stack.  Thats how the SAVE_ALL command avoids trampling registers.
 
-WARNING: 
-/lib/modules/2.6.9-rc4-mm1-VP-T5-RT/kernel/drivers/net/ppp_synctty.ko 
-needs unknown symbol _mutex_trylock_bh
+HTH
+Neil
+> regards,
+> Suthambhara
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I shouldn't have even had ppp enabled and then wouldn't have noticed it, 
-but...
-> 
-> 
->>[...] Also got error messages scrolling up the screen when I tried to
->>boot it (looked very much like Mark's problem with T4) and it never
->>made it. :( If I had to guess, it might be related to APICs? I always
->>have to use "noapic" boot parameter.  Ingo what are you running this
->>on? I don't have the exact error messages, but I'm rebuilding it now
->>to try to get those. Without RT Preemption it seems to be running very
->>nicely.
-> 
-> 
-> dont worry about it not booting on your setup with PREEMPT_REALTIME, as
-> long as it boots with !PREEMPT_REALTIME - i only really converted my
-> testsystems which are basically IDE + e100/e1000/rtl8139, ext3 and the
-> bare minimum that is needed to run Fedora. It might be useful to send me
-> a bootlog if you have any easy way to capture it - if not it's not a big
-> problem either.
-> 
-> 	Ingo
-> 
 
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

@@ -1,32 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131229AbQKXOT1>; Fri, 24 Nov 2000 09:19:27 -0500
+        id <S130765AbQKXOT2>; Fri, 24 Nov 2000 09:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130766AbQKXOTU>; Fri, 24 Nov 2000 09:19:20 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:19138 "EHLO harpo.it.uu.se")
-        by vger.kernel.org with ESMTP id <S130792AbQKXNfl>;
-        Fri, 24 Nov 2000 08:35:41 -0500
-Date: Fri, 24 Nov 2000 14:04:37 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200011241304.OAA21196@harpo.it.uu.se>
-To: Andries.Brouwer@cwi.nl, jakub@redhat.com
-Subject: Re: gcc-2.95.2-51 is buggy
-Cc: alan@lxorguk.ukuu.org.uk, bernds@redhat.com, greg@linuxpower.cx,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        viro@math.psu.edu
+        id <S129145AbQKXOTV>; Fri, 24 Nov 2000 09:19:21 -0500
+Received: from [204.177.156.37] ([204.177.156.37]:32968 "EHLO
+        bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+        id <S130869AbQKXNiR>; Fri, 24 Nov 2000 08:38:17 -0500
+Date: Fri, 24 Nov 2000 18:37:05 +0530 (IST)
+From: V Ganesh <ganesh@veritas.com>
+Message-Id: <200011241307.SAA16581@vxindia.veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [bug] set_pgdir can skip mm's
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Jakub Jelinek wrote:
+> From ganesh Fri Nov 24 18:08:15 2000
 
->so the reason why it did not show up in the gcc you picked up from
->ftp.gnu.org is that you have compiled it so that it defaults to -mcpu=i686
->where the bug does not show up.
+[ set_pgdir() blah blah blah ]
 
-Indeed. I just ran some tests, and I can confirm that gcc 2.95.2 vanilla
-exhibits the bug when compiled and run for i486 or i585, but not i686.
+damn. I was looking at test9 and as usual after shooting my mouth off on l-k
+I go look at test11 and find it's fixed there, at least in i386, thanks to
+the vmalloc_fault: stuff in do_page_fault. but a lot of other architectures
+still use the old method.
 
-/Mikael
+ganesh
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

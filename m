@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319069AbSHSWna>; Mon, 19 Aug 2002 18:43:30 -0400
+	id <S319086AbSHSWlY>; Mon, 19 Aug 2002 18:41:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319087AbSHSWna>; Mon, 19 Aug 2002 18:43:30 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:13469 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S319069AbSHSWn3>; Mon, 19 Aug 2002 18:43:29 -0400
-Date: Mon, 19 Aug 2002 16:47:30 -0600
-Message-Id: <200208192247.g7JMlUM29487@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
+	id <S319087AbSHSWlY>; Mon, 19 Aug 2002 18:41:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:58823 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319086AbSHSWlR>;
+	Mon, 19 Aug 2002 18:41:17 -0400
+Date: Tue, 20 Aug 2002 00:46:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: MAX_PID changes in 2.5.31
-In-Reply-To: <1029796863.942.1.camel@phantasy>
-References: <200208192231.g7JMVQI28575@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain>
-	<200208192236.g7JMaxS28968@vindaloo.ras.ucalgary.ca>
-	<1029796863.942.1.camel@phantasy>
+In-Reply-To: <200208192242.g7JMgmD29241@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.44.0208200044550.5489-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love writes:
-> On Mon, 2002-08-19 at 18:36, Richard Gooch wrote:
+
+On Mon, 19 Aug 2002, Richard Gooch wrote:
+
+> > no, in other words: "yes, if you use SysV IPC semaphores/semaphores
+> > in any of your binaries in your system, which binaries were linked
+> > against glibc 2.1 or older, and if you have set
+> > /proc/sys/kernel/pid_max to a value higher than 32K."
 > 
-> > In other words, "yes, unless you happen not to use SysV IPC semaphores
-> > or message queues in any of your binaries on your system". So you want
-> > to break binary compatibility. Please don't. I don't want to downgrade
-> > to glibc.
-> 
-> So are you saying we can never deprecate interfaces, just so you can
-> continue using libc5?
+> Ah, OK. So if I leave /proc/sys/kernel/pid_max alone, nothing will
+> break. Will the default ever change, or do you plan on leaving it as is?
 
-Having a stable ABI to user-space has been one of the strong points of
-Linux, versus just about everything else out there. And I wouldn't be
-using libc 5 if glibc wasn't growing exponentially with time (both in
-terms of total bytes and in terms of number of shared libraries I have
-to add to my link line).
+the default will be something sane, ie. probably larger than 32K. There is
+safe code in glibc to catch your old applications from doing any
+stupidity, then you can change pid_max or just upgrade your system (like
+you did with the kernel). It's not a big dependency to require the setting
+of pid_max if you want binary compatibility with rare old stuff.
 
-> Seems saner to keep libc5 in sync with the kernel than vice versa..
+	Ingo
 
-It's not just me. There are people using libc 4.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTAJS3x>; Fri, 10 Jan 2003 13:29:53 -0500
+	id <S266243AbTAJSv0>; Fri, 10 Jan 2003 13:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbTAJS2m>; Fri, 10 Jan 2003 13:28:42 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:26504 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265711AbTAJS0d>; Fri, 10 Jan 2003 13:26:33 -0500
-Date: Fri, 10 Jan 2003 19:35:01 +0100
-Message-Id: <200301101835.h0AIZ1B04255@mail.intergenia.de>
-To: <200301101645.39535.dark_lkml@mymail.ro>
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-Subject: Re: Kernel hooks just to get rid of copy_[to/from]_user() and [rescued]
-CC: linux-kernel@vger.kernel.org
+	id <S266173AbTAJSuF>; Fri, 10 Jan 2003 13:50:05 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:4225 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266246AbTAJStL>; Fri, 10 Jan 2003 13:49:11 -0500
+Message-Id: <200301101857.h0AIvrLK012041@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's in a name? 
+In-Reply-To: Your message of "Fri, 10 Jan 2003 13:42:52 EST."
+             <Pine.LNX.3.95.1030110133730.27408B-100000@chaos.analogic.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.3.95.1030110133730.27408B-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-260241149P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Jan 2003 13:57:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-BV3ZPaNC+ZVYC1KynZll
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--==_Exmh_-260241149P
+Content-Type: text/plain; charset=us-ascii
 
-On Fri, 2003-01-10 at 14:45, Mihnea Balta wrote:
-> Hi,
->=20
-> I have to implement a system which grabs udp packets off a gigabit connec=
-tion,=20
-> take some basic action based on what they contain, repack their data with=
- a=20
-> custom protocol header and send them through a gigabit ethernet interface=
- on=20
-> broadcast.
->=20
-> I know how to do this in userspace, but I need to know if doing everyting=
- in=20
-> the kernel would show a considerable speed improvement due to removing=20
-> syscall and memory copy overhead. The system will be quite stressed, havi=
-ng=20
-> to deal with around 15-20000 packets/second.
+On Fri, 10 Jan 2003 13:42:52 EST, "Richard B. Johnson" said:
 
-mmap() packet socket interface eliminates the need for system calls when
-traffic is coming in at a high rate.  The kernel -> user copy is also
-eliminated, but its just replaced with a kernel -> kernel copy :P
+> No doubt a gcc compiler. I built my house with a Stanley hammer
+> and a Skill saw. Neither Stanley nor Skill own the house (the
+> bank does).
 
-You could perhaps also use linux socket filters to minimize the number
-of packets you need to evaluate...
+Actually, *YOU* probably own the house.  What the bank has is a mortgage -
+a promise by you that if you don't pay them, they *then* get to own the house.
+Most banks try VERY hard to avoid actually owning houses.
 
-Check out this sample code: http://www.scaramanga.co.uk/code-fu/lincap.c
+This is actually somewhat germane, as it reflects back on the "GPL the
+source after N units have been sold" business model, and code escrow, and
+related thigns...
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-HTH
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-BV3ZPaNC+ZVYC1KynZll
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--==_Exmh_-260241149P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQA+Huc6kbV2aYZGvn0RAgMyAJ9k8b5dBs0pDKKxGcYcpRF4q38eTwCeMwSA
-JK7JWpSaYKsenks8H4jXzQk=
-=pfqa
+iD8DBQE+HxexcC3lWbTT17ARAi2BAJ0SSLQFwE2FtJvjAK0OcSSQWI3FOACg6V2G
+JRG1lm+FMN8lH7yN1+Sx/gE=
+=m8f1
 -----END PGP SIGNATURE-----
 
---=-BV3ZPaNC+ZVYC1KynZll--
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+--==_Exmh_-260241149P--

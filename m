@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274073AbRISO0s>; Wed, 19 Sep 2001 10:26:48 -0400
+	id <S274075AbRISO12>; Wed, 19 Sep 2001 10:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274075AbRISO0j>; Wed, 19 Sep 2001 10:26:39 -0400
-Received: from viper.haque.net ([66.88.179.82]:40619 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S274073AbRISO01>;
-	Wed, 19 Sep 2001 10:26:27 -0400
-Date: Wed, 19 Sep 2001 10:26:46 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Mark Orr <markorr@intersurf.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.10p12 net/netsyms.c -- unresolved symbol tty_register_ldisc
-In-Reply-To: <20010919092109.2ea5f89c.markorr@intersurf.com>
-Message-ID: <Pine.LNX.4.33.0109191026090.13213-100000@viper.haque.net>
+	id <S274076AbRISO1T>; Wed, 19 Sep 2001 10:27:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:7128 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274075AbRISO1L>;
+	Wed, 19 Sep 2001 10:27:11 -0400
+Date: Wed, 19 Sep 2001 10:27:32 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Andreas Dilger <adilger@turbolabs.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.LNX.4.33L.0109191040370.4279-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.GSO.4.21.0109190956240.28824-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Mark Orr wrote:
-
-> With this fix, it compiles.  But in using the PPP modules
-> I find that it doesnt work -- the modem hangs up as soon as
-> connect is made.  /var/log/messages reports:
->
-> Sep 19 09:11:27 darkstar insmod: /lib/modules/2.4.10-pre12/kernel/drivers/net/ppp_async.o: insmod tty-ldisc-3 failed
-
-Look in the changelog
-
---snip--
-If you build ppp support as modules, you will need the following in
-your /etc/modules.conf file:
-
-alias char-major-108  ppp_generic
-alias /dev/ppp    ppp_generic
-alias tty-ldisc-3 ppp_async
-alias tty-ldisc-14  ppp_synctty
-alias ppp-compress-21 bsd_comp
-alias ppp-compress-24 ppp_deflate
-alias ppp-compress-26 ppp_deflate
-
---snip--
 
 
-See if those changes help.
+On Wed, 19 Sep 2001, Rik van Riel wrote:
 
--- 
+> Just look at how he's now trying to force Al Viro into
+> implementing his ideas yesterday because he broke stuff
+> again...
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+Rik, in case you've missed that, I can and do speak for myself.  I had
+spent ten years dodging the draft; when I decide to get enlisted into
+something it will happen on _my_ decision and _my_ conditions.  When I
+decide that I'm being forced into something I do not accept - you'll know
+it from posting with URL of forked tree.
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+FWIW, I'm less than thrilled by the Andrea's patch, but it is salvagable.
+I'm also less than thrilled by the whole situation with VM - all sides of
+it.  I seriously suspect that we need a limited multi-way fork in that
+area, so that you guys would stop stepping on each others' toes.  I'm taking
+no part in your merry 5-way clusterfuck - sort that mess out between
+yourselves.
+
+Again, when I decide that situation is unacceptable for me - I'll simply
+fork the tree.  I do _not_ appreciate being enlisted into anyone's holy
+wars, so unless you really want to go _way_ up in my personal shitlist
+(several positions below .ru DoD) - don't play politics in my vicinity.
 

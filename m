@@ -1,89 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269030AbUIABQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUIABZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269030AbUIABQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 21:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268993AbUIABQD
+	id S265847AbUIABZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 21:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUIABZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 21:16:03 -0400
-Received: from 69-18-3-179.lisco.net ([69.18.3.179]:26273 "EHLO slaphack.com")
-	by vger.kernel.org with ESMTP id S268882AbUIABOi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 21:14:38 -0400
-Message-ID: <41352279.7020307@slaphack.com>
-Date: Tue, 31 Aug 2004 20:14:33 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-In-Reply-To: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 21:25:29 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:26794 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S265847AbUIABZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 21:25:24 -0400
+From: Ian Wienand <ianw@gelato.unsw.edu.au>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@lst.de>
+Date: Wed, 1 Sep 2004 11:24:22 +1000
+Subject: Re: kbuild: Support LOCALVERSION
+Message-ID: <20040901012422.GM2897@cse.unsw.EDU.AU>
+References: <20040831192642.GA15855@mars.ravnborg.org> <20040901010840.GL2897@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKy6e3LXpfmanBFM"
+Content-Disposition: inline
+In-Reply-To: <20040901010840.GL2897@cse.unsw.EDU.AU>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Horst von Brand wrote:
-| Pavel Machek <pavel@ucw.cz> said:
-|
-|>David Masover <ninja@slaphack.com> said:
-|
-|
-| [...]
-[...]
-| You do need extra tools anyway, placing them in the kernel is cheating
-(and
-| absolutely pointless, IMHO).
+--tKy6e3LXpfmanBFM
+Content-Type: multipart/mixed; boundary="yzvKDKJiLNESc64M"
+Content-Disposition: inline
 
-Repeat after me:  plugins in kernel does NOT equal tools in kernel.
 
-It's not hard to, for instance, imagine a generic plugin for archive
-manipulation which talks to a userspace daemon/library.  The kernel
-doesn't know anything other than (maybe) a list of extensions that are
-archives.  All else is handled in userspace -- the idea that "this is a
-zipfile" and "zipfiles can be extracted with the 'zip' command" are all
-in userspace.
+--yzvKDKJiLNESc64M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It's not about the kernel, it's about the interface.  And see my other mail:
-	cat foo.zip/README
-	less foo.zip/contents/bar.c
-is a lot easier than
-	lynx http://google.com/search?q=zip
-	emerge zip
-	man zip
-	unzip foo.zip
-	cat bar.c
-which already assumes quite a lot of expertise.
+On Wed, Sep 01, 2004 at 11:08:40AM +1000, Ian Wienand wrote:
+> With this patch *without* a localversion file I get
+>=20
+> ianw@baci:/tmp/kbuild-test$ make
+> cat: /tmp/kbuild-test/localversion*: No such file or directory
+> make: *** No rule to make target `/tmp/kbuild-test/localversion*', needed=
+ by `include/linux/version.h'.  Stop.
+>=20
+> However, with the right files there it works as you describe.
 
+Sorry to reply to myself, but I forgot to include a suggested patch
+(attached).
+
+-i
+
+--yzvKDKJiLNESc64M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="Makefile.localversion.diff"
+Content-Transfer-Encoding: quoted-printable
+
+=3D=3D=3D=3D=3D Makefile 1.523 vs edited =3D=3D=3D=3D=3D
+--- 1.523/Makefile	2004-08-25 06:34:30 +10:00
++++ edited/Makefile	2004-09-01 11:17:27 +10:00
+@@ -141,7 +141,14 @@
+=20
+ export srctree objtree VPATH TOPDIR
+=20
+-KERNELRELEASE=3D$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
++nullstring :=3D=20
++space      :=3D $(nullstring) # end of line
++localversion-files :=3D $(wildcard $(objtree)/localversion* $(srctree)/loc=
+alversion*)
++
++LOCALVERSION :=3D $(subst $(space),, \
++                $(shell cat /dev/null $(localversion-files)))
++
++KERNELRELEASE=3D$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(LOCAL=
+VERSION)
+=20
+ # SUBARCH tells the usermode build what the underlying arch is.  That is s=
+et
+ # first, and if a usermode build is happening, the "ARCH=3Dum" on the comm=
+and
+@@ -329,8 +336,8 @@
+ 	  	   -fno-strict-aliasing -fno-common
+ AFLAGS		:=3D -D__ASSEMBLY__
+=20
+-export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+-	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
++export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION LOCALVERSION KERNELRELEASE=
+ \
++	ARCH CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+ 	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
+ 	HOSTCXX HOSTCXXFLAGS LDFLAGS_BLOB LDFLAGS_MODULE CHECK CHECKFLAGS
+=20
+@@ -763,7 +770,7 @@
+ 	)
+ endef
+=20
+-include/linux/version.h: Makefile
++include/linux/version.h: $(srctree)/Makefile $(localversion-files)
+ 	$(call filechk,version.h)
+=20
+ # ------------------------------------------------------------------------=
+---
+
+--yzvKDKJiLNESc64M--
+
+--tKy6e3LXpfmanBFM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQIVAwUBQTUieXgHNmZLgCUhAQLj8Q//VEuRWg9RB/PVg/M1t36SraKIRdbrgGq6
-0DYLZwwVWkfz+UKGhUkACNGQzhHG3ySn/lRjqXCsJhzMOzfgmte2CwgGxunHYqdp
-W69OSZ1vv0ZLpdpzEkVdMfRhhg8RBL54Ewj6fQu7G1ZzJ0J0HUFCEZIsVoL4zJfk
-+GFl4M+vvc+152HipEDsvrrPasc0dSxmryyzPbyABrfPRi3l2E3Okfewn/4MCC1E
-H/L04nmvJQ2OSZYu1eSMSpnLrgQdZJbYefRuSinpqfKhjpwQXjj2rnfcPm+xc3hh
-FDMlAUPA/DAlthTuhxd9+8iDPEARY57/FAMFTalYVhBEv0NWieMMn9V6R8BbnhZW
-8y9EWu0Nvoowg9qElkVjWEt5M1Rbeuq4TDviyVyPYg/KcTKDGpjLuyQQbWv6hMVM
-WAx6THtRK8Ji/XLCj4Kh6qDOEYP1nuwqLYSWv13BtNAJ3bVeKryOJ4Er4AmuJomA
-uydBPQVsrtzTNmk7Eul2ZjrxXdESpUnUIAbu7H1Gbn51uP4rQTdlXkdPTv6s/wvG
-OSOMWKs28GBFsG3+IJLnoN2wxrffpgTBEAaPwbh9TRFKLIH+pkCFSx2cIkTj93nr
-RjETFObjYdJGhGygrq0xOmN5e7iprdxhxd3/+fvjQxnZGxXT3fZLUwhVX9/zhaXG
-cxau2Onr3jc=
-=MrR9
+iD8DBQFBNSTGWDlSU/gp6ecRAli3AJ99ioycwDojhNaa3JSO7yShFTOvjwCeOa+W
+oyAB1nvufrDy/qrK2RR1X68=
+=IYaI
 -----END PGP SIGNATURE-----
+
+--tKy6e3LXpfmanBFM--

@@ -1,95 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVASQ5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVASQ7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVASQ5G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 11:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVASQ5F
+	id S261779AbVASQ7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 11:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVASQ5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 11:57:05 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:57992 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261775AbVASQyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 11:54:04 -0500
-Message-ID: <41EE909F.5010600@comcast.net>
-Date: Wed, 19 Jan 2005 10:53:51 -0600
-From: Tom Zanussi <zanussi@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Tom Zanussi <zanussi@us.ibm.com>, karim@opersys.com,
-       Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
-       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       frankeh@watson.ibm.com
-Subject: Re: 2.6.11-rc1-mm1
-References: <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <16874.47855.427013.376104@tut.ibm.com> <20050119111405.GC12903@infradead.org>
-In-Reply-To: <20050119111405.GC12903@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 19 Jan 2005 11:57:25 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32175 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261701AbVASQzq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 11:55:46 -0500
+Subject: Re: [PATCH - 2.6.10] generic_file_buffered_write handle partial
+	DIO writes with multiple iovecs
+From: Daniel McNeil <daniel@osdl.org>
+To: Sami Farin <7atbggg02@sneakemail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050119023151.GK6725@m.safari.iki.fi>
+References: <1106097764.3041.16.camel@ibm-c.pdx.osdl.net>
+	 <20050119023151.GK6725@m.safari.iki.fi>
+Content-Type: text/plain
+Message-Id: <1106153740.3041.42.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 19 Jan 2005 08:55:40 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Sun, Jan 16, 2005 at 01:05:19PM -0600, Tom Zanussi wrote:
+On Tue, 2005-01-18 at 18:31, Sami Farin wrote:
+> On Tue, Jan 18, 2005 at 05:22:44PM -0800, Daniel McNeil wrote:
+> > Andrew,
+> > 
+> > This is a patch to generic_file_buffered_write() to correctly
+> > handle partial O_DIRECT writes (because of unallocated blocks)
+> > when there is more than 1 iovec.  Without this patch, the code is
+> > writing the wrong iovec (it writes the first iovec a 2nd time).
+> > 
+> > Included is a test program dio_bug.c that shows the problem by:
+> > 	writing 4k to offset 4k
+> > 	writing 4k to offset 12k
+> > 	writing 8k to offset 4k
+> > The result is that 8k write writes the 1st 4k of the buffer twice.
+> > 
+> > $ rm f; ./dio_bug f
+> > wrong value offset 8k expected 0x33 got 0x11
+> > wrong value offset 10k expected 0x44 got 0x22
+> > 
+> > with patch
+> > $ rm f; ./dio_bug f
 > 
->>One of the things that uses these functions to read from a channel
->>from within the kernel is the relayfs code that implements read(2), so
->>taking them away means you wouldn't be able to use read() on a relayfs
->>file.
-> 
-> 
-> Removing them from the public API is different from disallowing the
-> read operation.
-> 
+> I have Linux 2.6.10-ac9 + bio clone memory corruption -patch,
+> and dio_bug does not give errors (without your patch).
 
-Right, but we were planning on removing all that code in the interest of 
-    stripping relayfs down to its bare minimum as a high-speed data 
-transfer mechanism.
+I should have mentioned that my testing was on ext3 with 4k
+block size.   The bio clone patch might affect this by merging
+the i/o into a single iovec.  Here's an updated test program
+that uses 2 different buffers allocated separately that might
+prevent the merging.  See if this works on your system.
 
-> 
->>That wouldn't matter for ltt since it mmaps the file, but there
->>are existing users of relayfs that do use relayfs this way.  In fact,
->>most of the bug reports I've gotten are from people using it in this
->>mode.  That doesn't mean though that it's necessarily the right thing
->>for relayfs or these users to be doing if they have suitable
->>alternatives for passing lower-volume messages in this way.  As others
->>have mentioned, that seems to be the major question - should relayfs
->>concentrate on being solely a high-speed data relay mechanism or
->>should it try to be more, as it currently is implemented?
-> 
-> 
-> I'd say let it do one thing well, that is high-volume data transfer.
+#define _GNU_SOURCE
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/uio.h>
 
-Yes, I think that's the one thing everyone's agreed on.
+main(int argc, char **argv)
+{
+	int fd;
+	char *buf;
+	char *buf2;
+	int i;
+	struct iovec v[2];
 
-> 
-> 
->>If the
->>former, then I wonder if you need a filesystem at all - all you have
->>is a collection of mmappable buffers and the only thing the filesystem
->>provides is the namespace.  Removing read()/write() and filesystem
->>support would of course greatly simplify the code; I'd like to hear
->>from any existing users though and see what they'd be missing.
-> 
-> 
-> What else would manage the namespace?
+	fd = open(argv[1], O_DIRECT|O_RDWR|O_CREAT, 0666);
 
-I have to confess I haven't had the time to look at it in detail, but I 
-previously suggested that we might be able to recover the read() 
-operations by providing them in userspace on top of the mmapped relayfs 
-buffer, using FUSE.  If we did that, our FUSE filesystem could also 
-provide the namespace, I assume.
+	if (fd < 0) {
+		perror("open");
+		exit(1);
+	}
 
-Anyway, I don't think I've seen any objections in principal to the 
-filesystem part of relayfs, so maybe it's not an issue - any other 
-suggestions would be welcome, of course...
+	buf = valloc(8192);
+	buf2 = valloc(8192);
 
-Tom
+	lseek(fd, 0x1000, SEEK_SET);
+	memset(buf, 0x11, 2048);
+	memset(buf+2048, 0x22, 2048);
+	i = write(fd, buf, 4096);	/* 4k write of 0x11 and 0x22 at 4k */
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	lseek(fd, 0x3000, SEEK_SET);
+	memset(buf, 0x55, 2048);
+	memset(buf+2048, 0x66, 2048);
+	i = write(fd, buf, 4096);	/* 4k write of 0x55 and 0x66 at 12k */
+
+	lseek(fd, 0x1000, SEEK_SET);
+	i = read(fd, buf, 4096);
+	memset(buf2, 0x33 , 2048);
+	memset(buf2+2048, 0x44 , 2048);
+
+	v[0].iov_base = buf;
+	v[0].iov_len = 4096;
+	v[1].iov_base = buf2;
+	v[1].iov_len = 4096;
+	lseek(fd, 0x1000, SEEK_SET);
+	i = writev(fd, v, 2);	/* 8k write of 0x11, 0x22, 0x33, 0x44 at 4k */
+
+	lseek(fd, 0x2000, SEEK_SET);
+	i = read(fd, buf, 4096);
+	if (buf[0] != 0x33)
+		printf("wrong value offset 8k expected 0x33 got 0x%x\n",
+			buf[0]);
+	if (buf[2048] != 0x44)
+		printf("wrong value offset 10k expected 0x44 got 0x%x\n",
+			buf[2048]);
+	
+}
+
+Thanks,
+
+Daniel
 

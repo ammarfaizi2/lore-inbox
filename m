@@ -1,66 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286187AbRLJIFo>; Mon, 10 Dec 2001 03:05:44 -0500
+	id <S286188AbRLJIGz>; Mon, 10 Dec 2001 03:06:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286188AbRLJIFe>; Mon, 10 Dec 2001 03:05:34 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:3849
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S286187AbRLJIFY>; Mon, 10 Dec 2001 03:05:24 -0500
-Message-Id: <5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 10 Dec 2001 03:00:26 -0500
-To: Robert Love <rml@tech9.net>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: "Colo[u]rs"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1007969208.1237.32.camel@phantasy>
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
- <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
+	id <S286189AbRLJIGj>; Mon, 10 Dec 2001 03:06:39 -0500
+Received: from mail.2d3d.co.za ([196.14.185.200]:19168 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S286188AbRLJIG2>;
+	Mon, 10 Dec 2001 03:06:28 -0500
+Date: Mon, 10 Dec 2001 10:09:18 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: salinarl <Lanfranco.Salinari@icn.siemens.it>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Question about sniffers and linux
+Message-ID: <20011210100918.E1502@crystal.2d3d.co.za>
+Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
+	salinarl <Lanfranco.Salinari@icn.siemens.it>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BEC87A2@webmail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M/SuVGWktc5uNpra"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BEC87A2@webmail>; from Lanfranco.Salinari@icn.siemens.it on Fri, Dec 07, 2001 at 19:44:49 +0100
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 9:38am  up 19 min,  2 users,  load average: 0.09, 0.04, 0.04
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:26 AM 12/10/2001 -0500, Robert Love wrote:
->Cache color is how many indexes there are into a cache.  Caches
->typically aren't direct mapped: they are indexed into cache lines by a
->hash.  This means that certain memory values (of the 2^32 on your PC)
->will map to the same cache line.  This means only one can be there at
->the same time, and the newer one throws the old one out.
->
->Coloring of data structures is down to give random offsets to data such
->that they are not are multiples of the some value and thus don't map to
->the same cache line.  This is what Linux's slab allocator is meant to
->do.
 
-(I'm not too familiar with how this caching stuff works, so if anyone could 
-give me a URL describing it to a relative newbie, i'd be quite grateful)
+--M/SuVGWktc5uNpra
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So lemme see if I got this straight from what you and Larry have told me:
+Hi salinarl!
 
-For the direct map deal:
+You don't need to write a kernel module to do this.
 
-For every byte (probably page?) in the CPU's cache, say byte(page) 0x31337 
-can be used to cache the bytes(pages) at:
-0x00031337, 0x00131337, 0x00231337, ... 0xfff31337
+Use RAW sockets. (See man 2 socket). If you're not interested in the link
+layer, you can also use DGRAM sockets to get everything from layer 3 and up
+(ip, arp, etc.)
 
-So, if a program ran, and happened to have its pages #0-4095 mapped to 
-physical pages:
-0x00031337, 0x00131337, 0x00231337, ... 0xfff31337
+> I am new to kernel internals, and I would like to know how can a sniffer
+> read whole packets, I mean including the link layer header. In the receive
+> path, this happens, I think,  in the net_rx_action(), but in the transmit
+> path?
+> I know that there is a function called dev_queue_xmit_nit() for this, but
+> how can a driver add a link layer header to a packet before this function
+> gets called? The hard_start_xmit() of the driver is, in fact, called after
+> the dev_queue_xmit_nit(), (in the function dev_queue_xmit() ).
+> I think I'm missing something important about the subject, but I hope som=
+eone=20
+> will answer me, anyway.
+> Thank you in advance,
+>=20
+> Lanfranco
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-and the program went through an array and accessed each of those pages in 
-sequence, every successive iteration would have to replace the previous 
-page in the cache with the new one; i.e. exactly one of those pages would 
-be in cache at any given time. Which would obviously make the program's 
-performance suck majorly.
+--=20
 
-For the n-way associative deal:
+Regards
+ Abraham
 
-Don't quite get it enough to make an example yet ;)
+What we wish, that we readily believe.
+		-- Demosthenes
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Antree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
 
 
---
-Stevie-O
+--M/SuVGWktc5uNpra
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Real programmers use COPY CON PROGRAM.EXE
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE8FG2uzNXhP0RCUqMRAraxAJ9W3SPeo3D/49ft5YRzxH2Ttz7G7QCdHyzt
+eHYMTv53u6L3k7Duk7RwuI8=
+=tI8l
+-----END PGP SIGNATURE-----
+
+--M/SuVGWktc5uNpra--

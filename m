@@ -1,84 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbUDVHhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263722AbUDVHa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUDVHhX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263838AbUDVHgr
+	id S263722AbUDVHa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDVH3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:36:47 -0400
-Received: from styx.suse.cz ([82.208.2.94]:4224 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S263831AbUDVHbt (ORCPT
+	Thu, 22 Apr 2004 03:29:51 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:9543 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263722AbUDVHXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:31:49 -0400
-Date: Thu, 22 Apr 2004 09:32:30 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/15] New set of input patches: atkbd timeout complaints
-Message-ID: <20040422073230.GE340@ucw.cz>
-References: <200404210049.17139.dtor_core@ameritech.net> <200404210058.44629.dtor_core@ameritech.net>
+	Thu, 22 Apr 2004 03:23:14 -0400
+Date: Thu, 22 Apr 2004 00:07:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: [Patch 10 of 17] cpumask v4 - Recode obsolete cpumask macros - arch
+ ppc64
+Message-Id: <20040422000736.6be545a2.pj@sgi.com>
+In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
+References: <20040421232247.22ffe1f2.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404210058.44629.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 12:58:42AM -0500, Dmitry Torokhov wrote:
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1910, 2004-04-20 22:32:46-05:00, dtor_core@ameritech.net
->   Input: Do not generate events from atkbd until keyboard is completely
->          initialized. It should suppress messages about suprious NAKs
->          when controller's timeout is longer than one in atkbd
+mask10-cpumask-ppc64-fixup - Remove/recode obsolete cpumask macros from arch ppc64
+        Remove by recoding all uses of the obsolete cpumask const,
+        coerce and promote macros.
 
-We may need to protect ourselves against this - it may confuse the probe
-in addition to just generating spurious messages.
+Diffstat Patch_8_of_23:
+ open_pic.c                     |    8 ++++----
+ rtasd.c                        |    6 +++---
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-> 
-> 
->  atkbd.c |    6 ++++++
->  1 files changed, 6 insertions(+)
-> 
-> 
-> ===================================================================
-> 
-> 
-> 
-> diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> --- a/drivers/input/keyboard/atkbd.c	Tue Apr 20 23:09:40 2004
-> +++ b/drivers/input/keyboard/atkbd.c	Tue Apr 20 23:09:40 2004
-> @@ -188,6 +188,7 @@
->  	unsigned int resend:1;
->  	unsigned int release:1;
->  	unsigned int bat_xl:1;
-> +	unsigned int enabled:1;
->  
->  	unsigned int last;
->  	unsigned long time;
-> @@ -248,6 +249,9 @@
->  		goto out;
->  	}
->  
-> +	if (!atkbd->enabled)
-> +		goto out;
-> +
->  	if (atkbd->translated) {
->  
->  		if (atkbd->emul ||
-> @@ -749,6 +753,8 @@
->  		atkbd->set = 2;
->  		atkbd->id = 0xab00;
->  	}
-> +
-> +	atkbd->enabled = 1;
->  
->  	if (atkbd->extra) {
->  		atkbd->dev.ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) | BIT(LED_SLEEP) | BIT(LED_MUTE) | BIT(LED_MISC);
-> 
+Index: 2.6.5.mask/arch/ppc64/kernel/open_pic.c
+===================================================================
+--- 2.6.5.mask.orig/arch/ppc64/kernel/open_pic.c	2004-04-03 23:37:42.000000000 -0800
++++ 2.6.5.mask/arch/ppc64/kernel/open_pic.c	2004-04-03 23:51:59.000000000 -0800
+@@ -592,7 +592,7 @@
+ void openpic_init_processor(u_int cpumask)
+ {
+ 	openpic_write(&OpenPIC->Global.Processor_Initialization,
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
+ 
+ #ifdef CONFIG_SMP
+@@ -626,7 +626,7 @@
+ 	CHECK_THIS_CPU;
+ 	check_arg_ipi(ipi);
+ 	openpic_write(&OpenPIC->THIS_CPU.IPI_Dispatch(ipi),
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
+ 
+ void openpic_request_IPIs(void)
+@@ -712,7 +712,7 @@
+ {
+ 	check_arg_timer(timer);
+ 	openpic_write(&OpenPIC->Global.Timer[timer].Destination,
+-		      physmask(cpumask & cpus_coerce(cpu_online_map)));
++		      physmask(cpumask & cpus_addr(cpu_online_map)[0]));
+ }
+ 
+ 
+@@ -837,7 +837,7 @@
+ 	cpumask_t tmp;
+ 
+ 	cpus_and(tmp, cpumask, cpu_online_map);
+-	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_coerce(tmp)));
++	openpic_mapirq(irq_nr - open_pic_irq_offset, physmask(cpus_addr(tmp)[0]));
+ }
+ 
+ #ifdef CONFIG_SMP
+Index: 2.6.5.mask/arch/ppc64/kernel/rtasd.c
+===================================================================
+--- 2.6.5.mask.orig/arch/ppc64/kernel/rtasd.c	2004-04-03 23:37:42.000000000 -0800
++++ 2.6.5.mask/arch/ppc64/kernel/rtasd.c	2004-04-03 23:51:59.000000000 -0800
+@@ -411,7 +411,7 @@
+ 	}
+ 
+ 	lock_cpu_hotplug();
+-	cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
++	cpu = first_cpu(cpu_online_map);
+ 	for (;;) {
+ 		set_cpus_allowed(current, cpumask_of_cpu(cpu));
+ 		do_event_scan(event_scan);
+@@ -425,9 +425,9 @@
+ 		schedule_timeout((HZ*60/rtas_event_scan_rate) / 2);
+ 		lock_cpu_hotplug();
+ 
+-		cpu = next_cpu_const(cpu, mk_cpumask_const(cpu_online_map));
++		cpu = next_cpu(cpu, cpu_online_map);
+ 		if (cpu == NR_CPUS)
+-			cpu = first_cpu_const(mk_cpumask_const(cpu_online_map));
++			cpu = first_cpu(cpu_online_map);
+ 	}
+ 
+ error_vfree:
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

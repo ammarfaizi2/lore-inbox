@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264590AbSIQUBs>; Tue, 17 Sep 2002 16:01:48 -0400
+	id <S264610AbSIQUFP>; Tue, 17 Sep 2002 16:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264591AbSIQUBs>; Tue, 17 Sep 2002 16:01:48 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54799
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264590AbSIQUBr>; Tue, 17 Sep 2002 16:01:47 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Robert Love <rml@tech9.net>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1032292468.11907.44.camel@spc9.esa.lanl.gov>
-References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
-	<1032290611.4592.206.camel@phantasy> 
-	<1032292468.11907.44.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
+	id <S264612AbSIQUFO>; Tue, 17 Sep 2002 16:05:14 -0400
+Received: from ns1.cypress.com ([157.95.67.4]:35218 "EHLO ns1.cypress.com")
+	by vger.kernel.org with ESMTP id <S264610AbSIQUFN>;
+	Tue, 17 Sep 2002 16:05:13 -0400
+Message-ID: <3D878BFD.4040308@cypress.com>
+Date: Tue, 17 Sep 2002 15:09:33 -0500
+From: Thomas Dodd <ted@cypress.com>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
+       gen-lists@blueyonder.co.uk
+Subject: Re: Problems accessing USB Mass Storage
+References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 16:06:34 -0400
-Message-Id: <1032293199.4588.235.camel@phantasy>
-Mime-Version: 1.0
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 15:54, Steven Cole wrote:
 
-Thank you for the testing, Steven.
 
-> Running dbench 3 resulted in the dbench clients hanging and being
-> unkillable with kill -9 in the D state.
+Greg KH wrote:
+> On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
+> 
+>>I get the feeling it's not a true mass storage device.
+> 
+> 
+> Sounds like it.
 
-Hrm, I cannot reproduce this.  I just successfully completed a `dbench
-16'.  Can you find where they are hanging?  You can get a trace via
-sysrq.  You can also see where they are in the kernel via the wchan
-field of ps: "ps -ewo user,pid,priority,%cpu,stat,command,wchan" is a
-favorite of mine.
+> Windows drivers don't help me much, maybe one of the other usb
+> developers could help.
 
-Sure it does not happen with a stock kernel (no preempt)?
+Looking at the driver files, this is interesting:
 
-What if you replace the printk() and dump_stack() in schedule() with a
-no-op (but not something that will optimize away the conditional, i.e.
-try a cpu_relax()).
+	dmusic.sys
+	gm16.dls
+	kmixer.sys
+	ks.sys
+	ksclockf.ax
+	ksdata.ax
+	ksinterf.ax
+	ksproxy.ax
+	kstvtune.ax
+	ksuser.dll
+	ksvpintf.ax
+	kswdmcap.ax
+	ksxbar.ax
+	msh263.drv
+	mskssrv.sys
+	mspclock.sys
+	portcls.sys
+	redbook.sys
 
-Oh, is the previous patch fully backed out?  None of that do_exit muck
-anymore, right?
+redbook? isn't that CD related?
 
-> Test box is 2-way pIII, kernel SMP.
 
-I too am SMP with kernel preemption, dual Athlon MP.
+	sbemul.sys
+	stream.sys
+	swmidi.sys
+	sysaudio.sys
+	usbaudio.sys
+	vfwwdm.drv
+	vfwwdm32.dll
+	wdmaud.drv
+	wdmaud.sys
 
-Regards,
+I also see a lot of audio related files like usbaudio, sbemul,gm16,
+swmidi, and dmusic.
 
-	Robert Love
+Mark, are there any other interfaces in the output form lsusb?
+I didn't see them in dmesg from the connection. But the windows drivers
+make me think there should be a usb-audio interface.
+
+
+	-Thomas
 

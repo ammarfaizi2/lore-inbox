@@ -1,32 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbULASbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbULASnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbULASbK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 13:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbULASbK
+	id S261405AbULASnM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 13:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbULASnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 13:31:10 -0500
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:33899 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261402AbULASbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 13:31:09 -0500
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: [WISHLIST] IBM HD Shock detection in Linux
-Date: Wed, 1 Dec 2004 13:31:06 -0500
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200412011331.06813.shawn.starr@rogers.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 1 Dec 2004 13:43:12 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:28848 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261405AbULASnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 13:43:10 -0500
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+From: Lee Revell <rlrevell@joe-job.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200412011331.06813.shawn.starr@rogers.com>
+References: <200412011331.06813.shawn.starr@rogers.com>
+Content-Type: text/plain
+Date: Wed, 01 Dec 2004 13:42:59 -0500
+Message-Id: <1101926579.18170.48.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-12-01 at 13:31 -0500, Shawn Starr wrote:
+> While I have seen this feature in XP, It would be nice to have such 
+> functionality in Linux. Does anyone know if this is being worked on 
+> somewhere?
 
-While I have seen this feature in XP, It would be nice to have such 
-functionality in Linux. Does anyone know if this is being worked on 
-somewhere?
+What is it?  What does it do?  How does it work?  Got a link?
 
-Shawn.
+Lee
+

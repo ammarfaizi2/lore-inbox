@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSAPLz1>; Wed, 16 Jan 2002 06:55:27 -0500
+	id <S290424AbSAPL55>; Wed, 16 Jan 2002 06:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290425AbSAPLzU>; Wed, 16 Jan 2002 06:55:20 -0500
-Received: from gnu.in-berlin.de ([192.109.42.4]:4868 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S290423AbSAPLzF>;
-	Wed, 16 Jan 2002 06:55:05 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 16 Jan 2002 10:57:47 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
+	id <S289721AbSAPL5s>; Wed, 16 Jan 2002 06:57:48 -0500
+Received: from smtpde03.sap-ag.de ([194.39.131.54]:44522 "EHLO
+	smtpde03.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S290424AbSAPL5j>; Wed, 16 Jan 2002 06:57:39 -0500
+From: Christoph Rohland <cr@sap.com>
+To: torvalds@transmeta.com (Linus Torvalds)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-ID: <20020116105747.B1190@bytesex.org>
-In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com> <E16QETz-0002yD-00@the-village.bc.nu> <20020115004205.A12407@werewolf.able.es> <slrna480cv.68d.kraxel@bytesex.org> <20020115121424.10bb89b2.skraw@ithnet.com> <20020115142017.D8191@bytesex.org> <20020115161653.A9550@bytesex.org> <20020115173551.5a3fc051.skraw@ithnet.com>
-Mime-Version: 1.0
+Subject: Re: Why not "attach" patches?
+In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
+	<3C446C77.3000806@evision-ventures.com>
+	<a21qvo$375$1@penguin.transmeta.com>
+Organisation: SAP LinuxLab
+Date: Wed, 16 Jan 2002 12:46:40 +0100
+In-Reply-To: <a21qvo$375$1@penguin.transmeta.com> (torvalds@transmeta.com's
+ message of "Tue, 15 Jan 2002 18:04:40 +0000 (UTC)")
+Message-ID: <m31ygqldr3.fsf@linux.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
+ Intelligence, i386-suse-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115173551.5a3fc051.skraw@ithnet.com>
-User-Agent: Mutt/1.3.20i
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Yes.  Instead of remapping vmalloced kernel memory it gives you shared
-> > > > anonymous pages, then does zerocopy DMA using kiobufs.  You may run in
-> > > > trouble with >4GB machines.
-> > > 
-> > > Interesting.
-> > > What's the problem on > 4GB ?
-> > 
-> > The bt878/848 is a 32bit PCI device, it simply can't go DMA to main
-> > memory above 4GB.  At least on ia32, on architecures with a iommu
-> > (sparc, ...) it should work without trouble.
+Hi Linus,
+
+On Tue, 15 Jan 2002, Linus Torvalds wrote:
+> Wrong.
 > 
-> Sorry, maybe I should have clarified: what is the problem with allocating those
-> pages below 4GB in a >4GB box?
+> If I get a patch in an attachment (other than a "Text/PLAIN" type
+> attachment with no mangling and that pretty much all mail readers
+> and all tools will see as a normal body),
 
-do_anonymous_page() may give you pages above 4GB.  Need to write my own
-nopage handler to fix this.
+So text/plain is ok for you? How about multiple cummulative patches
+attached to one mail?
 
-  Gerd
+This is the case where I hate your strategy about attachments: You
+want to have separate patches (what I clearly understand), but you do
+not want attachments. That's fine most of the time as long as I send
+it to you privately, but to public lists too many people miss the
+important steps.
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+Greetings
+		Christoph
+
+

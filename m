@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUJBDq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUJBDu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267250AbUJBDq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 23:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUJBDq1
+	id S267235AbUJBDu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 23:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUJBDu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 23:46:27 -0400
-Received: from relay.pair.com ([209.68.1.20]:15627 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267250AbUJBDqZ (ORCPT
+	Fri, 1 Oct 2004 23:50:29 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:33970 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S267235AbUJBDu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 23:46:25 -0400
-X-pair-Authenticated: 64.230.138.183
-Date: Fri, 1 Oct 2004 23:46:24 -0400
-From: Geoff Oakham <oakhamg@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] iRiver ifp filesystem driver
-Message-ID: <20041002034624.GA14619@mbl.ca>
-Reply-To: Geoff Oakham <oakhamg@users.sourceforge.net>
+	Fri, 1 Oct 2004 23:50:28 -0400
+Date: Sat, 02 Oct 2004 12:50:55 +0900 (JST)
+Message-Id: <20041002.125055.74752207.taka@valinux.co.jp>
+To: piggin@cyberone.com.au
+Cc: marcelo.tosatti@cyclades.com, linux-mm@kvack.org, akpm@osdl.org,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <415E154A.2040209@cyberone.com.au>
+References: <20041001182221.GA3191@logos.cnet>
+	<415E154A.2040209@cyberone.com.au>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://prdownloads.sourceforge.net/ifp-driver/iriverfs-r0.1.0.0pre6.patch.gz?download
-
 Hello,
 
-This is a filesystem interface for iRiver "IFP" (flash-based) mp3
-players that aren't USB mass storage devices.  It's been [successfully]
-tested by ten volunteers on eleven systems using a variety of different
-kernel configurations.  (Specifically, both with and without SMP,
-PREEMPT.) The distribution of devices and computers used in testing
-follows:
+> >For example it doesnt re establishes pte's once it has unmapped them.
+> >
+> >
+> 
+> Another thing - I don't know if I'd bother re-establishing ptes....
+> I'd say just leave it to happen lazily at fault time.
 
-device models:
-
-        1x IFP-1xx
-        3x IFP-3xx
-        1x IFP-5xx
-        1x IFP-7xx
-        4x IFP-8xx
-
-arch:
-        5x single IA32
-        1x single IA32 - (HT)
-        3x single AMD32
-        1x dual   AMD32
-        1x single AMD64
+I think the reason is that his current implementation doesn't assign
+a swap entry to an anonymous page to move.
 
 
-No testing was done on big-endian or other non-x86 system.  There was no
-placebo control.  Reported side-effects included memory loss, fatigue,
-auditory disturbances, hangover, chest pain and dizziness.  This driver
-may not be right for everyone; check with your system administrator for
-details.
-
-As this is my first kernel hack, I'd appreciate any and all
-feedback/suggestions/flames.  Please CC me on replies.
-
-Cheers and thanks in advance,
-
-Geoff
-
-Ps. the patch is against 2.6.8.1, but it's reported to work on 2.6.3.
-
+Thank you,
+Hirokazu Takahashi.

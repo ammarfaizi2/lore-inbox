@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270066AbTHLL1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 07:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270081AbTHLL1c
+	id S270227AbTHLLgI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 07:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270291AbTHLLgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 07:27:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33694 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270066AbTHLL1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 07:27:31 -0400
-Date: Tue, 12 Aug 2003 12:27:29 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <willy@debian.org>, Robert Love <rml@tech9.net>,
-       CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Aug 2003 07:36:08 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30122
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S270227AbTHLLf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 07:35:58 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [Bug 1068] New: Errors when loading airo module
+Date: Tue, 12 Aug 2003 07:38:00 -0400
+User-Agent: KMail/1.5
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, kernelbugzilla@kuntnet.org
+References: <51060000.1060524422@[10.10.2.4]> <200308120447.00105.rob@landley.net> <20030812123214.B10895@flint.arm.linux.org.uk>
+In-Reply-To: <20030812123214.B10895@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030812053826.GA1488@kroah.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308120738.00641.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 10:38:27PM -0700, Greg KH wrote:
-> On Tue, Aug 12, 2003 at 03:39:36AM +0100, Matthew Wilcox wrote:
-> > I don't think anyone would appreciate you converting that to:
-> > 
-> > static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
-> > 	{
-> > 		.vendor		= PCI_VENDOR_ID_BROADCOM,
-> > 		.device		= PCI_DEVICE_ID_TIGON3_5700,
-> > 		.subvendor	= PCI_ANY_ID,
-> > 		.subdevice	= PCI_ANY_ID,
-> > 		.class		= 0,
-> > 		.class_mask	= 0,
-> > 		.driver_data	= 0,
-> > 	},
-> 
-> I sure would.  Oh, you can drop the .class, .class_mask, and
-> .driver_data lines, and then it even looks cleaner.
-> 
-> I would love to see that kind of change made for pci drivers.
+On Tuesday 12 August 2003 07:32, Russell King wrote:
+> On Tue, Aug 12, 2003 at 04:46:56AM -0400, Rob Landley wrote:
+> > On Sunday 10 August 2003 11:33, Russell King wrote:
+> > > On Sun, Aug 10, 2003 at 07:07:02AM -0700, Martin J. Bligh wrote:
+> > > > http://bugme.osdl.org/show_bug.cgi?id=1068
+> > > >
+> > > >            Summary: Errors when loading airo module
+> > > >     Kernel Version: 2.6.0-test3
+> > > >             Status: NEW
+> > > >           Severity: normal
+> > > >              Owner: rmk@arm.linux.org.uk
+> > > >          Submitter: kernelbugzilla@kuntnet.org
+> > >
+> > > This needs to go to the airo maintainers, not me - the oops is caused
+> > > by buggy airo.c.
+> > >
+> > > The IRQ problem is the result of bad configuration - you must enable
+> > > CONFIG_ISA if you're going to use non-Cardbus PCMCIA cards.
+> >
+> > Do you mean something like:
+>
+> No.  Its legal to enable PCMCIA without ISA.
+>
+> The patch below is wrong in any case - the SA11xx stuff should not depend
+> on ISA.
 
-I really strongly disagree.  For a struct that's as well-known as
-pci_device_id, the argument of making it clearer doesn't make sense.
-It's also not subject to change, unlike say file_operations, so the
-argument of adding new elements without breaking anything is also not
-relevant.
+Okay, so which non-Cardbus PCMCIA slections, which are not legal to enable 
+without CONFIG_ISA, are missing a kconfig dependency on CONFIG_ISA?  (I 
+guessed it was the ARM specific ones, but it was just a guess...)
 
-In tg3, the table definition is already 32 lines long with 2 lines per
-device_id.  In the scheme you favour so much, that becomes 92 lines, for
-no real gain that I can see.
+Or are you suggesting they didn't run make oldconfig?
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Rob

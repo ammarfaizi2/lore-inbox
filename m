@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263334AbRGEKVt>; Thu, 5 Jul 2001 06:21:49 -0400
+	id <S263748AbRGEKhK>; Thu, 5 Jul 2001 06:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263318AbRGEKVk>; Thu, 5 Jul 2001 06:21:40 -0400
-Received: from hank-fep7-0.inet.fi ([194.251.242.202]:10376 "EHLO
-	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S263089AbRGEKVb>; Thu, 5 Jul 2001 06:21:31 -0400
-Message-ID: <3B443F11.307A5F61@pp.inet.fi>
-Date: Thu, 05 Jul 2001 13:18:57 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Swanson <swansma@yahoo.com>
-CC: linux-kernel@vger.kernel.org, Stefan Traby <stefan@hello-penguin.com>
-Subject: Re: loop device corruption in 2.4.6
-In-Reply-To: <01070417140200.03178@test.home2.mark>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263806AbRGEKhB>; Thu, 5 Jul 2001 06:37:01 -0400
+Received: from pD951F626.dip.t-dialin.net ([217.81.246.38]:23046 "EHLO
+	emma1.emma.line.org") by vger.kernel.org with ESMTP
+	id <S263748AbRGEKgv>; Thu, 5 Jul 2001 06:36:51 -0400
+Date: Thu, 5 Jul 2001 12:36:49 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.6 Configure.help incomplete :-(
+Message-ID: <20010705123649.B16700@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Swanson wrote:
-> I get repeatable errors with 2.4.6 patched with the international encryption
-> patch patch-int-2.4.3.1.bz2 when building loop device filesystems on top of
-> Reiserfs.
+There are still a lot of help texts missing from Configure.help,
+CONFIG_AIC7XXXX_BUILD_FIRMWARE to name just one example.
 
-International crypto patch assumes that block size never changes. Everyone
-and their brother knows that it isn't true. And when block size does get
-changed, international crypto patch gets the IV completely wrong, and
-corrupts your data. To see block size changes in file systems alone, use
-command something like this:
+I'm pretty annoyed by RELEASE versions that don't have all options
+documented. If a module doesn't come with proper documentation for all
+its options, drop it. 
 
-    grep set_blocksize `find /usr/src/linux-2.4.6/fs -name "*.c" -print`
+How is a non-hacker supposed to configure the kernel if he doesn't even
+have the faintest clue about the options?
 
-And the block size thing is not the only thing wrong with international
-crypto patch. The whole cryptoapi thing is just bloat that does not belong
-in kernel. Cipher name string to number code mappings should be done in user
-space instead of kernel. And the ice on the cake is that cryptoapi ciphers
-are non-re-entrant and are actually used in re-entrant code path. This
-non-re-entrant code in re-entrant code path is another source of data
-corruption.
+Linux is the system with the worst official documentation anyhow,
+compared to the "monolithic" BSD variants.
 
-Loop-AES is a superior replacement for international crypto patch, for more
-information about loop-AES, see this announcement:
+I appreciate efforts by ESR to get the documentation complete, but
+evidently, the "good" way not enough.
 
-    http://mail.nl.linux.org/linux-crypto/2001-06/msg00016.html
-    http://lwn.net/2001/0628/a/file-crypto.php3
+A complex system without proper documentation is worth _nothing_.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+-- 
+Matthias Andree

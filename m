@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263543AbTJVTeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 15:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263550AbTJVTeZ
+	id S263498AbTJVT0I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 15:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbTJVT0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 15:34:25 -0400
-Received: from hell.org.pl ([212.244.218.42]:6927 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S263543AbTJVTeN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 15:34:13 -0400
-Date: Wed, 22 Oct 2003 21:34:10 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: rob@landley.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] Re: Test8 suspend fails if laptop lid closed.
-Message-ID: <20031022193410.GA15176@hell.org.pl>
-Mail-Followup-To: Nigel Cunningham <ncunningham@clear.net.nz>,
-	rob@landley.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	swsusp-devel <swsusp-devel@lists.sourceforge.net>
-References: <200310220122.27837.rob@landley.net> <1066846447.2406.1.camel@laptop-linux>
+	Wed, 22 Oct 2003 15:26:08 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:12307 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S263498AbTJVT0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 15:26:06 -0400
+Date: Mon, 20 Oct 2003 04:44:28 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Noah J. Misch" <noah@caltech.edu>
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Make LLC2 compile with PROC_FS=n
+Message-ID: <20031020074428.GA26494@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Noah J. Misch" <noah@caltech.edu>, rddunlap@osdl.org,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <Pine.GSO.4.58.0310171452540.13905@blinky>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1066846447.2406.1.camel@laptop-linux>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.GSO.4.58.0310171452540.13905@blinky>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Nigel Cunningham:
-> A couple of us have seen the same thing under 2.4. I've found a hack
-> solution for my laptop, but need to investigate more. It certainly looks
-> like an ACPI problem from here.
+Em Sun, Oct 19, 2003 at 10:03:52PM -0700, Noah J. Misch escreveu:
+> Hello Arnaldo,
+> 
+> This patch allows the LLC2 code to link properly when CONFIG_PROC_FS=n.  The
+> problem was that the Makefile only built llc_proc.c when PROC_FS=y/m, but
+> af_llc.c called functions in that file in all cases.  The log details how I
+> fixed this.
+> 
+> I think this is the best fix, but of course there are a number of less intrusive
+> fixes, including (I think) one as simple as making llc_proc.c always compile.
+> This one does apply cleanly to linux-2.5 BK as of 0400 UTC 10/20/2003 and passes
+> allyesconfig and (allyesconfig - PROC_FS) compiles on i386.
+> 
+> Please let me know if I should supply you with further information.
 
-Provided he's actually using ACPI. My laptop will halt the processor and
-enter a sort of stanby state if when legacy (APM) mode and the lid is 
-closed.
-Best regards,
+I'm OK with this patch.
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+- Arnaldo

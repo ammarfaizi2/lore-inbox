@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSICP4K>; Tue, 3 Sep 2002 11:56:10 -0400
+	id <S317081AbSICPyA>; Tue, 3 Sep 2002 11:54:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318798AbSICP4J>; Tue, 3 Sep 2002 11:56:09 -0400
-Received: from ifconfig.de ([139.19.1.1]:5302 "EHLO interferon.mpi-sb.mpg.de")
-	by vger.kernel.org with ESMTP id <S318155AbSICPzu>;
-	Tue, 3 Sep 2002 11:55:50 -0400
-Message-ID: <3D74DC86.31D0162@mpi-sb.mpg.de>
-Date: Tue, 03 Sep 2002 18:00:06 +0200
-From: Roman Dementiev <dementiev@mpi-sb.mpg.de>
-Reply-To: dementiev@mpi-sb.mpg.de
-Organization: MPI for Computer Science
-X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Multi disk performance (8 disks), limit 230 MB/s
-References: <3D7104D5.8AD2086B@mpi-sb.mpg.de> <3D7122F4.3FE3BD07@zip.com.au>
-Content-Type: text/plain; charset=koi8-r
+	id <S317170AbSICPyA>; Tue, 3 Sep 2002 11:54:00 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:31214
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317081AbSICPx6>; Tue, 3 Sep 2002 11:53:58 -0400
+Subject: Re: 2.4.20-pre4-ac1 trashed my system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mbs <mbs@mc.com>
+Cc: Andre Hedrick <andre@linux-ide.org>, Mike Isely <isely@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200209031237.IAA27024@mc.com>
+References: <Pine.LNX.4.10.10208302313040.1033-100000@master.linux-ide.org>
+	 <200209031237.IAA27024@mc.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 03 Sep 2002 16:59:25 +0100
+Message-Id: <1031068765.21439.11.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Tue, 2002-09-03 at 13:41, mbs wrote:
+> 2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
 
-> Roman Dementiev wrote:
-> >
-> > 8 disks:        214 ? 229 ?       40 %           6.7 / 0.8 /10.8
-> >
->
-> raw access in 2.4 isn't very good - it uses 512-byte chunks.  If
-> you can hunt down the `rawvary' patch that might help, but I don't
-> know if it works against IDE.
->
-> Testing 2.5 would be interesting ;)
-
-I still can't run it, 'interrupt lost' ...
-
->
->
-> Try the same test with O_DIRECT reads or writes against ext2 filesystems.
-> That will use 4k blocks.
-
-Thanx, it works. I have got 375 MB/s.
-
-Roman
-
+I'm not interested in any bug reports with the pre-empt patch involved.
+It just muddies the waters
 

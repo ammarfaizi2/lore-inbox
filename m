@@ -1,26 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287102AbRL2Crm>; Fri, 28 Dec 2001 21:47:42 -0500
+	id <S287098AbRL2Ckv>; Fri, 28 Dec 2001 21:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287099AbRL2Crc>; Fri, 28 Dec 2001 21:47:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54286 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287105AbRL2Cr2>; Fri, 28 Dec 2001 21:47:28 -0500
-Subject: Re: zImage not supported for 2.2.20?
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 29 Dec 2001 02:58:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a0j9i2$tkr$1@cesium.transmeta.com> from "H. Peter Anvin" at Dec 28, 2001 06:25:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S287102AbRL2Ckb>; Fri, 28 Dec 2001 21:40:31 -0500
+Received: from sushi.toad.net ([162.33.130.105]:28877 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S287101AbRL2Ck3>;
+	Fri, 28 Dec 2001 21:40:29 -0500
+Subject: PnP BIOS driver ready to go in
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16K9hB-0002pt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 28 Dec 2001 21:40:42 -0500
+Message-Id: <1009593644.9510.2.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Machine/motherboard/chipset/BIOS info?
+Marcelo:  I have had no reports of problems with the PnP BIOS
+driver, so I believe it can go in.  You can get it at:
+   http://panopticon.csustan.edu/thood/pnpbios.html
 
-Might be worth waiting for 2.2.21pre1 - my patch assembling turned up a
-pending diff related to zImage boot crashes.
+Note that for now the driver is only to be used for system
+configuration using the lspnp and setpnp utilities.  How to
+interface this driver with other drivers is a matter that
+may require further consideration.
+
+Thanks
+--
+Thomas Hood
+

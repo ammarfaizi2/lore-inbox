@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263704AbTDTVO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTDTVO0
+	id S263709AbTDTVXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 17:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTDTVXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:14:26 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:48599 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263704AbTDTVOY (ORCPT
+	Sun, 20 Apr 2003 17:23:45 -0400
+Received: from mail1.WPI.EDU ([130.215.36.102]:12162 "EHLO mail1.WPI.EDU")
+	by vger.kernel.org with ESMTP id S263709AbTDTVXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:14:24 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 20 Apr 2003 23:26:24 +0200 (MEST)
-Message-Id: <UTC200304202126.h3KLQO623927.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, davem@redhat.com
-Subject: Re: [PATCH] new system call mknod64
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	Sun, 20 Apr 2003 17:23:45 -0400
+Date: Sun, 20 Apr 2003 17:35:45 -0400 (EDT)
+From: Seth Britten Chandler <sethbc@WPI.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: problem opening slave tty's in 2.5.68{-mm1}
+Message-ID: <Pine.LNX.4.44.0304201734080.25559-100000@ccc9.WPI.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From davem@redhat.com  Sun Apr 20 23:12:17 2003
+i'm sure this has already been covered, but i've had problmes with my mail
+recently.  Every time i try to open an {A,E,x}term i get
 
-    > Yesterday or the day before Linus preferred __u32 etc for this
-    > loopinfo64 ioctl, so I did it that way. Here, since mknod is a
-    > traditional Unix system call, I am still inclined to prefer
-    > (unsigned) int above __u32.  Of course it doesn't matter much.
+aterm: can't open slave tty (null)
+aterm: can't open slave tty (null)
 
-    To 64-bit platforms implementing 32-bit compatability layers,
-    it can matter a ton to use portable vs. non-portable types.
+is this a known issue?  is there a workaround for this?
 
-Such an abstract statement nobody can disagree with.
-Do you have an opinion in the mknod case?
+i'm running a gentoo box with everything up to date...
 
-(For example, I do not suppose anybody would argue that
-open() should return an __u32 instead of an int.)
 
-Andries
+seth
+
+
+

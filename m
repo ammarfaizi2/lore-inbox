@@ -1,140 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265503AbRF1Dkr>; Wed, 27 Jun 2001 23:40:47 -0400
+	id <S265523AbRF1EW0>; Thu, 28 Jun 2001 00:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265505AbRF1Dkh>; Wed, 27 Jun 2001 23:40:37 -0400
-Received: from mail.aslab.com ([205.219.89.194]:16144 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S265503AbRF1DkR>;
-	Wed, 27 Jun 2001 23:40:17 -0400
-Date: Wed, 27 Jun 2001 20:39:45 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Andries.Brouwer@cwi.nl
-cc: alan@lxorguk.ukuu.org.uk, Gunther.Mayer@t-online.de,
-        dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-In-Reply-To: <UTC200106280105.DAA331227.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.04.10106271959510.25404-200000@mail.aslab.com>
+	id <S265521AbRF1EWR>; Thu, 28 Jun 2001 00:22:17 -0400
+Received: from [32.97.182.104] ([32.97.182.104]:20199 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265518AbRF1EWD>;
+	Thu, 28 Jun 2001 00:22:03 -0400
+Message-ID: <3B3A3BB5.22E2D78@vnet.ibm.com>
+Date: Wed, 27 Jun 2001 15:01:58 -0500
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1212088808-1292345401-993699585=:25404"
+To: "David S. Miller" <davem@redhat.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
+		<3B3A5B00.9FF387C9@mandrakesoft.com>
+		<20010628091704.B23627@krispykreme>
+		<15162.33445.396761.71174@pizda.ninka.net>
+		<3B3A2ABC.B9B4CEB6@vnet.ibm.com> <15162.44330.558687.314786@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----1212088808-1292345401-993699585=:25404
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-On Thu, 28 Jun 2001 Andries.Brouwer@cwi.nl wrote:
+"David S. Miller" wrote:
 
->     From: Andre Hedrick <andre@aslab.com>
-> 
->     You know yourself first and all the screwed up ATAPI products that are
->     still using SFF-8020 that has been obsoleted before I start maintaining
->     the subsystem three plus years ago. 
-> 
-> Hi Andre -
-> 
-> Why precisely is complying to SFF-8020 broken?
-> That was the standard. The standard that Microsoft required.
+> Tom Gall writes:
+>  > "David S. Miller" wrote:
+>  >
+>  > > Looks, ppc64 is really still experimental right?
+>  >
+>  > Heck no.
+>
+> So it is so stable that it isn't even merged into the mainline 2.4.x
+> sources? :-)
 
-You have stated it clearly it is past tense.
+Heh...
 
-> Other people made a different standard, and claimed that theirs
-> was better or more official or whatever, but reality is that
-> the products were not manufactured following this so-called
-> better standard.
+>
+> We're talking about a port which doesn't even exist in the mainline
+> sources yet.
 
-Ignoring "junk hardware" is not practical it will bite you everyday all
-day long.........Best example is VIA.
+Just about there...finger crossed, Maintainers willing, etc etc.
 
-> You are a good disciple of Hale, but it is no use ignoring the
+>  > > Which means it is
+>  > > 2.5.x material, and 2.5.x has been quoted as being a week or two away.
+>  >
+>  > I sure hope that ppc64 is NOT considered 2.5.x material.
+>
+> No, I'm saying that ppc64 with >=256 physical PCI busses, is 2.5.x
+> material.
 
-If one is going to learn the rules it is best to have learned from on of
-the "Fathers of ATA", and given that I have been crowned "Hale Jr." I take
-this a compliment.  The reality is that I am not anywhere in the same
-class of understanding as Hale Landis, but getting there.
+Well, if that's what we gotta live with, then that's what we gotta live with. Viva la
+2.5 then!
 
-> fact that a very large number of devices was made following SFF-8020.
-> These devices are not necessarily screwed, they tend to work fine,
-> although both ATA and ATAPI devices have their quirks.
+>  > A real solution would be nice. And if the real solution can ONLY be in 2.5, then
+>  > is it such a bad idea moving the bus number type to unsigned int for 2.4.x?
+>
+> Yes, no kludges for 2.4.x
 
-If they all did the same thing (regardless of class) it would be a
-different issue.  Basic things like asking for N amounts of data and
-getting back N+M > N the buffer allocated.  Or worse is the under
-data-run.  Other issues are DRQ, failure to hold/set busy-bit.
+Understood and agreed.
 
-The ATAPI people do not even follow the rules in the defunct guide.
+> Look, I do not even feel for you.
+>
+> I waited patiently for a sane PCI dma architecture so I could support
+> >4GB ram on 64-bit PCI systems (sparc64, alpha, etc.).  And it was
+> worth the wait, most of the important PCI drivers fully use this
+> interface, and it was all done properly.
 
-> SFF-8020, later INF-8020, became part of ATA/ATAPI-4 (1998).
-> The T13 people that merged SFF-8020 and produced ATA/ATAPI-4
-> changed a few details about how a master is supposed to react
-> when a nonexistent slave is selected. Nobody really noticed,
+Yeah and I understand and appreciate that just for the matter of the device driver
+owners making sure they are inline with the new direction.
 
-That point is only important during POST and execution of drive
-diagnostics command and Linux does not call that command.
+>
+> Similarly you can wait for 2.5.x for >=256 physical PCI bus support.
+> Ok?
 
-> and ATA/ATAPI-5 still had the same requirements. But then long
-> discussions about this difference caused ATA/ATAPI-6 to go back
-> to the original SFF-8020 requirements. Do you disagree with this
-> description of history? If you agree then it is not SFF-8020
-> but ATA/ATAPI-4 and ATA/ATAPI-5 that today must be considered broken
-> in this respect. I am referring to Section 9.16.1 of these standards.
-> 
-> Maybe there are other things in SFF-8020 that you consider broken?
+Rather not, but if that's the decision, I'm happy to live by it. That why I posted this
+as an RFC, and I appreciate everyone's time, patience and feedback.
 
-See above, regardless of the brokeness whe have to mucky with it.
-So I move to develop to a standard that I have influence and direction
-control, then deal with the exceptions.
+Regards,
 
-ATA-X created the "packet-command" and "data-phase-handlers" based on the
-zero-bit in the error_feature task-register.
+Tom
 
-Lastly it does not exist anymore, a real problem for manufacturers
-building product on a document that does not exist.  Worse is that there
-are companies making hardware based on SFF-8020 v2.5!
-
-Cheers,
-
-Andre Hedrick
-ASL Kernel Development
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+--
+Tom Gall - PPC64 Maintainer      "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc
 
 
----1212088808-1292345401-993699585=:25404
-Content-Type: TEXT/plain; name="inf-8020.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.04.10106272039450.25404@mail.aslab.com>
-Content-Description: 
-Content-Disposition: attachment; filename="inf-8020.txt"
-
-RXhwaXJlZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBTRkYtODAyMGkgUmV2IDIuNiANDQoNDQoNDQpT
-RkYgQ29tbWl0dGVlIGRvY3VtZW50YXRpb24gbWF5IGJlIHB1cmNoYXNlZCAo
-c2VlIHA0KS4NDQpTRkYgQ29tbWl0dGVlIGRvY3VtZW50cyBhcmUgYXZhaWxh
-YmxlIGJ5IEZheEFjY2VzcyBhdCA0MDgtNzQxLTE2MDANDQoNDQoNDQoNDQoN
-DQoNDQoNDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFNGRiBD
-b21taXR0ZWUNDQoNDQogICAgICAgICAgICAgICAgICAgICAgICAgIFNGRi04
-MDIwaSBTcGVjaWZpY2F0aW9uIGZvciANDQoNDQogICAgICAgICAgICAgICAg
-ICAgICAgQVRBIFBhY2tldCBJbnRlcmZhY2UgZm9yIENELVJPTSANDQoNDQog
-ICAgICAgICAgICAgICAgICAgICAgICAgIFJldiAyLjYgICBKYW51YXJ5IDIy
-LCAxOTk2DQ0KDQ0KDQ0KDQ0KU2VjcmV0YXJpYXQ6ICBTRkYgQ29tbWl0dGVl
-DQ0KDQ0KDQ0KQWJzdHJhY3Q6ICBJTkYtODAyMGkgZGVmaW5lcyBkZWZpbmVz
-IGEgUGFja2V0IEludGVyZmFjZSBmb3IgdXNlIHdpdGggQ0QtUk9NIA0NCmRy
-aXZlcyB0aGF0IHVzZSB0aGUgQVRBIChBVCBBdHRhY2htZW50KSBpbnRlcmZh
-Y2UuDQ0KDQ0KVGhlIG1lbWJlcnMgdm90ZWQgaW4gU2VwdGVtYmVyIDE5OTkg
-dGhhdCB0aGlzIHNwZWNpZmljYXRpb24gRXhwaXJlLiANDQoNDQpTRkYtODAy
-MCBoYXMgYmVlbiBpbmNvcnBvcmF0ZWQgaW50byB0d28gbmF0aW9uYWwgc3Rh
-bmRhcmRzLCBTQ1NJIE1NQyAoTXVsdGkgDQ0KTWVkaWEgQ29tbWFuZHMpIGFu
-ZCBBVEEvQVRBUEkgKEFUIEF0dGFjaG1lbnQpLiANDQoNDQpGb3IgY3VycmVu
-dCBpbmZvcm1hdGlvbiwgc2VlOg0NCg0NCiAtIHd3dy50MTAub3JnIGZvciB0
-aGUgbGF0ZXN0IHJldmlzaW9uIG9mIFNDU0kgTU1DLXggDQ0KIC0gd3d3LnQx
-My5vcmcgZm9yIHRoZSBsYXRlc3QgcmV2aXNpb24gb2YgQVRBL0FUQVBJLXgN
-DQoNDQo=
----1212088808-1292345401-993699585=:25404--

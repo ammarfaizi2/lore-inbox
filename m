@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283056AbRK1ODK>; Wed, 28 Nov 2001 09:03:10 -0500
+	id <S282145AbRK1OGm>; Wed, 28 Nov 2001 09:06:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282145AbRK1ODB>; Wed, 28 Nov 2001 09:03:01 -0500
-Received: from pop.gmx.de ([213.165.64.20]:8210 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283052AbRK1OCw> convert rfc822-to-8bit;
-	Wed, 28 Nov 2001 09:02:52 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Reply-To: sebastian.droege@gmx.de
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-Date: Wed, 28 Nov 2001 15:04:26 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011128145858.A23858@suse.de>
-In-Reply-To: <20011128145858.A23858@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S282150AbRK1OGb>; Wed, 28 Nov 2001 09:06:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:59788 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S282145AbRK1OGU>; Wed, 28 Nov 2001 09:06:20 -0500
+Date: Wed, 28 Nov 2001 09:06:12 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Meadors <clubneon@hereintown.net>
+cc: Martin Eriksson <nitrax@giron.wox.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+In-Reply-To: <Pine.LNX.4.40.0111280855270.88-100000@rc.priv.hereintown.net>
+Message-ID: <Pine.LNX.3.95.1011128084801.10732A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20011128140257Z283052-17408+22958@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 28 Nov 2001, Chris Meadors wrote:
 
-Am Mittwoch, 28. November 2001 14:58 schrieben Sie:
-> On Wed, Nov 28 2001, Sebastian Dröge wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Hi Jens,
-> > your patch doesn't work for ide-scsi
-> > I get this oops when trying to mount a CD:
->
-> [oops in sr_scatter_pad]
->
-> Hmm ok, and 2.5.1-pre1 works for you right?
+> On Wed, 28 Nov 2001, Martin Eriksson wrote:
+> 
+> > I'm starting to believe it has something to do with the parallel port being
+> > unconnected, thus sending random signals to the mobo causing an interrupt?
+> > If this is the case it is very possible that it has to do with correct
+> > grounding also...
+> 
+> Actually I believe way back there was a discussion about this same
+> message, Alan Cox said he thought it was caused by bad parallel ports.
+> 
+> That said I see it on 2 Athlon boxes with VIA chipsets.  One I had never
+> seen the message until I removed the parallel port QuickCam I had hooked
+> up.
+> 
 
-Yes it works very well
-Bye
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+IRQ7 is usually connected to the parallel port. If there is no driver
+installed, that expects interrupts, you could end up with this
+annoying message because the printer status bits are all ORed into
+that IRQ line. You can disable this with software, though, and it
+might be a good idea.
 
-iD8DBQE8BO7uvIHrJes3kVIRAs+IAJwMg9ru+joRHR9ei6Sqd6GzKMQ6ogCgmZ7X
-1J8gTk2dC84QXU4g5Abp12M=
-=dPWQ
------END PGP SIGNATURE-----
+          outb(0, BASE+2);
+
+... where BASE is 0x278, 0x378, 0x3bc, etc.. the printer ports.
+
+Also, a catch-all for confused interrupt controllers is IRQ7. Even
+without a parallel port, you can still get an occasional spurious
+interrupt. I think the kernel should have an interrupt handler for
+this interrupt that does nothing except ACK the interrupt and
+keep its mouth shut.  The request_irq() procedure should ignore
+the fact that it is "in use", and let any driver have it without
+sharing it.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

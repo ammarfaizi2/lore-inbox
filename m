@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRI2Wuw>; Sat, 29 Sep 2001 18:50:52 -0400
+	id <S271911AbRI2Wuc>; Sat, 29 Sep 2001 18:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271910AbRI2Wum>; Sat, 29 Sep 2001 18:50:42 -0400
-Received: from mx6.port.ru ([194.67.57.16]:25107 "EHLO smtp6.port.ru")
-	by vger.kernel.org with ESMTP id <S271906AbRI2Wu3>;
-	Sat, 29 Sep 2001 18:50:29 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109300313.f8U3DND26460@vegae.deep.net>
-Subject: Re: FIX YOUR TIMEZONE SETUP!
-To: matti.aarnio@zmailer.org (Matti Aarnio)
-Date: Sun, 30 Sep 2001 07:13:21 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010921163053.L11046@mea-ext.zmailer.org> from "Matti Aarnio" at Sep 21, 2001 04:30:53 PM
+	id <S271910AbRI2WuW>; Sat, 29 Sep 2001 18:50:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52754 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271906AbRI2WuJ>; Sat, 29 Sep 2001 18:50:09 -0400
+Subject: Re: boot/root floppies in modern times?
+To: clubneon@hereintown.net (Chris Meadors)
+Date: Sat, 29 Sep 2001 23:55:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.33.0109291737270.1713-100000@clubneon.clubneon.com> from "Chris Meadors" at Sep 29, 2001 06:01:10 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15nT0e-0003HO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  Matti Aarnio wrote:"
-> 
->    Lots of systems are rejecting email destined to them
->    with oversize Date: header.
-> 
-> From:   Samium Gromoff <_deepfire@mail.ru>
-> Message-Id: <200109211613.f8LGDXX02210@vegae.deep.net>
-> Subject: Time for reiserfslib
-> To:     reiser@namesys.com
-> Date:   Fri, 21 Sep 2001 16:13:32 +0000 (Local time zone must be set--see zic manual page)
-> Cc:     monstr@namesys.com, linux-kernel@vger.kernel.org
-> X-Mailer: ELM [version 2.5 PL6]
-> 
->    If you don't fix that problem right away, then latter
->    today I will just block any, and all messages with
->    header containing text:   "Local time zone must be set"
-> 
-> Your friendly  vger.kernel.org  postmaster who usually has no
-> bad things to say about people or their software...
-> 
-     Matti, i`m sorry of this... i just now realised why my mailserver
-  was "dead" for 2 weeks - it just changed IP and i was unable to get your
-  mail, so that i fixed the timezone only recently...
-     I know its hard to write individual letters to each who is making mistakes
-  on this list, so i apologize very very much...
-     
-thanks, Samium Gromoff
+> Obviously (but not to me initally) the USB floppy isn't a real floppy
+> controlled by a floppy controller, but it is a USB mass storage device.
+
+Correct.
+
+> I've seen the initrd option in the kernel config along with the other RAM
+> disk stuff.  I have a feeling that is the path I'm going to need to go
+> down, but I've never delt with it before (I know Linus is gung-ho about
+> initrd from posts I've seen by him here).  So I figure I'd better learn
+> about it sooner or later.
+
+initrd is basically a ramdisk image loaded by the bios before control
+is transferred from the loader to the kernel. Thus you can have a floppy
+with a file system, lilo and a kernel on it (if you squeeze).
+
+Then you can set it up so that
+
+The boot loads the initd
+It runs the needed USB drivers
+It  mounts the /dev/sda disk and copies it to /dev/ram1 ramdisk
+It transfers control

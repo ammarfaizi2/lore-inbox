@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266790AbUHIRuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266797AbUHIRv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266790AbUHIRuT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 13:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266797AbUHIRuT
+	id S266797AbUHIRv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 13:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266799AbUHIRv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 13:50:19 -0400
-Received: from mail.convergence.de ([212.84.236.4]:36750 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S266790AbUHIRuL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 13:50:11 -0400
-Date: Mon, 9 Aug 2004 19:50:13 +0200
-From: Johannes Stezenbach <js@convergence.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 9 Aug 2004 13:51:27 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:58011 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266797AbUHIRvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 13:51:15 -0400
+Message-ID: <4117B995.2000103@namesys.com>
+Date: Mon, 09 Aug 2004 10:51:17 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040809175013.GA5567@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040808152936.1ce2eab8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040808152936.1ce2eab8.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040803i
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <411753A4.8020801@svorka.net>
+In-Reply-To: <411753A4.8020801@svorka.net>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> boolean-typo-in-dvb.patch
->   boolean typo in DVB
+Espen Fjellvær Olsen wrote:
 
-It would be nice if this patch would go into 2.6.8.
+> Gah, sending this to lkml also, next time i hit reply i'll try to
+> remember to insert the lkml mail address ;)
+>
+> I wonder if there are any plans to implement Reiser4 into mm soon?
+> I think that Reiser4 is stable enough to get in mm now.
 
-And, although the current DVB stuff compiles fine, for correctness
-the following patch adds the necessary include for __user annotations.
+Yup, it is going in, we are finessing details right now.
 
-Thanks,
-Johannes
+>
+> --
+> Med Vennlig Hilsen / Best Regards
+> Espen Fjellvær Olsen
+> eldiablo@svorka.net
+> Norway
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-diff -ru linux-2.6.8-rc3.orig/include/linux/dvb/osd.h linux-2.6.8-rc3/include/linux/dvb/osd.h
---- linux-2.6.8-rc3.orig/include/linux/dvb/osd.h	2004-08-09 19:41:14.000000000 +0200
-+++ linux-2.6.8-rc3/include/linux/dvb/osd.h	2004-08-09 19:41:55.000000000 +0200
-@@ -24,6 +24,8 @@
- #ifndef _DVBOSD_H_
- #define _DVBOSD_H_
- 
-+#include <linux/compiler.h>
-+
- typedef enum {
-   // All functions return -2 on "not open"
-   OSD_Close=1,    // ()
-diff -ru linux-2.6.8-rc3.orig/include/linux/dvb/video.h linux-2.6.8-rc3/include/linux/dvb/video.h
---- linux-2.6.8-rc3.orig/include/linux/dvb/video.h	2004-08-09 19:41:14.000000000 +0200
-+++ linux-2.6.8-rc3/include/linux/dvb/video.h	2004-08-09 19:42:07.000000000 +0200
-@@ -24,6 +24,8 @@
- #ifndef _DVBVIDEO_H_
- #define _DVBVIDEO_H_
- 
-+#include <linux/compiler.h>
-+
- #ifdef __KERNEL__
- #include <linux/types.h>
- #else

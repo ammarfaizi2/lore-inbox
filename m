@@ -1,56 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUCIIpP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 03:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUCIIpP
+	id S261826AbUCII7F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 03:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUCII7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 03:45:15 -0500
-Received: from holomorphy.com ([207.189.100.168]:4872 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261786AbUCIIpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 03:45:11 -0500
-Date: Tue, 9 Mar 2004 00:44:59 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309084459.GK655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040308202433.GA12612@dualathlon.random> <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org> <20040308132305.3c35e90a.akpm@osdl.org> <20040308230247.GC12612@dualathlon.random> <20040308152126.54f4f681.akpm@osdl.org> <20040308234014.GG12612@dualathlon.random> <20040309083103.GB8021@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Mar 2004 03:59:05 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:55440 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261826AbUCII67
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 03:58:59 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Tue, 9 Mar 2004 14:28:42 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403081714.05521.amitkale@emsyssoft.com> <20040308151912.GD15065@smtp.west.cox.net>
+In-Reply-To: <20040308151912.GD15065@smtp.west.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040309083103.GB8021@elte.hu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403091428.42560.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 09:31:03AM +0100, Ingo Molnar wrote:
-> with rmap we do have the ability to make it truly O(1) all across, by
-> making the pte chains a double linked list. Moreover, we can freely
-> reduce the rmap overhead (both the memory, algorithmic and locking
-> overhead) by increasing the page size - a natural thing to do on big
-> boxes anyway. The increasing of the page size also linearly _reduces_
-> the RAM footprint of rmap. So rmap and pgcl are a natural fit and the
-> thing of the future.
-> now, the linear searching of vmas does not reduce with increased
-> page-size. In fact, it will increase in time as the sharing factor
-> increases.
+On Monday 08 Mar 2004 8:49 pm, Tom Rini wrote:
+> On Mon, Mar 08, 2004 at 05:14:05PM +0530, Amit S. Kale wrote:
+> > On Monday 08 Mar 2004 4:50 pm, Amit S. Kale wrote:
+> > > On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
+> > > > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > > > On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+> > > > >  > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > > >  > > Here are features that are present only in full kgdb:
+> > > > >  > >  1. Thread support  (aka info threads)
+> > > > >  >
+> > > > >  > argh, disaster.  I discussed this with Tom a week or so ago when
+> > > > >  > it looked like this it was being chopped out and I recall being
+> > > > >  > told that the discussion was referring to something else.
+> > > > >  >
+> > > > >  > Ho-hum, sorry.  Can we please put this back in?
+> > > > >
+> > > > >  Err., well this is one of the particularly dirty parts of kgdb.
+> > > > > That's why it's been kept away. It takes care of correct thread
+> > > > > backtraces in some rare cases.
+> > > >
+> > > > Let me just make sure we're taking about the same thing here.  Are
+> > > > you saying that with kgdb-lite, `info threads' is completely missing,
+> > > > or does it just not work correctly with threads (as opposed to
+> > > > heavyweight processes)?
+> > >
+> > > info threads shows a list of threads. Heavy/light weight processes
+> > > doesn't matter. Thread frame shown is incorrect.
+> > >
+> > > I looked at i386 dependent code again. Following code in it is
+> > > incorrect. I never noticed it because this code is rarely used in full
+> > > version of kgdb:
+> > >
+> > > +void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct
+> > > task_struct *p)
+> > > ....
+> > > +	gdb_regs[_EBP] = *(int *)p->thread.esp;
+> > >
+> > > We can't guss ebp this way. This line should be removed.
+> > >
+> > > +	gdb_regs[_DS] = __KERNEL_DS;
+> > > +	gdb_regs[_ES] = __KERNEL_DS;
+> > > +	gdb_regs[_PS] = 0;
+> > > +	gdb_regs[_CS] = __KERNEL_CS;
+> > > +	gdb_regs[_PC] = p->thread.eip;
+> > > +	gdb_regs[_ESP] = p->thread.esp;
+> > >
+> > > This should be gdb_regs[_ESP] = &p->thread.esp
+> >
+> > That's not correct it. It should be gdb_regs[_ESP] = p->thread.esp;
+> > Even with these changes I can't get thread listing correctly.
+> >
+> > Here is the intrusive piece of code that helps get thread state
+> > correctly. Any ideas on cleaning it?
+>
+> Here's where what Andi said about being able to get the pt_regs stuff
+> off the stack (I think that's what he said at least) started to confuse
+> me slightly.  But if I understand it right (and I never got around to
 
-This is getting bandied about rather frequently. I should make some
-kind of attack on an implementation. The natural implementation is
-to add one pte per contiguous and aligned group of PAGE_MMUCOUNT ptes
-to the pte_chain and search the area surrounding any pte_chain element.
+That's an in interesting idea. We can at least get first pt_regs from the 
+stack. That way we can get to user space eip in case a thread is in user 
+space.
 
-But the linear search you're pointing at is unnecessary to begin with.
-Only the single nonlinear mappings' pte needs to be added to the
-pte_chain there; one need only also scan the vma lists at reclaim-time.
-This would also make page_convert_anon() a misnomer and SetPageAnon()
-on nonlinearly-mapped file-backed pages a bug.
+The do_schedule and save all regs is definitely required if we want _exact_ 
+state of all kernel threads. [exact state: all registers]
+
+Finding function frames below pt_regs becomes difficult or impossible, as 
+exact dept of stack for each function in a stack is not known. EBP chains 
+allow walking "up" but not "down".
+-Amit
 
 
--- wli
+> testing this) we can replace the do_schedule() stuffs at least with
+> something like kgdb_get_pt_regs(), since (and I lost my notes on this,
+> so it's probably not quite right) (thread_info->esp0)-1
+

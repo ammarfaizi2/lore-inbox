@@ -1,51 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVCWUlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbVCWVHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbVCWUlw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWUlN
+	id S262891AbVCWVHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVCWVHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:41:13 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:45643 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262920AbVCWUkr (ORCPT
+	Wed, 23 Mar 2005 16:07:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5787 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262891AbVCWUz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:40:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RmtSy6UQ4uPgRhfh0PdterrxnS+N9H9vYtm0RcfnrK5s7Xtrmxbf0K+xvrRmoMv/l44DQmaGCNk3nWnYF8EISxD39MrOqDGkq8PwoV9ZBsGHx1QfS3q6zPonXC2c3/FhoESw47XxbZBQCJmuVpgAZtpM3RVebV37fYc/DJNCapk=
-Message-ID: <21d7e99705032312406fb8ac9a@mail.gmail.com>
-Date: Thu, 24 Mar 2005 07:40:43 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: X not working with Radeon 9200 under 2.6.11
-Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org, airlied@linux.ie
-In-Reply-To: <20050323123641.65ab0c91.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <16937.54786.986183.491118@ccs.covici.com>
-	 <20050321145301.3511c097.akpm@osdl.org>
-	 <16959.25374.535872.507486@ccs.covici.com>
-	 <20050321162214.71483708.akpm@osdl.org>
-	 <21d7e9970503231150263cfc5e@mail.gmail.com>
-	 <20050323123641.65ab0c91.akpm@osdl.org>
+	Wed, 23 Mar 2005 15:55:59 -0500
+In-Reply-To: <29204.1111608899@redhat.com> 
+References: <29204.1111608899@redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, Michael A Halcrow <mahalcro@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 23 Mar 2005 20:55:46 +0000
+Message-ID: <29827.1111611346@redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  > Do we know what changed to cause this?  Was it deliberate?
-> >
-> >  If I was a guessing man and I am due to lack of time.. I'd say the
-> >  address space layout changes ..
-> 
-> Ow.  I never saw any such reports.
 
-as I said only a guess .. when someone mentions 2.6.9 to me I always
-think address space changes :-)
+The attached patch uses RCU to manage the session keyring pointer in struct
+signal_struct. This means that searching need not disable interrupts and get a
+the sighand spinlock to access this pointer. Furthermore, by judicious use of
+rcu_read_(un)lock(), this patch also avoids the need to take and put refcounts
+on the session keyring itself, thus saving on even more atomic ops.
 
-I've hopefully got a full day barring jetlag to try and get the 2.6
-drm straightened out.. of course on my machine it all works
-wonderfully... so I need to get more machines :-)
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-rcu-session-2612rc1mm1.diff 
+ security/keys/process_keys.c |   42 +++++++++++++++++++++---------------------
+ security/keys/request_key.c  |    7 +++----
+ 2 files changed, 24 insertions(+), 25 deletions(-)
 
-Dave.
+diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c
+--- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c	2005-03-23 17:22:46.000000000 +0000
++++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c	2005-03-23 18:27:12.055768099 +0000
+@@ -1,6 +1,6 @@
+ /* process_keys.c: management of a process's keyrings
+  *
+- * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -181,7 +181,7 @@ static int install_process_keyring(struc
+ 			goto error;
+ 		}
+ 
+-		/* attach or swap keyrings */
++		/* attach keyring */
+ 		spin_lock_irqsave(&tsk->sighand->siglock, flags);
+ 		if (!tsk->signal->process_keyring) {
+ 			tsk->signal->process_keyring = keyring;
+@@ -227,12 +227,14 @@ static int install_session_keyring(struc
+ 
+ 	/* install the keyring */
+ 	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-	old = tsk->signal->session_keyring;
+-	tsk->signal->session_keyring = keyring;
++	old = rcu_dereference(tsk->signal->session_keyring);
++	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
+ 	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+ 
+ 	ret = 0;
+ 
++	/* we're using RCU on the pointer */
++	synchronize_kernel();
+ 	key_put(old);
+  error:
+ 	return ret;
+@@ -245,8 +247,6 @@ static int install_session_keyring(struc
+  */
+ int copy_thread_group_keys(struct task_struct *tsk)
+ {
+-	unsigned long flags;
+-
+ 	key_check(current->thread_group->session_keyring);
+ 	key_check(current->thread_group->process_keyring);
+ 
+@@ -254,10 +254,10 @@ int copy_thread_group_keys(struct task_s
+ 	tsk->signal->process_keyring = NULL;
+ 
+ 	/* same session keyring */
+-	spin_lock_irqsave(&current->sighand->siglock, flags);
++	rcu_read_lock();
+ 	tsk->signal->session_keyring =
+-		key_get(current->signal->session_keyring);
+-	spin_unlock_irqrestore(&current->sighand->siglock, flags);
++		key_get(rcu_dereference(current->signal->session_keyring));
++	rcu_read_unlock();
+ 
+ 	return 0;
+ 
+@@ -381,8 +381,7 @@ struct key *search_process_keyrings_aux(
+ 					key_match_func_t match)
+ {
+ 	struct task_struct *tsk = current;
+-	unsigned long flags;
+-	struct key *key, *ret, *err, *tmp;
++	struct key *key, *ret, *err;
+ 
+ 	/* we want to return -EAGAIN or -ENOKEY if any of the keyrings were
+ 	 * searchable, but we failed to find a key or we found a negative key;
+@@ -436,17 +435,18 @@ struct key *search_process_keyrings_aux(
+ 	}
+ 
+ 	/* search the session keyring last */
+-	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-
+-	tmp = tsk->signal->session_keyring;
+-	if (!tmp)
+-		tmp = tsk->user->session_keyring;
+-	atomic_inc(&tmp->usage);
+-
+-	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
++	if (tsk->signal->session_keyring) {
++		rcu_read_lock();
++		key = keyring_search_aux(
++			rcu_dereference(tsk->signal->session_keyring),
++			type, description, match);
++		rcu_read_unlock();
++	}
++	else {
++		key = keyring_search_aux(tsk->user->session_keyring,
++					 type, description, match);
++	}
+ 
+-	key = keyring_search_aux(tmp, type, description, match);
+-	key_put(tmp);
+ 	if (!IS_ERR(key))
+ 		goto found;
+ 
+diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c
+--- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c	2005-03-23 17:35:16.000000000 +0000
++++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c	2005-03-23 18:14:13.908029567 +0000
+@@ -175,13 +175,12 @@ static struct key *__request_key_constru
+ 	key->expiry = now.tv_sec + key_negative_timeout;
+ 
+ 	if (current->signal->session_keyring) {
+-		unsigned long flags;
+ 		struct key *keyring;
+ 
+-		spin_lock_irqsave(&current->sighand->siglock, flags);
+-		keyring = current->signal->session_keyring;
++		rcu_read_lock();
++		keyring = rcu_dereference(current->signal->session_keyring);
+ 		atomic_inc(&keyring->usage);
+-		spin_unlock_irqrestore(&current->sighand->siglock, flags);
++		rcu_read_unlock();
+ 
+ 		key_link(keyring, key);
+ 		key_put(keyring);

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314075AbSDVHJv>; Mon, 22 Apr 2002 03:09:51 -0400
+	id <S314074AbSDVHKx>; Mon, 22 Apr 2002 03:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSDVHJu>; Mon, 22 Apr 2002 03:09:50 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53508 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314075AbSDVHJt>; Mon, 22 Apr 2002 03:09:49 -0400
-Message-Id: <200204220707.g3M77EX10483@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: /proc/stat weirdness
-Date: Mon, 22 Apr 2002 10:10:25 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0204220216520.32680-100000@coffee.psychology.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S314078AbSDVHKw>; Mon, 22 Apr 2002 03:10:52 -0400
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:33469 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S314074AbSDVHKu>;
+	Mon, 22 Apr 2002 03:10:50 -0400
+Date: Mon, 22 Apr 2002 08:06:47 +0100
+Message-Id: <200204220706.g3M76lm32442@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <3CC3B2AA.80217EA0@in.ibm.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 April 2002 04:18, Mark Hahn wrote:
-> why not figure out if theres a code-based reason?
-> just add some code in the kernel to check for the case,
-> and dump some extra data.
+In article <3CC3B2AA.80217EA0@in.ibm.com> you wrote:
 
-Hehe. I caught it (imho, not tested).
-jiffies is saved to local variable before user,nice,system is calculated,
-what if delta(user+nice+system) was == delta(jiffies)
-[i.e. no idle ticks since last readout by e.g. top]
-and a jiffy just ended and got accounted into one of user,nice,system?
-We'll get delta(user+nice+system) > delta(jiffies),
-delta(idle)=delta(jiffies)-delta(user+nice+system) - negative!
+> or maybe have a way pass back an error to retry with smaller size.
+> Maybe 2 limits (one that indicates that anything bigger than this is
+> sure to
+> get split, so always break it up, and another that says that anything
+> smaller
+> than this is sure not to be split, so use this size when you can't
+> afford a
+> split).
 
-File: proc_misc.c
-....
-static int kstat_read_proc(char *page, char **start, off_t off,
-                                 int count, int *eof, void *data)
-{
-        int i, len;
-        extern unsigned long total_forks;
-        unsigned long jif = jiffies; <*********** jiffies saved
-        unsigned int sum = 0, user = 0, nice = 0, system = 0;
-        int major, disk;
+Unfortionatly it's not always size that's the issue. For example in my
+code I need to split when a request crosses a certain boundary, and without 
+going into too much detail, that boundary is 62 Kb aligned, not 64
+(for technical reasons ;(). 
 
-        for (i = 0 ; i < smp_num_cpus; i++) {
-                int cpu = cpu_logical_map(i), j;
+Size won't catch this and while a 64Kb Kb block will always be split, that
+you can be sure of, even a 4Kb request, if unlucky, can have the need to
+split up.
 
-                user += kstat.per_cpu_user[cpu]; <***
-                nice += kstat.per_cpu_nice[cpu]; <*** accounting
-                system += kstat.per_cpu_system[cpu]; <***
-#if !defined(CONFIG_ARCH_S390)
-                for (j = 0 ; j < NR_IRQS ; j++)
-                        sum += kstat.irqs[cpu][j];
-#endif
-        }
 
-        len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
-                      jif * smp_num_cpus - (user + nice + system));
---
-vda
+-- 
+But when you distribute the same sections as part of a whole which is a work 
+based on the Program, the distribution of the whole must be on the terms of 
+this License, whose permissions for other licensees extend to the entire whole,
+and thus to each and every part regardless of who wrote it. [sect.2 GPL]

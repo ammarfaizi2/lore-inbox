@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTFQB6m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 21:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFQB5N
+	id S264534AbTFQCNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 22:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTFQCNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 21:57:13 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:13765 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264537AbTFQBzj (ORCPT
+	Mon, 16 Jun 2003 22:13:09 -0400
+Received: from holomorphy.com ([66.224.33.161]:13471 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264534AbTFQCNH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 21:55:39 -0400
-Date: Mon, 16 Jun 2003 19:09:32 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Mask C/R bit from connection address
-Message-ID: <20030617020932.GI30944@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Mon, 16 Jun 2003 22:13:07 -0400
+Date: Mon, 16 Jun 2003 19:26:58 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.71-bk2-wli-1
+Message-ID: <20030617022658.GI26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20030617005807.GR20413@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <20030617005807.GR20413@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir241_caddr_mask.diff :
-		<Patch from Jan Kiszka>
-	o [CORRECT] ignore the C/R bit in the LAP connection address.
+On Mon, Jun 16, 2003 at 05:58:07PM -0700, William Lee Irwin III wrote:
+> + highpmd fixes
+> 	a few mm/memory.c functions forgot to pass pmd pointers by reference
+
+Woops, I missed one:
 
 
---- linux/net/irda/irlap_frame.d0.c	Fri Apr 11 18:38:03 2003
-+++ linux/net/irda/irlap_frame.c	Fri Apr 11 18:38:15 2003
-@@ -162,8 +162,8 @@ static void irlap_recv_snrm_cmd(struct i
- 	frame = (struct snrm_frame *) skb->data;
- 	
- 	if (skb->len >= sizeof(struct snrm_frame)) {
--		/* Copy the new connection address */
--		info->caddr = frame->ncaddr;
-+		/* Copy the new connection address ignoring the C/R bit */
-+		info->caddr = frame->ncaddr & 0xFE;
- 
- 		/* Check if the new connection address is valid */
- 		if ((info->caddr == 0x00) || (info->caddr == 0xfe)) {
+diff -prauN wli-2.5.71-bk2-8/mm/memory.c wli-2.5.71-bk2-9/mm/memory.c
+--- wli-2.5.71-bk2-8/mm/memory.c	2003-06-16 14:59:11.000000000 -0700
++++ wli-2.5.71-bk2-9/mm/memory.c	2003-06-16 17:45:05.000000000 -0700
+@@ -1002,7 +1002,7 @@ int remap_page_range(struct vm_area_stru
+ 		error = remap_pmd_range(vma, &pmd, from, end - from, phys_addr + from, prot);
+ 		if (error)
+ 			break;
+-		pmd_unmap(pmd);
++		pmd_unmap(pmd - 1);
+ 		from = (from + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (from && (from < end));

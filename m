@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265933AbSKBLJM>; Sat, 2 Nov 2002 06:09:12 -0500
+	id <S265943AbSKBLNH>; Sat, 2 Nov 2002 06:13:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265934AbSKBLJM>; Sat, 2 Nov 2002 06:09:12 -0500
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:41732 "EHLO
-	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S265933AbSKBLJL>; Sat, 2 Nov 2002 06:09:11 -0500
-Date: Sat, 2 Nov 2002 12:15:11 +0100
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: [PATCH] IDE BIOS timings, autotune cleanup
-Message-ID: <20021102111511.GC1088@tmathiasen>
-References: <20021102000219.GM1669@tmathiasen> <1036199577.14840.0.camel@irongate.swansea.linux.org.uk>
+	id <S265944AbSKBLNH>; Sat, 2 Nov 2002 06:13:07 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:11632 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S265943AbSKBLNG>;
+	Sat, 2 Nov 2002 06:13:06 -0500
+Date: Sat, 2 Nov 2002 12:19:33 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] swap mini-howto
+Message-ID: <20021102111933.GB461@win.tue.nl>
+References: <20021102001947.GA461@win.tue.nl> <Pine.LNX.4.33L2.0211011622120.28320-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1036199577.14840.0.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.20-pre11 
+In-Reply-To: <Pine.LNX.4.33L2.0211011622120.28320-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02 2002, Alan Cox wrote:
-> On Sat, 2002-11-02 at 00:02, Torben Mathiasen wrote:
-> > Hi,
-> > 
-> > The attached patch cleans up the 'autotune' concept used in the current 2.4
-> > IDE driver. It also adds support for using pure BIOS IDE timings with DMA/PIO.
-> > On some systems the BIOS has a far better overview on how things are connected
-> > (some chipsets don't support >ata66 speed detection, etc).
-> > 
+On Fri, Nov 01, 2002 at 04:25:33PM -0800, Randy.Dunlap wrote:
+
+> BTW, my current (maybe outdated?) mkswap.8 page says:
+>        Presently,  Linux  allows  8  swap  areas. The areas in use
+>        can be seen in the file /proc/swaps (since 2.1.25).
 > 
-> Interesting idea. However you are working on whats effectively a dead
-> codebase.
+> However, the current (2.5) source code supports 32 swap areas.
+> I don't know when this was changed...
 
-Oh :). Let me just port it over to AC and 2.5 for the new IDE layer. 
+It was changed in 2.4.10.
 
-Torben
+Andries

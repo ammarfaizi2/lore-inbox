@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261503AbSIXATD>; Mon, 23 Sep 2002 20:19:03 -0400
+	id <S261525AbSIXAXo>; Mon, 23 Sep 2002 20:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261512AbSIXATD>; Mon, 23 Sep 2002 20:19:03 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:18087 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S261503AbSIXAS7>; Mon, 23 Sep 2002 20:18:59 -0400
-Date: Mon, 23 Sep 2002 20:24:10 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: MBONE and Linux (fwd) , And questions .
-In-Reply-To: <20020923.171157.119303962.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0209232023510.9060-100000@filesrv1.baby-dragons.com>
+	id <S261526AbSIXAXo>; Mon, 23 Sep 2002 20:23:44 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54532
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261525AbSIXAXn>; Mon, 23 Sep 2002 20:23:43 -0400
+Date: Mon, 23 Sep 2002 17:28:03 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Richard Zidlicky <rz@linux-m68k.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: IDE janitoring comments
+In-Reply-To: <20020924000134.A210@linux-m68k.org>
+Message-ID: <Pine.LNX.4.10.10209231726580.2072-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello Dave ,  Thank you .... !  JimL
+Poke in your own special ide-ops function pointers.
+This should have been allowed on a per chipset/channel bases.
 
-On Mon, 23 Sep 2002, David S. Miller wrote:
-> See the linux-net posting dated "Mon, 15 Jul 2002 17:39:19 -0700 (PDT)"
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Did I miss something?
+
+On Tue, 24 Sep 2002, Richard Zidlicky wrote:
+
+> On Sat, Aug 24, 2002 at 05:09:16PM +0200, Benjamin Herrenschmidt wrote:
+> 
+> >  - In ide-iops, the insw, insl, outsw, outsl functions are
+> > broken for big endian. They should not do byteswap on these,
+> > however, implemeting them with a loop of IN/OUT_BYTE/WORD
+> > will cause byteswapped access on archs like PPC.
+> > The problem is that the macros IN/OUT_BYTE/WORD don't define
+> > non-swapping equivalents that would allow us to correctly
+> > implement the "s" versions. 
+> 
+> we have one special problem on m68k, on some machines the IDE
+> bus is byteswapped (unrelated to cpu endianness). For historical 
+> and performance reasons data to the HD is by default read and 
+> written in this "wrong" order (thus the bswap/swapdata option)
+> and special fixup code is used in ide_fix_driveid (see 
+> M68K_IDE_SWAPW). However data returned by IDE_DRIVE_CMD is not 
+> treated in any way, so that eg WIN_SMART data end up in the 
+> wrong order on those machines and this is something I would 
+> like to fix properly.
+> I figure I would define ata_*_{control,data} to handle special
+> data resp raw HD data and modify ide_handler_parser to return
+> specialised interrupt handlers or set some additional flag.
+> 
+> Any thoughts?
+> 
+> Richard
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

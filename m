@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbTJJOfg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTJJOfg
+	id S262839AbTJJOrI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTJJOrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:35:36 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:52880 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S262801AbTJJOfc (ORCPT
+	Fri, 10 Oct 2003 10:47:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262839AbTJJOrF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:35:32 -0400
-Date: Fri, 10 Oct 2003 16:35:29 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, Fabian.Frederick@prov-liege.be,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010143529.GT5112@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org>
+	Fri, 10 Oct 2003 10:47:05 -0400
+Date: Fri, 10 Oct 2003 07:37:50 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7 and HIDBP
+Message-Id: <20031010073750.001ad559.rddunlap@osdl.org>
+In-Reply-To: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60>
+References: <1f8801c38f11$da95c410$5cee4ca5@DIAMONDLX60>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F86BD0E.4060607@longlandclan.hopto.org>
-X-Operating-System: vega Linux 2.6.0-test7 i686
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 11, 2003 at 12:07:10AM +1000, Stuart Longland wrote:
-> Oh, okay, this sort of thing is supported by industrial boxes? 
-> Interesting... Live and learn I spose ;-) (You're right, I'm not 
-> familiar with industrial boxes at all.  My experience is with mostly 
-> desktop computers, laptops, and some entry-level servers)
-> 
-> Hotplug RAM I could see would be possible, but hotplug CPUs?  I spose if 
-> you've got a multiprocessor box, you could swap them one at a time, but 
-> my thinking is that this would cause issues with the OS as it wouldn't 
-> be expecting the CPU to suddenly disappear.  Problems would be even 
+On Fri, 10 Oct 2003 18:34:45 +0900 "Norman Diamond" <ndiamond@wta.att.ne.jp> wrote:
 
-Why? Sure, you should note OS before unplug a CPU ;-) but in this case OS
-should be noticed that it could not use that CPU any more (like scheduler,
-interrupt delivering etc). And then it's not an issue if you unplug THAT
-cpu. Sure, some hw supporting is needed, a "normal" motherboard does not
-like to unplug a CPU when powered of course by hardware issues, but "CPU
-hotplug capable" motherboards can support this. Maybe of course some notice
-mechanism is needed for the motherboard as well not only for the OS, but it
-only mean that notfication before unplugging the CPU should be delivered to
-the OS _and_ to the hardware. Sure, I have no experience at all in this
-area, so this is only a theory (I've never see a hardware support this yet).
+| OK, I already know that I'm half-blind, but now either I'm 75% blind or else
+| these are facts:
+| 
+| make xconfig has options for HIDBP.
+| make gconfig doesn't.
+| 
+| Of course I want full HID so this might not matter, but I have memories of
+| needing HIDBP a few years ago.
 
-> worse if the old and new CPUs were of different types too.
+I don't know about gconfig, but you don't want or need HIDBP with full HID.
 
-Yes this IS an issue. I think this is no good workaround for this problem,
-but I also don't think that this situation is well supported by other
-OSes as well ... If you insert a new CPU which is fully compatible with
-the old one this should not be an issue however.
-
-- Gábor (larta'H)
+--
+~Randy

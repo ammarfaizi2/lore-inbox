@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267334AbUBSPQm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 10:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267357AbUBSPM6
+	id S267326AbUBSPMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 10:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267316AbUBSO6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 10:12:58 -0500
-Received: from main.gmane.org ([80.91.224.249]:25321 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267318AbUBSPAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 10:00:31 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
-	<leandro@dutra.fastmail.fm>
-Subject: Re: ext3 on raid5 failure
-Date: Thu, 19 Feb 2004 11:58:19 -0300
-Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
-Message-ID: <pan.2004.02.19.14.58.19.746370@dutra.fastmail.fm>
-References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org> <pan.2004.02.19.02.32.37.90698@dutra.fastmail.fm> <40346EAD.5010403@portrix.net> <1077198600.11696.19.camel@moacir.wlt.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 200-138-088-244.mganm7001.dsl.brasiltelecom.net.br
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+	Thu, 19 Feb 2004 09:58:34 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58340 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267306AbUBSOzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 09:55:46 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] IDE update for 2.6.3 (5/9)
+Date: Thu, 19 Feb 2004 15:58:09 +0100
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402191558.09917.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004 10:50:00 -0300, Leandro Guimarães Faria Corcete Dutra
-wrote:
 
-> I am now
-> trying to figure out how to run fsx-linux, documentation seems scarce.
+[IDE] kill default_flushcache() and ide_drive_t->flushcache
 
-	If anyone is interested on fsx-linux output for a PROBLEM report, 
-please tell me how to run it.  Google and even the sources were of no help
-to me.
+ linux-2.6.3-root/drivers/ide/ide-disk.c |    1 -
+ linux-2.6.3-root/drivers/ide/ide.c      |   15 ---------------
+ linux-2.6.3-root/include/linux/ide.h    |    1 -
+ 3 files changed, 17 deletions(-)
 
-	No big deal, I will produce a PROBLEM report with or without it.
+diff -puN drivers/ide/ide.c~ide_default_flushcache drivers/ide/ide.c
+--- linux-2.6.3/drivers/ide/ide.c~ide_default_flushcache	2004-02-19 02:10:21.971117024 +0100
++++ linux-2.6.3-root/drivers/ide/ide.c	2004-02-19 02:10:21.986114744 +0100
+@@ -2168,20 +2168,6 @@ static int default_cleanup (ide_drive_t 
+ 	return ide_unregister_subdriver(drive);
+ }
+ 
+-/*
+- *	Default function to use for the cache flush operation. This
+- *	must be replaced for disk devices (see ATA specification
+- *	documents on cache flush and drive suspend rules)
+- *
+- *	If we have no device attached or the device is not writable
+- *	this handler is sufficient.
+- */
+- 
+-static int default_flushcache (ide_drive_t *drive)
+-{
+-	return 0;
+-}
+-
+ static ide_startstop_t default_do_request (ide_drive_t *drive, struct request *rq, sector_t block)
+ {
+ 	ide_end_request(drive, 0, 0);
+@@ -2244,7 +2230,6 @@ static ide_startstop_t default_start_pow
+ static void setup_driver_defaults (ide_driver_t *d)
+ {
+ 	if (d->cleanup == NULL)		d->cleanup = default_cleanup;
+-	if (d->flushcache == NULL)	d->flushcache = default_flushcache;
+ 	if (d->do_request == NULL)	d->do_request = default_do_request;
+ 	if (d->end_request == NULL)	d->end_request = default_end_request;
+ 	if (d->sense == NULL)		d->sense = default_sense;
+diff -puN drivers/ide/ide-disk.c~ide_default_flushcache drivers/ide/ide-disk.c
+--- linux-2.6.3/drivers/ide/ide-disk.c~ide_default_flushcache	2004-02-19 02:10:21.975116416 +0100
++++ linux-2.6.3-root/drivers/ide/ide-disk.c	2004-02-19 02:10:21.988114440 +0100
+@@ -1700,7 +1700,6 @@ static ide_driver_t idedisk_driver = {
+ 	.busy			= 0,
+ 	.supports_dsc_overlap	= 0,
+ 	.cleanup		= idedisk_cleanup,
+-	.flushcache		= do_idedisk_flushcache,
+ 	.do_request		= ide_do_rw_disk,
+ 	.sense			= idedisk_dump_status,
+ 	.error			= idedisk_error,
+diff -puN include/linux/ide.h~ide_default_flushcache include/linux/ide.h
+--- linux-2.6.3/include/linux/ide.h~ide_default_flushcache	2004-02-19 02:10:21.979115808 +0100
++++ linux-2.6.3-root/include/linux/ide.h	2004-02-19 02:10:21.990114136 +0100
+@@ -1160,7 +1160,6 @@ typedef struct ide_driver_s {
+ 	unsigned busy			: 1;
+ 	unsigned supports_dsc_overlap	: 1;
+ 	int		(*cleanup)(ide_drive_t *);
+-	int		(*flushcache)(ide_drive_t *);
+ 	ide_startstop_t	(*do_request)(ide_drive_t *, struct request *, sector_t);
+ 	int		(*end_request)(ide_drive_t *, int, int);
+ 	u8		(*sense)(ide_drive_t *, const char *, u8);
 
-
--- 
-Leandro Guimarães Faria Corsetti Dutra           +55 (11) 5685 2219
-Av Sgto Geraldo Santana, 1100 6/71               +55 (11) 5686 9607
-04.674-000  São Paulo, SP                                    BRASIL
-http://br.geocities.com./lgcdutra/
+_
 

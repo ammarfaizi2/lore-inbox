@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVADAUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVADAYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbVADAUn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVADAL2
+	id S262011AbVADAYr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVADAWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:11:28 -0500
-Received: from dp.samba.org ([66.70.73.150]:32681 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262011AbVADAIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:08:12 -0500
-MIME-Version: 1.0
+	Mon, 3 Jan 2005 19:22:32 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21767 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262011AbVADALf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:11:35 -0500
+Date: Tue, 4 Jan 2005 01:11:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mark_H_Johnson@raytheon.com
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       perex@suse.cz, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel@alsa-project.org
+Subject: 2.6.10-mm1: ALSA ac97 compile error with CONFIG_PM=n
+Message-ID: <20050104001130.GT2980@stusta.de>
+References: <OF0551C40F.E8032010-ON86256F7E.007EFEBA-86256F7E.007EFF1F@raytheon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16857.56805.501880.446082@samba.org>
-Date: Tue, 4 Jan 2005 11:05:57 +1100
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
-       samba-technical@lists.samba.org, aia21@cantab.net,
-       hirofumi@mail.parknet.co.jp,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FAT, NTFS, CIFS and DOS attributes
-In-Reply-To: <41D9C635.1090703@zytor.com>
-References: <41D9C635.1090703@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+Content-Disposition: inline
+In-Reply-To: <OF0551C40F.E8032010-ON86256F7E.007EFEBA-86256F7E.007EFF1F@raytheon.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
- > although it doesn't seem to be implemented.
+On Mon, Jan 03, 2005 at 05:07:08PM -0600, Mark_H_Johnson@raytheon.com wrote:
+> I was looking to compare RT latency between this kernel and the latest from
+> Ingo and I had the following warnings / errors building 2.6.10-mm1:
+> 
+> [no apparent compile / link errors]
+> *** Warning: "snd_ac97_restore_iec958" [sound/pci/ac97/snd-ac97-codec.ko]
+> undefined!
+> *** Warning: "snd_ac97_restore_status" [sound/pci/ac97/snd-ac97-codec.ko]
+> undefined!
+>...
+> To fix this, should I just add the EXPORT_SYMBOL lines for these symbols
+>   snd_ac97_restore_status  snd_ac97_restore_iec958
+> or is something more needed?
 
-Thats taken from Samba4, where it is fully implemented. I guess Steve
-is planning on integrating cifsfs with the Samba4 way of handling EAs,
-NT ACLs, attribs, streams etc at some stage.
+That's not the problem, since function and definition are in the same 
+module.
 
-See 
-  http://samba.org/ftp/unpacked/samba4/source/librpc/idl/xattr.idl 
-for a full definition of the structures we use. 
+You didn't send your .config, but looking at the code it seems 
+CONFIG_PM=n was the culprit.
 
-I used a NDR encoding in each of the xattrs to provide a well defined
-architecture independent encoding, and an easy way to extend the
-structure in the future (thats why DosAttrib is a union with a version
-switch). 
+As a workaround, it should work after enabling the following option:
+  Power management options (ACPI, APM)
+    Power Management support
 
-The place where this will really interact a lot with the kernel is in
-the Samba LSM module that tpot and myself have been looking at
-writing. That module will provide the in-kernel implementation of
-these attributes that is needed to make them raceless (especially for
-NT ACLs).
+This is only a workaround, I've Cc'ed the ALSA maintainers for a real 
+fix.
 
-These xattr structures are also the key to solving the
-case-insensitivity problem that has been plaguing Samba for so
-long. We have come up with a very simple scheme for making
-case-insensiitive filenames work very efficiently on any filesystem
-that supports xattrs. It requires no additional kernel support beyond
-xattrs, and gets rid of the need for a large user-space name
-cache.
+> Thanks.
+>   --Mark Johnson <mailto:Mark_H_Johnson@Raytheon.com>
 
-Cheers, Tridge
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

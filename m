@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbTEBU4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbTEBU4O
+	id S262873AbTEBRBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 13:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTEBRBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:56:14 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:7579 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262405AbTEBU4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:56:07 -0400
-Date: Fri, 2 May 2003 14:05:08 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.68-mm4
-Message-Id: <20030502140508.02d13449.akpm@digeo.com>
-In-Reply-To: <1051908541.2166.40.camel@spc9.esa.lanl.gov>
-References: <20030502020149.1ec3e54f.akpm@digeo.com>
-	<1051905879.2166.34.camel@spc9.esa.lanl.gov>
-	<20030502133405.57207c48.akpm@digeo.com>
-	<1051908541.2166.40.camel@spc9.esa.lanl.gov>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 May 2003 21:08:27.0414 (UTC) FILETIME=[F9B4C360:01C310EE]
+	Fri, 2 May 2003 13:01:00 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46481 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262873AbTEBRA4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 13:00:56 -0400
+Date: Fri, 2 May 2003 13:15:35 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Riley Williams <Riley@Williams.Name>
+cc: Kevin Corry <kevcorry@us.ibm.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       Bodo Rzany <bodo@rzany.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: is there small mistake in lib/vsprintf.c of kernel 2.4.20 ?
+In-Reply-To: <BKEGKPICNAKILKJKMHCAKEBLCKAA.Riley@Williams.Name>
+Message-ID: <Pine.LNX.4.53.0305021305250.9707@chaos>
+References: <BKEGKPICNAKILKJKMHCAKEBLCKAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole <elenstev@mesatop.com> wrote:
+On Fri, 2 May 2003, Riley Williams wrote:
+
+> Hi Richard.
 >
-> On Fri, 2003-05-02 at 14:34, Andrew Morton wrote:
-> > Steven Cole <elenstev@mesatop.com> wrote:
-> > >
-> > > For what it's worth, kexec has worked for me on the following
-> > > two systems.
-> > > ...
-> > > 00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-> > 
-> > Are you using eepro100 or e100?  I found that e100 failed to bring up the
-> > interface on restart ("failed selftest"), but eepro100 was OK.
-> 
-> CONFIG_EEPRO100=y
-> # CONFIG_EEPRO100_PIO is not set
-> # CONFIG_E100 is not set
-> 
-> I can test E100 again to verify if that would help.
+>  >>>>> IOW, %d _does_ mean base=10.  base=0 is %i.  That goes
+>  >>>>> both for kernel and userland implementations of scanf
+>  >>>>> family (and for any standard-compliant implementation,
+>  >>>>> for that matter).
+>
+>  > What!??????
+>  >
+>  > The base, in the kernel code is the number that you divide by
+>  > to return the remainder for numerical conversions!  the base
+>  > is 8 or octal, 10 for decimal, 16 for hexadecimal, and up to
+>  > 36 for some other strange unused thing (all 26 letters of the
+>  > alphabet).
+>
+> If you read the definition of the scanf() family of functions, you
+> will note that a base of 0 is used to indicate that the standard C
+> prefixes should be honoured, such that a number beginning with 0x
+> is read as hexadecimal, a number beginning with 0 is read as octal
+> and any other number is read as decimal. As a result, the value of
+> 0 for base IS valid but is special cased.
+>
+> Think of it like the code that reads from a file. When the end of
+> the file is reached, the "character" EOF (code -1) is returned.
+> Such is not a valid character in the normal sense of the word, but
+> a special case that the function can produce.
+>
+>  > If your conversion chances the base to 0, you divide by 0 (not
+>  > good) and don't get a remainder. Actually  procedure number()
+>  > protects against a base less than 2 or greater than 36 so you
+>  > just prevent conversion altogether.
+>
+> If your conversion puts the base as 0, the code says "ah, we don't
+> know what base to use, so we look at the first few digits to decide"
+> and follows the above rules. Not a problem.
+>
+> Best wishes from Riley.
+> ---
 
-May as well.
+The base, shown in the definition in scanf() does not have any
+correlation to the names of the internal variables used. The
+current code, correctly uses the base of 10 when %d, %u, %l, and
+all the other decimal variants are encountered, and correctly
+uses base octal when %o is encountered, and correctly uses
+base 16 when %x or its variations are encountered. The only
+known problem is not a problem with base, but a problem with
+scanning  the string because the standard allows 0x to preceed
+a hexadecimal number.
 
-There's something in the driver shutdown which is failing to bring the
-device into a state in which the driver startup can start it up.  Probably
-just a missing device reset.  I'll bug Scott about it if we get that far.
+Kevin Corry <kevcorry@us.ibm.com>, submitted a patch which breaks
+already working code in an aparent attempt to fix the leading
+"0x" problem.
 
-> Also, I found that if I mistyped the argument to do-kexec.sh, the
-> system would stay up, but the interface would get hosed, fixable with
-> /etc/rc.d/init.d/network restart.
 
-Yes, kexec userspace shuts down the network interfaces then tries to exec
-the new kernel.  But none was loaded and the syscall returns -EINVAL. 
-You're left with downed interfaces.  The script should be checking the
-success of the initial image loading.
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

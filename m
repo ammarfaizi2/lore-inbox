@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132126AbRCYRHu>; Sun, 25 Mar 2001 12:07:50 -0500
+	id <S132121AbRCYRIu>; Sun, 25 Mar 2001 12:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132122AbRCYRHk>; Sun, 25 Mar 2001 12:07:40 -0500
-Received: from www.wen-online.de ([212.223.88.39]:37642 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S132121AbRCYRHg>;
-	Sun, 25 Mar 2001 12:07:36 -0500
-Date: Sun, 25 Mar 2001 21:07:35 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <l0313031db6e2def84b96@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.33.0103252041470.551-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132122AbRCYRIk>; Sun, 25 Mar 2001 12:08:40 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:56202 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132121AbRCYRI2>; Sun, 25 Mar 2001 12:08:28 -0500
+Message-Id: <5.0.2.1.2.20010325180537.04690940@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sun, 25 Mar 2001 18:07:17 +0100
+To: "Michel Wilson" <michel@procyon14.yi.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: RE: Larger dev_t
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <NEBBLEJBILPLHPBNEEHIEEPNCAAA.michel@procyon14.yi.org>
+In-Reply-To: <20010325081524.E30469@sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Mar 2001, Jonathan Morton wrote:
-
-> >> While my post didn't give an exact formula, I was quite clear on the
-> >>fact that
-> >> the system is allowing the caches to overrun memory and cause oom problems.
+At 17:54 25/03/2001, Michel Wilson wrote:
+> > Wichert Akkerman wrote:
+> > > You are just delaying the problem then, at some point your uptime will
+> > > be large enough that you have run through all 64bit pids for example.
 > >
-> >Yes.  A testcase would be good.  It's not happening to everybody nor is
-> >it happening under all loads.  (if it were, it'd be long dead)
+> > 64 bits is enough to fork 1 million processes per second for over
+> > 500,000 years.  I think that's putting the problem off far enough.
 > >
-> >> I'm more than happy to test patches, and I would even be willing to suggest
-> >> some algorithms that might help, but I don't know where to stick them in the
-> >> code.  Most of the people who have been griping are in a similar position.
-> >
-> >First step toward killing the critter is to lure him onto open ground.
-> >Once there.. well, I've seen some pretty fancy shooting on this list.
->
-> My patch already fixes OOM problems caused by overgrown caches/buffers, by
-> making sure OOM is not triggered until these buffers have been cannibalised
-> down to freepages.high.  If balancing problems still exist, then they
-> should be retuned with my patch (or something very like it) in hand, to
-> separate one problem from the other.  AFAIK, balancing should now be a
-> performance issue rather than a stability issue.
+> > -Mitch
+> > -
+>Ever thought about how you would kill a process: kill -9 127892752 doesn't
+>sound very appealing to me.
+>So you'd also need to implement a mechanism that allows for 'easy' selection
+>of processes to kill, for example giving every process with the same name
+>a unique identifier (like httpd_0, httpd_1, httpd_2 and so on).
 
-Great.  I haven't seen your patch yet as my gateway ate it's very last
-disk.  I look forward to reading it.
+Ever heard of cut-and-paste? Surely you can afford a mouse... And for when 
+you you are not inputting manually but running a script/whatever, who cares 
+what the numbers are...
 
-	-Mike
+Cheers,
+
+         Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270365AbTGMTgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 15:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270366AbTGMTgL
+	id S270373AbTGMTu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 15:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270374AbTGMTu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 15:36:11 -0400
-Received: from ip-86-245.evc.net ([212.95.86.245]:8832 "EHLO hal9003.1g6.biz")
-	by vger.kernel.org with ESMTP id S270365AbTGMTgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 15:36:10 -0400
-From: Nicolas <linux@1g6.biz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: memory shown with free
-Date: Sun, 13 Jul 2003 21:50:56 +0200
-User-Agent: KMail/1.5
-Organization: 1G6
+	Sun, 13 Jul 2003 15:50:58 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:23998 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id S270373AbTGMTu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 15:50:56 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Con Kolivas <kernel@kolivas.org>, smiler@lanil.mine.nu
+Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
+Date: Sun, 13 Jul 2003 22:07:09 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200307112053.55880.kernel@kolivas.org> <1058027317.4363.8.camel@sm-wks1.lan.irkk.nu> <200307131226.29452.kernel@kolivas.org>
+In-Reply-To: <200307131226.29452.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200307132150.56661.linux@1g6.biz>
+Message-Id: <200307132206.27589.phillips@arcor.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 13 July 2003 04:26, Con Kolivas wrote:
+> Surprisingly noone has said whether this patch does any good for their
+> setup though.
 
-Hello,
+Sorry, I'm on the road for a month, it's rather difficult for me to continue 
+my testing.  On the other hand, it's a good chance to read and hopefully 
+understand your code.
 
-Can somebody explain me this numbers ?
-The cache number seems false isn't it ?
+Regards,
 
-Nicolas.
-
-(kernel 2.5.75)
-[root@hal9003 npa]# free
-             total       used       free     shared    buffers     cached
-Mem:       1034372     336472     697900          0      27272      98820
--/+ buffers/cache:     210380     823992
-Swap:            0          0          0
-[root@hal9003 npa]# find / > /dev/null
-[root@hal9003 npa]# free
-             total       used       free     shared    buffers     cached
-Mem:       1034372     909520     124852          0      84464      98820
--/+ buffers/cache:     726236     308136
-Swap:            0          0          0
+Daniel
 

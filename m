@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269490AbRHCRlo>; Fri, 3 Aug 2001 13:41:44 -0400
+	id <S269524AbRHCRte>; Fri, 3 Aug 2001 13:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269517AbRHCRl2>; Fri, 3 Aug 2001 13:41:28 -0400
-Received: from Huntington-Beach.blue-labs.org ([208.179.59.198]:20819 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S269490AbRHCRlI>; Fri, 3 Aug 2001 13:41:08 -0400
-Message-ID: <3B6AE225.9070702@blue-labs.org>
-Date: Fri, 03 Aug 2001 13:40:53 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010725
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Any known ext2 FS problems in 2.4.7?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269527AbRHCRtY>; Fri, 3 Aug 2001 13:49:24 -0400
+Received: from marine.sonic.net ([208.201.224.37]:50468 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S269524AbRHCRtM>;
+	Fri, 3 Aug 2001 13:49:12 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 3 Aug 2001 10:49:20 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+Message-ID: <20010803104920.I437@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01080315090600.01827@starship>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm starting to go through a cycle every 2-3 days where I have to bring 
-one particular machine down to init l1, kill any processes and remount 
-RO, then run e2fsck on the e2fs partition.  Over that period of time, 
-disk space is eaten without accouting. 'du' shows about 13 gigs used 
-when I sum up all the directories.  Roughly 4.5 gigs is missing.  During 
-e2fsck, there are many many pages of deleted inodes with zero dtime, ref 
-count fixups, and free inode count fixups.  When I say many, I mean that 
-this pIII 667 scrolls for about four minutes...
-
-There is nothing special about this partition, it doesn't do it while 
-running 2.4.5-ac15, but I can't use that kernel either because it OOPSes 
-as I reported.  That OOPS was fixed for 2.4.7, but this disk space issue 
-is rather frustrating.  Fortunately all my other systems are reiserfs 
-and work fine.
-
-/dev/ide/host0/bus0/target0/lun0/part2 on / type ext2 
-(rw,usrquota=/usr/local/admin/system-info/quota-home)
-
-I haven't mucked with any /proc settings other than "16384" 
- >/proc/sys/fs/file-max.  It's also worthy to note that this machine 
-also likes to break and spontaneously reboot about once every day.  No 
-klog, no console, no nothing, just bewm.  Again 2.4.5 didn't do this.
-
-There is nothing unusual running on this machine, it's very similar to 
-several other machines that stay running with much higher loads just fine.
-
--d
+On Fri, Aug 03, 2001 at 03:09:06PM +0200, Daniel Phillips wrote:
+> On Friday 03 August 2001 05:13, Alexander Viro wrote:
+> > On Fri, 3 Aug 2001, Daniel Phillips wrote:
+> > > There is only one chain of directories from the fd's dentry up to
+> > > the root, that's the one to sync.
+> >
+> > You forgot ".. at any given moment". IOW, operation you propose is
+> > inherently racy. You want to do that - you do that in userland.
+> 
+> Are you saying that there may not be a ".." some of the time?  Or just 
+> that it may spontaneously be relinked?  If it does spontaneously change 
+> it doesn't matter, you have still made sure there is access by at least 
+> one path.
 
 
+I read the ".." as a typo for "..."  As in Al was suggesting the sentence
+should read "There is only one chain of directories at any given moment
+from the fd's dentry up to the root...."
 
+At least, that was my reading on it.
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

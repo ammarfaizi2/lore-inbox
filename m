@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289341AbSAVSqu>; Tue, 22 Jan 2002 13:46:50 -0500
+	id <S289343AbSAVSsu>; Tue, 22 Jan 2002 13:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289342AbSAVSqk>; Tue, 22 Jan 2002 13:46:40 -0500
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:33454 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S289341AbSAVSqe>; Tue, 22 Jan 2002 13:46:34 -0500
-Date: Tue, 22 Jan 2002 13:46:26 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre5
-Message-ID: <20020122184626.GC1562@opeth.ath.cx>
-In-Reply-To: <Pine.LNX.4.21.0201221514140.2056-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lMM8JwqTlfDpEaS6"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201221514140.2056-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.26i
-From: Dan Chen <crimsun@email.unc.edu>
+	id <S289342AbSAVSso>; Tue, 22 Jan 2002 13:48:44 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:44306 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289351AbSAVSsN>; Tue, 22 Jan 2002 13:48:13 -0500
+Message-ID: <3C4DB256.172F8D6A@zip.com.au>
+Date: Tue, 22 Jan 2002 10:41:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Andreas Dilger <adilger@turbolabs.com>, Chris Mason <mason@suse.com>,
+        Rik van Riel <riel@conectiva.com.br>, Shawn Starr <spstarr@sh0n.net>,
+        linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33L.0201211153110.32617-100000@imladris.surriel.com> <3C4C20A2.9040009@namesys.com> <1780530000.1011633710@tiny> <3C4C5414.2090104@namesys.com> <1819870000.1011642257@tiny> <3C4C7D08.2020707@namesys.com> <1854570000.1011649986@tiny> <20020121230249.P4014@lynx.turbolabs.com> <3C4D4F5E.2000106@namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hans Reiser wrote:
+> 
+> So is there a consensus view that we need 2 calls, one to write a
+> particular page, and one to exert memory pressure, and the call to write
+> a particular page should only be used when we really need to write that
+> particular page?
+> 
 
---lMM8JwqTlfDpEaS6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note that writepage() doesn't get used much.  Most VM-initiated
+filesystem writeback activity is via try_to_release_page(), which
+has somewhat more vague and flexible semantics.
 
-Eh, it is just me or are patch-2.4.18-pre5.{bz2,gz} borked?
+And by bdflush, which I suspect tends to conflict with sync_page_buffers()
+under pressure.  But that's a different problem.
 
-Patching on top of pristine 2.4.17 gives me more than a few rejects.
-=46rom ftp.kernel.org:
-
-3c2fdf92d961145c100a99c6e3225f48  patch-2.4.18-pre5.bz2
-
-On Tue, Jan 22, 2002 at 03:20:24PM -0200, Marcelo Tosatti wrote:
->=20
-> Hi,=20
->=20
-> I was waiting for the icmp overflow problem to be fixed to release this
-> kernel, but it only exists only on 2.2.
->=20
-> Well, here goes pre5.
-
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
-
---lMM8JwqTlfDpEaS6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8TbOCMwVVFhIHlU4RAq1iAJ0YVSt/gjd7cjg5vFaKWvsVDU3lcACfXdzX
-vH7Mi/FBXsUMCSCtb003DNw=
-=uCJG
------END PGP SIGNATURE-----
-
---lMM8JwqTlfDpEaS6--
+-

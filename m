@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbUAOT6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbUAOT6O
+	id S263513AbUAOUEU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 15:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUAOUEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:58:14 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:29097 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262564AbUAOT6J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:58:09 -0500
-Date: Thu, 15 Jan 2004 21:57:58 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Something corrupts raid5 disks slightly during reboot
-Message-ID: <20040115195758.GY11115822@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Samium Gromoff <deepfire@sic-elvis.zel.ru>,
-	linux-kernel@vger.kernel.org
-References: <877jzuxz5i.wl@canopus.ns.zel.ru> <20040114223040.GV11115822@niksula.cs.hut.fi> <87smihxu0u.wl@canopus.ns.zel.ru>
-Mime-Version: 1.0
+	Thu, 15 Jan 2004 15:04:20 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:54978 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263491AbUAOUER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 15:04:17 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87smihxu0u.wl@canopus.ns.zel.ru>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16390.62011.1043.575769@napali.hpl.hp.com>
+Date: Thu, 15 Jan 2004 12:04:10 -0800
+To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matt_Domsch@dell.com,
+       matthew.e.tolentino@intel.com
+Subject: Re: [patch] efivars update for 2.6.1
+In-Reply-To: <200401151936.i0FJaopB001880@snoqualmie.dp.intel.com>
+References: <200401151936.i0FJaopB001880@snoqualmie.dp.intel.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 03:42:41PM +0300, you [Samium Gromoff] wrote:
-> At Thu, 15 Jan 2004 00:30:40 +0200,
-> Ville Herva wrote:
-> > 
-> > On Wed, Jan 14, 2004 at 07:39:37PM +0300, you [Samium Gromoff] wrote:
-> > > 
-> > > I know this sounds stupid, but anyway:
-> > > 
-> > > I have seen the very same symptome caused by RAM faults (too slow ram
-> > > for given clocks, to be exact).
-> > 
-> > The very same? You mean if booted, wrote few kB's of data to disk, synced,
-> > then pressed reset, the same three bytes were corrupted (set to zero) each
-> > time after reboot? 
-> 
-> No, corruption after reboot and perfect work inbetween.
+Well, how about adding the URL to the updated efibootmgr to the
+help-text for EFI_VARS?
 
-Very strange. And you got rid of it by replacing the memory? 
+	--david
 
-Any theories on how faulty memory could actually cause something like this?
-A bad spot in memory on an area where the bios code is cached, and hence is
-never used apart from running the bios startup (not even by memtest86)?
-
-
--- v --
-
-v@iki.fi
++#
++# EFI Driver Configuration
++#
++
++menu "EFI driver support"
++depends on EFI
++
++config EFI_VARS
++	tristate "EFI Variable Support via sysfs"
++	depends on EFI
++	default n
++	---help---
++	  If you say Y here, you are able to get EFI (Extensible Firmware
++	  Interface) variable information via sysfs.  You may read,
++	  write, create, and destroy EFI variables through this interface.
++
++
++endmenu

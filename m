@@ -1,71 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVAKOU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVAKOVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbVAKOU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 09:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVAKOU7
+	id S262768AbVAKOVc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 09:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVAKOVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 09:20:59 -0500
-Received: from mail.tmr.com ([216.238.38.203]:15365 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262767AbVAKOUx (ORCPT
+	Tue, 11 Jan 2005 09:21:32 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:58769 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262768AbVAKOVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 09:20:53 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Bad disks or bug ?
-Date: Tue, 11 Jan 2005 09:23:31 -0500
-Organization: TMR Associates, Inc
-Message-ID: <41E3E163.9030804@tmr.com>
-References: <41E3D2A7.3000002@sgi.com><41E3D2A7.3000002@sgi.com> <41E3D37A.2030303@abinetworks.biz>
+	Tue, 11 Jan 2005 09:21:23 -0500
+Date: Tue, 11 Jan 2005 15:21:35 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org,
+       linux-usb-deve@lists.sourceforge.net
+Subject: Re: for USB guys - strange things in dmesg
+Message-ID: <20050111142135.GA3729@ucw.cz>
+References: <mailman.1104438600.3923.linux-kernel2news@redhat.com> <20050108150003.4adfdd7e@lembas.zaitcev.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1105452643 17602 192.168.12.100 (11 Jan 2005 14:10:43 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Prarit Bhargava <prarit@sgi.com>, linux-kernel@vger.kernel.org
-To: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-In-Reply-To: <41E3D37A.2030303@abinetworks.biz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050108150003.4adfdd7e@lembas.zaitcev.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ing. Gianluca Alberici wrote:
-> Prarit,
+On Sat, Jan 08, 2005 at 03:00:03PM -0800, Pete Zaitcev wrote:
+> On Thu, 30 Dec 2004 21:13:00 +0100, Michal Semler <cijoml@volny.cz> wrote:
 > 
-> I run 2.4.27 on all my machines.
+> > when inserting my Bluetooth dongle into USB port, I get into dmesg this:
+> > Bluetooth: RFCOMM ver 1.4
+> > Bluetooth: RFCOMM socket layer initialized
+> > Bluetooth: RFCOMM TTY layer initialized
+> > drivers/usb/input/hid-core.c: input irq status -84 received
 > 
-> Never had problems but this (if we want to say its not a disk problem)
+> >[.... LONG flood of the same messages ....]
 > 
-> I have seen on mailing lists many people having this very problem, 
-> always on hdb, with a lot of different kernel and machines.
+> > drivers/usb/input/hid-core.c: input irq status -84 received
+> > usb 3-1: USB disconnect, address 3
+> > drivers/usb/input/hid-core.c: input irq status -84 received
+> > drivers/usb/input/hid-core.c: can't resubmit intr, 0000:00:1d.2-1/input1, status -19
+> > usb 3-1: new full speed USB device using uhci_hcd and address 4
+> > Bluetooth: HCI USB driver ver 2.7
 > 
-> I have basically two kind of cabinets:
+> What happens here is that the device disconnects itself during or after
+> it's initialized.
 > 
-> - The 'Antec style' tower
-> - Racmount cases
-> 
-> Everything well cooled...i am sure bout that.
-> 
-> Always ASUS A7V, Athlon XP 2xxx+, NEVER OVERCLOCKED, of course...
-> 
-> Disks are mainly Maxtor, or IBM
-> 
-> Basically i was wondering whether to swap disks on a server just to try....
-> 
-> ....These are the things that rave me mad !
+> Once the HC hardware detects the disconnect, future URBs will end with
+> -84 error. However, the HID driver does not do anything about it.
+> It continues to attempt to resubmit until the khubd does its processing
+> and enters its disconnect method. In extreme cases, it is possible to
+> have this submit-and-error-and-repeat loop to monopolize the CPU and
+> prevent khubd from working ever, thus effectively locking up the box.
+> Fortunately, in 2.6 kernel we standardized error codes, and thus drivers
+> like hid can rely on -84 meaning a disconnect and not something else.
+> In such case, hid has to stop resubmitting before its disconnect method
+> is executed.
 
-You might see if you can swap positions in the case first, then I guess 
-you would have nothing to try but actually flipping master with slave 
-(and contents as well, good fun).
+-84 is, according to documentation, -EILSEQ, and means "a CRC error",
+that shouldn't normally happen and "indicates hardware problems such as
+bad devices (including firmware) or cables".
 
-Just wondering, where is your swap? Your Journal? Do you have a small 
-fast drive you could use for swap and external journal? I checked all 
-the machines which have a similar configuration, and I don't see any 
-pattern, although all the machines with really high i/o load are using SCSI.
+I'm getting -84 on disconnect now, too, which suggests that uhci-hcd
+might be using incorrect error code here.
+
+Looking at uhci-hcd, it reports -EILSEQ in case there is a timeout on
+the bus talking to the device. This can happen due to a disconnect, but
+the HC should notice the disconnect I believe and return the right error
+code.
+
+Disconnects (-ESHUTDOWN) are already handled by hid-core.c
+
+> This is relevant to all drivers which submit interrupt URBs. One driver
+> which does it correctly is mct_u232 (surprisingly enough), so the code
+> can be taken from there.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Vojtech Pavlik
+SuSE Labs, SuSE CR

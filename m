@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVAYDyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVAYDyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVAYDyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 22:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVAYDyb
+	id S261792AbVAYDyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 22:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVAYDyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 22:54:31 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:28345 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261796AbVAYDy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 22:54:27 -0500
-Subject: Re: [PATCH 6/29] x86-apic-virtwire-on-shutdown
-From: Len Brown <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-References: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106625259.2395.232.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 24 Jan 2005 22:54:19 -0500
+	Mon, 24 Jan 2005 22:54:41 -0500
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:55267 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261792AbVAYDyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 22:54:38 -0500
+Message-ID: <41F5C347.4030605@kolivas.org>
+Date: Tue, 25 Jan 2005 14:55:51 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Jack O'Quin" <joq@io.com>, Ingo Molnar <mingo@elte.hu>,
+       linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org> <873bwrpb4o.fsf@sulphur.joq.us> <41F57D94.4010500@kolivas.org>
+In-Reply-To: <41F57D94.4010500@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
-> When coming out of apic mode attempt to set the appropriate
-> apic back into virtual wire mode.  This improves on previous versions
-> of this patch by by never setting bot the local apic and the ioapic
-> into veritual wire mode.
+Con Kolivas wrote:
+> -cc list trimmed to those who have recently responded.
 > 
-> This code looks at data from the mptable to see if an ioapic has
-> an ExtInt input to make this decision.  A future improvement
-> is to figure out which apic or ioapic was in virtual wire mode
-> at boot time and to remember it.  That is potentially a more accurate
-> method, of selecting which apic to place in virutal wire mode.
 > 
+> Here is a patch to go on top of 2.6.11-rc2-mm1 that fixes some bugs in 
+> the general SCHED_ISO code, fixes the priority support between ISO 
+> threads, and implements SCHED_ISO_RR and SCHED_ISO_FIFO as separate 
+> policies. Note the bugfixes and cleanups mean the codepaths in this are 
+> leaner than the original ISO2 implementation despite the extra features.
+> 
+> This works safely and effectively on UP (but not tested on SMP yet) so 
+> Jack if/when you get a chance I'd love to see more benchmarks from you 
+> on this one. It seems on my machine the earlier ISO2 implementation 
+> without priority nor FIFO was enough for good results, but not on yours, 
+> which makes your testcase a more discriminating one.
 
-The call to find_isa_irq_pin() will always fail on ACPI-enabled systems,
-so this patch is a NO-OP unless the system is booted in MPS mode.
+Sorry, I see yet another flaw in the design and SMP is broken so hold 
+off testing for a bit.
 
-Do we really want to be adding this complexity for obsolete systems? 
-Are there systems that fail without this patch?
-
--Len
-
-
+Cheers,
+Con

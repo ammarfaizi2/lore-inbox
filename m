@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271419AbRH1P1b>; Tue, 28 Aug 2001 11:27:31 -0400
+	id <S271505AbRH1PbL>; Tue, 28 Aug 2001 11:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271487AbRH1P1V>; Tue, 28 Aug 2001 11:27:21 -0400
-Received: from oe75.law9.hotmail.com ([64.4.8.210]:56841 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S271419AbRH1P1I>;
-	Tue, 28 Aug 2001 11:27:08 -0400
-X-Originating-IP: [65.92.114.22]
-From: "Camiel Vanderhoeven" <camiel_toronto@hotmail.com>
-To: <Bart.Vandewoestyne@pandora.be>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: DOS2linux
-Date: Tue, 28 Aug 2001 11:27:35 -0400
-Message-ID: <001201c12fd5$f6ccf010$0100a8c0@kiosks.hospitaladmission.com>
+	id <S271507AbRH1PbB>; Tue, 28 Aug 2001 11:31:01 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:46354 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S271505AbRH1Pam>; Tue, 28 Aug 2001 11:30:42 -0400
+Message-ID: <3B8BB928.D3AECF73@didntduck.org>
+Date: Tue, 28 Aug 2001 11:30:48 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DOS2linux
+In-Reply-To: <001101c12fd0$0fd7f9c0$0100a8c0@kiosks.hospitaladmission.com> <3B8BB2B9.302F6485@pandora.be>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <F430LDGdyoOxg2elKWQ000009ff@hotmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-Importance: Normal
-X-OriginalArrivalTime: 28 Aug 2001 15:27:20.0581 (UTC) FILETIME=[EDB6E350:01C12FD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One additional note: it looks like the 320 bytes you are looking for are
-part of the NVRAM on the system board. Where this is stored exactly may
-very well be system-specific, I'm afraid...
+Bart Vandewoestyne wrote:
+> I also found this URL: http://uw7doc.sco.com/cgi-bin/man/man?eisa+D4
+> 
+> It comes from UnixWare 7 documentation and there they have the kind of
+> translation that I want to do (that is: translate INT 15h call "Read
+> Function" (AH=D8h, AL=01h)) to linux.  As i understood there isn't
+> such thing available for linux?  Meaning I'll have to try and
+> implement that stuff myself?  But then the problem remains: how do i
+> get to the data that is in the 320 byte buffer returned from an INT
+> 15h call "Read Function" (AH=D8h, AL=01h)
 
-Camiel.
+Basically, nobody ever implemented an EISA bus layer because it is rare
+to see EISA hardware anymore.  The few EISA aware drivers in Linux
+handle configuration themselves.  I had thought about doing it at one
+time for the sake of completeness, but I don't have access to any EISA
+hardware to test.
+
+--
+
+				Brian Gerst

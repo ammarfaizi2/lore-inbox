@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292701AbSCDS4k>; Mon, 4 Mar 2002 13:56:40 -0500
+	id <S292773AbSCDSzB>; Mon, 4 Mar 2002 13:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292770AbSCDS40>; Mon, 4 Mar 2002 13:56:26 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:30725 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S292701AbSCDSzb>;
-	Mon, 4 Mar 2002 13:55:31 -0500
-Date: Mon, 4 Mar 2002 19:41:47 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Martin.Bligh@us.ibm.com, riel@conectiva.com.br, andrea@suse.de,
-        phillips@bonn-fries.net, davidsen@tmr.com, mfedyk@matchmail.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-Message-Id: <20020304194147.7bca4201.skraw@ithnet.com>
-In-Reply-To: <20020304191804.2e58761c.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44L.0203041116120.2181-100000@imladris.surriel.com>
-	<190330000.1015261149@flay>
-	<20020304191804.2e58761c.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292701AbSCDSyr>; Mon, 4 Mar 2002 13:54:47 -0500
+Received: from konza.flinthills.com ([64.39.200.1]:12480 "EHLO
+	konza.flinthills.com") by vger.kernel.org with ESMTP
+	id <S292768AbSCDSyT>; Mon, 4 Mar 2002 13:54:19 -0500
+Subject: Waking up Non-acpi (and non-apm) compliant IDE devices
+From: Derek James Witt <djw@flinthills.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 04 Mar 2002 12:52:14 -0600
+Message-Id: <1015267934.2136.19.camel@saiya-jin>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002 19:18:04 +0100
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+Hey all. I just thought of something for this. I have an older Western
+Caviar 36400 hard drive that disconnects once the computer goes to
+sleep.  Currently, I disallow sleep mode for that very reason. But
+anyway,  I'm curious if it's safe to do a reset of  the IDE controller. 
+In my case, the drive is currently on primary slave. I moved it from
+secondary master.   
 
-> As stated above: try to bring in per-node zones that are preferred by their cpu. This can work equally well for UP,SMP and NUMA (maybe even for cluster).
-> UP=every zone is one or more preferred zone(s)
-correct: UP=all zones are preferred zones for the single CPU
+Right now, I fear if I hard-reset the IDE controller (a Via 686
+UDMA100), I might also disconnect the primary master (Quantum fireball
+6.4SE). That will render my box useless until I hit the the reset
+button.  But, if I do a soft-reset, the caviar may not wake up. I know
+the quantum will wake up fine upon a soft-reset and upon resume of the
+system.  I'm going to try putting in interrupt 15 (secondary IDE) as a
+primary power event in my bios and see if that can wake up the drive.
 
-> SMP=every zone is one or more preferred zone(s)
-correct: SMP=all zones are preferred zones for all CPUs
 
-Regards,
-Stephan
+Oh, if you're curious, here is my fstab:
 
+# /etc/fstab: static file system information.
+#
+# <file system>	<mount point>	<type>	<options>	<dump>	<pass>
+/dev/hda6	/		xfs	defaults	1	1
+/dev/hda5	/boot		xfs	defaults	1	1
+/dev/hda7	/home		xfs	defaults	1	1
+/dev/hdb3	/usr		xfs	defaults	1	1
+/dev/hda9	/usr/local	xfs	defaults	1	1
+
+/dev/hda8	none		swap	sw		0	0
+/dev/hdb2	none		swap	sw		0	0
+
+proc		/proc		proc	defaults	0	0
+
+/dev/fd0	/floppy		auto	defaults,user,noauto	0	0
+
+/dev/sr0	/cdrom		auto	defaults,ro,user,noauto	0	0
+/dev/sr1	/cdrw		auto	defaults,ro,user,noauto	0	0
+
+tmpfs		/dev/shm	tmpfs	defaults	0		0
+
+/dev/hda1	/win2k		ntfs	defaults,ro,user,uid=cappicard	0	0
+/dev/hdb1	/win2k-driveE	ntfs	defaults,ro,user,uid=cappicard	0	0
+
+As you probably see, if my caviar (hdb) disconnects, I'm pretty-much SOL
+if  I try to run X or any programs from /usr/*. And I have to resort to
+SysRq to reboot the box (I hate finding a pen to hit the reset button). 
+
+I'll let you know what I find out.
+
+-- 
+**  Derek J Witt                                              **
+*   Email: mailto:djw@flinthills.com                           *
+*   Home Page: http://www.flinthills.com/~djw/                 *
+*** "...and on the eighth day, God met Bill Gates." - Unknown **

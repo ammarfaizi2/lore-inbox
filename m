@@ -1,32 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267125AbTAGMor>; Tue, 7 Jan 2003 07:44:47 -0500
+	id <S267372AbTAGM6O>; Tue, 7 Jan 2003 07:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267144AbTAGMor>; Tue, 7 Jan 2003 07:44:47 -0500
-Received: from services.cam.org ([198.73.180.252]:57119 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S267125AbTAGMoq> convert rfc822-to-8bit;
-	Tue, 7 Jan 2003 07:44:46 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: unknown symbols 2.5.54bk (soundcore/errno nfsd/hash_mem)
-Date: Tue, 7 Jan 2003 07:53:34 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Message-Id: <200301070753.34476.tomlins@cam.org>
-Content-Transfer-Encoding: 8BIT
+	id <S267373AbTAGM6O>; Tue, 7 Jan 2003 07:58:14 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:55761 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S267372AbTAGM6L>; Tue, 7 Jan 2003 07:58:11 -0500
+Date: Tue, 7 Jan 2003 15:06:39 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH: fix "assignment from incopatible pointer type" in amd-k7-agp.c
+Message-ID: <20030107130639.GH25540@alhambra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this doing modules_install this morning:
+agp_bridge.gatt_table and agp_bridge.gatt_table_real are both
+u32*. Cast unsignments to them from unsigned long*'s to u32*'s. 
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.54; fi
-WARNING: /lib/modules/2.5.54/kernel/sound/soundcore.ko needs unknown symbol errno
-WARNING: /lib/modules/2.5.54/kernel/fs/nfsd/nfsd.ko needs unknown symbol hash_mem
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.973   -> 1.974  
+#	drivers/char/agp/amd-k7-agp.c	1.13    -> 1.14   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/01/07	mulix@alhambra.mulix.org	1.974
+# fix "assignment from incompatible pointer type". 
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/agp/amd-k7-agp.c b/drivers/char/agp/amd-k7-agp.c
+--- a/drivers/char/agp/amd-k7-agp.c	Tue Jan  7 14:16:34 2003
++++ b/drivers/char/agp/amd-k7-agp.c	Tue Jan  7 14:16:34 2003
+@@ -138,8 +138,8 @@
+ 		return retval;
+ 	}
+ 
+-	agp_bridge.gatt_table_real = (unsigned long *)page_dir.real;
+-	agp_bridge.gatt_table = (unsigned long *)page_dir.remapped;
++	agp_bridge.gatt_table_real = (u32 *)page_dir.real;
++	agp_bridge.gatt_table = (u32 *)page_dir.remapped;
+ 	agp_bridge.gatt_bus_addr = virt_to_phys(page_dir.real);
+ 
+ 	/* Get the address for the gart region.
 
-Suspect Neil Brown will fix hash_mem once his patch gets past the Linus filter.  I
-have not seen the second reported.  I do not have ALSA selecterd, just OSS.
+-- 
+Muli Ben-Yehuda
 
-Ed Tomlinson
+my opinions may seem crazy. But they all make sense. Insane sense, but
+sense nontheless. -- Shlomi Fish on #offtopic.
+

@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262811AbTDAToX>; Tue, 1 Apr 2003 14:44:23 -0500
+	id <S262812AbTDATq0>; Tue, 1 Apr 2003 14:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbTDAToX>; Tue, 1 Apr 2003 14:44:23 -0500
-Received: from B583e.pppool.de ([213.7.88.62]:47264 "EHLO
+	id <S262810AbTDATqZ>; Tue, 1 Apr 2003 14:46:25 -0500
+Received: from B583e.pppool.de ([213.7.88.62]:49568 "EHLO
 	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262811AbTDAToW>; Tue, 1 Apr 2003 14:44:22 -0500
-Subject: Re: flash as hda causes 2.4.18 to hang in
-	grok_partitions()...add_to_page_cache_unique()
+	id <S262812AbTDATqY>; Tue, 1 Apr 2003 14:46:24 -0500
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
 From: Daniel Egger <degger@fhm.edu>
-To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-Cc: David Wuertele <dave-gnus@bfnet.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030401184348.GB3736@arthur.home>
-References: <m3smt3xuo1.fsf@bfnet.com> <1049212755.7628.5.camel@localhost>
-	 <20030401184348.GB3736@arthur.home>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wSY/j0vbZkFJOgXQP3O2"
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Christoph Rohland <cr@sap.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304012020290.1253-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0304012020290.1253-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8HbHInCRAP8OPoYPYfJc"
 Organization: 
-Message-Id: <1049226944.11985.2.camel@localhost>
+Message-Id: <1049227067.11985.5.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 
-Date: 01 Apr 2003 21:55:45 +0200
+Date: 01 Apr 2003 21:57:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-wSY/j0vbZkFJOgXQP3O2
+--=-8HbHInCRAP8OPoYPYfJc
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Am Die, 2003-04-01 um 20.43 schrieb Erik Mouw:
+Am Die, 2003-04-01 um 21.25 schrieb Hugh Dickins:
 
-> It usually is a CF bug. I've seen failing CF cards on one machine which
-> work perfectly well in another machine. Just try the same card in
-> another machine, or a get a new card. I haven't tried it with the new
-> IDE code, though.
+> Simply because quite a lot of the tmpfs code is concerned with moving
+> pages between ram and swap: if you've limited ram and no swap, you may
+> not want to waste your ram on that code!  One day I might try applying
+> #ifdef CONFIG_SWAPs within mm/shmem.c; but I might well not, it could
+> get ugly, and looks rudimentary elsewhere - do we intend to get serious
+> about CONFIG_SWAP?
 
-Well, I've seen CF cards not working in LBA mode, so changing that might
-work. However the failures are of a completely different nature; read
-errors seem to magically appear while here the detection is crashing.
+It would be more waste to have both ramfs and tmpfs in compiled form
+since the whole system is intended to run on embedded systems with CF as
+well as on faster machines with harddrive and swap.
 
 --=20
 Servus,
        Daniel
 
---=-wSY/j0vbZkFJOgXQP3O2
+--=-8HbHInCRAP8OPoYPYfJc
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+ie7Achlzsq9KoIYRArGhAKCBKJcjQZditzsa9VAARwKAjxxrdQCg1IMC
-MeYD63e1bVAJMbyaDpCJVYQ=
-=zSJ5
+iD8DBQA+ie87chlzsq9KoIYRAneEAJ4q74+mL3ZgSkYzIGOJjW22gMsVAQCgw70T
+vdqvs/8b7zPjVsU9lSjzEWU=
+=rb0b
 -----END PGP SIGNATURE-----
 
---=-wSY/j0vbZkFJOgXQP3O2--
+--=-8HbHInCRAP8OPoYPYfJc--
 

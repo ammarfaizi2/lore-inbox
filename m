@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbUAAKZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 05:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUAAKZZ
+	id S265390AbUAAK2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 05:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUAAK2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 05:25:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60550 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265378AbUAAKZV (ORCPT
+	Thu, 1 Jan 2004 05:28:47 -0500
+Received: from dp.samba.org ([66.70.73.150]:11697 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265390AbUAAK2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 05:25:21 -0500
-Date: Thu, 1 Jan 2004 02:25:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: joneskoo@derbian.org, linux-kernel@vger.kernel.org
+	Thu, 1 Jan 2004 05:28:46 -0500
+Date: Thu, 1 Jan 2004 21:27:20 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Joonas Kortesalmi <joneskoo@derbian.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: swapper: page allocation failure. order:3, mode:0x20
-Message-Id: <20040101022553.2be5f043.akpm@osdl.org>
-In-Reply-To: <20040101101541.GJ28023@krispykreme>
-References: <20040101093553.GA24788@derbian.org>
-	<20040101101541.GJ28023@krispykreme>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20040101102720.GL28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org> <20040101101541.GJ28023@krispykreme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040101101541.GJ28023@krispykreme>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
-> > swapper: page allocation failure. order:3, mode:0x20
-> 
-> ...
->  We should probably rate limit that printk. Andrew: I was thinking of
->  stealing net_ratelimit and calling it core_ratelimit or whatever. Then
->  wrap these non critical things with it. Overkill?
+ 
+> Now e1000 uses TSO (and can regularly ask for 32kB+ kmallocs in
+> interrupt context) perhaps we should look moving the rx buffer refill code
+> into a context that can sleep. Then again its not like we can tolerate
+> much latency in this code path, your rx ring will run out quite quickly :)
 
-Actually my intent was just to remove it (and __GFP_NOWARN) - it's just
-development-time debug.  But it is handy on occasion.
+I hate to argue with myself, but thats crap. TSO only affects the TX
+path and its buffers are created outside interrupt context. So it must be
+a large MTU causing the failures, regardless it still makes sense to explore
+rx skb refill outside of interrupt context idea.
 
-So sure, ratelimit it, make it KERN_INFO and maybe add a dump_stack()?
-
-(printk_ratelimit() may be a suitable name)
+Anton

@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267613AbUHRXUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267610AbUHRXY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267613AbUHRXUk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 19:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHRXUk
+	id S267610AbUHRXY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHRXY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 19:20:40 -0400
-Received: from mailfe01.swip.net ([212.247.154.1]:45449 "EHLO
-	mailfe01.swip.net") by vger.kernel.org with ESMTP id S267613AbUHRXUf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 19:20:35 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Wed, 18 Aug 2004 16:14:15 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: linux.kernel@vger.kernel.org
-Subject: Re: warning: comparison is always false due to limited range of 
- data type
-Message-Id: <20040818161415.1858c5f7.pj@sgi.com>
-In-Reply-To: <20040818225304.GF22559@bouh.is-a-geek.org>
-References: <2qIDQ-7ZR-13@gated-at.bofh.it>
-	<2qK2T-oz-1@gated-at.bofh.it>
-	<2qWQx-Hi-7@gated-at.bofh.it>
-	<2r8oA-ks-1@gated-at.bofh.it>
-	<20040818225304.GF22559@bouh.is-a-geek.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 18 Aug 2004 19:24:56 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:47878 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267610AbUHRXYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 19:24:54 -0400
+Date: Thu, 19 Aug 2004 00:24:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, wtogami@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Merge I2O patches from -mm
+Message-ID: <20040819002448.A3905@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Markus Lidel <Markus.Lidel@shadowconnect.com>,
+	alan@lxorguk.ukuu.org.uk, wtogami@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <4123E171.3070104@shadowconnect.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -1.0 IN_REP_TO 'In-Reply-To' line found
-	* -2.5 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4123E171.3070104@shadowconnect.com>; from Markus.Lidel@shadowconnect.com on Thu, Aug 19, 2004 at 01:08:33AM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel wrote:
-> Here is another approach. This should never warning, and should get
-> optimized away as needed.
+On Thu, Aug 19, 2004 at 01:08:33AM +0200, Markus Lidel wrote:
+> Okay, patch i2o_scsi-cleanup.patch adds a notification facility to the 
+> i2o_driver, which notify if a controller is added or removed. The 
+> i2o_controller structure has now the ability to store per-driver data 
+> and the SCSI-OSM now takes advantage of this. So all ugly parts should 
+> be removed now :-)
+> 
+> If you have further things which should be changed, please let me know...
 
-Yours looks like it has a better chance of not being broken by some
-future gcc enhancement that can see through the obfuscation in mine.
+Looks much better now, thanks.  But instead of the notify call please
+add a controller_add and add controller_remove method, taking a typesafe
+i2o_controller * instead of the multiplexer.
 
-I didn't actually try it, but yours looks good to me.
+> 
+> 
+> 
+> Best regards,
+> 
+> 
+> Markus Lidel
+> ------------------------------------------
+> Markus Lidel (Senior IT Consultant)
+> 
+> Shadow Connect GmbH
+> Carl-Reisch-Weg 12
+> D-86381 Krumbach
+> Germany
+> 
+> Phone:  +49 82 82/99 51-0
+> Fax:    +49 82 82/99 51-11
+> 
+> E-Mail: Markus.Lidel@shadowconnect.com
+> URL:    http://www.shadowconnect.com
 
-Thanks.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+---end quoted text---

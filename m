@@ -1,51 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287751AbSA3Atd>; Tue, 29 Jan 2002 19:49:33 -0500
+	id <S287596AbSA3Axx>; Tue, 29 Jan 2002 19:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287596AbSA3AtT>; Tue, 29 Jan 2002 19:49:19 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:57869 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S287552AbSA3As4>; Tue, 29 Jan 2002 19:48:56 -0500
-Message-Id: <200201300048.g0U0mrI59231@aslan.scsiguy.com>
-To: andersen@codepoet.org
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec 1480b SlimSCSI vs hotplug 
-In-Reply-To: Your message of "Tue, 29 Jan 2002 16:26:29 MST."
-             <20020129232629.GB937@codepoet.org> 
-Date: Tue, 29 Jan 2002 17:48:53 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S287565AbSA3Axe>; Tue, 29 Jan 2002 19:53:34 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:36360 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287552AbSA3AxZ>;
+	Tue, 29 Jan 2002 19:53:25 -0500
+Date: Tue, 29 Jan 2002 22:52:59 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rob Landley <landley@trommello.org>, Skip Ford <skip.ford@verizon.net>,
+        <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33.0201291610020.1747-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0201292245000.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Does this look agreeable?
-
-The only thing you've really changed is the class_mask.  I don't
-understand why testing against *more bits* of the class allows your
-card to be detected.  Can you explain why the old code fail?
-
->--- linux-2.4.18-pre7.orig/drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	Tue Jan
-> 29 05:20:08 2002
->+++ linux/drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	Tue Jan 29 05:20:08 200
->2
->@@ -62,12 +62,12 @@
-> /* We do our own ID filtering.  So, grab all SCSI storage class devices. */
-> static struct pci_device_id ahc_linux_pci_id_table[] = {
-> 	{
->-		0x9004, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
->-		PCI_CLASS_STORAGE_SCSI << 8, 0xFFFF00, 0
->+		PCI_VENDOR_ID_ADAPTEC, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
->+		((PCI_CLASS_STORAGE_SCSI << 8) | 0x00), ~0, 0
-> 	},
-> 	{
->-		0x9005, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
->-		PCI_CLASS_STORAGE_SCSI << 8, 0xFFFF00, 0
->+		PCI_VENDOR_ID_ADAPTEC2, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
->+		((PCI_CLASS_STORAGE_SCSI << 8) | 0x00), ~0, 0
-> 	},
-> 	{ 0 }
-> };
+On Tue, 29 Jan 2002, Linus Torvalds wrote:
+> On Tue, 29 Jan 2002, Rik van Riel wrote:
+> >
+> > That's fine with me, but _who_ do I send VM patches to if
+> > I can't send them to you ?
 >
-> -Erik
+> The VM stuff right now seems to be Andrea, Dave or you yourself (right
+> now I just wish you would split up your patches like Andrea does, that
+> way I can cherry-pick).
 
---
-Justin
+I will.  It's not split up at the moment because I'd like to
+work a bit more on -rmap before submitting it for inclusion
+and bitkeeper is a really nice tool to help me carry the patch
+from version to version.
+
+If -rmap makes it into the kernel I'll work with small patches
+in the same style as Andrea, that's just the easiest way to
+work.
+
+I'll also take some of rusty's scripts to automatically check
+if a patch (1) has been applied to the latest kernel or
+(2) if it still applies cleanly.
+
+Basically I'm looking for a way to minimise the work of
+carrying the -rmap VM across kernel versions, so I can spend
+my time doing development and cleaning up the code further.
+
+> The VM is a big issue, of course. And that one isn't likely to go away
+> anytime soon as a point of contention. And it's not easy to modularize,
+> apart from the obvious pieces (ie "filemap.c" vs the rest).
+
+Actually some stuff can be modularised somewhat. Christoph
+Hellwig for example has a nice patch which replaces all
+knowledge of page->wait with wake_up_page().
+
+This makes the fact of whether we're using per-page waitqueues
+or hashed waitqueues completely invisible to the rest of the
+kernel.
+
+Similar things are possible for other areas of the code.
+
+> You may not believe me when I say so, but I personally _really_ hope your
+> rmap patches will work out. I may not have believed in your patches in a
+> 2.4.x kind of timeframe, but for 2.6.x I'm more optimistic. As to how to
+> actually modularize it better to make points of contention smaller, I
+> don't know how.
+
+One thing William Irwin (and others, myself too) have been
+looking at is making the pagemap_lru_lock per-zone.
+
+This would allow us to "split up" memory in zones and have
+each CPU start the allocation chain at its own zone.
+
+This works out in practice because the reverse mapping code
+allows us to scan and free memory by physical address,
+meaning that reclaim_page() becomes a per-CPU local thing
+under light memory loads.
+
+Of course the current problem with that code is truncate
+and the lock ordering between the pagemap_lru_lock and the
+page_cache_lock ... something to look at later.
+
+kind regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

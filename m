@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUL0LK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbUL0LXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbUL0LK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 06:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUL0LK2
+	id S261489AbUL0LXy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 06:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUL0LXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 06:10:28 -0500
-Received: from pcsbom.patni.com ([203.124.139.208]:8328 "EHLO pcsspz.PATNI.COM")
-	by vger.kernel.org with ESMTP id S261482AbUL0LKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 06:10:19 -0500
-Reply-To: <sujeet.kumar@patni.com>
-From: "Sujeet Kumar" <sujeet.kumar@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: hi all
-Date: Wed, 1 Dec 2004 16:46:25 +0530
-Message-ID: <008701c4d797$32a58b80$9e61a8c0@pcp40702>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------=_1104146273-27319-237"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Importance: Normal
+	Mon, 27 Dec 2004 06:23:54 -0500
+Received: from gw.c9x.org ([213.41.131.17]:41766 "HELO
+	nerim.mx.42-networks.com") by vger.kernel.org with SMTP
+	id S261489AbUL0LXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 06:23:51 -0500
+Date: Mon, 27 Dec 2004 12:23:27 +0100
+From: "Frank Denis \(Jedi/Sector One\)" <lkml@pureftpd.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kernel BUG at fs/namei.c:2333 (reiserfs related?)
+Message-ID: <20041227112349.GA29389@c9x.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
-
-------------=_1104146273-27319-237
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
-
-
-Hi All,
-
-I tried loading a simple char driver on kernel 2.6 but it is giving invalid
-module parameter.
-
-This module is working very fine on kernel 2.4 . The kernel version I am
-using is linux-2.6.5-7.97-smp.
-
-I know that the insmod procedure has changed but dont know how to do it.
-
-If anybody know the procedure , kindly tell this to me.
-
-
-
-
-
-Thanks & regards ,
-sujeet kumar
-
-Patni Computer Systems Ltd.
-Vashi, New Mumbai
-
-
-
-
-
-http://www.patni.com
-World-Wide Partnerships. World-Class Solutions.
-_____________________________________________________________________
-
-This e-mail message may contain proprietary, confidential or legally
-privileged information for the sole use of the person or entity to
-whom this message was originally addressed. Any review, e-transmission
-dissemination or other use of or taking of any action in reliance upon
-this information by persons or entities other than the intended
-recipient is prohibited. If you have received this e-mail in error
-kindly delete  this e-mail from your records. If it appears that this
-mail has been forwarded to you without proper authority, please notify
-us immediately at netadmin@patni.com and delete this mail. 
-_____________________________________________________________________
-
-------------=_1104146273-27319-237--
+  I just got that one with kernel 2.6.10-rc3-mm1:
+  
+kernel BUG at fs/namei.c:2333!
+invalid operand: 0000 [#1]
+SMP
+Modules linked in: ipv6 sg raid5 xor raid1 raid0 linear dm_mirror dm_snapshot dm_mod qla2300 qla2xxx scsi_transport_fc sata_promise libata tg3
+CPU:    2
+EIP:    0060:[<c015b17d>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.10-rc3-mm1)
+EIP is at page_put_link+0x8a/0x94
+eax: 00000000   ebx: 00000000   ecx: f6c70ce4   edx: 00000000
+esi: c55e1000   edi: 00000000   ebp: ff80e013   esp: c55e1e68
+ds: 007b   es: 007b   ss: 0068
+Process apache2 (pid: 5355, threadinfo=c55e1000 task=f73e0a60)
+Stack: f6c70ce4 c0158145 c2e60aa0 c013128e ff803000 c018972a 00000001 c55e1f1c
+       c3006900 f6c70ce4 fbc916a5 00000009 ff80e009 c55e1000 c0517c58 c55e1000
+       00000000 ce922013 c0158061 00000000 00000000 ff80e000 48a1a66e 00000001
+Call Trace:
+ [<c0158145>] link_path_walk+0x30a/0xd69
+ [<c013128e>] read_cache_page+0x7b/0x218
+ [<c018972a>] reiserfs_readpage+0x0/0xc
+ [<c0158061>] link_path_walk+0x226/0xd69
+ [<c0158e8c>] path_lookup+0x90/0x14c
+ [<c0159094>] __user_walk+0x2f/0x52
+ [<c015435b>] vfs_stat+0x1d/0x4e
+ [<c0287727>] sock_poll+0x12/0x14
+ [<c01294fd>] autoremove_wake_function+0x0/0x43
+ [<c0154983>] sys_stat64+0x12/0x2b
+ [<c0174974>] dnotify_parent+0x35/0x95
+ [<c014be58>] vfs_read+0xab/0x11d
+ [<c015d431>] sys_poll+0x1b4/0x1e3
+ [<c01f59a8>] copy_to_user+0x32/0x45
+ [<c011abf8>] sys_gettimeofday+0x2c/0x65
+ [<c0102439>] sysenter_past_esp+0x52/0x75
+Code: 84 c0 75 02 5b c3 89 d8 5b e9 a3 d9 fd ff 0f 0b 5f 01 72 7a 2f c0 eb e0 89 d8 e8 92 d9 fd ff eb c8 0f 0b 5f 01 72 7a 2f c0 eb b2 <0f> 0b 1d 09 a5 a7 2f c0 eb 92 55 57 56 89 d6 31 d2 53 83 ec 18
+  

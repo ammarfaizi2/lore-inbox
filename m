@@ -1,193 +1,370 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265103AbSJWRch>; Wed, 23 Oct 2002 13:32:37 -0400
+	id <S265105AbSJWReV>; Wed, 23 Oct 2002 13:34:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265104AbSJWRcg>; Wed, 23 Oct 2002 13:32:36 -0400
-Received: from [202.88.156.6] ([202.88.156.6]:4523 "EHLO saraswati.hathway.com")
-	by vger.kernel.org with ESMTP id <S265103AbSJWRce>;
-	Wed, 23 Oct 2002 13:32:34 -0400
-Date: Wed, 23 Oct 2002 23:03:27 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
-Subject: Re: [PATCH] NMI request/release, version 3
-Message-ID: <20021023230327.A27020@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com>
+	id <S265107AbSJWReV>; Wed, 23 Oct 2002 13:34:21 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:34574 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265105AbSJWReL>; Wed, 23 Oct 2002 13:34:11 -0400
+Date: Wed, 23 Oct 2002 18:40:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Matt D. Robinson" <yakker@aparity.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: [PATCH] LKCD for 2.5.44 (8/8): dump driver and build files
+Message-ID: <20021023184020.D16547@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44.0210230241050.27315-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210230244560.27315-100000@nakedeye.aparity.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB5C4F3.5030102@mvista.com>; from cminyard@mvista.com on Tue, Oct 22, 2002 at 04:36:51PM -0500
+In-Reply-To: <Pine.LNX.4.44.0210230244560.27315-100000@nakedeye.aparity.com>; from yakker@aparity.com on Wed, Oct 23, 2002 at 02:45:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 04:36:51PM -0500, Corey Minyard wrote:
-
-> +static struct nmi_handler *nmi_handler_list = NULL;
-> +static spinlock_t         nmi_handler_lock = SPIN_LOCK_UNLOCKED;
-> +static struct nmi_handler *nmi_to_free_list = NULL;
-> +static spinlock_t         nmi_to_free_lock = SPIN_LOCK_UNLOCKED;
+On Wed, Oct 23, 2002 at 02:45:07AM -0700, Matt D. Robinson wrote:
+> @@ -0,0 +1,26 @@
+> +#
+> +# Makefile for the dump device drivers.
+> +#
+> +export-objs				:= dump_base.o
 > +
-> +struct rcu_head nmi_rcu;
+> +obj-$(CONFIG_CRASH_DUMP)		+= dump.o
+> +
+> +dump-y					:= dump_base.o
+> +obj-$(CONFIG_CRASH_DUMP_BLOCKDEV)	+= dump_blockdev.o
+> +obj-$(CONFIG_CRASH_DUMP_COMPRESS_RLE)	+= dump_rle.o
+> +obj-$(CONFIG_CRASH_DUMP_COMPRESS_GZIP)	+= dump_gzip.o
+> +dump-objs				+= $(dump-y)
+> +
+> +ifeq ($(ARCH),i386)
+> +dump-objs				+= dump_i386.o
+> +endif
+> +
+> +ifeq ($(ARCH),alpha)
+> +dump-objs				+= dump_alpha.o
+> +endif
+> +
+> +ifeq ($(ARCH),ia64)
+> +dump-objs				+= dump_ia64.o
+> +endif
+
+The makefile is a bit illogical.  The dump-y stuff doesn't make much sense
+unless you actually uses it :) E.g.:
+
+export-objs				:= dump_base.o
+
+dump-y					+= dump_base.o
+dump-$(CONFIG_ALPHA)			+= dump_alpha.o
+dump-$(CONFIG_IA64)			+= dump_ia64.o
+dump-$(CONFIG_X86)			+= dump_i386.o
+dump-objs				+= $(dump-y)
+
+obj-$(CONFIG_CRASH_DUMP)		+= dump.o
+obj-$(CONFIG_CRASH_DUMP_BLOCKDEV)	+= dump_blockdev.o
+obj-$(CONFIG_CRASH_DUMP_COMPRESS_RLE)	+= dump_rle.o
+obj-$(CONFIG_CRASH_DUMP_COMPRESS_GZIP)	+= dump_gzip.o
+
+BTW, I can't see the alpha/ia64 stuff actually beeing included.
+
+> +static kdev_t dump_device;         /* the actual kdev_t device number      */
+
+should be dev_t, not kdev_t.
+
+> +/*
+> + * Name: dump_read_proc()
+> + * Func: Read the proc data for dump tunables.
+> + */
+> +static int
+> +dump_read_proc(char *page, char **start, off_t off,
+> +	int count, int *eof, void *data)
+> +{
+> +	int len;
+> +	char *out = page;
+> +	struct proc_dir_entry *p = (struct proc_dir_entry *)data;
+> +
+> +
+> +	if (0 == strcmp(p->name, DUMP_LEVEL_NAME)) {
+> +		out += sprintf(out, "%d\n", dump_level);
+> +		len = out - page;
+> +	} else if (0 == strcmp(p->name, DUMP_FLAGS_NAME)) {
+> +		out += sprintf(out, "%d\n", dump_flags);
+> +		len = out - page;
+> +	} else if (0 == strcmp(p->name, DUMP_COMPRESS_NAME)) {
+> +		out += sprintf(out, "%d\n", dump_compress);
+> +		len = out - page;
+> +	} else if (0 == strcmp(p->name, DUMP_DEVICE_NAME)) {
+> +		out += sprintf(out, "0x%x\n", kdev_val(dump_device));
+> +		len = out - page;
+> +	} else {
+> +		return 0;
+> +	}
+> +	len -= off;
+> +	if (len < count) {
+> +		*eof = 1;
+> +		if (len <= 0) return 0;
+> +	} else {
+> +		len = count;
+> +	}
+> +	*start = page + off;
+> +	return len;
+
+Again:  if you have one value per file use (ro) sysctl!
+
+> +#ifndef UTSNAME_ENTRY_SZ
+> +#define UTSNAME_ENTRY_SZ 65
+> +#endif
+
+Shouldn't this be in a generic header?
+
+> +        dump_header_asm.dha_version = DUMP_ASM_VERSION_NUMBER;
+> +        dump_header_asm.dha_header_size = sizeof(struct __dump_header_asm);
+
+Indentation looks broken.  Please run all sourcefiles through unexpand(1)
+
+> +	/* if this is the second call to this function, clean up ... */
+> +	if (dump_okay && !dump_page_buf_0)
+> +		kfree((const void *)dump_page_buf_0);
+
+kfree(NULL) is fine.. i.e.:
+
+	if (dump_okay)
+		kfree(dump_page_buf_0);
+
+Dito for all other places.
+
+> +/*
+> + * Name: dump_release()
+> + * Func: Release the dump device -- it's never necessary to call
+> + *       this function, but it's here regardless.
+> + */
+> +static int
+> +dump_release(struct inode *i, struct file *f)
+> +{
+> +	return 0;
+> +}
+
+Just remove it.  You don't have to implement ->release.
+
 > +
 > +/*
-> + * To free the list item, we use an rcu.  The rcu-function will not
-> + * run until all processors have done a context switch, gone idle, or
-> + * gone to a user process, so it's guaranteed that when this runs, any
-> + * NMI handler running at release time has completed and the list item
-> + * can be safely freed.
+> + * Name: dump_ioctl()
+> + * Func: Allow all dump tunables through a standard ioctl() mechanism.
+> + *       This is far better than before, where we'd go through /proc,
+> + *       because now this will work for multiple OS and architectures.
 > + */
-> +static void really_free_nmi_list(void *unused)
+> +static int
+> +dump_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long arg)
 > +{
-> +	unsigned long      flags;
-> +	struct nmi_handler *item;
+> +	/* check capabilities */
+> +	if (!capable(CAP_SYS_ADMIN))
+> +		return -EPERM;
 > +
-> +	spin_lock_irqsave(&nmi_to_free_lock, flags);
-> +	while (nmi_to_free_list) {
-> +		item = nmi_to_free_list;
-> +		nmi_to_free_list = item->link2;
-> +		item->freed(item);
+> +	/*
+> +	 * This is the main mechanism for controlling get/set data
+> +	 * for various dump device parameters.  The real trick here
+> +	 * is setting the dump device (DIOSDUMPDEV).  That's what
+> +	 * triggers everything else.
+> +	 */
+> +	switch (cmd) {
+> +		/* set dump_device */
+> +		case DIOSDUMPDEV:
+> +			/* check flags */
+> +			if (!(f->f_flags & O_RDWR))
+> +				return -EPERM;
+> +
+> +			__dump_open();
+> +			return (dump_open_kdev(to_kdev_t((dev_t)arg)));
+> +
+> +		/* get dump_device */
+> +		case DIOGDUMPDEV:
+> +			return (put_user((long)kdev_val(dump_device), (long *)arg));
+> +
+> +		/* set dump_level */
+> +		case DIOSDUMPLEVEL:
+> +			/* check flags */
+> +			if (!(f->f_flags & O_RDWR))
+> +				return -EPERM;
+> +
+> +			/* make sure we have a positive value */
+> +			if (arg < 0)
+> +				return -EINVAL;
+> +			dump_level = (int)arg;
+> +
+> +			if (dump_level > DUMP_LEVEL_KERN)
+> +				dump_unreserved_mem = 1;
+> +			else
+> +				dump_unreserved_mem = 0;
+> +
+> +			if (dump_level > DUMP_LEVEL_USED)
+> +				dump_unreferenced_mem = 1;
+> +			else
+> +				dump_unreferenced_mem = 0;
+> +
+> +			if (dump_level > DUMP_LEVEL_ALL_RAM)
+> +				dump_nonconventional_mem = 1;
+> +			else
+> +				dump_nonconventional_mem = 0;
+> +			break;
+> +
+> +		/* get dump_level */
+> +		case DIOGDUMPLEVEL:
+> +			return (put_user((long)dump_level, (long *)arg));
+> +
+> +		/* set dump_flags */
+> +		case DIOSDUMPFLAGS:
+> +			/* check flags */
+> +			if (!(f->f_flags & O_RDWR))
+> +				return -EPERM;
+> +
+> +			/* make sure we have a positive value */
+> +			if (arg < 0)
+> +				return -EINVAL;
+> +
+> +			dump_flags = (int)arg;
+> +			break;
+> +
+> +		/* get dump_flags */
+> +		case DIOGDUMPFLAGS:
+> +			return (put_user((long)dump_flags, (long *)arg));
+> +
+> +		/* set the dump_compress status */
+> +		case DIOSDUMPCOMPRESS:
+> +			/* check flags */
+> +			if (!(f->f_flags & O_RDWR))
+> +				return -EPERM;
+> +
+> +			return (dump_compress_init((int)arg));
+> +
+> +		/* get the dump_compress status */
+> +		case DIOGDUMPCOMPRESS:
+> +			return (put_user((long)dump_compress, (long *)arg));
+
+This is still the wrong interface :)  At least the read/write one value
+stuff should be sysctl.  For the rest ioctl is horribly ugly, but I'll
+leave the decision to Linus whether he wants to merge more ugly ioctl
+APIs.
+
+> +
+> +	/* try to create our dump device */
+> +	if (register_chrdev(CRASH_DUMP_MAJOR, "dump", &dump_fops)) {
+> +		printk("cannot register dump character device!\n");
+> +		return -EBUSY;
 > +	}
-> +	spin_unlock_irqrestore(&nmi_to_free_lock, flags);
+> +
+> +	/* initialize the dump headers to zero */
+> +	memset(&dump_header, 0, sizeof(dump_header));
+> +	memset(&dump_header_asm, 0, sizeof(dump_header_asm));
+
+You don't have to zero structures lying in .bss
+
+> +
+> +	/* reset the dump function pointer */
+> +	dump_function_ptr = NULL;
+
+pointless.  the module memory will be vfree()ed anyway.
+
+> +#ifdef MODULE
+> +MODULE_AUTHOR("Matt D. Robinson <yakker@sourceforge.net>");
+> +MODULE_DESCRIPTION("Linux Kernel Crash Dump (LKCD) driver");
+> +MODULE_LICENSE("GPL");
+> +#endif /* MODULE */
+
+No need for the ifdef - it'll be stubbed out anyway.
+
+> +kdev_t dump_dev;		/* the actual kdev_t device number      */
+
+
+> +int dump_blk_size;		/* sector size for dump_device          */
+> +int dump_blk_shift;		/* shift need to convert to sector size */
+> +struct bio *dump_bio;		/* bio structure for io request         */
+> +loff_t dump_offset;		/* the offset in the output device      */
+> +unsigned long dumpdev_limit;	/* the size limit of the block device   */
+> +int dump_io_abort = 0;		/* set by end_io func during io error   */
+> +
+> +/* dump block device */
+> +struct block_device *dump_bdev = NULL;
+> +
+> +/* indicates completion of each bio request */
+> +volatile int bio_complete = 1;
+
+Most of this should be static, right?
+
+> +	dump_bdev = bdget(kdev_t_to_nr(tmp_dump_device));
+> +	if (!dump_bdev) {
+> +		retval = -ENODEV;
+> +		goto err;
+> +	}
+> +
+> +	if (blkdev_get(dump_bdev, O_RDWR | O_LARGEFILE, 0, BDEV_RAW)) {
+> +		retval = -ENODEV;
+> +		goto err1;
+> +	}
+> +	
+> +	if (!dump_page_buf) {
+> +		retval = -EINVAL;
+> +		goto err2;
+> +	}
+
+You need to call bd_claim to get exclusion on the bdev.
+
+> +err3:	dump_free_bio();
+> +err2:	if (dump_bdev) {
+> +		blkdev_put(dump_bdev, BDEV_RAW);
+> +		dump_bdev = NULL;
+> +	}
+> +err1:	if (dump_bdev) {
+> +		bdput(dump_bdev);
+> +		dump_bdev = NULL;
+> +	}
+> +err:	return retval;
 > +}
-> +static inline void free_nmi_handler(struct nmi_handler *item)
+
+err3:
+	dump_free_bio();
+err2:
+	if (dump_bdev)
+		blkdev_put(dump_bdev, BDEV_RAW);
+	goto err;
+err1:
+	if (dump_bdev)
+		bdput(dump_bdev);
+err:
+	return retval;
+
+> +
+> +static int __init
+> +dump_blockdev_init(void)
+> +{        
+> +	dump_offset = 0;
+
+once again, .bss is already per-zeroed :)
+
+> +void
+> +__dump_cleanup(void)
 > +{
-> +	unsigned long flags;
-> +
-> +	if (!item->freed)
-> +		return;
-> +
-> +	spin_lock_irqsave(&nmi_to_free_lock, flags);
-> +	/* We only have one copy of nmi_rcu, so we only want to add it
-> +           once.  If there are items in the list, then it has already
-> +           been added. */
-> +	if (nmi_to_free_list == NULL)
-> +		call_rcu(&nmi_rcu, really_free_nmi_list, NULL);
-> +	item->link2 = nmi_to_free_list;
-> +	nmi_to_free_list = item;
-> +	spin_unlock_irqrestore(&nmi_to_free_lock, flags);
+> +	free_dha_stack();
+> +	return;
 > +}
 
-Hmm... I am not sure if this is correct. 
+I've noticed these superflous returns in void function a lot
+over the code.  Linux kernel code usually avoids that.
 
-Your grace period starts from the moment you do a call_rcu(). So,
-this example sequence might result in a problem here -
+> +static int __init
+> +dump_compress_rle_init(void)
+> +{
+> +	dump_register_compression(&dump_rle_compression);
+> +	return 0;
 
-CPU#0		CPU#1		CPU#2		CPU#3
-free_nmi_hanlder(X)
-call_rcu
+Shouldn't there be some kind of error reporting? i.e.
 
-		cswitch	
+	return dump_register_compression(&dump_rle_compression); ?
 
-				cswitch		cswitch
+> +/* header definitions for s390 dump */
+> +#define DUMP_MAGIC_S390		0xa8190173618f23fdULL  /* s390 magic number */
+> +#define S390_DUMP_HEADER_SIZE	4096
 
-				nmi_handler(Y)
+should go to asm-s390/dump.h?
 
-		free_nmi_handler(Y)
-		[gets queued in the same free list as X]
-					
-cswitch	
-				
-reaally_free_nmi_list		[nmi_handler still executing]
-
-
-Since context switch happened in all the CPUs since call_rcu(),
-real update may happen and free the nmi_handler Y while it
-is executing in CPU#2. IOW, once you start one RCU grace period
-you cannot add to that list since the adding CPU may already
-have participated in RCU and indicated that it doesn't have
-any references. Once you hand over stuff to RCU, you must
-use a new call_rcu() for that new batch.
-
-I am wondering if we could do something like this -
-
-static struct list_head nmi_handler_list = LIST_INIT_HEAD(nmi_handler_list);
-
-struct nmi_handler
-{
-	struct list_head link;
-	char *dev_name;
-	void *dev_id;
-	int  (*handler)(void *dev_id, struct pt_regs *regs);
-	int  priority;
-	void (*freed)(const void *arg);
-	struct rcu_head rcu;
-};
-
-static void really_free_nmi_list(void *arg)
-{
-	struct nmi_handler *handler = arg;
-	list_head_init(&handler->link);
-	if (handler->freed)
-		handler->freed(handler);
-}
-
-void release_nmi(struct nmi_handler *handler)
-{
-	if (handler == NULL)
-		return;
-
-	spin_lock(&nmi_handler_lock);
-	list_del_rcu(&handler->link);
-	spin_unlock(&nmi_handler_lock);
-	call_rcu(&handler->rcu, really_free_nmi_handler, handler);
-}
-
-int request_nmi(struct nmi_handler *handler)
-{
-	struct list_head *head, *curr;
-	struct nmi_handler *curr_h;
-
-	/* Make sure the thing is not already in the list. */
-	if (!list_empty(&handler->link))
-		return EBUSY;
-
-	spin_lock(&nmi_handler_lock);
-
-	/* Add it into the list in priority order. */
-	head = &nmi_handler_list;
-	__list_for_each(curr, head) {
-		curr_h = list_entry(curr, struct nmi_handler, link);
-		if (curr_h->priority <= handler->priority)
-			break;
-	}
-	/* list_add_rcu takes care of memory barrier */
-	list_add_rcu(&handler->link, curr->link.prev);
-	spin_unlock(&nmi_handler_lock);
-	return 0;
-}
-
-static int call_nmi_handlers(struct pt_regs * regs)
-{
-	struct list_head *head, *curr;
-	int                handled = 0;
-	int                val;
-
-	head = &nmi_handler_list;
-	/* __list_for_each_rcu takes care of memory barriers */
-	__list_for_each_rcu(curr, head) {
-		curr_h = list_entry(curr, struct nmi_handler, link);
-		val = curr_h->handler(curr_h->dev_id, regs);
-		switch (val & ~NOTIFY_STOP_MASK) {
-		case NOTIFY_OK:
-			handled = 1;
-			break;
-
-		case NOTIFY_DONE:
-		default:
-		}
-		if (val & NOTIFY_STOP_MASK)
-			break;
-	}
-	return handled;
-}
-
-I probably have missed quite a few things here in these changes, but
-would be interesting to see if they could be made to work. One clear
-problem - someone does a release_nmi() and then a request_nmi() 
-on the same handler while it is waiting for its RCU grace period
-to be over. Oh well :-)
-
-Thanks
-Dipankar

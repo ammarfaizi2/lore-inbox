@@ -1,141 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSJ0SPN>; Sun, 27 Oct 2002 13:15:13 -0500
+	id <S261872AbSJ0SNY>; Sun, 27 Oct 2002 13:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262476AbSJ0SPN>; Sun, 27 Oct 2002 13:15:13 -0500
-Received: from mail.scram.de ([195.226.127.117]:19402 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S261963AbSJ0SPK>;
-	Sun, 27 Oct 2002 13:15:10 -0500
-Date: Sun, 27 Oct 2002 19:15:49 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] ohci-hcd Oops on Alpha 2.5.44
-Message-ID: <Pine.LNX.4.44.0210271906400.780-100000@gfrw1044.bocc.de>
+	id <S261963AbSJ0SNY>; Sun, 27 Oct 2002 13:13:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:3250 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261872AbSJ0SNW>; Sun, 27 Oct 2002 13:13:22 -0500
+Date: Sun, 27 Oct 2002 10:16:58 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       mingo@redhat.com, habanero@us.ibm.com
+cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
+Message-ID: <3105925354.1035713817@[10.10.2.3]>
+In-Reply-To: <3022997410.1035634489@[10.10.2.3]>
+References: <3022997410.1035634489@[10.10.2.3]>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> OK, I went to your latest patches (just 1 and 2). And they worked!
+> You've fixed the performance degradation problems for kernel compile
+> (now a 14% improvement in systime), that core set works without 
+> further futzing about or crashing, with or without TSC, on either 
+> version of gcc ... congrats!
 
-i have an Alpha with a quad OHCI USB PCI Adapter and an USB-RS232
-converter connected to it. If i open and close the corresponding tty
-(ttyUSB0) twice in a row, the alpha crashes with an Oops in
-[ohci-hcd]finish_unlinks(). Otherwise, the device seems to work fine
-(until the second close)...
+So I have a slight correction to make to the above ;-) Your patches
+do work just fine, no crashes any more. HOWEVER ... turns out I only
+had the first patch installed, not both. Silly mistake, but turns out
+to be very interesting. 
 
-Cheers,
---jochen
+So your second patch is the balance on exec stuff ... I've looked at 
+it, and think it's going to be very expensive to do in practice, at
+least the simplistic "recalc everything on every exec" approach. It 
+does benefit the low end schedbench results, but not the high end ones,
+and you can see the cost of your second patch in the system times of
+the kernbench.
 
-# uname -a
-Linux ayse 2.5.44 #3 Sat Oct 26 22:04:04 CEST 2002 alpha EV56  GNU/Linux
+In summary, I think I like the first patch alone better than the 
+combination, but will have a play at making a cross between the two.
+As I have very little context about the scheduler, would appreciate
+any help anyone would like to volunteer ;-)
 
-# cat /proc/bus/usb/devices
-T:  Bus=04 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 1
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 2.05
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=03 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 1
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 2.05
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 1
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 2.05
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0711 ProdID=0230 Rev= 1.02
-S:  Manufacturer=USB-RS232 Interface Converter
-S:  Product=USB Ver1.1 Device
-S:  SerialNumber=842062
-C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=mct_u232
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=2ms
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  16 Ivl=0ms
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 1
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 2.05
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
+Corrected results are:
 
+Kernbench:
+                             Elapsed        User      System         CPU
+              2.5.44-mm4     19.676s    192.794s     42.678s     1197.4%
+        2.5.44-mm4-hbaum     19.422s    189.828s     40.204s     1196.2%
+      2.5.44-mm4-focht-1      19.46s    189.838s     37.938s       1171%
+     2.5.44-mm4-focht-12      20.32s        190s       44.4s     1153.6%
 
-drivers/usb/host/ohci-q.c: 01:0a.1 bad entry a8e0a1a0
-Unable to handle kernel paging request at virtual address 000000000000000c
-swapper(0): Oops 0
-pc = [<fffffffc002da62c>]  ra = [<fffffffc002db960>]  ps = 0000    Not
-tainted
-v0 = fffffff800000016  t0 = 0000000000000000  t1 = fffffc0028e0a1c0
-t2 = fffffc0029801028  t3 = fffffc0000629230  t4 = fffffc87a0000000
-t5 = fffffc0000571300  t6 = 0000000000000008  t7 = fffffc000054c000
-s0 = fffffc0028e120a0  s1 = 0000000000000000  s2 = fffffc0000000000
-s3 = fffffc0028e120a8  s4 = fffffc0029801000  s5 = fffffc0028e120d0
-s6 = fffffc0028e120d0
-a0 = fffffc0029801000  a1 = fffffc0028e0a180  a2 = fffffc000054fed8
-a3 = cccccccccccccccd  a4 = fffffc0000627b90  a5 = fffffc000057cf68
-t8 = 0000000000000000  t9 = 000000007ab30958  t10= 0000000000000000
-t11= 000000000000e155  pv = fffffc000031ec60  at = fffffc000057cf00
-gp = fffffffc002e4368  sp = fffffc000054fd78
-Trace:fffffc0000315f1c fffffc0000316960 fffffc0000325634 fffffc00003125e0
-fffffc0000316fc4 fffffc0000310cf8 fffffc0000312628 fffffc00003125e0
-fffffc0000381584 fffffc0000312638 fffffc0000381584 fffffc00003100b4
-fffffc000031001c
-Code: a59e0060  b7fe0050  c3e00025  40481531  a5710028  a54b0008
-<a02a000c> 402035a1
-Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+Schedbench 4:
+                             Elapsed   TotalUser    TotalSys     AvgUser
+              2.5.44-mm4       32.45       49.47      129.86        0.82
+        2.5.44-mm4-hbaum       31.31       43.85      125.29        0.84
+      2.5.44-mm4-focht-1       38.61       45.15      154.48        1.06
+     2.5.44-mm4-focht-12       23.23       38.87       92.99        0.85
 
->>RA;  fffffffc002db960 <[ohci-hcd]ohci_irq+1a0/240>
+Schedbench 8:
+                             Elapsed   TotalUser    TotalSys     AvgUser
+              2.5.44-mm4       39.90       61.48      319.26        2.79
+        2.5.44-mm4-hbaum       32.63       46.56      261.10        1.99
+      2.5.44-mm4-focht-1       37.76       61.09      302.17        2.55
+     2.5.44-mm4-focht-12       28.40       34.43      227.25        2.09
 
->>PC;  fffffffc002da62c <[ohci-hcd]finish_unlinks+cc/320>   <=====
+Schedbench 16:
+                             Elapsed   TotalUser    TotalSys     AvgUser
+              2.5.44-mm4       62.99       93.59     1008.01        5.11
+        2.5.44-mm4-hbaum       49.78       76.71      796.68        4.43
+      2.5.44-mm4-focht-1       51.69       60.23      827.20        4.95
+     2.5.44-mm4-focht-12       51.24       60.86      820.08        4.23
 
-Trace; fffffc0000315f1c <handle_IRQ_event+9c/100>
-Trace; fffffc0000316960 <handle_irq+140/200>
-Trace; fffffc0000325634 <miata_srm_device_interrupt+34/60>
-Trace; fffffc00003125e0 <default_idle+0/20>
-Trace; fffffc0000316fc4 <do_entInt+c4/140>
-Trace; fffffc0000310cf8 <ret_from_sys_call+0/10>
-Trace; fffffc0000312628 <cpu_idle+28/60>
-Trace; fffffc00003125e0 <default_idle+0/20>
-Trace; fffffc0000381584 <do_select+264/2e0>
-Trace; fffffc0000312638 <cpu_idle+38/60>
-Trace; fffffc0000381584 <do_select+264/2e0>
-Trace; fffffc00003100b4 <rest_init+34/60>
-Trace; fffffc000031001c <_text+1c/20>
+Schedbench 32:
+                             Elapsed   TotalUser    TotalSys     AvgUser
+              2.5.44-mm4       88.13      194.53     2820.54       11.52
+        2.5.44-mm4-hbaum       54.67      147.30     1749.77        7.91
+      2.5.44-mm4-focht-1       56.71      123.62     1815.12        7.92
+     2.5.44-mm4-focht-12       55.69      118.85     1782.25        7.28
 
-Code;  fffffffc002da614 <[ohci-hcd]finish_unlinks+b4/320>
-0000000000000000 <_PC>:
-Code;  fffffffc002da614 <[ohci-hcd]finish_unlinks+b4/320>
-   0:   60 00 9e a5       ldq  s3,96(sp)
-Code;  fffffffc002da618 <[ohci-hcd]finish_unlinks+b8/320>
-   4:   50 00 fe b7       stq  zero,80(sp)
-Code;  fffffffc002da61c <[ohci-hcd]finish_unlinks+bc/320>
-   8:   25 00 e0 c3       br   a0 <_PC+0xa0> fffffffc002da6b4
-<[ohci-hcd]finish_unlinks+154/320>
-Code;  fffffffc002da620 <[ohci-hcd]finish_unlinks+c0/320>
-   c:   31 15 48 40       subq t1,0x40,a1
-Code;  fffffffc002da624 <[ohci-hcd]finish_unlinks+c4/320>
-  10:   28 00 71 a5       ldq  s2,40(a1)
-Code;  fffffffc002da628 <[ohci-hcd]finish_unlinks+c8/320>
-  14:   08 00 4b a5       ldq  s1,8(s2)
-Code;  fffffffc002da62c <[ohci-hcd]finish_unlinks+cc/320>   <=====
-  18:   0c 00 2a a0       ldl  t0,12(s1)   <=====
-Code;  fffffffc002da630 <[ohci-hcd]finish_unlinks+d0/320>
-  1c:   a1 35 20 40       cmpeq        t0,0x1,t0
-
-Kernel panic: Aiee, killing interrupt handler!
+Schedbench 64:
+                             Elapsed   TotalUser    TotalSys     AvgUser
+              2.5.44-mm4      159.92      653.79    10235.93       25.16
+        2.5.44-mm4-hbaum       65.20      300.58     4173.26       16.82
+      2.5.44-mm4-focht-1       55.60      232.36     3558.98       17.61
+     2.5.44-mm4-focht-12       56.03      234.45     3586.46       15.76
 
 

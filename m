@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbRCZPmW>; Mon, 26 Mar 2001 10:42:22 -0500
+	id <S131644AbRCZPuw>; Mon, 26 Mar 2001 10:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131889AbRCZPmN>; Mon, 26 Mar 2001 10:42:13 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:14223 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S131665AbRCZPmC>;
-	Mon, 26 Mar 2001 10:42:02 -0500
-Date: Mon, 26 Mar 2001 17:40:17 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Gerhard Mack <gmack@innerfire.net>,
-        Bob Lorenzini <hwm@newportharbornet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Worm (fwd)
-Message-ID: <20010326174017.C15380@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.10.10103231028250.9403-100000@innerfire.net> <Pine.LNX.3.95.1010326095505.32103A-100000@chaos.analogic.com>
+	id <S131889AbRCZPuc>; Mon, 26 Mar 2001 10:50:32 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:834 "EHLO
+	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S131644AbRCZPuW>; Mon, 26 Mar 2001 10:50:22 -0500
+Message-Id: <5.0.2.1.2.20010326175151.01eef100@pop.wanadoo.nl>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 26 Mar 2001 18:00:36 +0200
+To: linux-kernel@vger.kernel.org
+From: Theodoor Scholte <tscholte@wanadoo.nl>
+Subject: Compiling problem kernel 2.4.2
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.3.95.1010326095505.32103A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Mar 26, 2001 at 10:07:22AM -0500
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 26, 2001 at 10:07:22AM -0500, Richard B. Johnson wrote:
-> On Fri, 23 Mar 2001, Gerhard Mack wrote:
-> 
-> > On Fri, 23 Mar 2001, Bob Lorenzini wrote:
-> > 
-> > > I'm annoyed when persons post virus alerts to unrelated lists but this
-> > > is a serious threat. If your offended flame away.
-> > 
-> > This should be a wake up call... distributions need to stop using product
-> > with consistently bad security records. 
-> > 
-> > 	Gerhard
-> > 
-> 
-> The immediate affect of specifically targeting Linux is to cause
-> "security administrators" to deny network access to all Linux
-> machines.
-> 
-> I have just received notice that my machines will no longer be
-> provided access to "The Internet".
-> 
-> "Effective on or before 16:00:00 local time, the only personal
-> computers that will be allowed Internet access are those administered
-> by a Microsoft Certified Network Administrator. This means that
-> no Unix or Linux machines will be provided access beyond the local
-> area network. If you require Internet access, the company will
-> provide a PC which runs a secure operating system such as Microsoft
-> Windows, or Windows/NT. Insecure operating systems like Linux must
-> be removed from company owned computers before the end of this week....."
+Hello,
 
-Ohhhh. I especially like the "secure operating systems such as Microsoft
-Windows" part. I'm impressed with their clear perception.
+I have a problem with compiling kernel-2.4.2. When I want to make a bzImage 
+on a RedHat Linux 5.2 box,
+then I get this error-message:
 
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -02
+-fomit-frame-pointer -fno-strict-aliasing -pipe -march=i486  -c -o init/main.o
+init/main.c
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -02
+fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i486
+-DUTS_MACHINE='"i386"' -c -o init/version.o init/version.c
+cpp: /usr/src/linux/include/linux/compile.h: Input/output error
+init/version.c:20: `UTS_VERSION' undeclared here (not in a function)
+init/version.c:20: initializer element for `system_utsname.version' is not
+constant
+init/version.c:25: parse error before `LINUX_COMPILE_BY'
+make: *** [init/version.o] Error 1
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+I have installed these software revisions:
+GNU C  egcs-2.91.66
+GNU make  3.78.1
+binutils  2.9.5.0.22-6
+util-linux  2.10f
+modutils  2.4.2
+e2fsprogs  1.19
+
+What is the solution for this problem? On a Slackware 7.1-box with the same 
+software-revisions I have no problems with compiling kernel 2.4.2.
+
+Thanks in advance,
+
+Theodoor Scholte
+

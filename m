@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbTLOPwp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLOPwp
+	id S263778AbTLOQCu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 11:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTLOQCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:52:45 -0500
-Received: from fmr99.intel.com ([192.55.52.32]:20710 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263745AbTLOPwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:52:43 -0500
-Message-ID: <3FDDD8C6.3080804@intel.com>
-Date: Mon, 15 Dec 2003 17:52:38 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Mares <mj@ucw.cz>
-Subject: Re: PCI Express support for 2.4 kernel
-References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Dec 2003 11:02:50 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:32695 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263778AbTLOQCs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 11:02:48 -0500
+Date: Mon, 15 Dec 2003 08:02:46 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <20031215160246.GA3947@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tupshin Harper <tupshin@tupshin.com>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20031214172156.GA16554@work.bitmover.com> <3FDCEF70.5040808@tupshin.com> <20031214234348.GA15850@work.bitmover.com> <3FDCFE17.5010309@tupshin.com> <20031215034627.GB16554@work.bitmover.com> <3FDD4FB2.8020607@tupshin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FDD4FB2.8020607@tupshin.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I almost convinced it may be removed.
-My point is, this initialization with 0 cost nothing. Readability and 
-clearness of code do matter, on my opinion. I think when one states 
-explicitly he expect variable to have 0 value, it is better then use 
-implicit rules.
+On Sun, Dec 14, 2003 at 10:07:46PM -0800, Tupshin Harper wrote:
+> > Great, glad you understand that you are crossing the legal line.
+> 
+> ??? what line am I crossing? Or do you mean that I would be if I were
+> to do something, and if so, what is that something? I informed you the
+> day that  decided I was interested in exploring the internals of other
+> SCM products, and deleted the bk binaries from my machine at the same
+> time.
 
-To illustrate zero cost, I did the following test:
-[tmp]$ cat t.c; gcc -S t.c; cat t.s
-static int a1=0;
-static int a2;
-/* EOF */
+Tupshin, the BK license makes it clear that BK doesn't want to be reverse
+engineered, we've been over this and over this.  Furthermore, reverse
+engineering for interoperability has a prerequisite that there is no other
+way to get at the data and we give you tons of ways to get at the data.
 
-    .file    "t.c"
-    .local    a1
-    .comm    a1,4,4
-    .local    a2
-    .comm    a2,4,4
-    .section    .note.GNU-stack,"",@progbits
-    .ident    "GCC: (GNU) 3.3.1 20030811 (Red Hat Linux 3.3.1-1)"
+You keep wanting more and more information about how BitKeeper manages
+to do what it does and that certainly falls under reverse engineering.
+Getting at the raw information is just another way to figure out how
+BitKeeper manages that data, it's exactly the same as running a compiler
+and looking at the assembly language it produces.  You are annoyed that
+we aren't giving you the data in the format you want with a roadmap that
+says here is how we did it.
 
-As you can see, assembly code is identical, compiler did this trivial 
-optimization for me.
-
-Vladimir.
-
-Mark Hahn wrote:
-
->>>>+static void* rrbar_virt=NULL;
->>>>        
->>>>
->>>Do not bother initializing static variables to zero.  This just wastes 
->>>bss space, since these variables are automatically zeroed for you, 
->>>anyway.
->>>      
->>>
->>I did not found this feature in standard. More, future versions of gcc 
->>will give at least warning, if not error, like "use of uninitialized 
->>variable". Many good sources also say it is good practice to initialize 
->>all variables. I rely on its value later. I' ll keep it as is unless 
->>really strong arguments provided.
->>    
->>
->
->it'll get your code rejected.  static variables are always, everywhere,
->initialized to zero (OK, probably not embedded environments).  this is 
->a code standard, not a matter of taste.
->
->  
->
-
+I wish you'd just drop it, this isn't the place to have this discussion,
+every time we do anything to help the people who are actually doing kernel
+development you or someone like you feels obligated to whine about BK one
+more time because of your personal agenda which has nothing to do with 
+kernel development.  
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

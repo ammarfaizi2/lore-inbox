@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267900AbUGaDsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUGaD4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267900AbUGaDsb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 23:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUGaDsb
+	id S267901AbUGaD4k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 23:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267902AbUGaD4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 23:48:31 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1231 "HELO
+	Fri, 30 Jul 2004 23:56:40 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34511 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267900AbUGaDs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 23:48:29 -0400
-Subject: Re: input system: EVIOCSABS(abs) ioctl disabled, why?
+	id S267901AbUGaD4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 23:56:38 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
 From: Lee Revell <rlrevell@joe-job.com>
-To: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@bitplanet.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Olav Kongas <olav@enif.ee>,
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Shane Shrybman <shrybman@aei.ca>, Ingo Molnar <mingo@elte.hu>,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <410B0486.6060706@bitplanet.net>
-References: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee>
-	 <20040728134313.GB4831@ucw.cz>  <410B0486.6060706@bitplanet.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1091245732.1677.56.camel@mindpipe>
+In-Reply-To: <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
+References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
+	 <1091209106.2356.3.camel@mars>
+	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
+	 <1091232345.1677.20.camel@mindpipe>
+	 <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1091246222.1677.65.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Jul 2004 23:48:53 -0400
-Content-Transfer-Encoding: 8bit
+Date: Fri, 30 Jul 2004 23:57:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 22:31, Kristian Høgsberg wrote:
-> Vojtech Pavlik wrote:
-> > On Wed, Jul 28, 2004 at 03:41:28PM +0300, Olav Kongas wrote:
+On Fri, 2004-07-30 at 21:13, Felipe Alfaro Solana wrote:
+> On Fri, 2004-07-30 at 20:05 -0400, Lee Revell wrote:
+> > On Fri, 2004-07-30 at 19:21, Felipe Alfaro Solana wrote:
+> > > On Fri, 2004-07-30 at 13:38 -0400, Shane Shrybman wrote:
+> > > 
+> > > > > M5 does that differently, yes - so could you try it? If you still get
+> > > > > problems, does this fix it:
+> > > > 
+> > > > Ok, M5 locked up the whole machine within a few seconds of starting X.
+> > > 
+> > > Me too, with voluntary-preempt=3... It seems I can trigger this randomly
+> > > by heavily moving the mouse around while logging in into my KDE session.
+> > > 
+> > > However, with voluntary-preempt=2 I've been unable to lock the machine
+> > > yet.
 > > 
-> > 
-> >>When trying to feed calibration information to a touchscreen driver with
-> >>the EVIOCSABS(abs) ioctl command, I noticed that this command is disabled
-> >>in 2.6.7. Only after the modification given in the patch below it was
-> >>possible to use this ioctl command.
-> >>
-> >>Why is the EVIOCSABS command disabled? I cannot imagine that nobody uses
-> > 
-> > 
-> > It's a bug. I'll fix it.
+> > It looks like this is a mouse problem, I have a PS/2 keyboard and USB
+> > mouse and have not had any problems yet with M5.  I also found that with
+> > L2, I could toggle Caps Lock fast enough to get significantly 'ahead' of
+> > it, this no longer happens with M5.
 > 
-> On a related note - shouldn't there also be a EVIOCSLED, or am I missing 
-> something obvious?  How do you set keyboard LEDs?
-> 
+> I have a PS/2 keyboard and a USB mouse.
 
-Interesting you should mention keyboard LEDs.  Here is a patch that was
-recently posted to replace the old, broken method of setting keyboard
-lights (issue a command an busy-wait until you get an ACK) with an
-improved one (using work queues and a semaphore).  It does not really
-answer your question as such, but should be a good place to start.
+Weird.  This is my setup also, and I have had no problems since
+installing M5.
 
-http://lkml.org/lkml/2004/7/27/252
+Try:
 
-HTH,
+        Option          "NoAccel"
+
+in section "Device" of your XF86Config.  Also try commenting out:
+
+	Load		"dri"
+
+in the "Module" section.
+
+This will ensure that the X server is not accessing hardware directly. 
+Normally this should not be a problem but a buggy video driver can cause
+problems.  On my machine, having 2D acceleration enabled caused
+interrupts from other devices to be lost when dragging a window.
+
+Also, is the machine pingable after it locks up?
 
 Lee
 

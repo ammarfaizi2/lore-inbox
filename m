@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKLA4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbUKLA4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbUKLA4J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLAwL
+	id S262443AbUKLA4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLA4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 19:52:11 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:13965 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262305AbUKLAtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 19:49:15 -0500
-Subject: How could smp_error_interrupt get activated on x86?
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1100220203.6432.46.camel@desktop.cunninghams>
+	Thu, 11 Nov 2004 19:56:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58242 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262431AbUKLAvq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 19:51:46 -0500
+Date: Thu, 11 Nov 2004 16:51:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Juerg Billeter <juerg@paldo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND] Don't remove /sys in initramfs
+Message-Id: <20041111165132.396f5c44.akpm@osdl.org>
+In-Reply-To: <1100190828.5888.0.camel@juerg-p4.bitron.ch>
+References: <1100190828.5888.0.camel@juerg-p4.bitron.ch>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 12 Nov 2004 11:43:23 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
-
-I can't for the life of me figure out how one of my suspend2 users could
-get this on a 2.6.9 kernel:
-
-> Software Suspend 2.1.4: Initiating a software suspend cycle.
-> ACPI: PCI Interrupt Link [ALKA] BIOS reported IRQ 0, using IRQ 20
-> ACPI: PCI Interrupt Link [ALKB] BIOS reported IRQ 0, using IRQ 21
-> ACPI: PCI Interrupt Link [ALKC] BIOS reported IRQ 0, using IRQ 22
-> ACPI: PCI Interrupt Link [ALKD] BIOS reported IRQ 0, using IRQ 23
-> APIC error on CPU0: 00(00)
-> ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI 20 (level, low) -> IRQ 177
-> ACPI: PCI interrupt 0000:00:11.5[C] -> GSI 22 (level, low) -> IRQ 193
-> Please include the following information in bug reports:
-> - SUSPEND core   : 2.1.4
-> [...]
+Juerg Billeter <juerg@paldo.org> wrote:
+>
+> Using the "resume" kernel parameter together with an initramfs revealed
+>  a bug that causes removal of the /sys directory in the initramfs' tmpfs,
+>  making the system unbootable.
 > 
-> All work fine.
-> Processor and motherboard  Athlon Barton 2500+@3200+, EPoX 8KRAI
-(KT600).
+>  The source of the problem is that the try_name() function removes
+>  the /sys directory unconditionally, instead of removing it only when it
+>  has been created by try_name().
 > 
-> What is APIC error CPU0: 00(00)?
+>  The attached patch only removes /sys if it has been created before.
 
-I know it's really no error (according to the code), but I can't even
-see how the function gets called in the first place:
-
-find -type f | xargs grep smp_error_interrupt
-./arch/i386/kernel/apic.c:asmlinkage void smp_error_interrupt(void)
-./arch/x86_64/kernel/apic.c:asmlinkage void smp_error_interrupt(void)
-./arch/x86_64/kernel/entry.S:   apicinterrupt ERROR_APIC_VECTOR,smp_error_interrupt
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+The patch looks sane.  Your email client replaced tabs with spaces.  I
+fixed that up.  In future, please send the patch to yourself first, check
+that it still applies, then send it on, thanks.

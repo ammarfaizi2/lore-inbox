@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262651AbSJBWMw>; Wed, 2 Oct 2002 18:12:52 -0400
+	id <S262656AbSJBWNi>; Wed, 2 Oct 2002 18:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262656AbSJBWMw>; Wed, 2 Oct 2002 18:12:52 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56797 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262651AbSJBWMv>; Wed, 2 Oct 2002 18:12:51 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200210022218.g92MIIY22253@devserv.devel.redhat.com>
-Subject: Linux 2.5.40-ac1
-To: linux-kernel@vger.kernel.org
-Date: Wed, 2 Oct 2002 18:18:18 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262657AbSJBWNi>; Wed, 2 Oct 2002 18:13:38 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:51974
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262656AbSJBWNh>; Wed, 2 Oct 2002 18:13:37 -0400
+Subject: Re: 2.4.20pre8aa2
+From: Robert Love <rml@tech9.net>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20021002214540.GA2589@werewolf.able.es>
+References: <20021002071110.GC1158@dualathlon.random>
+	 <20021002214540.GA2589@werewolf.able.es>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033597107.27343.44.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 02 Oct 2002 18:18:27 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-10-02 at 17:45, J.A. Magallon wrote:
 
+> I was rediffing the task_cpu patch, when reached a new hunk in -aa:
+> 
+> kernel/sched.c::sched_init(void):
+> 
+> +   current->cpu = smp_processor_id();
 
-Linux 2.5.40-ac1
+Ew we do that in 2.5, too.
 
-+	Initial port of aacraid driver to 2.5		(me)
-+	vfat corruption fix				(Petr Vandrovec)
-+	Clean up firestream warnings			(Francois Romieu)
-+	Voyager support					(James Bottomley)
-+	Fix split_vma					(Hugh Dickins)
-+	Fix config in video subdirectory		(John Levon)
-+	Update olympic driver to 2.5			(Mike Phillips)
-+	Fix sg init error				(Mike Anderson)
-+	Fix Rules.make
-o	Merge most of ucLinux stuff			(Greg Ungerer)
-	| It needs putting somewhere so we can pick over the
-	| hard bits left
-	| Q: Wouldn't drivers/char/mem-nommu.c be better
-	| Q: How to do the procfs stuff tidily
-	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
-	|    int the relevant mm/*.c file area instead of kernel/ksyms
-	| Q: Why ifdef out overcommit -  its even easier to account on 
-	|    MMUless and useful info
-+	Stick tulip back under 10/100 ethernet		(me)
-+	Correct docs for IBM touchpad back to how	(me)
-	they were before
-o	Fix abuse of set_bit in winbond-840		(me)
-+	Fix abuse of set_bit in atp			(me)
+I think this is a mistake; we don't need to do this here.  But if I am
+wrong, we need to get the current processor number elsewhere.
 
---
-	"When Dilbert has a better working environment than you
-			its time to leave"
-				- Anonymous
+	Robert Love
+

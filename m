@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUHOVb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266902AbUHOVfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266901AbUHOVb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 17:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUHOVb3
+	id S266902AbUHOVfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 17:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUHOVfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 17:31:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8330 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266901AbUHOVb2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 17:31:28 -0400
-Date: Sun, 15 Aug 2004 16:57:58 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Tetsuo Handa <a5497108@anet.ne.jp>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: TG3 doesn't work in kernel 2.4.27
-Message-ID: <20040815195758.GE9500@logos.cnet>
-References: <200408150152.EAC63479.8815296B@anet.ne.jp>
+	Sun, 15 Aug 2004 17:35:20 -0400
+Received: from ozlabs.org ([203.10.76.45]:3269 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266902AbUHOVfN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 17:35:13 -0400
+Date: Mon, 16 Aug 2004 07:30:13 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jrsantos@austin.ibm.com
+Subject: [PATCH] reduce size of struct buffer_head on 64bit
+Message-ID: <20040815213013.GI5637@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408150152.EAC63479.8815296B@anet.ne.jp>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 01:53:49AM +0900, Tetsuo Handa wrote:
-> Hello,
-> 
-> I'm using tg3.o with DHCP and PXE boot environment
-> and I updated from 2.4.26 to 2.4.27,
-> but tg3.o became not working with IBM BladeCenter.
-> 
-> I think tg3.o in 2.4.27 is generating something broken arp.
-> When I run 'arp' in the DHCP server (who doesn't use tg3.o),
-> the entry with <incomplete> status appears.
-> The IP address which has the <incomplete> status is
-> the DHCP client's (who is using tg3.o in 2.4.27).
-> 
-> The workaround I took is to replace tg3.h and tg3.c
-> in 2.4.27 with the files in 2.4.26, and it seems working fine.
 
-David Miller is the tg3 maintainer, he will help you.
+Reduce size of buffer_head from 96 to 88 bytes on 64bit architectures by
+putting b_count and b_size together. b_count will still be in the first
+16 bytes on 32bit architectures, so 16 byte cacheline machines shouldnt
+be affected.
+
+With this change the number of objects per 4kB slab goes up from
+40 to 44 on ppc64.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+diff -puN include/linux/buffer_head.h~optimize_structs include/linux/buffer_head.h
+--- gr_work/include/linux/buffer_head.h~optimize_structs	2004-08-14 10:51:08.695492352 -0500
++++ gr_work-anton/include/linux/buffer_head.h	2004-08-14 10:51:08.716489022 -0500
+@@ -47,12 +47,12 @@ typedef void (bh_end_io_t)(struct buffer
+ struct buffer_head {
+ 	/* First cache line: */
+ 	unsigned long b_state;		/* buffer state bitmap (see above) */
+-	atomic_t b_count;		/* users using this block */
+ 	struct buffer_head *b_this_page;/* circular list of page's buffers */
+ 	struct page *b_page;		/* the page this bh is mapped to */
++	atomic_t b_count;		/* users using this block */
++	u32 b_size;			/* block size */
+ 
+ 	sector_t b_blocknr;		/* block number */
+-	u32 b_size;			/* block size */
+ 	char *b_data;			/* pointer to data block */
+ 
+ 	struct block_device *b_bdev;
+

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTLIWEo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 17:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTLIWEo
+	id S263269AbTLIWOk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 17:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLIWOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 17:04:44 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:28809 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263053AbTLIWEm (ORCPT
+	Tue, 9 Dec 2003 17:14:40 -0500
+Received: from ns.suse.de ([195.135.220.2]:60568 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263269AbTLIWOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 17:04:42 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Craig Bradney <cbradney@zip.com.au>
-To: Ian Kumlien <pomac@vapor.com>
-Cc: ross@datscreative.com.au, linux-kernel@vger.kernel.org, recbo@nishanet.com
-In-Reply-To: <1070993538.1674.10.camel@big.pomac.com>
-References: <1070827127.1991.16.camel@big.pomac.com>
-	 <200312081207.45297.ross@datscreative.com.au>
-	 <1070993538.1674.10.camel@big.pomac.com>
-Content-Type: text/plain
-Message-Id: <1071007478.5293.11.camel@athlonxp.bradney.info>
+	Tue, 9 Dec 2003 17:14:39 -0500
+Date: Tue, 9 Dec 2003 23:14:37 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Message-ID: <20031209221437.GA19122@suse.de>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org> <3FD577E7.9040809@nishanet.com> <pan.2003.12.09.09.46.27.327988@dungeon.inka.de> <yw1x4qwai8yx.fsf@kth.se> <3FD62DB1.7040205@student.canterbury.ac.nz> <yw1xr7zd1zn2.fsf@kth.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Dec 2003 23:04:38 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xr7zd1zn2.fsf@kth.se>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-09 at 19:12, Ian Kumlien wrote:
-> Bob wrote:
-> > Using a patch that fixes a number of people's nforce2
-> > lockups while enabling io-apic edge timer, I can now
-> > use nmi_watchdog=2 but not =1
-> 
-> Why regurgitate patches that are outdated, Personally i find int
-> outdated after Ross made his patches available and they DO enable
-> nmi_watchdog=1. (I have seen the old patches mentioned more than once,
-> if something better comes along, please move to that instead.)
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107080280512734&w=2
-> 
-> Anyways, Is there anyway to detect if the cpu is "disconnected" or, is
-> there anyway to see when the kernel sends it's halts that triggers the
-> disconnect? (or is it automagic?)
-> 
-> If there was a way to check, then thats all thats needed, all delays can
-> be removed and the code can be more generalized.
-> 
-> (Since doubt that this is apic torment. It's more apic trying to talk to
-> a disconnected cpu... (which both approaches hints at imho))
+ On Tue, Dec 09, Måns Rullgård wrote:
 
-Have these patches been submitted for review for inclusion into the main
-kernel?
+> Quite true, I've never been able to use the old MacOS for more than a
+> few minutes without a total system crash, only fixable by pulling the
+> plug.  MacOS is right, I don't want to use it, and it didn't let me.
+> Perfect.
 
-I'm still running the old IO-APIC patch (Uptime 3d 20h) and having no
-issues whatsoever.
+you need almost 4 lines to say 'I should better not use a computer.'?
 
-Are all of the patches at that address you provide necessary? 
+-- 
+USB is for mice, FireWire is for men!
 
-What do the IDE ones claim to fix? I have had no real issue with IDE at
-all.. being able to burn CDs, DVDs, use my ATA133 drive for hdparm,
-greps, compilation, and general use.....
-
-Craig
-
+sUse lINUX ag, nÜRNBERG

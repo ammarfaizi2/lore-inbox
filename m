@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUESDv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263789AbUESDxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUESDv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 23:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbUESDv5
+	id S263789AbUESDxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 23:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUESDxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 23:51:57 -0400
+	Tue, 18 May 2004 23:53:40 -0400
 Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5580 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263777AbUESDv4
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263786AbUESDwF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 23:51:56 -0400
+	Tue, 18 May 2004 23:52:05 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Justin Piszcz" <jpiszcz@hotmail.com>, baldrick@free.fr,
-       gene.heskett@verizon.net
-Subject: Re: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5.
-Date: Tue, 18 May 2004 15:23:20 +0200
+To: Brad Campbell <brad@wasp.net.au>
+Subject: Re: libata 2.6.5->2.6.6 regression -part II
+Date: Tue, 18 May 2004 15:13:12 +0200
 User-Agent: KMail/1.5.3
+References: <40A8E9A8.3080100@wasp.net.au>
+In-Reply-To: <40A8E9A8.3080100@wasp.net.au>
 Cc: linux-kernel@vger.kernel.org
-References: <BAY18-F106WMUe77sHG0002bb5f@hotmail.com>
-In-Reply-To: <BAY18-F106WMUe77sHG0002bb5f@hotmail.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200405181519.17233.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405181513.12920.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 of May 2004 17:06, Justin Piszcz wrote:
-> Sorry to all, it turns out (in two separate cases I had two different
-> problems that affected the results).
+On Monday 17 of May 2004 18:34, Brad Campbell wrote:
+> G'day all,
+> I caught the suggestion on my last post in the archives, but because I'm
+> not subscribed and wasn't cc'd I can't keep it threaded.
 >
-> Case 1: No SMP turned on for CPU w/HT after fix (~4.78 seconds compile time
-> (2.6GHZ w/HT))
-> Case 2: Box had 4GB of NON-ECC memory in it, only recognized 2.56GB, took
-> out (2) 1GB DDR DIMM's, and the speed returned what it should be. (~4.3
-> seconds compile time (3.0GHZ w/HT))
+> I tried backing out the suggested acpi patch (No difference at all), and I
+> managed to get apic to work but it still hangs solid in the same place.
 >
-> The control box was a 2.53GHZ (533MHZ BUS w/NO HT) = ~5.3seconds
+> dmesg attached.
 >
-> I have not tested 2.6.6 recently, but in one of my tests I believe it
-> worked OK, ever since 2.6.6 removed my /etc/lilo.conf and /etc/mtab and
-> several other files, I do not wish to touch that kernel with a 10 foot poll
-> :-P due to the IDE disk flush/cache issue.
+> I managed to figure out that the VIA ATA driver captures my sata drives on
+> the via ports, explaining why sata_via misses them, but writing data to
+> those drives (hde & hdg) causes dma timeouts and locks the machine. No
+> useful debug info produced. The machine becomes non-responsive, throws a
+> couple of dma timeouts to the console and then loses all interactivity
+> (keyboard, serial, network) forcing a reset push.
+>
+> Is there any way I can prevent the VIA ATA driver capturing this device?
+> Unfortunately my boot drive is on hda on the on-board VIA ATA interface so
+> I need it compiled in.
 
-I told you this already: 2.6.6 IDE changes don't cause data corruption
-- but fixes some instead (that's why there were merged so quickly!)
-so stop spreading FUD and see http://bugme.osdl.org/show_bug.cgi?id=2672.
+Disable the fscking PCI IDE generic driver.
+[ You are not the first one tricked by it. ]
+
+AFAIR support for VIA 8237 was added to it before sata_via.c was ready.
+[ but my memory is... ]
+
+> Please CC: me on any replies.
+>
+> Regards,
+> Brad
 

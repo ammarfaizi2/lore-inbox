@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVBAXi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVBAXna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVBAXi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVBAXip
+	id S262123AbVBAXna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVBAXna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:38:45 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:16563 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262172AbVBAXhz
+	Tue, 1 Feb 2005 18:43:30 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:59026 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262123AbVBAXnY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:37:55 -0500
-Date: Tue, 1 Feb 2005 18:37:54 -0500
-To: Ram <linuxram@us.ibm.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050201233753.GB22118@fieldses.org>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org> <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050116184209.GD13624@fieldses.org> <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk> <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost> <41F6BE58.50208@sun.com> <1106690563.3298.43.camel@localhost>
+	Tue, 1 Feb 2005 18:43:24 -0500
+Date: Tue, 1 Feb 2005 15:42:45 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050201234244.GM14274@atomide.com>
+References: <20050127212902.GF15274@atomide.com> <1107289206.18349.16.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106690563.3298.43.camel@localhost>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <1107289206.18349.16.camel@krustophenia.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 02:02:43PM -0800, Ram wrote:
-> oops. I had the following in mind.
-> 
-> 	mount <device1> /tmp/mnt1
->       **  mount --make-shared /tmp/mnt1  **
->         mkdir -p /tmp/mnt1/a/b
->         mount --rbind /tmp/mnt1 /tmp/mnt2
->         mount --make-slave /tmp/mnt2
-> 
-> In this case it cannot be EINVAL, because /tmp/mnt1 and /tmp/mnt2 will
-> both be part of a pnode and hence /tmp/mnt2 can be demoted to be a
-> slave. 
+* Lee Revell <rlrevell@joe-job.com> [050201 12:20]:
+> On Thu, 2005-01-27 at 13:29 -0800, Tony Lindgren wrote:
+> > Hi all,
 > > 
-> > >         mount <device2> /tmp/mnt2/a
-> > >         rm -f /tmp/mnt2/a/*
-> > > 
-> > >         what happens when a mount is attempted on /tmp/mnt1/a/b?
-> > >         will that be reflected in /tmp/mnt2/a ?
-> > > 
-> > >         I believe the answer is 'no', because that part of the subtree 
-> > >         in /tmp/mnt2 no more mirrors its parent subtree.
+> > Thanks for all the comments, here's an updated version of the dynamic
+> > tick patch.
+> 
+> Hi,
+> 
+> I was wondering how Windows handles high res timers, if at all.  The
+> reason I ask is because I have been reverse engineering a Windows ASIO
+> driver, and I find that if the latency is set below about 5ms, by
+> examining the kernel timer queue with SoftICE I can see that several
+> kernel timers with 1ms period are created.  (Presumably the sound card's
+> interval timer is used for longer periods).
+> 
+> But, I have seen people mention in the "singing capacitor" threads on
+> this list that Windows uses 100 for HZ.
+> 
+> So, how do they implement 1ms timers with a 10ms tick rate?  Does
+> Windows dynamically reprogram the PIT as well?
 
-shared subtrees aside, it is the nature of --bind mounts that they share
-all the same dentries; so the "rm -f" above will immediately be
-reflected in all copies (with or without subtree sharing) and no mounts
-will be possible on the (now absent) path a/b.
+No idea, but it would probably show up by adding some debug code
+some an emulator like Bochs?
 
-I think the question you meant to ask was what would happen if you
-mounted something on /tmp/mnt2/a/b (the slave copy) and then mounted
-something else on /tmp/mnt1/a/b.  In that case there's two places where
-the propagated mount might go:
-	1. On top of the dentry a/b in /tmp/mnt2, underneath the
-	   preexisting mount.
-	2. On top of the root dentry of the thing mounted in
-	   /tmp/mnt2/a/b, thus covering the preexisting mount.
-
-Wouldn't option 1 require changing the mnt_parent of the preexisting
-mount on /tmp/mnt2/a/b?  That seems like an odd thing to do, so I assume
-option 2 is the only possible solution, but perhaps I'm missing
-something.
-
---b.
+Tony

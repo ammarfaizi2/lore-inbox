@@ -1,186 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbUKDUCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbUKDUGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbUKDUCm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbUKDT7h
+	id S262372AbUKDUGd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKDTjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:59:37 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40329 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262396AbUKDT41 (ORCPT
+	Thu, 4 Nov 2004 14:39:22 -0500
+Received: from mail8.spymac.net ([195.225.149.8]:8614 "EHLO mail8")
+	by vger.kernel.org with ESMTP id S262444AbUKDTe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:56:27 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jack Steiner <steiner@sgi.com>
-Subject: Re: contention on profile_lock
-Date: Thu, 4 Nov 2004 11:56:23 -0800
-User-Agent: KMail/1.7
-Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, edwardsg@sgi.com
-References: <200411021152.16038.jbarnes@engr.sgi.com> <20041102200222.GA5135@sgi.com> <200411021342.36918.jbarnes@engr.sgi.com>
-In-Reply-To: <200411021342.36918.jbarnes@engr.sgi.com>
+	Thu, 4 Nov 2004 14:34:29 -0500
+Message-ID: <418A8439.2000003@spymac.com>
+Date: Thu, 04 Nov 2004 20:34:17 +0100
+From: Gunther Persoons <gunther_persoons@spymac.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_nloiBWFFYFcRSzy"
-Message-Id: <200411041156.23559.jbarnes@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
+In-Reply-To: <20041103105840.GA3992@elte.hu>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_nloiBWFFYFcRSzy
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Ingo Molnar wrote:
 
-On Tuesday, November 2, 2004 1:42 pm, Jesse Barnes wrote:
-> Agreed.  Dipankar already suggested RCUifying the notifier list, but
-> another option would be to simply check to see if oprofile timer based
-> profiling is enabled since it seems to be the only user.  That would turn a
-> lock into a read-mostly variable at least.
-
-..but since I haven't heard from Dipankar, here's a patch that removes the 
-profile_hook notifier list altogether in favor of a simple flag that controls 
-whether or not to call the oprofile timer routine directly.  Does it look ok?
-
-Thanks,
-Jesse
-
-
---Boundary-00=_nloiBWFFYFcRSzy
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="remove-profile-notifier-list-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="remove-profile-notifier-list-2.patch"
-
-===== drivers/oprofile/timer_int.c 1.8 vs edited =====
---- 1.8/drivers/oprofile/timer_int.c	2004-09-03 16:55:27 -07:00
-+++ edited/drivers/oprofile/timer_int.c	2004-11-04 11:53:42 -08:00
-@@ -14,32 +14,29 @@
- #include <linux/profile.h>
- #include <linux/init.h>
- #include <asm/ptrace.h>
-+
-+int oprofile_timer;
-  
--static int timer_notify(struct notifier_block * self, unsigned long val, void * data)
-+int oprofile_timer_notify(struct pt_regs *regs)
- {
--	struct pt_regs * regs = (struct pt_regs *)data;
- 	int cpu = smp_processor_id();
- 	unsigned long eip = profile_pc(regs);
-  
- 	oprofile_add_sample(eip, !user_mode(regs), 0, cpu);
- 	return 0;
- }
-- 
-- 
--static struct notifier_block timer_notifier = {
--	.notifier_call	= timer_notify,
--};
-- 
- 
- static int timer_start(void)
- {
--	return register_profile_notifier(&timer_notifier);
-+	oprofile_timer = 1;
-+	return 0;
- }
- 
- 
- static void timer_stop(void)
- {
--	unregister_profile_notifier(&timer_notifier);
-+	oprofile_timer = 0;
-+	wmb();
- }
- 
- 
-===== include/linux/oprofile.h 1.10 vs edited =====
---- 1.10/include/linux/oprofile.h	2004-06-24 01:56:02 -07:00
-+++ edited/include/linux/oprofile.h	2004-11-04 11:06:29 -08:00
-@@ -13,6 +13,7 @@
- #ifndef OPROFILE_H
- #define OPROFILE_H
- 
-+#include <linux/config.h>
- #include <linux/types.h>
- #include <linux/spinlock.h>
- #include <asm/atomic.h>
-@@ -105,5 +106,14 @@
- 
- /** lock for read/write safety */
- extern spinlock_t oprofilefs_lock;
-+
-+#ifdef CONFIG_OPROFILE
-+extern int oprofile_timer; /* bool for the oprofile timer */
-+extern int oprofile_timer_notify(struct pt_regs *);
-+#else
-+#define oprofile_timer 0
-+static inline int oprofile_timer_notify(struct pt_regs *) { return 0; }
-+#endif
-+
-  
- #endif /* OPROFILE_H */
-===== kernel/profile.c 1.14 vs edited =====
---- 1.14/kernel/profile.c	2004-10-19 02:40:31 -07:00
-+++ edited/kernel/profile.c	2004-11-04 11:10:10 -08:00
-@@ -22,6 +22,7 @@
- #include <linux/cpumask.h>
- #include <linux/cpu.h>
- #include <linux/profile.h>
-+#include <linux/oprofile.h>
- #include <linux/highmem.h>
- #include <asm/sections.h>
- #include <asm/semaphore.h>
-@@ -168,38 +169,6 @@
- 	return err;
- }
- 
--static struct notifier_block * profile_listeners;
--static rwlock_t profile_lock = RW_LOCK_UNLOCKED;
-- 
--int register_profile_notifier(struct notifier_block * nb)
--{
--	int err;
--	write_lock_irq(&profile_lock);
--	err = notifier_chain_register(&profile_listeners, nb);
--	write_unlock_irq(&profile_lock);
--	return err;
--}
--
--
--int unregister_profile_notifier(struct notifier_block * nb)
--{
--	int err;
--	write_lock_irq(&profile_lock);
--	err = notifier_chain_unregister(&profile_listeners, nb);
--	write_unlock_irq(&profile_lock);
--	return err;
--}
--
--
--void profile_hook(struct pt_regs * regs)
--{
--	read_lock(&profile_lock);
--	notifier_call_chain(&profile_listeners, 0, regs);
--	read_unlock(&profile_lock);
--}
--
--EXPORT_SYMBOL_GPL(register_profile_notifier);
--EXPORT_SYMBOL_GPL(unregister_profile_notifier);
- EXPORT_SYMBOL_GPL(task_handoff_register);
- EXPORT_SYMBOL_GPL(task_handoff_unregister);
- 
-@@ -394,8 +363,8 @@
- 
- void profile_tick(int type, struct pt_regs *regs)
- {
--	if (type == CPU_PROFILING)
--		profile_hook(regs);
-+	if (type == CPU_PROFILING && oprofile_timer)
-+		oprofile_timer_notify(regs);
- 	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
- 		profile_hit(type, (void *)profile_pc(regs));
- }
-
---Boundary-00=_nloiBWFFYFcRSzy--
+>i have released the -V0.7.1 Real-Time Preemption patch, which can be
+>downloaded from:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
+>this release is mainly a merge of -V0.6.9 to 2.6.10-rc2-mm2.
+>
+>I havent done a proper changelog for a couple of days so here is a list
+>of bigger changes since -V0.4:
+>
+> - implemented a first version of the priority inheritance handling and
+>   priority inversion avoidance logic. This feature, after some initial
+>   stability problems, solved the jackd and rtc_wakeup latencies that
+>   were introduced by the ultra-finegrained locking in the -V series.
+>
+>   (the -T/U series had a coarser locking scheme triggered much lower
+>   levels of priority inversion scenarios. The locking in the -V series
+>   was clearly the tipping point.)
+>
+>   The new PI code covers all synchronization objects in Linux (on
+>   PREEMPT_REALTIME): spinlocks, rwlocks, semaphores and rwsems. 
+>   Feedback on the design of this code would be welcome, and patches as
+>   well, if you have a better scheme. The code is pretty modular so feel 
+>   free to experiment with alternative schemes.
+>
+> - completely reworked the debugging framework. All lock types
+>   (spinlocks, rwlocks, semaphores and rwsems) are now tracked, both
+>   their symbolic name and their place of acquire are traced and printed
+>   out upon detection of a deadlock. More and better information is
+>   printed upon a deadlock. Got rid of the 'semaphore owners array' in
+>   debugging mode, this reduces the footprint of semaphores quite
+>   significantly and speeds up deadlock detection.
+>
+> - got rid of the separate 'counted semaphores' implementation, it was
+>   too intrusive. Made the core 'generic semaphores' implementation
+>   compatible with vanilla Linux counted semaphore semantics. This also
+>   enabled the unrolling of the completion-handling cleanups which,
+>   while being very nice, were getting intrusive as well.
+>
+> - countless build and driver related reports/fixes from lots of people
+>
+> - more latency breaks in the remaining critical sections. A
+>   particularly important one was the irqs-off latency bugfix from
+>   Thomas Gleixner.
+>
+> - sped up the i8259 PIC and the PIT timer hardirq handling routines -
+>   these are now in the path of the longest latency.
+>
+> - cleaned up IRQ and signal preemption - there were missed
+>   check-rescheds and possibilities for IRQ recursion.
+>
+> - made ALSA's ioctl()s not use the BKL - this fixes more jackd
+>   latencies.
+>
+>to create a -V0.7.1 tree from scratch, the patching order is:
+>
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+>   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
+>   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/2.6.10-rc1-mm2.bz2
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm2-V0.7.1
+>
+>	Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hey,
+I get a lock up with my wireless pcmcia cisco card. When i try to run to 
+dhcpcd command or iwconfig it just hangs. Also when
+i insert my card at boot time it hangs when running the net init 
+scripts. I had this with version V0.7.8 and V0.7.10, have tested any 
+other RT patches, i didn't have this problem with VP-T3. Also i can now 
+mount and use my reiser4 partition.

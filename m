@@ -1,75 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135251AbRDLSvm>; Thu, 12 Apr 2001 14:51:42 -0400
+	id <S135254AbRDLS7W>; Thu, 12 Apr 2001 14:59:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135252AbRDLSvd>; Thu, 12 Apr 2001 14:51:33 -0400
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:53235 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S135251AbRDLSvX>; Thu, 12 Apr 2001 14:51:23 -0400
-Date: Thu, 12 Apr 2001 11:51:08 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Boris Pisarcik <boris@acheron.sk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Question about SysRq
-In-Reply-To: <20010404023911.A1260@Boris>
-Message-ID: <Pine.LNX.4.30.0104121138170.4222-100000@sol.compendium-tech.com>
+	id <S135256AbRDLS7M>; Thu, 12 Apr 2001 14:59:12 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:63981 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S135254AbRDLS67>; Thu, 12 Apr 2001 14:58:59 -0400
+Message-ID: <3AD5F9FE.9A49374D@uow.edu.au>
+Date: Thu, 12 Apr 2001 11:54:54 -0700
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rod Stewart <stewart@dystopia.lab43.org>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: 8139too: defunct threads
+In-Reply-To: <Pine.LNX.4.33.0104121336040.31024-100000@dystopia.lab43.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Apr 2001, Boris Pisarcik wrote:
-> I looked a bit at the source of sysrq handling. I've found there is
-> rather big difference between sysrq+b and other killers handling.
-> Sysrq+b is just called with pretty straitforward fashion - stops other
-> processors on SMP and reboots directly (hardware impulse or triple fault)
-> or through the bios - so it just calls for the corruptions.
+Rod Stewart wrote:
+> 
+> Hello,
+> 
+> Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
+> thread for each device we have; if the driver is built into the kernel.
+> If the driver is built as a module, no defunct threads appear.
 
-ah, that would explain it...
+What is the parent PID for the defunct tasks?  zero?
 
-> On the other side sysrq+s marks a single variable, which will be tested
-> next cycle in the bdflush kernel threads' main loop, and adds bdflush to
-> scheduler runqueue list. So it gets possibility to check for emergency
-> sync onle when gets next scheduled. Does it ?
->
-> Can you anyhow find something in your logs/console/serial console messages
-> like 13.13.2000 kernel : Sysrq: Emergency Sync (this should be present - is
-> written within keyboard handler, not after shedule) and what's next logs ?
-> We could determine, if the bdflush thread got scheduled and called emergency
-> syncing routine indeed.
+<slaps head> swapper doesn't know how to reap children, and
+AFAIK there's no way for a kernel thread to fully clean itself
+up.  This is always done by the parent.
 
-Nope, there was nothing in the logs.
-
-> As you wrote no of your processes does respond - probably telnet will
-> not help. You may try to write experimental programme, that only log
-> say current time every n seconds, and see, if it just stopped to
-> log messages after lockup-time. If not - it doesn't get scheduled.
-> If continues - there's problem with syncing. Again - try, as far
-> as i understand, log kernel messages to serial console or alike, because
-> the messages should not get written to logfiles - syslogd can't be woken up
-> eg.
-
-Telnet's disabled anyways :) Cleartext passwords SUCK. :)
-I've got a nifty LCD thingy I can hook up to the serial port and use as a
-console if need be.
-
-> Quick help against those corruptions, which comes on my mind, is use
-> the reiserfs. I have no real experiences with that and its reliability,
-> also as aj followed some of messages in this list about resierfs - it has
-> some problems too - but in definition it shoudn't get corrupted by not-
-> syncing reboot. But i see this not much helpfull ,cause if you really
-> would depend on big reliability, you wouldn't intall 2.3.x-pre kernel :)
-
-I'm not about to convert my filesystems over... It's too much a hassle for
-little gain. ext2 is faster anyways, IIRC.
-
-The problem disappeared when I installed 2.4.3 release; I think it was a
-DRM issue in the kernel that was causing the lockups
-
-Thanks for the help though
-
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+ho-hum.  Jeff, I think the best fix here is to bite the
+bullet and write kernel_daemon(), which will delegate
+thread creation to keventd, which is the only thing
+we have which reaps zombies.  Any better ideas?

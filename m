@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263917AbRFJN57>; Sun, 10 Jun 2001 09:57:59 -0400
+	id <S264529AbRFJOJA>; Sun, 10 Jun 2001 10:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263926AbRFJN5t>; Sun, 10 Jun 2001 09:57:49 -0400
-Received: from [32.97.182.102] ([32.97.182.102]:55792 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263917AbRFJN5j>;
-	Sun, 10 Jun 2001 09:57:39 -0400
-Importance: Normal
-Subject: Re: Please test: workaround to help swapoff behaviour
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Derek Glidden <dglidden@illusionary.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-        Stephen Tweedie <sct@redhat.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF083B7070.89B5A2B7-ON85256A67.004AD50A@pok.ibm.com>
-From: "Bulent Abali" <abali@us.ibm.com>
-Date: Sun, 10 Jun 2001 09:56:04 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
- 06/10/2001 09:55:06 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S264530AbRFJOIu>; Sun, 10 Jun 2001 10:08:50 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:50703 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S264529AbRFJOIk>;
+	Sun, 10 Jun 2001 10:08:40 -0400
+Date: Sun, 10 Jun 2001 10:09:35 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Cc: maxk@qualcomm.com
+Subject: Undocumented configuration symbols in 2.4.6pre2
+Message-ID: <20010610100935.A11098@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net, maxk@qualcomm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 2.4.6-pre2 kernel introduces some new configuration symbols:
 
+CONFIG_AMD7409_OVERRIDE
+CONFIG_BLK_DEV_AMD7409
+CONFIG_BLK_DEV_OSB4
+CONFIG_BLUEZ
+CONFIG_BLUEZ_HCIEMU
+CONFIG_BLUEZ_HCIUART
+CONFIG_BLUEZ_HCIUSB
+CONFIG_BLUEZ_L2CAP
 
->The fix is to kill the dead/orphaned swap pages before we get to
->swapoff.  At shutdown time there is practically nothing active in
-> ...
->Once the dead swap pages problem is fixed it is time to optimize
->swapoff.
+Would the people responsible for these symbols please write Configure.help
+entries and send them to me?  Before this update Configure.help had 
+complete coverage; let's try to keep it that way.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-I think fixing the orphaned swap pages problem will eliminate the
-problem all together.  Probably there is no need to optimize
-swapoff.
-
-Because as the system is shutting down all the processes will be
-killed and their pages in swap will be orphaned. If those pages
-were to be reaped in a timely manner there wouldn't be any work
-left for swapoff.
-
-Bulent
-
-
+"Today, we need a nation of Minutemen, citizens who are not only prepared to
+take arms, but citizens who regard the preservation of freedom as the basic
+purpose of their daily life and who are willing to consciously work and
+sacrifice for that freedom."	-- John F. Kennedy

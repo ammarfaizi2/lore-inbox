@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTIYSoE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIYSoD
+	id S261723AbTIYSZH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbTIYSYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:44:03 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:56974 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261823AbTIYSnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:43:15 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030925.200135.607960881.rene.rebe@gmx.net>
-References: <1063221565.678.2.camel@gaston>
-	 <20030910.222620.730549923.rene.rebe@gmx.net>
-	 <1063262157.2023.19.camel@gaston>
-	 <20030925.200135.607960881.rene.rebe@gmx.net>
-Message-Id: <1064515390.19697.6.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 20:43:11 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: dmasound_pmac (2.4.x{,-benh}) does not restore mixer during
-	PM-wake
-Content-Type: text/plain
+	Thu, 25 Sep 2003 14:24:22 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:8413 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261683AbTIYRzp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:55:45 -0400
+Date: Thu, 25 Sep 2003 08:49:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@digeo.com>
+Subject: ext3 panic on test4 running dbench
+Message-ID: <20610000.1064504990@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-25 at 20:01, Rene Rebe wrote:
-> Hi,
-> 
-> On: Thu, 11 Sep 2003 08:35:57 +0200,
->     Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > 
-> > > so hm?!? - is the wakeup order of the devices incorrect (i2c needs to
-> > > be before damsound_pmac ...)?
-> > 
-> > The i2c bus isn't suspended during sleep... I don't know for sure
-> > what's up, I'll investigate.
-> 
-> Have you found some time to look into this issue in more detail? I
-> already tried a tiny timeout wihtout help - maybe you got an idea?
+maybe this is fixed already ... but:
 
-My current bk 2.4 contains a reworked i2c driver that might help...
-
-Ben.
+Sep 24 02:26:14 elm3b67 kernel: invalid operand: 0000 [#1]
+Sep 24 02:26:14 elm3b67 kernel: CPU:    11
+Sep 24 02:26:14 elm3b67 kernel: EIP:    0060:[_end+404081921/1069412752]    Not tainted
+Sep 24 02:26:14 elm3b67 kernel: EFLAGS: 00010206
+Sep 24 02:26:14 elm3b67 kernel: EIP is at 0xd857bb71
+Sep 24 02:26:14 elm3b67 kernel: eax: 00038815   ebx: 00000002   ecx: cbe4ab20   edx: 00000011
+Sep 24 02:26:14 elm3b67 kernel: esi: 00000000   edi: d82c6690   ebp: d4ecd1b0   esp: d857bb80
+Sep 24 02:26:14 elm3b67 kernel: ds: 007b   es: 007b   ss: 0068
+Sep 24 02:26:14 elm3b67 kernel: Process dbench (pid: 20747, threadinfo=d857a000 task=d4015900)
+Sep 24 02:26:14 elm3b67 kernel: Stack: cf768ea4 00000000 d82c6690 d857bc1c d8841400 d5f0a180 00000000 00000000 
+Sep 24 02:26:14 elm3b67 kernel:        00818006 d8841400 00000000 d5489310 cf768ea4 c017f65f cc218280 c01892b9 
+Sep 24 02:26:14 elm3b67 kernel:        cf768ea4 d82c6690 00000000 00000000 d4ecd1b0 00000000 d4ecd1b0 cf768ea4 
+Sep 24 02:26:14 elm3b67 kernel: Call Trace:
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_inode_loc+87/572] ext3_get_inode_loc+0x57/0x23c
+Sep 24 02:26:14 elm3b67 kernel:  [journal_get_write_access+33/52] journal_get_write_access+0x21/0x34
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_reserve_inode_write+52/152] ext3_reserve_inode_write+0x34/0x98
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_mark_inode_dirty+26/52] ext3_mark_inode_dirty+0x1a/0x34
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_splice_branch+209/388] ext3_splice_branch+0xd1/0x184
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block_handle+479/640] ext3_get_block_handle+0x1df/0x280
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+96/104] ext3_get_block+0x60/0x68
+Sep 24 02:26:14 elm3b67 kernel:  [__block_prepare_write+300/972] __block_prepare_write+0x12c/0x3cc
+Sep 24 02:26:14 elm3b67 kernel:  [block_prepare_write+33/56] block_prepare_write+0x21/0x38
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+0/104] ext3_get_block+0x0/0x68
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_prepare_write+69/216] ext3_prepare_write+0x45/0xd8
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_block+0/104] ext3_get_block+0x0/0x68
+Sep 24 02:26:14 elm3b67 kernel:  [generic_file_aio_write_nolock+1693/2608] generic_file_aio_write_nolock+0x69d/0xa30
+Sep 24 02:26:14 elm3b67 kernel:  [generic_file_aio_write+103/128] generic_file_aio_write+0x67/0x80
+Sep 24 02:26:14 elm3b67 kernel:  [ext3_file_write+43/183] ext3_file_write+0x2b/0xb7
+Sep 24 02:26:14 elm3b67 kernel:  [do_sync_write+129/176] do_sync_write+0x81/0xb0
+Sep 24 02:26:14 elm3b67 kernel:  [sys_fstat64+37/48] sys_fstat64+0x25/0x30
+Sep 24 02:26:14 elm3b67 kernel:  [vfs_write+160/208] vfs_write+0xa0/0xd0
+Sep 24 02:26:14 elm3b67 kernel:  [sys_pwrite64+64/92] sys_pwrite64+0x40/0x5c
+Sep 24 02:26:14 elm3b67 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Sep 24 02:26:14 elm3b67 kernel: 
+Sep 24 02:26:14 elm3b67 kernel: Code: ff ff ff 71 bb 57 d8 60 00 00 00 06 02 01 00 a4 8e 76 cf 00 
 
 

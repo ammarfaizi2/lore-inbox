@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269488AbUIZDEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269489AbUIZDTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269488AbUIZDEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 23:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269489AbUIZDEw
+	id S269489AbUIZDTs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 23:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269492AbUIZDTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 23:04:52 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:59348 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S269488AbUIZDEu
+	Sat, 25 Sep 2004 23:19:48 -0400
+Received: from smtp.sys.beep.pl ([195.245.198.13]:58632 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S269489AbUIZDTp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 23:04:50 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [sched.h 6/8] move aio include to mm.h
-Date: Sun, 26 Sep 2004 05:03:51 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040925024513.GL9106@holomorphy.com> <200409260356.27499.arnd@arndb.de> <20040926020637.GS9106@holomorphy.com>
-In-Reply-To: <20040926020637.GS9106@holomorphy.com>
+	Sat, 25 Sep 2004 23:19:45 -0400
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.6.9rc2+bk hangs at: ACPI: IRQ9 SCI: Level Trigger.
+Date: Sun, 26 Sep 2004 05:18:26 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_YGjVBpAnT9d2EMK";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409260503.53088.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200409260518.26590.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_YGjVBpAnT9d2EMK
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+My kernel (2.6.9rc2+cset-20040926_0006) hangs at:
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: IRQ9 SCI: Level Trigger.
 
-On Sonntag, 26. September 2004 04:06, William Lee Irwin III wrote:
-> Grepping by hand turned up 186 files missing potentially missing direct
-> includes of workqueue.h, though I don't have a way to tell if I got
-> false negatives.
->=20
-I just realized that I was using an old kernel tree (2.6.7 with
-some patches), which might be the reason for getting fewer results
-(38 of my 175 findings were extra #include lines, not missing ones).
+Previous working kernel running here was 2.6.9rc2+20040914_1622.
 
-Running my script against the linux.bkbits.net tree gives now gives
-me 178 missing and 35 extraneous inclusions of workqueue.h, so your
-list is probably exact if you are grepping against -mm.
+I've tried options:
+acpi=off
+noapic
+nolapic
+acpi=off noapic nolapic
+but no change - hangs with each these options, sysrq is not working.
 
-	Arnd <><
+Ideas welcome.
 
---Boundary-02=_YGjVBpAnT9d2EMK
-Content-Type: application/pgp-signature
-Content-Description: signature
+It's MaxData Mbook 1000T notebook with athlon mobile cpu.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
+40)
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 1a)
+00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 1a)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
+40)
+00:08.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller 
+(rev 01)
+00:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:09.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+07)
+00:0a.0 Unknown mass storage controller: Promise Technology, Inc. PDC20268 
+(Ultra100 TX2) (rev 01)
+00:0c.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture 
+(rev 11)
+00:0c.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 
+11)
+00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 
+6c)
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV250 If 
+[Radeon 9000] (rev 01)
+01:00.1 Display controller: ATI Technologies Inc Radeon RV250 [Radeon 9000] 
+(Secondary) (rev 01)
 
-iD8DBQBBVjGY5t5GS2LDRf4RAv2FAJ4ruS5NsxToZi8PovwL62F9l9jCcACfavzj
-YQxEjgRtRPZKCZBjHpxrfcU=
-=MPcZ
------END PGP SIGNATURE-----
-
---Boundary-02=_YGjVBpAnT9d2EMK--
+Something else needed?
+-- 
+Arkadiusz Mi¶kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/

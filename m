@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264507AbTFYNul (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 09:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTFYNul
+	id S264489AbTFYOMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 10:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264491AbTFYOMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 09:50:41 -0400
-Received: from heavymos.kumin.ne.jp ([61.114.158.133]:11142 "HELO
-	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S264507AbTFYNuk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 09:50:40 -0400
-Message-Id: <200306251404.AA00005@prism.kumin.ne.jp>
-From: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Date: Wed, 25 Jun 2003 23:04:42 +0900
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.73 compile error
-In-Reply-To: <20030624163548.GA3914@kroah.com>
-References: <20030624163548.GA3914@kroah.com>
+	Wed, 25 Jun 2003 10:12:49 -0400
+Received: from [195.214.178.133] ([195.214.178.133]:12077 "EHLO octopus")
+	by vger.kernel.org with ESMTP id S264489AbTFYOMp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 10:12:45 -0400
+Message-ID: <006401c33b26$29151770$3002a8c0@yigitcan>
+From: "Yigit Can" <yigit.can@karel.com.tr>
+To: "linux c programming" <linux-c-programming@vger.kernel.org>,
+       "linux kernel" <linux-kernel@vger.kernel.org>
+Subject: SPI driver
+Date: Wed, 25 Jun 2003 17:29:17 +0300
 MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.13
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
->> I update to linux-2.5.73 from linux-2.5.72.
->> compile error occured.
->
->Search the archives for the patch, or just enable CONFIG_HOTPLUG
->
+Hello,
 
-I update to 2.5.73 from 2.5.72, and I used a same .config parameter.
-but compile error occured.
-Is CONFIG_HOTPLUG a mandatory parameter? I think it is not.
+I'm trying to write an SPI driver for 850_ppc kernel
 
-Now, I update to 2.5.73 + bk3, it compile and boot up fine.
+I have written some code according to the datasheet and some samples.
 
-thank you.
+I can send data but I am not able to receive any data 
 
---------------------------------
-  Seiichi Nakashima
-  Email   nakasima@kumin.ne.jp
---------------------------------
+any comments ?
+
+Thank you
+
+Yigit 
+

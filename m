@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbTE0RqC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTE0Roz
+	id S264025AbTE0Roo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTE0Rnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:44:55 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:8975 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S264024AbTE0Ro0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:44:26 -0400
-Date: Wed, 28 May 2003 02:57:51 +0900 (JST)
-Message-Id: <20030528.025751.65947567.yoshfuji@wide.ad.jp>
-To: siim@pld.ttu.ee, davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: 2.5.70-bk1 compilation error
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@wide.ad.jp>
-In-Reply-To: <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee>
-References: <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee>
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Tue, 27 May 2003 13:43:45 -0400
+Received: from holomorphy.com ([66.224.33.161]:34536 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264024AbTE0RnC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:43:02 -0400
+Date: Tue, 27 May 2003 10:56:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: John Stoffel <stoffel@lucent.com>
+Cc: DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70 compile error
+Message-ID: <20030527175604.GN8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	John Stoffel <stoffel@lucent.com>,
+	DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <20030527155259.GK8978@holomorphy.com> <16083.37850.528654.94908@gargle.gargle.HOWL> <20030527164300.GL8978@holomorphy.com> <16083.42349.964658.11555@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16083.42349.964658.11555@gargle.gargle.HOWL>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee> (at Tue, 27 May 2003 19:55:42 +0300 (EET DST)), Siim Vahtre <siim@pld.ttu.ee> says:
+"William" == William Lee Irwin <wli@holomorphy.com> writes:
+William> CONFIG_NR_CPUS should appear under the processor type and
+William> features menu.
 
->   CC [M]  drivers/video/i810/i810_main.o
-> In file included from drivers/video/i810/i810_main.c:56:
-> drivers/video/i810/i810.h:206: error: parse error before "agp_memory"
+On Tue, May 27, 2003 at 01:50:37PM -0400, John Stoffel wrote:
+> I must not have been clear enough in my rant, so let me rephrase it.  
+> Because I had already configured NR_CPUS=2, I'm not sure that I should
+> have even gotten the choice of X86_BIGSMP at all, since it's obviously
+> not valid in this case.
+> I'm really asking for the configuration specifications and
+> dependencies to be cleaned up, and maybe I'll try to do it myself and
+> send in the patch.  Right now I'm going to be trying 2.5.70-mm1 with a
+> patch for my ISA Cyclades board first.
 
-Index: linux25-LINUS/drivers/video/i810/i810.h
-===================================================================
-RCS file: /cvsroot/usagi/usagi-backport/linux25/drivers/video/i810/i810.h,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 i810.h
---- linux25-LINUS/drivers/video/i810/i810.h	17 Apr 2003 18:13:36 -0000	1.1.1.4
-+++ linux25-LINUS/drivers/video/i810/i810.h	27 May 2003 17:48:49 -0000
-@@ -203,8 +203,8 @@
- #define LOCKUP                      8
- 
- struct gtt_data {
--	agp_memory *i810_fb_memory;
--	agp_memory *i810_cursor_memory;
-+	struct agp_memory *i810_fb_memory;
-+	struct agp_memory *i810_cursor_memory;
- };
- 
- struct mode_registers {
-Index: linux25-LINUS/drivers/video/sis/sis_main.c
-===================================================================
-RCS file: /cvsroot/usagi/usagi-backport/linux25/drivers/video/sis/sis_main.c,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 sis_main.c
---- linux25-LINUS/drivers/video/sis/sis_main.c	6 May 2003 12:43:02 -0000	1.1.1.4
-+++ linux25-LINUS/drivers/video/sis/sis_main.c	27 May 2003 17:48:50 -0000
-@@ -2868,8 +2868,8 @@
- 	unsigned long *write_port = 0;
- 	SIS_CMDTYPE    cmd_type;
- #ifndef AGPOFF
--	agp_kern_info  *agp_info;
--	agp_memory     *agp;
-+	struct agp_kern_info  *agp_info;
-+	struct agp_memory     *agp;
- 	u32            agp_phys;
- #endif
- #endif
+They're meant to specify system types, in particular APIC configurations.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+
+On Tue, May 27, 2003 at 01:50:37PM -0400, John Stoffel wrote:
+> So the real thrust of my posts before was:
+> The language and description used when running 'make oldconfig' and
+> trying to set the "X86_GENERICARCH" option is ugly and hard to
+> understand and doesn't match how it's shown in the 'make menuconfig'
+> settings.  
+> Sure, I realize that oldconfig is more a helper than a real
+> interface, but it still has warts that I'd like to fix or have
+> someone else fix if I can't do it myself.
+> Maybe the entire issue is really how do you do specify and constrain
+> inputs properly in this setup?
+
+No idea. Ask Roman Zippel.
+
+My expectation is that we aren't going to make kernel configuration
+safe for Aunt Tillie anytime in the near future.
+
+
+-- wli

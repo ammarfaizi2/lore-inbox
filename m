@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUH0SIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUH0SJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266821AbUH0SIt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 14:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266830AbUH0SIs
+	id S266833AbUH0SJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 14:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUH0SJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 14:08:48 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2761 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266821AbUH0SIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 14:08:40 -0400
-Subject: Re: [PATCH] Configure IDE probe delays
-From: Lee Revell <rlrevell@joe-job.com>
-To: bzolnier@milosz.na.pl
-Cc: Greg Stark <gsstark@mit.edu>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       tim.bird@am.sony.com, dsingleton@mvista.com
-In-Reply-To: <200408272005.08407.bzolnier@elka.pw.edu.pl>
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
-	 <87wtzkmq4l.fsf@stark.xeocode.com>
-	 <1093629202.837.37.camel@krustophenia.net>
-	 <200408272005.08407.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1093630121.837.39.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 27 Aug 2004 14:08:41 -0400
+	Fri, 27 Aug 2004 14:09:27 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22789 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S266833AbUH0SJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 14:09:20 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Date: Fri, 27 Aug 2004 21:08:38 +0300
+User-Agent: KMail/1.5.4
+References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
+In-Reply-To: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408272108.38811.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-27 at 14:05, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 27 August 2004 19:53, Lee Revell wrote:
-> > On Fri, 2004-08-27 at 13:45, Greg Stark wrote:
-> > > Lee Revell <rlrevell@joe-job.com> writes:
-> > > > I wonder if 83 probes are really necessary.  Maybe this could be
-> > > > optimized a bit.
-> > >
-> > > Or if the kernel could be doing something useful during that time. I
-> > > don't suppose it's possible to probe two different ide interfaces at the
-> > > same time, is it?
-> >
-> > Did the patch to move this into a #define ever get merged?  Seems like a
-> > no brainer, as it eliminates a magic number.
-> 
-> No and it won't because it is not a 'magic number' but rather a 'random 
-> number' (see Alan's mail for explanation).
-> 
+On Friday 27 August 2004 19:26, Kenneth Lavrsen wrote:
+> And now the latest step of modifying the code so that it is useless like
+> removing the hook for pwcx. I have been using pwc/pwcx for years now and
+> the driver has been working well. Better than so many other USB based
+> devices I have tried and rejected.
+> The binary pwcx module has been accepted for years. And now fanatism has
+> taken over and suddenly the pwcx module is no longer pure. And it does not
+> seem like Greg spent even one second thinking about the 10000s of people
+> that have invested in the quite expensive (but much better than anything
+> else) Logitech and Philips cameras - knowing that it was supported by
+> Linux. He just destroyed the driver without a wink.
+> Did he think: "To hell with all the Linux users with a USB camera - I don't
+> care about other people - I care only about my own principles"?
+>
+> Kernel developers sits with the power to reject incoming patches. Such
+> priviledge should be handled with respect. Not only to the individual
+> contributors - but also to the millions of Linux users that depends on
+> their behavour. What I have seen is in my eyes abuse of this power.
+> I would never remove a feature from Motion without a proper debate with my
+> users. Being a maintainer of an OSS project is a priviledge - not a right.
 
-OK, sorry.  Missed that one the first time.
+Nobody and nothing prevents you from patching that druver back in.
+You dont like the fact that Linus' tree does not contain it anymore.
+Well. It's *Linus'* tree.
 
-> BTW Lee, 48-bit addressing doesn't mean that capacity > 137GB
-> 
+You are completely free to either maintain out-of-tree patch or
+to fork a tree.
 
-What determines whether 48 bit addressing will be used then?
-
-Lee
+This is the freedom given to you by GPL.
+--
+vda
 

@@ -1,69 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266321AbUAVRQU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUAVRQU
+	id S266445AbUAVWSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 17:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUAVWSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:16:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27569 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266321AbUAVRQS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:16:18 -0500
-Date: Thu, 22 Jan 2004 09:15:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Karol Kozimor <sziwan@hell.org.pl>, "Georg C. F. Greve" <greve@gnu.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
-In-Reply-To: <16399.55109.244040.516731@alkaid.it.uu.se>
-Message-ID: <Pine.LNX.4.58.0401220900510.2123@home.osdl.org>
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
- <m3u12pgfpr.fsf@reason.gnu-hamburg> <m3ptddgckg.fsf@reason.gnu-hamburg>
- <20040122120854.GB3534@hell.org.pl> <16399.55109.244040.516731@alkaid.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Jan 2004 17:18:16 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:46344 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S266445AbUAVWSH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 17:18:07 -0500
+Date: Thu, 22 Jan 2004 14:18:02 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to public posts
+Message-ID: <20040122221802.GD12666@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0401211155300.2123@home.osdl.org> <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com> <20040121213027.GN23765@srv-lnx2600.matchmail.com> <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain> <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org> <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com> <40101B1E.3030908@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40101B1E.3030908@blue-labs.org>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 22 Jan 2004, Mikael Pettersson wrote:
-
-> Karol Kozimor writes:
->  > 
->  > diff -Bru linux-2.6.0-test8/arch/i386/kernel/apic.c patched/arch/i386/kernel/apic.c
->  > --- linux-2.6.0-test8/arch/i386/kernel/apic.c	2003-10-18 05:43:36.000000000 +0800
->  > +++ patched/arch/i386/kernel/apic.c	2003-10-30 23:17:50.000000000 +0800
->  > @@ -836,8 +836,8 @@
->  >  {
->  >  	unsigned int lvtt1_value, tmp_value;
->  >  
->  > -	lvtt1_value = SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV) |
->  > -			APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
->  > +	lvtt1_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
->  > +
->  >  	apic_write_around(APIC_LVTT, lvtt1_value);
+On Thu, Jan 22, 2004 at 01:49:02PM -0500, David Ford wrote:
+> I've been amusing myself once or twice a week by studying some of these 
+> emails.  Due to the use of common words just like your email below, 
+> bayesian score is far too low (granting it a negative point value in SA).
 > 
-> What is the purpose of this change?
-> I don't remember seeing this before on LKML. (I don't have time to read bugzilla.)
+> The problem is that properly trained is too fluid.  It'd be far more 
+> achievable if I only talked geek..  Or if I only talked automotive.  Or 
+> that I only talked medical.  However, my "vocabulary" is far to varied 
+> to train a bayesian filter that the use of medical terms, computer 
+> terms, or a given topic, is taboo.
+> 
+> It cuts the gray area far to close to the middle of the road and thus 
+> makes marking the email as probable spam useless.  All I'm doing now is 
+> wasting CPU because in the end I'm doing the job of dealing with the 
+> spam myself.
 
-Hmm.. It does seem to fix things for a couple of people, so it looks 
-interesting.
+Most of the spam using that technique get flagged on other
+rules so they get scores of at least 8 but i've been
+considering writing a rule to catch them and up the score.
 
-As far as I can tell, the _only_ thing it does is to change the timer base
-from "DIV" to "CLKIN". I seem to have misplaced my ia-32 "volume 3" thing, 
-but I have an old one for a pentium, and that one doesn't actually
-haev the timer-base thing at all - and marks those bits as "reserved".
+Beyes is the wrong aproach for those random words from the
+dictionary blocks.
 
-So it is entirely possible that the only safe value to write there is 0.
+Those i've seen seem to be a long string of words all longer
+than 4 characters.  A rule that gave a score of based on the
+number of consecutive words longer than some number or
+characters would catch those fairly easily.  If i get
+annoyed enough i may figure out how to write such a rule.
 
-Also, why the heck do we call that "lvtt1"? It's just lvtt - no "1" there
-anywhere.
+On the downside, once a rule becomes common to catch these
+random word lists the spammers will start salting the lists
+with short common words.  Then when we get something that
+somehow measures semantic content they will shift to random
+random sentence construction and/or quotations.
 
-So I'm inclined to apply the patch, but it would be better if somebody who 
-had more recent docs could tell me what those newer docs say is the 
-difference bewteen BASE_CLKIN (0) and BASE_DIV (2)...
+What we need is a bounty on these scum.  $1000 fine per
+reported recipient with half going to the reporter would be
+nice.
 
-		Linus
+> David Lang wrote:
+> 
+> >On Thu, 22 Jan 2004, David Ford wrote:
+> > 
+> >
+> >>Considering that Bayesian filters are useless against the new spam that
+> >>is proliferating these days, that's laughable.  Spam now comes with a
+> >>good 5-10K of random dictionary words.
+> >>   
+> >>
+> >so we need to extend the Bayesian filters to deal with multi-word combos,
+> >how many legit mail has those dictionary words in them? properly traind
+> >their presence should help identify the spam.
+> >
+> >not that you will ever see this (other then through the list) as I won't
+> >respond to your confirmation message.
+> >
+> >David Lang
+> > 
+> >
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

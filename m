@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264375AbUEUX5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264875AbUEVBEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbUEUX5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbUEUXvv
+	id S264875AbUEVBEX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUEVBEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:51:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:8380 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264997AbUEUXad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:30:33 -0400
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: =?iso-8859-1?q?Mart=EDn_Chikilian?= <slack@efn.uncor.edu>
-Subject: Re: Linus is not the Linux father - Said MSFT Alexis de Tocqueville Institution
-Date: Wed, 19 May 2004 17:10:29 -0400
-User-Agent: KMail/1.6.2
-References: <200405171941.i4HJfmc08269@pincoya.inf.utfsm.cl> <40AA0061.8090500@efn.uncor.edu>
-In-Reply-To: <40AA0061.8090500@efn.uncor.edu>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405191710.29066.rpc@cafe4111.org>
+	Fri, 21 May 2004 21:04:13 -0400
+Received: from science.horizon.com ([192.35.100.1]:29766 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S264876AbUEVBCY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:02:24 -0400
+Date: 20 May 2004 06:08:05 -0000
+Message-ID: <20040520060805.1620.qmail@science.horizon.com>
+From: linux@horizon.com
+To: neilb@cse.unsw.edu.au
+Subject: Re: 2.6.6 is crashing repeatedly
+Cc: akpm@osdl.org, kerndev@sc-software.com, linux-kernel@vger.kernel.org,
+       linux@horizon.com
+In-Reply-To: <16556.16982.957729.595623@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Its seems to be a good discussion topic for me.
-> I want to know how the Linux community reacts to this kind of marketing
-> over the net and how can the subscribers be affected.
-> I really want to know Linus's opinion about this.
-> Cheers,
-> Martin
+> Yes... this patch should fix it.
+>
+> Thanks for the report.
 
-more wetware cracking = more ignorant people being led around. someone should 
-issue a press release about carefully prepared press releases that do 
-something similar to stack smashing, but in brains.
+Thanks even more for the fix!
 
-i just wanna know, where are all the non-US companies that dislike linux? are 
-they all here in america? would that be a surprise?
+This is indeed playing NFS server to a herd of Suns.
 
--- 
-Rob Couto [rpc@cafe4111.org]
-computer safety tip: use only a non-conducting, static-free hammer.
---
+Compiling now.  I'll report again in a week or two if the crashes
+stop.  (Sooner if they don't, of course.)

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTK2CxC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 21:53:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTK2CxC
+	id S263620AbTK2Crw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 21:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTK2Crw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 21:53:02 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:36563 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263632AbTK2CxA
+	Fri, 28 Nov 2003 21:47:52 -0500
+Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:36100 "HELO
+	signalmarketing.com") by vger.kernel.org with SMTP id S263620AbTK2Crv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 21:53:00 -0500
-Date: Sat, 29 Nov 2003 15:35:31 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: APM Suspend Problem
-In-reply-to: <20031129022005.GE8039@holomorphy.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Misha Nasledov <misha@nasledov.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1070073330.2314.46.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20031127062057.GA31974@nasledov.com>
- <20031128212853.GB8039@holomorphy.com> <20031128215008.GA2541@nasledov.com>
- <20031128215031.GC8039@holomorphy.com> <1070058437.2380.43.camel@laptop-linux>
- <20031128224928.GD8039@holomorphy.com> <20031129021712.GA13798@nasledov.com>
- <20031129022005.GE8039@holomorphy.com>
+	Fri, 28 Nov 2003 21:47:51 -0500
+Date: Fri, 28 Nov 2003 20:47:54 -0600 (CST)
+From: Derek Foreman <manmower@signalmarketing.com>
+X-X-Sender: manmower@uberdeity
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Parallel build not working since -test6?
+In-Reply-To: <200311282126.59634.sam@ravnborg.org>
+Message-ID: <Pine.LNX.4.58.0311282039170.23104@uberdeity>
+References: <02d801c3b474$e09e42a0$02c8a8c0@steinman> <200311282126.59634.sam@ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 28 Nov 2003, Sam Ravnborg wrote:
 
-On Sat, 2003-11-29 at 15:20, William Lee Irwin III wrote:
-> I haven't used the CONFIG_SOFTWARE_SUSPEND needed for ACPI much; AIUI
-> it's still prototypical in various ways (or whatever the right way to
-> phrase that is), and I'm a bit too overextended to help out with it now.
+> On Thursday 27 November 2003 00:27, Adam Kropelin wrote:
+> > Lately I've noticed my kernel compilations taking longer than usual.
+> > Tonight I finally realized the cause... Parallel building (i.e. make -jN)
+> > is no longer working for me. I traced it back and the last kernel it worked
+> > in was -test5. It ceased working in -test6.
+> It works for me, and for sure it works for most others. Otherwise I would
+> have seen lot of complaints like yours.
+> I recall one similar post, and the person in question used a homegrown
+> script that caused the problems.
 
-I have a ton of improvements I'm working toward sending to Patrick. It
-should improve a lot shortly (assuming of course that Patrick &
-Andrew/Linus take them).
+Well, this explains why 2.6.x builds so much slower here than it did a few
+kernels ago.
 
-Regards,
+make -j3 improves things.  but currently, make -j2 doesn't use both my
+cpus.
 
-Nigel
-
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+no scripts, just make -j2 bzImage

@@ -1,68 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271298AbTHCWIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 18:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271308AbTHCWIL
+	id S271279AbTHCWC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 18:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTHCWC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 18:08:11 -0400
-Received: from [66.155.158.133] ([66.155.158.133]:51072 "EHLO ns")
-	by vger.kernel.org with ESMTP id S271298AbTHCWII convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 18:08:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: John Bradford <john@grabjohn.com>, bbeutner@comcast.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: issues with any ac sources, and 2.6
-Date: Sun, 3 Aug 2003 19:06:45 -0400
-User-Agent: KMail/1.4.3
-References: <200308032056.h73KuEem000277@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200308032056.h73KuEem000277@81-2-122-30.bradfords.org.uk>
+	Sun, 3 Aug 2003 18:02:28 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:13843 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S271279AbTHCWCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 18:02:24 -0400
+From: "Alan Shih" <alan@storlinksemi.com>
+To: "David Lang" <david.lang@digitalinsight.com>
+Cc: "Ben Greear" <greearb@candelatech.com>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Nivedita Singhvi" <niv@us.ibm.com>,
+       "Werner Almesberger" <werner@almesberger.net>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: TOE brain dump
+Date: Sun, 3 Aug 2003 15:02:09 -0700
+Message-ID: <ODEIIOAOPGGCDIKEOPILGEMEDAAA.alan@storlinksemi.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308031906.46052.jbriggs@briggsmedia.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.44.0308030120150.24695-100000@dlang.diginsite.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got one of those in my office running 2.4.21-ac.  It runs well. Do you want 
-to try my kernel?  Those boards are real sensitive to ESD and constantly 
-loose their BIOS values if you swap a board out or pull a cable. I had one 
-that refused to boot on me today and I just pulled and reseated the PCI cards 
-and it came back to life.
+On an embedded system, no processor will be fast enough to compete with
+direct DMA xfer.  So just provide sendfile hooks that allow the kernel to
+initiate data filling from source to dest then allow TSO to take place.
+Kernel still needs to take care of the TCP stack.
 
-On Sunday 03 August 2003 04:56 pm, John Bradford wrote:
-> > i run a tyan tiger s2462 board with dual athlons, with the gentoo
-> > flavor on it, recently i tried to run the ac sourcess kernel on this
-> > machine, however upon boot the machine would just freeze up in the
-> > middle of kernel boot, either dying while attaching ide's to devices
-> > or while detecting the ide chipset, the odd part to this is that
-> > using generic linux sources the machine boots just fine the other
-> > issue seems to be that using the 2.6-beta versions it panic.
-> > it does so by telling me that i have corrupt cpu context and then
-> > panics, there are no hints or warning as to what it could be any
-> > help would be greatly appreciated
+I don't see this as building extensive customization though.
+
+Alan
+
+-----Original Message-----
+From: David Lang [mailto:david.lang@digitalinsight.com]
+Sent: Sunday, August 03, 2003 1:26 AM
+To: Alan Shih
+Cc: Ben Greear; Jeff Garzik; Nivedita Singhvi; Werner Almesberger;
+netdev@oss.sgi.com; linux-kernel@vger.kernel.org
+Subject: RE: TOE brain dump
+
+
+do you really want the processor on the card to be tunning
+apache/NFS/Samba/etc ?
+
+putting enough linux on the card to act as a router (which would include
+the netfilter stuff) is one thing. putting the userspace code that
+interfaces with the outside world for file transfers is something else.
+
+if you really want the disk connected to your network card you are just
+talking a low-end linux box. forget all this stuff about it being on a
+card and just use a full box (economys of scale will make this cheaper)
+
+making a firewall that's a core system with a dozen slave systems attached
+to it (the network cards) sounds like the type of clustering that Linux
+has been used for for compute nodes. complicated to setup, but extremely
+powerful and scalable once configured.
+
+if you want more then a router on the card then Alan Cox is right, just
+add another processor to the system, it's easier and cheaper.
+
+David Lang
+
+
+ On
+Sat, 2 Aug 2003, Alan Shih wrote:
+
+> Date: Sat, 2 Aug 2003 23:22:52 -0700
+> From: Alan Shih <alan@storlinksemi.com>
+> To: Ben Greear <greearb@candelatech.com>, Jeff Garzik <jgarzik@pobox.com>
+> Cc: Nivedita Singhvi <niv@us.ibm.com>,
+>      Werner Almesberger <werner@almesberger.net>, netdev@oss.sgi.com,
+>      linux-kernel@vger.kernel.org
+> Subject: RE: TOE brain dump
 >
-> For the AC kernels, try backing out just the IDE patches, and see if
-> that allows you to boot.
+> A DMA xfer that fills the NIC pipe with IDE source. That's not very
+hard...
+> need a lot of bufferring/FIFO though.  May require large modification to
+the
+> file serving applications?
 >
-> For 2.6, does the machine finish booting, and then panic, or does it
-> panic during the boot?  Did you try any of the 2.5 kernels, or did you
-> start with 2.6?  If it panics during boot, does it always panic at the
-> same place, and if so where?  Posting the boot time output of dmesg,
-> and lspci -vvv would be helpful here.
+> Alan
 >
-> John.
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ben Greear
+> Sent: Saturday, August 02, 2003 9:02 PM
+> To: Jeff Garzik
+> Cc: Nivedita Singhvi; Werner Almesberger; netdev@oss.sgi.com;
+> linux-kernel@vger.kernel.org
+> Subject: Re: TOE brain dump
+>
+>
+> Jeff Garzik wrote:
+>
+> > So, fix the other end of the pipeline too, otherwise this fast network
+> > stuff is flashly but pointless.  If you want to serve up data from disk,
+> > then start creating PCI cards that have both Serial ATA and ethernet
+> > connectors on them :)  Cut out the middleman of the host CPU and host
+>
+> I for one would love to see something like this, and not just Serial ATA..
+> but maybe 8x Serial ATA and RAID :)
+>
+> Ben
+>
+>
+> --
+> Ben Greear <greearb@candelatech.com>
+> Candela Technologies Inc  http://www.candelatech.com
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-Joe Briggs
-Briggs Media Systems
-105 Burnsen Ave.
-Manchester NH 01304 USA
-TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
-www.briggsmedia.com

@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVBGGxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVBGG7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVBGGxT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 01:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVBGGxT
+	id S261368AbVBGG7k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 01:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVBGG7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 01:53:19 -0500
-Received: from nabe.tequila.jp ([211.14.136.221]:2016 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S261366AbVBGGxN (ORCPT
+	Mon, 7 Feb 2005 01:59:40 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:19652 "EHLO suse.de")
+	by vger.kernel.org with ESMTP id S261368AbVBGG7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 01:53:13 -0500
-Message-ID: <4207104C.1000604@tequila.co.jp>
-Date: Mon, 07 Feb 2005 15:53:00 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-CC: Pozsar Balazs <pozsy@uhulinux.hu>, Christoph Hellwig <hch@infradead.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
-References: <4205AC37.3030301@comcast.net> <20050206070659.GA28596@infradead.org> <20050206232108.GA31813@ojjektum.uhulinux.hu> <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050207003610.GP8859@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Feb 2005 01:59:34 -0500
+Date: Mon, 7 Feb 2005 07:59:55 +0100
+From: Vojtech Pavlik <vojtech@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: David Fries <dfries@mail.win.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
+Message-ID: <20050207065955.GB2027@ucw.cz>
+References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz> <200502062021.13726.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200502062021.13726.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 02/07/2005 09:36 AM, Al Viro wrote:
-> On Mon, Feb 07, 2005 at 12:21:08AM +0100, Pozsar Balazs wrote:
+On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
+> On Sunday 06 February 2005 08:12, Vojtech Pavlik wrote:
+> > On Tue, Feb 01, 2005 at 10:24:39AM -0500, Dmitry Torokhov wrote:
+> > > On Tue, 1 Feb 2005 08:52:15 -0600, David Fries <dfries@mail.win.org> wrote:
+> > > > Currently a blocking read, select, or poll call will not return if a
+> > > > joystick device is unplugged.  This patch allows them to return.
+> > > > 
+> > > ...
+> > > > static unsigned int joydev_poll(struct file *file, poll_table *wait)
+> > > > {
+> > > > +       int mask = 0;
+> > > >        struct joydev_list *list = file->private_data;
+> > > >        poll_wait(file, &list->joydev->wait, wait);
+> > > > -       if (list->head != list->tail || list->startup < list->joydev->nabs + list->joydev->nkey)
+> > > > -               return POLLIN | POLLRDNORM;
+> > > > -       return 0;
+> > > > +       if(!list->joydev->exist)
+> > > > +               mask |= POLLERR;
+> > > 
+> > > Probably need POLLHUP in addition (or instead of POLLERR).
+> > > 
+> > > >        if (joydev->open)
+> > > > +       {
+> > > >                input_close_device(handle);
+> > > > +               wake_up_interruptible(&joydev->wait);
+> > > > +       }
+> > > >        else
+> > > > +       {
+> > > >                joydev_free(joydev);
+> > > > +       }
+> > > 
+> > > Opening braces should go on the same line as the statement (if (...) {).
+> >  
+> > How about this patch?
 > 
->>On Sun, Feb 06, 2005 at 07:06:59AM +0000, Christoph Hellwig wrote:
->>
->>>On Sun, Feb 06, 2005 at 12:33:43AM -0500, John Richard Moser wrote:
->>>
->>>>I dunno.  I can never understand the innards of the kernel devs' minds.
->>>
->>>filesystem detection isn't handled at the kerne level.
->>
->>Yeah, but the link order could be changed... Patch inlined.
-> 
-> 
-> And just what does the link order (or changes thereof) have to do with that?
+> Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
+> disconnect routines as well?
 
-because some distributions (eg gentoo) make a symlink to /proc/filesystems
+Yes, we do.
 
-jupiter root # ls -l /etc/filesystems
-lrwxrwxrwx  1 root root 19 Oct 25 11:18 /etc/filesystems ->
-../proc/filesystems
-
-and then its impossible to change the order. (unless you make a "hand
-made" file of course).
-
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCBxBLjBz/yQjBxz8RAsCXAKCHwURn6UJjrtEOhjaXHa0min94NQCdFlBa
-EgBrVpGuASFNepZigjV1p5E=
-=ol2B
------END PGP SIGNATURE-----
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

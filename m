@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUIWFWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUIWFXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268281AbUIWFWY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 01:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268282AbUIWFWY
+	id S268283AbUIWFXy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 01:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUIWFXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 01:22:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12263 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268281AbUIWFWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 01:22:21 -0400
-Date: Thu, 23 Sep 2004 01:22:07 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH][SELINUX] Allow all filesystems to specify fscreate mount
- option
-Message-ID: <Xine.LNX.4.44.0409230113560.697-100000@thoron.boston.redhat.com>
+	Thu, 23 Sep 2004 01:23:54 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:31108 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S268283AbUIWFXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 01:23:40 -0400
+X-OB-Received: from unknown (205.158.62.148)
+  by wfilter.us4.outblaze.com; 23 Sep 2004 05:23:38 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Frank Phillips" <fphillips@linuxmail.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 23 Sep 2004 08:23:38 +0300
+Subject: Re: 2.6.9-rc2-mm2 vs glxgears
+X-Originating-Ip: 68.114.204.194
+X-Originating-Server: ws5-6.us4.outblaze.com
+Message-Id: <20040923052338.C1D0C21B32F@ws5-6.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below allows all types of filesystems to specify the fscreate 
-mount option (which is used to specify the security context of the 
-filesystem itself).  This was previously only available for filesystems 
-with full xattr security labeling, but is also potentially required for 
-filesystems with e.g. psuedo xattr labeling such as devpts and tmpfs.
+Hello,
 
-An example of use is to specify at mount time the fs security context of a 
-tmpfs filesystem, overriding the default specified in policy for that 
-filesystem.
+I don't know why your FPS would be decreasing like that, but as for
+the 9FPS - radeon, right? Look for this line in Xorg.0.log:
 
-This patch has been in the Fedora kernel for some weeks with no problems.
+(EE) RADEON(0): [pci] Out of memory (-1007)
 
-Please apply.
+this is an easy fix:
 
-Signed-off-by: James Morris <jmorris@redhat.com>
-Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
-
-
-diff -purN -X dontdiff linux-2.6.8.1.o/security/selinux/hooks.c linux-2.6.8.1.w/security/selinux/hooks.c
---- linux-2.6.8.1.o/security/selinux/hooks.c	2004-08-14 10:25:45.000000000 -0400
-+++ linux-2.6.8.1.w/security/selinux/hooks.c	2004-08-24 23:30:37.000000000 -0400
-@@ -386,13 +386,6 @@ static int try_context_mount(struct supe
- 				break;
- 
- 			case Opt_fscontext:
--				if (sbsec->behavior != SECURITY_FS_USE_XATTR) {
--					rc = -EINVAL;
--					printk(KERN_WARNING "SELinux:  "
--					       "fscontext option is invalid for"
--					       " this filesystem type\n");
--					goto out_free;
--				}
- 				if (seen & (Opt_context|Opt_fscontext)) {
- 					rc = -EINVAL;
- 					printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+===== linux/drm_scatter.h 1.6 vs edited =====
+--- 1.6/linux/drm_scatter.h     Sun Sep  5 21:22:06 2004
++++ edited/linux/drm_scatter.h  Thu Sep 16 01:11:13 2004
+@@ -73,7 +73,7 @@
+  
+        DRM_DEBUG( "%s\n", __FUNCTION__ );
+  
+-       if (drm_core_check_feature(dev, DRIVER_SG))
++       if (!drm_core_check_feature(dev, DRIVER_SG))
+                return -EINVAL;
+  
+        if ( dev->sg )
 
 
+courtesy Jon Smirl. See this thread: http://marc.theaimsgroup.com/?t=109530394200002&r=1&w=2
 
+With this I get consistent 350s on 2.6.9-rc2-mm1-VP-S1.
+
+Frank
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
+
+
+Powered by Outblaze

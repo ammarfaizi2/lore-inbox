@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270779AbRH1Lrr>; Tue, 28 Aug 2001 07:47:47 -0400
+	id <S270797AbRH1L7U>; Tue, 28 Aug 2001 07:59:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270784AbRH1Lrh>; Tue, 28 Aug 2001 07:47:37 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:36791 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S270779AbRH1Lrd>; Tue, 28 Aug 2001 07:47:33 -0400
-Date: Tue, 28 Aug 2001 12:27:55 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: find_get_swapcache_page() question
-In-Reply-To: <Pine.LNX.4.21.0108272123380.7385-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0108281154030.1015-100000@localhost.localdomain>
+	id <S270800AbRH1L7K>; Tue, 28 Aug 2001 07:59:10 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29198 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270797AbRH1L65>; Tue, 28 Aug 2001 07:58:57 -0400
+Subject: Re: oops in 3c59x driver
+To: paubert@iram.es (Gabriel Paubert)
+Date: Tue, 28 Aug 2001 12:19:20 +0100 (BST)
+Cc: wichert@wiggy.net (Wichert Akkerman), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0108271832320.580-100000@ltgp.iram.es> from "Gabriel Paubert" at Aug 27, 2001 06:52:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15bgtt-0005qS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Marcelo Tosatti wrote:
-> 
-> Looking at find_get_swapcache_page(), I can't see _how_ we can find a
-> page on the swapper pagecache table that is not a swapcache page.
+> > esi: c1e12812   edi: c5fd4870   ebp: c5fd4940   esp: c125be70
+> > ds:  0018  es: 0078   ss: 0018
+>              ^^^^^^^^
+> You are another victim of the dubious segment reload optimizations...
 
-I had a look at this a couple of weeks back.  If I remember rightly,
-the page found by __find_page_nolock() cannot be other than a swapcache
-page, and will always have PageSwapCache bit set... until pagecache_lock
-is dropped on return to its only caller lookup_swap_cache().  In which the 
-		if (!PageSwapCache(found))
-			BUG();
-		if (found->mapping != &swapper_space)
-			BUG();
-are not safe, since there may a concurrent remove_from_swap_cache(),
-either from try_to_unuse() or from Rik's new vm_swap_full() deletion.
-Those tests would be safe if the page were locked, but it's not.
-
-I say find_get_swapcache_page() serves no purpose, should be deleted,
-and find_get_page() used instead.  That was one of various things in
-the swapoff patch I posted to linux-mm on 16 Aug, which I need to
-finish off, cut into pieces and submit to Linus.
-
-Hugh
-
+Which are now fixed btw

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVAHPpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVAHPqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVAHPpE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 10:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVAHPpE
+	id S261192AbVAHPqH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 10:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVAHPqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 10:45:04 -0500
-Received: from gprs214-39.eurotel.cz ([160.218.214.39]:31106 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261191AbVAHPo6 (ORCPT
+	Sat, 8 Jan 2005 10:46:07 -0500
+Received: from colin2.muc.de ([193.149.48.15]:29957 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261192AbVAHPqB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 10:44:58 -0500
-Date: Sat, 8 Jan 2005 16:44:39 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ncunningham@linuxmail.org
-Subject: Re: 2.6.10-mm2: swsusp regression [update]
-Message-ID: <20050108154439.GA24771@elf.ucw.cz>
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501081049.02862.rjw@sisk.pl> <20050108131909.GA7363@elf.ucw.cz> <200501081610.57625.rjw@sisk.pl>
+	Sat, 8 Jan 2005 10:46:01 -0500
+Date: 8 Jan 2005 16:46:00 +0100
+Date: Sat, 8 Jan 2005 16:46:00 +0100
+From: Andi Kleen <ak@muc.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: YhLu@tyan.com, Matt_Domsch@dell.com, discuss@x86-64.org,
+       jamesclv@us.ibm.com, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
+Message-ID: <20050108154600.GA75857@muc.de>
+References: <200501080237.j082booI005302@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501081610.57625.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200501080237.j082booI005302@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > Thanks for pointing it out.  I have adapted this patch to -mm2, but 
-> > > > unfortunately it does not fix the issue.  Still searching. ;-)
-> > > 
-> > > The regression is caused by the timer driver.  Obviously, turning 
-> > > timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it go away.
-> > > 
-> > > It looks like a locking problem to me.  I'll try to find a fix, although 
-> > > someone who knows more about these things would probably do it faster. :-)
-> > 
-> > (I do not have time right now, but...)
-> > 
-> > ..you might want to look at i386 time code, they have common
-> > ancestor, and i386 one seems to work.
+On Sat, Jan 08, 2005 at 03:37:50AM +0100, Mikael Pettersson wrote:
+> On Fri, 7 Jan 2005 22:12:00 +0100, Andi Kleen wrote:
+> >On Fri, Jan 07, 2005 at 01:14:24PM -0800, YhLu wrote:
+> >> After keep the bsp using 0, the jiffies works well. Werid?
+> >
+> >Probably a bug somewhere.  But since BSP should be always 
+> >0 I'm not sure it is worth tracking down.
 > 
-> Well, I need the help of The Wise. :-)
-> 
-> If I comment out only the modification of jiffies in timer_resume() in 
-> arch/x86_64/kernel/time.c (ie line 986), everything seems to work, but I get 
-> "APIC error on CPU0: 00(00)" after device_power_up(), which seems strange to 
-> me, because I boot with "noapic".  On the other hand, if it's not commented 
-> out (ie jiffies _is_ modified in timer_resume()), the machine hangs solid 
-> after executing device_power_up() in swsusp_suspend().
+> I hope by "0" you're referring to a Linux kernel defined
+> software value and _not_ what the HW or BIOS conjured up!
 
-Perhaps calling handle_lost_ticks() like timer_interrupt does is right
-thing to do?
+No, I'm refering to the APIC ID configured by the BIOS. 
 
-> Right now I have no idea of what happens there, and it seems strange because 
-> in 2.6.10-mm1 the code in time.c is the same.
+> Never trust a BIOS to DTRT.
 
-Well, but in -mm1, the code is not actually called, right?
+I won't complicate the x86-64 code to work around non existant
+theoretical BIOS issues.
 
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-Andi

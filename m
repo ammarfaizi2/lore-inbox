@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVBKIwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVBKIxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVBKIwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVBKIwF
+	id S262015AbVBKIxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVBKIxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:52:05 -0500
-Received: from postimies.kymp.net ([80.248.96.135]:27397 "EHLO vesta.kymp.net")
-	by vger.kernel.org with ESMTP id S262009AbVBKIvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:51:55 -0500
-Date: Fri, 11 Feb 2005 10:51:53 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: the "Turing Attack" (was: Sabotaged PaXtest)
-Message-ID: <20050211085153.GA22540@bostik.iki.fi>
-Reply-To: Mika Bostrom <bostik+lkml@bostik.iki.fi>
-References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208164815.GA9903@elte.hu> <20050208220851.GA23687@elte.hu> <20050210134314.GA4146@elte.hu> <20050210135845.GT347@unthought.net> <20050210152149.GA6697@elte.hu> <20050210200300.GE19998@khan.acc.umu.se>
+	Fri, 11 Feb 2005 03:53:52 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:17498
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S262015AbVBKIwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 03:52:43 -0500
+Date: Fri, 11 Feb 2005 09:52:39 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+Message-ID: <20050211085239.GD18573@opteron.random>
+References: <20050203035605.C981A7046E@sv1.valinux.co.jp> <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> <20050210190521.GN18573@opteron.random> <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> <20050210204025.GS18573@opteron.random> <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050210200300.GE19998@khan.acc.umu.se>
-User-Agent: Mutt/1.5.6+20040907i
-From: bostik@bostik.iki.fi (Mika Bostrom)
+In-Reply-To: <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 11, 2005 at 07:23:09AM +0000, Hugh Dickins wrote:
+> And it's fine for the behaviour to be somewhat undefined in this
+> peculiar case: the important thing is just that the page must not
+> be freed and reused while I/O occurs, hence get_user_page raising
+> the page_count - which I'm _not_ proposing to change!
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, I'm quite convinced it's correct now. The only thing that can make
+mapcount go up without the lock on the page without userspace
+intervention (and userspace intervention would make it an undefined
+behaviour like in my example with fork), was the swapin, and you covered
+it by moving the unlock after page_add_anon_rmap (so mapcount changes
+atomically with the page_swapcount there too). Swapoff was already doing
+it under the page lock.
 
-  [Posted only on LKML, this has become humour.]
-
-On Thu, Feb 10, 2005 at 09:03:00PM +0100, David Weinehall wrote:
-> On Thu, Feb 10, 2005 at 04:21:49PM +0100, Ingo Molnar wrote:
-> >=20
-> > * Jakob Oestergaard <jakob@unthought.net> wrote:
-> > > > PaX cannot be a 'little bit pregnant'. (you might argue that exec-s=
-hield
-> > > > is in the 6th month, but that does not change the fundamental
-> > > > end-result: a child will be born ;-)
-> > >=20
-> > > Yes and no.  I would think that the chances of a child being born are
-> > > greater if the pregnancy has lasted successfully up until the 6th mon=
-th,
-> > > compared to a first week pregnancy.
-> > >=20
-> > > I assume you get my point  :)
-> >=20
-> > the important point is: neither PaX nor exec-shield can claim _for sure_
-> > that no child will be born, and neither can claim virginity ;-)
-> >=20
-> > [ but i guess there's a point where a bad analogy must stop ;) ]
->=20
-> Yeah, sex is *usually* a much more pleasant experience than having your
-> machine broken into, even if it results in a pregnancy. =3D)
-
-  I'll bite, before anyone else says it...
-
-  It can not be a mere coincidence that the most rigorous security
-audits include penetration testing.
-
---=20
- Mika Bostr=F6m      +358-40-525-7347  \-/  "World peace will be achieved
- Bostik@iki.fi    www.iki.fi/bostik   X    when the last man has killed
- Security freak, and proud of it.    /-\   the second-to-last." -anon?
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCDHIpv829VwOfGI4RAnOhAJ4milQBuKBo4h+3hpsTfmAuUiATiACgh+kV
-fFsU+y2YdbnbJ26o56eJiaE=
-=QutP
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+Then we should use the mapcount/swapcount in remove_exclusive_swap_page
+too.

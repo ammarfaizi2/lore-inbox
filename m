@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130900AbRCTWDQ>; Tue, 20 Mar 2001 17:03:16 -0500
+	id <S131025AbRCTWH4>; Tue, 20 Mar 2001 17:07:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131025AbRCTWCq>; Tue, 20 Mar 2001 17:02:46 -0500
-Received: from front1.grolier.fr ([194.158.96.51]:30896 "EHLO
-	front1.grolier.fr") by vger.kernel.org with ESMTP
-	id <S130900AbRCTWC3> convert rfc822-to-8bit; Tue, 20 Mar 2001 17:02:29 -0500
-Date: Tue, 20 Mar 2001 20:50:58 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: st corruption with 2.4.3-pre4
-In-Reply-To: <Pine.LNX.4.05.10103202024310.4053-100000@callisto.of.borg>
-Message-ID: <Pine.LNX.4.10.10103202029370.1698-100000@linux.local>
+	id <S131028AbRCTWHr>; Tue, 20 Mar 2001 17:07:47 -0500
+Received: from nrg.org ([216.101.165.106]:5224 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S131025AbRCTWHb>;
+	Tue, 20 Mar 2001 17:07:31 -0500
+Date: Tue, 20 Mar 2001 14:06:46 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Roger Larsson <roger.larsson@norran.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <01032019253200.01487@jeloin>
+Message-ID: <Pine.LNX.4.05.10103201333590.26772-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Mar 2001, Roger Larsson wrote:
+> One little readability thing I found.
+> The prev->state TASK_ value is mostly used as a plain value
+> but the new TASK_PREEMPTED is or:ed together with whatever was there.
+> Later when we switch to check the state it is checked against TASK_PREEMPTED
+> only. Since TASK_RUNNING is 0 it works OK but...
 
+Yes, you're right.  I had forgotten that TASK_RUNNING is 0 and I think I
+was assuming that there could be (rare) cases where a task was preempted
+while prev->state was in transition such that no other flags were set.
+This is, of course, impossible given that TASK_RUNNING is 0.  So your
+change makes the common case more obvious (to me, at least!)
 
-On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
-
-> On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
-> > On Mon, 19 Mar 2001, Jeff Garzik wrote:
-> > > Is the corruption reproducible?  If so, does the corruption go away if
-> > 
-> > Yes, it is reproducible. In all my tests, I tarred 16 files of 16 MB each to
-> > tape (I used a new one).
-> >   - test 1: 4 files with failed md5sum (no further investigation on type of
-> > 	    corruption)
-> >   - test 2: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
-> > 	    corrupted, all starting at an offset of the form 32*x+1.
-> >   - test 3: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
-> > 	    corrupted, all starting at an offset of the form 32*x+1.
-> > 
-> > The files seem to be corrupted during writing only, as reading always gives the
-> > exact same (corrupted) data back.
-> > 
-> > Copying files from the disk on the MESH to a disk on the Sym53c875 (which also
-> > has the tape drive) shows no corruption.
+> --- sched.c.nigel       Tue Mar 20 18:52:43 2001
+> +++ sched.c.roger       Tue Mar 20 19:03:28 2001
+> @@ -553,7 +553,7 @@
+>  #endif
+>                         del_from_runqueue(prev);
+>  #ifdef CONFIG_PREEMPT
+> -               case TASK_PREEMPTED:
+> +               case TASK_RUNNING | TASK_PREEMPTED:
+>  #endif
+>                 case TASK_RUNNING:
+>         }
 > 
-> I did some more tests:
->   - The problem also occurs when tarring up files from a disk on the Sym53c875.
->   - The corrupted data always occurs at offset 32*x (the `+1' above was caused
->     by hexdump, starting counting at 1).
->   - The 32 bytes of corrupted data at offset 32*x are always a copy of the data
->     at offset 32*x-10240.
->   - Since 10240 is the default blocksize of tar (bug in tar?), I made a tarball
->     on disk instead of on tape, but no corruption.
->   - 32 is the size of a cacheline on PPC. Is there a missing cacheflush
->     somewhere in the Sym53c875 driver? But then it should happen on disk as
->     well?
+> 
+> We could add all/(other common) combinations as cases 
+> 
+> 	switch (prev->state) {
+> 		case TASK_INTERRUPTIBLE:
+> 			if (signal_pending(prev)) {
+> 				prev->state = TASK_RUNNING;
+> 				break;
+> 			}
+> 		default:
+> #ifdef CONFIG_PREEMPT
+> 			if (prev->state & TASK_PREEMPTED)
+> 				break;
+> #endif
+> 			del_from_runqueue(prev);
+> #ifdef CONFIG_PREEMPT
+> 		case TASK_RUNNING		| TASK_PREEMPTED:
+> 		case TASK_INTERRUPTIBLE	| TASK_PREEMPTED:
+> 		case TASK_UNINTERRUPTIBLE	| TASK_PREEMPTED:
+> #endif
+> 		case TASK_RUNNING:
+> 	}
+> 
+> 
+> Then the break in default case could almost be replaced with a BUG()...
+> (I have not checked the generated code)
 
-The only PCI transaction that requires the cache line size to be correctly
-configured is PCI WRITE and INVALIDATE. This transaction may be used by
-the 875 only for data read from a SCSI device and DMAed to memory.
+The other cases are not very common, as they only happen if a task is
+preempted during the short time that it is running while in the process
+of changing state while going to sleep or waking up, so the default case
+is probably OK for them; and I'd be happier to leave the default case
+for reliability reasons anyway.
 
-Note that the controller may use optimized PCI transactions only if the 
-cache line size is configured in its PCI device configuration space.
-Otherwise only normal PCI memory read and PCI memory write transactions 
-will be used.
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
-Could you check if the cache line size is configured for your 875?
-
-Let me imagine it is so. Btw, I may be wasting my time if it is not ...
-Then the 875 may also use PCI read multiple transactions and/or PCI read
-line transactions when reading data from memory. If the corruption is due
-to the use of these transactions, the the PCI-HOST bridges may well be the
-culprit, in my opinion.
-
-Anyway, since the sym53c8xx driver does not try to change the configured
-cache line size on PPC, I would suggest to try again the same tests with
-the cache line size set to zero for the 875. You may hack the driver code
-or the PPC pci code if needed, for example, for value zero to be written
-in the proper place in the PCI configuration space of the 875.
-
-  Gérard.
+MontaVista Software                             nigel@mvista.com
 

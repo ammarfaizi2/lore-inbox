@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267375AbTBPUL0>; Sun, 16 Feb 2003 15:11:26 -0500
+	id <S265409AbTBPUJI>; Sun, 16 Feb 2003 15:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267377AbTBPUL0>; Sun, 16 Feb 2003 15:11:26 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:26864 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id <S267375AbTBPULZ>; Sun, 16 Feb 2003 15:11:25 -0500
-Message-ID: <3E4FF2CE.60208@austin.rr.com>
-Date: Sun, 16 Feb 2003 14:21:34 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: tmolina@cox.net, linux-kernel@vger.kernel.org
-Subject: compile problem with 2.5.61-bk
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267408AbTBPUJI>; Sun, 16 Feb 2003 15:09:08 -0500
+Received: from mail.hometree.net ([212.34.181.120]:32998 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265409AbTBPUJH>; Sun, 16 Feb 2003 15:09:07 -0500
+Subject: Re: openbkweb-0.0
+From: Henning Schmiedehausen <hps@intermeta.de>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E4F7E20.30905@walrond.org>
+References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
+	 <1045233701.7958.14.camel@irongate.swansea.linux.org.uk>
+	 <20030214153039.GB3188@work.bitmover.com>
+	 <1045241763.1353.19.camel@irongate.swansea.linux.org.uk>
+	 <20030214164720.GC200@louise.pinerecords.com>
+	 <20030214165041.GA6564@work.bitmover.com>
+	 <20030214170915.GE200@louise.pinerecords.com>
+	 <20030214172411.GC6564@work.bitmover.com>
+	 <b2l93k$v55$2@tangens.hometree.net>  <3E4E51CC.3080700@walrond.org>
+	 <1045342539.5130.5.camel@irongate.swansea.linux.org.uk>
+	 <3E4F7E20.30905@walrond.org>
+Content-Type: text/plain
+Organization: INTERMETA - Gesellschaft =?ISO-8859-1?Q?f=C3=BCr?= Mehrwertdienste mbH
+Message-Id: <1045426736.1454.38.camel@henning-pc.hutweide.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 16 Feb 2003 21:18:56 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Those two functions are not exported (see e.g. ksyms.c) so are not 
-available for modules to access but work when built as part of the kernel.
-For the time being this means the CIFS VFS can not be built as a module.
-Looks like I will have to figure out an alternate way to get at those two
-functions either directly by exporting them or preferably by calling them 
-indirectly - there may be a way to change fs/cifs/file.c to use the similar
-function read_cache_pages directly as nfs does (which presumably is an 
-exported function) but it wasn't obvious at the time since the cifs vfs 
-preferably reads the equivalent of 4 pages at a time (rather than one 
-4K page) across the network and the addition of support of readpages 
-(with 16K reads in the readahead path) to the cifs vfs demonstrated a 
-measurable performance benefit) even in the worst case (to loaded 
-servers or on busy network segments the improvement would be more 
-dramatic).
+Larry says that he hosts bkbits.net on a T1 which is shared with
+(probably) the IP traffic of bitkeeper.com and his VoIP. 
 
-I will take a look at this later tonight to see if I can recode 
-cifs_readpages to bypass the need for the additional exports.
+A fully loaded T1 can carry about 1/2 a TB per month traffic. This costs
+you at most (AT MOST!) about 350 Euros per month (e.g. www.odn.de) for
+a 2,3 Mbit SDSL line, which carries even 1,5 times the traffic of a T1).
 
+Rack housing with a moderate traffic volume (e.g. enough for most
+service needs) cost you between 29 Euros for a dedicated server with 60
+Gigs (www.hetzner.de) to 25,90 euros for a shared hosting with a gig of
+disc space and unlimited traffic (www.hosteurope.de, Hostnet product).
 
-Thomas Molina wrote: 
->After syncing with bk this morning I get the following errors during make 
->modules
+All of the cited ISPs claim to have multi-GB uplinks to the various
+german an international peering points.  I wouldn't consider that a
+"garden hose".
 
->*** Warning: "add_to_page_cache" [fs/cifs/cifs.ko] undefined!
->*** Warning: "__pagevec_lru_add" [fs/cifs/cifs.ko] undefined!
+Larry claimed a $15k bill for his T1. This is about 1200$ per months.
+You can get three flat 2.3 MBit SDSL lines for that. Or a dedicated
+server with about a TB of traffic in a housing center.
 
->which I don't understand since those items are defined in files included 
->by fs/cifs/file.c
+	Regards
+		Henning
 
 
+
+On Sun, 2003-02-16 at 13:03, Andrew Walrond wrote:
+> Alan Cox wrote:
+>  >
+>  > Unlimited bandwidth at low bitrate is cheap. If you want 100Mbit then boy
+>  > it gets pricy. Its the different between "all you get" and "you get xyz"
+>  >
+> 
+> Me thinks you miss my point :)
+> 
+> In the context of Larry saying "It costs $x,000 dollars for me to 
+> provide the bandwidth" and this guy saying "But you can get all you want 
+> for 50Euros" leads me to suspect that he believes he is sat at the end 
+> of an 8m main bore when infact he has at best a garden hose....
+> 
+> Andrew
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 

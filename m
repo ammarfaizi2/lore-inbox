@@ -1,49 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbTI0Ljg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 07:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbTI0Ljg
+	id S262429AbTI0LuU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 07:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTI0LuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 07:39:36 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57093 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261736AbTI0Ljf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 07:39:35 -0400
-Date: Sat, 27 Sep 2003 12:39:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] helper for device list traversal
-Message-ID: <20030927123933.A21629@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <200309270508.h8R58tHE015032@hera.kernel.org> <Pine.GSO.4.21.0309271330460.6768-100000@vervain.sonytel.be>
+	Sat, 27 Sep 2003 07:50:20 -0400
+Received: from [195.249.110.5] ([195.249.110.5]:60279 "EHLO apollo")
+	by vger.kernel.org with ESMTP id S262429AbTI0LuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 07:50:13 -0400
+Subject: Kernel BUG at inode.c:564
+From: Jules Colding <jules@tdcadsl.dk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1064663404.9635.58.camel@apollo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0309271330460.6768-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Sat, Sep 27, 2003 at 01:34:15PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Sep 2003 13:50:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 27, 2003 at 01:34:15PM +0200, Geert Uytterhoeven wrote:
-> Is this what we should use to fix the currently broken list traversal[*] in
-> drivers/scsi/{a2091,gvp11,53c7xx}.c?
+Hi,
 
-where does that [*] refere to?
+I don't know if this is/was a known issue, but I got a kernel panic when
+I tried to install, rh9 on my new machine (I have send this mail to the
+rh list too). This happened while doing a harddisk install from
+/dev/hda5 (fat - partitioned and formatted by W2K). 
 
-> Currently ut uses
-> 
->     struct Scsi_Host *instance;
->     for (instance = first_instance; instance &&
-> 	 instance->hostt == xxx_template; instance = instance->next)
-> 
-> bust Scsi_Host.next was removed a while ago...
+My hardware is:
+Asus A7V600 Via KT600 DDR400 AGP x8
+1 AMD Athlon Thoroughbred  XP 2000+ (1667 MHz)
+2 Seagate Barracuda 80GB (ST380011A), 7200RPM, 2MB 
+1 Kingston 512 MB DDR-RAM PC32000 400 MHz KVR400X64C3
+1 Nvidia GeForce4 MX 440-8X, 128MB DDR
 
-Most users of that construct want to use scsi_lookup_host (if they
-looked for a specific host struct).
+Both Seagates are at IDE1. I have installed W2K on hda and was trying to
+install rh9 on hdb as a dual boot. I have a fat partition (hda5) on my
+W2K disk. I also have a cdrom on hdc.
 
-Above patch is for scsi_device list traversal, not Scsi_Host.
+I have replicated the entire error screen below:
 
+---------------- CUT ----------------
+        /mnt/runtime umount failed (16)
+        disabling /dev/loop1 LOOP_CLR_FD failed: 16
+------------- [ cut here ] ------------- 
+kernel BUG at inode.c:564!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c014dfaa]>       Not tainted
+EFLAGS: 00010202
+
+EIP is at  (2.4.20-8BOOT)
+eax: 00000001   ebx: dce37420   ecx: dce37440   edx: 00000000
+esi: dfcd1f60   edi: dfcd1f60   ebp: c0271280   esp: dfcd1f44
+ds: 0068        es: 0068        ss: 0068
+Process linuxrc (pid: 17, stackpage=dfcd1000)
+Stack:  dce37420 c014e07a dce37420 defe4c64 00000000 c014e1a5 dfcd1f60
+dce37258
+        d85685d8 defe4c44 defe4c00 dee64ca0 c0140759 defe4c00 c0271348
+00000000
+        dfcd1f98 0000000d bffec894 c01502e4 defe4c00 dee64ca0 c25a2590
+c250a270
+Call Trace:     [<c014e07a>] (0xdfcd1f48)
+[<c014e1a5>] (0xdfcd1f58)
+[<c0140759>] (0xdfcd1f74)
+[<c01502e4>] (0xdfcd1f90)
+[<c0108d73>] (0xdfcd1fc0)
+
+Code: 0f 0b 34 02 39 da 23 c0 8b 83 fc 00 00 00 a9 10 00 00 00 75
+ VFS: Cannot open root device "" or 48:05
+Please append a correct "root=" boot option
+Kernel panic: VFS: Unable to mount root fs on 48:05
+---------------- CUT ----------------
+
+This was the first time I got a kernel panic. The install have stalled
+trice before (well into the install). Two times when I tried to install
+from cdrom, and one time when I tried the hard disk install from the
+same partition. I have checked the media and the isos. They all PASS.
+
+So, is there some solution to this problem?
+
+Thanks in advance,
+  jules
+
+
+-- 
+Jules Colding <jules@tdcadsl.dk>

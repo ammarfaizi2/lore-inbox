@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264776AbTFLIiv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 04:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbTFLIiv
+	id S264788AbTFLItE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 04:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbTFLItE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 04:38:51 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2945 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264776AbTFLIiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 04:38:50 -0400
-Date: Thu, 12 Jun 2003 09:59:56 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200306120859.h5C8xuh7000958@81-2-122-30.bradfords.org.uk>
-To: jw@pegasys.ws, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc8
+	Thu, 12 Jun 2003 04:49:04 -0400
+Received: from [81.80.245.157] ([81.80.245.157]:59063 "EHLO smtp.alcove-fr")
+	by vger.kernel.org with ESMTP id S264788AbTFLItB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 04:49:01 -0400
+Date: Thu, 12 Jun 2003 11:02:53 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Export 'acpi_disabled' symbol to modules...
+Message-ID: <20030612090253.GB6337@hottah.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	acpi-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Saying it is a bad idea to release a kernel with known bugs
-> is like saying it is a bad idea to buy a computer when the
-> price will be going down soon.  Would you care to delay
-> 2.4.21 until next spring or would you rather get the fixes
-> it contains today and have 2.4.22 with your pet fix on
-> (hopefully) a scale of weeks?
+Hi,
 
-A lot of the known bugs have fixes which appear to be OK, but haven't
-really had enough testing to go in to a -final tree.  A lot of them
-won't have been tested on SMP boxes for example.
+The ACPI subsystem can be today (from a driver point of view) in 
+three configurations: not compiled (CONFIG_ACPI=n), compiled and 
+running or compiled and disabled (with acpi=off).
 
-What _would_ be nice would be to have a -$firstinitial$lastinitial
-tree that opens up once we get in to the -rc phase - a kind of
-'alternative rc' if you like, which collects all the patches that are
-rejected for the official -rc tree.  That gives the maintainers one
-last chance to prove the validity of their patch :-).
+A driver which wants to use some ACPI exported routines (in my
+case it's the sonypi driver which wants to use ec_read/ec_write),
+needs to know exactly what the ACPI state is.
 
-Or, to look at it other way, it would be effectively carrying on the
--pre phase during the -rc phase:
+The only way to do this today (from what I've seen) is to do:
 
-E.G. 2.4.22 development could look like this:
+#ifdef CONFIG_ACPI
+	if (!acpi_disabled)
+		return ec_write(addr, value);
+#endif
+	return my_ec_emulated_write(...);
 
-            2.4.21-final
-                 |
-                 |
-                 V
-            2.4.22-pre1
-                 |
-                 V
-            2.4.22-pre2
-                 |
-                 V
-               [snip]
-                 |
-                 V
-            2.4.22-pre6
-                 |
-                 V
-            2.4.22-pre7
-                 |             All potential patches are declared
-                 V            /    here.
-     2.4.22-rc1-----2.4.22-jb1
-         |               |
-         V               V
-     2.4.22-rc2     2.4.22-jb2<-Absolutely nothing new goes in from
-         |               |      here on, just fixes.  If it breaks
-         V               V      for more than 1 release, it's
-       [snip]          [snip]   permenantly deleted from this -jb
-         |               |      tree.
-         V               V
-     2.4.22-rc5     2.4.22-jb7
-         |               |
-         V               V
-     2.4.22-rc6<-MERGE---/
-         |         ^
-         V         \--------------- Merge of whatever has survived
-     2.4.22-rc7<-\                  -jb
-         |        ---Delete
-         V           anything that's broken in any way, I.E. it has
-     2.4.22-final    to be perfect.
+This way on doing things needs however that the 'acpi_disabled' 
+variable be exported to modules.
 
-John.
+Please apply the attached patch or advise on a better way to know
+if ACPI is enabled or not (patch generated against the today 2.5 BK
+tree).
+
+Thanks,
+
+Stelian.
+
+===== arch/i386/kernel/setup.c 1.84 vs edited =====
+--- 1.84/arch/i386/kernel/setup.c	Sun Jun  8 00:17:53 2003
++++ edited/arch/i386/kernel/setup.c	Tue Jun 10 10:02:00 2003
+@@ -61,7 +61,8 @@
+ unsigned long mmu_cr4_features;
+ EXPORT_SYMBOL_GPL(mmu_cr4_features);
+ 
+-int acpi_disabled __initdata = 0;
++int acpi_disabled;
++EXPORT_SYMBOL(acpi_disabled);
+ 
+ int MCA_bus;
+ /* for MCA, but anyone else can use it if they want */
+
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

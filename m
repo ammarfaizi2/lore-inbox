@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUGBORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUGBO2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264585AbUGBORX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbUGBORW
+	id S264609AbUGBO2v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 10:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGBO2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 10:17:22 -0400
-Received: from smtpout.azz.ru ([81.176.67.34]:10458 "HELO mailserver.azz.ru")
-	by vger.kernel.org with SMTP id S264610AbUGBOQB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 10:16:01 -0400
-Message-ID: <40E56E96.3050702@vlnb.net>
-Date: Fri, 02 Jul 2004 18:17:58 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040512
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Dependant modules question
-References: <40E556E5.90708@vlnb.net> <Pine.LNX.4.53.0407020952270.3789@chaos>
-In-Reply-To: <Pine.LNX.4.53.0407020952270.3789@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 2 Jul 2004 10:28:51 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:40586 "EHLO
+	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S264609AbUGBO2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 10:28:50 -0400
+In-Reply-To: <200407011751.25738.dtor_core@ameritech.net>
+References: <200407011454.55440.dtor_core@ameritech.net> <1088720772.22742.21.camel@localhost> <200407011751.25738.dtor_core@ameritech.net>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <22B73F26-CC34-11D8-BDBD-000A95A0560C@us.ibm.com>
 Content-Transfer-Encoding: 7bit
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: PPC64: vio_find_node removal?
+Date: Fri, 2 Jul 2004 09:28:50 -0500
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> Did you execute `depmod -a` after putting your modules into the
-> default  directories and their information into /etc/modules.conf ?
- >
-> Example:
-> /etc/modules.conf
-> alias char-major-177  module-a		# First to load
-> alias char-major-177  module-b		# Second to load
-> alias char-major-177  off		# All done
-> 
-> 
-> # cp module-a.o /lib/modules/`uname -r`/kernel/drivers/char
-> # cp module-b.o /lib/modules/`uname -r`/kernel/drivers/char
-> # depmod -a
-> 
-> The first time anybody tries to access a device with the major
-> number of 177, its modules will be loaded in the correct order
-> by modprobe.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->             Note 96.31% of all statistics are fiction.
+On Jul 1, 2004, at 5:51 PM, Dmitry Torokhov wrote:
+>
+> Ok, so if we add call to kobject_get in kset_find_obj we can just add
+> kobject_put right in vio_find_name because there can be only one-to-one
+> match between a slot and a vio device and we don't need refcounting 
+> there,
+> right?
 
-Sure, I did. That works fine if A is built in the kernel tree (i.e. the 
-sources of A stays there), not when both A and B are external modules.
+Hmm. Yes, I agree that we need kobject_get and _put between 
+kset_find_obj() and vio_find_name().
 
-Actually, the problem is a bit different: compiled B know nothing about 
-A and doesn't reffer to it, so depmod and friends can't help. Ever if A 
-already loaded, B refused to load (can't find the symbols). I suspect, I 
-need to add something in the Makefile of A/B/both. But what?
+As for the lack of vio_dev refcounting... I think we can get away with 
+it because rpaphp_vio.c is the only user who might unregister a 
+vio_dev.
 
-Thanks,
-Vlad
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

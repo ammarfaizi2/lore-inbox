@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVAKXRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbVAKXTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbVAKXRj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVAKXRh
+	id S262905AbVAKXTj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 18:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVAKXSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:17:37 -0500
-Received: from coderock.org ([193.77.147.115]:9157 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262908AbVAKXRI (ORCPT
+	Tue, 11 Jan 2005 18:18:06 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:51931 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S262878AbVAKXQn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:17:08 -0500
-Subject: [patch 1/1] ide/ide-cd: use ssleep() instead of schedule_timeout()
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
-From: domen@coderock.org
-Date: Wed, 12 Jan 2005 00:17:00 +0100
-Message-Id: <20050111231701.1A9B31F225@trashy.coderock.org>
+	Tue, 11 Jan 2005 18:16:43 -0500
+Subject: [PATCH] use modern format for PCI addresses
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 16:16:36 -0700
+Message-Id: <1105485396.31942.64.camel@eeyore>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Use pci_name() rather than "%02x:%02x" when printing PCI
+address information.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== arch/i386/pci/pcbios.c 1.17 vs edited =====
+--- 1.17/arch/i386/pci/pcbios.c	2004-07-11 06:41:13 -06:00
++++ edited/arch/i386/pci/pcbios.c	2005-01-11 09:41:24 -07:00
+@@ -385,8 +385,8 @@
+ 			}
+ 		}
+ 		if (!found) {
+-			printk(KERN_WARNING "PCI: Device %02x:%02x not found by BIOS\n",
+-				dev->bus->number, dev->devfn);
++			printk(KERN_WARNING "PCI: Device %s not found by BIOS\n",
++				pci_name(dev));
+ 			list_del(&dev->global_list);
+ 			list_add_tail(&dev->global_list, &sorted_devices);
+ 		}
 
 
-Description: Uses ssleep() in place of cdrom_sleep() to guarantee the task
-delays as expected. Remove cdrom_sleep() definition, as this is the only place
-where it is called.
-
-Signed-off-by: Nishanth Aravamudan
-Acked-by: Jens Axboe <axboe@suse.de>
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/drivers/ide/ide-cd.c |   15 +--------------
- 1 files changed, 1 insertion(+), 14 deletions(-)
-
-diff -puN drivers/ide/ide-cd.c~msleep-drivers_ide_ide-cd drivers/ide/ide-cd.c
---- kj/drivers/ide/ide-cd.c~msleep-drivers_ide_ide-cd	2005-01-10 18:00:53.000000000 +0100
-+++ kj-domen/drivers/ide/ide-cd.c	2005-01-10 18:00:53.000000000 +0100
-@@ -1464,19 +1464,6 @@ static ide_startstop_t cdrom_do_packet_c
- }
- 
- 
--/* Sleep for TIME jiffies.
--   Not to be called from an interrupt handler. */
--static
--void cdrom_sleep (int time)
--{
--	int sleep = time;
--
--	do {
--		set_current_state(TASK_INTERRUPTIBLE);
--		sleep = schedule_timeout(sleep);
--	} while (sleep);
--}
--
- static
- int cdrom_queue_packet_command(ide_drive_t *drive, struct request *rq)
- {
-@@ -1511,7 +1498,7 @@ int cdrom_queue_packet_command(ide_drive
- 				/* The drive is in the process of loading
- 				   a disk.  Retry, but wait a little to give
- 				   the drive time to complete the load. */
--				cdrom_sleep(2 * HZ);
-+				ssleep(2);
- 			} else {
- 				/* Otherwise, don't retry. */
- 				retries = 0;
-_

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbUCZGxL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 01:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUCZGxL
+	id S263658AbUCZHRm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 02:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263856AbUCZHRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 01:53:11 -0500
-Received: from fe6-cox.cox-internet.com ([66.76.2.51]:42638 "EHLO
-	fe6.cox-internet.com") by vger.kernel.org with ESMTP
-	id S261321AbUCZGxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 01:53:09 -0500
-Message-ID: <4063D30C.30305@cox-internet.com>
-Date: Fri, 26 Mar 2004 00:51:56 -0600
-From: billy rose <billyrose@cox-internet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: arch 386
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Mar 2004 02:17:42 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:41482 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263658AbUCZHRk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 02:17:40 -0500
+Date: Fri, 26 Mar 2004 07:17:39 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christian Leber <christian@leber.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with remap_page_range/mmap
+Message-ID: <20040326071739.B2637@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christian Leber <christian@leber.de>, linux-kernel@vger.kernel.org
+References: <20040325234804.GA29507@core.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040325234804.GA29507@core.home>; from christian@leber.de on Fri, Mar 26, 2004 at 12:48:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i sent an email last night, but i think my email host was down so i will 
-try again. since 2.6.x can preempt, what do you think about using a call 
-gate in place of int 80? sysenter was implemented in this fashion for 
-p4's, but there are a lot of pre p4 boxes still out there. operations 
-that will not allow for a conforming code segment could simply turn 
-around and issue the int 80, or use a task gate.
+On Fri, Mar 26, 2004 at 12:48:04AM +0100, Christian Leber wrote:
+> addr = __get_free_pages(GFP_KERNEL,0);
+> int atoll_fops_mmap(struct file *filp, struct vm_area_struct *vma)
+> {
+>         vma->vm_flags |= VM_SHM | VM_LOCKED | VM_IO;
+> 	
+> 	if(remap_page_range_A(vma,
+> 		vma->vm_start, addr, 4096,
+> 		vma->vm_page_prot)) {
+> 			printk("remapping send space failed\n");
+> 			return -ENXIO;
+> 	}
 
-=====
-Billy
-
-"There's some milk in the fridge that's about to go bad...
-     And there is goes..." --Bobby
-
+You can't call remap_page_range on normal kernel pages.  It works only
+if you mark them PG_reserved, but even that use is usually not a good idea.
 

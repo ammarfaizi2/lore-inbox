@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVALS4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVALS4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVALS4a (ORCPT <rfc822;willy@w.ods.org>);
+	id S261260AbVALS4a (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 12 Jan 2005 13:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVALSyo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVALSyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 13:54:44 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:10942 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261275AbVALSvk
+	Wed, 12 Jan 2005 13:54:38 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:22659 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261260AbVALSvj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 13:51:40 -0500
-Date: Wed, 12 Jan 2005 10:41:27 -0800
+	Wed, 12 Jan 2005 13:51:39 -0500
+Date: Wed, 12 Jan 2005 10:51:33 -0800
 From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulmck@us.ibm.com,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, Linus Torvalds <torvalds@osdl.org>, linux@brodo.de
-Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
-Message-ID: <20050112184127.GA10599@kroah.com>
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com> <41DEC0BF.4010708@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050112185133.GA10687@kroah.com>
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41DEC0BF.4010708@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 09:02:55AM -0800, Randy.Dunlap wrote:
-> Greg KH wrote:
-> >On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
+On Wed, Jan 12, 2005 at 10:05:34AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 12 Jan 2005, Chris Wright wrote:
 > >
-> >>Which begs the question "how do we ever get rid of these things when we
-> >>have no projected date for Linux-2.8"?
-> >>
-> >>I'd propose:
-> >>
-> >>a) Create Documentation/feature-removal-schedule.txt which describes
-> >>  things which are going away, when, why, who is involved, etc.
-> >
-> >Ok, I'll bite, here's a patch that does just that.  Look good?
+> > This same discussion is taking place in a few forums.  Are you opposed to
+> > creating a security contact point for the kernel for people to contact
+> > with potential security issues?  This is standard operating procedure
+> > for many projects and complies with RFPolicy.
 > 
-> Brodo, can you add a little more info to this, please?
+> I wouldn't mind, and it sounds like a good thing to have. The _only_
+> requirement that I have is that there be no stupid embargo on the list.
+> Any list with a time limit (vendor-sec) I will not have anything to do
+> with.
 > 
-> ---
-> Add 2.4.x cpufreq /proc and sysctl interface removal
-> to the feature-removal-schedule.
-> 
-> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+> If that means that you can get only the list by invitation-only, that's
+> fine. 
 
-Applied, thanks.
+So you would be for a closed list, but there would be no incentive at
+all for anyone on the list to keep the contents of what was posted to
+the list closed at any time?  That goes against the above stated goal of
+complying with RFPolicy.
+
+I understand your dislike of having to wait once you know of a security
+issue before making the fix public, but how should distros coordinate
+fixes in any other way?
+
+thanks,
 
 greg k-h

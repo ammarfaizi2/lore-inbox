@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289697AbSBERcS>; Tue, 5 Feb 2002 12:32:18 -0500
+	id <S289670AbSBERcB>; Tue, 5 Feb 2002 12:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289680AbSBERcC>; Tue, 5 Feb 2002 12:32:02 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:64773 "HELO
+	id <S289667AbSBERbw>; Tue, 5 Feb 2002 12:31:52 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:58117 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289686AbSBERbq>; Tue, 5 Feb 2002 12:31:46 -0500
-Date: Tue, 5 Feb 2002 20:31:39 +0300
+	id <S289670AbSBERbk>; Tue, 5 Feb 2002 12:31:40 -0500
+Date: Tue, 5 Feb 2002 20:31:38 +0300
 From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         reiserfs-dev@namesys.com
-Subject: [PATCH] reiserfs patchset, patch 8 of 9 08-unfinished_rebuildtree_message.diff
-Message-ID: <20020205203139.A9933@namesys.com>
+Subject: [PATCH] reiserfs patchset, patch 5 of 9 05-kernel-reiserfs_fs_h-offset_v2.diff
+Message-ID: <20020205203138.A9905@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,9 +26,8 @@ This set of patches of which this is one will update ReiserFS in 2.5.3
 with latest bugfixes. Also it cleanups the code a bit and adds more helpful
 messages in some places.
 
-08-unfinished_rebuildtree_message.diff
-    Give a proper explanation if unfinished reiserfsck --rebuild-tree
-    run on a fs was detected.
+05-kernel-reiserfs_fs_h-offset_v2.diff
+    Convert erroneous le64_to_cpu to cpu_to_le64
 
 
 The other patches in this set are:
@@ -67,20 +66,23 @@ The other patches in this set are:
     Bitopts arguments must be long, not int.
 
 
---- linux-2.5.3/fs/reiserfs/super.c.orig	Tue Feb  5 16:54:21 2002
-+++ linux-2.5.3/fs/reiserfs/super.c	Tue Feb  5 16:56:01 2002
-@@ -749,6 +749,14 @@
- 	return 1;
-     }
- 
-+    if ( rs->s_v1.s_root_block == -1 ) {
-+       brelse(bh) ;
-+       printk("dev %s: Unfinished reiserfsck --rebuild-tree run detected. Please run\n"
-+              "reiserfsck --rebuild-tree and wait for a completion. If that fais\n"
-+              "get newer reiserfsprogs package\n", kdevname (s->s_dev));
-+       return 1;
-+    }
-+
-     SB_BUFFER_WITH_SB (s) = bh;
-     SB_DISK_SUPER_BLOCK (s) = rs;
- 
+--- linux-2.5.3/include/linux/reiserfs_fs.h.orig	Thu Jan 31 09:25:24 2002
++++ linux-2.5.3/include/linux/reiserfs_fs.h	Tue Feb  5 16:44:54 2002
+@@ -381,7 +381,7 @@
+     offset_v2_esafe_overlay *tmp = (offset_v2_esafe_overlay *)v2;
+     tmp->linear = le64_to_cpu(tmp->linear);
+     tmp->offset_v2.k_type = type;
+-    tmp->linear = le64_to_cpu(tmp->linear);
++    tmp->linear = cpu_to_le64(tmp->linear);
+ }
+  
+ static inline loff_t offset_v2_k_offset( const struct offset_v2 *v2 )
+@@ -395,7 +395,7 @@
+     offset_v2_esafe_overlay *tmp = (offset_v2_esafe_overlay *)v2;
+     tmp->linear = le64_to_cpu(tmp->linear);
+     tmp->offset_v2.k_offset = offset;
+-    tmp->linear = le64_to_cpu(tmp->linear);
++    tmp->linear = cpu_to_le64(tmp->linear);
+ }
+ #else
+ # define offset_v2_k_type(v2)           ((v2)->k_type)

@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVCNWhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVCNWlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVCNWhT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVCNWdi
+	id S262046AbVCNWlr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbVCNWij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:33:38 -0500
-Received: from fire.osdl.org ([65.172.181.4]:30402 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262041AbVCNWcQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:32:16 -0500
-Message-ID: <423610EC.3030508@osdl.org>
-Date: Mon, 14 Mar 2005 14:32:12 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: maximilian attems <janitor@sternwelten.at>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [patch] sedlbauer eliminate bad section references
-References: <20050314003018.GD13729@sputnik.stro.at>
-In-Reply-To: <20050314003018.GD13729@sputnik.stro.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 14 Mar 2005 17:38:39 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:17326
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262026AbVCNWes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 17:34:48 -0500
+Date: Mon, 14 Mar 2005 14:33:23 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+Message-Id: <20050314143323.6c66dfc3.davem@davemloft.net>
+In-Reply-To: <1110838711.19340.58.camel@localhost>
+References: <1110834883.19340.47.camel@localhost>
+	<20050314135021.639d1533.davem@davemloft.net>
+	<1110838711.19340.58.camel@localhost>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
-> Fix sedlbauer section references:
->   convert __initdata to __devinitdata.
+On Mon, 14 Mar 2005 14:18:31 -0800
+Dave Hansen <haveblue@us.ibm.com> wrote:
+
+> Those bits are used today for page_zone() and page_to_nid().  I assume
+> that you don't support NUMA, but how do you get around the page_zone()
+> definition?  (a quick grep in asm-sparc64 didn't show anything obvious)
 > 
-> 
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 0000235f R_386_32
-> .init.data
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 0000236e R_386_32
-> .init.data
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 0000238d R_386_32
-> .init.data
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 000023b2 R_386_32
-> .init.data
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 00002417 R_386_32
-> .init.data
-> Error: ./drivers/isdn/hisax/sedlbauer.o .text refers to 0000244c R_386_32
-> .init.data
-> 
-> Signed-off-by: maximilian attems <janitor@sternwelten.at>
+>         static inline struct zone *page_zone(struct page *page)
+>         {
+>                 return zone_table[page->flags >> NODEZONE_SHIFT];
+>         }
 
-Acked-by: Randy Dunlap <rddunlap@osdl.org>
+NODEZONE_SHIFT is (64 /* sizeof(page_flags_t)*8 */ -
+                   1 /* MAX_NODES_SHIFT */ -
+                   2 /* MAX_ZONES_SHIFT */)
 
-> diff -pruN -X dontdiff linux-2.6.11-bk8/drivers/isdn/hisax/sedlbauer.c
-> linux-2.6.11-bk8-max/drivers/isdn/hisax/sedlbauer.c
-> --- linux-2.6.11-bk8/drivers/isdn/hisax/sedlbauer.c	2005-03-02 08:38:32.000000000 +0100
-> +++ linux-2.6.11-bk8-max/drivers/isdn/hisax/sedlbauer.c	2005-03-14 01:03:14.000000000 +0100
-> @@ -516,7 +516,7 @@ Sedl_card_msg(struct IsdnCardState *cs, 
->  static struct pci_dev *dev_sedl __devinitdata = NULL;
->  
->  #ifdef __ISAPNP__
-> -static struct isapnp_device_id sedl_ids[] __initdata = {
-> +static struct isapnp_device_id sedl_ids[] __devinitdata = {
->  	{ ISAPNP_VENDOR('S', 'A', 'G'), ISAPNP_FUNCTION(0x01),
->  	  ISAPNP_VENDOR('S', 'A', 'G'), ISAPNP_FUNCTION(0x01), 
->  	  (unsigned long) "Speed win" },
-> @@ -526,7 +526,7 @@ static struct isapnp_device_id sedl_ids[
->  	{ 0, }
->  };
->  
-> -static struct isapnp_device_id *ipid __initdata = &sedl_ids[0];
-> +static struct isapnp_device_id *ipid __devinitdata = &sedl_ids[0];
->  static struct pnp_card *pnp_c __devinitdata = NULL;
->  #endif
->  
+Which means the table is indexed by the top 3 bits of page->flags.
+Sparc64 only uses a couple bits (specifically, enough to hold
+(NR_CPUS - 1)) starting at bit 24, so this should not intersect
+the page_zone() usage.
 
+I don't even accidently modify those bits when setting and clearing
+this cpu field.
 
--- 
-~Randy
+However, I do notice that I assume NR_CPUS is a power of two.  I should
+certainly cure that.  (Basically, I use ~(NR_CPUS - 1) as a mask).
+
+> BTW, in theory, the new patch should allow page->flags to be better
+> managed by a variety of users, including special arch users.  An
+> architecture should be able to relatively easily add the necessary
+> pieces to reserve them.  We could even have a ARCH_RESERVED_BITS macro
+> or something.  
+
+That sounds like a great idea.  We have several issues like this, perhaps
+it's time to create some abstraction accessors via include/asm-*/page-flags.h
+The platform can specify the type and size or whatever of page_flags_t, how
+to stick node and zone numbers into the field, and whatever else.  Furthermore,
+we can have an asm-generic/page-flags.h that most folks can just use and
+replicates what occurs right now.
+
+That may be overkill, however.

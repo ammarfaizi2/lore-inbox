@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265113AbTLCSsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 13:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbTLCSsh
+	id S265127AbTLCSv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 13:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbTLCSvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 13:48:37 -0500
-Received: from main.gmane.org ([80.91.224.249]:39074 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265113AbTLCSsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 13:48:36 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 3 Dec 2003 13:51:25 -0500
+Received: from mra02.ex.eclipse.net.uk ([212.104.129.89]:64748 "EHLO
+	mra02.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S265127AbTLCSvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 13:51:22 -0500
+Message-ID: <3FCE30A7.4080600@jon-foster.co.uk>
+Date: Wed, 03 Dec 2003 18:51:19 +0000
+From: Jon Foster <jon@jon-foster.co.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@gmx.net>
-Subject: [2.6.0-test10(-mm1)] 8139too vs. 8139cp
-Date: Wed, 3 Dec 2003 19:48:14 +0100
-Message-ID: <slrnbssbve.16d.andreashappe@flatline.ath.cx>
-Reply-To: Andreas Happe <andreashappe@gmx.net>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+Cc: joe.korty@ccur.com
+Subject: Re:[PATCH, 2.6.0-test11] more correct get_compat_timespec interface
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware in question: HP compaq nx7000 (8139c+ network card), using ACPI
+Hi,
 
-With the 8139too driver everything works smooth except a "please use
-8139too for increased performance and stability" message on bootup.
+ >-int put_compat_timespec(struct timespec *ts, struct compat_timespec *cts)
+ >+int put_compat_timespec(struct timespec *ts, const struct 
+compat_timespec *cts)
+ >{
+ >return (verify_area(VERIFY_WRITE, cts, sizeof(*cts)) ||
+ >__put_user(ts->tv_sec, &cts->tv_sec) ||
 
-At first 8139cp works fine, but the machine freezes after 1-2h without
-any accessable oops (I'm running X, there was nothing in the logfiles).
-This happened while audio or video playback (i dunno if it's related,
-eth0, radeon, uhci-hcd, and intel chipset use the same interrupt).
+Shouldn't the "const" be on the other argument?
 
-	--Andreas
+Kind regards,
+
+Jon Foster
 

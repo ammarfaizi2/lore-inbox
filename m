@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261190AbRE3Os3>; Wed, 30 May 2001 10:48:29 -0400
+	id <S261254AbRE3PAe>; Wed, 30 May 2001 11:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261247AbRE3OsT>; Wed, 30 May 2001 10:48:19 -0400
-Received: from [195.184.98.160] ([195.184.98.160]:14610 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261190AbRE3OsL>;
-	Wed, 30 May 2001 10:48:11 -0400
-Date: Wed, 30 May 2001 16:46:19 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Mark Hemment <markhe@veritas.com>
-Subject: [patch] 4GB I/O, cut four
-Message-ID: <20010530164619.H17136@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261268AbRE3PAY>; Wed, 30 May 2001 11:00:24 -0400
+Received: from [207.106.123.146] ([207.106.123.146]:32384 "EHLO
+	mail.newearth.org") by vger.kernel.org with ESMTP
+	id <S261254AbRE3PAQ>; Wed, 30 May 2001 11:00:16 -0400
+Date: Wed, 30 May 2001 10:59:57 -0400 (EDT)
+From: Michael David <michael@newearth.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.5 panic while starting aic7xxx
+In-Reply-To: <Pine.LNX.4.32.0105300944520.2552-100000@sapphire.newearth.org>
+Message-ID: <Pine.LNX.4.32.0105301054100.1827-100000@sapphire.newearth.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+SCSI subsystem driver Revision: 1.00
+PCI: Found IRQ 11 for device 00:0c.0
+scsi0: Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
+        <Adaptec 2940 Ultra2 SCSI adapter>
+        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/255 SCBs
+ahc_intr: AWAITING_MSG for an SCB that does not have a waiting message
+SCSIID = 7, target_mask = 1
+Kernel panic: SCB = 3, SCB Control = 40, MSG_OUT = 80 SCB flags = 6000
+In interrupt handler - not syncing
 
-Changes in this release:
+Using AMD Athlon 750MHz, Asus K7V mobo, Adaptec 2940 Ultra2
+SCSI.
 
-- Don't merge requests with ->special set. Not a highmem introduced bug.
-  (discovered by Mark Hemment)
-
-- __scsi_end_request didn't decrement hard_nr_sectors correctly. Not a
-  highmem introduced bug. (discovered by Mark Hemment)
-
-- Modular IDE/SCSI needs kmap_prot and kmap_pte exported (discovered by
-  Arjan van de Ven)
-
-- Add qlogicfc as highmem capable. Hopefully a merge of the newer
-  version will carry this flag forward. (tested by Mark Hemment)
-
-That means there is a new block-highmem-3 and scsi-high-3, the rest
-remains the same. Get it all in block-highmem-all-4 if you want.
-
-For 2.4.5:
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5/
-
-or for 2.4.5-ac4 (just one big patch, sorry)
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5-ac4/
 
 -- 
-Jens Axboe
+Michael V. David, AAO (Acronym Assignment Officer), NewEarth Swedenborg BBS
+michael@newearth.org - http://www.newearth.org/~michael - Penguin 2.4.3-XFS
+"Never apply a Star Trek solution to a Babylon 5 problem" -- Nicholas C. Weaver
 

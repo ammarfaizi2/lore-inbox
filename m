@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRCNOSp>; Wed, 14 Mar 2001 09:18:45 -0500
+	id <S131375AbRCNOYF>; Wed, 14 Mar 2001 09:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRCNOSf>; Wed, 14 Mar 2001 09:18:35 -0500
-Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:11561 "EHLO
-	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
-	id <S131369AbRCNOS0>; Wed, 14 Mar 2001 09:18:26 -0500
-Date: Wed, 14 Mar 2001 16:17:41 +0200 (EET)
-From: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix a bug in ioctl(CDROMREADAUDIO) in cdrom.c in 2.2.18
-Message-ID: <Pine.LNX.4.30.0103141549340.733-100000@hallikari.cs.Helsinki.FI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131371AbRCNOX4>; Wed, 14 Mar 2001 09:23:56 -0500
+Received: from dns.growzone.com.au ([202.9.32.33]:64266 "EHLO
+	mail.growzone.com.au") by vger.kernel.org with ESMTP
+	id <S131364AbRCNOXo>; Wed, 14 Mar 2001 09:23:44 -0500
+Message-Id: <200103141422.f2EEMvI20712@gandalf.growzone.com.au>
+To: mshiju@in.ibm.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Face: ]IrGs{LrofDtGfsrG!As5=G'2HRr2zt:H>djXb5@v|Dr!jOelxzAZ`!}("]}]
+	Q!)1w#X;)nLlb'XhSu,QL>;)L/l06wsI?rv-xy6%Y1e"BUiV%)mU;]f-5<#U6
+	UthZ0QrF7\_p#q}*Cn}jd|XT~7P7ik]Q!2u%aTtvc;)zfH\:3f<[a:)M
+Organization: GrowZone OnLine
+X-Mailer: nmh-1.0.4 exmh-2.2
+X-OS: Linux-2.4.0 RedHat 7.0
+Subject: Re: ISAPNP :driver not recognized when compiled in kernel 
+In-Reply-To: message-id <CA256A0F.004A726A.00@d73mta05.au.ibm.com> 
+	 of Wed, Mar 14 18:35:13 2001
+Date: Thu, 15 Mar 2001 00:22:56 +1000
+From: Tony Nugent <tony@growzone.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed Mar 14 2001 at 18:35, mshiju@in.ibm.com wrote:
 
-Using ioctl(CDROMREADAUDIO) with nframes argument being larger than 8 and
-not divisible by 8 causes kernel to read and return more audio data than
-was requested. This is bad since it clobbers up processes memory
-(I noticed this when my patched cdparanoia segfaulted).
+> module. I read somewhere that ISAPNP drivers with ISAPNP enabled in kernel
+> should only be build as modules so that we can keep the order of execution
+> . Is this true.? Have any one of you tried this .
 
-This _might_ also have a security impact, since it could be used to
-overwrite memory which the user should not have write access with
-cdrom audio data. (_might_ since I do not know the exact semantics of
-__copy_to_user() and I am too lazy to check them out. The attacker needs
-access to cdrom device with audio cdrom in drive, preferably with a
-custom made audio cd).
+I'd believe what you have read.
 
-I have not checked if the same bug is also present in 2.4 kernels.
+The general philosphy is that most device drivers are almost always
+best built and made available as modules.
 
-If you have any comments, please Cc: them to me, since I am not present in
-the list.
+Besides, there really are distinct advantages in being able to
+unload device drivers at runtime (eg, you can reconfigure the IRQ or
+dma etc for the driver by simply unloading and reloading it -
+without otherwise resorting to a system reboot which would be the
+case if the driver was compiled into the kernel itself).
 
-Here is a trivial patch against drivers/cdrom/cdrom.c of kernel 2.2.18:
+If you need to load any device drivers before actually booting the
+kernel itself (eg, an nfsroot kernel which needs an ethernet
+driver), then that problem is solved by creating (and making
+available with lilo or bootp or whatever) an initrd image that can
+preload the device drivers it needs before actually attempting to
+mount the root filesystem.  (Fairly easy to do this with something
+like redhat's mkinitrd utility).
 
---- cdrom.c.orig	Wed Mar 14 13:15:13 2001
-+++ cdrom.c	Wed Mar 14 15:42:19 2001
-@@ -1946,6 +1946,7 @@
- 			ra.buf += (CD_FRAMESIZE_RAW * frames);
- 			ra.nframes -= frames;
- 			lba += frames;
-+			if (frames>ra.nframes) frames=ra.nframes;
- 		}
- 		kfree(cgc.buffer);
- 		return ret;
-
+Cheers
+Tony
+ -=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-
+  Tony Nugent <Tony@growzone.com.au>    Systems Administrator, RHCE
+  LinuxWorks - PO Box 5747 Gold Coast MC Queensland Australia  9726
+  Ph: (07) 5526 8020                           Mobile: 0408 066 336
+ -=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-=*#*=-

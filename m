@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290259AbSBFIW3>; Wed, 6 Feb 2002 03:22:29 -0500
+	id <S290289AbSBFIYj>; Wed, 6 Feb 2002 03:24:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290285AbSBFIWU>; Wed, 6 Feb 2002 03:22:20 -0500
-Received: from dsl-213-023-043-188.arcor-ip.net ([213.23.43.188]:54448 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290277AbSBFIWH>;
-	Wed, 6 Feb 2002 03:22:07 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>,
-        william fitzgerald <william.fitzgerald2@beer.com>
-Subject: Re: windows is more secure than linux!!
-Date: Wed, 6 Feb 2002 09:26:53 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16YNPp-0002MI-00@starship.berlin>
+	id <S290285AbSBFIXq>; Wed, 6 Feb 2002 03:23:46 -0500
+Received: from msp-26-179-145.mn.rr.com ([24.26.179.145]:1177 "HELO
+	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
+	id <S289776AbSBFIXI>; Wed, 6 Feb 2002 03:23:08 -0500
+Date: Wed, 6 Feb 2002 02:23:07 -0600
+From: Shawn <core@enodev.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-pre8 + 2.4.17-pre8-ac3 + rmap12c + XFS Results
+Message-ID: <20020206082307.GA8007@local.enodev.com>
+In-Reply-To: <Pine.LNX.4.40.0202060213380.395-100000@coredump.sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0202060213380.395-100000@coredump.sh0n.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 5, 2002 07:41 pm, Rik van Riel wrote:
-> On Wed, 6 Feb 2002, william fitzgerald wrote:
-> 
-> > some of you might find this interesting others
-> > disheartening
-> 
-> Still others, like me, find it very encouraging
-> that Microsoft can't stop talking about Linux.
-> They must be enthusiastic about it, or something.
-> 
-> > www.shortnews.com/shownews.cfm?id=16886&u_id=623
-> 
-> Now add the security holes in ISS, Outlook, Exchange,
-> Access and all available pieces of Windows software
-> into the picture so Linux and Windows are measured on
-> an equal ground.
+Is that http://www.sh0n.net/~spstarr/ ?
 
-And divide Linux vulnerabilities by the number of vendors, and adjust for the 
-fact that Linux vendors try to report all vulnerabilities while Microsoft 
-tries to keep them secret.
+On 02/06, Shawn Starr said something like:
+> a patch will be available for this shortly on my website for those who
+> want XFS + rmap12c.
+> 
+> Shawn.
+--
+Shawn Leas
+core@enodev.com
 
-> Lies, damn lies & statistics.
-
-How about Lies, damn lies, wild crazy lies and 'journalistic interpretation
-of statistics'.  Err, and has anybody mentioned integrity yet.  In so many 
-words.
-
--- 
-Daniel
+I installed a skylight in my apartment...
+The people who live above me are furious!
+						-- Stephen Wright

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262411AbSI2IEK>; Sun, 29 Sep 2002 04:04:10 -0400
+	id <S262415AbSI2IM3>; Sun, 29 Sep 2002 04:12:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262412AbSI2IEK>; Sun, 29 Sep 2002 04:04:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51977 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262411AbSI2IEJ>;
-	Sun, 29 Sep 2002 04:04:09 -0400
-Message-ID: <3D96B511.1060308@pobox.com>
-Date: Sun, 29 Sep 2002 04:08:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jbradford@dial.pipex.com
-CC: Linus Torvalds <torvalds@transmeta.com>, jdickens@ameritech.net,
-       mingo@elte.hu, kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, saw@saw.sw.com.sg, rusty@rustcorp.com.au,
-       richardj_moore@uk.ibm.com, andre@master.linux-ide.org
-Subject: Re: v2.6 vs v3.0
-References: <200209290716.g8T7GNwf000562@darkstar.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262416AbSI2IM3>; Sun, 29 Sep 2002 04:12:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58636 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262415AbSI2IM1>; Sun, 29 Sep 2002 04:12:27 -0400
+Date: Sun, 29 Sep 2002 09:17:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Hu Gang <hugang@soulinfo.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: a bug in 8250.c
+Message-ID: <20020929091747.A11800@flint.arm.linux.org.uk>
+References: <20020929101523.2400f335.hugang@soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020929101523.2400f335.hugang@soulinfo.com>; from hugang@soulinfo.com on Sun, Sep 29, 2002 at 10:15:23AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jbradford@dial.pipex.com wrote:
->>The block IO cleanups are important, and that was the major thing _I_ 
->>personally wanted from the 2.5.x tree when it was opened. I agree with you 
->>there. But I don't think they are major-number-material.
-> 
-> 
-> I'd definitely have voted for stable IPV6 being a 3.0.x requirement, but I guess it's a bit late now :-/
+On Sun, Sep 29, 2002 at 10:15:23AM +0800, Hu Gang wrote:
+> In serial8250_request_std_resource@825.c, if all is pass it return 0, or failed return -XX, But you use 
+>         ret = serial8250_request_std_resource(up, &res_std);
+> ->      if (ret)
+>                 return;
+> I'm guess it use as . 
+> ->      if (ret == 0) 
 
-The USAGI guys have just started sending patches in, so there is already 
-progress on this front.  And remember that stabilizing and bug fixing 
-can continue after Oct 31st... that's just the feature freeze date.
+This is very wrong.
 
+If we claim the resource, we fail in this function.  If we don't claim,
+we succeed.
 
->>Anyway, people who are having VM trouble with the current 2.5.x series, 
->>please _complain_, and tell what your workload is. Don't sit silent and 
->>make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
->>thing.
-> 
-> 
-> I think the broken IDE in 2.5.x has meant that it got seriously less testing overall than previous development trees :-(.
+> After change code, 2.5.39 Can found my modem.
 
+I guess you've got a resource clash.  Can you remove this patch from your
+system, and then send the kernel boot messages, and the contents of
+/proc/iomem and /proc/ioports please.
 
-I think this is true, but hopefully recent progress on all fronts will 
-start encouraging testers to jump back in...   I have not seen any 
-IDE-related corruption reports lately [but then maybe I missed them...]
-
-BTW you should fix your word wrap :)
-
-	Jeff
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

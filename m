@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVC0Sfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVC0Sje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVC0Sfy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 13:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVC0Sfx
+	id S261395AbVC0Sje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 13:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVC0Sjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 13:35:53 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:65294 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261387AbVC0Sf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 13:35:26 -0500
-Date: Sun, 27 Mar 2005 20:35:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Arjan van de Ven <arjan@infradead.org>,
-       Aaron Gyes <floam@sh.nu>, linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050327183522.GM4285@stusta.de>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com> <20050327180417.GD3815@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050327180417.GD3815@gallifrey>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 27 Mar 2005 13:39:33 -0500
+Received: from mta4.srv.hcvlny.cv.net ([167.206.4.199]:50657 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261395AbVC0Sj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 13:39:28 -0500
+Date: Sun, 27 Mar 2005 13:39:27 -0500
+From: Nick Orlov <bugfixer@list.ru>
+Subject: Re: 2.6.12-rc1-mm3: class_simple API
+In-reply-to: <20050327181717.GC14502@kroah.com>
+To: linux-kernel@vger.kernel.org
+Mail-followup-to: linux-kernel@vger.kernel.org
+Message-id: <20050327183927.GA4535@nikolas.hn.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.5.8i
+References: <20050327180431.GA4327@nikolas.hn.org>
+ <20050327181717.GC14502@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 07:04:17PM +0100, Dr. David Alan Gilbert wrote:
-> * Kyle Moffett (mrmacman_g4@mac.com) wrote:
+On Sun, Mar 27, 2005 at 10:17:17AM -0800, Greg KH wrote:
+> On Sun, Mar 27, 2005 at 01:04:31PM -0500, Nick Orlov wrote:
+> > 
+> >  - Whether the changes like the one above are "the right thing to do" ?
 > 
-> > <flame type="Binary Driver Hatred">
-> > NOTE: I *strongly* discourage binary drivers.  They're crap and 
-> > frustrate poor PowerPC users like me.
+> Yes.
+
+Questionable.
+
 > 
-> I mostly agree - there is one case where I think they *might*
-> be acceptable; (and I think the original poster *may* fall
-> into this category).
+> >  - What's the best way to deal with this particular issue ?
 > 
-> If you are making a very specialist piece of equipment; not
-> the type of thing you can go and plug into any old PC; but
-> say an entire box with some obscure piece of hardware in
-> that no one would want to buy as a seperate add on. I just
-> don't see the need to force someone to make drivers for
-> this type of thing public.
->...
+> Change the code to not use these functions.
 
-And then the user want to upgrade the 2.0 kernel that shipped with this 
-box although the company that made the hardware went bankrupt some years 
-ago.
+In other words "forget about nvidia <-> udev interaction" ?
+I do not think it is acceptable.
 
-If the user has the source of the driver, he can port the driver or hire 
-someone to port the driver (this "obscure piece of hardware" might also 
-be an expensive piece of hardware).
+> Look at the vmware code for examples of how to do this.
 
-Or if the driver is in the kernel sources, it might have even been 
-ported.
+Is there a place where I can download the code example without
+registering / paying license fee ?
 
-> Dave
-
-cu
-Adrian
+P.S. Please CC me, I'm not subscribed to the list.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+With best wishes,
+	Nick Orlov.
 

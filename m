@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbREHHks>; Tue, 8 May 2001 03:40:48 -0400
+	id <S131317AbREHHtS>; Tue, 8 May 2001 03:49:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbREHHki>; Tue, 8 May 2001 03:40:38 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23569 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130532AbREHHkU>; Tue, 8 May 2001 03:40:20 -0400
-Date: Tue, 8 May 2001 00:40:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <15095.38698.313444.486904@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105080019420.15378-100000@penguin.transmeta.com>
+	id <S131459AbREHHtJ>; Tue, 8 May 2001 03:49:09 -0400
+Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:10805 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S131317AbREHHtB>; Tue, 8 May 2001 03:49:01 -0400
+Date: Tue, 8 May 2001 01:53:39 +0200
+Message-Id: <200105072353.f47NrdI00854@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: kernel@stirfried.vegetable.org.uk (Tim Haynes),
+        linux-kernel@vger.kernel.org
+Subject: Re: ipv6 activity causing system hang in kernel 2.4.4
+In-Reply-To: <871yq3mllw.fsf@straw.pigsty.org.uk>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
+X-Key-ID: 829B1533
+User-Agent: tin/1.5.9-20010328 ("Blue Water") (UNIX) (Linux/2.4.4 (i586))
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <871yq3mllw.fsf@straw.pigsty.org.uk> you wrote:
 
-On Mon, 7 May 2001, David S. Miller wrote:
-> 
-> The only downside would be that the formerly "quick case" in the loop
-> of dealing with referenced pages would now need to go inside the page
-> lock.  It's probably a non-issue...
+> This is only with kernel 2.4.4; 2.4.2, 2.4.3 and NetBSD boxes are not
+> affected. It is independent of platform; I've reproduced it at will on a
+> lowly p75, an athlon, a p3-800 and on a powerbook/PPC.
 
-It might easily be an issue. That function will touch pretty much every
-single page that we ever want to free, and it might be worthwhile to know
-what the pressure is.
+I have just reproduced that on 2.4.5pre-1. It was only one ping (ping6)
+(from the other side of ipv6 over ipv4 tunnel.
 
-However, the point is probably moot. I found a problem with my approach:
-using writepage() to try to get rid of swap cache pages early on (ie not
-doing the "if it is accessed, put it back on the list" thing early)
-doesn't work all that well: it doesn't handle the case of _clean_
-swap-cache pages at all. And those can be quite common, although usually
-not in the simple benchmarks which just dirty as quickly as they can.
 
-[ The way to get a clean swap-cache page is to dirty it early in the
-  process lifetime, and then use the page read-only later on over
-  time. Maybe it's not common enough to worry about. ]
+> All kernels are compiled to have ipv6 modular, netfilter modular...
+> everything with which I'm playing, modular.
 
-Ho humm. 
+My configuration is without any ipv6/netfilter modules - all build in kernel.
 
-Maybe we just can't avoid special-casing the swap cache in page_launder,
-and letting it know about things like swap counts (well, we obviously
-_can_ avoid the special casing, as that's what it does now. But we might
-be losing out by not doing so - right now we at least avoid doing
-unnecessary writes, but we might be trying too hard to free memory that
-really _should_ be more easily free'd).
+portraits:~# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
 
-Maybe it's academic. Do we know that any of this actually makes any
-performance difference at all?
+glibc-2.2.2-10 (i686) - RedHat 7.1, 1GB RAM, 2x Pentium III
 
-		Linus
 
+
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262394AbTCCJrn>; Mon, 3 Mar 2003 04:47:43 -0500
+	id <S262469AbTCCJr6>; Mon, 3 Mar 2003 04:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262469AbTCCJrn>; Mon, 3 Mar 2003 04:47:43 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:29358 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262394AbTCCJrk>;
-	Mon, 3 Mar 2003 04:47:40 -0500
-Date: Mon, 3 Mar 2003 10:57:41 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christoph Hellwig <hch@sgi.com>
-cc: akpm@digeo.com, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] allow CONFIG_SWAP=n for i386
-In-Reply-To: <200303030506.h2356Z627107@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0303031056070.10724-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262492AbTCCJr5>; Mon, 3 Mar 2003 04:47:57 -0500
+Received: from srv1.mail.cv.net ([167.206.112.40]:52916 "EHLO srv1.mail.cv.net")
+	by vger.kernel.org with ESMTP id <S262469AbTCCJry>;
+	Mon, 3 Mar 2003 04:47:54 -0500
+Date: Mon, 03 Mar 2003 04:58:19 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] mkdep patch in 2.4.21-pre4-ac7 breaks pci/drivers
+In-reply-to: <Pine.LNX.4.51.0303030347020.26129@localhost.localdomain>
+X-X-Sender: proski@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>
+Message-id: <Pine.LNX.4.51.0303030444310.17059@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <200303020213.h222DM7O003304@eeyore.valparaiso.cl>
+ <Pine.LNX.4.51.0303030347020.26129@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1050, 2003/03/02 20:37:34-08:00, akpm@digeo.com
-> 
-> 	[PATCH] allow CONFIG_SWAP=n for i386
-> 	
-> 	Patch from Christoph Hellwig <hch@sgi.com>
+Hello!
 
-Since 2.5.x has entered the spell checking phase...
+> This patch has been tested and works for me.  How to test:
 
-> diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
-> --- a/arch/i386/Kconfig	Sun Mar  2 21:06:38 2003
-> +++ b/arch/i386/Kconfig	Sun Mar  2 21:06:38 2003
-> @@ -19,8 +19,13 @@
->  	default y
->  
->  config SWAP
-> -	bool
-> +	bool "Support for paging of anonymous memory"
->  	default y
-> +	help
-> +	  This option allows you to choose whether you want to have support
-> +	  for socalled swap devices or swap files in your kernel that are
-              ^^^^^^^^
-	      so-called?
+I'm terribly sorry, my testing was incorrect (I was looking at a wrong
+window).  One more change needs to be done.  Since name.o becomes the
+first rule, it becomes the default rule instead of driver.o, which is not
+created.
 
-> +	  used to provide more virtual memory than the actual RAM present
-> +	  in your computer.  If unusre say Y.
-                                ^^^^^^
-				unsure
+The trick (already used in drivers/net/hamradio/soundmodem/Makefile) is to
+define the first rule as
 
-Gr{oetje,eeting}s,
+all: all_targets
 
-						Geert
+Fixed patch:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+===================================
+--- linux.orig/drivers/pci/Makefile
++++ linux/drivers/pci/Makefile
+@@ -35,10 +35,11 @@
+ obj-y += syscall.o
+ endif
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-include $(TOPDIR)/Rules.make
+-
++all: all_targets
+ names.o: names.c devlist.h classlist.h
 
++include $(TOPDIR)/Rules.make
++
+ devlist.h classlist.h: pci.ids gen-devlist
+ 	./gen-devlist <pci.ids
+
+===================================
+
+This patch was tested all the way to "make install" and reboot.
+
+-- 
+Regards,
+Pavel Roskin

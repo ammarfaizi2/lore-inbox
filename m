@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312779AbSCVSMj>; Fri, 22 Mar 2002 13:12:39 -0500
+	id <S312783AbSCVSPT>; Fri, 22 Mar 2002 13:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312783AbSCVSMS>; Fri, 22 Mar 2002 13:12:18 -0500
-Received: from adsl-63-203-200-210.dsl.snfc21.pacbell.net ([63.203.200.210]:44229
-	"EHLO hodog.wesecurethe.net") by vger.kernel.org with ESMTP
-	id <S312779AbSCVSMG>; Fri, 22 Mar 2002 13:12:06 -0500
-From: Change Ling <change@wesecurethe.net>
-To: linux-kernel@vger.kernel.org
-Subject: vesafb not working in later 2.4.x kernels?
-Message-ID: <1016820299.3c9b724bd3515@www.wesecurethe.net>
-Date: Fri, 22 Mar 2002 10:04:59 -0800 (PST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.7
-X-HoozYoDaddy: I AM
+	id <S312784AbSCVSPI>; Fri, 22 Mar 2002 13:15:08 -0500
+Received: from ns.suse.de ([213.95.15.193]:59659 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312783AbSCVSOz>;
+	Fri, 22 Mar 2002 13:14:55 -0500
+Date: Fri, 22 Mar 2002 19:14:54 +0100
+From: Dave Jones <davej@suse.de>
+To: Jon Hourd <jonhourd@telus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18 - 2.5.7  bluesmoke.c corrected MCA setup for different Pentium cores.
+Message-ID: <20020322191454.O22861@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jon Hourd <jonhourd@telus.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.0.20020322094928.009e6ec0@pop.telus.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to build the vesafb under the 2.4.18 kernel for use in my 
-work on the biatchux bootable cdrom distribution, but the frame buffer never 
-seems to initialize at boot with the vga=791 kernel argument.
+On Fri, Mar 22, 2002 at 10:05:16AM -0800, Jon Hourd wrote:
+ > Hello,
+ > 	Here are some patches to correct the MCA setup for different Pentium cores 
+ > in bluesmoke.c.  The P6 family must not initialize MSR_IA32_MC0_CTL in 
+ > software, it must be done by the bios.  The P4/Xeon cores must have this 
+ > bank initialized in software.  Added check for processor type and 
+ > associated init loops.  Included patches against 2.5.7 and 2.4.18.
 
-It is as though the Video select option isn't handling the kernel arg, since 
-vga=ask doesn't present my with a selection menu either.
+Just a tiny nit to pick...
 
-Has vesafb or Video_select support somehow been dropped in the latest stable 
-kernel???
+@@ -167,9 +169,25 @@
+ 	if(l&(1<<8))
+ 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ 	banks = l&0xff;
+-	for(i=1;i<banks;i++)
+-	{
+-		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
++
++	/* Check Core version for P6 or P4/Xeon */
++
++	if(c->x86 == 6)	{
++		printk(KERN_INFO "Detected P6 Core.\n");
++		for(i=1;i<banks;i++)			/* Must start with bank 1 for P6 Cores */
++		{
++			wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
++		}
++	} else if(c->x86 == 15) {
++		printk(KERN_INFO "Detected P4/Xeon Core.\n");
++		for(i=0;i<banks;i++)			/* Must start with bank 0 for Pentium 4 and Xeon Processors */
 
-I have built the kernel on multiple machines with the following .config, and 
-have resorted to downgrading my kernel by systematically decrementing versions, 
-I've gone back as far as 2.4.14 so far, with no luck in initializing the vesafb.
+This function can be called by non-Intel hardware. No other vendor has
+a family 15 CPU, but it's one less surprise if ever someone does make
+one.
 
-I have the vesafb working under 2.4.5, but really would like to avoid going 
-that far back.
+Also, take a look at bluesmoke.c in 2.5.7-dj1, it's quite a bit
+different from mainline (in particular the timer foo), and also
+incorporates some of the bits from your patch already.
 
-Following is the FB specific portion of my .config
+Other than that, looks fine to me.
 
-# Console drivers
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# Frame-buffer support
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FBCON_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

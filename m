@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136175AbRECHlS>; Thu, 3 May 2001 03:41:18 -0400
+	id <S136168AbRECHp2>; Thu, 3 May 2001 03:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136174AbRECHlI>; Thu, 3 May 2001 03:41:08 -0400
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:46499 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S136168AbRECHk6>; Thu, 3 May 2001 03:40:58 -0400
-Date: Thu, 3 May 2001 09:40:52 +0200
-From: Andreas Mohr <a.mohr@mailto.de>
-To: Richard Polton <Richard.Polton@morganstanley.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cannot find directory on cdrom
-Message-ID: <20010503094052.A22925@rhlx01.fht-esslingen.de>
-Reply-To: andi@rhlx01.fht-esslingen.de
-In-Reply-To: <3AF108BE.E8957686@morganstanley.com>
+	id <S136170AbRECHpS>; Thu, 3 May 2001 03:45:18 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:875 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S136168AbRECHpP>; Thu, 3 May 2001 03:45:15 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kaih@khms.westfalen.de (Kai Henningsen)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd) 
+In-Reply-To: Your message of "03 May 2001 09:13:00 +0200."
+             <80BTbB7Hw-B@khms.westfalen.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AF108BE.E8957686@morganstanley.com>; from Richard.Polton@morganstanley.com on Thu, May 03, 2001 at 08:29:02AM +0100
+Date: Thu, 03 May 2001 17:44:36 +1000
+Message-ID: <13656.988875876@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 03, 2001 at 08:29:02AM +0100, Richard Polton wrote:
-> Hi,
-> 
-> I have a cdrom burnt by a friend with W2000 (I know, friends don't let
-> friends use W ;-) which has (at least) one directory on it which I
-> cannot
-> see when mounting the disk under linux. I am using kernel 2.4.4 and
-> the mount command is the usual
-> 
-> mount /dev/cdrom /mnt/cdrom -t iso9660
-> 
-> I have Joliet compiled into the kernel too. I can send by private email
-> the
-> first 120 blocks or so of the disk if anyone is interested. I looked at
-> this
-> with hexlify and can see the mysterious directory (s?) which is called
-> 'sturf'.
-> 
-> Thanks,
-> 
-> Richard
-Hmm, is this the old "non-standard sector alignment" problem ?
-Some CDs have their directory sector entries exceed the sector, and AFAIK
-the problem is that they exceed it not entry by entry,
-but in the middle of a directory entry, which violates the ISO9660 spec.
-The Linux CD-ROM driver used to have a workaround for this,
-but then after 2.0.x it seems to have been removed.
+On 03 May 2001 09:13:00 +0200, 
+kaih@khms.westfalen.de (Kai Henningsen) wrote:
+>pavel@suse.cz (Pavel Machek)  wrote on 30.04.01 in <20010430104231.C3294@bug.ucw.cz>:
+>
+>> PS: Hmm, how do you do timewarp for just one userland appliation with
+>> this installed?
+>
+>1. What on earth for?
 
-Why ???
+Y10K testing :)
 
-After all Windows perfectly accepts these broken (ISO9660 wise) CD-ROMs.
+>2. How do you do it today, and why wouldn't that work?
 
-I don't know whether 2.4.x still has the same "feature" that 2.2.x had.
+LD_PRELOAD on a library that overrides gettimeofday().  I can see no
+reason why that would not continue to work.  What would stop working
+are timewarp modules that intercepted the syscall at the kernel level
+instead of user space level.
 
-A Spanish language training CD of mine has this problem, and I can't read
-several files on it.
-
-Hmm, or maybe your problem is simply that you forgot to enable the
-"hidden" mount option for your CD-ROM ??
-(some files are burnt with "hidden" attribute !)
-
-Andreas Mohr

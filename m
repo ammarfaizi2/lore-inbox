@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbTBQLKl>; Mon, 17 Feb 2003 06:10:41 -0500
+	id <S266989AbTBQLRA>; Mon, 17 Feb 2003 06:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbTBQLKl>; Mon, 17 Feb 2003 06:10:41 -0500
-Received: from indianer.linux-kernel.at ([62.116.87.200]:7869 "EHLO
-	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
-	id <S266983AbTBQLKk>; Mon, 17 Feb 2003 06:10:40 -0500
-From: "Oliver Pitzeier" <oliver@linux-kernel.at>
+	id <S266995AbTBQLRA>; Mon, 17 Feb 2003 06:17:00 -0500
+Received: from mail.uptime.at ([62.116.87.11]:17053 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id <S266989AbTBQLQ6>;
+	Mon, 17 Feb 2003 06:16:58 -0500
+Received-Date: Mon, 17 Feb 2003 12:10:35 +0100
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
 To: <axp-kernel-list@redhat.com>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: RE: 2.5.61 (Yes, there are still Alpha users out there. :-) )
-Date: Mon, 17 Feb 2003 12:19:18 +0100
-Organization: linux-kernel.at
-Message-ID: <000d01c2d676$6d2bfec0$020b10ac@pitzeier.priv.at>
+Date: Mon, 17 Feb 2003 12:25:35 +0100
+Organization: UPtime system solutions
+Message-ID: <001501c2d677$4d5ce0e0$020b10ac@pitzeier.priv.at>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -23,9 +24,10 @@ X-Mailer: Microsoft Outlook, Build 10.0.4510
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 In-Reply-To: 
 Importance: Normal
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.4, required 5, AWL,
-	NOSPAM_INC, QUOTED_EMAIL_TEXT, SPAM_PHRASE_00_01)
+X-MailScanner: clean
+X-MailScanner-Information: Please contact the UPtime for more information
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.3, required 5.3,
+	AWL, NOSPAM_INC, QUOTED_EMAIL_TEXT, SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -50,9 +52,8 @@ regarding this.
 
 There were also some problems with make modules_install for me!
 
-> well there you go. For clarification until I get a clean
-> install I'm not going to try and boot this thing. (I like my 
-> raid working.)
+> well there you go. For clarification until I get a clean install I'm 
+> not going to try and boot this thing. (I like my raid working.)
 
 I'll let it run now... Let's see. If the machine crashes I don't mind too much.
 It's just an old Compaq AS1000 5/333 only used by me as Alpha-teststation and

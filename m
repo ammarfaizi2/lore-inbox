@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274166AbRISU0Z>; Wed, 19 Sep 2001 16:26:25 -0400
+	id <S274213AbRISU1f>; Wed, 19 Sep 2001 16:27:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274164AbRISU0G>; Wed, 19 Sep 2001 16:26:06 -0400
-Received: from adsl-66-122-62-224.dsl.sntc01.pacbell.net ([66.122.62.224]:9040
-	"HELO top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S274163AbRISUZ7>; Wed, 19 Sep 2001 16:25:59 -0400
-From: brian@worldcontrol.com
-Date: Wed, 19 Sep 2001 13:35:39 -0700
-To: Dan Hollis <goemon@anime.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Athlon bug stomper: perf. results
-Message-ID: <20010919133539.A11184@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Dan Hollis <goemon@anime.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <9oafeu$1o0$1@penguin.transmeta.com> <Pine.LNX.4.30.0109191141560.24917-100000@anime.net>
+	id <S274214AbRISU10>; Wed, 19 Sep 2001 16:27:26 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:40443 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S274213AbRISU1P>; Wed, 19 Sep 2001 16:27:15 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 19 Sep 2001 14:26:51 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mark Swanson <swansma@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Request: removal of fs/fs.h/super_block.u to enable partition locking
+Message-ID: <20010919142651.O14526@turbolinux.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mark Swanson <swansma@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BA7FF92.D6477904@yahoo.com> <E15jn1X-0003cU-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0109191141560.24917-100000@anime.net>
-User-Agent: Mutt/1.3.19i
+In-Reply-To: <E15jn1X-0003cU-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 11:43:48AM -0700, Dan Hollis wrote:
-> AFAIK noone has even tested it yet to see what it does to performance! Eg
-> it might slow down memory access so that athlon-optimized memcopy is now
-> slower than non-athlon-optimized memcopy. And if it turns out to be the
-> case, we might as well just use the non-athlon-optimized memcopy instead
-> of twiddling undocumented northbridge bits...
+On Sep 19, 2001  20:28 +0100, Alan Cox wrote:
+> > [Re: removing the fs union from struct inode]
+> 
+> However you don't need to remove anything for that
 
-Ok. perhaps this will help:
+No, but there are other things which will probably remove the union from
+struct inode in 2.5.  Since it is starting to get so huge, it is a penalty
+for filesystems that don't need all of this space in each inode.  Al Viro
+has patches already to move some of the fs types into their own slab cache.
 
-System: AMD Duron 800Mhz Epox 8KAT3+ MB
+It may make sense to leave a small number of bytes inside the inode struct
+(they would be used anyways for alignment/padding in the inode slab) for
+filesystems that only have very small space requirements.
 
-I power cycled machine between tests:
+If you move the union to an external declaration, you can do things like:
 
+static inline struct fs_inode_info *FSI(inode)
+{
+	if (sizeof(union inode_fs_data) >= sizeof(struct fs_inode_info))
+		return (struct fs_inode_info *)&inode->u.generic_ip;
+	else
+		return (struct fs_inode_info *)inode->u.generic_ip;
+}
 
-Linux 2.4.9ac5 *without* althon bug stomper patch:
+and the compiler should pick one or the other by virtue of the fact that
+it is comparing constants which can be resolved at compile time.  Sadly
+sizeof cannot be handled by the preprocessor so the following does not work:
 
-    oopes to death on boot.
+#if sizeof(union inode_fs_data) >= sizeof(struct fs_inode_info)
+#define FSI(inode) ((struct fs_inode_info *)&(inode)->u.generic_ip);
+#else
+#define FSI(inode) ((struct fs_inode_info *)(inode)->u.generic_ip);
+#endif
 
+which would guarantee that we do not bloat the code or impose run-time
+overhead.
 
-Linux 2.4.9ac5 with athlon bug stomper patch:
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-clear_page() tests 
-clear_page function 'warm up run'        took 19854 cycles per page
-clear_page function '2.4 non MMX'        took 11991 cycles per page
-clear_page function '2.4 MMX fallback'   took 11857 cycles per page
-clear_page function '2.4 MMX version'    took 13666 cycles per page
-clear_page function 'faster_clear_page'  took 4853 cycles per page
-clear_page function 'even_faster_clear'  took 4819 cycles per page
-
-copy_page() tests 
-copy_page function 'warm up run'         took 19638 cycles per page
-copy_page function '2.4 non MMX'         took 23855 cycles per page
-copy_page function '2.4 MMX fallback'    took 24043 cycles per page
-copy_page function '2.4 MMX version'     took 19550 cycles per page
-copy_page function 'faster_copy'         took 10909 cycles per page
-copy_page function 'even_faster'         took 11333 cycles per page
-
-
-Linux 2.2.19:
-
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
-clear_page() tests 
-clear_page function 'warm up run'        took 14658 cycles per page
-clear_page function '2.4 non MMX'        took 13254 cycles per page
-clear_page function '2.4 MMX fallback'   took 13099 cycles per page
-clear_page function '2.4 MMX version'    took 13005 cycles per page
-clear_page function 'faster_clear_page'  took 4913 cycles per page
-clear_page function 'even_faster_clear'  took 4887 cycles per page
-
-copy_page() tests 
-copy_page function 'warm up run'         took 19664 cycles per page
-copy_page function '2.4 non MMX'         took 26431 cycles per page
-copy_page function '2.4 MMX fallback'    took 26432 cycles per page
-copy_page function '2.4 MMX version'     took 19537 cycles per page
-copy_page function 'faster_copy'         took 11564 cycles per page
-copy_page function 'even_faster'         took 11467 cycles per page
-
-
-
--- 
-Brian Litzinger <brian@worldcontrol.com>
-
-    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

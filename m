@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbTB0QGA>; Thu, 27 Feb 2003 11:06:00 -0500
+	id <S265612AbTB0QPK>; Thu, 27 Feb 2003 11:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbTB0QGA>; Thu, 27 Feb 2003 11:06:00 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265543AbTB0QF7>; Thu, 27 Feb 2003 11:05:59 -0500
-Date: Thu, 27 Feb 2003 17:16:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Robert Woerle Paceblade/Support <robert@paceblade.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: mem= option for broken bioses
-Message-ID: <20030227161617.GG12434@atrey.karlin.mff.cuni.cz>
-References: <F760B14C9561B941B89469F59BA3A8471380D7@orsmsx401.jf.intel.com> <20030226224450.GD15455@atrey.karlin.mff.cuni.cz> <3E5E2061.2060807@paceblade.com> <20030227151907.GC12434@atrey.karlin.mff.cuni.cz> <3E5E3483.7000302@paceblade.com>
-Mime-Version: 1.0
+	id <S265675AbTB0QPK>; Thu, 27 Feb 2003 11:15:10 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:37340 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id <S265612AbTB0QPJ>; Thu, 27 Feb 2003 11:15:09 -0500
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
+References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl>
+	<03022708205903.05199@boiler> <03022708365304.05199@boiler>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 27 Feb 2003 08:25:25 -0800
+In-Reply-To: <03022708365304.05199@boiler>
+Message-ID: <52y941pu6i.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E5E3483.7000302@paceblade.com>
-User-Agent: Mutt/1.3.28i
+X-OriginalArrivalTime: 27 Feb 2003 16:25:27.0703 (UTC) FILETIME=[D6927A70:01C2DE7C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   > +	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
+   > +	if (!name) {
+   > +		return -ENOMEM;
+   > +	}
 
-> >Well, similar method to how you use mem=123@456 parameters. You just
-> >guess them. [Given kernel messages, it is actually quite easy.]
-> >
-> > 
-> >
-> well .. wow ... what a accurate solution `????
-> ...
-> ..
-> .
-> well cant you tell me more ?
+Also, kmalloc() needs a second "GFP_xxx" parameter (I guess GFP_KERNEL
+in this case, although I don't know the context this function is
+called from).
 
-Well, you know where acpi tables start from dmesg. You can only guess
-how long tables are, through.
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+ - Roland
+

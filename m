@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318100AbSFTCTD>; Wed, 19 Jun 2002 22:19:03 -0400
+	id <S318098AbSFTC0p>; Wed, 19 Jun 2002 22:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318099AbSFTCTC>; Wed, 19 Jun 2002 22:19:02 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:49864 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S318098AbSFTCTA>;
-	Wed, 19 Jun 2002 22:19:00 -0400
-Date: Thu, 20 Jun 2002 12:18:13 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Trivial Kernel Patches <trivial@rustcorp.com.au>, davidm@hpl.hp.com
-Subject: [PATCH] dup_task_struct can be static
-Message-Id: <20020620121813.4d1e075f.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S318099AbSFTC0o>; Wed, 19 Jun 2002 22:26:44 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:50148 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S318098AbSFTC0o> convert rfc822-to-8bit; Wed, 19 Jun 2002 22:26:44 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Skip Gaede <sgaede@attbi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Memory leak
+Date: Wed, 19 Jun 2002 22:24:03 -0400
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200206192224.03785.sgaede@attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Folks,
 
-[There may be lots of these depending on how bored I get :-)]
+I'm looking for a recipe on how to track where my memory is 
+disappearing to. I am running kernel 2.4.19-pre10-ben0, 
+patched for the nubus-pmac platform. I have 40 MB RAM and a 
+100 MB swap file on the local hard disk.
 
-dup_task_struct is defined and used only in kernel/fork.c.
+I am using the MkLinux booter and the kernel with an initrd. 
+During the first init, I get an IP address and the path to 
+the NFS root. I then do a pivot-root, and run the XFree86 
+Server -query 192.168.0.1, where I do an autologon, and 
+start up KDE 3.0.1 and Mozilla 1.0 running Choffman's 
+browser buster. I also am running the snmp daemon, so I can 
+monitor memory use from my server with a perl script.
 
-[This is not quite true, as arch/ia64/kernel/process.c also
-defines a global dup_task_struct function, but I don't know
-how it could ever be called.]
+When first booted, the kernel takes about 16 MB of memory, 
+and after starting the X server, I have about 2000k 
+available physical memory, and no swap file useage. Over 
+the next 7 hours, I eat up about 20 MB of swap file, and at 
+some point the available physical memory drops down to 
+about 150k for about an hour and then the system locks up.
+During the same period of time, I can monitor memory use on 
+the client on another console, and the amount of memory 
+allocated to each process remains fairly stable.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I'd like to understand what's going on. Can someone suggest 
+what data I ought to be collecting, or perhaps some 
+parameters I can tweak to modify the behavior?
 
-diff -ruN 2.5.23/kernel/fork.c 2.5.23-sfr.2/kernel/fork.c
---- 2.5.23/kernel/fork.c	Wed Jun 19 12:41:51 2002
-+++ 2.5.23-sfr.2/kernel/fork.c	Thu Jun 20 12:03:27 2002
-@@ -99,7 +99,7 @@
- 	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
- }
- 
--struct task_struct *dup_task_struct(struct task_struct *orig)
-+static struct task_struct *dup_task_struct(struct task_struct *orig)
- {
- 	struct task_struct *tsk;
- 	struct thread_info *ti;
+Thanks,
+Skip

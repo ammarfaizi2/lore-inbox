@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbQKRNo7>; Sat, 18 Nov 2000 08:44:59 -0500
+	id <S131237AbQKRNpj>; Sat, 18 Nov 2000 08:45:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131237AbQKRNot>; Sat, 18 Nov 2000 08:44:49 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:38665 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129842AbQKRNol>;
-	Sat, 18 Nov 2000 08:44:41 -0500
-Date: Sat, 18 Nov 2000 14:14:26 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-Message-ID: <20001118141426.B23033@almesberger.net>
-In-Reply-To: <20001117013157.A21329@almesberger.net> <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de>
+	id <S131817AbQKRNpa>; Sat, 18 Nov 2000 08:45:30 -0500
+Received: from astrid2.nic.fr ([192.134.4.2]:37383 "EHLO astrid2.nic.fr")
+	by vger.kernel.org with ESMTP id <S131237AbQKRNpZ>;
+	Sat, 18 Nov 2000 08:45:25 -0500
+Date: Sat, 18 Nov 2000 14:15:24 +0000
+From: Francois romieu <romieu@ensta.fr>
+To: Kaj-Michael Lang <milang@tal.org>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swap=<device> kernel commandline
+Message-ID: <20001118141524.A15214@nic.fr>
+Reply-To: Francois romieu <romieu@ensta.fr>
+In-Reply-To: <Pine.LNX.4.20.0011181342280.6391-200000@tori.tal.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de>; from kraxel@bytesex.org on Fri, Nov 17, 2000 at 08:08:55PM +0000
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.20.0011181342280.6391-200000@tori.tal.org>; from milang@tal.org on Sat, Nov 18, 2000 at 01:46:40PM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> It simply did'nt work correctly and often used to misdetect
-> random bt848 cards as either MIRO or Hauppauge (which where the first
-> available cards).
+Hi,
 
-Well, this means there's yet another mandatory __setup parameter :-(
+The Sat, Nov 18, 2000 at 01:46:40PM +0200, Kaj-Michael Lang wrote :
+> This patch adds a swap kernel commandline option, so that you can add a
+> swap partition before init starts running on a low-memory machine. 
 
-Should it be called bttv_card or bt484_card (i.e. are there cases
-where a user would want to override the card detection for non-848
-bttv cards ?)
-
-Likewise, in my radio patch, I called the parameter bt848_radio,
-following the naming convention chosen for the config option. If
-there are other chips, this may not be a good idea. Should I rename
-this one to bttv_radio or are there no radios on non-848 chips ?
-(I'll make a patch with both setup functions, since the
-documentation changes overlap anyway.)
-
-- Werner
+Did you try and add swap from an initrd image ? It should work and it's
+already there.
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+Ueimor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

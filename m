@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144123AbRAHOxh>; Mon, 8 Jan 2001 09:53:37 -0500
+	id <S144154AbRAHOy5>; Mon, 8 Jan 2001 09:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144154AbRAHOx1>; Mon, 8 Jan 2001 09:53:27 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:11526 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S144123AbRAHOxR>;
-	Mon, 8 Jan 2001 09:53:17 -0500
-Message-ID: <3A59D3A4.AEE91B1@innominate.de>
-Date: Mon, 08 Jan 2001 15:50:12 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Ext2 descriptor corruption in 2.4.0
+	id <S144153AbRAHOyr>; Mon, 8 Jan 2001 09:54:47 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:1541 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S143885AbRAHOyb>;
+	Mon, 8 Jan 2001 09:54:31 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kdb for modules 
+In-Reply-To: Your message of "Mon, 08 Jan 2001 10:57:32 -0000."
+             <Pine.GSO.4.21.0101081053210.25031-100000@acms23> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 09 Jan 2001 01:54:24 +1100
+Message-ID: <1415.978965664@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After 3 days up doing fairly normal things with an unremarkable
-configuration and a vanila 2.4.0 kernel (nfs) I tried to log out of KDE 
-and hung in 'preparing session for logout'.  In a text console, dmesg
-showed an infinite number of "Free blocks count corrupted" messages:
+On Mon, 8 Jan 2001 10:57:32 +0000 (GMT), 
+Guennadi Liakhovetski <g.liakhovetski@ragingbull.com> wrote:
+>Keith Owens wrote
+>> kdb v0.6 is out of date and no longer supported. kdb v1.5 against 
+>> 2.2.18 is in ftp://oss.sgi.com/projects/kdb/download/ix86/, it supports 
+>> modules correctly. This patch is only there as a courtesy, SGI do not 
+>> support kdb on 2.2 kernels, all our debugging work is on 2.4 kernels. 
+>> If you want to use kdb on 2.2 kernels, you are pretty much on your own. 
+>
+>Ok, this is fine, but just one question, please: is    
+>kdb-v1.5-2.2.18-pre15.gz going (or at least supposed to) work with 2.2.18
+>(final)?
 
-  EXT2-fs error (device ide0(3,66)): ext2_new_block: Free blocks count
-corrupted for block group 93
-  EXT2-fs error (device ide0(3,66)): ext2_new_block: Free blocks count
-corrupted for block group 93                                             
+The only obvious difference between 2.2.18-pre15 and 2.2.18 that
+affects kdb is a change to the sysctl numbers.  I have put
+kdb-v1.5-2.2.18.gz in http://oss.sgi.com/projects/kdb/download/ix86/.
+Warning: I have not even compiled this patch, let alone tested it.
 
-and gdb showed all the processes under X waiting in poll or select, not
-surprising considering the way ext2 handles this:
-
-  if (j >= EXT2_BLOCKS_PER_GROUP(sb)) {
-         ext2_error (sb, "ext2_new_block",
-                     "Free blocks count corrupted for block group %d",
-i);
-         goto out;
-  }
-
-I shut down and restarted hoping to get an fsck, but instead continued
-past the ext2 mount.  I interrupted that, restarted and fscked, which
-turned up a single special file with size 0 and no other problems.
-
-So I think this may be a cache problem.
-
---
-Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

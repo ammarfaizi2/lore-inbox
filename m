@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbUKRWJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbUKRWBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbUKRWJz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 17:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUKRWJ2
+	id S262976AbUKRWBu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUKRV7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 17:09:28 -0500
-Received: from ozlabs.org ([203.10.76.45]:53186 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261180AbUKRWG1 (ORCPT
+	Thu, 18 Nov 2004 16:59:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25235 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263002AbUKRV60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 17:06:27 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16797.7390.769118.230947@cargo.ozlabs.ibm.com>
-Date: Fri, 19 Nov 2004 09:06:22 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [patch 1] Xen core patch : ptep_establish_new
-In-Reply-To: <20041118101109.GA20859@infradead.org>
-References: <E1CUZVj-00052O-00@mta1.cl.cam.ac.uk>
-	<20041118101109.GA20859@infradead.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Thu, 18 Nov 2004 16:58:26 -0500
+Date: Thu, 18 Nov 2004 13:58:09 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Fabio Coatti <cova@ferrara.linux.it>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
+Subject: Re: 2.6.10-rc2-mm2 usb storage still oopses
+Message-ID: <20041118135809.3314ce41@lembas.zaitcev.lan>
+In-Reply-To: <20041118133557.72f3b369.akpm@osdl.org>
+References: <200411182203.02176.cova@ferrara.linux.it>
+	<20041118133557.72f3b369.akpm@osdl.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+On Thu, 18 Nov 2004 13:35:57 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-> On Wed, Nov 17, 2004 at 11:46:50PM +0000, Ian Pratt wrote:
-> > 
-> > This patch adds 'ptep_establish_new', in keeping with the
-> > existing 'ptep_establish', but for use where a mapping is being
-> > established where there was previously none present. This
-> > function is useful (rather than just using set_pte) because
-> > having the virtual address available enables a very important
-> > optimisation for arch-xen. We introduce
-> > HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
-> > in asm-generic/pgtable.h, following the pattern of the existing
-> > ptep_establish.
+> Fabio Coatti <cova@ferrara.linux.it> wrote:
+> >
+> > Just a reminder: it's possible to cause a kernel oops simply inserting and 
+> > removing a usb storage (flash pen); using ub driver doesn't improve the 
+> > situation; noticed in 2.6.9-rc4-mm1 and present in 2.6.10-rc2-mm2.
+> > The same device works just fine with 2.6.8.1 (mdk cooker)
 > 
-> What would be the problem of always passing the virtual address to
-> ptep_establish?  We already have a rather twisted maze of pte manipulation
-> macros.
+> OK, that's something we'd like to get fixed prior to 2.6.10.
 
-Dave Miller had a patch that passes the mm and virtual address to
-set_pte.  That helps on sparc64 and ppc/ppc64, and it sounds like it
-would help here too.
+Actually Fabio told me that his oops was fixed by the patch present in
+2.6.10-rc2. The problem is that his device needs special handling which
+I do not know how to provide, so it does not work in the end. I hope it
+will resolve itself eventually, as I get testers.
 
-Paul.
+There was one last oops from Martin Schleminger ("Sahara") which I think
+I fixed but I need a confirmation before pushing to Greg. Apparently, it
+only happens on kernels with preempt enabled. If anyone knows of any other
+problems, I'm all ears.
+
+-- Pete
+
+P.S. Current updates:
+
+--- linux-2.6.10-rc2-usb/drivers/block/ub.c	2004-11-16 17:03:02.000000000 -0800
++++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-07 19:01:03.000000000 -0800
+@@ -36,7 +36,7 @@
+ #define DRV_NAME "ub"
+ #define DEVFS_NAME DRV_NAME
+ 
+-#define UB_MAJOR 125	/* Stolen from Experimental range for a week - XXX */
++#define UB_MAJOR 180
+ 
+ /*
+  * Definitions which have to be scattered once we understand the layout better.
+@@ -1535,8 +1535,11 @@
+ 
+ 	ub_revalidate(sc);
+ 	/* This is pretty much a long term P3 */
+-	printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
+-	    sc->name, sc->dev->devnum, sc->capacity.nsec, sc->capacity.bsize);
++	if (!atomic_read(&sc->poison)) {		/* Cover sc->dev */
++		printk(KERN_INFO "%s: device %u capacity nsec %ld bsize %u\n",
++		    sc->name, sc->dev->devnum,
++		    sc->capacity.nsec, sc->capacity.bsize);
++	}
+ 
+ 	/* XXX Support sector size switching like in sr.c */
+ 	blk_queue_hardsect_size(disk->queue, sc->capacity.bsize);

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSLJMIe>; Tue, 10 Dec 2002 07:08:34 -0500
+	id <S261339AbSLJM16>; Tue, 10 Dec 2002 07:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbSLJMIe>; Tue, 10 Dec 2002 07:08:34 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:15337 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261318AbSLJMId>;
-	Tue, 10 Dec 2002 07:08:33 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@infradead.org>
-Date: Tue, 10 Dec 2002 13:15:55 +0100
+	id <S261368AbSLJM16>; Tue, 10 Dec 2002 07:27:58 -0500
+Received: from cm19173.red.mundo-r.com ([213.60.19.173]:14267 "EHLO
+	demo.mitica") by vger.kernel.org with ESMTP id <S261339AbSLJM15>;
+	Tue, 10 Dec 2002 07:27:57 -0500
+To: Daniel Egger <degger@fhm.edu>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Joseph <jospehchan@yahoo.com.tw>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
+	<20021210055215.GA9124@suse.de> <1039504941.30881.10.camel@sonja>
+X-Url: http://people.mandrakesoft.com/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <1039504941.30881.10.camel@sonja>
+Date: 10 Dec 2002 13:40:56 +0100
+Message-ID: <m27kei9hd3.fsf@demo.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.92
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Linux 2.5.51
-Cc: <linux-kernel@vger.kernel.org>, allan.d@bigpond.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <9EC19CF6B8E@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  9 Dec 02 at 22:49, James Simmons wrote:
-> > > quite large.
-> >
-> > Unfortunately not all went well with this:
-> >
-> > drivers/video/matrox/matroxfb_base.h:52:25: video/fbcon.h: No such file or directory
-> >
-> > ... and downwards thereafter.
-> 
-> The matrox driver hasn't be ported yet. About 1/2 are now ported to the
-> final api. Over the following week I will porting a bunch of new drivers.
-> This is the final changes in the api so drivers can now be ported!!!! If
-> you need help porting them email me and I'm here to help.
+>>>>> "daniel" == Daniel Egger <degger@fhm.edu> writes:
 
-Hi James,
-  I'm glad to see that fbdev changes finally arrived, so I can look at them
-without using your patches ;-) If you have some changes to matroxfb besides
-ones which are in the tree, please send me them... because of I really
-need matroxfb running on my machine, I'll make it top priority, just below
-my "real" work.
-                                                    Best regards,
-                                                        Petr Vandrovec
-                                                        vandrove@vc.cvut.cz
-                                                        
+daniel> Am Die, 2002-12-10 um 06.52 schrieb Dave Jones:
+>> I believe someone (Jeff Garzik?) benchmarked gcc code generation,
+>> and the C3 executed code scheduled for a 486 faster than it did for
+>> -m586
+>> I'm not sure about the alignment flags. I've been meaning to look
+>> into that myself...
+
+daniel> Interesting. I have no clue about which C3 you're talking about here but
+daniel> a VIA Ezra has all 686 instructions including cmov and thus optimising 
+daniel> for PPro works best for me.
+
+Have you tested it?
+
+Here, we got cmov to work if the two operands are registers, if any of
+the operands is in memory, it don't work.
+
+Been there, been burned :p 
+
+Later, Juan.
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

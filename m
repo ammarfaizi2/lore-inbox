@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTGFMhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 08:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTGFMhP
+	id S262202AbTGFMii (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 08:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTGFMii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 08:37:15 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:9394 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262123AbTGFMhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 08:37:14 -0400
-Date: Sun, 6 Jul 2003 14:51:03 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-Message-ID: <20030706125103.GB23341@wohnheim.fh-wedel.de>
-References: <20030705104428.GA19311@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307051013140.5900-100000@home.osdl.org>
+	Sun, 6 Jul 2003 08:38:38 -0400
+Received: from lns-th2-4f-81-56-217-5.adsl.proxad.net ([81.56.217.5]:61057
+	"EHLO www.certral.com") by vger.kernel.org with ESMTP
+	id S262202AbTGFMih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 08:38:37 -0400
+Date: Sun, 6 Jul 2003 14:54:18 +0200
+From: FD Cami <francois.cami@free.fr>
+To: Marcelo Tosatti <marcelo@freak.distro.conectiva>
+Cc: linux-kernel@vger.kernel.org
+Subject: [linux-kernel][BUG since 2.4.21] PCM sound volume not working
+Message-Id: <20030706145418.03834818.francois.cami@free.fr>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0307051013140.5900-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 July 2003 10:16:26 -0700, Linus Torvalds wrote:
-> 
-> Hmm? I tried it, and for me it does:
-> 
-> 	torvalds@home:~> ./a.out 
-> 	SIGNAL .... 11
-> 	Segmentation fault
 
-Weird.  I've fixed the bracket stuff, but that's about it.
+Hello,
 
-> but I have to admit that I didn't even try it before my kernel change, so 
-> maybe it worked for me before too ;)
-> 
-> There could easily be glibc version issues here, ie maybe your library 
-> sets SA_NOMASK and mine doesn't.
+I'm currently running 2.4.22pre3 and noticed adjusting
+the sound volume using XMMS didn't work anymore (but using
+gnome-1.4's sound-applet works, it controls the Master volume).
 
-Hopefully not.
+Booting back into 2.4.21, I realized it didn't work either...
+Booting back into 2.4.21rc7 solved the problem.
 
-But all that doesn't matter, as your change appears to be worse for
-threading libraries, than mine.  Imagine a thread that almost busted
-it's stack limit.  The signal code tries to add the extra stack
-frames, fails, and calls force_sig(SIGSEGV).  Shooting through the
-signal mask, the SIGSEGV can be handled by killing off one thread, or
-maby even recovering.  With your patch, it will always get killed.
+XMMS is set to use OSS (not ESD), and volume controls PCM, not
+Master.
 
-My current best idea is to check, whether the stack pointer is valid
-before going to the signal stack.  As long as it points to memory that
-is writable for the current process, things are not completely
-hopeless.  When the stack is totally broken, kill that cancer cell.
+I'm currently not subscribed to linux-kernel@vger.kernel.org due to
+a mail server problem, please CC me.
 
-Working on a translation to diff -u right now.
-
-Jörn
-
--- 
-Invincibility is in oneself, vulnerability is in the opponent.
--- Sun Tzu
+FD Cami
+ 

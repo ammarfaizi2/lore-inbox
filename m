@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315870AbSEZI7D>; Sun, 26 May 2002 04:59:03 -0400
+	id <S315910AbSEZJWM>; Sun, 26 May 2002 05:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315878AbSEZI7C>; Sun, 26 May 2002 04:59:02 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:53988 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315870AbSEZI7B>; Sun, 26 May 2002 04:59:01 -0400
-To: Robert Schwebel <robert@schwebel.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-From: Wolfgang Denk <wd@denx.de>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
-X-Mailer: exmh version 2.2
-Mime-version: 1.0
+	id <S315893AbSEZJWL>; Sun, 26 May 2002 05:22:11 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:57266 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S315862AbSEZJWK>; Sun, 26 May 2002 05:22:10 -0400
+Date: Sun, 26 May 2002 11:23:00 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lk-changelog.pl 0.17/Call for help with mail addresses
+Message-Id: <20020526112300.145a92a3.kristian.peters@korseby.net>
+In-Reply-To: <20020526002013.GA5298@merlin.emma.line.org>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.18
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: Your message of "Sun, 26 May 2002 10:05:39 +0200."
-             <20020526100539.M598@schwebel.de> 
-Date: Sun, 26 May 2002 10:58:44 +0200
-Message-Id: <20020526085849.017E311972@denx.denx.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020526100539.M598@schwebel.de> Robert Schwebel wrote:
->
-> recently and there are surely things left which have to be cleaned up. It
-> is common agreement between the RTAI team that patches and schedulers are
-> GPL, self-developed services are LGPL. 
+Hi Matthias.
 
-And to get this right: that fact that the "other"  parts  are  LGPLed
-does  not  mean  that  the  RTAI team wants to keep it secret Cor put
-restritctions on use - on contrary, we want  to  provide  RTAI  users
-ADDITIONAL freedom - the freedom of the decision if they want to make
-their application code GPLed or not.
+I grepped the entire list. ;-) Here're the addresses I could read out of it:
 
-Wolfgang Denk
+BTW: Isn't there a better solution as manually adding the names to the appropriate address ?
 
--- 
-Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
-Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
-As far as we know, our computer has never had an undetected error.
-		                                           -- Weisert
+Asit K Mallick <asit.k.mallick@intel.com>
+Michael Beattie <beattie@beattie-home.net>
+Boris Itkis <borisitk@fortunet.com>
+Christopher Hoover <ch@hpl.hp.com>
+David Mosberger <davidm@wailua.hpl.hp.com> - Is this David Malone?
+Christoph Hellwig <hch@sb.bsdonline.org>
+Karol Kasprzak <k.kasprzak@box43.pl>
+Kanoj Sarcar <kanoj@vger.kernel.org>
+Milton Miller <miltonm@bga.com>
+<shaggy@kleikamp.austin.ibm.com> ( "Shaggy" Kleikamp dave@kleikamp.austin.ibm.com ?)
+Simon Evans <spse@secret.org.uk>
+Pirkkanen Tero <tetapi@utu.fi>
+Wolfgang Fritz <wolfgang.fritz@gmx.net>
+
+unknown:
+<mufasa@sis.com.tw>
+<os@emlix.com>
+<petkan@mastika.lnxw.com>
+<santiago@newphoenix.net>
+<skyrelighten@yahoo.co.kr>
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

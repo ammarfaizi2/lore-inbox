@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTERRL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 13:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbTERRL3
+	id S262135AbTERRKX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 13:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTERRKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 13:11:29 -0400
-Received: from smtp01.uc3m.es ([163.117.136.121]:27143 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id S262139AbTERRL1 (ORCPT
+	Sun, 18 May 2003 13:10:23 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:60830 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S262135AbTERRKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 13:11:27 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-Subject: Re: recursive spinlocks. Shoot.
-In-Reply-To: <20030518163537.GZ8978@holomorphy.com> from William Lee Irwin III
- at "May 18, 2003 09:35:37 am"
-To: William Lee Irwin III <wli@holomorphy.com>
-Date: Sun, 18 May 2003 19:24:17 +0200 (MET DST)
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, ptb@it.uc3m.es,
-       linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Sun, 18 May 2003 13:10:22 -0400
+Date: Sun, 18 May 2003 10:22:03 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: "David S. Miller" <davem@redhat.com>, jes@wildopensource.com,
+       torvalds@transmeta.com, James.Bottomley@steeleye.com,
+       grundler@dsl2.external.hp.com, cngam@sgi.com, jeremy@sgi.com,
+       linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org, wildos@sgi.com
+Subject: Re: [Linux-ia64] Re: [patch] support 64 bit pci_alloc_consistent
+Message-ID: <20030518172203.GA13855@cup.hp.com>
+References: <16071.1892.811622.257847@trained-monkey.org> <1053250142.1300.8.camel@laptop.fenrus.com> <20030518.023533.98888328.davem@redhat.com> <20030518094341.A1709@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030518094341.A1709@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago William Lee Irwin III wrote:"
-> At some point in the past, Peter Breuer's attribution was removed from:
-> >> Here's a before-breakfast implementation of a recursive spinlock. That
-> >> is, the same thread can "take" the spinlock repeatedly. 
-> 
-> On Sun, May 18, 2003 at 09:30:17AM -0700, Martin J. Bligh wrote:
-> > Why?
-> 
-> netconsole.
+On Sun, May 18, 2003 at 09:43:41AM +0000, Arjan van de Ven wrote:
+> Most drivers will just say "look I
+> can do THIS much. I don't give a flying fish about how much of
+> that you actually use". At least in the probing code. 
 
-That's a problem looking for a solution!  No, the reason for wanting a
-recursive spinlock is that nonrecursive locks make programming harder.
+The platform code needs a way to indicate the given mask will not work.
+Rejecting proposals by the driver seems reasonable if the driver
+only supports two different masks anyway (eg 64 and 32-bit).
 
-Though I've got quite good at finding and removing deadlocks in my old
-age, there are still two popular ways that the rest of the world's
-prgrammers often shoot themselves in the foot with a spinlock:
+In the case of a platform requiring 64-bit masks for consistent mappings,
+the platform DMA code must reject proposals for non-64-bit DMA masks.
+(eg PCI-X device implementing less than 64-bits)
 
-   a) sleeping while holding the spinlock
-   b) taking the spinlock in a subroutine while you already have it
+In both cases the driver will care because it will crash the box otherwise.
 
-The first method leads to an early death if the spinlock is a popular
-one, as the only thread that can release it doesn't seem to be running,
-errr..
-
-The second method is used by programmers who aren't aware that some
-obscure subroutine takes a spinlock, and who recklessly take a lock
-before calling a subroutine (the very thought sends shivers down my
-spine ...).  A popular scenario involves not /knowing/ that your routine
-is called by the kernel with some obscure lock already held, and then
-calling a subroutine that calls the same obscure lock.  The request
-function is one example, but that's hardly obscure (and in 2.5 the 
-situation has eased there!).
-
-It's the case (b) that a recursive spinlock makes go away.
-
-Hey, that's not bad for a small change! 50% of potential programming
-errors sent to the dustbin without ever being encountered.
-
-
-Peter
+grant

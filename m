@@ -1,137 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132684AbRDBLlJ>; Mon, 2 Apr 2001 07:41:09 -0400
+	id <S132689AbRDBLot>; Mon, 2 Apr 2001 07:44:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132689AbRDBLk7>; Mon, 2 Apr 2001 07:40:59 -0400
-Received: from gsm2.lmt.lv ([212.93.96.2]:38927 "HELO gsm2.lmt.lv")
-	by vger.kernel.org with SMTP id <S132684AbRDBLko>;
-	Mon, 2 Apr 2001 07:40:44 -0400
-Message-ID: <3AC86511.F3123F6C@lmt.lv>
-Date: Mon, 02 Apr 2001 14:40:01 +0300
-From: Andrejs Dubovskis <andrejs@lmt.lv>
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S132688AbRDBLoj>; Mon, 2 Apr 2001 07:44:39 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:46343 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S132689AbRDBLoa>; Mon, 2 Apr 2001 07:44:30 -0400
+Date: Mon, 2 Apr 2001 13:42:47 +0200 (CEST)
+From: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
+To: Dennis Noordsij <dennis.noordsij@wiral.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pthreads & fork & execve
+In-Reply-To: <01033016225700.00409@dennis>
+Message-ID: <Pine.LNX.4.21.0104021338320.8447-100000@bellatrix.tat.physik.uni-tuebingen.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: can not compile 2.4.3 on alpha
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[linux] make dep;make clean;make boot
-...
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.3/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6   -c -o init/main.o
-init/main.c
-In file included from /usr/src/linux-2.4.3/include/linux/highmem.h:6,
-                 from /usr/src/linux-2.4.3/include/linux/pagemap.h:17,
-                 from /usr/src/linux-2.4.3/include/linux/locks.h:9,
-                 from /usr/src/linux-2.4.3/include/linux/raid/md.h:37,
-                 from init/main.c:25:
-/usr/src/linux-2.4.3/include/asm/pgalloc.h:334: conflicting types for
-`pte_alloc'
-/usr/src/linux-2.4.3/include/linux/mm.h:399: previous declaration of
-`pte_alloc'
-/usr/src/linux-2.4.3/include/asm/pgalloc.h:352: conflicting types for
-`pmd_alloc'
-/usr/src/linux-2.4.3/include/linux/mm.h:412: previous declaration of
-`pmd_alloc'
-make: *** [init/main.o] Error 1
+Hi!
 
-======================================
+I tracked this down to a corrupt jumptable somewhere in the pthreads
+part of the libc (didnt have the source handy at that time, though). So
+I think this is a libc bug (version does not matter) - I even did a
+followup to a similar bug in the libc gnats database (I think I should
+have opened a new one, though...). But I failed to construct a "simple"
+testcase showing the bug (We use rather large amount of threads and
+in one or two doing popen() calls - or handcrafted fork() && execv(),
+the SIGSEGV is during fork()).
 
-[andrejs@smsmail2 linux]$ grep -v ^# .config | uniq
-CONFIG_ALPHA=y
+I stopped trying to find out what is going on as this feature is not
+essential (but maybe useful in the future). So I suggest you build a
+libc from source with debugging on and trace it down to the actual
+libc problem - or better try to isolate a simple testcase.
 
-CONFIG_ALPHA_GENERIC=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-CONFIG_PCI=y
-CONFIG_ALPHA_BROKEN_IRQ_MASK=y
-CONFIG_PCI_NAMES=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
+I like to hear from the results :)
 
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
+Richard.
 
-CONFIG_MD=y
-CONFIG_BLK_DEV_LVM=y
+On Fri, 30 Mar 2001, Dennis Noordsij wrote:
 
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_SYN_COOKIES=y
+> Hi,
+> 
+> I have question regarding use of pthreads, forks and execve's which appears 
+> to not work very well :-) First let me explain the reasoning though
+> 
+> We have an app that launches a few other apps and keeps track of their 
+> status, resource consumption etc. If one of the apps crashes, it is restarted 
+> according to certain parameters.
+> 
+> The app uses pthreads, and it's method of (re)starting an application is 
+> forking and calling execve. 
+> 
+> It works fine for all-but-one other app, which core dumps when started this 
+> way (from the commandline it works fine) and the core only traces back to  
+> int main(int argc, char **argv). It uses both pthreads and -ldl for plugin 
+> handling. 
+> 
+> We have tried changing the linking order (i.e. -ldl -lpthread, -lpthread, 
+> -ldl, etc), and even execv'ing a shell script that starts a shell script that 
+> starts the app - result is the same, instant core without even running.
+> 
+> I can see who forks together with threads and execve's are a messy 
+> combination, and a better solution altogether to our approach is appreciated 
+> just as much as a way to make the current solution work :-)
+> 
+> We have tested both kernels 2.4.2 and 2.2.18. 
+> 
+> We have tried on different systems, different hardware and slightly different 
+> distributions (debian potato, unstable, etc).
+> 
+> To sum up: using a pthreaded app to launch another pthreaded app by means of 
+> forking and exec(ve)'ng makes the second app core immediately, (at entering 
+> main). What to do?
+> 
+> Kind regards, and thanks for any help
+> Dennis Noordsij
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_SCSI_CONSTANTS=y
+--
+Richard Guenther <richard.guenther@uni-tuebingen.de>
+WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
+The GLAME Project: http://www.glame.de/
 
-CONFIG_SCSI_NCR53C8XX=y
-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
-CONFIG_SCSI_NCR53C8XX_SYNC=20
-
-CONFIG_NETDEVICES=y
-
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_DE4X5=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=128
-
-CONFIG_RTC=y
-
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-
-CONFIG_OSF_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-
-CONFIG_MATHEMU=y
-
-======================================
-
-[linux] sh scripts/ver_linux 
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux smsmail2.td.lmt.lv 2.4.2adu2 #5 Wed Mar 28 09:48:19 UTC 2001 alpha
-unknown
- 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.0.18
-util-linux             2.10m
-modutils               found
-e2fsprogs              1.18
-Linux C Library        > libc.2.2
-Dynamic linker (ldd)   2.2
-Procps                 2.0.7
-Net-tools              1.56
-Kbd                    command
-Sh-utils               2.0
-Modules Loaded

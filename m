@@ -1,78 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUIVIWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUIVIhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUIVIWL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 04:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUIVIWK
+	id S263003AbUIVIhw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 04:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUIVIhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 04:22:10 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:65169 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262329AbUIVIWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 04:22:01 -0400
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16721.13786.899310.697686@alkaid.it.uu.se>
-Date: Wed, 22 Sep 2004 10:20:42 +0200
-To: akpm@asdl.org
-Subject: [PATCH][2.6.9-rc2-mm1] virtual perfctr illegal sleep
-CC: linux-kernel@vger.kernel.org
+	Wed, 22 Sep 2004 04:37:51 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:20960 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262418AbUIVIhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 04:37:45 -0400
+Date: Wed, 22 Sep 2004 17:34:00 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[4/6]-Dynamic cpu
+ register/unregister support
+In-reply-to: <20040920094106.F14208@unix-os.sc.intel.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: tokunaga.keiich@jp.fujitsu.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+ <20040920094106.F14208@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Mon, 20 Sep 2004 09:41:07 -0700 Keshavamurthy Anil S wrote:
+> ---
+> Name:topology.patch
+> Status:Tested on 2.6.9-rc2
+> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> Depends:	
+> Version: applies on 2.6.9-rc2	
+> Description:
+> Extends support for dynamic registration and unregistration of the cpu,
+> by implementing and exporting arch_register_cpu()/arch_unregister_cpu().
+> Also combines multiple implementation of topology_init() functions to
+> single topology_init() in case of ia64 architecture.
+> ---
 
-This patch fixes an illegal sleep issue in perfctr's
-virtualised per-process counters: a spinlock is taken
-around calls to perfctr_cpu_{reserve,release}() which
-sleeps on a mutex. Change the spinlock to a mutex too.
+> +void arch_unregister_cpu(int num)
+> +{
+> +	struct node *parent = NULL;
+> +
+> +#ifdef CONFIG_NUMA
+> +	int node = cpu_to_node(num);
+> +	if (node_online(node))
+> +		parent = &sysfs_nodes[node];
+> +#endif /* CONFIG_NUMA */
+> +
+> +	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
+> +}
 
-The problem was reported by Sami Farin.
+I don't think that the check 'if (node_online(node))' is necessary
+because sysfs_nodes[node] is there no matter if the node is online
+or offline.  sysfs_nodes[] is cleared only when unregister_node()
+is called and it would be always called after unregister_cpu().
 
-Strangely enough, DEBUG_SPINLOCK_SLEEP only triggers if I
-also have PREEMPT enabled. Is it supposed to be like that?
+Thanks,
+Keiichiro Tokunaga
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-diff -rupN linux-2.6.9-rc2-mm1/drivers/perfctr/virtual.c linux-2.6.9-rc2-mm1.virtual-perfctr-illegal-sleep-fix/drivers/perfctr/virtual.c
---- linux-2.6.9-rc2-mm1/drivers/perfctr/virtual.c	2004-09-22 01:00:48.000000000 +0200
-+++ linux-2.6.9-rc2-mm1.virtual-perfctr-illegal-sleep-fix/drivers/perfctr/virtual.c	2004-09-22 01:08:41.811834000 +0200
-@@ -91,7 +91,7 @@ static inline void vperfctr_init_bad_cpu
-  ****************************************************************/
+Name: arch_register_cpu_fix.patch
+Status: Tested on 2.6.9-rc2
+Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+
+---
+
+ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/topology.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN arch/ia64/kernel/topology.c~arch_register_cpu_fix arch/ia64/kernel/topology.c
+--- linux-2.6.9-rc2-fix/arch/ia64/kernel/topology.c~arch_register_cpu_fix	2004-09-22 11:56:58.793274256 +0900
++++ linux-2.6.9-rc2-fix-kei/arch/ia64/kernel/topology.c	2004-09-22 11:56:58.795227390 +0900
+@@ -46,8 +46,7 @@ void arch_unregister_cpu(int num)
  
- /* XXX: perhaps relax this to number of _live_ perfctrs */
--static spinlock_t nrctrs_lock = SPIN_LOCK_UNLOCKED;
-+static DECLARE_MUTEX(nrctrs_mutex);
- static int nrctrs;
- static const char this_service[] = __FILE__;
+ #ifdef CONFIG_NUMA
+ 	int node = cpu_to_node(num);
+-	if (node_online(node))
+-		parent = &sysfs_nodes[node];
++	parent = &sysfs_nodes[node];
+ #endif /* CONFIG_NUMA */
  
-@@ -100,13 +100,13 @@ static int inc_nrctrs(void)
- 	const char *other;
- 
- 	other = NULL;
--	spin_lock(&nrctrs_lock);
-+	down(&nrctrs_mutex);
- 	if (++nrctrs == 1) {
- 		other = perfctr_cpu_reserve(this_service);
- 		if (other)
- 			nrctrs = 0;
- 	}
--	spin_unlock(&nrctrs_lock);
-+	up(&nrctrs_mutex);
- 	if (other) {
- 		printk(KERN_ERR __FILE__
- 		       ": cannot operate, perfctr hardware taken by '%s'\n",
-@@ -119,10 +119,10 @@ static int inc_nrctrs(void)
- 
- static void dec_nrctrs(void)
- {
--	spin_lock(&nrctrs_lock);
-+	down(&nrctrs_mutex);
- 	if (--nrctrs == 0)
- 		perfctr_cpu_release(this_service);
--	spin_unlock(&nrctrs_lock);
-+	up(&nrctrs_mutex);
- }
- 
- /* Allocate a `struct vperfctr'. Claim and reserve
+ 	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
+
+_

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315293AbSFXVlE>; Mon, 24 Jun 2002 17:41:04 -0400
+	id <S315334AbSFXVsO>; Mon, 24 Jun 2002 17:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315300AbSFXVlD>; Mon, 24 Jun 2002 17:41:03 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31762 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S315293AbSFXVlC>; Mon, 24 Jun 2002 17:41:02 -0400
-Date: Mon, 24 Jun 2002 18:39:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Craig Kulesa <ckulesa@as.arizona.edu>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@suse.de>, Daniel Phillips <phillips@bonn-fries.net>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-       <rwhron@earthlink.net>
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-In-Reply-To: <6660000.1024954471@flay>
-Message-ID: <Pine.LNX.4.44L.0206241837400.18418-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315335AbSFXVsN>; Mon, 24 Jun 2002 17:48:13 -0400
+Received: from pieck.student.uva.nl ([146.50.96.22]:45548 "EHLO
+	pieck.student.uva.nl") by vger.kernel.org with ESMTP
+	id <S315334AbSFXVsM>; Mon, 24 Jun 2002 17:48:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rvandijk@science.uva.nl>
+Reply-To: rvandijk@science.uva.nl
+Organization: UvA
+To: linux-kernel@vger.kernel.org
+Subject: buffer layer error in 2.5.24
+Date: Mon, 24 Jun 2002 23:51:33 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020624214812Z315334-22020+10139@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, Martin J. Bligh wrote:
+Hi,
 
-> A quick rough calculation indicates that the Oracle test I was helping
-> out with was consuming almost 10Gb of PTEs without rmap - 30Gb for
-> overhead doesn't sound like fun to me ;-(
+2.5.24 with 2.5.24-kg3 applied
 
-10 GB is already bad enough that rmap isn't so much causing
-a problem but increasing an already untolerable problem.
+got this error:
+buffer layer error at page-writeback.c:524
+Pass this trace through ksymoops for reporting
+<trace>
 
-For the large SHM segment you'd probably want to either use
-large pages or shared page tables ... in each of these cases
-the rmap overhead will disappear together with the page table
-overhead.
+passed through ksymoops:
+ksymoops 2.4.3 on i686 2.5.24.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.24 (specified)
+     -m /boot/System.map-2.5.24 (specified)
 
-Now we just need volunteers for the implementation ;)
+Warning (compare_maps): ksyms_base symbol GPLONLY_idle_cpu not found in 
+System.map.  Ignoring ksyms_base entry
+Jun 24 23:22:54 gandalf kernel: cff63e88 c0241920 c02418e6 c02415b9 0000020c 
+c0134701 c02415b9 0000020c
+Jun 24 23:22:54 gandalf kernel:        c1203060 ce676104 ce676130 cff63f9c 
+c012879e c1203060 c1203060 c01344e7
+Jun 24 23:22:54 gandalf kernel:        c1203060 00000004 ce676080 ce676088 
+ce676104 00000000 00000000 c0128750
+Jun 24 23:22:54 gandalf kernel: Call Trace: 
+[__set_page_dirty_buffers+129/224] [fail_writepage+78/96] 
+[generic_writepages+375/496] [fail_writepage+0/96] [do_writepages+39/48]
 
-kind regards,
+1 warning issued.  Results may not be reliable.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
 
-http://www.surriel.com/		http://distro.conectiva.com/
+apparently something is wrong with System.map but it is the one generated for 
+this kernel...
 
+
+	Rudmer	

@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUF1Dlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUF1Ezh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbUF1Dlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 23:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbUF1Dlb
+	id S264002AbUF1Ezh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 00:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUF1Ezh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 23:41:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34689 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264647AbUF1Dla (ORCPT
+	Mon, 28 Jun 2004 00:55:37 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:16513 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S264002AbUF1Ezf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 23:41:30 -0400
-Date: Sun, 27 Jun 2004 20:39:15 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove a superfluous #ifndef from net/ip.h
-Message-Id: <20040627203915.65b56752.davem@redhat.com>
-In-Reply-To: <20040627000222.GQ18303@fs.tum.de>
-References: <20040627000222.GQ18303@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jun 2004 00:55:35 -0400
+Date: Mon, 28 Jun 2004 05:55:25 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: linux-kernel@vger.kernel.org
+Subject: showing locked vms in /proc/pid/maps..
+Message-ID: <Pine.LNX.4.58.0406280552110.29652@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004 02:02:23 +0200
-Adrian Bunk <bunk@fs.tum.de> wrote:
 
-> The patch below removes a superfluous #ifndef from net/ip.h (snmp.h is 
-> guarded by the same #ifndef).
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+I wanted to know if my VMs were being locked correctly so I through
+together this patch for /proc/pid/maps it overloads the read bit with a
+capital R for read/locked and an l for non-read/locked..
 
-Looks good to me, applied.
+I'm not sure if this or something like it could be included maybe I'd be
+better off overloading the p/s bit with P/S .. or adding a locked field
+(didn't like that idea as it might mess up the layout..)..
 
-Thanks.
+Dave.
+
+--- ../linux-2.6.4/fs/proc/task_mmu.c	2004-03-15 14:16:06.000000000 +1100
++++ fs/proc/task_mmu.c	2004-06-28 14:45:10.000000000 +1000
+@@ -94,7 +94,7 @@
+ 	seq_printf(m, "%08lx-%08lx %c%c%c%c %08lx %02x:%02x %lu %n",
+ 			map->vm_start,
+ 			map->vm_end,
+-			flags & VM_READ ? 'r' : '-',
++			flags & VM_LOCKED ? (flags & VM_READ ? 'R' : 'l') : (flags & VM_READ ? 'r' : '-'),
+ 			flags & VM_WRITE ? 'w' : '-',
+ 			flags & VM_EXEC ? 'x' : '-',
+ 			flags & VM_MAYSHARE ? 's' : 'p',

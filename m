@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVBYOgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVBYOnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVBYOgP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 09:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbVBYOgP
+	id S262708AbVBYOnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 09:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVBYOnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 09:36:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50610 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262700AbVBYOgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 09:36:12 -0500
-Subject: Re: [PATCH] I2C patch 5 - Add a non-blocking interface to the I2C
-	core (again)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <421F35AB.2040305@acm.org>
-References: <421F35AB.2040305@acm.org>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 15:36:07 +0100
-Message-Id: <1109342168.6290.59.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Fri, 25 Feb 2005 09:43:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40355 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262708AbVBYOme (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 09:42:34 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <16927.14697.76256.482062@segfault.boston.redhat.com>
+Date: Fri, 25 Feb 2005 09:42:49 -0500
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org, "shabanip" <shabanip@avapajoohesh.com>
+Subject: Re: how to capture kernel panics
+In-Reply-To: <200502251517.56254.linux-kernel@borntraeger.net>
+References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+	<200502251517.56254.linux-kernel@borntraeger.net>
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+==> Regarding Re: how to capture kernel panics; Christian Borntraeger <linux-kernel@borntraeger.net> adds:
 
-> +/* Another note: This interface is extremely sensitive to timing and
-> +   failure handling.  If you don't wait at least one jiffie after
-> +   starting the transaction before checking things, you will screw it
-> +   up.  If you don't wait a jiffie after the final check, you will
-> +   screw it up.  If you screw it up by these manners or by abandoning
-> +   an operation in progress, the I2C bus is likely stuck and won't
-> +   work any more.  Gotta love this hardware. */
+linux-kernel> shabanip wrote:
+>> is there any way to capture and log kernel panics on disk or ...?
 
-this sounds scary. Your "jiffie" in the comment, for which value of HZ
-is that taken? Would you consider changing this to absolute time
-instead?
+linux-kernel> In former times, the Linux kernel tried to sync in the panic
+linux-kernel> function. (If the panic did not happen in interrupt context)
+linux-kernel> Unfortunately this had severe side effects in cases where the
+linux-kernel> panic was triggered by file system block device code or any
+linux-kernel> other part which is necessary for syncing. In most cases the
+linux-kernel> call trace never made it onto disk anyway. So currently the
+linux-kernel> kernel does not support saving a panic.
 
+linux-kernel> Apart from using a serial console, you might have a look at
+linux-kernel> several kexec/kdump/lkcd tools where people are working on
+linux-kernel> being able to dump the memory of a paniced kernel.
 
+Or netconsole, which will dump printk's do the server:port of your
+choosing.
+
+-Jeff

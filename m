@@ -1,56 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283003AbRLWBgR>; Sat, 22 Dec 2001 20:36:17 -0500
+	id <S283054AbRLWBpQ>; Sat, 22 Dec 2001 20:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283048AbRLWBgG>; Sat, 22 Dec 2001 20:36:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19720 "EHLO
+	id <S283056AbRLWBpH>; Sat, 22 Dec 2001 20:45:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36360 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283003AbRLWBf5>; Sat, 22 Dec 2001 20:35:57 -0500
-Message-ID: <3C2534E6.3080806@zytor.com>
-Date: Sat, 22 Dec 2001 17:35:34 -0800
+	id <S283054AbRLWBo5>; Sat, 22 Dec 2001 20:44:57 -0500
+To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+Subject: Re: AMD SC410 boot problems with recent kernels
+Date: 22 Dec 2001 17:44:51 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a03cuj$661$1@cesium.transmeta.com>
+In-Reply-To: <3C23B308.9080800@zytor.com> <Pine.LNX.4.33.0112221520300.10528-100000@callisto.local>
 MIME-Version: 1.0
-To: dcinege@psychosis.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu> <E16HwgA-0001uk-00@schizo.psychosis.com> <3C252861.3090600@zytor.com> <E16HxEq-00029F-00@schizo.psychosis.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Cinege wrote:
-
+Followup to:  <Pine.LNX.4.33.0112221520300.10528-100000@callisto.local>
+By author:    Robert Schwebel <robert@schwebel.de>
+In newsgroup: linux.dev.kernel
 > 
-> I've patched GRUB to support loading the mutiple images. It would also
-> be supported in syslinux, if you choose to implement it. Months
-> ago when I asked you to implement it, you told me the idea was
-> stupid.  : P   I will never let you forget this myopia. : >
+> > what probably makes more sense to output is the value of %dx in your
+> > code.
+> 
+> %dx? Do you mean %cx or do I not understand the code? ;)
 > 
 
+I mean %dx -- you'd built a 32-bit counter into %dx:%cx.
 
-Holding a grudge, eh?  How very mature of you.
+> > I would like to suggest making the following changes and try them out:
+> >
+> > a) Change A20_TEST_LOOPS to something like 32768 in the new kernel code.
+> 
+> Still reboots.
+> 
+> > b) Add a "call delay" between the movw and the cmpw in your old_loop
+> >    and see if it suddenly breaks;
+> 
+> No, it still works.
+> 
+> > c) Check what your %dx value is (if it's nonzero, there might be an
+> >    issue.)
+> 
+> I assume you mean in my old_wait code, at the lines where I give out the
+> stuff to the LED ports? Neither %dl nor %dh has something different from
+> 0 here. How could something come into %dx here?
 
-Seriously, I made it very clear at the time that I thought supporting 
-*multiple ramdisks* were a stupid idea.  Perhaps you misunderstood, but 
-I was talking about what some people had been requesting of loading a 
-filesystem into /dev/ram0, another filesystem into /dev/ram1, etc., 
-including waiting for a disk replacement in between.  Doing that in the 
-bootloader is just idiotic, for the same reason all the crap in the 
-current kernel is equally stupid (although forgivable for historical 
-reasons.)
+It's part of the counter.  This seems to be *your* code, since there
+is nothing even closely similar in any previous kernel, so I don't
+know what you're trying to do here...
 
-The reason to support uncompressed images -- as well as gaps between 
-images -- is to let synthesis happen in the bootloader.  For example, 
-some people have requested passing the PXE configuration packets to the 
-kernel, which currently is all but impossible.  Presenting them as files 
-in the initramfs is the natural way to do it.
+> > d) Once again, please complain to your motherboard/BIOS vendor and tell
+> >    them to implement int 15h, ax=2401h.
+> 
+> I'll do that, but this won't help for the hundrets of boards which are
+> still out there and worked fine with the previous code...
 
-Viros changes are drastic, no question about it, but dismissing them as 
-"disaster" without further motivation is a bloody awfully arrogant.
+Doesn't change the fact that the board is still broken, and they
+didn't provide the BIOS routine to compensate.  At that point, the
+fact that the old code worked by accident is unfortunately irrelevant;
+especially since you obviously have a workaround that you can use.
+
+> > e) Add a strictly serializing instruction sequence, such as:
+> >
+> > 	pushw %dx
+> > 	smsw %dx
+> > 	lmsw %dx
+> > 	popw %dx
+> >
+> >    ... where the "call delay" call is in a20_test.
+> 
+> Hope I understand you correctly - I'm not an assembler wizzard yet ;) Is
+> this correct:
+> 
+
+No, but the sequence in verbatim either before or after the call
+delay.
 
 	-hpa
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

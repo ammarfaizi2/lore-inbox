@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136562AbRA1Cne>; Sat, 27 Jan 2001 21:43:34 -0500
+	id <S131297AbRA1Cuz>; Sat, 27 Jan 2001 21:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136668AbRA1CnY>; Sat, 27 Jan 2001 21:43:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16393 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S136562AbRA1CnL>;
-	Sat, 27 Jan 2001 21:43:11 -0500
-Date: Sun, 28 Jan 2001 03:43:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Bratcher <mbratche@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S131349AbRA1Cup>; Sat, 27 Jan 2001 21:50:45 -0500
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:57326 "EHLO
+	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S131297AbRA1Cud>; Sat, 27 Jan 2001 21:50:33 -0500
+Message-ID: <3A7388F6.E28EE270@rochester.rr.com>
+Date: Sat, 27 Jan 2001 21:50:30 -0500
+From: Mark Bratcher <mbratche@rochester.rr.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0a i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: Kernel 2.4.0 loop device still hangs
-Message-ID: <20010128034300.A32375@suse.de>
-In-Reply-To: <3A70EF20.1B02B307@rochester.rr.com> <3A72E8C7.138BB69E@rochester.rr.com>
-Mime-Version: 1.0
+In-Reply-To: <3A70EF20.1B02B307@rochester.rr.com> <3A72E8C7.138BB69E@rochester.rr.com> <20010128034300.A32375@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A72E8C7.138BB69E@rochester.rr.com>; from mbratche@rochester.rr.com on Sat, Jan 27, 2001 at 10:27:03AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27 2001, Mark Bratcher wrote:
-> Hey all,
+Jens Axboe wrote:
+[snip]
 > 
-> I applied the patch "loop-3", from Jen Axboe's 2.4.1-pre10 version, to
-> my 2.4.0 kernel as Jen had suggested we try for the loop device hang
-> problem.
+> First of all, I'm all man (not up for debate) so it's Jens not Jen :-)
 > 
-> This patch appears to have gotten rid of the problem (at least after
-> testing it once in my previous scenario, which would normally fail 100%
-> of the time on 2.4.0 official).
-> 
-> Thanks Jen!
+[snip]
 
-First of all, I'm all man (not up for debate) so it's Jens not Jen :-)
+Doh! I beg your pardon. I must be blind. 8-) 8-)
 
-> Can I continue running this patch on 2.4.0 with impunity, or do I need
-> to be careful of anything else? :-)
-
-It should be safe. Thanks for the feedback.
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Mark
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

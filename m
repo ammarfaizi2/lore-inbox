@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUDHUII (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 16:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUDHUGi
+	id S262518AbUDHUIH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 16:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUDHUHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 16:06:38 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:23526 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262448AbUDHTuq (ORCPT
+	Thu, 8 Apr 2004 16:07:36 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:16870 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262443AbUDHTuo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:50:46 -0400
-Date: Thu, 8 Apr 2004 12:50:08 -0700
+	Thu, 8 Apr 2004 15:50:44 -0400
+Date: Thu, 8 Apr 2004 12:49:27 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Patch 16/23 - Bitmaps, Cpumasks and Nodemasks
-Message-Id: <20040408125008.3d13cbf6.pj@sgi.com>
+Subject: Patch 7/23 - Bitmaps, Cpumasks and Nodemasks
+Message-Id: <20040408124927.6c1645df.pj@sgi.com>
 In-Reply-To: <20040408115050.2c67311a.pj@sgi.com>
 References: <20040408115050.2c67311a.pj@sgi.com>
 Organization: SGI
@@ -26,339 +26,336 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P16.new_nodemask.h - New nodemask_t, based on bitmap.
-	New nodemask_t type, based on bitmap/bitop,
-	suitable for use with Matthew Dobson's nodemask
-	patch series.  Closely resembles cpumask.h.
+P7.cpumask_i386_fixup - Remove/recode obsolete cpumask macros from arch i386
+	Remove by recoding all uses of the obsolete cpumask const,
+	coerce and promote macros.
 
-Index: 2.6.5.bitmap/include/linux/nodemask.h
+Diffstat Patch_7_of_23:
+ arch/i386/kernel/io_apic.c                |    2 +-
+ arch/i386/kernel/smp.c                    |    2 +-
+ arch/i386/mach-voyager/voyager_smp.c      |   30 +++++++++++++++---------------
+ include/asm-i386/genapic.h                |    2 +-
+ include/asm-i386/mach-bigsmp/mach_apic.h  |    8 ++++----
+ include/asm-i386/mach-default/mach_apic.h |   10 +++++-----
+ include/asm-i386/mach-es7000/mach_apic.h  |   10 +++++-----
+ include/asm-i386/mach-numaq/mach_apic.h   |    2 +-
+ include/asm-i386/mach-summit/mach_apic.h  |    8 ++++----
+ include/asm-i386/mach-visws/mach_apic.h   |    4 ++--
+ 10 files changed, 39 insertions(+), 39 deletions(-)
+
+Index: 2.6.5.mask/arch/i386/kernel/io_apic.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/linux/nodemask.h	2004-04-08 04:25:24.000000000 -0700
-+++ 2.6.5.bitmap/include/linux/nodemask.h	2004-04-08 04:52:56.000000000 -0700
-@@ -0,0 +1,323 @@
-+#ifndef __LINUX_NODEMASK_H
-+#define __LINUX_NODEMASK_H
-+
-+/*
-+ * Nodemasks provide a bitmap suitable for representing the
-+ * set of Node's in a system, one bit position per Node number.
-+ *
-+ * See detailed comments in the file linux/bitmap.h describing the
-+ * data type on which these nodemasks are based.
-+ *
-+ * For details of nodemask_scnprintf() and nodemask_parse(),
-+ * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
-+ *
-+ * The available nodemask operations are:
-+ *
-+ * void node_set(node, mask)		turn on bit 'node' in mask
-+ * void node_clear(node, mask)		turn off bit 'node' in mask
-+ * void nodes_setall(mask)		set all bits
-+ * void nodes_clear(mask)		clear all bits
-+ * int node_isset(node, mask)		true iff bit 'node' set in mask
-+ * int node_test_and_set(node, mask)	test and set bit 'node' in mask
-+ *
-+ * void nodes_and(dst, src1, src2)	dst = src1 & src2  [intersection]
-+ * void nodes_or(dst, src1, src2)	dst = src1 | src2  [union]
-+ * void nodes_xor(dst, src1, src2)	dst = src1 ^ src2
-+ * void nodes_andnot(dst, src1, src2)	dst = src1 & ~src2
-+ * void nodes_complement(dst, src)	dst = ~src
-+ *
-+ * int nodes_equal(mask1, mask2)	Does mask1 == mask2?
-+ * int nodes_intersects(mask1, mask2)	Do mask1 and mask2 intersect?
-+ * int nodes_subset(mask1, mask2)	Is mask1 a subset of mask2?
-+ * int nodes_empty(mask)		Is mask empty (no bits sets)?
-+ * int nodes_full(mask)			Is mask full (all bits sets)?
-+ * int nodes_weight(mask)		Hamming weigh - number of set bits
-+ *
-+ * void nodes_shift_right(dst, src, n)	Shift right
-+ * void nodes_shift_left(dst, src, n)	Shift left
-+ *
-+ * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
-+ * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
-+ *
-+ * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
-+ * NODE_MASK_ALL			Initializer - all bits set
-+ * NODE_MASK_NONE			Initializer - no bits set
-+ * unsigned long *nodes_addr(mask)	Array of unsigned long's in mask
-+ *
-+ * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
-+ * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
-+ *
-+ * int num_online_nodes()		Number of online Nodes
-+ * int num_possible_nodes()		Number of all possible Nodes
-+ * int node_online(node)		Is some node online?
-+ * int node_possible(node)		Is some node possible?
-+ * void node_set_online(node)		set node in node_online_map
-+ * void node_set_offline(node)		clear node in node_online_map
-+ * int any_online_node(mask)		First online node in mask
-+ *
-+ * for_each_node_mask(node, mask)	for-loop node over mask
-+ * for_each_node(node)			for-loop node over node_possible_map
-+ * for_each_online_node(node)		for-loop node over node_online_map
-+ */
-+
-+#include <linux/threads.h>
-+#include <linux/bitmap.h>
-+#include <asm/bug.h>
-+
-+typedef struct { DECLARE_BITMAP(bits, MAX_NUMNODES); } nodemask_t;
-+extern nodemask_t _unused_nodemask_arg_;
-+
-+#define node_set(node, dst) __node_set((node), &(dst))
-+static inline void __node_set(int node, volatile nodemask_t *dstp)
-+{
-+	if (node < MAX_NUMNODES)
-+		set_bit(node, dstp->bits);
-+}
-+
-+#define node_clear(node, dst) __node_clear((node), &(dst))
-+static inline void __node_clear(int node, volatile nodemask_t *dstp)
-+{
-+	clear_bit(node, dstp->bits);
-+}
-+
-+#define nodes_setall(dst) __nodes_setall(&(dst), MAX_NUMNODES)
-+static inline void __nodes_setall(nodemask_t *dstp, int nbits)
-+{
-+	bitmap_fill(dstp->bits, nbits);
-+}
-+
-+#define nodes_clear(dst) __nodes_clear(&(dst), MAX_NUMNODES)
-+static inline void __nodes_clear(nodemask_t *dstp, int nbits)
-+{
-+	bitmap_clear(dstp->bits, nbits);
-+}
-+
-+#define node_isset(node, nodemask) __node_isset((node), &(nodemask))
-+static inline int __node_isset(int node, const volatile nodemask_t *addr)
-+{
-+	return test_bit(node, addr->bits);
-+}
-+
-+#define node_test_and_set(node, nodemask) __node_test_and_set((node), &(nodemask))
-+static inline int __node_test_and_set(int node, nodemask_t *addr)
-+{
-+	if (node < MAX_NUMNODES)
-+		return test_and_set_bit(node, addr->bits);
-+	else
-+		return 0;
-+}
-+
-+#define nodes_and(dst, src1, src2) \
-+			__nodes_and(&(dst), &(src1), &(src2), MAX_NUMNODES)
-+static inline void __nodes_and(nodemask_t *dstp, nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	bitmap_and(dstp->bits, src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_or(dst, src1, src2) \
-+			__nodes_or(&(dst), &(src1), &(src2), MAX_NUMNODES)
-+static inline void __nodes_or(nodemask_t *dstp, nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	bitmap_or(dstp->bits, src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_xor(dst, src1, src2) \
-+			__nodes_xor(&(dst), &(src1), &(src2), MAX_NUMNODES)
-+static inline void __nodes_xor(nodemask_t *dstp, nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	bitmap_xor(dstp->bits, src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_andnot(dst, src1, src2) \
-+			__nodes_andnot(&(dst), &(src1), &(src2), MAX_NUMNODES)
-+static inline void __nodes_andnot(nodemask_t *dstp, nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	bitmap_andnot(dstp->bits, src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_complement(dst, src) \
-+			__nodes_complement(&(dst), &(src), MAX_NUMNODES)
-+static inline void __nodes_complement(nodemask_t *dstp,
-+					nodemask_t *srcp, int nbits)
-+{
-+	bitmap_complement(dstp->bits, srcp->bits, nbits);
-+}
-+
-+#define nodes_equal(src1, src2) __nodes_equal(&(src1), &(src2), MAX_NUMNODES)
-+static inline int __nodes_equal(nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	return bitmap_equal(src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_intersects(src1, src2) \
-+			__nodes_intersects(&(src1), &(src2), MAX_NUMNODES)
-+static inline int __nodes_intersects(nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	return bitmap_intersects(src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_subset(src1, src2) __nodes_subset(&(src1), &(src2), MAX_NUMNODES)
-+static inline int __nodes_subset(nodemask_t *src1p,
-+					nodemask_t *src2p, int nbits)
-+{
-+	return bitmap_subset(src1p->bits, src2p->bits, nbits);
-+}
-+
-+#define nodes_empty(src) __nodes_empty(&(src), MAX_NUMNODES)
-+static inline int __nodes_empty(nodemask_t *srcp, int nbits)
-+{
-+	return bitmap_empty(srcp->bits, nbits);
-+}
-+
-+#define nodes_full(nodemask) __nodes_full(&(nodemask), MAX_NUMNODES)
-+static inline int __nodes_full(nodemask_t *srcp, int nbits)
-+{
-+	return bitmap_full(srcp->bits, nbits);
-+}
-+
-+#define nodes_weight(nodemask) __nodes_weight(&(nodemask), MAX_NUMNODES)
-+static inline int __nodes_weight(nodemask_t *srcp, int nbits)
-+{
-+	return bitmap_weight(srcp->bits, nbits);
-+}
-+
-+#define nodes_shift_right(dst, src, n) \
-+			__nodes_shift_right(&(dst), &(src), (n), MAX_NUMNODES)
-+static inline void __nodes_shift_right(nodemask_t *dstp,
-+					nodemask_t *srcp, int n, int nbits)
-+{
-+	bitmap_shift_right(dstp->bits, srcp->bits, n, nbits);
-+}
-+
-+#define nodes_shift_left(dst, src, n) \
-+			__nodes_shift_left(&(dst), &(src), (n), MAX_NUMNODES)
-+static inline void __nodes_shift_left(nodemask_t *dstp,
-+					nodemask_t *srcp, int n, int nbits)
-+{
-+	bitmap_shift_left(dstp->bits, srcp->bits, n, nbits);
-+}
-+
-+#define first_node(src) __first_node(&(src), MAX_NUMNODES)
-+static inline int __first_node(nodemask_t *srcp, int nbits)
-+{
-+	return find_first_bit(srcp->bits, nbits);
-+}
-+
-+#define next_node(n, src) __next_node((n), &(src), MAX_NUMNODES)
-+static inline int __next_node(int n, nodemask_t *srcp, int nbits)
-+{
-+	return find_next_bit(srcp->bits, nbits, n+1);
-+}
-+
-+#define nodemask_of_node(node)						\
-+({									\
-+	typeof(_unused_nodemask_arg_) m;				\
-+	int c = node;							\
-+	if (sizeof(m) == sizeof(unsigned long)) {			\
-+		if (c < MAX_NUMNODES)					\
-+			m.bits[0] = 1UL<<c;				\
-+	} else {							\
-+		nodes_clear(m);						\
-+		node_set(c, m);						\
-+	}								\
-+	m;								\
-+})
-+
-+#define NODEMASK_LAST_WORD BITMAP_LAST_WORD_MASK(MAX_NUMNODES)
-+
-+#if MAX_NUMNODES <= BITS_PER_LONG
-+
-+#define NODE_MASK_ALL							\
-+{ {									\
-+	[BITS_TO_LONGS(MAX_NUMNODES)-1] = NODEMASK_LAST_WORD		\
-+} }
-+
-+#else
-+
-+#define NODE_MASK_ALL							\
-+{ {									\
-+	[0 ... BITS_TO_LONGS(MAX_NUMNODES)-2] = ~0UL,			\
-+	[BITS_TO_LONGS(MAX_NUMNODES)-1] = NODEMASK_LAST_WORD		\
-+} }
-+
-+#endif
-+
-+#define NODE_MASK_NONE							\
-+{ {									\
-+	[0 ... BITS_TO_LONGS(MAX_NUMNODES)-1] =  0UL			\
-+} }
-+
-+#define nodes_addr(src) ((src).bits)
-+
-+#define nodemask_scnprintf(buf, len, src) \
-+			__nodemask_scnprintf((buf), (len), &(src), MAX_NUMNODES)
-+static inline int __nodemask_scnprintf(char *buf, int len,
-+					nodemask_t *srcp, int nbits)
-+{
-+	return bitmap_scnprintf(buf, len, srcp->bits, nbits);
-+}
-+
-+#define nodemask_parse(ubuf, ulen, src) \
-+			__nodemask_parse((ubuf), (ulen), &(src), MAX_NUMNODES)
-+static inline int __nodemask_parse(const char __user *buf, int len,
-+					nodemask_t *srcp, int nbits)
-+{
-+	return bitmap_parse(buf, len, srcp->bits, nbits);
-+}
-+
-+/*
-+ * The following particular system nodemasks and operations
-+ * on them manage all (possible) and online nodes.
-+ */
-+
-+extern nodemask_t node_online_map;
-+extern nodemask_t node_possible_map;
-+
-+#ifdef CONFIG_NUMA
-+
-+#define num_online_nodes()	     nodes_weight(node_online_map)
-+#define num_possible_nodes()	     nodes_weight(node_possible_map)
-+#define node_online(node)	     node_isset((node), node_online_map)
-+#define node_possible(node)	     node_isset((node), node_possible_map)
-+#define node_set_online(node)	     node_set((node), node_online_map)
-+#define node_set_offline(node)	     node_clear((node), node_online_map)
-+
-+#define any_online_node(mask)			\
-+({						\
-+	nodemask_t m;				\
-+	nodes_and(m, mask, node_online_map);	\
-+	first_node(m);				\
-+})
-+
-+#define for_each_node_mask(node, mask)		\
-+	for (node = first_node(mask);		\
-+		node < MAX_NUMNODES;		\
-+		node = next_node(node, mask))
-+
-+#else /* !CONFIG_NUMA */
-+
-+#define num_online_nodes()	     1
-+#define num_possible_nodes()	     1
-+#define node_online(node)	     ({ BUG_ON((node) != 0); 1; })
-+#define node_possible(node)	     ({ BUG_ON((node) != 0); 1; })
-+#define node_set_online(node)	     ({ BUG_ON((node) != 0); })
-+#define node_set_offline(node)	     ({ BUG(); })
-+
-+#define any_online_node(mask)	     0
-+
-+#define for_each_node_mask(node, mask) for (node = 0; node < 1; node++)
-+
-+#endif /* CONFIG_NUMA */
-+
-+#define for_each_node(node)	     \
-+			for_each_node_mask(node, node_possible_map)
-+#define for_each_online_node(node)     \
-+			for_each_node_mask(node, node_online_map)
-+
-+#endif /* __LINUX_NODEMASK_H */
+--- 2.6.5.mask.orig/arch/i386/kernel/io_apic.c	2004-04-03 23:37:35.000000000 -0800
++++ 2.6.5.mask/arch/i386/kernel/io_apic.c	2004-04-03 23:51:51.000000000 -0800
+@@ -264,7 +264,7 @@
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+ 	unsigned int apicid_value;
+ 	
+-	apicid_value = cpu_mask_to_apicid(mk_cpumask_const(cpumask));
++	apicid_value = cpu_mask_to_apicid(cpumask);
+ 	/* Prepare to do the io_apic_write */
+ 	apicid_value = apicid_value << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+Index: 2.6.5.mask/arch/i386/kernel/smp.c
+===================================================================
+--- 2.6.5.mask.orig/arch/i386/kernel/smp.c	2004-04-03 23:37:35.000000000 -0800
++++ 2.6.5.mask/arch/i386/kernel/smp.c	2004-04-03 23:51:51.000000000 -0800
+@@ -160,7 +160,7 @@
+  */
+ inline void send_IPI_mask_bitmask(cpumask_t cpumask, int vector)
+ {
+-	unsigned long mask = cpus_coerce(cpumask);
++	unsigned long mask = cpus_addr(cpumask)[0];
+ 	unsigned long cfg;
+ 	unsigned long flags;
+ 
+Index: 2.6.5.mask/arch/i386/mach-voyager/voyager_smp.c
+===================================================================
+--- 2.6.5.mask.orig/arch/i386/mach-voyager/voyager_smp.c	2004-04-03 23:37:36.000000000 -0800
++++ 2.6.5.mask/arch/i386/mach-voyager/voyager_smp.c	2004-04-03 23:51:51.000000000 -0800
+@@ -154,7 +154,7 @@
+ send_CPI_allbutself(__u8 cpi)
+ {
+ 	__u8 cpu = smp_processor_id();
+-	__u32 mask = cpus_coerce(cpu_online_map) & ~(1 << cpu);
++	__u32 mask = cpus_addr(cpu_online_map)[0] & ~(1 << cpu);
+ 	send_CPI(mask, cpi);
+ }
+ 
+@@ -403,11 +403,11 @@
+ 	/* set up everything for just this CPU, we can alter
+ 	 * this as we start the other CPUs later */
+ 	/* now get the CPU disposition from the extended CMOS */
+-	phys_cpu_present_map = cpus_promote(voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK));
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
+-	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_coerce(phys_cpu_present_map));
++	cpus_addr(phys_cpu_present_map)[0] = voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK);
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
++	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
+ 	/* Here we set up the VIC to enable SMP */
+ 	/* enable the CPIs by writing the base vector to their register */
+ 	outb(VIC_DEFAULT_CPI_BASE, VIC_CPI_BASE_REGISTER);
+@@ -709,12 +709,12 @@
+ 		/* now that the cat has probed the Voyager System Bus, sanity
+ 		 * check the cpu map */
+ 		if( ((voyager_quad_processors | voyager_extended_vic_processors)
+-		     & cpus_coerce(phys_cpu_present_map)) != cpus_coerce(phys_cpu_present_map)) {
++		     & cpus_addr(phys_cpu_present_map)[0]) != cpus_addr(phys_cpu_present_map)[0]) {
+ 			/* should panic */
+ 			printk("\n\n***WARNING*** Sanity check of CPU present map FAILED\n");
+ 		}
+ 	} else if(voyager_level == 4)
+-		voyager_extended_vic_processors = cpus_coerce(phys_cpu_present_map);
++		voyager_extended_vic_processors = cpus_addr(phys_cpu_present_map)[0];
+ 
+ 	/* this sets up the idle task to run on the current cpu */
+ 	voyager_extended_cpus = 1;
+@@ -912,7 +912,7 @@
+ 
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpus_coerce(cpu_online_map)) != cpumask)
++	if ((cpumask & cpus_addr(cpu_online_map)[0]) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+@@ -955,7 +955,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	local_flush_tlb();
+ 	if (cpu_mask)
+ 		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
+@@ -971,7 +971,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 
+ 	if (current->active_mm == mm) {
+ 		if (current->mm)
+@@ -992,7 +992,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	if (current->active_mm == mm) {
+ 		if(current->mm)
+ 			__flush_tlb_one(va);
+@@ -1101,7 +1101,7 @@
+ 		   int wait)
+ {
+ 	struct call_data_struct data;
+-	__u32 mask = cpus_coerce(cpu_online_map);
++	__u32 mask = cpus_addr(cpu_online_map)[0];
+ 
+ 	mask &= ~(1<<smp_processor_id());
+ 
+@@ -1789,9 +1789,9 @@
+ 	unsigned long irq_mask = 1 << irq;
+ 	int cpu;
+ 
+-	real_mask = cpus_coerce(mask) & voyager_extended_vic_processors;
++	real_mask = cpus_addr(mask)[0] & voyager_extended_vic_processors;
+ 	
+-	if(cpus_coerce(mask) == 0)
++	if(cpus_addr(mask)[0] == 0)
+ 		/* can't have no cpu's to accept the interrupt -- extremely
+ 		 * bad things will happen */
+ 		return;
+Index: 2.6.5.mask/include/asm-i386/genapic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/genapic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/genapic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -62,7 +62,7 @@
+ 
+ 	unsigned (*get_apic_id)(unsigned long x);
+ 	unsigned long apic_id_mask;
+-	unsigned int (*cpu_mask_to_apicid)(cpumask_const_t cpumask);
++	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
+ 	
+ 	/* ipi */
+ 	void (*send_IPI_mask)(cpumask_t mask, int vector);
+Index: 2.6.5.mask/include/asm-i386/mach-bigsmp/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-bigsmp/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-bigsmp/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -140,14 +140,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.5.mask/include/asm-i386/mach-default/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-default/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-default/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -5,12 +5,12 @@
+ 
+ #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
+ 
+-static inline cpumask_const_t target_cpus(void)
++static inline cpumask_t target_cpus(void)
+ { 
+ #ifdef CONFIG_SMP
+-	return mk_cpumask_const(cpu_online_map);
++	return cpu_online_map;
+ #else
+-	return mk_cpumask_const(cpumask_of_cpu(0));
++	return cpumask_of_cpu(0);
+ #endif
+ } 
+ #define TARGET_CPUS (target_cpus())
+@@ -118,9 +118,9 @@
+ 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline void enable_apic_mode(void)
+Index: 2.6.5.mask/include/asm-i386/mach-es7000/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-es7000/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-es7000/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -89,7 +89,7 @@
+ 	int apic = bios_cpu_apicid[smp_processor_id()];
+ 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
+ 		(apic_version[apic] == 0x14) ? 
+-		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_coerce(TARGET_CPUS));
++		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+@@ -159,14 +159,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return 0xFF;
+@@ -174,10 +174,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.5.mask/include/asm-i386/mach-numaq/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-numaq/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-numaq/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -136,7 +136,7 @@
+  * We use physical apicids here, not logical, so just return the default
+  * physical broadcast to stop people from breaking us
+  */
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	return (int) 0xF;
+ }
+Index: 2.6.5.mask/include/asm-i386/mach-summit/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-summit/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-summit/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -140,14 +140,14 @@
+ {
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+Index: 2.6.5.mask/include/asm-i386/mach-visws/mach_apic.h
+===================================================================
+--- 2.6.5.mask.orig/include/asm-i386/mach-visws/mach_apic.h	2004-04-03 23:38:10.000000000 -0800
++++ 2.6.5.mask/include/asm-i386/mach-visws/mach_apic.h	2004-04-03 23:51:51.000000000 -0800
+@@ -84,9 +84,9 @@
+ 	return physid_isset(boot_cpu_physical_apicid, phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline u32 phys_pkg_id(u32 cpuid_apic, int index_msb)
 
 
 -- 

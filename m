@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269605AbUJLKlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269604AbUJLKqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269605AbUJLKlt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 06:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269604AbUJLKlt
+	id S269604AbUJLKqj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 06:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269611AbUJLKqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 06:41:49 -0400
-Received: from cantor.suse.de ([195.135.220.2]:28370 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269605AbUJLKld (ORCPT
+	Tue, 12 Oct 2004 06:46:39 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:19103 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S269604AbUJLKqc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 06:41:33 -0400
-Message-ID: <416BB2A3.4080605@suse.de>
-Date: Tue, 12 Oct 2004 12:32:03 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       ncunningham@linuxmail.org
-Subject: Re: Totally broken PCI PM calls
-References: <1097455528.25489.9.camel@gaston> <200410111437.17898.david-b@pacbell.net> <416B0557.40407@suse.de> <200410111959.53048.david-b@pacbell.net> <20041012085440.GB2292@elf.ucw.cz>
-In-Reply-To: <20041012085440.GB2292@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Oct 2004 06:46:32 -0400
+Date: Tue, 12 Oct 2004 12:46:32 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Greg KH <greg@kroah.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
+Message-ID: <20041012104632.GA32663@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Oliver Neukum <oliver@neukum.org>,
+	James Bruce <bruce@andrew.cmu.edu>, Greg KH <greg@kroah.com>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+References: <20041011120701.GA824@outpost.ds9a.nl> <416B9436.3010902@andrew.cmu.edu> <200410121224.44910.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410121224.44910.oliver@neukum.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Oct 12, 2004 at 12:24:44PM +0200, Oliver Neukum wrote:
 
-Pavel Machek wrote:
+> Devices break. You have to cope with devices going away suddenly.
+> You are not required to ensure data integrity in all cases, but the system
+> must not suffer. To allow that you must be able to get rid of the mounts
+> even if users do not cooperate. 
 
->>p.s. I find the /sys/power/disk file mildly cryptic, maybe
->>    other folk will find the attached patch slightly more
->>    informative about what this interface can do.
-> 
->>--- 1.19/kernel/power/disk.c	Thu Sep  9 08:45:13 2004
->>+++ edited/kernel/power/disk.c	Fri Oct  1 11:01:41 2004
->>@@ -282,7 +282,14 @@
->> 
->> static ssize_t disk_show(struct subsystem * subsys, char * buf)
->> {
->>-	return sprintf(buf,"%s\n",pm_disk_modes[pm_disk_mode]);
->>+	return sprintf(buf,"%s%s %s%s %s%s\n",
->>+		(pm_disk_mode == pm_ops->pm_disk_mode) ? "*" : "",
->>+			pm_disk_modes[pm_ops->pm_disk_mode],
->>+		(pm_disk_mode == PM_DISK_SHUTDOWN) ? "*" : "",
->>+			pm_disk_modes[PM_DISK_SHUTDOWN],
->>+		(pm_disk_mode == PM_DISK_REBOOT) ? "*" : "",
->>+			pm_disk_modes[PM_DISK_REBOOT]
->>+		);
->> }
->
-> Hmm, its interface change,
+Well, in retrospect, the kernel appears to offer the following semantics,
+perhaps unintentionally:
 
-yes, this would break _my_ userspace app that checks for successfully
-setting shutdown mode by reading out the file, but well, i could live
-with that.
+	When a device goes away for any reason, but there are mounts that
+	refer to it, the device nominally stays around and an umount will
+	always succeed, removing the vestiges of the device with it.
 
->  and was not /sys expected to be "one file, one value"?
+This would in fact allow something in userspace listening to hotplug events
+to umount on a disconnect event from USB. Except that I'm not sure if the
+semantics above are guaranteed - they may just be an accident.
 
-# cat /sys/power/state
-standby mem disk
+Things get more complicated if we have logical volumes or raid partitions
+which ultimately depend on a device that is removed. In this case, userspace
+should be aware of all dependencies in order to know which mountpoints to
+umount. This might even include loopback mounts.
 
-so one could assume that /sys/power/disk would have similar semantics.
-OTOH, /sys/power/state does not indicate the active state but
-/sys/power/disk does, so they _are_ different.
+The kernel knows the dependencies implicitly and might be in a better
+position to know what is invalidated by a disconnect, and which devices
+disappear because of dependencies on it.
+
+I'm hoping either Greg or Al will chime in - it appears as if part of the
+infrastructure is there, but not quite developed.
+
+Thanks.
+
 -- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX AG Nürnberg.
-
-"Any ideas, John?"
-"Well, surrounding them's out."
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

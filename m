@@ -1,52 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291727AbSBAMAD>; Fri, 1 Feb 2002 07:00:03 -0500
+	id <S291736AbSBAMTO>; Fri, 1 Feb 2002 07:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291729AbSBAL7x>; Fri, 1 Feb 2002 06:59:53 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:20197 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S291727AbSBAL7m>; Fri, 1 Feb 2002 06:59:42 -0500
-Message-ID: <3C5A8329.2060701@reviewboard.com>
-Date: Fri, 01 Feb 2002 12:59:37 +0100
-From: Chris Chabot <chabotc@reviewboard.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020201
-X-Accept-Language: en,nl
+	id <S291739AbSBAMTF>; Fri, 1 Feb 2002 07:19:05 -0500
+Received: from mons.uio.no ([129.240.130.14]:29899 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S291736AbSBAMSx>;
+	Fri, 1 Feb 2002 07:18:53 -0500
 MIME-Version: 1.0
-To: Joe Wong <joewong@tkodog.no-ip.com>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 cannot connect to www.sun.com
-In-Reply-To: <Pine.LNX.4.21.0202011939150.30567-100000@dog.ima.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15450.34719.324396.430917@charged.uio.no>
+Date: Fri, 1 Feb 2002 13:18:39 +0100
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.3]  VFS fix for open(".") breakage under
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try echo 0 > /proc/sys/net/ipv4/tcp_ecn
-
-I dont know, but ecn can prevent you from reaching some locations on the 
-net.. could be that 2.4.17 turns it on by default.
-
-    -- Chris
+distributed filesystems
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 
 
-Joe Wong wrote:
+The following is the fix for the open(".")/open("..") problems
+that are hitting distributed file systems such as OpenGFS, and NFS.
 
->Hello all,
->
->  For some reason after I upgraded to 2.4.16, I cannot connect to
->www.sun.com anymore. It also happens on some other sites. Anyone know what
->might be the problem? I have no problem using 2.4.7.
->
->TIA.
->
->- Joe
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+The problem is that in the case where the final element of a path is
+'.' or '..', then link_path_walk() does not actually check that the
+resulting dentry is valid.
+
+For the case of NFS, this results in 2 breakages:
+
+  - Resulting dentry may be stale, and so the open() may succeed, but
+    still results in an invalid file.
+
+  - Attribute and data cache checking upon open(), which is normally
+    done as part of the lookup process, gets circumvented, and so you
+    end up with strange inconsistencies.
+    Typical result is 'ls -l' returning "file 'blah' does not exist"
+    errors.
+
+Cheers,
+  Trond
 
 
-
+diff -u --recursive --new-file linux-2.5.3/fs/namei.c linux-2.5.3-cto/fs/namei.c
+--- linux-2.5.3/fs/namei.c	Tue Jan 15 22:53:51 2002
++++ linux-2.5.3-cto/fs/namei.c	Fri Feb  1 13:00:39 2002
+@@ -457,7 +457,7 @@
+ 	while (*name=='/')
+ 		name++;
+ 	if (!*name)
+-		goto return_base;
++		goto return_reval;
+ 
+ 	inode = nd->dentry->d_inode;
+ 	if (current->link_count)
+@@ -576,7 +576,7 @@
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+ 			case 1:
+-				goto return_base;
++				goto return_reval;
+ 		}
+ 		if (nd->dentry->d_op && nd->dentry->d_op->d_hash) {
+ 			err = nd->dentry->d_op->d_hash(nd->dentry, &this);
+@@ -627,6 +627,19 @@
+ 			nd->last_type = LAST_DOT;
+ 		else if (this.len == 2 && this.name[1] == '.')
+ 			nd->last_type = LAST_DOTDOT;
++return_reval:
++		/*
++		 * We bypassed the ordinary revalidation routines.
++		 * Check the cached dentry for staleness.
++		 */
++		dentry = nd->dentry;
++		if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
++			err = -ESTALE;
++			if (!dentry->d_op->d_revalidate(dentry, 0)) {
++				d_invalidate(dentry);
++				break;
++			}
++		}
+ return_base:
+ 		return 0;
+ out_dput:

@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317756AbSFLS3V>; Wed, 12 Jun 2002 14:29:21 -0400
+	id <S317757AbSFLS3O>; Wed, 12 Jun 2002 14:29:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317758AbSFLS3U>; Wed, 12 Jun 2002 14:29:20 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:7075 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317756AbSFLS3T>;
-	Wed, 12 Jun 2002 14:29:19 -0400
-Date: Wed, 12 Jun 2002 11:06:39 +0200
+	id <S317758AbSFLS3N>; Wed, 12 Jun 2002 14:29:13 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8355 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317757AbSFLS3N>;
+	Wed, 12 Jun 2002 14:29:13 -0400
+Date: Wed, 12 Jun 2002 10:43:49 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: oliver@neukum.name, roland@topspin.com, wjhun@ayrnetworks.com,
-        paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Message-ID: <20020612090639.GB986@elf.ucw.cz>
-In-Reply-To: <20020610.233850.60926092.davem@redhat.com> <200206110938.52090.oliver@neukum.name> <20020611.003625.05877183.davem@redhat.com> <20020611.004305.96601553.davem@redhat.com>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+Message-ID: <20020612084349.GA986@elf.ucw.cz>
+In-Reply-To: <200206100356.UAA17066@csl.Stanford.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,16 +23,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
->    The DMA_ALIGN attribute doesn't work, on some systems the PCI
->    cacheline size is determined at boot time not compile time.
-> 
-> Another note, it could be per-PCI controller what this cacheline size
-> is.  We'll need to pass in a pdev to the alignment interfaces to
-> do this correctly.
-> 
-> So none of this can be done at compile time folks.
+> # BUGs	|	File Name
+> 4	|	/drivers/cdrom.c
+> 4	|	/message/i2o_proc.c
+> 3	|	/net/airo.c
+> 3	|	/../inflate.c
+> 2	|	/fs/zlib.c
+> 2	|	/drivers/zlib.c
+> 2	|	/drivers/cpqfcTScontrol.c
+		~~~~~~~~~~~~~~~~~~~~~~~~~
 
-But upper bound is certainly known at compile time, right?
+Actually, 3 bugs, the name is so ugly that it is a bug, too :-).
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

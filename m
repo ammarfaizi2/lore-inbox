@@ -1,86 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266968AbTBXNFI>; Mon, 24 Feb 2003 08:05:08 -0500
+	id <S266987AbTBXNOO>; Mon, 24 Feb 2003 08:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266978AbTBXNFI>; Mon, 24 Feb 2003 08:05:08 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:59782 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S266968AbTBXNFH>; Mon, 24 Feb 2003 08:05:07 -0500
-Message-ID: <3E5A1671.5060202@namesys.com>
-Date: Mon, 24 Feb 2003 15:56:17 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  comments on st_blksize and f_bsize for 2.5
-References: <3E526C94.3020109@namesys.com> <20030224102009.GB14024@win.tue.nl>
-In-Reply-To: <20030224102009.GB14024@win.tue.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266998AbTBXNOO>; Mon, 24 Feb 2003 08:14:14 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:12042 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266987AbTBXNOO>; Mon, 24 Feb 2003 08:14:14 -0500
+Date: Mon, 24 Feb 2003 13:24:26 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: vijay srinath <vijaysrinath@lycos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question on scsi disk driver
+Message-ID: <20030224132426.A5421@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	vijay srinath <vijaysrinath@lycos.com>,
+	linux-kernel@vger.kernel.org
+References: <AFIFLLKIMJDOIDAA@mailcity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <AFIFLLKIMJDOIDAA@mailcity.com>; from vijaysrinath@lycos.com on Mon, Feb 24, 2003 at 12:58:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+Linux 2.4.9 is obsolete, please reproduce it on a current kernel.
 
->On Tue, Feb 18, 2003 at 08:25:40PM +0300, Hans Reiser wrote:
->
->  
->
->>Since a few applications, and the linux manpages, seem to not really 
->>understand what these are for, they need comments like SUSv2 has for 
->>them.  A larger discussion will be provided if requested.
->>    
->>
->
->  
->
->>+	unsigned int	st_blksize;	/* Optimal I/O size */
->>    
->>
->
->  
->
->>+	int f_bsize;	/* Filesystem blocksize */
->>    
->>
->
->Yes, discussion - I wouldnt mind seeing details.
->
->The trivial part is st_blksize: all agree.
->Quoting the man page:
->
->       The value st_blksize gives the "preferred" blocksize
->       for efficient file system I/O.  (Writing to a file in
->       smaller chunks may cause an inefficient read-modify-rewrite.)
->
-Oh my, I must confess that we read just the comment on the struct in the 
-manpage:
-
-                 blksize_t     st_blksize;  /* blocksize for filesystem 
-I/O */
-
-and not the text below it which is correct if less clear than it could be.
-
-How about using our comment on the struct on the manpage as it is more 
-clear? 
-
-
-How about instead saying in the manpage body:
-
-Historically, st_blksize was the block size, and applications would do 
-I/O's at that size for greater efficiency of IO.  Now, after some 
-evolution, st_blksize represents the most efficient size of an IO to 
-that file, and no longer always represents the actual size of blocks in 
-the underlying filesystem.
-
-
-Or you could even use the longer comment on the struct, but then I have 
-always liked lng comments more than most....;-)
-
--- 
-Hans
-
+(I guess this is some Red Hat vendor kernel, if so please report it to
+bugzilla.redhat.com)
 

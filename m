@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264296AbTLYLhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 06:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTLYLhQ
+	id S264301AbTLYMhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 07:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLYMhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 06:37:16 -0500
-Received: from smtp04.ya.com ([62.151.11.162]:62348 "EHLO smtp.ya.com")
-	by vger.kernel.org with ESMTP id S264296AbTLYLhO (ORCPT
+	Thu, 25 Dec 2003 07:37:20 -0500
+Received: from waste.org ([209.173.204.2]:1727 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264301AbTLYMhS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 06:37:14 -0500
-Message-ID: <3FEAECA4.6030201@wanadoo.es>
-Date: Thu, 25 Dec 2003 14:56:52 +0100
-From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LINUX KERNEL MAILING LIST <linux-kernel@vger.kernel.org>
-Subject: RE: IDE performance drop between 2.4.23 and 2.6.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Dec 2003 07:37:18 -0500
+Date: Thu, 25 Dec 2003 06:36:37 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: George Anzinger <george@mvista.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       dilinger@voxel.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/7] more CardServices() removals (drivers/net/wireless)
+Message-ID: <20031225123637.GK18208@waste.org>
+References: <1072229780.5300.69.camel@spiral.internal> <20031223182817.0bd3dd3c.akpm@osdl.org> <3FE8FC2E.3080701@pobox.com> <20031223184827.4cfb87e2.akpm@osdl.org> <3FE9022A.7010604@pobox.com> <20031223202305.489c409f.akpm@osdl.org> <20031224043349.GI18208@waste.org> <3FEAB1D6.9030209@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FEAB1D6.9030209@mvista.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
+On Thu, Dec 25, 2003 at 01:45:58AM -0800, George Anzinger wrote:
+> 
+> By the way, in my looking at the network link stuff, I started wondering if 
+> it could not be done without modifying the card stuff.  Here is what I see:
+> 
+> The poll routine just calls the interrupt handler.  We only need the 
+> address of that routine and a generic poll function to do the indirect 
+> call.  That address, once the link is up, can be found in the interrupt 
+> tables using the irq.
 
-Any of you knows how to look at this results? They still seems very low 
-for me. It's an AMD Athlon 2500+. Hard Disc Seagate Barracuda ATA V. 
-Nforce-2 motherboard.
+Netpoll did exactly this in an earlier incarnation, but Jeff
+eventually convinced me it was problematic.
 
-kernel 2.6.0-test11
-
-Any tip? Or is this correct?
-
-bonnie++
-
-Version  1.03       ------Sequential Output------ --Sequential Input- 
---Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- 
---Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  
-/sec %CP
-txiki            2G 21270  87 32856  11 10533   3 10962  51 28744   5 
-157.0   0
-                    ------Sequential Create------ --------Random 
-Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- 
--Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  
-/sec %CP
-                 16 21675  96 +++++ +++ 23523 100 23700  99 +++++ +++ 
-13062  61
-txiki,2G,21270,87,32856,11,10533,3,10962,51,28744,5,157.0,0,16,21675,96,+++++,++
-+,23523,100,23700,99,+++++,+++,13062,61
-bash-2.05b$
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUCXJcd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 04:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUCXJcd
+	id S263131AbUCXJmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 04:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUCXJmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 04:32:33 -0500
-Received: from hell.org.pl ([212.244.218.42]:17673 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S263166AbUCXJcc (ORCPT
+	Wed, 24 Mar 2004 04:42:15 -0500
+Received: from zero.aec.at ([193.170.194.10]:19720 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263141AbUCXJmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 04:32:32 -0500
-Date: Wed, 24 Mar 2004 10:32:31 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: ncunningham@users.sourceforge.net,
-       Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040324093231.GA15061@hell.org.pl>
-Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
-	ncunningham@users.sourceforge.net,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <200403232352.58066.dtor_core@ameritech.net> <1080104698.3014.4.camel@calvin.wpcb.org.au> <opr5cry20s4evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <opr5cry20s4evsfm@smtp.pacific.net.th>
-User-Agent: Mutt/1.4.2i
+	Wed, 24 Mar 2004 04:42:12 -0500
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Non-Exec stack patches
+References: <1D3lO-3dh-13@gated-at.bofh.it> <1D3YZ-3Gl-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 24 Mar 2004 07:01:40 +0100
+In-Reply-To: <1D3YZ-3Gl-1@gated-at.bofh.it> (Andrew Morton's message of
+ "Wed, 24 Mar 2004 01:00:42 +0100")
+Message-ID: <m3n066eqbf.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Michael Frank:
-> Which reminds me of the "failed to read a chunk" message, the guys who 
-> reported
-> it got all quiet after telling them to do more badblocks testing without 
-> diskcaching or
-> using dd to write random data and read them back, so  likely was caused by
-> media problems.
+Andrew Morton <akpm@osdl.org> writes:
 
-I'm not so sure, at least in my case. Sure, badblocks /dev/hda1 reports an
-access beyond end, but neither badblocks /dev/hda1 $SIZEOF_HDA1 nor SMART
-do. Anyway, the alleged bad blocks are at the end of a 400 MB partition, so
-unless swsusp allocated swap randomly, there's hardly any chance I could
-hit them with 256 MB RAM and LZF on. But then, this failure was a single
-event in my case, while others reported some regularity.
-Best regards,
+> Which architectures are currently making their pre-page execute permissions
+> depend upon VM_EXEC?  
+> Would additional arch patches be needed for this?
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Yes, they would need some straight forward minor patches e.g. in the
+32bit emulation. IA64 would be a candidate I guess.
+
+i386 could do it on NX capable CPUs with PAE kernels (but it would require 
+backporting some fixes from x86-64). However currently it doesn't make
+much sense because all x86 CPUs that support NX (AMD K8 currently only) 
+support 64bit kernels and people can as well run 64bit kernels.
+ 
+Doing it on i386 would only make sense if non 64bit capable CPUs ever get
+NX. I heard VIA may be planning that, but so far there is nothing in their
+shipping CPUs, so I guess we can skip that for now.
+
+-Andi
+
+

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292852AbSCSV1C>; Tue, 19 Mar 2002 16:27:02 -0500
+	id <S292857AbSCSV3W>; Tue, 19 Mar 2002 16:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292857AbSCSV0w>; Tue, 19 Mar 2002 16:26:52 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65040 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S292852AbSCSV0d>; Tue, 19 Mar 2002 16:26:33 -0500
-Date: Tue, 19 Mar 2002 22:24:25 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: pavel@suse.cz, Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        Jonathan Barker <jbarker@ebi.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: VFS mediator?
-Message-ID: <20020319212425.GH12260@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200203191345.HAA74864@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S292870AbSCSV3M>; Tue, 19 Mar 2002 16:29:12 -0500
+Received: from web20509.mail.yahoo.com ([216.136.226.144]:24923 "HELO
+	web20509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292857AbSCSV3E>; Tue, 19 Mar 2002 16:29:04 -0500
+Message-ID: <20020319212903.93414.qmail@web20509.mail.yahoo.com>
+Date: Tue, 19 Mar 2002 22:29:03 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.4.19pre3-ac2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jdthood@mail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E16nPoY-0000Aw-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >      > Okay, take userland nfs-server. (This thread was about userland
-> > >      > filesystems).
-> > > 
-> > > Yech... Nobody should be seriously considering using unfsd: it does
-> > > not even manage to follow the NFS protocol. That inability was one of
-> > > the many reasons why Olaf Kirch abandoned further develpement of unfsd
-> > > and started work on knfsd.
-> > > 
-> > >      > Then, make memory full of dirty pages. Imagine that nfs-server
-> > >      > is swapped-out by some bad luck. What you have is extremely
-> > >      > nasty deadlock, AFAICS. [To free memory you have to write out
-> > >      > dirty data, but you can't do that because you don't have enough
-> > >      > memory for nfs-server].
-> > > 
-> > > So that is another argument for using knfsd rather than unfsd. I will
-> > > agree with you that NFS is not perfect, but please judge it on its
-> > > actual merits and not on some trumped up charge...
-> > 
-> > Sorry, this thread was about userland filesystems, and NFS is just not
-> > usefull there (for read/write case).
+>>EIP; 0000879a Before first symbol   <=====
 > 
-> Assuming, of course, that the daemon doesn't mprotect itself...
+> In the BIOS 
 
-Even if it did, I'm not sure it would be safe. write() may need some
-memory, too.
+in fact, you're right. At home, I don't have
+this problem on any of my computers (nearly
+all have an award bios). One of the two
+victims at work was a compaq with a compaq
+bios, while a friend's compaq notebook
+(armada e500) is unaffected. All tested
+hosts have either a 0e or a PNP0f13 entry.
 
-> A user mode file system is really only good at debugging a design.
+I will dump the bios tomorrow, but I don't
+know how pnpbios works (I presume it uses
+some protected mode functions of int 15,
+but I may be completely wrong). I will
+have a great day reading the sources.
 
-Not agreed. I would not want ftpfs in kernel, yet its happy in
-userland.
+Willy
 
-> All file migration style filesystems, and user mode filesystems, have this
-> same problem on paging based systems:
-> 
-> Can't write buffer until file is migrated (file system full),
 
-Well, filesystem full is nasty case. [I wonder how coda solves that?]
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

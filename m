@@ -1,83 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318115AbSGMH2v>; Sat, 13 Jul 2002 03:28:51 -0400
+	id <S318116AbSGMHee>; Sat, 13 Jul 2002 03:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSGMH2v>; Sat, 13 Jul 2002 03:28:51 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:37540 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S318115AbSGMH2u>; Sat, 13 Jul 2002 03:28:50 -0400
-Date: Sat, 13 Jul 2002 10:26:15 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH: compile the kernel with -Werror
-Message-ID: <20020713102615.H739@alhambra.actcom.co.il>
+	id <S318117AbSGMHed>; Sat, 13 Jul 2002 03:34:33 -0400
+Received: from emory.viawest.net ([216.87.64.6]:36260 "EHLO emory.viawest.net")
+	by vger.kernel.org with ESMTP id <S318116AbSGMHed>;
+	Sat, 13 Jul 2002 03:34:33 -0400
+Date: Sat, 13 Jul 2002 00:37:17 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Ed Sweetman <safemode@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbd not functioning in 2.5.25-dj2
+Message-ID: <20020713073717.GA9203@wizard.com>
+References: <1026545050.1203.116.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="G44BJl3Aq1QbV/QL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1026545050.1203.116.camel@psuedomode>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux/2.5.25 (i686)
+X-uptime: 12:30am  up 22:15,  2 users,  load average: 0.01, 0.00, 0.00
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 13, 2002 at 03:24:09AM -0400, Ed Sweetman wrote:
+> Same config as in my last post about the issue linking with this
+> kernel.  I'm having my keyboard just not respond from boot.  I've got
+> Input Device support built in and i had it as module and the keyboard is
+> ps/2.  No idea what's going on here 
+> 
 
---G44BJl3Aq1QbV/QL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+        Just a "me too" here.. I've had this problem since around 2.5.15-dj 
+and later, and have had input and keyboard support compiled into the kernel. 
+Luckily I was able to get into the box via ssh, and check things. both 
+keyboard and mouse are PS/2. If possible, see if you can do this, and check if 
+IRQ 1 is not listed in /proc/interrupts. That is what is happening with me, 
+while my mouse is working. For me to get my keyboard to work, I have to have 
+the following set:
 
-A full kernel compilation, especially when using the -j switch to
-make, can cause warnings to "fly off the screen" without the user
-noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
-had a missing return statement in a function returning non void, which
-the compiler probably complained about but the warning got lost in the
-noise (a little birdie told me wli used -j64).=20
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_INPUT_EVBUG=y
+CONFIG_SERIO=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_XTKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
 
-The easiest safeguard agsinst this kind of problems is to compile with
--Werror, so that wherever there's a warning, compilation
-stops. Compiling 2.5.25 with -Werror with my .config found only three
-warnings (quite impressive, IMHO), and patches for those were sent to
-trivial@rusty.
+        This leaves me without using the new Input API, but with a working 
+keyboard. with using the new API, mouse will work, keyboard will not. you can 
+try these, and use the old setup (I assume will be made legacy by the time 2.6 
+comes out), and let me know if they work. The new API seems to be working for 
+some people, but not all.
 
-Patch against 2.5.25 to add -Werror attached:
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 
---- linux-2.5.25-vanilla/Makefile	Sat Jul  6 02:42:04 2002
-+++ linux-2.5.25-mx/Makefile	Sat Jul 13 10:01:55 2002
-@@ -39,7 +39,7 @@
- FINDHPATH	=3D $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net
-=20
- HOSTCC  	=3D gcc
--HOSTCFLAGS	=3D -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
-+HOSTCFLAGS	=3D -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer=
-=20
-=20
- CROSS_COMPILE 	=3D
-=20
-@@ -211,7 +211,7 @@
-=20
- CPPFLAGS :=3D -D__KERNEL__ -I$(HPATH)
-=20
--CFLAGS :=3D $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
-+CFLAGS :=3D $(CPPFLAGS) -Wall -Werror -Wstrict-prototypes -Wno-trigraphs -=
-O2 \
- 	  -fomit-frame-pointer -fno-strict-aliasing -fno-common
- AFLAGS :=3D -D__ASSEMBLY__ $(CPPFLAGS)
-
---=20
-http://vipe.technion.ac.il/~mulix/
-http://syscalltrack.sf.net/
-
---G44BJl3Aq1QbV/QL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9L9YWKRs727/VN8sRAt71AJ0fB4bUJgutQ1tqVbRoBNLqeYN5+gCguVJD
-cVHLKnckY7UoTM35gMDZZ2M=
-=FHMU
------END PGP SIGNATURE-----
-
---G44BJl3Aq1QbV/QL--

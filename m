@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbTKRXDV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 18:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTKRXDV
+	id S263821AbTKRXIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 18:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263822AbTKRXIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 18:03:21 -0500
-Received: from gprs150-18.eurotel.cz ([160.218.150.18]:25472 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263805AbTKRXDU (ORCPT
+	Tue, 18 Nov 2003 18:08:15 -0500
+Received: from zeke.inet.com ([199.171.211.198]:25533 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S263821AbTKRXIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 18:03:20 -0500
-Date: Wed, 19 Nov 2003 00:03:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, lm@elf.ucw.cz
-Subject: bkcvs at rsync.kernel.org not up-to-date?
-Message-ID: <20031118230352.GA2152@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 18 Nov 2003 18:08:10 -0500
+Message-ID: <3FBAA657.8070406@inet.com>
+Date: Tue, 18 Nov 2003 17:08:07 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eli Carter <eli.carter@inet.com>
+CC: Nick Craig-Wood <ncw1@axis.demon.co.uk>,
+       Patrick Beard <patrick@scotcomms.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Smartmedia 2.6.0-test9 problem.
+References: <bpcumv$v22$1@sea.gmane.org> <20031118174828.GA26450@axis.demon.co.uk> <3FBA9A6B.1040404@inet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Eli Carter wrote:
+> Nick Craig-Wood wrote:
+> 
+>> On Tue, Nov 18, 2003 at 11:11:26AM -0000, Patrick Beard wrote:
+>>
+>>> I have two smartmedia cards 16mb and 64mb. I have recently compiled
+>>> the Debian source for Kernel 2.6.0-test9.  I normally only use my
+>>> 64mb card together with a usb reader. The problem I have led me to
+>>> the wrong conclusion which I reported to this group. For this I
+>>> apologise.
+>>
+>>
+>>
+>> I wonder if you are seeing the same thing I see...
+>>
+>> I have several different sized memory cards which I use using a usb
+>> adaptor.  The kernel (I've only tried 2.4 not 2.6) recognises the
+>> first one fine, but refuses to update its internal knowledge of the
+>> size of the card so if I insert a different sized one it doesn't mount
+>> properly.
+>>
+>> The work-around I use is to "rmmod usb-storage ; modprobe usb-storage"
+>> whenever I change memory card - this kicks the kernel into re-reading
+>> the size of the media (or maybe the partition table) and it all works
+>> fine after that.
+>>
+>> This obviously isn't ideal but I haven't found a better solution.
+>>
+> 
+> I've had this problem with 2.4 kernels as well, and use "unplug the 
+> reader, rmmod, plug in the reader".  I reported this a long time ago, 
+> and didn't get any response IIRC.
 
-Web interface indicates last change 22 hours ago, yet rsync indicates
-nothing new. I know that bkcvs was supposed to be down over weekend,
-but I thought it should be up by now?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Oh, I just realized... I should mention that I was having this problem 
+with CompactFlash cards of differing sizes/partitioning.
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318502AbSGZT7a>; Fri, 26 Jul 2002 15:59:30 -0400
+	id <S318503AbSGZT76>; Fri, 26 Jul 2002 15:59:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSGZT73>; Fri, 26 Jul 2002 15:59:29 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:30371 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318502AbSGZT73>;
-	Fri, 26 Jul 2002 15:59:29 -0400
-Date: Fri, 26 Jul 2002 22:01:29 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Rohan Deshpande <rohan@myeastern.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc3-ac3 --> sched.c errors
-In-Reply-To: <20020726182151.GA3392@myeastern.com>
-Message-ID: <Pine.LNX.4.44.0207262159530.23120-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318504AbSGZT75>; Fri, 26 Jul 2002 15:59:57 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:11409 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S318503AbSGZT75>;
+	Fri, 26 Jul 2002 15:59:57 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Fri, 26 Jul 2002 13:56:03 -0600
+To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+Cc: Federico Ferreres <fferreres@ojf.com>, linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+Message-ID: <20020726135603.B13656@host110.fsmlabs.com>
+References: <1027712347.902.25.camel@fede> <Pine.LNX.4.44.0207261534310.30504-100000@alumno.inacap.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207261534310.30504-100000@alumno.inacap.cl>; from rmaureira@alumno.inacap.cl on Fri, Jul 26, 2002 at 03:48:21PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem of not having enough resources to achieve a given goal has
+plagued mankind for years.  Open-source, GPL or magic dust are not going
+to solve that problem.
 
-On Fri, 26 Jul 2002, Rohan Deshpande wrote:
-
-> Upon compiling kernel 2.4.19rc3-ac3, I have been getting the following
-> errors.  GCC is 2.95.4, on Debian Unstable.  Config is also attached.
-> 
-> --> begin errors <--
-> 
-> sched.c: In function `task_rq_lock':
-> sched.c:176: structure has no member named `cpu'
-
-i suspect the patching must have failed somewhere - this looks like as if
-only half of the O(1) scheduler patch had been applied. Exactly what
-patches have you applied to what tree, in what order?
-
-	Ingo
-
+} You didn't get it... I _do not_ have the money, but I _do_ need the fix, 
+} why do I have to wait a whole year?

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287784AbSAFIyN>; Sun, 6 Jan 2002 03:54:13 -0500
+	id <S286365AbSAFJ4Y>; Sun, 6 Jan 2002 04:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287781AbSAFIyE>; Sun, 6 Jan 2002 03:54:04 -0500
-Received: from web20508.mail.yahoo.com ([216.136.226.143]:61706 "HELO
-	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S287768AbSAFIxo>; Sun, 6 Jan 2002 03:53:44 -0500
-Message-ID: <20020106085343.70369.qmail@web20508.mail.yahoo.com>
-Date: Sun, 6 Jan 2002 09:53:43 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: The plethora of kernel versions
-To: brian@worldcontrol.com, Willy Tarreau <wtarreau@free.fr>
-Cc: reddog83@chartermi.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20020105173304.B3160@top.worldcontrol.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S286386AbSAFJ4O>; Sun, 6 Jan 2002 04:56:14 -0500
+Received: from holomorphy.com ([216.36.33.161]:52936 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S286365AbSAFJ4I>;
+	Sun, 6 Jan 2002 04:56:08 -0500
+Date: Sun, 6 Jan 2002 01:55:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: binutils@sources.redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Binutils and the Linux kernel source finder
+Message-ID: <20020106015517.D10391@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	binutils@sources.redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020105180237.GF485@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020105180237.GF485@gallifrey>; from gilbertd@treblig.org on Sat, Jan 05, 2002 at 06:02:37PM +0000
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Often there is nothing in emails that idenfity what
-> versions the other is talking about.
+On Sat, Jan 05, 2002 at 06:02:37PM +0000, Dr. David Alan Gilbert wrote:
+>   I wish to extend this to include pointers to the best/latest/most
+> appropriate binutils for each architecture.  I've put links in for x86,
+> Alpha and MIPS to H.J.Lu's ftp site, since he tests for those 3
+> platforms prior to release.
+> 
+>   I'd appreciate recommendations and comments from those using binutils
+> on Linux for other platforms, with links to ftp, cvs or web pages
+> describing the solutions for those architectures.
 
-even more true these days with 2.5. Sometimes, you can
-only rely on the poster to guess what version he's
-talking about. Eg: at least when I see Linus, Jens or
-Dave Jones, I assume it's about 2.5 before reading the
-mail.
+Hello, good to hear from you again!
 
-> how about the various "versions" including something
-> that I can use to identify and toss those messages I
-> am not interested in.
+Do you already have a dedicated page up, or are you just going to keep
+things there? This sounds like a very useful bit of information to get,
+especially given my direct experience with the (lack of) documentation
+of this issue, and perhaps worthy of its own microproject...
 
-That's what regular posters tend to do :
-"[PATCH-2.4]", "[BUG in 2.2.20]", or "[OT]"...
-The problem is more about newcomers who don't know
-about these posting rules.
+IIRC on linux-m68k or somewhere someone told me it was binutils-2.9.1
+and gcc-2.95.3 for m68k (which I'm sure you've already heard, just
+trying to air it out here).
 
-> I'm primarily a 2.4 user, why do I care about all
-> this 2.5 discussion?
-
-sometimes, a 2.5 bug/fix may also affect 2.4, and this
-is only told in the message body.
-
-Willy
+I myself am especially interested in seeing the results of this as I,
+too, have a variety of architectures in the house.
 
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Courrier : http://courrier.yahoo.fr
+Thanks,
+Bill

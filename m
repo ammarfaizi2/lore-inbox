@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311217AbSCLO3m>; Tue, 12 Mar 2002 09:29:42 -0500
+	id <S311211AbSCLOcW>; Tue, 12 Mar 2002 09:32:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311216AbSCLO33>; Tue, 12 Mar 2002 09:29:29 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:47015 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S311211AbSCLO1v>; Tue, 12 Mar 2002 09:27:51 -0500
-Date: Tue, 12 Mar 2002 16:11:31 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Robert Love <rml@tech9.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Few questions about 2.5.6-pre3
-In-Reply-To: <1015917775.4808.9.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0203121608400.32078-100000@netfinity.realnet.co.sz>
+	id <S311223AbSCLOcN>; Tue, 12 Mar 2002 09:32:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11137 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S311211AbSCLOcB>; Tue, 12 Mar 2002 09:32:01 -0500
+Date: Tue, 12 Mar 2002 09:30:34 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: wli@holomorphy.com
+cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020312141738.D14628@holomorphy.com>
+Message-ID: <Pine.LNX.3.95.1020312093019.14651A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Mar 2002, Robert Love wrote:
+On Tue, 12 Mar 2002 wli@holomorphy.com wrote:
 
-> I've never seen this.  I assume the box is SMP since you are hitting a
-> BUG in the spin_unlock code?  I almost want to think this is an SMP bug
-> (locking rules not being observed somewhere) and preemption is just
-> accelerating the race.
+> On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
+> > This is a simple random number generator. It takes a pointer to your
+> > own private long, somewhere in your code, and returns a long random
+> > number with a period of 0xfffd4011. I ran a program for about a
+> > year, trying to find a magic number that will produce a longer
+> > period.
+> > 
+> > You could add a ldiv and return the modulus to set hash-table limits.
+> > ANDs are not good because, in principle, you could get many numbers
+> > in which all the low bits are zero.
+> > 
+> > 
+> > The advantage of this simple code is it works quickly. The disadvantages
+> > are, of course, its not portable and a rotation of a binary number
+> > is not a mathematical function, lending itself to rigorous analysis.
 > 
-> Ohh wait - this is 2.5.6-pre3 ?
+> Would you mind explaining what the point of this is? AFAICT this is
+> meaningless noise inspired by the words "/dev/random".
 > 
-> Can you try 2.5.6 final (or anything later)?  There is a bug with SMP
-> and preempt and this could be it.  Let me know..
+> 
+> Bill
+> 
+Really?
 
-Its SMP kernel on UP box, i'll be testing 2.5.6 this evening so i'll give 
-you a heads up tommorrow.
 
 Cheers,
-	Zwane
+Dick Johnson
 
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

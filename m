@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272498AbRIKOx0>; Tue, 11 Sep 2001 10:53:26 -0400
+	id <S272460AbRIKPBG>; Tue, 11 Sep 2001 11:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRIKOxG>; Tue, 11 Sep 2001 10:53:06 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:3341 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S266827AbRIKOw7>;
-	Tue, 11 Sep 2001 10:52:59 -0400
-Date: Tue, 11 Sep 2001 16:53:16 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: IBMs LVM ?
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B9E255C.8943D6BB@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S266827AbRIKPA4>; Tue, 11 Sep 2001 11:00:56 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50437 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268071AbRIKPAl>; Tue, 11 Sep 2001 11:00:41 -0400
+Subject: Re: Kernel Panic: Aiee, Killing Interupt Handler, Process kpnpbios
+To: paulhamm@OpenRatings.com (Paul Hamm)
+Date: Tue, 11 Sep 2001 16:05:20 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4A46E75D51A2D5119F2A00B0D03D7F09018D@exchange.hq.openratings.com> from "Paul Hamm" at Sep 10, 2001 01:27:17 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15gp6G-0002q6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> The complete screen of the error is below, there is one error in the second
+> block of the STACK info.  Had to hand write it and did not notice until I
+> typed it out.
+> 
 
-I heard rumors about IBM porting their LVM code from AIX to Linux.
-I guess the current LVM code is not from IBM ?
-Will it be replaced with the one from IBM ?
-Comments ?
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+You need to run that through ksymoops. Also the roswell beta kernel is 2.4.6
+based with known bugs and other test patches, so you probably want to pick
+up a more recent kernel 

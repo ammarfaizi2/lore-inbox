@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318327AbSG3QVN>; Tue, 30 Jul 2002 12:21:13 -0400
+	id <S318333AbSG3Qv6>; Tue, 30 Jul 2002 12:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318328AbSG3QVN>; Tue, 30 Jul 2002 12:21:13 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:8425 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S318327AbSG3QVM>; Tue, 30 Jul 2002 12:21:12 -0400
-Message-Id: <5.1.0.14.2.20020730172158.02014160@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 30 Jul 2002 17:28:05 +0100
-To: Nico Schottelius <nico-mutt@schottelius.org>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Bugs in 2.5.28 [scsi/framebuffer/devfs/floppy/ntfs/trident]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020731175743.GB1249@schottelius.org>
+	id <S318347AbSG3Qv6>; Tue, 30 Jul 2002 12:51:58 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15703 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318333AbSG3Qv5>; Tue, 30 Jul 2002 12:51:57 -0400
+Date: Tue, 30 Jul 2002 18:56:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc3aa4
+Message-ID: <20020730165635.GJ1181@dualathlon.random>
+References: <20020730060218.GB1181@dualathlon.random> <20020730094202.A7438@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020730094202.A7438@infradead.org>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:57 31/07/02, Nico Schottelius wrote:
->Just wanted to report of the following problems:
->
->Other bugs:
->- ntfs sometimes crashes the system: working on a loopback file caused
->   ntfs to report corruptions in the file system and this hangs system
->   completly.
->
->If you need more informations, just tell me. Currently I've some time
->to debug parts of the kernel.
+On Tue, Jul 30, 2002 at 09:42:02AM +0100, Christoph Hellwig wrote:
+> > Only in 2.4.19rc3aa4: 9900_aio-1.gz
+> > 
+> > 	Merged async-io from Benjamin LaHaise after purifying it from the
+> > 	/proc/libredhat.so mess that made it not binary compatible with 2.5.
+> 
+> As there is no finished aio ABI for 2.5 it can't be binary compatible.  But
+> unlike your version Ben's patch is not very likely to conflict with new
 
-I am interested in this ntfs report. Which way round was the loopback file? 
-I.e. did you mount: mount -t ntfs -o loop somefile_on_a_non_ntfs_partition 
-or did you mount: mount -t some_file_system -o loop 
-somefile_on_an_ntfs_partion?
+Yes, my version will clash if the API changes in 2.5, but I will adapt it with
+whatever API will showup in 2.5. This is in developement process of course.
+I just need to ship something right now and in order to do that without the
+libredhat I've to risk to be incompatible for a short period of time.
 
-Can you send me the errors produced? If there is an oops, please decode and 
-send it, too.
+> 2.5 features soon.  An no, there is no such thing as /proc/libredhat.so in
+> his patch.
 
-Also it may be useful to have the debug output from ntfs (depending on what 
-the errors/oops say - they may be sufficient to pinpoint the problem), i.e. 
-enable debugging when configuring the kernel, and then as root do: echo 1 > 
-/proc/sys/fs/ntfs-debug. Note this will absolutely flood you with debug 
-output so the system will run slow as hell... So it is best to only enable 
-debug messages just before the error occurs if that is possible.
+it may not be in /proc to save some byte of kernel ram but it doesn't matter
+where such bytecode is located.
 
-Thanks,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Andrea

@@ -1,95 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315788AbSEDIjx>; Sat, 4 May 2002 04:39:53 -0400
+	id <S315789AbSEDIyh>; Sat, 4 May 2002 04:54:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315789AbSEDIjw>; Sat, 4 May 2002 04:39:52 -0400
-Received: from moutvdomng0.kundenserver.de ([212.227.126.180]:53960 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S315788AbSEDIjw>; Sat, 4 May 2002 04:39:52 -0400
-Date: Sat, 4 May 2002 10:45:02 +0200
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Cc: jamagallon@able.es, andre@linux-ide.org
-Subject: Re: ide-convert-9 oops on boot
-Message-ID: <20020504084502.GA979@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, jamagallon@able.es,
-	andre@linux-ide.org
-In-Reply-To: <20020504022433.GA1803@werewolf.able.es>
+	id <S315791AbSEDIyg>; Sat, 4 May 2002 04:54:36 -0400
+Received: from smtp3.wanadoo.nl ([194.134.35.186]:52968 "EHLO smtp3.wanadoo.nl")
+	by vger.kernel.org with ESMTP id <S315789AbSEDIyf>;
+	Sat, 4 May 2002 04:54:35 -0400
+Message-Id: <4.1.20020504102844.00940230@pop.cablewanadoo.nl>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.1
+Date: Sat, 04 May 2002 10:49:44 +0200
+To: Dave Jones <davej@suse.de>
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Subject: Re: Linux 2.5.13-dj1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020503185811.GA4846@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
-User-Agent: Mutt/1.5.1i (Linux 2.4.19-pre7 i586)
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat May 04 2002, J.A. Magallon wrote:
+Dave,
 
-> Just patched pre8 with ide-convert-9, and system hangs on boot:
+>2.5.13-dj1
+>o   Back out bogus ext2_setup_super() change.
+>o   IDE-49 changes.					(Martin Dalecki)
+>o   IDE-50 and IDE-51.					(Martin Dalecki)
 
-Exactly the same thing here. You're not alone ;)
+compiled ok, booted ok, but got the same problem as with 2.5.1[02]-dj1 on
+my p100 (with F00F bug):
 
-[....]
-Journalled Block Device driver loaded
-Real Time Clock Driver v1.10e
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
-ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IBM-DHEA-36481, ATA DISK drive
-hdb: Conner Peripherals 1275MB - CFS1275A, ATA DISK drive
-hdc: CD-540E, ATAPI CD/DVD-ROM drive
-hdd: CD-W54E, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 12692736 sectors (6499 MB) w/472KiB Cache, CHS=790/255/63, UDMA(33)
-hdb: 2496876 sectors (1278 MB) w/64KiB Cache, CHS=619/64/63, DMA
-[....]
+the boot process stopped after fsck of hda1 (root partition) and the
+message 'hda lost interrupt' popped up every 5 sec or so.
+reboot into 2.4.19-pre8 resulted in a panic due to ext2 corruption, fscking
+hda1 from a rescue partition gave the message: Group descriptors look
+bad... using backup 
 
-chiara:~ # lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo
-VP] (rev 41)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
-00:11.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
+so how can I try to find the cause of this problem??
 
-chiara:~ cat /proc/ide/via
+	Rudmer
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.34
-South Bridge:                       VIA vt82c586b
-Revision:                           ISA 0x41 IDE 0x6
-Highest DMA rate:                   UDMA33
-BM-DMA base:                        0xe000
-PCI clock:                          33.3MHz
-Master Read  Cycle IRDY:            1ws
-Master Write Cycle IRDY:            1ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                 yes
-Post Write Buffer:            yes                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA       DMA      UDMA       DMA
-Address Setup:       30ns      30ns      30ns      30ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns      90ns      90ns      90ns
-Data Recovery:       30ns      30ns      30ns      30ns
-Cycle Time:          60ns     120ns      60ns     120ns
-Transfer Rate:   33.3MB/s  16.6MB/s  33.3MB/s  16.6MB/s
+--
+output of ver_linux:
+Linux frodo 2.4.19-pre8 #1 Sat May 4 18:32:42 CEST 2002 i586 unknown
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+Gnu C                  2.95.3
+Gnu make               3.77
+binutils               2.11.2
+usage: fdformat [ -n ] device
+mount                  2.9z
+modutils               2.4.13
+e2fsprogs              1.27
+Linux C Library        x   1 root     root      4223971 Nov  6  1999
+/lib/libc.so.6
+Dynamic linker (ldd)   2.1.2
+Procps                 2.0.2
+Net-tools              1.53
+Kbd                    command
+Sh-utils               2.0
+Modules Loaded
+
+output lspci:
+00:00.0 Host bridge: Intel Corporation 430FX - 82437FX TSC [Triton I] (rev 02)
+00:07.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev 02)
+00:08.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+]
+00:11.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet
+LANCE] (rev 16)
+
+note: the pcnet is my eth1 and is not enabled, driver is compiled as module
+
+IDE stuff in .config:
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+

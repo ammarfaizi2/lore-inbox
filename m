@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290745AbSARQtV>; Fri, 18 Jan 2002 11:49:21 -0500
+	id <S290744AbSARQrB>; Fri, 18 Jan 2002 11:47:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290747AbSARQtL>; Fri, 18 Jan 2002 11:49:11 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:44811 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290739AbSARQrr>;
-	Fri, 18 Jan 2002 11:47:47 -0500
-Date: Fri, 11 Jan 2002 23:21:10 +0000
+	id <S290742AbSARQqw>; Fri, 18 Jan 2002 11:46:52 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:4363 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290738AbSARQqg>;
+	Fri, 18 Jan 2002 11:46:36 -0500
+Date: Sat, 12 Jan 2002 06:34:12 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Peter W?chtler <pwaechtler@loewe-komp.de>,
-        Christoph Hellwig <hch@caldera.de>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>, velco@fadata.bg
-Subject: Re: [PATCH] updated version of radix-tree pagecache
-Message-ID: <20020111232110.A260@toy.ucw.cz>
-In-Reply-To: <20020105171234.A25383@caldera.de> <3C3972D4.56F4A1E2@loewe-komp.de> <20020107030344.H10391@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+Message-ID: <20020112063412.F511@toy.ucw.cz>
+In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020107030344.H10391@holomorphy.com>; from wli@holomorphy.com on Mon, Jan 07, 2002 at 03:03:44AM -0800
+In-Reply-To: <E16Oocq-0005tX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 10, 2002 at 11:28:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I speculate this would be good for small systems as well as it reduces
-> the size of struct page by 2*sizeof(unsigned long) bytes, allowing more
-> incremental allocation of pagecache metadata. I haven't tried it on my
-> smaller systems yet (due to lack of disk space and needing to build the
-> cross-toolchains), though I'm now curious as to its exact behavior there.
+> The kernel isnt there to fix up the fact authors can't read. Its also very
+> hard to get emulations right. I grant that this wasn't helped by the fact
 
-Why not mem=8M, nosmp on your "big" system?
-								Pavel
+What's so hard about CMOV?
 
+> If you have a static linked program install the right version. RPMv4
+> even knows about cmov and i686 rpms.
+
+RPM does not help. Think new machine failed, but you still have some trash
+with 386 on it, so you connect your disk to it, boot from floppy, and expect
+it to work.
+									Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

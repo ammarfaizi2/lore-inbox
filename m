@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267394AbSLEU64>; Thu, 5 Dec 2002 15:58:56 -0500
+	id <S267497AbSLEV0W>; Thu, 5 Dec 2002 16:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbSLEU5x>; Thu, 5 Dec 2002 15:57:53 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6660 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267394AbSLEU46>;
-	Thu, 5 Dec 2002 15:56:58 -0500
-Date: Thu, 5 Dec 2002 11:58:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-Message-ID: <20021205105817.GC127@elf.ucw.cz>
-References: <p73u1l7qbxs.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0209030113420.12861-100000@kiwi.transmeta.com> <asgsir$p18$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <asgsir$p18$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S267489AbSLEVZq>; Thu, 5 Dec 2002 16:25:46 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:1422 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id <S267445AbSLEVC6>;
+	Thu, 5 Dec 2002 16:02:58 -0500
+Message-ID: <3DEFC0AF.1010601@stesmi.com>
+Date: Thu, 05 Dec 2002 22:10:07 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Byron Albert <byron@markerman.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: host buss on p4 xeon
+References: <3DEFBEB7.9080500@markerman.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Byron
 
-> > The printk warnings should be easy to fix once everybody uses the same
-> > types - I think we right now have workarounds exactly for 64-bit machines
-> > where w check BITS_PER_LONG and use different formats for them (exactly
-> > because they historically have _not_ had the same types as the 32-bit
-> > machines).
-> > 
-> > However, if anybody on the list is hacking gcc, the best option really
-> > would be to just allow better control over gcc printf formats. I have
-> > wanted that in user space too at times. And it doesn't matter if it only
-> > happens in new versions of gcc - we can disable the warning altogether for
-> > old gcc's, as long as enough people have the new gcc to catch new
-> > offenders..
-> > 
-> > (I'd _love_ to be able to add printk modifiers for other common types in
-> > the kernel, like doing the NIPQUAD thing etc inside printk() instead of
-> > having it pollute the callers. All of which has been avoided because of
-> > the hardcoded gcc format warning..)
-> > 
-> 
-> While we're talking about printk()... is there any reason *not* to
-> rename it printf()?
+> I am testing some new dual 2.4/2.8ghz Xeon DP boxes. They all have the 
+> ServerWorks GC -LE Chipset. I was looking at the dmesg out put and it 
+> says that the host buss is 100mhz but I in all the docs about the mother 
+> board it says it should 400. Is this some other number or is there some 
+> patches I need to get the faster bus speeds?
 
-I believe printf() is good idea. I put printk() into userland programs
-too many times now, and used printf() too many times from kernel...
+Strictly speaking your docs are lying.
 
-								Pavel 
+The Pentium4 and Xeon CPUs use a 100 or 133Mhz quad-pumped bus. Transfer 
+4 items of data per clock getting an effective bandwidth of 400MHz at 
+100MHz or 533 at 133MHz.
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+// Stefan
+

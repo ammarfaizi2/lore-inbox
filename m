@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTDPJHY (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 05:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTDPJHY 
+	id S264190AbTDPJVc (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 05:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbTDPJVc 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 05:07:24 -0400
-Received: from nontri.ku.ac.th ([158.108.2.71]:60822 "EHLO ku.ac.th")
-	by vger.kernel.org with ESMTP id S262788AbTDPJHX 
+	Wed, 16 Apr 2003 05:21:32 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:21767 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264190AbTDPJVa 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 05:07:23 -0400
-Message-ID: <00e701c303f9$3bbc92e0$35226c9e@cpe.ku.ac.th>
-From: "Theewara Vorakosit" <g4465018@cc.cpe.ku.ac.th>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Invalid IOctl
-Date: Wed, 16 Apr 2003 16:19:06 +0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="x-user-defined"
+	Wed, 16 Apr 2003 05:21:30 -0400
+Date: Wed, 16 Apr 2003 11:33:02 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Arno Wilhelm <a.wilhelm@phion.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel 2.4.20 crashes when a second isdn channel is
+ opened by ibod
+Message-Id: <20030416113302.1fef0dcc.skraw@ithnet.com>
+In-Reply-To: <3E9D1A2D.1020109@phion.com>
+References: <3E9D1A2D.1020109@phion.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
-    I'm sorry it you get more than one copy of this mail.
+This bug is known and fixed by Patrick McHardy <kaber@trash.net>.
+Please use patch attached and confirm it works. Thank you.
 
-    I user Gigabyte 7VXRP mainboard. It has on board promise ATA 
-Raid/ATA 133 controller. I set in BIOS to user Raid. The chip model 
-reported from lspci is PDC20276.
 
-00:0f.0 RAID bus controller: Promise Technology, Inc. PDC20276 IDE (rev 01)
+See Changelog
 
-    I configure raid 0 on it with 2 80G-HDD. I use red hat 9. I install 
-it on 40 G hdd (hda). The kernel version is 2.4.20-9. I manually insert 
-ataraid and pdcraid module. Then I can create 160G on it everything is 
-OK. However, when I mount partition on it, there is an error message: 
-"Invalid ioctl". Why this error message is displayed? Does it effect to 
-system stability?
-    Before I install redhat 9, I used this system with redhat 7.3 and 
-driver from promise. During install, it said that I have to initialize 
-raid. So, my data is lost. If I upgrade kernel (using redhat rpm), is 
-there any chance that my data will lost?
+On Wed, 16 Apr 2003 10:54:05 +0200
+Arno Wilhelm <a.wilhelm@phion.com> wrote:
 
-Thanks,
-Theewara
+> Hello,
+> 
+> I guess we have detected a kernel bug in the isdn subsystem ( isdn_ppp.c ).
+> I have enclosed the bug report in this mail in the format that is asked by
+> the file "REPORTING-BUGS" in the kernel source directory.
+> If you need further assistance please mail to: a.wilhelm@phion.com
+> 
+> 
+> 
+> Regards,
+> 
+> 			Arno Wilhelm
+
+-- 
+Regards,
+Stephan
+
+diff -Nru a/drivers/isdn/isdn_net.c b/drivers/isdn/isdn_net.c
+--- a/drivers/isdn/isdn_net.c   Thu Mar 27 02:00:21 2003
++++ b/drivers/isdn/isdn_net.c   Thu Mar 27 02:00:21 2003
+@@ -2831,6 +2831,7 @@
+ 
+                        /* If binding is exclusive, try to grab the channel */
+                        save_flags(flags);
++                       cli();
+                        if ((i = isdn_get_free_channel(ISDN_USAGE_NET,
+                                lp->l2_proto, lp->l3_proto, drvidx,
+                                chidx, lp->msn)) < 0) {
+diff -Nru a/drivers/isdn/isdn_ppp.c b/drivers/isdn/isdn_ppp.c
+--- a/drivers/isdn/isdn_ppp.c   Thu Mar 27 02:00:21 2003
++++ b/drivers/isdn/isdn_ppp.c   Thu Mar 27 02:00:21 2003
+@@ -1176,7 +1176,7 @@
+        if (!lp) {
+                printk(KERN_WARNING "%s: all channels busy - requeuing!\n", netdev->name);
+                retval = 1;
+-               goto unlock;
++               goto out;
+        }
+        /* we have our lp locked from now on */
+ 
+
+

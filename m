@@ -1,110 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267332AbTGHNvU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbTGHNvU
+	id S267336AbTGHN4F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267348AbTGHNyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:51:20 -0400
-Received: from pat.uio.no ([129.240.130.16]:25053 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S267318AbTGHNvH (ORCPT
+	Tue, 8 Jul 2003 09:54:44 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:41697 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S267347AbTGHNxp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:51:07 -0400
-MIME-Version: 1.0
+	Tue, 8 Jul 2003 09:53:45 -0400
+Date: Tue, 8 Jul 2003 16:08:15 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Make synaptics support optional
+Message-ID: <20030708160815.B22428@ucw.cz>
+References: <20030708104551.GA209@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16138.53118.777914.828030@charged.uio.no>
-Date: Tue, 8 Jul 2003 16:04:46 +0200
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, hannal@us.ibm.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>
-Subject: RE: [PATCH] path_lookup for 2.4.20-pre4 (ChangeSet@1.587.10.71)
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030708104551.GA209@elf.ucw.cz>; from pavel@ucw.cz on Tue, Jul 08, 2003 at 12:45:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 08, 2003 at 12:45:51PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> Synaptics support breaks mouse for me (HP omnibook xe3).
 
-This patch breaks NFS close-to-open cache consistency as it undoes
-those changes that provide path revalidation for the case of
-open(".").
-The changelog entry doesn't even attempt to document this removal...
+Read the kernel config help entry. If you mean external mouse, then
+that's in the works.
 
-If people want to revert to the old behaviour, then there are ways of
-doing this that will not affect NFS. Something like the appended patch
-for instance...
+> I guess it should have its own config option, and perhaps it should be
+> marked experimental...
 
-Cheers,
-  Trond
+Probably yes.
 
-diff -u --recursive --new-file linux-2.4.22-odirect/fs/namei.c linux-2.4.22-fix_cto/fs/namei.c
---- linux-2.4.22-odirect/fs/namei.c	2003-06-27 13:34:41.000000000 +0200
-+++ linux-2.4.22-fix_cto/fs/namei.c	2003-07-08 15:51:08.000000000 +0200
-@@ -563,7 +563,7 @@
- 	while (*name=='/')
- 		name++;
- 	if (!*name)
--		goto return_base;
-+		goto return_reval;
- 
- 	inode = nd->dentry->d_inode;
- 	if (current->link_count)
-@@ -686,7 +686,7 @@
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
- 			case 1:
--				goto return_base;
-+				goto return_reval;
- 		}
- 		if (nd->dentry->d_op && nd->dentry->d_op->d_hash) {
- 			err = nd->dentry->d_op->d_hash(nd->dentry, &this);
-@@ -732,6 +732,24 @@
- 			nd->last_type = LAST_DOT;
- 		else if (this.len == 2 && this.name[1] == '.')
- 			nd->last_type = LAST_DOTDOT;
-+return_reval:
-+		/*
-+		 * We bypassed the ordinary revalidation routines.
-+		 * We may need to check the cached dentry for staleness.
-+		 */
-+		if (nd->dentry && nd->dentry->d_sb &&
-+		    (nd->dentry->d_sb->s_type->fs_flags & FS_REVAL_DOT)) {
-+			struct dentry *dentry = nd->dentry;
-+			unlock_nd(nd);
-+			dput(pinned.dentry);
-+			mntput(pinned.mnt);
-+			if (!dentry->d_op->d_revalidate(dentry, 0)) {
-+				d_invalidate(dentry);
-+				path_release(nd);
-+				return -ESTALE;
-+			}
-+			return 0;
-+		}
- return_base:
- 		unlock_nd(nd);
- 		dput(pinned.dentry);
-diff -u --recursive --new-file linux-2.4.22-odirect/fs/nfs/inode.c linux-2.4.22-fix_cto/fs/nfs/inode.c
---- linux-2.4.22-odirect/fs/nfs/inode.c	2002-08-15 03:05:32.000000000 +0200
-+++ linux-2.4.22-fix_cto/fs/nfs/inode.c	2003-07-08 15:24:32.000000000 +0200
-@@ -1125,7 +1125,7 @@
- /*
-  * File system information
-  */
--static DECLARE_FSTYPE(nfs_fs_type, "nfs", nfs_read_super, FS_ODD_RENAME);
-+static DECLARE_FSTYPE(nfs_fs_type, "nfs", nfs_read_super, FS_ODD_RENAME|FS_REVAL_DOT);
- 
- extern int nfs_init_nfspagecache(void);
- extern void nfs_destroy_nfspagecache(void);
-diff -u --recursive --new-file linux-2.4.22-odirect/include/linux/fs.h linux-2.4.22-fix_cto/include/linux/fs.h
---- linux-2.4.22-odirect/include/linux/fs.h	2003-07-08 11:47:08.000000000 +0200
-+++ linux-2.4.22-fix_cto/include/linux/fs.h	2003-07-08 15:47:06.000000000 +0200
-@@ -92,6 +92,7 @@
- #define FS_SINGLE	8 /* Filesystem that can have only one superblock */
- #define FS_NOMOUNT	16 /* Never mount from userland */
- #define FS_LITTER	32 /* Keeps the tree in dcache */
-+#define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
- #define FS_ODD_RENAME	32768	/* Temporary stuff; will go away as soon
- 				  * as nfs_rename() will be cleaned up
- 				  */
+> What about this patch?
+
+Seems OK.
+
+> 								Pavel
+> 
+> --- /usr/src/tmp/linux/drivers/input/mouse/Kconfig	2003-06-24 12:27:47.000000000 +0200
+> +++ /usr/src/linux/drivers/input/mouse/Kconfig	2003-07-08 12:33:47.000000000 +0200
+> @@ -30,6 +30,12 @@
+>  	  The module will be called psmouse. If you want to compile it as a
+>  	  module, say M here and read <file:Documentation/modules.txt>.
+>  
+> +config MOUSE_SYNAPTICS
+> +	tristate "Synaptics touchpad support"
+> +	depends on INPUT_MOUSE && MOUSE_PS2
+> +	help
+> +	  Say Y if you want your touchpad not to work any more.
+> +
+>  config MOUSE_SERIAL
+>  	tristate "Serial mouse"
+>  	depends on INPUT && INPUT_MOUSE && SERIO
+> @@ -134,4 +140,3 @@
+>  	  inserted in and removed from the running kernel whenever you want).
+>  	  The module will be called logibm.o. If you want to compile it as a
+>  	  module, say M here and read <file.:Documentation/modules.txt>.
+> -
+> --- /usr/src/tmp/linux/drivers/input/mouse/synaptics.c	2003-06-24 12:27:47.000000000 +0200
+> +++ /usr/src/linux/drivers/input/mouse/synaptics.c	2003-07-08 12:32:36.000000000 +0200
+> @@ -213,6 +213,9 @@
+>  {
+>  	struct synaptics_data *priv;
+>  
+> +#ifndef CONFIG_MOUSE_SYNAPTICS
+> +	return -1;
+> +#endif;
+>  	psmouse->private = priv = kmalloc(sizeof(struct synaptics_data), GFP_KERNEL);
+>  	if (!priv)
+>  		return -1;
+> 
+> -- 
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

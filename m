@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291893AbSBIAT3>; Fri, 8 Feb 2002 19:19:29 -0500
+	id <S287919AbSBIAZk>; Fri, 8 Feb 2002 19:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287872AbSBIATU>; Fri, 8 Feb 2002 19:19:20 -0500
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:19090 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S291890AbSBIATK>; Fri, 8 Feb 2002 19:19:10 -0500
-Date: Fri, 8 Feb 2002 16:19:08 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: kernel@sol.compendium-tech.com
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <20020114131050.E14747@thyrsus.com>
-Message-ID: <Pine.LNX.4.44.0202081612430.29874-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287886AbSBIAZa>; Fri, 8 Feb 2002 19:25:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:56081 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287279AbSBIAZV>;
+	Fri, 8 Feb 2002 19:25:21 -0500
+Date: Sat, 9 Feb 2002 01:25:20 +0100
+From: Dave Jones <davej@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: Nathan <wfilardo@fuse.net>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: USB OOPS persists in 2.5.3-dj4
+Message-ID: <20020209012519.A9087@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Greg KH <greg@kroah.com>, Nathan <wfilardo@fuse.net>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C644F9B.4050702@fuse.net> <20020209001405.GG27610@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020209001405.GG27610@kroah.com>; from greg@kroah.com on Fri, Feb 08, 2002 at 04:14:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This bothers me. I prefer building a monolithic kernel with only a few 
-drivers compiled as modules (e.g. those drivers which are under active 
-development and are upgraded often). I believe firmly that certain drivers 
-should be part of the monolithic kernel.... either way, i'm not about to 
-debate it. i'd just like to know exactly why this is being done, and to 
-lodge an objection against it.
+On Fri, Feb 08, 2002 at 04:14:05PM -0800, Greg KH wrote:
+ > On Fri, Feb 08, 2002 at 05:22:19PM -0500, Nathan wrote:
+ > > Similarly to what I reported for 2.5.3-dj1, the following big bunch of 
+ > > OOPSes occur when the usb-uhci module is unloaded.  Something similar 
+ > > happens with uhci, but I have not tested it.
+ > This looks like the symptom of my driverfs patches for USB that ended up
+ > in the -dj kernels.  I don't know which version of that patch is in the
+ > -dj kernel.
 
-On Mon, 14 Jan 2002, Eric S. Raymond wrote:
-
-> Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > For 2.5 if things go to plan there will be no such thing as a "compiled in"
-> > driver. They simply are not needed with initramfs holding what were once the
-> > "compiled in" modules.
-> 
-> This is something of a bombshell.  Not necessarily a bad one, but...
-> 
-> Alan, do you have *any* *freakin'* *idea* how much more complicated
-> the CML2 deduction engine had to be because the basic logical entity
-> was a tristate rather than a bool?  If this plan goes through, I'm
-> going to be able to drop out at least 20% of the code, with most of
-> that 20% being in the nasty complicated bits where the maintainability
-> improvement will be greatest.  And I can get rid of the nasty "vitality"
-> flag, which probably the worst wart on the language.
-> 
-> Yowza...so how soon is this supposed to happen?
-> 
-
+ I thought I dropped this in favour of the usb/driverfs changes in 2.5.4pre3,
+ it's possible I overlooked something, I'll double check later.
+ 
 -- 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

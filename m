@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317579AbSGOSci>; Mon, 15 Jul 2002 14:32:38 -0400
+	id <S317580AbSGOSey>; Mon, 15 Jul 2002 14:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317580AbSGOSch>; Mon, 15 Jul 2002 14:32:37 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29237 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317579AbSGOScf>; Mon, 15 Jul 2002 14:32:35 -0400
-Date: Mon, 15 Jul 2002 14:35:25 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: szepe@pinerecords.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [sparc32] reserve nocache based on RAM size
-Message-ID: <20020715143525.B27814@devserv.devel.redhat.com>
-References: <200207151333.g6FDXF001511@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207151333.g6FDXF001511@devserv.devel.redhat.com>; from zaitcev@redhat.com on Mon, Jul 15, 2002 at 09:33:15AM -0400
+	id <S317581AbSGOSex>; Mon, 15 Jul 2002 14:34:53 -0400
+Received: from web14205.mail.yahoo.com ([216.136.172.151]:8866 "HELO
+	web14205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317580AbSGOSev>; Mon, 15 Jul 2002 14:34:51 -0400
+Message-ID: <20020715183746.72137.qmail@web14205.mail.yahoo.com>
+Date: Mon, 15 Jul 2002 20:37:46 +0200 (CEST)
+From: =?iso-8859-1?q?Miguel=20Rodr=EDguez?= <agus_081074@yahoo.com>
+Subject: patchless debugger for U.P x86
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Tomas Szepe <szepe@pinerecords.com>
-> Newsgroups: rhat.general.linux-kernel
-> Date: Sun, 14 Jul 2002 17:38:05 +0200
+I have released an initial alpha release for a x86
+(uniprocessor) Linux kernel patchless debugger under
+the GNU GPL at savannah.gnu.org. Project is called
+kmdbg. First debugger implemented is a remote serial
+debugger.
+It is just a simple interrupt/exception/syscall
+interception scheleton and may have a lot of errors
+(or not work at all) although it worked for me with
+kernel 2.4.XX, 2.5.24.
+See:
 
-> Since there's no official sparc32 maintainer, I'm sending this patch
-> directly to you. It has now been tested in various configurations
-> (released in the default Aurora 0.3 kernel) and appears to be causing
-> no undesired side effects.
+https://savannah.gnu.org/projects/kmdbg
 
-Would you mind to send me 3-4 /proc/meminfos and /proc/cpuinfos
-from your Aurora boxes with this patch, preferably after some uptime?
+Miguel.
 
-Also, did you think about a deadlock-free runtime resizing of the
-nocache memory? I did not even bother with boot-time resizing,
-because run-time resizing sounds doable and certainly nobler.
 
--- Pete
+_______________________________________________________________
+Yahoo! Messenger
+Nueva versión: Webcam, voz, y mucho más ¡Gratis! 
+Descárgalo ya desde http://messenger.yahoo.es

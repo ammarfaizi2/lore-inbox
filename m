@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129792AbQK0PUq>; Mon, 27 Nov 2000 10:20:46 -0500
+        id <S131173AbQK0PXP>; Mon, 27 Nov 2000 10:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131173AbQK0PUg>; Mon, 27 Nov 2000 10:20:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28526 "EHLO
+        id <S132109AbQK0PXF>; Mon, 27 Nov 2000 10:23:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61038 "EHLO
         the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S129792AbQK0PUS>; Mon, 27 Nov 2000 10:20:18 -0500
-Subject: Re: KERNEL BUG: console not working in linux
-To: g.anzolin@inwind.it (Gianluca Anzolin)
-Date: Mon, 27 Nov 2000 14:50:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001127150543.A3083@dracula.home.intranet> from "Gianluca Anzolin" at Nov 27, 2000 03:05:43 PM
+        id <S132104AbQK0PWw>; Mon, 27 Nov 2000 10:22:52 -0500
+Subject: Re: [Oops] apic, smp and k6
+To: Torsten.Duwe@caldera.de
+Date: Mon, 27 Nov 2000 14:52:51 +0000 (GMT)
+Cc: aj@dungeon.inka.de (Andreas Jellinghaus), linux-kernel@vger.kernel.org
+In-Reply-To: <14882.27508.534457.187156@ns.caldera.de> from "Torsten Duwe" at Nov 27, 2000 03:11:00 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E140Pc3-0003AI-00@the-village.bc.nu>
+Message-Id: <E140PeH-0003AW-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         inb     $0x92, %al                      #
->         orb     $02, %al                        # "fast	A20" version
->         outb    %al, $0x92			# some chips have only this
+> while now with an appropriate patch. Now Christoph Hellwig has identifi=
+> ed a
+> simpler solution (updated for -test11 by me):
 > 
-> Then my system worked without problems.
-> 
-> Now what I ask is:
-> 1) Why did they disable my videocard ?
+> --- linux/arch/i386/kernel/setup.c~	Fri Jul  7 04:42:06 2000
+> +++ linux/arch/i386/kernel/setup.c	Tue Jul 18 19:22:48 2000
+> @@ -785,7 +785,8 @@
+>  	/*
+>  	 * get boot-time SMP configuration:
+>  	 */
+> -	if (smp_found_config)
+> +	if (smp_found_config && /* try only if the cpu has a local apic */
+> +	    test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
+>  		get_smp_config();
 
-Because your machine is not properly PC compatible
+This patch unfortunately does break some real setups, since it is legal to
+have non APIC on the CPU but an APIC as an addon chip.
 
-> 2) Whate are they supposed to do?
+> I think Alan has a similar thing in his test11-ac* series.
 
-They switch on the A20 line
-
+Maciej Rozycki provided a much better test, that from reports so far seems
+to be working
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267994AbUHEWOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267897AbUHEWMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267994AbUHEWOi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267900AbUHEWMh
+	id S267897AbUHEWMG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHEWGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:12:37 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:24585 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S268003AbUHEWGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:06:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C47B38.74B70D1B"
-Subject: RE: [PATCH 2.6.8-rc2] sata_nv.c
-Date: Thu, 5 Aug 2004 15:06:27 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9623@hqemmail02.nvidia.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.8-rc2] sata_nv.c
-Thread-Index: AcR7NtVe4DdfDUL8QGS+Sfg6gqYWVgAAPcbw
-From: "Andrew Chew" <achew@nvidia.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-X-OriginalArrivalTime: 05 Aug 2004 22:06:28.0208 (UTC) FILETIME=[74DA8700:01C47B38]
+	Thu, 5 Aug 2004 18:06:55 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:21695 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268004AbUHEWE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 18:04:56 -0400
+Subject: Re: ide-cd problems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Bill Davidsen <davidsen@tmr.com>, Zinx Verituse <zinx@epicsol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040805193520.GA7571@suse.de>
+References: <20040803055337.GA23504@suse.de> <41128070.5050109@tmr.com>
+	 <20040805193520.GA7571@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1091739746.8419.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 05 Aug 2004 22:02:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Iau, 2004-08-05 at 20:35, Jens Axboe wrote:
+> > exotic commands, and given the choice of having users able to send 
+> > arbitrary commands to the device and not access it at all, I would say 
+> > "not at all" would be good.
+> 
+> Then don't make your cdrom device accesable.
 
-------_=_NextPart_001_01C47B38.74B70D1B
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Lets get rid of root, I mean you don't need root, you could just turn
+your computer off.
 
-> Andrew Chew wrote:
-> > A minor change to libata-core.c needs to accompany this=20
-> patch.  This=20
-> > is in regards to the function ata_pci_remove_one(), where the
-> > host_set->ops->host_stop(host_set) needs to occur before the=20
-> > iounmap(host_set->mmio_base).  This is because sata_nv's host_stop=20
-> > callback needs access to the iomapped region.
+What planet are you living on Jens ?
 
-Jeff Garzik wrote:
-> Do you want to send a separate patch for this?  I don't see=20
-> that change=20
-> in the attached patch.
+End users have lots of reasons for being able to access /dev/cdrom
+directly and also often for groups of users to access a disk directly
+(for example Oracle databases).
 
-Attached patch.
+That means any security model that isn't based around things beyond
+basic device access is flawed.
 
-------_=_NextPart_001_01C47B38.74B70D1B
-Content-Type: application/octet-stream;
-	name="libata-core_2-6.diff"
-Content-Transfer-Encoding: base64
-Content-Description: libata-core_2-6.diff
-Content-Disposition: attachment;
-	filename="libata-core_2-6.diff"
+> Affects all devices that accept SG_IO.
 
-LS0tIGxpbnV4LTIuNi44LXJjMi9kcml2ZXJzL3Njc2kvbGliYXRhLWNvcmUuYwkyMDA0LTA4LTA1
-IDE0OjE3OjMwLjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgvZHJpdmVycy9zY3NpL2xpYmF0YS1j
-b3JlLmMJMjAwNC0wNy0yNyAxNDo0MjowNi4wMDAwMDAwMDAgLTA3MDAKQEAgLTMyNTEsMTAgKzMy
-NTEsMTAgQEAKIAl9CiAKIAlmcmVlX2lycShob3N0X3NldC0+aXJxLCBob3N0X3NldCk7Ci0JaWYg
-KGhvc3Rfc2V0LT5tbWlvX2Jhc2UpCi0JCWlvdW5tYXAoaG9zdF9zZXQtPm1taW9fYmFzZSk7CiAJ
-aWYgKGhvc3Rfc2V0LT5vcHMtPmhvc3Rfc3RvcCkKIAkJaG9zdF9zZXQtPm9wcy0+aG9zdF9zdG9w
-KGhvc3Rfc2V0KTsKKwlpZiAoaG9zdF9zZXQtPm1taW9fYmFzZSkKKwkJaW91bm1hcChob3N0X3Nl
-dC0+bW1pb19iYXNlKTsKIAogCWZvciAoaSA9IDA7IGkgPCBob3N0X3NldC0+bl9wb3J0czsgaSsr
-KSB7CiAJCWFwID0gaG9zdF9zZXQtPnBvcnRzW2ldOwo=
+Then if you refuse to fix SG_IO perhaps all device drivers should remove
+support for it ?
 
-------_=_NextPart_001_01C47B38.74B70D1B--

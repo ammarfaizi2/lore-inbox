@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbRE2G3H>; Tue, 29 May 2001 02:29:07 -0400
+	id <S263225AbRE2GcR>; Tue, 29 May 2001 02:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263224AbRE2G25>; Tue, 29 May 2001 02:28:57 -0400
-Received: from gec.gecpalau.com ([206.49.60.67]:39512 "EHLO gec.gecpalau.com")
-	by vger.kernel.org with ESMTP id <S263217AbRE2G2r>;
-	Tue, 29 May 2001 02:28:47 -0400
-Message-ID: <3B134260.1030309@gecpalau.com>
-Date: Tue, 29 May 2001 15:32:00 +0900
-From: Glenn Shannon <glenn@gecpalau.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac2-WARKERN i686; en-US; 0.8.1) Gecko/20010421
-X-Accept-Language: en
+	id <S263228AbRE2Gb5>; Tue, 29 May 2001 02:31:57 -0400
+Received: from kathy-geddis.astound.net ([24.219.123.215]:4868 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263225AbRE2Gbu>; Tue, 29 May 2001 02:31:50 -0400
+Date: Mon, 28 May 2001 23:32:06 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Part II of Lameness...
+Message-ID: <Pine.LNX.4.10.10105282325560.889-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Anton Voloshin <vav@isv.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: 2.4.4 hang on large network transfers with RTL-8139
-In-Reply-To: <20010529142019.C757@ws17.krasu.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Voloshin wrote:
 
-> Hello,
-> 
-> I've got a kernel hang (can easily be reproduced on my computer).
-> It happens on relatively large outgoing network traffic.
-> For instance, on trying to upload some large file from workstation to
-> other machine via SMB or FTP.
-> 
-> On 2.4.4 hang was after sending about 20Kb.
-> On 2.4.5 it seems to hang after 870+ Kb.
-> When sending data via slow link (e.g. local Ethernet -> remote modem),
-> everything is Ok.
-> 
-> Network card is (taken from /proc/pci):
-> 
->   Bus  1, device  11, function  0:
->     Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 16).
->       IRQ 10.
->       Master Capable.  Latency=208.  Min Gnt=32.Max Lat=64.
->       I/O at 0x7800 [0x78ff].
->       Non-prefetchable 32 bit memory at 0xfebfff00 [0xfebfffff].
-> 
-> 2.4.3 works Ok, 2.4.4 and 2.4.5 both has this problem.
-> 
-> Lamer's assumption: maybe troubles with sendfile() after zero-copy patches?
-> 
-Actually I get the same problem (I kind of have to run 2.4.5-ac2 
-however). I just try not to download or upload large files over fast links.
+athy:/src/DiskPerf-1.0.4 # ./DiskPerf /dev/hda
+Device: IBM-DTLA-307075 Serial Number: YSDYSFA5874
+LBA 0 DMA Read Test                      = 45.73 MB/Sec (5.47 Seconds)
+Outer Diameter Sequential DMA Read Test  = 35.85 MB/Sec (6.97 Seconds)
+Inner Diameter Sequential DMA Read Test  = 17.62 MB/Sec (14.19 Seconds)
 
-Glenn Shannon
+Sorry I do not have the other boxes configured with a kernel to accept
+this test callout.
+
+However I do have systems that rip at 63 MB/Sec and if you adjust for
+CR3's between kernel to user-space it comes out to about 93 MB/Sec.
+
+There is nothing LAME or LACKING about that performance!
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
 

@@ -1,97 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUGGIjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUGGIjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265025AbUGGIjW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 04:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUGGIh7
+	id S264991AbUGGIjX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 04:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbUGGIhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 04:37:59 -0400
-Received: from outmx012.isp.belgacom.be ([195.238.3.70]:4488 "EHLO
-	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S265006AbUGGIcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 04:32:06 -0400
-Subject: Re: VM - is "reserved memory for root" possible (in case of a
-	leak)?
-From: FabF <fabian.frederick@skynet.be>
-To: Tomasz Chmielewski <mangoo@interia.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40EBA846.6010705@interia.pl>
-References: <40EBA846.6010705@interia.pl>
-Content-Type: text/plain
-Message-Id: <1089189121.3692.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 07 Jul 2004 10:32:02 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jul 2004 04:37:48 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:26804 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264991AbUGGIbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 04:31:52 -0400
+Date: Wed, 07 Jul 2004 17:33:09 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: [PATCH 4/4][Diskdump]Update patches
+In-reply-to: <EC463FC08D159indou.takao@soft.fujitsu.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <12C463FD08CD14indou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.55
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <EC463FC08D159indou.takao@soft.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-07 at 09:37, Tomasz Chmielewski wrote:
-> Hello,
-> 
-> Short nature of a problem:
-> 
-> Recently I was playing with Apache2 as a proxy + mod_clamav as a virus 
-> scanner, put some load to it, and in a short time hanged the machine 
-> (actually, it was short of memory, and it stopped to respond - in logs I 
-> saw VM was killing some other processes, unfortunately not Apache).
-> 
-> As I could reach the machine only remotely, it was no wonder I run into 
-> troubles...
-> 
-> Sounds familiar?
-> 
-> 
-> Solution?
-> 
-> I was thinking, if there is something like:
-> 
-> "reserved_min_memory_for_root = 10M"
-> "reserved_min_memory_processes = /usr/sbin/sshd, /usr/sbin/pppd, etc.etc"
-> 
-> Which would just give that memory for those processes "once and for 
-> all", and thus, saving trouble in case of a memory leak, uncontrolled 
-> process, or similar.
-> 
-> I know it would be tricky to implement it, because the question arises, 
-> what happens if we have no memory left, and these 
-> "reserved_min_memory_processes" begin to grow?
-> 
-> But I think it would be something like a comparison:
-> 
-> ulimit vs this "reserved_min_memory_for_root", and
-> quota vs -m option from mke2fs.
-> 
-> Is there something like it already in the kernel?
-> 
-> 
-> It would be similar to mke2fs for the filesystem:
-> 
-> # man mke2fs
-> 
-> -m reserved-blocks-percentage
->                Specify the percentage of the filesystem blocks reserved 
-> for the
->                super-user.  This value defaults to 5%
-Hi Tomasz,
+This is a patch for aic79xx driver.
 
-Maybe you would want to tune /proc/sys/vm/min_free_kbytes or renice +xx
-apache.Some vmstat 1 report, uname -a could be interesting as
-well.There's no per profile VM granularity in 2.6.
 
-Regards,
-FabF
-
-> 
-> 
-> 
-> Regards,
-> 
-> Tomasz Chmielewski
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+diff -Nur linux-2.6.7.org/drivers/scsi/aic7xxx/aic79xx_osm.c linux-2.6.7/drivers/scsi/aic7xxx/aic79xx_osm.c
+--- linux-2.6.7.org/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-06-22 10:27:49.000000000 +0900
++++ linux-2.6.7/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-07-07 14:16:22.000000000 +0900
+@@ -786,6 +786,8 @@
+ static int	   ahd_linux_bus_reset(Scsi_Cmnd *);
+ static int	   ahd_linux_dev_reset(Scsi_Cmnd *);
+ static int	   ahd_linux_abort(Scsi_Cmnd *);
++static int         ahd_linux_sanity_check(struct scsi_device *);
++static void        ahd_linux_poll(struct scsi_device *);
+ 
+ /*
+  * Calculate a safe value for AHD_NSEG (as expressed through ahd_linux_nseg).
+@@ -1684,6 +1686,8 @@
+ 	.slave_alloc		= ahd_linux_slave_alloc,
+ 	.slave_configure	= ahd_linux_slave_configure,
+ 	.slave_destroy		= ahd_linux_slave_destroy,
++	.dump_sanity_check	= ahd_linux_sanity_check,
++	.dump_poll		= ahd_linux_poll,
+ };
+ 
+ /**************************** Tasklet Handler *********************************/
+@@ -4191,6 +4195,39 @@
+ 	return IRQ_RETVAL(ours);
+ }
+ 
++static int
++ahd_linux_sanity_check(struct scsi_device *device)
++{
++	struct ahd_softc *ahd;
++	struct ahd_linux_device *dev;
++
++	ahd = *(struct ahd_softc **)device->host->hostdata;
++	dev = ahd_linux_get_device(ahd, device->channel,
++				   device->id, device->lun,
++				   /*alloc*/FALSE);
++
++	if (dev == NULL)
++		return -ENXIO;
++	if (ahd->platform_data->qfrozen || dev->qfrozen)
++		return -EBUSY;
++	if (spin_is_locked(&ahd->platform_data->spin_lock))
++		return -EBUSY;
++	return 0;
++}
++
++static void
++ahd_linux_poll(struct scsi_device *device)
++{
++	struct ahd_softc *ahd;
++	int ours;
++
++	ahd = *(struct ahd_softc **)device->host->hostdata;
++	ours = ahd_intr(ahd);
++	if (ahd_linux_next_device_to_run(ahd) != NULL)
++		ahd_schedule_runq(ahd);
++	ahd_linux_run_complete_queue(ahd);
++}
++
+ void
+ ahd_platform_flushwork(struct ahd_softc *ahd)
+ {

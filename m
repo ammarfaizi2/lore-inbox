@@ -1,126 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264411AbTCXVaH>; Mon, 24 Mar 2003 16:30:07 -0500
+	id <S264435AbTCXVfu>; Mon, 24 Mar 2003 16:35:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264431AbTCXVaH>; Mon, 24 Mar 2003 16:30:07 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:31371 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S264411AbTCXVaD>;
-	Mon, 24 Mar 2003 16:30:03 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: ifconfig crashes kernel 2.5.65 with X.25 compiled in
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 24 Mar 2003 22:34:18 +0100
-Message-ID: <m3n0jkcuud.fsf@defiant.pm.waw.pl>
+	id <S264436AbTCXVfu>; Mon, 24 Mar 2003 16:35:50 -0500
+Received: from 67-122-122-226.ded.pacbell.net ([67.122.122.226]:39972 "EHLO
+	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
+	id <S264435AbTCXVfs>; Mon, 24 Mar 2003 16:35:48 -0500
+Message-ID: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>
+From: Adam Radford <aradford@3WARE.com>
+To: "'Steven Pritchard'" <steve@silug.org>, linux-kernel@vger.kernel.org
+Subject: RE: 3ware driver errors
+Date: Mon, 24 Mar 2003 13:44:23 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is fixed in driver 1.02.00.032, the scsi layer is looping on sense key
+'aborted command' after you lost power to a jbod drive, and not checking the
+ASC 
+which is 0x04 (Logical Unit Not Ready).  If you want to fix it by hand in
+your
+driver before .032 comes out, in 3w-xxxx.h, change:
 
-Linux 2.5.65 (gcc 3.2 20020903 - Red Hat 8), AMD K6-2 500 MHz, 64 MB RAM,
-diskless (a test machine with serial console, only lo net device).
+{0x37, 0x0b, 0x04, 0x00},
 
-Typing 'ifconfig' crashes the kernel if X.25 is compiled in:
+to:
 
-(none):/# ip link
-1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+{0x37, 0x02, 0x04, 0x00}
 
-(none):/# ifconfig 
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+This will return sense key 'Not Ready', and you will will not infinitely
+loop.
+If I were you, I would jiggle the power cables on that box and replace flaky
+ones.
 
-and no, I didn't feed it with a stream of "kkkkkkkkkkkkk..." :-)
+-Adam
 
-Unable to handle kernel paging request at virtual address 6b6b6b6b
- printing eip:
-c018aec2
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c018aec2>]    Not tainted
-EFLAGS: 00010202
-EIP is at __release_sock+0x22/0x60
-eax: 6b6b6b6b   ebx: c3d06000   ecx: 00000000   edx: c3cf2bac
-esi: c10ff190   edi: c10ff190   ebp: c3d07f04   esp: c3d07efc
-ds: 007b   es: 007b   ss: 0068
-Process ifconfig (pid: 35, threadinfo=c3d06000 task=c3ce0060)
-Stack: c3d06000 c10ff1d4 c3d07f1c c01ca13a c10ff190 c10ff190 c3cef200 c10b6488 
-       c3d07f44 c01ca618 c10ff190 c10ff190 00000000 00000000 00000000 c10b6488 
-       c3d1d224 c10b64ac c3d07f54 c01884d1 c10b6488 c10b64ac c3d07f64 c0188b03 
-Call Trace:
- [<c01ca13a>] x25_destroy_socket+0x1da/0x200
- [<c01ca618>] x25_release+0x38/0xa0
- [<c01884d1>] sock_release+0x51/0x60
- [<c0188b03>] sock_close+0x23/0x40
- [<c013a884>] __fput+0xa4/0xc0
- [<c013933b>] filp_close+0x3b/0x60
- [<c01393a7>] sys_close+0x47/0x60
- [<c010ac37>] syscall_call+0x7/0xb
+-----Original Message-----
+From: Steven Pritchard [mailto:steve@silug.org]
+Sent: Monday, March 24, 2003 1:28 PM
+To: linux-kernel@vger.kernel.org
+Subject: 3ware driver errors
 
-Code: 8b 18 c7 00 00 00 00 00 50 56 ff 96 18 01 00 00 85 db 5a 89 
- <0>Kernel panic: Aiee, killing interrupt handler!
 
-In interrupt handler - not syncing
+(Apparently 3w-xxxx in the Subject gets caught as spam.  Somebody
+might want to adjust that regular expression.  :-)
 
-intrepid:/usr/src/linux-2.5$ grep ^C .config
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_X86_PC=y
-CONFIG_MK6=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_TSC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GODIRECT=y
-CONFIG_PCI_DIRECT=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_NET=y
-CONFIG_INET=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_X25=y
-CONFIG_NETDEVICES=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_EXT2_FS=y
-CONFIG_PROC_FS=y
-CONFIG_RAMFS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_BIOS_REBOOT=y
+I have a server that is locking up every day or two with a console
+full of this error:
+
+    3w-xxxx: scsi0: Command failed: status = 0xcb, flags = 0x37, unit #0.
+
+This is on a Dell PowerEdge 1400SC (dual PIII/1.13GHz, 1.1GB RAM),
+with a 3ware Escalade 7000-2 and two WD1600JB drives, running Red Hat
+8.0 with kernel-smp 2.4.18-27.8.0.
+
+I plan to report this to Red Hat's bugzilla, but I'm hoping for some
+ideas or big red flags to jump out at somebody here...  I use this box
+for a UML hosting server, so all this downtime is affecting *way* too
+many people.
+
+This box has been having other stability problems, so I'm guessing
+this might not be directly related to the 3ware card/driver.  It did
+survive a memtest86 pass.
+
+Steve
 -- 
-Krzysztof Halasa
-Network Administrator
+steve@silug.org           | Southern Illinois Linux Users Group
+(618)398-7360             | See web site for meeting details.
+Steven Pritchard          | http://www.silug.org/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

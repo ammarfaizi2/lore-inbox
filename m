@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVCHUkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVCHU3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVCHUkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHUf2
+	id S262119AbVCHU3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 15:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVCHU2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:35:28 -0500
-Received: from fire.osdl.org ([65.172.181.4]:60306 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262113AbVCHUaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 15:30:46 -0500
-Date: Tue, 8 Mar 2005 12:29:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: rlrevell@joe-job.com, hch@infradead.org, mingo@elte.hu, mpm@selenic.com,
-       joq@io.com, cfriesen@nortelnetworks.com, chrisw@osdl.org,
-       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+	Tue, 8 Mar 2005 15:28:23 -0500
+Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:26854
+	"EHLO graphe.net") by vger.kernel.org with ESMTP id S262241AbVCHUFu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 15:05:50 -0500
+Date: Tue, 8 Mar 2005 12:05:38 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Ingo Molnar <mingo@elte.hu>, roland@redhat.com, shai@scalex86.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-Id: <20050308122934.3ef35f9e.akpm@osdl.org>
-In-Reply-To: <200503081911.j28JBL4D014012@localhost.localdomain>
-References: <1110308156.4401.4.camel@mindpipe>
-	<200503081911.j28JBL4D014012@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch] del_timer_sync scalability patch
+In-Reply-To: <20050308003340.306b8293.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503081159430.2943@server.graphe.net>
+References: <Pine.LNX.4.58.0503072244270.20044@server.graphe.net>
+ <20050307233202.1e217aaa.akpm@osdl.org> <20050308081921.GA25679@elte.hu>
+ <20050308003340.306b8293.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Davis <paul@linuxaudiosystems.com> wrote:
->
-> >And as I mentioned a few times, the authors have neither the inclination
-> >nor the ability to do that, because they are not kernel hackers.  The
-> >realtime LSM was written by users (not developers) of the kernel, to
-> >solve a specific real world problem.  No one ever claimed it was the
-> >correct solution from the kernel POV.
-> 
-> i would just like to add that its very disappointing that the LSM,
-> having been included in the kernel (apparently very much against
-> Christoph's and others' advice) turns out to be so useless. from
-> outside lkml, LSM appeared to be a mechanism to allow
-> non-kernel-developers to create new security policies (perhaps even
-> mechanisms) without trying to tackle the entire kernel. instead, we
-> are now getting a fix which, while it solves the same problem, has
-> required substantive analysis of its effect on the overall kernel, and
-> will require continued vigilance to ensure that it doesn't now or
-> later cause unintended side effects. LSM appeared to be the "right"
-> way to do this in terms of modularity - it is disappointing to find it
-> has so little support (close to zero to judge from this debate) on
-> LKML despite being present in the kernel.
-> 
+On Tue, 8 Mar 2005, Andrew Morton wrote:
 
-That, plus the fact that inherited capabilities could also be used here,
-except they don't work right.  That's a nice, simple and long-standing
-kernel feature which I think we should have fixed up before piling in more
-security features.
+> If we're prepared to rule that a timer handler is not allowed to do
+> add_timer_on() then a recurring timer is permanently pinned to a CPU, isn't
+> it?
 
-But I've said that often enough.  If nobody has a sufficient need for
-fixed-up-caps to actually put work into it, nothing happens.  And it's a
-lot of work, because this is a scary feature.
-
+The process may be rescheduled to run on different processor. Then the
+add_timer() function (called from schedule_next_timer in
+kernel/posix-timers.c) will also add the timer to the new processor
+because it is called from the signal handling code. So I think that it
+is possible that a periodic timer will be scheduled on different
+processors.

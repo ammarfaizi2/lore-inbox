@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSHFQfG>; Tue, 6 Aug 2002 12:35:06 -0400
+	id <S313305AbSHFQmq>; Tue, 6 Aug 2002 12:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSHFQfG>; Tue, 6 Aug 2002 12:35:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:4113 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S313508AbSHFQfF>;
-	Tue, 6 Aug 2002 12:35:05 -0400
-Date: Tue, 6 Aug 2002 18:38:38 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
-Message-ID: <20020806163838.GC32229@alpha.home.local>
-References: <3D4FD736.DA443B4B@daimi.au.dk> <20020806.065652.12285252.davem@redhat.com> <3D4FDA23.90CAB62F@daimi.au.dk> <20020806.070535.24871584.davem@redhat.com> <3D4FDCDB.744EE7C9@daimi.au.dk> <3D4FDEF3.8070207@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D4FDEF3.8070207@colorfullife.com>
-User-Agent: Mutt/1.4i
+	id <S313477AbSHFQmq>; Tue, 6 Aug 2002 12:42:46 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:19370 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S313305AbSHFQmp>;
+	Tue, 6 Aug 2002 12:42:45 -0400
+Date: Tue, 6 Aug 2002 09:48:33 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: driverfs API Updates
+In-Reply-To: <20020805163839.A13073@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208060923100.1241-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 04:36:35PM +0200, Manfred Spraul wrote:
-> But how many 80386 Linux systems that run the 2.4 kernel exist?
 
-at least my ADSL router/firewall here :-)
-It has the advantage of running really cool without *ANY* mechanical parts.
-And for this exact reason, there may many others around the world.
+> > DEVICE_ATTR(name,"strname",mode,show,store);
+> 
+> Do you any plans to simplify the show or store interfaces? 
 
-Regards,
-Willy
+Yes. But, I'm not sure how I want to do it. A while back, I converted it 
+to use the seq_file interface, with a (probably broken) implementation of 
+seq_write(). I'm not sure how well it would fit into what we have now, but 
+I definitely agree that it should be simpler.
+
+> Passing a single page or two (4k to 8k buffer), with no offset, and letting
+> the driverfs_read_file fill buf might be OK, but breaks seeks (and short
+> buffer usage), but at least the show/restore functions would be less likely
+> to be broken. Limiting the offset to a fit in a page might help.
+> 
+> If the show and store interfaces could return a pointer, lengths, and
+> a specifier ("%s", "%d", etc.), that might be pretty simple, and would
+> allow for correct offset and overflow checks.
+
+The seq_file interface would allow for that.
+
+One purely evil solution might be to just pass a zero'd page-sized buffer 
+to be filled one time. We then do strlen() on it for the size, and copy 
+what the user wants. It would still require some extra state, but it would 
+force people to stick to ASCII, instead of trying to sneak in some binary 
+data ;)
+
+> Most of the current show interfaces are broken for a short buffer or seek,
+> and they are being copied to create new interfaces, example usage:
+> 
+> [patman@elm3a50 linux-2.5.29-p1]$ cat /devices/root/pci0/00:0f.2/name
+> PCI device 1166:0220
+> [patman@elm3a50 linux-2.5.29-p1]$ dd if=/devices/root/pci0/00:0f.2/name of=/tmp/xx bs=1 count=10 ; cat /tmp/xx ; echo 
+> 1+0 records in
+> 1+0 records out
+> P
+
+Yeah, that's definitely broken. 
+
+> For the above to function I also had to change:
+
+Thanks, applied. 
+
+	-pat
 

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSIENQs>; Thu, 5 Sep 2002 09:16:48 -0400
+	id <S317488AbSIENSZ>; Thu, 5 Sep 2002 09:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSIENQs>; Thu, 5 Sep 2002 09:16:48 -0400
-Received: from gra-lx1.iram.es ([150.214.224.41]:21768 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id <S317482AbSIENQr>;
-	Thu, 5 Sep 2002 09:16:47 -0400
-Date: Thu, 5 Sep 2002 15:21:01 +0200 (CEST)
-From: Gabriel Paubert <paubert@iram.es>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Hirokazu Takahashi <taka@valinux.co.jp>, <hpa@zytor.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: TCP Segmentation Offloading (TSO)
-In-Reply-To: <20020905121717.A15540@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.33.0209051334280.13338-100000@gra-lx1.iram.es>
+	id <S317489AbSIENSZ>; Thu, 5 Sep 2002 09:18:25 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:17594 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S317488AbSIENSY>; Thu, 5 Sep 2002 09:18:24 -0400
+Date: Thu, 5 Sep 2002 10:22:49 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: shakira banu <shak_banu@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Attention to Scheduler Workers!!!
+In-Reply-To: <20020905043227.63466.qmail@web20009.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44L.0209051021120.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002, Jamie Lokier wrote:
+On Wed, 4 Sep 2002, shakira banu wrote:
 
-> Gabriel Paubert wrote:
-> > Now that is grossly inefficient ;-) since you can save one instruction by
-> > moving roll after adcl (hand edited partial patch hunk, won't apply):
->
-> Yes but is it _faster_? :-)
+>  robin.we plan to change to shortest remaining time
+>  first.this is our proposa.
 
-Hard to tell, with OOO engine and decoder constraints. But once again it
-is in the out of mainline code path for odd buffer addresses, not in the
-loop, so its performance is not critical. Actually code size may have more
-impact it ends up spanning one more cache line (or even a 16 byte block
-used as fetch unit by P6 cores).
+>  could u please give ur valuable suggestions reg. the
+> project?
 
->
-> I've been doing some PPro assembly lately, and I'm reminded that
-> sometimes inserting instructions can reduce the timing by up to 8 cycles
-> or so.
+Well, first you'll need a subsystem to look into the
+future, so you know how much remaining time each
+process has.
 
-The one instruction that you can still be moved around easily is the
-pointer increment. But I would never try to improve code paths that I
-consider non critical.
+Once you can look into the future, you can simply sort
+the tasks by remaining time and run them in order.
 
-	Gabriel.
+kind regards,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-
-
-
-
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

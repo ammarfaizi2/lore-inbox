@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264609AbTE1HlM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 03:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbTE1HlM
+	id S264227AbTE1Hvy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 03:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTE1Hvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 03:41:12 -0400
-Received: from mxout1.netvision.net.il ([194.90.9.20]:50833 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S264609AbTE1HlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 03:41:08 -0400
-Date: Wed, 28 May 2003 11:08:53 +0200
-From: Nir Livni <nir_l3@netvision.net.il>
-Subject: Re: fork() returns on parent but not returns on child
-To: Anand K <anand_km@hotmail.com>, linux-kernel@vger.kernel.org
-Reply-to: Nir Livni <nirl@cyber-ark.com>
-Message-id: <016d01c324f8$c2bde4e0$68d0da51@pinguin>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <00f801c324ac$1904b6a0$30dfda51@pinguin>
- <BAY1-DAV41oV1qdiixj00001dbc@hotmail.com>
+	Wed, 28 May 2003 03:51:54 -0400
+Received: from gw.enyo.de ([212.9.189.178]:50192 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S264227AbTE1Hvx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 03:51:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.69] ext3 error: rec_len %% 4 != 0
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Wed, 28 May 2003 10:05:07 +0200
+Message-ID: <8765nva43w.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sometimes, our 2.5 test machine (actually, it's a production machine,
+please don't ask why we can't use 2.4 *sigh*) stops with an ext3 error
+message.  We have now activated proper logging, and that's what we
+got:
 
+May 28 03:23:00 kernel: EXT3-fs error (device md0): ext3_readdir: bad entry in directory #16056745: rec_len %% 4 != 0 - offset=52, inode=431743, rec_len=37017, name_len=41 
+May 28 03:23:00 kernel: Aborting journal on device md0. 
+May 28 03:23:00 kernel: ext3_abort called. 
+May 28 03:23:00 kernel: EXT3-fs abort (device md0): ext3_journal_start: Detected aborted journal 
+May 28 03:23:00 kernel: Remounting filesystem read-only 
+May 28 03:23:00 kernel: EXT3-fs error (device md0) in ext3_commit_write: IO failure 
+May 28 03:23:00 kernel: EXT3-fs error (device md0) in start_transaction: Journal has aborted 
 
-> How about setting up a signal handler? Makes things simpler.
+What could cause this?  Spurious data transmission errors?  md0 is a
+RAID-5, the machine is a Siemens Primergy H450 (Quad Pentium 4/Xeon, 4
+GB RAM, two-channel Adaptec aic7899 Ultra160 SCSI adapter).
 
-Parent already has a signal handler.
-Child does not reach it. It simply exists.
-
->
-> -- Anand K.
-> ----- Original Message -----
-> From: "Nir Livni" <nir_l3@netvision.net.il>
-> Newsgroups: mailinglists.external.linux-kernel
-> To: <linux-kernel@vger.kernel.org>
-> Cc: "Nir Livni" <nirl@cyber-ark.com>
-> Sent: Wednesday, May 28, 2003 4:18 AM
-> Subject: fork() returns on parent but not returns on child
->
->
-> > Hi all,
-> > I am experiencing a problem, where fork() returns succesfully on parent,
-> but
-> > does not return on child.
-> > The child process simply "disappears".
-> > I believe it might have got a SIGSEGV (if it makes any sence) before
-> fork()
-> > has returned.
-> >
-> > I would like to track down this problem.
-> > What I did so far is:
-> > 1. I tried first to make sure there are no memory overruns using few
-> tools.
-> > 2. I tried to look at strace output, but the problem does not occur if I
-> use
-> > strace
-> > 3. I make a UserModeLinux machine
-> > and now I would like to breakpoint the created child before it crashes
-> > (assuming it really crashes)
-> >
-> > How do I do that ?
-> >
-> > Thanks,
-> > Nir
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-
+According to fsck.ext3, the on-disk data structures are clean, and if
+I run "find" across the file system after the reboot, it doesn't
+complain about bad directory entries, either.

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTD2MXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbTD2MXE
+	id S261844AbTD2M2U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTD2M2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:23:04 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:2835 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261876AbTD2MXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:23:00 -0400
-Date: Tue, 29 Apr 2003 13:35:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chandrasekhar <chandrasekhar.nagaraj@patni.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stack Trace dump in do_IRQ
-Message-ID: <20030429133516.A29248@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chandrasekhar <chandrasekhar.nagaraj@patni.com>,
-	linux-kernel@vger.kernel.org
-References: <NHBBIPBFKBJLCPPIPIBCCEAICAAA.chandrasekhar.nagaraj@patni.com>
-Mime-Version: 1.0
+	Tue, 29 Apr 2003 08:28:20 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:58629 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S261844AbTD2M2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:28:19 -0400
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] DMA mapping API for Alpha
+References: <wrp65oycvrw.fsf@hina.wild-wind.fr.eu.org>
+	<20030429150532.A3984@jurassic.park.msu.ru>
+	<wrpvfwx5xcq.fsf@hina.wild-wind.fr.eu.org>
+	<20030429162322.B5767@jurassic.park.msu.ru>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 29 Apr 2003 14:37:51 +0200
+Message-ID: <wrpllxt5vj4.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030429162322.B5767@jurassic.park.msu.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <NHBBIPBFKBJLCPPIPIBCCEAICAAA.chandrasekhar.nagaraj@patni.com>; from chandrasekhar.nagaraj@patni.com on Tue, Apr 29, 2003 at 06:04:28PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 29, 2003 at 06:04:28PM +0530, Chandrasekhar wrote:
-> Hi All,
-> We have a custom driver which runs on Red Hat Advanced Server 2.1(kernel
-> version 2.4.9-e.3).
+>>>>> "Ivan" == Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-In general please report bugs for vendor kernels to their repective
-vnedors - the RH AS kernels have forked from mainline 2.4 more than 1 1/2
-years ago so they are very different from any official kernel.
+Ivan> Agreed, but what if your EISA-PCI bridge has only 30 address
+Ivan> lines wired to PCI? Yes, we can check this for EISA device
+Ivan> because it has *real* PCI parent (thanks, Marc :-), but what
+Ivan> about ISA/legacy/whatever drivers?  I doubt that all of them
+Ivan> bother to set dma_mask pointer (so you can have an oops there).
 
-> dont have the same check? Also, if the stack overflow can cause future
-> problems, then
-> how can we increase the stack size? Thanks in advance for any information on
-> this.
+If the driver is not ported to the device API, than we pass NULL as a
+device pointer, and then we fallback to the old behaviour, aka
+dma_mask=0x00ffffff. If the driver supplies a dev pointer, but fails
+to set its dma_mask pointer, than it is a driver bug that should be
+fixed.
 
-I'd suggest fixing the driver instead :)  and btw, a similar debugging
-check is merged in recent mainline kernels.
+And yes, the EISA subsystem should properly report the dma_mask to
+attached devices (patches for that are in mm tree, and sent to Linus).
 
+        M.
+-- 
+Places change, faces change. Life is so very strange.

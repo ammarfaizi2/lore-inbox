@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262793AbSJEXXY>; Sat, 5 Oct 2002 19:23:24 -0400
+	id <S262807AbSJEXbC>; Sat, 5 Oct 2002 19:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262810AbSJEXXY>; Sat, 5 Oct 2002 19:23:24 -0400
-Received: from bitmover.com ([192.132.92.2]:40581 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262793AbSJEXXV>;
-	Sat, 5 Oct 2002 19:23:21 -0400
-Date: Sat, 5 Oct 2002 16:28:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Larry McVoy <lm@bitmover.com>, Ben Collins <bcollins@debian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021005162852.I11375@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ulrich Drepper <drepper@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de> <20021005190638.GN585@phunnypharm.org> <3D9F3C5C.1050708@redhat.com> <20021005124321.D11375@work.bitmover.com> <3D9F49D9.304@redhat.com>
-Mime-Version: 1.0
+	id <S262809AbSJEXbC>; Sat, 5 Oct 2002 19:31:02 -0400
+Received: from CPE-203-51-31-60.nsw.bigpond.net.au ([203.51.31.60]:23293 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S262807AbSJEXbA>; Sat, 5 Oct 2002 19:31:00 -0400
+Message-ID: <3D9F7779.579746C6@eyal.emu.id.au>
+Date: Sun, 06 Oct 2002 09:36:25 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+CC: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19: sym53c8xx problems
+References: <Pine.LNX.4.44.0210051116120.20304-100000@filesrv1.baby-dragons.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D9F49D9.304@redhat.com>; from drepper@redhat.com on Sat, Oct 05, 2002 at 01:21:45PM -0700
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's not what I was talking about.  It is not possible anymore to use
-> the same process we did.  It is not possible anymore to react right away
-> on "Linus checked the patch in; try it.".
+"Mr. James W. Laferriere" wrote:
+> 
+>         Hello Eyal ,  I have a CP6000 unit (PPRO's tho) & am having no
+>         such difficulties .  Now that said I rebuilt the WHOLE scsi
+>         layout in the system in order to get rid of those older hotswap
+>         cages (imo, they stink electrically) .  Btw , Stable as heck .
+>         Wheres that forest I need to knock on ;-)
 
-Because Linus is using BK it is easier for him to make his work in 
-progress available, so he does.  Before he was using BK, you got a 
-snapshot when he put up for ftp.  It is an absolute fact that Linus
-tree is far more quickly available, via regular patches or BK, than
-it was before he used BK.
+Sounds good
 
-If he stopped using BK then you'd be back to the old patch availablity.
-If he used Subversion or CVS or Perforce or whatever, because of how 
-those systems work, I'm positive that you'd see his publish rate drop.
-BK makes it really easy to do what Linus is doing.  If he had to manage
-the same set of things using traditional branching techniques then 
-he'd publish less because it would be harder to do so.
+>         Is your scsi setup easy enough to make an ascii art description
+>         of ?  If so would you post it please ?  From the messages below
+>         it appears (to me) that their is some difficulty in the chain that
+>         attaches to the python .  I have never seen those messages when I
+>         have attached (albeit differant) tape drives , ie: DLT,dat2,dat3 .
 
-The bottom line is that the use of BK is giving you faster access to the
-data you want, in whatever form you want.  So I fail to see the problem.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+As I mentioned the ONLY scsi device is the externally connected DDS-1
+tape drive. It is a SCSI-2 narrow (50-pin) device. It uses a
+HD-centronics->50pin-centronics cable.
+
+I believe the BIOS on this machine really does not like and IDE disks
+connected. It does have an IDE controller but will only allow the CD
+drive on it, so we have a PCI/IDE controller installed to handle the
+single IDE disk. The machine refuses to boot off the IDE but LILO is
+happy to do so off a floppy.
+
+BTW, I only have this machine in order to test out software on a 4-way
+SMP machine, which is why we passed on installing more expensive scsi
+disks.
+
+Now, when I connect the cable to my tape, lilo fails to boot off the
+floppy. It seems that the first BIOS disk (80h) which is detected
+properly by the IDE controller is trashed by the scsi controller
+(which initialises later than the IDE). So we now boot off the floppy
+directly (i.e. the kernel boots off the floppy, not just lilo).
+
+Finally, now that we are booting just fine, and the scsi tape drive
+is clearly detected at bootup by the kernel, I see that the scsi
+driver does not stay loaded (maybe the boot process loads it, and
+if there are no disks it unloads it?). So I try to load it myself
+	modprobe sym53c8xx
+and this kills the machine.
+
+By "kills" I mean the machine stutters for a few seconds, and then
+locks up, not even vt switching. No message is ever displayed.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

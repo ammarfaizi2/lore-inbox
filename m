@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbTEVXhc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 19:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTEVXhc
+	id S263451AbTEVXiX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 19:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTEVXiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 19:37:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47840 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263429AbTEVXhb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 19:37:31 -0400
-Date: Thu, 22 May 2003 16:48:45 -0700 (PDT)
-Message-Id: <20030522.164845.48515977.davem@redhat.com>
-To: schlicht@uni-mannheim.de
-Cc: akpm@digeo.com, mfc@krycek.org, linux-kernel@vger.kernel.org
-Subject: Re: Error during compile of 2.5.69-mm8
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305230147.00730.schlicht@uni-mannheim.de>
-References: <200305230128.06412.schlicht@uni-mannheim.de>
-	<20030522.162913.115921853.davem@redhat.com>
-	<200305230147.00730.schlicht@uni-mannheim.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Thu, 22 May 2003 19:38:22 -0400
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:48613 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263441AbTEVXiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 19:38:15 -0400
+Subject: [PATCH] 2.5.69-mm8 apm.c compile fix
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+Content-Type: multipart/mixed; boundary="=-15fuPYdoA/+e3l96pqkD"
+Organization: 
+Message-Id: <1053647477.2471.3.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 22 May 2003 19:51:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Thomas Schlichter <schlicht@uni-mannheim.de>
-   Date: Fri, 23 May 2003 01:47:00 +0200
-   
-   There was a discussion about SET_MODULE_OWNER here on the list, once.
-   You can find it here:
 
-I know about it and in fact Rusty is the one that told me
-to do what I did with SET_MODULE_OWNER.
+--=-15fuPYdoA/+e3l96pqkD
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-FACT: SET_MODULE_OWNER() tracks how to set the module reference
-      for a struct netdevice.
+Hi,
 
-It always lived in netdevice.h and always served exactly this purpose.
-So when I deleted ->owner from struct netdevice, SET_MODULE_OWNER
-became a nop.
+Needed this SET_MODULE_OWNER fix to compile -mm8.
 
-Therefore, it was a complete error for anyone else to start using this
-macro for other structures.
+Regards,
+
+Shane
+
+--=-15fuPYdoA/+e3l96pqkD
+Content-Disposition: attachment; filename=2.5.69-mm8.apm.diff
+Content-Type: text/x-diff; name=2.5.69-mm8.apm.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.5.69-mm8/arch/i386/kernel/apm.c.orig	Thu May 22 19:28:12 2003
++++ linux-2.5.69-mm8/arch/i386/kernel/apm.c	Thu May 22 19:45:11 2003
+@@ -1998,7 +1998,7 @@
+ 
+ 	apm_proc = create_proc_info_entry("apm", 0, NULL, apm_get_info);
+ 	if (apm_proc)
+-		SET_MODULE_OWNER(apm_proc);
++		apm_proc->owner = THIS_MODULE;
+ 
+ 	kernel_thread(apm, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+ 
+
+--=-15fuPYdoA/+e3l96pqkD--
+

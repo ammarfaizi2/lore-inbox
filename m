@@ -1,88 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268321AbTAMUe1>; Mon, 13 Jan 2003 15:34:27 -0500
+	id <S268329AbTAMUsX>; Mon, 13 Jan 2003 15:48:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268332AbTAMUe1>; Mon, 13 Jan 2003 15:34:27 -0500
-Received: from ce.fis.unam.mx ([132.248.33.1]:47797 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id <S268321AbTAMUe0>;
-	Mon, 13 Jan 2003 15:34:26 -0500
-Subject: [Fwd: Re: Linux 2.4.21-pre3-ac4]
-From: Max Valdez <maxvaldez@yahoo.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/oO+XXiZjC544k+25aCn"
+	id <S268331AbTAMUsX>; Mon, 13 Jan 2003 15:48:23 -0500
+Received: from AMarseille-201-1-3-195.abo.wanadoo.fr ([193.253.250.195]:5488
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S268329AbTAMUsW>; Mon, 13 Jan 2003 15:48:22 -0500
+Subject: Re: Linux 2.4.21-pre3-ac4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ross Biro <rossb@google.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E23114E.8070400@google.com>
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
+	 <1042399796.525.215.camel@zion.wanadoo.fr>
+	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
+	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>
+	 <1042484609.30837.31.camel@zion.wanadoo.fr>  <3E23114E.8070400@google.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1042490678.3108.7.camel@garaged.fis.unam.mx>
+Message-Id: <1042491409.586.4.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Jan 2003 14:44:38 -0600
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 13 Jan 2003 21:56:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-01-13 at 20:19, Ross Biro wrote:
 
---=-/oO+XXiZjC544k+25aCn
-Content-Type: multipart/mixed; boundary="=-FWpt6b20KZgMx6H60PDk"
+> and read the alt status register to get a delay.
+> 
+> This is technically a spec violation, but it's probably safe.  I'm going 
+> to send an email to a couple of the drive manufacturers and see what 
+> they think.
 
+Or get back to my original idea of an IOSYNC() callback in hwif. For
+standard PCI controllers with DMA, it's enough to read the dma_status
+register which is on the same bus path. Others will have to provide
+some implementation or be unsafe on some non-x86. What do you think ?
 
---=-FWpt6b20KZgMx6H60PDk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ben.
 
-Alan,Sorry that i sent this message to you're account directly
-
---=20
-Max Valdez <maxvaldez@yahoo.com>
-
---=-FWpt6b20KZgMx6H60PDk
-Content-Description: Forwarded message - Re: Linux 2.4.21-pre3-ac4
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Subject: Re: Linux 2.4.21-pre3-ac4
-From: Max Valdez <maxvalde@ce.fis.unam.mx>
-To: Alan Cox <alan@redhat.com>
-In-Reply-To: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042486322.3108.4.camel@garaged.fis.unam.mx>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Date: 13 Jan 2003 13:32:03 -0600
-Content-Transfer-Encoding: quoted-printable
-
-Hangs too in my box, no more than 1 hour of uptime...
-
-Dont have any logged errors, just hangs...
-
-before this version i had 2.4.20-ac1 for days and no problem at all.
-
-attaches .config, 2xPIII SMP 1GB RAM
-
-I dont know what else can I say, I'm willing to test any other config, or p=
-atch
-Max
---=20
-uname -a: Linux garaged.fis.unam.mx 2.4.20-ac1 #8 SMP Sun Dec 8 09:27:36 CS=
-T 2002 i686 unknown unknown GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-GS/ d-s:a-C++ILIHA+++P-L++E--W++N+K-w++++O-M--V--PS+PEY+PGP-tXRtv++b+DI--D+=
-Ge++h---r+++z+++
------END GEEK CODE BLOCK-----
-gpg-key: http://garaged.homeip.net/gpg-key.txt
-
---=-FWpt6b20KZgMx6H60PDk--
-
---=-/oO+XXiZjC544k+25aCn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+IyU2svQlVyd+QikRAl2YAJ0SfqnxlCTiSJdoYd/VAbGEWRWhAgCeNYLc
-EHd46fT9Kf8tOvYNzWDxus0=
-=MS12
------END PGP SIGNATURE-----
-
---=-/oO+XXiZjC544k+25aCn--
 

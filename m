@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264296AbUD0TFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264293AbUD0TKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264296AbUD0TFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 15:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUD0TFW
+	id S264293AbUD0TKr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUD0TKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 15:05:22 -0400
-Received: from piedra.unizar.es ([155.210.11.65]:5316 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S264296AbUD0TDf (ORCPT
+	Tue, 27 Apr 2004 15:10:47 -0400
+Received: from ns.suse.de ([195.135.220.2]:57037 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264293AbUD0TKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 15:03:35 -0400
-From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
-Reply-To: koke@sindominio.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Tue, 27 Apr 2004 21:03:21 +0200
-User-Agent: KMail/1.6.1
-Cc: Valdis.Kletnieks@vt.edu, Grzegorz Kulewski <kangur@polcom.net>
-References: <20040427165819.GA23961@valve.mbsi.ca> <Pine.LNX.4.58.0404271950170.4424@alpha.polcom.net> <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
-In-Reply-To: <200404271854.i3RIsdaP017849@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 27 Apr 2004 15:10:45 -0400
+Subject: Re: [PATCH] Return more useful error number when acls are too large
+From: Andreas Gruenbacher <agruen@suse.de>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040427183228.GF2086@fieldses.org>
+References: <1082973939.3295.16.camel@winden.suse.de>
+	 <20040427183228.GF2086@fieldses.org>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1083093044.16824.312.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 27 Apr 2004 21:10:45 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404272103.21925.koke_lkml@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Martes, 27 de Abril de 2004 20:54, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 27 Apr 2004 19:53:39 +0200, Grzegorz Kulewski said:
-> > Maybe kernel should display warning only once per given licence or even
-> > once per boot (who needs warning about tainting tainted kernel?)
->
-> If your kernel is tainted by 3 different modules, it saves you 2 reboots
-> when trying to replicate a problem with an untainted kernel.
->
+On Tue, 2004-04-27 at 20:32, J. Bruce Fields wrote:
+> On Mon, Apr 26, 2004 at 12:27:58PM +0200, Andreas Gruenbacher wrote:
+> > could you please add this to mainline? Getting EINVAL when an acl
+> > becomes too large is quite confusing.
+> 
+> On my system, at least, "man acl_set_file" does explicitly say that
+> EINVAL is returned in this case.  Whether that should be considered a
+> bug in the documentation or the code I don't know....
 
-what about something like a /proc/tainted list of modules?
+Indeed ... looking at POSIX 1003.1e draft 17 I now see that this
+function is indeed supposed to return EINVAL in this case. I was
+assuming that this case was undefined, but that was wrong. So let's
+leave the code as is -- sorry.
 
-> Other than that, there's probably no reason to complain on a re-taint.
+
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+

@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbUBTWv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 17:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUBTWvZ
+	id S261400AbUBTWsC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 17:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbUBTWsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 17:51:25 -0500
-Received: from gprs151-132.eurotel.cz ([160.218.151.132]:27010 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261406AbUBTWsr (ORCPT
+	Fri, 20 Feb 2004 17:48:01 -0500
+Received: from gate.crashing.org ([63.228.1.57]:40875 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261400AbUBTWqL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 17:48:47 -0500
-Date: Fri, 20 Feb 2004 23:48:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-rc4
-Message-ID: <20040220224836.GA32153@elf.ucw.cz>
-References: <Pine.LNX.4.58L.0402180207540.4852@logos.cnet> <20040218055744.GC15660@alpha.home.local> <Pine.LNX.4.58L.0402181132480.4852@logos.cnet>
+	Fri, 20 Feb 2004 17:46:11 -0500
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB update for 2.6.3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hollis Blanchard <hollisb@us.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.58.0402201128240.1101@ppc970.osdl.org>
+References: <20040220012802.GA16523@kroah.com>
+	 <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
+	 <1077256996.20789.1091.camel@gaston>
+	 <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
+	 <1077258504.20781.1121.camel@gaston>
+	 <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
+	 <1077259375.20787.1141.camel@gaston>
+	 <Pine.LNX.4.58.0402192257190.1107@ppc970.osdl.org>
+	 <20040219230407.063ef209.davem@redhat.com>
+	 <1077261041.20787.1181.camel@gaston>
+	 <20040219233214.56f5b0ce.davem@redhat.com>
+	 <Pine.LNX.4.58.0402200714270.1107@ppc970.osdl.org>
+	 <CBEF20EA-63D0-11D8-AE86-000A95A0560C@us.ibm.com>
+	 <Pine.LNX.4.58.0402201030060.2533@ppc970.osdl.org>
+	 <CB199764-63D9-11D8-AE86-000A95A0560C@us.ibm.com>
+	 <Pine.LNX.4.58.0402201128240.1101@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1077316822.9625.4.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402181132480.4852@logos.cnet>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 21 Feb 2004 09:40:23 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > On Wed, Feb 18, 2004 at 02:11:24AM -0300, Marcelo Tosatti wrote:
-> > > Here goes release candidate 4, including a few small fixes.
-> > >
-> > > If nothing bad shows up, this will become final.
-> >
-> > Well, I would have liked to see the ACPI poweroff fix I sent a few days ago,
-> > but Len said he doesn't have time to review it this week. It's a shame since
-> > at least two of my machines which powered off correctly with very older ACPI
-> > versions now need it, so I don't think I'm the only one in this case :-(
-> >
-> > Other than that, I'm fairly happy with at least -rc2 (not tested latest
-> > releases yet).
+On Sat, 2004-02-21 at 06:32, Linus Torvalds wrote:
+> On Fri, 20 Feb 2004, Hollis Blanchard wrote:
+> > 
+> > Well, I was picturing all those *_dma_supported() functions as being 
+> > plugged into (new) fields in struct bus_type:
+> > 	struct bus_type {
+> > 		...
+> > 		int (*dma_supported)(struct device *dev, u64 mask);
+> > 	}
 > 
-> Hi Willy,
-> 
-> Your fix looks ok. I dont think calling acpi_system_save_state(S5) can
-> cause any breakage. Len?
+> Ok, that would work. It might even be a good idea (not just DMA-related) 
+> to make sure that everything you can portably "do" with a device would 
+> show up as device operations. Right now it's not very well specified, and 
+> there's obviously a lot of confusion.
 
-I bet it will create "machine will reboot instead of poweroff" on some
-strange machine.... Perhaps it fixes more machines than it breaks, but
-it will probably break some.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Yes, which is why I don't agree with Hollis about having that in
+bus_type, but rather in the device itself and inherit from the
+parents by default ;) (Hrm... did I repeat myself ?)
+
+The bus_type was is pretty useless for things like USB, and we
+may have several controllers of the same bus with different
+caracteristics (an on-chip OHCI and a PCI EHCI comes to mind)
+
+Hrm... reading your last sentence, it seems you don't want people
+to pass the struct device of the USB device but the host one instead,
+fair enough...
+
+> > If your *_dma_supported functions only take usb_dev, pci_dev, etc, then 
+> > you end up with code like asm-generic/dma-mapping.h:
+> 
+> I agree, that is horrible. On the other hand, some architectures don't 
+> need any indirection or any conditionals at all, since they know that they 
+> only have one type of DMA. 
+> 
+> Making the device operations explicit would be good, though, and would 
+> match how we do things in general. It's a fairly big change at this point, 
+> but if somebody is willing to put the effort into the cleanup, then I'm 
+> all for it.
+> 
+> I'd still ask that people don't do DMA on non-host devices. I'd rather 
+> have a USB "struct device" just return "DMA not supported", to make sure 
+> that everybody asks the right chip.
+> 
+
+

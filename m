@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319633AbSIMMn6>; Fri, 13 Sep 2002 08:43:58 -0400
+	id <S319628AbSIMMxh>; Fri, 13 Sep 2002 08:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319635AbSIMMn6>; Fri, 13 Sep 2002 08:43:58 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:26274 "EHLO
+	id <S319629AbSIMMxh>; Fri, 13 Sep 2002 08:53:37 -0400
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:29346 "EHLO
 	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S319633AbSIMMn5> convert rfc822-to-8bit; Fri, 13 Sep 2002 08:43:57 -0400
+	id <S319628AbSIMMxf> convert rfc822-to-8bit; Fri, 13 Sep 2002 08:53:35 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Ivan Ivanov <ivandi@vamo.orbitel.bg>, linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-Date: Fri, 13 Sep 2002 07:47:54 -0500
+To: vda@port.imtp.ilyichevsk.odessa.ua, "Jim Sibley" <jlsibley@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Killing/balancing processes when overcommited
+Date: Fri, 13 Sep 2002 07:54:21 -0500
 User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
-In-Reply-To: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
+Cc: riel@conectiva.com.br, ltc@linux.ibm.com, "Troy Reed" <tdreed@us.ibm.com>
+References: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com> <200209130757.g8D7vxp09323@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200209130757.g8D7vxp09323@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200209130747.54730.pollard@admin.navo.hpc.mil>
+Message-Id: <200209130754.21751.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 September 2002 02:47 am, Ivan Ivanov wrote:
-> I think that you missed the main problem with all this new "great"
-> filesystems. And the main problem is potential data loss in case of a
-> crash. Only ext3 supports ordered or journal data mode.
+On Friday 13 September 2002 07:53 am, Denis Vlasenko wrote:
+> On 11 September 2002 16:08, Jim Sibley wrote:
+> >                                     resource
+> >      group                          priority                kill priority
+> >      system                         0                       0 - never
+> > kill support                        1                       1
+> >      payroll                        2                       2
+> >      production                     3                       3
+> >      general user                   4                       4
+> >      production backgournd          5                       3
 >
-> XFS and JFS are designed for large multiprocessor machines powered by UPS
-> etc., where the risk of power fail, or some kind of tecnical problem is
-> veri low.
+>                                                              ^^^
+>                                  make sure testing and general user are
+> killed BEFORE production
 >
-> On the other side Linux works in much "risky" environment - old
-> machines, assembled from "yellow" parts, unstable power suply and so on.
+> >      testing                        6                       5
 >
-> With XFS every time when power fails while writing to file the entire file
-> is lost. The joke is that it is normal according FAQ :)
+> I like this. Maybe map it to user gid and provide /proc interface?
+>
+> Let's say on your server you allocated gids this way:
+> 0   -   system
+> 100 -   support
+> 110 -   payroll
+> 120 -   production
+> 200 -  general user
+> 130 -   production background
+> 500 - testing
+>
+> # echo "0 100 110 120 200 130 500" >/proc/resourceprio
+> # echo "0 100 110 120 130 200 500" >/proc/killprio
 
-Also note, it has been my experience that the blocks allocated to the file are
-also lost. It takes a fsck operation to recover that.
+Don't base it on gid. Remember, a user can be a member of multiple
+gids for file access. At this point you may get a payroll/production
+conflict, or a production/production background conflict.
 
-I had a raided XFS filesystem that lost power at 3am every night... IRIX 
-panic/crash/dead. After the third one in a row half of the raid volume was
-missing. I noticed that when the aviailable space was exausted. It took an
-xfs_repair to rebuild the free space. (power failure due to overloaded circuit
-and somebody turned on a monitor...)
-
-> JFS has the same problem.
-> With ReiserFS this happens sometimes, but much much rarely. May be v4 will
-> solve this problem at all.
->
-> The above three filesystems have problems with badblocks too.
->
-> So the main problem is how usable is the filesystem. I mean if a company
-> spends a few tousand $ to provide a "low risky" environment, then may be
-> it will use AIX or IRIX, but not Linux.
-> And if I am running a <$1000 "server" I will never use XFS/JFS.
->
-> -----------------
-> Best Regards
-> Ivan
-
+You really have to use a resource accounting structure that allows
+one and only one id per process. A user may (like groups) have
+access to multiple resource accounts, but a given process should
+only have one.
 -- 
 -------------------------------------------------------------------------
 Jesse I Pollard, II

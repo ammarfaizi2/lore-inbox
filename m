@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVCGRgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVCGRg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVCGRgT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 12:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVCGRgT
+	id S261188AbVCGRg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 12:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVCGRg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 12:36:19 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:34579 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261173AbVCGRgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 12:36:17 -0500
-Date: Mon, 7 Mar 2005 12:35:56 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
-       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-Message-ID: <20050307173554.GA4217@tuxdriver.com>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
-	torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050304222146.GA1686@kroah.com> <20050306094451.GA21907@logos.cnet>
-Mime-Version: 1.0
+	Mon, 7 Mar 2005 12:36:28 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:38294 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261188AbVCGRg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 12:36:27 -0500
+To: Mateusz Berezecki <mateuszb@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Atheros wi-fi card drivers (?)
+X-Message-Flag: Warning: May contain useful information
+References: <422C7722.40301@gmail.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 07 Mar 2005 09:36:25 -0800
+In-Reply-To: <422C7722.40301@gmail.com> (Mateusz Berezecki's message of
+ "Mon, 07 Mar 2005 16:45:38 +0100")
+Message-ID: <521xarjr3a.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050306094451.GA21907@logos.cnet>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 07 Mar 2005 17:36:26.0185 (UTC) FILETIME=[30188390:01C5233C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 06, 2005 at 06:44:51AM -0300, Marcelo Tosatti wrote:
+Not really an answer to your question but are you aware of the OpenBSD
+free Atheros HAL work (as part of the OpenBSD ath driver)?
 
-> >  - It must fix a problem that causes a build error (but not for things
-> >    marked CONFIG_BROKEN), an oops, a hang, or a real security issue. 
-> 
-> "and breakage of previously working functionality" ? 
-
-I'd vote to include this one...
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+ - R.

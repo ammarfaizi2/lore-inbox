@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318132AbSGWQYr>; Tue, 23 Jul 2002 12:24:47 -0400
+	id <S318126AbSGWQdU>; Tue, 23 Jul 2002 12:33:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318133AbSGWQYr>; Tue, 23 Jul 2002 12:24:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:55726 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318132AbSGWQYq>;
-	Tue, 23 Jul 2002 12:24:46 -0400
-Date: Tue, 23 Jul 2002 18:26:36 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] big IRQ lock removal, 2.5.27-G0
-Message-ID: <Pine.LNX.4.44.0207231821430.17887-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318123AbSGWQdT>; Tue, 23 Jul 2002 12:33:19 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:13580 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318126AbSGWQdT>; Tue, 23 Jul 2002 12:33:19 -0400
+Date: Tue, 23 Jul 2002 17:36:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
+Message-ID: <20020723173623.A25350@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Neil Brown <neilb@cse.unsw.edu.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <15677.15834.295020.89244@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15677.15834.295020.89244@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Jul 23, 2002 at 09:28:26PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 23, 2002 at 09:28:26PM +1000, Neil Brown wrote:
+> So... I have created "generic_out_cast" which is like the old
+> list_entry but with an extra type arguement.  I have then
+> changed uses of list_entry that did not actually apply to lists to use
+> generic_out_cast, often indirectly.
 
-the -G0 irqlock patch can be found at:
-
-   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-G0
-
-Changes in -G0:
-
- - fix buggy in_softirq(). Fortunately the bug made the test broader,
-   which didnt result in algorithmical breakage, just suboptimal
-   performance.
-
- - move do_softirq() processing into irq_exit() => this also fixes the
-   softirq processing bugs present in apic.c IRQ handlers that did not
-   test for softirqs after irq_exit().
-
- - simplify local_bh_enable().
-
-Changes in -F9:
-
- - replace all instances of:
-
-	local_save_flags(flags);
-	local_irq_disable();
-
-   with the shorter form of:
-
-	local_irq_save(flags);
-
-  about 30 files are affected by this change.
-
-Changes in -F8:
-
- - preempt/hardirq/softirq count separation, cleanups.
-
- - skbuff.c fix.
-
- - use irq_count() in scheduler_tick()
-
-Changes in -F3:
-
- - the entry.S cleanups/speedups by Oleg Nesterov.
-
- - a rather critical synchronize_irq() bugfix: if a driver frees an 
-   interrupt that is still being probed then synchronize_irq() locks up.
-   This bug has caused a spurious boot-lockup on one of my testsystems,
-   ifconfig would lock up trying to close eth0.
-
- - remove duplicate definitions from asm-i386/system.h, this fixes 
-   compiler warnings.
-
-	Ingo
-
+Two small nitpicks:
+* the name is silly.  what about get_container()?
+* please move it away from list.h to e.g. kernel.h
 

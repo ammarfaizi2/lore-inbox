@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264644AbTIDEKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 00:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbTIDEKX
+	id S264638AbTIDEQH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 00:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264645AbTIDEQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 00:10:23 -0400
-Received: from magic-mail.adaptec.com ([216.52.22.10]:13187 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264644AbTIDEKR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 00:10:17 -0400
-Date: Wed, 3 Sep 2003 21:37:55 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: nagendra_tomar@adaptec.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030903132932.GA21530@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 00:16:07 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:8837 "EHLO smtp.bitmover.com")
+	by vger.kernel.org with ESMTP id S264638AbTIDEQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 00:16:03 -0400
+Date: Wed, 3 Sep 2003 21:16:00 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+Message-ID: <20030904041600.GA16959@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay> <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]> <20030904023446.GG5227@work.bitmover.com> <Pine.LNX.4.56.0309032015100.2146@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0309032015100.2146@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie,
-	Just wondered if the store buffer is snooped in some 
-architectures. In that case I believe the OS need not do anything for 
-serialization (except for aliases, if they do not hit the same cache line). 
-In x86 store buffer is not snooped which leads to all these serialization 
-issues (other CPUs looking at stale value of data which is in the store 
-buffer of some other CPU).
-Pl correct me if I have got anything wrong/
-
-Thanx,
-tomar
-
-
-
- On Wed, 3 Sep 2003, Jamie Lokier wrote:
-
-> Geert Uytterhoeven wrote:
-> > > BTW the 020/030 caches are VIVT (and also only writethrough), the
-> 040/060 
-> > > caches are PIPT.
-> > 
-> > That explains a bit. But the '060 stores are coherent, while the '040
-> stores
-> > aren't.
+On Wed, Sep 03, 2003 at 08:47:49PM -0700, Davide Libenzi wrote:
+> On Wed, 3 Sep 2003, Larry McVoy wrote:
+> > Maybe because history has shown over and over again that your pet theory
+> > doesn't work.  Mine might be wrong but it hasn't been proven wrong.  Yours
+> > has.  Multiple times.
 > 
-> The L1 cache is coherent on the '040 according to the results.  It's
-> the store buffer snooping which fails.  Presumably the CPU core is
-> looking ahead at recent writes comparing just virtual addresses.
-> 
-> -- Jamie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Why companies selling HW should go with this solution?
 
+Higher profits.
+
+> And more, why should business buy
+> into it, with the plan of having to rewrite their server infrastructure
+> to take full advantage of the new architecture ? Maybe, at the very end,
+> their is a reason why nobody is doing it.
+
+Yeah, it's easier to copy existing roadmaps than do something new.  Even 
+when the picture is painted for you.  Sheesh.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

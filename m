@@ -1,70 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289310AbSANX4O>; Mon, 14 Jan 2002 18:56:14 -0500
+	id <S289313AbSANX7y>; Mon, 14 Jan 2002 18:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289309AbSANX4F>; Mon, 14 Jan 2002 18:56:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30212 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289307AbSANXzx>;
-	Mon, 14 Jan 2002 18:55:53 -0500
-Message-ID: <3C437007.595C5ADE@mandrakesoft.com>
-Date: Mon, 14 Jan 2002 18:55:51 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S289308AbSANX7p>; Mon, 14 Jan 2002 18:59:45 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:49677 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S289313AbSANX7g>; Mon, 14 Jan 2002 18:59:36 -0500
+Date: Tue, 15 Jan 2002 00:59:18 +0100 (CET)
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.18-pre1 - world-record holder
+Message-ID: <Pine.LNX.4.33.0201150041540.2772-100000@lt.wsisiz.edu.pl>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Erik Andersen <andersen@codepoet.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb fix, fixed
-In-Reply-To: <Pine.LNX.4.33.0201150036150.22605-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> On Sun, 13 Jan 2002, Erik Andersen wrote:
-> 
-> > > This patch is needed to make radeonfb compile and work.
-> > > It is based on an earlier patch on the list attributed to
-> > > Ani Joshi, plus adds the needed devinit fix.
-> > Oops.  That patch had some crap in it.  Lets try that again.
-> 
-> Uncompressed, that patch was just 4kb. When not too big, it's
-> considered acceptable (and preferred) to send them as plaintext
-> to the list for ease of quoting.
-> 
-> Patch looks ok, but this bit..
-> 
-> diff -urN linux/drivers/video.virgin/radeonfb.c
-> linux/drivers/video/radeonfb.c
-> --- linux/drivers/video.virgin/radeonfb.c   Sun Jan 13 19:09:54 2002
-> +++ linux/drivers/video/radeonfb.c  Sun Jan 13 19:41:00 2002
-> @@ -686,7 +686,7 @@
->     name:       "radeonfb",
->     id_table:   radeonfb_pci_table,
->     probe:      radeonfb_pci_register,
-> -   remove:     radeonfb_pci_unregister,
-> +   remove:     __devexit_p(radeonfb_pci_unregister),
->  };
-> 
-> Is that really needed ?  Hotplugable radeons ?
+Hello
 
-To rant on a general topic, this wholesale converting drivers to
-__devexit without much thought, to fix a simple compile error, may wind
-up biting users in the ass later on.  Sometimes, like in the case of
-radeonfb and many other fbdev drivers, the driver is -not- able to deal
-with all hotplug issues without further fixes.  Fixing radeonfb as with
-the above simply hides those problems...
+I have machine with world-record holder with Oopses. :-)
 
-	Jeff
+[root@mask log]# cat messages |grep Oops |wc -l
+  16904
+[root@mask log]# cat messages |grep Oops |head -n 1
+Jan  4 14:35:34 mask kernel: Oops: 0000
+[root@mask log]# cat messages |grep Oops |tail -n 1
+Jan 15 00:26:56 mask kernel: Oops: 0000
+
+Probably it's a hardware problem, but earlier with 2.4.15-pre5 i didn't
+have problem with it. This machine is a NFS server with reiserfs spool 
+area.
+
+Below as an example - only one Oops:
+
+ksymoops 2.4.0 on i686 2.4.18-pre3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18-pre3/ (default)
+     -m /lib/modules/2.4.18-pre3/System.map (specified)
+
+Unable to handle kernel paging request at virtual address 11482dae
+c01203b3
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01203b3>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010206
+eax: 11482da6   ebx: 46981181   ecx: ca8bb7e0   edx: 46981181
+esi: 00000000   edi: cfddf720   ebp: ca8bb7e0   esp: cf5d3db8
+ds: 0018   es: 0018   ss: 0018
+Process check_ping (pid: 28145, stackpage=cf5d3000)
+Stack: 46981181 00000000 cfddf720 ca8bb7e0 c0120518 cfddf720 ca8bb7e0 46981181
+       00000000 c9a72604 00280006 00170018 c0299d58 00000fd7 00000025 c029ae58
+       00000000 00000002 cf5d2000 cfddf720 ca8bb7e0 46981181 c01100ca cfddf720
+Call Trace: [<c0120518>] [<c01100ca>] [<c012389c>] [<c01238c9>] [<c012037e>]
+   [<c01237e0>] [<c01203f1>] [<c010ff40>] [<c0106ddc>] [<c010ff40>] [<c0240018>]
+   [<c0121087>] [<c010ffc9>] [<c011210c>] [<c0105678>] [<c0129231>] [<c0110c81>]
+   [<c010ff40>] [<c0106ddc>]
+Code: 8b 68 08 85 ed 75 26 52 8b 7c 24 24 57 8b 74 24 2c 56 8b 5c
+
+>>EIP; c01203b3 <do_no_page+13/120>   <=====
+Trace; c0120518 <handle_mm_fault+58/c0>
+Trace; c01100ca <do_page_fault+18a/4cb>
+Trace; c012389c <filemap_nopage+bc/210>
+Trace; c01238c9 <filemap_nopage+e9/210>
+Trace; c012037e <do_anonymous_page+8e/b0>
+Trace; c01237e0 <filemap_nopage+0/210>
+Trace; c01203f1 <do_no_page+51/120>
+Trace; c010ff40 <do_page_fault+0/4cb>
+Trace; c0106ddc <error_code+34/3c>
+Trace; c010ff40 <do_page_fault+0/4cb>
+Trace; c0240018 <packet_flush_mclist+78/80>
+Trace; c0121087 <find_vma+37/60>
+Trace; c010ffc9 <do_page_fault+89/4cb>
+Trace; c011210c <copy_mm+28c/2c0>
+Trace; c0105678 <copy_thread+68/90>
+Trace; c0129231 <__alloc_pages+41/180>
+Trace; c0110c81 <schedule+2e1/310>
+Trace; c010ff40 <do_page_fault+0/4cb>
+Trace; c0106ddc <error_code+34/3c>
+Code;  c01203b3 <do_no_page+13/120>
+00000000 <_EIP>:
+Code;  c01203b3 <do_no_page+13/120>   <=====
+   0:   8b 68 08                  mov    0x8(%eax),%ebp   <=====
+Code;  c01203b6 <do_no_page+16/120>
+   3:   85 ed                     test   %ebp,%ebp
+Code;  c01203b8 <do_no_page+18/120>
+   5:   75 26                     jne    2d <_EIP+0x2d> c01203e0 <do_no_page+40/120>
+Code;  c01203ba <do_no_page+1a/120>
+   7:   52                        push   %edx
+Code;  c01203bb <do_no_page+1b/120>
+   8:   8b 7c 24 24               mov    0x24(%esp,1),%edi
+Code;  c01203bf <do_no_page+1f/120>
+   c:   57                        push   %edi
+Code;  c01203c0 <do_no_page+20/120>
+   d:   8b 74 24 2c               mov    0x2c(%esp,1),%esi
+Code;  c01203c4 <do_no_page+24/120>
+  11:   56                        push   %esi
+Code;  c01203c5 <do_no_page+25/120>
+  12:   8b 5c 00 00               mov    0x0(%eax,%eax,1),%ebx
 
 
 -- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl
+

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTL2CF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 21:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTL2CF0
+	id S262352AbTL2CF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 21:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTL2CFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 21:05:26 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:12275 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262323AbTL2CFR (ORCPT
+	Sun, 28 Dec 2003 21:05:43 -0500
+Received: from smtp1.att.ne.jp ([165.76.15.137]:20211 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262344AbTL2CFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 21:05:17 -0500
-Message-ID: <18ce01c3cdb0$29463130$43ee4ca5@DIAMONDLX60>
+	Sun, 28 Dec 2003 21:05:21 -0500
+Message-ID: <18d001c3cdb0$2c083760$43ee4ca5@DIAMONDLX60>
 From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+To: "Pavel Machek" <pavel@ucw.cz>
 Cc: <linux-kernel@vger.kernel.org>
-References: <173b01c3cceb$05ade850$43ee4ca5@DIAMONDLX60> <20031228110646.A8072@flint.arm.linux.org.uk>
-Subject: Re: 2.6.0 modules, hotplug, PCMCIA
-Date: Mon, 29 Dec 2003 11:03:47 +0900
+References: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60> <20031228144707.GA1489@elf.ucw.cz>
+Subject: Re: 2.6.0 swsusp
+Date: Mon, 29 Dec 2003 11:04:47 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -27,57 +27,41 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King replied to me:
+Pavel Machek replied to me:
 
-> > 4.  SuSE 8.2 defaults to using the kernel PCMCIA package rather than the
-> > external PCMCIA package.  This is fine with me so kernel 2.6.0 also uses its
-> > own compiled PCMCIA drivers instead of trying to make an external PCMCIA
-> > package work with two kernels.  It seems to me that it should be OK to
-> > compile PCMCIA as modules instead of built-in, but there were boot-time
-> > errors, so I had to change PCMCIA and Yenta to built-in.
+> > 2.  When I forgot to say either "resume" or "noresume", the kernel detected
+> > that it could not use the swap partition, but it did not offer the
+> > possibility to resume.  Surely it could detect early enough that the swap
+> > partition is not usable for swap but is usable for resume, and could ask the
+> > user whether to do a "resume" or "noresume".
 >
-> What were these errors?
+> At *that* point, it is no longer possible to resume safely.
 
-I think it was that the PCMCIA core and Yenta modules didn't even get
-loaded, I had to modprobe them.  The need to type "cardmgr &" by hand
-remained necessary even after recompiling with them built-in and rebooting.
+Yes and no.  Junio C. Hamano explained the same thing to me, but he ALSO
+explained a trick that he uses.  He ALWAYS tells the kernel to do a resume.
+Then the kernel detects sufficiently early if a resume is really possible or
+not.
 
-> It sounds like the SuSE init scripts are being clever and probably only
-> know about how their 2.4 situation works.
+Hmm, I guess I still see that if we wait for the kernel to mount / and read
+/etc/fstab to find where the swap partition is then it will already be too
+late to try resuming from the image in the swap partition.  But
+theoretically it must be possible, because a certain famous monopoly
+software maker can resume from an image stored in a FILE after starting its
+boot sequence.
 
-I agree.
-
-> > 5.  However, file /etc/pcmcia/serial.opts is still getting ignored under
-> > 2.6.0.
+> > 3.  When swsusp completed its writing, it decided that my ACPI BIOS could
+> > not power off automatically.  I wonder why.  No other OS has trouble
+> > powering off this machine.  Also on machines with older APM BIOSes, no OS
+> > had trouble powering off the machines, not even Linux with APM drivers.  So
+> > I could hold the power switch for 4 seconds and the BIOS beeped a warning
+> > before powering off, but I wonder why it was necessary.
 >
-> "still" ?  This is news to me (as the guy who seems to be handling both
-> PCMCIA and serial.)
+> If regular halt is also unable to power off machine, fill the bug in
+> ACPI bugzilla.
 
-"still" as in "even after compiling the drivers as Y instead of M, and
-typing the cardmgr command by hand".  Not "still" as in "[not] same as 2.4"
-because this bug does not occur in 2.4.
-
-> > The modem is detected as containing a TI 16750 UART, and whatever
-> > the serial driver does then, it causes the modem to hang up.  The serial
-> > driver in 2.4.20 defaults to the same thing but 2.4.20 reads file
-> > /etc/pcmcia/serial.opts, obeys the line SERIAL_OPTS="uart 16550A", and lets
-> > the modem operate at 33% of its rated speed instead of hanging up.
->
-> "hang up"?  Do you mean "on-hook" or do you mean "stop working"?  Is
-> there anything in /var/log/messages about this?
-
-I think both.  "on-hook" happens immediately, and the only way to try again
-is to eject the card and reinsert it.
-
-> On my RH systems, cardmgr logs a fair amount to the system messages log,
-> which includes details of any commands run and any failures.  It would
-> be really useful to see this.
-
-As far as I can tell, in SuSE 8.2 with SuSE's default version of the 2.4.20
-kernel, this isn't happening, but in 2.6.0 it is happening even when I
-didn't ask for it.  /var/log/messages gets around 20,000 lines of messages
-every day that I experiment with 2.6.0, and 90% of it is PCMCIA stuff.  I
-think I'm capable of e-mailing it to you if it will help.  Actually later
-today I might have time to experiment with the modem and 2.6.0 again, and
-might be able to grep for appropriate stuff in /var/log/messages.
+Exactly the opposite.  Regular halt works.  For some reason I hadn't tested
+regular halt under Linux on this particular machine before first writing the
+above (many reboots and suspends but not plain shutdowns).  But I tested a
+regular halt later and it powered down automatically.  Only swsusp refuses
+to power it down.
 

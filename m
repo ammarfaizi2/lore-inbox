@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317355AbSHTVHT>; Tue, 20 Aug 2002 17:07:19 -0400
+	id <S317373AbSHTVbc>; Tue, 20 Aug 2002 17:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317359AbSHTVHT>; Tue, 20 Aug 2002 17:07:19 -0400
-Received: from secure.mediapro.net ([198.107.233.54]:44039 "HELO
-	mail.davis-tech.net") by vger.kernel.org with SMTP
-	id <S317355AbSHTVHS>; Tue, 20 Aug 2002 17:07:18 -0400
-Message-ID: <026101c2488e$457b9c80$fe00a8c0@davistech.net>
-From: "Dan Davis" <dan@sowingcircle.org>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0208201617380.16089-100000@router.windsormachine.com>
-Subject: Re: Drive cages for high density IDE drives in rack cases.
-Date: Tue, 20 Aug 2002 14:12:14 -0700
+	id <S317387AbSHTVbc>; Tue, 20 Aug 2002 17:31:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64772 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317373AbSHTVba>; Tue, 20 Aug 2002 17:31:30 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: automount doesn't "follow" bind mounts
+Date: 20 Aug 2002 14:35:26 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ajucmu$1qd$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk> <ajuahu$hf$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If yer looking for a piece of hardawre, this might help.
+Followup to:  <ajuahu$hf$1@cesium.transmeta.com>
+By author:    "H. Peter Anvin" <hpa@zytor.com>
+In newsgroup: linux.dev.kernel
+>
+> Followup to:  <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk>
+> By author:    Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
+> In newsgroup: linux.dev.kernel
+> >
+> > I tried to subscribe to the autofs list, but majordomo isn't replying to 
+> > me! I think this is a problem in the automount daemon rather than the 
+> > kernel autofs code itself.
+> > 
+> > I'm trying to automount our home dirs as
+> > 	/homes/$USERNAME
+> > which should bind mount to
+> > 	:/home/$SERVER/$HOMENAME/$USERNAME
+> > which should bind mount to
+> > 	:/home/$SERVER/$VOLUME/$PATH/$USERNAME
+> > which (phew!) will be an NFS mount to
+> > 	$SERVER:/$VOLUME/$PATH/$USERNAME
+> > 
+> > The idea is that:
+> > 	(1) `/bin/pwd` = "/homes/$USERNAME"
+> > 	(2) when you run "quota" it'll only report for $SERVER:/$VOLUME
+> > 
+> > Now.. this all works perfectly if before looking at /homes/$USERNAME you
+> > look at firstly /home/$SERVER/$VOLUME/$PATH/$USERNAME and then secondly
+> > /home/$SERVER/$HOMENAME/$USERNAME, because the bind mounts have something
+> > to bind to. Of course you shouldn't need to know the middle bits, but you
+> > could look them up. Currently the binds mount fail and automount drops in
+> > symlinks; this satisfies (2)  above, but unfortunately not (1).
+> > 
+> > I hope someone can make sense of this. Is it different in autofs4?
+> > 
+> 
+> This is unfortunately nearly impossible to solve.  It's a known bug,
+> but it's questionable if anything can be done about it.
+> 
+> For right now, autofs cannot bind-mount to a mount from the same
+> automount point (the problem is with the double-use of /home/$SERVER
+> in your case.)
+> 
 
-http://www.cdw.com/shop/products/default.asp?EDC=218439
+Actually, if you're using autofs v3, which it sounds like you're
+doing, it's even more broken, since autofs v3 doesn't support
+multilevel mounts.
 
--Dan
-
------ Original Message -----
-From: "Mike Dresser" <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, August 20, 2002 1:42 PM
-Subject: OT: Drive cages for high density IDE drives in rack cases.
-
-
-> *pulls hair out*
->
-> I'm looking for a source for those 3.5" to 5.25" adapters that let you put
-> three IDE 3.5" drives in a full height 5.25" space.  Or even a 4-5 in 3.
->
-> It's virtually impossible to google for this or I'm using the wrong search
-> terms.(probably the latter :D)
->
-> 3ware has an adapter, but it's 200 bucks apiece, and I'd need two.  Hardly
-> seems worth the effort, when I can just spend the extra money for 4
-> Maxtor D540X 160gb drives instead of 6 D540X 120's.
->
-> I'd rather make my own, than pay 200 bucks for a bit of sheet metal and a
-> pair of fans.
->
-> It's an Antec 4U26ATX550EPS i'm looking at installing this in, it has 6
-> 5.25" bays up front.(2 x 3 array)
->
-> Mike
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

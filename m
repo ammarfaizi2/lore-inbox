@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270474AbVBEXit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264131AbVBFABQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270474AbVBEXit (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 18:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270591AbVBEXit
+	id S264131AbVBFABQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 19:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272025AbVBFABP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 18:38:49 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:48004 "EHLO
-	postbox.bitmover.com") by vger.kernel.org with ESMTP
-	id S270474AbVBEXio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 18:38:44 -0500
-Date: Sat, 5 Feb 2005 15:38:41 -0800
-To: Stelian Pop <stelian@popies.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050205233841.GA20875@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet> <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet> <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet>
+	Sat, 5 Feb 2005 19:01:15 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:64359 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264131AbVBFABI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 19:01:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HLiOZAVsJ/y2jG6eEJV+gSNUQ+0gSV0NO10IAEH26vCrGw0MErtT+wZ31NlxP/0CJ4IRBmgSRPqq+nE0rYnCTncJZx/CRZ9+nss8ar7jrm4RM+9f9X/z6QhoGBavrLofaP/l2Gt+TQeaNcg8dK8LxZrOf2rixYHhVH/YNsz7o5s=
+Message-ID: <58cb370e050205160143c11876@mail.gmail.com>
+Date: Sun, 6 Feb 2005 01:01:07 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 01/14] ide_pci: Remove lousy macros from aec62xx.
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050204071317.A06E013264C@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050205193848.GH5028@deep-space-9.dsnet>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <42032014.1020606@home-tj.org>
+	 <20050204071317.A06E013264C@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 08:38:48PM +0100, Stelian Pop wrote:
-> > Nope: he digs the bk-commit mailing list archives.
-> > 
-> Interesting, I fergot about those commit mails, thanks for remining
-> me.
+On Fri,  4 Feb 2005 16:13:17 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
 > 
-> I think those emails could provide the missing piece of the puzzle
-> and we could generate the missing branches based on them. 
+> 01_ide_pci_aec62xx_cleanup.patch
+> 
+>         Removes SPLIT_BYTE, MAKE_WORD and BUSCLOCK macros which are
+>         just better off directly coded from ide/pci/aec62xx driver.
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Does that mean you don't need anything from us?
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+applied but I left BUSCLOCK() alone for now

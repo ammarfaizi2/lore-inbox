@@ -1,113 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUFLTxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUFLUB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUFLTxO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 15:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUFLTxN
+	id S264911AbUFLUB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 16:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUFLUB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 15:53:13 -0400
-Received: from ns.schottelius.org ([213.146.113.242]:21120 "HELO
-	scice.schottelius.org") by vger.kernel.org with SMTP
-	id S264912AbUFLTxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 15:53:10 -0400
-Date: Sat, 12 Jun 2004 21:55:47 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>, Amon Ott <ao@rsbac.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dev@grsecurity.net
-Subject: Re: security patches / lsm
-Message-ID: <20040612195547.GA597@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	Chris Wright <chrisw@osdl.org>, Amon Ott <ao@rsbac.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	dev@grsecurity.net
-References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609104025.A21045@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Content-Disposition: inline
-In-Reply-To: <20040609104025.A21045@build.pdx.osdl.net>
-X-MSMail-Priority: (u_int) -1
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-Organization: http://nerd-hosting.net/
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.6
+	Sat, 12 Jun 2004 16:01:58 -0400
+Received: from sziami.cs.bme.hu ([152.66.242.225]:50097 "EHLO sziami.cs.bme.hu")
+	by vger.kernel.org with ESMTP id S264911AbUFLUB4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 16:01:56 -0400
+Date: Sat, 12 Jun 2004 22:01:43 +0200 (CEST)
+From: Egmont Koblinger <egmont@uhulinux.hu>
+X-X-Sender: egmont@sziami.cs.bme.hu
+To: linux-kernel@vger.kernel.org
+Subject: information leak in vga console scrollback buffer
+Message-ID: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Using the standard vga console, it is easily possible to read some random
+pieces of texts that were scrolled out a long time ago (often you can see
+your boot messages or similar stuff even after switcing to another
+console or even to X. All you need is a local user access to the console.
 
-Chris Wright [Wed, Jun 09, 2004 at 10:40:25AM -0700]:
-> * Nico Schottelius (nico-kernel@schottelius.org) wrote:
-> > Sorry for the late answer!
-> >=20
-> > For me it looks like rsbac and grsecurity could get included in 2.6.
-> >=20
-> > It looks like Amon did the work necessary to intergrate it into 2.6.
-> > (have a look at http://www.rsbac.org/).
-> >=20
-> > And grsecurity also works nice with 2.6
-> > (http://www.grsecurity.net/download.php).
-> >=20
-> > Who decides whether to integrate them or not?
->=20
-> Ultimately, that's Linus, often with some input from the rest of
-> the community.  Look, it's very simple.  Create patches, submit for
-> public review, update according to feedback, resubmit, etc.
+2.4 and 2.6 series are both affected, maybe older ones too.
 
-Thought so, too.
+What to do to face the bug in 10 seconds:
+- switch to a vga text console
+- start "less somebigtextfile" where somebigtextfile means longer than a
+  screenful. /etc/services might be a good choice.
+- press Down arrow one or more times
+- switch to another console or X, optionally do whatever you want to do
+- switch back to "less"
+- (Shift+PageUp now doesn't do anything as it is supposed to)
+- press the Up arrow
+- press Shift+PageUp. Voila! A long buffer of texts that you forgot a long
+  time ago... And, interesting, when scrolling backwards the columns are
+  shifted with a certain amount, but when scrolling back to the bottom of
+  the page with Shift+PageDown the columns are ok.
 
-> The main
-> problem here is the patches above are invasive and considering where
-> we are in the 2.6 series (read: concerned utmost about stability) large
-> invasive patches aren't appropriate.
+It seems to me that the bug is triggered when an application tries to
+scroll the content of the terminal downwards (i.e. the unusual direction),
+and looking at the source, I guess something is wrong around the handling
+of the variable "vga_rolled_over" and its fellows in
+drivers/video/console/vgacon.c. But I don't yet fully understand the code,
+I only have a rough feeling how it works, so unfortunately I'm far from
+creating a fix.
 
-Ok. So waiting for 2.7 is much more senseful.
+I haven't tested it with framebuffer but I guess that one is unaffected.
 
-> Further, there's an infrastructure
-> designed to support some of the features in the above patchsets, LSM.
+I guess this is a serious privacy hole since I've seen dozens of people
+hitting Alt+F1 Alt+F2 or something similar before they leave the machine
+just to make sure that the scrollback buffers are emptied. But due to this
+bug it might be possible for others to read some of their scrolled out
+data, mail etc...
 
-As stated by Amon and others, LSM seems not to be the perfect thing.
 
-> And the idle complaints that it's inadequate without engaging in dialog
-> or supplying patches don't work very far towards a solution.
-=20
-Well, where do you think should we discuss that? I think Amon
-doesn't avoid this discussion.
 
-Have a nice rest-weekend,
+bye,
 
-Nico
-
---=20
-Keep it simple & stupid, use what's available.
-Please use pgp encryption: 8D0E 27A4 is my id.
-http://nerd-hosting.net | http://nico.schotteli.us
-
---envbJBWh7q8WU6mo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQIVAwUBQMtfv7OTBMvCUbrlAQKaYQ//edeyLiu4MznT+7pgO9udjc+I0yrP+ynP
-GYQP1JmejGXroNOrwbKNlhE5qX8ykgJcd/eT/Claiagto1T2/N7CkR/O+QYnHdCE
-sn6hiNfgFwrSaiUlhex5kt5lGM+c7FUD64HpF/dw3um4RPlO1tFqtBOjpxCSOyB8
-Eu9n3g4S7mBLZUFgIE79pEcStRRXt3fWTSCIlOgMifHi9TIHLpsbl+k3bkbbSnzl
-l2ILZWoKa62yVYMiUZxOqsDBfYV+93Z/RUkxteKtWFB29Jvfe+uLNG9dFoG+HSZI
-YpN7050xCQ5LOVxVQZQh13LJAHYVaLi3/zBGxvFPOuEmEs3WF03cj0ktrJH4kvSc
-o1b//FFAQnNDnB6Kz5jmAyvBbjyt/kcQYWb0+WG2I4w9YAlCVc1C6NJqhmxE7MVb
-sFviE0UN7kjSOD99nRDQz5wzbu7WgbVWPDvMY+72stAfwFQmlKYCJQQCvYox/bNl
-nvFd47IdiqAdcWLjPKILWmRmTk0g1yTIHUD7M0/bxkWAva6/nJfWm60TFBjMsJrf
-ykabXcr/Yej4GDvPDxtA7/8alawFU9b3/qs5hcFUmVtGPsEVW+UXRBXtfcZZhB34
-IoHmoqnb80fQji61lbmbGh/xfEuLTr8NUyKrM0sYh4TZP7xpQzdFgqbDlbKR6YMc
-ztlcKtDfwTw=
-=2UEc
------END PGP SIGNATURE-----
-
---envbJBWh7q8WU6mo--
+Egmont

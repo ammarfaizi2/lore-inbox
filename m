@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUDADs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 22:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDADs1
+	id S262135AbUDAD6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 22:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUDAD6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 22:48:27 -0500
-Received: from web41313.mail.yahoo.com ([66.218.93.62]:49321 "HELO
-	web41313.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262103AbUDADsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 22:48:25 -0500
-Message-ID: <20040401034824.99925.qmail@web41313.mail.yahoo.com>
-Date: Wed, 31 Mar 2004 19:48:24 -0800 (PST)
-From: Tyler Riddle <triddle_1999@yahoo.com>
-Subject: Kernel hangs approximitly every 3 days, some times during boot  on version 2.4 and 2.6
-To: linux-kernel@vger.kernel.org
+	Wed, 31 Mar 2004 22:58:08 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:21765 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262135AbUDAD6F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 22:58:05 -0500
+To: Christian Gut <cycloon@is-root.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nick Warne <nick@ukfsn.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 - 8139too timeout debug info
+References: <4041E38F.31264.2D8C0D2E@localhost>
+	<4043811B.24524.33DB8886@localhost> <405F57F2.7010308@pobox.com>
+	<87n068mr5w.fsf@devron.myhome.or.jp>
+	<20040331194244.GB7306@is-root.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 01 Apr 2004 12:56:13 +0900
+In-Reply-To: <20040331194244.GB7306@is-root.org>
+Message-ID: <87y8pgpd0i.fsf@ibmpc.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christian Gut <cycloon@is-root.org> writes:
 
-You can find a detailed bug report folowing the
-template specified in REPORTING-BUGS at
-http://foodmotron.homeunix.org/~tyler/bug-report.txt
+> On Tue, 23 Mar 2004, OGAWA Hirofumi wrote:
+> 
+> > Jeff Garzik <jgarzik@pobox.com> writes:
+> > > What was the final resolution of the 8139too debugging?
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=107919285122190&w=2
+> > The cause of his problem was BIOS configuration. It was edge-trigger.
+> 
+> not sure if that was the only reason. 2.6.3 and everything up breaks the
+> rtl nic in my laptop and i cant configure anything like edge-trigger in
+> my bios.
 
-In short, the kernel will hard lock on my machine
-about every 3 days. I have tried several of the latest
-versions of the 2.4 and 2.6 series kernels, 2.2 has
-not shown this problem. I have tried to remedy this
-problem by removing APIC support, IDE DMA and explicit
-support for my IDE chipset
-(VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235), none of
-which has helped any. On every lockup the IDE disk
-access light has been steady and usualy a steady tone
-is left playing out of my sound card.
+Could you please tell more detail, what happened?
+And please send the /proc/interrupt, dmesg, lspci -vvvxxx.
 
-I'm hoping someone here can help me figure out what is
-going on. This exact same hardware in the exact same
-configuration ran Windows 2000 for over a year with
-out issue. To verify the problem was localized to the
-linux kernel I also ran FreeBSD 5.2.1 for 3 weeks
-after the lockup problem existed under linux.
-
-Thanks for your help,
-
-Tyler Riddle
-
-=====
-"There are only 10 types of people in this world: Those who understand binary and those who don't."
-
-aim: TheMastaSpice
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+> The nic works without problems when i use 2.6.2 version of 8139too.c. Is
+> there any possibility to get these or similar patches into 2.6.5 to
+> support a config option to get the old behavior?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

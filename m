@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287337AbSAXLTo>; Thu, 24 Jan 2002 06:19:44 -0500
+	id <S287450AbSAXLWo>; Thu, 24 Jan 2002 06:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287408AbSAXLTY>; Thu, 24 Jan 2002 06:19:24 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:57732 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S287337AbSAXLTT> convert rfc822-to-8bit; Thu, 24 Jan 2002 06:19:19 -0500
-Date: Thu, 24 Jan 2002 12:19:17 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Norbert Preining <preining@logic.at>
-cc: linux-kernel@vger.kernel.org, Daniel Nofftz <nofftz@castor.uni-trier.de>
-Subject: Re: amd athlon cooling on kt266/266a chipset
-In-Reply-To: <20020124094048.A17305@alpha.logic.tuwien.ac.at>
-Message-ID: <Pine.LNX.4.40.0201241212250.7304-100000@infcip10.uni-trier.de>
+	id <S287440AbSAXLWe>; Thu, 24 Jan 2002 06:22:34 -0500
+Received: from hirogen.kabelfoon.nl ([62.45.45.69]:56591 "HELO
+	hirogen.kabelfoon.nl") by vger.kernel.org with SMTP
+	id <S287450AbSAXLWU>; Thu, 24 Jan 2002 06:22:20 -0500
+Message-ID: <3C4FFC0B.2030305@kabelfoon.nl>
+Date: Thu, 24 Jan 2002 13:20:27 +0100
+From: Nick Martens <nickm@kabelfoon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 trouble while booting
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002, Norbert Preining wrote:
+Hi all
 
-> Hi Daniel!
->
-> You wrote:
-> > 2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
-> >    in the kernel config
->
-> Why is it necessary to activate acpi which makes apm not working,
-> and therefor poweroff etc. acpi is long from working/stable and
-> the support for various actions too are missing.
->
-> >From the patch I do not see why it is specific to acpi?
->
-> Best wishes
+To solve my opengl problem i recently (2 days ago) upgraded from kernel 
+2.4.5 to 2.4.17. Each time i boot my system, after it has been turned 
+off for appr. 1-2 hours or so, I experience lots of problems the 
+following errors have already occured:
 
-hi norbert!
+C1: respawning too fast (actually for C1 to C5 or something alike)
+the day after: something went wrong when attempting to mount the root fs 
+and some pointer (????[0]->???) error occured. I forgot what it was 
+exactly, and nothing is logged because rootfs is still ro. a few hours 
+later when i got back home i booted my pc and got:
 
-ok ... i  tested it:
-patch activted:
-apm activated -> prozessor idle calls : 42°C when idle
-acpi activated -> prozessor c1/c2 states: 35°C when idle
+OOPS 0000 for almost each process being started afterwards this was in 
+my syslog this was all for that boot:
+Jan 24 12:58:05 (none) kernel: Unknown bridge resource 0: assuming 
+transparent
+Jan 24 12:58:05 (none) kernel: Unknown bridge resource 2: assuming 
+transparent
+Jan 24 12:58:05 (none) kernel: agpgart: agpgart: Detected an Intel i815, 
+but could not find the secondary device. Assuming a non-integrated video 
+card.
+Jan 24 12:58:05 (none) kernel: Unable to handle kernel paging request at 
+virtual address 646c726f
+Jan 24 12:58:05 (none) kernel: *pde = 00000000
 
-under load:
-apm activated -> 47°C kernel compiling after 2 min
-acpi activated -> 43°C kernel compiling after 2 min
-
-(kernel compiling only lasts about 3 min ... so no larger load intervalls
-are avaible at the moment ... )
-
-so ... you could use apm ... but acpi proofs to be better in power saveing
-with the "disconnectenable when STPGNT detected" bit set ...
-maybe apm is not working at all .. .cause at the moment i see that the
-temperature does not drop at all after finishing the kernel ... it looks
-like that the 42°C only where cause it was fresh rebooted from the acpi
-power saving mode
-
-daniel
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
+I never had this problem running kernel 2.4.5
 

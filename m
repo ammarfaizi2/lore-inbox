@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287940AbSA0KwE>; Sun, 27 Jan 2002 05:52:04 -0500
+	id <S288040AbSA0MRl>; Sun, 27 Jan 2002 07:17:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287944AbSA0Kvy>; Sun, 27 Jan 2002 05:51:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14350 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287940AbSA0Kvn>;
-	Sun, 27 Jan 2002 05:51:43 -0500
-Date: Sun, 27 Jan 2002 11:51:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sg in lk 2.5.3-pre5
-Message-ID: <20020127115130.B4140@suse.de>
-In-Reply-To: <3C53643E.47EDB3C2@torque.net> <20020127034458.A8992@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020127034458.A8992@wotan.suse.de>
+	id <S288058AbSA0MRc>; Sun, 27 Jan 2002 07:17:32 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:37856 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S288040AbSA0MRQ>;
+	Sun, 27 Jan 2002 07:17:16 -0500
+Date: Sun, 27 Jan 2002 13:17:14 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201271217.NAA27890@harpo.it.uu.se>
+To: sczjd@yahoo.com
+Subject: Re: issues with 2.4.18 kernel and Dell Inspiron 8000
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27 2002, Andi Kleen wrote:
-> On Sat, Jan 26, 2002 at 09:21:50PM -0500, Douglas Gilbert wrote:
-> > Strange that Andi Kleen had problems compiling ide-scsi, 
-> > it compiled and worked on my UP and SMP machines (AMD and
-> > dual Celeron respectively).
-> 
-> I must apologize. It seems the removal of scatterlist->address 
-> was a vger tree only change (I tested with vger).  Mainline
-> 2.5 still seems to have it. Nevertheless the patch probably
-> won't hurt to apply.
+On Sun, 27 Jan 2002 03:35:37 -0600, SI Reasoning wrote:
+>On 2002-01-27 at 11:43, SI Reasoning wrote:
+>> When halting my Dell Inspiron 8000, I get the power
+>> off message but the laptop does not power off while
+>> using the 2.4.17-10mdk kernel. Other APM related stuff is
+>> a mess with this laptop also. If it suspends or does
+>> any power saving features, it can not be brought back
+>> up and has to be rebooted. Even worse, if I try to go
+>> to bios or check the battery feature, it completely
+>> locks up the computer and it has to be forcibly turned
+>> off.
+>> > Kernel 2.4.16-11mdk was way better. It still had the
+>> suspend issue, but I could go to the bios or battery
+>> display and other bios related shortcuts without
+>> issue. It also powered down without issue.
 
-Ah makes sense. Yes the ->address change is pending still. I still don't
-think it's worth it to complicate ide-scsi with kmap, just have it
-bounced. ide-scsi will not live too much longer anyways.
+If the kernel has CONFIG_SMP or CONFIG_X86_UP_APIC enabled,
+then it's known Dell Inspiron bug.
 
--- 
-Jens Axboe
+A patch to fix the problem has been posted here numerous
+times, but it's not yet in any standard kernel (and likely
+never will be since the powers that be just toss it in
+/dev/null w/o comment).
 
+To fix it, you can either ensure that both config options
+mentioned above are OFF, or you can get the following patches
+
+patch-boot-time-ioremap-2.4.18-pre7
+patch-early-dmi-scan-2.4.18-pre7
+patch-dmi-apic-fixups-2.4.18-pre7
+
+from http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
+and apply them in the order listed.
+
+/Mikael

@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266586AbUF3IWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266588AbUF3IYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266586AbUF3IWy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 04:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266588AbUF3IWy
+	id S266588AbUF3IYX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 04:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUF3IYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 04:22:54 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:41890 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266586AbUF3IWw (ORCPT
+	Wed, 30 Jun 2004 04:24:22 -0400
+Received: from styx.suse.cz ([82.119.242.94]:56705 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S266588AbUF3IYD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 04:22:52 -0400
-Message-ID: <40E2783D.5040108@greatcn.org>
-Date: Wed, 30 Jun 2004 16:22:21 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-References: <40E162EF.7010607@greatcn.org>
-In-Reply-To: <40E162EF.7010607@greatcn.org>
-X-Scan-Signature: f67f5ee3df3e663546312f3fab1145ec
-X-SA-Exim-Connect-IP: 218.24.174.116
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [PATCH] share all PFN_* 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.174.116 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
+	Wed, 30 Jun 2004 04:24:03 -0400
+Date: Wed, 30 Jun 2004 10:25:34 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>, laflipas@telefonica.net,
+       linux-kernel@vger.kernel.org, t.hirsch@web.de
+Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
+Message-ID: <20040630082533.GA4194@ucw.cz>
+References: <20040629143232.52963.qmail@web81303.mail.yahoo.com> <200406291808.08186.Marc.Waeckerlin@siemens.com> <200406291253.10542.dtor_core@ameritech.net> <200406300102.16083.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406300102.16083.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
+On Wed, Jun 30, 2004 at 01:02:16AM -0500, Dmitry Torokhov wrote:
 
-> Hello all,
->
-> There's too many macros definitions PFN_UP PFN_DOWN PFN_PHYS PFN_ALIGN 
-> scattered all over.
-> How about a patch move them all into one header file(kernel.h or init.h)
-> and share only one copy of them like what min and max. I'd like to 
-> make it.
->
->
->       coywolf
->
-This patch splits out asm-generic/page.h and includes it at the bottom
-of all arch specific page.h's.
+> Vojtech, what is your opinion?
+> 
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191319]
+> > Jun 28 16:01:29 qingwa kernel: i8042.c: MUX reports error condition b3 (35)
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux0, 12) [191325]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 52 <- i8042 (interrupt, aux1, 12) [191327]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191328]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, aux1, 12) [191330]
+> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 4
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191331]
+> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 lost sync at byte 1
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191333]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux1, 12) [191335]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 50 <- i8042 (interrupt, aux1, 12) [191336]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: d0 <- i8042 (interrupt, aux1, 12) [191338]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 29 <- i8042 (interrupt, aux1, 12) [191339]
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux1, 12) [191342]
+> > Jun 28 16:01:29 qingwa kernel: psmouse.c: TouchPad at isa0060/serio2/input0 - driver resynched.
+> > Jun 28 16:01:29 qingwa kernel: drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, aux1, 12) [191343]
+> 
+> Again MUX got confused momentarily, the patch should fix that.
+> 
+> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, kbd, 1) [193334]
+> > Jun 28 16:01:31 qingwa kernel: drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [193359]
+> > Jun 28 16:01:33 qingwa kernel: i8042.c: MUX reports error condition fd (f5)
+> > Jun 28 16:01:33 qingwa kernel: drivers/input/serio/i8042.c: fd <- i8042 (interrupt, aux3, 12, timeout) [195950]
+> > Jun 28 16:01:33 qingwa kernel: psmouse.c: bad data from KBC - timeout
+> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, kbd, 1) [198170]
+> > Jun 28 16:01:36 qingwa kernel: drivers/input/serio/i8042.c: 93 <- i8042 (interrupt, kbd, 1) [198243]
+> 
+> This one seems to be legit and handled OK although I am not sure what caused
+> AUX3 to report timeout - it wasn't transmitting for quite some time.
+> 
+> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206317]
+> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: c0 <- i8042 (interrupt, aux1, 12) [206320]
+> > Jun 28 16:01:44 qingwa kernel: i8042.c: MUX reports error condition 00 (35)
+> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux0, 12) [206326]
+> > Jun 28 16:01:44 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux1, 12) [206327]
+> 
+> Confused again...
+> 
+> Anyway, please try the patch and the change to the timeout in
+> psmouse_interrupt. I am anxiously awaiting result of your testing.
 
-This approach is more easy and *safe* than move the macros into kernel.h
-or other, and also prepares for future. By nested into page.h, we can make
-sure it's no problem to simply remove those definitions without adding new
-include statements.
+This looks like the i8042 chip is busy with something else than getting
+the touchpad data to us.
 
-Here is it. http://greatcn.org/~coywolf/patches/2.6/share-PFN.patch
+This could, for example, be getting battery/thermal data to ACPI,
+because it's commonly used as an ACPI EC (Embedded Controller) as well
+as for handling the keyboard/mouse.  I'd suggest disabling ACPI
+completely (not just ACPI=off, but CONFIG_ACPI=n), same for APM,
+frequency scaling, and everything else that could access the BIOS. 
 
-
-btw, these are all identical replacements, except on arm26(Matt Heler 
-told me).
-Arm26 implementation has done too much on this point.
-
-On arm26:  #define PFN_UP(x) (PAGE_ALIGN(x) >> PAGE_SHIFT)
-PAGE_ALIGN is no use here since >> followed
+If that helps, then we'll need to find a way how to make sure we let
+ACPI use the chip reasonably so that it doesn't cause these problems.
 
 -- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbTLHQwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 11:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265432AbTLHQvJ
+	id S265071AbTLHQqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 11:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbTLHQkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 11:51:09 -0500
-Received: from zimbo.cs.wm.edu ([128.239.2.64]:44430 "EHLO zimbo.cs.wm.edu")
-	by vger.kernel.org with ESMTP id S265092AbTLHQtp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 11:49:45 -0500
-Date: Mon, 8 Dec 2003 11:48:54 -0500
-From: "Serge E. Hallyn" <hallyn@CS.WM.EDU>
-To: liangbin01@iscas.cn
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: PROBLEM: A Capability LSM Module serious bug
-Message-ID: <20031208164854.GA15146@escher.cs.wm.edu>
-References: <20031207121151.22328.qmail@abyss.iscas.cn> <20031208150809.GA14068@escher.cs.wm.edu> <20031208163618.8789.qmail@abyss.iscas.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031208163618.8789.qmail@abyss.iscas.cn>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Dec 2003 11:40:03 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55301 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265485AbTLHQdM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 11:33:12 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: cdrecord hangs my computer
+Date: 8 Dec 2003 16:21:54 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br28f2$fen$1@gatekeeper.tmr.com>
+References: <20031207110122.GB13844@zombie.inka.de> <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>
+X-Trace: gatekeeper.tmr.com 1070900514 15831 192.168.12.62 (8 Dec 2003 16:21:54 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think patch to capability.c maybe a better way to fix this bug. Because 
-> dummy.c is a simple superuser mechanism, capability should be not visible 
-> to it. And capability modules may be extended to file system so as to 
+In article <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>,
+Linus Torvalds  <torvalds@osdl.org> wrote:
 
-The main question is do we declare cap_effective to belong solely to
-capability.c, or do we want capability.c to trust previous LSM's
-computations of those values?  So, even with the current case, if we
-insmod, rmmod, then re-insmod capability, do we want to revoke all
-previous cap_* computations?
+| In contrast, the old cdrecord interfaces are an UNBELIEVABLE PILE OF CRAP!
+| It's an interface that is based on some random hardware layout mechanism
+| that isn't even TRUE any more, and hasn't been true for a long time. It's
+| not helpful to the user, and it doesn't match how devices are accessed by
+| everything else on the system.
+| 
+| It's bad from a technical standpoint (anybody who names a generic device
+| with a flat namespace is just basically clueless), and it's bad from a
+| usability standpoint. It has _zero_ redeeming qualities.
 
-It seems reasonable for it "belong" to capability.c (and I've heard of
-noone else wanting to use it).  I just don't think we've explicitly
-declared this to be the case.
+And the redeeming features of naming disks, CDs, and ide-floppy devices
+hda..hdx in an order depending on the loading order of the device
+drivers?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317605AbSGFEeB>; Sat, 6 Jul 2002 00:34:01 -0400
+	id <S317610AbSGFEmE>; Sat, 6 Jul 2002 00:42:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317606AbSGFEeA>; Sat, 6 Jul 2002 00:34:00 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5906 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317605AbSGFEd7>; Sat, 6 Jul 2002 00:33:59 -0400
-Date: Sat, 6 Jul 2002 00:31:09 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rob Landley <landley@trommello.org>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-In-Reply-To: <20020705204513.3FF49C57@merlin.webofficenow.com>
-Message-ID: <Pine.LNX.3.96.1020706002520.12368C-100000@gatekeeper.tmr.com>
+	id <S317611AbSGFEmE>; Sat, 6 Jul 2002 00:42:04 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:1776 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S317610AbSGFEmD>; Sat, 6 Jul 2002 00:42:03 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivangurdiev@attbi.com>
+Reply-To: ivangurdiev@attbi.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.5.25
+Date: Fri, 5 Jul 2002 00:47:30 -0400
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207050047.30425.ivangurdiev@attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Rob Landley wrote:
+2.5.25: 2 problems found
 
-> I did stop and reconsider your suggestion about removing the star server's 
-> redundant decrypt/re-encrypt step.  It could be done without introducing a 
-> ppp layer (which has several of the aforementioned design requirements 
-> problems I won't go into here).  Unfortunately, if I did that, the initial 
-> handshaking a client box does with the star server (to identify itself and 
-> the type of connection it wants to make, etc) wouldn't be encrypted or 
-> cryptographically verified either (unless I did it myself, and right now all 
-> the encryption is neatly handled by ssh, which I already mentioned not 
-> wanting to modify).
+1) Options under Input Device Support and under Character Devices: Mice
+are duplicates from a user's point of view. Fortunately they have different 
+names (CONFIG_PSMOUSE vs CONFIG_MOUSE_PS2).
+Unfortunately they both seem to be used...did a recursive grep.
 
-That's not correct... if you set the encryption type to none the
-connection and port forwarding are not encrypted, but the handshake still
-is, using password, host key, or requiring both. You can make a fully
-authenticated non-encrypted connection. I like running the popular "sleep"
-program as the main command, and using port forwarding for what you do,
-since you reject running ppp over ssh.
 
-I'm running 19-pre10ac2+smp patches, as I recall ac4 or 5 are out, I just
-stopped upgrading when I got stability. If you run uni you should be able
-to drop in the new kernel, push the excryption overhead to the endpoints,
-and have nearly no work on the star server.
+2)  This is a compilation error, which has been in 2.5 since 3 kernels ago or 
+so. Reported twice on LKML by me, as well as another person. No reply. 
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+mpparse.c: In function `mp_parse_prt':
+mpparse.c:1080: warning: implicit declaration of function `mp_find_ioapic'
+mpparse.c:1083: `mp_ioapic_routing' undeclared (first use in this function)
+mpparse.c:1083: (Each undeclared identifier is reported only once
+mpparse.c:1083: for each function it appears in.)
+mpparse.c:1107: warning: implicit declaration of function 
+`io_apic_set_pci_routing'
+make[1]: *** [mpparse.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.24/arch/i386/kernel'
+make: *** [arch/i386/kernel] Error 2
+
+occurs with: 
+LOCAL_APIC on, IOAPIC off, ACPI on, uniprocessor machine.
+
 

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130754AbQLUNxZ>; Thu, 21 Dec 2000 08:53:25 -0500
+	id <S129994AbQLUODQ>; Thu, 21 Dec 2000 09:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131009AbQLUNxP>; Thu, 21 Dec 2000 08:53:15 -0500
-Received: from 4dyn46.com21.casema.net ([212.64.95.46]:13330 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130754AbQLUNxF>;
-	Thu, 21 Dec 2000 08:53:05 -0500
-Date: Thu, 21 Dec 2000 14:22:06 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: sswapnee@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mount system call hangs up the system
-Message-ID: <20001221142205.B31577@home.ds9a.nl>
-Mail-Followup-To: sswapnee@in.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <CA2569BC.00442F0D.00@d73mta05.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <CA2569BC.00442F0D.00@d73mta05.au.ibm.com>; from sswapnee@in.ibm.com on Thu, Dec 21, 2000 at 05:47:10PM +0530
+	id <S130877AbQLUODG>; Thu, 21 Dec 2000 09:03:06 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:51466 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129994AbQLUOCy>; Thu, 21 Dec 2000 09:02:54 -0500
+Message-Id: <200012211331.eBLDVuc01895@pincoya.inf.utfsm.cl>
+To: David Weinehall <tao@acc.umu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: fs corruption in 2.4.0-test11? 
+In-Reply-To: Message from David Weinehall <tao@acc.umu.se> 
+   of "Thu, 21 Dec 2000 04:18:23 BST." <20001221041823.A15178@khan.acc.umu.se> 
+Date: Thu, 21 Dec 2000 10:31:56 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2000 at 05:47:10PM +0530, sswapnee@in.ibm.com wrote:
-> Hello Everybody
-> 
-> I am trying to mount a filesystem on Linux 2.4.0-test10 kernel using the
-> mount() function.
-> When I call this function the system just hangs up.  I have to restart
-> linux by switching off and on.
-> Can somebody tell me why mount call just hangs?  Is there anyway to take a
-> dump when
-> the call is being executed.
+David Weinehall <tao@acc.umu.se> said:
+> On Wed, Dec 20, 2000 at 04:47:42PM -0800, Larry McVoy wrote:
+> > I just need a sanity check - do other pages/blocks sometimes show up in
+> > recently created files in 2.4.0-test11?
 
-If you have a second computer available, I highly recommend using kgdbstub
-which can be found on sourceforge. This gives you source level debugging in
-the kernel. Just put a breakpoint in sys_mount(), or whatever it is called
-and see what happens.
+> Mmmm. Yes. I think the final fixes for this went into v2.4.0-test12pre5,
+> but since there's a test13-pre3 out that needs testing, go for that one
+> directly... :^)
 
-Linus is dead set against using a debugger in daily development but it is a
-very valuable tool for quickly gaining insight.
-
-Regards,
-
-bert hubert
-
+2.4.0-test13-pre ate /usr/src at home (i686, RH7 + updates): Again, files
+turn into directories, massive ammounts of duplicate blocks, ... Not as bad
+as 2.4.0-test11 used to be (/ survived this time ;-)
 -- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

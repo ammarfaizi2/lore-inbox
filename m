@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317638AbSGUPZG>; Sun, 21 Jul 2002 11:25:06 -0400
+	id <S317691AbSGUPbT>; Sun, 21 Jul 2002 11:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317675AbSGUPZG>; Sun, 21 Jul 2002 11:25:06 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:2804 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S317638AbSGUPZF>;
-	Sun, 21 Jul 2002 11:25:05 -0400
-Date: Sun, 21 Jul 2002 11:28:04 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: cpqarray broken since 2.5.19
-Message-ID: <20020721152804.GA6273@www.kroptech.com>
+	id <S317693AbSGUPbT>; Sun, 21 Jul 2002 11:31:19 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3830 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317691AbSGUPbT>; Sun, 21 Jul 2002 11:31:19 -0400
+Subject: Re: [PATCH] strict VM overcommit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Szakacsits Szabolcs <szaka@sienet.hu>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.NEB.4.44.0207211438440.11656-100000@mimas.fachschaften.tu-muenchen.de>
+References: <Pine.NEB.4.44.0207211438440.11656-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Jul 2002 17:46:35 +0100
+Message-Id: <1027269995.16818.106.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cpqarray driver seems to have been broken around 2.5.19 with the
-blk_start_queue/blk_stop_queue changes. As-is, cpqarray deadlocks the entire
-system when it tries to do partition detection. The bits from the 2.5.19 patch
-which seem to relate are:
+On Sun, 2002-07-21 at 13:46, Adrian Bunk wrote:
+> With enough stupidity root can always trash his system but if as Robert
+> says the state of the system will be that "no allocations will succeed"
+> which seems to be a synonymous for "the system is practically dead" it is
+> IMHO a good idea to let "swapoff -a return -ENOMEM".
 
-> @@ -916,6 +915,7 @@
->       goto queue_next;
->
->  startio:
-> +     blk_stop_queue(q);
->       start_io(h);
->  }
->
-> @@ -1066,8 +1066,8 @@
->       /*
->        * See if we can queue up some more IO
->        */
-> -     do_ida_request(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
->       spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags);
-> +     blk_start_queue(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
->  }
->
->  /*
-
-Simply reverting these changes allows the driver to successfully do partition
-detect, but it quickly hangs if any significant amount of I/O is attempted. The
-hang in this case seems to just affect processes trying to do I/O on the array;
-it is not a whole-system-deadlock.
-
-Test machine is SMP ppro.
-
---Adam
+In the overcommit mode I already suggested that. An administrator can
+turn off overcommit protection if he really really needs to swapoff
+regardless of the consequences (eg failing swap disk)
 

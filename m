@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266825AbTGKVWP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 17:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266841AbTGKVWP
+	id S261151AbTGKVT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 17:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTGKVT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 17:22:15 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:49314 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S266825AbTGKVWN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 17:22:13 -0400
-Date: Fri, 11 Jul 2003 23:36:51 +0200 (MEST)
-Message-Id: <200307112136.h6BLapXt005156@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org, mikpe@csd.uu.se
-Subject: Re: 2.5.75 as-iosched.c & asm-generic/div64.h breakage
-Cc: axboe@suse.de, bernie@develer.com, linux-kernel@vger.kernel.org
+	Fri, 11 Jul 2003 17:19:26 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:48120 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261151AbTGKVT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 17:19:26 -0400
+Message-Id: <200307112134.h6BLY7Fg004873@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Linux 2.5.75
+To: linux-kernel@vger.kernel.org
+Date: Fri, 11 Jul 2003 23:33:40 +0200
+References: <7TEe.Bz.21@gated-at.bofh.it> <7TNS.Kc.9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003 14:01:58 -0700, Andrew Morton wrote:
-> Mikael Pettersson <mikpe@csd.uu.se> wrote:
-> >
-> > drivers/block/as-iosched.c: In function `as_update_iohist':
-> > drivers/block/as-iosched.c:840: warning: right shift count >= width of type
-> > drivers/block/as-iosched.c:840: warning: passing arg 1 of `__div64_32' from incompatible pointer type
+Linus Torvalds wrote:
+
+>> 
+>> No ppc, ppc64, s390?
 > 
-> You mean that code was in -mm for all those months and no ppc32 person
-> bothered testing it?  Bah.
+> Do we have distributions that intend to make releases using those? I
+> suspect not, but hey, don't get me wrong: I'd love to see them working
+> out-of-the-box.
 
-Apparently. I don't have time for anything but standard kernels.
+At the moment, the s390 port is fully merged and functional (~30 known bugs,
+more to be found) in the your tree, something that has never been the
+case in 2.2 or 2.4.
 
-> Something like this?  (Could be sped up for 32-bit sector_t)
-> 
-> diff -puN drivers/block/as-iosched.c~as-do_div-fix drivers/block/as-iosched.c
-> --- 25/drivers/block/as-iosched.c~as-do_div-fix	Fri Jul 11 14:00:55 2003
-> +++ 25-akpm/drivers/block/as-iosched.c	Fri Jul 11 14:00:58 2003
-> @@ -836,8 +836,10 @@ static void as_update_iohist(struct as_i
->  		aic->seek_samples += 256;
->  		aic->seek_total += 256*seek_dist;
->  		if (aic->seek_samples) {
-> -			aic->seek_mean = aic->seek_total + 128;
-> -			do_div(aic->seek_mean, aic->seek_samples);
-> +			u64 seek_mean = aic->seek_total + 128;
-> +
-> +			do_div(seek_mean, aic->seek_samples);
-> +			aic->seek_mean = seek_mean;
->  		}
->  		aic->seek_samples = (aic->seek_samples>>1)
->  					+ (aic->seek_samples>>2);
+I expect to see an official debian kernel for s390 2.6.early without any
+architecture specific patches. The commercial distributions are likely
+to remain some more time on 2.4.{19,21}, actually there are probably more
+people still running 2.4.7 than 2.4.19 on s390...
 
-Perhaps, but it's my opinion that do_div() needs to be made more robust,
-since arch-specific data abstraction means that callers in generic code
-don't always know if some value is u32 or u64.
-
-So your change should be in do_div() itself, not in its callers.
-
-/Mikael
+        Arnd <><

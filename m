@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287388AbSAPUMH>; Wed, 16 Jan 2002 15:12:07 -0500
+	id <S287439AbSAPUSs>; Wed, 16 Jan 2002 15:18:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287368AbSAPUL5>; Wed, 16 Jan 2002 15:11:57 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:7553
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287388AbSAPULx>; Wed, 16 Jan 2002 15:11:53 -0500
-Date: Wed, 16 Jan 2002 14:56:05 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.1.4 is available
-Message-ID: <20020116145605.A10792@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S287440AbSAPUSj>; Wed, 16 Jan 2002 15:18:39 -0500
+Received: from codepoet.org ([166.70.14.212]:23246 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S287439AbSAPUSX>;
+	Wed, 16 Jan 2002 15:18:23 -0500
+Date: Wed, 16 Jan 2002 13:18:23 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+Message-ID: <20020116201823.GA1872@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu> <20020116194121.GC32184@codepoet.org> <a24lub$4o9$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <a24lub$4o9$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
+On Wed Jan 16, 2002 at 11:56:59AM -0800, H. Peter Anvin wrote:
+> Followup to:  <20020116194121.GC32184@codepoet.org>
+> By author:    Erik Andersen <andersen@codepoet.org>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Keep in mind that insmod current needs to incorporate a full ELF
+> > interpreter in userspace (and the source code needs to know about
+> > all the types of relocations and jump for each arch and for 32
+> > and 64 bit ELF.  Horrible stuff really.  If we could cleanup the
+> > kernel's insmod implementation to require merely a syscall
+> > passing a filename to the kernel, it would sure make the
+> > initramfs smaller and simpler.  I believe Rusty made a patch to
+> > do this sort of thing....
+> > 
+> 
+> Yeah!  Let's put all this crap in KERNEL SPACE!  *NOT!*
 
-Release 2.1.4: Wed Jan 16 14:42:57 EST 2002
-	* Resync with 2.4.18-pre4 and 2.5.3-pre1.
-	* Fixed a nasty little bug in property computation.
-	* Fixed another nasty little bug in display of constraint violations.
+Good point.  We surely wouldn't want to have an ELF interpreter
+in kernel space.  That would be evil!  
+	rm linux/fs/binfmt_elf.c
+There, thats better, now userspace can load everything.  If we
+can figure out how to get userspace loaded....
 
-I fat-fingered some display code in 2.1.3 while trying to do a better job of
-passing rulesfile line number information back in error popups.  This patch
-fixes that problem.
+The kernel already knows how to load ELF files, and _has_ to do
+that job to get userspace running anyways.   So why not use that
+mechanism for modules?
 
-The autoconfigurator is progressing nicely.  It now generates a
-correct configuration in "Look, ma! No hands." mode on three different
-Intel boxes -- my all-PCI SCSI custom monster machine, an IDE-based IBM
-Thinkpad laptop, and a hybrid PCI/ISA VA box from late '97.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+ -Erik
 
-The conclusion is thus inescapable that the history, concept, and 
-wording of the second amendment to the Constitution of the United 
-States, as well as its interpretation by every major commentator and 
-court in the first half-century after its ratification, indicates 
-that what is protected is an individual right of a private citizen 
-to own and carry firearms in a peaceful manner.
-         -- Report of the Subcommittee On The Constitution of the Committee On 
-            The Judiciary, United States Senate, 97th Congress, second session 
-            (February, 1982), SuDoc# Y4.J 89/2: Ar 5/5
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

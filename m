@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbTHYNdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 09:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTHYNdD
+	id S261821AbTHYNtj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 09:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTHYNtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 09:33:03 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:2828 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261826AbTHYNcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 09:32:47 -0400
-Date: Mon, 25 Aug 2003 14:32:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.22 released
-Message-ID: <20030825143245.A5634@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030825132358.GC14108@merlin.emma.line.org>
+	Mon, 25 Aug 2003 09:49:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23220 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261821AbTHYNth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 09:49:37 -0400
+Date: Mon, 25 Aug 2003 14:49:36 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Niklas Vainio <niklas.vainio@iki.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test4] VFS: Cannot open root device
+Message-ID: <20030825134936.GI454@parcelfarce.linux.theplanet.co.uk>
+References: <20030825130331.GA20696@vinku.pingviini.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030825132358.GC14108@merlin.emma.line.org>; from matthias.andree@gmx.de on Mon, Aug 25, 2003 at 03:23:58PM +0200
+In-Reply-To: <20030825130331.GA20696@vinku.pingviini.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 03:23:58PM +0200, Matthias Andree wrote:
-> On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
+On Mon, Aug 25, 2003 at 04:03:31PM +0300, Niklas Vainio wrote:
+> I get this at boot with 2.6.0-test[3,4]:
 > 
-> > - 2.4.22-rc4 was released as 2.4.22 with no changes.
+> VFS: Cannot open root device "341" or unknown-block(3,65) for ext3 error=-6
+> Please append a correct "root=" boot option
+> Kernel panic: VFS: Unable to mount root fs on unknown-block(3,65)
 > 
-> What are the plans for 2.4.23? XFS merge perhaps <hint>?
+> Before this, kernel seems to detect hard disks just fine.
+> 
+> This system boots fine with 2.2 and 2.4 kernels. I have tried setting
+> root=/dev/hdb1 and rootfstype=ext2 (hdb1 is ext2) but this doesn't help.
+> Config below. Is something missing?
 
-I'm preparing some patches, but if the merge-rate doesn't increase
-it's more like 2.4.24 or 2.4.25..
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
 
+> # CONFIG_BLK_DEV_IDEDISK is not set
+
+This.  IDE driver will find the hardware, all right, but there will be
+nothing that would know how to talk with IDE disks.

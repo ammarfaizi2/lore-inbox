@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264992AbUD2WIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264990AbUD2WI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264992AbUD2WIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUD2WIl
+	id S264990AbUD2WI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUD2WI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:08:41 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:662 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S264989AbUD2WIg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:08:36 -0400
-Subject: Re: [patch 1/3] efivars driver update and move
-From: Alex Williamson <alex.williamson@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>, akpm@osdl.org,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040429211930.GC15106@lists.us.dell.com>
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEAB3@fmsmsx406.fm.intel.com>
-	 <1083268253.8416.100.camel@localhost>
-	 <20040429211930.GC15106@lists.us.dell.com>
-Content-Type: text/plain
-Message-Id: <1083276494.8416.114.camel@localhost>
+	Thu, 29 Apr 2004 18:08:57 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:13288 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S264990AbUD2WIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:08:51 -0400
+Date: Thu, 29 Apr 2004 15:08:48 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: [PATCH] Clean up asm/pgalloc.h include (ppc)
+Message-ID: <20040429220848.GA3731@smtp.west.cox.net>
+References: <20040418231720.C12222@flint.arm.linux.org.uk> <20040418232314.A2045@flint.arm.linux.org.uk> <E1BFYiw-00056A-Qw@dyn-67.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Apr 2004 16:08:15 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1BFYiw-00056A-Qw@dyn-67.arm.linux.org.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-29 at 15:19, Matt Domsch wrote:
-> On Thu, Apr 29, 2004 at 01:50:54PM -0600, Alex Williamson wrote:
-> > # stat BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c\ /
-> >   File: `BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c /'
-> 
-> FWIW, my Intel Tiger2-based system doesn't have the space at the end...
-> 
-> >         *(short_name + strlen(short_name)) = '-';
-> >         efi_guid_unparse(vendor_guid, short_name + strlen(short_name));
-> >         *(short_name + strlen(short_name)) = ' ';
-> 
-> even though looking at this I would have expected it to...
+On Mon, Apr 19, 2004 at 02:22:10PM +0100, Russell King wrote:
 
-   Yeah, I'm not sure how you couldn't have a space at the end...
-
+> This patch cleans up needless includes of asm/pgalloc.h from the
+> arch/ppc/ subtree.  This has not been compile tested, so
+> needs the architecture maintainers (or willing volunteers) to
+> test.
 > 
-> Can you remove that last line and see what it does?  Best as I can
-> tell, it isn't necessary or desired.
+> Please ensure that at least the first two patches have already
+> been applied to your tree; they can be found at:
+> 
+> 	http://lkml.org/lkml/2004/4/18/86
+> 	http://lkml.org/lkml/2004/4/18/87
+> 
+> This patch is part of a larger patch aiming towards getting the
+> include of asm/pgtable.h out of linux/mm.h, so that asm/pgtable.h
+> can sanely get at things like mm_struct and friends.
+> 
+> In the event that any of these files fails to build, chances are
+> you need to include some other header file rather than pgalloc.h.
+> Normally this is either asm/pgtable.h (unlikely), asm/cacheflush.h
+> or asm/tlbflush.h.
 
-   Yes, removing that last line above gets rid of the space, everything
-looks right, and efibootmgr doesn't complain.  I'd attach a patch but
-I'm curious if Matt T. had some reason for adding it.
-
-	Alex
+Better late than never I hope, this is fine on ppc32.
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
-
+Tom Rini
+http://gate.crashing.org/~trini/

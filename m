@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292153AbSBOVdb>; Fri, 15 Feb 2002 16:33:31 -0500
+	id <S292157AbSBOVdb>; Fri, 15 Feb 2002 16:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292157AbSBOVdL>; Fri, 15 Feb 2002 16:33:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292156AbSBOVdI>; Fri, 15 Feb 2002 16:33:08 -0500
-Subject: Re: Disgusted with kbuild developers
-To: esr@thyrsus.com
-Date: Fri, 15 Feb 2002 21:47:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        arjan@pc1-camc5-0-cust78.cam.cable.ntl.com (Arjan van de Ven),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020215155946.B14083@thyrsus.com> from "Eric S. Raymond" at Feb 15, 2002 03:59:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292156AbSBOVdM>; Fri, 15 Feb 2002 16:33:12 -0500
+Received: from as1-4-7.bn.g.bonet.se ([194.236.61.89]:51599 "HELO cucumelo.org")
+	by vger.kernel.org with SMTP id <S292153AbSBOVdB>;
+	Fri, 15 Feb 2002 16:33:01 -0500
+Message-ID: <3C6D7F19.5060807@cucumelo.org>
+Date: Fri, 15 Feb 2002 22:35:21 +0100
+From: Benny Sjostrand <gorm@cucumelo.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Lang <dlang@diginsite.com>
+Cc: Robert Love <rml@tech9.net>, J Sloan <jjs@lexus.com>,
+        john slee <indigoid@higherplane.net>, J Sloan <joe@tmsusa.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: tux officially in kernel?
+In-Reply-To: <Pine.LNX.4.44.0202151309090.2991-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16bqC7-0004Mj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Pretty much all of it. I wrote a proof of concept parser that can deduce
-> > the set of rules that must be enforced and what must be changed when you
-> > hit an option
-> 
-> Alan.  It didn't work.  It couldn't have -- among other things, the old
-> language can't tell visibility from implication.
+>
+>
+>Linus put khttpd in the kernel just after sendfile support was added, IIRC
+>he said something about khttpd being a very small number of lines to add
+>once sendfile support was there.
+>
+does anyone use the khttpd service for real today ?, is there 
+possibility making some useful stuff of it ? , interface it with apache 
+getting better performance or whatever ...
 
-The prototype generates a very convincing table set, and the tables generate
-very convincing graphs. The information to work out what option needs another
-as I've said for months
+/Benny
+
+

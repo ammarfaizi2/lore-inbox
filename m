@@ -1,36 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUDZXS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUDZXaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUDZXS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 19:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUDZXS1
+	id S262381AbUDZXaj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 19:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDZXaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 19:18:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46250 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261680AbUDZXS0 (ORCPT
+	Mon, 26 Apr 2004 19:30:39 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:45697 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S262381AbUDZXad (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 19:18:26 -0400
-Date: Mon, 26 Apr 2004 16:20:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthias Andree <ma+rfs@dt.e-technik.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary
- additional namespace to ReiserFS
-Message-Id: <20040426162033.6400edb8.akpm@osdl.org>
-In-Reply-To: <20040426204037.GA21455@merlin.emma.line.org>
-References: <1082750045.12989.199.camel@watt.suse.com>
-	<408D3FEE.1030603@namesys.com>
-	<1083000711.30344.44.camel@watt.suse.com>
-	<408D51C4.7010803@namesys.com>
-	<1083006783.30344.102.camel@watt.suse.com>
-	<20040426204037.GA21455@merlin.emma.line.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 19:30:33 -0400
+Date: Tue, 27 Apr 2004 01:30:25 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sf.net, speedtouch@ml.free.fr, kangur@polcom.net
+Subject: USB related oops in 2.6.6-rk2-bk3 (similar with 2.6.5)
+In-Reply-To: <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.58.0404270115260.5772@alpha.polcom.net>
+References: <200403262054.56725@WOLK> <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1213229604-1861500153-1083022225=:5772"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, I was reading that!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Please do *not* go making modifications to Cc: lists.  Just do reply-to-all
-and be happy, thanks.
+--1213229604-1861500153-1083022225=:5772
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+Hi,
+
+I experienced this oops. I have uhci-hcd and two devices. One is usb 
+camera (TC111 - probably not supported under linux?) and the 
+second is speedtouch modem. Everytime I shut down my system (Gentoo) with 
+2.6.5 and newer I get some oops but system log is down before that and I 
+have no time to hack start scripts to stop shuting syslog. It occures when  
+removing some usb modules. So I stopped speedtouch and removed the modules 
+manually (in stop scripts order I hope). But I have not removed uhci-hcd 
+module (this module is removed in other part of stop scripts). And... 
+nothing happened. So I unplugged speedtouch and replugged it back. And I 
+immendiatelly got atached oops. (I think that I should use ksymoops, but 
+it is searching for /proc/ksyms that is not present in 2.6 and it does not 
+like /proc/kallsyms... And it produces nothing but warnings. What options 
+should I use?)
+
+What can I do to help track the problem down?
+
+
+thanks in advance
+
+Grzegorz Kulewski
+
+
+PS. I am subscribbed only to LKML, so CC me, please.
+--1213229604-1861500153-1083022225=:5772
+Content-Type: TEXT/plain; charset=US-ASCII; name="oops.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0404270130250.5772@alpha.polcom.net>
+Content-Description: 
+Content-Disposition: attachment; filename="oops.txt"
+
+QXByIDI3IDAwOjUzOjU1IHBvbGIwMSB1c2IgMS0xOiBVU0IgZGlzY29ubmVj
+dCwgYWRkcmVzcyAyDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIGRyaXZlcnMv
+dXNiL2NvcmUvZGV2aW8uYzoyOTA6IHNwaW5faXNfbG9ja2VkIG9uIHVuaW5p
+dGlhbGl6ZWQgc3BpbmxvY2sgZGQyNDRmNmMuDQpBcHIgMjcgMDA6NTM6NTUg
+cG9sYjAxIFVuYWJsZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBk
+ZXJlZmVyZW5jZSBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMDQNCkFwciAy
+NyAwMDo1Mzo1NSBwb2xiMDEgcHJpbnRpbmcgZWlwOg0KQXByIDI3IDAwOjUz
+OjU1IHBvbGIwMSBlMDk0ODBiOA0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSAq
+cGRlID0gMDAwMDAwMDANCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgT29wczog
+MDAwMCBbIzFdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFBSRUVNUFQgREVC
+VUdfUEFHRUFMTE9DDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIENQVTogICAg
+MA0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBFSVA6ICAgIDAwNjA6WzxlMDk0
+ODBiOD5dICAgIE5vdCB0YWludGVkDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAx
+IEVGTEFHUzogMDAwMTAwODYgICAoMi42LjYtcmMyLWJrMykNCkFwciAyNyAw
+MDo1Mzo1NSBwb2xiMDEgRUlQIGlzIGF0IGRlc3Ryb3lfYXN5bmMrMHg4OC8w
+eDQ0MCBbdXNiY29yZV0NCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgZWF4OiBk
+ZDI0NGY2YyAgIGVieDogMDAwMDAwMDAgICBlY3g6IDAwMDAwMDAxICAgZWR4
+OiBjMDQwMGU5OA0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBlc2k6IGRkMjQ0
+ZjM4ICAgZWRpOiBkYWFhZTAwMCAgIGVicDogZGFhYWZlNjggICBlc3A6IGRh
+YWFmZTJjDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIGRzOiAwMDdiICAgZXM6
+IDAwN2IgICBzczogMDA2OA0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBQcm9j
+ZXNzIGtodWJkIChwaWQ6IDU2MTIsIHRocmVhZGluZm89ZGFhYWUwMDAgdGFz
+az1kZjEwYmExMCkNCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgU3RhY2s6IGUw
+OTRmOGQ0IGUwOTRlNGQ0IDAwMDAwMTIyIGRkMjQ0ZjZjIDAwMDAwMDgxIDAw
+MDAwMDE0IDAwMDAwMDAxIGRhYWFmZTVjDQpBcHIgMjcgMDA6NTM6NTUgcG9s
+YjAxIGUwOTQ0NWQxIGRhYzNiYmY4IGRkMjQ0ZjZjIDAwMDAwMjgyIGRkOWZh
+ZWY4IGUwOTU5ZmEwIGRkOWZhZjA4IGRhYWFmZTc4DQpBcHIgMjcgMDA6NTM6
+NTUgcG9sYjAxIGUwOTQ4NjZlIGRkMjQ0ZjM4IGRkMjQ0Zjg0IGRhYWFmZTk0
+IGUwOTNjMGY2IGRkOWZhZWY4IGRkOWZhZWY4IGRkOWZhZjA4DQpBcHIgMjcg
+MDA6NTM6NTUgcG9sYjAxIENhbGwgVHJhY2U6DQpBcHIgMjcgMDA6NTM6NTUg
+cG9sYjAxIFs8ZTA5NDQ1ZDE+XSB1c2JfZGlzYWJsZV9lbmRwb2ludCsweDcx
+LzB4ODAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5
+NDg2NmU+XSBkcml2ZXJfZGlzY29ubmVjdCsweDNlLzB4NDAgW3VzYmNvcmVd
+DQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5M2MwZjY+XSB1c2JfdW5i
+aW5kX2ludGVyZmFjZSsweDc2LzB4ODAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6
+NTM6NTUgcG9sYjAxIFs8YzAzMmEwYzY+XSBkZXZpY2VfcmVsZWFzZV9kcml2
+ZXIrMHg2Ni8weDcwDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAzMmEy
+M2Q+XSBidXNfcmVtb3ZlX2RldmljZSsweDZkLzB4YjANCkFwciAyNyAwMDo1
+Mzo1NSBwb2xiMDEgWzxjMDMyOTBiZT5dIGRldmljZV9kZWwrMHg2ZS8weGIw
+DQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAzMjkxMTQ+XSBkZXZpY2Vf
+dW5yZWdpc3RlcisweDE0LzB4MjANCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEg
+WzxlMDk0NDZiMT5dIHVzYl9kaXNhYmxlX2RldmljZSsweDcxLzB4YjAgW3Vz
+YmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5M2NkMjY+XSB1
+c2JfZGlzY29ubmVjdCsweGM2LzB4MTIwIFt1c2Jjb3JlXQ0KQXByIDI3IDAw
+OjUzOjU1IHBvbGIwMSBbPGUwOTNmODhmPl0gaHViX3BvcnRfY29ubmVjdF9j
+aGFuZ2UrMHgyOGYvMHgyYTAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUg
+cG9sYjAxIFs8ZTA5M2YyNjE+XSBodWJfcG9ydF9zdGF0dXMrMHg0MS8weGIw
+IFt1c2Jjb3JlXQ0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGUwOTNmYzI5
+Pl0gaHViX2V2ZW50cysweDM4OS8weDUyMCBbdXNiY29yZV0NCkFwciAyNyAw
+MDo1Mzo1NSBwb2xiMDEgWzxlMDkzZmRmNT5dIGh1Yl90aHJlYWQrMHgzNS8w
+eGYwIFt1c2Jjb3JlXQ0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTFh
+ZjQwPl0gZGVmYXVsdF93YWtlX2Z1bmN0aW9uKzB4MC8weDIwDQpBcHIgMjcg
+MDA6NTM6NTUgcG9sYjAxIFs8ZTA5M2ZkYzA+XSBodWJfdGhyZWFkKzB4MC8w
+eGYwIFt1c2Jjb3JlXQ0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTAz
+MmIxPl0ga2VybmVsX3RocmVhZF9oZWxwZXIrMHg1LzB4MTQNCkFwciAyNyAw
+MDo1Mzo1NSBwb2xiMDENCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgQ29kZTog
+OGIgNTMgMDQgOGIgMDMgODkgNTAgMDQgODkgMDIgODkgNWIgMDQgODkgMWIg
+ODEgN2UgMzQgM2MgNGINCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgPDY+bm90
+ZToga2h1YmRbNTYxMl0gZXhpdGVkIHdpdGggcHJlZW1wdF9jb3VudCAxDQpB
+cHIgMjcgMDA6NTM6NTUgcG9sYjAxIERlYnVnOiBzbGVlcGluZyBmdW5jdGlv
+biBjYWxsZWQgZnJvbSBpbnZhbGlkIGNvbnRleHQgYXQgaW5jbHVkZS9saW51
+eC9yd3NlbS5oOjQzDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIGluX2F0b21p
+YygpOjEsIGlycXNfZGlzYWJsZWQoKTowDQpBcHIgMjcgMDA6NTM6NTUgcG9s
+YjAxIENhbGwgVHJhY2U6DQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAx
+MWM2Nzc+XSBfX21pZ2h0X3NsZWVwKzB4YjcvMHhlMA0KQXByIDI3IDAwOjUz
+OjU1IHBvbGIwMSBbPGMwMTIxZTIyPl0gcHJvZmlsZV9leGl0X3Rhc2srMHgy
+Mi8weDYwDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAxMjQzOTk+XSBk
+b19leGl0KzB4NzkvMHg5YzANCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgWzxj
+MDExODBhMD5dIGRvX3BhZ2VfZmF1bHQrMHgwLzB4NTdlDQpBcHIgMjcgMDA6
+NTM6NTUgcG9sYjAxIFs8YzAxMTgwYTA+XSBkb19wYWdlX2ZhdWx0KzB4MC8w
+eDU3ZQ0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTA2MzhiPl0gZGll
+KzB4MjRiLzB4MjUwDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAxMTgy
+OTY+XSBkb19wYWdlX2ZhdWx0KzB4MWY2LzB4NTdlDQpBcHIgMjcgMDA6NTM6
+NTUgcG9sYjAxIFs8YzAxNDQ4ZmE+XSBmaW5kX2dldF9wYWdlcysweDhhLzB4
+MTkwDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAxMWFmOWE+XSBfX3dh
+a2VfdXBfY29tbW9uKzB4M2EvMHg2MA0KQXByIDI3IDAwOjUzOjU1IHBvbGIw
+MSBbPGMwMmRmZDA5Pl0gdnNjbnByaW50ZisweDI5LzB4NDANCkFwciAyNyAw
+MDo1Mzo1NSBwb2xiMDEgWzxjMDEyMTFhYz5dIHByaW50aysweDI4Yy8weDQw
+MA0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTE4MGEwPl0gZG9fcGFn
+ZV9mYXVsdCsweDAvMHg1N2UNCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgWzxj
+MDEwNWI5OT5dIGVycm9yX2NvZGUrMHgyZC8weDM4DQpBcHIgMjcgMDA6NTM6
+NTUgcG9sYjAxIFs8ZTA5NDgwYjg+XSBkZXN0cm95X2FzeW5jKzB4ODgvMHg0
+NDAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5NDQ1
+ZDE+XSB1c2JfZGlzYWJsZV9lbmRwb2ludCsweDcxLzB4ODAgW3VzYmNvcmVd
+DQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5NDg2NmU+XSBkcml2ZXJf
+ZGlzY29ubmVjdCsweDNlLzB4NDAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6
+NTUgcG9sYjAxIFs8ZTA5M2MwZjY+XSB1c2JfdW5iaW5kX2ludGVyZmFjZSsw
+eDc2LzB4ODAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8
+YzAzMmEwYzY+XSBkZXZpY2VfcmVsZWFzZV9kcml2ZXIrMHg2Ni8weDcwDQpB
+cHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8YzAzMmEyM2Q+XSBidXNfcmVtb3Zl
+X2RldmljZSsweDZkLzB4YjANCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgWzxj
+MDMyOTBiZT5dIGRldmljZV9kZWwrMHg2ZS8weGIwDQpBcHIgMjcgMDA6NTM6
+NTUgcG9sYjAxIFs8YzAzMjkxMTQ+XSBkZXZpY2VfdW5yZWdpc3RlcisweDE0
+LzB4MjANCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEgWzxlMDk0NDZiMT5dIHVz
+Yl9kaXNhYmxlX2RldmljZSsweDcxLzB4YjAgW3VzYmNvcmVdDQpBcHIgMjcg
+MDA6NTM6NTUgcG9sYjAxIFs8ZTA5M2NkMjY+XSB1c2JfZGlzY29ubmVjdCsw
+eGM2LzB4MTIwIFt1c2Jjb3JlXQ0KQXByIDI3IDAwOjUzOjU1IHBvbGIwMSBb
+PGUwOTNmODhmPl0gaHViX3BvcnRfY29ubmVjdF9jaGFuZ2UrMHgyOGYvMHgy
+YTAgW3VzYmNvcmVdDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAxIFs8ZTA5M2Yy
+NjE+XSBodWJfcG9ydF9zdGF0dXMrMHg0MS8weGIwIFt1c2Jjb3JlXQ0KQXBy
+IDI3IDAwOjUzOjU1IHBvbGIwMSBbPGUwOTNmYzI5Pl0gaHViX2V2ZW50cysw
+eDM4OS8weDUyMCBbdXNiY29yZV0NCkFwciAyNyAwMDo1Mzo1NSBwb2xiMDEg
+WzxlMDkzZmRmNT5dIGh1Yl90aHJlYWQrMHgzNS8weGYwIFt1c2Jjb3JlXQ0K
+QXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTFhZjQwPl0gZGVmYXVsdF93
+YWtlX2Z1bmN0aW9uKzB4MC8weDIwDQpBcHIgMjcgMDA6NTM6NTUgcG9sYjAx
+IFs8ZTA5M2ZkYzA+XSBodWJfdGhyZWFkKzB4MC8weGYwIFt1c2Jjb3JlXQ0K
+QXByIDI3IDAwOjUzOjU1IHBvbGIwMSBbPGMwMTAzMmIxPl0ga2VybmVsX3Ro
+cmVhZF9oZWxwZXIrMHg1LzB4MTQNCg==
+
+--1213229604-1861500153-1083022225=:5772--

@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273130AbRIJB0V>; Sun, 9 Sep 2001 21:26:21 -0400
+	id <S273129AbRIJBbB>; Sun, 9 Sep 2001 21:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273128AbRIJB0L>; Sun, 9 Sep 2001 21:26:11 -0400
-Received: from mail.tconl.com ([204.26.80.9]:30731 "EHLO hermes.tconl.com")
-	by vger.kernel.org with ESMTP id <S273129AbRIJBZ6>;
-	Sun, 9 Sep 2001 21:25:58 -0400
-Message-ID: <3B9C16AF.8F1599E6@tconl.com>
-Date: Sun, 09 Sep 2001 20:26:08 -0500
-From: Joe Fago <cfago@tconl.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.5 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9: PDC20267 not working
+	id <S273140AbRIJBav>; Sun, 9 Sep 2001 21:30:51 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:12518 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S273129AbRIJBai>;
+	Sun, 9 Sep 2001 21:30:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: mzyngier@freesurf.fr
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Missing exports in genhd.c in 2.4.10-pre 
+In-Reply-To: Your message of "09 Sep 2001 20:13:52 +0200."
+             <wrplmjodyfz.fsf@hina.wild-wind.fr.eu.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Sep 2001 11:29:59 +1000
+Message-ID: <18878.1000085399@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 09 Sep 2001 20:13:52 +0200, 
+Marc ZYNGIER <mzyngier@freesurf.fr> wrote:
+>Please find attached a small patch (against 2.4.10-pre6) which adds
+>missing EXPORT_SYMBOLs to genhd.c. Without it, modules such as
+>sd_mod.o are unable to load...
 
-System hangs on boot:
-
-
-Uniform Multi-Platform E_IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PDC20267: IDE controller on PCI bus 00 dev 40
-PCI: Assigned IRQ 10 for device 00:08.0
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode
-  ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda: pio, hdb: pio
-  ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc: pio, hdd: DMA
-hda: Maxtor 2B020H1, ATA DISK drive
-
-
-This is the only device attached to the controller. Any suggestions?
-
-Thanks,
-Joe
+You need to add genhd.o to export-objs in drivers/block/Makefile as well.
 

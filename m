@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbUK0D4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbUK0D4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbUK0D4l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUK0D4E
+	id S262146AbUK0D4m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbUK0Dz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:56:04 -0500
+	Fri, 26 Nov 2004 22:55:56 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262484AbUKZTcs (ORCPT
+	by vger.kernel.org with ESMTP id S262486AbUKZTdE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:32:48 -0500
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, hch@infradead.org, matthew@wil.cx, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 25 Nov 2004 16:20:06 -0200
-In-Reply-To: <19865.1101395592@redhat.com>
-Message-ID: <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 26 Nov 2004 14:33:04 -0500
+Message-ID: <41A5F684.1070901@in.ibm.com>
+Date: Thu, 25 Nov 2004 20:43:08 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Akinobu Mita <amgta@yacht.ocn.ne.jp>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       varap@us.ibm.com
+Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
+References: <419CACE2.7060408@in.ibm.com>	 <20041119153052.21b387ca.akpm@osdl.org>	 <1100912759.4987.207.camel@dyn318077bld.beaverton.ibm.com>	 <200411201204.37750.amgta@yacht.ocn.ne.jp>  <41A20DB5.2050302@in.ibm.com>	 <1101170617.4987.268.camel@dyn318077bld.beaverton.ibm.com>	 <41A37E5C.8050305@in.ibm.com> <1101326878.26063.18.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1101326878.26063.18.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 25, 2004, David Howells <dhowells@redhat.com> wrote:
+Hi Badari,
 
-> 	SOURCE			INSTALLED AS
-> 	======================	============
-> 	include/user/		/usr/include/user/
-> 	include/user-i386/	/usr/include/user-i386/
-> 				/usr/include/linux -> user
-> 				/usr/include/asm -> user-i386
+Badari Pulavarty wrote:
+> Hari,
+> 
+> 
+> I have a success case and a failure case to report.
+> 
+> 1) Success first.. I was able save /proc/vmcore when my machine
+> paniced (not thro sysrq) and gdb showed the stack correctly :)
 
-Although user/ and user-* make a lot of sense within the kernel source
-tree, I don't think these names would be very clear in /usr/include.
-I'd rather use names in /usr/include that more clearly associate them
-with the kernel.  Heck, even /usr/include/asm is inappropriate, but
-it's been there for so long that we really shouldn't try to get rid of
-it.
+Thanks for this news! Reassures us that we are on the right track on 
+making kdump useful for real-life problems.
 
-If I had it my way, we'd have, in the kernel tree, userland-aimed
-headers in include/linux/user and include/asm-<machine>/user, and have
-them installed in /usr/include/linux and /usr/include/asm-<machine>.
+> 
+> For some reason, gdb failed to show stack correctly, when I
+> ran it on /proc/vmcore directly, when I am on kxec kernel :(
 
-This means these headers shouldn't reference each other as
-linux/user/something.h, but rather as linux/something.h, such that
-they still work when installed in /usr/include/linux.  This may
-require headers include/linux/something.h to include
-linux/user/something.h, but that's already part of the proposal.
+Does it throw up wrong entries or does it completely fail?
 
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+> 
+> # gdb  ../l*9/vmlinux vmcore.3
+> ...
+.
+.
+.
+>  <0>kexec: opening parachute	<<<<<<<<<<*** trying to kexec ?
+
+Yes, this is the kexec call from the crash dump code.
+
+> Unable to handle kernel paging request at virtual address c30a0000
+
+This is the page reserved for storing the register values. Its really 
+strange that it faults here. The page is reserved already during early 
+boot.
+
+>  printing eip:
+> c1039956
+> *pde = 00000000
+> Oops: 0002 [#2]
+> SMP
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c1039956>]    Not tainted VLI
+> EFLAGS: 00010206   (2.6.10-rc2-mm2kexec)
+> EIP is at __crash_machine_kexec+0x66/0x110      <<<<<<** panic in kexec 
+
+The panic is in crash_dump_save_registers() while doing a memcpy. As I 
+mentioned above, it faults on the page reserved to save the registers.
+
+Is it possible I can get the testcase so I can attempt recreating the 
+problem here. Please let me know.
+
+Regards, Hari

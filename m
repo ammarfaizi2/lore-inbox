@@ -1,52 +1,180 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131317AbRDYNH3>; Wed, 25 Apr 2001 09:07:29 -0400
+	id <S133009AbRDYNIj>; Wed, 25 Apr 2001 09:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135737AbRDYNHU>; Wed, 25 Apr 2001 09:07:20 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:17931 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S133009AbRDYNHI>;
-	Wed, 25 Apr 2001 09:07:08 -0400
-Date: Wed, 25 Apr 2001 06:07:52 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: imel96@trustix.co.id
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <20010425120319Z135634-682+3531@vger.kernel.org>
-Message-ID: <Pine.LNX.4.10.10104250552460.9854-100000@innerfire.net>
+	id <S135545AbRDYNIh>; Wed, 25 Apr 2001 09:08:37 -0400
+Received: from belcebu.upc.es ([147.83.2.63]:63116 "EHLO belcebu.upc.es")
+	by vger.kernel.org with ESMTP id <S133009AbRDYNIO>;
+	Wed, 25 Apr 2001 09:08:14 -0400
+Message-ID: <3AE6CD6B.745E@mat.upc.es>
+Date: Wed, 25 Apr 2001 15:13:16 +0200
+From: Francesc Oller <francesc@mat.upc.es>
+Reply-To: francesc@mat.upc.es
+Organization: UPC
+X-Mailer: Mozilla 3.01 (Win95; I)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: a fork-like C-wrapper for clone(), DONE!
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001 imel96@trustix.co.id wrote:
+Hi all,
 
-[snip]
-> so i guess i deserve opinions instead of flames. the
-> approach is from personal use, not the usual server use.
-> if you think a server setup is best for all use just say so,
-> i'm listening.
-> 
+Some days before I asked for a fork-like C-wrapper for clone() which
+could be used like fork() thinking that somebody could have done it
+before but I only received two e-mails saying that probably it
+wasn't worth it or even it was complete non-sense.
 
-Heres one.. most of the time I spend cleaning up windows machines is not
-because of software problems.  Usually it's the user acidentally erasing
-something or installing some program that just modified the boot files by
-accident.
+Therefore, I've done it myself. Code follows.
 
-Protection makes the system easier not harder.  You can add SUID
-aplications to preform administrative tasks such as upgrading / config and
-be sure that the user won't accidentally erase the system.  
+Please, before beginning to flame me for doing "such kind of non-
+standard threading model", I've to say that IMHO it has some merit.
+After all it was E.W.Dijkstra who invented it in the late sixties.
 
-I've had users absolutely paranoid of breaking something on my systems
-it's very reasuring for me to be able to point at the power switch and say
-"see that? don't touch it and the sustem will be fine"
+Greetings from Barcelona
 
-	Gerhard
+Francesc Oller
 
 
---
-Gerhard Mack
+cut here ------------------------------
 
-gmack@innerfire.net
+/*
+* Implementation of Dijkstra's parbegin/parend using clone()
+* Modified from original Linus' clone.c example
+* A proof of concept for academic purposes
+* (c) Francesc Oller 2001, Linus Torvalds
+* Under GPL license
+*/
 
-<>< As a computer I find your faith in technology amusing.
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sched.h>
 
+#include <linux/unistd.h>
+
+#include "tinyx.h"
+
+#define STACKSIZE 4096 /* 4 KB */
+
+pid_t myclone(void)
+{
+	long retval;
+	long *childsp;
+	register long * motherbp __asm__ ("%ebp");
+
+	/*
+	 * allocate new stack for child
+	 */
+	childsp = malloc(STACKSIZE);
+	if (!childsp)
+		return -1;
+	childsp = (long *)(((char *)childsp) + STACKSIZE);
+	*--childsp = *(motherbp + 1);	/* push return address */
+	*--childsp = *motherbp;		/* push mother's bp */
+
+	/*
+	 * Do clone() system call. We need to do the low-level stuff
+	 * entirely in assembly as we're returning with a different
+	 * stack in the child process and we couldn't otherwise guarantee
+	 * that the program doesn't use the old stack incorrectly.
+	 *
+	 * Parameters to clone() system call:
+	 *	%eax - __NR_clone, clone system call number
+	 *	%ebx - clone_flags, bitmap of cloned data
+	 *	%ecx - new stack pointer for cloned child
+	 *
+	 * In this example %ebx is CLONE_VM | CLONE_FS | CLONE_FILES |
+	 * CLONE_SIGHAND which shares as much as possible between parent
+	 * and child. (We or in the signal to be sent on child termination
+	 * into clone_flags: SIGCHLD makes the cloned process work like
+	 * a "normal" unix child process)
+	 *
+	 * The clone() system call returns (in %eax) the pid of the newly
+	 * cloned process to the mother, and 0 to the cloned process. If
+	 * an error occurs, the return value will be the negative errno.
+	 *
+	 * Prior to the creation of the child process, we have stored
+	 * return adress and caller's bp in child's stack. Child will 
+	 * restore caller's bp and jmp to the post-clone adress. The
+	 * "_exit()" system call at the child's body end will terminate
+	 * the child.
+	 */
+	__asm__ __volatile__(
+		"int $0x80\n\t"		/* Linux/i386 system call */
+		"testl %0,%0\n\t"	/* check return value */
+		"jne 1f\n\t"		/* jump if mother */
+		"popl %%ebp\n\t"	/* restore caller's bp */
+		"ret\n"			/* jmp to return address */
+		"1:\t"
+		:"=a" (retval)
+		:"0" (__NR_clone),
+		 "b" (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD),
+		 "c" (childsp));
+
+	if (retval < 0) {
+		errno = -retval;
+		retval = -1;
+	}
+	return retval;
+}
+
+int show_same_vm;
+
+int main()
+{
+	int fd;
+
+	fd = open("/dev/null", O_RDWR);
+	if (fd < 0) {
+		perror("/dev/null");
+		exit(1);
+	}
+	printf("mother:\t fd = %d\n", fd);
+	show_same_vm = 10;
+	printf("mother:\t vm = %d\n", show_same_vm);
+
+	switch(myclone())
+	{
+		case -1: perror("clone"); exit(1);
+		case  0: 
+			printf("child:\t fd = %d\n", fd);
+			show_same_vm = 5;
+			printf("child:\t vm = %d\n", show_same_vm);
+			close(fd);
+			_exit(0);
+		default:
+			sleep(1);
+			printf("mother:\t vm = %d\n", show_same_vm);
+			if (write(fd, "c", 1) < 0)
+				printf("mother:\t child closed our file descriptor\n");
+	}
+
+	/*
+	 * The implementation of this construct is left as an exercise
+	 * to the reader ;-)
+	 */
+	/*parbegin
+		altpar
+			printf("I'm thread 1\n");
+			parbegin
+				altpar
+					printf("I'm thread 4, child of thread 1\n");
+				altpar
+					printf("I'm thread 5, child of thread 1\n");
+				altpar
+					printf("I'm thread 6, child of thread 1\n");
+			parend
+		altpar
+			printf("I'm thread 2\n");
+		altpar
+			printf("I'm thread 3\n");
+	parend*/
+	return 0;
+}
+
+cut here -----------------------------

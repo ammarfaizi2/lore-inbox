@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264858AbSJVSKk>; Tue, 22 Oct 2002 14:10:40 -0400
+	id <S264925AbSJVSX0>; Tue, 22 Oct 2002 14:23:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264864AbSJVSJ7>; Tue, 22 Oct 2002 14:09:59 -0400
-Received: from adsl-65-70-169-159.dsl.rcsntx.swbell.net ([65.70.169.159]:49662
-	"EHLO keyser.soze.net") by vger.kernel.org with ESMTP
-	id <S264873AbSJVSJc>; Tue, 22 Oct 2002 14:09:32 -0400
-Date: Tue, 22 Oct 2002 18:15:40 +0000
-From: Justin Guyett <justin@soze.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
-Message-ID: <20021022181540.GM19387@dreams.soze.net>
-References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net> <20021022080037.A1500@work.bitmover.com> <E1842ls-0000yJ-00@comet.linuxguru.net> <20021022184246.B2142@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021022184246.B2142@infradead.org>
-User-Agent: Mutt/1.4i
-X-Message-Flag: The contents of this message are known to the state of California to cause cancer.
-X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
+	id <S264926AbSJVSX0>; Tue, 22 Oct 2002 14:23:26 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:30736 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264925AbSJVSXZ>;
+	Tue, 22 Oct 2002 14:23:25 -0400
+Message-ID: <3DB59923.9050002@mvista.com>
+Date: Tue, 22 Oct 2002 13:29:55 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dipankar@gamebox.net
+CC: linux-kernel@vger.kernel.org, levon@movementarian.org
+Subject: Re: [PATCH] NMI request/release
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2002-10-22 17:42 +0000, Christoph Hellwig wrote:
+Dipankar Sarma wrote:
 
-> On Tue, Oct 22, 2002 at 01:24:48PM -0400, James Blackwell wrote:
-> > The point I was making was that you and Richard Stallman do not
-> > have the same goal in mind. His goal is to alleviate what he
-> > percieves as an ill in society. Your goal is to run a business.
-> > You have stated so yourself. 
-> 
-> Well, Richards goal is to force his ideology on everyone.  Larry's
-> goal in lkml context is to help to reduce Linus' load, in the
-> context of his business, Bitkeeper it's probably to make money - at
-> least enough for him and his employees to live.
+>On Tue, Oct 22, 2002 at 01:05:57PM -0500, Corey Minyard wrote:
+>  
+>
+>>>You need to walk the list in call_nmi_handlers from nmi interrupt handler where
+>>>preemption is not an issue anyway. Using RCU you can possibly do a safe
+>>>walking of the nmi handlers. To do this, your update side code
+>>>(request/release nmi) will still have to be serialized (spinlock), but
+>>>you should not need to wait for completion of any other CPU executing
+>>>the nmi handler, instead provide wrappers for nmi_handler
+>>>allocation/free and there free the nmi_handler using an RCU callback
+>>>(call_rcu()). The nmi_handler will not be freed until all the CPUs
+>>>have done a contex switch or executed user-level or been idle.
+>>>This will gurantee that *this* nmi_handler is not in execution
+>>>and can safely be freed.
+>>>
+>>>This of course is a very simplistic view of the things, there could
+>>>be complications that I may have overlooked. But I would be happy
+>>>to help out on this if you want.
+>>>
+>>>      
+>>>
+>>This doesn't sound any simpler than what I am doing right now.  In fact, 
+>>it sounds more complex.  Am I correct?  What I am doing is pretty simple 
+>>and correct.  Maybe more complexity would be required if you couldn't 
+>>atomically update a pointer, but I think simplicity should win here.
+>>    
+>>
+>
+>I would vote for simplicity and would normally agree with you here. But
+>it seems to me that using RCU, you can avoid atmic operations
+>and cache line bouncing of calling_nmi_handlers in the fast path
+>(nmi interrupt handler). One could argue whether it is really
+>a fast path or not, but if you are using it for profiling, I would
+>say it is. No ?
+>
+I would vote against using it for profiling; profiling has it's own 
+special fast-path, anyway.  The NMI watchdog only gets hit once every 
+minute or so, it seems, so that seems suitable for this.
 
-I don't think so.  Richard's goal seems to be to attempt to convince
-everyone his ideology is good.  He doesn't appear to be trying to
-force anyone to do anything.  If you don't like his free software
-concept, you don't have to GPL your code.
+I've looked at the RCU code a little more, and I think I understand it 
+better.  I think your scenario will work, if it's true that it won't be 
+called until all CPUs have done what you say.  I'll look at it a little 
+more.
 
-Larry, however, is forcing developers off of a BM-hosted project
-simply because one of their hobbies is in competition with his
-company, and has explicitly rejected granting limited license to such
-people for the sole purpose of developing for BM-hosted projects.
-Larry also has the potential to significantly influence kernel
-development by threatening withdrawal of BM hosting if the kernel
-incorporates "competing" features.  Larry hides behind the excuse
-that (e.g. subversion) developers would get a feel for BK operation
-and implement competing features in subversion, ignoring that those
-developers probably understand most of the significant BK features
-already.  Then he rants about how nobody would do the work BM is
-doing without pay, and carefully avoids connecting that argument to
-his rationale for disallowing competing developers use of BK
-exclusively for BM-hosted projects.
+-Corey
 
-I'm sick of Larry, and I bet he's sick of me, but this BK mess is bad
-mojo.
-
-And so is posting to this flamewar.
-
--- 
-When faced with the prisoner's dilemma, kill your accomplice.

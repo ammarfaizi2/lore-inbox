@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273723AbRIXAd2>; Sun, 23 Sep 2001 20:33:28 -0400
+	id <S273729AbRIXBEr>; Sun, 23 Sep 2001 21:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273721AbRIXAdS>; Sun, 23 Sep 2001 20:33:18 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:59663 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273720AbRIXAdP>; Sun, 23 Sep 2001 20:33:15 -0400
-Date: 24 Sep 2001 01:39:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <89VcLXc1w-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.33.0109232106020.14414-100000@vaio>
-Subject: Re: do we need 10 copies?
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S273730AbRIXBEh>; Sun, 23 Sep 2001 21:04:37 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39011 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S273729AbRIXBEW>; Sun, 23 Sep 2001 21:04:22 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel pcmcia
+In-Reply-To: <3BAE24F4.4489CC4A@nyc.rr.com> <12891.1001275605@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Sep 2001 18:55:39 -0600
+In-Reply-To: <12891.1001275605@redhat.com>
+Message-ID: <m11ykx8l10.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <3BAE2283.41E7E8E8@isn.net> <Pine.LNX.4.33.0109232106020.14414-100000@vaio>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kai@tp1.ruhr-uni-bochum.de (Kai Germaschewski)  wrote on 23.09.01 in <Pine.LNX.4.33.0109232106020.14414-100000@vaio>:
+David Woodhouse <dwmw2@infradead.org> writes:
 
-> On Sun, 23 Sep 2001, Garst R. Reese wrote:
->
-> > This table (512 bytes) and the code to implement crc-ccit is replicated
-> > in 10 drivers. ppp-async even exports it. Surely there is a better way.
->
-> As for the ISDN code (4 copies), there is the plan to use a a common HDLC
-> en/decoding module, however that's a 2.5 thing. I'll take a look if I can
-> find a generic solution then, but it might turn out difficult - having a
-> module of its own just for that table wastes nearly a page, so that's
-> probably worse than the current state of affairs.
+> weber@nyc.rr.com said:
+> > Is cardmgr absolutely necessary?  I don't use modules, so I don't
+> > really understand what cardmgr does that can't be done by the kernel
+> > at boot. -
+> 
+> Aside from loading modules, it also performs the matching between devices 
+> and drivers - rather than drivers registering a list of the devices they're 
+> capable of driving, as with other bus types, cardmgr is required to 'bind' 
+> devices to drivers.
+> 
+> The whole lot wants rewriting. I've been looking at it but don't have 
+> anything that even compiles. 
 
-Why a module? Just make it something the base kernel exports, like other  
-general library functions.
+I looked a while ago and the exported driver interfaces don't look to
+bad but the code was next to impossible to follow.
 
-Oh, and ISTR that there are also still a number of zlib copies ... and,  
-uh, about the PPP code ...
-
-MfG Kai
+Eric

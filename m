@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129716AbQK1Q0Q>; Tue, 28 Nov 2000 11:26:16 -0500
+        id <S129538AbQK1QeR>; Tue, 28 Nov 2000 11:34:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129492AbQK1Q0G>; Tue, 28 Nov 2000 11:26:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1202 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S129724AbQK1QZ4>;
-        Tue, 28 Nov 2000 11:25:56 -0500
-Date: Tue, 28 Nov 2000 10:55:54 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug in count_open_files() or a strange granularity?
-In-Reply-To: <Pine.LNX.4.21.0011281539000.1254-100000@penguin.homenet>
-Message-ID: <Pine.GSO.4.21.0011281049400.9313-100000@weyl.math.psu.edu>
+        id <S129546AbQK1QeH>; Tue, 28 Nov 2000 11:34:07 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:36616 "EHLO
+        tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+        id <S129538AbQK1Qdy>; Tue, 28 Nov 2000 11:33:54 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Tue, 28 Nov 2000 09:03:38 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
+In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
+Subject: Re: 2.4.0-test11-ac2 and ac4 SMP will not run KDE 2.0
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00112809033800.01270@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+>
+>Nod. It actually puzzles me since from the kernel view I doubt kde and gnome
+>even look different at the syscall level. They may look different to X but
+>X isnt the thing that changed
 
+Steven Cole wrote:
+>
+>Tomorrow when I have access to the two-way P-III problem machine,
+>I'll repatch 2.4.0-test11-ac4 with reiserfs-3.6.18,
+>which is a little less bleeding edge than reiserfs-3.6.19.
 
-On Tue, 28 Nov 2000, Tigran Aivazian wrote:
+2.4.0-test11-ac2 still freezes starting up KDE 2.0 when patched
+with reiserfs-3.6.18.
 
-> On Tue, 28 Nov 2000, David S. Miller wrote:
-> > What you want is something like:
-> > 
-> > static int num_open_files(struct files_struct *files, int size)
-> > {
-> > 	total = 0;
-> > 	for (i = size / (8 * sizeof(long)); i > 0; )
-> > 		total += count_bits(files->open_fds->fds_bits[--i]);
-> > 
-> > 	return total;
-> > }
-> 
-> Ok, since we have to walk the sets and test the bits anyway, I propose to
-> make close_files() to return 'nr_open_fds' and accept an extra argument
-> 'doclose=0 or 1' which will specify whether we want to close the 'fd' or
-> whether we just want to count them.
+2.4.0-test12-pre2 both SMP and UP builds also freeze when starting
+up KDE 2.0 on this dual cpu box. Those test12-pre2 kernels are
+patched with reiserfs-3.6.19.
 
-What for? I smell a bunch of races here - as soon as you release ->files_lock
-the value of the function (it can be called only with that lock held) becomes
-meaningless.
+I guess I'll have to switch over to using Gnome if I want to continue
+using kernels later than 2.4.0-test11-ac1 and ReiserFS on this dual
+P-III Dell 420.
 
-Besides, locking rules like that (you must hold the files->files_lock if
-doclose is 0 and you must NOT hold it is doclose is 1) are sick. We could
-make the function itself grab the spinlock, but then the return value
-becomes junk before the thing returns it.
+Can someone else please see if this is reproducable?  
+
+The ingredients are:
+
+Dual CPU P-III.
+2.4.0-test11-ac2 or later (test12-pre2)
+SMP build for -acX. (X > 1).
+ReiserFS 3.6.18 or 3.6.19.
+KDE 2.0
+
+Thanks very much.
+
+Steven
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266093AbUA2NDH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 08:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUA2NDH
+	id S265150AbUA2N0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 08:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUA2N0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 08:03:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9228 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266093AbUA2NC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 08:02:56 -0500
-Date: Thu, 29 Jan 2004 13:02:51 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PC300 update
-Message-ID: <20040129130251.A23935@flint.arm.linux.org.uk>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet> <20040128212115.A2027@infradead.org> <Pine.LNX.4.58L.0401282203170.2163@logos.cnet> <20040129090222.A20867@flint.arm.linux.org.uk>
+	Thu, 29 Jan 2004 08:26:30 -0500
+Received: from mail.shareable.org ([81.29.64.88]:9091 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S265150AbUA2N03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 08:26:29 -0500
+Date: Thu, 29 Jan 2004 13:26:23 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040129132623.GB13225@mail.shareable.org>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040129090222.A20867@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jan 29, 2004 at 09:02:22AM +0000
+In-Reply-To: <401894DA.7000609@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 09:02:22AM +0000, Russell King wrote:
-> If _any_ PCI ID table which is part registered as part of a driver is
-> marked using __devinitdata or __initdata, this will either cause the
-> kernel to read invalid data (possibly entering a long loop) or oops.
+Ulrich Drepper wrote:
+> ~ alternatively use the symbol table the vdso has.  Export the new code
+> only via the symbol table.  No fixed address for the function, the
+> runtime gets it from the symbol table.  glibc will use weak symbol
+> references; if the symbol isn't there, the old code is used.  This will
+> require that every single optimized syscall needs to be handled special.
+> 
+> 
+> I personally like the first approach better.  The indirection table can
+> maintained in sync with the syscall table inside the kernel.  It all
+> comes at all times from the same source.  The overhead of the memory
+> load should be neglectable.
 
-After doing some more digging, I don't think __devinitdata is a problem
-anymore.
+I like the second approach more.  You can change glibc to look up the
+weak symbol for _all_ syscalls, then none of them are special and it
+will work with future kernel optimisations.
 
-There seem to be two scenarios where we look at the PCI device ID tables:
-
-- when a new PCI device is added
-- when the drivers newid file is written to
-
-The first case should only ever occur if CONFIG_HOTPLUG is set (and
-indeed we only compile PCMCIA/Cardbus if it is.)
-
-The second case is disabled if CONFIG_HOTPLUG is not set.
-
-Therefore, I think marking PCI device ID tables with __devinitdata
-should theoretically be fine, but marking them with __initdata is
-most definitely unsafe.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-- Jamie

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVA0Slu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVA0SlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVA0Slu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 13:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbVA0Slu
+	id S262616AbVA0SlA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 13:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVA0Sk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 13:41:50 -0500
-Received: from mail.gmx.net ([213.165.64.20]:37768 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262611AbVA0Sl3 (ORCPT
+	Thu, 27 Jan 2005 13:40:59 -0500
+Received: from smtpout.mac.com ([17.250.248.84]:3557 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262611AbVA0Skp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 13:41:29 -0500
-X-Authenticated: #641082
-Subject: patches to 2.6.9 and 2.6.10 - make menuconfig shows "v2.6.8.1"
-From: Viktor Horvath <ViktorHorvath@gmx.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-afqvtEVJQrhjuHwi9uHA"
-Date: Thu, 27 Jan 2005 19:40:54 +0100
-Message-Id: <1106851254.720.4.camel@Charon>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-Y-GMX-Trusted: 0
+	Thu, 27 Jan 2005 13:40:45 -0500
+In-Reply-To: <41F92D2B.4090302@comcast.net>
+References: <20050127101117.GA9760@infradead.org> <20050127101322.GE9760@infradead.org> <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <7ef2988faa74dfdd5da02be1cd891a25@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: Patch 4/6  randomize the stack pointer
+Date: Thu, 27 Jan 2005 19:40:40 +0100
+To: John Richard Moser <nigelenki@comcast.net>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 27 Jan 2005, at 19:04, John Richard Moser wrote:
 
---=-afqvtEVJQrhjuHwi9uHA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> What the hell?
+>
+> So instead of bringing something in that works, you bring something in
+> that does significantly less, and gives no savings on overhead or patch
+> complexity why?  So you can later come out and say "We're so great now
+> we've increased the randomization by tweaking one variable aren't we
+> cool!!!"?
+>
+> Red Hat is all smoke and mirrors anyway when it comes to security, just
+> like Microsoft.  This just reaffirms that.
 
-Hello everybody,
-
-today I patched myself up from 2.6.7 vanilla to 2.6.10 vanilla, but
-after all patches succeeded, "make menuconfig" shows "v2.6.8.1
-Configuration". Even worse, a compiled kernel calls in his bootlog
-himself "2.6.8.1". When installing the whole kernel package, this
-behaviour doesn't show up.
-
-Sorry if this is a dumb question, but I could not find an answer in the
-archives.
-
-Have a nice day,
-Viktor.
-
-Please Cc: me when answering.
-
---=-afqvtEVJQrhjuHwi9uHA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB+TW2O3SWVYLvaJQRAtIgAJ0Tt4svg1ngKgk1qdvd0pPxBQ575wCcCrtT
-KGh8EMzUyD/7BusKoGa10vQ=
-=jEsV
------END PGP SIGNATURE-----
-
---=-afqvtEVJQrhjuHwi9uHA--
+Please, keep politics out of this list and, instead, keep contributing 
+with practical ideas and code.
 

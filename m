@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVA0Qky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVA0Qn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262646AbVA0Qky (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:40:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbVA0Qkx
+	id S262575AbVA0Qn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVA0Qn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:40:53 -0500
-Received: from cantor.suse.de ([195.135.220.2]:17321 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262658AbVA0QiI (ORCPT
+	Thu, 27 Jan 2005 11:43:58 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5306 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262575AbVA0Qnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:38:08 -0500
-Date: Thu, 27 Jan 2005 17:37:14 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Andries Brouwer <aebr@win.tue.nl>, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i8042 access timings
-Message-ID: <20050127163714.GA15327@ucw.cz>
-References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com> <20050125194647.GB3494@pclin040.win.tue.nl> <1106685456.10845.40.camel@krustophenia.net> <1106838875.14782.20.camel@localhost.localdomain> <20050127163431.GA31212@ti64.telemetry-investments.com>
+	Thu, 27 Jan 2005 11:43:52 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20050127172657.00bd6410@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Thu, 27 Jan 2005 17:31:12 +0100
+To: Ingo Molnar <mingo@elte.hu>, Cal <hihone@bigpond.net.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D8
+Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+In-Reply-To: <20050127085120.GF22482@elte.hu>
+References: <41F84BDF.3000506@bigpond.net.au>
+ <20050124125814.GA31471@elte.hu>
+ <20050125135613.GA18650@elte.hu>
+ <41F6C5CE.9050303@bigpond.net.au>
+ <41F6C797.80403@bigpond.net.au>
+ <20050126100846.GB8720@elte.hu>
+ <41F7C2CA.2080107@bigpond.net.au>
+ <87acqwnnx1.fsf@sulphur.joq.us>
+ <41F7DA1B.5060806@bigpond.net.au>
+ <87vf9km31j.fsf@sulphur.joq.us>
+ <41F84BDF.3000506@bigpond.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050127163431.GA31212@ti64.telemetry-investments.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0453-1, 12/31/2004), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 11:34:31AM -0500, Bill Rugolsky Jr. wrote:
-> On Thu, Jan 27, 2005 at 03:14:36PM +0000, Alan Cox wrote:
-> > Myths are not really involved here. The IBM PC hardware specifications
-> > are fairly well defined and the various bits of "we glued a 2Mhz part
-> > onto the bus" stuff is all well documented. Nowdays its more complex
-> > because most kbc's aren't standalone low end microcontrollers but are
-> > chipset integrated cells or even software SMM emulations.
-> > 
-> > The real test is to fish out something like an old Digital Hi-note
-> > laptop or an early 486 board with seperate kbc and try it.
->  
-> I have a Digital HiNote collecting dust which had this keyboard problem
-> with the RH 6.x 2.2.x boot disk kernels, IIRC.  I can test if you like,
-> but I won't be able to get to it until the weekend.
- 
-That'd be very nice indeed.
+At 09:51 AM 1/27/2005 +0100, Ingo Molnar wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>* Cal <hihone@bigpond.net.au> wrote:
+>
+> > Sorry for the delay, some sleep required. A build without SMP also
+> > fails, with multiple oops.
+> >   <http://www.graggrag.com/200501271213-oops/>.
+>
+>thanks, this pinpointed the bug - i've uploaded the -D8 patch to the
+>usual place:
+>
+>   http://redhat.com/~mingo/rt-limit-patches/
+>
+>does it fix your crash? Mike Galbraith reported a crash too that i think
+>could be the same one.
+
+Yeah, my crash log is 120KB longer, but it looks the same, and is also 
+fixed by D8.
+
+         -Mike 
+

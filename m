@@ -1,58 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268641AbRGZUO1>; Thu, 26 Jul 2001 16:14:27 -0400
+	id <S267771AbRGZUQT>; Thu, 26 Jul 2001 16:16:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268683AbRGZUOR>; Thu, 26 Jul 2001 16:14:17 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32268 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268641AbRGZUOH>; Thu, 26 Jul 2001 16:14:07 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1
-Date: Thu, 26 Jul 2001 20:12:17 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9jptj1$155$1@penguin.transmeta.com>
-In-Reply-To: <20010726194800.A32053@vana.vc.cvut.cz> <E15PpJg-0004D5-00@the-village.bc.nu>
-X-Trace: palladium.transmeta.com 996178436 21974 127.0.0.1 (26 Jul 2001 20:13:56 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 26 Jul 2001 20:13:56 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S268686AbRGZUQJ>; Thu, 26 Jul 2001 16:16:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38661 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267771AbRGZUQB>;
+	Thu, 26 Jul 2001 16:16:01 -0400
+Date: Thu, 26 Jul 2001 21:15:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        torvalds@transmeta.com, tytso@valinux.com
+Cc: Dawson Engler <engler@csl.stanford.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Evan Parker <nave@stanford.edu>,
+        linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
+Message-ID: <20010726211558.F2200@flint.arm.linux.org.uk>
+In-Reply-To: <200107260113.SAA11847@csl.Stanford.EDU> <602725597.996180886@[169.254.62.211]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <602725597.996180886@[169.254.62.211]>; from linux-kernel@alex.org.uk on Thu, Jul 26, 2001 at 08:54:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-In article <E15PpJg-0004D5-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->>   following is patch which was needed for compiling 2.4.7-ac1
->> on box equipped with 'gcc version 3.0.1 20010721 (Debian prerelease)'.
->> As I did not see such complaint yet - here it is.
->>   If you think that gcc is too lazy on inlining (I think so...),
->> tell me and I'll complain to gcc team instead of here.
->
->Fix gcc. We use extern inline to say 'must be inlined' and that was the
->semantic it used to have. Some of our inlines will not work if the compiler
->uninlines them.
+On Thu, Jul 26, 2001 at 08:54:48PM +0100, Alex Bligh - linux-kernel wrote:
+> May be I'm being dumb here, and without wishing to open the 'volatile'
+> can of worms elsewhere, but:
+> 
+>    static char * tmp_buf;
 
-No, we had this fight with the gcc people a few years back, and they
-have a very valid argument for the current semantics
+Here is the fix...  I've updated it a bit to plug another small race in
+rs_write as well.
 
- - "static inline" means "we have to have this function, if you use it
-   but don't inline it, then make a static version of it in this
-   compilation unit"
+The following code uses the tmp_buf_sem to lock the creation and freeing
+of the tmp_buf page.  This same lock is used to prevent concurrent accesses
+to this very same page in rs_write().
 
- - "extern inline" means "I actually _have_ an extern for this function,
-   but if you want to inline it, here's the inline-version"
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-The only problem with "static inline" was some _really_ old gcc versions
-that did the wrong thing and made a static version of the function in
-_every_ compilation unit, whether it was needed or not. Those versions of
-gcc do not work on the kernel anyway these days, so..
-
-I think the current gcc semantics are (a) more powerful than the old one
-and (b) have been in effect long enough that it's not painful for Linux
-to just switch over to them. In short, we might actually want to start
-taking advantage of them, and even if we don't we should just convert
-all current users of "extern inline" to "static inline".
-
-		Linus
+--- orig/drivers/char/serial.c	Sat Jul 21 10:46:42 2001
++++ linux/drivers/char/serial.c	Thu Jul 26 21:14:12 2001
+@@ -1848,12 +1848,17 @@
+ 	if (serial_paranoia_check(info, tty->device, "rs_write"))
+ 		return 0;
+ 
+-	if (!tty || !info->xmit.buf || !tmp_buf)
++	if (!tty || !info->xmit.buf)
+ 		return 0;
+ 
+ 	save_flags(flags);
+ 	if (from_user) {
+ 		down(&tmp_buf_sem);
++		if (!tmp_buf) {
++			up(&tmp_buf_sem);
++			restore_flags(flags);
++			return 0;
++		}
+ 		while (1) {
+ 			int c1;
+ 			c = CIRC_SPACE_TO_END(info->xmit.head,
+@@ -3129,7 +3134,6 @@
+ {
+ 	struct async_struct	*info;
+ 	int 			retval, line;
+-	unsigned long		page;
+ 
+ 	MOD_INC_USE_COUNT;
+ 	line = MINOR(tty->device) - tty->driver.minor_start;
+@@ -3157,17 +3161,16 @@
+ 	info->tty->low_latency = (info->flags & ASYNC_LOW_LATENCY) ? 1 : 0;
+ #endif
+ 
++	down(&tmp_buf_sem);
+ 	if (!tmp_buf) {
+-		page = get_zeroed_page(GFP_KERNEL);
+-		if (!page) {
++		tmp_buf = (unsigned char *)get_zeroed_page(GFP_KERNEL);
++		if (!tmp_buf) {
++			up(&tmp_buf_sem);
+ 			MOD_DEC_USE_COUNT;
+ 			return -ENOMEM;
+ 		}
+-		if (tmp_buf)
+-			free_page(page);
+-		else
+-			tmp_buf = (unsigned char *) page;
+ 	}
++	up(&tmp_buf_sem);
+ 
+ 	/*
+ 	 * If the port is the middle of closing, bail out now
+@@ -5666,12 +5669,13 @@
+ 		if (DEACTIVATE_FUNC(brd->dev))
+ 			(DEACTIVATE_FUNC(brd->dev))(brd->dev);
+ 	}
+-#endif	
++#endif
++	down(&tmp_buf_sem);
+ 	if (tmp_buf) {
+-		unsigned long pg = (unsigned long) tmp_buf;
++		free_page(tmp_buf);
+ 		tmp_buf = NULL;
+-		free_page(pg);
+ 	}
++	up(&tmp_buf_sem);
+ 	
+ #ifdef ENABLE_SERIAL_PCI
+ 	if (serial_pci_driver.name[0])

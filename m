@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316959AbSFGISe>; Fri, 7 Jun 2002 04:18:34 -0400
+	id <S317219AbSFGIbT>; Fri, 7 Jun 2002 04:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317095AbSFGISd>; Fri, 7 Jun 2002 04:18:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53764 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316959AbSFGISd>; Fri, 7 Jun 2002 04:18:33 -0400
-Date: Fri, 7 Jun 2002 09:18:26 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-Cc: "'davem@redhat.com'" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: sparc64 pgalloc.h pgd_quicklist question
-Message-ID: <20020607091826.A5413@flint.arm.linux.org.uk>
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A78A3@nocmail101.ma.tmpw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317223AbSFGIbS>; Fri, 7 Jun 2002 04:31:18 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:58127 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S317219AbSFGIbS>; Fri, 7 Jun 2002 04:31:18 -0400
+Message-ID: <3D006FDE.8050100@loewe-komp.de>
+Date: Fri, 07 Jun 2002 10:33:34 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        frankeh@watson.ibm.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <E17G6ZR-0000F2-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 06, 2002 at 09:10:40PM -0500, Holzrichter, Bruce wrote:
-> I meant to ask this a little bit back, while I was looking through this
-> code.  In the 2.5 iteration you have for small_page.c your using the
-> next_hash and pprev_hash entries, which no longer are available in the
-> struct page, as far as I have looked, unless your struct page is defined
-> elsewhere, other than linux/mm.h?  Just wondering, as I pull apart the mm
-> code in what time I have looking at this.
+Rusty Russell wrote:
+> In message <Pine.LNX.4.44.0206060930240.5920-100000@home.transmeta.com> you wri
+> te:
+> 
+>>Do we have major and minor numbers for sockets and populate /dev
+>>with them? No. And as a result, there has _never_ been any sysadmin
+>>problems with either.
+>>
+> 
+> Ummm... you don't do much network programming, do you Linus?  Don't
+> confuse familiarity with fondness: the socket API is *not* a good
+> model to copy.
+> 
+> 
+>>You already have to have a system call to bind the particular fd to the
+>>futex _anyway_, so do the only sane thing, and allocate the fd _there_,
+>>and get rid of that stupid and horrible /dev/futed which only buys you
+>>pain, system administration, extra code, and a black star for being
+>>stupid.
+>>
+> 
+> Yet another special way to create a special fd?  Hmm...
+> 
+> That might be better than what I proposed, but it's not the epitomy of
+> taste either.
+> 
 
-It looks like next_hash and pprev_hash migrated to list.  (I've not
-confirmed that it obeys exactly the same rules yet.)  The solution
-is probably to convert small-page.c to use the list stuff instead.
+What about /proc/futex then? Less adminstrative work, clean interface
+(also for shell scripts like Alan suggested).
+Al Viro would like this, it's more like Plan9 or QNX6. :)
 
-If you don't get there before me, I'll probably fix it up this weekend.
+Give it an entry in the namespace, why not with sockets (unix and ip) also?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
 

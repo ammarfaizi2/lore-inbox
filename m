@@ -1,145 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264849AbTE1TqA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 15:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbTE1TqA
+	id S264851AbTE1T6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 15:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264852AbTE1T6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 15:46:00 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:18835 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264849AbTE1Tp5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 15:45:57 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 28 May 2003 12:59:04 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Michael Ulbrich <mul@rentapacs.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20 - yenta, i82365 PCI / ISA irq problem
-In-Reply-To: <3ED512F8.3700891A@rentapacs.de>
-Message-ID: <Pine.LNX.4.55.0305281256100.2721@bigblue.dev.mcafeelabs.com>
-References: <3ED512F8.3700891A@rentapacs.de>
+	Wed, 28 May 2003 15:58:10 -0400
+Received: from 4.54.252.64.snet.net ([64.252.54.4]:62352 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S264851AbTE1T6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 15:58:08 -0400
+Message-ID: <3ED517E2.2010702@blue-labs.org>
+Date: Wed, 28 May 2003 16:11:14 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030527
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: Jakob Kemi <jakob.kemi@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70 damaged my nvidia card?
+References: <3ED4B42D.4040204@telia.com> <20030528132153.GA27632@suse.de>
+In-Reply-To: <20030528132153.GA27632@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003, Michael Ulbrich wrote:
+I have an ATI card that went nuts a couple years ago, ~4 months old, 
+fizzled on boot.  Doesn't work in text mode at all, works fine in 
+graphics mode however.  I have an old ISA card stuck in the machine so 
+the machine will boot.  The motherboard doesn't recognize the AGP card 
+without another video card installed.  This is the only motherboard that 
+I can get it to work on.  The card simply doesn't work at all on any 
+other m/board.
 
-> Hi there,
+Good thing I run Linux, I don't think I'd have this option under winblows ;)
+
+David
+
+Dave Jones wrote:
+
+>On Wed, May 28, 2003 at 03:05:49PM +0200, Jakob Kemi wrote:
 >
-> for quite some time now, I'm fiddling around with an annoying problem on
-> my Fujitsu-Siemens S6010 laptop together with a Dell TrueMobile 1150
-> WLAN mini PCI card (orinoco chipset). Searching both the pcmcia_cs and
-> orinoco mailing list archives pointed to a deeper, irq related problem.
-> Excuse me if this is still the wrong forum, but probably someone out
-> here may have some clue.
+> > When I run the box with an old PCI card as my primary adapter and the 
+> > AGP geforce card as secondary the Geforce card doesnt seem to run it's 
+> > VGA BIOS (no boot message).
 >
-> So here we go - Booting with in-kernel pcmcia gives the following
-> output:
+>most (if not all) modern BIOS's have an "Init {AGP/PCI} display first"
+>option. You may need to fiddle with that.
+> 
+> > X also refuses to detect the Geforce card. 
+> > Is it possible that the new console layer or the new agp gart code or 
+> > whatever in 2.5.70 poked in the wrong registers and replaced the BIOS 
+> > flash rom on the GeForce with garbage?
 >
-> ...
-> pcmcia: Starting PCMCIA services:
-> kernel: Linux Kernel Card Services 3.1.22
-> kernel:   options:  [pci] [cardbus] [pm]
-> kernel: PCI: Found IRQ 11 for device 01:0a.0
-> kernel: PCI: Sharing IRQ 11 with 00:02.0
-> kernel: PCI: Sharing IRQ 11 with 00:1d.0
-> kernel: PCI: Found IRQ 11 for device 01:0a.1
-> kernel: PCI: Sharing IRQ 11 with 00:1f.3
-> kernel: PCI: Sharing IRQ 11 with 00:1f.5
-> kernel: PCI: Enabling device 01:0d.0 (0000 -> 0002)
-> kernel: PCI: Found IRQ 11 for device 01:0d.0
-> kernel: PCI: Sharing IRQ 11 with 00:1f.1
-> kernel: Yenta IRQ list 06b8, PCI irq11
-> kernel: Socket status: 30000006
-> kernel: Yenta IRQ list 06b8, PCI irq11
-> network: Setting network parameters:  succeeded
-> kernel: Socket status: 30000006
-> network: Bringing up interface lo:  succeeded
-> pcmcia: using yenta_socket instead of i82365
-> kernel: Yenta IRQ list 0000, PCI irq11
-> kernel: Socket status: 30000010
-> pcmcia: cardmgr[786]: watching 3 sockets
-> cardmgr[786]: watching 3 sockets
-> kernel: cs: IO port probe 0x0c00-0x0cff: clean.
-> kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f
-> 0x400-0x407 0x4d0-0x4d7
-> kernel: cs: IO port probe 0x0a00-0x0aff: clean.
-> cardmgr[787]: starting, version is 3.2.4
-> kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
-> cardmgr[787]: socket 2: Orinoco or Intersil Prism 2 Wireless
-> pcmcia: done.
-> rc: Starting pcmcia:  succeeded
-> cardmgr[787]: executing: 'modprobe hermes'
-> cardmgr[787]: executing: 'modprobe orinoco'
-> cardmgr[787]: executing: 'modprobe orinoco_cs'
-> cardmgr[787]: executing: './network start eth0'
-> ...
-> kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> kernel: eth0: Tx timeout! Resetting card. ALLOCFID=01f7,
-> TXCOMPLFID=0000, EVSTAT=8080
-> ...
-> last message repeating
+>Extremely unlikely. WRT agpgart, it pokes chipset registers, not
+>graphic card registers.
 >
-> The same with in-kernel pcmcia disabled and pcmcia_cs as modules:
+>It may even be that the two cards you have won't play together.
+>Try them both _independantly_ before jumping to conclusions about
+>wiped BIOSes etc.
 >
-> ...
-> kernel: Linux PCMCIA Card Services 3.2.4
-> kernel:   kernel build: 2.4.20-RAP-LL-03 #18 Sun May 18 18:13:34 CEST
-> 2003
-> kernel:   options:  [pci] [cardbus] [apm]
-> kernel: Intel ISA/PCI/CardBus PCIC probe:
-> kernel: PCI: Found IRQ 11 for device 01:0a.0
-> kernel: PCI: Sharing IRQ 11 with 00:02.0
-> kernel: PCI: Sharing IRQ 11 with 00:1d.0
-> kernel: PCI: Found IRQ 11 for device 01:0a.1
-> kernel: PCI: Sharing IRQ 11 with 00:1f.3
-> kernel: PCI: Sharing IRQ 11 with 00:1f.5
-> kernel:   O2Micro OZ6933 rev 02 PCI-to-CardBus at slot 01:0a, mem
-> 0x20000000
-> kernel:     host opts [0]: [pci only] [pci irq 11] [lat 168/176] [bus
-> 2/2]
-> kernel:     host opts [1]: [pci only] [pci irq 11] [lat 168/176] [bus
-> 3/3]
-> kernel:     PCI card interrupts, PCI status changes
-> kernel: PCI: Enabling device 01:0d.0 (0000 -> 0002)
-> kernel: PCI: Found IRQ 11 for device 01:0d.0
-> kernel: PCI: Sharing IRQ 11 with 00:1f.1
-> kernel:   TI 1410 rev 01 PCI-to-CardBus at slot 01:0d, mem 0x20002000
-> kernel:     host opts [0]: [serial pci & irq] [pci irq 11] [lat 168/176]
-> [bus 4/4]
-> kernel:     PCI irq 11 test failed
-> kernel:     ISA irqs (scanned) = none!<6>    *NO* card interrupts,
-> polling interval = 1000 ms
-> network: Setting network parameters:  succeeded
-> pcmcia: cardmgr[764]: watching 3 sockets
-> cardmgr[764]: watching 3 sockets
-> cardmgr[765]: starting, version is 3.2.4
-> pcmcia: done.
-> rc: Starting pcmcia:  succeeded
-> kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
-> cardmgr[765]: socket 2: Orinoco or Intersil Prism 2 Wireless
-> ...
-> cardmgr[765]: executing: 'modprobe hermes'
-> cardmgr[765]: executing: 'modprobe orinoco'
-> cardmgr[765]: executing: 'modprobe orinoco_cs'
-> kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f
-> 0x3c0-0x3df 0x400-0x407 0x4d0-0x4d7
-> kernel: cs: IO port probe 0x0380-0x03bf: clean.
-> kernel: cs: IO port probe 0x03e0-0x03ff: clean.
-> kernel: cs: IO port probe 0x0408-0x04cf: clean.
-> kernel: cs: IO port probe 0x04d8-0x04ff: clean.
-> kernel: cs: IO port probe 0x0a00-0x0aff: clean.
-> kernel: cs: IO port probe 0x0c00-0x0cff: clean.
-> kernel: orinoco_cs: RequestIRQ: Resource in use
+>		Dave
+>  
+>
 
-I had lamost the same problem with my CPQ Presario. Time to time the card
-did not get the IRQ (RequestIRQ: Resource in use). I have a patch that
-fixes that on my machine at home. If you want tomorrow I'll post it.
-
-
-
-
-- Davide
 

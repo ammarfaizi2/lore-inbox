@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261504AbSIXA6e>; Mon, 23 Sep 2002 20:58:34 -0400
+	id <S261514AbSIXBGG>; Mon, 23 Sep 2002 21:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSIXA6e>; Mon, 23 Sep 2002 20:58:34 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:31497 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S261504AbSIXA6d>; Mon, 23 Sep 2002 20:58:33 -0400
-Date: Tue, 24 Sep 2002 11:07:59 +1000
-From: john slee <indigoid@higherplane.net>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-Message-ID: <20020924010758.GB6675@higherplane.net>
-References: <Pine.LNX.4.44.0209221830400.8911-100000@serv.suse.lists.linux.kernel> <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com.suse.lists.linux.kernel> <p734rchu8ny.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261515AbSIXBGG>; Mon, 23 Sep 2002 21:06:06 -0400
+Received: from h106-129-61.datawire.net ([207.61.129.106]:22401 "EHLO
+	newmail.datawire.net") by vger.kernel.org with ESMTP
+	id <S261514AbSIXBGF> convert rfc822-to-8bit; Mon, 23 Sep 2002 21:06:05 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: me@ohdarn.net, <sct@redhat.com>
+Subject: Re: [BENCHMARK] EXT2 vs EXT3 System calls via oprofile using contest 0.34
+Date: Mon, 23 Sep 2002 20:11:35 -0400
+User-Agent: KMail/1.4.6
+Cc: <akpm@digeo.com>, <conman@kolivas.net>, <linux-kernel@vger.kernel.org>
+References: <200209190142.58122.spstarr@sh0n.net> <20020923223429.V11682@redhat.com> <45680.65.185.109.125.1032825987.squirrel@ohdarn.net>
+In-Reply-To: <45680.65.185.109.125.1032825987.squirrel@ohdarn.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <p734rchu8ny.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.3.25i
+Message-Id: <200209232011.35383.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22, 2002 at 09:27:29PM +0200, Andi Kleen wrote:
-> There is an old patch around from SGI that does exactly this. It is a
-> very lightweight binary value tracer that has per CPU buffers. It
-> traces using macros that you can easily add. It's called ktrace (not
-> to be confused with Ingo's ktrace). I've been porting it for some time
+If the patch is 'stable' I'd like to bench/test it.
 
-and different again from *bsd ktrace?
+On September 23, 2002 08:06 pm, Michael Cohen wrote:
+> >> c0164910 26375    7.2638      ext3_do_update_inode
+> >> /lib/modules/2.4.20-pre7-rmap14a-xfs-uml-shawn12d/build/vmlinux
+> >
+> > I've got a fix for excessive CPU time spent here.
+>
+> Could you pass that around? or is it not ready for general consumption... ?
+> Thanks.
+>
+>
+> ------
+> Michael Cohen
 
-The Ravenous Bugblatter Beast of Traal hits! -- More -- 
-You hear the wailing of the Banshee... -- More --
-The Christmas Tree hits! -- More --
-You die...
-
-(guessing here, i've not seen ingo's ktrace)
-
-j.
-
--- 
-toyota power: http://indigoid.net/

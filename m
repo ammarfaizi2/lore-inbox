@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265285AbUGSQDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUGSQNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbUGSQDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 12:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUGSQDW
+	id S265287AbUGSQNP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 12:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUGSQNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 12:03:22 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:57052 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265285AbUGSQDV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 12:03:21 -0400
-Date: Tue, 20 Jul 2004 02:02:32 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.6.7
-Message-ID: <20040720020231.B2406645@wobbly.melbourne.sgi.com>
-References: <20040718155140.GA16760@thundrix.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 Jul 2004 12:13:15 -0400
+Received: from msgdirector1.onetel.net.uk ([212.67.96.148]:27727 "EHLO
+	msgdirector1.onetel.net.uk") by vger.kernel.org with ESMTP
+	id S265287AbUGSQNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 12:13:13 -0400
+From: Chris Lingard <chris@ukpost.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: PATCH Trivial fix for xconfig
+Date: Mon, 19 Jul 2004 17:13:03 +0100
+User-Agent: KMail/1.6.2
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200407191451.55828.chris@ukpost.com> <Pine.LNX.4.58.0407191607060.20634@scrub.home>
+In-Reply-To: <Pine.LNX.4.58.0407191607060.20634@scrub.home>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040718155140.GA16760@thundrix.ch>; from tonnerre@thundrix.ch on Sun, Jul 18, 2004 at 05:51:40PM +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407191713.03670.chris@ukpost.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 05:51:40PM +0200, Tonnerre wrote:
-> Salut,
-> 
-> Jul 18 19:49:02 jules kernel: EIP is at pagebuf_daemon+0x180/0x2e0
-> Jul 18 19:49:02 jules kernel: eax: d2389ec4   ebx: d2389ec4   ecx: d2389ec4   edx: d75ddf78
-> Jul 18 19:49:02 jules kernel: esi: d3beeec4   edi: d7598000   ebp: d7599fd4   esp: d7599fd0
-> Jul 18 19:49:02 jules kernel: ds: 007b   es: 007b   ss: 0068
-> Jul 18 19:49:02 jules kernel: Process xfsbufd (pid: 14, threadinfo=d7598000 task=d75d6a10)
+On Monday 19 July 2004 15:09, Roman Zippel wrote:
+> Hi,
+>
+> On Mon, 19 Jul 2004, Chris Lingard wrote:
+> > When qt is installed in /usr, then there is no need to set and
+> > export QTDIR; but make xconfig expects this.
+>
+> What distribution are you using? This would mean all qt header files are
+> directly in /usr/include.
 
-This is fixed in current bk and in CVS on oss.sgi.com.
+Thank you for your prompt reply.
 
-cheers.
+RedHat or Linux from Scratch.  Used to install qt in /opt/qt-version
+but now put qt, KDE, kitchen sink in /usr.  So all the headers do
+go in /usr/include :-)
 
--- 
-Nathan
+> You just broke xconfig for Debian and RH systems.
+
+My RedHat system has QTDIR=/usr/lib/qt-3.1 in the environment,
+(this was set up by the distro, and is not a hack by me).
+
+Sorry I do not know about Debian.
+
+My Linux from Scratch system never has QTDIR set because everything
+is in /usr.
+
+Chris Lingard
+
+

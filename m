@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbULUVM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbULUVPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbULUVM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULUVM6
+	id S261841AbULUVPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 16:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbULUVPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:12:58 -0500
-Received: from mail.gadugi.org ([69.155.252.3]:55680 "EHLO mail.gadugi.org")
-	by vger.kernel.org with ESMTP id S261697AbULUVMz (ORCPT
+	Tue, 21 Dec 2004 16:15:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45013 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261841AbULUVPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:12:55 -0500
-Date: Tue, 21 Dec 2004 15:11:47 -0600
-From: "Jeff V. Merkey" <jmerkey@mail.gadugi.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, jmerkey@gadugi.org
-Subject: Re: Linux 2.6.9 and the GPL Buyout
-Message-ID: <20041221211147.GB16166@mail.gadugi.org>
-References: <20041220212723.GA8634@mail.gadugi.org> <1103655872.6111.118.camel@localhost.localdomain>
+	Tue, 21 Dec 2004 16:15:43 -0500
+Date: Tue, 21 Dec 2004 13:15:34 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Attila BODY <compi@freemail.hu>, zaitcev@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB storage (pendrive) problems
+Message-ID: <20041221131534.411e3553@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1103615580.2095.linux-kernel2news@redhat.com>
+References: <1103579679.23963.14.camel@localhost>
+	<200412202325.20064.andrew@walrond.org>
+	<41C75E8B.1020200@osdl.org>
+	<mailman.1103615580.2095.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103655872.6111.118.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 07:04:32PM +0000, David Woodhouse wrote:
-> On Mon, 2004-12-20 at 15:27 -0600, Jeff V. Merkey wrote:
-> > We are adopting Federal Copyright and Trademark law, and Federal Patent
-> > law into our courts.  We are also enacting trade secret laws that make it
-> > easier for folks to claim trade secrets on Open Source code for 
-> > individual authors.  
-> 
-> Why? You're not a signatory to the Berne Convention and thus surely you
-> don't need to honour it? You can just re-use the GPL'd code without our
-> permission, and make your law permit it. You could adopt US copyright
-> law with exceptions for the Linux kernel. There's precedent for such
-> exceptions -- see what the UK Copyright, Designs and Patents Act 1988
-> has to say about Peter Pan, for example:
-> http://www.hmso.gov.uk/acts/acts1988/Ukpga_19880048_en_28.htm#sdiv6
-> 
-> And enacting the US patent law is absurd -- why would you want to copy
-> something as broken and abusable as that?
-> 
-> -- 
-> dwmw2
-> 
+On Tue, 21 Dec 2004 09:35:03 +0200, Attila BODY <compi@freemail.hu> wrote:
 
+> > >>If I copy more than few megabytes to the drive, the activity LED keeps
+> > >>flashing forever. sync, umount keeps runing forever, normal reboot is
+> > >>inpossible (alt+sysreq+b seems to work)
+> > >>
+> > >>Tested with usb 1.1 and 2.0 pendrives, behaviour is the same.
 
-David,
+> Dec 21 08:58:52 smiley kernel: /dev/ub/a: p1
 
-Anyone on this list who is a Kernel Developer can sign up an account
-on Ga-du-gi.org and post your own proposed legislation and draft 
-language.  I will even grant you the ability to publish stories and 
-commentary on the site with proposed legislation and laws to 
-protect open source. 
+> The problem is reproducable with 2.6.9. [...]
 
-Send an email to jmerkey@gadugi.org and say,
+> I left the 2.0 device here all night and it did not. To make it worse,
+> it seems that the whole USB 2.0 system went down, there was no activity
+> even if i reconnected the pen, had to reboot to be detected and powered
+> on again (normal reboot was not an option again, so I had to use
+> alt-sysrq-B).
 
-" Jeff, I want to post my views on Cherokee Nation legislation and my 
-proposals on the adoption of Patent, Trademark, Copyright, Trade Secret,
-and Intellectual Property legislation for the creation of a Sovereign
-Open Source License and legal framework.  I am a Linux Kernel developer,
-and I have a unique insight into the challenges and development of 
-open source and my knowledge and experience are relevant to the 
-proposed laws.  I would like to share my experience and knowledge 
-regarding this topic to the Cherokee Nation and assist them in drafting
-appropriate legislation."
+Thanks for the note. Unfortunately, 2.6.9 apparently has problems with
+its virtual memory and write throttling, so I'm sure a few people suffering
+from it will jump on this thread. It's essential to split root causes.
+Your case may be different from the original poster's, who apparently
+had the same deal with both ub and usb-storage. First things first, did
+you try to set CONFIG_BLK_DEV_UB to off? What happens if you do?
 
-and I will allow you and other Linux Community members to post 
-content and proposed legal briefs on the site, and help us accomplish
-this task.  The Tribal Council is slated to review drafts in early 
-February.
-
-Jeff
-
-Jeff
-
-
-
-
-
-
+-- Pete

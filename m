@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130027AbRBKKVm>; Sun, 11 Feb 2001 05:21:42 -0500
+	id <S132135AbRBKKmN>; Sun, 11 Feb 2001 05:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129992AbRBKKVc>; Sun, 11 Feb 2001 05:21:32 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:36068 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129748AbRBKKVU>;
-	Sun, 11 Feb 2001 05:21:20 -0500
-Message-ID: <3A865FC5.50576C00@namesys.com>
-Date: Sun, 11 Feb 2001 12:47:49 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Adrian Phillips <a.phillips@dnmi.no>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-In-Reply-To: <E14RbJG-0001ds-00@the-village.bc.nu>
-		<3A85AFC8.9070107@blue-labs.org> <3A864D6A.FDE7F6E4@namesys.com>
-		<wvu261oa80.fsf@freeze.oslo.dnmi.no> <3A865462.E9CAED91@namesys.com> <wvpugpo8bl.fsf@freeze.oslo.dnmi.no>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S132133AbRBKKmD>; Sun, 11 Feb 2001 05:42:03 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:4100 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130001AbRBKKlw>;
+	Sun, 11 Feb 2001 05:41:52 -0500
+Message-ID: <20010210222450.A7877@bug.ucw.cz>
+Date: Sat, 10 Feb 2001 22:24:50 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ole Tange <tange@tange.dk>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: RAMDISK larger than 778000 KB halts system
+In-Reply-To: <Pine.LNX.4.21.0102031518440.1830-100000@tigger.tange.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0102031518440.1830-100000@tigger.tange.dk>; from Ole Tange on Sat, Feb 03, 2001 at 03:29:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Phillips wrote:
-> 
-> >>>>> "Hans" == Hans Reiser <reiser@namesys.com> writes:
-> 
->     Hans> Adrian Phillips wrote:
->     >>  Does your test procedure include other systems, for example
->     >> reiserfs plus NFS ?
-> 
->     Hans> Our NFS testing is simply inadequate, we need a copy of
->     Hans> LADDIS but haven't found the money for it yet.
-> 
-> Excuse my ignorance, but what is LADDIS ?
-> 
-> Sincerely,
-> 
-> Adrian Phillips
-> 
-> --
-> Your mouse has moved.
-> Windows NT must be restarted for the change to take effect.
-> Reboot now?  [OK]
+Hi!
 
-LADDIS is the industry standard benchmark for NFS.  It crashes for ReiserFS and
-NFS.  We can't afford to buy it, as it is proprietary software.  Once Nikita has
-finished testing his changes, we will ask someone to test it for us though.
+> [1.] One line summary of the problem:
+>      Running badblocks on a ramdisk larger than 778000 KB halts
+> system
 
-Hans
+Is it really bug?
+
+You have 778000 KB of low ram, right? (That's the way himem patches
+work, IIRC).
+
+You have used all of it. You've run out of memory.
+
+It might be pretty non-trivial to fix this.
+
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

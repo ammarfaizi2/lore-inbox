@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265846AbUAKMMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 07:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUAKMMR
+	id S265866AbUAKMJN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 07:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265868AbUAKMJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 07:12:17 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:59050 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S265846AbUAKMML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 07:12:11 -0500
-From: "Mario ''Jorge'' Di Nitto" <jorge78@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.24 doesn't compile clearly...
-Date: Sun, 11 Jan 2004 13:15:40 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 07:09:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13836 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265866AbUAKMJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 07:09:07 -0500
+Date: Sun, 11 Jan 2004 12:09:03 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New FBDev patch
+Message-ID: <20040111120903.D1931@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040108232621.B25760@flint.arm.linux.org.uk> <Pine.LNX.4.44.0401090035270.17957-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401111315.40950.jorge78@inwind.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0401090035270.17957-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Fri, Jan 09, 2004 at 07:54:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all.
-I've download 2.4.24 and I patched it with ck1 and lm_sensor 2.8.2.
-Make dep is ok,  but make bzImage gives:
+On Fri, Jan 09, 2004 at 07:54:50PM +0000, James Simmons wrote:
+> > sizeof(u32) != 32.  Proper fix is to place the pseudopalette array
+> > inside cfb_info, and dispense with this addition here.
+> 
+> You have to make sure the struct fb_info pseudopalette points to the data 
+> in cfb_info. Actually only drivers should allocate the pseudopalette at 
+> boot time if the hardware doesn't support mode change. In the other case 
+> the pseudopalette should be allocated in set_par. 
 
-ld -m elf_i386 -T /usr/src/linux-2.4.24/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
-fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o 
-drivers/misc/misc.o drivers/net/net.o drivers/char/agp/agp.o 
-drivers/char/drm/drm.o drivers/atm/atm.o drivers/ide/idedriver.o 
-drivers/scsi/scsidrv.o drivers/ieee1394/ieee1394drv.o drivers/cdrom/driver.o 
-drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o 
-drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o 
-drivers/media/media.o drivers/input/inputdrv.o drivers/message/i2o/i2o.o 
-drivers/i2c/i2c.o drivers/sensors/sensor.o \
-        net/network.o \
-        /usr/src/linux-2.4.24/arch/i386/lib/lib.a /usr/src/linux-2.4.24/lib/lib.a /usr/src/linux-2.4.24/arch/i386/lib/lib.a 
-\
-        --end-group \
-        -o vmlinux
-drivers/char/drm/drm.o(.text+0x768e): In function `sis_fb_alloc':
-: undefined reference to `sis_malloc'
-drivers/char/drm/drm.o(.text+0x773f): In function `sis_fb_alloc':
-: undefined reference to `sis_free'
-drivers/char/drm/drm.o(.text+0x77a0): In function `sis_fb_free':
-: undefined reference to `sis_free'
-drivers/char/drm/drm.o(.text+0x7bef): In function `sis_final_context':
-: undefined reference to `sis_free'
-make: *** [vmlinux] Error 1
+I respectfully disagree.  It is not possible to error out of the set_par()
+function - for instance, fb_set_var() contains this code:
 
-if I set sisfb as module.
+                        if (info->fbops->fb_set_par)
+                                info->fbops->fb_set_par(info);
 
-D998:/usr/src/linux# grep -i sis .config
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_SIS900=m
-CONFIG_I2C_SIS5595=m
-CONFIG_I2C_SIS630=m
-CONFIG_I2C_SIS645=m
-CONFIG_SENSORS_SIS5595=m
-CONFIG_AGP_SIS=y
-CONFIG_DRM_SIS=y
-CONFIG_FB_SIS=m
-CONFIG_FB_SIS_300=y
-CONFIG_FB_SIS_315=y
-D998:/usr/src/linux#
+There isn't any error return checking (so why does fb_set_par return an
+int when it isn't used?  It's fairly misleading.)
 
-However, if I compile sisfb statically all works fine...
-TIA,
-				Jorge
-PS: Sorry for lexical mistakes I made...
+This all means that if the allocation of the pseudo_palette in set_par
+fails, there's no way to abort the mode change - you _will_ oops in the
+other fbcon layers due to a NULL pseudo_palette pointer.
+
+Plus, we're only talking about an array of 16 32-bit words or 64 bytes.
+That's hardly worth the extra code complexity to separately dynamically
+allocate.
 
 -- 
-Il reggiseno e' uno strumento democratico perche' separa la destra dalla
-sinistra, solleva le masse e attira i popoli.
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263488AbTLUPR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 10:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTLUPR5
+	id S263463AbTLUP2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 10:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTLUP2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 10:17:57 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:44162 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263488AbTLUPRz
+	Sun, 21 Dec 2003 10:28:37 -0500
+Received: from mail.shareable.org ([81.29.64.88]:52103 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263463AbTLUP2g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 10:17:55 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 21 Dec 2003 07:17:55 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
+	Sun, 21 Dec 2003 10:28:36 -0500
+Date: Sun, 21 Dec 2003 15:28:22 +0000
+From: Jamie Lokier <jamie@shareable.org>
 To: Davide Libenzi <davidel@xmailserver.org>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Jamie Lokier <jamie@shareable.org>, <lse-tech@lists.sourceforge.net>,
+Cc: Manfred Spraul <manfred@colorfullife.com>, lse-tech@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+Message-ID: <20031221152822.GA4871@mail.shareable.org>
+References: <3FE594D0.8000807@colorfullife.com> <Pine.LNX.4.44.0312210701330.12172-100000@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.44.0312210701330.12172-100000@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.44.0312210716220.12172-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Dec 2003, Davide Libenzi wrote:
-
-> On Sun, 21 Dec 2003, Manfred Spraul wrote:
+Davide Libenzi wrote:
+> First, f_op->poll() does not allow you to send and event mask, 
+> and this requires the driver to indiscriminately wake up both IN and OUT 
+> waiters. The second area will be to give the driver to specify some "info" 
 > 
-> > >What about killing fasync_helper altogether and using the method that
-> > >epoll uses to register "listeners" which send a signal when the poll
-> > >state of a device changes?
-> > >
-> > I think it would be a step in the wrong direction: poll should go away 
-> > from a simple wake-up to an interface that transfers the band info 
-> > (POLL_IN, POLL_OUT, etc). Right now at least two passes over the f_poll 
-> > functions are necessary, because the info which event actually triggered 
-> > is lost. kill_fasync transfers the band info, thus I don't want to 
-> > remove it.
-> 
-> It is my plan to propose (Linus is not contrary, in principle) a change of 
-> the poll/wake infrastructure for 2.7. There are two areas that can be 
-> improved. First, f_op->poll() does not allow you to send and event mask, 
+> wake_up_info(&wq, XXXX);
 
-Sorry, poll_wait() does not allow you to specify an event mask ...
+I agree totally, both of these are (and always were, isn't it amazing
+how long these things take) the way to do it "properly".
 
+> The good thing is that migration can be gradual, beside the initial
+> dumb compile fixing to suite the new f_op->poll() interface.
 
+Even that's trivial, if a little time consuming, as it's only a
+function signature change.  Actually using the extra argument is
+optional for each driver.
 
-- Davide
-
-
+-- Jamie

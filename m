@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276562AbRI2RXS>; Sat, 29 Sep 2001 13:23:18 -0400
+	id <S276561AbRI2RWI>; Sat, 29 Sep 2001 13:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276563AbRI2RXI>; Sat, 29 Sep 2001 13:23:08 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:20354 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S276562AbRI2RW5>;
-	Sat, 29 Sep 2001 13:22:57 -0400
-From: arjan@fenrus.demon.nl
-To: jalvo@mbay.net (John Alvord)
-Subject: Re: kernel changes
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E15nNpb-0002KX-00@fenrus.demon.nl>
-Date: Sat, 29 Sep 2001 18:23:15 +0100
+	id <S276562AbRI2RV6>; Sat, 29 Sep 2001 13:21:58 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:29948 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S276561AbRI2RVs>;
+	Sat, 29 Sep 2001 13:21:48 -0400
+Message-ID: <3BB601AD.8890EA1D@gmx.de>
+Date: Sat, 29 Sep 2001 19:15:25 +0200
+From: Bernd Harries <bha@gmx.de>
+Reply-To: bha@gmx.de
+Organization: BHA Industries
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: Bernd Harries <mlbha@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: __get_free_pages(): is the MEM really mine?
+In-Reply-To: <Pine.LNX.4.33.0109271454560.5435-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net> you wrote:
+Greetings from the 2001 Linux Devel meeting in Oldenburg!
 
-> One aspect that bothers me is the absence of a success criteria.
+Roman Zippel looked at my driver and added code to print the usage 
+counter for each page after a 9-order __get_free_pages().
 
-I disagree here. Red Hat uses "must pass the cerberus test" as one of the
-criteria for kernels. The are other similar criteria, most are obvious (must
-boot :). All other distributions have similar tests and a few even use the
-cerberus testsuite as well.
+We found that only the first (!) page has a count of 1, the others have 0!
 
-Maybe your problem is "absence of tests before Linus releases", well 
-even that isn't fully true as distros run these tests on -pre kernels as
-well (or -ac kernels, which are mostly in sync with -pre kernels)...
+That would cover my impression, that only the 1st page is really mine...
 
-> The current competition for best VM is a good example. The fact is that
-> every operating system will fail with a high enough load. The best you can
-> hope for is a better degradation then the prior release.
+Roman found that strange and added this:
 
-There are a few basic creteria here as well, and 2.4.10 fails on some of
-them so far:
+          struct page * page = virt_to_page(card_ptr->dma_blk1[n]);
+          int i;
+          for(i = 0; i < (1 << max_order); i++, page++)
+          {
+            atomic_set(&page->count, 1);
+          }
 
-1) Must not kill processes as long as there is plenty of swap
-   or (possibly dirty) cache memory
-2) Must not deadlock (as that is a code-bug)
-3) Must not livelock without any progress
+And the freeing of the pages is now done page by page in the _vma_close()
+function.
 
-Note that no 2.4 kernel so far really achieves 1) in the presence of
-highmem; the obvious deadlocks are just pushed further by tuning.
+I will now test the version but I have only a 1-CPU box here. On an SMP Box I
+could imagine that even between __get_free_pages() and the
+atomic_set(&page->count, 1) someone else already uses my pages.
 
-> At the moment both 2.4.10 and 2.4.9-ac16 are better then 2.2.19. But
-> people keep testing under higher and higher loads and (surprise) they both
-> fail... initiating a search for better degradation logic.
+Could you please comment on this?
 
-2.4.10 isn't better than 2.2.19 given the criteria above. 2.4.10aa2 might
-be though... and 2.4.9acX+Rik's patches are solid in testing. 
+Thanks,
+-- 
+Bernd Harries
 
-Greetings,
-   Arjan van de Ven
-
-
-
+bha@gmx.de           http://www.freeyellow.com/members/bharries
+bha@nikocity.de       Tel. +49 421 809 7343 priv.  | MSB First!
+harries@stn-atlas.de       +49 421 457 3966 offi.  | Linux-m68k
+bernd@linux-m68k.org      8.48'21" E  52.48'52" N  | Medusa T40

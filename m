@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262226AbSIZHSH>; Thu, 26 Sep 2002 03:18:07 -0400
+	id <S262216AbSIZHHr>; Thu, 26 Sep 2002 03:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262227AbSIZHSH>; Thu, 26 Sep 2002 03:18:07 -0400
-Received: from holomorphy.com ([66.224.33.161]:2980 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262226AbSIZHSG>;
-	Thu, 26 Sep 2002 03:18:06 -0400
-Date: Thu, 26 Sep 2002 00:23:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: axboe@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org,
-       patman@us.ibm.com, andmike@us.ibm.com
+	id <S262218AbSIZHHr>; Thu, 26 Sep 2002 03:07:47 -0400
+Received: from packet.digeo.com ([12.110.80.53]:24795 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262216AbSIZHHb>;
+	Thu, 26 Sep 2002 03:07:31 -0400
+Message-ID: <3D92B369.7AFD28D4@digeo.com>
+Date: Thu, 26 Sep 2002 00:12:41 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] deadline io scheduler
-Message-ID: <20020926072318.GK3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, axboe@suse.de, akpm@digeo.com,
-	linux-kernel@vger.kernel.org, patman@us.ibm.com, andmike@us.ibm.com
-References: <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de> <20020926070615.GX22942@holomorphy.com> <20020926.000620.27781675.davem@redhat.com>
-Mime-Version: 1.0
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020926.000620.27781675.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2002 07:12:42.0136 (UTC) FILETIME=[1ABD1180:01C2652C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Lee Irwin III <wli@holomorphy.com>
-Date: Thu, 26 Sep 2002 00:06:15 -0700
->    Hmm, qlogicisp.c isn't really usable because the disks are too
->    slow, it needs bounce buffering, and nobody will touch the driver
+Andrew Morton wrote:
+> 
+> I'll test scsi now.
+> 
 
-On Thu, Sep 26, 2002 at 12:06:20AM -0700, David S. Miller wrote:
-> I think it's high time to blow away qlogic{fc,isp}.c and put
-> Matt Jacob's qlogic stuff into 2.5.x
-
-Is this different from the v61b5 stuff? I can test it on my qla2310
-and ISP1020 if need be.
-
-The main issue with qlogicisp.c is that it's just not modern enough to
-keep up with the rest of the system so testing with it is basically a
-stress test for how things hold up with lots of highmem, lots of bounce
-buffering and with a severely limited ability to perform disk I/O.
-
-qlogicisp.c is also not very reflective of the hardware used in NUMA-Q
-systems in the field, it just happened to be available from the scrap heap.
+aic7xxx, Fujitsu "MAF3364L SUN36G" (36G SCA-2)
 
 
-Thanks,
-Bill
+Maximum number of TCQ tags=253
+
+	fifo_batch		time cat kernel/*.c (seconds)
+	    64				58
+	    32				54
+	    16				20
+	     8				58
+	     4				1:15
+	     2				53
+
+Maximum number of TCQ tags=4
+
+	fifo_batch		time cat kernel/*.c (seconds)
+	    64				53
+	    32				39
+	    16				33
+	     8				21
+	     4				22
+	     2				36
+	     1				22
+
+
+Maximum number of TCQ tags = 0:
+
+	fifo_batch		time cat kernel/*.c (seconds)
+	    64				22
+	    32				10.3
+	    16				10.5
+	     8				5.5
+	     4				3.2
+	     2				1.9
+
+I selected fifo_batch=16 and altered writes_starved and read_expires
+again.  They made no appreciable difference.
+
+>From this I can only conclude that my poor little read was stuck
+in the disk for ages while TCQ busily allowed new incoming writes
+to bypass already-sent reads.
+
+A dreadful misdesign.  Unless we can control this with barriers,
+and if Fujutsu is typical, TCQ is just uncontrollable.  I, for
+one, would not turn it on in a pink fit.

@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267562AbUBRRRb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUBRRRa
+	id S267666AbUBRRz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267668AbUBRRz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:17:30 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25812 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267562AbUBRRRX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:17:23 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: mzyngier@freesurf.fr, Dave Jones <davej@redhat.com>
-Subject: Re: EISA & sysfs.
-Date: Wed, 18 Feb 2004 18:23:22 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040217235431.GF6242@redhat.com> <20040218155317.GQ6242@redhat.com> <wrp8yj04ba8.fsf@panther.wild-wind.fr.eu.org>
-In-Reply-To: <wrp8yj04ba8.fsf@panther.wild-wind.fr.eu.org>
+	Wed, 18 Feb 2004 12:55:57 -0500
+Received: from mail6.fw-bc.sony.com ([160.33.98.73]:3570 "EHLO
+	mail6.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S267666AbUBRRzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 12:55:55 -0500
+Message-ID: <4033A91B.3030801@am.sony.com>
+Date: Wed, 18 Feb 2004 10:04:11 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: arjanv@redhat.com
+CC: Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com, hch@infradead.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+References: <1077108694.4479.4.camel@laptop.fenrus.com>
+In-Reply-To: <1077108694.4479.4.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402181823.22034.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I should know better than to stir up a hornets nest
+by discussing GPL issues on this list... :)
 
-Hi,
+Arjan van de Ven wrote:
+> On Wed, 2004-02-18 at 01:19, Andrew Morton wrote:
+>>Neat, but it's hard to see the relevance of this to your patch.
+>>I don't see any licensing issues with the patch because the filesystem
+>>which needs it clearly meets Linus's "this is not a derived work"
+>>criteria.
+> 
+> it does?
+...
+> it needs no changes to the core kernel? *buzz*
+Actually, this would tend towards an interpretation that
+it was NOT a derived work.
 
-Consider this:
-- both CONFIG_EISA and CONFIG_PCI are defined
-- hp100_isa_init() returns an error (ie. -ENODEV)
-- eisa_driver_register() and pci_module_init() are called
-- hp100_module_init() returns -ENODEV,
-  module fails to load, so hp100_module_exit() is not called
-- &hp100_eisa_driver and &hp100_pci_driver are still happily
-  registered with sysfs
+That is, if a the Linux kernel must be modified in order
+to run with a piece of software, that's one indicator
+that the piece of software (when standing alone) may not
+be derived from the kernel.  I am purposely avoiding the
+"but what about when it's linked" argument.
 
-This is far too common mistake... :-(
-
-On Wednesday 18 of February 2004 17:12, Marc Zyngier wrote:
-> >>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
->
-> Dave> kernel: kobject_register failed for hp100 (-17)
->
-> -17 == -EEXIST.
->
-> Looks like the driver was already loaded once, or managed to leave
-> some sh*t into sysfs.
->
-> Dave> Something also seems awry someplace else..
->
-> Dave> (15:54:51:root@mindphaser:linux-2.6.2)# cat /proc/modules  | grep
-> hp100 Dave> (15:54:55:root@mindphaser:linux-2.6.2)# rmmod hp100
-> Dave> ERROR: Module hp100 does not exist in /proc/modules
-> Dave> (15:55:18:root@mindphaser:linux-2.6.2)# modprobe hp100
-> Dave> FATAL: Module hp100 already in kernel.
-> Dave> (15:55:25:root@mindphaser:linux-2.6.2)# cat /proc/modules | grep
-> hp100 Dave> (15:55:33:root@mindphaser:linux-2.6.2)#
->
-> Dave> Odd.
->
-> I've already seen that with half-initialized modules...
->
-> 	M.
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
 

@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267473AbSLFAQA>; Thu, 5 Dec 2002 19:16:00 -0500
+	id <S267428AbSLFASd>; Thu, 5 Dec 2002 19:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267475AbSLFAQA>; Thu, 5 Dec 2002 19:16:00 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:25482 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267473AbSLFAP7>;
-	Thu, 5 Dec 2002 19:15:59 -0500
-Date: Thu, 5 Dec 2002 18:05:57 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Pavel Machek <pavel@suse.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [2.5.50, ACPI] link error
-In-Reply-To: <20021206000618.GB15784@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33.0212051752060.974-100000@localhost.localdomain>
+	id <S267440AbSLFASd>; Thu, 5 Dec 2002 19:18:33 -0500
+Received: from dux1.tcd.ie ([134.226.1.23]:24052 "HELO dux1.tcd.ie")
+	by vger.kernel.org with SMTP id <S267428AbSLFASc> convert rfc822-to-8bit;
+	Thu, 5 Dec 2002 19:18:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Shane Helms <shanehelms@eircom.net>
+To: Frank van Maarseveen <F.vanMaarseveen@inter.nl.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: is KERNEL developement finished, yet ???
+Date: Fri, 6 Dec 2002 00:24:48 +0000
+User-Agent: KMail/1.4.3
+References: <F6E1228667B6D411BAAA00306E00F2A51539BA@pdc2.nestec.net> <01c301c29bf5$201a9120$6a01a8c0@wa1hco> <20021206005510.A7411@iapetus.localdomain>
+In-Reply-To: <20021206005510.A7411@iapetus.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212060024.48891.shanehelms@eircom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 05 December 2002 23:55, Frank van Maarseveen wrote:
+> It's incredible how narrow-minded established science sometimes is today
+> (and often has been past centuries). There is too much conservatism and
+> a general lack of imagination (though I must admit that no SF writer
+> could come up with something as bizarre as quantum mechanics, QED,
+> string theory and a few other things).
+>
+> Software and more specific kernel development has quite a short history
+> compared to all of that. So, let's be humble and accept that what we
+> do today will most likely be considered a trivial joke when the next
+> century arrives.
+>
+> You don't know what you do now know today.
+>
+> Frank
 
-> > S3 support is a subset of what is need for S4 support. 
-> 
-> That's not true. acpi_wakeup.S is nasty piece of code, needed for S3
-> but not for S4. Big part of driver support is only needed for S3.
+Hey Frank,
 
-Ok, acpi_wakeup.S is only for S3.
+Must admit, you really cracked me up buddy.
 
-As for drivers, I'm dubious of swsusp's handling of device and driver
-support. A suspend cycle is supposed to leave devices in the same state
-they were in before the cycle.  So, you need suspend and resume hooks in
-the drivers, even for S4 support, to capture and restore context in the
-devices themselves. Then again, I've no proof that swsusp doesn't get 
-everything right as is.
+FYI, I sent this mail around originally to get an idea of what are the open 
+fields yet to be explored at kernel level for my post grad studies.
+My post grad studies start next year april, and i have to submit a project 
+proposal by then.
 
-> > CONFIG_ACPI_SLEEP should give you S3 support, and the ACPI side of S4 
-> > support. 
-> 
-> What's ACPI side of S4 good for when you can not do S4?
+Unfortunately I don't think I'd be alive until next century either, but i'm 
+sure many changes are to happen till then.
 
-To not litter the code with #ifdefs. 
-
-> > The comment in the config option should tell the user that they 
-> > must choose a suspend implementation (e.g. CONFIG_SUSPEND, which should 
-> > prolly be CONFIG_SWAP_SUSPEND) in order to get complete S4 support. (The 
-> > ACPI side can make an empty call to swsusp if no implementation is 
-> > selected). 
-> 
-> S3 needs process stopper from kernel/suspend.c. I did not want to have
-> #ifdefs all over suspend.c...
-
-Then break it up into separate files in a separate directory.
-
-> > Some time ago, I made a BK repo for suspend support. I axed it, since no 
-> > one ever used it. But, it's back again, and I'll be integrating your 
-> > patches and try to dedicate a few extra cycles to resolving some of the 
-> > issues. I'll send an announcement to the list once I've integrated your 
-> > patches. 
-> 
-> I probably will not persuade you to make it CVS, right? [Sorry, I'm
-> not going to touch bitkeeper.]
-
-I know, and that's fine. I won't touch CVS again, unless there's a hefty 
-sum and a lot of good beer involved. (Or, after I've consumed a lot of 
-good beer). Patches can be made from the repo, most easily after merging 
-to a new kernel version.
-
-	-pat
-
+Shane

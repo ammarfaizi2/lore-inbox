@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbSLLURD>; Thu, 12 Dec 2002 15:17:03 -0500
+	id <S267478AbSLLUV1>; Thu, 12 Dec 2002 15:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbSLLURD>; Thu, 12 Dec 2002 15:17:03 -0500
-Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:47510 "EHLO
-	front3.chartermi.net") by vger.kernel.org with ESMTP
-	id <S267492AbSLLURC>; Thu, 12 Dec 2002 15:17:02 -0500
-Date: Thu, 12 Dec 2002 15:24:36 -0500 (EST)
-From: Nathaniel Russell <reddog83@chartermi.net>
-X-X-Sender: reddog83@reddog.example.net
-To: alan@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4-ac] Via 8233 Sound
-Message-ID: <Pine.LNX.4.44.0212121521340.5002-200000@reddog.example.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1082962326-1039724676=:5002"
+	id <S267491AbSLLUV0>; Thu, 12 Dec 2002 15:21:26 -0500
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:14355 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267478AbSLLUVY>; Thu, 12 Dec 2002 15:21:24 -0500
+Date: Thu, 12 Dec 2002 20:29:16 +0000
+To: Wil Reichert <wilreichert@yahoo.com>
+Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: "bio too big" error
+Message-ID: <20021212202916.GA28717@reti>
+References: <1039572597.459.82.camel@darwin> <20021212120836.GA5717@reti> <1039718098.433.13.camel@darwin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039718098.433.13.camel@darwin>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thu, Dec 12, 2002 at 01:34:59PM -0500, Wil Reichert wrote:
+> Yeah, ditching patch 5 makes my lvm functional again.  Things are
+> definately better now.  I haven't attempted to stress it, but the entire
+> hanging console / zombie process bit has gone away.  Everything appears
+> to work normally.  A couple test cp's shows nothing abnormal, but
+> playing an ogg still results in the following.
+> 
+> Dec 12 13:32:20 darwin kernel: bio too big device ide2(33,0) (256 > 255)
+> Dec 12 13:32:51 darwin last message repeated 3 times
+> Dec 12 13:33:55 darwin last message repeated 6 times
+> 
+> Any other tests I should do?
 
---8323328-1082962326-1039724676=:5002
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I'm now seeing some corruption with large files, so I'll fix that and
+hope that it solves your problem too.  wrt. the device size bug that
+you're experiencing could you mail me (not the list) your .config
+please ?
 
-Thank you Alan is this what you were talking about.
-It worked for me now i can use my onboard Sound. Thank you. Oh here is the
-patch for you.
-Nathaniel
-CC reddog83@chartermi.net not subscribed to list
-
---8323328-1082962326-1039724676=:5002
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sound.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212121524360.5002@reddog.example.net>
-Content-Description: Via 8233
-Content-Disposition: attachment; filename="sound.diff"
-
-ZGlmZiAtdXJOIGxpbnV4LWFjL2RyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1
-ZGlvLmMgbGludXgvZHJpdmVycy9zb3VuZC92aWE4MmN4eHhfYXVkaW8uYw0K
-LS0tIGxpbnV4LWFjL2RyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMJ
-MjAwMi0xMi0xMiAwMzoyMTowNC4wMDAwMDAwMDAgLTA1MDANCisrKyBsaW51
-eC9kcml2ZXJzL3NvdW5kL3ZpYTgyY3h4eF9hdWRpby5jCTIwMDItMTItMTIg
-MTQ6NTQ6MzYuMDAwMDAwMDAwIC0wNTAwDQpAQCAtODg1LDcgKzg4NSw3IEBA
-DQogDQogCXNwaW5fdW5sb2NrX2lycSAoJmNhcmQtPmxvY2spOw0KIA0KLQlz
-eW5jaHJvbml6ZV9pcnEoY2FyZC0+cGRldi0+aXJxKTsNCisJc3luY2hyb25p
-emVfaXJxKCk7IA0KIA0KIAlEUFJJTlRLICgiRVhJVFxuIik7DQogfQ0K
---8323328-1082962326-1039724676=:5002--
+- Joe

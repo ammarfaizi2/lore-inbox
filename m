@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319263AbSIFQui>; Fri, 6 Sep 2002 12:50:38 -0400
+	id <S318497AbSIFQ5u>; Fri, 6 Sep 2002 12:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319265AbSIFQui>; Fri, 6 Sep 2002 12:50:38 -0400
-Received: from vulcan.americom.com ([208.187.207.195]:39923 "HELO
-	solo.americom.com") by vger.kernel.org with SMTP id <S319263AbSIFQuh>;
-	Fri, 6 Sep 2002 12:50:37 -0400
-Date: 6 Sep 2002 16:55:16 -0000
-Message-ID: <20020906165516.17282.qmail@solo.americom.com>
-To: linux-kernel@vger.kernel.org
-From: jeff@AmeriCom.com
-Subject: Linux SMP kernel bug with > 512M ram
+	id <S319233AbSIFQ5u>; Fri, 6 Sep 2002 12:57:50 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:5898 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S318497AbSIFQ5t>; Fri, 6 Sep 2002 12:57:49 -0400
+Date: Fri, 6 Sep 2002 19:02:23 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marek Mentel <mmark@koala.ichpw.zabrze.pl>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: cdrom problem in 2.4.20-pre5-ac1,ac2
+Message-ID: <20020906170223.GC1918@louise.pinerecords.com>
+References: <200209060945.g869jIk28643@koala.ichpw.zabrze.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209060945.g869jIk28643@koala.ichpw.zabrze.pl>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 11 days, 23:49
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  Repeatable system crash when I am trying to copy
+>  files from cdrom  ( tested on different discs - no media errors ) 
+>  using  2.4.20-pre5-ac1  or   ac2   .
+>    [ full log in attached file ]
 
-I've been having problems with a few of our servers and I can't seem to find this 
-problem mentioned anywhere else. All of the dual processor machines will not operate 
-with greater than 512 megs of ram with the newer SMP kernels (2.4.7-10enterprise #1 
-SMP). Two of the dual P3 1ghz machines crash after a few minutes, when the memory 
-usage gets high enough, I presume. The errors they spit out vary, but its only when 
-I go over 512megs of ram, and only on dual processor machines. I had a slightly 
-different problem when I tried to set it up on a dual p2 266 machine, when I go over 
-512 megs there, the system takes an hour to boot up, and everything crawls from 
-there. I asked a friend of mine to try this newer kernel with his dual processor 
-server, and he says the same thing (when I go over 512, it crashes). Has anybody had 
-this problem? Is there a fix?
-
-Regards,
-
-Jeffrey Moss
-jeff@americom.com
-
-
-
-
-
-
+Would you mind reading the release notes of the kernel you are using?
+This is a known problem with the current IDE code in -ac.

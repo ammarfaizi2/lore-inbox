@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUF1MGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUF1MJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264914AbUF1MGs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 08:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUF1MGs
+	id S264916AbUF1MJw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 08:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUF1MJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 08:06:48 -0400
-Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:57740
-	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
-	id S264914AbUF1MGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 08:06:47 -0400
-Date: Mon, 28 Jun 2004 13:06:45 +0100
-From: Ben Dooks <ben@fluff.org.uk>
-To: Deshpande M <pdspartan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 28 Jun 2004 08:09:52 -0400
+Received: from web90105.mail.scd.yahoo.com ([66.218.94.76]:5015 "HELO
+	web90105.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S264916AbUF1MJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 08:09:50 -0400
+Message-ID: <20040628120950.44302.qmail@web90105.mail.scd.yahoo.com>
+Date: Mon, 28 Jun 2004 05:09:50 -0700 (PDT)
+From: Deshpande M <pdspartan@yahoo.com>
 Subject: Re: Kernel freezes- Init process in console driver
-Message-ID: <20040628120645.GA890@home.fluff.org>
-Reply-To: Ben Dooks <ben@fluff.org.uk>
-References: <20040628100743.14712.qmail@web90107.mail.scd.yahoo.com>
-Mime-Version: 1.0
+To: Ben Dooks <ben@fluff.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040628120645.GA890@home.fluff.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628100743.14712.qmail@web90107.mail.scd.yahoo.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 03:07:43AM -0700, Deshpande M wrote:
-> I am porting 2.6.0 (plain vanilla kernel) on Arm926 EJ
+I tried with 2.6.4 but the result is same. 
 
-This is an old kernel, try 2.6.6 or 2.6.7
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
 
-  'a smiley only costs 4 bytes'
+
+--- Ben Dooks <ben@fluff.org.uk> wrote:
+> On Mon, Jun 28, 2004 at 03:07:43AM -0700, Deshpande
+> M wrote:
+> > I am porting 2.6.0 (plain vanilla kernel) on
+> Arm926 EJ
+> 
+> This is an old kernel, try 2.6.6 or 2.6.7
+> 
+> -- 
+> Ben (ben@fluff.org, http://www.fluff.org/)
+> 
+>   'a smiley only costs 4 bytes'
+> 
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - Helps protect you from nasty viruses.
+http://promotions.yahoo.com/new_mail

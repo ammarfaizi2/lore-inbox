@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUCXTSM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 14:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUCXTSL
+	id S263807AbUCXTV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 14:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbUCXTV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 14:18:11 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:38112 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S263803AbUCXTSJ (ORCPT
+	Wed, 24 Mar 2004 14:21:26 -0500
+Received: from mail.kroah.org ([65.200.24.183]:5067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263097AbUCXTVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 14:18:09 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 24 Mar 2004 14:21:24 -0500
+Date: Wed, 24 Mar 2004 11:18:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6 Hotplugging
+Message-ID: <20040324191825.GA24854@kroah.com>
+References: <20040324181021.2d495742.Christoph.Pleger@uni-dortmund.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16481.57068.392023.45359@napali.hpl.hp.com>
-Date: Wed, 24 Mar 2004 11:18:04 -0800
-To: John Reiser <jreiser@BitWagon.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: Non-Exec stack patches
-In-Reply-To: <4061DB55.8070600@BitWagon.com>
-References: <20040323231256.GP4677@tpkurt.garloff.de>
-	<20040323154937.1f0dc500.akpm@osdl.org>
-	<20040324002149.GT4677@tpkurt.garloff.de>
-	<16480.55450.730214.175997@napali.hpl.hp.com>
-	<4060E24C.9000507@redhat.com>
-	<16480.59229.808025.231875@napali.hpl.hp.com>
-	<20040324070020.GI31589@devserv.devel.redhat.com>
-	<16481.13780.673796.20976@napali.hpl.hp.com>
-	<20040324072840.GK31589@devserv.devel.redhat.com>
-	<16481.15493.591464.867776@napali.hpl.hp.com>
-	<4061B764.5070008@BitWagon.com>
-	<16481.49534.124281.434663@napali.hpl.hp.com>
-	<4061DB55.8070600@BitWagon.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040324181021.2d495742.Christoph.Pleger@uni-dortmund.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 24 Mar 2004 11:02:45 -0800, John Reiser <jreiser@BitWagon.com> said:
+On Wed, Mar 24, 2004 at 06:10:21PM +0100, Christoph Pleger wrote:
+> Hello,
+> 
+> I am using Kernel 2.6.4 and the newest hotplug software from
+> ftp.kernel.org. When I hotplug a usb mass storage device, I get a
+> message like "disk at
+> /devices/pci0000:00/0000:00:1d.0/usb1/1-2/1-2:1.0/host1/1:0:0:0" on
+> tty1.
+> 
+> Where does this message come from and how can I prevent it from
+> appearing? Of course I do not want such a message because it corrupts
+> the text for example in the vi editor.
 
-  >> Only one mprotect() call is needed to make the entire stack
-  >> executable.
+It's a bug in the current hotplug scripts.  Either back down to the
+previous version (as the latest was only a development release), or wait
+till I release a new version later this week.
 
-  John> mprotect() only works on the portion that is currently allocated.
-  John> If the stack grows, then another call is needed.
+Sorry about this.
 
-No, mprotect() on the entire stack will mark the vm_area with the
-desired protection and VM_GROWSDOWN/VM_GROWSUP will expand
-automatically with the new protection.  And if you want to expand the
-stack in user-level, e.g., by intercepting SIGSEGV, you'll either do
-an mmap() or mprotect() at any rate so there is zero extra cost there.
-
-	--david
+greg k-h

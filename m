@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbSJZKjx>; Sat, 26 Oct 2002 06:39:53 -0400
+	id <S262065AbSJZKf1>; Sat, 26 Oct 2002 06:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbSJZKjx>; Sat, 26 Oct 2002 06:39:53 -0400
-Received: from mail.hometree.net ([212.34.181.120]:1700 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262184AbSJZKjv>; Sat, 26 Oct 2002 06:39:51 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: One for the Security Guru's
-Date: Sat, 26 Oct 2002 10:46:07 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <apdrpf$hap$1@forge.intermeta.de>
-References: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com> <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net> <ap8f36$8ge$1@forge.intermeta.de> <20021026114452.B16359@bitwizard.nl>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035629167 29653 212.34.181.4 (26 Oct 2002 10:46:07 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 26 Oct 2002 10:46:07 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S262161AbSJZKez>; Sat, 26 Oct 2002 06:34:55 -0400
+Received: from users.linvision.com ([62.58.92.114]:61844 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S262065AbSJZKeV>; Sat, 26 Oct 2002 06:34:21 -0400
+Date: Sat, 26 Oct 2002 12:40:36 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: OT Re: One for the Security Guru's
+Message-ID: <20021026124036.D16359@bitwizard.nl>
+References: <20021023130251.GF25422@rdlg.net> <1035411315.5377.8.camel@god.stev.org> <ap8fjq$8ia$1@forge.intermeta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ap8fjq$8ia$1@forge.intermeta.de>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff <R.E.Wolff@BitWizard.nl> writes:
+On Thu, Oct 24, 2002 at 09:47:38AM +0000, Henning P. Schmiedehausen wrote:
+> James Stevenson <james@stev.org> writes:
+> 
+> >can read / write disks. Thus you could recompile your own kernel
+> 
+> Don't put a compiler on the box.
 
->On Thu, Oct 24, 2002 at 09:38:46AM +0000, Henning P. Schmiedehausen wrote:
->> Get the real thing. Checkpoint. PIX. But that's a little
->> more expensive than "xxx firewall based on Linux".
+Don't you have a compiler at home? I do. 
 
->PIX? Is that the one that breaks TCP/IP when an ACK is lost on
->the side that the data is coming from?
-
-Depends on your PIX OS. As with any other OS, there are bugs and you
-should monitor the vendor mailing lists for updates and fixes.
-
-It did broke SACK once. There was an update and the problem was
-solved.  Thats what a vendor is for.
-
-	Regards
-		Henning
-
-What did you think? That I fall bait to this troll? :-)
+		Roger. 
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

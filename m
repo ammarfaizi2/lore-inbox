@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbUCKUi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUCKUfi
+	id S261657AbUCKUij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbUCKUfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:35:38 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21963 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261673AbUCKUbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:31:19 -0500
-Date: Thu, 11 Mar 2004 21:31:09 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.4-mm1: unknown symbols cauased by remove-more-KERNEL_SYSCALLS.patch
-Message-ID: <20040311203108.GE14833@fs.tum.de>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+	Thu, 11 Mar 2004 15:35:07 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:50910 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261657AbUCKUd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:33:57 -0500
+Message-Id: <200403112033.i2BKX9B6005538@eeyore.valparaiso.cl>
+To: Christophe Saout <christophe@saout.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LKM rootkits in 2.6.x 
+In-Reply-To: Your message of "Thu, 11 Mar 2004 20:16:28 BST."
+             <1079032587.7517.1.camel@leto.cs.pocnet.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Thu, 11 Mar 2004 17:33:09 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 11:31:40PM -0800, Andrew Morton wrote:
->...
-> remove-more-KERNEL_SYSCALLS.patch
->   further __KERNEL_SYSCALLS__ removal
->...
+Christophe Saout <christophe@saout.de> said:
+> Am Do, den 11.03.2004 schrieb Dave Jones um 19:48:
 
-This causes the following unknown symbols in modules on i386:
+> > Don't bet on it.  They'll just start doing what binary-only driver vendors
+> > have been doing for months.. If the table isn't exported, they find a
+> > symbol that is exported, and grovel around in memory near there until
+> > they find something that looks like it, and patch accordingly.
 
-<--  snip  ->
+> Ugh... this sounds ugly. This should be forbidden. I mean, what are
+> things like EXPORT_SYMBOL_GPL for if drivers are allowed to patch
+> whatever they want?
 
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/sound/isa/wavefront/snd-wavefront.ko needs 
-unknown symbol sys_read
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/sound/isa/wavefront/snd-wavefront.ko needs 
-unknown symbol sys_open
-WARNING: /lib/modules/2.6.4-mm1/kernel/sound/oss/wavefront.ko needs 
-unknown symbol sys_read
-WARNING: /lib/modules/2.6.4-mm1/kernel/sound/oss/wavefront.ko needs 
-unknown symbol sys_open
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/tda1004x.ko 
-needs unknown symbol sys_lseek
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/tda1004x.ko 
-needs unknown symbol sys_read
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/tda1004x.ko 
-needs unknown symbol sys_open
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/sp887x.ko 
-needs unknown symbol sys_lseek
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/sp887x.ko 
-needs unknown symbol sys_read
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/sp887x.ko 
-needs unknown symbol sys_open
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/alps_tdlb7.ko 
-needs unknown symbol sys_lseek
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/alps_tdlb7.ko 
-needs unknown symbol sys_read
-WARNING: 
-/lib/modules/2.6.4-mm1/kernel/drivers/media/dvb/frontends/alps_tdlb7.ko 
-needs unknown symbol sys_open
-
-<--  snip  -->
-
-cu
-Adrian
-
+It _is_ forbidden. This isn't any kind of accident we are talking about,
+this is out and out fraud.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

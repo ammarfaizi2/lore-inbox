@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279975AbRJ3PbD>; Tue, 30 Oct 2001 10:31:03 -0500
+	id <S279978AbRJ3Pax>; Tue, 30 Oct 2001 10:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279976AbRJ3Pay>; Tue, 30 Oct 2001 10:30:54 -0500
-Received: from web11303.mail.yahoo.com ([216.136.131.206]:40810 "HELO
-	web11303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S279975AbRJ3Par>; Tue, 30 Oct 2001 10:30:47 -0500
-Message-ID: <20011030153123.84364.qmail@web11303.mail.yahoo.com>
-Date: Tue, 30 Oct 2001 07:31:23 -0800 (PST)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: Re: Writing a driver for a pci busmaster ide controller, need tutoring.
-To: linux-kernel@vger.kernel.org
+	id <S279976AbRJ3Paq>; Tue, 30 Oct 2001 10:30:46 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:9199 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S279975AbRJ3Pa2>; Tue, 30 Oct 2001 10:30:28 -0500
+Message-ID: <3BDEC82E.C47C88CD@nortelnetworks.com>
+Date: Tue, 30 Oct 2001 10:33:02 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net> <p05100304b803c6908755@[10.128.7.49]> <9rl60r$g50$1@cesium.transmeta.com> <p05100309b803cdfa4552@[10.128.7.49]>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The only issue with the Piccolo controller is that I
-don't think it is a PCI device (doesn't show up in
-lspci anyway).  It's part of toshiba's integrated
-chipset, so I'm not sure exactly how it is accessed. 
-I haven't looked at the docs in a while.  Good luck
-with it.  I'd love to see DMA working on my laptop.
+Jonathan Lundell wrote:
 
+> But what I meant was bonding's use of ARP to determine whether the
+> connection is good (or rather, bad, even when the link is up), when
+> the connection is routed via level 3. Seems to me you'd need a level
+> 3 protocol (say ICMP) rather than ARP.
 
-Alex
+This is what we've done here at work.  We use a combination of MII for fast
+detection of local link loss, and ICMP ping packets to highly available hosts to
+test the network path (with somewhat slower response time).
 
-----------------------------
+Chris
 
-> As this is my first atempt to write a driver I find
-my self not really 
-> having the knowhow to do this. And it is extremely
-hard to find good 
-> tutorials on the subject =) 
-> So please if anyone find the time and motivation,
-would you write me one? 
-> Mabey not but if you were to send me all you know on
-this topic I might be 
-> able to puzzle the bits and pieces together and
-write this driver. 
-
-There are two things that will help you straight away.
-The first is the 
-Linux Device Drivers book (version 2) - also available
-online for 
-cheapskates ;) 
-
-The second is Documentation/pci.txt, and
-Documentation/DMA-mapping.txt 
-
-> It would be easier for me to just let one of you
-guys write this driver, but 
-> if noone is in any hurry I would find this a great
-learning experience, and 
-> fun to ;) 
-
-Another good bit of news is that providing the device
-follows standard 
-IDE bus mastering design (pretty much all do) then you
-only actually have 
-to write the tuning code for the chipset. 
-
-ide-pci.c contains a table of PCI capable devices and
-any driver needed. 
-You provide pci initialisers, dma finctions and ide
-functions. 
-
-Take a look at amd74xx.c for example - thats a driver
-letting ide-dma.c 
-do all the work. 
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

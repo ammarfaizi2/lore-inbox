@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132347AbQKSIzr>; Sun, 19 Nov 2000 03:55:47 -0500
+	id <S129136AbQKSJF7>; Sun, 19 Nov 2000 04:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132358AbQKSIz1>; Sun, 19 Nov 2000 03:55:27 -0500
-Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:46865 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S132347AbQKSIzS>; Sun, 19 Nov 2000 03:55:18 -0500
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: kraxel@bytesex.org (Gerd Knorr)
-Newsgroups: lists.linux.kernel
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-Date: 19 Nov 2000 08:24:27 GMT
-Organization: Strusel 007
-Message-ID: <slrn91f3hr.jt.kraxel@bogomips.masq.in-berlin.de>
-In-Reply-To: <20001117013157.A21329@almesberger.net> <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de> <20001118141426.B23033@almesberger.net>
-NNTP-Posting-Host: bogomips.masq.in-berlin.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: goldbach.masq.in-berlin.de 974622267 11183 192.168.69.77 (19 Nov 2000 08:24:27 GMT)
-X-Complaints-To: news@goldbach.in-berlin.de
-NNTP-Posting-Date: 19 Nov 2000 08:24:27 GMT
-User-Agent: slrn/0.9.6.3 (Linux)
+	id <S129152AbQKSJFt>; Sun, 19 Nov 2000 04:05:49 -0500
+Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:34564 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129136AbQKSJFh>; Sun, 19 Nov 2000 04:05:37 -0500
+Date: Sun, 19 Nov 2000 00:35:25 -0800
+Message-Id: <200011190835.eAJ8ZPb07069@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATA/IDE: dmaproc error 14 testers wanted!
+In-Reply-To: <Pine.LNX.4.10.10011181220390.17557-100000@master.linux-ide.org>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre21 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> Gerd Knorr wrote:
-> > It simply did'nt work correctly and often used to misdetect
-> > random bt848 cards as either MIRO or Hauppauge (which where the first
-> > available cards).
+On Sat, 18 Nov 2000 12:23:05 -0800 (PST), Andre Hedrick <andre@linux-ide.org> wrote:
 > 
-> Well, this means there's yet another mandatory __setup parameter :-(
+> If anyone is suffering from the dreaded "dmaproc error 14: unsupported"
+> error and want to test a code that could get you out of that deadlock
+> please speak up.
+> 
+> Basically this is an Intel 440BX PIIX4 issues, but the solution is global
+> and should work for all cases.
 
-Why?  What is the point in compiling bttv statically into the kernel?
-Unlike filesystems/ide/scsi/... you don't need it to get the box up.
-No problem to compile the driver as module and configure it with
-/etc/modules.conf ...
+Interestingly enough, I get it on a VIA MVP3 with 2.2.18pre + bkz's patch.
+Since it's eaten two filesystems by now, I'm not overly eager to play
+with it again... On a second thought though, I'd rather play with it now
+in a controlled environment, so feel free to send the patch my way.
 
-> Should it be called bttv_card or bt484_card (i.e. are there cases
-> where a user would want to override the card detection for non-848
-> bttv cards ?)
+If you want details, just ask.
 
-Yes.  Some bt878 cards don't have a ID, and there are a few cases
-where different cards have the same subsystem ID.
-
-  Gerd
+Thanks,
+Ion
 
 -- 
-Wirtschaftsinformatiker == Leute, die zwar die aktuellen Aktienkurse
-jedes Softwareherstellers kennen, aber keines der Produkte auch nur
-ansatzweise bedienen können.		-- Benedict Mangelsdorff
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

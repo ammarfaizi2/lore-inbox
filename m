@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316786AbSHATO5>; Thu, 1 Aug 2002 15:14:57 -0400
+	id <S316601AbSHATNa>; Thu, 1 Aug 2002 15:13:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSHATO5>; Thu, 1 Aug 2002 15:14:57 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:20150 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S316786AbSHATOz>;
-	Thu, 1 Aug 2002 15:14:55 -0400
-Date: Thu, 1 Aug 2002 12:18:24 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
-Message-ID: <20020801191823.GA24428@tapu.f00f.org>
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+	id <S316683AbSHATN3>; Thu, 1 Aug 2002 15:13:29 -0400
+Received: from p50887441.dip.t-dialin.net ([80.136.116.65]:3257 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316601AbSHATN3>; Thu, 1 Aug 2002 15:13:29 -0400
+Date: Thu, 1 Aug 2002 13:16:05 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Federico Ferreres <fferreres@ojf.com>
+cc: Hans Reiser <reiser@namesys.com>, Alexander Viro <viro@math.psu.edu>,
+       Daniel Mose <imcol@unicyclist.com>, Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+       <linux-kernel@vger.kernel.org>, <openpatentfunds@home.se>
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <1027961626.4747.120.camel@fede>
+Message-ID: <Pine.LNX.4.44.0208011314380.5119-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 09:30:04AM -0700, Linus Torvalds wrote:
+Hi,
 
-    A 2% error may not be a big problem for most people, of course. But it
-    might be a huge problem for others. Those people would have to do their
-    own re-calibration..
+On 29 Jul 2002, Federico Ferreres wrote:
+> There's this ilusion in normal people's minds that Windows is free
+> because it comes with the computer.
 
-How about export the value via a syscall and also export an 'error'
-which for now could just be set to 5% or something conservative and
-refined later if necessary or cleanup on other architectures,
-something like:
+Not to mention all the people who think that Windows is the computer, 
+indivisibly, and never heard of the term "Operating System". Oh, well...
 
-    /* export monotonically increasing nanoseconds since boot to
-       user-space. kt_time is a relative value, it does NOT necessarily
-       imply nanoseconds since boot. kt_err should be greater than
-       1stdev of the error in kt_time */
+			Thunder
+-- 
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
 
-    struct kern_time {
-	  __u64 kt_ns;
-	  __u64 kt_err;
-    };
-
-
-
-
-  --cw

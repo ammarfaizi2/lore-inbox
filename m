@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbTDOE0z (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264168AbTDOE0z (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 00:26:55 -0400
-Received: from granite.he.net ([216.218.226.66]:54532 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S264161AbTDOE0y (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 00:26:54 -0400
-Date: Mon, 14 Apr 2003 21:41:06 -0700
-From: Greg KH <greg@kroah.com>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Miquel van Smoorenburg'" <miquels@cistron-office.nl>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Simple Kernel-User Event Interface (Was: RE: [ANNOUNCE] udev 0.1 release)
-Message-ID: <20030415044106.GB8403@kroah.com>
+	id S264240AbTDOEdZ (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTDOEdZ (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 00:33:25 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:53378 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264240AbTDOEdY (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 00:33:24 -0400
+Date: Tue, 15 Apr 2003 05:45:05 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+Message-ID: <20030415044505.GA25139@mail.jlokier.co.uk>
+References: <16025.63003.968553.194791@nanango.paulus.ozlabs.org> <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 01:52:38AM -0700, Perez-Gonzalez, Inaky wrote:
-> > Looks like a good start, but I'm not moving the hotplug interface over
-> > to it :)
+Geert Uytterhoeven wrote:
+> > Since __ide_mm_insw doesn't get told whether it is transferring normal
+> > sector data or drive ID data, it can't necessarily do the right thing
+> > in both situations.
 > 
-> Good try - I won't let go :) If you see this as something potentially
-> useful, how would you like it to develop so that in the long term 
-> it can be used? be it in parallel with /sbin/hotplug or as a 
-> potential replacement?
+> Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
+> on-disk data to be that way, for compatibility with e.g. TOS.
 
-I don't know.  Even if we decide to change, this is a 2.7 thing.
+Isn't that best solved in the TOS filesystem code?
 
-> I guess that the first thing I would have to do is somehow look into
-> how hotplug is behaving now and hook it to do something similar, right?
+That way, Ataris running Linux can read ext2 disks from other systems
+properly, and other systems can read TOS disks written by Ataris
+properly.
 
-That would be a good start :)
+Or did I miss something?
 
-thanks,
+-- Jamie
 
-greg k-h

@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318035AbSH1Qp3>; Wed, 28 Aug 2002 12:45:29 -0400
+	id <S312590AbSH1Quu>; Wed, 28 Aug 2002 12:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318166AbSH1Qp3>; Wed, 28 Aug 2002 12:45:29 -0400
-Received: from [195.185.133.146] ([195.185.133.146]:61451 "HELO
-	gateway.hottinger.de") by vger.kernel.org with SMTP
-	id <S318035AbSH1Qp2>; Wed, 28 Aug 2002 12:45:28 -0400
-Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FE2@HBMNTX0.da.hbm.com>
-From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: AW: interrupt latency
-Date: Wed, 28 Aug 2002 18:49:41 +0200
+	id <S313070AbSH1Qut>; Wed, 28 Aug 2002 12:50:49 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:22276 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S312590AbSH1Qut>;
+	Wed, 28 Aug 2002 12:50:49 -0400
+Date: Wed, 28 Aug 2002 09:53:59 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <root@chaos.analogic.com>, <yodaiken@fsmlabs.com>,
+       Mark Hounschell <markh@compro.net>,
+       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: interrupt latency
+In-Reply-To: <1030548687.7190.33.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0208280953300.31860-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+On 28 Aug 2002, Alan Cox wrote:
 
-> Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] wrote:
-> 
-> I would expect port 0x378 on any modern PC to be on the X-bus 
-> not on ISA
+| I would expect port 0x378 on any modern PC to be on the X-bus not on ISA
 
-Right, so it is fast enough for a quick test.
+Yes, or what (intel) calls the Low Pin Count (LPC) bus.
 
+-- 
+~Randy
 
-Actually I don't know where this thread has lead us. Was it really me who
-typed the reference line? Anyhow. :->
-
-
-When I was talking about interrupt latency, I ment this:
-
-I do a hardware interrupt, use it as trigger on an oscilloscope, then
-measure how long it takes until the printer port showbit shows up. (Ha! An
-oscilloscope is fine for timing measurements!) The printer port is handled
-first in the irq_function of my driver. That kind of "latency" I was talking
-about. The jitter I get (because of NMI functions and more) I can guess by
-changing the persistance of the oscilloscope.
-
-And to those who think that the printer port might be to slow for that kind
-of measurement, I did the same with a showbit I set on a PCI device (a PLD I
-know the inside). That one is nanoseconds fast, so no relevant delay.
-
-Okay, the kernel takes at least 8 microseconds time to "tell" the kernel
-driver function that an interrupt is there. So my question still is: How
-should I trace thru the kernel source after a hardware interrupt is there?
-
-(I am running a Pentium-like ETX with 266 MHz CPU clock. Single CPU.)
-
-But thanks for all helps, hints and interesting discusses!
-
-
-Siegfried Wessler.
-
-BTW: You can get down to 1ms jiffies without RT Linux easily ;-)

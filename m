@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbUDGSvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUDGSvA
+	id S264141AbUDGSuf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUDGSuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:51:00 -0400
-Received: from main.gmane.org ([80.91.224.249]:54740 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264137AbUDGSuz (ORCPT
+	Wed, 7 Apr 2004 14:50:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:723 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264141AbUDGSud (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:50:55 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: linchuan@cse.ogi.edu (Chuan-kai Lin)
-Subject: Re: PROBLEM: ide-cs kernel panic on ThinkPad X30
-Date: Wed, 7 Apr 2004 18:10:50 +0000 (UTC)
-Message-ID: <c51g78$st3$1@sea.gmane.org>
-References: <20030911151915.GA816@rho>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: rho.cse.ogi.edu
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+	Wed, 7 Apr 2004 14:50:33 -0400
+Date: Wed, 7 Apr 2004 11:52:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mc2
+Message-Id: <20040407115247.701ae24a.akpm@osdl.org>
+In-Reply-To: <20040407183416.GC30117@holomorphy.com>
+References: <20040406221744.2bd7c7e4.akpm@osdl.org>
+	<20040407180430.GA30117@holomorphy.com>
+	<20040407180919.GB30117@holomorphy.com>
+	<20040407112738.23d07088.akpm@osdl.org>
+	<20040407183416.GC30117@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuan-kai Lin <b86506063@ntu.edu.tw> wrote:
-> Aug 31 19:14:17 rho kernel: hde: Transcend, CFA DISK drive
-> Aug 31 19:14:17 rho kernel: PM: Adding info for No Bus:ide2
-> Aug 31 19:14:17 rho kernel: hdf: probing with STATUS(0x50)
->  instead of ALTSTATUS(0x0a)
-> Aug 31 19:14:17 rho kernel: hdf: H, ATA DISK drive
-> Aug 31 19:14:17 rho kernel: ide2 at 0x100-0x107,0x10e on irq 3
-> Aug 31 19:14:17 rho kernel: PM: Adding info for ide:2.0
-> Aug 31 19:14:17 rho kernel: PM: Adding info for ide:2.1
-> Aug 31 19:14:17 rho kernel: hde: max request size: 128KiB
-> Aug 31 19:14:17 rho kernel: hde: 1006992 sectors (515 MB) w/0KiB Cache,
->  CHS=999/16/63
-> Aug 31 19:14:17 rho kernel:  /dev/ide/host2/bus0/target0/lun0: p1
-> Aug 31 19:14:17 rho kernel: hdf: max request size: 128KiB
-> Aug 31 19:14:17 rho kernel: hdf: 0 sectors (0 MB) w/9216KiB Cache,
->  CHS=18432/0/0
-> Aug 31 19:14:17 rho kernel: hdf: INVALID GEOMETRY: 0 PHYSICAL HEADS?
-> Aug 31 19:14:17 rho kernel: ide-default: hdf: Failed to register the
->  driver with ide.c
-> Aug 31 19:14:17 rho kernel: Kernel panic: ide: default attach failed
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Wed, Apr 07, 2004 at 11:27:38AM -0700, Andrew Morton wrote:
+> > I did it this way, relying on magical promotions:
+> > --- 25/fs/open.c~nfs-32bit-statfs-fix-warning-fix	2004-04-06 23:16:25.221685072 -0700
+> > +++ 25-akpm/fs/open.c	2004-04-06 23:16:25.225684464 -0700
+> > @@ -64,10 +64,10 @@ static int vfs_statfs_native(struct supe
+> >  			 * f_files and f_ffree may be -1; it's okay to stuff
+> >  			 * that into 32 bits
+> >  			 */
+> > -			if (st.f_files != 0xffffffffffffffffULL &&
+> > +			if (st.f_files != -1 &&
+> >  			    (st.f_files & 0xffffffff00000000ULL))
+> >  				return -EOVERFLOW;
+> > -			if (st.f_ffree != 0xffffffffffffffffULL &&
+> > +			if (st.f_ffree != -1 &&
+> >  			    (st.f_ffree & 0xffffffff00000000ULL))
 > 
-> And the machine promptly froze.  The problem, obviously, is that hdf
-> does not exist at all, so naturally the IDE driver had problem
-> extracting any reasonable information concerned about it.  I have tried
-> using both hdf=noprobe or hdf=none at the LILO prompt, but neither seems
-> to have any effect on this problem.
+> Are you sure this works? IIRC -1 is promoted only afterward, yielding
+> on 64-bit (1UL << 32) - 1 instead of ~0UL, which was the issue with
+> init_task.cpus_allowed being initialized to -1 on 2.4.x. Maybe it's
+> better behaved in this instance (language lawyer territory).
 
-I finally managed to track down the problem.  In 2.6.5, ide-probe.c
-line 291 there is this piece of code:
 
-    if ((a ^ s) & ~INDEX_STAT) {
-        printk(KERN_INFO "%s: probing with STATUS(0x%02x) instead of "
-                "ALTSTATUS(0x%02x)\n", drive->name, s, a);
-        /* ancient Seagate drives, broken interfaces */
-       hd_status = IDE_STATUS_REG;
+This says yes:
 
-This alternative probing mechanism caused the kernel to conclude that
-the device hdf does exist, and disabling this ancient Seagate drive
-probing functionality fixed my problem (but obviously breaks the
-probing of the said ancient drives).
+main()
+{
+	unsigned long long ll = 0xffffffffffffffff;
 
-What would be a good way to resolve this problem?
+	if (ll == -1)
+		printf("yes\n");
+}
 
--- 
-Chuan-kai Lin
-http://www.cse.ogi.edu/~linchuan/
+The compiler has ((int)-1) and then has to promote it to ULL.  If it does
+the conversion to unsigned before the conversion to long long, we lose. 
+But it doesn't, and I couldn't immediately find a spec which justfies this
+behaviour.
 

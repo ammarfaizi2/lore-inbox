@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266425AbTABTO5>; Thu, 2 Jan 2003 14:14:57 -0500
+	id <S266434AbTABTXo>; Thu, 2 Jan 2003 14:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbTABTO5>; Thu, 2 Jan 2003 14:14:57 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:22424 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S266425AbTABTOz>;
-	Thu, 2 Jan 2003 14:14:55 -0500
-Date: Thu, 2 Jan 2003 21:23:16 +0200
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 133 on a 40 pin cable
-Message-ID: <20030102192316.GA28781@linux.kappa.ro>
-References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk> <20030102185921.GA28107@linux.kappa.ro> <3E14911C.7010009@rackable.com>
+	id <S266433AbTABTXo>; Thu, 2 Jan 2003 14:23:44 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:16391 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S266434AbTABTXn>;
+	Thu, 2 Jan 2003 14:23:43 -0500
+Date: Thu, 2 Jan 2003 20:32:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "BODA Karoly jr." <woockie@expressz.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.54-sparc64 compile errors
+Message-ID: <20030102193209.GB18197@mars.ravnborg.org>
+Mail-Followup-To: "BODA Karoly jr." <woockie@expressz.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1030102191604.22760J-100000@ligur.expressz.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E14911C.7010009@rackable.com>
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+In-Reply-To: <Pine.LNX.3.96.1030102191604.22760J-100000@ligur.expressz.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >00:11.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master 
-> >IDE (rev 06)
-> >
-> >hdd: Maxtor 6Y060L0, ATA DISK drive
-> >
-> >the harddisk is DiamondPlus9 60GB 7200 rpm UDMA133 .. and the mainbboard 
-> >is Soltek 75-FRV
-> >with KT400 chipset
-> > 
-> >
+On Thu, Jan 02, 2003 at 07:50:59PM +0100, BODA Karoly jr. wrote:
+> Hi!
 > 
->  What's hdc?  Hdd is the secondary slave.  If it's the only device on 
-> the chain you should make sure you jumper the drive as a master.
+> Some errors and patches, but I'm not sure they are correct:
+> 
+> o There was no archclean which is needed to make clean
 
-HDC it's a CD-RW .. it was not used at the time of the error ( i was doing
-mke2fs on hdd1 when I got those errors in dmesg ).
+This one is my bad. Deleted accidently when moving archhelp.
+
+Your mailer screwed up all tabs, so patch did not apply.
+Also cc: sparclinux@vger.kernel.org next time.
+
+	Sam
 
 > 
+> --- arch/sparc64/Makefile       2003-01-02 04:23:15.000000000 +0100
+> +++ arch/sparc64/Makefile~      2003-01-02 16:56:48.000000000 +0100
+> @@ -74,6 +74,9 @@ drivers-$(CONFIG_OPROFILE)    += arch/sparc
+>  tftpboot.img vmlinux.aout:
+>         $(Q)$(MAKE) $(build)=arch/sparc64/boot arch/sparc64/boot/$@
 > 
-> -- 
-> There is no such thing as obsolete hardware.
-> Merely hardware that other people don't want.
-> (The Second Rule of Hardware Acquisition)
-> Sam Flory  <sflory@rackable.com>
+> +archclean:
+> +       $(Q)$(MAKE) $(clean)=arch/sparc64/boot
+> +
+>  define archhelp
+>    echo  '* vmlinux       - Standard sparc64 kernel'
+>    echo  '  vmlinux.aout  - a.out kernel for sparc64'
 > 
 > 
-
--- 
-      Teodor Iacob,
-Network Administrator
-Astral TELECOM Internet

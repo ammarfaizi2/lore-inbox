@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268257AbTBYSFR>; Tue, 25 Feb 2003 13:05:17 -0500
+	id <S268105AbTBYSVA>; Tue, 25 Feb 2003 13:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268273AbTBYSFR>; Tue, 25 Feb 2003 13:05:17 -0500
-Received: from cdm-208-20-158-pfvl.cox-internet.com ([208.180.20.158]:57484
-	"EHLO hzoli.home") by vger.kernel.org with ESMTP id <S268257AbTBYSFP>;
-	Tue, 25 Feb 2003 13:05:15 -0500
-Subject: [PATCH 2.4.21-pre4-ac4] nForce/AMD 80 wire IDE cable detection
-To: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Date: Tue, 25 Feb 2003 12:15:30 -0600 (CST)
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	id <S268128AbTBYSVA>; Tue, 25 Feb 2003 13:21:00 -0500
+Received: from bay2-dav37.bay2.hotmail.com ([65.54.246.94]:18954 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id <S268105AbTBYSU7>;
+	Tue, 25 Feb 2003 13:20:59 -0500
+X-Originating-IP: [24.186.227.45]
+From: "Mark F." <daracerz@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [2.5.63] Kernel Panic During Boot (Swap???)
+Date: Tue, 25 Feb 2003 12:44:03 -0500
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E18njc2-0005mU-00@hzoli.home>
-From: Zoltan Hidvegi <amd_80w@hzoli.2y.net>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <BAY2-DAV37gUSp3sJWG0000bad4@hotmail.com>
+X-OriginalArrivalTime: 25 Feb 2003 18:31:10.0047 (UTC) FILETIME=[115556F0:01C2DCFC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-amd74xx.c in 2.4.21-pre4-ac4 uses an uninitialized variable to set the
-cable type.  I have made a simple fix that I have tried it with an MSI
-K7N2G-ILSR nForce2 board.  With this patch the 80 wire cable on my
-primary IDE is detected by the workaround, but the secondary IDE is
-still incorrectly reported as 40 wire, so something may still be
-wrong.  See below some IDE boot messages and the small patch.
-
-I am not subscribed to the list, so please CC me any reply.  The
-return e-mail address is temporary to prevent spam, if the mail
-bounces, resend it to hzoli instead of amd_80w.
-
-Zoli
+hello, heres the situation.  Compiled 2.5.63 with the mod-utils 0.9.9
+version.  Kernel worked the first couple of times using it.  but then, while
+trying to loaded some changes to it.  It now crashes each time with a Kernel
+Panic.  Reverting back to the my saved 2.4.21-pre3 I can still boot.  Also,
+undoing the kernel changes isn't kelping me.   Heres some of the code snip
+the kernel boot out.  and the location where:  (sorry if there are a couple
+of typos, typing it on another machine):  This is redhat 8 based on a Compaq
+900z which runs off of the Radeon IGP 320M Chipset.
 
 
-NFORCE2: IDE controller at PCI slot 00:09.0
-NFORCE2: chipset revision 162
-NFORCE2: not 100% native mode: will probe irqs later
-AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.
-AMD_IDE: PCI device 10de:0065 (nVidia Corporation) (rev a2) UDMA100 controller o
-n pci00:09.0
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC WD1200JB-75CRA0, ATA DISK drive
-hdc: RIDATA DVD+RW DRIVE, ATAPI CD/DVD-ROM drive
-
-----------AMD BusMastering IDE Configuration----------------
-Driver Version:                     2.9
-South Bridge:                       PCI device 10de:0065 (nVidia Corporation)
-Revision:                           IDE 0xa2
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xf000
-PCI clock:                          33.3MHz
------------------------Primary IDE-------Secondary IDE------
-Prefetch Buffer:              yes                 yes
-Post Write Buffer:            yes                 yes
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA       DMA      UDMA       DMA
-Address Setup:       30ns      90ns      30ns      90ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns     330ns      90ns     330ns
-Data Recovery:       30ns     270ns      30ns     270ns
-Cycle Time:          20ns     600ns      60ns     600ns
-Transfer Rate:   99.9MB/s   3.3MB/s  33.3MB/s   3.3MB/s
+Enabling local filesystem quotas:            [ OK ]
+Enabling swap space:                            [ OK ]
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:        0060:[<00000000>]    Not tainted
+EFLAGS: 00010246
+eax:  c037a640    ebc: c037a6ec    ecx: c1380040    edx: 00000174
+esi:    ce538700    edi: c1380040    ebp: 00000001    esp: c031beb4
+ds: 007b    es: 007b    ss: 0068
+Process swapper (pid: 0, threadinfo=c031a000 task=c02d3500
+Stack: cf8bbd06 c037a6ec 00000174 ce538740 c037a6ec c138b818 c037a6ec
+00000000
+           c138b0c0 0000000f c020e419 c037a6ec ce538700 00000000 00000088
+0000001e
+            cee8ad80 c138b0c0 c037a6ec cee8ad80 c020e619 c037a6ec c138b0c0
+c037a820
+Call Trace:  [<cf8bbd06>] [<c020e419>] [<c020e619>] [<c020ec08>]
+[<cf8bb760>]
+    [<c010cd78>] [<c010cfa7>] [<c0108af0>] [<c0108af0>] [<c010b94c>]
+[<c0108af0>]
+    [<c0108af0>] [<c0108b14>] [<c0108b8e>] [<c0105000>]
+Code:    Bad EIP value.
+    <0> Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
 
- --- drivers/ide/pci/amd74xx.c~	Fri Feb 14 10:22:25 2003
- +++ drivers/ide/pci/amd74xx.c	Tue Feb 25 11:31:53 2003
- @@ -309,7 +309,8 @@
-  
-  		case AMD_UDMA_100:
-  			pci_read_config_byte(dev, AMD_CABLE_DETECT, &t);
- -			amd_80w = ((u & 0x3) ? 1 : 0) | ((u & 0xc) ? 2 : 0);
- +			amd_80w = ((t & 0x3) ? 1 : 0) | ((t & 0xc) ? 2 : 0);
- +			pci_read_config_dword(dev, AMD_UDMA_TIMING, &u);
-  			for (i = 24; i >= 0; i -= 8)
-  				if (((u >> i) & 4) && !(amd_80w & (1 << (1 - (i >> 4))))) {
-  					printk(KERN_WARNING "AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.\n");
+I can reproduce this consistantly so far, so will give any information I can
+give ya.  I'm gonna go and continue modding the kernel to see if i can break
+it down or see the solution.
+Mark

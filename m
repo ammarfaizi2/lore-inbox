@@ -1,92 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312295AbSCYE00>; Sun, 24 Mar 2002 23:26:26 -0500
+	id <S312296AbSCYEbP>; Sun, 24 Mar 2002 23:31:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312296AbSCYE0Q>; Sun, 24 Mar 2002 23:26:16 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:32521 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S312295AbSCYEZ7>; Sun, 24 Mar 2002 23:25:59 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: bit ops on unsigned long? 
-In-Reply-To: Your message of "Sun, 24 Mar 2002 19:45:26 PDT."
-             <200203250245.g2P2jQa20821@vindaloo.ras.ucalgary.ca> 
-Date: Mon, 25 Mar 2002 15:27:56 +1100
-Message-Id: <E16pM5N-0000zb-00@wagner.rustcorp.com.au>
+	id <S312298AbSCYEbF>; Sun, 24 Mar 2002 23:31:05 -0500
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:6668 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S312296AbSCYEbC>; Sun, 24 Mar 2002 23:31:02 -0500
+Message-ID: <009601c1d3b6$65f18440$910110ac@samsi>
+From: "Sam" <mrjackin@yahoo.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: patch for RT signal
+Date: Mon, 25 Mar 2002 10:04:42 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200203250245.g2P2jQa20821@vindaloo.ras.ucalgary.ca> you write:
-> Rusty Russell writes:
-> > Richard: 3 bugs in devfs.  Particularly note that the memset was
-> > bogus.  I can't convince myself that your memcpy & memset stuff is
-> > right anyway, given that you can ONLY treat them as unsigned longs
-> > (ie. bit 31 will be in byte 0 or byte 3, depending on endianness).
-> 
-> Yes, the memset is bogus because I didn't cast the pointer to a
-> char * or void *.
+Hello All,
 
-Yes.
+Where can i get RT signal patch latest kernel
 
-> The memcpy should be fine, though. And so should
-> everything else, because the bitfield array is allocated in 16 byte
-> multiples.
+Thanks
+Sam
 
-No:
 
- struct major_list
- {
-     spinlock_t lock;
--    __u32 bits[8];
-+    unsigned long bits[256 / BITS_PER_LONG];
- };
- 
- /*  Block majors already assigned:
-@@ -212,7 +212,7 @@
- struct minor_list
- {
-     int major;
--    __u32 bits[8];
-+    unsigned long bits[256 / BITS_PER_LONG];
-     struct minor_list *next;
- };
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-These changed are required because otherwise you try to do set_bit on
-something not aligned as a long on all archs.
-
-(Turning to the gallery) I assert: if you're going to do bitops on it,
-make it a "unsigned long".
-
-> So there should be no issues with big vs. little endian,
-> since memset/memcpy operations are done in blocks of sufficient
-> alignment.
-
-I think you're right, as long as length is always a multiple of
-sizeof(long).  This is not obvious from this hunk of code alone, which
-is why I queried it...
-
-    if (space->num_free < 1)
-    {
-	if (space->length < 16) length = 16;
-	else length = space->length << 1;
-	if ( ( bits = vmalloc (length) ) == NULL )
-	{
-	    up (&space->semaphore);
-	    return -ENOMEM;
-	}
-	if (space->bits != NULL)
-	{
-	    memcpy (bits, space->bits, space->length);
-	    vfree (space->bits);
-	}
-	space->num_free = (length - space->length) << 3;
-	space->bits = bits;
-	memset (bits + space->length, 0, length - space->length);
-	space->length = length;
-    }
-
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

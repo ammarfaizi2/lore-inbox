@@ -1,105 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269728AbUJAJyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269730AbUJAJza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269728AbUJAJyj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 05:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269730AbUJAJyj
+	id S269730AbUJAJza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 05:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269731AbUJAJza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 05:54:39 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:39775 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S269728AbUJAJyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 05:54:35 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Date: Fri, 1 Oct 2004 11:54:32 +0200
-User-Agent: KMail/1.7
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200410010130.51769.bzolnier@elka.pw.edu.pl> <20041001091825.GC3008@suse.de>
-In-Reply-To: <20041001091825.GC3008@suse.de>
+	Fri, 1 Oct 2004 05:55:30 -0400
+Received: from mgw-x1.nokia.com ([131.228.20.21]:44434 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id S269730AbUJAJzO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 05:55:14 -0400
+X-Scanned: Fri, 1 Oct 2004 12:54:37 +0300 Nokia Message Protector V1.3.31 2004060815 - RELEASE
+Message-ID: <415D28B7.5070306@nokia.com>
+Date: Fri, 01 Oct 2004 12:51:51 +0300
+From: =?UTF-8?B?VGltbyBUZXLDpHM=?= <ext-timo.teras@nokia.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410011154.32670.petkov@uni-muenster.de>
+To: Robert Love <rml@novell.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: kobject events questions
+References: <415ABA96.6010908@nokia.com> <1096486749.4666.31.camel@betsy.boston.ximian.com>
+In-Reply-To: <1096486749.4666.31.camel@betsy.boston.ximian.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6217750C3141C8B3008FA2E8"
+X-OriginalArrivalTime: 01 Oct 2004 09:54:14.0114 (UTC) FILETIME=[9BA38C20:01C4A79C]
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 11:18, Jens Axboe wrote:
-> On Fri, Oct 01 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Thursday 30 September 2004 23:46, Borislav Petkov wrote:
-> > > On Thursday 30 September 2004 18:25, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
-> > > > > On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz 
-wrote:
-> > > > > > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
-> > > > > > > ide broke :(   Maybe Bart's bk tree?
-> > > > > >
-> > > > > > no, disk works just fine ;)  If it is my tree I will happilly fix
-> > > > > > it.
-> > > > > >
-> > > > > > Borislav, could you apply only these patches from -mm4 and
-> > > > > > retest?
-> > > > > >
-> > > > > > linus.patch
-> > > > > > bk-ide-dev.patch
-> > > > > >
-> > > > > > > Begin forwarded message:
-> > > > > > >
-> > > > > > > Date: Wed, 29 Sep 2004 12:43:35 +0200
-> > > > > > > From: Borislav Petkov <petkov@uni-muenster.de>
-> > > > > > > To: Andrew Morton <akpm@osdl.org>
-> > > > > > > Cc: linux-kernel@vger.kernel.org
-> > > > > > > Subject: Re: 2.6.9-rc2-mm4
-> > > > > > >
-> > > > > > >
-> > > > > > > <snip>
-> > > > > > >
-> > > > > > > Hello,
-> > > > > > >  I've already posted about problems with audio extraction but
-> > > > > > > it went unnoticed. Here's a recount: When I attempt to read an
-> > > > > > > audio cd into wavs with cdda2wav, the process starts but after
-> > > > > > > a while the completion meter freezes and klogd says "hdc: lost
-> > > > > > > interrupt" and cdda2wav hangs itself. Disabling DMA doesn't
-> > > > > > > help as well as the boot option "pci=routeirq" too. Older
-> > > > > > > kernels like 2.6.7 do not show such behavior and there audio
-> > > > > > > extraction runs fine. Sysinfo attached.
-> > > > > > >
-> > > > > > > Regards,
-> > > > > > > Boris.
-> > > > >
-> > > > > Hi people,
-> > > > >
-> > > > >  well, I've applied the above patches but no change - same "hdc:
-> > > > > lost interrupt" message. 2.6.9-rc3 behaves the same, as expected.
-> > > >
-> > > > Well, if 2.6.9-rc3 fails then it is not my tree...
-> > > >
-> > > > Please find kernel version which introduces this bug.
-> > >
-> > > Just compiled 2.6.8.1 and tested audio extraction. The bug is there.
-> > > After that, reran the test with 2.6.7. Everything went fine. So it must
-> > > have been between 2.6.7 and 2.6.8.1 when the bug got introduced. Any
-> > > additional debugging options in the ATA/IDE cd driver i could turn on
-> > > so that I could get more verbose messages while executing cdda2wav?
-> >
-> > I'm not aware of any.  Jens?
->
-> I don't see any changes that could impact this from 2.6.7 to 2.6.8. We
-> tightened the dma alignment (from 4 to 32 bytes), but should not cause
-> problems going in that direction. Unless the other path is buggy, of
-> course.
->
-> Does dma make a difference? Please try 2.6.9-rc3 as well.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6217750C3141C8B3008FA2E8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Sorry guys,
+Robert Love wrote:
+> On Wed, 2004-09-29 at 16:37 +0300, Timo Teräs wrote:
+>>1) Send the events so that they are always associated with the network 
+>>devices class_device kobject. I guess this would be quite clean way to 
+>>do it, but it'd require adding a new signal type and would limit the 
+>>iptables target to be associated always with a interface.
+>>
+>>2) Create a device class that has virtual timer devices that trigger 
+>>events (ie. /sys/class/utimer). Each timer could have some attributes 
+>>(like expired, expire_time, etc.) and would emit "change" signals 
+>>whenever timer expires.
+> 
+> Well, #1 is the intention and spirit of the kevent system.
+> 
+> And adding a new signal type is fine.
+> 
+> So the only downside is that the table to interface association thing.
+> I have no idea how big an issue that is for you.
 
-still a no go. Tested today 2.6.8.1 and 2.6.9-rc3 both with DMA on/off. same 
-lost interrupt message. How about a hardware problem? Maybe the cd-drive is 
-showing some hidden "features" under certain conditions, although it is 
-highly unlikely since 2.6.7 runs fine. strange...
+I'm just a bit dubious about adding new signals since they are hardcoded 
+in the kernel. It's a time consuming process to add new signals (either 
+for development build or for official kernels). This is one of the 
+reasons I liked more about the original kevent patch. Wouldn't simple 
+#defines have been enough for signal names?
 
-Boris.
+> You could of course create a new kobject, ala #2, but that does not seem
+> optimal if the object is otherwise worthless.  I don't think that you
+> should create a new class.  Better to put something under /sys/net
+> related to what you are doing.
+
+I thought quite a bit about to where add my kobjects. I couldn't find a 
+/sys/net on my current system (am I missing some config option?). If you 
+mean /sys/class/net aren't all kobject in there supposed to be of same 
+type (namely class_device associated with net_device). Of course I could 
+add them under some interface, but then again my iptables rules would 
+have to be interface specific and this is the thing I'm trying to avoid 
+in this approach. Adding to /sys would be an overkill as it'd require 
+implementing a subsystem. And I couldn't find any other suitable place 
+so ended up making a new class.
+
+I actually made some test code to add a new class and it's relatively 
+simple. But I guess it isn't really useful if I'd be the only user. 
+Maybe it could have some features that'd make it more generic?
+
+Of course, I could use the "connector" patch that Greg pointed, but I'd 
+still like more the kevent approach. Namely, it'd make my userland app 
+much simpler.
+
+Cheers,
+   Timo
+
+--------------enig6217750C3141C8B3008FA2E8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBXSi6FlRU9HaAsIcRAh0FAJ4ot/dv3sNrCk2H968BwrJwI5OidACdFSu8
+9PUTQ6Usjns1pR2V5/4Hw54=
+=DxiC
+-----END PGP SIGNATURE-----
+
+--------------enig6217750C3141C8B3008FA2E8--

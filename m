@@ -1,27 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVAGRwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVAGR4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVAGRwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAGRwO
+	id S261455AbVAGR4D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVAGRzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:52:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37055 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261382AbVAGRsd (ORCPT
+	Fri, 7 Jan 2005 12:55:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36291 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261379AbVAGRym (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:48:33 -0500
-Date: Fri, 7 Jan 2005 09:48:23 -0800 (PST)
+	Fri, 7 Jan 2005 12:54:42 -0500
+Date: Fri, 7 Jan 2005 09:54:16 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>  <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
- <1105113998.24187.361.camel@localhost.localdomain>
- <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, linux@brodo.de
+Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
+In-Reply-To: <41DEC0BF.4010708@osdl.org>
+Message-ID: <Pine.LNX.4.58.0501070949410.2272@ppc970.osdl.org>
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org>
+ <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
+ <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
+ <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com>
+ <41DEC0BF.4010708@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,38 +32,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 7 Jan 2005, Linus Torvalds wrote:
+On Fri, 7 Jan 2005, Randy.Dunlap wrote:
 > 
-> So the "standard behaviour" (aka just plain read/write on the pipe) is all
-> the same copies that it used to be.
+> Brodo, can you add a little more info to this, please?
 
-I want to highlight this again. The increase in throughput did _not_ come
-from avoiding a copy. It came purely from the fact that we have multiple
-buffers, and thus a throughput-intensive load gets to do several bigger
-chunks before it needs to wait for the recipient. So the increase in
-throughput comes from fewer synchronization points (scheduling and
-locking), not from anything else.
+I think for something like this to be really useful, you should not just
+say "can be replaced with Xxxx", but have some docs (or pointers to such)
+for both users and developers (depending on who is affected) on _how_ to 
+replace it, or fix it.
 
-Another way of saying the same thing: pipes actually used to have clearly
-_lower_ bandwidth than UNIX domain sockets, even though clearly pipes are
-simpler and should thus be able to be faster. The reason? UNIX domain
-sockets allow multiple packets in flight, and pipes only used to have a
-single buffer. With the new setup, pipes get roughly comparable
-performance to UNIX domain sockets for me.
+Also, I'm not convinced about the single-file format. If we want to do
+this (I don't know how much it buys, but hey, I certainly also don't have
+any objections), I think it would be much nicer to have a separate 
+"deprecated" subdirectory, with one file per issue. 
 
-Sockets can still outperform pipes, truth be told - there's been more
-work on socket locking than on pipe locking. For example, the new pipe
-code should conceptually really allow one CPU to empty one pipe buffer
-while another CPU fills another pipe buffer, but because I kept the
-locking structure the same as it used to be, right now read/write
-serialize over the whole pipe rather than anything else.
+(Not that I think it necessarily needs to be just about deprecated or 
+removed features - again, if we do this, I don't see why it shouldn't 
+contain the same information about semantic changes, so that when the 
+locking for an interface changes, you could have a
 
-This is the main reason why I want to avoid coalescing if possible: if you
-never coalesce, then each "pipe_buffer" is complete in itself, and that
-simplifies locking enormously.
+	Documentation/changes/vfs-ioctl-locking.txt
 
-(The other reason to potentially avoid coalescing is that I think it might
-be useful to allow the "sendmsg()/recvmsg()" interfaces that honour packet
-boundaries. The new pipe code _is_ internally "packetized" after all).
+that tells what the new rules are).
 
-				Linus
+Would most of the files be small? Sure hope so. But so what?
+
+		Linus

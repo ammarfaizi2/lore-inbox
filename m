@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293162AbSCTAKg>; Tue, 19 Mar 2002 19:10:36 -0500
+	id <S293186AbSCTAP4>; Tue, 19 Mar 2002 19:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293182AbSCTAK1>; Tue, 19 Mar 2002 19:10:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4371 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293162AbSCTAKM>; Tue, 19 Mar 2002 19:10:12 -0500
-Subject: Re: [patch] My AMD IDE driver, v2.7
-To: pavel@suse.cz (Pavel Machek)
-Date: Wed, 20 Mar 2002 00:25:58 +0000 (GMT)
-Cc: vojtech@suse.cz (Vojtech Pavlik), pavel@suse.cz (Pavel Machek),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        galibert@pobox.com (Olivier Galibert),
-        linux-kernel@vger.kernel.org (LKML)
-In-Reply-To: <20020319212130.GG12260@atrey.karlin.mff.cuni.cz> from "Pavel Machek" at Mar 19, 2002 10:21:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293187AbSCTAPq>; Tue, 19 Mar 2002 19:15:46 -0500
+Received: from pogo.esscom.com ([199.89.135.169]:29968 "EHLO esscom.com")
+	by vger.kernel.org with ESMTP id <S293186AbSCTAP3>;
+	Tue, 19 Mar 2002 19:15:29 -0500
+Date: Tue, 19 Mar 2002 17:14:15 -0700 (MST)
+From: Kurt Ferreira <kferreir@esscom.com>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: yodaiken@fsmlabs.com, Rik van Riel <riel@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <Pine.LNX.4.10.10203191605190.23878-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.21.0203191713360.14717-100000@pogo.esscom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nTvS-0000md-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > receives a command when not spinned up. You need to issue a wake command
-> > first, which hdparm doesn't, it just leaves it to the kernel to issue a
-> > read command or whatever to wake the drive ...
-> 
-> Is this common disk bug, or are they permitted to behave like that?
+Hey,
 
-Its not that common, but these sort of things happen sometimes. IDE is
-very much a defensive driver 
+On Tue, 19 Mar 2002, James Simmons wrote:
+
+> 
+> > On Tue, Mar 19, 2002 at 08:08:24PM -0300, Rik van Riel wrote:
+> > > On Tue, 19 Mar 2002, Alan Cox wrote:
+> > > 
+> > > > Hans Reiser's team of Russian wizards is simply a couple of years ahead
+> > > > of everyone else moving all real software development to the czech
+> > > > republic and india,
+> > > 
+> > > Hey, don't forget about Brazil ;)
+> > 
+> > Or New Mexico. Third world software development wins again!  
+> 
+> New Mexico is in the US. Third World??? 
+>
+
+I see you have never lived in Socorro, NM ;)
+
+Kurt
+

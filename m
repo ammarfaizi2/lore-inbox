@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDCJAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVDCJDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVDCJAA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 05:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDCI7b
+	id S261621AbVDCJDc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 05:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDCJDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 04:59:31 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:36557 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261621AbVDCI7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 04:59:24 -0400
-Message-ID: <424FB06B.3060607@yandex.ru>
-Date: Sun, 03 Apr 2005 12:59:23 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au>
-In-Reply-To: <20050403084415.GA20326@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 3 Apr 2005 05:03:32 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52895 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261621AbVDCJD3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 05:03:29 -0400
+Date: Sun, 3 Apr 2005 01:01:39 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: mingo@elte.hu, kenneth.w.chen@intel.com, torvalds@osdl.org,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403010139.275b8ece.pj@engr.sgi.com>
+In-Reply-To: <20050402215332.79ff56cc.pj@engr.sgi.com>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Surely that defeats the purpose of pcompress? I thought the whole point
-> was to compress as much of the input as possible into the output?
-Absolutely correct.
+Earlier, Paul wrote:
+> Note the first 3 chars of the panic message "4.5".  This looks like it
+> might be the [00]-[01] entry of Ingo's table, flushed out when the
+> newlines of the panic came through.
 
-> So 1G into 1G doesn't make sense here.
-I thought you are afraid about the case of a totally random input which 
-may *grow* after it has been compressed.
+For the record, the above speculation is probably wrong.
 
-> But 1G into 1M does and you
-> want to put as much as you can in there.  Otherwise we might as well
-> delete crypto_comp_pcompress :)
-
-Err, it looks like we've lost the conversation flow. :-) I commented 
-your phrase: "The question is what happens when you compress 1 1GiB 
-input buffer into a 1GiB output buffer."
-
-Then could you please in a nutshell write what worries you or what issue 
-you would like to clarify?
-
-IIRC, you worried that in case of a large input and output 12 bytes 
-won't be enough. I argued it should. I'm even going to check this soon :-)
+More likely, the first six characters "4.5(0)" of my quoted panic
+message came out some time before the panic, and represent the the
+[0]-[1] entry of the table.  These six chars came out at approx.
+nine minutes into the calculation, and the timer panic'd the system at
+ten minutes.  I didn't look at the screen between the 9th and 10th
+minute, to realize that it had finally computed one table entry.
 
 -- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

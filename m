@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267594AbSLFTsn>; Fri, 6 Dec 2002 14:48:43 -0500
+	id <S267593AbSLFTsf>; Fri, 6 Dec 2002 14:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267595AbSLFTsn>; Fri, 6 Dec 2002 14:48:43 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:4359 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S267594AbSLFTsl>; Fri, 6 Dec 2002 14:48:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-Organization: UW Condor
-To: Robert Love <rml@tech9.net>
-Subject: Re: Detecting threads vs processes with ps or /proc
-Date: Fri, 6 Dec 2002 13:56:16 -0600
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200212060924.02162.nleroy@cs.wisc.edu> <1039204112.1943.2142.camel@phantasy>
-In-Reply-To: <1039204112.1943.2142.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212061356.16022.nleroy@cs.wisc.edu>
+	id <S267594AbSLFTsf>; Fri, 6 Dec 2002 14:48:35 -0500
+Received: from pc-80-195-35-2-ed.blueyonder.co.uk ([80.195.35.2]:45188 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S267593AbSLFTse>; Fri, 6 Dec 2002 14:48:34 -0500
+Subject: Re: [patch] fix the ext3 data=journal unmount bug
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       ext3 users list <ext3-users@redhat.com>
+In-Reply-To: <3DF0FE4F.5F473D5E@digeo.com>
+References: <3DF0F69E.FF0E513A@digeo.com> <1039203287.9244.97.camel@tiny> 
+	<3DF0FE4F.5F473D5E@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Dec 2002 19:57:55 +0000
+Message-Id: <1039204675.5301.55.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 December 2002 1:48 pm, Robert Love wrote:
-> On Fri, 2002-12-06 at 10:24, Nick LeRoy wrote:
-> > >From what else I've read, it seems that the new threading model in
-> > > 2.5/2.6 is
-> >
-> > changing to a more POSIX friendly model, which will effect this answer,
-> > but we're not running 2.5 and really can't force such an upgrade -- hell,
-> > right now we're having problems getting a switch from 2.2 pushed through.
->
-> Yep, you should get what you want with 2.5 + NPTL.  We need to add a few
-> bits, though, to make it complete.
->
-> > Thanks _very_ much in advance.  I'd be tickled pink if the answer is
-> > something like "just look at the foo flag in ps", or "upgrade to version
-> > 1.2.3.4 of procps and do xyzzy", but my intuition tells me otherwise.
->
-> See http://tech9.net/rml/procps
->
-> and "upgrade to version 2.0.8 or later of procps" :)
->
-> It is just a heuristic, though.  A hack in fact.  We look at a process's
-> children and compare RSS, VM size, and the process image they are
-> running.  If they are the same, we label them threads.
+Hi,
 
-I was considerring doing something like this as well.  From your experience, 
-does it work reliably?  Do you need to apply a small 'fudge factor' (aka 
-VMsize.1 ~= VMsize.2)?
+On Fri, 2002-12-06 at 19:45, Andrew Morton wrote:
 
-> It is the default behavior.  Flag `-m' turns it off.
->
-> See thread_group() and flag_threads().
+> > I see what ext3 gains from your current patch in the unmount case, but
+> > the sync case is really unchanged because of interaction with kupdate.
+> 
+> True.  And I'd like /bin/sync to _really_ be synchronous because
+> I use `reboot -f' all the time.  Even though SuS-or-POSIX say that
+> sync() only needs to _start_ the IO.  That's rather silly.
 
-I assume these are functions in the tools themselves?
+But at the same time I'd like to avoid sync becoming serialised on its
+writes.  If you've got a lot of filesystems mounted, doing each
+filesystem's sync sequentially and synchronously is going to be a lot
+slower than allowing async syncs.  In other words, for sync(2) we really
+want async commit submission followed by a synchronous wait for
+completion.  And that's probably more churn than I'd like to see at this
+stage for 2.4.
 
-> 	Robert Love
-
-Thanks
-
--Nick
+Cheers, 
+ Stephen
 

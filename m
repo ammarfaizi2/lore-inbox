@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288007AbSABXZy>; Wed, 2 Jan 2002 18:25:54 -0500
+	id <S287999AbSABXaR>; Wed, 2 Jan 2002 18:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287986AbSABXYK>; Wed, 2 Jan 2002 18:24:10 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:10116
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287972AbSABXWy>; Wed, 2 Jan 2002 18:22:54 -0500
-Date: Wed, 2 Jan 2002 18:09:26 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102180926.B21788@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102173419.A21165@thyrsus.com> <E16LuW5-0005w3-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S287169AbSABX2p>; Wed, 2 Jan 2002 18:28:45 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:53632 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S287976AbSABX1f>; Wed, 2 Jan 2002 18:27:35 -0500
+To: paulus@samba.org
+Cc: Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'Tom Rini'" <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3ED@IIS000>
+	<15411.37236.181936.39729@argo.ozlabs.ibm.com>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <15411.37236.181936.39729@argo.ozlabs.ibm.com>
+Date: 03 Jan 2002 01:27:42 +0200
+Message-ID: <87d70suydt.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16LuW5-0005w3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 02, 2002 at 11:09:49PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> Of course it isnt. cat /proc/dmi executes kernel mode code which is totally
-> priviledged. /sbin/dmidecode executes slightly priviledged code which will
-> core dump not crash the box if it misparses the mapped table.
+>>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+Paul> As I said in another email, if the gcc maintainers want to change gcc
+Paul> so that pointer arithmetic can do anything other than an ordinary 2's
+Paul> complement addition operation, 
 
-You're thinking inside-out again.  Sigh...user privileges. *User* privileges! 
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Nobody changes pointer arithmetic. The problem is that this
+optimization gives _negative_ length, because the resulting pointer
+does not point inside or one past the end of the array, which in turn
+is explicitly mentioned in the standard as undefined behavior.
 
-.. a government and its agents are under no general duty to 
-provide public services, such as police protection, to any 
-particular individual citizen...
-        -- Warren v. District of Columbia, 444 A.2d 1 (D.C. App.181)
+Paul> ... then we will stop using gcc.
+
+Specifically separated this part to state that I don't even care to
+comment on this. Doh, I did. Anyway ..
+
+Regards,
+-velco
+

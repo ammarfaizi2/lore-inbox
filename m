@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273783AbRJBNW5>; Tue, 2 Oct 2001 09:22:57 -0400
+	id <S273818AbRJBNht>; Tue, 2 Oct 2001 09:37:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273794AbRJBNWh>; Tue, 2 Oct 2001 09:22:37 -0400
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:11506 "EHLO
-	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S273783AbRJBNWR>; Tue, 2 Oct 2001 09:22:17 -0400
-Date: Tue, 2 Oct 2001 18:58:16 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] cacheline align rt_cache_stat struct
-Message-ID: <20011002185816.A8643@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
+	id <S273819AbRJBNh3>; Tue, 2 Oct 2001 09:37:29 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2311 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273818AbRJBNh1>; Tue, 2 Oct 2001 09:37:27 -0400
+Subject: Re: Athlon optimized kernels?
+To: devilkin@gmx.net (DevilKin)
+Date: Tue, 2 Oct 2001 14:43:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011002115402.00ad1c88@pop.gmx.net> from "DevilKin" at Oct 02, 2001 11:56:30 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15oPp8-0004fX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The per-cpu rt_cache_stat structure should be padded to cacheline
-to avoid sharing of cachelines between different CPUs. Here is a patch
-to do that for SMP kernels.
+> I've been hearing a lot here lately about optimized kernels for Athlons. Is 
+> this a kernel patch of some sort? And where can I find it - as I have a 
+> thunderbird system, I would love to try those out and help finding bugs in it!
 
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+The 2.4 kernels can be built with athlon optimised prefetch and memory
+copying. Pretty much all of the athlon related stuff is in Linus tree now
+(actually it may even all be there). 
 
-
-diff -urN linux-2.4.10/include/net/route.h linux-2.4.10+rt/include/net/route.h
---- linux-2.4.10/include/net/route.h	Thu Sep 27 11:59:45 2001
-+++ linux-2.4.10+rt/include/net/route.h	Tue Oct  2 18:34:45 2001
-@@ -105,7 +105,7 @@
-         unsigned int out_hit;
-         unsigned int out_slow_tot;
-         unsigned int out_slow_mc;
--};
-+} ____cacheline_aligned_in_smp;
- 
- extern struct ip_rt_acct *ip_rt_acct;
- 
-
+Alan

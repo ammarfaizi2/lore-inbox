@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310160AbSCFUVw>; Wed, 6 Mar 2002 15:21:52 -0500
+	id <S310157AbSCFUYc>; Wed, 6 Mar 2002 15:24:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310157AbSCFUVl>; Wed, 6 Mar 2002 15:21:41 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:21169 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S310160AbSCFUV2>;
-	Wed, 6 Mar 2002 15:21:28 -0500
-Subject: Re: [PATCH] 2.5: preemptive kernel on UP
-From: Robert Love <rml@tech9.net>
-To: george anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C866B56.AE2F63BD@mvista.com>
-In-Reply-To: <1015287099.865.3.camel@phantasy> 
-	<3C866B56.AE2F63BD@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 06 Mar 2002 15:21:20 -0500
-Message-Id: <1015446092.1482.6.camel@icbm>
+	id <S310141AbSCFUYX>; Wed, 6 Mar 2002 15:24:23 -0500
+Received: from mnh-1-14.mv.com ([207.22.10.46]:29704 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S310168AbSCFUYL>;
+	Wed, 6 Mar 2002 15:24:11 -0500
+Message-Id: <200203062025.PAA03727@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dwmw2@infradead.org (David Woodhouse), hpa@zytor.com (H. Peter Anvin),
+        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Wed, 06 Mar 2002 16:50:15 GMT."
+             <E16iecJ-0007Nn-00@the-village.bc.nu> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 06 Mar 2002 15:25:00 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-03-06 at 14:17, george anzinger wrote:
+alan@lxorguk.ukuu.org.uk said:
+> Doesn't seem to but it looks like madvise might be enough to make that
+> happen.
 
-> With out a lot of looking, wouldn't it be easier to just change fork?
+Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has the
+equivalent of MADV_DONTNEED) would need a hook in free_pages to make that
+happen.
 
-Don't we need to unlock the rq regardless of what fork does?
+> That BTW is an issue for more than UML - it has a bearing on running
+> lots of Linux instances on any supervisor/virtualising system like S/390
 
-Also, the alternative would be to set preempt_count to 0 if
-CONFIG_PREEMPT and 1 if CONFIG_PREEMPT && CONFIG_SMP.  I figured Linus
-would balk at that sort #if/#else in do_fork.  And, even then, is it
-safe to start the task with a preempt_count of 0?
+On a side note, the "unused memory is wasted memory" behavior that UML and 
+Linux/s390 inherit is also less than optimal for the host.
 
-	Robert Love
+				Jeff
 

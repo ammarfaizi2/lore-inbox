@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265670AbRGCJcI>; Tue, 3 Jul 2001 05:32:08 -0400
+	id <S261771AbRGCJiu>; Tue, 3 Jul 2001 05:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265660AbRGCJb6>; Tue, 3 Jul 2001 05:31:58 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:27828 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265673AbRGCJb4>; Tue, 3 Jul 2001 05:31:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Florian Schmitt <florian@galois.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
-Date: Tue, 3 Jul 2001 11:31:42 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3B40611D.F1485C1B@N-Club.de>
-In-Reply-To: <3B40611D.F1485C1B@N-Club.de>
-MIME-Version: 1.0
-Message-Id: <01070311300700.00765@phoenix>
-Content-Transfer-Encoding: 7BIT
+	id <S265682AbRGCJik>; Tue, 3 Jul 2001 05:38:40 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:65515 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265681AbRGCJiW>; Tue, 3 Jul 2001 05:38:22 -0400
+Date: Tue, 3 Jul 2001 10:38:09 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: michaelc <michaelc@turbolinux.com.cn>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: about kmap_high function
+Message-ID: <20010703103809.A29868@redhat.com>
+In-Reply-To: <3620762046.20010629150601@turbolinux.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3620762046.20010629150601@turbolinux.com.cn>; from michaelc@turbolinux.com.cn on Fri, Jun 29, 2001 at 03:06:01PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Does anybody else got these errors or knows about a solution for this ??
+On Fri, Jun 29, 2001 at 03:06:01PM +0800, michaelc wrote:
+>     I found that the kmap_high function didn't call __flush_tlb_one()
+> when it mapped a highmem page sucessfully, and I think it maybe
+> cause the problem that TLB may store obslete page table entries, but
+> the kmap_atomic() function do call the __flush_tlb_one(), someone tell
+> me what's the differenc between the kmap_atomic and kmap_high except
+> that kmap_atomic can be used in IRQ contexts. I appreciate in advance.
 
-Same problem here, it won't run at all on newer kernels. But it isn't even 
-100% stable in 2.2.x here - on very high network traffic the card stops 
-working. In this case, it helps to pull the network plug for a short time, 
-then everything goes back to normal. I reduced speed to 10MB, and now it is 
-stable at least in 2.2.x. 
-Any suggestions would be greatly appreciated. I even put the card into 
-another pci slot with exactly zero effect.
-There are drivers on smc.com, but they won't help either :-( 
+kmap_high is intended to be called routinely for access to highmem
+pages.  It is coded to be as fast as possible as a result.  TLB
+flushes are expensive, especially on SMP, so kmap_high tries hard to
+avoid unnecessary flushes.
+
+The way it does it is to do only a single, complete TLB flush of the
+whole kmap VA range once every time the kmap address ring cycles.
+That's what flush_all_zero_pkmaps() does --- it evicts old, unused
+kmap mappings and flushes the whole TLB range, so that we are
+guaranteed that there is a TLB flush between any two different uses of
+any given kmap virtual address.
+
+That way, we can avoid the cost of having to flush the TLB for every
+single kmap mapping we create.
+
+Cheers,
+ Stephen

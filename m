@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUDHSHo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 14:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDHSHo
+	id S262135AbUDHSKR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 14:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUDHSKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 14:07:44 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:52429 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262112AbUDHSHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 14:07:43 -0400
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-In-Reply-To: <20040408175158.GK31667@dualathlon.random>
-References: <Pine.LNX.4.44.0404081500520.7116-100000@localhost.localdomain>
-	<1081435237.1885.144.camel@mulgrave>
-	<20040408151415.GB31667@dualathlon.random>
-	<1081438124.2105.207.camel@mulgrave>
-	<20040408153412.GD31667@dualathlon.random>
-	<1081439244.2165.236.camel@mulgrave>
-	<20040408161610.GF31667@dualathlon.random>
-	<1081441791.2105.295.camel@mulgrave>
-	<20040408171017.GJ31667@dualathlon.random>
-	<1081446226.2105.402.camel@mulgrave> 
-	<20040408175158.GK31667@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Apr 2004 13:07:31 -0500
-Message-Id: <1081447654.1885.430.camel@mulgrave>
+	Thu, 8 Apr 2004 14:10:17 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32433
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262135AbUDHSKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 14:10:13 -0400
+Date: Thu, 8 Apr 2004 20:10:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rmap: nonlinear truncation
+Message-ID: <20040408181011.GM31667@dualathlon.random>
+References: <Pine.LNX.4.44.0404081441480.7010-100000@localhost.localdomain> <20040408152830.GC31667@dualathlon.random>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040408152830.GC31667@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-08 at 12:51, Andrea Arcangeli wrote:
-> that path can take as long as timeslice to run, not taking interrupts
-> for a whole scheduler timeslice is pretty bad.
+I'm not going to implement the proper nonlinaer truncation (to give more
+strength to disable-cap-lock) until 14 Apr, so feel free to go ahead if
+you want ;).
 
-OK, now I'm confused.  Where's the whole timeslice bit coming from? the
-parisc flush_dcache_code better not take a timeslice to execute
-otherwise we're in very serious performance trouble.
-
-Does it take as long as a timeslice to do mmap[_shared] list insertion?
-
-James
-
-
+btw, thanks a lot for spotting the truncate vs nonlinear bug in
+page_referenced too!

@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289929AbSAKMYa>; Fri, 11 Jan 2002 07:24:30 -0500
+	id <S289930AbSAKMZR>; Fri, 11 Jan 2002 07:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289930AbSAKMYV>; Fri, 11 Jan 2002 07:24:21 -0500
-Received: from petasus.iil.intel.com ([192.198.152.69]:7922 "EHLO
-	petasus.iil.intel.com") by vger.kernel.org with ESMTP
-	id <S289929AbSAKMYL>; Fri, 11 Jan 2002 07:24:11 -0500
-Message-ID: <3C3ED949.4030604@intel.com>
-Date: Fri, 11 Jan 2002 14:23:37 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Organization: Intel
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289931AbSAKMZB>; Fri, 11 Jan 2002 07:25:01 -0500
+Received: from svr3.applink.net ([206.50.88.3]:2826 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S289930AbSAKMYo>;
+	Fri, 11 Jan 2002 07:24:44 -0500
+Message-Id: <200201111224.g0BCOYSr001179@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "David S. Miller" <davem@redhat.com>, timothy.covell@ashavan.org
+Subject: Re: strange kernel message when hacking the NIC driver
+Date: Fri, 11 Jan 2002 06:20:42 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: zhengpei@msu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <LIECKFOKGFCHAPOBKPECEEGCCNAA.zhengpei@msu.edu> <200201111159.g0BBxCSr001144@svr3.applink.net> <20020111.040715.48529485.davem@redhat.com>
+In-Reply-To: <20020111.040715.48529485.davem@redhat.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, Nick Craig-Wood <ncw@axis.demon.co.uk>
-Subject: Re: __FUNCTION__ - patch for USB
-In-Reply-To: <3C3CC04D.2080807@intel.com> <20020109222657.GA23143@kroah.com> <3C3D7289.9000302@intel.com> <20020110160927.GA26783@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
->You still are changing a few dbg() macros that you don't have to change.
+On Friday 11 January 2002 06:07, David S. Miller wrote:
+>    From: Timothy Covell <timothy.covell@ashavan.org>
+>    Date: Fri, 11 Jan 2002 05:55:20 -0600
 >
-Guilty. Goal was to force some common style. There are mix of function 
-call styles like f() and f (). I suppose f() (without space between 
-function name and parenthes) is better, but it is of course religious 
-issue and have no 'proper' solution.
-
+>    Let me clarify what I said earlier.  You cannot have
+>    identical MAC addresses on two different NICs.
 >
->Also, info(), warn() and err() should not have __FUNCTION__ added to
->them.  Have you tried running the usb code with this patch?  The USB
->group gets enough grief about all of the kernel log messages that we
->spit out.  We do not need to see the function name for every message we
->write (the user does not need it.)
->
-Questionable. There are lots of calls that used to have __FUNCTION__, 
-ex. 1-st chunks from patch are:
+> There is nothing illegal about that at all.  As long at
+> the NICs live on different subnets, it is perfectly fine.
+> In fact this is pretty common on Sun machines.
 
---- linux-2.4.18-pre2.orig/drivers/usb/CDCEther.c       Fri Dec 21 
-19:41:55 2001
-+++ linux-2.4.18-pre2.patched/drivers/usb/CDCEther.c    Thu Jan 10 
-10:28:21 2002
--               warn( __FUNCTION__ " failed submint rx_urb %d", res);
-+               warn("failed submint rx_urb %d", res);
--               err( "write_bulk_callback: device not running" );
-+               err( "device not running" );
+True.  I was assuming that the context of the post was
+that the NICs were on the same network link.    
 
-It is hard to be both flexible and easy. I suppose always have function 
-name in the log is a good idea. Maybe, I would even add line number. 
-Anyway, original macros used to add __FILE__ prefix. All these stuff 
-goes to syslog, and user usually do not see it at all. If one wants to 
-browse /var/log/messages, he is supposed to understand a little what he 
-going to see, and function names may help.
-In places where great flexibility is required, I'd propose to keep using 
-printk().
+Solaris _defaults_ to using the MAC address from the 
+primary (hostname) NIC for the rest of them.   IMHO, this 
+is a really stupid thing to do, and  I disable it tout de suite
+when given a choice.   Of course, if you like it, then
+why don't you try to convince Linus to change his mind 
+about it?
 
->
->I think I'll wait for the debug level messages cleanup in the 2.5 USB
->code to make this kind of change (as talked about in a previous
->message.)
->
->thanks,
->
->greg k-h
->
-What about macros for simple one line messages for generic usage? Any 
-thoughts?
-I propose the following messages format:
-
-<module>:<file>:<line>:<function> - <message_text>
-
-Corresponded macro would be, for example:
-
-#ifdef MODULE
-#define err(format, arg...) printk(KERN_ERR "%s:%s:%d:%s - " format "\n" 
-,THIS_MODULE->name ,__FILE__, __LINE__, __FUNCTION__, ## arg)
-#else
-#define err(format, arg...) printk(KERN_ERR "%s:%d:%s - " format "\n" , 
-__FILE__, __LINE__, __FUNCTION__, ## arg)
-#endif
-
-
-
+-- 
+Surah II 120, Surah II 191-193, Surah V 45, Surah V 51
+Surah VIII 12-18, Surah VIII 39-40, Surah VIII 65-69, etc.
+--
+timothy.covell@ashavan.org.

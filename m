@@ -1,150 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVBJENh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVBJEXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVBJENh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 23:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVBJEMt
+	id S262016AbVBJEXP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 23:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVBJEXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 23:12:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262014AbVBJEM2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 23:12:28 -0500
-Date: Wed, 9 Feb 2005 20:12:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
-Subject: Re: 2.6.11-rc3-mm1
-Message-Id: <20050209201207.54c1f99a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0502090357060.7433@student.dei.uc.pt>
-References: <20050204103350.241a907a.akpm@osdl.org>
-	<Pine.LNX.4.61.0502090357060.7433@student.dei.uc.pt>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Feb 2005 23:23:15 -0500
+Received: from smtpauth06.mail.atl.earthlink.net ([209.86.89.66]:715 "EHLO
+	smtpauth06.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S262016AbVBJEXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 23:23:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=simple;
+  s=test1; d=earthlink.net;
+  h=Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=HnfLxIfSOdH31CcGnDnyK9/tnQy44wUc0FLjxLBODNA7SGRc806s1I1qVZTBkP+D;
+Message-ID: <420AE1CE.2070306@earthlink.net>
+Date: Wed, 09 Feb 2005 23:23:42 -0500
+From: Todd Shetter <tshetter-lkml@earthlink.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.4.x kernel BUG at filemap.c:81
+References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet> <420A3A8D.9030705@earthlink.net> <20050209130319.GA13986@logos.cnet> <420A76E0.2030604@earthlink.net> <20050209174232.GC15888@logos.cnet>
+In-Reply-To: <20050209174232.GC15888@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: 20b3e7689bd2545e1aa676d7e74259b7b3291a7d08dfec790ba751edd9dd6c91c860bc811dd36b0a350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.144.117.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
+Marcelo Tosatti wrote:
+
+>On Wed, Feb 09, 2005 at 03:47:28PM -0500, Todd Shetter wrote:
 >
->  Please add to -mm the patch in attachment, since it solves the old
->  acpi_power_off bug...
-> 
-> ...
->  diff -Nru -p1 linux-2.6.11-rc2-mm1/drivers/base/power/shutdown.c linux-2.6.11-rc2-mm1-mbn1/drivers/base/power/shutdown.c
->  --- linux-2.6.11-rc2-mm1/drivers/base/power/shutdown.c	2004-12-24 22:35:01.000000000 +0100
->  +++ linux-2.6.11-rc2-mm1-mbn1/drivers/base/power/shutdown.c	2005-01-26 00:26:54.000000000 +0100
->  @@ -64,2 +64,9 @@ void device_shutdown(void)
->   
->  +#if 1
->  +	{
->  +		extern void do_acpi_power_off_prepare(void);
->  +		do_acpi_power_off_prepare();
->  +	}
->  +#endif
->  +
+>  
+>
+>>>>>>Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
+>>>>>>2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a 
+>>>>>>system lockup. This happens in both X and console. Happens with and 
+>>>>>>without my Nvidia drivers loaded. I cannot determine what makes this 
+>>>>>>bug present it self besides highmem and high i/o support enabled. Im 
+>>>>>>guessing the system is fine until highmem is actually used to some 
+>>>>>>point and then it borks, but I really have no idea and so im just 
+>>>>>>making a random guess. I ran memtest86 for a few hours a while ago 
+>>>>>>thinking that it may be bad memory, but that did not seem to be the 
+>>>>>>problem.
+>>>>>>
+>>>>>>If you need anymore information, or have questions, or wish me to test 
+>>>>>>anything, PLEASE feel free to contact me, I would really like to see 
+>>>>>>this bug resolved. =)
+>>>>>>
+>>>>>>--
+>>>>>>Todd Shetter
+>>>>>>
+>>>>>>
+>>>>>>Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
+>>>>>>Feb  8 19:49:31 quark kernel: invalid operand: 0000
+>>>>>>Feb  8 19:49:31 quark kernel: CPU:    0
+>>>>>>Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
+>>>>>>
+>>>>>>
+>>>>>>      
+>>>>>>
+>>>>>>            
+>>>>>>
+>>>>>Hi Todd, 
+>>>>>
+>>>>>Why is your kernel tainted ?
+>>>>>
+>>>>>          
+>>>>>
+>>>>I had the nvidia 1.0-6629 driver loaded when I got that error. I 
+>>>>compiled the kernel using the slackware 10.1 config, enabled highmem 4GB 
+>>>>support, highmem i/o, and then some kernel hacking options including 
+>>>>debugging for highmen related things.
+>>>>
+>>>>I booted, loaded X with KDE, opened firefox a few times, and then 
+>>>>started running hdparm because some newer 2.4.x kernels dont play nice 
+>>>>with my SATA, ICH5, and DMA. hdparm segfaulted while running the drive 
+>>>>read access portion of its tests, and things locked up from there in 
+>>>>about 30secs.
+>>>>
+>>>>I've gotten the same error with the nvidia driver not loaded, so I dont 
+>>>>think that is part of the problem.
+>>>>
+>>>>As I said, if you want me to test or try anything feel free to ask.  =)
+>>>>  
+>>>>        
+>>>>
+>>>Todd,
+>>>
+>>>Would be interesting to have the oops output without the kernel nvidia 
+>>>module. 
+>>>Do you have that saved?
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>Sorry, it took me FOREVER to get this bug to appear again, and this time 
+>>its a little different.
+>>    
+>>
+>
+>Hum, both BUGs are due to a page with alive ->buffers mapping.
+>
+>Did it crashed right after hdparm now too? 
+>
+>Can you boot your box without SATA drivers, configuring the interface to IDE 
+>mode ?
+>
+>Which problems are you facing with newer v2.4.x kernels and SATA? 
+>  
+>
 
-This of course doesn't compile if CONFIG_ACPI=n.  I fixed that up.
+Im waiting for the system to crash, so I figured I might as well get on 
+with the SATA problems....
 
-Also, having acpi stuff in drivers/base/power/shutdown.c is quite
-inappropriate.
+Running 2.4.29 neither the CONFIG_BLK_DEV_IDE_SATA nor the 
+CONFIG_SCSI_SATA are set currently and DMA is not enabled on either of 
+my drives,  hda: ST380013AS,  hdb: WDC WD2500SD-01KCB0,  hdc: Maxtor 
+94610U6. Setting DMA manually on the hard drives yields a HDIO_SET_DMA 
+failed: Operation not permitted error.
 
-Also, extern declarations should also not be placed in .c files - they
-should go into header files which are shared by the definition and all
-users of the symbol.
+Using 2.4.26, DMA worked fine on the drives. Under 2.4.27, 2.4.28, and 
+2.4.29 using CONFIG_SCSI_SATA does not allow setting of DMA on the 
+drives, yielding a HDIO_SET_DMA failed: Operation not permitted error, 
+and the transfer speeds reported by hdparm are at about 3MB/s.
 
-(I understand that it's only a "proof of concept" patch, but I thought I'd
-bitch anyway ;))
+Under 2.4.29 using CONFIG_BLK_DEV_IDE_SATA the DMA is set fine upon 
+boot, and I get good transfers, hdparm reports 58MB/s on my Western 
+Digital drive. I have not tested using CONFIG_BLK_DEV_IDE_SATA on any 
+previous kernel versions.
 
-So.  I'll keep the patch as-is in -mm for now.  I've Cc'ed linux-acpi. 
-Perhaps the people there can absorb this and fix it up for real, please?
+Well, still no crash yet....Again, anything else you want me to try or 
+do just let me know.
 
-
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-
-From: "Barry K. Nathan" <barryn@pobox.com>
-
-On Tue, Feb 08, 2005 at 08:54:06PM -0800, Andrew Morton wrote:
-> "Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
-> >
-> > Please add to -mm the patch in attachment, since it solves the old
-> >  acpi_power_off bug...
-> 
-> What acpi_power_off bug?  And how does it solve it?
-
-Here's the observed bug that the patch is trying to fix:
-http://bugme.osdl.org/show_bug.cgi?id=4041
-
-What Marcos posted is a typo-corrected version of Eric Biederman's
-patch:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110665542929525&w=2
-
-In Eric's own words, the patch "needs some work before it goes into a
-mainline kernel". AFAICT it's more of a proof-of-concept, just to see if
-Eric's on the right track...
-
-This is the motivation behind the patch:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110665405402747&w=2
-
-
---- 25-alpha/drivers/acpi/sleep/poweroff.c~acpi_power_off-bug-fix	2005-02-09 19:55:05.000000000 -0800
-+++ 25-alpha-akpm/drivers/acpi/sleep/poweroff.c	2005-02-09 19:55:05.000000000 -0800
-@@ -7,18 +7,37 @@
- 
- #include <linux/pm.h>
- #include <linux/init.h>
-+#include <linux/kernel.h>
- #include <acpi/acpi_bus.h>
- #include <linux/sched.h>
- #include "sleep.h"
- 
- static void
-+acpi_power_off_prepare(void)
-+{
-+       if (system_state == SYSTEM_POWER_OFF) {
-+               acpi_wakeup_gpe_poweroff_prepare();
-+               acpi_enter_sleep_state_prep(ACPI_STATE_S5);
-+       }
-+}
-+
-+void
-+do_acpi_power_off_prepare(void)
-+{
-+       if (!acpi_disabled) {
-+               acpi_power_off_prepare();
-+       }
-+}
-+
-+
-+static void
- acpi_power_off (void)
- {
- 	printk("%s called\n",__FUNCTION__);
-+#if 0	/* This should be made redundant by other patches.. */
- 	/* Some SMP machines only can poweroff in boot CPU */
- 	set_cpus_allowed(current, cpumask_of_cpu(0));
--	acpi_wakeup_gpe_poweroff_prepare();
--	acpi_enter_sleep_state_prep(ACPI_STATE_S5);
-+#endif
- 	ACPI_DISABLE_IRQS();
- 	acpi_enter_sleep_state(ACPI_STATE_S5);
- }
-diff -puN drivers/base/power/shutdown.c~acpi_power_off-bug-fix drivers/base/power/shutdown.c
---- 25-alpha/drivers/base/power/shutdown.c~acpi_power_off-bug-fix	2005-02-09 19:55:05.000000000 -0800
-+++ 25-alpha-akpm/drivers/base/power/shutdown.c	2005-02-09 20:10:21.000000000 -0800
-@@ -62,6 +62,13 @@ void device_shutdown(void)
- 	}
- 	up_write(&devices_subsys.rwsem);
- 
-+#ifdef CONFIG_ACPI
-+	{
-+		extern void do_acpi_power_off_prepare(void);
-+		do_acpi_power_off_prepare();
-+	}
-+#endif
-+
- 	sysdev_shutdown();
- }
- 
-_
+--
+Todd Shetter
 

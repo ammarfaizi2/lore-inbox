@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUAYMkV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 07:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbUAYMkU
+	id S264163AbUAYNPL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 08:15:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUAYNPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 07:40:20 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:50449 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264147AbUAYMkR (ORCPT
+	Sun, 25 Jan 2004 08:15:11 -0500
+Received: from tekla.ing.umu.se ([130.239.117.80]:32483 "EHLO tekla.ing.umu.se")
+	by vger.kernel.org with ESMTP id S264163AbUAYNPI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 07:40:17 -0500
-Date: Sun, 25 Jan 2004 13:45:57 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Marco Rebsamen <mrebsamen@swissonline.ch>
+	Sun, 25 Jan 2004 08:15:08 -0500
+Date: Sun, 25 Jan 2004 14:15:05 +0100
+From: Tomas Ogren <stric@ing.umu.se>
+To: Andrew Walrond <andrew@walrond.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Troubles Compiling 2.6.1 on SuSE 9
-Message-ID: <20040125124557.GA2036@mars.ravnborg.org>
-Mail-Followup-To: Marco Rebsamen <mrebsamen@swissonline.ch>,
-	linux-kernel@vger.kernel.org
-References: <200401242137.34881.mrebsamen@swissonline.ch>
+Subject: Re: Fried the onboard Broadcom 4401 network...
+Message-ID: <20040125131505.GA27373@ing.umu.se>
+References: <20040125024238.GA10424@ing.umu.se> <200401250837.36729.andrew@walrond.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200401242137.34881.mrebsamen@swissonline.ch>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200401250837.36729.andrew@walrond.org>
+User-Agent: Mutt/1.3.28i
+X-System: Linux tekla 2.4.24-rc1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 09:37:34PM +0100, Marco Rebsamen wrote:
-> 
-> I try to compile my own kernel with 2.6.1 on suse 9. But i always get the same 
-> error. i applied the patch 2.6.2-rc1 but wasn't helping.
->   objcopy -O binary -R .note -R .comment -S  vmlinux arch/i386/boot/
-> compressed/vmlinux.bin
-> make[2]: *** [arch/i386/boot/compressed/vmlinux.bin] Fehler 132
+On 25 January, 2004 - Andrew Walrond sent me these 0,4K bytes:
 
-Looks like objcopy is failing.
-Could you try to run the above command by hand in the top-level
-directory of your kernel tree.
-If it still fails try with
-LANG=C LC_ALL=C objcopy ....
+> On Sunday 25 Jan 2004 2:42 am, Tomas Ogren wrote:
+> >
+> > Not sure what you can do with this information, but I can probably not
+> > do anything more with this NIC at least..
+> >
+> Just a thought, but did you try reseting the switch, or trying another port on 
+> the switch?
 
-Just to check that language does not have any effect here.
-I doubt so, but worth the try.
+I have, no dice.
 
-I browsed the objcopy src (a random version found by google)
-without seeing where it could return 132
+> Also, you don't seem to have gone back to a last known good configuration 
+> (unless WinXP covers this?)
 
-	Sam
+I have, no dice.
+
+It used to light up the link led while in BIOS etc.. it doesn't
+anymore..
+
+/Tomas
+-- 
+Tomas Ögren, stric@ing.umu.se, http://www.ing.umu.se/~stric/
+|- Student at Computing Science, University of Umeå
+`- Sysadmin at {cs,ing,acc}.umu.se

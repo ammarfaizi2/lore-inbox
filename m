@@ -1,89 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUIKN7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUIKOKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUIKN7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 09:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIKN7K
+	id S268157AbUIKOKR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIKOKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 09:59:10 -0400
-Received: from dev.tequila.jp ([128.121.50.153]:27665 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S268148AbUIKN7D (ORCPT
+	Sat, 11 Sep 2004 10:10:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:36357 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268157AbUIKOJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 09:59:03 -0400
-Message-ID: <414304A3.7080100@tequila.co.jp>
-Date: Sat, 11 Sep 2004 22:58:59 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040830 Thunderbird/0.7.3 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Sat, 11 Sep 2004 10:09:47 -0400
+To: SashaK <sashak@smlink.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97 
+ patch)
+References: <2DdiX-6ye-17@gated-at.bofh.it> <2Dfup-7Zv-9@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 11 Sep 2004 16:09:41 +0200
+In-Reply-To: <2Dfup-7Zv-9@gated-at.bofh.it> (sashak@smlink.com's message of
+ "Sat, 11 Sep 2004 14:50:09 +0200")
+Message-ID: <m3k6v0lwwq.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Major XFS problems...
-References: <20040908123524.GZ390@unthought.net>
-In-Reply-To: <20040908123524.GZ390@unthought.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+SashaK <sashak@smlink.com> writes:
 
+> On Sat, 11 Sep 2004 12:26:00 +0200 (MEST)
+> Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+>> I hope you succeed with open-sourcing all of slmodem's driver
+>> code. My Targa Athlon64 laptop has the AMR thingy and the
+>> 32-bit x86 binary only slmodem driver prevents me from using
+>> the modem while running a 64-bit kernel.
+>
+> You mean to GPL user-space program slmodemd?
+> I think it is good idea, but unfortunately this code is not just my, and
+> final decision was 'no'.
 
-Jakob Oestergaard wrote:
+One way that would work is to make the binary parts of your driver run
+in user space and let the kernel part just provide a kind of simple
+sound card.  The later should be much easier to free.
 
-| <frustrated_admin mode="on">
-|
-| Does anyone actually use XFS for serious file-serving?  (yes, I run it
-| on my desktop at home and I don't have problems there - such reports are
-| not really relevant).
+Modern CPUs are usually fast enough that the additional latency
+caused by this doesn't matter.
 
-I have our fileserver running completly on XFS (because its quota &
-journaled).
+The 64bit kernel can run 32bit programs without problems.
 
-I have an internal 60GB HW RAID 1 and an external 4 disk SCSI 400GB
-software RAID 5 both running XFS. The Server is NFS, Samba and Appletalk
-(thought that is almost not used). NFS is not the main point (except the
-servers for sharing a backup disk and two office PCs who run linux there
-is no NFS traffic, the rest ~50 PCs connect via Samba). It's Xeon single
-CPU box, but I have an SMP kernel because of HT. 2GB ram.
+-Andi
 
-I haven't had a single XFS connected error. It surved 5 hard reboots
-because of another external disk that got berserk and forced me to turn
-on/off the server.
-
-A nightly backup on another HD on the same box goes well, even from 4
-other servers via NFS.
-
-| Is anyone actually maintaining/bugfixing XFS?  Yes, I know the
-| MAINTAINERS file, but I am a little bit confused here - seeing that
-| trivial-to-trigger bugs that crash the system and have simple fixes,
-| have not been fixed in current mainline kernels.
-
-well there is the linux-xfs ML ... :)
-
-| If XFS is a no-go because of lack of support, is there any realistic
-| alternatives under Linux (taking our need for quota into account) ?
-
-lack of support. in my opinion there work some very bright persons. Main
-problem is, that it comes from a system which is completly different
-designed than linux and I think this problem still triggers those SMP,
-etc bugs.
-
-| And finally, if Linux is simply a no-go for high performance file
-| serving, what other suggestions might people have?  NetApp?
-
-Well. I am not yet in the TB leage and 200+ user boxes, etc. So I can't
-say about that. But that will come soon, and then I will see if I have
-to runt about that.
-
-lg, clemens
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBQwSjjBz/yQjBxz8RAg3nAKCOsh6TieGXgmutX/sbge4JvvKLMgCgghfg
-IWo7h1QIZhGUOv0FH51FOVE=
-=76lm
------END PGP SIGNATURE-----

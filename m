@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUBEV4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266907AbUBEV4R
+	id S266897AbUBEVoj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266814AbUBEVmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:56:17 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:8972
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S266905AbUBEV4L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:56:11 -0500
-Date: Thu, 5 Feb 2004 13:56:20 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: [PATCH] powernow-k8 max speed sanity check
-Message-ID: <20040205215620.GC9757@atomide.com>
-References: <20040131203512.GA21909@atomide.com> <20040203131432.GE550@openzaurus.ucw.cz> <20040205181704.GC7658@atomide.com> <20040205184841.GB590@elf.ucw.cz> <20040205213303.GA9757@atomide.com> <20040205213837.GF1541@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205213837.GF1541@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 5 Feb 2004 16:42:12 -0500
+Received: from needs-no.brain.uni-freiburg.de ([132.230.63.23]:29004 "EHLO
+	needs-no.brain.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S266785AbUBEVj7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:39:59 -0500
+Date: Thu, 5 Feb 2004 22:39:53 +0100 (MET)
+From: Thomas Voegtle <thomas@voegtle-clan.de>
+To: linux-kernel@vger.kernel.org
+Subject: sudden reboot with using mtrr
+Message-ID: <Pine.LNX.4.21.0402052234390.20340-100000@needs-no.brain.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@suse.cz> [040205 13:39]:
-> 
-> Well, I wanted some way to detect exactly this broken machine. You
-> might want to simply put == 8 there.. but proper solution is DMI blacklist. 
+Hello,
 
-Or just use the current running values for max speed. That will fail if the
-system boots at lower speeds on battery though. And the BIOS checks will
-fail on buggy BIOSes and when upgrading the CPU. So maybe use both checks?
+with 2.6.2 and earlier I get sooner or later a sudden soft reset when I
+use my graphic card with games or for example using uae (the amiga
+emulator).
 
-> 
-> > What do you think about using module options maxfid and maxvid?
-> 
-> Well, the original BIOS has not only maximum values wrong, but also
-> 1600MHz wrong, as far as I can tell...
+It takes different time until the hard reset happens, but with 
+mtrr/agpgart/DRI switched on it definitely happens.
 
-Outch! I did not know that...
+And sometimes I see this:
+mtrr: base(0xdc000000) is not aligned on a size(0x1800000) boundary
+or this:
+mtrr: 0xdc000000,0x2000000 overlaps existing 0xdd000000,0x800000
 
-Are the middle values needed? What if you only use the min and max 
-fid/vid values, and always recalculate the stepping tables from those 
-values?
 
-> Something like /proc/frequencies file would be needed where you could
-> 
-> echo "0 0xa; 0x8 0x6; 0xa 0x2" > /proc/frequencies to override. You
-> need to override all of them, not just top one.
+Peaceful gaming with 2.4.x or 2.6.x with mtrr switched off.
 
-Maybe not, if the stepping table would get recalculated on init?
+SuSE 9.0
+Matrox Graphics, Inc. MGA G400 AGP
 
-Tony
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Celeron (Coppermine)
+stepping        : 6
+cpu MHz         : 851.910
+
+Chipset:
+VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+
+I do not know how to get more information, there is no output on serial,
+it just reboots suddenly.
+
+please cc me, I'm not subscribed
+
+Greetings,
+Thomas
+
+
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
+
+

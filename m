@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266268AbUA2Agj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 19:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUA2Agj
+	id S266272AbUA2AoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 19:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266275AbUA2AoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 19:36:39 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:4109 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S266268AbUA2Agh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 19:36:37 -0500
-Date: Thu, 29 Jan 2004 08:35:54 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 4/8] autofs4-2.6 - to support autofs 4.1.x
-In-Reply-To: <4017EBA2.1080302@sun.com>
-Message-ID: <Pine.LNX.4.44.0401290832020.16657-100000@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE)
+	Wed, 28 Jan 2004 19:44:07 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:445 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S266272AbUA2AoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 19:44:05 -0500
+Date: Thu, 29 Jan 2004 01:44:02 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] i2c driver fixes for 2.6.2-rc2
+Message-ID: <20040129004402.GC5830@werewolf.able.es>
+References: <20040127233242.GA28891@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040127233242.GA28891@kroah.com> (from greg@kroah.com on Wed, Jan 28, 2004 at 00:32:42 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, Mike Waychison wrote:
 
-> raven@themaw.net wrote:
+On 2004.01.28, Greg KH wrote:
+> Hi,
 > 
-> > 
-> >Patch:
-> >
-> >4-autofs4-2.6.0-test9-waitq2.patch
-> >
-> >Adds a spin lock to serialize access to wait queue in the super block info
-> >struct.
-> >
-> >  
-> >
-> A while back I wrote up a patch for autofs3 that serialized waitq access 
-> and changed the waitq counters to atomic_t.  I never sent it out because 
-> I had realized that the changes I made weren't needed as all waitq 
-> code-paths were running under the BKL (the big ones were ->lookup and 
-> the ioctls). 
+> Here are some i2c driver fixes for 2.6.2-rc2.  It's all a bit of small
+> bugfixes and documentation updates.
+> 
 
-My understanding is that this code can be reached at least via lookup, 
-readdir and revalidate. I thought that in 2.6 none of these held the BKL 
-on entry (I'll have to check). Certainly this is the case for revalidate.
+After upgrading to sensors 2.8.3 (first I compiled it, then installed the
+Makdrake package when appeared), my temperatures are still mutiplied by 10.
+I use 2.6.2-rc2-mm1.
 
-Ian
+Any ideas ?
 
-
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.2-rc2-jam1 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

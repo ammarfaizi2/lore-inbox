@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132747AbRDDEOU>; Wed, 4 Apr 2001 00:14:20 -0400
+	id <S132741AbRDDDTv>; Tue, 3 Apr 2001 23:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132746AbRDDEOL>; Wed, 4 Apr 2001 00:14:11 -0400
-Received: from saarinen.org ([203.79.82.14]:32427 "EHLO vimfuego.saarinen.org")
-	by vger.kernel.org with ESMTP id <S132693AbRDDEN6>;
-	Wed, 4 Apr 2001 00:13:58 -0400
-From: "Juha Saarinen" <juha@saarinen.org>
-To: "Amir Hardon" <a_hardon@netvision.net.il>, <linux-kernel@vger.kernel.org>
-Subject: RE: Can't boot with the 2.4.3 kernel.
-Date: Wed, 4 Apr 2001 16:13:00 +1200
-Message-ID: <KPECIILENDDLPCNIMLOFOEEGCAAA.juha@saarinen.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3ACA9E89.2ECC89A0@netvision.net.il>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S132743AbRDDDTk>; Tue, 3 Apr 2001 23:19:40 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:47625 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S132741AbRDDDT1>; Tue, 3 Apr 2001 23:19:27 -0400
+From: dth@HoHo.nl (Danny ter Haar)
+Subject: Re: Linux 2.4.3-ac2
+Date: Wed, 4 Apr 2001 03:18:43 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <9ae3qj$pc9$1@voyager.cistron.net>
+In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu> <3ACA615C.6010308@megapathdsl.net>
+X-Trace: voyager.cistron.net 986354323 25993 195.64.82.84 (4 Apr 2001 03:18:43 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-:: I configured and build it, and all looked OK.
+Miles Lane  <miles@megapathdsl.net> wrote:
+>You still have the URL for www.bzimage.org in this announcement,
+>but there are no incremental patches there for either 2.4.3-ac1
+>or 2.4.3-ac2.
 
+They're made as i type ;-)
+It's still done manually, and now with the 2.4.3 series we
+have to adjust the scripts a bit. For now look at the "overview"
+link and follow the 2.4.3 link.
 
-Did you select the right CPU type in the configuration?
+Regards,
 
--- Juha
+Danny
+
+-- 
+Holland Hosting
+www.hoho.nl      info@hoho.nl
+

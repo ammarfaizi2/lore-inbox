@@ -1,97 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVC3EAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVC3EHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVC3EAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 23:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVC3EAi
+	id S261534AbVC3EHD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 23:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVC3EHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 23:00:38 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:754 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261365AbVC3EAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 23:00:18 -0500
-Date: Tue, 29 Mar 2005 20:00:17 -0800
-From: "H. J. Lu" <hjl@lucon.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
-Message-ID: <20050330040017.GA29523@lucon.org>
-References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org> <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org> <20050330015312.GA27309@lucon.org> <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org>
-Mime-Version: 1.0
+	Tue, 29 Mar 2005 23:07:03 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:18612 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261534AbVC3EG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 23:06:57 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Date: Wed, 30 Mar 2005 14:06:39 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16970.9679.874919.876412@cse.unsw.edu.au>
+Cc: vherva@viasys.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
+In-Reply-To: message from Marcelo Tosatti on Tuesday March 29
+References: <20050326162801.GA20729@logos.cnet>
+	<20050328073405.GQ16169@viasys.com>
+	<20050328165501.GR16169@viasys.com>
+	<16968.40186.628410.152511@cse.unsw.edu.au>
+	<20050329215207.GE5018@logos.cnet>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 06:44:18PM -0800, Linus Torvalds wrote:
+On Tuesday March 29, marcelo.tosatti@cyclades.com wrote:
 > 
-> 
-> On Tue, 29 Mar 2005, H. J. Lu wrote:
-> > 
-> > > the smaller and faster version do not want to just rely on gas
-> > > automatically getting it right, especially since gas has historically been
-> > > very very bad at getting things right.
-> > 
-> > We are fixing those issues in assembler. If people run into problems
-> > like that with gas, they can report them. They will be fixed.
-> 
-> It's fine if gas fixes things. It's not fine if gas breaks things that 
-> used to work, for no really good reason.
-> 
-> > > What is the advantage of not allowing "movl %ds,mem"? Really? Especially
-> > > since I suspect the kernel is pretty much the only one who does this, and
-> > > the kernel really does do it on purpose. The kernel explicitly wants the
-> > > 32-bit version, knowing that the upper bits are undefined.
-> > > 
-> > 
-> > Kernel has
-> > 
-> > 	unsigned gsindex;
-> > 	asm volatile("movl %%gs,%0" : "=g" (gsindex));
-> 
-> Ok, that's a real x86-64 bug, it seems. Andi, please fix, preferably by 
-> just making the "g" be a "r".
-> 
-> However, your argument isn't very valid, since:
-> 
-> > The new assembler will make sure that it won't happen.
-> 
-> Not true, since the suggestion was just to change all segment "movl"  
-> things to "mov", at which point the same old bug is still there, and the
-> assembler didn't really help us at all.
+> Attached is the backout patch, for convenience.
 
-The new assembler won't accept
+Thanks.  I had another look, and think I may be able to see the
+problem.  If I'm right, it is a problem with this patch.
 
-	movl %gs,128(%rsp)
-
-It makes it harder to generate binary code user doesn't tend. FWIW,
-what I suggested are in
-
-http://sourceware.org/ml/binutils/2005-03/msg00873.html
-
-Thera are things like
-
--		asm volatile("movl %%fs,%0" : "=g" (fsindex)); 
-+		asm volatile("movl %%fs,%0" : "=r" (fsindex)); 
-
-> 
-> See the problem? You're not actually protecting anything. The change just 
-> makes it _harder_ to make sizes explicit, and suddenly we have to trust an 
-> assembler to be clever about sizes, when that assembler historically has 
-> definitely _not_ been very clever about them at all. 
-> 
-
-There is no such an instruction of "movl %ds,(%eax)". The old assembler
-accepts it and turns it into "movw %ds,(%eax)". It won't catch problems
-like
-
-	unsigned fsindex;
-	asm volatile("movl %%fs,%0" : "=m" (fsindex)); 
-
-The "movw %ds,(%eax)" bug was fixed in binutils 2.15.94.0.1. Gas no
-longer generates 0x66 for it. If you find gas preventing you from doing
-what the hardware supports, I will be happy to fix it.
+> diff -Nru a/fs/jbd/commit.c b/fs/jbd/commit.c
+> --- a/fs/jbd/commit.c	2005-03-29 18:50:55 -03:00
+> +++ b/fs/jbd/commit.c	2005-03-29 18:50:55 -03:00
+> @@ -92,7 +92,7 @@
+>  	struct buffer_head *wbuf[64];
+>  	int bufs;
+>  	int flags;
+> -	int err = 0;
+> +	int err;
+>  	unsigned long blocknr;
+>  	char *tagp = NULL;
+>  	journal_header_t *header;
+> @@ -299,8 +299,6 @@
+>  			spin_unlock(&journal_datalist_lock);
+>  			unlock_journal(journal);
+>  			wait_on_buffer(bh);
+> -			if (unlikely(!buffer_uptodate(bh)))
+> -				err = -EIO;
+>  			/* the journal_head may have been removed now */
+>  			lock_journal(journal);
+>  			goto write_out_data;
 
 
-H.J.
+I think the "!buffer_update(bh)" test is not safe at this point as,
+after the wait_on_buffer which could cause a schedule, the bh may
+no longer exist, or be for the same block.  There doesn't seem to be
+any locking or refcounting that would keep it valid.
+
+Note the comment "the journal_head may have been removed now".
+If the journal_head is gone, the associated buffer_head is likely gone
+as well. 
+
+I'm not certain that this is right, but it seems possible and would
+explain the symptoms.  Maybe Stephen or Andrew could comments?
+
+
+> --- a/mm/filemap.c	2005-03-29 18:50:55 -03:00
+> +++ b/mm/filemap.c	2005-03-29 18:50:55 -03:00
+> @@ -3261,12 +3261,7 @@
+>  			status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
+>  	}
+>  	
+> -	/*
+> -	 * generic_osync_inode always returns 0 or negative value.
+> -	 * So 'status < written' is always true, and written should
+> -	 * be returned if status >= 0.
+> -	 */
+> -	err = (status < 0) ? status : written;
+> +	err = written ? written : status;
+>  out:
+>  
+>  	return err;
+
+As an aside, this looks extremely dubious to me.
+
+There is a loop earlier in this routine (do_generic_file_write) that
+passes a piece-at-a-time of the write request to prepare_write /
+commit_write.
+Successes are counted in 'written'.  A failure causes the loop to
+abort with a status in 'status'.
+
+If some of the write succeeded and some failed, then I believe the
+correct behaviour is to return the number of bytes that succeeded.
+However this change to the return status (remember the above patch is
+a reversal) causes any failure to over-ride any success. This, I
+think, is wrong.
+
+NeilBrown

@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272763AbRILMmz>; Wed, 12 Sep 2001 08:42:55 -0400
+	id <S272767AbRILMwy>; Wed, 12 Sep 2001 08:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272766AbRILMmo>; Wed, 12 Sep 2001 08:42:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43274 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272763AbRILMm3>; Wed, 12 Sep 2001 08:42:29 -0400
-Subject: Re: Bug still on 2.4.10?
-To: mblack@csihq.com (Mike Black)
-Date: Wed, 12 Sep 2001 13:47:06 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <00d301c13b79$56982e20$e1de11cc@csihq.com> from "Mike Black" at Sep 12, 2001 06:54:46 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272770AbRILMwe>; Wed, 12 Sep 2001 08:52:34 -0400
+Received: from mailer.zib.de ([130.73.108.11]:63475 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S272767AbRILMwX>;
+	Wed, 12 Sep 2001 08:52:23 -0400
+Date: Wed, 12 Sep 2001 14:52:42 +0200
+From: Sebastian Heidl <heidl@zib.de>
+To: linux-kernel@vger.kernel.org
+Subject: find struct pci_dev from struct net_device
+Message-ID: <20010912145242.C20089@csr-pc1.zib.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15h9Q2-0004QR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-www.distributed.net: 223 RC5 packets (1538*2^28 keys) [2.18 Mkeys/s]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is on 2.4.8 but I get the funny feeling this maybe hasn't been fixed
-> yet for 2.4.10:
-> 
-> Sep 11 06:58:08 yeti kernel: md: fsck.ext3(pid 151) used obsolete MD
-> ioctl(4717), upgrade your software to use new ictls.
 
-This isnt a kernel bug. 
+Hi,
 
-> I'm runing:
-> Parallelizing fsck version 1.23 (15-Aug-2001)
-> Unless maybe I just need to recompile it???
+What's the easiest way to find a corresponding struct pci_dev from a
+struct net_device ?  Especially, if the driver does not set
+pci_dev.driver_data to it's net_device struct (such as the acenic
+driver) ?
 
-Back down to 1.22
+thanks,
+_sh_
+
+-- 

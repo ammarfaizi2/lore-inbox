@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267432AbTA3GWu>; Thu, 30 Jan 2003 01:22:50 -0500
+	id <S267395AbTA3GvI>; Thu, 30 Jan 2003 01:51:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbTA3GWu>; Thu, 30 Jan 2003 01:22:50 -0500
-Received: from h80ad25d7.async.vt.edu ([128.173.37.215]:27266 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267432AbTA3GWt>; Thu, 30 Jan 2003 01:22:49 -0500
-Message-Id: <200301300631.h0U6Vxfl003947@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Takeshi Kodama <kodama@flab.fujitsu.co.jp>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why doesn't kernel store ICMP redirect in the routing tables? 
-In-Reply-To: Your message of "Thu, 30 Jan 2003 14:36:30 +0900."
-             <008401c2c821$8af20cf0$c1a5190a@png.flab.fujitsu.co.jp> 
-From: Valdis.Kletnieks@vt.edu
-References: <008401c2c821$8af20cf0$c1a5190a@png.flab.fujitsu.co.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1210627288P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Jan 2003 01:31:58 -0500
+	id <S267434AbTA3GvI>; Thu, 30 Jan 2003 01:51:08 -0500
+Received: from mail.lmcg.wisc.edu ([144.92.101.145]:41639 "EHLO
+	mail.lmcg.wisc.edu") by vger.kernel.org with ESMTP
+	id <S267395AbTA3GvH>; Thu, 30 Jan 2003 01:51:07 -0500
+Date: Thu, 30 Jan 2003 01:00:27 -0600
+From: Daniel Forrest <forrest@lmcg.wisc.edu>
+Message-Id: <200301300700.h0U70RM05470@leinie.lmcg.wisc.edu>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20030129133434.A1584@fi.muni.cz> (message from Jan Kasprzak on
+	Wed, 29 Jan 2003 13:34:34 +0100)
+Subject: Re: 2.4.20 NFS server lock-up (SMP)
+Reply-to: Daniel Forrest <forrest@lmcg.wisc.edu>
+References: <20030129133434.A1584@fi.muni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1210627288P
-Content-Type: text/plain; charset=us-ascii
+Yenya,
 
-On Thu, 30 Jan 2003 14:36:30 +0900, Takeshi Kodama <kodama@flab.fujitsu.co.jp>  said:
+>> I have a problem on Linux 2.4.20 with NFS server - my NFS server
+>> from time to time (currently about once a day) stops responding to
+>> NFS requests.  Apart from that the system is OK, I can log in via
+>> SSH, and I can run "/sbin/reboot -n -f" to reboot it.  Also
+>> filesystem operations seem to be OK, even Samba server is
+>> responding.  When this happens, I see all nfsd processes and lockd
+>> process to be stuck in the "D" state.
 
-> Is it no matter that it generates ICMP redirect every time flush the route ca
-che?  
-> 
-> Please tell me why kernel has such a specification that doesn't store ICMP re
-direct
-> in the routing tables.
+My guess is that this is related to a bug in garbage collection in
+lockd.  The breakpoint is when you pass 32 unique clients.  If you are
+able to recompile the kernel, try this patch:
 
-This is intentional behavior.  Otherwise, if it were entered into the routing
-table, it would remain there essentially permanently (unless forced out by
-a 'route -f' command or perhaps another ICMP redirect).  In general, if
-your default router is telling you to go someplace else, one of two situations
-applies:
+A deadlock occurs under the following sequence:
 
-1) This is a temporary condition caused by a router flap, in which case we
-should only cache it, so later we will re-learn a better path.
+->nlmsvc_lock				calls down(&file->f_sema)
+ ->nlmsvc_create_block
+  ->nlmclnt_lookup_host
+   ->nlm_lookup_host			may do garbage collection
+    ->nlm_gc_hosts
+     ->nlmsvc_mark_resources
+      ->nlm_traverse_files		action = NLM_ACT_MARK
+       ->nlm_inspect_file		loops over all files
+        ->nlmsvc_traverse_blocks	calls down(&file->f_sema)
 
-2) The router is trying to tell you that you should be fixing your routing
-table, either by adding static routes or running a full routing protocol.
+This is a patch against 2.5.53, but it should also apply to any 2.4 or
+2.5 tree since the code is virtually identical.
+
+--- fs/lockd/svclock.c.ORIG	Mon Dec 23 23:19:52 2002
++++ fs/lockd/svclock.c	Mon Dec 30 13:42:10 2002
+@@ -176,8 +176,14 @@
+ 	struct nlm_rqst		*call;
+ 
+ 	/* Create host handle for callback */
++	/* We must up the semaphore in case the host lookup does
++	 * garbage collection (which calls nlmsvc_traverse_blocks),
++	 * but this shouldn't be a problem because nlmsvc_lock has
++	 * to retry the lock after this anyway */
++	up(&file->f_sema);
+ 	host = nlmclnt_lookup_host(&rqstp->rq_addr,
+ 				rqstp->rq_prot, rqstp->rq_vers);
++	down(&file->f_sema);
+ 	if (host == NULL)
+ 		return NULL;
+ 
+I have tried repeatedly to get this patch into the kernel, but it
+hasn't made it yet.  If this does solve your problem, let me know and
+I will try one more time to get it accepted.
+
 -- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_-1210627288P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+OMbecC3lWbTT17ARApVmAJ9pBUa0HKjofPtUYbJ6YrYmzs1p2QCg5vzm
-+M6BfqdWNczEbe9lvu0AXxA=
-=Cz8o
------END PGP SIGNATURE-----
-
---==_Exmh_-1210627288P--
+Dan

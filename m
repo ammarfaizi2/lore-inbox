@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265316AbUFSIpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUFSIvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265316AbUFSIpC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 04:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUFSIpC
+	id S262009AbUFSIvg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 04:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUFSIvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 04:45:02 -0400
-Received: from gw.compusonic.fi ([195.255.196.126]:43483 "EHLO
-	gw.compusonic.fi") by vger.kernel.org with ESMTP id S265316AbUFSIo7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 04:44:59 -0400
-Date: Sat, 19 Jun 2004 11:44:58 +0300 (EEST)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <40D3642E.4050509@pobox.com>
-Message-ID: <Pine.LNX.4.58.0406191144200.30038@zeus.compusonic.fi>
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
- <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local>
- <40D2464D.2060202@opensound.com> <Pine.LNX.4.58.0406181205500.13079@scrub.local>
- <Pine.LNX.4.58.0406182006060.20336@zeus.compusonic.fi> <40D3642E.4050509@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Jun 2004 04:51:36 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:26610 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262009AbUFSIvg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 04:51:36 -0400
+Date: Sat, 19 Jun 2004 10:51:25 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Hamie <hamish@travellingkiwi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: acpi S3 never wakes up
+Message-ID: <20040619085124.GC8930@k3.hellgate.ch>
+Mail-Followup-To: Hamie <hamish@travellingkiwi.com>,
+	linux-kernel@vger.kernel.org
+References: <20040618154025.15708106@damned.travellingkiwi.com> <40D34F90.1060907@travellingkiwi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D34F90.1060907@travellingkiwi.com>
+X-Operating-System: Linux 2.6.7-rc3-bk6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004, Jeff Garzik wrote:
+On Fri, 18 Jun 2004 21:24:48 +0100, Hamie wrote:
+> Can anyone give me a hint as to where the kernel should be 
+> re-initialising the video?
 
-> > Right. The documented command is "make install". However an undocumented
->
-> Really?
-Sorry. I was supposed to write make modules.
+Have you checked Documentation/power/video.txt? It's not terribly
+encouraging, but it may give you some answers.
 
-Best regards,
-
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+Roger

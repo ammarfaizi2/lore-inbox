@@ -1,37 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313073AbSC0SrH>; Wed, 27 Mar 2002 13:47:07 -0500
+	id <S313072AbSC0Sxt>; Wed, 27 Mar 2002 13:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313072AbSC0Sqr>; Wed, 27 Mar 2002 13:46:47 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:60600 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S313071AbSC0Sqq>;
-	Wed, 27 Mar 2002 13:46:46 -0500
-Date: Wed, 27 Mar 2002 19:46:24 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Networking with slow CPUs
-Message-ID: <Pine.LNX.4.33.0203271944020.16178-100000@callisto.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313074AbSC0Sxj>; Wed, 27 Mar 2002 13:53:39 -0500
+Received: from bitmover.com ([192.132.92.2]:28906 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313071AbSC0Sx3>;
+	Wed, 27 Mar 2002 13:53:29 -0500
+From: root <root@bitmover.com>
+Date: Wed, 27 Mar 2002 10:53:27 -0800
+Message-Id: <200203271853.g2RIrRv11812@work.bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: bkbits.net down
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+It looks like we have a bad disk, I'm checking them now to figure out if 
+it is the the primary or backup data drive.  I'll run checks in all the
+repositories if fsck doesn't find the problem so it may take a couple of 
+hours before we are back up.
 
-in the 2.2 series there was a switch for "CPU is too slow to handle full
-bandwidth" which has gone in 2.4. Can anybody tell me the reason for this?
+In the not so distant future, we're moving the backup drive to a different
+machine such that we can just flip machines when this happens but for now
+you'll have to wait for a bit.
 
-Is there a possibility to "harden" a small machine (33 MHz embedded
-device) against e.g. flood pings from the outside world?
-
-Robert
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
-
+--lm

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271200AbRHOO1j>; Wed, 15 Aug 2001 10:27:39 -0400
+	id <S269041AbRHOO3j>; Wed, 15 Aug 2001 10:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271218AbRHOO1a>; Wed, 15 Aug 2001 10:27:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46208 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271200AbRHOO1P>;
-	Wed, 15 Aug 2001 10:27:15 -0400
-Date: Wed, 15 Aug 2001 07:24:19 -0700 (PDT)
-Message-Id: <20010815.072419.48797129.davem@redhat.com>
-To: andrea@suse.de
-Cc: thockin@sun.com, linux-kernel@vger.kernel.org
-Subject: Re: RFC: poll change
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010815161318.C7382@athlon.random>
-In-Reply-To: <20010815021110.F4304@athlon.random>
-	<20010814.171609.75760869.davem@redhat.com>
-	<20010815161318.C7382@athlon.random>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S269524AbRHOO33>; Wed, 15 Aug 2001 10:29:29 -0400
+Received: from N23ch-01p18.ppp11.odn.ad.jp ([61.116.127.18]:45807 "HELO
+	220fx.luky.org") by vger.kernel.org with SMTP id <S269041AbRHOO3U>;
+	Wed, 15 Aug 2001 10:29:20 -0400
+To: axboe@suse.de
+Cc: joseph@5sigma.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 4.7GB DVD-RAM geometry wrong?
+In-Reply-To: <20010815131733.I545@suse.de>
+In-Reply-To: <20010815111030Z271139-761+1405@vger.kernel.org>
+	<20010815131733.I545@suse.de>
+X-Face: (p:N+d=)]R.hGpO.WD'FWD}r"'N]'G~TQL>ZMHN6Ev":krdN|{+={]m/yqX7|9Qzu[eX[+}
+ ^=d9Vr7#OCKV?ZAYq=#iG2v&fyuJZWeVwGrmTRvpcWiSTzga-$8/W\XR"r]63S56VQ@[8w}/;iq)sm
+ 1=B_r2J$Uf~aN5@8f2Fk$Oa[wZ
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010815233424P.shibata@luky.org>
+Date: Wed, 15 Aug 2001 23:34:24 +0900
+From: Hisaaki Shibata <shibata@luky.org>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Wed, 15 Aug 2001 16:13:18 +0200
+Hi!
 
-   I was backporting the new version to 2.2 and I noticed that by using
-   NR_OPEN an luser will actually be able to lock into RAM something of the
-   order of the dozen mbytes per process.
+> > I have a Panasonic DVD-RAM, LF-D201 (SCSI 4.7/9.4GB).  I put in a
+> > 4.7GB type II cartridge (that's a single-sided disk), did 'mkfs 
+> > /dev/scd0' and then mounted it, and ... I have a 2.2GB disk!
 
-He can do this with page tables too :-)
+Almost the same problem here w/ 5.2GB HITACHI DVD-RAM Drive, GF-2050.
 
-Later,
-David S. Miller
-davem@redhat.com
+> Attached patch should fix it, Linus please apply.
+
+The patch with 2.4.8-ac5 fixed my problem.
+
+Thanks
+
+-- 
+ WWWWW  shibata@luky.org
+ |O-O|  Hisaaki Shibata @ Fukuoka, JAPAN
+0(mmm)0 IRC: #luky
+   ~    http://his.luky.org/ http://hoop.euqset.org/

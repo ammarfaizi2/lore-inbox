@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317138AbSEXOiZ>; Fri, 24 May 2002 10:38:25 -0400
+	id <S317147AbSEXOjL>; Fri, 24 May 2002 10:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSEXOiX>; Fri, 24 May 2002 10:38:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64267 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317138AbSEXOiQ>; Fri, 24 May 2002 10:38:16 -0400
-Subject: Re: Linux crypto?
-To: tori@ringstrom.mine.nu (Tobias Ringstrom)
-Date: Fri, 24 May 2002 15:58:39 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), imipak@yahoo.com (Myrddin Ambrosius),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205232343260.18503-100000@boris.prodako.se> from "Tobias Ringstrom" at May 23, 2002 11:46:01 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317148AbSEXOjK>; Fri, 24 May 2002 10:39:10 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:50345 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S317145AbSEXOjI>; Fri, 24 May 2002 10:39:08 -0400
+Date: Fri, 24 May 2002 07:38:17 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>, dipankar@in.ibm.com
+cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        lse-tech@lists.sourceforge.net
+Subject: RE: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
+Message-ID: <1572245169.1022225896@[10.10.2.3]>
+In-Reply-To: <AAEGIMDAKGCBHLBAACGBKEKPCJAA.balbir.singh@wipro.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGWd-0006S2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 22 May 2002, Alan Cox wrote:
-> 
-> > What of it do you actually need in kernel space - encrypted file systems
-> > certainly ought to be there but are not very well handled in Linux proper
-> > right now - but anything else ?
-> 
-> IPsec.
+> Is there a reason to delay the implementation of CPU local memory,
+> or are we waiting for NUMA guys to do it? Is it not useful in an
+> SMP system to allocate CPU local memory?
 
-At the moment there doesn't appear to be an IPsec stack we can merge however
+That should be pretty easy to do now, if I understand what you're
+asking for ... when you allocate the area for cpu N, just do
+alloc_pages_node (cpu_to_nid(smp_processor_id())) or something
+similar.
+
+M.
+

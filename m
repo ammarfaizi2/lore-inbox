@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287658AbSA1XNN>; Mon, 28 Jan 2002 18:13:13 -0500
+	id <S287513AbSA1XOd>; Mon, 28 Jan 2002 18:14:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287657AbSA1XND>; Mon, 28 Jan 2002 18:13:03 -0500
-Received: from vsdc01.corp.publichost.com ([64.7.196.123]:48401 "EHLO
-	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
-	id <S287616AbSA1XMx>; Mon, 28 Jan 2002 18:12:53 -0500
-Message-ID: <3C55DAEF.7020500@vitalstream.com>
-Date: Mon, 28 Jan 2002 15:12:47 -0800
-From: Rick Stevens <rstevens@vitalstream.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.33.0201281005480.1609-100000@penguin.transmeta.com> <E16VHy5-0000Bz-00@starship.berlin> <3C55C39A.8040203@vitalstream.com> <E16VKR5-0000DG-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287545AbSA1XOZ>; Mon, 28 Jan 2002 18:14:25 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:63620 "EHLO
+	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
+	id <S287513AbSA1XOI>; Mon, 28 Jan 2002 18:14:08 -0500
+Date: Tue, 29 Jan 2002 10:13:09 +1100
+From: CaT <cat@zip.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>
+Subject: Re: [swsusp] swsusp for 2.4.17 -- newer ide supported
+Message-ID: <20020128231309.GD655@zip.com.au>
+In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
+User-Agent: Mutt/1.3.25i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-
-> Since the page was copied to the child, the child's page table must be 
-> altered, and since it is shared, it must first be instantiated by the child.  
-> So after all the dust settles, the parent and child have their own copies of 
-> a page table page, which differ only at a single location: the child's page 
-> table points at its freshly made CoW copy, and the parent's page table points 
-> at the original page.
-
+On Mon, Jan 28, 2002 at 11:07:05AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> The beauty of this is, the page table could just as easily have been shared 
-> by a sibling of the child, not the parent at all, in the case that the parent 
-> had already instantiated its own copy of the page table page because of an 
-> earlier CoW.
+> This is newer version of swsusp patch. It now supports newer ide
+> driver (which just about everybody uses). It sometimes fails to
+> suspend when top is running, otherwise no bugs are known. Try to break
+> this one!
+> 								Pavel
 
+Having just (accidentally :) found out that my laptop does not survive 3
+days on suspend to ram I gotta ask... Will this version work with ext3?
+If so then I can try and break it. I just don't wanna use something that
+is known to be rude to filesystems. I like my data. :)
 
-Ok.  Still seems like a bit more copying than necessary.  I'd have
-to look at it a bit more and do some noodling.
-
- 
-> Confused yet?  Welcome to the club ;-)
-
-
-Does my head exploding qualify for "confused"?  If so, then I'm not
-yet "confused".  I'm "concerned", since my ears are bleeding (a
-precursor to an explosion) ;-p
-
-----------------------------------------------------------------------
-- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
-- 949-743-2010 (Voice)                    http://www.vitalstream.com -
--                                                                    -
--        "More hay, Trigger?" "No thanks, Roy, I'm stuffed!"         -
-----------------------------------------------------------------------
-
+-- 
+SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
+friends that I thought would have no importance until this morning when
+I got up and saw all  the commotion in the news,"  Gallardo told a news
+conference. "It stunned me."
+Reyes told Marca that he had "felt a slight pinch."
+      -- http://www.azcentral.com/offbeat/articles/1129soccer29-ON.html

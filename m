@@ -1,115 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVCXXvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVCXXyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVCXXvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 18:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVCXXvd
+	id S261248AbVCXXyo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 18:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCXXyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 18:51:33 -0500
-Received: from tornado.reub.net ([60.234.136.108]:21691 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S261249AbVCXXvB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 18:51:01 -0500
-Message-ID: <4243525B.1030307@reub.net>
-Date: Fri, 25 Mar 2005 11:50:51 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050321)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm2
-References: <fa.h0e9s21.ljie1j@ifi.uio.no>
-In-Reply-To: <fa.h0e9s21.ljie1j@ifi.uio.no>
-Content-Type: multipart/mixed;
- boundary="------------030807040903000204030107"
+	Thu, 24 Mar 2005 18:54:44 -0500
+Received: from pirx.hexapodia.org ([199.199.212.25]:44067 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S261248AbVCXXyk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 18:54:40 -0500
+Date: Thu, 24 Mar 2005 15:54:39 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050324235439.GA27902@hexapodia.org>
+References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005032413145adaa283@mail.gmail.com> <d120d50005032413105950045c@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030807040903000204030107
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Mar 24, 2005 at 04:10:39PM -0500, Dmitry Torokhov wrote:
+> If you do "ls /sys/bus/serio/devices" and see more than 3 ports you
+> have MUX mode active.
 
-Hi,
+Just serio0 and serio1.
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm2/
+On Thu, Mar 24, 2005 at 04:14:52PM -0500, Dmitry Torokhov wrote:
+> On Thu, 24 Mar 2005 12:20:40 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> > (How can I verify that "nomux" was accepted?  It shows up on the "Kernel
+> > command line" but there's no other mention of it in dmesg.)
 > 
-> 
-> - Added David Miller's networking tree to the -mm lineup as bk-net.patch. 
-> 
-> - Added Herbert Xu's crypto development tree to the -mm lineup as
->   bk-cryptodev.patch.
-> 
->   -mm kernels now aggregate Linus's tree and 34 subsystem trees.  Usually
->   they are pulled 3-4 hours before the release of the -mm kernel.  
-> 
->   Usually it is possible to determine the latest cset from each tree by
->   looking at the first couple of lines of the relevant patch in the
->   broken-out/ directory.  Although sometimes it isn't there if I had to
->   massage the diff.
-> 
-> - There may be an x86_64 problem here, although it works for me.  If it
->   fails early in boot, try reverting
->   x86_64-separate-amd-cmp-detection-from-hyper-threading.patch
-> 
-> - There's some work here on the recent USB PM resume bugs.  If you had
->   problems there, please test and be sure to cc
->   linux-usb-devel@lists.sourceforge.net in any reports.
-> 
-> - Some fixes for the recent DRM problems.
-> 
-> - Big DVB update
-> 
-> - md updates
-> 
-> - nfs4 server updates
-> 
-> - Lots more fixes
-> 
-> - Lots more bugs.
+> Ignore my babbling, I just noticed in your dmesg that your KBC does
+> not support MUX mode to begin with.
 
-Fails to compile for me:
+OK, anything else I should try?
 
-   CC [M]  fs/nfs/dir.o
-   CC [M]  fs/nfs/inode.o
-   CC [M]  fs/nfs/nfs4proc.o
-fs/nfs/nfs4proc.c:2976: error: static declaration of 
-'nfs4_file_inode_operations' follows non-static declaration
-fs/nfs/nfs4_fs.h:179: error: previous declaration of 
-'nfs4_file_inode_operations' was here
-make[2]: *** [fs/nfs/nfs4proc.o] Error 1
-make[1]: *** [fs/nfs] Error 2
-make: *** [fs] Error 2
+Why does it only fail when I have *both* intel_agp and i8042 aux?
 
-I needed to remove this line:
+In the SysRq-T trace I see one interesting process: most things are
+in D state in refrigerator(), but sh shows the following traceback:
 
-extern struct inode_operations nfs4_file_inode_operations;
+wait_for_completion
+call_usermodehelper
+kobject_hotplug
+kobject_del
+class_device_del
+class_device_unregister
+mousedev_disconnect
+input_unregister_device
+alps_disconnect
+psmouse_disconnect
+serio_driver_remove
+device_release_driver
+serio_release_driver
+serio_resume
+resume_device
+dpm_resume
+device_resume
+swsusp_write
+pm_suspend_disk
+enter_state
+state_store
+subsys_attr_store
+flush_write_buffer
+sysfs_write_file
+...
 
-from  fs/nfs/nfs4_fs.h.
+That seems odd to me...
 
-Patch attached.
-
-Reuben
+Also, khelper has the following trace:
+io_schedule
+sync_buffer
+__wait_on_bit
+out_of_line_wait_on_bit
+ext3_find_entry
+ext3_lookup
+real_lookup
+do_lookup
+__link_path_walk
+link_path_walk
+path_lookup
+open_exec
+do_execve
+...
 
 
-
-
---------------030807040903000204030107
-Content-Type: text/plain;
- name="nfsfix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nfsfix.patch"
-
---- fs/nfs/nfs4_fs.h	2005-03-25 11:40:51.000000000 +1200
-+++ fs/nfs/nfs4_fs.h	2005-03-25 11:44:28.000000000 +1200
-@@ -176,7 +176,6 @@
- 
- extern struct dentry_operations nfs4_dentry_operations;
- extern struct inode_operations nfs4_dir_inode_operations;
--extern struct inode_operations nfs4_file_inode_operations;
- 
- /* inode.c */
- extern ssize_t nfs4_getxattr(struct dentry *, const char *, void *, size_t);
-
---------------030807040903000204030107--
+-andy

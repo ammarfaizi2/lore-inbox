@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265938AbUE1IMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUE1Io2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265938AbUE1IMi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 04:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUE1IMi
+	id S263041AbUE1Io2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 04:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUE1Io2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 04:12:38 -0400
-Received: from main.gmane.org ([80.91.224.249]:50584 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265938AbUE1IMd (ORCPT
+	Fri, 28 May 2004 04:44:28 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:52128 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S263041AbUE1Io0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 04:12:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: Can't make XFS work with 2.6.6
-Date: Fri, 28 May 2004 10:12:27 +0200
-Message-ID: <yw1xn03t0y38.fsf@kth.se>
-References: <200405271736.08288.dj@david-web.co.uk> <200405271854.20787.dj@david-web.co.uk>
- <1085680806.5311.44.camel@buffy> <200405271925.24650.dj@david-web.co.uk>
- <1085695702.10106.65.camel@buffy> <20040528072030.GA24992@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:0KJOVxML2v7XHym8trcWhKQ0x+Q=
+	Fri, 28 May 2004 04:44:26 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: ftp.kernel.org
+Date: Fri, 28 May 2004 09:41:38 +0100
+User-Agent: KMail/1.5.3
+References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200405280941.38784.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Thu, May 27, 2004 at 06:08:23PM -0400, David Aubin wrote:
->> Hi Dave,
->> 
->>   You do not have devfs enabled.  So root=/dev/hda3
->> should not work.  Please enable in kernel and retry.
->> 
->> # CONFIG_DEVFS_FS is not set
+
+> On Thu, 27 May 2004, Martin J. Bligh wrote:
+> >They switched to vsftpd very recently ... presumably then.
 >
-> Exactly the wrong way around.  If you're brave enough to use
-> devfs you need to use devfs names on the command line.
+> That would explain it.  The default is to turn it off.
+>
+> >Why would you mirror via ftp, instead of rsync anyway?
+>
+> I have more control with mirror.  And I've been using mirror for
+> *ahem* a decade.  I've been using rsync for mirroring debian, but
+> it's slow and often fails to complete.  Mirror has never let me
+> down ('tho it has deleted entire archives before *grin*)
 
-Not at all.
+Agreed - fmirror is so much more reliable than rsync (imho) that it makes 
+rsync into a worst-case option for retrieving files.
 
-$ cat /proc/cmdline 
-root=/dev/hda1 video=sisfb:mode:1024x768x8
-$ gunzip -c /proc/config.gz | grep DEVFS
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
 
-Yes, I should switch to udev, but I don't have time to mess around
-with that stuff right now, and the machine works the way it is.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
--- 
-Måns Rullgård
-mru@kth.se
+iD8DBQFAtvtCBn4EFUVUIO0RAl6dAJ9C+1Xu6nIMTFI3ggchYyEAXTu7fACgm9Vt
+1VZ6sy9Ra/iK6MvCkxRUxVk=
+=3PkP
+-----END PGP SIGNATURE-----
 

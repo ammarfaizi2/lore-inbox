@@ -1,30 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTERMsH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 08:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTERMsH
+	id S262036AbTERMn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 08:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTERMn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 08:48:07 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:11654 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id S262032AbTERMsF
+	Sun, 18 May 2003 08:43:58 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:7302 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id S262036AbTERMn4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 08:48:05 -0400
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
-       "" <linux-kernel@vger.kernel.org>, "" <linux-mm@kvack.org>
+	Sun, 18 May 2003 08:43:56 -0400
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: [OOPS] 2.5.69-mm6
 References: <20030516015407.2768b570.akpm@digeo.com>
 	<87fznfku8z.fsf@lapper.ihatent.com>
 	<20030516180848.GW8978@holomorphy.com>
 	<20030516185638.GA19669@suse.de>
 	<20030516191711.GX8978@holomorphy.com>
-	<Pine.LNX.4.50.0305162322360.2023-100000@montezuma.mastecende.com>
-	<Pine.LNX.4.50.0305170937350.1910-100000@montezuma.mastecende.com>
 From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 18 May 2003 15:01:14 +0200
-In-Reply-To: <Pine.LNX.4.50.0305170937350.1910-100000@montezuma.mastecende.com>
-Message-ID: <87of20csth.fsf@lapper.ihatent.com>
+Date: 18 May 2003 14:57:04 +0200
+In-Reply-To: <20030516191711.GX8978@holomorphy.com>
+Message-ID: <87wugoct0f.fsf@lapper.ihatent.com>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,21 +31,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Zwane Mwaikambo <zwane@linuxpower.ca> writes:
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-> On Fri, 16 May 2003, Zwane Mwaikambo wrote:
+> On Fri, May 16, 2003 at 01:26:20PM +0200, Alexander Hoogerhuis wrote:
+> >>> This one goes in -mm5 as well, machine runs fine for a while in X, but
+> >>> trying to switch to a vty send the machine into the tall weeds...
 > 
-> > Could you alco specify your GCC version? Your disassembly looks rather 
-> > odd.
+> On Fri, May 16, 2003 at 11:08:48AM -0700, William Lee Irwin III wrote:
+> >> Could you run with the radeon driver non-modular and kernel debugging
+> >> on? Then when it oopses could you use addr2line(1) to resolve this to
+> >> a line number?
+> >> I'm at something of a loss with respect to dealing with DRM in general.
 > 
-> I am unable to reproduce this with DRI/AGP built into the kernel or 
-> as a module. X11 Setup is Radeon 9100 w/ XFree86 4.3
+> On Fri, May 16, 2003 at 07:56:38PM +0100, Dave Jones wrote:
+> > Not that I'm pointing fingers, but it could be that
+> > reslabify-pgds-and-pmds.patch again  ? Maybe it's still not quite right?
+> > Might be worth backing out and retesting, just to rule it out.
+> 
+> Yes, if he could try that too it would help. I got a private reply
+> saying he'd be out of the picture for over 24 hours. I'm looking for
+> someone with a radeon to fill in the gap until then.
 > 
 
-Radeon 7500, 64Mb video mem and Xfree 4.3.0 (-r2 in the gentoo portage
-tree).
+I'm back in the picture now, the machine is chugging along, churning
+out a new kernel. I'll get the details out in a few hours :)
 
-> 	Zwane
+> 
+> -- wli
 
 mvh,
 A
@@ -60,7 +69,7 @@ CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
 Version: GnuPG v1.2.2 (GNU/Linux)
 Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
 
-iD8DBQE+x4QWCQ1pa+gRoggRArLeAJkBRQskqD5HAZzto3qm39U4SSMzfgCeLhjp
-iXTIR2QIIuC9a97wFQPfJVA=
-=PBrp
+iD8DBQE+x4McCQ1pa+gRoggRAl0SAJ49l27s2cdi7pNNCE8xI6MtC2wrdQCgxotU
+Nlqa0EFTAAZ/XoSi/HHi8Ng=
+=XpPy
 -----END PGP SIGNATURE-----

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUJIWui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUJIWxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUJIWui (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 18:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUJIWui
+	id S267514AbUJIWxN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 18:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUJIWxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 18:50:38 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:483 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S267508AbUJIWug (ORCPT
+	Sat, 9 Oct 2004 18:53:13 -0400
+Received: from gw.anda.ru ([212.57.164.72]:32004 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S267511AbUJIWxI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 18:50:36 -0400
-Message-ID: <41686A40.3060305@keyaccess.nl>
-Date: Sun, 10 Oct 2004 00:46:24 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Zaitsev <zzz@anda.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
-References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl> <20041010033820.B30047@natasha.ward.six> <41685E04.3070103@keyaccess.nl> <20041010043443.A1639@natasha.ward.six>
-In-Reply-To: <20041010043443.A1639@natasha.ward.six>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Sat, 9 Oct 2004 18:53:08 -0400
+Date: Sun, 10 Oct 2004 04:53:00 +0600
+From: Denis Zaitsev <zzz@anda.ru>
+To: Russell King <rmk+serial@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: [PATCH] Another one ISA PnP modem
+Message-ID: <20041010045300.B1639@natasha.ward.six>
+Mail-Followup-To: Russell King <rmk+serial@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Zaitsev wrote:
+This patch adds the USR Courier INT (one of them?) into the list of
+the PnP devices IDs in 8250_pnp.  Before the patch this modem hasn't
+been activated by 8250_pnp.
 
-> With the device ID added all the things just work.  Ok.  Thanks.  I'm
-> sending the patch.
+For the description inside a comment I used what the modem tells about
+itself literally - 'USRobotics' vs. 'U.S. Robotics' used elsewhere in
+the file.  May be it is undesirably?
 
-Good.
-
-> /proc/tty/driver/serial shows the correct info for now.  Does the fact
-> that it used to do not means that something wrong with sysfs PnP
-> activation mechanics?
-
-That would appear to be the case yes. Adam Belay <ambx1@neo.rr.com> is 
-the person to talk to concerning PnP issues, if you care to.
-
-Rene.
+Please, apply the patch.
 
 
+--- drivers/serial/8250_pnp.c.orig	2004-08-14 16:54:47.000000000 +0600
++++ drivers/serial/8250_pnp.c	2004-10-10 03:33:53.000000000 +0600
+@@ -293,6 +293,8 @@ static const struct pnp_device_id pnp_de
+ 	{	"USR0006",		0	},
+ 	/* U.S. Robotics 33.6K Voice EXT PnP */
+ 	{	"USR0007",		0	},
++	/* USRobotics Courier V.Everything INT PnP */
++	{	"USR0009",		0	},
+ 	/* U.S. Robotics 33.6K Voice INT PnP */
+ 	{	"USR2002",		0	},
+ 	/* U.S. Robotics 56K Voice INT PnP */

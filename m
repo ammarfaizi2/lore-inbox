@@ -1,74 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbTD1XTX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 19:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbTD1XTX
+	id S261388AbTD1XaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 19:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbTD1XaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 19:19:23 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23441
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261369AbTD1XTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 19:19:22 -0400
-Subject: Re: Request for Comment on PCI Express Configuration Support design
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'mj@ucw.cz'" <mj@ucw.cz>
-In-Reply-To: <12B638FEE763F74696D8544752E7204803254E84@bgsmsx101.iind.intel.com>
-References: <12B638FEE763F74696D8544752E7204803254E84@bgsmsx101.iind.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051569148.17369.15.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 28 Apr 2003 19:30:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:14789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261388AbTD1XaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 19:30:07 -0400
+Date: Mon, 28 Apr 2003 16:40:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: dank@kegel.com, elenstev@mesatop.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: more for spelchkrs
+Message-Id: <20030428164023.043ed8c1.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Apr 2003 23:32:29 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-28 at 17:59, Seshadri, Harinarayanan wrote:
-> which is essentially a Memory Mapped scheme to access this extended
-> configuration region. Currently in Linux, the PCI Subsystem supports only
-> type 1/ type 2 PCI configuration access, which is traditionally accessed
-> through CF8/CFC mechanism. 
 
-(and BIOS, and IBM NUMA-Q/440)
+linux-2.5.68-current...
 
-> 	To support access to the extended configuration region of the PCI
-> Express devices (Although legacy CF8/CFC scheme will still work, but the
-> configuration access space will be limited to 256 bytes only), we need to
-> modify the PCI subsystem. At the time of PCI initialization/device
-> enumeration the pci_root_ops and hence pci_dev->ops structure is set to
-> pci_express_ops for PCI Express devices (identified by the existence of the
-> PCI Express capability structure). 
+init/main.c:  mispelled   :)
 
-Is this property dependant on the device or on the root bridge ? IE if I
-have something like
+net/*:        apropriate; unparsable; sepciafied;
 
-	PCIEXPRESS(root)---->PCIEXress/Cardbus bridge--->Ethernet card
-
-Can I use the mmio interface to talk to the card - I'd assume so
-(obviously it only has 256 bytes of data)
-
-> 		static unsigned long __init pciexp_map_region(unsigned long
-> phys)
-> 		{
-> 			unsigned long base, offset, mapped_area;
-> 			base  = ((unsigned long)phys) & PAGE_MASK;
-> 			offset = ((unsigned long) phys) - base;
-> 			mapped_area = (unsigned long) ioremap(base,
-> PAGE_SIZE);
-> 			return ( mapped_area? (mapped_area + offset): 0UL);
-> 		}
-
-ioremap is bright enough to do unaligned maps for you
-
-> 		This will enable any existing pci driver to access the
-> complete 4k config space (which include legacy 256 byte configuration region
-> as well) using standard interface like pci_config_read/write call. 
-
-Looks pretty sound to me. The code was intended to support multiple
-config mechanisms.
-
-Alan
-
+--
+~Randy

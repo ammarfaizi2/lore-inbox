@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVCXDOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVCXDNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVCXDOc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 22:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVCXDNb
+	id S262999AbVCXDNM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 22:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVCXDLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 22:13:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58129 "HELO
+	Wed, 23 Mar 2005 22:11:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50193 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262996AbVCXDMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 22:12:48 -0500
-Date: Thu, 24 Mar 2005 04:12:45 +0100
+	id S262999AbVCXDJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 22:09:22 -0500
+Date: Thu, 24 Mar 2005 04:09:16 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: vojtech@suse.cz
-Cc: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/input/joystick/iforce/iforce-main.c: fix check after use
-Message-ID: <20050324031245.GX1948@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: [2.6 patch] unexport hugetlb_total_pages
+Message-ID: <20050324030916.GQ1948@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,30 +22,24 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes an obvious check after use found by the Coverity 
-checker.
+I didn't find any possible modular usage in the kernel.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: William Irwin <wli@holomorphy.com>
 
---- linux-2.6.12-rc1-mm1-full/drivers/input/joystick/iforce/iforce-main.c.old	2005-03-24 02:28:48.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/drivers/input/joystick/iforce/iforce-main.c	2005-03-24 02:29:15.000000000 +0100
-@@ -221,15 +221,15 @@ static int iforce_erase_effect(struct in
- 	int err = 0;
- 	struct iforce_core_effect* core_effect;
+---
+
+This patch was already sent on:
+- 6 Mar 2005
+
+--- linux-2.6.11-mm1-full/mm/hugetlb.c.old	2005-03-04 15:47:11.000000000 +0100
++++ linux-2.6.11-mm1-full/mm/hugetlb.c	2005-03-04 15:47:29.000000000 +0100
+@@ -230,7 +230,6 @@
+ {
+ 	return nr_huge_pages * (HPAGE_SIZE / PAGE_SIZE);
+ }
+-EXPORT_SYMBOL(hugetlb_total_pages);
  
-+	if (effect_id < 0 || effect_id >= FF_EFFECTS_MAX)
-+		return -EINVAL;
-+
- 	/* Check who is trying to erase this effect */
- 	if (iforce->core_effects[effect_id].owner != current->pid) {
- 		printk(KERN_WARNING "iforce-main.c: %d tried to erase an effect belonging to %d\n", current->pid, iforce->core_effects[effect_id].owner);
- 		return -EACCES;
- 	}
- 
--	if (effect_id < 0 || effect_id >= FF_EFFECTS_MAX)
--		return -EINVAL;
--
- 	core_effect = iforce->core_effects + effect_id;
- 
- 	if (test_bit(FF_MOD1_IS_USED, core_effect->flags))
+ /*
+  * We cannot handle pagefaults against hugetlb pages at all.  They cause
 

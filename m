@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLEQqO>; Tue, 5 Dec 2000 11:46:14 -0500
+	id <S129210AbQLEQuO>; Tue, 5 Dec 2000 11:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLEQqE>; Tue, 5 Dec 2000 11:46:04 -0500
-Received: from mail.datanova.se ([212.116.83.131]:26372 "HELO datanova.se")
-	by vger.kernel.org with SMTP id <S129183AbQLEQpx>;
-	Tue, 5 Dec 2000 11:45:53 -0500
-Message-Id: <5.0.1.4.2.20001205170724.00b30458@mail.datanova.se>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.1
-Date: Tue, 05 Dec 2000 17:15:25 +0100
-To: linux-kernel@vger.kernel.org
-From: Daniel Sangenberg <daniel@datanova.se>
-Subject: 2.2.17 + ide patches + 61gb ibm disc = problem
+	id <S129744AbQLEQuF>; Tue, 5 Dec 2000 11:50:05 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:45327 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129210AbQLEQt4>;
+	Tue, 5 Dec 2000 11:49:56 -0500
+Date: Tue, 5 Dec 2000 17:19:32 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Roderich Schupp <rsch@ExperTeam.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with CDROMVOLCTRL
+Message-ID: <20001205171932.C379@suse.de>
+In-Reply-To: <200012031330.OAA04450@www1.ExperTeam.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200012031330.OAA04450@www1.ExperTeam.de>; from rsch@ExperTeam.de on Sun, Dec 03, 2000 at 02:25:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Dec 03 2000, Roderich Schupp wrote:
+> Hi,
+> CDROMVOLCTRL does not work with my configuration in test11.
+> The ioctl always returns an error and volume stays the same
+> (seen with xmcd and gtcd). I tried the patch at
+> 
+> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/cd-1.bz2
+> 
+> This changed the error code from some bogus large positive number
+> to -EOPNOTSUPP :) However, volume control works fine in 2.2.17,
+> so the hardware shouldn't be the culprit.
+> The cdrom drive in question is an old TEAC CD-56S on an 
+> Adaptec AHA-2940 (narrow) controller.
 
-I have a problem with 2.2.17 + the latest ide patches and 2 * 61 gb ibm ide 
-discs, the discs are connected as slave on a two channels (onboard ide 
-channels on a asus p2b (i440BX Chipset)), there is nohing else connected on 
-the ide interface and the jumper settings are identical.
+Please send me contents of /proc/sys/dev/cdrom/info and the sr
+load info.
 
-dmesg output:
-
-Uniform Multi-Platform E-IDE driver Revision: 6.30
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 21
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:DMA
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:DMA
-hdb: IBM-DTLA-307060, ATA DISK drive
-hdd: IBM-DTLA-307060, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hdb: IBM-DTLA-307060, 58644MB w/1916kB Cache, CHS=7476/255/63, UDMA(33)
-hdd: IBM-DTLA-307060, 58644MB w/1916kB Cache, CHS=119150/16/63, UDMA(33)
-
-hdd1 [events: 00000001](write) hdd1's sb offset: 60051456
-hdb1 [events: 00000001](write) hdb1's sb offset: 60050816
-
-
-The difference in size and cylinders could cause a problem if this changes 
-in later versions, is this normal behaviour or did i do something wrong ?
-
-If possible please CC me when replying
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

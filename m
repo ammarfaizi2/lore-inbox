@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266615AbSKZTax>; Tue, 26 Nov 2002 14:30:53 -0500
+	id <S266609AbSKZT3P>; Tue, 26 Nov 2002 14:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbSKZTaf>; Tue, 26 Nov 2002 14:30:35 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:5504 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S266615AbSKZT3V>; Tue, 26 Nov 2002 14:29:21 -0500
-Date: Tue, 26 Nov 2002 14:36:36 -0500 (EST)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] give NFS client a "set_page_dirty" address space op.
-Message-ID: <Pine.LNX.4.44.0211261434270.9482-100000@dexter.citi.umich.edu>
+	id <S266564AbSKZT2j>; Tue, 26 Nov 2002 14:28:39 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:4868 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266609AbSKZT1p>;
+	Tue, 26 Nov 2002 14:27:45 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200211261945.gAQJjoRe000267@darkstar.example.net>
+Subject: Re: A Kernel Configuration Tale of Woe
+To: trog@wincom.net
+Date: Tue, 26 Nov 2002 19:45:50 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, dpaun@rogers.com, rusty@linux.co.intel.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3de3cc8d.54dd.0@wincom.net> from "Dennis Grant" at Nov 26, 2002 02:28:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description:
-  The default set_page_dirty address space op is too heavyweight for NFS,
-  which doesn't use buffers.
+> > For boards its not that simple. Many vendors release multiple >
+> > utterly different machines with the same box, bios and ident.
+> > The customer is told "IDE CD, 100mbit ethernet", the customer
+> > gets random cheapest going ethernet.
+> 
+> Agreed - so then the association between "board" and "chipset" must
+> be capable of being multi-valued, and when there is a mult-valued
+> match there must be some means of further interrogating the user (or
+> user agent) for more information.
 
-Apply against:
-  2.5.49
+This demonstrates a very important point - _any_ automatic
+configuration program is likely to cause more traffic to this mailing
+list, and create more work for users and developers that the current
+automatic configuration process:
 
-Test status:
-  Passes Connectathon '02, fsx, and other stress tests on a UP HIGHMEM
-  system.
+echo 'My box doesn't boot' | mail linux-kernel@vger.kernel.org
 
+The kernel knows nothing about motherboards, cards, etc.  It knows
+about chipsets, and nothing else.  By definition, you cannot have a
+kernel configurator that works at a higher level than that.
 
-diff -Naur 01-kmap-atomic/fs/nfs/file.c 02-set_page_dirty/fs/nfs/file.c
---- 01-kmap-atomic/fs/nfs/file.c	Fri Nov 22 16:40:51 2002
-+++ 02-set_page_dirty/fs/nfs/file.c	Mon Nov 25 13:19:44 2002
-@@ -168,6 +168,7 @@
- struct address_space_operations nfs_file_aops = {
- 	.readpage = nfs_readpage,
- 	.readpages = nfs_readpages,
-+	.set_page_dirty = __set_page_dirty_nobuffers,
- 	.writepage = nfs_writepage,
- 	.writepages = nfs_writepages,
- 	.prepare_write = nfs_prepare_write,
+Why don't we introduce a make allworkingmodules config, which compiles
+everything as modules, except for the things that are broken as
+modules, (for example IDE in the current 2.5.x tree would be compiled
+in).
 
+John.

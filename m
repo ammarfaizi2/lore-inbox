@@ -1,36 +1,280 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261327AbSJCPOy>; Thu, 3 Oct 2002 11:14:54 -0400
+	id <S263332AbSJCPJM>; Thu, 3 Oct 2002 11:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbSJCPOa>; Thu, 3 Oct 2002 11:14:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14547 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261327AbSJCPOY>;
-	Thu, 3 Oct 2002 11:14:24 -0400
-Date: Thu, 03 Oct 2002 08:11:09 -0700 (PDT)
-Message-Id: <20021003.081109.35889528.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: willy@debian.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Start of cleaning up socket ioctls
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1033658599.28850.5.camel@irongate.swansea.linux.org.uk>
-References: <20021003155241.G28586@parcelfarce.linux.theplanet.co.uk>
-	<1033658599.28850.5.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S263335AbSJCPJM>; Thu, 3 Oct 2002 11:09:12 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:12332 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S263332AbSJCPJG>; Thu, 3 Oct 2002 11:09:06 -0400
+Message-Id: <5.1.0.14.2.20021003110145.01e571f8@pop.mindspring.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 03 Oct 2002 11:14:32 -0400
+To: linux-kernel@vger.kernel.org
+From: Charles Menser <cmiii@mindspring.net>
+Subject: 2.5.40 debug sleep in slab: IDE at boot
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 03 Oct 2002 16:23:19 +0100
-   
-   Nice but one request - can you call the protocol handlers first and if
-   they return -ENOTTY then call the default ones provided by the upper
-   layer. That will let you remove even more common code to most versions,
-   make it work like the serial and other layers do, and still let people
-   override defaults
-   
-Actually the cases he removed this round I am reasonably certain no
-protocol should ever need to override.
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH: IDE controller at PCI slot 00:1f.1
+ICH: chipset revision 2
+ICH: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: QUANTUM FIREBALLP LM10.2, ATA DISK drive
+Debug: sleeping function called from illegal context at slab.c:1374
+c153fe90 c0112cd6 c02d6f80 c02d8ec2 0000055e c03c8f5c c012da06 c02d8ec2
+        0000055e c03c8f4c c0218a08 c03c8f4c 00000282 00000000 44020001 00000044
+        00000001 c03c8f5c c03c8f94 c03c8f4c c03c8f5c c020bc41 dfe89428 000001d0
+Call Trace:
+  [<c0112cd6>]__might_sleep+0x56/0x60
+  [<c012da06>]kmem_cache_alloc+0x26/0x1c0
+  [<c0218a08>]ide_config_drive_speed+0x248/0x420
+  [<c020bc41>]blk_init_free_list+0x61/0xf0
+  [<c020bcdd>]blk_init_queue+0xd/0xf0
+  [<c0216fa8>]ide_init_queue+0x28/0x70
+  [<c021d6b0>]do_ide_request+0x0/0x20
+  [<c0217280>]init_irq+0x290/0x340
+  [<c02175eb>]hwif_init+0x10b/0x250
+  [<c0216ecd>]probe_hwif_init+0x1d/0x70
+  [<c0223a8b>]ide_setup_pci_device+0x3b/0x60
+  [<c0215f55>]piix_init_one+0x35/0x40
+  [<c0105093>]init+0x33/0x1a0
+  [<c0105060>]init+0x0/0x1a0
+  [<c01054e5>]kernel_thread_helper+0x5/0x10
+
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: Lite-On LTN483S 48x Max, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 19925880 sectors (10202 MB) w/1900KiB Cache, CHS=1240/255/63, UDMA(66)
+hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 >
+
+
+.config:
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_PREEMPT=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_TUN=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_NET_PCI=y
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=m
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_PCNET=y
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_INTEL_RNG=y
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_SOUND=y
+CONFIG_SOUND_PRIME=m
+CONFIG_SOUND_ES1371=m
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_LONG_TIMEOUT=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD_ALT=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_KALLSYMS=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
+
+
+
+-----
+Charles Menser               <><       Sr. Network Engineer
+cmiii@corp.earthlink.net                          EarthLink
+"If you choose not to decide, you still have made a choice"
+

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310328AbSCPNBF>; Sat, 16 Mar 2002 08:01:05 -0500
+	id <S310344AbSCPNQ5>; Sat, 16 Mar 2002 08:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310330AbSCPNA4>; Sat, 16 Mar 2002 08:00:56 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:49280 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S310328AbSCPNAp>;
-	Sat, 16 Mar 2002 08:00:45 -0500
-Date: Sat, 16 Mar 2002 13:04:16 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: <tigran@einstein.homenet>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Paul Mackerras <paulus@samba.org>, Balbir Singh <balbir_soni@yahoo.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nice values for kernel modules 
-In-Reply-To: <16358.1016282075@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet>
+	id <S310339AbSCPNQr>; Sat, 16 Mar 2002 08:16:47 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:46980 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310344AbSCPNQg>; Sat, 16 Mar 2002 08:16:36 -0500
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Dan Kegel <dkegel@ixiacom.com>, libc-gnats@gnu.org, gnats-admin@cygnus.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the
+ problem  (one li\ne)>
+In-Reply-To: <1016062486.16743.1091.camel@myware.mynet>
+	<3C8FEC76.F1411739@ixiacom.com>
+	<20020314020834.Z2434@devserv.devel.redhat.com>
+	<3C926E0B.1A0EE311@ixiacom.com>
+	<1016237961.5612.51.camel@myware.mynet>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: Sat, 16 Mar 2002 14:12:27 +0100
+Message-ID: <87hengejwk.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Mar 2002, Keith Owens wrote:
-> I can see no good reason why the syscall table has been exported.
+Hi Ulrich,
 
-There are lots of good reasons why it has been exported, e.g. ability to
-replace some system calls while leaving overall Linux personality (i.e.
-without switching to an ABI emulation).
+Ulrich Drepper <drepper@redhat.com> writes:
 
-Ability to bypass the stupid commercial time-locked licences (at some time
-wordperfect demo was locked like that and my timetravel module turned a
-demo into full product -- users were happy, at least according to emails I
-received :)
+> On Fri, 2002-03-15 at 13:56, Dan Kegel wrote:
+>
+>> Ulrich, do you at least agree that it would be desirable for
+>> gprof to work properly on multithreaded programs?
+>
+> No.  gprof is uselss in today world.
 
-Also, ability to call those system calls from a module which are not
-exported individually. Actually, the list of useful possibilities is
-endless.  Wasn't it wine or dosemu (or some other similar software) which
-was based on being able to access sys_call_table. I can't remember the
-name of that software but I am sure that a lot of things will break if
-sys_call_table is unexported.
+Why do you think profiling is useless in todays world?
 
-Anyway, yes, I agree that this feature is mainly useful on i386
-architecture. I should have explicitly stated this when I recommended it.
-
-(actually, I didn't _recommend_ it but only listed it as a possiblity.
->From the possibilities that were originally listed I would recommend the
-macro)
-
-Regards,
-Tigran
-
+Regards, Olaf.

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSJSTVH>; Sat, 19 Oct 2002 15:21:07 -0400
+	id <S265672AbSJSTRY>; Sat, 19 Oct 2002 15:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265667AbSJSTVH>; Sat, 19 Oct 2002 15:21:07 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35847 "EHLO
+	id <S265673AbSJSTRY>; Sat, 19 Oct 2002 15:17:24 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33031 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265661AbSJSTVG>; Sat, 19 Oct 2002 15:21:06 -0400
-Date: Sat, 19 Oct 2002 15:26:14 -0400 (EDT)
+	id <S265672AbSJSTRX>; Sat, 19 Oct 2002 15:17:23 -0400
+Date: Sat, 19 Oct 2002 15:23:13 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Mark Gross <mark@thegnar.org>
-cc: NPT library mailing list <phil-list@redhat.com>,
-       Daniel Jacobowitz <dan@debian.org>, Mark Kettenis <kettenis@gnu.org>,
-       mgross <mgross@unix-os.sc.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
-In-Reply-To: <200210180657.38291.mark@thegnar.org>
-Message-ID: <Pine.LNX.3.96.1021019152330.29078J-100000@gatekeeper.tmr.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: linux-kernel@vger.kernel.org, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: kexec for 2.5.44 (Who do I send this to?)
+In-Reply-To: <m1y98uyc1a.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, Mark Gross wrote:
+On 19 Oct 2002, Eric W. Biederman wrote:
 
-> I think I fixed it to set namesz to 5, with the +1 it was making it 6.  My 
-> patch is supposed to remove the +1.
 > 
-> The value for men-name for the extended registers case is "LINUX".
+> The kexec code has gone through a fairly decent review, and all known bugs
+> are resolved.  There are still BIOS's that don't work after you have
+> run a kernel but that is an entirely different problem.  
+> 
+> My real question: With Linus off on vacation my real question is who
+> should I send this to?
 
-But the terminating '\0' is required in ELF, no? Or are you going to drop
-the name to "LINU" and put the required character in?
+I believe Linus explicitly said he wasn't going to tell anyone, which
+means we're back to the days of "through it on the list over and over
+until someone admits to seeing it." Or send it to everyone who might be
+willing to push it to Linus when he gets back.
 
-In modern size machines I think the limit is way too low, but it is a
-standard. I'm sure some code will rely on the NUL and run off the end of
-the Earth looking for it, so you can't just leave it off.
+By not accepting stuff at this point I would guess that the defacto freeze
+is here. Hope I'm wrong, there is some good stuff which would be ready by
+Oct 31.
 
 -- 
 bill davidsen <davidsen@tmr.com>

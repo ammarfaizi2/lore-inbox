@@ -1,63 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCNID7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCNIM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVCNID7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 03:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVCNID7
+	id S261327AbVCNIM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 03:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVCNIM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 03:03:59 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:4203 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261330AbVCNIDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 03:03:55 -0500
-Message-ID: <42354562.1080900@yahoo.com.au>
-Date: Mon, 14 Mar 2005 19:03:46 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Mon, 14 Mar 2005 03:12:27 -0500
+Received: from ozlabs.org ([203.10.76.45]:61832 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261327AbVCNIMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 03:12:15 -0500
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] break_lock forever broken
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com> <20050311203427.052f2b1b.akpm@osdl.org> <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com> <20050314070230.GA24860@elte.hu>
-In-Reply-To: <20050314070230.GA24860@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16949.18241.693676.943000@cargo.ozlabs.ibm.com>
+Date: Mon, 14 Mar 2005 19:11:45 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@austin.ibm.com>,
+       anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: kill might_sleep() warnings in __copy_*_user_inatomic
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Hugh Dickins <hugh@veritas.com> wrote:
-> 
-> 
->>@@ -187,6 +187,8 @@ void __lockfunc _##op##_lock(locktype##_
->> 			cpu_relax();					\
->> 		preempt_disable();					\
->> 	}								\
->>+	if ((lock)->break_lock)						\
->>+		(lock)->break_lock = 0;					\
-> 
-> 
-> while writing the ->break_lock feature i intentionally avoided overhead
-> in the spinlock fastpath. A better solution for the bug you noticed is
-> to clear the break_lock flag in places that use need_lock_break()
-> explicitly.
-> 
+This patch is from Arnd Bergmann and Olof Johansson.
 
-What happens if break_lock gets set by random contention on the
-lock somewhere (with no need_lock_break or cond_resched_lock)?
-Next time it goes through a lockbreak will (may) be a false positive.
+This implements the __copy_{to,from}_user_inatomic() functions on ppc64.
+The only difference between the inatomic and regular version is that
+inatomic does not call might_sleep() to detect possible faults while
+holding locks/elevated preempt counts.
 
-I think I'd prefer the additional lock overhead of Hugh's patch if
-it gives better behaviour. I think. Any idea what the overhead actually
-is?
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Olof Johansson <olof@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-> One robust way for that seems to be to make the need_lock_break() macro
-> clear the flag if it sees it set, and to make all the other (internal)
-> users use __need_lock_break() that doesnt clear the flag. I'll cook up a
-> patch for this.
-> 
-
-If you do this exactly as you describe, then you'll break
-cond_resched_lock (eg. for the copy_page_range path), won't you?
-
+--- linux-2.6-ppc.orig/include/asm-ppc64/uaccess.h	2005-03-10 14:54:18.000000000 -0500
++++ linux-2.6-ppc/include/asm-ppc64/uaccess.h	2005-03-11 06:55:02.792926304 -0500
+@@ -119,6 +119,7 @@ extern long __put_user_bad(void);
+ #define __put_user_nocheck(x,ptr,size)				\
+ ({								\
+ 	long __pu_err;						\
++	might_sleep();						\
+ 	__chk_user_ptr(ptr);					\
+ 	__put_user_size((x),(ptr),(size),__pu_err,-EFAULT);	\
+ 	__pu_err;						\
+@@ -128,6 +129,7 @@ extern long __put_user_bad(void);
+ ({									\
+ 	long __pu_err = -EFAULT;					\
+ 	void __user *__pu_addr = (ptr);					\
++	might_sleep();							\
+ 	if (access_ok(VERIFY_WRITE,__pu_addr,size))			\
+ 		__put_user_size((x),__pu_addr,(size),__pu_err,-EFAULT);	\
+ 	__pu_err;							\
+@@ -135,7 +137,6 @@ extern long __put_user_bad(void);
+ 
+ #define __put_user_size(x,ptr,size,retval,errret)			\
+ do {									\
+-	might_sleep();							\
+ 	retval = 0;							\
+ 	switch (size) {							\
+ 	  case 1: __put_user_asm(x,ptr,retval,"stb",errret); break;	\
+@@ -170,6 +171,7 @@ do {									\
+ #define __get_user_nocheck(x,ptr,size)				\
+ ({								\
+ 	long __gu_err, __gu_val;				\
++	might_sleep();						\
+ 	__get_user_size(__gu_val,(ptr),(size),__gu_err,-EFAULT);\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;			\
+ 	__gu_err;						\
+@@ -179,6 +181,7 @@ do {									\
+ ({									\
+ 	long __gu_err = -EFAULT, __gu_val = 0;				\
+ 	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
++	might_sleep();							\
+ 	if (access_ok(VERIFY_READ,__gu_addr,size))			\
+ 		__get_user_size(__gu_val,__gu_addr,(size),__gu_err,-EFAULT);\
+ 	(x) = (__typeof__(*(ptr)))__gu_val;				\
+@@ -189,7 +192,6 @@ extern long __get_user_bad(void);
+ 
+ #define __get_user_size(x,ptr,size,retval,errret)			\
+ do {									\
+-	might_sleep();							\
+ 	retval = 0;							\
+ 	__chk_user_ptr(ptr);						\
+ 	switch (size) {							\
+@@ -223,9 +225,8 @@ extern unsigned long __copy_tofrom_user(
+ 					unsigned long size);
+ 
+ static inline unsigned long
+-__copy_from_user(void *to, const void __user *from, unsigned long n)
++__copy_from_user_inatomic(void *to, const void __user *from, unsigned long n)
+ {
+-	might_sleep();
+ 	if (__builtin_constant_p(n)) {
+ 		unsigned long ret;
+ 
+@@ -248,9 +249,15 @@ __copy_from_user(void *to, const void __
+ }
+ 
+ static inline unsigned long
+-__copy_to_user(void __user *to, const void *from, unsigned long n)
++__copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
++	return __copy_from_user_inatomic(to, from, n);
++}
++
++static inline unsigned long
++__copy_to_user_inatomic(void __user *to, const void *from, unsigned long n)
++{
+ 	if (__builtin_constant_p(n)) {
+ 		unsigned long ret;
+ 
+@@ -272,6 +279,13 @@ __copy_to_user(void __user *to, const vo
+ 	return __copy_tofrom_user(to, (__force const void __user *) from, n);
+ }
+ 
++static inline unsigned long
++__copy_to_user(void __user *to, const void *from, unsigned long n)
++{
++	might_sleep();
++	return __copy_to_user_inatomic(to, from, n);
++}
++
+ #define __copy_in_user(to, from, size) \
+ 	__copy_tofrom_user((to), (from), (size))
+ 
+@@ -284,9 +298,6 @@ extern unsigned long copy_in_user(void _
+ 
+ extern unsigned long __clear_user(void __user *addr, unsigned long size);
+ 
+-#define __copy_to_user_inatomic __copy_to_user
+-#define __copy_from_user_inatomic __copy_from_user
+-
+ static inline unsigned long
+ clear_user(void __user *addr, unsigned long size)
+ {

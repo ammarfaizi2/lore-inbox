@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTIKLnH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 07:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbTIKLnG
+	id S261256AbTIKLl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 07:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbTIKLl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 07:43:06 -0400
-Received: from home.wiggy.net ([213.84.101.140]:15232 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261254AbTIKLm5 (ORCPT
+	Thu, 11 Sep 2003 07:41:59 -0400
+Received: from 1Cust146.tnt9.ber2.deu.da.uu.net ([149.225.160.146]:13572 "EHLO
+	hell") by vger.kernel.org with ESMTP id S261256AbTIKLl6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 07:42:57 -0400
-Date: Thu, 11 Sep 2003 13:42:27 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: oops in inet_bind/tcp_v4_get_port
-Message-ID: <20030911114212.GA1888@wiggy.net>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	Thu, 11 Sep 2003 07:41:58 -0400
+Date: Thu, 11 Sep 2003 13:41:47 +0200
+From: Johannes Stezenbach <js@convergence.de>
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org, franck@nenie.org,
+       eric@lammerts.org
+Subject: Re: [linux-dvb] Possible kernel thread related crashes on 2.4.x
+Message-ID: <20030911114147.GC668@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Andrew de Quincey <adq_dvb@lidskialf.net>,
+	linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org,
+	franck@nenie.org, eric@lammerts.org
+References: <200309102303.34095.adq_dvb@lidskialf.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200309102303.34095.adq_dvb@lidskialf.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just had a kernel oops while restarting exim4. A hand-copied oops
-report is below. This is using kernel 2.6.0-test3 on a UP box without
-preempt after about a month of uptime. 
+Andrew de Quincey wrote:
+> Hi, I've been having fatal oopses with some of my DVB receiver systems 
+> when restarting streaming recently (i.e. opening/closing DVB devices). 
+> I've only just got into the office with a debug cable to find out what has happening.
+> 
+> Anyway, here are the important parts of the oops (full oops at end of mail):
+> Unable to handle kernel paging request at virtual address d905a984
+> ...
+> Trace; c011c79c <free_uid+2c/34>
+> Trace; c011767b <release_task+2b/16c>
+> Trace; c0118337 <sys_wait4+307/390>
+> Trace; c0106c03 <system_call+33/38>
+> 
+> Does this look familiar to anyone? I mean specifically this thread on linux-dvb (among others):
+> http://www.linuxtv.org/mailinglists/linux-dvb/2003/04-2003/msg00291.html
 
-Wichert.
+I get this crash from time to time, and it was also reported on the
+linux-dvb list recently:
+http://www.linuxtv.org/mailinglists/linux-dvb/2003/08-2003/msg00361.html
 
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c029cde6>]    Not tainted
-EFLAGS: 00010246
-EIP is at tcp_v4_get_port+0x296/0x2b0
-eax: 00000000  ebx: dec3d740  ecx: c18ed860   edx: c18ed870
-esi: 00000019  edi: 00000000  ebp: dfcc0064   esp: ddb07e70
-ds: 007b   es: 007b   ss: 0068
-Process exim4 (pid: 14228, threadinfo=ddb600 task=ddb1b300)
-Stack: 00000000 00000000 00000000 00000000 c18ed860 00000000 00000000 00000001
-       ddc8f508 00000000 00000246 00000001 ddc8f3e0 ffffffea ddc8f508 00000019
-       c02adbac ddc8f3e0 00000019 ddb07ee8 00000002 ddaa99a0 ddb07ee8 00000010
-Call Trace:
- [<c02adbac>] inet_bind+0x17c/0x230
- [<c025f24b>] sys_bind+0x7b/0xb0
- [<c011551c>] do_page_fault+0x12c/0x469
- [<c025f938>] sys_setsockopt+0x78/0xc0
- [<c026001b>] sys_socketcall+0xbb/0x2a0
- [>c010901f>] syscall_call+0x7/0xb
+But AFAIK there aren't many people who get this, and I didn't find any
+possible cause in the DVB drivers.
 
-Code: 0f b6 40 49 24 20 84 c0 75 9c eb 8a 8d b4 26 00 00 00 00 8d
-  <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+> Searching about found me this patch on LKML:
+> http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week04/0468.html
+> 
+> Which I applied to 2.4.21, and which appears to fix the problem. At least,
+> I was able to continually restart streaming for 4 hours this afternoon without a problem. 
+> Previously, I could crash it within 15 minutes.
+> 
+> It seems to be a bug related to kernel threads when starting/stopping them. The DVB drivers 
+> now do this when a DVB device is opened/closed, although I'm sure they previously left 
+> them running which would explain why I never saw this behaviour before.
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Only the frontend driver core creates one thread per frontend for monitoring.
 
+> My question is: is there a reason the patch has not yet made it into 2.4.x? It is not in 
+> 2.4.22-pre3.
+
+If this actually fixes kernel_thread() related crashes then please apply to -pre4.
+
+
+Johannes

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265736AbUFXVpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265745AbUFXVtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265736AbUFXVpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbUFXVn5
+	id S265745AbUFXVtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUFXVsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:43:57 -0400
-Received: from gprs214-211.eurotel.cz ([160.218.214.211]:16001 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265736AbUFXVmK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:42:10 -0400
-Date: Thu, 24 Jun 2004 23:41:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: information leak in vga console scrollback buffer
-Message-ID: <20040624214155.GD20649@elf.ucw.cz>
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu> <20040612204352.GA22347@taniwha.stupidest.org> <20040622153231.GA698@openzaurus.ucw.cz> <20040624184742.GA16713@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624184742.GA16713@taniwha.stupidest.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 24 Jun 2004 17:48:04 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:28327 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S265745AbUFXVo3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:44:29 -0400
+Date: Thu, 24 Jun 2004 13:51:36 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@www.fnordora.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       <linux-kernel@vger.kernel.org>, Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+In-Reply-To: <20040624213041.GA20649@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 24 Jun 2004, Pavel Machek wrote:
 
-> > Time for bugtraq?
+> Okay, lets make it explicit.
 > 
-> Only if you want sensationalized crap, might as well ell suckdork as
-> well then and let the drooling sycophants rant on with general lack of
-> clue.
+> On one school server, theres 10MB quota. (Okay, its admins are
+> BOFHs^H^H^H^H^HSISAL). Everyone tries to run mozilla there (because
+> its installed as default!), and immediately fills his/her quota with
+> cache files, leading to failed login next time (gnome just will not
+> start if it can't write to ~).
 > 
-> Or we could fix the problem, a patch was proposed someone who knows
-> this code should eyyeball that.
+> Imagine mozilla automatically marking cache files "elastic".
+> 
+> That would solve the problem -- mozilla caches would go away when disk
+> space was demanded, still mozilla's on-disk caching would be effective
+> when there is enough disk space.
 
-I was not aware that such patch exists. Anyway bugtraq posting is easy
-way to get it tested, and fixed in 2.2 too.
-								Pavel
+How does Mozilla (or any process) react when its files are deleted from 
+under it?  Would the file remain until all the open processes close the 
+file or would it just "disappear"?  Would it delete entire directories or 
+just some of the files?  How does it choose?  (First up against the delete 
+when the drive space fills...)
 
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

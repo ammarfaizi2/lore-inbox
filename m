@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbRL3XoR>; Sun, 30 Dec 2001 18:44:17 -0500
+	id <S285724AbRL3X47>; Sun, 30 Dec 2001 18:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285724AbRL3XoH>; Sun, 30 Dec 2001 18:44:07 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:17678 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S285692AbRL3Xn4>; Sun, 30 Dec 2001 18:43:56 -0500
-Date: Sun, 30 Dec 2001 15:46:13 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Timothy Covell <timothy.covell@ashavan.org>,
-        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
-In-Reply-To: <200112302320.AAA10992@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.40.0112301545030.934-100000@blue1.dev.mcafeelabs.com>
+	id <S285745AbRL3X4u>; Sun, 30 Dec 2001 18:56:50 -0500
+Received: from rhenium.btinternet.com ([194.73.73.93]:8152 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S285724AbRL3X4g>;
+	Sun, 30 Dec 2001 18:56:36 -0500
+From: "Jean-Francois De Rudder" <j.derudder@btinternet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel panic from usb-ohci
+Date: Sun, 30 Dec 2001 23:56:33 -0000
+Message-ID: <000f01c1918d$9d921f60$0100a8c0@JFDDESKTOP>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001, Stephan von Krawczynski wrote:
+Apologies if I am at the wrong place, thought a kernel panic would
+justify the message.
 
-> > On Sun, 30 Dec 2001, Timothy Covell wrote:
-> >
-> > > each CPU?   And this reminds me of how "make -j3 bzlilo" is slower
-> than
-> > > "make -j2 bzlilo".
-> >
-> > Running N CPU bound tasks on an M way SMP machine with N > M is
-> never
-> > going to improve your performace. On the contrary, expecially with
-> the
-> > current scheduler that keeps rotating the three tasks between the
-> two
-> > CPUs, you're going to suffer a slight performance degradation.
->
-> And can you please post a patch for this?
+Got this kernel bug on Mandrake 8.1 installing a Speedtouch ADSL modem
+(USB). Unfortunately, I cannot copy and paste the content of the error
+as as get a kernel panic straight away and the PC has'nt got kbd/mouse.
 
-http://www.xmailserver.org/linux-patches/mss-2.html#patches
+Basically everything works fine until I start running the modem_run
+command, the pppd daemon and finally my iptables script. I get a
+connection for anything from 1 to 5 minutes, which then results in the
+following output:
 
+usb-ohci.c : bus 00:0c.0 devnum 2 deletion in interrupt
+Kernel BUG at usb_ohci.c: 886!
+Invalid operand: 0000
+CPU: 0
+EIP: 0010 [<c8851de8>]
+EFLAGS: 00010082
 
+I stopped writing down all the values at this stage... I can supply them
+if anybody needs them for further analysis...
 
-- Davide
+I am running on an old Pentium 133 (Internet Gateway PC) with a DLINK
+USB card (added on as no USB initially on PC) 
 
+Thanks a lot!
+Jean.
 

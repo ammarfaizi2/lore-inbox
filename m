@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318204AbSHMQIG>; Tue, 13 Aug 2002 12:08:06 -0400
+	id <S318203AbSHMQHu>; Tue, 13 Aug 2002 12:07:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318208AbSHMQIG>; Tue, 13 Aug 2002 12:08:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43013 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318204AbSHMQIE>; Tue, 13 Aug 2002 12:08:04 -0400
-Date: Tue, 13 Aug 2002 09:13:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Dike <jdike@karaya.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] UML - part 2 of 3
-In-Reply-To: <200208131705.MAA02410@ccure.karaya.com>
-Message-ID: <Pine.LNX.4.44.0208130912390.7291-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318204AbSHMQHu>; Tue, 13 Aug 2002 12:07:50 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:5387 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318203AbSHMQHu>; Tue, 13 Aug 2002 12:07:50 -0400
+Date: Tue, 13 Aug 2002 17:11:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Erik Andersen <andersen@codepoet.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+Message-ID: <20020813171138.A12546@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Erik Andersen <andersen@codepoet.org>, Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain> <20020813164415.A11554@infradead.org> <20020813160924.GA3821@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020813160924.GA3821@codepoet.org>; from andersen@codepoet.org on Tue, Aug 13, 2002 at 10:09:24AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 13, 2002 at 10:09:24AM -0600, Erik Andersen wrote:
+> > First the name souns horrible.  What about spawn_thread or create_thread
+> > instead?  it's not our good old clone and not a lookalike, it's some
+> > pthreadish monster..
+> 
+> How about "clone2"?
 
-On Tue, 13 Aug 2002, Jeff Dike wrote:
->
-> This patch contains the remaining unmerged change to generic code that UML 
-> needs.  It adds boot entries for the UML block device.
+Already used by ia64 for a hybrid between the good old clone and the new
+monster :)
 
-I absolutely detest the array in do_mounts, and I detest it even more when 
-somebody adds a gazillion new entries to it.
-
-Please use "root=0xXXYY" instead, or consider figuring out the name 
-_automatically_ from the list of genhd's in the system (ie the reverse of 
-blkdev_name() or whatever it is called).
-
-		Linus
+And as I said again, it doesn't really clone - it starts something
+different, namely the fn argument.
 

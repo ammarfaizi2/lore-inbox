@@ -1,99 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318037AbSFSWag>; Wed, 19 Jun 2002 18:30:36 -0400
+	id <S318036AbSFSW3t>; Wed, 19 Jun 2002 18:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318038AbSFSWaf>; Wed, 19 Jun 2002 18:30:35 -0400
-Received: from noc.mainstreet.net ([207.5.0.45]:35086 "EHLO noc.mainstreet.net")
-	by vger.kernel.org with ESMTP id <S318037AbSFSWac>;
-	Wed, 19 Jun 2002 18:30:32 -0400
-From: devnull@adc.idt.com
-Date: Wed, 19 Jun 2002 18:30:28 -0400 (EDT)
-X-X-Sender: <ram@bom.adc.idt.com>
-Reply-To: <devnull@adc.idt.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: >3G Memory support
-Message-ID: <Pine.GSO.4.31.0206191818370.13822-100000@bom.adc.idt.com>
+	id <S318037AbSFSW3s>; Wed, 19 Jun 2002 18:29:48 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9225 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318036AbSFSW3r>; Wed, 19 Jun 2002 18:29:47 -0400
+Date: Wed, 19 Jun 2002 18:25:22 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question about sched_yield() 
+In-Reply-To: <E17Kg4s-0001Lz-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.3.96.1020619181429.3743B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All.
+On Thu, 20 Jun 2002, Rusty Russell wrote:
 
-I have a PC with 4G of Memory and would like a process to be able to
-address all 4G of memory.
+> In message <Pine.LNX.3.96.1020619072548.1119D-100000@gatekeeper.tmr.com> you wr
+> ite:
+> > On Wed, 19 Jun 2002, Rusty Russell wrote:
+> > 
+> > > On Mon, 17 Jun 2002 17:46:29 -0700
+> > > David Schwartz <davids@webmaster.com> wrote:
+> > > > "The sched_yield() function shall force the running thread to relinquish 
+> the 
+> > > > processor until it again becomes the head of its thread list. It takes no
+>  
+> > > > arguments."
+> > > 
+> > > Notice how incredibly useless this definition is.  It's even defined in ter
+> ms
+> > > of UP.
+> > 
+> > I think you parse this differently than I, I see no reference to UP. The
+> > term "the processor" clearly (to me at least) means the processor running
+> > in that thread at the time of the yeild.
+> > 
+> > The number of processors running in a single thread at any one time is an
+> > integer number in the range zero to one.
+> 
+> It's the word "until": "relinquish the processor until".
+> 
+> It's pretty clearly implied that it's going to "unrelinquish" *the
+> processor* at the end of this process.
+> 
+> So, by your definition, it can be scheduled on another CPU before it
+> becomes head of the thread list?
 
-I am running 2.4.13-ac8
+I have to read "head of the thread list" broadly, and assume it means the
+thread will be run when it is the most appropriate thread to be run. I
+don't read the wording as requiring or forbidding SMP, uni, or a strict
+round-robin scheduler. The term "head of the thread list" doesn't state
+that all other processes must get a time slice.
 
-The way i understand it is that linux shares the top 1G of process address
-space with all processes on the system(so on systems with 4G is physical
-addressability, it leaves 3G for each process).
+I believe I clarified my concerns in another post, I don't want to repeat
+them. I don't want a process with threads contending for a resource to get
+all or none of the CPU, each of which is possible with various schedulers
+and patches recently available. I'd like to see threads of a single
+process be able to get, use, and share a timeslice before some cpu hog
+comes in and get his timeslice.
 
->From the archives, i learnt that i need to modify __PAGE_OFFSET and change
-it from the default  (0xC0000000).
+I don't read the text you quoted as requiring much more than 'run someone
+else," because it's comfortably vague. To me anyway. I'm not knocking
+anyone who reads it more strictly, I just don't see what you did.
 
-Looking at /usr/src/linux/include/asm-i386/page.h
-
-<<SNIP>>
-/*
- * This handles the memory map.. We could make this a config
- * option, but too many people screw it up, and too few need
- * it.
- *
- * A __PAGE_OFFSET of 0xC0000000 means that the kernel has
- * a virtual address space of one gigabyte, which limits the
- * amount of physical memory you can use to about 950MB.
- *
- * If you want more physical memory than this then see the
- *   CONFIG_HIGHMEM4G
- * and CONFIG_HIGHMEM64G options in the kernel configuration.
- */
-
-<<END_OF_SNIP>>
-
-When i compiled my kernel, i set CONFIG_HIGHMEM4G.
-
-Does this mean that all my programs should be able to address 4G ?
-
-If yes, i dont think it is working very well.
-
-#include<stdio.h>
-#include<sys/resource.h>
-#include<unistd.h>
-#include<sys/wait.h>
-#include<stdlib.h>
-
-main(int argc, char **argv)
-{
-
-        char    *n;
-  int   size = 1073741000;
-        unsigned int totalsize = 0;
-
-        while(size > 1000)      {
-                while(n=(char *) malloc(size))  {
-                        bzero(n, size);
-                        totalsize += size;
-                }
-//              usleep(999999) ;
-                size = size / 2;
-        }
-        printf("Total size = %lu\n", totalsize);
-}
-
-The variable "totalsize" goes upto 3G only.
-
-If seting CONFIG_HIGHMEM4G is not the way to proceed, could someone please
-point me in the right direction.
-
-Thanks for taking the time to read my email, and sorry about the long
-post.
-
-Best Regards,
-
-
-/dev/null
-
-devnull@adc.idt.com
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

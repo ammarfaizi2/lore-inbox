@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135196AbRAWAEC>; Mon, 22 Jan 2001 19:04:02 -0500
+	id <S130238AbRAWAHM>; Mon, 22 Jan 2001 19:07:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130238AbRAWADw>; Mon, 22 Jan 2001 19:03:52 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:59862 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S135739AbRAWADo>; Mon, 22 Jan 2001 19:03:44 -0500
-Date: Mon, 22 Jan 2001 16:02:26 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: SCSI raid controllers
-Message-ID: <Pine.LNX.4.31.0101221559320.29530-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135573AbRAWAHC>; Mon, 22 Jan 2001 19:07:02 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:13828
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S130238AbRAWAG4>; Mon, 22 Jan 2001 19:06:56 -0500
+Date: Mon, 22 Jan 2001 19:15:27 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: ibmcam C-It usb
+Message-ID: <20010122191527.A5107@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what SCSI raid controllers would you guys reccomend for use under 2.4?
-there was a question friday about a specific Adaptec one that received no
-response, I know there is support in the kernel for some from compaq and
-from IBM, but I don't know how extensive this is and if it is a case of
-linux being able to run on that card once it is configured from
-DOS/windows or if the tools to configure the card are able to run from
-Linux (or from BIOs boot menus)
+In 2.4.0, the camera I have no longer works.  It did in test9 I believe.  
+fccid is ksx-x9903
 
-any suggestions?
+I would have mailed the author, but I couldn't remember his address.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

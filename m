@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267540AbSKQR7l>; Sun, 17 Nov 2002 12:59:41 -0500
+	id <S267535AbSKQR60>; Sun, 17 Nov 2002 12:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbSKQR7k>; Sun, 17 Nov 2002 12:59:40 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:50130 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267540AbSKQR7j>;
-	Sun, 17 Nov 2002 12:59:39 -0500
-Date: Sun, 17 Nov 2002 20:23:08 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Run timers as softirqs, not tasklets
-In-Reply-To: <20021117171625.C7530@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0211172020470.11308-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267540AbSKQR60>; Sun, 17 Nov 2002 12:58:26 -0500
+Received: from adsl-65-66-148-247.dsl.kscymo.swbell.net ([65.66.148.247]:23940
+	"EHLO hofmann1.gchofmann.org") by vger.kernel.org with ESMTP
+	id <S267535AbSKQR6Z>; Sun, 17 Nov 2002 12:58:25 -0500
+Subject: 2.5.47-ac5 compile failure: missing linux/iobuf.h
+From: "Glenn C. Hofmann" <ghofmann@pair.com>
+To: linux-kernel@vger.kernel.org
+Cc: Simon Evans <spse@secret.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mZm+yYsEkkt39BoozjS9"
+Organization: 
+Message-Id: <1037556071.12239.13.camel@hofmann1.gchofmann.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 17 Nov 2002 12:05:14 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 17 Nov 2002, Matthew Wilcox wrote:
+--=-mZm+yYsEkkt39BoozjS9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Seems to me that the timer code is attempting to replicate the softirq
-> characteristics at the tasklet level, which is a little pointless.  
-> This patch converts timers to be a first-class softirq citizen.
+While trying to compile blkmtd.c it cannot find linux/iobuf.h.  This is
+due to the fact that it isn't there.  Searching the lkml archives, there
+is no mention of this file being removed nor of anybody else having this
+issue, that I can find.
 
-i agree with your patch.
+Chris
 
-> Ingo, was there a reason you didn't do it this way to begin with?
+--=-mZm+yYsEkkt39BoozjS9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-because there was an interim state of the timer code in where we still had
-a global timer context (ie. a timer tasklet). Only later did it get
-converted to completely unsynchronized per-CPU tasklets. Which indeed is
-what softirqs are :-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-	Ingo
+iD8DBQA919lnkPlrlFLq0bIRAo9CAKC95f7T5glwD1pStCC23taAhgjMuACaA/WZ
+yQ2uxRY8FNNq57WUkUn1ZHo=
+=dFSI
+-----END PGP SIGNATURE-----
 
+--=-mZm+yYsEkkt39BoozjS9--

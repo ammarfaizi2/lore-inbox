@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282867AbRLBM4u>; Sun, 2 Dec 2001 07:56:50 -0500
+	id <S277532AbRLBNBV>; Sun, 2 Dec 2001 08:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282872AbRLBM4l>; Sun, 2 Dec 2001 07:56:41 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28169 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S282867AbRLBM40>;
-	Sun, 2 Dec 2001 07:56:26 -0500
-Date: Sun, 2 Dec 2001 10:17:48 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: <space-00002@vortex.physik.uni-konstanz.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: buffer/memory strangeness in 2.4.16 / 2.4.17pre2
-In-Reply-To: <3C09B168.401E61C9@zip.com.au>
-Message-ID: <Pine.LNX.4.33L.0112021014330.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S277568AbRLBNBL>; Sun, 2 Dec 2001 08:01:11 -0500
+Received: from mail100.mail.bellsouth.net ([205.152.58.40]:41873 "EHLO
+	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S277532AbRLBNBD>; Sun, 2 Dec 2001 08:01:03 -0500
+Message-ID: <3C0A2609.AB42C366@mandrakesoft.com>
+Date: Sun, 02 Dec 2001 08:00:57 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel list <linux-kernel@vger.kernel.org>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Keith Owens <kaos@ocs.com.au>
+Subject: PATCH 2.4.17.2: CONFIG_FINAL, make kernel smaller
+In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com> <25560.1007294074@ocs3.intra.ocs.com.au> <20011202133314.B717@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001, Andrew Morton wrote:
+Ingo Oeser wrote:
+> On Sun, Dec 02, 2001 at 10:54:34PM +1100, Keith Owens wrote:
+> > On Sun, 02 Dec 2001 06:31:17 -0500,
+> > Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> > >Simply, all ext2 files are #include'd into a single file, ext2_all.c,
+> > >and all functions and data structures are declared static.
+> >
+> > I like it.
+> 
+> Me also. Except for the KSTATIC spread all over the Kernel.
 
-> You'll find that if you push the machine really hard - allocate
-> 1.5x physical memory and touch it all then the VM will, eventually,
-> with great reluctance and much swapping, relinquish the 30 megabytes
-> of buffercache memory.  But it's out of whack.
+Yes :/  The source code is definitely uglier.  Maybe 'kstatic' would be
+better on the eyes.
 
-This is an expected (and very bad) side effect of use-once.
+I just converted reiserfs and linux/kernel directories to KSTATIC.
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.17/config-final-2.4.17.2.patch.gz 
+(should appear on ftp.kernel.org and mirrors soon, if not already)
 
-> If we put anon pages on the active list instead, then shrink_caches()
-> and refill_inactive() start to do something, and they move that stale
-> old buffercache memory onto the inactive list where it can be freed.
+Bytes saved/eliminated:
+	ext2:		1135
+	reiserfs:	2966
+	kernel:		2578
 
-This would fix the problem of not being able to evict stale
-active pages, but I have no idea if it would unbalance
-something else.
+	total:		6679 bytes saved
 
-> This is just a random hack.  I don't understand what's going on in
-> the VM, let alone what's *supposed* to be going on.  And given the
-> state of documentation available to us,  I never will.
+The conversion of linux/kernel was surprising...  I only changed two
+'int' variables to KSTATIC.  That implies to me that the majority of the
+space savings might simply come from the better packing created when
+compiling all the files into a single .o.
 
-The balancing in Andrea's VM is just too subtle to understand
-without docs, that is, if there is any particular idea behind
-it and it isn't just experimentation.
+I would like to also point out a nice fringe benefit:  since an entire
+subsystem/driver is compiled together, you find bugs.  I have found
+[tiny, unimportant] bugs in all the code I have converted to KSTATIC so
+far.
 
-regards,
+> [jgarzik@rum linux-e2all]$ ls -l vmlinux* arch/i386/boot/bzImage*
+> -rw-r--r--    1 jgarzik  jgarzik   1030123 Dec  2 07:50 arch/i386/boot/bzImage
+> -rw-r--r--    1 jgarzik  jgarzik   1030263 Dec  2 06:04 arch/i386/boot/bzImage.orig
+> -rwxr-xr-x    1 jgarzik  jgarzik   2809087 Dec  2 07:50 vmlinux*
+> -rwxr-xr-x    1 jgarzik  jgarzik   2815766 Dec  2 06:04 vmlinux.orig*
 
-Rik
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

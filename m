@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288141AbSACCer>; Wed, 2 Jan 2002 21:34:47 -0500
+	id <S288142AbSACCf5>; Wed, 2 Jan 2002 21:35:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287956AbSACCeh>; Wed, 2 Jan 2002 21:34:37 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:48004
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288141AbSACCeX>; Wed, 2 Jan 2002 21:34:23 -0500
-Date: Wed, 2 Jan 2002 21:20:56 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Lionel Bouton <Lionel.Bouton@free.fr>
-Cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102212056.F21788@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Lionel Bouton <Lionel.Bouton@free.fr>, Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de> <20020102174824.A21408@thyrsus.com> <3C339681.3080100@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C339681.3080100@free.fr>; from Lionel.Bouton@free.fr on Thu, Jan 03, 2002 at 12:23:45AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S287970AbSACCft>; Wed, 2 Jan 2002 21:35:49 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:24851 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S288142AbSACCfb>; Wed, 2 Jan 2002 21:35:31 -0500
+Date: Wed, 2 Jan 2002 18:39:10 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Steinar Hauan <hauan@cmu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: smp cputime issues (patch request ?)
+In-Reply-To: <20020103022705.A3163@werewolf.able.es>
+Message-ID: <Pine.LNX.4.40.0201021836420.1034-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton <Lionel.Bouton@free.fr>:
-> Eric I see your point now. But stop me if I don't get the idea behind 
-> your autoconfigurator :
-> Guessing the hardware configuration is done in order to ease the whole 
-> configuration process. After polishing the configuration - no need for 
-> root priviledge - the user start the build process that doesn't need 
-> root priviledge either.
-> But when the user gets the resulting kernel how does (s)he avoid suing 
-> to root in order to *install* it and its modules ?
-> I'm not familiar with people configuring and compiling kernels for 
-> pleasure. They usually want to boot it...
-> 
-> Your whole point here is not to avoid several su instead of 1?
+On Thu, 3 Jan 2002, J.A. Magallon wrote:
 
-That's actually *precisely* the point.  The user should not have to 
-go root for anything before the `make install' point.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+>
+> On 20020102 Steinar Hauan wrote:
+> >hello,
+> >
+> >  we are encountering some weird timing behaviour on our linux cluster.
+> >
+> >  specifically: when running 2 copies of selected programs on a
+> >  dual-cpu system, the cputime reported for each process is up to 25%
+> >  higher than when the processes are run on their own. however, if running
+> >  two different jobs on the same machine, both complete with a cputime
+> >  equal to when run individually. sample timing output attached.
+> >
+>
+> Cache pollution problems ?
+>
+> As I understand, your job does not use too much memory, does no IO,
+> just linear algebra (ie, matrix-times-vector or vector-plus-vector
+> operations). That implies sequential access to matrix rows and vectors.
+>
+> I will try to guess...
+>
+> Problem with linux scheduler is that processes are bounced from one CPU
+> to the other, they are not tied to one, nor try to stay in the one they
+> start, even if there is no need for the cpu to do any other job.
+> On an UP box, the cache is useful to speed up your matrix-vector ops.
+> One process on a 2-way box, just bounces from one cpu to the other,
+> and both caches are filled with the same data. Two processes on two
+> cpus, and everytime they 'swap' between cpus they trash the previous
+> cache for the other job, so when it returs it has no data cached.
+>
+> Solutions:
+> - cpu affinity patch: manually tie processes to cpus
+> - new scheduler: a patch for the scheduler that tries to
+>   keep processes on the cpu they start was talked about on the list.
+>
+> I would prefer the second option. I think it is named something like
+> 'multiqueue scheduler', and its 'father' could be (AFAIR) Davide Libezni.
+> Look for that on the list archives. Problem: I think the patch only
+> exists for 2.5.
 
-The whole of the Bill [of Rights] is a declaration of the right of the
-people at large or considered as individuals...  It establishes some
-rights of the individual as unalienable and which consequently, no
-majority has a right to deprive them of.
-         -- Albert Gallatin, Oct 7 1789
+The patch is here :
+
+http://www.xmailserver.org/linux-patches/xsched-2.5.2-pre4-0.58.diff
+
+I did not read the whole thread but if your two tasks are strictly cpu
+bound and you've two cpus, you should not have problems even with the
+current scheduler.
+
+
+
+
+- Davide
+
+

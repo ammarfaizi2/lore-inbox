@@ -1,80 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316127AbSEJVQM>; Fri, 10 May 2002 17:16:12 -0400
+	id <S316129AbSEJVWh>; Fri, 10 May 2002 17:22:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316128AbSEJVQL>; Fri, 10 May 2002 17:16:11 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:275 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316127AbSEJVQK>; Fri, 10 May 2002 17:16:10 -0400
-Date: Fri, 10 May 2002 23:17:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mario Vanoni <vanonim@dial.eunet.ch>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: NFS problem after 2.4.19-pre3, not solved
-Message-ID: <20020510231707.M13730@dualathlon.random>
-In-Reply-To: <3CDC4962.4B9393D7@dial.eunet.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S316130AbSEJVWh>; Fri, 10 May 2002 17:22:37 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:37282 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S316129AbSEJVWg>; Fri, 10 May 2002 17:22:36 -0400
+Date: Fri, 10 May 2002 14:28:48 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+Subject: Re: lost interrupt hell - Plea for Help
+To: linux-kernel@vger.kernel.org
+Message-id: <3CDC3B90.AADE1835@bigfoot.com>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en]C-PBI-NC404  (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en,sk
+In-Reply-To: <Pine.LNX.3.96.1020509132713.1987A-100000@pioneer>
+ <200205101112.g4ABCoX29098@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 10:27:46PM +0000, Mario Vanoni wrote:
-> Hi Trond, hi Andrea, hi All
+Denis Vlasenko wrote:
 > 
-> In production environment, since >6 months,
-> ethernet 10Mbits/s, on backup_machine
-> mount -t nfs production_machine /mnt.
-> 
-> find `listing from production_machine` | \
-> cpio -pdm backup_machine
-> 
-> Volume ~320MB, nearly constant.
-> 
-> Medium times:
-> 
-> 2.4.17-rc1aa1: 1m58s, _the_ champion !!!
-> 
-> all later's, e.g.:
-> 
-> 2.4.19-pre8aa2; 4m35s
-> 2.4.19-pre8-ac1: 4m00s
-> 2.4.19-pre7-rmap13a: 4m02s
-> 2.4.19-pre7: 4m35s
-> 2.4.19-pre4: 4m20s
-> 
-> the last usable was:
-> 
-> 2.4.19-pre3: 2m35s, _not_ a champion
-> 
-> All benchmarks don't reflect
-> some production needs,
-> <2 minutes or >4 minutes
-> is a great difference !!!
+> On 9 May 2002 09:34, Tomasz Rola wrote:
+> > > I have tried every combination of master / slave between the two drives,
+> > > the drives on their own, scsi emulation through ide-scsi, purely as IDE
+> > > drives, ommitting ide cdrom support from teh kernel completely and only
+> > > using ide-scsi... every time I try to get a track ripped, dmesg fills up
+> > > with hdX: lost interrupt.
+> > >
+> > > If I try to rip from the DVD drive, the system hangs and its reset
+> > > button time.
+> > >
+> > > Can anyone tell me where I'm going wrong? Is there anything from my
+> > > system you need to see to help me?
 
-Yep.
+  I have same problem (see some other emails from me, I haven't posted
+about anything else), via motherboard, audio cd ripping doesn't work (I
+get lost interrupt messages).
 
-Some time ago you told me and Trond that 2.4.19pre8 + this below below
-patch applied on top of 2.4.19pre4 returned back to the 2.4.19pre3 2.35
-levels (the 1.58-2.35 difference could be not nfs related, and I want to
-get to 2.35 first, 2.35-4.20 is a nfs thing).
+  I am pretty sure it's kernel problem (or motherboard design issue,
+which is sort of kernel problem as well), I tried (none of it makes any
+difference):
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa2/00_nfs-backout-cto-1
+  - different cd-rom drivers (same situation),
+  - dma on/off
+  - 32 bit access on/off
+  
+  everything else except of audio ripping works (burning, data cd
+reading, HD connected instead of cdrom drive etc.)
 
-Could you double check that's the patch that makes the difference if
-applied on top of a vanilla 2.4.19pre4?
+  PCI IDE card works (in same conmputer, same cdrom drive, same IDE
+cables).
 
-I cannot figure out why such a patch applied to pre4 fixes the problem,
-while it doesn't fix the problem if applied to my tree.
+  the IRQ works ok, as long as the activity is something else than audio
+ripping - the numbers in /proc/interrupts go up, there doesn't seem to
+be any interrupt conflict (it's assigned by BIOS, IRQ 15, nothing else
+seems to be using 15, at least nothing that would be visible on bios
+bootup screen (it prints irq assignments) or linux (/proc/interupts
+doesn't list 15 at all if the cdrom drive is not there, it lists hdc if
+the drive is in).
 
-Maybe it wasn't that patch that fixed your problem after all, but one of
-the other nfs patches included in pre4. It would be very helpful if you
-could double check, just in case.
+  there are other people who have the same problem, it looks like all
+are via chipsets related (I just got email from another guy who cannot
+find a solution either).
 
-Many thanks for the feedback! :)
+  this is with stable kernel (I tried 2.4.17 and 2.4.18), via config
+option compiled in (I haven't tried without via support in kernel yet,
+I'll try that).
 
-Andrea
+  any ideas? TIA
+
+	erik

@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264549AbUDZLtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264495AbUDZMFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbUDZLtu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 07:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUDZLtu
+	id S264495AbUDZMFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUDZMFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 07:49:50 -0400
-Received: from mail.tpgi.com.au ([203.12.160.100]:26313 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S264549AbUDZLts
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 07:49:48 -0400
-Date: Mon, 26 Apr 2004 21:27:13 +1000
-From: "Nigel Cunningham" <ncunningham@linuxmail.com>
-To: "Herbert Xu" <herbert@gondor.apana.org.au>,
-       "Roland Stigge" <stigge@antcom.de>, 234976@bugs.debian.org
-Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
-Cc: "Pavel Machek" <pavel@suse.cz>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Reply-To: ncunningham@linuxmail.com
-References: <E1B6on4-0005EW-00@gondolin.me.apana.org.au> <1080310299.2108.10.camel@atari.stigge.org> <20040326142617.GA291@elf.ucw.cz> <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
+	Mon, 26 Apr 2004 08:05:37 -0400
+Received: from piedra.unizar.es ([155.210.11.65]:5587 "EHLO relay.unizar.es")
+	by vger.kernel.org with ESMTP id S264495AbUDZMFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 08:05:36 -0400
+From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
+Reply-To: koke@sindominio.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: 8139too not working in 2.6
+Date: Mon, 26 Apr 2004 14:05:20 +0200
+User-Agent: KMail/1.6.1
+Cc: "Mirko Caserta" <mirko@mcaserta.com>
+References: <opr62ahdvlpsnffn@mail.mcaserta.com>
+In-Reply-To: <opr62ahdvlpsnffn@mail.mcaserta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr6193np1ruvnp2@laptop-linux.wpcb.org.au>
-In-Reply-To: <20040426104015.GA5772@gondor.apana.org.au>
-User-Agent: Opera M2/7.50 (Linux, build 663)
-X-TPG-Antivirus: Passed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404261405.20078.koke_lkml@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Mon, 26 Apr 2004 20:40:15 +1000, Herbert Xu  
-<herbert@gondor.apana.org.au> wrote:
-
-> On Mon, Apr 26, 2004 at 07:48:34PM +1000, herbert wrote:
->>
->> A simple solution is to copy the pages in reverse.  This way the
->> top page table is filled in last which should resolve this particular
->> issue.  The following patch does exactly that and fixes the problem
->> for me.
+On Lunes, 26 de Abril de 2004 13:35, Mirko Caserta wrote:
+> Yes, I know, it's a damn cheap eth card and I should get it replaced :)
 >
-> Of course this doesn't work for machines without PSE.  But then the
-> original code didn't work either.  Since resuming from 486's isn't
-> that cool anyway, IMHO someone should just add a PSE check in the
-> swsusp/pmdisk init code on i386.
+> Besides that, this card works just fine with 2.4.25 while it refuses to
+> work on a recent 2.6 kernel. I tried 2.6.5 and even
+> 2.6.5-rc2-mm2-broken-out with no luck.
+>
 
-There used to be such a check. Centrinos, however, if I recall correctly,  
-don't have PSE but can suspend with our current method. Perhaps we can  
-come up with a more nuanced test? Better still, though, we should just get  
-proper AGP support for suspending and resuming in.
+I have tried with 2.6.5 and now with 2.6.6-rc2-mm1 and works perfectly. This 
+message is going through that card ;)
 
-Nigel
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614, Australia.
-+61 (2) 6251 7727 (wk)
+Mine is:
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+

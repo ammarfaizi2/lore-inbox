@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262964AbVCDTG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVCDTG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbVCDTG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbVCDTAC
+	id S262997AbVCDTG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVCDTAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:00:02 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:15040 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S262984AbVCDS4C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:56:02 -0500
-Date: Fri, 04 Mar 2005 13:55:58 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: RFD: Kernel release numbering
-In-reply-to: <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-X-X-Sender: nico@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       tglx@linutronix.de, lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.62.0503041352480.15953@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
- <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
- <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random>
- <20050303160330.5db86db7.akpm@osdl.org>
- <20050304025746.GD26085@tolot.miese-zwerge.org>
- <20050303213005.59a30ae6.akpm@osdl.org>
- <1109924470.4032.105.camel@tglx.tec.linutronix.de>
- <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de>
- <20050304012154.619948d7.akpm@osdl.org>
- <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+	Fri, 4 Mar 2005 14:00:37 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49929 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262991AbVCDS4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:56:40 -0500
+Date: Fri, 4 Mar 2005 19:56:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, kai@germaschewski.name,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-ID: <20050304185638.GE3327@stusta.de>
+References: <422550FC.9090906@gmail.com> <20050302012331.746bf9cb.akpm@osdl.org> <65258a58050302014546011988@mail.gmail.com> <20050302032414.13604e41.akpm@osdl.org> <20050302140019.GC4608@stusta.de> <1109931797.28203.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109931797.28203.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Mar 2005, Linus Torvalds wrote:
-
+On Fri, Mar 04, 2005 at 09:23:17PM +1100, Rusty Russell wrote:
+> On Wed, 2005-03-02 at 15:00 +0100, Adrian Bunk wrote:
+> > Why doesn't an EXPORT_SYMBOL create a reference?
 > 
+> It does: EXPORT_SYMBOL(x) drops the address of "x", including
+> __attribute_used__, in the __ksymtab section.
 > 
-> On Fri, 4 Mar 2005, Andrew Morton wrote:
-> >
-> > Jens Axboe <axboe@suse.de> wrote:
-> > >
-> > > On Fri, Mar 04 2005, Andrew Morton wrote:
-> > >  > The average user has learnt "rc1 == pre1".  I don't expect that it
-> > >  > matters much at all.
-> > > 
-> > >  The average user and lkml reader, perhaps. But I don't understand
-> > >  why Linus refuses to use proper -preX/-rcX naming
-> > 
-> > Me either.  And because people just will insist on arbitrarily dinking with
-> > Cc: lines, he's not listening to us any more.
-> 
-> I've long since decided that there's no point to making "-pre". What's the 
-> difference between a "-pre" and a daily -bk snapshot? Really?
-> 
-> So when I do a release, it _is_ an -rc. The fact that people have trouble 
-> understanding this is not _my_ fault.
+> However, if CONFIG_MODULES=n, it does nothing: perhaps that is what you
+> are seeing.
 
-What is this whole thread all about then?
+That's not the problem.
 
-It might still be worth a try, especially since so many people are 
-convinced this is the way to go (your fault or not is not the point).
+And it has nothing to do with any gcc 4.0 issues mentioned in this 
+thread - I saw this problem with gcc 3.3 .
 
+Try the attached .config in 2.6.11-rc4-mm1 (not in 2.6.11-mm1).
 
-Nicolas
+> Rusty.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

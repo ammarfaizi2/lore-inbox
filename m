@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265071AbUBIL6V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 06:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbUBIL6V
+	id S264974AbUBIMCF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 07:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbUBIMCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 06:58:21 -0500
-Received: from [213.69.232.58] ([213.69.232.58]:46344 "HELO
-	mobilemail.schottelius.org") by vger.kernel.org with SMTP
-	id S265071AbUBIL6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 06:58:19 -0500
-Date: Mon, 9 Feb 2004 12:58:52 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: linux-kernel@vger.kernel.org
-Subject: UTF-8 in file systems? xfs/extfs/etc.
-Message-ID: <20040209115852.GB877@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
-Content-Disposition: inline
-X-MSMail-Priority: (u_int) -1
-X-Mailer: echo $message | gpg -e $sender  -s | netcat mailhost 25
-User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
-Organization: http://nerd-hosting.net/
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux 2.6.2
+	Mon, 9 Feb 2004 07:02:04 -0500
+Received: from [217.157.19.70] ([217.157.19.70]:43279 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S264974AbUBIMB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 07:01:59 -0500
+Date: Mon, 9 Feb 2004 12:01:55 +0000 (GMT)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: linux-kernel@vger.kernel.org, <linux-raid@vger.kernel.org>
+Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.)
+ BIOS RAID development
+In-Reply-To: <1076320246.4444.0.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.40.0402091155040.8715-100000@jehova.dsm.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Feb 2004, Arjan van de Ven wrote:
 
---GRPZ8SYKNexpdSJ7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > The reason I insist on autodetection is that I think it's important that if
+> > the BIOS will reckognise the drive without additional intervention, so will
+> > Linux. This will make the entry route for newbies much simpler.
+>
+> do you call running devicemapper tools from the initrd autodetection ?
 
-Morning!
+Probably not. I am working with several ways of doing it, and that's why I
+wanted to have a discussion about this.
 
-What Linux supported filesystems support UTF-8 filenames?
+Ideally I'd want something like the MD autodetect code, so that the whole
+thing can be set up by the kernel at boot-time if the necessary drivers
+are compiled in (by reading the Medley superblock the same way it's done
+for 0xfe partitions). And if the drivers are modules, then use the drive
+mapper tools from userspace to set it up.
 
-Looks like at least xfs and reiserfs are not able of handling them,
-as Apache with UTF-8 as default charset delievers wrong names, when
-accessing files with German umlauts.
+This would be the most flexible solution, since it'd allow you to boot
+without an initrd if you wanted that, or to use the initrd and map the
+drives manually if you preferred that solution.
 
-Is it somehow planned to enable it?
-Or are you waiting for patches which do that job?
+Having autodetection at kernel level would make it possible to boot from a
+kernel on a floppy disk without initrd support, and in general make a
+system easier to set up.
 
-Greetings,
+But the reason I wanted this discussion is to figure out the best way to
+go about it, and if there are some good arguments against autodetecting in
+the kernel I'll listen to them.
 
-Nico
+// Thomas
 
---=20
-Keep it simple & stupid, use what's available.
-pgp: 8D0E E27A          | Nico Schottelius
-http://nerd-hosting.net | http://linux.schottelius.org
-
---GRPZ8SYKNexpdSJ7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAJ3X8zGnTqo0OJ6QRAl+WAKCD2uaIquzEuMzz3WjSVRuPzwckJQCcDVHd
-gBTmkIzR1/UtKa8Wnx0Cqs0=
-=L/cL
------END PGP SIGNATURE-----
-
---GRPZ8SYKNexpdSJ7--

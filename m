@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVAMUHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVAMTyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVAMUHI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:07:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAMUDJ
+	id S261491AbVAMTyn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVAMTv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:03:09 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:61891 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261483AbVAMT6i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:58:38 -0500
-To: linux-kernel@vger.kernel.org
-Cc: han@mijncomputer.nl
-Subject: Re: propolice support for linux
-References: <20050113134620.GA14127@boetes.org>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 13 Jan 2005 20:58:31 +0100
-In-Reply-To: <20050113134620.GA14127@boetes.org> (Han Boetes's message of
- "Thu, 13 Jan 2005 14:45:58 +0059")
-Message-ID: <m1fz152ja0.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 Jan 2005 14:51:27 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:43928 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261442AbVAMTsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:48:13 -0500
+Date: Thu, 13 Jan 2005 19:48:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christian Borntraeger <cborntra@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reintroduce EXPORT_SYMBOL(task_nice) for binfmt_elf32
+Message-ID: <20050113194807.GA28010@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christian Borntraeger <cborntra@de.ibm.com>,
+	linux-kernel@vger.kernel.org,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <200501132042.31215.cborntra@de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501132042.31215.cborntra@de.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Han Boetes <han@mijncomputer.nl> writes:
+On Thu, Jan 13, 2005 at 08:42:30PM +0100, Christian Borntraeger wrote:
+> export was the fact, that binfmt_elf is no longer modular. Unfortunately 
+> that is not true in the emulation case on s390 and (untested) sparc64. 
 
-> And since most of the security-flaws in linux are buffer-overflows
-> I would like to request that a patch based on this one is applied
-> to the kernel so people can use this extension by default.
-
-Not in the linux kernel. If you followed the last security issues
-none of them involved a overrun stack buffer. In fact I can only
-remember one stack buffer overflow at all in the kernel long ago.
-
--Andi
+I'd suggest putting it under CONFIG_COMPAT.
 

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262554AbSJBTSp>; Wed, 2 Oct 2002 15:18:45 -0400
+	id <S262538AbSJBTNx>; Wed, 2 Oct 2002 15:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262557AbSJBTSp>; Wed, 2 Oct 2002 15:18:45 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60428
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262554AbSJBTSn>; Wed, 2 Oct 2002 15:18:43 -0400
-Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
-From: Robert Love <rml@tech9.net>
-To: John Levon <levon@movementarian.org>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, willy@debian.org
-In-Reply-To: <20021002185814.GA23100@compsoc.man.ac.uk>
-References: <20021002023901.GA91171@compsoc.man.ac.uk>
-	 <20021002032327.GA91947@compsoc.man.ac.uk>
-	 <20021002141435.A18377@parcelfarce.linux.theplanet.co.uk>
-	 <3D9B2734.D983E835@digeo.com>
-	 <20021002193052.B28586@parcelfarce.linux.theplanet.co.uk>
-	 <20021002185814.GA23100@compsoc.man.ac.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1033585829.24108.66.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 02 Oct 2002 15:10:29 -0400
-Content-Transfer-Encoding: 7bit
+	id <S262539AbSJBTNx>; Wed, 2 Oct 2002 15:13:53 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:31362 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262538AbSJBTNw>;
+	Wed, 2 Oct 2002 15:13:52 -0400
+Date: Wed, 2 Oct 2002 12:18:42 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+In-Reply-To: <Pine.LNX.4.44.0210012300001.23315-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0210021213180.14122-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-02 at 14:58, John Levon wrote:
+On Tue, 1 Oct 2002, Ingo Molnar wrote:
 
-> How will cond_resched() work ?  Surely that will only give a chance if
-> the current process has reached the end of its timeslice (need_resched)
-> ? Isn't "schedule()" the right thing here ?
+| i dont think i've encountered much kernel code that tried to pass
+| structures along by value without a good reason - OTOH complex and
+| inefficient function interfaces outweigh these instances, by far. And
+| there's way too much code that has two screens full of local variable
+| declarations, where in the middle a 3K big array gets easily lost to the
+| eye. struct pre and postfix does not help much there.
 
-need_resched is set whenever there is a higher priority process that is
-now runnable (it is set on wake_up()).  Otherwise cond_resched() would
-be fairly worthless.. and kernel preemption, etc.
+Sounds like a good reason to have a gcc flag, or more likely a
+Stanford checker or smatch checker for structs (or large typedefs :)
+as return values.
 
-	Robert Love
+| And structure pointers are almost as simple to pass around and handle as
+| the basic types declared on the stack - and that is their main use. Ease
+| of understanding is i think by far the most important aspect of source
+| code - abuse and mistaken use of constructs is always possible, no matter
+| how long the name is.
+
+-- 
+~Randy
 

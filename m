@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbTIJMs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 08:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTIJMs0
+	id S262887AbTIJMtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTIJMtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 08:48:26 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:138 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S262861AbTIJMsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 08:48:24 -0400
-From: Angus Sawyer <angus.sawyer@dsl.pipex.com>
-Reply-To: angus.sawyer@dsl.pipex.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] mwave char/Kconfig fix
-Date: Wed, 10 Sep 2003 13:40:57 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 10 Sep 2003 08:49:09 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:33930 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262887AbTIJMs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 08:48:58 -0400
+Subject: Re: Efficient IPC mechanism on Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luca Veraldi <luca.veraldi@katamail.com>
+Cc: arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <01c601c3777f$97c92680$5aaf7450@wssupremo>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo>
+	 <20030909175821.GL16080@Synopsys.COM>
+	 <001d01c37703$8edc10e0$36af7450@wssupremo>
+	 <20030910064508.GA25795@Synopsys.COM>
+	 <015601c3777c$8c63b2e0$5aaf7450@wssupremo>
+	 <1063185795.5021.4.camel@laptop.fenrus.com>
+	 <01c601c3777f$97c92680$5aaf7450@wssupremo>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309101341.00161.angus.sawyer@dsl.pipex.com>
+Message-Id: <1063198060.32726.32.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Wed, 10 Sep 2003 13:47:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-09-10 at 10:40, Luca Veraldi wrote:
+> To set the accessed or dirty bit you use
+> 
+> 38         __asm__ __volatile__( LOCK_PREFIX
+> 39                 "btsl %1,%0"
+> 40                 :"=m" (ADDR)
+> 41                 :"Ir" (nr));
+> 
+> which is a ***SINGLE CLOCK CYCLE*** of cpu.
 
-The mwave driver requires [un]register_char from 8250.c
-Make sure 8250.c gets compilied.
+Its a _lot_ more than that in the normal case. Upwards of 60 clocks on 
+a PIV. You then need to reload cr3 if you touched permissions which
+means every cached TLB in the system is lost, and you may need to do
+a cross CPU IPI on SMP (which takes a long time)
 
+> You say "tlb's and internal cpu state will need to be flushed".
+> The other cpus in an SMP environment can continue to work, indipendently.
+> TLBs and cpu state registers are ***PER-CPU*** resorces.
 
- drivers/char/Kconfig |    1 +
- 1 files changed, 1 insertion(+)
+Think of a threaded app passing a message to another app. You have to do
+the cross CPU flush in order to prevent races where another thread can
+scribble on data it doesnt own. Assuming a reasonable TLB reuse rate
+thats 120 plus TLB reloads. The newer CPU's cache TLB's in L1/L2 so
+thats not too bad but it all adds up. On SMP its a real pain
 
-diff -puN drivers/char/Kconfig~mwave drivers/char/Kconfig
---- linux-2.6.0-test5/drivers/char/Kconfig~mwave	2003-09-10 13:36:36.399040888 
-+0100
-+++ linux-2.6.0-test5-angus/drivers/char/Kconfig	2003-09-10 13:37:00.508375712 
-+0100
-@@ -959,6 +959,7 @@ source "drivers/char/pcmcia/Kconfig"
- config MWAVE
- 	tristate "ACP Modem (Mwave) support"
- 	depends on X86
-+	select SERIAL_8250
- 	---help---
- 	  The ACP modem (Mwave) for Linux is a WinModem. It is composed of a
- 	  kernel driver and a user level application. Together these components
+> Probably, it is worse the case of copying a memory page,
+> because you have to hold some global lock all the time.
+> This is deadly in an SMP environment, 
 
-_
+You don't need a global lock to copy memory. 
+
+One thing I do agree with you on is the API aspect - and that is
+problematic. The current API leaves data also owned by the source.
+If I write "fred" down a pipe I still own the "fred" bits. The 
+method you propose was added long ago go to Solaris (see "doors") and
+its not exactly the most used interface even there.
+
 

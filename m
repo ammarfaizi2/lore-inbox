@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264989AbTFCMsY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbTFCMsX
+	id S264990AbTFCMtw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbTFCMtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:48:23 -0400
-Received: from imsantv20.netvigator.com ([210.87.250.76]:32231 "EHLO
-	imsantv20.netvigator.com") by vger.kernel.org with ESMTP
-	id S264989AbTFCMsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:48:22 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Jakob Oestergaard <jakob@unthought.net>
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Date: Tue, 3 Jun 2003 21:01:27 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200306031912.53569.mflt1@micrologica.com.hk> <200306032043.28141.mflt1@micrologica.com.hk> <20030603125247.GD14947@unthought.net>
-In-Reply-To: <20030603125247.GD14947@unthought.net>
-X-OS: GNU/Linux 2.5.70
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 08:49:52 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62682 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264990AbTFCMtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:49:49 -0400
+Date: Tue, 3 Jun 2003 15:03:08 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Margit Schubert-While <margitsw@t-online.de>,
+       lksctp-developers@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: SCTP config 2.5.70(-bk)
+Message-ID: <20030603130308.GC27168@fs.tum.de>
+References: <5.1.0.14.2.20030602094232.00aeda18@pop.t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306032101.27215.mflt1@micrologica.com.hk>
+In-Reply-To: <5.1.0.14.2.20030602094232.00aeda18@pop.t-online.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 June 2003 20:52, Jakob Oestergaard wrote:
->
-> I always use hard,intr so that I can manually interrupt hanging jobs,
-> but also know that they do not randomly fail just because a few packets
-> get dropped on my network.  This seems to be the common setup, as far as
-> I know.
->
+On Mon, Jun 02, 2003 at 09:53:04AM +0200, Margit Schubert-While wrote:
 
-Thank you,
+> CONFIG_IPV6_SCTP__   is always being set to "y" even though
+> not selected (CONFIG_IPV6 not set)
 
-I will try hard, intr
+First, this doesn't do any harm since CONFIG_IPV6_SCTP__ alone doensn't 
+result in anything getting compiled.
 
-Regards
-Michael
+But besides, it seems a bit broken.
+
+>From net/sctp/Kconfig:
+
+<--  snip  -->
+
+...
+
+config IPV6_SCTP__
+        tristate
+        default y if IPV6=n
+        default IPV6 if IPV6
+
+config IP_SCTP
+        tristate "The SCTP Protocol (EXPERIMENTAL)"
+        depends on IPV6_SCTP__
+...
+
+<--  snip  -->
+
+
+Semantically equivalent is the following for IPV6_SCTP__:
+
+config IPV6_SCTP__
+        tristate
+        default y if IPV6=n || IPV6=y
+	default m if IPV6=m
+
+
+If it was intended to disallow a static IP_SCTP with a modular IPV6 it 
+doesn't work: It's perfectly allowed to set IPV6=n and IP_SCTP=y and 
+later compile and install a modular IPV6 for the same kernel.
+
+
+Could someone from the SCTP developers comment on the intentions behind 
+IPV6_SCTP__ ?
+
+
+> Margit
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

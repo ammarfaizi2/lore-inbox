@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263225AbRFEF3G>; Tue, 5 Jun 2001 01:29:06 -0400
+	id <S263237AbRFEFjR>; Tue, 5 Jun 2001 01:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbRFEF24>; Tue, 5 Jun 2001 01:28:56 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:56073 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263225AbRFEF2n>; Tue, 5 Jun 2001 01:28:43 -0400
+	id <S263232AbRFEFjH>; Tue, 5 Jun 2001 01:39:07 -0400
+Received: from kathy-geddis.astound.net ([24.219.123.215]:24326 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263231AbRFEFjA>; Tue, 5 Jun 2001 01:39:00 -0400
+Date: Mon, 4 Jun 2001 22:38:58 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Missing cache flush.
-Date: 4 Jun 2001 22:28:19 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9fhqlj$7jt$1@penguin.transmeta.com>
-In-Reply-To: <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org>
+Subject: Speed to please all......
+In-Reply-To: <memo.217821@cix.compulink.co.uk>
+Message-ID: <Pine.LNX.4.10.10106042237470.18954-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010605155550.C22741@metastasis.f00f.org>,
-Chris Wedgwood  <cw@f00f.org> wrote:
->On Mon, Jun 04, 2001 at 07:03:01PM -0700, David S. Miller wrote:
->
->    The x86 doesn't have dumb caches, therefore it really doesn't
->    need to flush anything.  Maybe a mb(), but that is it.
->
->What if the memory is erased underneath the CPU being aware of this?
->In such a way ig generates to bus traffic...
 
-Doing bank switching etc is outside the scope of the current DMA cache
-flush macros - they are there only for "sane" cache coherency issues,
-not to be used as generic "we have to flush the cache because we went
-behind the back of the CPU and switched a bank of memory around". 
+beetle:/src/DiskPerf-1.0.5 # ./DiskPerf.rw /dev/hdb
+Device: Maxtor 5T020H2 Serial Number: T2J0HC0C
+LBA 0 DMA Read Test                      = 68.82 MB/Sec (3.63 Seconds)
+Outer Diameter Sequential DMA Read Test  = 36.68 MB/Sec (6.81 Seconds)
+Inner Diameter Sequential DMA Read Test  = 21.36 MB/Sec (11.70 Seconds)
+LBA 1 DMA Write Test                     = 65.57 MB/Sec (3.81 Seconds)
+Outer Diameter Sequential DMA Write Test = 36.89 MB/Sec (6.78 Seconds)
+Inner Diameter Sequential DMA Write Test = 21.42 MB/Sec (11.67 Seconds)
 
-You will have to come up with some new primitive for this. 
+The new driver for 2.5 can read and write at near the same speeds.
 
-The x86 has the "wbinval" instruction, although it should be noted that
+Andre Hedrick
+ASL Kernel Development
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
- - it is buggy and will lock up some CPU's. Use with EXTREME CAUTION.
-   Intel set a special field in the MP table for whether wbinval is
-   usable or not, and you can probably find their errata on which CPU's
-   it doesn't work on (I think it was some early PPro steppings).
-
-   When wbinval doesn't work, there's another strategy to flush the
-   cache, but I forget what it was. It was something ridiculous like
-   reading in a few megabytes of memory from consecutive physical
-   addresses to make sure that the cache has been replaced.
-
- - even when it works, it is necessarily very very very slow. Not to be
-   used lightly. As you can imagine, the work-around is even slower.
-
-On the whole, I would suggest avoiding this like the plague, and just
-marking such memory to be non-cacheable, regardless of whether there is
-a performance impact or not. If you mark it write-combining and
-speculative, it's going to perform a bit better.
-
-			Linus

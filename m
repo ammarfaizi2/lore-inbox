@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261348AbSITHnp>; Fri, 20 Sep 2002 03:43:45 -0400
+	id <S261291AbSITHlW>; Fri, 20 Sep 2002 03:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261395AbSITHnp>; Fri, 20 Sep 2002 03:43:45 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:34015 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261348AbSITHnn>;
-	Fri, 20 Sep 2002 03:43:43 -0400
-Message-Id: <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com>
-User-Agent: Pan/0.11.2 (Unix)
-From: "Maneesh Soni" <maneesh@in.ibm.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Date: Fri, 20 Sep 2002 13:29:28 +0530
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com>
-Reply-To: maneesh@in.ibm.com
+	id <S261350AbSITHlW>; Fri, 20 Sep 2002 03:41:22 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:51409 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S261291AbSITHlT>; Fri, 20 Sep 2002 03:41:19 -0400
+Subject: Re: Dont understand hdc=ide-scsi behaviour.
+From: Miles Lane <miles.lane@attbi.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Reg Clemens <reg@dwf.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200209201646.00202.bhards@bigpond.net.au>
+References: <200209192108.g8JL8iT6010419@orion.dwf.com>
+	 <200209201646.00202.bhards@bigpond.net.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1032533179.4526.102.camel@firehose.megapathdsl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 20 Sep 2002 07:46:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002 05:48:38 +0530, William Lee Irwin III wrote:
-
-> Hanna Linder wrote:
->>> Looks like fastwalk might not behave so well on this 32 cpu numa
->>> system...
+On Thu, 2002-09-19 at 23:46, Brad Hards wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> On Thu, Sep 19, 2002 at 04:38:14PM -0700, Andrew Morton wrote:
->> I've rather lost the plot.  Have any of the dcache speedup patches been
->> merged into 2.5?
+> On Fri, 20 Sep 2002 07:08, Reg Clemens wrote:
+> > I dont understand the behaviour of kernel 2.4.18 (and probably all others)
+> > when I put the line
+> > 		hdc=ide-scsi
+> > on the load line.
+> >
+> > I would EXPECT to get the ide-scsi driver for hdc (my cdwriter) but instead
+> > get it for BOTH hdc and hdd, the cdwriter and the zip drive.
+> >
+> > After starting this way (with hdc=ide-scsi), I find that
+> > 	/dev/cdrom2 -> /dev/scd0
+> > and that to access the zip drive I have to use /dev/sda1 (or /dev/sda4)
+> There are two slightly different things happening, I think.
 > 
-> As far as the dcache goes, I'll stick to observing and reporting. I'll
-> rerun with dcache patches applied, though.
+> 1. When you say hdc=ide-scsi, you are telling the IDE system that you don't 
+> want to use the normal IDE interfaces to userland (such as ide-cdrom), but 
+> instead want all access to this device to be accessed through the SCSI 
+> midlayer (and associated SCSI interfaces, like the sg and scd drivers). So 
+> ide-scsi becomes the driver, instead of ide-cdrom. You should be able to see 
+> this in /proc/ide/hdc/driver
 > 
-..
-> Thanks,
-> Bill
-> -
+> 2. ide-scsi is greedy, and will grab any IDE device without a driver. ATAPI 
+> floppy devices (hopefully) like your zip drive need the IDE floppy device 
+> driver, which is probably not loaded. What does CONFIG_BLK_DEV_IDEFLOPPY 
+> equal in your kernel config?
+> 
+> > I would EXPECT to get to them via /dev/hdd1 or /dev/hdd4.
+> And you will, with the right driver loaded :-)
+> 
+> > Did I miss something or is this a bug????
+> If you load ide-floppy before ide-scsi, and it still doesn't work, then there 
+> is a bug.
 
-For a 32-way system fastwalk will perform badly from dcache_lock point of 
-view, basically due to increased lock hold time. dcache_rcu-12 should reduce
-dcache_lock contention and hold time. The patch uses RCU infrastructer patch and
-read_barrier_depends patch. The patches are available in Read-Copy-Update
-section on lse site at
+Well, aren't things going to get even more confusing when we 
+try to support devices like the Lacie DVD/CD Rewritable 
+combo drive?  Are we going to do a better job of simply making 
+all usable interfaces available, so we no longer need to switch
+between drivers or twiddle driver load order?
 
-http://sourceforge.net/projects/lse
+	Miles
 
-Regards
-Maneesh
-
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/

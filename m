@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284942AbRLKJVd>; Tue, 11 Dec 2001 04:21:33 -0500
+	id <S284946AbRLKJYD>; Tue, 11 Dec 2001 04:24:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284945AbRLKJVN>; Tue, 11 Dec 2001 04:21:13 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18742 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S284942AbRLKJVC>; Tue, 11 Dec 2001 04:21:02 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rusty@rustcorp.com.au (Rusty Russell), anton@samba.org, davej@suse.de,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S284945AbRLKJXx>; Tue, 11 Dec 2001 04:23:53 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:13226 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S284946AbRLKJXn>;
+	Tue, 11 Dec 2001 04:23:43 -0500
+Date: Tue, 11 Dec 2001 10:23:30 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Robert Varga <nite@hq.alert.sk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jamesclv@us.ibm.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.17-pre5
-In-Reply-To: <E16DEVr-0008SW-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Dec 2001 02:00:23 -0700
-In-Reply-To: <E16DEVr-0008SW-00@the-village.bc.nu>
-Message-ID: <m1ofl6uo60.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+Message-ID: <20011211102330.R360@khan.acc.umu.se>
+In-Reply-To: <200112102312.fBANCcq03225@butler1.beaverton.ibm.com> <E16DZsO-0003tv-00@the-village.bc.nu> <20011211101641.A7278@hq.alert.sk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011211101641.A7278@hq.alert.sk>; from nite@hq.alert.sk on Tue, Dec 11, 2001 at 10:16:41AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> > 	If you number each CPU so its two IDs are smp_num_cpus()/2
-> > 	apart, you will NOT need to put some crappy hack in the
-> > 	scheduler to pack your CPUs correctly.
+On Tue, Dec 11, 2001 at 10:16:41AM +0100, Robert Varga wrote:
+> On Mon, Dec 10, 2001 at 11:30:24PM +0000, Alan Cox wrote:
+> > > This may complicate Rusty's zen scheduler scheme.  It certainly
+> > > has made life complicated for the BIOS folks.  They had to sort
+> > > all the real CPUs to the front of the ACPI table, lest those folks
+> > > so benighted as to run the crippled version of Win2K (which only
+> > > on-lines 8 CPUs) only get four real CPUs out of eight.
+> > 
+> > Rotfl, oh that is beautiful
 > 
-> Which is a major change to the x86 tree and an invasive one. Right now the
-> X86 is doing a 1:1 mapping, and I can offer Marcelo no proof that somewhere
-> buried in the x86 arch code there isnt something that assumes this or mixes
-> a logical and physical cpu id wrongly in error. 
+> As it happens a guy from microsoft sitting next to me as I read this
+> claims the DataCenter version of W2K has no limitation on number of
+> processors.
 
-Actually we don't do a 1:1 physical to logical mapping.  I currently
-have a board that has physical id's of:  0:6 and logical id's of 0:1
-with no changes to the current x86 code. 
-> 
-> At best you are exploiting an obscure quirk of the current scheduler that is
-> quite likely to break the moment someone factors power management into the
-> idling equation (turning cpus off and on is more expensive so if you idle
-> a cpu you want to keep it the idle one for PM). Congratulations on your
-> zen like mastery of the scheduler algorithm. Now tell me it wont change in
-> that property.
+Well, Datacenter is the non-crippled version. You get to pay a lot for
+getting a non-crippled version, though. Soooo lame.
 
-The idea of a cpu priority for filling sounds like a nice one.  Even
-if we don't use the cpu id bits for it.
 
-Eric
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

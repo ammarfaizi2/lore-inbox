@@ -1,32 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314612AbSEUN6f>; Tue, 21 May 2002 09:58:35 -0400
+	id <S314609AbSEUOLp>; Tue, 21 May 2002 10:11:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314613AbSEUN6e>; Tue, 21 May 2002 09:58:34 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:64268 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S314612AbSEUN6d>; Tue, 21 May 2002 09:58:33 -0400
-Date: Tue, 21 May 2002 15:58:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0205211544320.23394-100000@serv>
+	id <S314634AbSEUOLo>; Tue, 21 May 2002 10:11:44 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:4268 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314609AbSEUOLo>; Tue, 21 May 2002 10:11:44 -0400
+Date: Tue, 21 May 2002 09:11:42 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: A Guy Called Tyketto <tyketto@wizard.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.17: hfs no go
+In-Reply-To: <20020521063757.GA16181@wizard.com>
+Message-ID: <Pine.LNX.4.44.0205210909100.10815-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 20 May 2002, A Guy Called Tyketto wrote:
 
-On Mon, 20 May 2002, Linus Torvalds wrote:
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.15/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -DMODULE 
+> -DMODVERSIONS -include /usr/src/linux-2.5.15/include/linux/modversions.h 
+> -DKBUILD_BASENAME=inode -c -o inode.o inode.c
+> inode.c: In function `hfs_prepare_write':
+> inode.c:242: dereferencing pointer to incomplete type
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.15/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -DMODULE 
+> -DMODVERSIONS -include /usr/src/linux-2.5.15/include/linux/modversions.h 
+> -DKBUILD_BASENAME=mdb -c -o mdb.o mdb.c
 
-> And yet more TLB shootdown stuff.
+Okay, I think Christoph Hellwig already gave you the right hint on how to 
+fix the actual problem in inode.c.
 
-I'm a bit puzzled, how you want to do proper rss accounting, you put now a
-"tlb->freed++;" into zap_pte_range(). mmu_gather_t is supposed to be an
-opaque type and this access violates this.
+However, this snippet also shows a glitch I introduced, i.e. make 
+wouldn't stop the build on error immediately, as it used to.
 
-bye, Roman
+So here's the fix for that one.
+
+--Kai
+
+
+# --------------------------------------------
+# 02/05/21	kai@tp1.ruhr-uni-bochum.de	1.584
+# kbuild: Stop immediately on error
+# 
+# This patch restores the previous behavior of stopping the build
+# immediately on error (unless the -k option is given to make)
+# --------------------------------------------
+#
+diff -Nru a/Rules.make b/Rules.make
+--- a/Rules.make	Tue May 21 09:08:38 2002
++++ b/Rules.make	Tue May 21 09:08:38 2002
+@@ -380,5 +380,5 @@
+ if_changed = $(if $(strip $? \
+ 		          $(filter-out $($(1)),$(cmd_$(@F)))\
+ 			  $(filter-out $(cmd_$(@F)),$($(1)))),\
+-	       @echo $($(1)); $($(1)); echo 'cmd_$(@F) := $($(1))' > $(@D)/.$(@F).cmd)
++	       @echo $($(1)); $($(1)) || exit $$?; echo 'cmd_$(@F) := $($(1))' > $(@D)/.$(@F).cmd)
+ 
 

@@ -1,91 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314758AbSESSSz>; Sun, 19 May 2002 14:18:55 -0400
+	id <S314829AbSESS3E>; Sun, 19 May 2002 14:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314783AbSESSSy>; Sun, 19 May 2002 14:18:54 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:58282 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314758AbSESSSw>;
-	Sun, 19 May 2002 14:18:52 -0400
-Date: Sun, 19 May 2002 20:18:45 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Robert T. Johnson" <rtjohnso@cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org,
-        Sailesh Krishnamurthy <sailesh@EECS.Berkeley.EDU>
-Subject: Re: Bug in 2.4.19-pre8 drivers/input/joydev.c
-Message-ID: <20020519201845.Q1976@ucw.cz>
-In-Reply-To: <1021487163.12915.37.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314835AbSESS3D>; Sun, 19 May 2002 14:29:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60422 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314829AbSESS3D>; Sun, 19 May 2002 14:29:03 -0400
+Date: Sun, 19 May 2002 11:29:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+        <alan@lxorguk.ukuu.org.uk>
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: <20020518214717.3526@smtp.wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0205191125120.3104-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 11:26:02AM -0700, Robert T. Johnson wrote:
 
-> Sailesh Krishmurthy and I have found what we believe is an exploitable
-> bug in drivers/input/joydev.c:joydev_ioctl().  It looks like the
-> JSIOCSAXMAP and JSIOCSBTNMAP cases accidentally reverse the arguments to
-> copy_from_user().  A user program could call these ioctls with a
-> maliciously chosen arg to crash the system or gain root access.  A patch
-> is attached to this message (though my mailer will probably mangle it --
-> sorry).  We apologize if we have misunderstood the behavior of this
-> function.
 
-Thanks for this report, this was found and fixed already.
+On Sat, 18 May 2002, Benjamin Herrenschmidt wrote:
+>
+> Looking at generic_file_write(), it ignore the count returned by
+> copy_from_user and always commit a write for the whole requested
+> count, regardless of how much could actually be read from userland.
+> The result of copy_from_user is only used as an error condition.
 
-> 
-> We found this bug using the static analysis tool cqual,
-> http://www.cs.berkeley.edu/~jfoster/cqual/, developed at UC Berkeley by
-> Jeff Foster, John Kodumal, and many others.
-> 
-> Please CC us in any replies.
-> 
-> Thanks for all your great work on the kernel.
-> 
-> Best,
-> Rob Johnson (rtjohnso@cs.berkeley.edu)
-> Sailesh Krishnamurthy (sailesh@cs.berkeley.edu)
-> 
-> 
-> 
-> --- joydev.c    Wed May 15 10:25:26 2002
-> +++ joydev_fixed.c      Wed May 15 10:37:36 2002
-> @@ -363,7 +363,7 @@
->                         return copy_to_user((struct js_corr *) arg,
-> joydev->corr,
->                                                 sizeof(struct js_corr) *
-> joydev->nabs) ? -EFAULT : 0;
->                 case JSIOCSAXMAP:
-> -                       if (copy_from_user((__u8 *) arg, joydev->abspam,
-> sizeof(__u8) *
-> ABS_MAX))
-> +                       if (copy_from_user(joydev->abspam, (__u8 *) arg,
-> sizeof(__u8) *
-> ABS_MAX))
->                                 return -EFAULT;
->                         for (i = 0; i < ABS_MAX; i++) {
->                                 if (joydev->abspam[i] > ABS_MAX) return
-> -EINVAL;
-> @@ -374,7 +374,7 @@
->                         return copy_to_user((__u8 *) arg,
-> joydev->abspam,
->                                                 sizeof(__u8) * ABS_MAX)
-> ? -EFAULT : 0;
->                 case JSIOCSBTNMAP:
-> -                       if (copy_from_user((__u16 *) arg,
-> joydev->absmap, sizeof(__u16) *
-> (KEY_MAX - BTN_MISC)))
-> +                       if (copy_from_user(joydev->absmap, (__u16 *)
-> arg, sizeof(__u16) *
-> (KEY_MAX - BTN_MISC)))
->                                 return -EFAULT;
->                         for (i = 0; i < KEY_MAX - BTN_MISC; i++); {
->                                 if (joydev->keypam[i] > KEY_MAX ||
-> joydev->keypam[i] < BTN_MISC)
-> return -EINVAL;
-> 
+And this is exactly what makes it re-startable.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+A faulting write will fill some subsequent memory area with zeroes, but a
+subsequent write can complete the original one.
+
+It has to _commit_ the whole area, because it uses the pre-fault size
+information to optimize away reads etc, ie if you do a
+
+	write(fd, buf, 4096);
+
+at a page-aligned offset, the write code knows that it shouldn't read the
+old contents because they get overwritten.
+
+Which is why we need to commit the whole 4096 bytes, even if we only
+actually were able to get a single byte from user space.
+
+But by then telling user space that we couldn't actually write more than 1
+byte, we give user space the _ability_ to re-start the write with the
+missing 4095 bytes.
+
+> generic_file_read() on the other hand seems to be ok.
+
+That one doesn't have any of the same issues.
+
+		Linus
+

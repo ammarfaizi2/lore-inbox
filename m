@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVAZGzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVAZG7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVAZGzp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 01:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVAZGzp
+	id S262368AbVAZG7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 01:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVAZG7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 01:55:45 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:28904 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262367AbVAZGzh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 01:55:37 -0500
-Subject: [PATCH] unexport register_cpu and unregister_cpu
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, anil.s.keshavamurthy@intel.com
-Content-Type: text/plain
-Date: Wed, 26 Jan 2005 00:55:47 -0600
-Message-Id: <1106722547.9855.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 26 Jan 2005 01:59:30 -0500
+Received: from smail4.alcatel.fr ([62.23.212.167]:2739 "EHLO smail4.alcatel.fr")
+	by vger.kernel.org with ESMTP id S262368AbVAZG71 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 01:59:27 -0500
+Message-ID: <41F73FCB.60606@alcatel.fr>
+Date: Wed, 26 Jan 2005 07:59:23 +0100
+From: Philippe MARTEAU <philippe.marteau@alcatel.fr>
+Reply-To: philippe marteau <Philippe.MARTEAU@alcatel.fr>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; fr-FR; rv:1.7.3) Gecko/20040920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+       philippe marteau <Philippe.MARTEAU@alcatel.fr>
+Subject: PCI Express MSI in kernel 2.4 ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Alcanet-MTA-scanned-and-authorized: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://linus.bkbits.net:8080/linux-2.5/cset@4180a2b7mi2fzuNQDBOQY7eMAkns8g?nav=index.html|src/|src/drivers|src/drivers/base|related/drivers/base/cpu.c
+hello,
 
-This changeset introduced exports for register_cpu and unregister_cpu
-right after 2.6.10.  As far as I can tell these are not called from any
-code which can be built as a module, and I can't think of a good reason
-why any out of tree code would use them.  Unless I've missed something,
-can we remove them before 2.6.11?
+I saw that there is an implementation of MSI in the Linux kernel 2.6 stream.
 
-Build-tested for ia64 and i386.
+Is there a possibility to port this in the 2.4 kernel tree (we are at 
+this time using 2.4.17) ?
 
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
+Is this already foreseen and planned and when ?
 
-Index: linux-2.6.11-rc2-mm1/drivers/base/cpu.c
-===================================================================
---- linux-2.6.11-rc2-mm1.orig/drivers/base/cpu.c	2005-01-25 23:50:02.677255800 -0600
-+++ linux-2.6.11-rc2-mm1/drivers/base/cpu.c	2005-01-25 23:56:28.436611464 -0600
-@@ -64,7 +64,6 @@
- 
- 	return;
- }
--EXPORT_SYMBOL(unregister_cpu);
- #else /* ... !CONFIG_HOTPLUG_CPU */
- static inline void register_cpu_control(struct cpu *cpu)
- {
-@@ -96,9 +95,6 @@
- 		register_cpu_control(cpu);
- 	return error;
- }
--#ifdef CONFIG_HOTPLUG_CPU
--EXPORT_SYMBOL(register_cpu);
--#endif
- 
- 
- 
+Is this MSI feature already used out there ? on which target processor 
+and southbridge ?
 
 
+Please CC me ( mailto:philippe.marteau@alcatel.fr )since I am not 
+subscribed to the mail list.
+
+Regards
+
+Philippe

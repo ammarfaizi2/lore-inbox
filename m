@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276399AbRI2BUx>; Fri, 28 Sep 2001 21:20:53 -0400
+	id <S276400AbRI2BZc>; Fri, 28 Sep 2001 21:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276400AbRI2BUc>; Fri, 28 Sep 2001 21:20:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:16648 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S276399AbRI2BUZ>;
-	Fri, 28 Sep 2001 21:20:25 -0400
-Date: Fri, 28 Sep 2001 22:20:37 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.9-ac16 good perfomer?
-In-Reply-To: <20010928180819.A29756@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276401AbRI2BZW>; Fri, 28 Sep 2001 21:25:22 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18935
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S276400AbRI2BZK>; Fri, 28 Sep 2001 21:25:10 -0400
+Date: Fri, 28 Sep 2001 18:25:32 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [Kinda-OT] Reinventing wheels [was: 2.4.9-ac16 good perfomer?]
+Message-ID: <20010928182532.B29756@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010928180819.A29756@mikef-linux.matchmail.com> <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001, Mike Fedyk wrote:
+On Fri, Sep 28, 2001 at 10:20:37PM -0300, Rik van Riel wrote:
+> As usual, thanks go out to Matt Dillon for finding
+> this balancing point.
+> 
+> I guess it really is time to stop reinventing the wheel ;)
+> 
 
-> Is it normal to have Inact_target 1/4 of main memory (64MB of 256MB RAM)?
-> In previous versions, this value would fluctuate with the load of the system.
->
-> Is this expected?
+I've read the archived thread between you and Matt, and he mentioned that
+what he described was about three years old.
 
-Yes, this is a 'compensation' for the fact that page aging changed
-from exponential to linear.  The combination of linear page aging
-with a large inactive_target results in a good combination of
-frequency- and recency-based page eviction.
-
-Doing just linear page aging with a small inactive target resulted
-in worse throughput than exponential page aging for some workloads,
-better for other workloads.  Linear page aging with a large inactive
-target results in good througput and latency under all workloads I've
-found up to now.  As usual, thanks go out to Matt Dillon for finding
-this balancing point.
-
-I guess it really is time to stop reinventing the wheel ;)
-
-cheers,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+What did they do before that?
 

@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTKNWLv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 17:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTKNWLv
+	id S262745AbTKNWpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 17:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKNWpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 17:11:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16525 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262094AbTKNWLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 17:11:50 -0500
-Date: Fri, 14 Nov 2003 14:07:03 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why no Kconfig in "kernel" subdir?
-Message-Id: <20031114140703.0ce36149.rddunlap@osdl.org>
-In-Reply-To: <3FB54A62.6020601@nortelnetworks.com>
-References: <3FB50B4D.1000300@nortelnetworks.com>
-	<20031114092319.5260bd01.rddunlap@osdl.org>
-	<3FB54A62.6020601@nortelnetworks.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 14 Nov 2003 17:45:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43663 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262458AbTKNWpt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 17:45:49 -0500
+Date: Fri, 14 Nov 2003 22:45:48 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
+Message-ID: <20031114224548.GM24159@parcelfarce.linux.theplanet.co.uk>
+References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au> <1068787304.4157.8.camel@localhost> <16308.26754.867801.131463@notabene.cse.unsw.edu.au> <20031114101647.GJ32211@marowsky-bree.de> <20031114182927.GA8810@gtf.org> <20031114154423.A5587@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031114154423.A5587@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003 16:34:26 -0500 Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+On Fri, Nov 14, 2003 at 03:44:23PM -0600, Matt Domsch wrote:
+> Any reason why the current partition-mapping code couldn't be extended
+> to handle partition detection on a generic block device (which is what
+> MD presents I think) instead of a struct gendisk?  Then it wouldn't
 
-| Randy.Dunlap wrote:
-| 
-| 
-| > I consider PREEMPT and SMP arch-specific, not generic.
-| 
-| Interesting.  Might I ask why?  I thought that most of PREEMPT was 
-| pretty arch-neutral.
-
-Right, most of it is arch-neutral.
-It appears that PA-RISC doesn't support PREEMPT:
-
-include/asm-parisc/hardirq.h:
-#ifdef CONFIG_PREEMPT
-# error CONFIG_PREEMT currently not supported.
-  [complete with typo]
-
-and UML doesn't support PREEMPT either.
-
-
-| > Will init/Kconfig do what you want?
-| 
-| As long as there is some place to put generic options that are 
-| applicable to the system as a whole, then I'm happy.
-
-I expect that it's workable.
-
---
-~Randy
-MOTD:  Always include version info.
+Any block_device has a gendisk - md.c ones included.  The problem is where
+to put device numbers of partitions.

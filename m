@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272167AbTGYP70 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTGYP70
+	id S272164AbTGYPz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272165AbTGYPz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:59:26 -0400
-Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:43015 "EHLO
-	zork.ruvolo.net") by vger.kernel.org with ESMTP id S272167AbTGYP7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:59:24 -0400
-Date: Fri, 25 Jul 2003 09:14:21 -0700
-From: Chris Ruvolo <chris+lkml@ruvolo.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
-       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030725161421.GL23196@ruvolo.net>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>,
-	Sam Bromley <sbromley@cogeco.ca>,
-	Torrey Hoffman <thoffman@arnor.net>, gaxt <gaxt@rogers.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	linux firewire devel <linux1394-devel@lists.sourceforge.net>
-References: <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725155355.GJ23196@ruvolo.net> <20030725154715.GH1512@phunnypharm.org>
+	Fri, 25 Jul 2003 11:55:56 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:18566 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S272164AbTGYPzv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:55:51 -0400
+Date: Fri, 25 Jul 2003 18:11:08 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: John Bradford <john@grabjohn.com>, ecki-lkm@lina.inka.de,
+       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+Subject: Re: why the current kernel config menu layout is a mess
+Message-ID: <20030725161108.GB17813@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	John Bradford <john@grabjohn.com>, ecki-lkm@lina.inka.de,
+	Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+References: <200307251458.h6PEwAMD001065@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.53.0307251114590.26545@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3xQkynibq3FKlJyM"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030725154715.GH1512@phunnypharm.org>
+In-Reply-To: <Pine.LNX.4.53.0307251114590.26545@localhost.localdomain>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 25, 2003 at 11:26:17AM -0400, Robert P. J. Day wrote:
 
---3xQkynibq3FKlJyM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> [some invaluable information zapped]
+> 
+> what's important, i think, is to be able to look at the top-level
+> menu and be able to deduce quickly where to find the option you're
+> interested in.  (pop quiz:  without looking, where would you find
+> the option for the ftape floppy driver?  see?)
 
-On Fri, Jul 25, 2003 at 11:47:15AM -0400, Ben Collins wrote:
-> That's exactly what it looked like, and the info is exactly what I
-> thought would be produced. Could you tell me the value for HZ on your
-> system? Also try the patch I sent just prior to this email.
+what about a search option, which actually grabs
+for key words in descriptions, or a special keyword
+list, with thematic structure?
 
-Its an x86, and I didn't do anything to change the default.. so I believe
-its HZ=1000 (at least, thats what include/asm/param.h says).
+> [some invaluable information zapped]
 
-> Thanks, your testing is very helpful.
+best,
+Herbert
 
-Thanks for taking the time to go through this.
-
--Chris
-
---3xQkynibq3FKlJyM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/IVddKO6EG1hc77ERAnf9AKCjtRgAH2SgWb0GruJIePs0GJ/eYQCghFcS
-NoPM98P6J7ufV9OjjsNMC9w=
-=2YQV
------END PGP SIGNATURE-----
-
---3xQkynibq3FKlJyM--

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274920AbTHFIUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 04:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274922AbTHFIUW
+	id S274923AbTHFI1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 04:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274931AbTHFI1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 04:20:22 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:26133 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S274920AbTHFIUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 04:20:20 -0400
-Message-Id: <5.1.0.14.2.20030806181359.02bf9570@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 06 Aug 2003 18:20:06 +1000
-To: Andre Hedrick <andre@linux-ide.org>
-From: Lincoln Dale <ltd@cisco.com>
+	Wed, 6 Aug 2003 04:27:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22414 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S274923AbTHFI1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 04:27:06 -0400
+Date: Wed, 6 Aug 2003 01:22:18 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: andre@linux-ide.org, jgarzik@pobox.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, werner@almesberger.net, niv@us.ibm.com
 Subject: Re: TOE brain dump
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org,
-       Werner Almesberger <werner@almesberger.net>,
-       Nivedita Singhvi <niv@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.10.10308060009130.25045-100000@master.linux-ide
- .org>
+Message-Id: <20030806012218.4012d9e4.davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20030806181359.02bf9570@mira-sjcm-3.cisco.com>
 References: <3F2CAE61.7070401@pobox.com>
+	<5.1.0.14.2.20030806181359.02bf9570@mira-sjcm-3.cisco.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:12 PM 6/08/2003, Andre Hedrick wrote:
->Do be sure to check that your data payload is correct.
->Everyone knows that a router/gateway/switch with a sticky bit in its
->memory will recompute the net crc16 checksum insure it pass the to the nic
->regardless.  It is amazing how much data can be corrupted by a network
->environment via all the NFS/NBD/etc wantabie storage products out there.
+On Wed, 06 Aug 2003 18:20:06 +1000
+Lincoln Dale <ltd@cisco.com> wrote:
 
-Andre, you are wrong.
+> secondly, why would a router or switch even be touching the data at layer-4 
+> (TCP), let alone recalculating a CRC?
 
-firstly, do you REALLY think that most router(s)/switch(es) out there 
-recompute IP checksums because they did a IP TTL decrement when routing an 
-IP packet or NAT IP addresses?
-
-no, they don't.  just like netfilter or router-on-linux is smart enough to 
-be able to re-code an IP checksum by unmasking and re-masking the old/new 
-values in a header, so does the most router vendor's code.
-
-secondly, why would a router or switch even be touching the data at layer-4 
-(TCP), let alone recalculating a CRC?
-
-i know you really like your "we do ERL 2 in iSCSI" pitch, but lets stick to 
-facts here eh?
-
-
-cheers,
-
-lincoln.
-
+To make sure emails about Falun Gong and other undesirable topics
+don't make it into China.

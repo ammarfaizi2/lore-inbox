@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313680AbSDPNoN>; Tue, 16 Apr 2002 09:44:13 -0400
+	id <S313677AbSDPNnO>; Tue, 16 Apr 2002 09:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313679AbSDPNoM>; Tue, 16 Apr 2002 09:44:12 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:56370 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313680AbSDPNoL>; Tue, 16 Apr 2002 09:44:11 -0400
-Date: Tue, 16 Apr 2002 15:44:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020416154418.B25328@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com> <Pine.LNX.4.33.0204151415110.15353-100000@penguin.transmeta.com> <20020415232058.GO21206@holomorphy.com> <20020416024458.H26561@dualathlon.random> <20020416013016.GA23513@matchmail.com>
+	id <S313678AbSDPNnN>; Tue, 16 Apr 2002 09:43:13 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:26122 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S313677AbSDPNnM>;
+	Tue, 16 Apr 2002 09:43:12 -0400
+Date: Tue, 16 Apr 2002 09:38:24 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <l_girdwood@bitwise.co.uk>,
+        BALBIR SINGH <balbir.singh@wipro.com>,
+        William Olaf Fraczyk <olaf@navi.pl>,
+        Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Why HZ on i386 is 100 ?
+Message-ID: <20020416093824.A4025@mark.mielke.cc>
+In-Reply-To: <AAEGIMDAKGCBHLBAACGBEEONCEAA.balbir.singh@wipro.com> <1018952961.31914.446.camel@swordfish> <20020416100148.GA17560@venus.local.navi.pl> <1018964120.13527.37.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 06:30:16PM -0700, Mike Fedyk wrote:
-> under testing.  Also, Andrew found a problem with your locking changes when
-> he split up your patch, and at the time you were saying it is ready and
-> there were no bug reports against in...
+On Tue, Apr 16, 2002 at 03:35:19PM +0200, Terje Eggestad wrote:
+> I seem to recall from theory that the 100HZ is human dependent. Any
+> higher and you would begin to notice delays from you input until
+> whatever program you're talking to responds. 
 
-btw, it was a problem only for ext3.
+I suspect by "higher" you mean "each tick takes up more of a second".
 
-> Does this patch conflict in any way with your vm patches?  If not they
-> should be able to co-exist.
+As in, if the HZ is *less* than 100HZ, you would notice delays when
+typing, or similar.
 
-it will generate rejects, but that's not the problem. My point is that
-your same argument about merging in later kernels, stable kernel tree,
-could be applied to patches that makes no difference to users too.
+Increasing the HZ can only improve responsiveness, however, there is a
+cost (mentioned by others). The cost is that the scheduler is executed
+more often per second. If the scheduler does the same amount of work
+per tick, but there are more ticks per second, the scheduler does more
+work overall, and the CPU is free for use by the processes less.
 
-Andrea
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

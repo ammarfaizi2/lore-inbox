@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTD1CA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 22:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbTD1CA0
+	id S263268AbTD1CAM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 22:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTD1CAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 22:00:26 -0400
-Received: from CPE00045a9153f8-CM0f0099801693.cpe.net.cable.rogers.com ([24.100.181.49]:13572
-	"EHLO localhost") by vger.kernel.org with ESMTP id S263272AbTD1CAY
+	Sun, 27 Apr 2003 22:00:12 -0400
+Received: from user72.209.42.38.dsli.com ([209.42.38.72]:36113 "EHLO
+	nolab.conman.org") by vger.kernel.org with ESMTP id S263268AbTD1CAL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 22:00:24 -0400
-Message-ID: <3EAC8E29.9080007@rogers.com>
-Date: Sun, 27 Apr 2003 22:12:57 -0400
-From: Aravind/=?UTF-7?Q?+CQUJMAk1CT8JKAlNCSY-?= <aravind@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en
+	Sun, 27 Apr 2003 22:00:11 -0400
+Date: Sun, 27 Apr 2003 22:12:26 -0400 (EDT)
+From: Mark Grosberg <mark@nolab.conman.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Combined fork-exec syscall.
+In-Reply-To: <Pine.LNX.4.53.0304272203570.14901@chaos>
+Message-ID: <Pine.BSO.4.44.0304272207431.23296-100000@kwalitee.nolab.conman.org>
 MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [CRASH] kernel 2.4.19SMP + ALSA 0.9.2
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-Using ALSA 0.9.2 for OSS applications crashes Linux. Pressing the
-keys Ctrl+ScrollLock dumps all the process on screen with some message 
-saying [NOTLB] for all process. It is triggered while running sflaunch 
-from the speakfreely-7.5 package.
+On Sun, 27 Apr 2003, Richard B. Johnson wrote:
 
-The application works fine with ALSA 0.5.x series. There are no related 
-or unusual messages in /var/log/messages. ALSA 0.9 has never worked for 
-me and every time I try to test a new release of ALSA 0.9, I am forced 
-to go back to 0.5 as I use speakfreely.
+> You don't save anything but one system call time which is inconsequential
+> compared to the time necessary to exec (load a file, etc). Also, it is
+> worthless for anything except the most basic 'system()' or popen()
 
-My system configuration is
-Kernel: 2.4.19 SMP
-ALSA driver: 0.9.2
-ALSA lib: 0.9.2
-ALSA utils:0.9.2
-GCC: 2.96-85
-GLIBC: 2.2.93-5
-SoundCard: ESS Maestro 2E
-SoundCard Driver: snd-card-es1968.o
+Actually, my original proposal will work for popen and all sorts of piping
+because of the file descriptor map. For example:
 
-Regards
+   int   in[2], out[2];
+   char *null_argv[] = { NULL };
+   int   fmap[4];
+   pid_t p;
 
-Aravind
+   pipe(in);
+   pipe(out);
 
--- 
-....................................................................
-PGP KeyID: 52C72E39
-     Fingerprint: 0A03 2FC7 D478 880D D2BB  67F8 9072 B974 52C7 2E39
-....................................................................
+   fmap[0] = in[0];                     /* STDIN  */
+   fmap[1] = out[1];                    /* STDOUT */
+   fmap[2] = open("/dev/null", O_RDWR); /* STDERR */
+   fmap[3] = -1;                        /* end    */
+
+   p = nexec("/bin/cat",
+             null_argv,
+             NULL,
+             filmap);
+
+
+In this case you save the extra closes the child would have to do and you
+save the dup's.
+
+> All it does is add kernel bloat and duplicate existing kernel code
+> (both). Learn Unix instead of trying to make it VMS with spawn().
+
+Ahem, I happen to know Unix very well, thank you very much. Please read my
+proposed API before flaming it out and assuming I know nothing of UNIX,
+kernel development, or operating systems in general!
+
+Do you honestly think that just because I picked a name spawn() that
+happens to be in VMS (and MS-DOS C compilers) that I am inexperienced to
+Unix. Nope. I just happen to be a BSD user in general and don't frequent
+LKML.... and now I remember WHY!
+
+And there _ARE_ issues this does solve as were already pointed out because
+of the linear scan that must be made on the file descriptor array for the
+close-on-exec flag (which this API could happily say it ignores since it
+builds a _WHOLE_NEW file descriptor array).
+
+L8r,
+Mark G.
 

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269853AbRHNTCn>; Tue, 14 Aug 2001 15:02:43 -0400
+	id <S269395AbRHNTFY>; Tue, 14 Aug 2001 15:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270794AbRHNTCg>; Tue, 14 Aug 2001 15:02:36 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:2835 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S270076AbRHNTBo>; Tue, 14 Aug 2001 15:01:44 -0400
-Date: Tue, 14 Aug 2001 15:01:24 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: memory compress tech...
-In-Reply-To: <Pine.GSO.4.31.0108140924260.3860-100000@cardinal0.Stanford.EDU>
-Message-ID: <Pine.LNX.4.33.0108141242160.31226-100000@terbidium.openservices.net>
+	id <S269435AbRHNTFN>; Tue, 14 Aug 2001 15:05:13 -0400
+Received: from amicus.delamancha.org ([216.7.21.37]:15628 "HELO
+	amicus.delamancha.org") by vger.kernel.org with SMTP
+	id <S269395AbRHNTEy>; Tue, 14 Aug 2001 15:04:54 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
+In-Reply-To: <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva>
+ (Rik van Riel's message of "Mon, 13 Aug 2001 14:55:42 -0300 (BRST)")
+From: "Jon 'tex' Boone" <tex@delamancha.org>
+Date: Tue, 14 Aug 2001 15:04:59 -0400
+Message-ID: <m38zgmpin8.fsf@amicus.delamancha.org>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Ted Unangst wrote:
+Rik van Riel <riel@conectiva.com.br> writes:
 
-> maybe for compressing swap?  you have to read less data off the disk,
-> which is faster.  and the processor is probably idling anyway, waiting on
-> disk.
+> CALL FOR VOLUNTEERS
+> ---------------------
+> This means the OOM killer should be tuned, or more precisely,
+> the code deciding when the OOM killer kicks in should be tuned.
+> 
+> The code involved is very easy, so I'll explain it a bit and
+> ask for volunteers to tweak the code and fix the OOM behaviour.
+> 
+> The functions/places you may want to tweak are:
+> 
+> mm/vmscan.c::kswapd()
+> 	else if (out_of_memory()) {
+> 		oom_kill()
+> 
+> mm/oom_kill.c::out_of_memory()
 
-Ah, now THAT is a good idea.
+Rik,
 
-Compressing groups of pages, probably 16k at a time, and storing them on 20k
-boundaries will result in a loss of swap space but a probable increase in
-speed. And the boundary alignment will probably simplify bookkeeping. You
-shouldn't be using swap anyways, so a 20% loss probably isn't a huge deal.
+    Should said volunteer(s) work with stock 2.4.8?
 
-Maybe someone with a little more experience in the area of swap management
-under Linux should take over the discussion from here...
-
+-tex
 -- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
-
-
-
-
+------------------
+Jon Allen Boone
+tex@delamancha.org

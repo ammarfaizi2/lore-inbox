@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273784AbRIXEP6>; Mon, 24 Sep 2001 00:15:58 -0400
+	id <S273789AbRIXEfG>; Mon, 24 Sep 2001 00:35:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273788AbRIXEPt>; Mon, 24 Sep 2001 00:15:49 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:61330 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S273784AbRIXEPm>; Mon, 24 Sep 2001 00:15:42 -0400
-Message-ID: <3BAEB39B.DE7932CF@kegel.com>
-Date: Sun, 23 Sep 2001 21:16:27 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Gordon Oliver <gordo@pincoya.com>
-Subject: Re: [PATCH] /dev/epoll update ...
+	id <S273790AbRIXEe4>; Mon, 24 Sep 2001 00:34:56 -0400
+Received: from bg77.anu.edu.au ([150.203.223.77]:24251 "HELO bg77.anu.edu.au")
+	by vger.kernel.org with SMTP id <S273789AbRIXEek>;
+	Mon, 24 Sep 2001 00:34:40 -0400
+Date: Mon, 24 Sep 2001 14:35:01 +1000
+From: Simon Fowler <simon@bg77.anu.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.10 + ext3
+Message-ID: <20010924143501.A19387@bg77.anu.edu.au>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>, <9om4ed$1hv$1@penguin.transmeta.com> <20010923193008.A13982@vitelus.com> <3BAEAC52.677C064C@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BAEAC52.677C064C@zip.com.au>; from akpm@zip.com.au on Sun, Sep 23, 2001 at 08:45:22PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gordon Oliver <gordo@pincoya.com> wrote:
-> But you missed the obvious optimization of doing an f_ops->poll when
-> the file is _added_. This means that you'll get an initial event when
-> there is data ready. ...
+On Sun, Sep 23, 2001 at 08:45:22PM -0700, Andrew Morton wrote:
+> Aaron Lehmann wrote:
+> > 
+> > On Mon, Sep 24, 2001 at 02:06:05AM +0000, Linus Torvalds wrote:
+> > > We'll merge ext3 soon enough.. As RH seems to start using it more and
+> > > more, there's more reason to merge it into the standard kernel too.
+> > >
+> > > So don't worry. It will happen.
 
-Note that you can do that in userspace by calling poll(), btw.  That
-gets you down to a single extra system call initially.
+Speaking of ext3 and 2.4.10, do you have an idea when you could
+get an updated ext3 patch for 2.4.10? I tried applying the latest
+0.9.9 patch to 2.4.10-pre12, fixing the rejections by hand, but
+the result was an oops when fsck.ext3 ran on boot.
 
-> Note that it has the additional advantage of making the dispatch code
-> in the user application easier. You no longer have to do special code
-> to handle the speculative read after adding the fd.
+The biggest problem was with the changes in mm/vmscan.c - I added
+try_to_release_page(), and replaced the only call to
+try_to_free_buffers() that I found (as the patch did). All the
+other rejections were one liners.
 
-As Davide points out in his reply, /dev/epoll is an exact clone of
-the O_SETSIG/O_SETOWN/O_ASYNC realtime signal way of getting readiness
-change events, but using a memory-mapped buffer instead of signal delivery
-(and obeying an interest mask).  Unlike /dev/poll, it only provides
-information about *changes* in readiness.
+I've seen reports of ext3 working with the vmscan.c hunk ignored
+- is this a reasonable approach?
 
-Everyone who has successfully written code using the O_SETSIG/O_SETOWN/O_ASYNC
-code knows that it does not send an initial state event.  This has not
-gotten in the way, as a rule.
+Thanks for any assistance,
+Simon Fowler
 
-If it does turn out to be Very Important for these single-shot readiness
-notification schemes to generate synthetic initial readiness events,
-it should be added both to /dev/epoll and to O_SETSIG/O_SETOWN/O_ASYNC.
-
-I think there is still some confusion out there because of the name
-Davide chose; /dev/epoll is so close to /dev/poll that it lulls many
-people (myself included) into thinking it's a very similar thing.  It ain't.
-(I really have to fix my c10k page to reflect that correctly...)
-- Dan
+--
+PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
+(crappy) Homepage: http://bg77.anu.edu.au
+doe #237 (see http://www.lemuria.org/DeCSS) 
+My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/ 

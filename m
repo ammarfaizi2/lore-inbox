@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRH0V7F>; Mon, 27 Aug 2001 17:59:05 -0400
+	id <S269372AbRH0WBf>; Mon, 27 Aug 2001 18:01:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269387AbRH0V6z>; Mon, 27 Aug 2001 17:58:55 -0400
-Received: from falcon.etf.bg.ac.yu ([147.91.8.233]:1411 "EHLO
-	falcon.etf.bg.ac.yu") by vger.kernel.org with ESMTP
-	id <S269318AbRH0V6n>; Mon, 27 Aug 2001 17:58:43 -0400
-Date: Mon, 27 Aug 2001 23:58:41 +0200 (CEST)
-From: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.9
-In-Reply-To: <E15bS70-0004WY-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108272357010.18996-100000@falcon.etf.bg.ac.yu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269387AbRH0WBZ>; Mon, 27 Aug 2001 18:01:25 -0400
+Received: from tank.panorama.sth.ac.at ([193.170.53.11]:49412 "EHLO
+	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
+	id <S269372AbRH0WBP>; Mon, 27 Aug 2001 18:01:15 -0400
+Date: Tue, 28 Aug 2001 00:01:27 +0200
+From: Peter Surda <shurdeek@panorama.sth.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: memcpy to videoram eats too much CPU on ATI cards (cache trashing?)
+Message-ID: <20010828000127.M17545@shurdeek.cb.ac.at>
+In-Reply-To: <E15bRy4-0004Va-00@the-village.bc.nu> <200108272140.XAA20798@cave.bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RNRUMt0ZF5Yaq/Aq"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200108272140.XAA20798@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Mon, Aug 27, 2001 at 11:40:44PM +0200
+X-Operating-System: Linux shurdeek 2.4.3-20mdk
+X-Editor: VIM - Vi IMproved 6.0z ALPHA (2001 Mar 24, compiled Mar 26 2001 12:25:08)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 27 Aug 2001, Alan Cox wrote:
+--RNRUMt0ZF5Yaq/Aq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Does this help
+On Mon, Aug 27, 2001 at 11:40:44PM +0200, Rogier Wolff wrote:
+> However, as the X server manages to finish doing what it has to do before
+> the next timer tick, it will almost never get a timer tick accounted to i=
+t.
+Yes, I also realised that, and other people also seem to think it is this w=
+ay.
 
-Nope :(
+So the conclusion is basically that the card can't chew data that fast and I
+should use busmastering instead of memcpy (and other drivers should do that
+too because "hidden load" occurs anyway). I'm working on it.
 
-But, I am able to boot that machine with 2.4.5 generic kernel with
-builtin Adaptec AIC 7xxx support that comes with Slackware 8.0.
+Thanks to all who replied, I am as always pleased by the cooperation in
+open-source world and wish everyone good luck. Yeah, and linux rocks of cou=
+rse
+:-)
 
-Oops output is now a little bit different ;)
+> 			Roger.=20
+Bye,
 
-SCSI subsystem driver Revision: 1.00
-Unable to handle kernel NULL pointer dereference at virtual address 0000003c
- printing eip:
-c01a31c0
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01a31c0>]
-EFLAGS: 00010082
-eax: 00000000   ebx: c1124340   ecx: 00000000 edx: ffffffff
-esi: c1155600   edi: c1155700   ebp: c1155600 esp: c1121e70
-ds: 0018   es: 0018  ss: 0018
+Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505=
+122023
 
-Process swapper (pid: 1, stackpage=c1121000)
-Stack: c0187d2a 00000000 ffffffff 00000000 00000200 c1124340 00000200 000000fc
-       0000000f c0192b0c c1155600 c1124320 c1155700 00000001 c1155758 c1155600
-       000000fc 0000000f c022e4a4 c1155600 c022e4a4 c11242ac c022e4a4 00000026
-Call Trace: [<c0187d2d>] [<c0192b0c>] [<c0197c49>] [<c018b925>] [<c01a3f14>]
-   [<c01a2f94>] [<c018bb6b>] [<c018826c>] [<c017f82e>] [<c0141d6b>] [<c0142095>]
+--
+               I believe the technical term is "Oops!"
 
-   [<c018007d>] [<c0105037>] [<c010545c>]
+--RNRUMt0ZF5Yaq/Aq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Code: 89 50 3c 31 c0 c3 b8 fb ff ff ff c3 8b 54 24 08 23 54 24 04
-Kernel panic: Attempted to kill init!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7isM3zogxsPZwLzcRAgXzAKCHnTTIGYjT9aR40gPOm6ccJxXi6wCfa08m
+s5MbnsZx7O7rCCepVt8sehg=
+=TPst
+-----END PGP SIGNATURE-----
 
-Greetings,
-Bosko
-
-
+--RNRUMt0ZF5Yaq/Aq--

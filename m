@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318459AbSGZUGU>; Fri, 26 Jul 2002 16:06:20 -0400
+	id <S318564AbSGZUPH>; Fri, 26 Jul 2002 16:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318464AbSGZUGU>; Fri, 26 Jul 2002 16:06:20 -0400
-Received: from admin.nni.com ([216.107.0.51]:30995 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S318459AbSGZUGT>;
-	Fri, 26 Jul 2002 16:06:19 -0400
-Date: Fri, 26 Jul 2002 16:08:55 -0400
-From: Andrew Rodland <lkml@hobbs.linuxguru.net>
-To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-Cc: fferreres@ojf.com, linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-Message-Id: <20020726160855.58496aed.lkml@hobbs.linuxguru.net>
-In-Reply-To: <Pine.LNX.4.44.0207261534310.30504-100000@alumno.inacap.cl>
-References: <1027712347.902.25.camel@fede>
-	<Pine.LNX.4.44.0207261534310.30504-100000@alumno.inacap.cl>
-X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S318569AbSGZUOz>; Fri, 26 Jul 2002 16:14:55 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:29715 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S318564AbSGZUMw>; Fri, 26 Jul 2002 16:12:52 -0400
+Date: Fri, 26 Jul 2002 13:15:54 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.5.28 Correct drivers/video aty build inconsistency
+In-Reply-To: <8505.1027656817@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0207261315390.15282-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jul 2002 15:48:21 -0400 (CLT)
-Robinson Maureira Castillo <rmaureira@alumno.inacap.cl> wrote:
 
-> On 26 Jul 2002, Federico Ferreres wrote:
-> 
-> >  
-> > You can chose to assign your money _whenever_ you want (you have 1
-> > year flexibility). 
-> > 
-> > Project could open a "feature requests" if they like. Some of these
-> > could work in a "reward" fashion. A reward could look like this:
-> > "whoever finishes a working driver for <insert card> gets <sum of
-> > funds offered by members>".
-> >  
-> 
-> You didn't get it... I _do not_ have the money, but I _do_ need the
-> fix, why do I have to wait a whole year?
-> 
+Fixed. Thanks.
 
-Because you do not have the money.
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
+
+On Fri, 26 Jul 2002, Keith Owens wrote:
+
+> Detected by kbuild 2.5.
+>
+> pp_makefile4:
+> Warning: drivers/video/cfbimgblt.o is a sub-object and it appears on select().
+>          This is an ambiguous combination and is not recommended.
+>
+> CONFIG_FB_NEOMAGIC=m, CONFIG_FB_ATY=y builds cfbimgblt as a module then
+> links it into vmlinux via atyfb.
+>
+> Index: 28.1/drivers/video/aty/Makefile
+> --- 28.1/drivers/video/aty/Makefile Fri, 26 Jul 2002 10:10:31 +1000 kaos (linux-2.5/u/b/12_Makefile 1.3 444)
+> +++ 28.1(w)/drivers/video/aty/Makefile Fri, 26 Jul 2002 14:07:55 +1000 kaos (linux-2.5/u/b/12_Makefile 1.3 444)
+> @@ -3,7 +3,7 @@ export-objs    :=  atyfb_base.o mach64_a
+>
+>  obj-$(CONFIG_FB_ATY) += atyfb.o
+>
+> -atyfb-y				:= atyfb_base.o mach64_accel.o ../cfbimgblt.o
+> +atyfb-y				:= atyfb_base.o mach64_accel.o
+>  atyfb-$(CONFIG_FB_ATY_GX)	+= mach64_gx.o
+>  atyfb-$(CONFIG_FB_ATY_CT)	+= mach64_ct.o mach64_cursor.o
+>  atyfb-objs			:= $(atyfb-y)
+> Index: 28.1/drivers/video/Makefile
+> --- 28.1/drivers/video/Makefile Fri, 26 Jul 2002 10:10:31 +1000 kaos (linux-2.5/x/b/16_Makefile 1.12 444)
+> +++ 28.1(w)/drivers/video/Makefile Fri, 26 Jul 2002 14:08:51 +1000 kaos (linux-2.5/x/b/16_Makefile 1.12 444)
+> @@ -89,7 +89,7 @@ obj-$(CONFIG_FB_TX3912)           += tx3
+>  obj-$(CONFIG_FB_MATROX)		  += matrox/
+>  obj-$(CONFIG_FB_RIVA)		  += riva/
+>  obj-$(CONFIG_FB_SIS)		  += sis/
+> -obj-$(CONFIG_FB_ATY)		  += aty/
+> +obj-$(CONFIG_FB_ATY)		  += aty/ cfbimgblt.o
+>
+>  obj-$(CONFIG_FB_SUN3)             += sun3fb.o
+>  obj-$(CONFIG_FB_BWTWO)            += bwtwofb.o
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317526AbSFLMid>; Wed, 12 Jun 2002 08:38:33 -0400
+	id <S317538AbSFLMja>; Wed, 12 Jun 2002 08:39:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317693AbSFLMic>; Wed, 12 Jun 2002 08:38:32 -0400
-Received: from imr1.ericy.com ([208.237.135.240]:55480 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id <S317526AbSFLMic>;
-	Wed, 12 Jun 2002 08:38:32 -0400
-Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8303A070D5@eammlnt051.lmc.ericsson.se>
-From: "Philippe Veillette (LMC)" <Philippe.Veillette@ericsson.ca>
-To: "'Andi Kleen'" <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: sk->socket is invalid in tcp stack
-Date: Wed, 12 Jun 2002 08:38:29 -0400
+	id <S317693AbSFLMj3>; Wed, 12 Jun 2002 08:39:29 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:61852 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S317538AbSFLMj1>;
+	Wed, 12 Jun 2002 08:39:27 -0400
+Date: Wed, 12 Jun 2002 08:33:26 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Lincoln Dale <ltd@cisco.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "David S. Miller" <davem@redhat.com>,
+        Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: RFC: per-socket statistics on received/dropped packets 
+In-Reply-To: <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
+Message-ID: <Pine.GSO.4.30.0206120829240.799-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> It likely did receive to a time-wait socket. time-wait buckets are 
-> "inherited" by hand from struct sock and live in similar hash tables, 
-> but only some fields at the beginning are valid. Yes, it's 
-> rather ugly, but ...
-> 
-> -Andi
-> 
-Thanks, 
 
-That's what I have found after, the sock is in a time wait state, 
-guess i will have to add a check...
+On Wed, 12 Jun 2002, Lincoln Dale wrote:
 
-Phil
+> At 08:11 AM 12/06/2002 -0400, Horst von Brand wrote:
+> >General dislike for adding features of _extremely_ limited (debugging!) use?
+>
+> i would imagine that every installation of Squid on linux is interested in
+> having _realistic transaction logs_ of exactly how much data was received
+> and transmitted on a TCP connection.
+>
+> i know of many many folk who use transaction logs from HTTP caches for
+> volume-based billing.
+> right now, those bills are anywhere between 10% to 25% incorrect.
+>
+> you call that "extremely limited"?
+>
+
+Surely, you must have better ways to do accounting than this -- otherwise
+you deserve to loose money.
+
+>
+> of course, i am doing exactly what Dave said to do -- maintaining my own
+> out-of-kernel patch -- but its a pain, i'm sure it will soon conflict with
+> stuff and is a damn shame - it isn't much code, but Dave seems pretty
+> steadfast that he isn't interested.
+>
+
+You havent proven why its needed. And from the looks of it you dont even
+need it. If 3 people need it, then i would like to ask we add lawn mower
+support that my relatives have been asking for the last 5 years.
+
+cheers,
+jamal
+

@@ -1,143 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269891AbUIDLX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269907AbUIDLU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269891AbUIDLX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 07:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUIDLWH
+	id S269907AbUIDLU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 07:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269901AbUIDLQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 07:22:07 -0400
-Received: from pxy4allmi.all.mi.charter.com ([24.247.15.43]:16527 "EHLO
-	proxy4.gha.chartermi.net") by vger.kernel.org with ESMTP
-	id S269887AbUIDLRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 07:17:45 -0400
-Message-ID: <4139A443.4080704@quark.didntduck.org>
-Date: Sat, 04 Sep 2004 07:17:23 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] use KERNELRELEASE
-Content-Type: multipart/mixed;
- boundary="------------000703040400020203080308"
-X-Charter-Information: 
-X-Charter-Scan: 
+	Sat, 4 Sep 2004 07:16:27 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:9222 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269883AbUIDLOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 07:14:03 -0400
+Date: Sat, 4 Sep 2004 12:13:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+Message-ID: <20040904121355.E14123@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>,
+	Keith Whitwell <keith@tungstengraphics.com>,
+	Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904120352.B14037@infradead.org> <Pine.LNX.4.58.0409041207060.25475@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0409041207060.25475@skynet>; from airlied@linux.ie on Sat, Sep 04, 2004 at 12:12:31PM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000703040400020203080308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Sep 04, 2004 at 12:12:31PM +0100, Dave Airlie wrote:
+> > > OK, I've found www.kernel.org, and clicked on the 'latest stable kernel' link.
+> > >   I got a file called "patch-2.6.8.1.bz2".  I tried to install this but
+> > > nothing happened.  My i915 still doesn't work.  What do I do now?
+> >
+> > You could start getting a clue.
+> >
+> 
+> Which is the problem, Keith was acting as a user with no clue, and why
+> should a user who can't get his graphics card working worry about kernel
+> upgrades, along with X upgrades, the DRI has a workable snapshot process
+> now that allows users to use their DRI supported graphics card now, not in
 
-This patch changes several places where the kernel version string is put 
-together from it's components with $KERNELRELEASE.
+A user without a clue should better be using a supported distribution.
+If he used Fedora Core2 instead of the totally outdated and unsupported
+RH9 he'd already have a kernel with i915 support on his disk.
 
---
-				Brian Gerst
 
---------------000703040400020203080308
-Content-Type: text/plain;
- name="use-KERNELRELEASE"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="use-KERNELRELEASE"
-
-diff -urN linux-2.6.9-rc1-bk/arch/arm26/boot/Makefile linux/arch/arm26/boot/Makefile
---- linux-2.6.9-rc1-bk/arch/arm26/boot/Makefile	2003-12-17 22:00:00.000000000 -0500
-+++ linux/arch/arm26/boot/Makefile	2004-09-03 18:34:51.348510718 -0400
-@@ -67,12 +67,12 @@
- 
- install: $(obj)/Image
- 	$(CONFIG_SHELL) $(obj)/install.sh \
--	$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) \
-+	$(KERNELRELEASE) \
- 	$(obj)/Image System.map "$(INSTALL_PATH)"
- 
- zinstall: $(obj)/zImage
- 	$(CONFIG_SHELL) $(obj)/install.sh \
--	$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) \
-+	$(KERNELRELEASE) \
- 	$(obj)/zImage System.map "$(INSTALL_PATH)"
- 
- subdir-	    := compressed
-diff -urN linux-2.6.9-rc1-bk/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
---- linux-2.6.9-rc1-bk/scripts/kconfig/gconf.c	2004-06-23 18:06:06.000000000 -0400
-+++ linux/scripts/kconfig/gconf.c	2004-09-03 18:36:17.629676122 -0400
-@@ -275,9 +275,8 @@
- 					  /*"style", PANGO_STYLE_OBLIQUE, */
- 					  NULL);
- 
--	sprintf(title, "Linux Kernel v%s.%s.%s%s Configuration",
--		getenv("VERSION"), getenv("PATCHLEVEL"),
--		getenv("SUBLEVEL"), getenv("EXTRAVERSION"));
-+	sprintf(title, "Linux Kernel v%s Configuration",
-+		getenv("KERNELRELEASE"));
- 	gtk_window_set_title(GTK_WINDOW(main_wnd), title);
- 
- 	gtk_widget_show(main_wnd);
-diff -urN linux-2.6.9-rc1-bk/scripts/package/builddeb linux/scripts/package/builddeb
---- linux-2.6.9-rc1-bk/scripts/package/builddeb	2004-08-24 08:43:18.000000000 -0400
-+++ linux/scripts/package/builddeb	2004-09-03 18:30:52.238706773 -0400
-@@ -12,7 +12,7 @@
- set -e
- 
- # Some variables and settings used throughout the script
--version="$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+version=$KERNELRELEASE
- tmpdir="$objtree/debian/tmp"
- 
- # Setup the directory structure
-diff -urN linux-2.6.9-rc1-bk/scripts/package/mkspec linux/scripts/package/mkspec
---- linux-2.6.9-rc1-bk/scripts/package/mkspec	2004-08-24 08:43:18.000000000 -0400
-+++ linux/scripts/package/mkspec	2004-09-03 18:25:40.386781942 -0400
-@@ -21,11 +21,12 @@
- 	PROVIDES=kernel-drm
- fi
- 
--PROVIDES="$PROVIDES kernel-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+PROVIDES="$PROVIDES kernel-$KERNELRELEASE"
-+__KERNELRELEASE=`echo $KERNELRELEASE | sed -e "s/-//g"`
- 
- echo "Name: kernel"
- echo "Summary: The Linux Kernel"
--echo "Version: "$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION | sed -e "s/-//g"
-+echo "Version: $__KERNELRELEASE"
- # we need to determine the NEXT version number so that uname and
- # rpm -q will agree
- echo "Release: `. $srctree/scripts/mkversion`"
-@@ -35,8 +36,7 @@
- echo "URL: http://www.kernel.org"
- 
- if ! $PREBUILT; then
--echo -n "Source: kernel-$VERSION.$PATCHLEVEL.$SUBLEVEL"
--echo "$EXTRAVERSION.tar.gz" | sed -e "s/-//g"
-+echo "Source: kernel-$__KERNELRELEASE.tar.gz"
- fi
- 
- echo "BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root"
-@@ -65,11 +65,11 @@
- echo 'mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules'
- 
- echo 'INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install'
--echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo 'cp $KBUILD_IMAGE $RPM_BUILD_ROOT'"/boot/vmlinuz-$KERNELRELEASE"
- 
--echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo 'cp System.map $RPM_BUILD_ROOT'"/boot/System.map-$KERNELRELEASE"
- 
--echo 'cp .config $RPM_BUILD_ROOT'"/boot/config-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo 'cp .config $RPM_BUILD_ROOT'"/boot/config-$KERNELRELEASE"
- echo ""
- echo "%clean"
- echo '#echo -rf $RPM_BUILD_ROOT'
-@@ -77,6 +77,6 @@
- echo "%files"
- echo '%defattr (-, root, root)'
- echo "%dir /lib/modules"
--echo "/lib/modules/$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo "/lib/modules/$KERNELRELEASE"
- echo "/boot/*"
- echo ""
-
---------------000703040400020203080308--

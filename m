@@ -1,106 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263767AbTK2PC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 10:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTK2PC6
+	id S263776AbTK2Pji (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 10:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTK2Pji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 10:02:58 -0500
-Received: from law12-f67.law12.hotmail.com ([64.4.19.67]:39941 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263767AbTK2PCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 10:02:55 -0500
-X-Originating-IP: [24.61.138.213]
-X-Originating-Email: [iainbarker@hotmail.com]
-From: "Iain Barker" <iainbarker@hotmail.com>
-To: benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: possible GPL violation by Sigma Designs EM8500 customers
-Date: Sat, 29 Nov 2003 10:02:54 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law12-F67OXc3EO2gda0002067e@hotmail.com>
-X-OriginalArrivalTime: 29 Nov 2003 15:02:55.0129 (UTC) FILETIME=[DE34E890:01C3B689]
+	Sat, 29 Nov 2003 10:39:38 -0500
+Received: from mail.gmx.net ([213.165.64.20]:23234 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263776AbTK2Pjh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 10:39:37 -0500
+X-Authenticated: #4512188
+Message-ID: <3FC8BDB6.2030708@gmx.de>
+Date: Sat, 29 Nov 2003 16:39:34 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org, marcush@onlinehome.de
+Subject: Re: Silicon Image 3112A SATA trouble
+References: <3FC36057.40108@gmx.de>
+In-Reply-To: <3FC36057.40108@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Holy Shit!
 
->From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->
->Just to make things clear, you should change the title of your emails
->here to "possible GPL violation by Liteon". AFAIK, Sigma isn't involved
->in the violation, they almost certainly provided a source code kernel
->for their chipset to Liteon.
->
->Ben.
+I just tried the libata driver and it ROCKSSSS! So far, at least.
 
-Thanks Ben,
+I already wrote about the crappy SiI3112 ide driver, now with libata I 
+get >60mb/sec!!!! More then I get with windows.
 
-I've modified the title of this thread to indicate it is the chipset 
-customers who are directly at fault. However it seems that every 
-manufacturer using the Sigma SDK is making the same error.
+Also tests with dd. This rocks. Lets see whether it likes swsup, as well...
 
-The violation seems to be common amongst a large number (all?) Sigma Designs 
-customers using their EM8500 chipset SDK. Liteon was the manufacturer for 
-the product I have, but in the original thread on LKML it refers also to 
-others.
+So folks, try libata, as well.
 
-Manufacturers offering binary distributions based on Linux as 'firmware' via 
-their support websites are the easiers to check up on. Those with no source 
-code included for EM8500 SDK derived products include:
+I dunno what all is actuall needed. I enabled scsi, scie disk, scsi 
+generic, sata and its driver. In grub I appended "doataraid noraid".
 
-Liteon  http://www.liteonit.com
-LVD-1001/2001/2002 DVD player
+YES!
 
-Vinc    http://www.vinc.com
-Bravo-D1 DVD Player
-
-Kiss    http://www.kiss-technology.com
-DP-450, DP-500  DVD player
-
-Neodigits http://www.neodigits.com
-NeuNeo DVD player
-
-Dream-X   http://www.dreamsat-electronics.com
-108   DVD player
-
-Elta  http://www.elta.de
-8882  DVD player
-
-RiMax http://www.rimax.net
-MPEG4 DVD player
-
-
-The above is not a comprehensive list, just the ones currently distributing 
-binary-only GPL products on their support websites with no mention of Linux 
-or the GPL.
-
-Other manufacturers with products using the EM8500 SDK may well do the same 
-within their product, including:
-
-Woxter
-Momitsu
-Brainwave
-Cosmic Digital
-Jamo
-Link Concept
-Mustek
-Neuston
-Shenzhen Skywood
-Xoro
-
-
-As you can see, the violation is widespread. I don't have the time to follow 
-up on all of these, and in any case I am really only interested in being 
-able to recompile kernel for the Liteon product which I own.
-
-But it does seem like a bigger problem as the Linux GPL license is being 
-broadly ignored by embedded manufacturers.
-
-regards,
-  Iain
-
-_________________________________________________________________
-Need a shot of Hank Williams or Patsy Cline?  The classic country stars are 
-always singing on MSN Radio Plus.  Try one month free!  
-http://join.msn.com/?page=offers/premiumradio
+Prakash
 

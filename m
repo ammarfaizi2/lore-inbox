@@ -1,83 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263308AbTIGP3O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 11:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTIGP3N
+	id S263338AbTIGPSR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 11:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbTIGPSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 11:29:13 -0400
-Received: from iucha.net ([209.98.146.184]:50517 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S263308AbTIGP3L (ORCPT
+	Sun, 7 Sep 2003 11:18:17 -0400
+Received: from pat.uio.no ([129.240.130.16]:63987 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263338AbTIGPSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 11:29:11 -0400
-Date: Sun, 7 Sep 2003 10:29:10 -0500
-To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: PCMCIA link failed with test4-bk9
-Message-ID: <20030907152910.GA15474@iucha.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Content-Disposition: inline
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.4i
-From: florin@iucha.net (Florin Iucha)
+	Sun, 7 Sep 2003 11:18:15 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16219.19506.659542.990013@charged.uio.no>
+Date: Sun, 7 Sep 2003 11:18:10 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: NFS client problems in 2.4.18 to 2.4.20
+In-Reply-To: <20030907142727.GG19977@mail.jlokier.co.uk>
+References: <16218.5318.401323.630346@charged.uio.no>
+	<20030906212250.64809.qmail@web40414.mail.yahoo.com>
+	<20030906231401.GB12392@mail.jlokier.co.uk>
+	<16218.37312.1855.652692@charged.uio.no>
+	<20030907142727.GG19977@mail.jlokier.co.uk>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+     > A real problem is the rule of having a fixed number of
+     > retransmits before an operation fails with a "soft" moount.
+     > This is wrong for NFS, now that rtt is estimated dynamically.
 
-Hello,
+     > The "soft operation fail" imeout should have a minimum absolute
+     > time, like 30 seconds or so.  It should also have a maximum
+     > (for systems where the estimated rtt is 10 seconds).  This
+     > should be independent of the rtt estimate.
 
-I was trying to build a 2.6.0-test4-bk9 kernel for my laptop and the
-link failed with:
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x911bc): In function `CardServices':
-: undefined reference to `pcmcia_deregister_client'
-drivers/built-in.o(.text+0x928c5): In function `pcmcia_bus_remove_socket':
-: undefined reference to `pcmcia_deregister_client'
-drivers/built-in.o(__ksymtab+0x1268): undefined reference to `pcmcia_deregi=
-ster_client'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make[1]: Leaving directory `/usr/local/src/linux-2.6.0-test4'
-make: *** [stamp-build] Error 2
+     > - server responds to cached requests within 10 microseconds
 
-My relevant portion of the .config is:
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=3Dy
-# CONFIG_YENTA is not set
-# CONFIG_I82092 is not set
-CONFIG_I82365=3Dy
-# CONFIG_TCIC is not set
-CONFIG_PCMCIA_PROBE=3Dy
+     >    - uncached requests take 10 seconds to respond (spinning up CD,
+     >      seeking on tape HFS, or just ordinary disk/swap
+     >      contention).
 
-The kernel that I am using now is 2.6.0-test4-mm4.
+This is not an issue for tapes, etc. NFS has an alternative mechanisms
+for dealing with this in the form of the NFSERR_JUKEBOX error.
 
-florin
+However for disks I agree that you do have 'large' variations between
+the cached and uncached case. Should latency really be much larger
+than 1/10 second for a 32k read though?
 
---=20
+     > The fundamental error is assuming that all NFS requests take
+     > about the same time to server, and delays are caused by the
+     > network.  This isn't true especially on a LAN.  Delays for NFS
+     > are typically caused by I/O, and vary by 6 orders of magnitude
+     > from request to request.
 
-Don't question authority: they don't know either!
+If it was merely a case of random error, then we wouldn't have a
+problem at all. The RTT code does make an estimate of the error on the
+the measurement. The problem is that there is a large tail in the
+graph of round trip time vs. number of events due to these disk
+spinups, etc...
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+However retransmissions compensate somewhat because they impose a
+geometric increase in the timeout value. i.e. The for the first
+transmission the timeout == the rto, then the retransmissions follow
+2*rto, 4*rto, 8*rto,...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Part of the problem in the Linux case is therefore that we have a too
+low default value for 'retrans'. The kernel default is '5' (same as
+for Solaris, however the mount program still overrides that default
+with a value of '3'. This implies that for soft mounts, we never wait
+longer than 15*rto before we time out (well - 7*rto actually since the
+code in xdr_adjust_timeout() actually appears to confuse number of
+retransmissions with the number of transmissions).
 
-iD8DBQE/W07GNLPgdTuQ3+QRAotdAJ40TCYUp1g4wjBDSBLBE3JvBBBi3gCgm8cn
-W/O/BpcV/9u0Lpg0NGnO/28=
-=qYvt
------END PGP SIGNATURE-----
+By setting 'retrans=6' (5 + 1 to compensate for the bug), therefore,
+people can ensure that we retry for at least 6 seconds before timing
+out. The question is: is this an adequate default?
 
---+QahgC5+KEYLbs62--
+Cheers,
+  Trond

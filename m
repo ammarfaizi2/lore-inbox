@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131974AbRACNWF>; Wed, 3 Jan 2001 08:22:05 -0500
+	id <S130338AbRACN0F>; Wed, 3 Jan 2001 08:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131967AbRACNVz>; Wed, 3 Jan 2001 08:21:55 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:26559 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S131966AbRACNVm>;
-	Wed, 3 Jan 2001 08:21:42 -0500
-Date: Wed, 3 Jan 2001 13:50:46 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-fbdev@vuser.vu.union.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [linux-fbdev] [PATCH] clgenfb on PPC
-In-Reply-To: <20010102095133.B26653@opus.bloom.county>
-Message-ID: <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>
+	id <S130463AbRACNZ4>; Wed, 3 Jan 2001 08:25:56 -0500
+Received: from bastion.power-x.co.uk ([62.232.19.201]:8455 "EHLO
+	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
+	id <S130338AbRACNZl>; Wed, 3 Jan 2001 08:25:41 -0500
+Date: Wed, 3 Jan 2001 12:55:02 +0000 (GMT)
+From: "Dr. David Gilbert" <gilbertd@treblig.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Journaling: Surviving or allowing unclean shutdown?
+Message-ID: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Tom Rini wrote:
-> Hey all.  While going through the 2.4 tree and removing dead CONFIG_xxx's for
-> PPC stuff, I noticed clgenfb still had CONFIG_PREP stuff (which may have
-> partily explained why it no longer worked here).  I've attached a patch, that
-> with another patch to fix some PCI issues on certain machines, gives me a
-> working (so far, can't test heavily yet tho) framebuffer on my powerstack.
-> 
-> Comments?
+Hi,
+  I got wondering as to whether the various journaling file system
+activities were designed to survive the occasional unclean shutdown or
+were designed to allow the user to just pull the plug as a regular means
+of shutting down.
 
-To me it looks like most of them depend on `big endian', not on `PReP'.
+  Thoughts?
 
-BTW, doesn't the Cirrus Logic graphics chip have a big endian aperture? I don't
-like things like green.offset = -3, since it will probably break some
-applications (did you run X?).
+Dave
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+/------------------------------------------------------------------\
+| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
+| -------- G7FHJ --------|---------------------------------------- |
+| Home: dave@treblig.org            http://www.treblig.org         |
+\------------------------------------------------------------------/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUDHRSz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUDHRSz
+	id S262085AbUDHRWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDHRWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:18:55 -0400
-Received: from zero.aec.at ([193.170.194.10]:44554 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262064AbUDHRSy (ORCPT
+	Thu, 8 Apr 2004 13:22:18 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:27604 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262068AbUDHRWL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:18:54 -0400
-To: "Mathieu Giguere" <Mathieu.Giguere@ericsson.ca>
-cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: IPv4 and IPv6 stack multi-FIB, scalable in the million of
- entries.
-References: <1IJuR-8qH-39@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 08 Apr 2004 19:18:41 +0200
-In-Reply-To: <1IJuR-8qH-39@gated-at.bofh.it> (Mathieu Giguere's message of
- "Thu, 08 Apr 2004 17:21:01 +0200")
-Message-ID: <m3ptaiwfpq.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+	Thu, 8 Apr 2004 13:22:11 -0400
+Message-ID: <40758A74.3040107@sgi.com>
+Date: Thu, 08 Apr 2004 12:23:00 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@muc.de>
+CC: Andy Whitcroft <apw@shadowen.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Subject: Re: HUGETLB commit handling.
+References: <1IKJu-Zn-29@gated-at.bofh.it> <m3u0zuwgbf.fsf@averell.firstfloor.org>
+In-Reply-To: <m3u0zuwgbf.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mathieu Giguere" <Mathieu.Giguere@ericsson.ca> writes:
+Andi,
 
-[you should probably discuss that on netdev@oss.sgi.com instead, cc'ed]
+Yes, that is the plan we are heading for.  However, to make things simpler and 
+follow the "subnit a patch that does one thing" rule, we will likely do two 
+patches, one to add hugetlb commit handling, and a second one to add lazy 
+allocation for i386 and IA64.
 
->     We currently looking for a multi-FIB, scalable routing table in the
-> million of entries, no routing cache for IPv4 and IPv6.  We want a IP stack
+The other problem we are wrestling with is how to do the ia386 and ia64 lazy 
+allocation code without breaking the architectures that haven't yet switched 
+to lazy allocation.  There will probbaly be some
 
-No routing cache? Doesn't sound like a good idea.
+#define ARCH_USES_HUGETLB_PREFAULT
 
-> that can have a log(n) (or better) insertion/deletion and lookup
-> performance.  Predictable performance, even in the million of entries.
+nonsense added to deal with the latter, if needed.
 
-And even more vast overkill for most linux users than the existing
-routing code already is.  Linux has at least the beginnings of a pluggable
-FIB interface (fib_table), which has slightly bit rotted, but probably
-not too bad. I would suggest you clean that up, make the existing
-hash table really optional and then you can just plug in anything you want.
+Then, further down the road, we'd like to get the common code across 
+architectures moved up from arch/mm to mm.
 
->     I join a patch with the fib_hash in IPv4 replace with a patricia tree
-> ready for multi-FIB base on a 2.4.22 kernel.  This is the beginning of a
-> long cleanup.
+Andi Kleen wrote:
+> Andy Whitcroft <apw@shadowen.org> writes:
+> 
+> 
+>>We have been looking at the HUGETLB page commit issue (offlist) and are
+>>close a final merged patch.  However, our testing seems to have thrown up
+> 
+> 
+> This includes lazy allocation for i386 and IA64, right?
+> 
+> If yes, I'm waiting for your final patch then to remerge the NUMA
+> policy code into it (currently NUMA API contains a dumb version of lazy
+> allocation for i386 without any prereservation)
+> 
+> 
+>>I would contend this is the right thing to do, as it makes the semantics of
+>>hugepages match that of the existing small pages.  We are looking for a
+>>consensus as this might be construed as a semantic change.
+> 
+> 
+> I think it's more clean to do it at shmget() time too, so it's probably the
+> right thing to do.
+> 
+> -Andi
+> 
+> 
 
-What do you consider dirty in the current stack? 
-
--Andi
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

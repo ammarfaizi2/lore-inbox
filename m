@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292131AbSB0LM2>; Wed, 27 Feb 2002 06:12:28 -0500
+	id <S292329AbSB0LVB>; Wed, 27 Feb 2002 06:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292339AbSB0LMT>; Wed, 27 Feb 2002 06:12:19 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64009 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292131AbSB0LMJ>;
-	Wed, 27 Feb 2002 06:12:09 -0500
-Date: Wed, 27 Feb 2002 08:11:55 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <m.knoblauch@teraport.de>
-Cc: <Martin.Bligh@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in thetree
-In-Reply-To: <3C7CBDC0.9F9CDBAC@TeraPort.de>
-Message-ID: <Pine.LNX.4.33L.0202270811040.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292347AbSB0LUv>; Wed, 27 Feb 2002 06:20:51 -0500
+Received: from p3EE26610.dip.t-dialin.net ([62.226.102.16]:42976 "EHLO
+	artus.fbunet.de") by vger.kernel.org with ESMTP id <S292329AbSB0LUq>;
+	Wed, 27 Feb 2002 06:20:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Fridtjof Busse <fridtjof.busse@gmx.de>
+Message-Id: <200202271212.3529@fbunet.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [2.4.18-ac1] Unable to mount root fs
+Date: Wed, 27 Feb 2002 12:21:12 +0100
+In-Reply-To: <200202261722.13431@fbunet.de> <200202261907.20103@fbunet.de> <20020226181559.GQ4393@matchmail.com>
+In-Reply-To: <20020226181559.GQ4393@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+X-OS: Linux on i686
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Martin Knoblauch wrote:
-> Rik van Riel wrote:
-> > On Wed, 27 Feb 2002, Martin Knoblauch wrote:
-> >
-> > > > > Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
-> > > > > on this P200 w/ 64MB ram.
-> > > >
-> > > > rmap still sucks on large systems though. I'd love to see rmap
-> > > > in the main kernel, but it needs to get the scalability fixed first.
-> > > > The main problem seems to be pagemap_lru_lock ... Rik & crew
-> > > > know about this problem, but let's give them some time to fix it
-> > > > before rmap gets put into mainline ....
-> > >
-> > >  just out of curiosity: where does "large systems" start in your
-> > > context?
-> >
-> > My guess it would start at about 4 or 8 CPUs.
-> >
-> > Systems which have a lot of pagetable overhead would also
-> > suffer with -rmap, until -rmap supports pte_highmem.
+On Tuesday, 26. February 2002 19:15, Mike Fedyk wrote:
+> > # CONFIG_BLK_DEV_PDC202XX is not set
 >
->  So, what about a Dual-Athlon system with 2-3 GB of memory? Large
-> system, or just a peanut? :-)
+> Here you go.  Promise IDE is not compiled into the kernel.
 
-Unless you're overburdening the system with Oracle -rmap should
-run just fine.
+Can someone explain me why 2.4.18 runs fine with 
+# CONFIG_BLK_DEV_PDC202XX is not set
+but ac1 (and 2) require
+CONFIG_BLK_DEV_PDC202XX=y
+It's correct that 2.4.18-ac? requires the driver (my hd's are connected 
+to an promise-UDMA-controller), but why runs 2.4.18 fine without this 
+driver?
 
-regards,
-
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Fridtjof Busse
+It is better to keep your mouth shut and be thought a fool, than to
+open it and remove all doubt. 

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283927AbRLEKDg>; Wed, 5 Dec 2001 05:03:36 -0500
+	id <S283926AbRLEKJR>; Wed, 5 Dec 2001 05:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283926AbRLEKD0>; Wed, 5 Dec 2001 05:03:26 -0500
-Received: from web13104.mail.yahoo.com ([216.136.174.149]:57353 "HELO
-	web13104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S283925AbRLEKDL>; Wed, 5 Dec 2001 05:03:11 -0500
-Message-ID: <20011205100310.37607.qmail@web13104.mail.yahoo.com>
-Date: Wed, 5 Dec 2001 11:03:10 +0100 (CET)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Your patch for CS432x sound driver
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16BBYJ-0001Jz-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283928AbRLEKJH>; Wed, 5 Dec 2001 05:09:07 -0500
+Received: from [12.36.112.226] ([12.36.112.226]:55031 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S283926AbRLEKJA>;
+	Wed, 5 Dec 2001 05:09:00 -0500
+Date: Wed, 5 Dec 2001 05:02:59 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Greg Banks <gnb@alphalink.com.au>
+Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011205050259.F4836@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Greg Banks <gnb@alphalink.com.au>,
+	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com> <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net> <3C0D86C9.312E726A@alphalink.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0D86C9.312E726A@alphalink.com.au>; from gnb@alphalink.com.au on Wed, Dec 05, 2001 at 01:30:33PM +1100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-My box is: Cyrix 486, 12Meg RAM, CS4239 ISA sound
-card,
-no pci controler
-I tested your patch both with kernel 2.4.14 +
- preemptible patches + ide patches , and with
-kernel 2.4.16 clean.
-The patch applied cleanly on both kernels.
-The play command is working like it was working 
-without this patch.
-But when I was running mtv (http://www.mpegtv.com) 
-the only thing I can hear is noise.
-Whithout your patch mtv is playing the sound with
-interrupts.
-I didn't done extended testing because i don't have
- sound files on my computer (just movies) but if you
- want something specific tested please let me know 
-and i'll try to help
-Bye
+Greg Banks <gnb@alphalink.com.au>:
+>                It seems my main contribution has been to provide
+> Eric with incentive to clarify his language spec and speed up his parser.
 
-=====
-,-----.
-                       ," ^   ^ ",
-                       |  @   @  |
-             ----OOOO---------------OOOO----
+Stimulus for which I have been deeply grateful.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-___________________________________________________________
-Nokia 5510 Drôle de look... et quel son !
-Cliquez sur http://fr.promotions.yahoo.com/nokia/ 
-Découvrez-le et tentez votre chance pour en gagner un ! 
-Fin du concours le 16 décembre.
+..every Man has a Property in his own Person. This no Body has any
+Right to but himself.  The Labour of his Body, and the Work of his
+Hands, we may say, are properly his. .... The great and chief end
+therefore, of Mens uniting into Commonwealths, and putting themselves
+under Government, is the Preservation of their Property.
+	-- John Locke, "A Treatise Concerning Civil Government"

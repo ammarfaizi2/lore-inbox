@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUEDMpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264331AbUEDMy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbUEDMpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 08:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUEDMpQ
+	id S264331AbUEDMy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 08:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbUEDMy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 08:45:16 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23951 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264330AbUEDMpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 08:45:10 -0400
-Date: Tue, 4 May 2004 13:45:02 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Brent Cook <busterbcook@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Slab cache seems to grow forever - 2.6.6-rc3-mm1
-In-Reply-To: <Pine.LNX.4.58.0405040651150.18153@ozma.hauschen>
-Message-ID: <Pine.LNX.4.44.0405041343310.5077-100000@localhost.localdomain>
+	Tue, 4 May 2004 08:54:26 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29332 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264331AbUEDMyX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 08:54:23 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH] remove dead drivers/ide/ppc/swarm.c
+Date: Tue, 4 May 2004 14:42:34 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       macro@ds2.pg.gda.pl
+References: <200405040134.22092.bzolnier@elka.pw.edu.pl> <20040504111902.GA14240@linux-mips.org> <200405041428.50592.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405041428.50592.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405041442.34156.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, Brent Cook wrote:
-> 
-> This might be related to the change in fs-writeback.c that fixed
-> redirtying inodes on NFS, but I'm not sure. It seems that the Slab cache
-> never shrinks. Could this be a memory leak? It definitely affects system
-> performance. Here are the numbers after running for about 12 hours with
-> heavy NFS traffic (this is the client).
+On Tuesday 04 of May 2004 14:28, Bartlomiej Zolnierkiewicz wrote:
+> Hi Ralf,
+>
+> On Tuesday 04 of May 2004 13:19, Ralf Baechle wrote:
+> > On Tue, May 04, 2004 at 01:34:22AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > This driver was merged in 2.5.32 but depends on
+> > > <asm/sibyte/swarm_ide.h> which hasn't been merged in 2.5.  Additionally
+> > > it is a MIPS specific driver so it should be in drivers/ide/mips/ if
+> > > somebody ever decides to re-add it.
+> >
+> > No.  I've already sent a proper patch instead of just a chainsaw massacre
+> > to akpm.
+>
+> It is not integrated into -mm (2.6.6-rc3-mm1) yet so I couldn't see it.
+> [ Please cc: me on IDE patches. ]
+>
+> If it looks the same as in linux-mips CVS it won't work because I've killed
+> ide_init_default_hwifs() recently (except ARM but patch is pending).
+>
+> Sorry, this is what you get when using hacks. 8)
 
-Please apply the patch akpm posted on Saturday:
+Actually SiByte IDE seems to be broken even in linux-mips CVS since
+at least 5 months due to this change:
 
-2.6.6-rc3-mm1 is totally broken in the slab-shrinking area (sorry).
+http://www.linux-mips.org/cvsweb/linux/include/asm-mips/ide.h.diff?r1=1.23&r2=1.24
 
---- 25/mm/vmscan.c~shrink_slab-handle-GFP_NOFS-fix	2004-05-01 14:34:25.446391008 -0700
-+++ 25-akpm/mm/vmscan.c	2004-05-01 14:34:37.424570048 -0700
-@@ -156,7 +156,7 @@ static int shrink_slab(unsigned long sca
- 			shrinker->nr = LONG_MAX;	/* It wrapped! */
- 
- 		if (shrinker->nr <= SHRINK_BATCH)
--			break;
-+			continue;
- 		while (shrinker->nr) {
- 			long this_scan = shrinker->nr;
- 			int shrink_ret;
+which causes conflicts between swarm.c private ide_init_default_hwifs() hack
+and the one from <asm/mach-generic/ide.h> (I can't find other ide.h).
+
+Bartlomiej
 

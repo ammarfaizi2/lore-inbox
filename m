@@ -1,78 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266749AbRGKU01>; Wed, 11 Jul 2001 16:26:27 -0400
+	id <S266381AbRGKUwp>; Wed, 11 Jul 2001 16:52:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266381AbRGKU0H>; Wed, 11 Jul 2001 16:26:07 -0400
-Received: from ohiper1-118.apex.net ([209.250.47.133]:33936 "EHLO
-	jacana.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S266707AbRGKUZ7>; Wed, 11 Jul 2001 16:25:59 -0400
-Date: Wed, 11 Jul 2001 15:25:58 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Shawn Veader <shawn.veader@zapmedia.com>
-Subject: Re: disk full or not?  you decide...
-Message-ID: <20010711152558.A14505@jacana.dyn.dhs.org>
-In-Reply-To: <3B4CA943.5EC6A127@zapmedia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B4CA943.5EC6A127@zapmedia.com>; from shawn.veader@zapmedia.com on Wed, Jul 11, 2001 at 03:30:11PM -0400
-From: Aaron Smith <yoda_2002@yahoo.com>
+	id <S266773AbRGKUwf>; Wed, 11 Jul 2001 16:52:35 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:28407 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S266381AbRGKUwX>; Wed, 11 Jul 2001 16:52:23 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107112051.f6BKplqg009583@webber.adilger.int>
+Subject: [PATCH] ext2 root dir sanity checking
+To: torvalds@transmeta.com
+Date: Wed, 11 Jul 2001 14:51:46 -0600 (MDT)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11, 2001 at 03:30:11PM -0400, Shawn Veader wrote:
-> hello,
-> i am not a subscriber to the list but i need the help of anyone
-> on the list who might have some insite into this problem. please
-> remember to cc me on your reply. thanks!
-> 
-> we are using reiserfs on a system running 2.4.3 (i think i put all
-> of the relavant patches into the kernel before i built it then...)
-> we have a partition that is used when encoding ripped songs and
-> storing large files such as video and music. we noticed recently
-> that the partition reported itself as being full. after a reboot
-> the system reported having 6G freed. now again after a day of use
-> the space has dissappered. df now returns:
-> ----
-> Filesystem            Size  Used Avail Use% Mounted on
-> /dev/hda5             706M  229M  477M  32% /
-> /dev/hda2              55M   36M   19M  65% /boot
-> /dev/hda7             1.0G   95M  932M   9% /usr/local
-> /dev/hda8              26G   22G  3.7G  85% /Assets
-> ----
-> however if you run du on the /Assets dir you get:
-> ----
-> 8.3G    /Assets
-> ----
-> does anyone know why this is happening? our guess is that the logs
-> to reiser are getting quite large. how do we flush them and force
-> a garbage collection? we save and remove several large files on this
-> partition as the system is running. therefore, i figure that the
-> space is kept around till the log is flushed in case it is needed for
-> replaying the journal. am i totaly off?
-> 
-> i would like to upgrade the kernel but we have several third party
-> dependencies that keep us from doing that on a fast enough pace to
-> keep up with the 2.4.x series.
-> 
-> thanks again for any help that can be given. remember to cc me in
-> responces.
-> 
-> -- 
-> shawn veader        --oOo--      linux os developer
-> shawn.veader@zapmedia.com | http://www.zapmedia.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This patch adds a couple of extra tests for the root inode to avoid mounting
+a filesystem with an obviously corrupt root inode.  This patch was prompted
+a few months ago when someone was able to mount an ext2 filesystem which had
+the inode table wiped out, but the superblock was still intact (they wanted
+to see what was on an unused partition, so they tried mounting it).
 
+The patch has been in the -ac kernels for a while now.  It also does a bit
+of consolidation of error path cleanup code.
 
-Try this to see if it is a large file left on the partition:  du -a | sort
-
-I've had a problem similar to that where something spazzed out and wrote about 10 gigs to a log file.  Still haven't figured out what caused that.
+Cheers, Andreas
+==========================================================================
+diff -ru linux-2.4.6.orig/fs/ext2/super.c linux-2.4.6-aed/fs/ext2/super.c
+--- linux-2.4.6.orig/fs/ext2/super.c	Tue May 29 13:13:19 2001
++++ linux-2.4.6-aed/fs/ext2/super.c	Thu Jun 28 15:04:34 2001
+@@ -454,12 +469,9 @@
+ 	sb->s_magic = le16_to_cpu(es->s_magic);
+ 	if (sb->s_magic != EXT2_SUPER_MAGIC) {
+ 		if (!silent)
+-			printk ("VFS: Can't find an ext2 filesystem on dev "
+-				"%s.\n", bdevname(dev));
+-	failed_mount:
+-		if (bh)
+-			brelse(bh);
+-		return NULL;
++			printk ("VFS: Can't find ext2 filesystem on dev %s.\n",
++				bdevname(dev));
++		goto failed_mount;
+ 	}
+ 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV &&
+ 	    (EXT2_HAS_COMPAT_FEATURE(sb, ~0U) ||
+@@ -622,11 +617,9 @@
+ 		}
+ 	}
+ 	if (!ext2_check_descriptors (sb)) {
+-		for (j = 0; j < db_count; j++)
+-			brelse (sb->u.ext2_sb.s_group_desc[j]);
+-		kfree(sb->u.ext2_sb.s_group_desc);
+-		printk ("EXT2-fs: group descriptors corrupted !\n");
+-		goto failed_mount;
++		printk ("EXT2-fs: group descriptors corrupted!\n");
++		db_count = i;
++		goto failed_mount2;
+ 	}
+ 	for (i = 0; i < EXT2_MAX_GROUP_LOADED; i++) {
+ 		sb->u.ext2_sb.s_inode_bitmap_number[i] = 0;
+@@ -642,17 +635,25 @@
+ 	 */
+ 	sb->s_op = &ext2_sops;
+ 	sb->s_root = d_alloc_root(iget(sb, EXT2_ROOT_INO));
+-	if (!sb->s_root) {
+-		for (i = 0; i < db_count; i++)
+-			if (sb->u.ext2_sb.s_group_desc[i])
+-				brelse (sb->u.ext2_sb.s_group_desc[i]);
+-		kfree(sb->u.ext2_sb.s_group_desc);
+-		brelse (bh);
+-		printk ("EXT2-fs: get root inode failed\n");
+-		return NULL;
++	if (!sb->s_root || !S_ISDIR(sb->s_root->d_inode->i_mode) ||
++	    !sb->s_root->d_inode->i_blocks || !sb->s_root->d_inode->i_size) {
++		if (sb->s_root) {
++			dput(sb->s_root);
++			sb->s_root = NULL;
++			printk ("EXT2-fs: corrupt root inode, run e2fsck\n");
++		} else
++			printk ("EXT2-fs: get root inode failed\n");
++		goto failed_mount2;
+ 	}
+ 	ext2_setup_super (sb, es, sb->s_flags & MS_RDONLY);
+ 	return sb;
++failed_mount2:
++	for (i = 0; i < db_count; i++)
++		brelse(sb->u.ext2_sb.s_group_desc[i]);
++	kfree(sb->u.ext2_sb.s_group_desc);
++failed_mount:
++	brelse(bh);
++	return NULL;
+ }
+ 
+ static void ext2_commit_super (struct super_block * sb,
 -- 
--Aaron
-
-Don't hate yourself in the morning, sleep till noon
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

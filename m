@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbTKZS7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 13:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTKZS7j
+	id S264284AbTKZTFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTKZTFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 13:59:39 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:60164 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263325AbTKZS7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 13:59:38 -0500
-Date: Thu, 27 Nov 2003 03:59:56 +0900 (JST)
-Message-Id: <20031127.035956.41356622.yoshfuji@linux-ipv6.org>
-To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org, yoshfuji@linux-ipv6.org
-Subject: Re: BUG (non-kernel), can hurt developers.
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
-References: <Pine.LNX.4.53.0311261153050.10929@chaos>
-	<Pine.LNX.4.58.0311261021400.1524@home.osdl.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 26 Nov 2003 14:05:04 -0500
+Received: from dsl-sj-66-219-74-27.broadviewnet.net ([66.219.74.27]:29570 "EHLO
+	server.perens.com") by vger.kernel.org with ESMTP id S264284AbTKZTE7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:04:59 -0500
+Message-ID: <3FC4F94F.6030801@perens.com>
+Date: Wed, 26 Nov 2003 11:04:47 -0800
+From: Bruce Perens <bruce@perens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Never mind. Re: Signal left blocked after signal handler.
+References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org> <3FC4ED5F.4090901@perens.com> <3FC4EF24.9040307@perens.com> <3FC4F248.8060307@perens.com> <Pine.LNX.4.58.0311261037370.1524@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0311261037370.1524@home.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0311261021400.1524@home.osdl.org> (at Wed, 26 Nov 2003 10:29:54 -0800 (PST)), Linus Torvalds <torvalds@osdl.org> says:
+What happened is that I attempted to simplify the test code to send to 
+you, and simplified out the problem by using
+kill() instead of causing a fault. :-)
 
-> You can't just randomly use library functions in signal handlers. You can
-> only use a very specific "signal-safe" set.
-> 
-> POSIX lists that set in 3.3.1.3 (3f), and says
-> 
-> 	"All POSIX.1 functions not in the preceding table and all
-> 	 functions defined in the C standard {2} not stated to be callable
-> 	 from a signal-catching function are considered to be /unsafe/
-> 	 with respect to signals. .."
-> 
-> typos mine.
+It's just what you describe here:
 
-Just FYI:
-http://www.opengroup.org/onlinepubs/007904975/functions/xsh_chap02_04.html#tag_02_04_03
+>One difference in 2.4.x and 2.6.x is the signal blocking wrt blocked
+>signals that are _forced_ (ie anything that is thread-synchronous, like a
+>SIGSEGV/SIGTRAP/SIGBUS that happens as a result of a fault):
+>
+> - in 2.4.x they will just punch through the block
+> - in 2.6.x they will refuse to punch through a blocked signal, but
+>   since they can't be delivered they will cause the process to be
+>   killed
+>  
+>
+The behavior of 2.4 seems to be the same used by some dozens of Unix 
+systems upon which my confidence test passed.
 
---yoshfuji
+I agree that we should not be wrong in the same way as everyone else, 
+and wonder if POSIX says anything about this. I could have been the only 
+one using this "feature".
+
+    Thanks
+
+    Bruce
+
+

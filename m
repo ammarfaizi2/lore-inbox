@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274427AbRJEXKg>; Fri, 5 Oct 2001 19:10:36 -0400
+	id <S274405AbRJEXK4>; Fri, 5 Oct 2001 19:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274424AbRJEXK0>; Fri, 5 Oct 2001 19:10:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10120 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274405AbRJEXKO>;
-	Fri, 5 Oct 2001 19:10:14 -0400
-Date: Fri, 05 Oct 2001 16:10:24 -0700 (PDT)
-Message-Id: <20011005.161024.104033411.davem@redhat.com>
-To: kernel@ddx.a2000.nu
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.rutgers.edu
-Subject: Re: sun + gigabit nic
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.40.0110051319300.4011-100000@ddx.a2000.nu>
-In-Reply-To: <Pine.LNX.4.40.0110051319300.4011-100000@ddx.a2000.nu>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274424AbRJEXKr>; Fri, 5 Oct 2001 19:10:47 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:7684 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274405AbRJEXKg>;
+	Fri, 5 Oct 2001 19:10:36 -0400
+Date: Fri, 5 Oct 2001 16:16:00 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        george anzinger <george@mvista.com>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+In-Reply-To: <E15pe0t-0007wz-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0110051611310.1523-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: kernel@ddx.a2000.nu
-   Date: Fri, 5 Oct 2001 13:22:40 +0200 (CEST)
+On Sat, 6 Oct 2001, Alan Cox wrote:
 
-   for my sun ultrasparc 10 with linux i wanted to upgrade to a gigabit card
-   but when looking in the menuconfig i only see : (kernel 2.2.20pre10)
-   
-   MyriCOM Gigabit Ethernet support
-   
-   does anyone know which cards are supported ? (with patches?)
-   it has to be 1000base-T
-   
-No patches needed, 2.2.x (and 2.4.x) supports Syskonnect gigabit cards
-out of the box.
+> > > This damps down task thrashing a bit, and for the cpu hogs it gets the
+> > > desired behaviour - which is that the all run their full quantum in the
+> > > background one after another instead of thrashing back and forth
+> >
+> > What if we give to  prev  a priority boost P=F(T) where T is the time
+> > prev  is ran before the current schedule ?
+>
+> That would be the wrong key. You can argue certainly that it is maybe
+> appropriate to use some function based on remaining scheduler ticks, but
+> that already occurs as the scheduler ticks is the upper bound for priority
+> band
 
-Acenic is supported in 2.4.x, although I don't know why not in 2.2.x
-as that should be trivial to make work...
+No, i mean T = (Tstart - Tend) where :
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Tstart = time the current ( prev ) task has been scheduled
+Tend   = current time ( in schedule() )
+
+Basically it's the total time the current ( prev ) task has had the CPU
+
+
+
+- Davide
+
+

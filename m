@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267990AbTAIWSw>; Thu, 9 Jan 2003 17:18:52 -0500
+	id <S268031AbTAIWVM>; Thu, 9 Jan 2003 17:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268007AbTAIWSw>; Thu, 9 Jan 2003 17:18:52 -0500
-Received: from AMarseille-201-1-1-176.abo.wanadoo.fr ([193.252.38.176]:46448
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267990AbTAIWSt>; Thu, 9 Jan 2003 17:18:49 -0500
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-In-Reply-To: <Pine.LNX.4.44.0301091413520.1436-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0301091413520.1436-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042151210.523.34.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 09 Jan 2003 23:26:50 +0100
+	id <S268032AbTAIWVL>; Thu, 9 Jan 2003 17:21:11 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:53676 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S268031AbTAIWVF> convert rfc822-to-8bit; Thu, 9 Jan 2003 17:21:05 -0500
+content-class: urn:content-classes:message
+Subject: RE: detecting hyperthreading in linux 2.4.19
+Date: Thu, 9 Jan 2003 14:29:41 -0800
+Message-ID: <E88224AA79D2744187E7854CA8D9131DA5CE5B@fmsmsx407.fm.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: detecting hyperthreading in linux 2.4.19
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Index: AcK4KqHaqD3e1SQdEdeNCQBQi+Bs2AAAM4qAAAB38IA=
+From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+To: <lunz@falooley.org>, <jamesclv@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Schlobohm, Bruce" <bruce.schlobohm@intel.com>
+X-OriginalArrivalTime: 09 Jan 2003 22:29:41.0751 (UTC) FILETIME=[9A5BD070:01C2B82E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 23:16, Linus Torvalds wrote:
-> On Fri, 10 Jan 2003, Ivan Kokshaysky wrote:
-> >
-> > Note that in most cases PCI-PCI bridges can be safely excluded from
-> > pci_read_bases() simply because they have neither regular BARs nor
-> > ROM BAR (even though PCI spec allows that).
+Hi James,
+I have posted a patch for this on LKML. Please have look at:
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0301.0/1886.html
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0301.0/1887.html
+
+It should solve the problem you are trying to solve.
+
+Nitin
+
+> -----Original Message-----
+> From: Jason Lunz [mailto:lunz@falooley.org]
+> Sent: Thursday, January 09, 2003 1:57 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: detecting hyperthreading in linux 2.4.19
 > 
-> This might be a good approach to take regardless - don't read pci-pci 
-> bridge BAR (or host-bridge BAR's for that matter), simply because 
+> jamesclv@us.ibm.com said:
+> > I don't know of any way to do this in userland.  The whole point is
+> > that the sibling processors are supposed to look like real ones.
 > 
->  (a) bridges are more "interesting" than regular devices, and disabling 
->      part of them might be a stupid thing.
->  (b) we're generally not really interested in the end result anyway
-
-I completely agree. For example, I have already a bunch of cases where I
-have to explicitely "hide" the host bridge from linux PCI layer as those
-have BARs that mustn't be touched. A typical example is the 405gp
-internal PCI host. It has a BAR that represents the view of system RAM
-from bus mastering PCI devices. Of course, the kernel doesn't understand
-that and tries to remap it away from 0 where it belongs ;)
-
-Ben.
-
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> That's unfortunately not always true. I'm writing a program that will
+> run on a system that will be doing high-load routing. Testing has
+shown
+> that we get better performance when binding each NIC's interrupts to a
+> separate physical processor using /proc/irq/*/smp_affinity (especially
+> when all the interrupts would hit the first CPU, another problem i've
+> yet to address). That only works for real processors, though, not
+> HT siblings.
+> 
+> I'm writing a program to run on machines of unknown (by me)
+> configuration, that will spread out the NIC interrupts appropriately.
+> So userspace needs to know the difference, at least until interrupts
+can
+> be automatically distributed by the kernel in a satisfactory way.
+> 
+> Jason

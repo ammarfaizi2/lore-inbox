@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290822AbSARVIu>; Fri, 18 Jan 2002 16:08:50 -0500
+	id <S290826AbSARVOa>; Fri, 18 Jan 2002 16:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSARVIm>; Fri, 18 Jan 2002 16:08:42 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:22568 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S290822AbSARVI0> convert rfc822-to-8bit; Fri, 18 Jan 2002 16:08:26 -0500
-Date: Fri, 18 Jan 2002 22:07:09 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: "David S. Miller" <davem@redhat.com>
-cc: <hozer@drgw.net>, <linux-kernel@vger.kernel.org>,
-        <alan@lxorguk.ukuu.org.uk>, <rmk@arm.linux.org.uk>,
-        <dan@embeddededge.com>, <mattl@mvista.com>
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-In-Reply-To: <20020118.123837.21900127.davem@redhat.com>
-Message-ID: <20020118215449.K2042-100000@gerard>
+	id <S290825AbSARVOV>; Fri, 18 Jan 2002 16:14:21 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:45327 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S290824AbSARVOJ>; Fri, 18 Jan 2002 16:14:09 -0500
+Message-ID: <3C489019.3422D650@didntduck.org>
+Date: Fri, 18 Jan 2002 16:14:01 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: DervishD <raul@viadomus.com>
+CC: linux-kernel@vger.kernel.org, yinlei_yu@hotmail.com
+Subject: Re: Is there anyway to use 4M pages on x86 linux in user level?
+In-Reply-To: <E16RgGu-0005tD-00@DervishD.viadomus.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+DervishD wrote:
+> 
+>     Hi Brian :)
+> 
+> >The large page size is 4MB, except in PAE mode where they are 2MB.
+> >Normal pages are always 4KB.  Noting in the GDT affects the page
+> >size.
+> 
+>     The entries in the GDT, do not set the page size for that
+> descriptor? I'm certainly rusted on the i386 O:)))
+> 
+>     Raúl
 
+No, there is a bit in the page directory that determines if the entry
+points to a page table (with 4KB pages) or to a 4MB page.  The GDT is
+only used for segmentation, which is totally seperate from paging.
 
-On Fri, 18 Jan 2002, David S. Miller wrote:
+--
 
->    From: Gérard Roudier <groudier@free.fr>
->    Date: Fri, 18 Jan 2002 21:21:35 +0100 (CET)
->
->    I have noted that some ports may [ever] require pci_alloc_consistent not
->    to be called from interrupt context. Just I will look into this when time
->    will allow.
->
-> Do not bother Gerard, these ports really are broken and
-> pci_alloc_consistent must work from interrupts.
->
->    I am not going to ever use not cache coherent hardware, even if I am ready
->    to make the sym driver work reliably on such brain-dead things. Just it is
->    not high priority stuff for now.
->
-> Perhaps you misunderstand, it is not "lack of cache coherency" it is
-> "cache needs flushing around DMA transfers" and this is handled
-> perfectly by PCI DMA interfaces.  It is nothing you should be
-> concerned about.
-
-Depends on the OS.
-
-Under Linux, PCI consistent allocation support is a requirement. Let me
-cross fingers for this to stay as it is. :)
-
-Under some other (NetBSD, for example, just not to name it :)), such
-feature is just a hint and as a result drivers are theorically also
-required to care about cache flushing for DMAs that involve driver
-internal data structures if full portability is in concern. Btw, I donnot
-really use NetBSD O/S but just ported sym-2 to it (NetBSD-1.5 with
-coherency being a requirement for driver data structure allocations) as an
-exercise.
-
-  Gérard.
-
+				Brian Gerst

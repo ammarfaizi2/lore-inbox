@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135636AbRDXOLw>; Tue, 24 Apr 2001 10:11:52 -0400
+	id <S135648AbRDXOSS>; Tue, 24 Apr 2001 10:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135635AbRDXOLe>; Tue, 24 Apr 2001 10:11:34 -0400
-Received: from portal.west.saic.com ([198.151.12.15]:36594 "HELO
-	portal.west.saic.com") by vger.kernel.org with SMTP
-	id <S135634AbRDXOJX> convert rfc822-to-8bit; Tue, 24 Apr 2001 10:09:23 -0400
-Message-Id: <A83EBF650A2CD51189CA00508B444F7F1663B3@abz-irg-exs01.uk.saic.com>
-From: "Hamilton, Eamonn" <EAMONN.HAMILTON@saic.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: sym53c875 error
-Date: Tue, 24 Apr 2001 07:08:47 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S135639AbRDXOSI>; Tue, 24 Apr 2001 10:18:08 -0400
+Received: from cx285482-c.crans1.ri.home.com ([65.11.234.16]:25612 "HELO
+	safestory.com") by vger.kernel.org with SMTP id <S135634AbRDXORy>;
+	Tue, 24 Apr 2001 10:17:54 -0400
+From: <JColgan@safestory.com>
+To: linux-kernel@vger.kernel.org
+Subject: Greetings!
+Date: Tue, 24 Apr 2001 09:57:56
+Message-Id: <876.707558.146089@safestory.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks.
 
-Under all of the kernels I have access to try ( 2.2.19, 2.4.X & 2.4.X-ac* ),
-when I try and write an image in XA2 format to my SCSI writer ( Yamaha
-CDR-400t ), I get a DMA overrun. When I try with a kernel patched with the
-beta symbios driver ( 2.1.9 ), it works just fine.
+1 in 6 children are victimized before the age of 16.
 
-This is on a Debian woody system, using cdrecord 1.10 ( also 1.9 and 1.8
-with the same symptoms ) attached to a Tekram DC390F.
+Hello, my name is Jason Colgan and I am writing to you about my father's unique book on child safety.  
+ 
+I hope you don't mind me emailing you, but I found your email address on a website that was related to children, so I figured you would definitely be interested in this.
+ 
+My father, a retired police Captain, authored a children's book using his unique experience with child safety.  My father has investigated, arrested and taken confessions from child molesters, kidnappers, murderers and some of the most dangerous people in the world.  He often spoke and interacted with them before they had the chance to speak with lawyers or others, so he was able to gain an honest understanding of the way they think and the manner in which they victimize children.  
+ 
+My father put his 23 years of experience to work for a good cause and developed a children's book, written in a storybook fashion starring a small family of bunnies.  The book has already caused quite a stir and has been featured in local newspapers and even the news.  Even more important, the people who have purchased the book love it and so do their children.  It truly presents a simplified way to educate your child on matters that are difficult for parents, grandparents, or guardians to discuss.
+ 
+I would like you to learn more about my father's book by visiting www.SafeStory.com
+ 
+If you are curious to see what others think, there is a link on that web site which has some customer opinions and even shows you the write-ups the book has received on Amazon.com.
+ 
+Thank you so much for your time and if you have any questions at all, please email me or call and I would love to answer them!
+ 
+My sincerest thanks,
+Jason
+ 
 
-Transcript as follows :
-
-cdrecord dev=0,3,0 -dummy -xa2 firmware.iso
-
-Cdrecord 1.10a18 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
-scsidev: '0,3,0'
-scsibus: 0 target: 3 lun: 0
-Linux sg driver version: 3.1.17
-Using libscg version 'schily-0.5'
-Device type    : Removable CD-ROM
-Version        : 2
-Response Format: 2
-Capabilities   :
-Vendor_info    : 'YAMAHA  '
-Identifikation : 'CDR400t         '
-Revision       : '1.0q'
-Device seems to be: Yamaha CDR-400.
-Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
-Driver flags   : SWABAUDIO
-Starting to write CD/DVD at speed 1 in dummy mode for single session.
-Last chance to quit, starting dummy write in 1 seconds.
-cdrecord: Input/output error. write_g1: scsi sendcmd: retryable error
-CDB:  2A 00 00 00 01 C2 00 00 1F 00
-status: 0x0 (GOOD STATUS)
-DMA overrun, resid: -248
-cmd finished after 0.579s timeout 40s
-write track data: error after 0 bytes
-Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
+http://www.SafeStory.com
 
 
-And while that lot happens, I get
-
-sym53c875-0-<3,*>: target did not report SYNC.
-sym53c875-0-<3,*>: extraneous data discarded.
-sym53c875-0-<3,*>: COMMAND FAILED (89 0) @c12a3800.
-
-Standard burns work ok, it's just the xa2 stuff I have a problem with so
-far. I also tried using the old NCR driver with the same results.
-
-Anybody got any ideas?
-
-Cheers,
-Eamonn
+P.S. Please email me at jason@jmc1.com or call me anytime. My home phone number is 401-463-2856.

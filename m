@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTEFCTL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 22:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTEFCTL
+	id S262262AbTEFCY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 22:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTEFCY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 22:19:11 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:33955 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262261AbTEFCTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 22:19:10 -0400
-Date: Tue, 6 May 2003 09:23:46 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Terje Eggestad <terje.eggestad@scali.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052174975.1000.5.camel@eggis1>
-Message-ID: <Pine.SGI.4.10.10305060920320.7773473-100000@Sky.inp.nsk.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 May 2003 22:24:27 -0400
+Received: from 203-173-240-73.adsl.ihug.co.nz ([203.173.240.73]:2791 "EHLO
+	python.graveyard.net.nz") by vger.kernel.org with ESMTP
+	id S262262AbTEFCY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 22:24:27 -0400
+Date: Tue, 6 May 2003 14:36:54 +1200
+To: linux-kernel@vger.kernel.org
+Subject: status of matrox framebuffer drivers.
+Message-ID: <20030506023653.GA23098@python.graveyard>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: crypt@ihug.co.nz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 May 2003, Terje Eggestad wrote:
+Hi I was just wondering if there was any work being done to get the
+matrox framebuffer drivers updated so that they would compile under the
+4.5 series kernels.
 
-> Good point, it should actually be very simple.
-> from /proc/ksyms we've got teh adresses of the sys_*, then from
-> asm/unistd.h we got the order.
+They seem to have been broken for a long time.
 
-/proc/ksyms shows only exported symbols, is not it?
+Joe.
 
-> Then search thru /dev/kmem until you find the right string og addresses,
-> and you got sys_call_table. 
-> 
-> Dirty but it should be portable. 
+-- 
+=======================================================================
+in real life: Joseph Skinner         |There's no such thing as a wizard
+email: crypt@ihug.co.nz              |who minds his own business
+       Analyst/Programmer            | - Berengis the Black
+                                     |   Court Mage to the Earls Caeline
+========================================================================
 

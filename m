@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264965AbRGFExv>; Fri, 6 Jul 2001 00:53:51 -0400
+	id <S264976AbRGFF1v>; Fri, 6 Jul 2001 01:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265969AbRGFExl>; Fri, 6 Jul 2001 00:53:41 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:62908 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264965AbRGFExY>;
-	Fri, 6 Jul 2001 00:53:24 -0400
-Message-ID: <3B45443C.32ADA7F@mandrakesoft.com>
-Date: Fri, 06 Jul 2001 00:53:16 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trevor Hemsley <Trevor-Hemsley@dial.pipex.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia lockup inserting or removing cards in 2.4.5-ac{13,22}
-In-Reply-To: <20010705220051Z264475-17720+11254@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265974AbRGFF1k>; Fri, 6 Jul 2001 01:27:40 -0400
+Received: from [63.231.122.81] ([63.231.122.81]:3416 "EHLO
+	cthulhu.turbolabs.com") by vger.kernel.org with ESMTP
+	id <S264976AbRGFF1X>; Fri, 6 Jul 2001 01:27:23 -0400
+Date: Thu, 5 Jul 2001 23:26:55 -0600
+From: Andreas Dilger <adilger@turbolabs.com>
+Message-Id: <200107060526.XAA11829@cthulhu.turbolabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trevor Hemsley wrote:
+Jeff writes:
+> I've always thought it would be neat to do:
 > 
-> On Thu, 5 Jul 2001 03:06:11, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-> wrote:
+>       cat bzImage initrd.tar.gz > vmlinuz
+>       rdev --i-have-a-tarball-piggyback vmlinuz
 > 
-> > Hmm, Cardbus and USB problems... you probably have both Cardbus and
-> > i82365 support in your kernel configuration.
-> 
-> Once I have the BIOS set to "cardbus/16 bit" instead of "auto-detect"
-> I don't have a problem with having both Cardbus and i82365 support
-> compiled in. If the BIOS is set to auto then the PCI tables don't have
-> an IRQ specified and yenta.c uses IRQ 0!
+> Linking into the image is easy for hackers, but why not make it
+> scriptable and super-easy for end users?  x86 already has the rdev
+> utility to mark a kernel image as having certain flags.  It could even
+> be a command line option, "inittgz" or somesuch, telling us that a
+> gzip-format tarball immediately follows the end of our ELF image.
 
-Interesting...   That sounds like the kernel's plug-n-play code isn't
-doing its job.
+This would be especially handy for network booting: you only need to send
+the one file to the client, and it boots the kernel and loads the initrd
+without any extra requests/parameters/configuration needed.
 
+> I wonder if any bootloader mods would be needed at all to do this... 
+> AFAICS you just need to make sure the kernel doesn't trample the
+> piggyback'd data.
+
+Probably not - the kernel would handle all of it.  It sounds like Linus
+and Al are in favour of this, so it will likely be in 2.5.early.  Having
+the tar be extracted into ramfs has the added benefit that you don't need
+to 'pre-configure' ramdisk size, make dd initrd images, or waste memory
+that is representing empty fs space.  Conversely, if the root is ramfs
+you also don't need to worry about the ramdisk fs being too small if you
+need to create some temprary files there...  It is a win in all cases.
+
+Cheers, Andreas
 -- 
-Jeff Garzik      | Thalidomide, eh? 
-Building 1024    | So you're saying the eggplant has an accomplice?
-MandrakeSoft     |
+Andreas Dilger                               Turbolinux filesystem development
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/

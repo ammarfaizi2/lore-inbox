@@ -1,72 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281062AbRKOVL3>; Thu, 15 Nov 2001 16:11:29 -0500
+	id <S281061AbRKOVL3>; Thu, 15 Nov 2001 16:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281061AbRKOVLV>; Thu, 15 Nov 2001 16:11:21 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:22794 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281062AbRKOVLE>; Thu, 15 Nov 2001 16:11:04 -0500
-Message-ID: <3BF42F47.FA3B7657@zip.com.au>
-Date: Thu, 15 Nov 2001 13:10:31 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S281058AbRKOVLU>; Thu, 15 Nov 2001 16:11:20 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:8969 "HELO abasin.nj.nec.com")
+	by vger.kernel.org with SMTP id <S281061AbRKOVLC>;
+	Thu, 15 Nov 2001 16:11:02 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug in ext3
-In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>, <3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net> <3BF42A1A.5AE96A78@zip.com.au>,
-		<3BF42A1A.5AE96A78@zip.com.au> <20011115160232.H329@visi.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15348.12126.264831.627333@abasin.nj.nec.com>
+Date: Thu, 15 Nov 2001 16:10:54 -0500 (EST)
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/stat description for proc.txt
+In-Reply-To: <je7ksriwah.fsf@sykes.suse.de>
+In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com>
+	<20011115115939.I5739@lynx.no>
+	<15348.8974.587924.655924@abasin.nj.nec.com>
+	<20011115133734.P5739@lynx.no>
+	<15348.10494.577151.173831@abasin.nj.nec.com>
+	<je7ksriwah.fsf@sykes.suse.de>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> 
-> Seems it does have the field set. I guess the bug is then that if there
-> is no journal, then it shoudl fail to mount it, so ext2 will take over.
-> Is there any reason to mount a partition as ext3 if there is no journal
-> to be found?
-> 
-> Filesystem volume name:   <none>
-> Last mounted on:          <not available>
-> Filesystem UUID:          <none>
-> Filesystem magic number:  0xEF53
-> Filesystem revision #:    1 (dynamic)
-> Filesystem features:      has_journal filetype sparse_super
-> Filesystem state:         not clean
-> Errors behavior:          Continue
-> Filesystem OS type:       Linux
-> Inode count:              1015808
-> Block count:              2028288
-> Reserved block count:     101414
-> Free blocks:              372624
-> Free inodes:              690438
-> First block:              0
-> Block size:               4096
-> Fragment size:            4096
-> Blocks per group:         32768
-> Fragments per group:      32768
-> Inodes per group:         16384
-> Inode blocks per group:   512
-> Last mount time:          Thu Nov 15 10:07:12 2001
-> Last write time:          Thu Nov 15 15:55:23 2001
-> Mount count:              2
-> Maximum mount count:      20
-> Last checked:             Thu Nov 15 08:48:40 2001
-> Check interval:           15552000 (6 months)
-> Next check after:         Tue May 14 09:48:40 2002
-> Reserved blocks uid:      0 (user root)
-> Reserved blocks gid:      0 (group root)
-> First inode:              11
-> Inode size:               128
 
-Are you running a current version of e2fsprogs?  1.25?
+Ok, now with Andreas Schwab, and Andreas Dilger's corrections.
 
-If you are, then this indicates that the filesystem has has_journal
-set, but it doesn't have a journal inode.  That is certainly something
-which e2fsck should detect and fix.  This may be a fsck bug.
-
-You should be able to fix this with `tune2fs -O ^has-journal' on
-the unmounted or readonly fs.
+--- proc-copy.txt	Thu Nov 15 15:05:39 2001
++++ proc.txt	Thu Nov 15 16:08:12 2001
+@@ -25,6 +25,7 @@
+   1.5	SCSI info
+   1.6	Parallel port info in /proc/parport
+   1.7	TTY info in /proc/tty
++  1.8	Kernel Statistics in /proc/stat
+ 
+   2	Modifying System Parameters
+   2.1	/proc/sys/fs - File system data
+@@ -223,7 +224,7 @@
+  rtc         Real time clock                                   
+  scsi        SCSI info (see text)                              
+  slabinfo    Slab pool info                                    
+- stat        Overall statistics                                
++ stat        Overall statistics                                 (1.8)
+  swaps       Swap space utilization                            
+  sys         See chapter 2                                     
+  sysvipc     Info of SysVIPC Resources (msg, sem, shm)		(2.4)
+@@ -566,9 +567,9 @@
+ 1.7 TTY info in /proc/tty
+ -------------------------
+ 
+-Information about  the  available  and actually used tty's can be found in the
+-directory /proc/tty.You'll  find  entries  for drivers and line disciplines in
+-this directory, as shown in Table 1-9.
++Information about the available and actually used tty's can be found
++in the directory /proc/tty.  You'll find entries for drivers and line
++disciplines in this directory, as shown in Table 1-9.
+ 
+ 
+ Table 1-9: Files in /proc/tty 
+@@ -595,6 +596,53 @@
+   /dev/tty             /dev/tty        5       0 system:/dev/tty 
+   unknown              /dev/tty        4    1-63 console 
+ 
++
++1.8 Kernel Statistics in /proc/stat
++-----------------------------------
++
++General statistics about what the kernel has been doing is available
++in the /proc/stat file.  To view the statistics simply;
++
++$ cat /proc/stat 
++cpu  58903 1 7337 221340
++cpu0 58903 1 7337 221340
++page 97604 92120
++swap 1 0
++intr 571041 287581 3738 0 0 3 0 2 0 0 0 0 56043 202215 0 21398 61 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
++disk_io: (3,0):(21459,9839,195208,11620,184240) 
++ctxt 1719440
++btime 1005238271
++processes 4997
++
++The individual "cpu" entry will be the same as "cpu0" if you only have
++one CPU on your system.  Otherwise the "cpu" entry will be a total of
++all the separate CPU statistics.  The four numbers following "cpu"
++entries are: user, nice, system and idle usage.  These are stored in
++jiffies.
++
++The two numbers following the "page" entry are number of pages going
++in followed by the number of pages going out.  Same goes for the
++"swap" entry.
++
++The "intr" entry show the number of interrupts.  The first number is
++the total interrupts between all IRQs.  The remaining numbers are the
++interrupts for each IRQ in order.
++
++The "disk_io" shows data for each active disk.  The above example only
++shows one active disk.  The first pair is the major followed by the
++disk number entry.  The others are:
++     - total number of I/O operations on this drive
++     - read I/O operations
++     - read I/O sectors
++     - write I/O operations
++     - write I/O sectors
++
++"ctxt" the contest switches.
++
++"btime" is the time the system booted.
++
++"processes" is the number of processes that have run since boot.  This
++includes forks, don't know if it includes threads.
+ 
+ ------------------------------------------------------------------------------
+ Summary

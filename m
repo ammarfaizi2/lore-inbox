@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313789AbSEMOP2>; Mon, 13 May 2002 10:15:28 -0400
+	id <S313189AbSEMOaE>; Mon, 13 May 2002 10:30:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314056AbSEMOP1>; Mon, 13 May 2002 10:15:27 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:47115 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313789AbSEMOPZ>; Mon, 13 May 2002 10:15:25 -0400
-Message-Id: <200205131412.g4DECHY06608@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
-Date: Mon, 13 May 2002 17:14:57 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020513102825.35359.qmail@web10408.mail.yahoo.com>
+	id <S313307AbSEMOaD>; Mon, 13 May 2002 10:30:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5893 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313189AbSEMOaC>; Mon, 13 May 2002 10:30:02 -0400
+Subject: Re: More UDMA Troubles
+To: ap.leblanc@shaw.ca (Andre LeBlanc)
+Date: Mon, 13 May 2002 15:49:49 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, Lionel.Bouton@inet6.fr (Lionel Bouton),
+        andre@linux-ide.org
+In-Reply-To: <001801c1faa0$fcb7cd60$2000a8c0@metalbox> from "Andre LeBlanc" at May 13, 2002 10:09:47 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177H93-0005Yf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 May 2002 08:28, Steve Kieu wrote:
-> > pointer got
-> > corrupted and now movzbl stumbles over it.
-> >
-> > Bad RAM? Consider memtest86 run overnight.
-> > --
->
-> I did use memtest86 and all test is passed, no errors.
-> And problem still persists with 2.4.19-pre8-ac2 ; oops
-> after exiting X
->
-> Now I have to use 2.4.16 ; any way all kernel before
-> 2.4.19-pre2 is normal, I did not test 2.4.19-preX>2
-> but 2.4.19-pre7-ac4 and 2.4.19-pre8-ac2
+> I think that running that, hdparm command may have actually done some damage
+> to my computer... since then my BIOS Occasionally doesn't recognize my hard
+> drive, and Windows 2000 keeps getting bluescreens during the boot process,
+> it took 4 tries to get it to boot properly, and I ahve a feeling it will
+> lock up eventually. (I've never had a bluescreen uder 2000 before.)
 
-When no one answers on lkml to your oops report, you
-have basically the only choice: start looking at stack trace
-yourself, insert printks here and there, recompile and give it a try.
+hdparm just sets configuration variables, they should be lost on physical
+power off but might survive a warm boot (even then the bios ought to have
+shoved things back into its idea of ide happy mode)
 
-In other words, the source is with you. You *can* do it.
---
-vda

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265326AbTLRVHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 16:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbTLRVHT
+	id S265309AbTLRVCf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 16:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbTLRVCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 16:07:19 -0500
-Received: from elpis.telenet-ops.be ([195.130.132.40]:63124 "EHLO
-	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S265326AbTLRVHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 16:07:17 -0500
-Date: Thu, 18 Dec 2003 22:07:13 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: linux-kernel@vger.kernel.org
-Subject: ext3 truncate bug in 2.6.0?
-Message-ID: <20031218210713.GA21777@ping.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Dec 2003 16:02:35 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:16858
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S265309AbTLRVCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 16:02:33 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Andrew Morton <akpm@osdl.org>, trelane@digitasaru.net
+Subject: List of mailing lists (was Re: Linux 2.6.0)
+Date: Thu, 18 Dec 2003 15:02:53 -0600
+User-Agent: KMail/1.5
+Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031218134343.GG5057@digitasaru.net> <20031218082222.770c81e6.akpm@osdl.org>
+In-Reply-To: <20031218082222.770c81e6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200312181502.53337.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When writing to the file, and the filesystem (ext3) is full, it
-seems to block count gets wrong.
+On Thursday 18 December 2003 10:22, Andrew Morton wrote:
+> Joseph Pingenot <trelane@digitasaru.net> wrote:
+> > Hey, could a List of Lists be put on kernel.org?
+>
+> Most of them are (and should be) mentioned in the MAINTAINERS file
+> distributed with the kernel.  The bluetooth list seems to be missing
+> though.
 
-I ran an e2fsck on the fs and found no problems.  Then I mounted
-it again, wrote a file until the fs was full, unmounted and ran
-e2fsck again, and get this:
+Here's another interesting resource:
 
-e2fsck 1.32 (09-Nov-2002)
-Pass 1: Checking inodes, blocks, and sizes
-Inode 276481, i_blocks is 681584, should be 681582.  Fix<y>?
+http://vger.kernel.org/vger-lists.html
 
-If my memory is any good, their was a simular problem in 2.4
-once.
-
-I'm testing this with 2.6.0-test11, but couldn't find anything in
-the changelog for 2.6.0.
-
-
-Kurt
-
+Rob

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265505AbUBAXeb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 18:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbUBAXeb
+	id S265510AbUBAXYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUBAXYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 18:34:31 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:19847
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265505AbUBAXea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 18:34:30 -0500
-Date: Sun, 1 Feb 2004 18:47:07 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Paul Jakma <paul@clubi.ie>
-Cc: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>,
-       Christian Borntraeger <kernel@borntraeger.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Uptime counter
-Message-ID: <20040201184707.A15269@animx.eu.org>
-References: <Pine.LNX.4.44.0402012314310.6574-100000@midi> <Pine.LNX.4.58.0402012235270.1071@fogarty.jakma.org>
+	Sun, 1 Feb 2004 18:24:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42464 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265510AbUBAXYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 18:24:37 -0500
+Date: Sun, 1 Feb 2004 15:22:41 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: jmorris@redhat.com, jakub@redhat.com, dparis@w3works.com,
+       linux-kernel@vger.kernel.org, rspchan@starhub.net.sg
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch  
+ pentium3,4
+Message-Id: <20040201152241.485a6d8b.davem@redhat.com>
+In-Reply-To: <401D6D38.3020009@tmr.com>
+References: <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com>
+	<20040130131400.13190af5.davem@redhat.com>
+	<401D6D38.3020009@tmr.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.58.0402012235270.1071@fogarty.jakma.org>; from Paul Jakma on Sun, Feb 01, 2004 at 10:36:52PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.0? 2.2 has been out more than long enough for boxes running such 
-> kernels to have rolled over several times already.
+On Sun, 01 Feb 2004 16:18:48 -0500
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-Definately, I have a 2.2.13 box that's rolled 3 times.  I have to use utmp
-to get the uptime.
+> What didn't you like about Jakob's patch which avoids the 64 byte size 
+> penalty?
 
-[wakko@rod:/home/wakko] last -xf /var/run/utmp runlevel
-runlevel (to lvl 5)                    Thu Nov 18 22:36 - 18:48 (1535+20:12)
-
-utmp begins Thu Nov 18 22:36:07 1999
-[wakko@rod:/home/wakko] 
-  6:49pm  up 44 days, 15:23h,  3 users,  load average: 0.00, 0.00, 0.00
-[wakko@rod:/home/wakko] 
-
-It is firewalled by the way.
-  
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Because it means memset'ing the thing every time the function is called.
+And this function is called for every transform.

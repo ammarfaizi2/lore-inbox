@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287212AbSBKFtK>; Mon, 11 Feb 2002 00:49:10 -0500
+	id <S287254AbSBKFwK>; Mon, 11 Feb 2002 00:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287254AbSBKFtA>; Mon, 11 Feb 2002 00:49:00 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:12305 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S287212AbSBKFs4>; Mon, 11 Feb 2002 00:48:56 -0500
-Subject: 2.5.4 -- Unresolved virt_to_bus_not_defined_use_pci_map in
-	xircom_tulip_cb.o and sound.o
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 10 Feb 2002 21:45:42 -0800
-Message-Id: <1013406343.30864.48.camel@turbulence.megapathdsl.net>
+	id <S287276AbSBKFwA>; Mon, 11 Feb 2002 00:52:00 -0500
+Received: from angband.namesys.com ([212.16.7.85]:7821 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S287254AbSBKFvq>; Mon, 11 Feb 2002 00:51:46 -0500
+Date: Mon, 11 Feb 2002 08:51:40 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020211085140.B27189@namesys.com>
+In-Reply-To: <20020207082348.A26413@riesen-pc.gr05.synopsys.com> <20020207104420.A6824@namesys.com> <20020207230235.A173@steel> <20020208085155.A7034@namesys.com> <20020208230713.A13545@steel>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020208230713.A13545@steel>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+On Fri, Feb 08, 2002 at 11:07:13PM +0100, Alex Riesen wrote:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.4-pre6/kernel/drivers/net/pcmcia/xircom_tulip_cb.o
-depmod: 	bus_to_virt_not_defined_use_pci_map
-depmod: 	virt_to_bus_not_defined_use_pci_map
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.4-pre6/kernel/drivers/sound/sound.o
-depmod: 	virt_to_bus_not_defined_use_pci_map
+> hmm.. You're demanding too much(mkreiserfs) - it's my home partition :)
+At least reiserfsck before any tests is almost mandratory ;)
 
+> Maybe the corruptions are from previous kernels, but the zero-files
+> are observed for the first time, particularly in the .bash_history.
+Yes, but you said with the patch you cannot reproduce zero files anymore.
+
+> Sorry for such a dirty test environment, i was really not prepared.
+> Logs attached.
+I am sorry, but there are so many variables, these logs are barely useful as
+of now.
+If you can reproduce on a clean filesystem with not faulty hardware, that would be interesting, though.
+
+Thank you.
+
+Bye,
+    Oleg

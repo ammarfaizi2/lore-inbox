@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266986AbSK2JiP>; Fri, 29 Nov 2002 04:38:15 -0500
+	id <S266991AbSK2JmR>; Fri, 29 Nov 2002 04:42:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbSK2JiO>; Fri, 29 Nov 2002 04:38:14 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:5034 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266986AbSK2JiO>;
-	Fri, 29 Nov 2002 04:38:14 -0500
-Date: Fri, 29 Nov 2002 10:45:24 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] named struct initialiser updates
-In-Reply-To: <200211260414.gAQ4EaJ26436@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0211291044410.29438-100000@vervain.sonytel.be>
+	id <S266993AbSK2JmR>; Fri, 29 Nov 2002 04:42:17 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:64754 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S266991AbSK2JmQ>;
+	Fri, 29 Nov 2002 04:42:16 -0500
+From: "Netsubmissions" <cust_service@net-submissions.net>
+Message-ID: <BUKOHWUSNNDYPXMYOHPSILKFXDUBJC@178.79.97.28>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Nov 02 01:36:37 GMT
+X-Priority: 1
+X-MSMail-Priority: High
+Subject: Increase Profit from your website (ADV)
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary=WC_MAIL_PaRt_BoUnDaRy_05151998
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Linux Kernel Mailing List wrote:
-> ChangeSet 1.842.43.47, 2002/11/25 18:40:22-08:00, davej@codemonkey.org.uk
-> 
-> 	[PATCH] named struct initialiser updates
+This is a multi-part message in MIME format.
+
+--WC_MAIL_PaRt_BoUnDaRy_05151998
+Content-Type: text/plain
+Content-Transfer-Encoding: 7Bit
+
+Hello,
 
 
-> diff -Nru a/drivers/video/fbcon.c b/drivers/video/fbcon.c
-> --- a/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
-> +++ b/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
-> @@ -230,8 +230,9 @@
->  
->  static void cursor_timer_handler(unsigned long dev_addr);
->  
-> -static struct timer_list cursor_timer =
-> -		TIMER_INITIALIZER(cursor_timer_handler, 0, 0);
-> +static struct timer_list cursor_timer = {
-> +    function: cursor_timer_handler
-> +};
->  
->  static void cursor_timer_handler(unsigned long dev_addr)
->  {
+My name is Jane and I am the marketing director of Netsubmissions.net.  
+If this email was an inconvenience to you,I would like to apologize.
 
-Doesn't this part reverse the timer initializer fix?
+Lot of companies are spending tons of money for marketing these days.
+But here is the way that you can do marketing World Widely on the Internet
+with out spending tons of money.
+We are a website submission company that can submit your site 
+to the top search engines such as Google and Lycos utilizing 
+our proprietary custom software.  
+Our packages start as low as $8.99 and we're offering 
+great articles about online marketing with most of the packages.  
+Please check us out at http://www.net-submissions.net
 
-Gr{oetje,eeting}s,
+The process takes less than 2 minutes.  
+Check our web site - we will help you obtain more sales.  
+If you have any questions that are not answered at
+http://www.net-submissions.net 
+please use the contact form or email me.
 
-						Geert
+Once again, I would like to thank you for your time, 
+and once again if this email was an inconvenience to you, 
+I would like to apologize.  
+If you would like to be removed from our mailing list, please type 
+"Remove"on the subject and we will make sure to not send you any more
+emails. 
+Have a Nice day.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Thank You,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Jane L.
+Marketing Director
+cust_service@net-submissions.net
+Http://www.net-submissions.com
+--WC_MAIL_PaRt_BoUnDaRy_05151998--
 

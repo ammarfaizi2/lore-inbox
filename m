@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBJUkA>; Sat, 10 Feb 2001 15:40:00 -0500
+	id <S129072AbRBJVSP>; Sat, 10 Feb 2001 16:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129027AbRBJUju>; Sat, 10 Feb 2001 15:39:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:64010 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129026AbRBJUje>;
-	Sat, 10 Feb 2001 15:39:34 -0500
-Date: Sat, 10 Feb 2001 21:39:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question on comment in fs.h
-Message-ID: <20010210213922.C403@suse.de>
-In-Reply-To: <3A85A5EC.EFE3F703@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A85A5EC.EFE3F703@sgi.com>; from law@sgi.com on Sat, Feb 10, 2001 at 12:34:52PM -0800
+	id <S129084AbRBJVSF>; Sat, 10 Feb 2001 16:18:05 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:18029 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129072AbRBJVSA>; Sat, 10 Feb 2001 16:18:00 -0500
+Message-ID: <3A85AFC8.9070107@blue-labs.org>
+Date: Sat, 10 Feb 2001 13:16:56 -0800
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1-pre11 i686; en-US; m18) Gecko/20010208
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Daniel Stone <daniel@kabuki.eyep.net>, Chris Mason <mason@suse.com>,
+        David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <E14RbJG-0001ds-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 10 2001, LA Walsh wrote:
-> Excuse my ignorance, but in file include/linux/fs.h, 2.4.x source
-> in the struct buffer_head, there is a member:
-> 	unsigned short b_size;          /* block size */    
-> later there is a member:
-> 	char * b_data;                  /* pointer to data block (512 byte) */ 
+Alan Cox wrote:
+
+>> I run Reiser on all but /boot, and it seems to enjoy corrupting my
+>> mbox'es randomly.
+>> Using the old-style Reiser FS format, 2.4.2-pre1, Evolution, on a CMD640
+>> chipset with the fixes enabled.
+>> This also occurs in some log files, but I put it down to syslogd
+>> crashing or something.
 > 
-> Is the "(512 byte)" part of the comment in error or do I misunderstand
-> the nature of 'b_size'
+> 
+> Before you put that down to reiserfs can you chek 2.4.2-pre2. It may be
+> problems below the reiserfs layer
 
-The comment is old and wrong
 
--- 
-Jens Axboe
+Just as an aside, I've watched this conversation go on and on while I 
+run reiserfs on several servers, workstations, and a notebook.  I have 
+current kernels and have watched carefully for corruption.  I haven't 
+seen any evidence of corruption on any of them including my notebook 
+which has a bad battery and bad power connection so it tends to 
+instantly die.
+
+Alan, is there a particular trigger to this?
+
+-d
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

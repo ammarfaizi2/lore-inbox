@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSHGO6A>; Wed, 7 Aug 2002 10:58:00 -0400
+	id <S317359AbSHGPE1>; Wed, 7 Aug 2002 11:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSHGO6A>; Wed, 7 Aug 2002 10:58:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32728 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311898AbSHGO57>;
-	Wed, 7 Aug 2002 10:57:59 -0400
-Date: Wed, 07 Aug 2002 07:48:38 -0700 (PDT)
-Message-Id: <20020807.074838.106638568.davem@redhat.com>
-To: rkuhn@e18.physik.tu-muenchen.de
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at tg3.c:1557
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0208071646570.3705-100000@pc40.e18.physik.tu-muenchen.de>
-References: <20020807.072020.130694315.davem@redhat.com>
-	<Pine.LNX.4.44.0208071646570.3705-100000@pc40.e18.physik.tu-muenchen.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317371AbSHGPE1>; Wed, 7 Aug 2002 11:04:27 -0400
+Received: from p50887B26.dip.t-dialin.net ([80.136.123.38]:16862 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317359AbSHGPE0>; Wed, 7 Aug 2002 11:04:26 -0400
+Date: Wed, 7 Aug 2002 09:08:00 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: DevilKin <devilkin-lkml@blindguardian.org>
+cc: Chris Chabot <chabotc@xs4all.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why 'mrproper'?
+In-Reply-To: <200208071558.51884.devilkin-lkml@blindguardian.org>
+Message-ID: <Pine.LNX.4.44.0208070905360.10270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-   Date: Wed, 7 Aug 2002 16:49:24 +0200 (CEST)
+Hi,
 
-   Sorry, same problem as before. It looks like the spinlocked write method 
-   does not work on the BCM5701 chip :-(
+On Wed, 7 Aug 2002, DevilKin wrote:
+> LOL. And to add to this, here in Belgium where I live, we have a product
+> that is actually called 'Mr. Proper' and it is a cleaning agent.
 
-I'm still not entirely convinced of this :-)
-Backout all of your changes and try this patch instead:
+IIRC this product is german, actually. From Henkel, I believe, but I might 
+be wrong. It was named after this product. But that was not the question, 
+actually.
 
---- drivers/net/tg3.c.~1~	Wed Aug  7 07:56:39 2002
-+++ drivers/net/tg3.c	Wed Aug  7 07:57:08 2002
-@@ -173,8 +173,18 @@
- 	}
- }
- 
-+static void tg3_write_mailbox_reg32(struct tg3 *tp, u32 off, u32 val)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&tp->indirect_lock, flags);
-+	pci_write_config_dword(tp->pdev, TG3PCI_REG_BASE_ADDR, off);
-+	pci_write_config_dword(tp->pdev, TG3PCI_REG_DATA, val);
-+	spin_unlock_irqrestore(&tp->indirect_lock, flags);
-+}
-+
- #define tw32(reg,val)		tg3_write_indirect_reg32(tp,(reg),(val))
--#define tw32_mailbox(reg, val)	writel(((val) & 0xffffffff), tp->regs + (reg))
-+#define tw32_mailbox(reg, val)	tg3_write_mailbox_reg32(tp,(reg),(val))
- #define tw16(reg,val)		writew(((val) & 0xffff), tp->regs + (reg))
- #define tw8(reg,val)		writeb(((val) & 0xff), tp->regs + (reg))
- #define tr32(reg)		readl(tp->regs + (reg))
+'mrproper' will remove most of your objects, configuration, flags, etc.  
+However, 'distclean' will firstly make 'mrproper', then remove your backup 
+files such as "*~", "*.orig", "*.rej", etc. It's all in the Makefile, 
+actually.
+
+			Thunder
+-- 
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+

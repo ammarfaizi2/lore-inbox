@@ -1,72 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319164AbSIDNIE>; Wed, 4 Sep 2002 09:08:04 -0400
+	id <S319165AbSIDNSH>; Wed, 4 Sep 2002 09:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319165AbSIDNIE>; Wed, 4 Sep 2002 09:08:04 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:39154 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S319164AbSIDNID>; Wed, 4 Sep 2002 09:08:03 -0400
-Date: Wed, 4 Sep 2002 09:12:31 -0400 (EDT)
-X-Sybari-Space: 00000000 00000000 00000000
-From: Craig Arsenault <penguin@wombat.ca>
-X-X-Sender: craig@tabmow.ca.nortel.com
-To: linux-kernel@vger.kernel.org
-Subject: consequences of lowering "MAX_LOW_MEM"?
-Message-ID: <Pine.LNX.4.44L.0209040744170.6536-100000@tabmow.ca.nortel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319166AbSIDNSH>; Wed, 4 Sep 2002 09:18:07 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:2214 "EHLO stine.vestdata.no")
+	by vger.kernel.org with ESMTP id <S319165AbSIDNSF>;
+	Wed, 4 Sep 2002 09:18:05 -0400
+Date: Wed, 4 Sep 2002 15:22:18 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: Alexander Viro <viro@math.psu.edu>, Xavier Bestel <xavier.bestel@free.fr>,
+       Anton Altaparmakov <aia21@cantab.net>, david.lang@digitalinsight.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+Message-ID: <20020904152218.A6228@vestdata.no>
+References: <20020904144909.Z6228@vestdata.no> <200209041254.g84CstS22167@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209041254.g84CstS22167@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Wed, Sep 04, 2002 at 02:54:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 04, 2002 at 02:54:55PM +0200, Peter T. Breuer wrote:
+> > > Sure. So what?  What's wrong with a O_DIRDIRECT flag that makes all
+> > > opens retrace the path from the root fs _on disk_ instead of from the 
+> > > directory cache? 
+> > 
+> > Did you read Antons post about this?
+> 
+> Yep. My reply is out there.
 
-Hi all,
-  Now I'll explain "why" i want to do what I'm asking below, but if
-anyone has any reasons/explanations why it won't work, I'd love to
-hear it.
+I think you missed one. Anton explained in detail what NTFS would have
+to do to write a single byte if _nothing_ was cached on the client. I
+think it failed to mention that the whole operation would have to be
+executed with a lock - so mouch for distributed operation.
 
-In 2.4.x (currently using 2.4.18), for PPC, there is a value for
-"MAX_LOW_MEM" defined in "arch/ppc/mm/pgtable.c" as 768MB RAM.  Any
-memory above 768MB is considered "high" memory.  Now our problem is
-that we have 1024MB of onboard RAM on our card.  I do *NOT* wish to
-compile with "CONFIG_HIGHMEM" set to true (see below for why), but i
-do wish to have full use of the 1024MB of RAM onboard, or at least
-992MB which is the minimum for our app.
-So what I did was just change "MAX_LOW_MEM" to be 0x3E000000
-(0x30000000), ie. change it to 992 from 768.   I recompiled and tested
-our application.  Things seemed to be running normal with a max of
-992MB of RAM.
+> > Why do you want a filesystem if you're not going to use any filesystem
+> > operations? If all you want to do is to split your shared device into
+> 
+> But I said we DO want to use FS operations. Just nowhere near as often
+> as we want to treat the data streaming through the file system (i.e.
+> "strawman"), so the speed of metadata operations on the FS is not
+> apparently an issue.
 
-Is this a potential problem, or will this cause some lurking bug that
-anyone can think of?  (ie. I'm sure "MAX_LOW_MEM" was set to 768MB for
-a reason, but what is that reason).   We don't want to move higher
-than 1Gig RAM for now, so are we going to be okay doing what I
-describe above?  Any suggestions or comments as to why that's a very
-bad idea would be greatly appreciated.  Again, this is for a
-PPC-specific board, I'm not sure what the x86 architecture's low
-memory max is.
+Remember that append causes metadata updates, so the only thing you can
+do without worrying about the speed of metadata updates is read/rewrite.
+(assuming you hack the filesystems to turn of timestamp-updates)
+And even those operations are highly dependent on "metadata operations"
+- they need metadata to know where to read/rewrite. Again, read Antons
+post about this.
+
+> > multipe (static) logical units use a logical volume manager. 
+> 
+> My experiments with the current lvm have convinced me that it is a
+> horror show with no way sometimes of rediscovering its own consistent
+> state even on one node. I'd personally prefer there to be no lvm, right
+> now!
+
+Currently there is no volume-manager with cluster support on linux
+(unless Veritas has one?), but both Sistina and IBM are working on it
+for LVM2 and EVMS - I'm sure patches will be accepted to speed up the
+process.
+
+> > If you _do_ need a filesystem, use something like gfs. Have you looked
+> > at it at all?
+> 
+> The point is not to choose a file system, but to be able to use
+> whichever one is preferable _at the time_. This is important.
+> Different FSs have different properties, and if one is 10% faster than
+> another for a different data load, then the faster FS can be put
+> in and 10% more data can be collected in the time slot allocated (and
+> these time slots cost "the earth" :-).
+
+Are you refering to that some filesystems can handle certain workloads
+better than others? E.g. reiserfs is really fast for manipulating
+directory-structures, adding new files or removing old ones? But didn't
+you say that all you cared about was read and rewrite? That all other
+filesystem-operations were so rare that nobody would notice?
+
+In addition to this beeing technically impossible (to create a _working_
+solution) I think the motivation is seriously flawed. The "solution"
+you're proposing wouldn't be suitable for any viable problem.
 
 
-REASON for asking:
-Currently, one piece of hardware on our card (a PMC card) is using a
-closed-source driver, and they have less-than stellar linux drivers
-and support.  Their driver has problems with CONFIG_HIGHMEM turned on
-(they are using kiobuf's and they are getting messed up), so as a hack
-until they fix their driver, we were contemplating moving MAX_LOW_MEM.
-Yes, I know closed-source drivers are bad in some cases, but we had
-little choice in this product, and our goal is to move away from it
-and use something else.
 
-Thanks for any info/help.
-
---
-Craig.
-+------------------------------------------------------+
-http://www.wombat.ca/rpmon.html    RP Music Monitor
-http://www.washington.edu/pine/    Pine @ the U of Wash.
-+-------------=*sent via Pine4.44*=--------------------+
-
-
-
-
-
-
+-- 
+Ragnar Kjørstad
+Big Storage

@@ -1,68 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbTBDJtO>; Tue, 4 Feb 2003 04:49:14 -0500
+	id <S267128AbTBDJpi>; Tue, 4 Feb 2003 04:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTBDJtO>; Tue, 4 Feb 2003 04:49:14 -0500
-Received: from relay.dera.gov.uk ([192.5.29.49]:3732 "HELO relay.dstl.gov.uk")
-	by vger.kernel.org with SMTP id <S267219AbTBDJtM>;
-	Tue, 4 Feb 2003 04:49:12 -0500
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not  2.4.x,
-From: Tony Gale <gale@syntax.dstl.gov.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1030203155651.28323A-100000@dstl.gov.uk>
-References: <Pine.LNX.3.96.1030203155651.28323A-100000@dstl.gov.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-asqFefW2nfMW7q/Nq35a"
-Organization: 
-Message-Id: <1044352722.18392.6.camel@syntax.dstl.gov.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 04 Feb 2003 09:58:43 +0000
+	id <S267198AbTBDJpi>; Tue, 4 Feb 2003 04:45:38 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:25219 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S267128AbTBDJpf>; Tue, 4 Feb 2003 04:45:35 -0500
+Message-ID: <3E3F8DE6.708@bogonomicon.net>
+Date: Tue, 04 Feb 2003 03:54:46 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: gcc 2.95 vs 3.21 performance
+References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <200302040656.h146uJs10531@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-asqFefW2nfMW7q/Nq35a
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Personal opinion here but I know it is also held by many developers I 
+know and work with.  I'd rather have a compiler that produces correct 
+and fast code but ran slow than one that produces slow or bad code and 
+runs fast.  Remember compilation is done far less often than run time 
+execution.  Yes I too noticed a difference when I switched over to 3.2 
+but I also noticed some of my code speed up.
 
-On Mon, 2003-02-03 at 21:04, Bill Davidsen wrote:
->=20
-> That is a problem with processes left running. I do not forward
-> connections, I do not forward X, I do not (in normal practice) leave
-> anything running. A typical thing to do is to go to each machine in a
-> cluster and look for a user activity:
->   grep "user" log/stats.readers
->   exit
-> nothing more. And every once in a while that hangs after executing the
-> logout sequence. With the patch it hasn't to date.
->=20
-> That doesn't mean it's a fix, I don't see it every day, I just haven't
-> seen it in a few days since I put in the patch.
+>>>People keep extolling the virtues of gcc 3.2 to me, which I'm
+>>>reluctant to switch to, since it compiles so much slower. But
+>>>it supposedly generates better code, so I thought I'd compile
+>>>the kernel with both and compare the results. This is gcc 2.95
+>>>and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
+>>>tests still use 2.95 for the compile-time stuff.
+>>
+>>[SNIPPED tests...]
+> 
+> 
+> What was the size of uncompressed kernel binaries?
+> This is a simple (and somewhat inaccurate) measure of compiler
+> improvement ;)
 
-The ssh hang on exit "problem" is a policy of the ssh coders. It'll
-happen when you have a background job still running when you exit, which
-is still connected to the terminal.
+While I too like smaller tighter output code, I'd trade it for code that 
+runs faster in real world situations.  As an example identifying the 
+most likely execution path through a routine and keeping it contiguous 
+in memory will do more for average execution speed than optimizing to 
+use the smallest number of bytes.  If the compiler could tell which 
+blocks of code are for handling exceptions it then can place them ouside 
+of the main execution path.  This makes the normal code execution path 
+smaller and more compact.  In doing so it also reduces the number of 
+memory fetch operations and cache space needed to run the code.  With 
+cache misses being 100+ clock cycles and page faults well into the 
+millions, keeping that normal execution path short means alot.
 
-As I said, it's an ssh policy issue (which many people disagree with)
-and not a bug.
+>>Don't let this get out, but egcs-2.91.66 compiled FFT code
+>>works about 50 percent of the speed of whatever M$ uses for
+>>Visual C++ Version 6.0  I was awfully disheartened when I
+> 
+> Yes. M$ (and some other compilers) beat GCC badly.
 
--tony
+But can M$'s compiler produce code for many radically different CPU 
+architectures?  Most people only work with gcc on one type of CPU so 
+they never think about just how flexible and good GCC really is.  I see 
+it often compaired against compilers that are dedicated to a single CPU 
+where the development team only has to worry about one CPU type.  GCC's 
+development team needs to worry about many different arcitectures.  Some 
+are radically different in their fundamental structure.  This really 
+complicates the job of producing a compiler that works correctly.
+
+- Bryan
 
 
---=-asqFefW2nfMW7q/Nq35a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iQCVAwUAPj+O0h/0GZs/Z0FlAQKbkgQAzRglvGGrNxRdod0gWhs93eYFG3KwkJ/a
-LkJ9HoxAhItOcLXQOyuarJHooq44ME9Ym3Q3N2FpjFVsbrVi+/DIh2hQlF9QW/f5
-PyjZIYQRBsebLm/U9uI9wqPfqaNM6jC8ulU1cRQfrYJ9CkIKhBhtbG1a7VuATgCi
-S4eP/vovOx8=
-=5H++
------END PGP SIGNATURE-----
-
---=-asqFefW2nfMW7q/Nq35a--
 

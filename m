@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317431AbSGOLEi>; Mon, 15 Jul 2002 07:04:38 -0400
+	id <S317430AbSGOLD3>; Mon, 15 Jul 2002 07:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317433AbSGOLEh>; Mon, 15 Jul 2002 07:04:37 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:56257 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317432AbSGOLEf>; Mon, 15 Jul 2002 07:04:35 -0400
-Date: Mon, 15 Jul 2002 12:01:22 +0200
-From: Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-To: Joerg Schilling <schilling@fokus.gmd.de>
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020715120122.C1173@linux-m68k.org>
-References: <200207142013.g6EKDJb5019442@burner.fokus.gmd.de>
-Mime-Version: 1.0
+	id <S317431AbSGOLD2>; Mon, 15 Jul 2002 07:03:28 -0400
+Received: from t2o53p72.telia.com ([62.20.228.192]:54656 "EHLO
+	best.localdomain") by vger.kernel.org with ESMTP id <S317430AbSGOLD2>;
+	Mon, 15 Jul 2002 07:03:28 -0400
+To: "D. Sen" <dsen@homemail.com>
+Cc: linux-kernel@vger.kernel.org,
+       Andreas Bombe <bombe@informatik.tu-muenchen.de>
+Subject: Re: "PCI: Cannot allocate resource region" messages at boot
+References: <3D2EF7F2.1070107@homemail.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Jul 2002 13:04:59 +0200
+In-Reply-To: <3D2EF7F2.1070107@homemail.com>
+Message-ID: <m28z4dfe04.fsf@best.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200207142013.g6EKDJb5019442@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Sun, Jul 14, 2002 at 10:13:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 10:13:19PM +0200, Joerg Schilling wrote:
+"D. Sen" <dsen@homemail.com> writes:
 
+> I am getting these messages during bootup time on an IBM Thinkpad T30:
 > 
-> BTW: did you ever look at Solaris / HP-UX, ... and the way they
-> name disks?
+> Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region
+> 0 of device 02:00.0
+> Jul 11 17:17:24 calliope kernel: PCI: Cannot allocate resource region
+> 0 of device 02:00.1
 
-still have fresh memories how everything was renamed and broke 
-some of my apps.
+I had a similar problem on my notebook, but this patch seems to fix
+it:
 
-> someting like: /dev/{r}dsk/c0t0d0s0
-> 
-> This is SCSI bus, target, lun and slice.
+--- linux/drivers/pcmcia/yenta.c.orig	Mon Jul 15 12:40:54 2002
++++ linux/drivers/pcmcia/yenta.c	Mon Jul 15 12:40:39 2002
+@@ -736,7 +736,7 @@
+ 		return;
+ 	}
+ 
+-	align = size = 4*1024*1024;
++	align = size = 128*1024;
+ 	min = PCIBIOS_MIN_MEM; max = ~0U;
+ 	if (type & IORESOURCE_IO) {
+ 		align = 1024;
 
-You can have that type of names with devfs, no need to work
-around kernel functionality in cdrecord.
-On pure IDE hardware that doesn't make sense anyway, in fact
-cdrecord mapping is strongly counterintuitive here. 
-CD-RW = hdd = bus1,target2 but cdrecord sees it as 0,0,0.
+I have no idea if this is the right thing to do. I found the
+suggestion in an earlier message from Andreas Bombe.
 
-> >There is another problem, with your scsi transport library you
-> >are bypassing normal Linux devices. Try
-> >  mount /dev/scd0 /mnt
-> >  cdrecord -dev 0,0,0 -blank=fast
-> >  ls -al /mnt
-> 
-> >Nice? It certainly isn't the fault of Linux if you choose to
-> >bypass normal device usage and it can be very annoying not
-> >only for beginners.
-> 
-> It is not a fault of cdrecord either.
-
-A cure would be nice and I don't see what the kernel could do
-to solve this problem as long as cdrecord insists on talking
-to the SCSI bus directly.
-
-If nothing else, cdrecord manpage
- - should make a big fat warning about it
- - should stop claiming that it is safe to suid cdrecord
-
-The potential for breakage is huge, people run automounters on CD's,
-file managers may try to mount the CD without asking the user.
-
-Richard
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262715AbRE3KbG>; Wed, 30 May 2001 06:31:06 -0400
+	id <S262716AbRE3Ke0>; Wed, 30 May 2001 06:34:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262716AbRE3Ka4>; Wed, 30 May 2001 06:30:56 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45952 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262715AbRE3Kax>;
-	Wed, 30 May 2001 06:30:53 -0400
-Message-ID: <3B14CBD1.C4B5F169@mandrakesoft.com>
-Date: Wed, 30 May 2001 06:30:41 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net #9
-In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <9f2enn$jbr$1@forge.intermeta.de>
+	id <S262719AbRE3KeQ>; Wed, 30 May 2001 06:34:16 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:13318 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262716AbRE3KeC>;
+	Wed, 30 May 2001 06:34:02 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Andi Kleen <ak@suse.de>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8 
+In-Reply-To: Your message of "30 May 2001 11:38:13 +0200."
+             <oupn17vp46y.fsf@pigdrop.muc.suse.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 30 May 2001 20:33:57 +1000
+Message-ID: <18513.991218837@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" wrote:
-> 
-> Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl> writes:
-> 
-> >-static char   name[4][IFNAMSIZ] = { "", "", "", "" };
-> 
-> >+static char   name[4][IFNAMSIZ];
-> 
-> Ugh. Sure about that one? the variables have been pointers to zero,
-> now they're zero...
+On 30 May 2001 11:38:13 +0200, 
+Andi Kleen <ak@suse.de> wrote:
+>"David S. Miller" <davem@redhat.com> writes:
+>
+>> Dawson Engler writes:
+>>  > Is there any way to automatically find these?  E.g., is any routine
+>>  > with "asmlinkage" callable from user space?
+>> 
+>> This is only universally done in generic and x86 specific code,
+>> other ports tend to forget asmlinkage simply because most ports
+>> don't need it.
+>
+>Even i386 doesn't need it because the stack frame happens to have the
+>right order of the arguments at the right position. Just you can get into 
+>weird bugs when any function modifies their argument because it'll be still 
+>modified after syscall restart but only depending if the compiler used a 
+>temporary register or not.
 
-No, the variables were and always have been arrays, not pointers.
+For IA64 you *must* use asmlinkage because the first 8 parameters are
+passed in registers.  gcc will happily modify the register values which
+will mess up syscall restart, unless you use asmlinkage to force gcc to
+take copies of parameters and modify the copies.
 
-The previous incarnation, {"","","",""}, was actually doubly lame,
-because not only was it an unnecessary zeroing of the var, but using ""
-causes an extra string to be generated in the output asm.
-
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUFLAVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264422AbUFLAV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264419AbUFLAVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264422AbUFLAVp
+	id S264422AbUFLAV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbUFLAV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:21:45 -0400
-Received: from zero.aec.at ([193.170.194.10]:9221 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264419AbUFLAVo (ORCPT
+	Fri, 11 Jun 2004 20:21:59 -0400
+Received: from mail.kroah.org ([65.200.24.183]:16839 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264422AbUFLAV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:21:44 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Andy Whitcroft <apw@shadowen.org>, akpm@osdl.org
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
- MAX_ORDER size
-References: <263jX-5RZ-19@gated-at.bofh.it> <262nZ-56Z-5@gated-at.bofh.it>
-	<263jX-5RZ-17@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 12 Jun 2004 02:21:28 +0200
-In-Reply-To: <263jX-5RZ-17@gated-at.bofh.it> (Martin J. Bligh's message of
- "Sat, 12 Jun 2004 01:10:09 +0200")
-Message-ID: <m3d645fwxj.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 11 Jun 2004 20:21:57 -0400
+Date: Fri, 11 Jun 2004 17:13:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] clarify pci.txt wrt IRQ allocation
+Message-ID: <20040612001302.GA10294@kroah.com>
+References: <200406111529.16419.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406111529.16419.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
->
-> Allocating the big-assed hashes out of bootmem seems much cleaner to me,
-> at least ...
+On Fri, Jun 11, 2004 at 03:29:16PM -0600, Bjorn Helgaas wrote:
+> I think we should make it explicit that PCI IRQs shouldn't be relied
+> upon until after pci_enable_device().  This patch:
+> 
+>     ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc3/2.6.7-rc3-mm1/broken-out/bk-acpi.patch
+> 
+> does PCI interrupt routing (based on ACPI _PRT) and IRQ allocation
+> at pci_enable_device()-time.
+> 
+> (To avoid breaking things in 2.6, the above patch still allocates
+> all PCI IRQs in pci_acpi_init(), before any drivers are initialized.
+> But that shouldn't be needed by correct drivers, and I'd like to
+> remove it in 2.7.)
 
-Machines big enough that such big hashes make sense are probably NUMA.
-And on NUMA systems you imho should rather use node interleaving vmalloc(),
-not a bit physical allocation on a specific node for these hashes. 
-This will avoid memory controller hot spots and avoid the problem completely.
-Likely it will perform better too.
+I agree.
 
--Andi
+> Here's a possible update:
 
+Thanks, I've applied this to my trees.
+
+greg k-h

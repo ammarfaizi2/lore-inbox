@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUDIGsS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 02:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUDIGsS
+	id S261723AbUDIHGl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 03:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUDIHGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 02:48:18 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:10707 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261913AbUDIGsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 02:48:13 -0400
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Chris Meadors <clubneon@hereintown.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: initramfs howto?
-References: <1081451826.238.23.camel@clubneon.priv.hereintown.net>
-	<1081490209.28834.19.camel@camp4.serpentine.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 09 Apr 2004 15:48:05 +0900
-In-Reply-To: <1081490209.28834.19.camel@camp4.serpentine.com>
-Message-ID: <buo4qrt4pga.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Fri, 9 Apr 2004 03:06:41 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:41231 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261723AbUDIHGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 03:06:39 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: torvalds@osdl.org
+Subject: [PATCH] trivial 'missing \n' printk fix
+Date: Fri, 9 Apr 2004 10:06:31 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_VE6WYL99GIPFKQ8LGST1"
+Message-Id: <200404091006.31475.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bryan O'Sullivan" <bos@serpentine.com> writes:
-> Ooh, I see that Olaf Hering has a recent variant of this patch which is
-> in -aa kernels.  Andrew, can you consider dropping this into -mc or -mm,
-> please?  It won't break normal operation, but will relieve the pain of
-> the not-yet-battle-scarred.  It's less fugly than the earlier dev=0:0
-> patch.  Maybe.
-> 
-> http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc3-aa1/initramfs-search-for-init
 
-If you use that, can you just keep using the initial initramfs as your
-root fs forever?  That'd be swell for embedded systems...
+--------------Boundary-00=_VE6WYL99GIPFKQ8LGST1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-If so, it'd be nice if it checked for some other name than /init
-(e.g. /sbin/init) -- there's too much crap in / already.
+--=20
+vda
+--------------Boundary-00=_VE6WYL99GIPFKQ8LGST1
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="printk_eol.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="printk_eol.patch"
 
-Thanks,
+--- linux-2.6.5/arch/i386/kernel/timers/timer_tsc.c.orig	Sun Apr  4 06:37:36 2004
++++ linux-2.6.5/arch/i386/kernel/timers/timer_tsc.c	Fri Apr  9 10:02:03 2004
+@@ -232,11 +232,11 @@
+ 		/* sanity check to ensure we're not always losing ticks */
+ 		if (lost_count++ > 100) {
+ 			printk(KERN_WARNING "Losing too many ticks!\n");
+-			printk(KERN_WARNING "TSC cannot be used as a timesource.  ");
++			printk(KERN_WARNING "TSC cannot be used as a timesource.\n");
+ 			printk(KERN_WARNING "Possible reasons for this are:\n");
+-			printk(KERN_WARNING "  You're running with Speedstep,\n");
+-			printk(KERN_WARNING "  You don't have DMA enabled for your hard disk (see hdparm),\n");
+-			printk(KERN_WARNING "  Incorrect TSC synchronization on an SMP system (see dmesg).\n");
++			printk(KERN_WARNING "  you're running with Speedstep,\n");
++			printk(KERN_WARNING "  you don't have DMA enabled for your hard disk (see hdparm),\n");
++			printk(KERN_WARNING "  incorrect TSC synchronization on an SMP system (see dmesg).\n");
+ 			printk(KERN_WARNING "Falling back to a sane timesource now.\n");
+ 
+ 			clock_fallback();
 
--Miles
--- 
-I'd rather be consing.
+--------------Boundary-00=_VE6WYL99GIPFKQ8LGST1--
+

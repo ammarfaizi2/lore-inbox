@@ -1,91 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUBJHVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265683AbUBJHVJ
+	id S265678AbUBJHRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUBJHRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:21:09 -0500
-Received: from data.idl.com.au ([203.32.82.9]:58505 "EHLO smtp.idl.net.au")
-	by vger.kernel.org with ESMTP id S265681AbUBJHVB (ORCPT
+	Tue, 10 Feb 2004 02:17:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:12938 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265678AbUBJHRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:21:01 -0500
-From: Athol Mullen <athol_SPIT_SPAM@idl.net.au>
-Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
-Newsgroups: linux.kernel
-References: <1n9OA-6lu-17@gated-at.bofh.it> <1n9OA-6lu-23@gated-at.bofh.it> <1n9OA-6lu-15@gated-at.bofh.it> <1nu6y-XO-3@gated-at.bofh.it>
-Organization: Mullen Automotive Engineering
-Date: Tue, 10 Feb 2004 18:16:28 +1100
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Feb 2004 02:17:00 -0500
+Date: Thu, 12 Feb 2004 00:23:38 +0100
+From: Andi Kleen <ak@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
+Message-Id: <20040212002338.2a82302d.ak@suse.de>
+In-Reply-To: <1076384799.893.5.camel@gaston>
+References: <1076384799.893.5.camel@gaston>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402101816.28067.athol_SPIT_SPAM@idl.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
-> On Monday 09 of February 2004 03:50, Athol Mullen wrote:
-(Don't CC.  I read lkml via linux.kernel newsgroup.)
+On Tue, 10 Feb 2004 14:47:09 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> Just reverting the patch fixes it. Though, the patch do make sense in
+> some cases, paulus suggested to modify the code so that for a non
+> MAP_FIXED map, it still search from the passed-in address, but avoids
+> the spare between the current mm->brk and TASK_UNMAPPED_BASE, thus the
+> algorithm would still work for things outside of these areas.
+> 
+> Commment ?
 
->> +     u16 cr_flag             = 0x10 << drive->dn;
+Can you test this patch please?  It essentially implements Paulus' suggestion.
 
->> +                         pci_read_config_word(dev, 0x54, &reg54);
->> +                         return ((reg54 & cr_flag) ? 1 : 0);
+It also fixes another issue (don't use free_area_cache when the user gave an
+address hint).
 
-> This is plain wrong, piix.c already does it for you.
-> piix.c:init_hwif_piix():
-
-The penny drops...
-
-I missed this code because I was looking for cable detection on
-a drive-by-drive basis, and this is taking drives in pairs.
-
-That's why the drive was being correctly initialised as a UDMA5
-drive even though eighty_ninty_three() was returning zero.
-
-The existing code was written before the ICH5 came out, and will
-always work for ICH4 and older, but is wrong in its method of
-detecting 80-core cables on an ICH5, and could fail if SATA and
-PATA drives are mixed and used in compatability mode.  The bit
-flags should be taken on a drive-by-drive basis, because the ICH5
-is capable of logical mapping such as:
-
-SATA0 -> IDE0 Master
-SATA1 -> IDE0 Slave
-PATA0 master -> IDE1 Master
-PATA1 master -> IDE1 Slave
-
-Note that this now sees two PATA drives on different physical
-interfaces looking like master and slave on one interface.  In this
-scenario, if PATA1 has a 40-core and PATA0 an 80-core or vise versa,
-both would be detected as having 80-core with the existing code.
-
-Why do I feel like I just pulled the lid off a can of worms?
-
-The options are essentially that we:
-1. Always force the SATA interfaces into native mode and PATA
-   into native or normal mode (desirable - the compatability mode
-   described above make only 2 PATA drives visible),
-2. Modify the above code to work on a drive-by-drive basis instead
-   of interface-by-interface (according to Intel, this is the
-   correct answer),
-3. Do nothing, and hope nobody notices.  :-)
-
-> Please make sure you have CONFIG_IDEDMA_IVB=n in your config.
-> If it is okay, please send me a copy of /proc/ide/hdX/identify.
-
-I definately had CONFIG_IDEDMA_IVB=n.
-
-/proc/ide/hda/identify and /proc/ide/hda/model emailed.
-
-(Apologies if messages don't thread properly.)
-
--- 
-Athol
-<http://cust.idl.com.au/athol>
-Linux Registered User # 254000
-I'm a Libran Engineer. I don't argue, I discuss.
-
-
+--- linux-2.6.3rc1-amd64/mm/mmap.c-o	2004-01-28 17:12:37.000000000 +0100
++++ linux-2.6.3rc1-amd64/mm/mmap.c	2004-02-12 00:16:35.000000000 +0100
+@@ -727,18 +727,20 @@
+  */
+ #ifndef HAVE_ARCH_UNMAPPED_AREA
+ static inline unsigned long
+-arch_get_unmapped_area(struct file *filp, unsigned long addr,
++arch_get_unmapped_area(struct file *filp, unsigned long uaddr,
+ 		unsigned long len, unsigned long pgoff, unsigned long flags)
+ {
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	unsigned long start_addr;
++	unsigned long unmapped_base;
++	unsigned long addr;
+ 
+ 	if (len > TASK_SIZE)
+ 		return -ENOMEM;
+ 
+-	if (addr) {
+-		addr = PAGE_ALIGN(addr);
++	if (uaddr) {
++		addr = PAGE_ALIGN(uaddr);
+ 		vma = find_vma(mm, addr);
+ 		if (TASK_SIZE - len >= addr &&
+ 		    (!vma || addr + len <= vma->vm_start))
+@@ -747,28 +749,40 @@
+ 		addr = mm->free_area_cache;
+ 	start_addr = addr;
+ 
++	unmapped_base = TASK_UNMAPPED_BASE;
+ full_search:
+-	for (vma = find_vma(mm, addr); ; vma = vma->vm_next) {
++	for (vma = find_vma(mm, addr); ; ) {
+ 		/* At this point:  (!vma || addr < vma->vm_end). */
+ 		if (TASK_SIZE - len < addr) {
+ 			/*
+ 			 * Start a new search - just in case we missed
+ 			 * some holes.
+ 			 */
+-			if (start_addr != TASK_UNMAPPED_BASE) {
+-				start_addr = addr = TASK_UNMAPPED_BASE;
++			if (start_addr > unmapped_base) {
++				start_addr = addr = unmapped_base;
+ 				goto full_search;
+ 			}
+ 			return -ENOMEM;
+ 		}
++		/* On the first pass always skip the brk gap to not
++		   confuse glibc malloc.  This can happen with user
++		   address hints < TASK_UNMAPPED_BASE. */
++		if (addr >= mm->brk && addr < unmapped_base) { 
++			vma = find_vma(mm, unmapped_base); 
++			addr = unmapped_base;
++			continue;
++		}
+ 		if (!vma || addr + len <= vma->vm_start) {
+ 			/*
+-			 * Remember the place where we stopped the search:
++			 * Remember the place where we stopped the search,
++			 * but only if the user didn't give hints.
+ 			 */
+-			mm->free_area_cache = addr + len;
++			if (uaddr == 0) 
++				mm->free_area_cache = addr + len;
+ 			return addr;
+ 		}
+ 		addr = vma->vm_end;
++		vma = vma->vm_next;
+ 	}
+ }
+ #else

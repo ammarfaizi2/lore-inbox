@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVACWZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVACW3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVACWZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVACWXN
+	id S261941AbVACW3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVACW0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:23:13 -0500
-Received: from holomorphy.com ([207.189.100.168]:2719 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261906AbVACWPW (ORCPT
+	Mon, 3 Jan 2005 17:26:11 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:8249 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261923AbVACWZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:15:22 -0500
-Date: Mon, 3 Jan 2005 14:15:16 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Colin Coe <colin@coesta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Max CPUs on x86_64 under 2.6.x
-Message-ID: <20050103221516.GV29332@holomorphy.com>
-References: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com>
+	Mon, 3 Jan 2005 17:25:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=InR6OOi0y1n1MeEsKBFlHJ6BvTUHVlXNTEY4gBvmLq6wubJEKftD4zLUEFUFl9k6fqfHfmEBNui8Ob+3hDgNLX2WOlvARP3mUf2gn02QJvv6yzdEBD8c3i5L56agmzo/SDdUpCXB9MndRuRUQqo0Ay5PfPHB2qlrm6aK6hiPolA=
+Message-ID: <58cb370e05010314254ccfc913@mail.gmail.com>
+Date: Mon, 3 Jan 2005 23:25:06 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Peter Osterlund <petero2@telia.com>
+Subject: Re: [PATCH] pktcdvd: make two functions static
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <m3acrqutwe.fsf@telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <m3acrqutwe.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 10:00:41PM +0800, Colin Coe wrote:
-> Why is the number of CPUs on the x86_64 architecture only 8 but under i386
-> it is 255?
-> I've searched the list archives and Google but can't find an answer.
+Hi,
 
-i386 machines have had interrupt controllers and "large scale" systems
-(to the extent that 32-bit machines can be so) developed for some time.
-x86-64 machines are newer, and it is the maintainer's preference to
-start with a fresh codebase for the APIC.
+While at it...
 
-So what you see is not a reflection of x86-64's capabilities, but
-rather, of the newness of the architecture and the codebase's desire
-to be "legacy-free" in manners that don't pose the threat of causing
-immediate problems.
+On 03 Jan 2005 21:42:09 +0100, Peter Osterlund <petero2@telia.com> wrote:
+> Make two needlessly global functions static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Signed-off-by: Peter Osterlund <petero2@telia.com>
+> ---
+> 
+>  linux-petero/drivers/block/pktcdvd.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff -puN drivers/block/pktcdvd.c~pktcdvd-static drivers/block/pktcdvd.c
+> --- linux/drivers/block/pktcdvd.c~pktcdvd-static        2005-01-02 22:27:26.000000000 +0100
+> +++ linux-petero/drivers/block/pktcdvd.c        2005-01-03 21:39:56.985007024 +0100
+> @@ -2627,7 +2627,7 @@ static struct miscdevice pkt_misc = {
+>         .fops           = &pkt_ctl_fops
+>  };
+> 
+> -int pkt_init(void)
+> +static int pkt_init(void)
+>  {
+>         int ret;
+> 
 
-It is not now limiting the capabilities of x86-64 machines because
-x86-64 machines of 64 cpus or larger have yet to be produced. For the
-record, I'm unaware of SSI i386 machines larger than 64 processors.
-255 represents nothing more than a theoretical limit of hardware
-capabilities, and no i386 machine larger than 64 processors has ever
-been constructed to the best of my knowledge.
+__init
 
+> @@ -2663,7 +2663,7 @@ out2:
+>         return ret;
+>  }
+> 
+> -void pkt_exit(void)
+> +static void pkt_exit(void)
+>  {
+>         remove_proc_entry("pktcdvd", proc_root_driver);
+>         misc_deregister(&pkt_misc);
+> _
 
--- wli
+__exit

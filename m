@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbRGSLtI>; Thu, 19 Jul 2001 07:49:08 -0400
+	id <S267543AbRGSMPQ>; Thu, 19 Jul 2001 08:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbRGSLs6>; Thu, 19 Jul 2001 07:48:58 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52489 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267542AbRGSLso>;
-	Thu, 19 Jul 2001 07:48:44 -0400
-Date: Thu, 19 Jul 2001 12:48:42 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: bitops.h ifdef __KERNEL__ cleanup.
-Message-ID: <20010719124842.F5024@flint.arm.linux.org.uk>
-In-Reply-To: <911753F4952@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <911753F4952@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Jul 19, 2001 at 12:54:43PM +0000
+	id <S267541AbRGSMO5>; Thu, 19 Jul 2001 08:14:57 -0400
+Received: from [62.58.73.254] ([62.58.73.254]:13045 "EHLO
+	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
+	id <S267544AbRGSMOq>; Thu, 19 Jul 2001 08:14:46 -0400
+Date: Thu, 19 Jul 2001 14:05:51 +0200
+From: Ryan Sweet <rsweet@atos-group.nl>
+To: linux-kernel@vger.kernel.org
+Subject: up kernel stable, but smp kernel randomly reboots - nfsroot - asus
+ cur_dls
+In-Reply-To: <20010719141707.M5559@mea-ext.zmailer.org>
+Message-ID: <Pine.SGI.4.10.10107191340280.3370909-100000@iapp-0>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 19, 2001 at 12:54:43PM +0000, Petr Vandrovec wrote:
-> Please do not do this. At least ncpfs checks for usability of these
-> ops from its configure script, and if they are not available/usable, 
-> it reverts to pthread mutex based implementation, which is slower 
-> dozen of times. Same applies for atomic_* functions.
 
-Both of the above mentioned functions can only be guaranteed to act
-as per their atomic description if used from kernel space on some
-architectures.
+I posted previously about having problems with random reboots on nfsroot
+nodes across kernels 2.2.18 - 2.4.6 (all kernels exhibit the same
+problem - after X amount of time, where x is usually < 24 hours, the
+system just reboots).  
 
-I've hit this problem many times, and its not going away, because "it
-works on x86".
+When I run the systems with uniprocessor kernels, the problem does not
+occur.
 
-In fact, the places I came across when it was causing me problems were
-places that were just using it as a "oh, someone else has coded a function
-to set a bit in the kernel, we'll use that instead of coding it in portable
-C" type thing - the application was single threaded, and was altering a
-private internal data structure.
+When the smp kernel is booted with noapic, the apic errors go away.  Other
+posts I read about smp apic problems seemed to indicate that they received
+hundreds of messages in a short period of time - I was getting maybe seven
+or eight over the course of several hours.  
 
-Sloppy.
+I can not locate any references on the net to others having trouble with
+SMP in asus cur_dls boards or with the ServerWorks chipset. 
 
-> I think that you should complain to userspace authors who do not
-> check for bitops existence and not force other to distrbute 8+ versions
-> of bitops.h with their application, together with infrastructure for
-> selecting correct version...
+Is it possible that there is some interaction between smp and nfsroot and
+cur_dls that is causing the problem (all of my other cur_dls boards are
+using a local disk)?  I've tried wrapping my head around the the nfs code
+to search for smp specific problems, and while I understand a lot more of
+it now than I did before, it is still mostly beyond my immediate
+comprehension.
 
-I totally disagree here.  We already say "user space should not include
-kernel headers".  Why should bitops.h be any different?  Why should atomic.h
-be any different?  They contain architecture specific code, yes, which
-may not work in user space.
+Is it possible that this is a power/cpu voltage problem?  If so, would a
+ups be a solution?  
 
-Oh, and thanks for pointing out ncpfs breaks - I hope the authors will
-fix up their sloppy coding before Davids patch makes it into the kernel.
-;)
+Is is possible that the whole batch of 10 motherboards
+is broken somehow (we have oodles of other asus cur_dls smp systems that
+don't have problems, just this cluster)?
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Are there any suggestions as to further troubleshooting options?
+
+I am working on booting with a tftp downloaded ramdisk as the root, to
+eliminate nfsroot from the equation, but I am skeptical as to whether this
+will actually help anything.   
+
+regards,
+-ryan
+
+-- 
+Ryan Sweet <ryan.sweet@atosorigin.com>
+Atos Origin Engineering Services
+http://www.aoes.nl
 

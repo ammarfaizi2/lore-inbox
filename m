@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135287AbRAJMrf>; Wed, 10 Jan 2001 07:47:35 -0500
+	id <S131369AbRAJMtP>; Wed, 10 Jan 2001 07:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135276AbRAJMr0>; Wed, 10 Jan 2001 07:47:26 -0500
-Received: from cr949225-b.rchrd1.on.wave.home.com ([24.112.58.97]:26124 "HELO
-	enfusion-group.com") by vger.kernel.org with SMTP
-	id <S131369AbRAJMrW>; Wed, 10 Jan 2001 07:47:22 -0500
-Date: Wed, 10 Jan 2001 07:36:10 -0500
-From: Adrian Chung <adrian@enfusion-group.com>
-To: linux <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 bug in SHM an via-rhine or is it my fault?
-Message-ID: <20010110073610.A1582@toad.enfusion-group.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010109143016.A15225@rogue.enfusion-group.com>; from adrian@enfusion-group.com on Tue, Jan 09, 2001 at 02:30:16PM -0500
-Organization: enfusion-group
+	id <S135506AbRAJMtF>; Wed, 10 Jan 2001 07:49:05 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:34065 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S135276AbRAJMs5>; Wed, 10 Jan 2001 07:48:57 -0500
+Date: Wed, 10 Jan 2001 14:55:59 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <UTC200101092343.AAA149309.aeb@texel.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0101101454180.13938-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 02:30:16PM -0500, Adrian Chung wrote:
-> NFS from the client system (Duron - 2.4.0-ac4), hangs almost
-> immediately when trying to contact a 2.2.18 NFS server.  I get "nfs
-> can't get task slot" errors, and "NFS server xxx.xxx.xxx.xxx not
-> responding", especially after doing a "dd if=/dev/zero
-> of=/home/user/nfstest bs=16k count=4096".  After checking, the file
-> /home/user/nfstest is 8192 bytes big.  The client mount is a default
-> NFS mount, with no rsize/wsize parameters.
 
-I forced the module to load with options "full_duplex=1" and the card
-now seems to work fine.  NFS transfers work perfectly at least.
+> Probably you confused the proper way to use ibmsetmax with
+> the proper way to use setmax. For setmax, and a Maxtor disk,
+> you do not use a different machine, put the jumper to clip,
+> now the boot succeeds, and you let Linux unclip.
+> Either with a patched kernel that knows about these things
+> or with a utility run from a boot script.
+> (It is most convenient to have a partition boundary where
+> the jumper clips, so that with old kernels and without running
+> the utility you also have a valid filesystem.)
 
---
-Adrian Chung
+I found out yesterday after searching the mailinglist... My bad.
+Thanx for the info.
+
+2.2.18 + ide is patched, 2.4.0 isn't. 
+
+
+	Regards,
+
+		Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

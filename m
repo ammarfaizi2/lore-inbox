@@ -1,75 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263438AbTEIUna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 16:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTEIUn3
+	id S263447AbTEIU44 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 16:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTEIU44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 16:43:29 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:42155 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263438AbTEIUn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 16:43:27 -0400
-Subject: Re: ext3/lilo/2.5.6[89] (was: [KEXEC][2.5.69] kexec for 2.5.69
-	available)
-From: Andy Pfiffer <andyp@osdl.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
-References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
-	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052513725.15923.45.camel@andyp.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 May 2003 13:55:25 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 9 May 2003 16:56:56 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:19103 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263447AbTEIU4y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 16:56:54 -0400
+Message-Id: <200305092109.h49L9TvW023069@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: 2.5.69 Interrupt Latency
+To: Paul Fulghum <paulkf@microgate.com>, linux-kernel@vger.kernel.org
+Date: Fri, 09 May 2003 23:06:05 +0200
+References: <20030507162013$0b67@gated-at.bofh.it> <20030507195008$71e6@gated-at.bofh.it> <20030507224009$4228@gated-at.bofh.it> <20030508140022$2498@gated-at.bofh.it> <20030508193016$1083@gated-at.bofh.it> <20030509182012$49f0@gated-at.bofh.it> <20030509204010$3c9b@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-09 at 13:04, Christophe Saout wrote:
-> Am Fre, 2003-05-09 um 21.04 schrieb Andy Pfiffer:
+Paul Fulghum wrote:
+
+> One machine (server) was using usb-uhci and
+> the other (laptop) was using usb-ohci.
 > 
-> > [...]
-> >  I had an unrelated
-> > delay in posting this due to some strange behavior of late with LILO and
-> > my ext3-mounted /boot partition (/sbin/lilo would say that it updated,
-> > but a subsequent reboot would not include my new kernel)
-> 
-> So I'm not the only one having this problem... I think I first saw this
-> with 2.5.68 but I'm not sure.
+> So it looks like something with USB in 2.5.68-bk11
 
-Well, that makes two of us for sure.
+The change below was part of 2.5.68-bk11, and adds a 20ms
+delay to the uhci interrupt handler. Could that be
+the culprit?
 
-> 
-> My boot partition is a small ext3 partition on a lvm2 volume accessed
-> over device-mapper (I've written a lilo patch for that, but the patch is
-> working and) but I don't think that has something to do with the
-> problem.
-> 
-> When syncing, unmounting and waiting some time after running lilo, the
-> changes sometimes seem correctly written to disk, I don't know when
-> exactly.
+        Arnd <><
 
-My /boot is an ext3 partition on an IDE disk.  My symptoms and your
-symptoms match -- wait awhile, and it works okay.  If you don't wait
-"long enough" the changes made in /etc/lilo.conf are not reflected in
-the after running /sbin/lilo and rebooting normally.
-
-I have been unable to reproduce this on a uniproc system with SCSI
-disks.
-
-2.5.67 seems to work in this regard as expected.
-
-> Could it be that the location of /boot/map is not written to the
-> partition sector of /dev/hda? Or not flushed correctly or something?
-> 
-> After reboot the old kernel came up again (though it was moved to
-> vmlinuz.old).
-
-I don't know -- I haven't isolated it yet.
-
-Anyone else?
-
-
-
+ChangeSet 1.1042.1.129 2003/04/29 15:30:31 stern@rowland.harvard.edu
+  [PATCH] USB: Minor patch for uhci-hcd.c
+--- 1.32/drivers/usb/host/uhci-hcd.c    Mon Apr 14 11:51:40 2003
++++ 1.33/drivers/usb/host/uhci-hcd.c    Fri Apr 18 13:37:24 2003
+@@ -1283,7 +1283,8 @@
+        }
+ 
+        if (last_urb) {
+-               *end = (last_urb->start_frame + last_urb->number_of_packets) & 1023;
++               *end = (last_urb->start_frame + last_urb->number_of_packets *
++                               last_urb->interval) & (UHCI_NUMFRAMES-1);
+                ret = 0;
+        } else
+                ret = -1;       /* no previous urb found */
+@@ -1933,9 +1934,10 @@
+ 
+        dbg("%x: suspend_hc", io_addr);
+ 
+-       outw(USBCMD_EGSM, io_addr + USBCMD);
+-
+        uhci->is_suspended = 1;
++       smp_wmb();
++
++       outw(USBCMD_EGSM, io_addr + USBCMD);
+ }
+ 
+ static void wakeup_hc(struct uhci_hcd *uhci)
+@@ -1945,6 +1947,9 @@
+ 
+        dbg("%x: wakeup_hc", io_addr);
+ 
++       /* Global resume for 20ms */
++       outw(USBCMD_FGR | USBCMD_EGSM, io_addr + USBCMD);
++       wait_ms(20);
+        outw(0, io_addr + USBCMD);
+        
+        /* wait for EOP to be sent */
+@@ -1965,7 +1970,7 @@
+        int i;
+ 
+        for (i = 0; i < uhci->rh_numports; i++)
+-               connection |= (inw(io_addr + USBPORTSC1 + i * 2) & 0x1);
++               connection |= (inw(io_addr + USBPORTSC1 + i * 2) & USBPORTSC_CCS);
+ 
+        return connection;
+ }

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbTJJBKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 21:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTJJBKW
+	id S262703AbTJJBQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 21:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTJJBQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 21:10:22 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:38073 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262183AbTJJBKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 21:10:19 -0400
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>
-Cc: "'Daniel B.'" <dsb@smart.net>, linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA errors, massive disk corruption:  Why?  Fixed Yet?  W hy not  re-do failed op?
-References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com>
-In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 09 Oct 2003 21:10:18 -0400
-Message-ID: <87llrt99tx.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 9 Oct 2003 21:16:04 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:40205 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262703AbTJJBQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 21:16:02 -0400
+Date: Fri, 10 Oct 2003 09:15:01 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: <raven@wombat.indigo.net.au>
+To: "Ogden, Aaron A." <aogden@unocal.com>
+cc: Mike Waychison <Michael.Waychison@Sun.COM>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [autofs] multiple servers per automount
+In-Reply-To: <6AB920CC10586340BE1674976E0A991D0C6B77@slexch2.sugarland.unocal.com>
+Message-ID: <Pine.LNX.4.33.0310100910300.7746-100000@wombat.indigo.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 9 Oct 2003, Ogden, Aaron A. wrote:
 
-"Mudama, Eric" <eric_mudama@Maxtor.com> writes:
+>
+> Yes, we are using the RH kernels as a base, the limit is supposed to be
+> 1200+ but my experiments have shown it to be just shy of 800.  Or maybe
+> that results is due to a bug in the autofs code.  I think the real
+> solution to this problem is Richard Gooch's devfs and kernel 2.6.  It's
+> anyone's guess when there will be a distribution using both of those but
+> I think Fedora might be the first.
+>
 
-> If the disk has write cache enabled, this isn't necessarilly possible, since
-> there's nothing in the IDE specification that guarantees the order of writes
-> to the media without a FLUSH CACHE (EXT) command.
+Looks like the limit is here to stay as 2.6 looks similar to 2.4 in that
+area and udev is destined to be used as a replacement for devfs (which
+never caught on). udev does not address this issue either.
 
-So, uhm, is there an interface exporting this command to applications?
-Databases like Postgres would love to be able to issue such a command.
-
-As it stands they have to do some awful hacks with fsync and sync. Postgres in
-particular at certain points just calls sync and then waits an arbitrary time
-hoping that that should be enough to get everything to disk.
-
-Some users have in fact resorted to disabling the cache on their ide drives.
-And of course it absolutely demolishes performance. Having it be disabled just
-at the few points in time when it actually matters would be a huge improvement.
+Any know if/how this issue will be addressed?
 
 -- 
-greg
+
+   ,-._|\    Ian Kent
+  /      \   Perth, Western Australia
+  *_.--._/   E-mail: raven@themaw.net
+        v    Web: http://themaw.net/
 

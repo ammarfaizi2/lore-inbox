@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318959AbSHFBj1>; Mon, 5 Aug 2002 21:39:27 -0400
+	id <S318998AbSHFFnG>; Tue, 6 Aug 2002 01:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318963AbSHFBj1>; Mon, 5 Aug 2002 21:39:27 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:15085 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S318959AbSHFBj0>; Mon, 5 Aug 2002 21:39:26 -0400
-Message-ID: <3D4F29D9.60604@snapgear.com>
-Date: Tue, 06 Aug 2002 11:43:53 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.30uc1 mmu-less patches
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318999AbSHFFnG>; Tue, 6 Aug 2002 01:43:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23969 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318998AbSHFFnF>;
+	Tue, 6 Aug 2002 01:43:05 -0400
+Date: Tue, 6 Aug 2002 07:42:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Steven Cole <elenstev@mesatop.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
+       Steven Cole <scole@lanl.gov>
+Subject: Re: Linux v2.4.19-rc5
+Message-ID: <20020806054258.GJ3975@suse.de>
+References: <1028232945.3147.99.camel@spc9.esa.lanl.gov> <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 05 2002, Bill Davidsen wrote:
+> On 1 Aug 2002, Steven Cole wrote:
+> 
+> > Here are some dbench numbers, from the "for what it's worth" department.
+> > This was done with SMP kernels, on a dual p3 box, SCSI disk, ext2.
+> > The first column is dbench clients.  The numbers are throughput
+> > in MB/sec.  The 2.5.29 kernel had a few RR-supplied smp fixes.
+> > Looks like for this limited test, 2.4.19-rc5 holds up pretty well.
+> > I've also ran this set of tests several times on -rc5 using ext3
+> > and data=writeback, and everything looks fine.
+> > 
+> > Steven
+> 
+> Call me an optimist, but after all the reliability problems we had win the
+> 2.5 series, I sort of hoped it would be better in performance, not
+> increasingly worse. Am I misreading this? Can we fall back to the faster
+> 2.4 code :-(
 
-Hi All,
+try a work load that excercises the block i/o layer alone (O_DIRECT,
+raw, whatnot) and then compare 2.4 and 2.5. ibm had some slides on this
+from ols, unfortunately I don't know if they have then online.
 
-I have put a new set of uClinux (MMU-less) patches at:
+please don't put too much wait in dbench numbers for this sort of thing
+:-)
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.30uc1.patch.gz
-
-A lot of cleanups in this one:
-
-1.  master Makefile patch simplified
-2.  silly config entries removed from arch/m68knommu/config.in
-3.  68328 frame buffer integrated into drivers/video
-4.  MTD patches simplifed (removal of MAGIC_ROM_PTR stuff)
-
-The mm/mmnommu cleanup goes on. I am looking at merging
-these to just have mm.
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+-- 
+Jens Axboe
 

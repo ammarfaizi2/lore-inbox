@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTENX74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 19:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTENX74
+	id S262850AbTEOAND (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 20:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTEOAND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 19:59:56 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:30427 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S263185AbTENX7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 19:59:55 -0400
-Date: Thu, 15 May 2003 02:10:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: James Simmons <jsimmons@infradead.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
-Message-ID: <20030515001048.GA14685@elf.ucw.cz>
-References: <20030514224212.GA8124@elf.ucw.cz> <Pine.LNX.4.44.0305142346380.14201-100000@phoenix.infradead.org>
+	Wed, 14 May 2003 20:13:03 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:52682 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id S262850AbTEOANC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 20:13:02 -0400
+Date: Wed, 14 May 2003 17:24:17 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.69-mm5
+Message-ID: <20030515002416.GY32128@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305142346380.14201-100000@phoenix.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > appears the flashing is the issue. I will see if a hardware cursor
-> > > also has
-> 
->    Your right. I realize my logic error. I was literally thinking too black 
-> and white. In the case of a cursor that is a white thin line at the bottom 
-> and a grey background. That is whole cursor image!! The mask should be
-> the font image to be drawn. 
->    You can think of it as the cursor being a big grey cookie with white 
-> frosting decoration on the bottom. Then I come with my font shape cookie 
-> cutter and cut it out.  
+WimMark I report for 2.5.69-mm5
 
-I'm not sure I follow you.
+Runs (deadline):  1851.49 1439.03 1518.59
+Runs (anticpatory):  1019.71 904.03 940.38
 
-What I do in that echo is set softcursor. It was software cursor even
-on plain vga. Boot into 2.4 to see how it should look like. It works
-even in vga text modes. It is different from softcursor later
-introduced by fbcon. Documentation/VGA-softcursor.txt describes it.
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+	WimMark I run results are archived at
+http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
 
-								Pavel
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+"Nothing is wrong with California that a rise in the ocean level
+ wouldn't cure."
+        - Ross MacDonald
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

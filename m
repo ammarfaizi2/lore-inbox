@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVCDOp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVCDOxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVCDOp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 09:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVCDOp2
+	id S262405AbVCDOxz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 09:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVCDOxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 09:45:28 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:47084 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S263028AbVCDOmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 09:42:32 -0500
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on
-	battery power)
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com
-In-Reply-To: <200503041415.35162.rjw@sisk.pl>
-References: <200502252237.04110.rjw@sisk.pl>
-	 <200503030902.48038.rjw@sisk.pl> <20050304110408.GL1345@elf.ucw.cz>
-	 <200503041415.35162.rjw@sisk.pl>
-Content-Type: text/plain
-Message-Id: <1109947460.3772.270.camel@desktop.cunningham.myip.net.au>
+	Fri, 4 Mar 2005 09:53:55 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:60010 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262405AbVCDOwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 09:52:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=e4toO7kWEA++VIGZNuBfCYac+G2XjMV+YH1iInZeefu4m7Mor6t9aJrA2Ojp5QbRrGbf7dJiK+m6ImGzKExMAtesPcJAZiQ4oJtKyayvgzFUpVDpGmAhAVximQyxNOsZLjYaXZWIL0M3rcVfoEI36pY4plFSiMygRbkgozUegjE=
+Message-ID: <d120d50005030406525896b6cb@mail.gmail.com>
+Date: Fri, 4 Mar 2005 09:52:42 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Subject: Re: [PATCH] new driver for ITM Touch touchscreen
+Cc: Hans-Christian Egtvedt <hc@mivu.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <200503041403.37137.adobriyan@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 05 Mar 2005 01:44:20 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1109932223.5453.16.camel@charlie.itk.ntnu.no>
+	 <200503041403.37137.adobriyan@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Sat, 2005-03-05 at 00:15, Rafael J. Wysocki wrote:
-> Hi,
+On Fri, 4 Mar 2005 14:03:37 +0200, Alexey Dobriyan <adobriyan@mail.ru> wrote:
+> On Friday 04 March 2005 12:30, Hans-Christian Egtvedt wrote:
 > 
-> On Friday, 4 of March 2005 12:04, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > IIRC kernel code/data is marked as PageReserved(), that's why we need
-> > > > to save that :(. Not sure what to do with data e820 marked as
-> > > > reserved...
-> > > 
-> > > Perhaps we need another page flag, like PG_readonly, and mark the pages
-> > > reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
-> > > that are not returned by e820 at all).  Would that be acceptable?
-> > 
-> > This flags are little in the short supply, but being able to tell
-> > kernel code from memory hole seems like "must have", so yes, that
-> > looks ok.
-> > 
-> > You could get subtle and reuse some other pageflag. I do not think
-> > PG_reserved can have PG_locked... So using for example PG_locked for
-> > this purpose should be okay.
+> > I've ported the works from Chris Collins so the drivers compiles without
+> > warnings and works (for me) with Linux 2.6.10 and 2.6.11.
 > 
-> The following patch does this.  It is only for x86-64 without
-> CONFIG_DISCONTIGMEM, but it has no effect in other cases.
+> > Any comments on the driver would be much appreciated.
+> 
+> > +struct itmtouch_dev {
+> 
+> > +       int                     refcount; //
+> 
+> There is already generic interface for reference-counted objects. See
+> lib/kref.c and kref documentation at:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110987233406767&w=2
+> 
 
-Oops! That's what you get for replying to earlier messages before you
-read later ones! The patch I posted has been in use for quite a while,
-so it might be helpful to compare anyway.
+... which is absolutely unusable for this particular purpose - the
+touchscreen object is not going away when refcount is 0. The variable
+shoudl be renamed to "users" or something. Moreover it needs locking.
 
-Regards,
+Anyway, all of this will be handled by the input core very shortly so
+it can be left as is for now.
 
-Nigel 
+As far as the driver goes:
+
+- yes, it does need input_sync;
+- I prefer using input_set_abs_params instead of setting mix, max,
+flat and fuzz for each axis manually;
+- I believe "/* .. */" is preferred over "//"
+- kill the commented out bad prototypes.
+
+Also, is there a way to query the screen for actual size?
 
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
-
-
+Dmitry

@@ -1,123 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274271AbRISXc3>; Wed, 19 Sep 2001 19:32:29 -0400
+	id <S274268AbRISXcT>; Wed, 19 Sep 2001 19:32:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274269AbRISXcU>; Wed, 19 Sep 2001 19:32:20 -0400
-Received: from c007-h008.c007.snv.cp.net ([209.228.33.214]:13567 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274270AbRISXcD>;
-	Wed, 19 Sep 2001 19:32:03 -0400
-X-Sent: 19 Sep 2001 23:32:21 GMT
-Message-ID: <3BA92939.60AEE7DA@distributopia.com>
-Date: Wed, 19 Sep 2001 18:24:41 -0500
-From: "Christopher K. St. John" <cks@distributopia.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Davide Libenzi <davidel@xmailserver.org>, Dan Kegel <dank@kegel.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-In-Reply-To: <XFMail.20010919151147.davidel@xmailserver.org>
+	id <S274269AbRISXcJ>; Wed, 19 Sep 2001 19:32:09 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:16625 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274268AbRISXbv>;
+	Wed, 19 Sep 2001 19:31:51 -0400
+Date: Thu, 20 Sep 2001 01:31:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pre12 VM doubts and patch
+Message-ID: <20010920013153.C720@athlon.random>
+In-Reply-To: <20010919232818.T720@athlon.random> <Pine.LNX.4.33.0109191611550.2507-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109191611550.2507-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Sep 19, 2001 at 04:16:13PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
+On Wed, Sep 19, 2001 at 04:16:13PM -0700, Linus Torvalds wrote:
 > 
-> 1)      select()/poll();
-> 2)      recv()/send();
+> On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
+> >
+> > On Wed, Sep 19, 2001 at 08:42:39PM +0100, Hugh Dickins wrote:
+> > > --- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
+> > > +++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
+> > > @@ -23,6 +23,17 @@
+> > >   */
+> > >  static int swap_writepage(struct page *page)
+> > >  {
+> > > +	/* One for the page cache, one for this user, one for page->buffers */
+> > > +	if (page_count(page) > 2 + !!page->buffers)
+> >
+> > this is racy, you have to spin_lock(&pagecache_lock) before you can
+> > expect the page_count() stays constant. then after you checked the page
+> > has count == 1, you must atomically drop it from the pagecache so it's
+> > not visible anymore to the swapin lookups.
 > 
-> vs :
+> No.
 > 
-> 1)      if (recv()/send() == FAIL)
-> 2)              ioctl(EP_POLL);
-> 
-> When there's no data/tx buffer full these will result in 2 syscalls while
-> if data is available/tx buffer ok the first method will result in 2 syscalls
-> while the second will never call the ioctl().
-> It looks very linear to me, with select()/poll() you're asking for a state while
-> with /dev/epoll you're asking for a state change.
-> 
+> Note how it is a _heuristic_ only. The "safe" answer is always to say "the
+> page is in use", and note that once the page_count has dropped to 2 or
+> less, it won't increase unless somebody else has a swap count..
 
- Ok, if we're just disagreeing about the best api,
-then I can live with that. But it appears we're
-talking at cross-purposes, so I want to try this one
-more time. I'll lay my though processes out in detail,
-and you can tell me at which step I'm going wrong:
+the "somebody else has a swap count" is interesting. so we rely on the
+fact any swap_duplicate is always run before the swapcache is unlocked.
 
+Also the "> 2" should be "> 1", but really I noticed I cannot avoid
+getting a reference so please apply also this patch instead of replacing
+"> 2" with "> 1" (it was a race condition):
 
- Normally, you'd spend most of your time sitting in
-ioctl(EP_POLL) waiting for something to happen. So
-that's one syscall.
-
- If you get an event that indicates you can accept()
-a new connection, then you do an accept(). Assume it
-succeeds. That's two syscalls. Then you register
-interest in the fd with a write to /dev/poll, that's
-three.
-
- With the current /dev/epoll, you must try to read()
-the new socket before you go back to ioctl(EP_POLL),
-just in case there is data available. You expect
-there isn't, but you have to try. This is the step
-I'm talking about. That's four.
-
- Assume data was not available, so you loop back
-to ioctl(EP_POLL) and wait for an event. That's five
-syscalls. The event comes in, you do another read()
-on the socket, and probably get some data. That's
-six syscalls to finally get your data.
-
- ioctl(kpfd, EP_POLL)	1     wait for events
- s = accept()           2     accept a new socket
- write(kpfd, s)         3     register interest
- n = read(s)            4 <-- annoying test-read
- ioctl(kpfd, EP_POLL)   5     wait for events
- n = read(s)            6     get some data
-
- You have a similiar problem with write's, but I'm
-guessing it's safe to assume the first write will
-always succeed, so it's awkward but not a big
-problem.
-
- If /dev/epoll tested the initial state of the socket,
-then there would be no need for the test read:
-
- ioctl(kpfd, EP_POLL)	1     wait for events
- s = accept()		2     accept a new socket
- write(kpfd, s)		3     register interest
- ioctl(kpfd, EP_POLL)	4     wait for events
- n = read(s)		5     get some data
-
- So, we've saved a syscall and, perhaps more importantly,
-we don't have to keep a list of to-be-read-just-in-case
-fd's sitting around. I wouldrather make this a "clean
-api" argument than a performance argument, since it's
-unclear that there is really any significant speed
-difference in practice.
-
- Note that the number of unnecessary syscalls is much
-greater than 20%, since on a heavily loaded server, you
-could be doing 1000's of unecessary reads for every
-ioctl(EP_POLL).
-
- On a fast local network you'd expect the test reads
-to mostly return something, so it's no big deal. But
-if you've got 10k very slow connections...
-
- There's a good summary of the problem in the Banga,
-Mogul and Druschel[1] paper at:
-
-  http://citeseer.nj.nec.com/banga99scalable.html
-
- Page 5, right hand column, third paragraph.
-
- By the way, thanks for the patch. I know I've been
-complaining about it, but I wouldn't have bothered
-unless I thought it was a good thing. I appreciate
-your taking the time to write and release it.
+--- 2.4.10pre11aa1/mm/vmscan.c.~1~	Tue Sep 18 21:23:49 2001
++++ 2.4.10pre11aa1/mm/vmscan.c	Thu Sep 20 01:29:58 2001
+@@ -415,7 +415,10 @@
+ 				spin_unlock(&pagemap_lru_lock);
+ 
+ 				ClearPageDirty(page);
++
++				page_cache_get(page);
+ 				writepage(page);
++				page_cache_release(page);
+ 
+ 				spin_lock(&pagemap_lru_lock);
+ 				continue;
 
 
--- 
-Christopher St. John cks@distributopia.com
-DistribuTopia http://www.distributopia.com
+> And we check for the "somebody else has a swap count" two lines lower.
+
+I see.
+
+> Do you see anything wrong with that logic?
+
+Looks ok now :), I guess it would be good to write a comment now, so
+maybe other people won't share my worry, the swap_count thing wasn't
+very obvious. thanks,
+
+Andrea

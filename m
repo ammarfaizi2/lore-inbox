@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRACAJG>; Tue, 2 Jan 2001 19:09:06 -0500
+	id <S131529AbRACAP2>; Tue, 2 Jan 2001 19:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131535AbRACAI4>; Tue, 2 Jan 2001 19:08:56 -0500
-Received: from mx2.utanet.at ([195.70.253.46]:30109 "EHLO smtp1.utaiop.at")
-	by vger.kernel.org with ESMTP id <S131305AbRACAIs>;
-	Tue, 2 Jan 2001 19:08:48 -0500
-Message-ID: <3A52748E.4060107@grips.com>
-Date: Wed, 03 Jan 2001 01:38:38 +0100
-From: Gerold Jury <geroldj@grips.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-prerelease i686; en-US; m18) Gecko/20001229
-X-Accept-Language: en
+	id <S131837AbRACAPT>; Tue, 2 Jan 2001 19:15:19 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:31153 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S131529AbRACAPH>; Tue, 2 Jan 2001 19:15:07 -0500
+Date: Tue, 2 Jan 2001 23:44:14 +0000 (GMT)
+From: davej@suse.de
+To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Coppermine is a PIII or a Celeron? WINCHIP2/WINCHIP3D diff?
+In-Reply-To: <3A523012.CF78B83D@dplanet.ch>
+Message-ID: <Pine.LNX.4.21.0101022341010.23070-100000@neo.local>
 MIME-Version: 1.0
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>, dl8bcu@gmx.net,
-        Maik.Zumstrull@gmx.de
-Subject: Re: Happy new year^H^H^H^Hkernel..
-In-Reply-To: <Pine.LNX.4.30.0101022348550.1202-100000@vaio>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It works for me.
-With and without the divert module loaded.
+On Tue, 2 Jan 2001, Giacomo A. Catenazzi wrote:
 
-Thanks a lot
+> When working in cpu autoconfiguration I found some problems:
+> What is the difference between MWINCHIP2 and MWINCHIP3D?
+> I don't find differences in the sources
 
-Gerold
+MWINCHIP3D is for the Winchip-2A and above, which have 3dnow!
+instructions. Until recently it was using the 3dnow memcopy stuff.
+It got disabled when the memcopy stuff was overhauled to give even
+bigger wins on the Athlon. Which makes sense given that there are
+a lot more Athlons out there than Winchips.
 
-Kai Germaschewski wrote:
+Who knows, maybe the old 3dnow! copy routine will make a comeback
+in a future kernel just for Winchip-2As and above. Just needs someone
+to find the time.
 
-> I think I found it. Could everybody who was getting the crash on ISDN line
-> hangup try if the following patch fixes the problem?
-> 
+regards,
+
+Davej.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

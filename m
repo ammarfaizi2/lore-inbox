@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbTIAIA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 04:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIAIA3
+	id S261946AbTIAIMM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 04:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTIAIMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 04:00:29 -0400
-Received: from spoolo1.tiscali.be ([62.235.13.210]:25103 "EHLO
-	smtp-out.tiscali.be") by vger.kernel.org with ESMTP id S262726AbTIAIAY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 04:00:24 -0400
-Message-ID: <3F52FCA2.5050500@tiscali.be>
-Date: Mon, 01 Sep 2003 08:00:34 +0000
-From: Joel Soete <joel.soete@tiscali.be>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Matthew Wilcox <willy@debian.org>,
-       Ruediger Scholz <rscholz@hrzpub.tu-darmstadt.de>,
-       parisc-linux@lists.parisc-linux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [parisc-linux] Security Hole in binfmt_som.c ?
-References: <3F509BBD.2040007@hrzpub.tu-darmstadt.de>	 <20030830131541.GI13467@parcelfarce.linux.theplanet.co.uk> <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Sep 2003 04:12:12 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:22928 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261946AbTIAIMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 04:12:09 -0400
+Date: Mon, 1 Sep 2003 10:11:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030901081154.GB155@elf.ucw.cz>
+References: <20030831232812.GA129@elf.ucw.cz> <20030901075726.A12457@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901075726.A12457@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi!
 
->On Sad, 2003-08-30 at 14:15, Matthew Wilcox wrote:
->  
->
->>On Sat, Aug 30, 2003 at 02:42:37PM +0200, Ruediger Scholz wrote:
->>    
->>
->>>binfmt_som.c:216:2: #error "Fix security hole before enabling me"
->>>What's this message about?
->>>      
->>>
->>I don't know.  I wish someone would tell me.  You'd think they'd have the
->>decency to contact the person listed as the author at the top of the file.
->>    
->>
->
->Actually explanations were posted in the previous discussion on this on
->parisc-list.
->
->Someone has to do the equivalent of the 2.4.22 binfmt_elf changes if
->neccessary so that another thread can't change the file handles or 
->steal the exec fd being passed to the loader.
->
->  
->
-Yes Alan, it was: 
-<http://lists.parisc-linux.org/pipermail/parisc-linux/2003-July/020386.html>
+> > Please take attached patch, and apply with -R, to bring tree back to
+> > -test3 state. It should be a non-brainer, as Patrick's patch should
+> > not go in in the first place. [If you can do some bk magic to exclude
+> > Patrick's power managment merge, that would be even better].
+> 
+> Please don't.  A number of us are working _with_ Patrick to sort the
+> problems out and get them resolved.  IMHO, there are good changes in
+> Pat's work, and backing the lot out would be silly at this point.
 
-Sorry Willy I trusted that you read it (My bad next time I will advise 
-you directly)
-
-Joel
-
+Its the only way to have power managment working by 2.6.1. Lots of
+work went into pm during 2.5 series, and Patrick invalidated all that
+with one, 140KB, untested and broken patch (and he managed to break
+about all rules about patch submission). It is not possible to fix
+damage he done within week.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

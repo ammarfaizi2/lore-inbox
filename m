@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263700AbSJGWjt>; Mon, 7 Oct 2002 18:39:49 -0400
+	id <S262560AbSJGW23>; Mon, 7 Oct 2002 18:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263701AbSJGWjt>; Mon, 7 Oct 2002 18:39:49 -0400
-Received: from tonnant.concentric.net ([207.155.248.72]:14261 "EHLO
-	tonnant.cnchost.com") by vger.kernel.org with ESMTP
-	id <S263700AbSJGWjs>; Mon, 7 Oct 2002 18:39:48 -0400
-From: "Stuart Inglis" <stuart@reeltwo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Floppy Raid
-Date: Tue, 8 Oct 2002 11:45:14 +1300
-Message-ID: <002101c26e53$37df09a0$2a01410a@nz.reeltwo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S262668AbSJGW23>; Mon, 7 Oct 2002 18:28:29 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:32918 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262560AbSJGW22>;
+	Mon, 7 Oct 2002 18:28:28 -0400
+Subject: [PATCH] aacraid Makefile error in 2.5.41
+From: Mark Haverkamp <markh@osdl.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 07 Oct 2002 15:34:40 -0700
+Message-Id: <1034030080.23403.12.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I tried building the aacraid driver in 2.5.41 and got an error
+saying that O_TARGET usage was obsolete.  The following change 
+to the Makefile allows me to build.
 
-I've been playing with RAID over floppy (2x3.5" /dev/fd0, /dev/fd1) and
-have a few questions. (With 2.4.18)
-
-It seems clear that you can only read/write to one floppy device at a
-time. Is this a hardware limit or a linux limit? fdformat to a single
-drive takes around 100 seconds, whereas running two fdformats in
-parallel takes close to 400 seconds (2.4.18). It looks like this is
-because the lock changes when the fdformat switches from writing to
-verifying.
-
-While I have /dev/md0 setup with RAID-1 over fd0 and fd1, fdformat
-/dev/fd0 fails nicely with "Device or resource busy". But I can still
-mount /mnt/floppy and write to it... The changes appear on the
-/mnt/floppy but not /dev/md0 until I unmount /mnt/floppy. Should this be
-allowed to happen?
-
-Cheers
-Stuart
-
+--- base_linux-2.5/drivers/scsi/aacraid/Makefile	Mon Oct  7 13:03:15 2002
++++ linux-2.5/drivers/scsi/aacraid/Makefile	Mon Oct  7 14:30:03 2002
+@@ -1,10 +1,9 @@
+ 
+ EXTRA_CFLAGS	+= -I$(TOPDIR)/drivers/scsi
+ 
+-O_TARGET	:= aacraid.o
+-obj-m		:= $(O_TARGET)
++obj-$(CONFIG_SCSI_AACRAID) := aacraid.o
+ 
+-obj-y		:= linit.o aachba.o commctrl.o comminit.o commsup.o \
++aacraid-objs	:= linit.o aachba.o commctrl.o comminit.o commsup.o \
+ 		   dpcsup.o rx.o sa.o
+ 
+ include $(TOPDIR)/Rules.make
 

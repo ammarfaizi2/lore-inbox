@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271261AbTGPXYY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 19:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271267AbTGPXYY
+	id S271291AbTGPX36 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 19:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271326AbTGPX35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 19:24:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15514 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271261AbTGPXWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 19:22:44 -0400
-Message-ID: <3F15E1B5.4020206@pobox.com>
-Date: Wed, 16 Jul 2003 19:37:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 sound drivers?
-References: <20030716225826.GP2412@rdlg.net>
-In-Reply-To: <20030716225826.GP2412@rdlg.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 19:29:57 -0400
+Received: from sponsa.its.UU.SE ([130.238.7.36]:18379 "EHLO sponsa.its.uu.se")
+	by vger.kernel.org with ESMTP id S271307AbTGPX3W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 19:29:22 -0400
+Date: Thu, 17 Jul 2003 01:43:05 +0200 (MEST)
+Message-Id: <200307162343.h6GNh5iu016584@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: vojtech@suse.cz
+Subject: Re: PS2 mouse going nuts during cdparanoia session.
+Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, davej@codemonkey.org.uk,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
-> 
-> I have a soundblaster Live.  I've historically used the OSS drivers as
-> they've worked well for me.  I just tried to load the emu10k1 which
-> loads without error, but mpg123 says it can't open the default sound
-> device.
+On Wed, 16 Jul 2003 20:56:19 +0200, Vojtech Pavlik wrote:
+>This is basically because the check for lost bytes wasn't present in
+>2.4. Now that it is there, it works well with real lost bytes, but will
+>fire also in case when the mouse interrupt was delayed for more than
+>half a second, or if indeed a mouse interrupt gets lost. The 2.5 kernel
+>by default programs the mouse to high speed reporting (up to 200 updates
+>per second). This may, possibly make the problem show up easier.
 
+This was interesting: 2.5 programs the mouse differently than 2.4.
+I've been having ps2 mouse problems with the 2.5 input layer,
+including having to move the mouse much further for a given
+cursor movement, and a general jerky/unstable feeling of the mouse.
 
-I am biased, but, it would be nice for people to start testing the 
-"official" 2.6 sound drivers, ALSA.  The ALSA API has many benefits over 
-OSS, but needs wide-spread testing and validation.
+2.4's pc_keyb.c has (disabled by default) init code which puts the
+mouse in 100 samples/s and 2:1 scaling, whereas 2.5 puts it into
+200 samples/s and 1:1 scaling. So I hacked psmouse-base.c to mimic
+2.4, and VOILA! now my mouse feels A LOT better.
 
-	Jeff, who is long tired of hacking on OSS drivers :)
+The crude patch below shows what I did. (I have to set psmouse_noext
+as well, to avoid misidentification, jerkiness/lost syncs, and
+utter mayhem upon resume from suspend.)
 
+Would you accept a cleaned up patch which allows the rate and
+scaling to be adjusted, similarly to noext and resolution?
 
+/Mikael
 
+--- linux-2.6.0-test1/drivers/input/mouse/psmouse-base.c.~1~	2003-06-23 13:07:37.000000000 +0200
++++ linux-2.6.0-test1/drivers/input/mouse/psmouse-base.c	2003-07-17 01:23:57.000000000 +0200
+@@ -33,7 +33,7 @@
+ 
+ #define PSMOUSE_LOGITECH_SMARTSCROLL	1
+ 
+-static int psmouse_noext;
++static int psmouse_noext = 1;
+ int psmouse_resolution;
+ int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
+ 
+@@ -435,7 +435,7 @@
+ 	param[0] = 100;
+ 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
+ 
+-	param[0] = 200;
++	param[0] = 100;
+ 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRATE);
+ 
+ /*
+@@ -443,7 +443,8 @@
+  */
+ 
+ 	psmouse_set_resolution(psmouse);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++#define PSMOUSE_CMD_SETSCALE21 0x00e7
++	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE21);
+ 
+ /*
+  * We set the mouse into streaming mode.

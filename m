@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265716AbUFDKk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265718AbUFDKlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265716AbUFDKk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 06:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265718AbUFDKk0
+	id S265718AbUFDKlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 06:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUFDKlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 06:40:26 -0400
-Received: from 219-68-105-160.adsl.dynamic.giga.net.tw ([219.68.105.160]:45074
-	"HELO stvincent.ac.uk") by vger.kernel.org with SMTP
-	id S265716AbUFDKkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 06:40:24 -0400
-Message-ID: <45bb01c44a1f$a3526e2c$a37375d2@stvincent.ac.uk>
-From: "Mindy Vinson" <mindy.vinson_th@wai-trust.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: Powerful weightloss now available for you.
-Date: Fri, 04 Jun 2004 04:35:22 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 4 Jun 2004 06:41:15 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:42657 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265718AbUFDKlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 06:41:12 -0400
+Date: Fri, 4 Jun 2004 11:41:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Brian Gerst <bgerst@didntduck.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040604104108.GA30228@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Brian Gerst <bgerst@didntduck.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	"Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <40BF201F.2020701@quark.didntduck.org> <20040604093958.GE11034@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040604093958.GE11034@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special_offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Up to 300% more Weight Loss while dieting.
-- Loss of 20-35% abdominal Fat.
-- Reduction of 40-70% overall Fat under skin.
-- Increase metabolic rate by 76.9% without Exercise.
-- Boost your Confidence level and Self Esteem.
-- Burns calorized fat.
-- Suppresses appetite for sugar.
-Get the facts about all-natural Adipren720 <http://www.8721diet.biz/default45.htm>
-If you wish not to be contacted again please
-enter your email address here. <http://www.8721diet.biz/r.html>
+On Fri, Jun 04, 2004 at 11:39:58AM +0200, Ingo Molnar wrote:
+> I think Wine could get around this by creating a dummy ELF section in
+> the Wine binary that covers the first 1GB or so. Wine could still use
+> ordinary dynamic libraries - those would go above that 1GB. Then once
+> Wine has loaded up it can munmap() that first 1GB.
+> 
+> (this would not work if Wine has to dlopen() new libraries after this
+> phase - does that happen?)
 
-
-
-
----- system information ----
-regime validate danger images organization publish Cases aspects 
-status Semantics: tag matching Internationalization sounds internationalized
-appropriate 
-architecture variation with Membership own MIME These or 
-[Definition: called comment formatting Document designing requests formatting
-
-Locale] varies functionality completed revised locale) standards segments
-
+Why can't wine just implement it's own binfmt_pecoff?  Sounds like the
+much simpler solutuion.
 

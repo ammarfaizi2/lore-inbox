@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVASPyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVASQBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVASPyF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 10:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVASPyF
+	id S261760AbVASQBP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 11:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVASQBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 10:54:05 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:14282 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261727AbVASPyB (ORCPT
+	Wed, 19 Jan 2005 11:01:14 -0500
+Received: from ponzo.noc.sonic.net ([64.142.18.11]:35760 "HELO ponzo.sonic.net")
+	by vger.kernel.org with SMTP id S261760AbVASQBL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 10:54:01 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: usbmon, usb core, ARM
-Date: Wed, 19 Jan 2005 16:54:07 +0100
-User-Agent: KMail/1.7.1
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net
-References: <20050118212033.26e1b6f0@localhost.localdomain> <200501182214.25273.david-b@pacbell.net> <20050119074208.3bfa6458@localhost.localdomain>
-In-Reply-To: <20050119074208.3bfa6458@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jan 2005 11:01:11 -0500
+Date: Wed, 19 Jan 2005 08:01:10 -0800
+From: Scott Doty <scott@sonic.net>
+To: Marcelo Tosatti <marcelo@hera.kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Thanks for neighbor.c patch (was Re: linux-2.4.29 released
+Message-ID: <20050119160110.GC24458@sonic.net>
+References: <200501191438.j0JEcU56020913@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501191654.07619.oliver@neukum.org>
+In-Reply-To: <200501191438.j0JEcU56020913@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
+X-PGP-Key: http://sonic.net/~scott/gpgkey.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 19. Januar 2005 16:42 schrieb Pete Zaitcev:
-> On Tue, 18 Jan 2005 22:14:24 -0800, David Brownell <david-b@pacbell.net> wrote:
+On Wed, Jan 19, 2005 at 06:38:30AM -0800, Marcelo Tosatti wrote:
+> Summary of changes from v2.4.29-rc2 to v2.4.29-rc3
+> ============================================
 > 
-> > > > Also, I don't like the idea of scattering knowledge all over the place
-> > > > that the root hub is always given address 1 ... 
-> > 
-> > which you didn't address yet.
+> <raivis:mt.lv>:
+>   o [NEIGH]: Calculate hash_val after possible table growth, not before
 > 
-> Yes, I have to look why you do not like using the pipe. Relying on pipe makes
-> tests dependant on URB only. No references to bus or HCD, therefore no
-> extra refcounts or worries about oopses. Also, HC drivers zero out the
-> urb->dev in giveback sequence which is a royal pain when trying to identify
-> a root hub. I thought about adding an extra flag like URB_ROOT_HUB to split
+> <scott:sonic.net>:
+>   o Fix net neighbour hash bug
 
-That idea was good. It is simple and will simplify the code cleanly.
+I want to thank the Linux folks for adding this patch.  In a nutshell:
+works great!
 
-> this use from the abuse of URB_NO_TRANSFER_DMA_MAP, but pipe looks better
-> all around. If you look at it from the angle I did, it stands to reason
-> that excessive encapsulation only masks _why_ it was safer, e.g. if one sees
-> something like urb_is_root_hub(urb), one must look up the implementation
-> to know if it uses urb->dev or not. Relying on address 1 without any symbolic
-> constant is obviously a bad idea though, I'll fix that.
+We ran -rc2 with the patch on our test server overnight w/stress testing,
+then 3 days on a production web server, and finally we deployed the
+patched -rc2 on all public-accessable servers.  The "incomplete arp problem"
+never showed up.
 
-True, but pipe must die. It has no real basis.
+(Now that 2.4.29 is out, we're going to do an upgrade across the board...)
 
-	Regards
-		Oliver
+Thanks again, you guys rock!
+
+ -Scott

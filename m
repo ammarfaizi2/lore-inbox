@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269414AbUIIKj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269417AbUIIKlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269414AbUIIKj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 06:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUIIKj4
+	id S269417AbUIIKlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 06:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269418AbUIIKlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 06:39:56 -0400
-Received: from mazurek.man.lodz.pl ([212.51.192.15]:3036 "EHLO
-	mazurek.man.lodz.pl") by vger.kernel.org with ESMTP id S269414AbUIIKjz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 06:39:55 -0400
-Subject: Re: PROBLEM: Promise Fast Track SX6000 i2o driver.
-From: Piotr Goczal <bilbo@man.lodz.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Piotr Goczal <bilbo@mazurek.man.lodz.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093261478.29532.12.camel@localhost.localdomain>
-References: <Pine.LNX.4.58.0408211012500.2571@mazurek.man.lodz.pl>
-	 <1093173914.24272.45.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408221606520.2571@mazurek.man.lodz.pl>
-	 <1093184419.24617.5.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408221854310.2571@mazurek.man.lodz.pl>
-	 <1093191690.24761.3.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408221936270.2571@mazurek.man.lodz.pl>
-	 <1093200494.24905.7.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408230832260.2571@mazurek.man.lodz.pl>
-	 <1093261478.29532.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=iso-8859-2
-Message-Id: <1094726382.9461.42.camel@pc-bilbo.man.lodz.pl>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 09 Sep 2004 12:39:42 +0200
-Content-Transfer-Encoding: 8bit
-X-mazurek.man.lodz.pl-MailScanner-Information: Please contact bilbo@man.lodz.pl
-X-mazurek.man.lodz.pl-MailScanner: Found to be clean
+	Thu, 9 Sep 2004 06:41:46 -0400
+Received: from www2.muking.org ([216.231.42.228]:2977 "HELO www2.muking.org")
+	by vger.kernel.org with SMTP id S269417AbUIIKlJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 06:41:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: voluntary-preemption: understanding latency trace
+From: Kevin Hilman <kjh-lkml@hilman.org>
+Organization: None to speak of.
+Date: 09 Sep 2004 03:41:07 -0700
+Message-ID: <83656nk9mk.fsf@www2.muking.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W li¶cie z pon, 23-08-2004, godz. 13:44, Alan Cox pisze: 
-> On Llu, 2004-08-23 at 07:35, Piotr Goczal wrote:
+I'm seeing a mismatch between my manually-measured timings and the
+timings I see in /proc/latency_trace.
 
-Hello,
+I've got a SCHED_FIFO kernel thread at the highest priority
+(MAX_USER_RT_PRIO-1) and it's sleeping on a wait queue.  The wake is
+called from an ISR.  Since this thread is the highest priority in the
+system, I expect it to run before the ISR threads and softIRQ threads
+etc. 
 
-> > I've attached old and new version of src drivers from Promise web site. 
-> > I'm waiting for any information about progress in your work.
-> I'll try and look at it beginning of September. 
+In the ISR I sample sched_clock() just before the call to wake_up()
+and in the thread I sample sched_clock() again just after the call to
+sleep.  I'm seeing an almost 4ms latency between the call to wake_up
+and the actual wakeup.  However, in /proc/latency_trace, the worst
+latency I see during the running of this test is <500us.
 
-Any news about this case?
+I must be misunderstanding how the latency traces are
+started/stopped.  Can anyone shed some light?  Thanks.
 
-Regards
+My current setup is using -R5, running on a PII 400MHz system.
 
-Piotr
-
-
+Kevin 
+http://hilman.org/

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSLTRY4>; Fri, 20 Dec 2002 12:24:56 -0500
+	id <S262859AbSLTRao>; Fri, 20 Dec 2002 12:30:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbSLTRY4>; Fri, 20 Dec 2002 12:24:56 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:62083 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262924AbSLTRYz>;
-	Fri, 20 Dec 2002 12:24:55 -0500
-Subject: Re: Dedicated kernel bug database
-From: Jon Tollefson <kniht@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <76460000.1040355330@titus>
-References: <200212191335.gBJDZRDL000704@darkstar.example.net>
-	<3E020660.9020507@inet.com> <20021219184958.GA6837@suse.de> 
-	<76460000.1040355330@titus>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 20 Dec 2002 11:32:45 -0600
-Message-Id: <1040405565.989.416.camel@skynet.rchland.ibm.com>
-Mime-Version: 1.0
+	id <S263215AbSLTRao>; Fri, 20 Dec 2002 12:30:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28420 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262859AbSLTRan>; Fri, 20 Dec 2002 12:30:43 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: PTRACE_GET_THREAD_AREA
+Date: Fri, 20 Dec 2002 17:36:37 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <atvkf5$6io$1@penguin.transmeta.com>
+References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com> <20021220102431.A26923@infradead.org>
+X-Trace: palladium.transmeta.com 1040405904 31580 127.0.0.1 (20 Dec 2002 17:38:24 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Dec 2002 17:38:24 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 21:35, Martin J. Bligh wrote:
-> > It's an annoyance to me that the current bugzilla we use can only
-> > do 1 way email. Ie, I receive email when things change, but I can't
-> > reply to that mail and have my comments auto-added.
-> > Other bugzillas can do this, so I think either some switch needs
-> > to be enabled, or theres some extension not present.
-> > (I'm a complete bugzilla weenie, and no nothing about how its set up).
-> 
-> I think it's some extensions that can be used. Jon is the person
-> who knows the Bugzilla tool itself ... Jon, any comments on this?
-> 
-> M.
-> 
-> 
+In article <20021220102431.A26923@infradead.org>,
+Christoph Hellwig  <hch@infradead.org> wrote:
+>
+>I don't think ptrace is the right interface for this.  Just changed
+>the get_thread_area/set_thread_area to take a new first pid_t argument.
 
-There is a script in bugzilla that can be set up with procmail to accept
-messages for appending comments.  Though there are some issues with it
-that prevent even the mozilla site from enabling it in their own
-bugzilla.  These are noted in
-http://bugzilla.mozilla.org/show_bug.cgi?id=44393 as relating to
-authentication and dealing with vacation/auto-responders. 
+No.  There is _no_ excuse for even looking at (much less changing)
+another process' thread area unless you are tracing that process. 
 
-Perhaps this is an opportunity for someone that wants to work on a bug
-tracker to enhance this script and contribute it to bugzilla.
+Basically, there is only _one_ valid user of getting/setting the thread
+area of somebody else, and that's for debugging. And debuggers use
+ptrace. It's as simple as that. They use ptrace to read and set memory
+contents, they use ptrace to read and set registers, and they should use
+ptrace to check status bits of the process.
 
-Jon 
+We do not introduce any extensions to existing system calls for
+debuggers. We already have the interface, and one that does a lot better
+at checking permissions in _one_ place than it would be to have magic
+"can this process read/modify another process" things.
 
-
+		Linus

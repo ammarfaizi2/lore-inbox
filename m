@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130253AbRDAQ7W>; Sun, 1 Apr 2001 12:59:22 -0400
+	id <S132517AbRDAQBi>; Sun, 1 Apr 2001 12:01:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130446AbRDAQ7M>; Sun, 1 Apr 2001 12:59:12 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:22544 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S130253AbRDAQ67>; Sun, 1 Apr 2001 12:58:59 -0400
-Message-ID: <3AC75DBF.31594195@sgi.com>
-Date: Sun, 01 Apr 2001 09:56:31 -0700
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, en-US, en-GB, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: unistd.h and 'extern's and 'syscall' "standard(?)"
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132521AbRDAQB3>; Sun, 1 Apr 2001 12:01:29 -0400
+Received: from dsl-64-128-37-73.telocity.com ([64.128.37.73]:40965 "EHLO
+	nic.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S132517AbRDAQBT>; Sun, 1 Apr 2001 12:01:19 -0400
+Message-Id: <4.3.2.7.2.20010401115819.00b52340@mail.osagesoftware.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 01 Apr 2001 12:00:28 -0400
+To: Mike Bennett <mbennett@ns1.cfcc.cc.fl.us>
+From: David Relson <relson@osagesoftware.com>
+Subject: Re: aic7xxx 6.1.8 for 2.2.19
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010401105412.G21419@cfcc.cc.fl.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10:54 AM 4/1/01, Mike Bennett wrote:
+>Was getting ready to compile 2.2.19 this AM and went to
+>Justin's site to grab the latest aic7xxx driver.
+>
+>Unfortunately, he doesn't have a patch for 2.2.19 and the
+>2.2.18 patch doesn't apply cleanly because the stock driver
+>changed.
+>
+>It's a long story, but the short version is that the stock
+>driver has always given me timeouts with heavy disk activity.
+>Right now I'm using 6.0.8beta in 2.2.18 since Jan 12 and have
+>not had a single timeout problem. Needless to say, I won't be
+>upgrading kernels today.  Damn, now I've got no excuse for
+>not mowing the lawn... :)
 
-        I have a question.  Some architectures have "system calls"
-implemented as library calls (calls that are "system calls" on ia32)
-For example, the expectation on 'arm', seems to be that sys_sync
-is in a library.  On alpha, sys_open appears to be in a library.
-Is this correct?
+No excuse needed here in Ann Arbor, Michigan.  This morning lawn mowing is 
+a non-issue.  It's snowing merrily - just like it was winter.
 
-        Is it the expectation that the library that handles this
-is the 'glibc' for that platform or is there a special "kernel.lib"
-that goes with each platform?
 
-	Is there 1 library that I need to link my apps with to
-get the 'externs' referenced in "unistd.h"?
+>Has anyone made a patch against 2.2.19 ?
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-	The reason I ask is that in ia64 the 'syscall' call
-isn't done with inline assembler but is itself an 'extern' call.
-This implies that you can't do system calls directly w/o some 
-support library.
+--------------------------------------------------------
+David Relson                   Osage Software Systems, Inc.
+relson@osagesoftware.com       Ann Arbor, MI 48103
+www.osagesoftware.com          tel:  734.821.8800
 
-	The implication of this is that developers working on
-platform independent system calls and library functions, for
-example, extended attributes, audit or MAC, can't provide
-platform independent patches w/o also providing their own
-syscall implementation for ia64.
-
-	This came up as a problem when we wanted to provide a
-a new piece of code but found it wouldn't link on some distributions.
-In inquiry there seems to be some confusion regarding who is responsible
-for providing this the code/library to satisfy this 'unistd.h' extern.
-
-	Should something so basic as the 'syscall' interface be provided
-in the kernel sources, perhaps as a kernel-provided 'lib', or is
-it expected it will be provided by someone else or is it expected
-that each developer should provide their own syscall implementation for
-ia64?
-
-Thanks,
--linda
--- 
-The above thoughts and           | They may have nothing to do with
-writings are my own.             | the opinions of my employer. :-)
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338

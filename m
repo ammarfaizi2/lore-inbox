@@ -1,145 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271112AbRH1Ol1>; Tue, 28 Aug 2001 10:41:27 -0400
+	id <S271212AbRH1Osh>; Tue, 28 Aug 2001 10:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271124AbRH1OlS>; Tue, 28 Aug 2001 10:41:18 -0400
-Received: from marvin.mvlan.net ([64.39.178.10]:55818 "HELO mailhost.mvlan.net")
-	by vger.kernel.org with SMTP id <S271112AbRH1OlG>;
-	Tue, 28 Aug 2001 10:41:06 -0400
-Date: Tue, 28 Aug 2001 10:41:18 -0400
-From: Jean-Sebastien Morisset <jsmoriss@mvlan.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: iproute2 routing problem.
-Message-ID: <20010828104118.C26589@marvin.mvlan.net>
-Mime-Version: 1.0
+	id <S271265AbRH1OsR>; Tue, 28 Aug 2001 10:48:17 -0400
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:23812 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S271212AbRH1OsJ>; Tue, 28 Aug 2001 10:48:09 -0400
+Message-ID: <3B8BAF1C.EC336B17@cc.gatech.edu>
+Date: Tue, 28 Aug 2001 10:47:56 -0400
+From: Josh Fryman <fryman@cc.gatech.edu>
+Organization: CoC, GaTech
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: silly memory question ...
+In-Reply-To: <Pine.LNX.3.95.1010828101642.13417A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-OS: Linux marvin 2.2.19 #16 Sun Aug 26 18:53:31 EDT 2001 i686 unknown
-X-Uptime: 10:19am  up 19:49,  3 users,  load average: 1.02, 1.02, 1.02
-X-PGP-Key: http://jsmoriss.mvlan.net/pgp-public-keys.txt
-X-PGP-Fingerprint: 93 67 23 4C 40 92 0E 7C  09 DD 55 FA 9C 6C 88 39  C6 1A 8A 78
-X-Seti: Name=jsm-mv #WU=1448 CPU=797 days (Best Scores: Spike=0.779698 Gaussian=0.491700)
-X-ICQ: 47027114
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This might be slightly off topic, but since the official iproute2 list is
-down, I thought you guys might be able to help me...
+hi all,
 
-I have an ADSL modem on ppp0, and a CableModem on eth1. The plan is to
-make all services available on the ADSL, and use the CableModem as my
-default route (load balancing and fail-over are planned). Unfortunately,
-Linux gets confused if a public IP comes in on ppp0 since it's default
-route is eth1.  It starts logging messages about 'martian sources' and the
-reply packet gets lost. The solution is to mark incoming packets on ppp0
-and eth1 differently.  iproute2 can then use these fwmarks to route the
-reply packets back to the correct interface. In practice, I've gotten ppp0
-to work using fwmarks, but eth1 is being stubborn. Let me go through my
-configuration:
+thanks to all of you for your suggestions... it turns out this
+is an ARM-specific issue, and maybe some other platforms as well.
+(or maybe just my specific ARM kernel/glibc combo. ;)
 
-# My firewall (rcf v5.2.1c2 at http://rcf.mvlan.net/) inserts the
-# following chains to mark packets.
+it turns out x86 ignores some "modes" for pages in memory.  or
+maybe ld.so doesn't bother to set them.  anyway, the code snippet 
+below "fixes" the pages i need fixed to become R/W/X.
 
-ipchains -I ppp0i -m 20 -p tcp -s any/0 -d 64.39.178.10 0:65535
-ipchains -I eth1i -m 10 -p tcp -s any/0 -d 24.201.178.12 0:65535
+on *my* ARM, you can't default execute data pages; you can't 
+write text pages; etc, etc. (my kernel is 2.4.0 with glibc 2.1.2.)
 
-# Here is my iproute2 routing table
+i don't know what other platforms enforce this, but hopefully 
+this is as educational for those suggesting solutions as it has 
+been for me. if i had specified i was running on ARM originally, 
+it may have made things clearer.
 
-root@marvin:/etc/rc.d/init.d$ ip ru ls
-0:      from all lookup local
-32764:  from all fwmark       10 lookup cable
-32765:  from all fwmark       20 lookup adsl
-32766:  from all lookup main
-32767:  from all lookup 253
+thanks again,
 
-# The /etc/iproute2/rt_tables file.
+josh
 
-201     cable
-202     adsl
+   // fix permissions on __app_code - we need R/W/X, not just R/X ... 
+   // ARM-specific problem, but this fix should work on ALL platform targets
 
-# And here are the routing tables. I've added a route to my
-# private network to route masqueraded traffic properly.
+   printf("Fixing TEXT segment permissions for R/W/X....\n");
+   for (i=0; i<APP_CODE_K*1024/PAGESIZE; i++)
+   {
+      code = (ui32*) ((((ui32)__app_code + i*PAGESIZE) - 1) & ~(PAGESIZE-1));
+      if (mprotect( code, PAGESIZE, PROT_READ|PROT_WRITE|PROT_EXEC) )
+      {
+         printf("mprotect() on 0x%08x failed!\nerrno (%d) indicates status: ", code, errno);
+	 switch (errno) 
+	 {
+	    case EINVAL: printf("EINVAL: not valid ptr, or not multiple of PAGESIZE (%d)\n", PAGESIZE);  
+                         break;
+	    case EFAULT: printf("EFAULT: memory can not be accessed.\n"); 
+                         break;
+	    case EACCES: printf("EACCES: memory can not be given specified access modes.\n"); 
+                         break;
+	    case ENOMEM: printf("ENOMEM: internal kernel structures could not be allocated.\n"); 
+                         break;
+	    default:     printf("??????: unknown error result.\n");
+	 }
+         exit( CLNT_MPROT_FAIL );
+      }
+   }
 
-root@marvin:/etc/rc.d/init.d$ ip ro ls table cable
-10.1.1.0/24 dev eth0  scope link
-default via 24.202.124.1 dev eth1
+note:
+the dummy "nop" function "__app_code()" is APP_CODE_K in size of
+KBs of NOPs.
 
-root@marvin:/etc/rc.d/init.d$ ip ro ls table adsl
-10.1.1.0/24 dev eth0  scope link
-default via 64.39.160.16 dev ppp0
-
-# The standard routing table. Note that ppp0 is being used as the
-# default route right now (lower metric). Until I can get the fwmark
-# based routing to work properly on eth1, I can't use it as my
-# default route.
-
-root@marvin:/tmp$ ip ro ls table main
-10.1.1.60 dev eth0  scope link  src 10.1.1.60
-255.255.255.255 dev eth0  scope link
-64.39.160.16 dev ppp0  proto kernel  scope link  src 64.39.178.10
-10.1.1.10 dev eth0  scope link  window 16384
-10.1.1.50 dev eth0  scope link  src 10.1.1.50
-10.1.1.1 dev eth0  scope link  src 10.1.1.1
-10.1.1.0/24 dev eth0  proto kernel  scope link  src 10.1.1.10
-24.202.124.0/24 dev eth1  proto kernel  scope link  src 24.202.124.110
-127.0.0.0/8 dev lo  scope link  window 16384
-default via 64.39.160.16 dev ppp0  metric 20
-default via 24.202.124.1 dev eth1  metric 30
-
-Everything is working fine on ppp0, but when packets come in on eth1, the
-replies are getting lost. Here are the syslog messages from ipchains when
-I log everything:
-
-# Incoming packet gets marked.
-
-Aug 28 09:09:06 marvin kernel: Packet log: eth1i - eth1 PROTO=6
-64.231.253.60:49000 24.202.124.110:443 L=60 S=0x00 I=45912 F=0x4000 T=53
-SYN (#2)
-
-# Various anti-spoofing filters, etc.
-
-Aug 28 09:09:06 marvin kernel: Packet log: eth1i spoofi eth1 PROTO=6
-64.231.253.60:49000 24.202.124.110:443 L=60 S=0x00 I=45912 F=0x4000 T=53
-SYN (#14)
-Aug 28 09:09:06 marvin kernel: Packet log: eth1i ianai eth1 PROTO=6
-64.231.253.60:49000 24.202.124.110:443 L=60 S=0x00 I=45912 F=0x4000 T=53
-SYN (#15)
-Aug 28 09:09:06 marvin kernel: Packet log: eth1i prii eth1 PROTO=6
-64.231.253.60:49000 24.202.124.110:443 L=60 S=0x00 I=45912 F=0x4000 T=53
-SYN (#34)
-
-# Packet is accepted.
-
-Aug 28 09:09:06 marvin kernel: Packet log: eth1i ACCEPT eth1 PROTO=6
-64.231.253.60:49000 24.202.124.110:443 L=60 S=0x00 I=45912 F=0x4000 T=53
-SYN (#44)
-
-The following syslog messages are identical. There are no reply packets
-sent back on this interface or any other. I've also snooped all the
-interfaces to make sure the reply packet wasn't sent anywhere else. It
-just seems to get lost... Here's the tcpdump output for the above
-connection:
-
-root@marvin:/tmp$ tcpdump -vvv -X -n -i eth1 port 443
-tcpdump: listening on eth1
-09:16:30.773407 64.231.253.60.49010 > 24.202.124.110.443: S
-3229195700:3229195700(0) win 5808 <mss 1412,sackOK,timestamp
-109455285[|tcp]> (DF) (ttl 53, id 47617)
-0x0000   4500 003c ba01 4000 3506 b85e 40e7 fd3c        E..<..@.5..^@..<
-0x0010   18ca 7c6e bf72 01bb c079 9db4 0000 0000        ..|n.r...y......
-0x0020   a002 16b0 1094 0000 0204 0584 0402 080a        ................
-0x0030   0686 27b5 0000                                 ..'...
-
-Does anyone see anything I've missed?
-
-BTW, as you can tell, I'm using ipchains under linux 2.2.19. My iproute2
-versions is ss990630.
-
-Thanks,
-js.
--- 
-Jean-Sebastien Morisset, Sr. UNIX Administrator <jsmoriss@mvlan.net>
-Personal Homepage <http://jsmoriss.mvlan.net/>; UNIX, Internet, 
-Homebrewing, Cigars, PCS, PalmOS, CP2020 and other Fun Stuff...
-This is Linux Country. On a quiet night you can hear Windows NT reboot!
+note 2:
+i hope the KiB/MiB/whatever standard suggestion is never adopted 
+and revoked really soon now.

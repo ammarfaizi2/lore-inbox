@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264622AbSKMXqU>; Wed, 13 Nov 2002 18:46:20 -0500
+	id <S264665AbSKMXzZ>; Wed, 13 Nov 2002 18:55:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbSKMXqU>; Wed, 13 Nov 2002 18:46:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55054 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264622AbSKMXqT>; Wed, 13 Nov 2002 18:46:19 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: local APIC may cause XFree86 hang
-Date: Wed, 13 Nov 2002 23:52:48 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aquokg$45p$1@penguin.transmeta.com>
-References: <15826.53818.621879.661253@kim.it.uu.se>
-X-Trace: palladium.transmeta.com 1037231573 29868 127.0.0.1 (13 Nov 2002 23:52:53 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 13 Nov 2002 23:52:53 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S264672AbSKMXzZ>; Wed, 13 Nov 2002 18:55:25 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:37393 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264665AbSKMXzY>; Wed, 13 Nov 2002 18:55:24 -0500
+Date: Thu, 14 Nov 2002 00:02:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: torvalds@transmeta.com, rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: module mess in -CURRENT
+Message-ID: <20021114000206.A8245@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	torvalds@transmeta.com, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <15826.53818.621879.661253@kim.it.uu.se>,
-Mikael Pettersson  <mikpe@csd.uu.se> wrote:
->
->Does XFree86 (its core or particular drivers) use vm86() to
->invoke, possibly graphics card specific, BIOS code?
->That would explain the hangs I got. The fix would be to
->disable the local APIC around vm86()'s BIOS calls, just like
->we now disable it before APM suspend.
+Linus, Rusty,
 
-It does.
+what the hell is going on with the modules code in 2.5-CURRENT?
 
-HOWEVER, vm86() mode is very very different from APM, which uses real
-mode.  External interrupts in vm86 mode will not be taken inside vm86
-mode - and disabling the local timer (by disabling the APIC) around a
-vm86 mode is definitely _not_ a good idea, since it would be an instant
-denial-of-service attack on SMP machines (the PIT timer only goes to
-CPU0, so we depend on the local timer to do process timeouts etc on
-other CPUs).  The vm86 code might just be looping forever.
+Rusty's monsterpatch breaks basically everything (and remember we're
+in feature freeze!) instead of doing one thing at a time [1], and it
+is doing three things that are absolutely separate issues.
 
-In other words, if it is really vm86-related, then 
- (a) it's a CPU bug
- (b) we're screwed
+We had an almost useable 2.5 and now exactly when we're feature freezing
+and people are expected to test it we break everything?
 
-I bet it's something else.  Possibly just timing-specific (the APIC
-makes interrupts much faster), but also possibly something to do with
-the VGA interrupt (some XFree86 drivers actually use the gfx interrupts
-these days)
+Linus, please backout that patch until we a) have modutils that support
+both the new and old code and b) support at least such basic features
+as parsing modules.conf and supporting parameters.
 
-		Linus
+Rusty, the next time please submit stuff one feature at a time instead
+of a monster patch that is cool but breaks everything but looks cool.
+
+The inkernel loader, generic boot-time option and your - umm - strange
+idea of module unload race reduction are absolute separate things.
+
+[1] e.g. kbuild2.5 was rejected due to the must change everything criteria.
+not that I actually liked the kbuild2.5 design, but this is exactly the
+same thing.

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281142AbRKYWAk>; Sun, 25 Nov 2001 17:00:40 -0500
+	id <S281129AbRKYWAk>; Sun, 25 Nov 2001 17:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281140AbRKYWAb>; Sun, 25 Nov 2001 17:00:31 -0500
-Received: from argus.posten.se ([147.14.10.164]:41409 "HELO argus.posten.se")
-	by vger.kernel.org with SMTP id <S281129AbRKYWAV>;
-	Sun, 25 Nov 2001 17:00:21 -0500
-Message-ID: <3C016AC8.3020105@posten.se>
-Date: Sun, 25 Nov 2001 23:03:52 +0100
-From: Pawel Worach <_nospam_pawel.worach@posten.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011125
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Niels Christiansen <nchr@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /var corruption after 2.4.15 and 2.5.0 reboot
-In-Reply-To: <fa.l99gmcv.1agq8qd@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S281142AbRKYWAa>; Sun, 25 Nov 2001 17:00:30 -0500
+Received: from grip.panax.com ([63.163.40.2]:56328 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S281140AbRKYWAX>;
+	Sun, 25 Nov 2001 17:00:23 -0500
+Date: Sun, 25 Nov 2001 16:58:19 -0500
+From: Patrick McFarland <unknown@panax.com>
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011125165819.G238@localhost>
+Mail-Followup-To: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0111241744250.12119-100000@freak.distro.conectiva> <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost> <3C006F44.201DC73F@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C006F44.201DC73F@pobox.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.14 i686
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Niels Christiansen wrote:
+So your saying I should actually trust my distro to build a kernel right? I build my own kernels, I have since day one. But, heres a semi-key point, what happens to vendor patches? Do they ever get folded back into the main tree? mdk and rh I know do alot of patching.  Its a waste of effort if the patches arnt looked at. And also, I was using that as a rant example. Ive never had a kernel break for me except for the parport and loopback problems. And then, I just built parport without ieee, and Im not using loopback rightnow anyhow, so its not a big loss.
 
- > [1.] One line summary of the problem:
- >      /var corruption after 2.4.15 and 2.5.0 reboot
+On 24-Nov-2001, J Sloan wrote:
+> Patrick McFarland wrote:
+> 
+> > What If I get up one day, and I cant print? Or build isos?
+> 
+> Who would switch kernels on you while you sleep?
+> 
+> >  The Kernel needs Quality Assurance.
+> 
+> Yep, and that's what the vendors do for you.
+> 
+> Stick with the tested, QA'd, vendor-supplied
+> kernel unless you're a developer or a skilled,
+> adventurous sys admin who reads lkml!
+> 
+> kernel tarballs are NOT for mom -
+> 
+> cu
+> 
+> jjs
+> 
+> 
 
-
-Both the 2.4.15 and 2.5.0 kernels have a filesystem corruption bug,
-don't use them. Please apply the 2.4.16-pre1 (or 2.5.1-pre1) patch,
-you can find it on http://www.kernel.org/.
-
-Regards
-Pawel Worach
-
-
+-- 
+Patrick "Diablo-D3" McFarland || unknown@panax.com

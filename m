@@ -1,61 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267992AbUIJWm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUIJWmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267992AbUIJWm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 18:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUIJWhu
+	id S268008AbUIJWmx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 18:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUIJWia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 18:37:50 -0400
-Received: from gprs40-132.eurotel.cz ([160.218.40.132]:43597 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268008AbUIJW33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 18:29:29 -0400
-Date: Sat, 11 Sep 2004 00:29:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: swsusp: kill crash when too much memory is free
-Message-ID: <20040910222915.GC1347@elf.ucw.cz>
-References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <200409100001.28781.rjw@sisk.pl> <20040910094039.GC11281@atrey.karlin.mff.cuni.cz> <200409101926.30902.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Sep 2004 18:38:30 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:58314 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S267968AbUIJWcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 18:32:00 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch][5/6] ide: merge PIO write/multiwrite code (ide-disk.c)
+Date: Sat, 11 Sep 2004 00:26:40 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200409101926.30902.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409110026.40761.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Can you try my "bigdiff"? Also, does it work okay in 32-bit mode?
-> 
-> Well, the good news is that it sort of works.  Still, there are some bad news, 
-> as usual. ;-)
+[patch] ide: merge PIO write/multiwrite code (ide-disk.c)
 
-So it sort-of-works, 32-bit and 64-bit mode? Good.
+Merge multwrite_intr() into write_intr().
 
-> First, to make the box wake up, I have to unload ohci_hcd and everything that 
-> sits on IRQ11 before suspending (on my system that is sk98lin, yenta_socked, 
-> and ohci1394).  If you want me to show what happens if I don't unload these 
-> modules, I'll be able to grab some traces in a couple of hours. ;-)  Also, I 
-> have to compile out the frequency scaling, because otherwise it hangs solid 
-> at some time after wake-up.
-> 
-> Second, after it's woken up, it seems to be very, _very_ slow, and the reason 
-> is indicated by this:
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+---
 
-Hmm, I do not know what nForce3 is (it should use better name at the
-minimum), but that driver probably needs some work.
+ linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-disk.c |   40 ++-----------------
+ 1 files changed, 6 insertions(+), 34 deletions(-)
 
-
->   5:    6656316          XT-PIC  NVidia nForce3
-....
->   5:    6680145          XT-PIC  NVidia nForce3
-
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+diff -puN drivers/ide/ide-disk.c~ide_multwrite drivers/ide/ide-disk.c
+--- linux-2.6.9-rc1-bk16/drivers/ide/ide-disk.c~ide_multwrite	2004-09-10 23:50:32.208780440 +0200
++++ linux-2.6.9-rc1-bk16-bzolnier/drivers/ide/ide-disk.c	2004-09-10 23:50:32.211779984 +0200
+@@ -155,7 +155,7 @@ static ide_startstop_t read_intr (ide_dr
+ }
+ 
+ /*
+- * write_intr() is the handler for disk write interrupts
++ * write_intr() is the handler for disk write/multwrite interrupts
+  */
+ static ide_startstop_t write_intr (ide_drive_t *drive)
+ {
+@@ -175,7 +175,10 @@ static ide_startstop_t write_intr (ide_d
+ 				ide_end_request(drive, 1, hwif->nsect);
+ 				return ide_stopped;
+ 			}
+-			ide_pio_sector(drive, 1);
++			if (drive->mult_count)
++				ide_pio_multi(drive, 1);
++			else
++				ide_pio_sector(drive, 1);
+ 			ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
+ 			return ide_started;
+ 		}
+@@ -186,36 +189,6 @@ static ide_startstop_t write_intr (ide_d
+ }
+ 
+ /*
+- * multwrite_intr() is the handler for disk multwrite interrupts
+- */
+-static ide_startstop_t multwrite_intr (ide_drive_t *drive)
+-{
+-	ide_hwif_t *hwif	= HWIF(drive);
+-	struct request *rq = hwif->hwgroup->rq;
+-	u8 stat;
+-
+-	stat = hwif->INB(IDE_STATUS_REG);
+-	if (OK_STAT(stat, DRIVE_READY, drive->bad_wstat)) {
+-		if (stat & DRQ_STAT) {
+-			/* The drive wants data. */
+-			if (hwif->nleft) {
+-				ide_pio_multi(drive, 1);
+-				ide_set_handler(drive, &multwrite_intr, WAIT_CMD, NULL);
+-				return ide_started;
+-			}
+-		} else {
+-			if (!hwif->nleft) {	/* all done? */
+-				ide_end_request(drive, 1, hwif->nsect);
+-				return ide_stopped;
+-			}
+-		}
+-		/* the original code did this here (?) */
+-		return ide_stopped;
+-	}
+-	return task_error(drive, rq, __FUNCTION__, stat);
+-}
+-
+-/*
+  * __ide_do_rw_disk() issues READ and WRITE commands to a disk,
+  * using LBA if supported, or CHS otherwise, to address sectors.
+  * It also takes care of issuing special DRIVE_CMDs.
+@@ -350,11 +323,10 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 		}
+ 		if (!drive->unmask)
+ 			local_irq_disable();
++		ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
+ 		if (drive->mult_count) {
+-			ide_set_handler(drive, &multwrite_intr, WAIT_CMD, NULL);
+ 			ide_pio_multi(drive, 1);
+ 		} else {
+-			ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
+ 			ide_pio_sector(drive, 1);
+ 		}
+ 		return ide_started;
+_

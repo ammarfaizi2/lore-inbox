@@ -1,28 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275294AbRJNOrg>; Sun, 14 Oct 2001 10:47:36 -0400
+	id <S275301AbRJNO7P>; Sun, 14 Oct 2001 10:59:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275301AbRJNOr0>; Sun, 14 Oct 2001 10:47:26 -0400
-Received: from mx7.port.ru ([194.67.57.17]:56502 "EHLO mx7.port.ru")
-	by vger.kernel.org with ESMTP id <S275294AbRJNOrY>;
-	Sun, 14 Oct 2001 10:47:24 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200110141450.f9EEoL106214@vegae.deep.net>
-Subject: Re: [RFC] "Text file busy" when overwriting libraries
-To: linux-kernel@vger.kernel.org
-Date: Sun, 14 Oct 2001 18:50:19 +0400 (MSD)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275424AbRJNO7I>; Sun, 14 Oct 2001 10:59:08 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:24246 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S275301AbRJNO6v>;
+	Sun, 14 Oct 2001 10:58:51 -0400
+Date: Sun, 14 Oct 2001 19:01:44 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Question about spinlock and timer
+Message-Id: <20011014190144.58e6f212.johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.9; Linux 2.4.9; i686)
+Organization: MIPT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This isnt a problem worth solving. Shared libraries are managed by the
-> superuser. The shared library tools already do the right thing. The
-> superuser can equally reboot the machine or reformat the disk by accident
-> anyway.
-  Sounds _very_ true for me...
+Hello, linux guru.
 
-cheers, Samium Gromoff
+After reading spinlock documentation at the kernelnewbie.org, i've got a
+question:
+If i clearly understand, each kernel timer is connected with some memory
+region, and this region should be freed when timer becomes clear.
+And this can occur before spi_lock_bh(). Therefore this memory regin will
+be freed second time in the loop.
 
+   spin_lock_bh(&list_lock);
+
+         while (list) {
+                 struct foo *next = list->next;
+                 del_timer(&list->timer);
+                 kfree(list);
+                 list = next;
+         }
+         spin_unlock_bh(&list_lock);
+
+
+This is correct example:
+
+      retry:  
+                 spin_lock_bh(&list_lock);
+
+                 while (list) {
+                         struct foo *next = list->next;
+                         if (!del_timer(&list->timer)) {
+                                 /* Give timer a chance to delete this */
+                                 spin_unlock_bh(&list_lock);
+                                 goto retry;
+                         }
+                         kfree(list);
+                         list = next;
+                 }
+
+                 spin_unlock_bh(&list_lock);
+
+If i was right in previous assumption, than this code may be owervritten
+in such manner:
+.....
+ if (!del_timer(&list->timer)) {
+     if (!next)
+          break;
+     list = next;
+     continue;
+     }
+.....
+
+Or am I wrong again?
+If it is so, please tell me the write answer and explanation.
+
+Thanks in advance for you answers and appologies.
+
+---
+WBR. //s0mbre

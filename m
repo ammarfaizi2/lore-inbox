@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbTLELoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTLELoE
+	id S263923AbTLELw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTLELw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:44:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35225 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263866AbTLELoC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:44:02 -0500
-Date: Fri, 5 Dec 2003 11:44:00 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Andy Isaacson <adi@hexapodia.org>, Rob Landley <rob@landley.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Message-ID: <20031205114400.GD10421@parcelfarce.linux.theplanet.co.uk>
-References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org> <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
+	Fri, 5 Dec 2003 06:52:27 -0500
+Received: from relay-2m.club-internet.fr ([194.158.104.41]:12160 "EHLO
+	relay-2m.club-internet.fr") by vger.kernel.org with ESMTP
+	id S263923AbTLELwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 06:52:25 -0500
+Date: Fri, 5 Dec 2003 12:52:23 +0100
+From: Loic Bernable <leto@vilya.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-t11: keyboard problems revisited
+Message-ID: <20031205115223.GA11214@thorgal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+X-GnuPG-Fingerprint: 5BF7 988C 9367 2E86 DE52  F141 5F5F 34EE A0BB 3DEB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 05, 2003 at 11:22:01AM +0000, Anton Altaparmakov wrote:
-> On Thu, 4 Dec 2003, Andy Isaacson wrote:
-> > On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
-> > I'm curious -- does NTFS implement sparse files?  Does the Win32 API
-> > provide any way to manipulate them?  Does the NT kernel have any sparse
-> > file handling?
+In his previous email, Jurgen Kramer explained :
+> While booting 2.6.0-t11 into textmode I found out there are still some
+> problems with the keyboard code.
 > 
-> Yes it does.  The new NTFS Linux driver has full support for sparse files
-> as does Windows of course.
-> 
-> Windows does provide a function which is just "make hole".  It takes
-> starting offset and length (or was it ending offset instead of length,
-> can't remember) and makes this sparse (obviously aligning to cluster
-> boundaries, etc).
+> On my PC with USB keyboard (Logitech iTouch) I can't use the "\" key
+> properly so I can't type "ps -ef | grep blabla" which is not very
+> helpful is you want to try to investigate problems.
+>
+> So there seems to be some kind of anti-pipe conspiracy here...;-)
 
-Have fun getting it to play nice with mmap()...
+This problem is not specifically related to the Logitech one. There are
+several cases related to this bug (ie for instance
+http://lkml.org/lkml/2003/11/27/153 )
+
+Your | key should be the same as the "*" key on french keyboards.
+
+I submitted a bug report dealing with the details of this problem, but
+still no answer yet.
+
+http://bugzilla.kernel.org/show_bug.cgi?id=1637
+
+
+The patch provided by Tonnerre Anklin should work (I wouldn't have
+changed the two values, just 84 -> 43) but it may break some other 
+keyboards. This is one question asked in the bug report.
+
+
+And the other is : why did it work with 2.4.x kernels ?
+
+
+Thank you to Cc me for any answer ...
+
+-- 
+### Loïc Bernable aka Leto -- leto(à)vilya,org -- Parinux, April, LinuxFR ###
+c:\> uptime
+5:11pm  up 0 days, 0:15, 1 user (obviously), load average: 4.98, 5.03, 5.01

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312076AbSCQRVe>; Sun, 17 Mar 2002 12:21:34 -0500
+	id <S312081AbSCQRcq>; Sun, 17 Mar 2002 12:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312082AbSCQRVZ>; Sun, 17 Mar 2002 12:21:25 -0500
-Received: from waste.org ([209.173.204.2]:2196 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S312077AbSCQRVO>;
-	Sun, 17 Mar 2002 12:21:14 -0500
-Date: Sun, 17 Mar 2002 11:21:08 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-cc: Paul Allen <allenp@nwlink.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2 zeros inode in directory entry when deleting files.
-In-Reply-To: <20020317072505.GA768@snap.thunk.org>
-Message-ID: <Pine.LNX.4.44.0203171049400.31834-100000@waste.org>
+	id <S312083AbSCQRc1>; Sun, 17 Mar 2002 12:32:27 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:48804 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S312082AbSCQRcP>; Sun, 17 Mar 2002 12:32:15 -0500
+Date: 17 Mar 2002 16:38:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8L1noxPHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33.0203161342190.24457-100000@home.transmeta.com>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0203161342190.24457-100000@home.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002 tytso@mit.edu wrote:
+torvalds@transmeta.com (Linus Torvalds)  wrote on 16.03.02 in <Pine.LNX.4.33.0203161342190.24457-100000@home.transmeta.com>:
 
-> On Sat, Mar 16, 2002 at 12:24:15AM -0800, Paul Allen wrote:
-> > While helping a friend recover from a catastrophic "rm -rf" accident,
-> > I discovered that deleted files have the inode number in their old
-> > directory entries zeroed.  This makes it impossible to match file
-> > names with recovered files.  I've verified this behavior on Mandrake
-> > 8.1 with Mandrake's stock 2.4.8 kernel.  In my kernel sources and
-> > in the stock 2.4.8 sources, the function ext2_delete_entry() in
-> > fs/ext2/dir.c has this line:
+> On Sat, 16 Mar 2002 yodaiken@fsmlabs.com wrote:
+
+> > > In short, youaere
 > >
-> > 	dir->inode = 0;
-> >
-> > Now, I'm tempted to comment the line out in my kernel and see
-> > what happens.  But it does occur to me that hackers with more
-> > experience than I may zeroing the inode number for a reason and
-> > may be depending on it elsewhere in the kernel.  Or perhaps the
-> > ext2 flavor of fsck will malfunction if deleted directory entries
-> > have a non-zero inode?
+> > Don't use umlauts unless you are ready to back it up.
 >
-> Um....  the way directory entries are marked as deleted is by zeroing
-> out the inode number.
->
-> So if you take out that line, deleted files will appear not to be
-> deleted, the kernel will get confused, and you can be sure that fsck
-> will complain.
+> That's not an umlaut, that's an "ae", which is a real letter in Finnish and
+> Swedish (it just _looks_ like an a with an umlaut to you uncultured
+> people), and it happens to be a letter that is just left of the ' mark on
+> a Finnish keyboard.
 
-Yes and no.
+Hey, careful there! Those English speakers stole that name from German,  
+and in German those umlauts are real letters, too. Incidentally, my ae is  
+next to the '# key ...
 
-Procedurally, rm -rf must delete all children before deleting the parent,
-but in the end result, it is sufficient to have marked the parent deleted,
-without flushing the modified child directories back to disk.
-
-Also, (for the benefit of our readers) in the case of ext2 directories,
-dirents are in the form
-
-[inode][reclen][namelen]["name"][inode][reclen][namelen]["name"]
-
-where reclen is effectively a pointer to the next record. It should be
-sufficient for the purposes of e2fsck and the kernel that records be
-unlinked from the list by extending the previous record and the inode in
-the entry be marked unused in the inode bitmap. So I see no reason to be
-zeroing the contents of unreferenced disk space, as it needlessly hinders
-future rescue attempts.
-
-Paul, if you feel like hacking, I once wrote a Perl module that
-understands (pre-sparse-superblock) Ext2 disk layouts:
-
- http://waste.org/~oxymoron/E2fs.pm
-
-In combination with other scripts, I've used it to recover gigabytes of
-files, even in the presence of mangled directories and zeroed indirect
-blocks (which hopefully are no longer senselessly zeroed by current
-kernels).
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+MfG Kai

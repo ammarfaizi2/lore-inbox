@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbUEOPuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUEOQNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbUEOPuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 11:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUEOPuZ
+	id S264656AbUEOQNz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 12:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264664AbUEOQNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 11:50:25 -0400
-Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:24213 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S264582AbUEOPuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 11:50:20 -0400
-Subject: Re: PATCH: (as279) Don't delete interfaces until all are unbound
-From: Nuno Ferreira <nuno.ferreira@graycell.biz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, Duncan Sands <baldrick@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sf.net
-In-Reply-To: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
+	Sat, 15 May 2004 12:13:55 -0400
+Received: from mailout01.ims-firmen.de ([213.174.32.96]:2510 "EHLO
+	mailout01.ims-firmen.de") by vger.kernel.org with ESMTP
+	id S264656AbUEOQNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 12:13:53 -0400
+Subject: Re: dma ripping
+From: Daniele Bernardini <db@sqbc.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040515145800.GE24600@suse.de>
+References: <1084548566.12022.57.camel@linux.site>
+	 <20040515101415.GA24600@suse.de> <1084610731.4666.8.camel@linux.site>
+	 <20040515145800.GE24600@suse.de>
 Content-Type: text/plain
-Organization: Graycell
-Message-Id: <1084636220.2901.1.camel@taz.graycell.biz>
+Message-Id: <1084616037.4666.14.camel@linux.site>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
-Date: Sat, 15 May 2004 16:50:21 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 15 May 2004 12:13:58 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Qui, 2004-05-13 at 13:56 -0400, Alan Stern wrote:
-> On Thu, 13 May 2004, Duncan Sands wrote:
+On Sat, 2004-05-15 at 16:58, Jens Axboe wrote:
+> On Sat, May 15 2004, Daniele Bernardini wrote:
+> > 
+> > On Sat, 2004-05-15 at 12:14, Jens Axboe wrote:
+> > > On Fri, May 14 2004, Daniele Bernardini wrote:
+> > > > Hi Folks, 
+> > > > 
+> > > > I am trying to get cd ripping to work on a freshly installed SuSE 9.1 on
+> > > > IBM thinkpad R50 with dvdram drive. 
+> > > > 
+> > > > It works for a while and then hangs. At this point nothing short of a
+> > > > reboot works. Ripping stop working when the message 
+> > > > 	cdrom: dropping to single frame dma
+> > > > comes up. The system feels slow for a couple of seconds and then is back
+> > > > to normal, but no ripping until next reboot
+> > > > 
+> > > > I am running the 2.6.4 compiled by SuSE.
+> > > 
+> > > Can you retest with this small debug patch applied.
+> > > 
+> > > --- drivers/cdrom/cdrom.c~	2004-05-15 12:12:24.770228291 +0200
+> > > +++ drivers/cdrom/cdrom.c	2004-05-15 12:13:25.101720866 +0200
+> > > @@ -1987,6 +1987,7 @@
+> > >  			struct request_sense *s = rq->sense;
+> > >  			ret = -EIO;
+> > >  			cdi->last_sense = s->sense_key;
+> > > +			printk("rip failed, sense %x/%x/%x\n", s->sense_key, s->asc, s->ascq);
+> > >  		}
+> > >  
+> > >  		if (blk_rq_unmap_user(rq, ubuf, bio, len))
+> > 
+> > I did it and started ripping a cd it froze after 9 tracks, though did
+> > not see your message. I was looking at /var/log/messages (see below).
+> > BTW the system got instable and then froze had to power down. It
+> > happened before always after the ripping problem.
+> > 
+> > Should I aswitch on debug for the cdrom?
 > 
-> > No, but the pointer for another (previous) interface may just have been
-> > set to NULL, causing an Oops when usb_ifnum_to_if loops over all
-> > interfaces.
+> Just an idea - can you log vmstat 5 info while doing this burn? Maybe
+> there's still a little leak in there, so watch the ram usage
+> (used/free/swap/cache).
 > 
-> Of course!  I trust you won't mind me changing your suggested fix
-> slightly.  This should do an equally good job of repairing things, and it
-> will prevent other possible invalid references as well.
+> Does your drive have dma enabled?
 
-OK, I've now tested the patch ant it appears to work, I removed the USB
-modem several times and not a single Oops to report.
+How do you check if dma is enabled?
 
-Great work, thanks
+BTW it works with ide-scsi, so whatever the problem is must be ide-cd
+specific
+
+Ill post the test result later
 

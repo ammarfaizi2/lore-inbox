@@ -1,101 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbUJXPfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbUJXPhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbUJXPfb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 11:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUJXPfb
+	id S261464AbUJXPhv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 11:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUJXPhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 11:35:31 -0400
-Received: from pD9E39B5D.dip.t-dialin.net ([217.227.155.93]:36357 "EHLO
-	pro01.local.promotion-ie.de") by vger.kernel.org with ESMTP
-	id S261516AbUJXPfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 11:35:11 -0400
-From: alex@local.promotion-ie.de
-Subject: Re: linux 2.6.9 on alpha noritake
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: alex@local.promotion-ie.de, linux-kernel <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@twiddle.net>
-In-Reply-To: <20041024144329.A623@den.park.msu.ru>
-References: <1098476483.11296.37.camel@pro30.local.promotion-ie.de>
-	 <1098520279.14984.12.camel@pro30.local.promotion-ie.de>
-	 <20041023175811.GA23184@twiddle.net>  <20041024144329.A623@den.park.msu.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098632003.8479.4.camel@pro30.local.promotion-ie.de>
+	Sun, 24 Oct 2004 11:37:51 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:3457 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S261500AbUJXPhV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 11:37:21 -0400
+Date: Sun, 24 Oct 2004 08:32:04 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: jonathan@jonmasters.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, karim@opersys.com
+Subject: Re: [RFC][PATCH] Restricted hard realtime
+Message-ID: <20041024153204.GA1262@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20041023194721.GB1268@us.ibm.com> <1098562921.3306.182.camel@thomas> <20041023212421.GF1267@us.ibm.com> <35fb2e5904102315066c6892aa@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 24 Oct 2004 17:33:23 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35fb2e5904102315066c6892aa@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Ivan,
-
-that seems to do the trick....
-but as usually one thing fixed next broken....
-now the sym53c8xx won't scan the SCSI bus.
-So I have no chance to boot and take a closer look if everything is
-working again. I do further investigation later on.
-
-Thank you for your help!
-Alex
-
-Am So, den 24.10.2004 schrieb Ivan Kokshaysky um 12:43:
-> On Sat, Oct 23, 2004 at 10:58:11AM -0700, Richard Henderson wrote:
-> > > pc is at __raw_readw+0x4c/0x60
-> > > ra is at vgacon_startup+0x4ec/0x750
-> > 
-> > I'll have a look.  Why are you using fbcon anyway?
+On Sat, Oct 23, 2004 at 11:06:03PM +0100, Jon Masters wrote:
+> On Sat, 23 Oct 2004 14:24:21 -0700, Paul E. McKenney <paulmck@us.ibm.com> wrote:
 > 
-> Ouch. The high order bits of the address in cia_ioXXX routines get
-> cleared out too early, so that addr >= CIA_DENSE_MEM clause
-> is always false.
+> > On Sat, Oct 23, 2004 at 10:22:01PM +0200, Thomas Gleixner wrote:
 > 
-> Ivan.
+> > > On Sat, 2004-10-23 at 12:47 -0700, Paul E. McKenney wrote:
 > 
-> --- 2.9/include/asm-alpha/core_cia.h	Tue Oct 19 01:54:30 2004
-> +++ linux/include/asm-alpha/core_cia.h	Sun Oct 24 14:16:17 2004
-> @@ -347,14 +347,14 @@ __EXTERN_INLINE unsigned int cia_ioread8
->  	unsigned long addr = (unsigned long) xaddr;
->  	unsigned long result, base_and_type;
->  
-> -	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
-> -	   enough to cover all io ports, and smaller than CIA_IO.  */
-> -	addr &= CIA_MEM_R1_MASK;
->  	if (addr >= CIA_DENSE_MEM)
->  		base_and_type = CIA_SPARSE_MEM + 0x00;
->  	else
->  		base_and_type = CIA_IO + 0x00;
->  
-> +	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
-> +	   enough to cover all io ports, and smaller than CIA_IO.  */
-> +	addr &= CIA_MEM_R1_MASK;
->  	result = *(vip) ((addr << 5) + base_and_type);
->  	return __kernel_extbl(result, addr & 3);
->  }
-> @@ -379,12 +379,12 @@ __EXTERN_INLINE unsigned int cia_ioread1
->  	unsigned long addr = (unsigned long) xaddr;
->  	unsigned long result, base_and_type;
->  
-> -	addr &= CIA_MEM_R1_MASK;
->  	if (addr >= CIA_DENSE_MEM)
->  		base_and_type = CIA_SPARSE_MEM + 0x08;
->  	else
->  		base_and_type = CIA_IO + 0x08;
->  
-> +	addr &= CIA_MEM_R1_MASK;
->  	result = *(vip) ((addr << 5) + base_and_type);
->  	return __kernel_extwl(result, addr & 3);
->  }
-> @@ -394,12 +394,12 @@ __EXTERN_INLINE void cia_iowrite16(u16 b
->  	unsigned long addr = (unsigned long) xaddr;
->  	unsigned long w, base_and_type;
->  
-> -	addr &= CIA_MEM_R1_MASK;
->  	if (addr >= CIA_DENSE_MEM)
->  		base_and_type = CIA_SPARSE_MEM + 0x08;
->  	else
->  		base_and_type = CIA_IO + 0x08;
->  
-> +	addr &= CIA_MEM_R1_MASK;
->  	w = __kernel_inswl(b, addr & 3);
->  	*(vuip) ((addr << 5) + base_and_type) = w;
->  }
+> > > I haven't seen an embedded SMP system yet. Focussing this on SMP systems
+> > > is ignoring the majority of possible applications.
+> 
+> > Seeing SMP support for ARM lead me to believe that this was not too far
+> > over the edge.
+> 
+> They have an SMP reference implementation, however many folks don't
+> actually want to go the dual core approach right now for embedded
+> designs (apparently the increased design complexity isn't worth it).
+> I've had protracted discussions about this very issue quite recently
+> indeed. Others will disagree, I'm only basing my statement upon
+> conversations with various engineers - I think your idea eventually
+> becomes interesting, but now is not the right moment to be pushing it
+> yet. People still don't want this now.
+
+Thank you for the background!  It has been quite some time since I
+did significant embedded work.  Let's just say that I am glad that
+"embedded CPU" no longer means "8-bit CPU"!  ;-)
+
+> Talk to smartphone manufacturers who currently have dual ARM core
+> designs, one running Linux and the other running an RTOS for the GSM
+> and phone stuff, and they'll say they actually want to reduce the
+> design complexity down to a single core. Talking to people suggests
+> that multicore designs are good in certain situations (such as in the
+> case above), but in general people aren't yet going to respond to your
+> way of doing realtime :-) Yes you do have only one OS in there, maybe
+> that would change opinion, but we're not quite at the point where
+> everything is multicore so you're not going to convince the masses.
+
+Good points.  Suppose there was a way to get the hard realtime benefits
+using a slight elaboration of this approach that worked on single-core,
+single-threaded CPUs?  Would that be of interest?
+
+> Having said all that, for a different perspective, I hack on ppc
+> (Xilinx Virtex II Pro) kernel and userspace stuff for some folks that
+> make high resolution imaging equipment, involving extremely precise
+> control over a pulsed signal and data acquisition (we're talking
+> nanosecond/microsecond precision). Since Linux obviously isn't capable
+> of this level of deterministic response right now we end up farming
+> out work to a separate core - it's unlikely your approach would
+> convince the hardware folks, but I guess it might be tempting at some
+> point in the future. Who knows.
+
+Agreed, if you are going for the ultimate in response time, you have
+no choice but to run hand-coded assembly language on bare metal (though
+optimizing compilers are improving, so maybe it will soon be hand-coded
+C on bare metal).  If you are using your computer to digitally modulate
+and synthesize a USA FM radio signal (around 100MHz carrier frequency),
+you certainly are not going to have anything resembling an OS involved.
+You will have nothing but a tight loop running flat out, assuming that
+even today's general-purpose CPUs are fast enough to accomplish this.
+
+So, I guess the question is whether 100-microsecond restricted hard
+realtime support in Linux is worth the effort.  From what you are saying,
+it sounds like the answer is currently "no" if it requires multithreaded
+CPUs or multicore dies.
+
+So, again, if there was a way to make this approach work on
+single-threaded single core CPUs, would that be of interest?
+
+					Thanx, Paul

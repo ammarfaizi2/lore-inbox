@@ -1,108 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSLMXdn>; Fri, 13 Dec 2002 18:33:43 -0500
+	id <S265633AbSLMXnk>; Fri, 13 Dec 2002 18:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265633AbSLMXdn>; Fri, 13 Dec 2002 18:33:43 -0500
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:53729 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265628AbSLMXdl>; Fri, 13 Dec 2002 18:33:41 -0500
-Date: Fri, 13 Dec 2002 16:34:11 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK fbdev] Yet again more fbdev updates.
-In-Reply-To: <Pine.LNX.4.44.0212131347240.10159-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212132236270.6237-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265636AbSLMXnk>; Fri, 13 Dec 2002 18:43:40 -0500
+Received: from dsl-213-023-066-131.arcor-ip.net ([213.23.66.131]:12951 "EHLO
+	neon.pearbough.net") by vger.kernel.org with ESMTP
+	id <S265633AbSLMXni>; Fri, 13 Dec 2002 18:43:38 -0500
+Date: Sat, 14 Dec 2002 00:49:59 +0100
+From: axel@pearbough.net
+To: lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: Compiling iproute2(w/HTB patch) for 2.5.51
+Message-ID: <20021213234959.GA31994@neon.pearbough.net>
+Mail-Followup-To: lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org,
+	kuznet@ms2.inr.ac.ru
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> James,
->  the fbcon update seems to have broken the plain VGA console. I get a page
-> fault at vgacon_scroll+0x144, the call sequence seems to be:
->
-> 	vt_console_print+0x203
-> 	set_cursor+0x78
-> 	vgacon_cursor+x0xb5
-> 	scrup+0x122
-> 	vgacon_scroll+0x144
->
-> I don't know what triggers it, since it seems to happen pretty randomly.
+having read an article about QoS and HTB in a German computer magazine I
+wanted to implement such thing on my linux router running kernel 2.5.51.
+First I patched the iproute2-020116.tar.gz package with the htb3.6_tc.diff 
+from http://luxik.cdi.cz/~devik/qos/htb/ and started building it. But
+unfortunately it resulted in strange compile errors I do not understand.
 
-Strange. I avoided touching that driver as much as possible. The other
-strange error I have seen is vesa mode 791 for some reason stopped woking
-on some boards. I just did a diff between 2.5.49 vgacon.c and the current
-vgacon.c. The result is
+Hope this is some help for you and I am not doing something terribly wrong.
 
---- /usr/src/linux-2.5.49/drivers/video/vgacon.c	Fri Sep 13 14:17:14 2002
-+++ vgacon.c	Fri Dec 13 15:22:02 2002
-@@ -41,7 +41,6 @@
- #include <linux/kernel.h>
- #include <linux/tty.h>
- #include <linux/console.h>
--#include <linux/console_struct.h>
- #include <linux/string.h>
- #include <linux/kd.h>
- #include <linux/slab.h>
-@@ -180,6 +179,13 @@
- #endif
- 	}
+Best regards,
+Axel Siebenwirth
 
-+	/* VGA16 modes are not handled by VGACON */
-+	if ((ORIG_VIDEO_MODE == 0x0D) || /* 320x200/4 */
-+	    (ORIG_VIDEO_MODE == 0x0E) || /* 640x200/4 */
-+	    (ORIG_VIDEO_MODE == 0x10) || /* 640x350/4 */
-+	    (ORIG_VIDEO_MODE == 0x12) || /* 640x480/4 */
-+	    (ORIG_VIDEO_MODE == 0x6A))   /* 800x600/4, 0x6A is very common */
-+		goto no_vga;
-
- 	vga_video_num_lines = ORIG_VIDEO_LINES;
- 	vga_video_num_columns = ORIG_VIDEO_COLS;
-@@ -838,8 +844,8 @@
- static int
- vgacon_adjust_height(unsigned fontheight)
- {
--	int rows, maxscan;
- 	unsigned char ovr, vde, fsr;
-+	int rows, maxscan, i;
-
- 	if (fontheight == vga_video_font_height)
- 		return 0;
-@@ -881,7 +887,12 @@
- 	outb_p( vde, vga_video_port_val );
- 	spin_unlock_irq(&vga_lock);
-
--	vc_resize_all(rows, 0);			/* Adjust console size */
-+	for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+		struct vc_data *c = vc_cons[i].d;
-+
-+		if (c && c->vc_sw == &vga_con)
-+			vc_resize(c->vc_num, 0, rows);	/* Adjust console size */
-+	}
- 	return 0;
- }
-
-  Now the first chuck of code was from a vga16fb patch. Originally you
-could set a vga graphical mode that was standard but not apart of the VESA
-number range (100+) and vgacon would still start. This prevented it.
-To the people having trouble setting VESA fb mode 791 remove this code and
-tell me if your problem goes away.
-   The second possible source is in vga_adjust_height. This is called when
-you change your font set from userland. I attempted to change my font and
-didn't have a problem.
-   The err you are talking about that is having issues in vgacon_scroll is
-
-c->vc_origin = vga_vram_end - c->vc_screenbuf_size;
-
-Which is when dir equals SM_DOWN and the old origin minus the amount we
-scroll is less than A000 (vga_vram_base). Its just strange. I'm going to
-stress test vgacon to see what is going on.
-
-
-
+make[1]: Entering directory /usr/local/src/iproute2/misc'
+gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include-glibc
+-I/usr/include/db3 -include ../include-glibc/glibc-bugs.h
+-I/usr/src/linux/include -I../include -DRESOLVE_HOSTNAMES   -c -o ss.o ss.c
+In file included from /usr/src/linux/include/linux/skbuff.h:19,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/time.h:9: redefinition of `struct timespec'
+/usr/src/linux/include/linux/time.h:15: redefinition of `struct timeval'
+In file included from /usr/src/linux/include/linux/skbuff.h:19,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/time.h:146:1: warning: "FD_SET" redefined
+In file included from /usr/include/sys/types.h:215,
+                 from ../include-glibc/glibc-bugs.h:5,
+                 from <command line>:1:
+/usr/include/sys/select.h:89:1: warning: this is the location of the
+previous definition
+In file included from /usr/src/linux/include/linux/skbuff.h:19,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/time.h:147:1: warning: "FD_CLR" redefined
+In file included from /usr/include/sys/types.h:215,
+                 from ../include-glibc/glibc-bugs.h:5,
+                 from <command line>:1:
+/usr/include/sys/select.h:90:1: warning: this is the location of the
+previous definition
+In file included from /usr/src/linux/include/linux/skbuff.h:19,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/time.h:148:1: warning: "FD_ISSET" redefined
+In file included from /usr/include/sys/types.h:215,
+                 from ../include-glibc/glibc-bugs.h:5,
+                 from <command line>:1:
+/usr/include/sys/select.h:91:1: warning: this is the location of the
+previous definition
+In file included from /usr/src/linux/include/linux/skbuff.h:19,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/time.h:149:1: warning: "FD_ZERO" redefined
+In file included from /usr/include/sys/types.h:215,
+                 from ../include-glibc/glibc-bugs.h:5,
+                 from <command line>:1:
+/usr/include/sys/select.h:92:1: warning: this is the location of the
+previous definition
+In file included from /usr/src/linux/include/linux/sched.h:12,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/skbuff.h:25,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/linux/jiffies.h:11: parse error before "jiffies_64"
+/usr/src/linux/include/linux/jiffies.h:11: warning: type defaults to 	nt'
+in declaration of 
+iffies_64'
+/usr/src/linux/include/linux/jiffies.h:11: warning: data definition has no
+type
+or storage class
+In file included from /usr/src/linux/include/linux/sched.h:20,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/skbuff.h:25,
+                 from /usr/src/linux/include/linux/tcp.h:20,
+                 from ss.c:36:
+/usr/src/linux/include/asm/mmu.h:13: field `sem' has incomplete type
+/usr/src/linux/include/asm/mmu.h:15: confused by earlier errors, bailing out
+make[1]: *** [ss.o] Error 1
+make[1]: Leaving directory /usr/local/src/iproute2/misc'

@@ -1,129 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263053AbUKTBvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263042AbUKTBxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbUKTBvA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 20:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbUKTBtT
+	id S263042AbUKTBxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 20:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbUKTBs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 20:49:19 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:53154 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262836AbUKTBqA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 20:46:00 -0500
-Subject: [RFC PATCH] cpumask_t initializers
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Janis Johnson <janis187@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1100915156.4653.13.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 19 Nov 2004 17:45:57 -0800
+	Fri, 19 Nov 2004 20:48:57 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:47725 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263055AbUKTBqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 20:46:07 -0500
+Message-ID: <419EA1D7.2060708@yahoo.com.au>
+Date: Sat, 20 Nov 2004 12:45:59 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V11 [0/7]: overview
+References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>  <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com>  <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com>  <419D581F.2080302@yahoo.com.au>  <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com>  <419D5E09.20805@yahoo.com.au>  <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org> <419E98E7.1080402@yahoo.com.au> <Pine.LNX.4.58.0411191726001.1719@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0411191726001.1719@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the course of another patch I've been working on, I stumbled across
-some weirdness with some of the SD_*_INIT sched_domains initializers.  A
-day or so of digging narrowed it down to the CPU_MASK_NONE initializer
-nested inside the sched_domain initializers.  The errors I got were:
-
-kernel/sched.c:4812: error: initializer element is not constant
-kernel/sched.c:4812: error: (near initialization for `sched_domain_dummy')
-kernel/sched.c:4812: error: initializer element is not constant
-
-which was this line:
-
-static struct sched_domain sched_domain_dummy = SD_CPU_INIT;
-
-Janis Johnson, a GCC hacker, told me the following:
------BEGIN QUOTE------
-On Fri, Nov 19, 2004 at 01:30:39PM -0800, Matthew Dobson wrote:
-> > /* GCC doesn't like parens around the array initializer, whether or
-> >    not the cast is used.  */
-> > #ifdef P
-> > #define CPU_MASK_NONE (CAST1 { { [0 ... 1-1] = 0UL } })
-> > #else
-> > #define CPU_MASK_NONE CAST1 { { [0 ... 1-1] = 0UL } }
-> > #endif
+Christoph Lameter wrote:
+> On Sat, 20 Nov 2004, Nick Piggin wrote:
 > 
-> Janis, this may be a dumb question, but WHY does GCC care about parens
-> around the array initializer?  It's always been my (apparently
-> incorrect) understanding that GCC will just throw away any useless
-> parens, assuming they are matched...  I'm sure there is one, but I
-just
-> can't think of a good reason why GCC would care about a set of parens
-> around an array initializer, but not around a struct initializer?
+> 
+>>I think this sounds like it might be a good idea. I prefer it to having
+>>the unbounded error of sloppy rss (as improbable as it may be in practice).
+> 
+> 
+> It may also be faster since the processors can have exclusive cache lines.
+> 
 
-Extra parens can be thrown away in expressions, but the syntax for
-initializers has curly braces on the outside of the list.  GCC doesn't
-seem to mind if there are parens outside the braces for a struct
-initializer, but that's probably a bug and could change in a future
-version of GCC's C parser.
+Yep.
 
-Janis
+> This means we need to move rss into the task struct. But how does one get
+> from mm struct to task struct? current is likely available most of
+> the time. Is that always the case?
+> 
 
------END QUOTE------
+It is available everywhere that mm_struct is, I guess. So yes, I
+think `current` should be OK.
 
-So, in order to both make my code compile and future-proof (heh) the
-CPU_MASK_* initializers I wrote up this little patch.  This DEFINITELY
-needs to be tested further (I've compile-tested it on x86, x86 NUMA,
-x86_64 & ppc64), but the good news is that any breakage from the patch
-will be compile-time breakage and should be obvious.
+> 
+>>The per thread rss may wrap (maybe not 64-bit counters), but even so,
+>>the summation over all threads should still end up being correct I
+>>think.
+> 
+> 
+> Note though that the mmap_sem is no protection. It is a read lock and may
+> be held by multiple processes while incrementing and decrementing rss.
+> This is likely reducing the number of collisions significantly but it wont
+> be a  guarantee like locking or atomic ops.
+> 
 
-The fact that GCC's parser may change in the future to disallow struct
-initializers wrapped in parens kind of scares me, because just about
-every struct initializer I've ever seen in the kernel is wrapped in
-parens!!  This needs to be delved into further, but I'm leaving for home
-for a week for Thanksgiving and will have limited access to email.
-
-Without further ado, I submit this patch for testing and possibly
-inclusion into the -mm series.
-
--Matt
-
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.10-rc2-mm2/include/linux/cpumask.h linux-2.6.10-rc2-mm2-CPU_MASK_INIT-fix/include/linux/cpumask.h
---- linux-2.6.10-rc2-mm2/include/linux/cpumask.h	2004-11-18 17:46:14.000000000 -0800
-+++ linux-2.6.10-rc2-mm2-CPU_MASK_INIT-fix/include/linux/cpumask.h	2004-11-19 13:41:54.000000000 -0800
-@@ -238,29 +238,29 @@ static inline int __next_cpu(int n, cons
- #if NR_CPUS <= BITS_PER_LONG
- 
- #define CPU_MASK_ALL							\
--((cpumask_t) { {							\
-+(cpumask_t) { {								\
- 	[BITS_TO_LONGS(NR_CPUS)-1] = CPU_MASK_LAST_WORD			\
--} })
-+} }
- 
- #else
- 
- #define CPU_MASK_ALL							\
--((cpumask_t) { {							\
-+(cpumask_t) { {								\
- 	[0 ... BITS_TO_LONGS(NR_CPUS)-2] = ~0UL,			\
- 	[BITS_TO_LONGS(NR_CPUS)-1] = CPU_MASK_LAST_WORD			\
--} })
-+} }
- 
- #endif
- 
- #define CPU_MASK_NONE							\
--((cpumask_t) { {							\
-+(cpumask_t) { {								\
- 	[0 ... BITS_TO_LONGS(NR_CPUS)-1] =  0UL				\
--} })
-+} }
- 
- #define CPU_MASK_CPU0							\
--((cpumask_t) { {							\
-+(cpumask_t) { {								\
- 	[0] =  1UL							\
--} })
-+} }
- 
- #define cpus_addr(src) ((src).bits)
- 
-
-
+Yeah the read lock won't do anything to serialise it. I think what Linus
+is saying is that we _don't care_ most of the time (because the error will
+be bounded). But if it happened that we really do care anywhere, then the
+write lock should be sufficient.

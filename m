@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316821AbSGHHts>; Mon, 8 Jul 2002 03:49:48 -0400
+	id <S316823AbSGHID0>; Mon, 8 Jul 2002 04:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSGHHtr>; Mon, 8 Jul 2002 03:49:47 -0400
-Received: from samar.sasken.com ([164.164.56.2]:12229 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S316821AbSGHHtr>;
-	Mon, 8 Jul 2002 03:49:47 -0400
-Date: Mon, 8 Jul 2002 13:24:01 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: Andi Kleen <ak@suse.de>
-cc: <linux-kernel@vger.kernel.org>
+	id <S316824AbSGHID0>; Mon, 8 Jul 2002 04:03:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:23052 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316823AbSGHIDZ>;
+	Mon, 8 Jul 2002 04:03:25 -0400
+Date: Mon, 8 Jul 2002 10:05:56 +0200
+From: Andi Kleen <ak@suse.de>
+To: Madhavi <madhavis@sasken.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: IPv6 multiple routing tables
-In-Reply-To: <p737kk6wueb.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.33.0207081322320.1324-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020708100556.A20528@wotan.suse.de>
+References: <p737kk6wueb.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0207081322320.1324-100000@pcz-madhavis.sasken.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0207081322320.1324-100000@pcz-madhavis.sasken.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 08, 2002 at 01:24:01PM +0530, Madhavi wrote:
+> 
+> Hi
+> 
+> Could you tell me where the patch is available. I just need to get an idea
+> on how it is implemented.
 
-Hi
+The code is in the standard kernel, inside CONFIG_IPV6_SUBTREES
 
-Could you tell me where the patch is available. I just need to get an idea
-on how it is implemented.
 
-regards
-Madhavi.
-
-On 8 Jul 2002, Andi Kleen wrote:
-
-> Madhavi <madhavis@sasken.com> writes:
->
-> > Hi
-> >
-> > Does linux kernel version 2.4.18 support multiple routing tables for IPv6?
-> > Otherwise, is there some patch available for this support?
->
-> It's not supported. While there is some code for it in the kernel
-> it is not functional.
->
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-Andi

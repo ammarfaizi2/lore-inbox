@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbREOWZS>; Tue, 15 May 2001 18:25:18 -0400
+	id <S261644AbREOWXI>; Tue, 15 May 2001 18:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261647AbREOWY6>; Tue, 15 May 2001 18:24:58 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48284 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261646AbREOWYx>; Tue, 15 May 2001 18:24:53 -0400
-Date: Tue, 15 May 2001 16:24:45 -0600
-Message-Id: <200105152224.f4FMOjj02219@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261645AbREOWW6>; Tue, 15 May 2001 18:22:58 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28677 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261644AbREOWWq>; Tue, 15 May 2001 18:22:46 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.GSO.4.21.0105151747060.22958-100000@weyl.math.psu.edu>
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0105151747060.22958-100000@weyl.math.psu.edu>
+To: viro@math.psu.edu (Alexander Viro)
+Date: Tue, 15 May 2001 23:18:02 +0100 (BST)
+Cc: chip@valinux.com (Chip Salzenberg),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        neilb@cse.unsw.edu.au (Neil Brown),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.GSO.4.21.0105151746320.22958-100000@weyl.math.psu.edu> from "Alexander Viro" at May 15, 2001 05:46:56 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zn8l-0003D5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Tue, 15 May 2001, Richard Gooch wrote:
-> 
-> > Alan Cox writes:
-> > > > 	len = readlink ("/proc/self/3", buffer, buflen);
-> > > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
-> > > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-> > > > 		exit (1);
-> > > 
-> > > And on my box cd is the cabbage dicer whoops
-> > 
-> > Actually, no, because it's guaranteed that a trailing "/cd" is a
-> > CD-ROM. That's the standard.
-> 
-> Set by...?
+> Type of filesystem where the file came from? Sure.
 
-Me&Linus. The device name authority (Peter). Whoever. If you want
-Peter to bless it, then fine. But the standard is there. Violators
-will be persecuted.
+Who says it comes from only one - even on devfs that is not true
 
-				Regards,
+/dev/disk/4 is quite possibly
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	disk
+	scsi-disk
+	scsi-device
+	usb-scsi-device
+	usb-device
+
+all at once
+

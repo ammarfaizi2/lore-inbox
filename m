@@ -1,47 +1,180 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130208AbQKXVv2>; Fri, 24 Nov 2000 16:51:28 -0500
+        id <S129518AbQKXVIW>; Fri, 24 Nov 2000 16:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130307AbQKXVvT>; Fri, 24 Nov 2000 16:51:19 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:42896 "EHLO
-        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-        id <S130208AbQKXVvH>; Fri, 24 Nov 2000 16:51:07 -0500
-Message-ID: <3A1EDBB6.5D623B1A@haque.net>
-Date: Fri, 24 Nov 2000 16:20:54 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+        id <S129601AbQKXVIM>; Fri, 24 Nov 2000 16:08:12 -0500
+Received: from web.sajt.cz ([212.71.160.9]:7944 "EHLO web.sajt.cz")
+        by vger.kernel.org with ESMTP id <S129518AbQKXVIE>;
+        Fri, 24 Nov 2000 16:08:04 -0500
+Date: Fri, 24 Nov 2000 21:37:24 +0100 (CET)
+From: Pavel Rabel <pavel@web.sajt.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mad16 C924 detection
+Message-ID: <Pine.LNX.4.21.0011242122290.2998-100000@web.sajt.cz>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: iBCS2 and 2.4.0-11 Can we make soup yet?
-In-Reply-To: <3A1ED21B.7A0FC06F@timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check this thread....
-http://marc.theaimsgroup.com/?t=97149704400001&w=2&r=1
 
-"Jeff V. Merkey" wrote:
-> 
-> I noticed that iBC2 support no longer builds against 2.4.0-11.  I also
-> found that 11/98 seems to be the last version of iBCS2 posted.  2.4.0-11
-> does have a MISC binary loadable option, but I did not see iBCS2 in the
-> tree.  Is there something more recent, or is iBCS2 something that's
-> basically no longer considered critical for Linux?
+Patch is replacing 7 levels of nested ifs with something
+readable. Against 2.4test kernels. I have posted this one already once,
+trying again.
 
--- 
+The driver doesn't support C924 in both PnP and non-PnP modes as it
+claims. It looks like part of the code got lost or was not finished. This
+patch makes it more clear what's going on. There are many places in the
+driver with two different paths for C924, only one is ever used.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Pavel Rabel
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+--- drivers/sound/mad16.c.old	Wed Nov 15 20:18:57 2000
++++ drivers/sound/mad16.c	Thu Nov 16 23:07:44 2000
+@@ -462,72 +462,80 @@
+ 
+ 	DDB(printk("Detect using password = 0xE5\n"));
+ 	
+-	if (!detect_mad16())	/* No luck. Try different model */
+-	{
+-		board_type = C928;
++	if (detect_mad16()) {
++		return 1;
++	}
++	
++	board_type = C928;
+ 
+-		DDB(printk("Detect using password = 0xE2\n"));
++	DDB(printk("Detect using password = 0xE2\n"));
+ 
+-		if (!detect_mad16())
+-		{
+-			board_type = C929;
+-
+-			DDB(printk("Detect using password = 0xE3\n"));
+-
+-			if (!detect_mad16())
+-			{
+-				if (inb(PASSWD_REG) != 0xff)
+-					return 0;
+-
+-				/*
+-				 * First relocate MC# registers to 0xe0e/0xe0f, disable password 
+-				 */
+-
+-				outb((0xE4), PASSWD_REG);
+-				outb((0x80), PASSWD_REG);
+-
+-				board_type = C930;
+-
+-				DDB(printk("Detect using password = 0xE4\n"));
+-
+-				for (i = 0xf8d; i <= 0xf93; i++)
+-					DDB(printk("port %03x = %02x\n", i, mad_read(i)));
+-                                if(!detect_mad16()) {
+-
+-				  /* The C931 has the password reg at F8D */
+-				  outb((0xE4), 0xF8D);
+-				  outb((0x80), 0xF8D);
+-				  DDB(printk("Detect using password = 0xE4 for C931\n"));
+-
+-				  if (!detect_mad16()) {
+-				    board_type = C924;
+-				    c924pnp++;
+-				    DDB(printk("Detect using password = 0xE5 (again), port offset -0x80\n"));
+-				    if (!detect_mad16()) {
+-				      c924pnp=0;
+-				      return 0;
+-				    }
+-				  
+-				    DDB(printk("mad16.c: 82C924 PnP detected\n"));
+-				  }
+-				}
+-				else
+-				  DDB(printk("mad16.c: 82C930 detected\n"));
+-			} else
+-				DDB(printk("mad16.c: 82C929 detected\n"));
+-		} else {
+-			unsigned char model;
++	if (detect_mad16())
++	{
++		unsigned char model;
+ 
+-			if (((model = mad_read(MC3_PORT)) & 0x03) == 0x03) {
+-				DDB(printk("mad16.c: Mozart detected\n"));
+-				board_type = MOZART;
+-			} else {
+-				DDB(printk("mad16.c: 82C928 detected???\n"));
+-				board_type = C928;
+-			}
++		if (((model = mad_read(MC3_PORT)) & 0x03) == 0x03) {
++			DDB(printk("mad16.c: Mozart detected\n"));
++			board_type = MOZART;
++		} else {
++			DDB(printk("mad16.c: 82C928 detected???\n"));
++			board_type = C928;
+ 		}
++		return 1;
++	}
++
++	board_type = C929;
++
++	DDB(printk("Detect using password = 0xE3\n"));
++
++	if (detect_mad16())
++	{
++		DDB(printk("mad16.c: 82C929 detected\n"));
++		return 1;
++	}
++
++	if (inb(PASSWD_REG) != 0xff)
++		return 0;
++
++	/*
++	 * First relocate MC# registers to 0xe0e/0xe0f, disable password 
++	 */
++
++	outb((0xE4), PASSWD_REG);
++	outb((0x80), PASSWD_REG);
++
++	board_type = C930;
++
++	DDB(printk("Detect using password = 0xE4\n"));
++
++	for (i = 0xf8d; i <= 0xf93; i++)
++		DDB(printk("port %03x = %02x\n", i, mad_read(i)));
++
++        if(detect_mad16()) {
++		DDB(printk("mad16.c: 82C930 detected\n"));
++		return 1;
+ 	}
+-	return 1;
++
++	/* The C931 has the password reg at F8D */
++	outb((0xE4), 0xF8D);
++	outb((0x80), 0xF8D);
++	DDB(printk("Detect using password = 0xE4 for C931\n"));
++
++	if (detect_mad16()) {
++		return 1;
++	}
++
++	board_type = C924;
++	c924pnp++;
++	DDB(printk("Detect using password = 0xE5 (again), port offset -0x80\n"));
++	if (detect_mad16()) {
++		DDB(printk("mad16.c: 82C924 PnP detected\n"));
++		return 1;
++	}
++	
++	c924pnp=0;
++
++	return 0;
+ }
+ 
+ static int __init probe_mad16(struct address_info *hw_config)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275477AbTHJJQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 05:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275486AbTHJJQJ
+	id S275510AbTHJJOF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 05:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275511AbTHJJOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 05:16:09 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:9489 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S275477AbTHJJQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 05:16:03 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.6.0-test3] i386 msr.c devfs support 1/2
-Date: Sun, 10 Aug 2003 12:51:03 +0400
-User-Agent: KMail/1.5
+	Sun, 10 Aug 2003 05:14:04 -0400
+Received: from sojef.skynet.be ([195.238.2.127]:40335 "EHLO sojef.skynet.be")
+	by vger.kernel.org with ESMTP id S275510AbTHJJOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 05:14:01 -0400
+Message-Id: <200308100913.h7A9DMWF001775@pc.skynet.be>
+From: Hans Lambrechts <hans.lambrechts@skynet.be>
+Subject: Re: APM working on SMP machines?
+To: cijoml@volny.cz, linux-kernel@vger.kernel.org
+Date: Sun, 10 Aug 2003 11:13:22 +0200
+References: <ixTI.4cK.19@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3dgN/d3G9wl+Wyc"
-Message-Id: <200308101251.03605.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+in your /etc/lilo.conf
 
---Boundary-00=_3dgN/d3G9wl+Wyc
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+append="apm=smp apm=power-off"
 
-Please let me know if default permissions (644) are not appropriate. Tested on 
-2-way SMP kernel single CPU system; it correctly rejects access to 
-no-existing CPU.
+Greetings,
+Hans Lambrechts
 
-/dev/cpu/N is not removed on module unload. It is impossible to cleanly 
-unregister directories shared by independent drivers given current devfs 
-implementation (no actual refcounting)
 
--andrey
---Boundary-00=_3dgN/d3G9wl+Wyc
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.6.0-test3-msr_devfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.0-test3-msr_devfs.patch"
 
---- linux-2.6.0-test3-smp/arch/i386/kernel/msr.c.devfs	2003-06-26 21:39:26.000000000 +0400
-+++ linux-2.6.0-test3-smp/arch/i386/kernel/msr.c	2003-08-09 22:29:56.000000000 +0400
-@@ -37,6 +37,8 @@
- #include <linux/major.h>
- #include <linux/fs.h>
- 
-+#include <linux/devfs_fs_kernel.h>
-+
- #include <asm/processor.h>
- #include <asm/msr.h>
- #include <asm/uaccess.h>
-@@ -263,17 +265,28 @@ static struct file_operations msr_fops =
- 
- int __init msr_init(void)
- {
-+  int i;
-+
-   if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
-     printk(KERN_ERR "msr: unable to get major %d for msr\n",
- 	   MSR_MAJOR);
-     return -EBUSY;
-   }
-+
-+  for (i = 0; i < NR_CPUS; i++)
-+    devfs_mk_cdev(MKDEV(MSR_MAJOR, i), S_IFCHR | S_IRUGO | S_IWUSR,
-+		  "cpu/%d/msr", i);
-   
-   return 0;
- }
- 
- void __exit msr_exit(void)
- {
-+  int i;
-+
-+  for (i = 0; i < NR_CPUS; i++)
-+    devfs_remove("cpu/%d/msr", i);
-+  
-   unregister_chrdev(MSR_MAJOR, "cpu/msr");
- }
- 
+Michal Semler wrote:
 
---Boundary-00=_3dgN/d3G9wl+Wyc--
+> Hello,
+> 
+> I would like to know when will work APM on SMP machines?
+> I use Dell  workstation 400 with 2 P2 CPUs.
+> When I remove one CPU APM works, when I have 2 in case APM
+> doesn't work
+> 
+> I can't use ACPI, because this machine doesn't support it.
+> 
+> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
+> apm: disabled - APM is not SMP safe.
+> 
+> Thanks for fixing and reply - it's very uncomfortable
+> switch off computer manually :(
+> 
+> Michal
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265883AbUF2SLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265884AbUF2SP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUF2SLi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 14:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbUF2SLi
+	id S265884AbUF2SP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 14:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUF2SP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 14:11:38 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:30141 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265883AbUF2SFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 14:05:15 -0400
-Date: Tue, 29 Jun 2004 13:59:00 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: "Eric D. Mudama" <edmudama@bounceswoosh.org>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Silicon Image 3512 & seagate ST3120026AS in 2.4.27-rc2
-In-Reply-To: <20040629161109.GA24220@bounceswoosh.org>
-Message-ID: <Pine.GSO.4.33.0406291354410.25702-100000@sweetums.bluetronic.net>
+	Tue, 29 Jun 2004 14:15:29 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:38338 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265884AbUF2SP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 14:15:27 -0400
+Message-ID: <40E1CDEF.7050104@dilella.org>
+Date: Tue, 29 Jun 2004 20:15:43 +0000
+From: "Leonardo G. Di Lella" <leonardo@dilella.org>
+Reply-To: leonardo@dilella.org
+Organization: Di Lella Organization
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040624)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Sony Vaio dmi_scan.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:703c64214802fa02fa2dac48692405e9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jun 2004, Eric D. Mudama wrote:
->I'm hardly impartial, but I say buy Maxtor! =P
+Hello list,
 
-Maxtor has a perminant entry on my shitlist following their 60% failure
-rate with their SATA drives (in bulk.)  And seeing how Dell no longer
-builds systems with Maxtor drives adds weight to my listing :-) (Unless
-they are getting a damn good OEM deal from WD, I don't think cost was why
-they switched.  Even Tivo switched to WD after the Maxtor/Quantum merge.)
+there is an old prefix value in the dmi_scan.c.
 
---Ricky
+Line: 694 (Kernel 2.6.7)
 
+{ sony_vaio_laptop, "Sony Vaio", { /* This is a Sony Vaio laptop
+         */            
+                             MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+                             MATCH(DMI_PRODUCT_NAME, "PCG-"),
+                             NO_MATCH, NO_MATCH,
+                             } },
+
+The DMI_PRODUCT_NAME doesnt match on newer vaio notebooks. (The newer 
+A-series from sony vaio have VGN as product name instead of PCG - older 
+model)
+This is the reason why the sonypi doesnt run on newer vaio notebooks.
+Maybe it is better to delete the line MATCH(DMI_PRODUCT_NAME, "PCG-").
+
+--
+best regards,
+
+Leonardo G. Di Lella
 

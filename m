@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUDGXyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 19:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUDGXyu
+	id S264199AbUDGX5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 19:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUDGX4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 19:54:50 -0400
+	Wed, 7 Apr 2004 19:56:10 -0400
 Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49638 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261234AbUDGXyG
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261298AbUDGXyN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 19:54:06 -0400
+	Wed, 7 Apr 2004 19:54:13 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] obsolete asm/hdreg.h [3/5]
-Date: Thu, 8 Apr 2004 00:23:04 +0200
+Subject: [PATCH] obsolete asm/hdreg.h [2/5]
+Date: Thu, 8 Apr 2004 00:22:30 +0200
 User-Agent: KMail/1.5.3
 Cc: linux-ide@vger.kernel.org
 MIME-Version: 1.0
@@ -20,456 +20,227 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200404080023.04460.bzolnier@elka.pw.edu.pl>
+Message-Id: <200404080022.30618.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[IDE] asm/ide.h: ide_ioreg_t cleanup
+[IDE] add asm-generic/hdreg.h
 
-ide_ioreg_t is deprecated and hasn't been used by IDE driver for some time.
-Use unsigned long directly on alpha, arm26, arm, mips, parisc, ppc64 and sh.
+Use it on all archs which define ide_ioreg_t to unsigned long.
 
-asm-ia64/ide.h (ide_ioreg_t is unsigned short) and asm-m68knommu/ide.h
-(broken - ide_ioreg_t is not defined) are the only users of ide_ioreg_t left.
+ linux-2.6.5-root/include/asm-alpha/hdreg.h   |   13 +------------
+ linux-2.6.5-root/include/asm-arm/hdreg.h     |   14 +-------------
+ linux-2.6.5-root/include/asm-arm26/hdreg.h   |   16 +---------------
+ linux-2.6.5-root/include/asm-generic/hdreg.h |    6 ++++++
+ linux-2.6.5-root/include/asm-mips/hdreg.h    |   17 +----------------
+ linux-2.6.5-root/include/asm-parisc/hdreg.h  |    7 +------
+ linux-2.6.5-root/include/asm-ppc/hdreg.h     |   18 +-----------------
+ linux-2.6.5-root/include/asm-ppc64/hdreg.h   |   23 +----------------------
+ linux-2.6.5-root/include/asm-sh/hdreg.h      |   13 +------------
+ linux-2.6.5-root/include/asm-sparc/hdreg.h   |   14 +-------------
+ linux-2.6.5-root/include/asm-sparc64/hdreg.h |   14 +-------------
+ 11 files changed, 16 insertions(+), 139 deletions(-)
 
- linux-2.6.5-root/include/asm-alpha/ide.h             |    9 +++++----
- linux-2.6.5-root/include/asm-arm/arch-cl7500/ide.h   |    6 +++---
- linux-2.6.5-root/include/asm-arm/arch-ebsa285/ide.h  |    8 ++++----
- linux-2.6.5-root/include/asm-arm/arch-iop3xx/ide.h   |   10 ++++------
- linux-2.6.5-root/include/asm-arm/arch-l7200/ide.h    |    4 ++--
- linux-2.6.5-root/include/asm-arm/arch-nexuspci/ide.h |    8 ++++----
- linux-2.6.5-root/include/asm-arm/arch-pxa/ide.h      |   10 ++++------
- linux-2.6.5-root/include/asm-arm/arch-rpc/ide.h      |    8 ++++----
- linux-2.6.5-root/include/asm-arm/arch-sa1100/ide.h   |   16 +++++++---------
- linux-2.6.5-root/include/asm-arm/arch-shark/ide.h    |    8 ++++----
- linux-2.6.5-root/include/asm-arm/ide.h               |    2 +-
- linux-2.6.5-root/include/asm-arm26/ide.h             |   10 +++++-----
- linux-2.6.5-root/include/asm-mips/mach-generic/ide.h |    2 +-
- linux-2.6.5-root/include/asm-parisc/ide.h            |    7 ++++---
- linux-2.6.5-root/include/asm-ppc64/ide.h             |    9 +++++----
- linux-2.6.5-root/include/asm-sh/ide.h                |   13 +++++++------
- 16 files changed, 64 insertions(+), 66 deletions(-)
-
-diff -puN include/asm-alpha/ide.h~ide_ioreg_t include/asm-alpha/ide.h
---- linux-2.6.5/include/asm-alpha/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-alpha/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -19,7 +19,7 @@
- #define MAX_HWIFS	CONFIG_IDE_MAX_HWIFS
- #endif
- 
--static __inline__ int ide_default_irq(ide_ioreg_t base)
-+static inline int ide_default_irq(unsigned long base)
- {
- 	switch (base) {
- 		case 0x1f0: return 14;
-@@ -31,7 +31,7 @@ static __inline__ int ide_default_irq(id
- 	}
- }
- 
--static __inline__ ide_ioreg_t ide_default_io_base(int index)
-+static inline unsigned long ide_default_io_base(int index)
- {
- 	switch (index) {
- 		case 0:	return 0x1f0;
-@@ -43,9 +43,10 @@ static __inline__ ide_ioreg_t ide_defaul
- 	}
- }
- 
--static __inline__ void ide_init_hwif_ports(hw_regs_t *hw, ide_ioreg_t data_port, ide_ioreg_t ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
-diff -puN include/asm-arm26/ide.h~ide_ioreg_t include/asm-arm26/ide.h
---- linux-2.6.5/include/asm-arm26/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm26/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -30,17 +30,17 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--        ide_ioreg_t reg = (ide_ioreg_t) data_port;
-+	unsigned long reg = data_port;
-         int i;
- 
-         for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
-                 hw->io_ports[i] = reg;
-                 reg += 1;
-         }
--        hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
-         if (irq)
-                 *irq = 0;
- }
-@@ -67,7 +67,7 @@ static __inline__ void ide_init_default_
-  * We always use the new IDE port registering,
-  * so these are fixed here.
-  */
--#define ide_default_io_base(i)		((ide_ioreg_t)0)
-+#define ide_default_io_base(i)		(0)
- #define ide_default_irq(b)		(0)
- 
- #endif /* __KERNEL__ */
-diff -puN include/asm-arm/arch-cl7500/ide.h~ide_ioreg_t include/asm-arm/arch-cl7500/ide.h
---- linux-2.6.5/include/asm-arm/arch-cl7500/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-cl7500/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -13,10 +13,10 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	memset(hw, 0, sizeof(*hw));
-diff -puN include/asm-arm/arch-ebsa285/ide.h~ide_ioreg_t include/asm-arm/arch-ebsa285/ide.h
---- linux-2.6.5/include/asm-arm/arch-ebsa285/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-ebsa285/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -16,17 +16,17 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = (ide_ioreg_t) data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
- 		hw->io_ports[i] = reg;
- 		reg += 1;
- 	}
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 	if (irq)
- 		*irq = 0;
- }
-diff -puN include/asm-arm/arch-iop3xx/ide.h~ide_ioreg_t include/asm-arm/arch-iop3xx/ide.h
---- linux-2.6.5/include/asm-arm/arch-iop3xx/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-iop3xx/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -18,23 +18,21 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg;
-+	unsigned long reg = data_port;
- 	int i;
- 	int regincr = 1;
- 
- 	memset(hw, 0, sizeof(*hw));
- 
--	reg = (ide_ioreg_t)data_port;
+diff -puN include/asm-alpha/hdreg.h~generic_asm_hdreg include/asm-alpha/hdreg.h
+--- linux-2.6.5/include/asm-alpha/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.870153960 +0200
++++ linux-2.6.5-root/include/asm-alpha/hdreg.h	2004-04-07 23:56:05.925145600 +0200
+@@ -1,12 +1 @@
+-/*
+- *  linux/include/asm-alpha/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
 -
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
- 		hw->io_ports[i] = reg;
- 		reg += regincr;
- 	}
- 
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 
- 	if (irq) *irq = 0;
- }
-diff -puN include/asm-arm/arch-l7200/ide.h~ide_ioreg_t include/asm-arm/arch-l7200/ide.h
---- linux-2.6.5/include/asm-arm/arch-l7200/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-l7200/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -12,8 +12,8 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
- }
- 
-diff -puN include/asm-arm/arch-nexuspci/ide.h~ide_ioreg_t include/asm-arm/arch-nexuspci/ide.h
---- linux-2.6.5/include/asm-arm/arch-nexuspci/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-nexuspci/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -12,17 +12,17 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = (ide_ioreg_t) data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
- 		hw->io_ports[i] = reg;
- 		reg += 1;
- 	}
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 	if (irq)
- 		*irq = 0;
- }
-diff -puN include/asm-arm/arch-pxa/ide.h~ide_ioreg_t include/asm-arm/arch-pxa/ide.h
---- linux-2.6.5/include/asm-arm/arch-pxa/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-pxa/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -23,23 +23,21 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg;
-+	unsigned long reg = data_port;
- 	int i;
- 	int regincr = 1;
- 
- 	memset(hw, 0, sizeof(*hw));
- 
--	reg = (ide_ioreg_t)data_port;
+-#ifndef __ASMalpha_HDREG_H
+-#define __ASMalpha_HDREG_H
 -
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
- 		hw->io_ports[i] = reg;
- 		reg += regincr;
- 	}
- 
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 
- 	if (irq)
- 		*irq = 0;
-diff -puN include/asm-arm/arch-rpc/ide.h~ide_ioreg_t include/asm-arm/arch-rpc/ide.h
---- linux-2.6.5/include/asm-arm/arch-rpc/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-rpc/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -16,10 +16,10 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = (ide_ioreg_t) data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	memset(hw, 0, sizeof(*hw));
-@@ -28,7 +28,7 @@ ide_init_hwif_ports(hw_regs_t *hw, int d
- 		hw->io_ports[i] = reg;
- 		reg += 1;
- 	}
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 	if (irq)
- 		*irq = 0;
- }
-diff -puN include/asm-arm/arch-sa1100/ide.h~ide_ioreg_t include/asm-arm/arch-sa1100/ide.h
---- linux-2.6.5/include/asm-arm/arch-sa1100/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-sa1100/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -19,13 +19,13 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg;
-+	unsigned long reg = data_port;
- 	int i;
- 	int regincr = 1;
--	
-+
- 	/* The Empeg board has the first two address lines unused */
- 	if (machine_is_empeg())
- 		regincr = 1 << 2;
-@@ -36,15 +36,13 @@ ide_init_hwif_ports(hw_regs_t *hw, int d
- 
- 	memset(hw, 0, sizeof(*hw));
- 
--	reg = (ide_ioreg_t)data_port;
+-typedef unsigned long ide_ioreg_t;
 -
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
- 		hw->io_ports[i] = reg;
- 		reg += regincr;
- 	}
--	
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
--	
+-#endif /* __ASMalpha_HDREG_H */
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-arm26/hdreg.h~generic_asm_hdreg include/asm-arm26/hdreg.h
+--- linux-2.6.5/include/asm-arm26/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.881152288 +0200
++++ linux-2.6.5-root/include/asm-arm26/hdreg.h	2004-04-07 23:56:05.925145600 +0200
+@@ -1,15 +1 @@
+-/*
+- *  linux/include/asm-arm26/hdreg.h
+- *
+- *  Used by include/linux/ide.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-#ifndef __ASMARM_HDREG_H
+-#define __ASMARM_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMARM_HDREG_H */
+-
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-arm/hdreg.h~generic_asm_hdreg include/asm-arm/hdreg.h
+--- linux-2.6.5/include/asm-arm/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.884151832 +0200
++++ linux-2.6.5-root/include/asm-arm/hdreg.h	2004-04-07 23:56:05.926145448 +0200
+@@ -1,13 +1 @@
+-/*
+- *  linux/include/asm-arm/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-#ifndef __ASMARM_HDREG_H
+-#define __ASMARM_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMARM_HDREG_H */
+-
++#include <asm-generic/hdreg.h>
+diff -puN /dev/null include/asm-generic/hdreg.h
+--- /dev/null	2004-01-17 00:25:55.000000000 +0100
++++ linux-2.6.5-root/include/asm-generic/hdreg.h	2004-04-07 23:56:05.926145448 +0200
+@@ -0,0 +1,6 @@
++#ifndef __ASM_GENERIC_HDREG_H
++#define __ASM_GENERIC_HDREG_H
 +
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
++typedef unsigned long ide_ioreg_t;
 +
- 	if (irq)
- 		*irq = 0;
- }
-diff -puN include/asm-arm/arch-shark/ide.h~ide_ioreg_t include/asm-arm/arch-shark/ide.h
---- linux-2.6.5/include/asm-arm/arch-shark/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/arch-shark/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -14,10 +14,10 @@
-  * Set up a hw structure for a specified data port, control port and IRQ.
-  * This should follow whatever the default interface uses.
-  */
--static __inline__ void
--ide_init_hwif_ports(hw_regs_t *hw, int data_port, int ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = (ide_ioreg_t) data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	memset(hw, 0, sizeof(*hw));
-@@ -26,7 +26,7 @@ ide_init_hwif_ports(hw_regs_t *hw, int d
- 		hw->io_ports[i] = reg;
- 		reg += 1;
- 	}
--	hw->io_ports[IDE_CONTROL_OFFSET] = (ide_ioreg_t) ctrl_port;
-+	hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
- 	if (irq)
- 		*irq = 0;
- }
-diff -puN include/asm-arm/ide.h~ide_ioreg_t include/asm-arm/ide.h
---- linux-2.6.5/include/asm-arm/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-arm/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -23,7 +23,7 @@
-  * We always use the new IDE port registering,
-  * so these are fixed here.
-  */
--#define ide_default_io_base(i)		((ide_ioreg_t)0)
-+#define ide_default_io_base(i)		(0)
- #define ide_default_irq(b)		(0)
- 
- #define __ide_mm_insw(port,addr,len)	readsw(port,addr,len)
-diff -puN include/asm-mips/mach-generic/ide.h~ide_ioreg_t include/asm-mips/mach-generic/ide.h
---- linux-2.6.5/include/asm-mips/mach-generic/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-mips/mach-generic/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -34,7 +34,7 @@ static inline int ide_default_irq(unsign
- 	}
- }
- 
--static inline ide_ioreg_t ide_default_io_base(int index)
-+static inline unsigned long ide_default_io_base(int index)
- {
- 	switch (index) {
- 		case 0: return 0x1f0;
-diff -puN include/asm-parisc/ide.h~ide_ioreg_t include/asm-parisc/ide.h
---- linux-2.6.5/include/asm-parisc/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-parisc/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -20,11 +20,12 @@
- #endif
- 
- #define ide_default_irq(base) (0)
--#define ide_default_io_base(index) ((ide_ioreg_t)0)
-+#define ide_default_io_base(index) (0)
- 
--static __inline__ void ide_init_hwif_ports(hw_regs_t *hw, ide_ioreg_t data_port, ide_ioreg_t ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
-diff -puN include/asm-ppc64/ide.h~ide_ioreg_t include/asm-ppc64/ide.h
---- linux-2.6.5/include/asm-ppc64/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-ppc64/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -22,12 +22,13 @@
- # define MAX_HWIFS	4
- #endif
- 
--static __inline__ int ide_default_irq(ide_ioreg_t base) { return 0; }
--static __inline__ ide_ioreg_t ide_default_io_base(int index) { return 0; }
-+static inline int ide_default_irq(unsigned long base) { return 0; }
-+static inline unsigned long ide_default_io_base(int index) { return 0; }
- 
--static __inline__ void ide_init_hwif_ports(hw_regs_t *hw, ide_ioreg_t data_port, ide_ioreg_t ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
-diff -puN include/asm-sh/ide.h~ide_ioreg_t include/asm-sh/ide.h
---- linux-2.6.5/include/asm-sh/ide.h~ide_ioreg_t	2004-04-06 02:19:14.000000000 +0200
-+++ linux-2.6.5-root/include/asm-sh/ide.h	2004-04-06 02:19:14.000000000 +0200
-@@ -22,7 +22,7 @@
- #define MAX_HWIFS	2
- #endif
- 
--static __inline__ int ide_default_irq_hp600(ide_ioreg_t base)
-+static inline int ide_default_irq_hp600(unsigned long base)
- {
- 	switch (base) {
- 		case 0x01f0: return 93;
-@@ -32,7 +32,7 @@ static __inline__ int ide_default_irq_hp
- 	}
- }
- 
--static __inline__ int ide_default_irq(ide_ioreg_t base)
-+static inline int ide_default_irq(unsigned long base)
- {
- 	if (MACH_HP600) {
- 		return ide_default_irq_hp600(base);
-@@ -45,7 +45,7 @@ static __inline__ int ide_default_irq(id
- 	}
- }
- 
--static __inline__ ide_ioreg_t ide_default_io_base_hp600(int index)
-+static inline unsigned long ide_default_io_base_hp600(int index)
- {
- 	switch (index) {
- 		case 0:	
-@@ -57,7 +57,7 @@ static __inline__ ide_ioreg_t ide_defaul
- 	}
- }
- 
--static __inline__ ide_ioreg_t ide_default_io_base(int index)
-+static inline unsigned long ide_default_io_base(int index)
- {
- 	if (MACH_HP600) {
- 		return ide_default_io_base_hp600(index);
-@@ -72,9 +72,10 @@ static __inline__ ide_ioreg_t ide_defaul
- 	}
- }
- 
--static __inline__ void ide_init_hwif_ports(hw_regs_t *hw, ide_ioreg_t data_port, ide_ioreg_t ctrl_port, int *irq)
-+static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
-+				       unsigned long ctrl_port, int *irq)
- {
--	ide_ioreg_t reg = data_port;
-+	unsigned long reg = data_port;
- 	int i;
- 
- 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
++#endif /* __ASM_GENERIC_HDREG_H */
+diff -puN include/asm-mips/hdreg.h~generic_asm_hdreg include/asm-mips/hdreg.h
+--- linux-2.6.5/include/asm-mips/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.889151072 +0200
++++ linux-2.6.5-root/include/asm-mips/hdreg.h	2004-04-07 23:56:05.927145296 +0200
+@@ -1,16 +1 @@
+-/*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- *  This file contains the MIPS architecture specific IDE code.
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- *  Copyright (C) 2001 Ralf Baechle
+- */
+-#ifndef _ASM_HDREG_H
+-#define _ASM_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* _ASM_HDREG_H */
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-parisc/hdreg.h~generic_asm_hdreg include/asm-parisc/hdreg.h
+--- linux-2.6.5/include/asm-parisc/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.892150616 +0200
++++ linux-2.6.5-root/include/asm-parisc/hdreg.h	2004-04-07 23:56:05.928145144 +0200
+@@ -1,6 +1 @@
+-#ifndef _ASM_HDREG_H
+-#define _ASM_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-ppc64/hdreg.h~generic_asm_hdreg include/asm-ppc64/hdreg.h
+--- linux-2.6.5/include/asm-ppc64/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.903148944 +0200
++++ linux-2.6.5-root/include/asm-ppc64/hdreg.h	2004-04-07 23:56:05.928145144 +0200
+@@ -1,22 +1 @@
+-/*
+- *  linux/include/asm-ppc/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version
+- * 2 of the License, or (at your option) any later version.
+- */
+-
+-/*
+- *  This file contains the ppc architecture specific IDE code.
+- */
+-
+-#ifndef __ASMPPC64_HDREG_H
+-#define __ASMPPC64_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMPPC64_HDREG_H */
+-
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-ppc/hdreg.h~generic_asm_hdreg include/asm-ppc/hdreg.h
+--- linux-2.6.5/include/asm-ppc/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.909148032 +0200
++++ linux-2.6.5-root/include/asm-ppc/hdreg.h	2004-04-07 23:56:05.929144992 +0200
+@@ -1,17 +1 @@
+-/*
+- *  include/asm-ppc/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-/*
+- *  This file contains the ppc architecture specific IDE code.
+- */
+-
+-#ifndef __ASMPPC_HDREG_H
+-#define __ASMPPC_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMPPC_HDREG_H */
+-
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-sh/hdreg.h~generic_asm_hdreg include/asm-sh/hdreg.h
+--- linux-2.6.5/include/asm-sh/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.913147424 +0200
++++ linux-2.6.5-root/include/asm-sh/hdreg.h	2004-04-07 23:56:05.930144840 +0200
+@@ -1,12 +1 @@
+-/*
+- *  linux/include/asm-sh/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-#ifndef __ASM_SH_HDREG_H
+-#define __ASM_SH_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASM_SH_HDREG_H */
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-sparc64/hdreg.h~generic_asm_hdreg include/asm-sparc64/hdreg.h
+--- linux-2.6.5/include/asm-sparc64/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.917146816 +0200
++++ linux-2.6.5-root/include/asm-sparc64/hdreg.h	2004-04-07 23:56:05.930144840 +0200
+@@ -1,13 +1 @@
+-/* $Id: hdreg.h,v 1.1 1999/05/14 07:23:13 davem Exp $
+- * hdreg.h: Ultra/PCI specific IDE glue.
+- *
+- * Copyright (C) 1997  David S. Miller (davem@caip.rutgers.edu)
+- * Copyright (C) 1998  Eddie C. Dost   (ecd@skynet.be)
+- */
+-
+-#ifndef __SPARC64_HDREG_H
+-#define __SPARC64_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __SPARC64_HDREG_H */
++#include <asm-generic/hdreg.h>
+diff -puN include/asm-sparc/hdreg.h~generic_asm_hdreg include/asm-sparc/hdreg.h
+--- linux-2.6.5/include/asm-sparc/hdreg.h~generic_asm_hdreg	2004-04-07 23:56:05.921146208 +0200
++++ linux-2.6.5-root/include/asm-sparc/hdreg.h	2004-04-07 23:56:05.931144688 +0200
+@@ -1,13 +1 @@
+-/* $Id: hdreg.h,v 1.2 2000/12/05 00:56:36 anton Exp $
+- * hdreg.h: SPARC PCI specific IDE glue.
+- *
+- * Copyright (C) 1997  David S. Miller (davem@caip.rutgers.edu)
+- * Copyright (C) 1998  Eddie C. Dost   (ecd@skynet.be)
+- */
+-
+-#ifndef __SPARC_HDREG_H
+-#define __SPARC_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __SPARC_HDREG_H */
++#include <asm-generic/hdreg.h>
 
 _
 

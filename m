@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274951AbRIXUYi>; Mon, 24 Sep 2001 16:24:38 -0400
+	id <S274957AbRIXUeb>; Mon, 24 Sep 2001 16:34:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274950AbRIXUY3>; Mon, 24 Sep 2001 16:24:29 -0400
-Received: from mithra.wirex.com ([65.102.14.2]:17424 "HELO mail.wirex.com")
-	by vger.kernel.org with SMTP id <S274949AbRIXUYR>;
-	Mon, 24 Sep 2001 16:24:17 -0400
-Message-ID: <3BAF966C.8040906@wirex.com>
-Date: Mon, 24 Sep 2001 13:24:12 -0700
-From: Crispin Cowan <crispin@wirex.com>
-Reply-To: Linux Security Module <linux-security-module@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S274953AbRIXUeT>; Mon, 24 Sep 2001 16:34:19 -0400
+Received: from ns.suse.de ([213.95.15.193]:5650 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S274952AbRIXUeE>;
+	Mon, 24 Sep 2001 16:34:04 -0400
+Date: Mon, 24 Sep 2001 22:34:28 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: <dwmw2@infradead.org>, Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] compilation fix for nand.c
+Message-ID: <Pine.LNX.4.30.0109242233150.18098-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Linux Security Module <linux-security-module@wirex.com>
-Subject: Re: Binary only module overview
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> wrote
 
-I'm composing a list of all existing binary only modules, 
-and I got to a list of 26 different modules
-... 
-Hewlet Packard	- High level security modules (LSM) 
-SGI		- High level security modules (LSM) 
-Wirex		- High level security modules (LSM)
+nand.c uses do_softirq() without including interrupt.h.
+Patch below makes things compile again.
 
-NOTE: To my knowledge, the above mentioned modules either do not exist 
-or have not been released. The LSM patch itself is entirely GPL'd.
+regards,
 
-The debate thread 
-http://mail.wirex.com/pipermail/linux-security-module/2001-September/002017.html 
-that Greg KH referred to is about whether LSM (security) modules should 
-ever be permitted to be proprietary. Some feel that all LSM modules 
-should be OSD-compliant Open Source software, while others feel that LSM 
-should continue the existing Linux module policy of permitting 
-proprietary modules only if they do not require changes to the Linux 
-kernel (which would make them a derived work of the kernel).
+Dave.
 
-This post cc'd and reply-to'd to the LSM mailing list.
+diff -urN --exclude-from=/home/davej/.exclude linux-test/drivers/mtd/nand/nand.c linux-dj/drivers/mtd/nand/nand.c
+--- linux-test/drivers/mtd/nand/nand.c	Mon Sep 24 21:24:40 2001
++++ linux-dj/drivers/mtd/nand/nand.c	Mon Sep 24 02:36:43 2001
+@@ -21,6 +21,7 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/nand.h>
+ #include <linux/mtd/nand_ids.h>
++#include <linux/interrupt.h>
+ #include <asm/io.h>
 
-Crispin
+ #ifdef CONFIG_MTD_NAND_ECC
+
 
 -- 
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX Communications, Inc. http://wirex.com
-Security Hardened Linux Distribution:       http://immunix.org
-Available for purchase: http://wirex.com/Products/Immunix/purchase.html
-
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263535AbTJLU2P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 16:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263536AbTJLU2P
+	id S263526AbTJLU0L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 16:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTJLU0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 16:28:15 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:38660 "EHLO
-	cluless.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263535AbTJLU2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 16:28:13 -0400
-Date: Sun, 12 Oct 2003 16:28:09 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cluless.boston.redhat.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org, <akpm@osdl.org>
-Subject: Re: [RFC] invalidate_mmap_range() misses remap_file_pages()-affected
- targets
-In-Reply-To: <20031012084842.GB765@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0310121626260.31963-100000@cluless.boston.redhat.com>
+	Sun, 12 Oct 2003 16:26:11 -0400
+Received: from web20410.mail.yahoo.com ([66.163.169.98]:58547 "HELO
+	web20422.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263526AbTJLU0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 16:26:10 -0400
+Message-ID: <20031012202609.54340.qmail@web20422.mail.yahoo.com>
+Date: Sun, 12 Oct 2003 13:26:09 -0700 (PDT)
+From: kevin conaway <kconaway_is@yahoo.com>
+Subject: Where does user_path_walk() live?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Oct 2003, William Lee Irwin III wrote:
+I am a student doing an independent study on
+filesystem security and I was trying to pin down
+exactly where a users permissions are checked when
+trying to access a particular file.  Looking through
+the various system calls in /usr/src/linux/fs/open.c
+tells me that each call that requires a permission
+check calls user_path_walk() to essentially "walk"
+through the parts of the path to make sure the sure
+has access to each part.  I attempted to find the code
+for user_path_walk() but all I could find was a
+#define statement that showed user_path_walk was
+really a macro for __user_walk().  All I could find
+were symbol references for __user_walk() in the kernel
+tree.  Does anyone know where this code lives?
 
-> invalidate_mmap_range(), and hence vmtruncate(), can miss its targets
-> due to remap_file_pages()
+Thanks
 
-Please don't.   Remap_file_pages() not 100% working the way
-a normal mmap() works should be a case of "doctor, it hurts".
+Kevin Conaway
 
-Making the VM more complex just to support the (allegedly
-low overhead) hack of remap_file_pages() doesn't seem like
-a worthwhile tradeoff to me.
-
-In fact, I wouldn't mind if remap_file_pages() was simplified ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

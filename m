@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264589AbTLHA3t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 19:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTLHA3t
+	id S264880AbTLHAgn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 19:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTLHAgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 19:29:49 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:59558 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264589AbTLHA3r
+	Sun, 7 Dec 2003 19:36:43 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27832 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264796AbTLHAgi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 19:29:47 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "John Bradford" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Additional clauses to GPL in network drivers
-Date: Sun, 7 Dec 2003 16:29:42 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEJMIIAA.davids@webmaster.com>
+	Sun, 7 Dec 2003 19:36:38 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11-bart1
+Date: Mon, 8 Dec 2003 01:38:32 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
-Importance: Normal
+Content-Disposition: inline
+Message-Id: <200312080138.32388.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Many network drivers in the current 2.6 tree include the following
-> licensing condition/clarification, in addition to being placed under
-> the GPL:
->
-> "This file is not a complete program and may only be used when the
-> entire operating system is licensed under the GPL".
->
-> as
-> grep -C 1 "only be used when"
->
-> in drivers/net will confirm.
+Lets start the ball rolling...
 
-	If this adds any restriction on use that is not part of the GPL, then this
-'license' is not compatible with the GPL. If this reflects the author's
-understanding of the GPL, then it's grossly incorrect.
+If you have problems ide-tape.c, siimage.c or cmd640.c (in PCI mode)
+you should try this patch.
 
-> 2. Is code licensed under this extra term actually compatible with
-> code placed under the GPL alone?
+It also contains untested fixes for Promise IDE driver (pdc202xx_old.c),
+they should be safe but better backup your data first :-), feedback needed.
 
-	Only if the term is meaningless. I suspect that it's legally meaningless
-and simply erroneous, but it does create the risk that someone might argue
-that it's an additional restriction.
+Workarounds for nForce2 chipset are also included.
 
-> 3. I haven't tried to trace the history of this code, but if these
-> drivers were based on, and include, other developer's purely GPL'ed
-> code, applying this extra condition is presumably not valid, (unless
-> specific permission was sought to do so).
+Get it from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/
 
-	Correct. Most likely this is the case, so it reflects license hijacking on
-the part of the person who did it. To take someone else's GPL'd code, modify
-it, and release the modified code under a license that is more restrictive
-than the GPL is despicable conduct.
+If you have some patches you think are worth merging just mail me
+(cleanups are also welcomed).
 
-> 4. The obvious issue concerning binary modules - does loading a binary
-> module which is not licensed under the GPL invalidate your license to
-> use these network drivers?  Note that I personally have no interest
-> whatsoever in using such binary modules, but whatever ends up being
-> decided for the GPL'ed parts of the kernel, this extra clause suggests
-> to me that it specifically isn't OK whilst using these network
-> drivers.
+--bart
 
-	I think this is just one way of showing that the clause is erroneous.
+Merged:
 
-	DS
+linux-2.6.0-test11-bk5.patch
+  -bk snapshot (patch-2.6.0-test11-bk5)
 
+extraversion.patch
+  add -bartX to EXTRAVERSION
+
+ide-tape-update.patch
+  [IDE] ide-tape.c update
+
+ide-tape-rq-special.patch
+  [IDE] ide-tape.c: stop abusing rq->flags
+
+ide-siimage-seagate.patch
+  [IDE] siimage.c: limit requests to 15kB only for Seagate SATA drives
+
+ide-siimage-stack-fix.patch
+  [IDE] siimage.c: fix PIO settings programming
+
+ide-siimage-sil3114.patch
+  [IDE] siimage.c: add very basic support for Silicon Image 3114 SATA
+
+ide-cmd640-pci1.patch
+  [IDE] cmd640.c: fix PCI type1 access
+
+ide-pdc_old-pio-fix.patch
+  [IDE] pdc202xx_old.c: fix PIO autotuning
+
+ide-pdc_old-udma66-fix.patch
+  [IDE] pdc202xx_old.c: fix enabling 66MHz clock for modes > UDMA2
+
+ide-pdc_old-66mhz_clock-fix.patch
+  [IDE] pdc202xx_old.c: sanitize 66MHz clock use
+
+nforce2-disconnect-quirk.patch
+  [x86] fix lockups with APIC support on nForce2
+
+nforce2-apic.patch
+  [x86] do not wrongly override mp_ExtINT IRQ
+
+ide-recovery-time.patch
+  [IDE] remove dead and broken DISK_RECOVERY_TIME support
+
+ide-pdc_new-proc.patch
+  [IDE] pdc202xx_new.c: remove useless /proc/ide/pdcnew
 

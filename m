@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317329AbSFLD3p>; Tue, 11 Jun 2002 23:29:45 -0400
+	id <S317331AbSFLDaM>; Tue, 11 Jun 2002 23:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSFLD3o>; Tue, 11 Jun 2002 23:29:44 -0400
-Received: from ausxc10.us.dell.com ([143.166.98.229]:15890 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S317329AbSFLD3o>; Tue, 11 Jun 2002 23:29:44 -0400
-Message-ID: <9A2D9C0E5A442340BABEBE55D81BEBDB012051FE@AUSXMPS313.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: jw@pegasys.ws, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] CONFIG_NR_CPUS, redux
-Date: Tue, 11 Jun 2002 22:29:38 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317341AbSFLDaL>; Tue, 11 Jun 2002 23:30:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:44492 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317331AbSFLDaH>;
+	Tue, 11 Jun 2002 23:30:07 -0400
+Date: Tue, 11 Jun 2002 20:25:53 -0700 (PDT)
+Message-Id: <20020611.202553.28822742.davem@redhat.com>
+To: david-b@pacbell.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D061363.70500@pacbell.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I personally only rarely see 2-way boxes, 
-> 4-way is pretty rare, and anything more must surely count as very
-specialized.
+   From: David Brownell <david-b@pacbell.net>
+   Date: Tue, 11 Jun 2002 08:12:35 -0700
+   
+   Should the dma mapping APIs try to detect the "DMA buffer starts in
+   middle of non-coherent cacheline" case, and fail?  That might be
+   worth checking, catching some of these errors, even if it ignores
+   the corresponding "ends in middle of non-coherent cacheline" case.
+   And it'd handle that "it's a runtime issue on some HW" concern.
+   
+This brings back another issue, returning failure from pci_map_*()
+and friends which currently cannot happen.
 
-A very large percentage of Dell PowerEdge servers sold with Red Hat Linux,
-or used with other distros, have 2 or more processors.  We today have
-servers with 1, 2, 4, or 8 CPUs, and with the advent of HyperThreading, that
-looks like even more.  More than two CPUs is not at all uncommon in the
-server space.  Desktop/notebook space, sure.
+   Or then there's David Woodhouse's option (disable caching on those
+   pages while the DMA mapping is active) which seems good, except for
+   the fact that this issue is most common for buffers that are a lot
+   smaller than one page ... so lots of otherwise cacheable data would
+   suddenly get very slow. :)
+   
+Remember please that specifically the DMA mapping APIs encourage use
+of consistent memory for small data objects.  It is specifically
+because non-consistent DMA accesses to small bits are going to be very
+slow (ie. the PCI controller is going to prefetch further cache lines
+for no reason, for example).  The non-consistent end of the APIs is
+meant for long contiguous buffers, not small chunks.
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001! (IDC Mar 2002)
+This is one of the reasons I want to fix this by making people use
+either consistent memory or PCI pools (which is consistent memory
+too).

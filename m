@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283114AbRLOSLU>; Sat, 15 Dec 2001 13:11:20 -0500
+	id <S283268AbRLOS1c>; Sat, 15 Dec 2001 13:27:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283234AbRLOSLK>; Sat, 15 Dec 2001 13:11:10 -0500
-Received: from ns.suse.de ([213.95.15.193]:52754 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S283114AbRLOSLB>;
-	Sat, 15 Dec 2001 13:11:01 -0500
-Date: Sat, 15 Dec 2001 19:11:00 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Thorsten Sauter <tsauter@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling 2.4.16 kernel with sound support
-In-Reply-To: <20011215184755.1633ef56.tsauter@gmx.net>
-Message-ID: <Pine.LNX.4.33.0112151909120.1425-100000@Appserv.suse.de>
+	id <S283314AbRLOS1V>; Sat, 15 Dec 2001 13:27:21 -0500
+Received: from pcow024o.blueyonder.co.uk ([195.188.53.126]:49936 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S283268AbRLOS1J>;
+	Sat, 15 Dec 2001 13:27:09 -0500
+Message-ID: <T57d82477aeac1785e2316@pcow024o.blueyonder.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <james@sutherland.net>
+To: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Oops - 2.4.17rc1 (with iptables 2.4.6)
+Date: Sat, 15 Dec 2001 18:20:33 +0000
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <1008428030.4859.36.camel@thanatos>
+In-Reply-To: <1008428030.4859.36.camel@thanatos>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Dec 2001, Thorsten Sauter wrote:
+On Saturday 15 December 2001 2:53 pm, Thomas Hood wrote:
+> It's interesting that you have the closed-source lt_modem
+> driver loaded (and appears to have caused the oops) yet your
+> oops log says "Not tainted".
 
-> The base distri is the current debian sid (apt update today). Here are some environment infos:
-> Distri: Debian Sid (i386)
-> GCC Version: 2.95.4
-> LD Version: 2.11.92.0.12.3
-> Any hints?
+Loading NVdriver doesn't taint my kernel, either. Something slightly screwy 
+with the taint mechanism? Or an old version of insmod which doesn't check for 
+tainting?
 
-Yes, search the kernel archives, or the debian archives.
-This has been reported a dozen times or so now.
-Downgrade binutils, or enable hotplug support or try .17rc1
 
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+James.

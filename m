@@ -1,72 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVA1Boc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVA1BuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVA1Boc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 20:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVA1Boc
+	id S261379AbVA1BuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 20:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVA1BuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 20:44:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55183 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261375AbVA1BoZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 20:44:25 -0500
-Date: Thu, 27 Jan 2005 20:43:18 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Jasper Spaans <jasper@vs19.net>, Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <ajgrothe@yahoo.com>, <bunk@stusta.de>
+	Thu, 27 Jan 2005 20:50:00 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21946 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261379AbVA1Bt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 20:49:56 -0500
 Subject: Re: crypto algoritms failing?
-In-Reply-To: <20050128004755.GA6676@spaans.vs19.net>
-Message-ID: <Xine.LNX.4.44.0501272023080.7174-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Jasper Spaans <jasper@vs19.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ajgrothe@yahoo.com
+In-Reply-To: <20050127233007.GA4678@spaans.vs19.net>
+References: <20050127233007.GA4678@spaans.vs19.net>
+Content-Type: text/plain
+Message-Id: <1106876975.15806.42.camel@nigelcunningham>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 28 Jan 2005 12:49:35 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005, Jasper Spaans wrote:
+Hi.
 
-> On Thu, Jan 27, 2005 at 07:38:43PM -0500, James Morris wrote:
-> > > Is this supposed to happen?
-> > 
-> > No.  What is your kernel version?
+You normally test cryptoapi functionality while booting?
+
+Anyway, I can confirm that if suspend2 touches anything remotely related
+to this, it's unintentional and I'll fix it :>
+
+Nigel
+
+On Fri, 2005-01-28 at 10:30, Jasper Spaans wrote:
+> Hi List,
 > 
-> Current bitkeeper + latest swsusp2 patches and hostap driver, however, those
-> two don't come near touching the crypto stuff[1] so they're not really on my
-> suspect shortlist, but I'll see if I can find time to build a vanilla one
-> tomorrow (that is, without swsusp/hostap).. right now, it's time to sleep in
-> my local timezone..
+> When booting I see this in dmesg:
+> 
+> testing tea ECB encryption 
+> test 1 (128 bit key):
+> 0a3aea4140a9ba94
+> fail
+> test 2 (128 bit key):
+> 775d2a6af6ce9209
+> fail
+> test 3 (128 bit key):
+> be7abb81952d1f1edd89a1250421df95
+> fail
+> test 4 (128 bit key):
+> e04d5d3cb78c364794189591a9fc49f844d12dc299b8082a078973c24592c690
+> fail
+> [..]
+> testing xtea ECB encryption 
+> test 1 (128 bit key):
+> aa2296e56c61f345
+> fail
+> test 2 (128 bit key):
+> 823eeb35dcddd9c3
+> fail
+> test 3 (128 bit key):
+> e204dbf289859eea6135aaedb5cb712c
+> fail
+> test 4 (128 bit key):
+> 0b03cd8abe95fdb1c144910ba5c91bb4a9da1e9eb13e2a8feaa56a85d1f4a8a5
+> fail
+> 
+> CPU in that machine is an athlon xp, cpu flags according to /proc/cpuinfo
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+> cmov pat pse36 mmx fxsr sse pni syscall mmxext 3dnowext 3dnow
+> 
+> Compiler: gcc 3.3.5 (debian package 1:3.3.5-6)
+> 
+> Is this supposed to happen?
+> 
+> 
+> Jasper
+-- 
+Nigel Cunningham
+Software Engineer
+Cyclades Corporation
 
-Looks like a cleanup broke the test vectors:
-http://linux.bkbits.net:8080/linux-2.5/gnupatch@41ad5cd9EXGuUhmmotTFBIZdIkTm0A
-
-Patch below, please apply.
-
-Signed-off-by: James Morris <jmorris@redhat.com>
-
-
----
-
-diff -purN -X dontdiff linux-2.6.11-rc1-mm1.o/crypto/tcrypt.h linux-2.6.11-rc1-mm1.w/crypto/tcrypt.h
---- linux-2.6.11-rc1-mm1.o/crypto/tcrypt.h	2005-01-19 09:30:32.000000000 -0500
-+++ linux-2.6.11-rc1-mm1.w/crypto/tcrypt.h	2005-01-27 20:28:23.312918312 -0500
-@@ -1986,7 +1986,7 @@ static struct cipher_testvec arc4_dec_tv
- #define TEA_ENC_TEST_VECTORS	4
- #define TEA_DEC_TEST_VECTORS	4
- 
--static struct cipher_testvec xtea_enc_tv_template[] =
-+static struct cipher_testvec tea_enc_tv_template[] =
- {
- 	{
- 		.key    = { [0 ... 15] = 0x00 },
-@@ -2080,7 +2080,7 @@ static struct cipher_testvec tea_dec_tv_
- #define XTEA_ENC_TEST_VECTORS	4
- #define XTEA_DEC_TEST_VECTORS	4
- 
--static struct cipher_testvec tea_enc_tv_template[] =
-+static struct cipher_testvec xtea_enc_tv_template[] =
- {
- 	{
- 		.key    = { [0 ... 15] = 0x00 },
-
-
-
+http://cyclades.com
 

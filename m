@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbTELNRx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 09:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTELNRx
+	id S262134AbTELNRC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 09:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTELNRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 09:17:53 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:60346 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262136AbTELNRu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 09:17:50 -0400
-Date: Mon, 12 May 2003 15:30:08 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Oleg Drokin <green@namesys.com>
-cc: <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Oliver Neukum <oliver@neukum.org>, <lkhelp@rekl.yi.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-In-Reply-To: <20030512132209.GB4165@namesys.com>
-Message-ID: <Pine.SOL.4.30.0305121523550.18058-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 09:17:02 -0400
+Received: from holomorphy.com ([66.224.33.161]:2737 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262134AbTELNRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 09:17:01 -0400
+Date: Mon, 12 May 2003 06:29:39 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.69-mjb1
+Message-ID: <20030512132939.GF19053@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	lse-tech <lse-tech@lists.sourceforge.net>
+References: <9380000.1052624649@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9380000.1052624649@[10.10.2.4]>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 10, 2003 at 08:44:09PM -0700, Martin J. Bligh wrote:
+> thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+> 	Prep work to reduce kernel stacks to 4K
+> interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+> 	Create a per-cpu interrupt stack.
+> stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+> 	Check for kernel stack overflows.
+> 4k_stack            (4K stacks pt 4)		Dave Hansen
+> 	Config option to reduce kernel stacks to 4K
 
-On Mon, 12 May 2003, Oleg Drokin wrote:
 
-> Hello!
->
-> On Mon, May 12, 2003 at 03:16:17PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > Just a note that we have found TCQ unusable on our IBM drives and we had
-> > > > some reports about TCQ unusable on some WD drives.
-> > > > Unusable means severe FS corruptions starting from mount.
-> > > > So if your FSs will suddenly start to break, start looking for cause with
-> > > > disabling TCQ, please.
-> > > I can confirm that. This drive Model=IBM-DTLA-307045, FwRev=TX6OA60A,
-> > > SerialNo=YMCYMT3Y229 has eaten my filesystem with TCQ on 2.5.69
-> > TCQ is marked EXPERIMENTAL and is known to be broken.
-> > Probably it should be marked DANGEROUS or removed?
->
-> How do you think people will test code that is removed?
-
-I wanted to remove config option, just like it is for ide-tape.c
-currently. But yes, its better to mark it DANGEROUS...
-
-> Or do you mean that nobody plans to look at this ever?
-> I remember that Jens Axboe promised to take a look at it some
-> months ago.
-
-many months ago :\
-
-btw, some older disks have broken TCQ implementation...
---
-Bartlomiej
-
-> Bye,
->     Oleg
-
+diff -urpN linux-2.5.69/include/asm-i386/processor.h kstk-2.5.69-1/include/asm-i386/processor.h
+--- linux-2.5.69/include/asm-i386/processor.h	2003-05-04 16:53:00.000000000 -0700
++++ kstk-2.5.69-1/include/asm-i386/processor.h	2003-05-12 06:05:39.000000000 -0700
+@@ -470,8 +470,8 @@ extern int kernel_thread(int (*fn)(void 
+ extern unsigned long thread_saved_pc(struct task_struct *tsk);
+ 
+ unsigned long get_wchan(struct task_struct *p);
+-#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
+-#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1022])
++#define KSTK_EIP(task)	(((unsigned long *)(task)->thread_info)[THREAD_SIZE/sizeof(unsigned long) - 5])
++#define KSTK_ESP(task)	(((unsigned long *)(task)->thread_info)[THREAD_SIZE/sizeof(unsigned long) - 2])
+ 
+ struct microcode {
+ 	unsigned int hdrver;

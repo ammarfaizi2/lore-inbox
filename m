@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136552AbRAMF2h>; Sat, 13 Jan 2001 00:28:37 -0500
+	id <S136543AbRAMFjO>; Sat, 13 Jan 2001 00:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136568AbRAMF21>; Sat, 13 Jan 2001 00:28:27 -0500
-Received: from web5204.mail.yahoo.com ([216.115.106.85]:37390 "HELO
-	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S136552AbRAMF2O>; Sat, 13 Jan 2001 00:28:14 -0500
-Message-ID: <20010113052809.24146.qmail@web5204.mail.yahoo.com>
-Date: Fri, 12 Jan 2001 21:28:09 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: BUG in 2.4.0: dd if=/dev/random of=out.txt bs=10000 count=100
-To: david+validemail@kalifornia.com
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S136558AbRAMFjF>; Sat, 13 Jan 2001 00:39:05 -0500
+Received: from tsukuba.m17n.org ([192.47.44.130]:42412 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S136543AbRAMFi4>;
+	Sat, 13 Jan 2001 00:38:56 -0500
+Date: Sat, 13 Jan 2001 14:38:49 +0900 (JST)
+Message-Id: <200101130538.OAA03419@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] CPP ## string concatination is for the token
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- David Ford <david@linux.com> wrote:
-> Rob Landley wrote:
-> 
-> > If I do the dd line in the title under 2.4.0 I get
-> an
-> > out.txt file of 591 bytes.
-> 
-> It isn't broken, you have no more entropy.  You must
-> have some system
-> activity of various sorts before you regain some
-> entropy.  Moving the mouse
-> around, hitting keys, etc, will slowly add more
-> entropy.
-> 
-> -d
+I think that `##' operator for string concatination produces the token.
 
-I'd wondered what urandom was for.  Thanks.
+In pci.h, we have bogus `##' operator which doesn't produce valid
+token.  We don't need (must not) have ## between `s' and the open
+paren.
 
-Rob
-
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+Here's the patch.
+ 
+diff -ruN v2.4.1-pre3/include/linux/pci.h linux/include/linux/pci.h
+--- v2.4.1-pre3/include/linux/pci.h	Fri Jan  5 07:51:32 2001
++++ linux/include/linux/pci.h	Mon Jan  8 17:36:44 2001
+@@ -565,9 +565,9 @@
+ { 	return PCIBIOS_DEVICE_NOT_FOUND; }
+ 
+ #define _PCI_NOP(o,s,t) \
+-	static inline int pcibios_##o##_config_##s## (u8 bus, u8 dfn, u8 where, t val) \
++	static inline int pcibios_##o##_config_##s (u8 bus, u8 dfn, u8 where, t val) \
+ 		{ return PCIBIOS_FUNC_NOT_SUPPORTED; } \
+-	static inline int pci_##o##_config_##s## (struct pci_dev *dev, int where, t val) \
++	static inline int pci_##o##_config_##s (struct pci_dev *dev, int where, t val) \
+ 		{ return PCIBIOS_FUNC_NOT_SUPPORTED; }
+ #define _PCI_NOP_ALL(o,x)	_PCI_NOP(o,byte,u8 x) \
+ 				_PCI_NOP(o,word,u16 x) \
+-- 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314140AbSDQVuV>; Wed, 17 Apr 2002 17:50:21 -0400
+	id <S314141AbSDQVuZ>; Wed, 17 Apr 2002 17:50:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314141AbSDQVuU>; Wed, 17 Apr 2002 17:50:20 -0400
-Received: from www.local.iboats.com ([204.246.129.200]:12988 "HELO
-	local.iboats.com") by vger.kernel.org with SMTP id <S314140AbSDQVuS>;
-	Wed, 17 Apr 2002 17:50:18 -0400
-Message-ID: <000f01c1e659$17abd6e0$d281f6cc@iboats.com>
-From: "Steve Wolfe" <sw@codon.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: AMD 760MPX B2 stepping
-Date: Wed, 17 Apr 2002 15:44:33 -0600
+	id <S314143AbSDQVuZ>; Wed, 17 Apr 2002 17:50:25 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:59033 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314141AbSDQVuW>; Wed, 17 Apr 2002 17:50:22 -0400
+Date: Wed, 17 Apr 2002 15:48:48 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        "'Robert Love'" <rml@tech9.net>
+cc: James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Hyperthreading
+Message-ID: <1844830000.1019083728@flay>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A78177F04@nocmail101.ma.tmpw.net>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I've seen some Intel bench's and they are specing an increase of 0% to 30%
 
-   I have been having a devil of a time trying to get SMP to work with
-stability on the new B2 stepping of the 760 MPX chipset (Tyan 2466N-4M
-motherboard).  Has anyone fiddled with it, and if so, are there any known
-bugs?  My gut feeling is that the BIOS included with the motherboard is
-incredibly buggy, but I haven't been able to find any information to
-confirm or contradict that.
+I think I'd be less cynical about benchmark results that didn't come from the
+people trying to sell  the product ;-)
 
-steve
+> (Though check Anandtech, he did a benchmark on his DB, and got a small
+> performance Decrease on a test!)
 
+;-)
+Thanks for the pointer.
+
+> After looking at the Hyperthreading Doc's, It looks like they are trying to
+> utilize some of the idle time the Execution engine has while waiting for
+> other ops to happen,  Trace code misses, and such.  Strap on an extra
+> processor state, and get some extra oomph.  Hey, the P4 can use all the
+> extra oomph it can get!
+
+It sounds like a good idea in theory, but the fact that they share the TLB
+cache and other things makes me rather dubious about whether it's really
+worth it. I'm not saying it's necessarily bad, I'm just not convinced it's good
+yet. Introducing more processors to the OS has it's own problems to deal 
+with (ones we're interested in solving anyway).
+
+Real world benchmarks from people other than Intel should make interesting
+reading .... I think we need some more smarts in the OS to take real advantage
+of this (eg using the NUMA scheduling mods to create cpu pools of 2 "procs"
+for each pair, etc) ... will be fun ;-)
+
+M.
 

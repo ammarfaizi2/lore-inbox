@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265870AbUAEDr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 22:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265871AbUAEDr0
+	id S265871AbUAEDtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 22:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbUAEDtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 22:47:26 -0500
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:30419 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265870AbUAEDrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 22:47:25 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Sun, 4 Jan 2004 22:49:10 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:14035
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S265871AbUAEDtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 22:49:06 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: David Lang <david.lang@digitalinsight.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: udev and devfs - The final word
+Date: Sun, 4 Jan 2004 21:48:24 -0600
+User-Agent: KMail/1.5.4
+Cc: Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+References: <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <Pine.LNX.4.58.0401041903290.6089@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.58.0401041903290.6089@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16376.56858.132710.846819@wombat.chubb.wattle.id.au>
-Date: Mon, 5 Jan 2004 14:46:34 +1100
-Cc: Soeren Sonnenburg <kernel@nn7.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-To: Willy TARREAU <willy@w.ods.org>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-In-Reply-To: <20040104205411.GA219@pcw.home.local>
-References: <1073075108.9851.16.camel@localhost>
-	<20040103191901.GC3728@alpha.home.local>
-	<16376.31727.114173.311369@wombat.chubb.wattle.id.au>
-	<20040104205411.GA219@pcw.home.local>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200401042148.24742.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Willy" == Willy TARREAU <willy@w.ods.org> writes:
-> >> So it is like 30 times slower on 2.6. when running for the first
-> >> time...  this also happens if I do e.g. find ./ and watch the
-> >> output pass by...
->> 
->> For some processes, allowing interrupts back on (hdparm -u1) helps;
->> for others, switching to the deadline elevator helps; neither are
->> complete solutions.
+On Sunday 04 January 2004 21:06, David Lang wrote:
+> Linus, what Andries is saying is that if you export a directory (say
+> /home) the process of exporting it somehow uses the /dev device number so
+> if the server reboots and gets a different device number for the partition
+> that /home is on the clients won't see it as the same export, breaking the
+> NFS requirement that a server can be rebooted.
 
-Willy> This is not I/O related since the problem happens even with
-Willy> simple programs such as dmesg and seq.
+NFS always struck me as a peverse design.  "The fileserver must be stateless 
+with regard to clients, even though maintainging state is what a filesystem 
+DOES, and the point of the thing is to export a filesystem."  Okay...  (If it 
+was exporting read-only filesystems with no locking of any kind, maybe they'd 
+have a point, but come on guys...)
 
-Yes ... the first time you run a program it's fetched from disc and
-shows a significant slowdown.  Second and subsequent times, it runs at
-normal speed.  At least, that's what *I'm* seeing.
+So here's an example of where the fileserver _does_ expect to maintain 
+non-file state across reboots.  "Ooh, the device node we're exporting is part 
+of the ID, gee, we missed one!"
 
-Peter C
+So why, exactly, can the NFS server not maintain whatever extra state it needs 
+to remember between reboots in a filesystem?  (Not even necessarily the one 
+it's exporting, just some rc file something under /var.)  The device node it 
+was exporting USED to be in the filesystem, you know, ala mknod.  Now that 
+the kernel's not keeping that stable, have the #*%(&# server generate a 
+number and make a note of it somewhere.  (Is requiring an NFS server to have 
+access to persistent storage too much to ask?)
 
+Personally, I could never figure out why Samba servers are in userspace but 
+NFS servers seem to want to live in the kernel.  I can almost secure a samba 
+server for access to the outside world, but a NFS system that isn't behind a 
+firewall automatically says to me "this machine has already been compromised 
+eight ways from sunday within five minutes of being exposed to the internet".  
+Call me paranoid...
+
+Rob
 

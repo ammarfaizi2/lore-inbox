@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVAGRJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVAGRLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVAGRJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVAGRJ2
+	id S261345AbVAGRLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVAGRLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:09:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52642 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261340AbVAGRJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:09:23 -0500
-Date: Fri, 7 Jan 2005 09:09:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Oleg Nesterov <oleg@tv-sign.ru>,
+	Fri, 7 Jan 2005 12:11:15 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:33217 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261345AbVAGRLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:11:01 -0500
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+	than
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>,
        William Lee Irwin III <wli@holomorphy.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <Pine.LNX.4.58.0501070837410.17078@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0501070850310.2272@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru> <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
- <Pine.LNX.4.58.0501070837410.17078@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+References: <41DE9D10.B33ED5E4@tv-sign.ru>
+	 <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105113998.24187.361.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 07 Jan 2005 16:06:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2005-01-07 at 16:17, Linus Torvalds wrote:
+> it a "don't do that then", and I'll wait to see if people do. I can't
+> think of anything that cares about performance that does that anyway:  
+> becuase system calls are reasonably expensive regardless, anybody who
+> cares at all about performance will have buffered things up in user space.
+
+Actually I found a load of apps that do this but they don't care about
+performance. Lots of people have signal handlers that just do
+
+	write(pipe_fd, &signr, sizeof(signr))
+
+so they can drop signalled events into their event loops
 
 
-On Fri, 7 Jan 2005, Davide Libenzi wrote:
+> > May be it make sense to add data to the last allocated page
+> > until buf->len > PAGE_SIZE ?
 > 
-> I don't know which kind of poison Larry put in your glass when you two 
-> met, but it clearly worked :=)
+> The reason I don't want to coalesce is that I don't ever want to modify a
+> page that is on a pipe buffer (well, at least not through the pipe buffe
 
-Oh, Larry introduced the notion of "splice()" to me at least five years
-ago, so whatever he put in that glass was quite slow-acting. At the time I
-told him to forget it - I thought it intriguing, but couldn't see any
-reasonable way to do it.
+If I can't write 4096 bytes down it one at a time without blocking from
+an empty pipe then its not a pipe in the eyes of the Unix world and the
+standards.
 
-And to be honest, my pipes aren't really what Larry's "splice()" was: his 
-notion was more of a direct "fd->fd" thing, with nothing in between. That 
-was what I still consider unworkable. 
+> With this organization, a pipe ends up being able to act as a "conduit"  
+> for pretty much any data, including some high-bandwidth things like video
+> streams, where you really _really_ don't want to copy the data. So the 
+> next stage is:
 
-The problem with splicing two file descriptors together is that it needs
-for them to agree on the interchange format, and these things tend to be
-very expensive from an interface angle (ie the format has to _exactly_
-match the "impedance" at both ends, since any conversion would make the
-whole exercise pointless - you'd be better off just doing a read and a
-write).
+The data copying impact isn't very high even if it is just done for the
+pipe() case for standards behaviour. You end up with one page that is
+written too and then sent and then freed rather than many.
 
-And note that the "format" is not just the actual data transfer thing, but
-the rules about what to do with partial reads, partial writes, file
-offsets, streams _without_ file offsets etc etc). And that's really what
-the pipe generalization does: it decouples all the format things into an
-intermediate thing that is very unambiguous, and has none of those issues.
+Possibly what should be done is to not use pipe() for this at all but to
+create a more explicit object so we don't confuse existing code and code
+that refuses buffers heavily (plenty of that around). Add "sewer()"[1]
+or "conduit()" and we don't have to change the behaviour of the Unix
+pipe world and risk screwing up apps, and you get to not to have to
+write grungy corner cases to ruin the plan.
 
-The pipe approach also decouples things in another way: a true "splice()"  
-needs all entities to participate in the new world order for it to be
-useful. It shares that brokenness with "sendfile()", which to some degree
-exemplifies the problems with splice() (sendfile ends up being a very very
-specialized uni-directional form of Larry's splice()). But realizing that 
-pipes _are_ the conduit and that they already exist and work with very old 
-interfaces suddenly means that the new splice() can be incrementally 
-useful.
-
-So it took me five years to think about other things, until an actual
-approach that would work and make sense from an implementation standpoint
-worked.
-
-What made me think about this particular thing is that I really thought a
-lot of things want to just mmap the data, but do not actually want to go
-to the expense of finding virtual addresses, handling the virtual->
-physical translation at each stage. A lot of things just want to access
-the buffers, _without_ the user-visible mapping. User-visibility is not
-only expensive, it ends up being an impossible interface for many things
-(memory mapping has page granularity, something that simply isn't true for
-a lot of devices).
-
-So in many ways, think of the new pipes as a "buffer mapping". Nothing
-else. It's a way to carry arbitrary buffers along in a secure manner.
-
-			Linus

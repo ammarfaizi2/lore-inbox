@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVAHD2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVAHD2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVAHD2q (ORCPT <rfc822;willy@w.ods.org>);
+	id S261782AbVAHD2q (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 7 Jan 2005 22:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVAHDQL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVAHDPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 22:16:11 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:32198 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261795AbVAHDKW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 22:10:22 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Terence Ripperda <tripperda@nvidia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: inter_module_get and __symbol_get 
-In-reply-to: Your message of "Thu, 06 Jan 2005 16:57:57 CDT."
-             <41DDB465.8000705@didntduck.org> 
+	Fri, 7 Jan 2005 22:15:55 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:51468 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261789AbVAHC7i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 21:59:38 -0500
+Date: Sat, 08 Jan 2005 11:59:59 +0900 (JST)
+Message-Id: <20050108.115959.123256742.yoshfuji@linux-ipv6.org>
+To: coody@netease.com
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: Wrong value in the cp936 (gb2312) codepage.
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1105150357.1833.4.camel@mattwu>
+References: <1105150357.1833.4.camel@mattwu>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 08 Jan 2005 14:10:00 +1100
-Message-ID: <8829.1105153800@ocs3.ocs.com.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Jan 2005 16:57:57 -0500, 
-Brian Gerst <bgerst@didntduck.org> wrote:
->Terence Ripperda wrote:
->> Hello,
->> 
->> we've noticed that in recent 2.6.10 kernels that the inter_module_
->> routines (such as inter_module_get) are marked deprecated. it appears
->> that the __symbol_ routines (such as __symbol_get) are intended as the
->> replacement routines.
->> 
->> unfortunately, __symbol_get is only exported as a GPL symbol (I see a
->> reference to a _gpl verion in module.h, but no definition). is this
->> intentional? will there be a non-gpled version of an equivalent
->> routine?
->> 
->> Thanks,
->> Terence
->
->I believe there is an AGP/DRM rewrite in progress that should eliminate 
->the need to use inter_module or symbol_get stuff.
+In article <1105150357.1833.4.camel@mattwu> (at 08 Jan 2005 10:14:30 +0800), matt <coody@netease.com> says:
 
-inter_module_* and the replacement __symbol_* routines are designed to
-solve a generic problem, they are not only there for AGP/DRM.  I am
-against removing these functions just because AGP/DRM no longer require
-the facility, other code can hit the same generic problem.
+> in /linux/fs/nls/nls_cp936.c:
+> 
+> static wchar_t c2u_B1[256] = {
+> ...
+> 0x5351,0xF963,0x8F88,0x80CC,0x8D1D,0x94A1,0x500D,0x72C8,/* 0xB0-0xB7 */
+> ...
+> };
+> 
+> For 0xb1, 0xb1, the correct value should be 0x5317. You can get it at
+> www.microsoft.com/globaldev/reference/dbcs/936/936_B1.htm.
+> 
+> I didn't check all of them. But it should have possibility of containing
+> more wrong values. Maybe these tables need to be re-generated.
 
-inter_module_* and __symbol_* solve these class of problems:
+It seems there're over 100 differences.
 
-Module A can use module B if B is loaded, but A does not require module
-B to do its work.  B is optional.
-
-The kernel can use code in module C is C is loaded, but the base kernel
-does not require module C.  C is optional.
-
-The standard module loader already handles the "require" cases, via the
-unresolved symbol list and modules.dep.  The module loader cannot
-handle the "optional" cases, because only the consumer of the optional
-resources knows what it needs and what to do if the optional resources
-are not available.  The consumer uses inter_module_* or __symbol_* to
-detect and lock down the optional facilities.
-
+--yoshfuji

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318786AbSICPjk>; Tue, 3 Sep 2002 11:39:40 -0400
+	id <S318795AbSICPqL>; Tue, 3 Sep 2002 11:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318790AbSICPjk>; Tue, 3 Sep 2002 11:39:40 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:44036 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318786AbSICPjj>;
-	Tue, 3 Sep 2002 11:39:39 -0400
+	id <S318798AbSICPqL>; Tue, 3 Sep 2002 11:46:11 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:16901 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S318795AbSICPqK>;
+	Tue, 3 Sep 2002 11:46:10 -0400
 From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209031544.g83FiAG03134@oboe.it.uc3m.es>
-Subject: Re: [RFC] mount flag "direct"
-In-Reply-To: <Pine.SOL.3.96.1020903163309.14707D-100000@libra.cus.cam.ac.uk>
- from Anton Altaparmakov at "Sep 3, 2002 04:37:40 pm"
-To: Anton Altaparmakov <aia21@cantab.net>
-Date: Tue, 3 Sep 2002 17:44:10 +0200 (MET DST)
+Message-Id: <200209031550.g83FogE03775@oboe.it.uc3m.es>
+Subject: Re: [RFC] mount flag "direct" (fwd)
+In-Reply-To: <Pine.LNX.4.44L.0209031243450.1519-100000@duckman.distro.conectiva>
+ from Rik van Riel at "Sep 3, 2002 12:44:42 pm"
+To: Rik van Riel <riel@conectiva.com.br>
+Date: Tue, 3 Sep 2002 17:50:42 +0200 (MET DST)
 Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
        linux kernel <linux-kernel@vger.kernel.org>
 X-Anonymously-To: 
@@ -21,55 +21,34 @@ X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Anton Altaparmakov wrote:"
+"A month of sundays ago Rik van Riel wrote:"
 > On Tue, 3 Sep 2002, Peter T. Breuer wrote:
 > 
-> > I'll rephrase this as an RFC, since I want help and comments.
-> > 
-> > Scenario:
-> > I have a driver which accesses a "disk" at the block level, to which
-> > another driver on another machine is also writing. I want to have
-> > an arbitrary FS on this device which can be read from and written to
-> > from both kernels, and I want support at the block level for this idea.
+> > I assumed that I would need to make several VFS operations atomic
+> > or revertable, or simply forbid things like new file allocations or
+> > extensions (i.e.  the above), depending on what is possible or not.
 > 
-> You cannot have an arbitrary fs. The two fs drivers must coordinate with
-> each other in order for your scheme to work. Just think about if the two 
-> fs drivers work on the same file simultaneously and both start growing the
-> file at the same time. All hell would break lose.
+> > No, I don't want ANY FS. Thanks, I know about these, but they're not
+> > it. I want support for /any/ FS at all at the VFS level.
+> 
+> You can't.  Even if each operation is fully atomic on one node,
+> you still don't have synchronisation between the different nodes
+> sharing one disk.
 
-Thanks!
+Yes, I do have synchronization - locks are/can be shared between both
+kernels using a device driver mechanism that I implemented. That is
+to say, I can guarantee that atomic operations by each kernel do not
+overlap "on the device", and remain locally ordered at least (and
+hopefully globally, if I get the time thing right).
 
-Rik also mentioned that objection! That's good. You both "only" see
-the same problem, so there can't be many more like it..
+It's not that hard - the locks are held on the remote disk by a
+"guardian" driver, to which the drivers on both of the kernels
+communicate.  A fake "scsi adapter", if you prefer.
 
-I replied thusly:
+> You really need filesystem support.
 
-  OK - reply:
-  It appears that in order to allocate away free space, one must first
-  "grab" that free space using a shared lock. That's perfectly
-  feasible.
-
-
-> For your scheme to work, the fs drivers need to communicate with each
-> other in order to attain atomicity of cluster and inode (de-)allocations,
-> etc.
-
-Yes. They must create atomic FS operations at the VFS level (grabbing
-unallocated space is one of them) and I must share the locks for those
-ops.
-
-> Basically you need a clustered fs for this to work. GFS springs to
-
-No! I do not want /A/ fs, but /any/ fs, and I want to add the vfs
-support necessary :-).
-
-That's really what my question is driving at. I see that I need to
-make VFS ops communicate "tag requests" to the block layer, in
-order to implement locking. Now you and Rik have pointed out one
-operation that needs locking. My next question is obviously: can you
-point me more or less precisely at this operation in the VFS layer?
-I've only started studying it and I am relatively unfamiliar with it.
-
-Thanks.
+I don't think so. I think you're not convinced either! But
+I would really like it if you could put your finger on an
+overriding objection.
 
 Peter

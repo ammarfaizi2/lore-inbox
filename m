@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315634AbSHITv5>; Fri, 9 Aug 2002 15:51:57 -0400
+	id <S315536AbSHITsS>; Fri, 9 Aug 2002 15:48:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSHITv5>; Fri, 9 Aug 2002 15:51:57 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63236 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315634AbSHITv4>; Fri, 9 Aug 2002 15:51:56 -0400
-Message-ID: <3D541E2C.3010000@zytor.com>
-Date: Fri, 09 Aug 2002 12:55:24 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S315628AbSHITsS>; Fri, 9 Aug 2002 15:48:18 -0400
+Received: from pat.uio.no ([129.240.130.16]:40647 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S315536AbSHITsR>;
+	Fri, 9 Aug 2002 15:48:17 -0400
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-References: <aivdi8$r2i$1@cesium.transmeta.com>	<200208090934.g799YVZe116824@d12relay01.de.ibm.com>	<200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com>	<3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15700.7516.306330.976815@charged.uio.no>
+Date: Fri, 9 Aug 2002 21:51:56 +0200
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: trond.myklebust@fys.uio.no, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.30+] Fourth attempt at a shared credentials patch
+In-Reply-To: <55560000.1028921049@baldur.austin.ibm.com>
+References: <23130000.1028818693@baldur.austin.ibm.com>
+	<shsofcdfjt6.fsf@charged.uio.no>
+	<44050000.1028823650@baldur.austin.ibm.com>
+	<15698.41542.250846.334946@charged.uio.no>
+	<52960000.1028829902@baldur.austin.ibm.com>
+	<15698.52455.437254.428402@charged.uio.no>
+	<81390000.1028837464@baldur.austin.ibm.com>
+	<15698.59577.788998.300262@charged.uio.no>
+	<55560000.1028921049@baldur.austin.ibm.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On Fri, 09 Aug 2002 11:55:20 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
->>>>>
-> 
->   HPA> Hmf... some of these seem to be outright omissions
->   HPA> (pivot_root() and umount2() especially), and probably indicate
->   HPA> bugs or that the stock kernel isn't up to date anymore.
-> 
->   HPA> I can see umount() being missing (as in "use umount2()").
-> 
-> Alpha calls umount2() "oldumount"; ia64 never had a one-argument
-> version of umount(), so there is no point creating legacy (and the
-> naming is inconsistent anyhow...).
-> 
+>>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
 
-You mean alpha calls umount2() "umount" and umount() "oldumount"?
+     > --On Thursday, August 08, 2002 11:55:05 PM +0200 Trond
+     > Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-	-hpa
+    >> What if one thread is doing an RPC call while the other is
+    >> changing the 'groups' entry?
 
+     > Gah.  Good point.  Ok, I've added locking to the cred structure
+     > to handle this.  Here's my new patch with those changes made:
 
+     > http://www.ibm.com/linux/ltc/patches/misc/cred-2.5.30-5.diff.gz
+
+     > I've gone through all the code again, and don't see any other
+     > places where locking is really necessary.  Feel free to point
+     > them out to me if you see any.
+
+Err... Well my original point about your changes to the sunrpc code
+still stand: no spinlocking there AFAICS. In addition, you'll want to
+talk to the Intermezzo people: they do allocation of buffers based on
+the (volatile) value of cred->ngroups.
+
+Finally, you also want all those reads and changes to more than one
+value in the credential such as the stuff in security/capability.c, or
+net/socket.c,... to be atomic. (Note: This is where 'struct ucred'
+with COW gives you an efficiency gain).
+
+Please also note that you only need spinlocking for the particular
+case of tasks that have set CLONE_CRED. In all other cases, it adds a
+rather nasty overhead...
+
+Cheers,
+  Trond

@@ -1,70 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286966AbSABMET>; Wed, 2 Jan 2002 07:04:19 -0500
+	id <S286968AbSABMET>; Wed, 2 Jan 2002 07:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286978AbSABMEI>; Wed, 2 Jan 2002 07:04:08 -0500
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:39318 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S286968AbSABMD5>; Wed, 2 Jan 2002 07:03:57 -0500
-Date: Wed, 2 Jan 2002 12:03:26 +0000 (GMT)
-From: Jon Masters <jonathan@jonmasters.org>
-To: linux-kernel@vger.kernel.org
-cc: admin@intelligentspace.com
-Subject: Panics, kernel 2.4
-Message-ID: <Pine.LNX.4.10.10201021136110.14437-100000@router>
+	id <S286966AbSABMEI>; Wed, 2 Jan 2002 07:04:08 -0500
+Received: from wiproecmx1.wipro.com ([164.164.31.5]:42890 "EHLO
+	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S286841AbSABMD4>; Wed, 2 Jan 2002 07:03:56 -0500
+From: "Raghavendra Koushik" <raghavendra.koushik@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Hot swap support in linux?
+Date: Wed, 2 Jan 2002 17:28:50 +0530
+Message-ID: <005501c19384$d7fca730$5408720a@M3NOR67026>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+In-Reply-To: <E16LLva-0008AG-00@the-village.bc.nu>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-One of the fileservers at work is running 2.4.14. It is a 900MHz Duron
-with 1.5GB physical RAM, 3c905, etc. and it handles three software RAID
-arrays based on ATA100 PCI IDE, which contain reiserfs filesystems. It can
-get quite loaded at times and we use most of the available memory for
-about 300 processes or so on average.
+This is a multi-part message in MIME format.
 
-A few months ago, we started to notice problems under certain load
-conditions - particularly when running a distributed Java processing
-application we have in house which tries to allocate several GB of memory
-for handling matrix calculations. I ran many burnk7 processes,
-distributed.net, john, etc. etc. and got the load average beyond 300
-without trouble for several hours. I've run a full memtest86 on it and
-also written a couple of small programs to malloc very large chunks of
-memory and perform some simple manipulations with them, that works fine
-too. The environmental conditions are reasonable and the cooling is
-functioning normally (I've even installed additional fans to be sure).
+------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Still, these problems persisted until we decided to no longer use
-overnight idle processing power on that machine and moved the java server
-to another box. I put it down to having perhaps found a new vm bug in 2.4
-or something (or somehow having very very strange hardware issues).
+few more questions pertaining to hot swap..
+1. 	how exactly do I build my linux kernel with hotswap support. When I do
+	'make xconfig' (for linux 2.4.4 kernel) I don't see a hotplug option.
 
-Today the problem is back, symptoms they have reported to me (I work part
-so it's quite difficult to deal with these types of problem sometimes) are
-that their samba shares dissappeared and there "might be a network problem
-of some kind". I attempted to login immediately and the machine was still
-semi up since I was able to get part way through an ssh authentication
-before the box went dead (it probably started killing stuff or something).
+2.	If I write my driver according to the new way of writing PCI drivers for
+    	ethernet cards i.e using MODULE_DEVICE_TABLE et al, is it enough to
+make
+	my driver hot pluggable.
 
-I think it's paniced again however the serial console is
-unavailable (will install one today) and as they need that box I have
-asked them to power cycle it (as I write this it's been 30 minutes and
-it's just started to respond). This clearly is not ideal and I would like
-some recommendations for debugging this problem without hurting the fact
-that it's a production server that should continue running. The logs never
-show anything useful obviously but I will install a serial console to
-watch it today and report logs from future kernel panics. I have observed
-a panic myself recently however do not have the output to report here.
+3.	Does the NIC need to provide any particular h/w support to make it
+	hotpluggable.
 
-Tonight I shall be upgrading to 2.4.17 and will run a bunch more tests
-(additional suggestions for tests welcome).
 
-I apologise for not having a full bug report, this is kinda weird. I
-would just appreciate any advice or suggestions really.
+Thanks in advance
+Koushik
 
-Happy new year to all,
 
---jcm
+ 
 
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
+Sent: Tuesday, January 01, 2002 3:44 PM
+To: Raghavendra Koushik
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hot swap support in linux?
+
+
+> Does the current linux kernel support hot swap feature for
+network interface
+> cards(NICs). I would be glad if any of you can provide me some pointers or
+> documentation regards the same...
+
+If your hardware supports it - yes. You'll need something like the compaq
+hotswap pci backplanes or of course simply use cardbus
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+-----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+------------------------------------------------------------------------------------------------------------------------
+
+------=_NextPartTM-000-4c2d7344-ff77-11d5-a940-00b0d0d06be8--

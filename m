@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRL1VLG>; Fri, 28 Dec 2001 16:11:06 -0500
+	id <S284282AbRL1VTH>; Fri, 28 Dec 2001 16:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280961AbRL1VK5>; Fri, 28 Dec 2001 16:10:57 -0500
-Received: from pc26.tromso2.avidi.online.no ([148.122.16.26]:28939 "EHLO
-	shogun.thule.no") by vger.kernel.org with ESMTP id <S278701AbRL1VKp>;
-	Fri, 28 Dec 2001 16:10:45 -0500
-From: "Troels Walsted Hansen" <troels@thule.no>
-To: "'Andreas Hartmann'" <andihartmann@freenet.de>,
-        "'Kernel-Mailingliste'" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.18-pre1
-Date: Fri, 28 Dec 2001 22:10:36 +0100
-Message-ID: <000e01c18fe4$1b0f7d80$0300000a@samurai>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <3C2CCB82.7010309@athlon.maya.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S284272AbRL1VSr>; Fri, 28 Dec 2001 16:18:47 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:34743 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S284164AbRL1VSj>;
+	Fri, 28 Dec 2001 16:18:39 -0500
+Date: Fri, 28 Dec 2001 16:16:03 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: linux-kernel@vger.kernel.org
+Cc: Keith Owens <kaos@ocs.com.au>, Larry McVoy <lm@bitmover.com>,
+        "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system
+Message-ID: <20011228161603.B5397@havoc.gtf.org>
+In-Reply-To: <18619.1009503350@ocs3.intra.ocs.com.au> <Pine.LNX.4.33.0112282035020.2889-100000@vaio>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112282035020.2889-100000@vaio>; from kai@tp1.ruhr-uni-bochum.de on Fri, Dec 28, 2001 at 09:56:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > - Update Athlon/VIA PCI quirks			(Calin A.
->I tested this patch and unfortunately, I have to say, it is not working
-(if it should prevent the 
->suddenly changing time on VIA-boards). I have the same problem with
-suddenly changing time as 
->without this patch.
+I think one thing to note is that dependencies is that if you are smart
+about it, dependencies -really- do not even change when your .config
+changes.
 
-Nope, the change is related to a bug in the VIA Northbridge memory write
-queue timer causing oopses on Athlon optimised linux kernels.
+What about a system where Linus runs "make deps" -once- before he
+releases a tarball.  This in turn generates dependency information
+(perhaps not in purely make format) which includes 'ifdef CONFIG_xxx'
+information embedded within.  We know that make can support ifeq
+CONFIG_xxx for example...
 
-I believe the patch you're looking for is last seen in the ac series,
-and not merged with 2.4 mainline due to triggering on unaffected
-motherboards.
+	Jeff
 
--- 
-Troels Walsted Hansen
 
 

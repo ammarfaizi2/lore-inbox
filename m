@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262028AbTCQXq4>; Mon, 17 Mar 2003 18:46:56 -0500
+	id <S262047AbTCRADg>; Mon, 17 Mar 2003 19:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262031AbTCQXq4>; Mon, 17 Mar 2003 18:46:56 -0500
-Received: from mail-2.tiscali.it ([195.130.225.148]:9329 "EHLO mail.tiscali.it")
-	by vger.kernel.org with ESMTP id <S262028AbTCQXqw>;
-	Mon, 17 Mar 2003 18:46:52 -0500
-Date: Tue, 18 Mar 2003 00:57:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, David Mansfield <lkml@dm.cobite.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030317235742.GD30541@dualathlon.random>
-References: <Pine.LNX.4.44.0303171804010.23829-100000@admin> <20030317232544.GB30541@dualathlon.random> <20030317233332.GC529@work.bitmover.com>
+	id <S262048AbTCRADg>; Mon, 17 Mar 2003 19:03:36 -0500
+Received: from holomorphy.com ([66.224.33.161]:28892 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262047AbTCRADf>;
+	Mon, 17 Mar 2003 19:03:35 -0500
+Date: Mon, 17 Mar 2003 16:14:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] O(1) proc_pid_readdir
+Message-ID: <20030318001405.GS20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain> <20030317070334.GO20188@holomorphy.com> <3E761124.8060402@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030317233332.GC529@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+In-Reply-To: <3E761124.8060402@colorfullife.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 03:33:32PM -0800, Larry McVoy wrote:
-> On Tue, Mar 18, 2003 at 12:25:44AM +0100, Andrea Arcangeli wrote:
-> > yes, this is very helpful thanks ;). I'd suggest you to also parse the
-> > logic tag and to print a warning if there's an error and not only to
-> > trust the timestamps. 
-> 
-> The time stamps we're talking about are *in* the revision history. 
-> We do all checkins to all files with the same timestamp in the same
-> changeset.  
-> 
-> If you thought that we were talking about on disk timestamps, that's 
-> way too fragile but these are fine.
+William Lee Irwin III wrote:
+>> The NMI oopses are mostly decoded by hand b/c in-kernel (and other)
+>> backtrace decoders can't do it automatically. I might have to generate
+>> some fresh data, with some kind of hack (e.g. hand-coded NMI-based kind
+>> of smp_call_function) to trace the culprit and not just the victim.
+>> The victims were usually stuck in fork() or exit().
 
-ok, I see. But then why not using the logical number by default, that
-sounds simpler to parse and to work with.
+On Mon, Mar 17, 2003 at 07:17:08PM +0100, Manfred Spraul wrote:
+> Could you check if the attached test app triggers the NMI oopser?
 
-> > certain logic tag out of the tree. This logic tag will be the
-> > "changeset" number for us, but one that is also persistent and no only
-> > unique 
-> 
-> (Logical tag 1.XXXX) 
-> 
-> is in each file's checkin comments and the 1.XXXX is the ChangeSet file's
-> rev for that changeset.
-> 
-> > I also wonder if it wouldn't be better if Larry would simply tag the CVS
-> > with the logic tag number since the first place, rather than writing it
-> 
-> That means that *all* files get tags.  There would be 8300 x 15,000 files
-> times sizeof(tag).  That's too big.
+Sure, no problem.
 
-you're writing this tag in the textual log anyways, wouldn't it only
-move the too big space from one place to another? I'm saying this
-because cvs just provides a means of diffing a tag against another, and
-so it looks more efficient (especially in term of saving bandwidth from
-your part) to use the cvs feature, rather than doing it by hand with
-multiple transfers.
 
-Andrea
+-- wli

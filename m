@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314124AbSDQPL6>; Wed, 17 Apr 2002 11:11:58 -0400
+	id <S314125AbSDQPNL>; Wed, 17 Apr 2002 11:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314125AbSDQPL5>; Wed, 17 Apr 2002 11:11:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15571 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S314124AbSDQPLz>;
-	Wed, 17 Apr 2002 11:11:55 -0400
-Date: Wed, 17 Apr 2002 15:08:04 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: James Bourne <jbourne@MtRoyal.AB.CA>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Jeff Nguyen <jeff@aslab.com>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <Pine.LNX.4.44.0204170808160.17511-100000@skuld.mtroyal.ab.ca>
-Message-ID: <Pine.LNX.4.44.0204171507300.23328-100000@elte.hu>
+	id <S314126AbSDQPNK>; Wed, 17 Apr 2002 11:13:10 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5385 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314125AbSDQPMh>; Wed, 17 Apr 2002 11:12:37 -0400
+Date: Wed, 17 Apr 2002 11:09:29 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/raid performance
+In-Reply-To: <20020417125838.GA27648@dark.x.dtu.dk>
+Message-ID: <Pine.LNX.3.96.1020417105817.32318B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Apr 2002, Baldur Norddahl wrote:
 
-On Wed, 17 Apr 2002, James Bourne wrote:
+> I have been doing some simple benchmarks on my IDE system. It got 12 disks
+> and a system disk. The 12 disks are organized in two raids like this:
 
-> After Ingo forwarded me his original patch (I found his patch via a web
-> based medium, which had converted all of the left shifts to compares,
-> and now I'm very glad it didn't boot...) and the system is booted and is
-> balancing most of the interrupts at least.  Here's the current output of
-> /proc/interrupts
+> echo Testing hdo1, hds1 and hdk1
+> time dd if=/dev/hdo1 of=/dev/null bs=1M count=1k &
+> time dd if=/dev/hds1 of=/dev/null bs=1M count=1k &
+> time dd if=/dev/hdk1 of=/dev/null bs=1M count=1k &
+> wait
+
+> It is clear that the 33 MHz PCI bus maxes out at 75 MB/s. Is there a reason
+> it doesn't reach 132 MB/s?
+
+  I suspect you have tuned your system to the max, but I will mention
+using 32 bit transfers on all drives, read ahead via hdparm, etc.
+ 
+> Second, why are the md devices so slow? I would have expected it to reach
+> 130+ MB/s on both md0 and md1. It even has spare CPU time to do it with.
+
+  Possibly contention? Try smaller read sizes and see if the rate goes up.
+Also, your strip size is small for stuff like this, for high volume
+sequential data I used 256k. That was SCSI, though.
+ 
+> Another issue is when the system is under heavy load this often happens:
 > 
-> brynhild:bash$ cat /proc/interrupts 
->            CPU0       CPU1       
->   0:     171414          0    IO-APIC-edge  timer
->   1:          3          2    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   8:          1          0    IO-APIC-edge  rtc
->  18:          8          7   IO-APIC-level  aic7xxx
->  19:      13566      12799   IO-APIC-level  eth0
->  20:          9          7   IO-APIC-level  aic7xxx
->  21:          9          7   IO-APIC-level  aic7xxx
->  27:       1572       5371   IO-APIC-level  megaraid
-> NMI:          0          0 
-> LOC:     171315     171251 
-> ERR:          0
-> MIS:          0
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdt: dma_intr: bad DMA status (dma_stat=75)
+> hdt: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: timeout waiting for DMA
+> PDC202XX: Primary channel reset.
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hdq: dma_intr: bad DMA status (dma_stat=35)
+> hdq: dma_intr: status=0x50 { DriveReady SeekComplete }
+> hdq: timeout waiting for DMA
+> PDC202XX: Primary channel reset.
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> etc.
 
-it's looking good.
+  That looks like a hardware issue to me. I haven't looked at this
+closely, but does the fallback include switching to PIO mode on errors
+like this?
+ 
+> It did not happen during the test above though.
 
-> So, the timer isn't being balanced still, others are (is there a
-> specific case in your patch for irq 0 (< 1)?  I couldn't see it but it
-> almost looks as though it's being missed..)
+  Good to eliminate, however.
 
-it's a separate bug, solved by a separate patch.
-
-	Ingo
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVBBXgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262779AbVBBXpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbVBBXgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 18:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVBBXf4
+	id S262779AbVBBXpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 18:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbVBBXor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 18:35:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18129 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262825AbVBBXfT (ORCPT
+	Wed, 2 Feb 2005 18:44:47 -0500
+Received: from gprs215-95.eurotel.cz ([160.218.215.95]:26755 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262477AbVBBXkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 18:35:19 -0500
-Date: Wed, 2 Feb 2005 15:35:00 -0800
-From: Greg KH <greg@kroah.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jirka Kosina <jikos@jikos.cz>,
-       Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
-Message-ID: <20050202233500.GA14696@kroah.com>
-References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz> <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com> <41F64E87.8040501@tmr.com> <41F66F86.4000609@sun.com>
+	Wed, 2 Feb 2005 18:40:12 -0500
+Date: Thu, 3 Feb 2005 00:38:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Peter =?iso-8859-1?Q?M=FCnster?= <pmlists@free.fr>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       axboe@suse.de, benh@kernel.crashing.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [ACPI] [Patch] keep ide disk sleeping when resuming
+Message-ID: <20050202233819.GA779@elf.ucw.cz>
+References: <Pine.LNX.4.58.0502022006030.4130@gaston.free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F66F86.4000609@sun.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.58.0502022006030.4130@gaston.free.fr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 11:10:46AM -0500, Mike Waychison wrote:
+Hi!
 
-> Get rid of semaphore abuse by converting device_driver->unload_sem
-> semaphore to device_driver->unloaded completion.
+> I need this patch (against linux-2.6.11-rc2), to keep ide disk sleeping,
+> when resuming from ACPI S1.
 > 
-> This should get rid of any confusion as well as save a few bytes in the
-> process.
-> 
-> Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+> In fact, it's just removing a patch from 22 Jun 2004 by Jens Axboe. He has
+> told me, that "We can probably kill the patch completely".
+> So, this is what I'm doing now.
 
-Thanks, I've applied this to my trees, and it will show up in the next
--mm releases.
+Are you sure it does not affect S3/S4 in any way? You currently can't
+easily tell S1 from S3/S4... Please wait with this one. When
+pm_message_t is introduced (post 2.6.11), we can fix it properly.
+								Pavel
 
-greg k-h
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282870AbRLGRzp>; Fri, 7 Dec 2001 12:55:45 -0500
+	id <S282877AbRLGR5p>; Fri, 7 Dec 2001 12:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282877AbRLGRzf>; Fri, 7 Dec 2001 12:55:35 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36876 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S282870AbRLGRzU>; Fri, 7 Dec 2001 12:55:20 -0500
-Message-ID: <3C110287.8070205@redhat.com>
-Date: Fri, 07 Dec 2001 12:55:19 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011115
-X-Accept-Language: en-us
+	id <S282893AbRLGR5g>; Fri, 7 Dec 2001 12:57:36 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:31250 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S282877AbRLGR53>; Fri, 7 Dec 2001 12:57:29 -0500
+Date: Fri, 7 Dec 2001 18:57:26 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: Greg Hennessy <gsh@cox.rr.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <9uqcsn$270$1@24-28-205-10.mf3.cox.rr.com>
+Message-ID: <Pine.LNX.4.33.0112071840040.13546-100000@Megathlon.ESI>
 MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Andris Pavenis <pavenis@lanet.lv>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i810_audio fix for version 0.11
-In-Reply-To: <3C10E85F.7040009@lanet.lv> <3C10F9E0.7010906@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+On Fri, 7 Dec 2001, Greg Hennessy wrote:
 
-> Andris Pavenis wrote:
->
->>  > With this patch, it seems to work fine. Without, it hangs on write.
->>
->> I met case when dmabuf->count==0 when __start_dac() is called. As result
->> I still got system freezing even if PCM_ENABLE_INPUT or 
->> PCM_ENABLE_OUTPUT were set accordingly (I used different patch, see 
->> another patch I sent today).
->>
->> My latest revision of patch "survives" without problems already some 
->> hours (normally I'm not listening radio through internet all time, 
->> but this time I do ...)
->>
->> Andris
->>
->>
->>
->>
->>
->>
->
-> i knew i shoula been a little less lazy with that one...
->
-> haven't looked at your revision yet but we should just clean up and 
-> make update_lvi self-contained so that it always does *something* 
-> appropriate regardless of state. maybe that's what you did. ;-)
->
-> (fyi, i'm not subscribed to linux-kernel, too much volume for the few 
-> specific interests i have, i don't see some of this stuff until, and 
-> if, i go digging thru archives)
->
-Well, unfortunately, neither of the patches you guys sent do what I was 
-looking for ;-)  My goal with that code was to enable a specific certain 
-behaviour, and because of the deadlock I have to make a few changes 
-elsewhere for it to work properly.  The workaround patches are fine for 
-now, but later today I'll make a 0.12 that fixes it the way I'm looking 
-for.  (Hint: it's legal for a program to call SETTRIGGER to disable PCM 
-output, then call the write() routine to fill the buffer, then call 
-SETTRIGGER again to start output, otherwise known as pre buffering, and 
-I want to support that without forcing the DAC to be started on 
-update_lvi())
+> In article <9upmqm$7p4$1@penguin.transmeta.com>,
+> Linus Torvalds <torvalds@transmeta.com> wrote:
+> > Isn't somebody ashamed of glibc and willing to try to fix it? It might
+> > be as simple as just testing a static flag "have I used pthread_create"
+> > or even a function pointer that gets switched around at pthread_create..
+> 
+> As the person who started this thread, I'll say that I'm willing to
+> test new alternatives, Redhat engineers gave me a newer kernel to see
+> if it helped (it didn't) and if someone can give me (or point me to) a
+> glibc with better io I'm glad.
+> 
+> Right now I have to explain to my boss why my $4K pentium computers do
+> io faster than my $20K itanium computer. And since our major software
+> code is 3rd party, we can't rewrite the appilcation.
 
-The real answer is multipart:
+As I understand it, they just told you that the benchmark you use gives
+uncorrect data on the itanium box. IIRC, you said that users were
+complaing about poor performance, so I think you should investigate on
+the application(s) you need instead of bonnie. Try and collect more real
+world data (if possible) or at least use some other benchmarks.
 
-1) during i810_open go back to the old behaviour of setting 
-dmabuf->trigger to PCM_ENABLE_INPUT and/or OUTPUT based on file mode.
+If it turns out that the (hi-end, I presume) application you're using
+it's both disk I/O bound and it actually uses putc(), then maybe the
+problem it's just using 3rd party applications without sources... all you
+have to explain to your boss is that you know what the problem is, and how
+to fix it, and that the "fix" is really easy (... if only you had the
+source). Add those 20K to the TCO of your closed source application.
 
-2) make sure that i810_mmap clears dmabuf->trigger
-
-3) make sure that in both i810_write and i810_read, we force the trigger 
-setting when we can't output/input any data because count <= 0
-
-4) in update_lvi make the check something like:
-
-if (!dmabuf->enable && dmabuf->trigger) {
-    ....
-}
-
-That should solve the problem, I just haven't written it up yet.
-
-
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 

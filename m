@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135761AbRDTHrZ>; Fri, 20 Apr 2001 03:47:25 -0400
+	id <S135821AbRDTHuz>; Fri, 20 Apr 2001 03:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135749AbRDTHrR>; Fri, 20 Apr 2001 03:47:17 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:63506 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S135746AbRDTHrH>; Fri, 20 Apr 2001 03:47:07 -0400
-From: wichert@cistron.nl (Wichert Akkerman)
-Subject: Re: Children first in fork
-Date: 20 Apr 2001 09:46:06 +0200
-Organization: Cistron Internet Services
-Message-ID: <9bopfu$2dn$1@picard.cistron.nl>
-In-Reply-To: <20010419133538.A28654@quatramaran.ens.fr> <200104191256.OAA31141@quatramaran.ens.fr> <9bn3sr$fer$1@picard.cistron.nl> <9bn90l$anp$1@penguin.transmeta.com>
-To: linux-kernel@vger.kernel.org
+	id <S135824AbRDTHup>; Fri, 20 Apr 2001 03:50:45 -0400
+Received: from t2.redhat.com ([199.183.24.243]:56307 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S135821AbRDTHuj>; Fri, 20 Apr 2001 03:50:39 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic rw_semaphores, compile warnings patch 
+In-Reply-To: Your message of "Thu, 19 Apr 2001 16:43:52 PDT."
+             <15071.30776.914468.900710@pizda.ninka.net> 
+Date: Fri, 20 Apr 2001 08:50:38 +0100
+Message-ID: <24459.987753038@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <9bn90l$anp$1@penguin.transmeta.com>,
-Linus Torvalds <torvalds@transmeta.com> wrote:
->Not that I've tested it myself.
+David S. Miller <davem@redhat.com> wrote:
+> D.W.Howells writes:
+>  > This patch (made against linux-2.4.4-pre4) gets rid of some warnings obtained 
+>  > when using the generic rwsem implementation.
+>
+> Have a look at pre5, this is already fixed.
 
-I did a few months ago, it didn't work.
+Not entirely so...
 
-Wichert.
--- 
-   ________________________________________________________________
- / Generally uninteresting signature - ignore at your convenience  \
-| wichert@cistron.nl                  http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+There's also a missing "struct rw_semaphore;" declaration in linux/rwsem.h. It
+needs to go in the gap below "#include <linux/wait.h>". Otherwise the
+declarations for the contention handling functions will give warnings about
+the struct being declared in the parameter list.
 
+David

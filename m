@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbUKOWgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbUKOWjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUKOWgn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUKOWgd
+	id S261499AbUKOWjO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUKOWjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:36:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33935 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261440AbUKOWfZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:35:25 -0500
-Date: Mon, 15 Nov 2004 14:35:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Nov 2004 17:39:13 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:30887 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261499AbUKOWh6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:37:58 -0500
+Subject: [patch] scheduler: rebalance_tick interval update
+From: Darren Hart <dvhltc@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Nick Piggin <piggin@cyberone.com.au>, Matt Dobson <colpatch@us.ibm.com>,
+       Martin J Bligh <mbligh@aracnet.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Date: Mon, 15 Nov 2004 14:38:33 -0800
+Message-Id: <1100558313.17202.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The current rebalance_tick() code assigns each sched_domain's
+last_balance field to += interval after performing a load_balance.  If
+interval is 10, this has the effect of saying:  we want to run
+load_balance at time = 10, 20, 30, 40, etc...  If for example
+last_balance=10 and for some reason rebalance_tick can't be run until
+30, load_balance will be called and last_balance will be updated to 20,
+causing it to call load_balance again immediately the next time it is
+called since the interval is 10 and we are already at >30.  It seems to
+me that it would make much more sense for last_balance to be assigned
+jiffies after a load_balance, then the meaning of last_balance is more
+exact: "this domain was last balanced at jiffies" rather than "we last
+handled the balance we were supposed to do at 20, at some indeterminate
+time".  The following patch makes this change.
+
+Signed-off-by: Darren Hart <dvhltc@us.ibm.com>
+---
+
+diff -purN -X /home/mbligh/.diff.exclude /home/linux/views/linux-2.6.10-rc1-mm5/kernel/sched.c linux-2.6.10-rc1-mm5-jni/kernel/sched.c
+--- /home/linux/views/linux-2.6.10-rc1-mm5/kernel/sched.c	2004-11-11 05:33:53.000000000 -0800
++++ linux-2.6.10-rc1-mm5-jni/kernel/sched.c	2004-11-15 11:28:16.000000000 -0800
+@@ -2201,7 +2201,7 @@ static void rebalance_tick(int this_cpu,
+ 				/* We've pulled tasks over so no longer idle */
+ 				idle = NOT_IDLE;
+ 			}
+-			sd->last_balance += interval;
++			sd->last_balance = jiffies;
+ 		}
+ 	}
+ }
 
 
-On Mon, 15 Nov 2004, Miklos Szeredi wrote:
-> 
-> Please consider adding the FUSE filesystem to the mainline kernel.
-
-Quite frankly I think it's too messy.
-
-I'd like FUSE a whole lot more if it _only_ did the general page cache 
-reading, but it seems to do a whole lot more, most of it broken.
-
-In other words, I think it's fundamentally wrong to not have a special
-"fuse_file_read". If it isn't just "generic_file_read()" (possibly
-together with a re-validation callback but even that is very debatable 
-indeed) there's something wrong with it imho.
-
-The code looks like it was started before the page cache was all done, and 
-nobody ever cleaned it up to use the full VFS power - or for some suspect 
-reason decided that they wanted to support insane filesystems.
-
-Together with removing the 2.4.x code and sending a real patch that has 
-the cleanups, and maybe I'd reconsider.
-
-		Linus

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317443AbSGXRpn>; Wed, 24 Jul 2002 13:45:43 -0400
+	id <S317457AbSGXR6J>; Wed, 24 Jul 2002 13:58:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317446AbSGXRpn>; Wed, 24 Jul 2002 13:45:43 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:22688 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317443AbSGXRpm>;
-	Wed, 24 Jul 2002 13:45:42 -0400
-Date: Wed, 24 Jul 2002 19:48:23 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Thunder from the hill <thunder@ngforever.de>,
-       Alex Riesen <Alexander.Riesen@synopsys.com>,
-       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 (linus' bk): conflicting KEY_xxx macros
-Message-ID: <20020724194823.D2672@ucw.cz>
-References: <20020724144804.GE14143@riesen-pc.gr05.synopsys.com> <Pine.LNX.4.44.0207240854590.3472-100000@hawkeye.luckynet.adm> <20020724080313.J27617@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020724080313.J27617@work.bitmover.com>; from lm@bitmover.com on Wed, Jul 24, 2002 at 08:03:13AM -0700
+	id <S317458AbSGXR6J>; Wed, 24 Jul 2002 13:58:09 -0400
+Received: from virtmail.zianet.com ([216.234.192.37]:59778 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S317457AbSGXR6I>;
+	Wed, 24 Jul 2002 13:58:08 -0400
+Message-ID: <3D3EED72.1080809@zianet.com>
+Date: Wed, 24 Jul 2002 12:09:54 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jes Sorensen <jes@wildopensource.com>
+CC: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 3com 3c996b-t support?
+References: <Pine.LNX.4.33.0207241314550.30282-100000@coffee.psychology.mcmaster.ca> <3D3EE4B1.3000809@zianet.com> <m3adohja4s.fsf@trained-monkey.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 08:03:13AM -0700, Larry McVoy wrote:
 
-> I poked around at this with revtool trying to figure out what the intent
-> was.  It seems like the keys were all decimal, then at 0x100 it switched
-> to BTN_*, then on Jul 13 Vojtech added a change for settop boxes which
-> used the 0x160 .. range for more KEY_*.  For whatever that is worth.
 
-Yes, and I didn't review the change well enough and didn't see the
-conflicting definitions. In the next update they're OK again, but that
-hasn't made it into Linus's kernel yet.
+Jes Sorensen wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>>>>>>"Steve" == kwijibo  <kwijibo@zianet.com> writes:
+>>>>>>            
+>>>>>>
+>
+>Steve> http://www.cs.uni.edu/~gray/gig-over-copper/
+>
+>Steve> The 3com drivers are open-source though, which makes me less
+>Steve> hesitent.  And the tigon3 drivers lack of documentation kind of
+>Steve> irks me.  I would however like to stick with a mainstream
+>Steve> kernel driver cause the support is there if it is needed.  I
+>Steve> guess I will give both versions a whirl.  From just glancing at
+>Steve> the source of both, it seems that both versions support jumbo
+>Steve> frames which is really what I am after.
+>
+>Well did you look at the code? It's the infamous Broadcom bcm5700
+>
+Just glanced at it.
+
+>driver which is probably the worst driver code we have seen in the
+>Linux community for the last 5 years. Sure you can run it, but don't
+>come back and complain when you run into trouble. You will be a lot
+>better off using the tg3 driver, or better yet, getting a NIC thats
+>less buggy.
+>  
+>
+Is the NIC hardware buggy or is it just the bcm5700 drivers?
+
+Well that answers the question I was after, I will use the
+tg3 kernel drivers.  I chose this card cause it had good
+performance tests on that web page.  The SK9821 beat
+all the gigi NICs but it also costs about 4 times as much
+as any other.
+
+Steve
+

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277514AbRJJXCZ>; Wed, 10 Oct 2001 19:02:25 -0400
+	id <S277524AbRJJXF1>; Wed, 10 Oct 2001 19:05:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277519AbRJJXCP>; Wed, 10 Oct 2001 19:02:15 -0400
-Received: from [213.98.126.44] ([213.98.126.44]:34564 "HELO anano.mitica")
-	by vger.kernel.org with SMTP id <S277514AbRJJXB7>;
-	Wed, 10 Oct 2001 19:01:59 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: tkhoadfdsaf@hotmail.com (Concerned Programmer),
-        dwmw2@infradead.org (David Woodhouse),
-        viro@math.psu.edu (Alexander Viro), kaos@ocs.com.au (Keith Owens),
-        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
-        linux-kernel@vger.kernel.org
-Subject: Re: Tainted Modules Help Notices
-In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu>
-Date: 11 Oct 2001 01:02:06 +0200
-Message-ID: <m2itdnf6a9.fsf@anano.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277526AbRJJXFF>; Wed, 10 Oct 2001 19:05:05 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:13588 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277524AbRJJXEz>; Wed, 10 Oct 2001 19:04:55 -0400
+Subject: Re: Compile Filure on 2.4.10-ac10+preempt+smp
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011010155203.A3795@mikef-linux.matchmail.com>
+In-Reply-To: <20011009214655.A26663@mikef-linux.matchmail.com>
+	<1002690949.862.233.camel@phantasy>
+	<20011009222403.A12825@mikef-linux.matchmail.com>
+	<1002692093.1243.238.camel@phantasy>
+	<20011009230007.B12825@mikef-linux.matchmail.com> 
+	<20011010155203.A3795@mikef-linux.matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 10 Oct 2001 19:06:14 -0400
+Message-Id: <1002755175.865.4.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Wed, 2001-10-10 at 18:52, Mike Fedyk wrote:
+> Ok, I've been running it for the last 16 hours under normal (light)
+> workstation load.
+> 
+> No problems.
 
-hi
+Excellent, thanks.  Let me know of any other issues.
 
-alan> Well under the DMCA thats probably a criminal offence with five years in
-alan> jail. The truth however is that if you want to lie about licensing or run a
-alan> modutils that doesn't do it nobody stops you. Its there primarily to deal
-alan> with bug filtering from people who don't know better. Folks who know enough
-alan> to subvert the mechanism generally also know better than to post Nvdriver
-alan> bugs to l/k.
+	Robert Love
 
-Never understimate the ability of users to subert that kind of
-barriers.
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

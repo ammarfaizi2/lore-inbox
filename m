@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUKQLcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbUKQLdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUKQLcU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 06:32:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUKQLcU
+	id S262273AbUKQLdX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 06:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKQLdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 06:32:20 -0500
-Received: from kruuna.helsinki.fi ([128.214.205.14]:30694 "EHLO
-	kruuna.Helsinki.FI") by vger.kernel.org with ESMTP id S262272AbUKQLcS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 06:32:18 -0500
-From: Atro Tossavainen <atossava@cc.helsinki.fi>
-Message-Id: <200411171132.iAHBWEhH009305@kruuna.Helsinki.FI>
-Subject: Re: 2.4.27 and CCISS related problem
-In-Reply-To: <20041117064727.GD19107@logos.cnet> from Marcelo Tosatti at "Nov
- 17, 2004 04:47:27 am"
-To: linux-kernel@vger.kernel.org, mikem@beardog.cca.cpqcorp.net
-Date: Wed, 17 Nov 2004 13:32:14 +0200 (EET)
-Reply-To: Atro.Tossavainen@helsinki.fi
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Nov 2004 06:33:23 -0500
+Received: from holomorphy.com ([207.189.100.168]:64454 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262273AbUKQLcf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 06:32:35 -0500
+Date: Wed, 17 Nov 2004 03:32:25 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-mm1
+Message-ID: <20041117113225.GP3217@holomorphy.com>
+References: <20041116014213.2128aca9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116014213.2128aca9.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please try vanilla v2.4.27.
+On Tue, Nov 16, 2004 at 01:42:13AM -0800, Andrew Morton wrote:
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.10-rc2-mm1.gz
+> will appear soon at
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/
+> - Various little fixes and features.  Nothing major here.
 
-Freezes as before.
+Dies at boot on sparc64 repeatedly printk'ing some PROMLIB message.
+Hunting for the offending patch...
 
-> If that doesnt work, go down to v2.4.26.
 
-Doesn't freeze.
-
--- 
-Atro Tossavainen (Mr.)               / The Institute of Biotechnology at
-Systems Analyst, Techno-Amish &     / the University of Helsinki, Finland,
-+358-9-19158939  UNIX Dinosaur     / employs me, but my opinions are my own.
-< URL : http : / / www . helsinki . fi / %7E atossava / > NO FILE ATTACHMENTS
+-- wli

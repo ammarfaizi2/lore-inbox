@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVCXJHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVCXJN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVCXJHr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 04:07:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVCXJHr
+	id S262727AbVCXJN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 04:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbVCXJN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 04:07:47 -0500
-Received: from a83-68-3-130.adsl.cistron.nl ([83.68.3.130]:7941 "EHLO
-	gw.wurtel.net") by vger.kernel.org with ESMTP id S261447AbVCXJHf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 04:07:35 -0500
-Date: Thu, 24 Mar 2005 10:07:19 +0100
-From: Paul Slootman <paul+nospam@wurtel.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: md: bug in file drivers/md/md.c, line 1513
-Message-ID: <20050324090719.GA11613@wurtel.net>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <d1pi21$gjq$1@news.cistron.nl> <16961.60764.827542.318291@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16961.60764.827542.318291@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6i
-X-Scanner: exiscan *1DEOJE-0000nW-00*FzKHOpvuyzQ*Wurtel
+	Thu, 24 Mar 2005 04:13:58 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:16554 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S262727AbVCXJNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 04:13:55 -0500
+Message-ID: <4242865D.90800@qazi.f2s.com>
+Date: Thu, 24 Mar 2005 09:20:29 +0000
+From: Asfand Yar Qazi <ay1204@qazi.f2s.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041010
+X-Accept-Language: en-gb, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: How's the nforce4 support in Linux?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 24 Mar 2005, Neil Brown wrote:
-> On Tuesday March 22, paul+nospam@wurtel.net wrote:
-> > This is on kernel 2.6.11, mdadm 1.4.0
-> > 
-> > The system has MD devices that are auto-configured on boot.
-> > 
-> > However, there are also devices connected via another SCSI adapter
-> > (actually, a Qlogic QLA2300). I'm using a module for that. As the
-> > auto-configure only runs at boot (or rather, when the md subsystem is
-> > started).  I wanted to restart a raid-0 device that I had previously
-> > created. I did:
-> > 
-> > 	mdadm --run /dev/md10
-> 
-> As you admit, this is wrong.  You want something like
->   mdadm --assemble /dev/md10 /dev/.....(list of component devices)
-> 
-> or describe the md10 array (e.g. via UUID) in /etc/mdadm.conf
+Hi,
 
-It took a bit of trial and error (I find the mdadm docs a bit
-confusing...) but I came up with this:
+I'm currently contemplating going for an Athlon 64 system.  However, 
+I'll primarily be using a Linux-based OS (Gentoo, namely), so I need 
+to know how well the chipsets are supported currently.
 
-mdadm --assemble --super-minor=10 --config=partitions /dev/md10
+I'd really like to go Via - but the crummy KT890 / VT8237 combo sucks 
+- mainly due to the lack of SATA II with NCQ.  I share the sentiments 
+of the person in a post in the AnandTech forums 
+(http://tinyurl.com/6d9bx) who says:
 
+"The feature set on the K8T890 sucks. It was supposed to use the 
+VT8251 southbridge, bringing SATA-II/NCQ, HD Audio, etc. 
+Unfortunately, this southbridge has since dissappeared off the face of 
+the earth, and all the current K8T890 boards use the old VT8237. 
+nForce4, on the other hand, has SATA-II/NCQ, hardware firewall, nice 
+software overclocking/monitoring tools (ntune), gigabit lan, etc. On 
+top of that, performance and overclocking is pretty damn good. I was 
+at one point looking forward to the K8T890, but considering how much 
+of a joke the whole product line has been (lacking features, months of 
+delays with no explanation, lack of any variety of retail boards), I 
+have to say I'd avoid it like the plague."
 
-> > error message in the subject, and a "COMPLETE RAID STATE PRINTOUT"...
-> > In that output there is a line "md10:", the next line is
-> > "md1: <sde1><sdd1><sdc1><sdb1><sda1>".
-> > 
-> > 
-> > Admittedly the usage may be wrong, but having the kernel say "bug" can't
-> > be right :-)
-> > 
-> 
-> Yes, there are quite a few of those silly bug messages.  I've removed
-> a few, but have not yet gone through and checked and removed all the
-> bad ones.
+NForce4 Ultra is brilliant - in many ways.  Except it requires binary 
+drivers, which I really don't want to use.  And apparently, the 
+hardware firewall seems to restrict bandwidth a bit.  And even when 
+its off, external chips that end up being faster 
+(http://tinyurl.com/4zssp)
 
-Keep up the good work :-)
+So, I'm wondering, are my assumptions correct?  Do I have to use 
+binary drivers to make absolutely full use of the Nforce4 chipset?  Or 
+is there sufficient support for me to make use of the features on it 
+without using binary drivers?
 
+Sorry for asking something that may have been asked before, but I've 
+tried searching several times through the mailing list and on a search 
+engine, but have had little luck.
 
-Paul Slootman
+Thanks,
+	Asfand Yar
+
+p.s. Here's something for the search engines to latch on to, so this 
+post and any repies are easier to find: via nvidia nforce4 nforce 4 
+kt890 kt 890 vt8237 comparison feature set supported compatibility 
+binary drivers

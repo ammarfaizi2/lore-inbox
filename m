@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVATLDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVATLHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVATLDE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 06:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVATLCj
+	id S262115AbVATLHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 06:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVATLHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 06:02:39 -0500
-Received: from gprs215-87.eurotel.cz ([160.218.215.87]:34266 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262116AbVATLCa (ORCPT
+	Thu, 20 Jan 2005 06:07:00 -0500
+Received: from gprs215-87.eurotel.cz ([160.218.215.87]:60806 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262115AbVATLG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 06:02:30 -0500
-Date: Thu, 20 Jan 2005 12:01:56 +0100
+	Thu, 20 Jan 2005 06:06:58 -0500
+Date: Thu, 20 Jan 2005 12:06:28 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: Fred Labrosse <ffl@aber.ac.uk>
 Cc: kernel list <linux-kernel@vger.kernel.org>,
        ACPI mailing list <acpi-devel@lists.sourceforge.net>
 Subject: Re: [ACPI] Machine no longer enters C3 on 2.6.11-rc1-bk
-Message-ID: <20050120110156.GG1452@elf.ucw.cz>
+Message-ID: <20050120110628.GH1452@elf.ucw.cz>
 References: <20050120104033.GA25889@elf.ucw.cz> <16879.36609.94551.926755@aber.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -37,12 +37,14 @@ Hi!
 > beginning, since 2.6.10.  It has always been like that up to 2.6.6, became
 > better from 2.6.7 (but had other problems with that).
 > 
+> Fred
+> 
 > P.S.  I didn't check bus master activity.  How do you do that?
 
-There's something wrong with bus master activity indicator: it seems
-to be updated every HZ or something like that... that results in a bad
-stuff if HZ=100... activiy is now non-zero and machine refuses to go
-C3.
+can you try to kill all bm_activity++ things in
+drivers/acpi/processor.c and see what it does to your power
+consumption. (Warning: it may do bad stuff to your performance).
+
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267590AbSLFUqD>; Fri, 6 Dec 2002 15:46:03 -0500
+	id <S267595AbSLFUuj>; Fri, 6 Dec 2002 15:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267587AbSLFUqC>; Fri, 6 Dec 2002 15:46:02 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:18320 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267590AbSLFUqC>;
-	Fri, 6 Dec 2002 15:46:02 -0500
-Message-Id: <200212062053.gB6KrOF27322@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: scott-kernel@thomasons.org
-cc: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       cliffw@osdl.org
-Subject: Re: Kernel Test tools 
-In-Reply-To: Message from scott thomason <scott-kernel@thomasons.org> 
-   of "Tue, 03 Dec 2002 19:29:04 CST." <200212031929.04972.scott-kernel@thomasons.org> 
-Mime-Version: 1.0
+	id <S267618AbSLFUuj>; Fri, 6 Dec 2002 15:50:39 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:10756 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267595AbSLFUui>;
+	Fri, 6 Dec 2002 15:50:38 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212062109.gB6L9GWe000553@darkstar.example.net>
+Subject: Re: [2.5.50] IDE error messages appearing after upgrade
+To: inkognito.anonym@uni.de
+Date: Fri, 6 Dec 2002 21:09:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <10525789281.20021206212219@uni.de> from "Tobias Rittweiler" at Dec 06, 2002 09:22:19 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Dec 2002 12:53:24 -0800
-From: Cliff White <cliffw@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 03 December 2002 07:04 am, Richard B. Tilley " "(Brad) 
-> wrote:
-> > Where can one find programs to comparison test or stress test beta
-> > kernels?
+> Upgrading from 2.4.19 to 2.5.50 results in getting IDE error
+> log-messages on startup:
 > 
-> Google for these downloads (I don't have the original URLs):
-> 
-> bench-20010103.tar.gz
-> contest-0.51.tar.gz
-> glibench-0.2.5.tar.gz
-> lmbench-2.0.3.tgz
-> lots_of_forks.sh
-> ltp-20021107.tgz
-> mongo.tar.bz2
-> s7110.tar.Z
-> s9110.tar.Z
-> slab-bench.tar.gz
-> tiobench-0.3.3.tar.gz
-> unixbench-4.1.0.tgz
-> vmregress-0.7.tar.gz
-> 
+> Dec  6 21:00:23 brood kernel: hda: task_no_data_intr: status=0x51 {
+> DriveReady SeekComplete Error }
+> Dec  6 21:00:23 brood kernel: hda: task_no_data_intr: error=0x04 {
+> DriveStatusError }
+> Dec  6 21:00:23 brood kernel: hda: 4128768 sectors (2114 MB)
+> w/256KiB Cache, CHS=1024/64/63
+> Dec  6 21:00:23 brood kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2
+> Dec  6 21:00:23 brood kernel: hdb: task_no_data_intr: status=0x51 {
+> DriveReady SeekComplete Error }
+> Dec  6 21:00:23 brood kernel: hdb: task_no_data_intr: error=0x04 {
+> DriveStatusError }
 
-You can get most of these from the STP CVS tree on Sourceforge.
-They are in the 'tests' module
-cvs -d:pserver:anonymous@cvs.stp.sourceforge.net:/cvsroot/stp login
- 
-cvs -z3 -d:pserver:anonymous@cvs.stp.sourceforge.net:/cvsroot/stp co tests
+Ignore these 'errors', they are really warnings - your drive doesn't
+recognise some commands being sent to it.
 
-We don't have mongo, glibench or lots-of-forks, but i think we 
-have the rest.
-cliffw
+2.4.20 will also show these messages.
 
-> I think I found a lot of these via Freshmeat and SourceForge IIRC.
-> ---scott
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdc, sector 0
+> Dec  6 21:00:24 brood kernel: hdc: ATAPI 40X DVD-ROM drive, 512kB Cache
+> Dec  6 21:00:24 brood kernel: Uniform CD-ROM driver Revision: 3.12
+> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdc, sector 0
+> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdd, sector 0
+> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdd, sector 0
 
+Not sure about these, though.  I suspect that commands that only
+relate to disk devices are being sent to your CD-ROM drives, but
+somebody else will probably confirm/deny that.
 
+John.

@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbUJ0LWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUJ0Lcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbUJ0LWx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 07:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUJ0LWx
+	id S262382AbUJ0Lcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 07:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbUJ0Lcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 07:22:53 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:23266 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262390AbUJ0LU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 07:20:58 -0400
-Date: Wed, 27 Oct 2004 13:20:29 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Strange IO behaviour on wakeup from sleep
-In-Reply-To: <1098845804.606.4.camel@gaston>
-Message-ID: <Pine.LNX.4.53.0410271308360.9839@gockel.physik3.uni-rostock.de>
-References: <1098845804.606.4.camel@gaston>
+	Wed, 27 Oct 2004 07:32:50 -0400
+Received: from zamok.crans.org ([138.231.136.6]:30645 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S262382AbUJ0Lct convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 07:32:49 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm1
+References: <20041026213156.682f35ca.akpm@osdl.org>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Wed, 27 Oct 2004 13:32:47 +0200
+In-Reply-To: <20041026213156.682f35ca.akpm@osdl.org> (Andrew Morton's message
+	of "Tue, 26 Oct 2004 21:31:56 -0700")
+Message-ID: <87breos8f4.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Benjamin Herrenschmidt wrote:
+Andrew Morton <akpm@osdl.org> disait dernièrement que :
 
-> Not much datas at this point yet, but paulus and I noticed that current
-> bk (happened already last saturday or so) has a very strange problem
-> when waking up from sleep (suspend to ram) on our laptops.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm1/
+>
+>
+> - Nothing really major here - just lots of minor things spread all over the
+>   place.
+>
+> - I actually managed to get most of the "external BK trees" included.  A lot
+>   of them have been pretty flakey lately (hint).
+>
+> - This kernel is probably pretty crappy - there is a _lot_ of stuff
+>   happening and the quality of the patches which I am receiving seems to be
+>   gradually dropping off.  
 
-It's a shot in the dark, but I am concerned whether timers continue to 
-work correctly after suspend with the following patch from Linus' bk tree.
-I think jiffies may not be set behind the back of the timer subsystem, but 
-maybe it works if we can guarantee there are no timers scheduled.
+It fails to build if CONFIG_FS_REISER4=y and issues a depmod error if reiser4
+is built modular, as delete_from_page_cache has been ripped out
 
-It might be worth backing out and retesting.
+Best regards,
 
-Tim
+Mathieu
 
-
-  [PATCH] swsusp: fix process start times after resume
-
-  http://linus.bkbits.net:8080/linux-2.5/cset@4174ae167_Yica8ChkiLcj_rmOcG1Q?nav=index.html|ChangeSet@-2w
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/18 23:03:02-07:00 pavel@ucw.cz
-#   [PATCH] swsusp: fix process start times after resume
-#   
-#   Currently, process start times change after swsusp (because they are
-#   derived from jiffies and current time, oops).  This should fix it.
-#
-#   Signed-off-by: Andrew Morton <akpm@osdl.org>
-#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-#
-# arch/i386/kernel/time.c
-#   2004/10/18 22:26:45-07:00 pavel@ucw.cz +5 -1
-#   swsusp: fix process start times after resume
-#
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	2004-10-27 03:58:08 -07:00
-+++ b/arch/i386/kernel/time.c	2004-10-27 03:58:08 -07:00
-@@ -319,7 +319,7 @@
- 	return retval;
- }
-
--static long clock_cmos_diff;
-+static long clock_cmos_diff, sleep_start;
- 
- static int time_suspend(struct sys_device *dev, u32 state)
- {
-@@ -328,6 +328,7 @@
- 	 */
- 	clock_cmos_diff = -get_cmos_time();
- 	clock_cmos_diff += get_seconds();
-+	sleep_start = get_cmos_time();
- 	return 0;
- }
-
-@@ -335,10 +336,13 @@
- {
- 	unsigned long flags;
- 	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sleep_length = get_cmos_time() - sleep_start;
-+
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	jiffies += sleep_length * HZ;
- 	return 0;
- }
+-- 
+printk(KERN_ERR "Danger Will Robinson: failed to re-trigger IRQ%d\n", irq);
+        linux-2.6.6/arch/arm/common/sa1111.c
 

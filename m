@@ -1,94 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317440AbSFRPGb>; Tue, 18 Jun 2002 11:06:31 -0400
+	id <S317444AbSFRPIj>; Tue, 18 Jun 2002 11:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317443AbSFRPGa>; Tue, 18 Jun 2002 11:06:30 -0400
-Received: from web12305.mail.yahoo.com ([216.136.173.103]:29712 "HELO
-	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317440AbSFRPGa>; Tue, 18 Jun 2002 11:06:30 -0400
-Message-ID: <20020618150628.12694.qmail@web12305.mail.yahoo.com>
-Date: Tue, 18 Jun 2002 08:06:28 -0700 (PDT)
-From: Myrddin Ambrosius <imipak@yahoo.com>
-Subject: Drivers, Hardware, and their relationship to Bagels.
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1022276970.4174.153.camel@bip>
+	id <S317445AbSFRPIi>; Tue, 18 Jun 2002 11:08:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:56704 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317444AbSFRPIh>; Tue, 18 Jun 2002 11:08:37 -0400
+Date: Tue, 18 Jun 2002 11:10:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: VMM - freeing up swap space
+In-Reply-To: <EE83E551E08D1D43AD52D50B9F5110927E7A9E@ntserver2>
+Message-ID: <Pine.LNX.3.95.1020618110445.3808A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-403857871-1024412788=:10967"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-403857871-1024412788=:10967
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, 18 Jun 2002, Gregory Giguashvili wrote:
 
-Hi all,
+> Hello,
+> 
+> Running an application allocating huge amounts of memory would push some
+> data from RAM to swap area. After the application terminates, swap area is
+> usually still occupied. 
+> 
+> Is there any way to clean up the swap area by pushing the data back to RAM?
+> 
+> Thanks in advance
+> Giga
 
-With the discussion on kernel crypto a while back,
-there was one very important recurring element that I
-would like someone to clarify for me.
+Sure. Execute `swapoff -a`, followed by `swapon -a`. This is no joke.
+What didn't get 'pushed' back to RAM is the data from sleeping tasks
+that may never wake up for days or years like the daemons that are
+awaiting network connections that never happen, or getties that never
+get to log-in. So, their data stays on the swap device(s) and their
+RAM is freed for use. If you insist in putting this data back into
+RAM, thereby wasting RAM, you can do as shown.
 
-The issue is this. My understanding is that -all-
-hardware access should be through the kernel, partly
-so that similar hardware can have a similar API, but
-also so that kernel security code (eg: capabilities)
-applies to ALL hardware and ALL lower-level
-operations.
+Cheers,
+Dick Johnson
 
-However, there were a number of mentions of userland
-hardware drivers, which did NOT operate through the
-kernel. (This was in reference to why it wouldn't be
-necessary to have a kernel-level driver for the
-Motorola M190 crypto chip.)
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-If you can blithely ignore restrictions placed by the
-kernel on some piece of hardware, and access it
-directly, then surely this would apply to any
-hardware. Including disk drives, RAM, etc.
+                 Windows-2000/Professional isn't.
 
-I could be wrong (and I hope, very much, that I am),
-but if my understanding is correct, then that's a hole
-you could drive a truck through, and have room to
-spare.
-
-This isn't intended as a critisism of anyone, or of
-any decisions made regarding the way the kernel
-operates. (I know my phrasing leaves a lot to be
-desired. Sometimes I think my best chance of a long
-life would be to take a vow of silence and become a
-monk.)
-
-I'd really appreciate it if someone could clarify this
-for me, especially the security aspect of non-kernel
-drivers.
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
---0-403857871-1024412788=:10967
-Content-Type: text/plain; name="ks.txt"
-Content-Description: ks.txt
-Content-Disposition: inline; filename="ks.txt"
-
-(Tune of "Running Free", by Iron Maiden)
-
-Kernel bug, core runs wild,
-Space/time twists and gets compiled.
-Wormholes open and bring to me,
-Linux Kernel Version 3!
-
-I'm running 3, yeah, I'm running 3!
-I'm running 3, yeah, I'm running 3!
-
-Got support for Tbyte RAM,
-The newest arch is leg of lamb.
-Max cpus, one thousand now,
-Neg latency gives quite a pow.
-
-Men in Black zap my brains,
-Melt the hard-disk, and what remains.
-There's nothing left for you to see
-That my machine was running 3!
-
---0-403857871-1024412788=:10967--

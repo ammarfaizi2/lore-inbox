@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSEVRbz>; Wed, 22 May 2002 13:31:55 -0400
+	id <S316367AbSEVRdM>; Wed, 22 May 2002 13:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316367AbSEVRby>; Wed, 22 May 2002 13:31:54 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:8328 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316322AbSEVRbv>; Wed, 22 May 2002 13:31:51 -0400
-Date: Wed, 22 May 2002 10:31:37 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 67
-Message-ID: <20020522173137.GH1209@opus.bloom.county>
-In-Reply-To: <3CEB466B.3090604@evision-ventures.com> <20020522171329.GG1209@opus.bloom.county> <3CEBC576.4060703@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316388AbSEVRdL>; Wed, 22 May 2002 13:33:11 -0400
+Received: from 200-180-165-040-paemt7002.dsl.telebrasilia.net.br ([200.180.165.40]:52334
+	"EHLO uvsqua000.quatro.com.br") by vger.kernel.org with ESMTP
+	id <S316367AbSEVRdI>; Wed, 22 May 2002 13:33:08 -0400
+Message-ID: <00f801c201b6$8d77a7a0$9c0016ac@quatro>
+From: "Fernando [Quatro]" <fernando@quatro.com.br>
+To: "Eric Weigle" <ehw@lanl.gov>
+Cc: "Linux kernel mailing list \(lkml\)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020522165320.GC18059@lanl.gov>
+Subject: Re: Safety of -j N when building kernels?
+Date: Wed, 22 May 2002 14:31:35 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 06:21:10PM +0200, Martin Dalecki wrote:
-> Uz.ytkownik Tom Rini napisa?:
-> >On Wed, May 22, 2002 at 09:19:07AM +0200, Martin Dalecki wrote:
-> >
-> >
-> >>Wed May 22 01:43:54 CEST 2002 ide-clean-67
-> >>
-> >>- Nuke COMMERIAL and similar spurious configuration options...
-> >> The fact that every single default configuration option contained
-> >> those bits makes this trivial patch appear rather big.
-> >
-> >
-> >This also nukes CONFIG_DMA_NONPCI.  While this probably shouldn't have
-> >been define_bool'ed to 'n' all of the time, there are cases where this
-> >seems to be properly used.  I know PPC4xx uses it (or will be using it
-> >once the driver is ready to be submitted) and it looks like cris uses it
-> >as well.
+> Ok, stupid question of the moment-
 > 
-> No I checked. PPC4xx had no functional code for the case
-> of CONFIG_DMA_NONPCI. It just looked like it had.
+> I always read about the kernel compilation benchmarks people run on the
+> ultra-snazzy new machines, but do people actually run the kernels thus
+> generated?
+> 
+> I have visions of a process being backgrounded to generate some files, and
+> not completing before the one of the old files gets linked into the kernel
+> (because not all files were listed as dependencies, for example).
+> 
+> So are the kernel's current Makefiles really SMP safe -- can one really
+> run multiple jobs when building Linux kernels? Any horror stories, or am
+> I just paranoid?
 
-You checked the kernel.org tree, not the PPC tree.
+I think it's safe... I ran a `make -j` once (dual pIII 933MHz, 1Gb RAM).
+The load average went to 200+!  In the end, the kernel was fine and booted
+all right... I don't do that anymore because it takes longer building with a sane number
+in 'make -j N'...
 
-> Look at the patch and see that it is removing the two
-> nonpci_xxx functions which are nowhere defined!
 
-Because the driver isn't quite ready to be submitted just yet.
 
-> The __CRIS__ behaviour is preserved and BTW.
-> not pretty as well.
-> But this can be fixed a bit later...
 
-And when the PPC4xx drivers are ready to be submitted we'll need to add
-in __powerpc__ tests too.  Can't we just keep CONFIG_DMA_NONPCI for now?
+--------------------------------------------------
+Fernando Korndorfer - fernando@quatro.com.br
+Quatro Informatica Ltda.
+Novo Hamburgo - RS/Brasil
+--------------------------------------------------
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

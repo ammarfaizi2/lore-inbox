@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbTCJNkI>; Mon, 10 Mar 2003 08:40:08 -0500
+	id <S261313AbTCJNmW>; Mon, 10 Mar 2003 08:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbTCJNkI>; Mon, 10 Mar 2003 08:40:08 -0500
-Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:28829 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S261316AbTCJNkH>; Mon, 10 Mar 2003 08:40:07 -0500
-Date: Mon, 10 Mar 2003 06:50:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: akpm@digeo.com, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] move CONFIG_SWAP around
-Message-ID: <20030310135014.GD31298@ip68-0-152-218.tc.ph.cox.net>
-References: <200303090406.h2946Tj06060@hera.kernel.org> <Pine.GSO.4.21.0303101133380.8949-100000@vervain.sonytel.be>
+	id <S261318AbTCJNmW>; Mon, 10 Mar 2003 08:42:22 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:8320 "EHLO bjl1.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id <S261313AbTCJNmV>;
+	Mon, 10 Mar 2003 08:42:21 -0500
+Date: Mon, 10 Mar 2003 13:52:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030310135248.GA12232@bjl1.jlokier.co.uk>
+References: <20030309024522.GA25121@renegade> <200303100341.h2A3fKEO004164@eeyore.valparaiso.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0303101133380.8949-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200303100341.h2A3fKEO004164@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 11:36:29AM +0100, Geert Uytterhoeven wrote:
-> On Sun, 9 Mar 2003, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1148, 2003/03/08 19:25:21-08:00, akpm@digeo.com
-> > 
-> > 	[PATCH] move CONFIG_SWAP around
-> > 	
-> > 	Patch from Tom Rini <trini@kernel.crashing.org>
-> > 	
-> > 	Take CONFIG_SWAP out of the top-level menu into the general setup menu.  Make
-> > 	it dependent on CONFIG_MMU and common to all architectures.
-> > 
-> > 
-> > --- a/init/Kconfig	Sat Mar  8 20:06:31 2003
-> > +++ b/init/Kconfig	Sat Mar  8 20:06:31 2003
-> > @@ -37,6 +37,16 @@
-> >  
-> >  menu "General setup"
-> >  
-> > +config SWAP
-> > +	bool "Support for paging of anonymous memory"
-> > +	depends on MMU
-> > +	default y
-> > +	help
-> > +	  This option allows you to choose whether you want to have support
-> > +	  for socalled swap devices or swap files in your kernel that are
-> > +	  used to provide more virtual memory than the actual RAM present
-> > +	  in your computer.  If unusre say Y.
->                                 ^^^^^^
-> unsure
+Horst von Brand wrote:
+> Zack Brown <zbrown@tumblerings.org> said:
+> > I'd be willing to maintain this as the beginning of a feature list and
+> > post it regularly to lkml if enough people feel it would be useful and not
+> > annoying. The goal would be to identify the features/problems that would
+> > need to be handled by a kernel-ready version control system.
+> 
+> I believe that has very little relevance to lkml, only perhaps to a mailing
+> list for a bk replacement. For the kernel this work has already been done
+> (by Larry and the head penguins).
 
-D'oh... Not mine 'tho, I think it can from Randy :)
+I'd like to thank those kind souls who explained how branch _and_
+merge history is used by the better merging utilities.  Now I see why
+tracking merge history is so helpful.  (Tracking it for credit and
+blame history was obvious, but tracking it to enable tools to be
+better at resolving conflicts was not something I'd thought of).
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Of course there will be times when two or more people apply a patch
+without the history of that patch being tracked, and then try to merge
+both changes - any version control system should handle that as
+gracefully as it can.  However I now see how much actively tracking
+the history of those operations can help tools to reduce the amount of
+human effort required to combine changes from different places.
+
+So thank you for illustrating that.
+
+ps. Yes I know that CVS sucks at these things.  I've seen _awful_
+software engineering disasters due to the difficulty of tracking
+different lines of development through CVS, first hand :)
+
+-- Jamie

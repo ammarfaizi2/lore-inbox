@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbTBCCkM>; Sun, 2 Feb 2003 21:40:12 -0500
+	id <S265863AbTBCCkR>; Sun, 2 Feb 2003 21:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbTBCCkM>; Sun, 2 Feb 2003 21:40:12 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:11471 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265857AbTBCCkM>; Sun, 2 Feb 2003 21:40:12 -0500
-Date: Sun, 02 Feb 2003 18:49:47 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: Benchmarking 59 vs -mm vs -mjb
-Message-ID: <133570000.1044240585@[10.10.2.4]>
-In-Reply-To: <130380000.1044239907@[10.10.2.4]>
-References: <130380000.1044239907@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265872AbTBCCkR>; Sun, 2 Feb 2003 21:40:17 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:25353 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265863AbTBCCkQ>; Sun, 2 Feb 2003 21:40:16 -0500
+Date: Mon, 3 Feb 2003 02:49:46 +0000
+From: John Levon <levon@movementarian.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module alias and device table support.
+Message-ID: <20030203024946.GA90036@compsoc.man.ac.uk>
+References: <200302012302.h11N2R3U001433@eeyore.valparaiso.cl> <20030203022709.83AA52C0A7@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030203022709.83AA52C0A7@lists.samba.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18fWg6-000LYI-00*NuNaPonI2IM*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Going from virgin to -mjb gives a small degredation on SDET 1,2,4. 
-> but a good boost on SDET 8 up to 64. I presume this is a NUMA scheduler
-> effect, but haven't confirmed yet. I have Ingo's B0 patch apart from the
-> topo cleanup ... not really too worried about this - slight effect on
-> a huge machine at very low loads.
+On Mon, Feb 03, 2003 at 11:52:57AM +1100, Rusty Russell wrote:
 
-I mean the degradation is NUMA sched. The improvement is dcache_rcu.
+> Well, "modprobe foo" will only give you the "new_foo" driver if (1) the
+> foo driver isn't found, and (2) the new driver author decides that
+> it's a valid replacement.
 
-M.
+It's not the driver author's decision as to which module an admin would
+like to use. This just seems to make things a lot more awkward.
 
+> going to do this, I'd rather they did it in the kernel, rather than
+> some random userspace program.
+
+Can you explain why please ?
+
+regards
+john

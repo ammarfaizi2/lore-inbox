@@ -1,235 +1,176 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293547AbSCUIQ1>; Thu, 21 Mar 2002 03:16:27 -0500
+	id <S293603AbSCUIWr>; Thu, 21 Mar 2002 03:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293552AbSCUIQT>; Thu, 21 Mar 2002 03:16:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2572 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293547AbSCUIQC>;
-	Thu, 21 Mar 2002 03:16:02 -0500
-Message-ID: <3C99968C.4040501@mandrakesoft.com>
-Date: Thu, 21 Mar 2002 03:15:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S293589AbSCUIWi>; Thu, 21 Mar 2002 03:22:38 -0500
+Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:50373 "HELO
+	bilbo.math.uni-mannheim.de") by vger.kernel.org with SMTP
+	id <S293596AbSCUIWd>; Thu, 21 Mar 2002 03:22:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.7 Documentation/00-INDEX
+Date: Thu, 21 Mar 2002 09:22:38 +0100
+X-Mailer: KMail [version 1.3.9]
+In-Reply-To: <200203210835.51213@bilbo.math.uni-mannheim.de> <hog02upcf7.fsf@gee.suse.de>
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Linux kernel net-drivers-2.4.19-pre4-jg1
-Content-Type: multipart/mixed;
- boundary="------------040302080708000502070206"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200203210922.38625@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040302080708000502070206
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Am Thursday 21 March 2002 09:12 schrieben Sie:
+> Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de> writes:
+> > This patch updates Documentation/00-INDEX. It removes some lines
+> > describing files that have been removed/moved to subdirectories. Also it
+> > adds some lines on new files/directories.
 
-  No changes, just rediffed. Substantially smaller now that the latest 
-Marcelo changes are in pre4.
+> > +x86_64/
+> > +	- directory with info on Linux support for 64 bit x86 machines.
+>
+> x86-64 is it's own archtitecture, please don't call it 64 bit x86
+> machines.  Just write:
+> directory with info on Linux support for AMD x86-64 (Hammer) machines.
 
-Patch at:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.19/net-drivers-2.4.19.4-1.patch.gz
+Done. Here is the new patch.
 
-Changeset and pull info below.
+Eike
 
-
---------------040302080708000502070206
-Content-Type: text/plain;
- name="net-drivers-2.4.19.4-1.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net-drivers-2.4.19.4-1.txt"
-
-Marcelo and other BK users, please do a
-
-	bk pull http://gkernel.bkbits.net/net-drivers-2.4
-
-This will update the following files:
-
- Documentation/networking/dl2k.txt  |    6 
- drivers/net/3c503.c                |    9 
- drivers/net/ac3200.c               |    9 
- drivers/net/acenic.c               |  227 ++++++++----
- drivers/net/acenic.h               |   33 -
- drivers/net/at1700.c               |    1 
- drivers/net/bmac.c                 |    1 
- drivers/net/de4x5.c                |   32 -
- drivers/net/de620.c                |   15 
- drivers/net/dl2k.c                 |  137 +++++--
- drivers/net/dl2k.h                 |    5 
- drivers/net/e2100.c                |   11 
- drivers/net/eepro100.c             |  198 +++++------
- drivers/net/epic100.c              |   12 
- drivers/net/es3210.c               |    9 
- drivers/net/hp-plus.c              |    7 
- drivers/net/hp.c                   |    7 
- drivers/net/hp100.c                |   57 ++-
- drivers/net/lne390.c               |    7 
- drivers/net/ne.c                   |    9 
- drivers/net/ne2k-pci.c             |    6 
- drivers/net/ne3210.c               |    9 
- drivers/net/pcmcia/xircom_cb.c     |  658 +++++++++++++------------------------
- drivers/net/pcnet32.c              |  442 ++++++++++++------------
- drivers/net/sk98lin/skge.c         |   42 ++
- drivers/net/smc-ultra.c            |    7 
- drivers/net/smc-ultra32.c          |    4 
- drivers/net/wd.c                   |    9 
- drivers/net/wireless/orinoco_plx.c |   11 
- drivers/s390/net/ctctty.c          |    2 
- include/asm-i386/checksum.h        |  106 ++---
- 31 files changed, 1079 insertions(+), 1009 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.242)
-   Revert 2.4.18 epic100 net driver power-up sequence "fix".
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.241)
-   Merge include/asm-i386/checksum.h from 2.5.7.
-   This updates the code to not use multi-line strings in __asm__, a source
-   of many gcc 3.x warnings.
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.240)
-   Build fix: include linux/crc32.h in bmac net driver.
-    
-   Noticed by Joshua Uziel.
-   
-
-<arjanv@redhat.com> (02/03/20 1.239)
-   Move pci_enable_device and associated code above first PCI resource info access.
-
-<arjanv@redhat.com> (02/03/20 1.238)
-   eepro100 net driver h/w bug workaround updates:
-   Whitespace cleanup on hardware bug check.
-   Add udelay(1) after enabling h/w bug workaround, to "make it stick"
-
-<arjanv@redhat.com> (02/03/20 1.237)
-   Update eepro100 net driver to properly enable/disable software timer
-   at suspend/resume time.
-
-<arjanv@redhat.com> (02/03/20 1.236)
-   Implement RX soft reset for certain cases in eepro100 net driver.
-     
-   Author: Steve Parker @ sun
-
-<arjanv@redhat.com> (02/03/20 1.235)
-   Add eepro100 net driver rx soft reset function.
-     
-   Author: Steve Parker @ Sun
-
-<arjanv@redhat.com> (02/03/20 1.234)
-   Increase eepro100 net driver tx/rx ring sizes, to be more appropriate for 100mbit
-
-<arjanv@redhat.com> (02/03/20 1.233)
-   Revert xircom_cb net driver back to earlier version which works in all cases.
-
-<go@turbolinux.co.jp> (02/03/20 1.232)
-   Update pcnet32 net driver with the following changes:
-   v1.27   improved CSR/PROM address detection, lots of cleanups,
-          new pcnet32vlb module option, HP-PARISC support,
-          added module parameter descriptions, 
-          initial ethtool support - Helge Deller <deller@gmx.de>
-   v1.27a  Sun Feb 10 2002 Go Taniguchi <go@turbolinux.co.jp>
-          use alloc_etherdev and register_netdev
-          fix pci probe not increment cards_found
-          FD auto negotiate error workaround for xSeries250
-          clean up and using new mii module
-
-<p_gortmaker@yahoo.com> (02/03/20 1.231)
-   MODULE_DESC net drivers cleanup.
-     
-   Idea is that if there is a valid name in MODULE_DESCRIPTION("...")
-   then the name of the hardware/driver should not be also repeated
-   in each MODULE_PARM_DESC("...").  MODULE_DESCRIPTION has been
-   added to essentially all the 8390 drivers.
-     
-   All of the drivers changed are 8390 based, with the exception of
-   eepro100 and 3c509.
-
-<brownfld@irridia.com> (02/03/20 1.230)
-   Support second port on dual-port SysConnect SK-9844 NICs.
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.229)
-   (sync with 2.5.x.  in 2.4.x, this is just a cosmetic change)
-   s/foo/DE4X5_foo/ in de4x5 net driver, for 'ALIGN' and 'CACHE'
-   constants which may or do indeed conflict with linux/cache.h.
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.228)
-   s/kfree/kfree_skb/ in drivers/s390/net/ctctty.c.
-   Contributor forgotten :(
-
-<k.kasprzak@box43.pl> (02/03/20 1.227)
-   de620 net driver janitor fixes:
-   * free_irq on error
-   * check request_region return value for error
-
-<jes@wildopensource.com> (02/03/20 1.226)
-   Update acenic gigabit ethernet driver to clean up VLAN support integration.
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.225)
-   Add pci id to orinoco_plx wireless driver (Brendan McAdams)
-   and some CodingStyle cleanups (me)
-
-<jgarzik@mandrakesoft.com> (02/03/20 1.224)
-   dl2k net driver updates:
-   * Fix race using, s/del_timer/del_timer_sync/
-   * CodingStyle cleanups
-
-<edward_peng@dlink.com.tw> (02/03/20 1.223)
-   Update dl2k gigabit ethernet driver to watch RX in case of lockup.
-
-<jgarzik@mandrakesoft.com> (02/03/15 1.197.1.11)
-   Don't include linux/delay.h twice in eepro100 net driver.
-   
-   Noticed by alan cox.
-
-<jt@bougret.hpl.hp.com> (02/03/15 1.197.1.10)
-   Convert hp100 net driver to PCI DMA mapping API.
-
-<jes@wildopensource.com> (02/03/15 1.197.1.9)
-   acenic driver fixes:
-   * Fix Tigon I support
-   * Fix memory leak
-
-<jes@wildopensource.com> (02/03/15 1.197.1.8)
-   acenic gige net driver update:
-   * Various small cleanups
-   * ETHTOOL_GDRVINFO support
-
-<anton@samba.org> (02/03/15 1.197.1.7)
-   pcnet32 net driver updates 6/6:
-   perform dwio reset after checking wio, otherwise some cards fail
-   the probe, fix from Paul Mackerras
-
-<anton@samba.org> (02/03/15 1.197.1.6)
-   pcnet32 net driver updates 5/6:
-   pcnet32_purge_tx_ring can be called from interrupt, so must use
-   dev_kfree_skb_any, fix from Dave Engebretsen.
-
-<anton@samba.org> (02/03/15 1.197.1.5)
-   pcnet32 net driver updates 4/6:
-   Increase device watchdog timeout, fix from Dave Engebretsen.
-
-<anton@samba.org> (02/03/15 1.197.1.4)
-   pcnet32 net driver updates 3/6:
-   protect pcnet32_tx_timeout and pcnet32_set_multicast_list with
-   spinlock, fix from Dave Engebretsen
-
-<anton@samba.org> (02/03/15 1.197.1.3)
-   pcnet32 net driver updates 2/6:
-   irq could overflow unsigned char, change to unsigned int
-   ioaddr could overflow unsigned int, change to unsigned long
-
-<jgarzik@mandrakesoft.com> (02/03/15 1.197.1.2)
-   pcnet32 net driver update 1/6:
-   fix leak in pci memory space on machines with IOMMUs.
-
-<sawa@yamamoto.gr.jp> (02/03/15 1.197.1.1)
-   Fix bug in at1700 net driver:
-   Make sure to assign RX_MODE in all cases, including multicast.
-   Fixes multicast.
-
-
-
---------------040302080708000502070206--
-
+--- linux-2.5.7/Documentation/00-INDEX.orig	Thu Mar 21 08:04:54 2002
++++ linux-2.5.7/Documentation/00-INDEX	Thu Mar 21 09:20:57 2002
+@@ -12,14 +12,14 @@
+ 
+ 00-INDEX
+ 	- this file.
++BK-usage/
++	- directory with info on BitKeeper.
+ BUG-HUNTING
+ 	- brute force method of doing binary search of patches to find bug.
+ Changes
+ 	- list of changes that break older software packages.
+ CodingStyle
+ 	- how the boss likes the C code in the kernel to look.
+-Configure.help
+-	- text file that is used for help when you run "make config"
+ DMA-mapping.txt
+ 	- info for PCI drivers using DMA portably across all platforms.
+ DocBook/
+@@ -34,6 +34,10 @@
+ 	- info on Mylex DAC960/DAC1100 PCI RAID Controller Driver for Linux
+ README.moxa
+ 	- release notes for Moxa mutiport serial card.
++README.nsp_cs.eng
++	- info on WorkBiT NinjaSCSI-3/32Bi driver.
++SAK.txt
++	- info on Secure Attention Keys.
+ SubmittingDrivers
+ 	- procedure to get a new driver source included into the kernel tree.
+ SubmittingPatches
+@@ -44,6 +48,8 @@
+ 	- directory with info about Linux on the ARM architecture.
+ binfmt_misc.txt
+ 	- info on the kernel support for extra binary formats.
++block/
++	- info on the Block I/O (BIO) layer.
+ cachetlb.txt
+ 	- describes the cache/TLB flushing interfaces Linux uses.
+ cciss.txt
+@@ -54,6 +60,8 @@
+ 	- info on Computone Intelliport II/Plus Multiport Serial Driver
+ cpqarray.txt
+ 	- info on using Compaq's SMART2 Intelligent Disk Array Controllers.
++cris/
++	- directory with info about Linux on CRIS architecture.
+ devices.txt
+ 	- plain ASCII listing of all the nodes in /dev/ with major minor #'s
+ digiboard.txt
+@@ -62,6 +70,8 @@
+ 	- info on Digi Intl. {PC,PCI,EISA}Xx and Xem series cards.
+ dnotify.txt
+ 	- info about directory notification in Linux.
++driver.txt
++	- info about Linux driver modell.
+ exception.txt
+ 	- how Linux v2.2 handles exceptions without verify_area etc.
+ fb/
+@@ -80,12 +90,16 @@
+ 	- directory with info about the I2C bus/protocol (2 wire, kHz speed)
+ i386/
+ 	- directory with info about Linux on intel 32 bit architecture.
++i810_rng.txt
++	- info on Linux support for random number generator in i8xx chipsets.
+ ia64/
+ 	- directory with info about Linux on intel 64 bit architecture.
+ ide.txt
+ 	- important info for users of ATA devices (IDE/EIDE disks and CD-ROMS)
+ initrd.txt
+ 	- how to use the RAM disk as an initial/temporary root filesystem.
++input/
++	- info on Linux input device support.
+ ioctl-number.txt
+ 	- how to implement and register device/driver ioctl calls.
+ isapnp.txt
+@@ -94,12 +108,6 @@
+ 	- directory with info on the Linux ISDN support, and supported cards.
+ java.txt
+ 	- info on the in-kernel binary support for Java(tm)
+-joystick-api.txt
+-	- API specification for applications that will be using the joystick.
+-joystick-parport.txt 
+-	- info on how to hook joysticks/gamepads to the parallel port.
+-joystick.txt
+-	- info on using joystick devices (and driver) with Linux.
+ kbuild/
+ 	- directory with info about the kernel build process
+ kernel-doc-nano-HOWTO.txt
+@@ -128,6 +136,8 @@
+ 	- info on boot arguments for the multiple devices driver
+ memory.txt
+ 	- info on typical Linux memory problems.
++mips/
++	- directory with info about Linux on MIPS architecture.
+ mkdev.cciss
+ 	- script to make /dev entries for SMART controllers (see cciss.txt)
+ mkdev.ida
+@@ -161,9 +171,13 @@
+ pcwd-watchdog.txt
+ 	- info and sample code for using with the PC Watchdog reset card.
+ pm.txt
+-	- info on Linux power management support
++	- info on Linux power management support.
++power/
++	- directory with info on Linux PCI Powermanagement.
+ powerpc/
+ 	- directory with info on using Linux with the PowerPC.
++preempt-locking.txt
++	- info on locking under a preemptive kernel.
+ ramdisk.txt
+ 	- short guide on how to set up and use the RAM disk.
+ riscom8.txt
+@@ -172,6 +186,8 @@
+ 	- notes on how to use the Real Time Clock (aka CMOS clock) driver.
+ s390/
+ 	- directory with info on using Linux on the IBM S390.
++sh/
++	- directory with info on porting Linux to a new architecture.
+ scsi-generic.txt
+ 	- info on the sg driver for generic (non-disk/CD/tape) SCSI devices.
+ scsi.txt
+@@ -186,6 +202,8 @@
+ 	- LaTeX document describing implementation of Multiprocessor Linux
+ smp.txt
+ 	- a few more notes on symmetric multi-processing
++sonypi.txt
++	- info on Linux Sony Programmable I/O Device support.
+ sound/
+ 	- directory with info on sound card support
+ sparc/
+@@ -216,6 +234,8 @@
+ 	- directory with info on the Linux vm code.
+ watchdog.txt
+ 	- how to auto-reboot Linux if it has "fallen and can't get up". ;-)
++x86_64/
++	- directory with info on Linux support for AMD x86-64 (Hammer) machines.
+ xterm-linux.xpm
+ 	- XPM image of penguin logo (see logo.txt) sitting on an xterm.
+ zorro.txt

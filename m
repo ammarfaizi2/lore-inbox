@@ -1,138 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264866AbTFCBqe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 21:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTFCBqe
+	id S264871AbTFCBxl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 21:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264872AbTFCBxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 21:46:34 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:46721 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264866AbTFCBqb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 21:46:31 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Subject: Re: ACPI interrupt storm (was Re: Linux 2.4.21rc6-ac1)
-Date: Tue, 3 Jun 2003 12:01:09 +1000
-User-Agent: KMail/1.5.1
-Cc: "Paul P Komkoff Jr" <i@stingr.net>, <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com> <200306031012.07832.kernel@kolivas.org>
-In-Reply-To: <200306031012.07832.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 2 Jun 2003 21:53:41 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54007 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264871AbTFCBxj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 21:53:39 -0400
+Subject: [RFC][PATCH] linux-2.5.70_monotonic-seqlock_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054605866.32091.758.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 02 Jun 2003 19:04:26 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306031201.09642.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003 10:12, Con Kolivas wrote:
-> On Tue, 3 Jun 2003 07:01, Grover, Andrew wrote:
-> > I suspect this machine should be falling into one of the cases before
-> > this last one, thus making ACPI not use C3, or check for bus-mastering.
-> > I especially think this is the case because this appears to be a desktop
-> > system. It should not have a C3 address or a plvl3_lat less than 1000,
-> > yet it appears to, yes?
->
-> Sorry Andy I have no idea what you're talking about. Are there some details
-> specifically about this machine you want me to provide?
+Ingo, All,
+	As requested, here is a quick patch that converts the rwlock_t
+monotonic_lock (which protects the monotonic_base value used in
+monotonic_clock()) to a seqlock. 
 
-At least I can provide you with the acpi info from dmesg when it booted, and 
-I'll try Zwane's hack in the near future to see if it helps.
+Let me know if you have any comments. 
 
-Jun  1 16:32:45 localhost kernel: ACPI: Interpreter enabled
-Jun  1 16:32:45 localhost kernel: ACPI: Using IOAPIC for interrupt routing
-Jun  1 16:32:45 localhost kernel: ACPI: System [ACPI] (supports S0 S1 S4 S5)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 *5 
-6 7 9 10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 
-6 7 *9 10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 
-6 7 *9 10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 
-6 7 *9 10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 
-6 7 9 *10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 
-6 7 *9 10 11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 
-6 7 9 10 11 12 14 15, disabled)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 
-6 7 9 10 *11 12 14 15)
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Root Bridge [PCI0] (00:00)
-Jun  1 16:32:45 localhost kernel: PCI: Probing PCI hardware (bus 00)
-Jun  1 16:32:45 localhost kernel: PCI: Ignoring BAR0-3 of IDE controller 
-00:1f.1
-Jun  1 16:32:45 localhost kernel: Transparent bridge - Intel Corp. 
-82801BA/CA/DB PCI Bridge
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Routing Table 
-[\_SB_.PCI0._PRT]
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Routing Table 
-[\_SB_.PCI0.PCI1._PRT]
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Routing Table 
-[\_SB_.PCI0.PCI2._PRT]
-Jun  1 16:32:45 localhost kernel: PCI: Probing PCI hardware
-Jun  1 16:32:45 localhost kernel: ACPI: PCI Interrupt Link [LNKG] enabled at 
-IRQ 11
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-16 -> 
-0xb1 -> IRQ 16)
-Jun  1 16:32:45 localhost kernel: 00:00:1d[A] -> 2-16 -> IRQ 16
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-19 -> 
-0xb9 -> IRQ 19)
-Jun  1 16:32:45 localhost kernel: 00:00:1d[B] -> 2-19 -> IRQ 19
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-18 -> 
-0xc1 -> IRQ 18)
-Jun  1 16:32:45 localhost kernel: 00:00:1d[C] -> 2-18 -> IRQ 18
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-23 -> 
-0xc9 -> IRQ 23)
-Jun  1 16:32:45 localhost kernel: 00:00:1d[D] -> 2-23 -> IRQ 23
-Jun  1 16:32:45 localhost kernel: Pin 2-18 already programmed
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-17 -> 
-0xd1 -> IRQ 17)
-Jun  1 16:32:45 localhost kernel: 00:00:1f[B] -> 2-17 -> IRQ 17
-Jun  1 16:32:45 localhost kernel: Pin 2-16 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-17 already programmed
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-21 -> 
-0xd9 -> IRQ 21)
-Jun  1 16:32:45 localhost kernel: 00:02:09[A] -> 2-21 -> IRQ 21
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: IOAPIC[0]: Set PCI routing entry (2-20 -> 
-0xe1 -> IRQ 20)
-Jun  1 16:32:45 localhost kernel: 00:02:09[D] -> 2-20 -> IRQ 20
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-20 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-21 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-20 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-21 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-20 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-21 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-21 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-20 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-18 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-19 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-16 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-17 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-20 already programmed
-Jun  1 16:32:45 localhost kernel: Pin 2-23 already programmed
-Jun  1 16:32:45 localhost kernel: PCI: Using ACPI for IRQ routing
-Jun  1 16:32:45 localhost kernel: PCI: if you experience problems, try using 
-option 'pci=noacpi' or even 'acpi
-=off'
-Jun  1 16:32:45 localhost kernel: Linux NET4.0 for Linux 2.4
-Jun  1 16:32:45 localhost kernel: Based upon Swansea University Computer 
-Society NET3.039
-Jun  1 16:32:45 localhost kernel: Initializing RT netlink socket
-Jun  1 16:32:45 localhost kernel: Starting kswapd
-Jun  1 16:32:45 localhost kernel: devfs: v1.12c (20020818) Richard Gooch 
-(rgooch@atnf.csiro.au)
-Jun  1 16:32:45 localhost kernel: devfs: boot_options: 0x1
-Jun  1 16:32:45 localhost kernel: ACPI: Power Button (FF) [PWRF]
-Jun  1 16:32:45 localhost kernel: ACPI: Processor [CPU0] (supports C1)
-Jun  1 16:32:45 localhost kernel: ACPI: Processor [CPU1] (supports C1)
+thanks
+-john
 
 
-Con
+
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  2 19:01:13 2003
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  2 19:01:13 2003
+@@ -36,7 +36,7 @@
+ static u32 last_cyclone_low;
+ static u32 last_cyclone_high;
+ static unsigned long long monotonic_base;
+-static rwlock_t monotonic_lock = RW_LOCK_UNLOCKED;
++static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
+ 
+ /* helper macro to atomically read both cyclone counter registers */
+ #define read_cyclone_counter(low,high) \
+@@ -52,7 +52,7 @@
+ 	int count;
+ 	unsigned long long this_offset, last_offset;
+ 
+-	write_lock(&monotonic_lock);
++	write_seqlock(&monotonic_lock);
+ 	last_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
+ 	
+ 	spin_lock(&i8253_lock);
+@@ -77,7 +77,7 @@
+ 	/* update the monotonic base value */
+ 	this_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
+ 	monotonic_base += (this_offset - last_offset) & CYCLONE_TIMER_MASK;
+-	write_unlock(&monotonic_lock);
++	write_sequnlock(&monotonic_lock);
+ 
+ 	/* calculate delay_at_last_interrupt */
+ 	count = ((LATCH-1) - count) * TICK_SIZE;
+@@ -118,12 +118,16 @@
+ 	u32 now_low, now_high;
+ 	unsigned long long last_offset, this_offset, base;
+ 	unsigned long long ret;
++	unsigned long seq;
+ 
+ 	/* atomically read monotonic base & last_offset */
+-	read_lock_irq(&monotonic_lock);
+-	last_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
+-	base = monotonic_base;
+-	read_unlock_irq(&monotonic_lock);
++	do {
++		seq = read_seqbegin(&monotonic_lock);
++
++		last_offset = 
++			((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
++		base = monotonic_base;
++	} while (read_seqretry(&monotonic_lock, seq));
+ 
+ 	/* Read the cyclone counter */
+ 	read_cyclone_counter(now_low,now_high);
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Mon Jun  2 19:01:13 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Jun  2 19:01:13 2003
+@@ -30,7 +30,7 @@
+ static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
+ static unsigned long last_tsc_high; /* msb 32 bits of Time Stamp Counter */
+ static unsigned long long monotonic_base;
+-static rwlock_t monotonic_lock = RW_LOCK_UNLOCKED;
++static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
+ 
+ /* convert from cycles(64bits) => nanoseconds (64bits)
+  *  basic equation:
+@@ -102,12 +102,15 @@
+ static unsigned long long monotonic_clock_tsc(void)
+ {
+ 	unsigned long long last_offset, this_offset, base;
+-	
++	unsigned long seq;
++
+ 	/* atomically read monotonic base & last_offset */
+-	read_lock_irq(&monotonic_lock);
+-	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+-	base = monotonic_base;
+-	read_unlock_irq(&monotonic_lock);
++	do {
++		seq = read_seqbegin(&monotonic_lock);
++	
++		last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
++		base = monotonic_base;
++	} while (read_seqretry(&monotonic_lock, seq));
+ 
+ 	/* Read the Time Stamp Counter */
+ 	rdtscll(this_offset);
+@@ -125,7 +128,7 @@
+ 	static int count1 = 0;
+ 	unsigned long long this_offset, last_offset;
+ 	
+-	write_lock(&monotonic_lock);
++	write_seqlock(&monotonic_lock);
+ 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+ 	/*
+ 	 * It is important that these two operations happen almost at
+@@ -184,7 +187,7 @@
+ 	/* update the monotonic base value */
+ 	this_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
+ 	monotonic_base += cycles_2_ns(this_offset - last_offset);
+-	write_unlock(&monotonic_lock);
++	write_sequnlock(&monotonic_lock);
+ 
+ 	/* calculate delay_at_last_interrupt */
+ 	count = ((LATCH-1) - count) * TICK_SIZE;
+
+
+

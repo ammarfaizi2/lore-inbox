@@ -1,28 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264878AbTBAPoo>; Sat, 1 Feb 2003 10:44:44 -0500
+	id <S264883AbTBAPwI>; Sat, 1 Feb 2003 10:52:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbTBAPoo>; Sat, 1 Feb 2003 10:44:44 -0500
-Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:8832 "EHLO
-	r2d2.office") by vger.kernel.org with ESMTP id <S264878AbTBAPon>;
-	Sat, 1 Feb 2003 10:44:43 -0500
-Message-ID: <3E3BED1C.2040608@walrond.org>
-Date: Sat, 01 Feb 2003 15:51:56 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S264885AbTBAPwI>; Sat, 1 Feb 2003 10:52:08 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:49605 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264883AbTBAPwH>; Sat, 1 Feb 2003 10:52:07 -0500
+From: "Oliver Friedrich" <oliver@familie-friedrich.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Keyboard acces
+Date: Sat, 1 Feb 2003 17:00:22 +0100
+Message-ID: <BCEFLCEOHFPNLLAKKGAACECCCMAA.oliver@familie-friedrich.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Our thoughts are with our friends in the USA and Israel
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.6; AVE: 6.16.0.0; VDF: 6.16.0.5; host: friedrich.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd just like to say how sorry we are to hear of the tragic loss of the 
-space shuttle Columbia and it's crew.
+Hi,
 
-Andrew Walrond
+I don't know, if this is realy kernel related, but i don't know a better
+place.
+
+I want to access the local keyboard. Because i have at normal operation no
+graphic adapter on this computer, the application is not able to access the
+keyboard via the /dev/vc/[1..n], because the kernel runs it console on the
+serial port. If i'm using a vga adapter, this is not a problem.
+
+Normaly the application (it is VDR, the Video Disk Recorder from Klaus
+Schmidinger) uses the input of one of the virtual terminal devices
+/dev/tty[1..n] (or /dev/vc/[1..n] in case of devfs), specified via a command
+line option.
+
+
+Now to my question:
+Is there a device available, that i can use to read the local keyboard if
+the kernel runs its console on one of the serial ports? It is a normal AT
+compatible keyboard, not a USB device.
+
+It is not possible to let the vga card inside of the computer, because it
+would not fit into the small case.
+
+Any hints for my problem? Or another mailing list or forum where i can
+search for a solution?
+
+Thanks in advance,
+Oliver
 

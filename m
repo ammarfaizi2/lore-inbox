@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284913AbRLPXYi>; Sun, 16 Dec 2001 18:24:38 -0500
+	id <S284925AbRLPX16>; Sun, 16 Dec 2001 18:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284914AbRLPXY2>; Sun, 16 Dec 2001 18:24:28 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:59520 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S284913AbRLPXYS>; Sun, 16 Dec 2001 18:24:18 -0500
-To: raul@viadomus.com, rml@tech9.net
+	id <S284927AbRLPX1w>; Sun, 16 Dec 2001 18:27:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61596 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S284925AbRLPX1f>;
+	Sun, 16 Dec 2001 18:27:35 -0500
+Date: Sun, 16 Dec 2001 18:27:33 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Robert Love <rml@tech9.net>
+cc: =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>,
+        Linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Is /dev/shm needed?
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16FkpA-0001Yw-00@DervishD.viadomus.com>
-Date: Mon, 17 Dec 2001 00:36:04 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+In-Reply-To: <1008541849.11242.2.camel@phantasy>
+Message-ID: <Pine.GSO.4.21.0112161825210.937-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Robert :))
 
->> if it's a *real* filesystem? I wasn't sure, since it's implemented
->> thru the page cache.
->Yes, you can mount as many as you like.
 
-    Ok, then :)))) I'm testing /tmp over tmpfs right now. I don't
-notice a great improvement in speed. I have plenty of RAM for my box,
-and I think that, just as you said, when I'm compiling the contents
-of the /tmp are always cached, no matter if using tmpfs or not.
+On 16 Dec 2001, Robert Love wrote:
 
-    I'll try with higher loads and more processes trying to fill up
-/tmp ;))
+> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+> in tmpfs.
 
->See Documentation/filesystems/tmpfs.txt for more information.
+What?  /var contains things like /var/spool/mail.  I _really_ doubt
+that mailboxes disappearing after reboot will make anyone happy.
 
-    I'm afraid my 2.4.16 doesn't come with that file :((( My fault,
-probably, although I don't remember touching the docs :???
-
-    Thanks a lot for your help :)
-
-    Raúl

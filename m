@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270033AbUJHQCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270061AbUJHQGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270033AbUJHQCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270044AbUJHQCX
+	id S270061AbUJHQGI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270052AbUJHQCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:02:23 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:54539 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S270033AbUJHQCB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 12:02:01 -0400
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Subject: Re: Megaraid random loss of luns
-Date: Fri, 8 Oct 2004 20:01:47 +0400
-User-Agent: KMail/1.7
-Cc: comsatcat@earthlink.net, linux-kernel@vger.kernel.org
-References: <0E3FA95632D6D047BA649F95DAB60E57033BCAD6@exa-atlanta>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BCAD6@exa-atlanta>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 8 Oct 2004 12:02:45 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:3017 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270053AbUJHQBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 12:01:45 -0400
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4166B37D.8030701@rtr.ca>
+References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i
+	nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A4
+	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4
+	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>
+		<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave> 
+	<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> 
+	<4166B37D.8030701@rtr.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410082001.48141.rathamahata@ehouse.ru>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Oct 2004 11:01:34 -0500
+Message-Id: <1097251299.1928.56.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-On Friday 08 October 2004 16:51, Mukker, Atul wrote:
-> I _highly_ recommend to replace the default driver with the latest 2.20.4.0
-> driver and retry.
+On Fri, 2004-10-08 at 10:34, Mark Lord wrote:
+> If those locks are not needed, the scsi.c maintainer really should
+> nuke'em.
 
-Unfortunately, version 2.20.4.0 doesn't recognize my AMI megaraid 160 (Series 475)
+I think you can safely assume he has more important things to do.
 
-[rathamahata@white megaraid]$ grep Version ./megaraid_mbox.c
- * Version      : v2.20.4 (September 27 2004)
-[rathamahata@white megaraid]$ /sbin/lspci  | grep Mega
-02:04.0 RAID bus controller: American Megatrends Inc. MegaRAID (rev 02)
-[rathamahata@white megaraid]$ /sbin/lspci -n  | grep 02:04.0
-02:04.0 Class 0104: 101e:1960 (rev 02)
-[rathamahata@white megaraid]$
+> > Really, I suppose, libata should provide the interfaces for doing this
+> > work for emulated commands.
+> 
+> Well, after this driver submission work is done with,
+> that's next on my list.  Right now libata doesn't have
+> the right interface for easy sharing of such functions.
+
+Not emulating an INQUIRY properly via SG_IO isn't acceptable since it's
+a mandatory command.
+
+libata does all this correctly.  I strongly suggest you find a way to
+share the code rather than trying to reinvent it yourself.  But anyway,
+if you want to know how it should work, look in libata-scsi.c
+
+James
 
 
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org

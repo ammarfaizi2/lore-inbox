@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTEMXLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 19:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTEMXLT
+	id S263790AbTEMXQH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 19:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTEMXQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 19:11:19 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:43261 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262228AbTEMXLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 19:11:17 -0400
-Date: Tue, 13 May 2003 16:19:38 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Zach Brown <zab@zabbo.net>
-Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       mjbligh@us.ibm.com
-Subject: Re: [RFC][PATCH] Interface to invalidate regions of mmaps
-Message-Id: <20030513161938.1fc00a5e.akpm@digeo.com>
-In-Reply-To: <3EC17BA3.7060403@zabbo.net>
-References: <20030513133636.C2929@us.ibm.com>
-	<20030513152141.5ab69f07.akpm@digeo.com>
-	<3EC17BA3.7060403@zabbo.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 May 2003 19:16:06 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:14279 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S263790AbTEMXQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 19:16:05 -0400
+Date: Tue, 13 May 2003 18:28:20 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "Mika Penttil?" <mika.penttila@kolumbus.fi>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-ID: <266860000.1052868500@baldur.austin.ibm.com>
+In-Reply-To: <20030513232038.GB8978@holomorphy.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+ <3EC15C6D.1040403@kolumbus.fi> <199610000.1052864784@baldur.austin.ibm.com>
+ <20030513224929.GX8978@holomorphy.com>
+ <220550000.1052866808@baldur.austin.ibm.com>
+ <20030513231139.GZ8978@holomorphy.com>
+ <247390000.1052867776@baldur.austin.ibm.com>
+ <20030513232038.GB8978@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 May 2003 23:23:59.0725 (UTC) FILETIME=[BB7C31D0:01C319A6]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown <zab@zabbo.net> wrote:
->
-> so what we'd like most is the ability to invalidate a region of the file
-> in an efficient go.
-> 
-> void truncate_inode_pages(struct address_space * mapping, loff_t lstart,
-> loff_t end)
-> 
-> that sort of thing.
 
-That's trivial in 2.5.
+--On Tuesday, May 13, 2003 16:20:38 -0700 William Lee Irwin III
+<wli@holomorphy.com> wrote:
 
->  this might not suck so bad if the page cache was an
-> rbtree :)
+> The mmap_sem works because then ->i_size can't be sampled by
+> filemap_nopage() before the pagetable wiping operation starts.
 
-Or a radix tree.
+So why isn't that the right way to do it?  Waiting for mmap_sem guarantees
+we won't catch a page fault in flight, which is the cause of the problem in
+the first place.
 
-> but on the other hand, this doesn't solve another problem we have with
-> opportunistic lock extents and sparse page cache populations.  Ideally
-> we'd like a FS specific pointer in struct page so we can associate pages
-> in the cache with a lock,
+Dave
 
-In 2.5, page->buffers was abstracted out to page->private, and is available
-to filesystems for functions such as this.
-
-
-> but I can't imagine suggesting such a thing
-> within earshot of wli. 
-
-wli doesn't have to run your kernel.  If you want to add a pointer to the
-pageframe, go add it.  But I'd suggest that you do it with a view to
-migrating it to page->private.
-
-When you finally decide to do your development in a development kernel ;)
-
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293747AbSCFS2N>; Wed, 6 Mar 2002 13:28:13 -0500
+	id <S293753AbSCFSbx>; Wed, 6 Mar 2002 13:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293750AbSCFS2C>; Wed, 6 Mar 2002 13:28:02 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44302 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293747AbSCFS1s>;
-	Wed, 6 Mar 2002 13:27:48 -0500
-Date: Wed, 6 Mar 2002 10:19:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
-Message-ID: <20020306181956.GC16003@kroah.com>
-In-Reply-To: <3C7EA7CB.C36D0211@sandino.net> <20020302075847.GE20536@kroah.com> <3C84294C.AE1E8CE9@sandino.net> <200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca> <20020306053355.GA13072@kroah.com> <200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 06 Feb 2002 16:11:41 -0800
+	id <S293750AbSCFSbn>; Wed, 6 Mar 2002 13:31:43 -0500
+Received: from coat.coat.com ([164.153.10.15]:16120 "EHLO coat.coat.com")
+	by vger.kernel.org with ESMTP id <S293753AbSCFSbd>;
+	Wed, 6 Mar 2002 13:31:33 -0500
+Date: Wed, 6 Mar 2002 13:30:32 -0500 (EST)
+From: "Michael Sterrett -Mr. Bones.-" <msterret@coat.com>
+To: Tim Hockin <thockin@hockin.org>
+cc: John Jasen <jjasen1@umbc.edu>, Ken Brownfield <brownfld@irridia.com>,
+        J Sloan <joe@tmsusa.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Recommendations about a 100/10 NIC
+In-Reply-To: <200203061728.g26HSlt23800@www.hockin.org>
+Message-ID: <Pine.LNX.4.44.0203061325150.30424-100000@swamp.coat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 10:45:58PM -0700, Richard Gooch wrote:
-> Greg KH writes:
-> > On Tue, Mar 05, 2002 at 10:28:43PM -0700, Richard Gooch wrote:
-> > > 
-> > > I suspect the USB-UHCI driver is doing a double-unregister on a devfs
-> > > entry. Please set CONFIG_DEVFS_DEBUG=y, recompile and boot the new
-> > > kernel. Send the new Oops (passed through ksymoops, of course).
-> > 
-> > None of the USB host controller drivers (like usb-uhci.c) call any
-> > devfs functions.
-> 
-> Well, usb-uhci was in the call trace. Perhaps ksymoops was being given
-> bogus input?
+On Wed, 6 Mar 2002, Tim Hockin wrote:
 
-I agree, with symbols like:
-	<[usb-uhci]__module_license+9099/fcd5>
-it looks like this is the case.
+> I've been happy with Natsemi controllers (Netgear FA-311 and Fa-312).
 
-thanks,
+Have you tried those with cables longer than 20 feet?  I was totally happy
+with my Netgear cards with a 10ft crossover until I tried connecting a
+couple of new computers to my file server in the closet with 25ft CAT5
+and then all the UDP (most noticeably NFS) traffic turned to crap.
 
-greg k-h
+I returned everything and got all D-link hardware.  Works great.  I'm not
+going to buy Netgear hardware for the foreseeable future.
+
+Michael Sterrett
+  -Mr. Bones.-
+michael.sterrett@coat.com
+

@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbTDBKMt>; Wed, 2 Apr 2003 05:12:49 -0500
+	id <S262962AbTDBLGn>; Wed, 2 Apr 2003 06:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262960AbTDBKMt>; Wed, 2 Apr 2003 05:12:49 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38036 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S261352AbTDBKMt>; Wed, 2 Apr 2003 05:12:49 -0500
-Date: Wed, 2 Apr 2003 11:26:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Hua Zhong <hzhong@cisco.com>
-cc: Christoph Rohland <cr@sap.com>, Daniel Egger <degger@fhm.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-In-Reply-To: <CDEDIMAGFBEBKHDJPCLDCECBDGAA.hzhong@cisco.com>
-Message-ID: <Pine.LNX.4.44.0304021119400.1162-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S262967AbTDBLGm>; Wed, 2 Apr 2003 06:06:42 -0500
+Received: from host217-36-80-42.in-addr.btopenworld.com ([217.36.80.42]:31921
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S262962AbTDBLGk>; Wed, 2 Apr 2003 06:06:40 -0500
+Subject: Re: 2.5 Kernel Framebuffer Problems
+From: Matthew Hall <matt@ecsc.co.uk>
+To: mtangolics@rcn.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E190QXQ-0004Uz-00@smtp01.mrf.mail.rcn.net>
+References: <E190QXQ-0004Uz-00@smtp01.mrf.mail.rcn.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5Gkqs7jUBqM9FG5r2Fj6"
+Organization: ECSC Ltd.
+Message-Id: <1049282302.745.24.camel@sheeta>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
+Date: 02 Apr 2003 12:18:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Hua Zhong wrote:
-> There is at least one case that ramfs works but tmpfs doesn't.
-> 
-> If you have a loopback file A, and the following will fail in 2.4:
-> 
-> mount -t tmpfs tmpfs /mnt/tmp
-> extract file A to /mnt/tmp/A
-> mount -t ext2 -o loop /mnt/tmp /mnt/loopback
-> 
-> You'll get "ioctl: LOOP_SET_FD: Invalid argument".
-> 
-> But ramfs works great.
-> 
-> Is this a bug or feature?
 
-Feature: the way tmpfs allows a page to move between swap and memory
-makes loopback harder to support than it is for all-in-memory ramfs.
+--=-5Gkqs7jUBqM9FG5r2Fj6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I used to have the patches to enable loopback on tmpfs in 2.4 (well,
-I still have them, but 2.4 and tmpfs have both moved on), but shifted
-attention to 2.5.  One day I'll clean them up, but that day is not soon.
+On Tue, 2003-04-01 at 19:31, mtangolics@rcn.com wrote:
+> I've had a couple of problems with framebuffer console, when=20
+> compiling several different versions of the 2.5 kernel.  I=20
+> included all the FB support, but when I boot up using, LILO=20
+> option, vga=3D791 or anything about normal, the screen either=20
+> goes black, and the system stops responding or the entire=20
+> screen becomes scrambled.  I have an NVidia Geforce4 video=20
+> card if that matters.  I've talked to a couple other users=20
+> who have encountered the same problem.  It's most likely just=20
+> a stupid mistake on my part, but any help would be extremely=20
+> appreciated.
 
-Hugh
+What does your lilo.conf line for 2.5 look like?
+You may need to append some video information, eg.
+
+append=3D"video=3Drivafb,xres:1024,yres:768,bpp:8"
+
+Matt
+--=20
+- -- --- ---- .                                   .---- --- -- -
+Matthew Hall   \ http://people.ecsc.co.uk/~matt/ /
+matt@ecsc.co.uk '-------------------------------'
+
+Sig: Destiny is a good thing to accept when it's going your way. When it is=
+n't, don't call it destiny; call it injustice, treachery, or simple bad luc=
+k. -- Joseph Heller, "God Knows"
+
+- -- --- ---- ------------------------------------ ---- --- -- -
+PGP/GnuPG Key: 1024D/2EABF3D5
+Fingerprint: AA89 2BEE FC42 5D64 8CA0  B325 C39C 53E5 2EAB F3D5
+http://people.ecsc.co.uk/~matt/files/mattatecscdotcodotuk.asc
+- -- --- ---- ------------------------------------ ---- --- -- -
+
+--=-5Gkqs7jUBqM9FG5r2Fj6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+isb9w5xT5S6r89URAocZAJ9cOzXXlSJw4GKfJuShq8oU1YUr3gCdHHOa
+yzG49QbuaH85lkfuj0CauPY=
+=sSRq
+-----END PGP SIGNATURE-----
+
+--=-5Gkqs7jUBqM9FG5r2Fj6--
 

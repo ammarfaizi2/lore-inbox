@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132724AbRDDAeX>; Tue, 3 Apr 2001 20:34:23 -0400
+	id <S132719AbRDDAbW>; Tue, 3 Apr 2001 20:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132727AbRDDAeN>; Tue, 3 Apr 2001 20:34:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52234 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132726AbRDDAd7>; Tue, 3 Apr 2001 20:33:59 -0400
-Subject: Re: a quest for a better scheduler
-To: fabio@chromium.com (Fabio Riccardi)
-Date: Wed, 4 Apr 2001 01:35:46 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3ACA6BF4.9A3F93A2@chromium.com> from "Fabio Riccardi" at Apr 03, 2001 05:33:57 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132724AbRDDAbM>; Tue, 3 Apr 2001 20:31:12 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:63249 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S132719AbRDDAbG>; Tue, 3 Apr 2001 20:31:06 -0400
+Message-ID: <3ACA6BF4.9A3F93A2@chromium.com>
+Date: Tue, 03 Apr 2001 17:33:57 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: a quest for a better scheduler
+In-Reply-To: <E14kPy7-0007xx-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kbH2-0000qX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> for the "normal case" performance see my other message.
+Alan,
 
-I did - and with a lot of interest
+for the "normal case" performance see my other message.
 
-> I agree that a better threading model would surely help in a web server, but to
-> me this is not an excuse to live up with a broken scheduler.
+I agree that a better threading model would surely help in a web server, but to
+me this is not an excuse to live up with a broken scheduler.
 
-The problem has always been - alternative scheduler, crappier performance for
-2 tasks running (which is most boxes). If your numbers are right then the
-HP patch is working as well for 1 or 2 tasks too
+The X15 server I'm working on now is a sort of user-space TUX, it uses only 8
+threads per CPU and it achieves the same level of performance of the kernel
+space TUX. Even in this case the performance advantage of the multiqueue
+scheduler is remarkable, especially on a multi-CPU (> 2) architecture.
 
-> Unless we want to maintain the position tha the only way to achieve good
-> performance is to embed server applications in the kernel, some minimal help
-> should be provided to goodwilling user applications :)
+To achieve some decent disk/CPU/network overlapping with the current linux
+blocking disk IO limitations there is no way to avoid a "bunch of server
+threads". I've (experimentally) figured out that 8-16 threads per CPU can
+assure some reasonable overlapping, depending on the memory size and disk
+subsystem speed. On a 8-way machine this means 64-128 active tasks, a total
+disaster with the current scheduler.
 
-Indeed. I'd love to see you beat tux entirely in userspace.  It proves the
-rest of the API for the kernel is right
+Unless we want to maintain the position tha the only way to achieve good
+performance is to embed server applications in the kernel, some minimal help
+should be provided to goodwilling user applications :)
 
+TIA, ciao,
+
+ - Fabio
+
+Alan Cox wrote:
+
+> > Is there any special reason why any of those patches didn't make it to
+> > the mainstream kernel code?
+>
+> All of them are worse for the normal case. Also 1500 running apache's isnt
+> a remotely useful situation, you are thrashing the cache even if you are now
+> not thrashing the scheduler. Use an httpd designed for that situation. Then
+> you can also downgrade to a cheap pentium class box for the task ;)
 

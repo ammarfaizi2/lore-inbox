@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265766AbUFOQiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265746AbUFOQnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUFOQiG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 12:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUFOQiG
+	id S265746AbUFOQnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUFOQnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 12:38:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:56464 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265766AbUFOQiB (ORCPT
+	Tue, 15 Jun 2004 12:43:24 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:41126 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265746AbUFOQnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 12:38:01 -0400
-Date: Tue, 15 Jun 2004 09:36:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Shaun Colley <shaunige@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i2c device driver bugs
-Message-ID: <20040615163644.GB14078@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20040615161307.GA13722@kroah.com> <20040615163244.10651.qmail@web25103.mail.ukl.yahoo.com>
+	Tue, 15 Jun 2004 12:43:23 -0400
+Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
+	MAX_ORDER size
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <113620000.1087052452@[10.10.2.4]>
+References: <263jX-5RZ-19@gated-at.bofh.it> <262nZ-56Z-5@gated-at.bofh.it>
+	 <263jX-5RZ-17@gated-at.bofh.it> <m3d645fwxj.fsf@averell.firstfloor.org>
+	 <1087025760.18615.3.camel@nighthawk> <20040612131149.GA28870@colin2.muc.de>
+	 <113620000.1087052452@[10.10.2.4]>
+Content-Type: text/plain
+Message-Id: <1087226661.18615.1752.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040615163244.10651.qmail@web25103.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 15 Jun 2004 09:40:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 05:32:44PM +0100, Shaun Colley wrote:
-> Okay, thanks for the info greg.
+On Sat, 2004-06-12 at 08:00, Martin J. Bligh wrote:
+> >> Since vmalloc() maps the pages with small pagetable entries (unlike most
+> >> of the rest of the kernel address space), do you think the interleaving
+> >> will outweigh any negative TLB effects?  
+> > 
+> > I think so, yes (assuming you run the benchmark on all CPUs)
 > 
-> > Yes, this was a security issue a year ago, but has
-> > been fixed since
-> > then.  Vendors have released kernels that fix this
-> > issue for their 2.4
-> > kernels.  If not, I suggest you contact your vendor.
-> 
-> What I meant by silent was, did the issue actually get
-> mentioned in any of the distro vendor's advisories?
+> On the other hand, there's no reason we can't hack up a version of vmalloc
+> to use large pages, and interleave only based on that. 
 
-I did see it be mentioned in a few.  But it really isn't that big of a
-problem, as all distros seemed to have their /dev/i2c* nodes set to:
-	$ ls -l /dev/i2c*
-	crw-------  1 root root 89, 0 Feb 23 13:02 /dev/i2c0
-	crw-------  1 root root 89, 0 Feb 23 13:02 /dev/i2c-0
-	crw-------  1 root root 89, 1 Feb 23 13:02 /dev/i2c1
-	crw-------  1 root root 89, 1 Feb 23 13:02 /dev/i2c-1
+Think about ppc64 where the large page size is 16MB.  That might hurt
+interleaving a bit if the structure is only 32MB.  It's better than
+*everything* on node 0, but not by much.  
 
-Which prevents any normal user from exploiting this issue.
+-- Dave
 
-thanks,
-
-greg k-h

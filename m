@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264676AbTF0Sqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTF0Sqz
+	id S264723AbTF0Sm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbTF0Sm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:46:55 -0400
-Received: from california.sandia.gov ([146.246.250.1]:27410 "EHLO
-	ca.sandia.gov") by vger.kernel.org with ESMTP id S264676AbTF0Sqx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:46:53 -0400
-From: Mitch Sukalski <mwsukal@ca.sandia.gov>
-Reply-To: mwsukal@ca.sandia.gov
-Organization: Sandia National Laboratories
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: non-transparent Intel 82801BAM/CAM PCI-to-PCI bridge (rev. 81 chip, in IBM T40 2373-92U 4/2003 laptop)
-Date: Fri, 27 Jun 2003 12:00:47 -0700
-User-Agent: KMail/1.5
+	Fri, 27 Jun 2003 14:42:26 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:35501 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id S264723AbTF0SmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 14:42:23 -0400
+Message-ID: <3EFC9356.50606@oracle.com>
+Date: Fri, 27 Jun 2003 20:56:22 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030617
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre2
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306271200.49875.mwsukal@ca.sandia.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you have a new IBM T40 (mine is a model 2372-92U, build 4/03, 2GB RAM), the 
-latest 2.4.21 kernel (and 2.4.20 as well), and PCMCIA support is broken, then 
-you may have the same problem that I've just isolated. My symptoms included 
-crazy values for socket status, and many "timed out during reset" messages 
-(see dmesg output below).
+Marcelo Tosatti wrote:
+> Hello,
+> 
+> Here goes -pre2 with a big number of changes, including the new aic7xxx
+> driver.
 
-Jun 12 15:00:36 juggler kernel: Yenta IRQ list 0000, PCI irq11
-Jun 12 15:00:36 juggler kernel: Socket status: 080c2420
-Jun 12 15:00:36 juggler kernel: Yenta IRQ list 0000, PCI irq11
-Jun 12 15:00:36 juggler kernel: Socket status: 000dd9e2
-Jun 12 15:00:39 juggler kernel: cs: socket f74a8000 timed out during reset.  
-Try increasing setup_delay.
-...
+Fixes my can't-unblank-screen problem reported with 2.4.22-pre1.
+
+Thanks,
+
+--alessandro
+
+  "I'm always trying to find some kind of honest emotion
+    and connection with the most naked human emotions.
+   It's a dangerous, dark path but also very exciting."
+       (Steve Wynn, interviewed by 'Mescalina', 2003)
 

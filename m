@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286323AbRLJRQ1>; Mon, 10 Dec 2001 12:16:27 -0500
+	id <S286322AbRLJRQR>; Mon, 10 Dec 2001 12:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286321AbRLJRQR>; Mon, 10 Dec 2001 12:16:17 -0500
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:56248 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S286323AbRLJRQC>; Mon, 10 Dec 2001 12:16:02 -0500
-Date: Mon, 10 Dec 2001 12:16:02 -0500 (EST)
-From: Keith Warno <krjw@optonline.net>
-Subject: 2.4.16: scsi "PCI error Interrupt"?!
-X-X-Sender: kw@behemoth.hobitch.com
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.40.0112101205560.6819-100000@behemoth.hobitch.com>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S286324AbRLJRP5>; Mon, 10 Dec 2001 12:15:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64265 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286323AbRLJRPu>; Mon, 10 Dec 2001 12:15:50 -0500
+Subject: Re: mm question
+To: volodya@mindspring.com
+Date: Mon, 10 Dec 2001 17:25:09 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.20.0112101041020.17406-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 11:05:22 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DUAv-0002hY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings.
+> "AGP addressable" memory which is ~64meg less than the total amount on my
+> machine. However, looking around in AGP driver or AGP specs does not seem
+> to indicate any restriction of the sort and, moreover, I do not need AGP
+> for this DMA transfer (it is PCI only).
 
-Since using 2.4.16 I have been seeing the following message in syslog
-from time to time:
+Can the transfer go to pages mapped into the AGP gart, using their gart
+side mapping ?
 
-scsi0: PCI error Interrupt at seqaddr = 0x7
-scsi0: Data Parity Error Detected during address or write data phase
+> Better than giving up.. Unfortunately looking around in
+> linux/Documentation and drivers did not yield much in terms of
+> explanation. I know I can use mem_map_reserve to reserve a page but I
+> don't know how to get page struct from a physical address nor which lock
+> to use when messing with this.
 
->From time to time that 0x7 is an 0x9 and I don't know the meaning of
-either of them. :)
+You have to grab them at boot time via bootmem to get them in a range of
+your choice. Otherwise you can use
 
-These messages appear on my home machine and my work machine, both of
-which are 2.4.16 running on a KT7A motherboard.  Work machine has an
-Adaptec 29160 controller and home machine has a 2930 controller.
+	get_free_page		-	grab a page
+	virt_to_page		-	page struct of page
+	virt_to_bus		-	bus addr of page
 
-kw@behemoth[pts/1]:~$ # HOME MACHINE
-kw@behemoth[pts/1]:~$ cat /proc/sys/kernel/tainted
-1
-kw@behemoth[pts/1]:~$ # because of damn NVidia driver 1.0-2313
-kw@behemoth[pts/1]:~$ cat /proc/interrupts
-           CPU0
-  0:   21027685          XT-PIC  timer
-  1:     105508          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
- 10:     895289          XT-PIC  eth0, EMU10K1
- 11:     889052          XT-PIC  aic7xxx
- 12:     215482          XT-PIC  usb-uhci, usb-uhci
- 14:    7086454          XT-PIC  ide0
-NMI:          0
-ERR:          0
-kw@behemoth[pts/1]:~$
+virt_to_bus isnt portable because real world pci bus mapping on non x86 is
+deeply murky and mysterious. But you probably want to worry about that
+after it works.
 
-kw@vader[5]:~$ # WORK MACHINE
-kw@vader[5]:~$ cat /proc/sys/kernel/tainted
-1
-kw@vader[5]:~$ # again because of NVidia driver
-kw@vader[5]:~$ cat /proc/interrupts
-           CPU0
-  0:   41698625          XT-PIC  timer
-  1:     212688          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:     488706          XT-PIC  usb-uhci, usb-uhci
- 10:    2302511          XT-PIC  eth0, EMU10K1
- 11:   10676271          XT-PIC  aic7xxx, nvidia
- 14:    1314711          XT-PIC  ide0
-NMI:          0
-ERR:          0
-kw@vader[5]:~$
-
-Any ideas?  I really don't like the SCSI controller sharing an interrupt
-with anyone but I can't seem to force it to be in its own land.
-
-Regards,
-kw
-| Keith Warno                keith.warno@valaran.com
-| Sys Admin, Valaran Corp    direct: +1 609-945-7243
-| http://www.valaran.com/    mobile: +1 609-209-5800
-+---------------------------------------------------
-
+Alan

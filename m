@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbTERTGu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 15:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTERTGt
+	id S262164AbTERTQq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 15:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbTERTQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 15:06:49 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:8710 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S262163AbTERTGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 15:06:48 -0400
-Date: Sun, 18 May 2003 21:26:33 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SIS-650+CPQ Presario 3045US+USB ...
-In-Reply-To: <Pine.LNX.4.55.0305172022440.4235@bigblue.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0305181052210.14825-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 May 2003 15:16:46 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:196 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262164AbTERTQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 15:16:44 -0400
+Date: Sun, 18 May 2003 21:29:33 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [2.4 patch] add four CONFIG_HDLC_DEBUG_* Configure.help text
+Message-ID: <20030518192933.GF12766@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 May 2003, Davide Libenzi wrote:
+Hi Marcelo,
 
-> I've spent a few horrible hours terrified by the idea of a possible XP
-> install on my new laptop. It's a Compaq Presario 3045US with SIS-650
-> chipset and there was no way to have USB bits work with it because of a
-> IRQ routing issue.
+the patch below adds four Configure.help entries that were missing in 
+2.4.21-rc2 (I've taken the texts from 2.5).
 
-What are the device/revision id's of the pci irq router function?
+Please apply
+Adrian
 
-> The PCI routing table of that machine issues requests
-> for 0x60, 0x61 and 0x63 that, to have everything to work out, must be
-> handled like the 0x4* cases.
 
-This sounds different wrt. what we have documented for the older 85C503 
-ISA bridge which is used in the 5595 chipset family.
-
-> Now, while 0x60 and 0x63 were ot documented
-> at all, 0x61 was documented as IDEIRQ and I was a bit worried about that.
-
-0x61=IDEIRQ / 0x62=USBIRQ is definitely correct for the 5595/85C503 rev 01 
-- according to the data sheet and playing with setpci ;-)
-
-> But this is not the case since the machine issue 0x60..0x63 for the four
-> OHCI devices. Now USB is working great with keyboard, mouse and drives. I
-> still have to say bye to the Broadcom 54g wireless interface though ...
-
-Looks like your chipset uses a different irq routing register layout. When 
-the existing sis pci-irq routing stuff was added, the primary concern was 
-to handle the ambigous link values (0x40-43 vs. 0x00-03) used by different 
-BIOS's. The IDEIRQ case was merely added for documentation, it's unused.
-
-I think this might need some special treatment in pirq_sis_[sg]et(), 
-either checking for the revision id or a different pci device id.
-
-Btw, have you tried with acpi interrupt routing enabled?
-
-Martin
-
+--- linux-2.4.21-rc2/Documentation/Configure.help.old	2003-05-18 21:21:51.000000000 +0200
++++ linux-2.4.21-rc2/Documentation/Configure.help	2003-05-18 21:23:46.000000000 +0200
+@@ -9684,6 +9684,26 @@
+   should add "alias syncX farsync" to /etc/modules.conf for each
+   interface, where X is 0, 1, 2, ...
+ 
++CONFIG_HDLC_DEBUG_PKT
++  This option is for developers only - do NOT use on production
++  systems.
++
++CONFIG_HDLC_DEBUG_HARD_HEADER
++  This option is for developers only - do NOT use on production
++  systems.
++
++CONFIG_HDLC_DEBUG_ECN
++  This option is for developers only - do NOT use on production
++  systems.
++
++CONFIG_HDLC_DEBUG_RINGS
++  If you answer Y here you will be able to get a diagnostic dump of
++  port's TX and RX packet rings, using "sethdlc hdlcX private"
++  command. It does not affect normal operations.
++
++  If unsure, say Y here.
++
++
+ Frame Relay (DLCI) support
+ CONFIG_DLCI
+   This is support for the frame relay protocol; frame relay is a fast

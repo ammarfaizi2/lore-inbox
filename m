@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273333AbRJ2NFB>; Mon, 29 Oct 2001 08:05:01 -0500
+	id <S274248AbRJ2NKu>; Mon, 29 Oct 2001 08:10:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273385AbRJ2NEk>; Mon, 29 Oct 2001 08:04:40 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:23427 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S273333AbRJ2NEh>; Mon, 29 Oct 2001 08:04:37 -0500
-Message-ID: <04b801c1607a$947dbef0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: via-rhine and MMIO
-Date: Mon, 29 Oct 2001 14:06:53 +0100
+	id <S273904AbRJ2NKk>; Mon, 29 Oct 2001 08:10:40 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:23755 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S273881AbRJ2NKa>;
+	Mon, 29 Oct 2001 08:10:30 -0500
+Message-ID: <3BDD5391.6BF30E81@nokia.com>
+Date: Mon, 29 Oct 2001 15:03:13 +0200
+From: Manel Guerrero Zapata <manel.guerrero-zapata@nokia.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 TCP caches ip route
+In-Reply-To: <Pine.LNX.4.33L.0110291047040.2963-100000@imladris.surriel.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have done some changes to the via-rhine driver in 2.4.13 to be able to run
-with MMIO. I know it isn't really needed but I do it mainly for fun &
-learning.
+Hi,
 
-The most important change was to enable memory-mapped mode within the rhine
-chip by a standard port-io call. I have got it all to work, and it works
-under stress test too, but there is a section in the code that I wonder
-about:
+I'm using 2.4.0 (but I thing that this is probably a 2.4.X problem).
+If a execute a telnet command to certain address (like 10.0.0.1).
+And the routing table says that packets for 10.0.0.1 should be
+routed to the device dummy0,
+The telnet keeps trying to connect. (till here everything is cool).
+And then I change the routing table so now it should
+send those packets to the ppp0 (where 10.0.0.1 is), but the
+connexion does not get stablished anyway (till I get timeout).
 
-(drivers/net/via-rhine.c)
-...
-/* Reload the station address from the EEPROM. */
-writeb(0x20, ioaddr + MACRegEEcsr);
-/* Typically 2 cycles to reload. */
-for (i = 0; i < 150; i++)
-    if (! (readb(ioaddr + MACRegEEcsr) & 0x20))
-        break;
-...
+The problem seems to be that the kernel
+caches that the device for the connexion should be dummy0.
+If then, I cancel the telnet and start it again
+now (of course) it stablishes a telnet conexion though the ppp0.
 
-If I run this code when I'm using MMIO, I get a hardware adress of
-"ff:ff:ff:ff:ff:ff" instead of the right one (and everything craps up). But
-when I comment out this part all is fine. So what's it needed for anyway?
+This problem does not occur if I use ping instead of telnet
+(probably because ping uses no socket).
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+Should not be a mechanism that flushes caches when routing
+table changes?
 
+If the cached info is attached to the socket structure
+probably this flushing thing is not quite feasible, am I wrong?
 
+I know you usually don't expect the device though your tcp
+connection goes to change on the fly, but that actually can
+happend, and maybe (IMHO) should be supported.
+
+Maybe I'm missing something. (probably ;) )
+
+Regards,
+
+	Manel Guerrero

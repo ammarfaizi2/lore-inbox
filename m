@@ -1,39 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261735AbRE2KWQ>; Tue, 29 May 2001 06:22:16 -0400
+	id <S261835AbRE2KzO>; Tue, 29 May 2001 06:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbRE2KWG>; Tue, 29 May 2001 06:22:06 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:785 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S261735AbRE2KV5>;
-	Tue, 29 May 2001 06:21:57 -0400
-Date: Tue, 29 May 2001 12:21:09 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: james@spunkysoftware.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Creative 4-speed CDROM driver
-Message-ID: <20010529122109.A5196@se1.cogenit.fr>
-In-Reply-To: <E154VOJ-0003cy-00@the-village.bc.nu> <004601c0e811$f8c93d80$c1a5fea9@spunky>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <004601c0e811$f8c93d80$c1a5fea9@spunky>; from james@spunkysoftware.com on Tue, May 29, 2001 at 08:35:37AM +0100
-X-Organisation: Marie's fan club - I
+	id <S261819AbRE2KzF>; Tue, 29 May 2001 06:55:05 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:29710 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261759AbRE2Kyu>; Tue, 29 May 2001 06:54:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
+Date: Tue, 29 May 2001 12:54:18 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Edgar Toernig <froese@gmx.de>, Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <200105280126.f4S1QmFM017170@sleipnir.valparaiso.cl>
+In-Reply-To: <200105280126.f4S1QmFM017170@sleipnir.valparaiso.cl>
+MIME-Version: 1.0
+Message-Id: <01052912541919.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james@spunkysoftware.com <james@spunkysoftware.com> écrit :
-> Where do I get this basic info on ATAPI? Will I benefit from the IDE
-> standards document? Where can I get that?
+On Monday 28 May 2001 03:26, Horst von Brand wrote:
+> Daniel Phillips <phillips@bonn-fries.net> said:
+> > On Sunday 27 May 2001 15:32, Edgar Toernig wrote:
+>
+> [...]
+>
+> > > you break UNIX fundamentals.  But I'm quite relieved now because
+> > > I'm pretty sure that something like that will never go into the
+> > > kernel.
+> >
+> > OK, I'll take that as "I couldn't find a piece of code that breaks,
+> > so it's on to the legal issues".
+>
+> It boggles my (perhaps underdeveloped) mind to have things that are
+> files _and_ directories at the same time.
 
-www.t13.org
-ww.google.com
+They are not, the device file and the directory are different objects 
+that have the same name.  In C, "foo" and "struct foo" can appear in 
+the same scope but they are different objects.  This must have seemed 
+to be a strange idea at first.  Here we have "foo" (a device) and 
+"directory foo" (the device's properties).
 
-It's time consuming but you may see something emerging from your
-work in a few monthes if you sacrifice your spare time.
+When I first saw Linus mention the idea I did a double-take, I thought 
+it was a strange idea and my first reaction was, it would break all 
+kinds of things.  But when I started examining cases I was unable to 
+find any real problems.  When I asked code examples of breakage none of 
+the supplied examples survived scrutiny.  Then, when I looked through 
+SUS I didn't find any prohibition.
 
-Some of your questions are answered at http://www.tux.org/lkml/
+> The last time this was
+> discussed was for handling forks (a la Mac et al) in files, and it
+> was shot down.
 
--- 
-Ueimor
+Do you have the subject line?  It might save us some time ;-)
+
+I seem to recall that the fork idea died because it was thought to 
+require changes to userspace programs such as tar and find.  The 
+magicdev idea doesn't require such changes, none that I've seen so far.
+
+> > SUS doesn't seem to have a lot to say about this.  The nearest
+> > thing to a ruling I found was "The special filename dot refers to
+> > the directory specified by its predecessor".  Which is not the same
+> > thing as:
+> >
+> >    open("foo", O_RDONLY) == open ("foo/.", O_RDONLY)
+>
+> It says "foo" and "foo/." are the same _directory_, where "foo" is a
+> directory as otherwise "foo/<something>" makes no sense, AFAICS. Is
+> there any mention on a _file_ "bar" and going "bar/" or
+> "bar/<something>"?
+
+In SUS I didn't find anything, one way or the other.  I don't know 
+about POSIX.
+
+--
+Daniel
+

@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263564AbTCUI7b>; Fri, 21 Mar 2003 03:59:31 -0500
+	id <S263566AbTCUJDz>; Fri, 21 Mar 2003 04:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263566AbTCUI7b>; Fri, 21 Mar 2003 03:59:31 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:20740 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S263564AbTCUI73>; Fri, 21 Mar 2003 03:59:29 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200303210910.h2L9ABp8002500@green.mif.pg.gda.pl>
-Subject: Re: Non-__init functions calling __init functions
-To: cfriesen@nortelnetworks.com (Chris Friesen)
-Date: Fri, 21 Mar 2003 10:10:11 +0100 (CET)
-Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
-       stuartm@connecttech.com (Stuart MacDonald),
-       linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <3E79F405.9030705@nortelnetworks.com> from "Chris Friesen" at Mar 20, 2003 12:01:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263567AbTCUJDz>; Fri, 21 Mar 2003 04:03:55 -0500
+Received: from angband.namesys.com ([212.16.7.85]:59786 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S263566AbTCUJDx>; Fri, 21 Mar 2003 04:03:53 -0500
+Date: Fri, 21 Mar 2003 12:14:55 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs oops [2.5.65]
+Message-ID: <20030321121454.A17440@namesys.com>
+References: <20030319141048.GA19361@suse.de> <20030320112559.A12732@namesys.com> <20030320132409.GA19042@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030320132409.GA19042@suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrzej Krzysztofowicz wrote:
-> 
-> > Not always possible.
-> > 
-> > __init A() {
-> > ...
-> > }
-> > 
-> > __exit B() {
-> > ...
-> > }
-> > 
-> > C() {
-> > ...
-> > A();
-> > ...
-> > #ifdef MODULE
-> > B();
-> > #endif
-> > ...
-> > }
-> > 
-> > C cannot be marked __init for #define MODULE case. Even if it is called only
-> > by some __init code. I can imagine other similar situations.
-> 
-> I thought that in the case of modules, __init is a noop?  At least, that's what 
-> this page says
+Hello!
 
-Currently - yes.
-But I heard about patches that make __init usefull in modular case.
-Why break them ?
+On Thu, Mar 20, 2003 at 01:24:09PM +0000, Dave Jones wrote:
+>  > Hm, very interesting. Thank you.
+>  > I've seen this once too, but on kernel patched with lots of unrelated and
+>  > possibly memory corrupting stuff.
+>  > I will look at it more closely.
+>  > BTW, it oopsed not in find. Is your box SMP?
+> Same box committed seppuku overnight, this time in a different way.
 
-> http://www.netfilter.org/unreliable-guides/kernel-hacking/routines-init.html
-> 
-> So if MODULE is defined, it doesn't matter if C is labelled as __init or not, 
-> and if it is not defined, it *should* be labelled as __init since it is itself 
-> calling __init code.
+Hm, am I missing something?
+So it died in the morning yesterday, but before that it died again? Or were those
+two different nights? ;)
 
-Safely the following can be added:
+> There's lots of "slab error in cache_alloc_debugcheck_after()"
+> warnings. cache reiser_inode_cache memory after object was overwritten
 
-+ #ifndef MODULE
-+ __init
-+ #endif
-  C() {
+This second oops and first BUG you quoted indicate that internal slab structures
+(I think second oops happened in the middle of list_del) were corrupted, not
+the guarded data itself.
+At least I think so.
+Can I take a look at your .config?
 
-But I heard that our policy is avoiding extra #ifdefs if possible... 
+Thank you.
 
-AFAIR, some __init functions were called (in 2.4 scsi code; I didn't check
-newer code) indirectly, by pointers to them, from non __init code. It is
-more dificult to detect such cases.
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+Bye,
+    Oleg

@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbRARLC1>; Thu, 18 Jan 2001 06:02:27 -0500
+	id <S129969AbRARLEs>; Thu, 18 Jan 2001 06:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129969AbRARLCS>; Thu, 18 Jan 2001 06:02:18 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:34057 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S129774AbRARLCA>;
-	Thu, 18 Jan 2001 06:02:00 -0500
-Date: Thu, 18 Jan 2001 12:01:29 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-Message-id: <3A66CD09.F0111CB5@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
+	id <S130918AbRARLEi>; Thu, 18 Jan 2001 06:04:38 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:42712 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129969AbRARLE0>;
+	Thu, 18 Jan 2001 06:04:26 -0500
+Message-ID: <3A66CDB1.B61CD27B@imake.com>
+Date: Thu, 18 Jan 2001 06:04:17 -0500
+From: Russell Leighton <leighton@imake.com>
+Reply-To: leighton@imake.com
+X-Mailer: Mozilla 4.51 [en] (Win98; I)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <200101181001.f0IA11I25258@webber.adilger.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tim Fletcher <tim@parrswood.manchester.sch.uk> wrote :
+"copy this fd to that one, and optimize that if you can"
 
-> > How does MD/RAID0 know which array should be /dev/md0? What if you had a 
-> > second array on /dev/hdb and /dev/hdd, would that become /dev/md0 (assuming 
-> > it had a kernel/boot sector)? 
->    
-> /etc/raidtab specifies which drives belong in which array, but I only have
->  hda and hdc so I can't really answer the question
+... isn't this Larry M's "splice" (http://www.bitmover.com/lm/papers/splice.ps)?
 
-What happens if /dev/md0 is /dev/sda and /dev/sdc ( the system also has
-sdb )
-and sda fails or is removed ?
-the old sdb will now be sda and old-sdc will be sdb.
-md0 will look into sda , which is now the non-md disk , and
-sdc , which doesn't exists any more ???
+Andreas Dilger wrote:
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+> Roger Wolff writes:
+> > I'd prefer an interface that says "copy this fd to that one, and
+> > optimize that if you can".
+> >
+> > For example, copying a file from one disk to another. I'm pretty sure
+> > that some efficiency can be gained if you don't need to handle the
+> > possibility of the userspace program accessing the data in between the
+> > read and the write. Sure this may not qualify as a "trivial
+> > optimization, that can be done with the existing infrastructure" right
+> > now, but programs that want to indicate "kernel, please optimize this
+> > if you can" can say so.
+>
+> Actually, this is a great example, because at one point I was working
+> on a device interface which would offload all of the disk-disk copying
+> overhead to the disks themselves, and not involve the CPU/RAM at all.
+>
+> I seem to recall that I2O promised something along these lines as well
+> (i.e. direct device-device communication).
+>
+> Cheers, Andreas
+> --
+> Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+>                  \  would they cancel out, leaving him still hungry?"
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+--
+-------------------------------------------------
+Russell Leighton
+leighton@imake.com
+http://www.247media.com
+Company Vision:
+To be the preeminent global provider
+of interactive marketing solutions and services.
+-------------------------------------------------
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

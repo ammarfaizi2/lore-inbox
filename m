@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131708AbRC0XmX>; Tue, 27 Mar 2001 18:42:23 -0500
+	id <S131710AbRC0Xno>; Tue, 27 Mar 2001 18:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131718AbRC0XmO>; Tue, 27 Mar 2001 18:42:14 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:44730 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131708AbRC0Xl4>; Tue, 27 Mar 2001 18:41:56 -0500
-Message-ID: <3AC12580.F2F280C@uow.edu.au>
-Date: Wed, 28 Mar 2001 09:42:56 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Clem Taylor <ctaylor@chipwrights.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2 SMP + 3c905C-TX + NETDEV WATCHDOG
-In-Reply-To: <3AC108AF.C5F4A862@chipwrights.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131729AbRC0Xn0>; Tue, 27 Mar 2001 18:43:26 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22461 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S131710AbRC0XnV>; Tue, 27 Mar 2001 18:43:21 -0500
+Date: Tue, 27 Mar 2001 16:42:28 -0700
+Message-Id: <200103272342.f2RNgSo23933@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Dan Hollis <goemon@anime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <3AC11AFA.92889B47@transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0103271454190.2234-100000@anime.net>
+	<3AC11AFA.92889B47@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clem Taylor wrote:
+H. Peter Anvin writes:
+> Dan Hollis wrote:
+> > 
+> > On Tue, 27 Mar 2001, H. Peter Anvin wrote:
+> > > c) Make sure chown/chmod/link/symlink/rename/rm etc does the right thing,
+> > > without the need for "tar hacks" or anything equivalently gross.
+> > 
+> > write-through filesystem, like overlaying a r/w ext2 on top of an iso9660
+> > fs.
 > 
-> Every few weeks, since switching to 2.4.2, I get a series of 'NETDEV
-> WATCHDOG' errors. When this happens the system becomes unusable (homes
-> are NFS mounted) and does not recover. A small number of packets do get
-> out when it's in this state, but not enough to be useful. I've tried an
-> ifconfig up/down, all that seems to help is a reboot. The 3c905C driver
-> is compiled into my kernel, so I can't reload it. The machine is a Dell
-> Precision 220 (only one processor installed).
+> This is not necessarily the right way to do it, since it may not
+> carry with it the appropriate information.  Richard, I belive, was
+> planning to implement this using devfsd.
 
-Irritating, isn't it?
+I did, back in April 2000. I'm fairly sure I told you at OLS :-)
 
-> Has anyone else seen this problem. Is their a way to reset the interface
-> without rebooting? Any ideas?
+Create and change events can be passed to devfsd and this may be
+recorded in a filesystem.
 
-No.  A reboot is required.
+				Regards,
 
-It is due to a problem in the APIC handling.  There is a 
-workaround in the 2.4.2-ac series which fixes it.  It
-appears to not be in the 2.4.3 series.  So for the
-while you'll have to either install a recent -ac kernel
-or boot with the `noapic' LILO option.
-
--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

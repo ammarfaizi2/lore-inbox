@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261491AbREQSv7>; Thu, 17 May 2001 14:51:59 -0400
+	id <S261488AbREQSx3>; Thu, 17 May 2001 14:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbREQSvu>; Thu, 17 May 2001 14:51:50 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:58885 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S261491AbREQSvj>;
-	Thu, 17 May 2001 14:51:39 -0400
-Date: Thu, 17 May 2001 21:51:33 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.4-ac10
-Message-ID: <20010517215133.J5947@mea-ext.zmailer.org>
-In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu> <3B041980.BC22BA38@delusion.de> <20010517214039.I5947@mea-ext.zmailer.org>
-Mime-Version: 1.0
+	id <S261492AbREQSxT>; Thu, 17 May 2001 14:53:19 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18702 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261490AbREQSxK>; Thu, 17 May 2001 14:53:10 -0400
+Message-ID: <3B041E06.BF5155ED@transmeta.com>
+Date: Thu, 17 May 2001 11:52:54 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.4 failure to compile
+In-Reply-To: <Pine.LNX.3.95.1010517144217.2854A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010517214039.I5947@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Thu, May 17, 2001 at 09:40:39PM +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 09:40:39PM +0300, Matti Aarnio wrote:
-> On Thu, May 17, 2001 at 08:33:36PM +0200, Udo A. Steinberg wrote:
-> > With 2.4.4-ac10 and binutils 2.11 I get the following warnings:
+"Richard B. Johnson" wrote:
 > 
->   It is a warning about kernel code using assembler statements
->   which are not valid with some older assemblers.
+> I have both. I also have `flex`, but not `lex'. `lex' is a simlink to
+> flex. What this compile wanted is some header files in expects for
+> `yacc` that are not present. And they don't come with the `bison`
+> distribution. Maybe they came with `yacc` years ago? Anyway there
+> are some poor assumptions being made in the source Makefile.
+> 
+> It would be nice to have the 'microcode' assembler running for
+> aic7xxx since it is now required for the thing to load.
+> 
 
-  Naeh, I am confusing (you, and myself).  Fixing those (adding the '*')
-  would not work with some older assemblers.
+It worked just fine with "bison" here (with the appropriate shell script
+added.)
 
-  Claiming minimum level of 2.10/2.11 for assembler/binutils would
-  certainly allow fixing things by adding the missing '*'.
+I think the header file you're talking about is the db1 header file,
+which has nothing to do with yacc -- it's the Berkeley libdb version 1,
+which is a pretty bad thing to require.
 
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o pci-pc.o pci-pc.c
-> > pci-pc.c:964: warning: `pci_fixup_via691' defined but not used
-> > pci-pc.c:977: warning: `pci_fixup_via691_2' defined but not used
-> > {standard input}: Assembler messages:
-> > {standard input}:747: Warning: indirect lcall without `*'
-> > {standard input}:832: Warning: indirect lcall without `*'
-> > {standard input}:919: Warning: indirect lcall without `*'
-> > {standard input}:958: Warning: indirect lcall without `*'
-...
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

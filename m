@@ -1,89 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263308AbRFFFKJ>; Wed, 6 Jun 2001 01:10:09 -0400
+	id <S263481AbRFFFcF>; Wed, 6 Jun 2001 01:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263479AbRFFFJ7>; Wed, 6 Jun 2001 01:09:59 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:42761 "HELO
-	clueserver.org") by vger.kernel.org with SMTP id <S263308AbRFFFJu>;
-	Wed, 6 Jun 2001 01:09:50 -0400
-Date: Tue, 5 Jun 2001 23:20:30 -0700 (PDT)
-From: Alan Olsen <alan@clueserver.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <laughing@shared-source.org>
-Subject: Re: SCSI is as SCSI don't...
-In-Reply-To: <Pine.LNX.4.10.10106052247210.17745-100000@clueserver.org>
-Message-ID: <Pine.LNX.4.10.10106052317460.17745-100000@clueserver.org>
+	id <S263485AbRFFFbz>; Wed, 6 Jun 2001 01:31:55 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:45812 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S263481AbRFFFbt>;
+	Wed, 6 Jun 2001 01:31:49 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: USBDEVFS_URB_TYPE_INTERRUPT
+Date: Wed, 6 Jun 2001 01:31:41 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGGEIBCIAA.jcwren@jcwren.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to list my working environment...
 
-Redhat 7.1 patched to pretty close to the latest. (As of a week ago or
-so.) P-III 600 with 256 megs of ram and lots of disk, so resource
-starvation is not an issue.  (Unless something got REALLY big in the last
-few patches.)
+	I was designing a USB based device and was looking through the 2.4.5 kernel
+code, and noticed that while it supports bulk, iso, and control types, there
+is no support for interrupt types.  A grep through the entire kernel source
+code reveals that USBDEVFS_URB_TYPE_INTERRUPT defined in
+linux/usbdevice_fs.h, but no where is it used.  Any thoughts as to why that
+might be?
 
-On Tue, 5 Jun 2001, Alan Olsen wrote:
+	A google search didn't seem to turn up any answers either.
 
-> I am trying to get 2.4.5 and/or 2.4.5-ac9 working.  Both are choking on
-> compile with an odd error message or four...
-> 
-> In file included from /usr/src/linux-2.4.5-ac9/include/linux/raid/md.h:50,
->                  from ll_rw_blk.c:30:
-> /usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h: In function
-> `pers_to_level':/usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h:41:
-> warning: control reaches end of non-void function
-> 
-> I am seeing similar messages in the AIC7xxx code.
-> 
-> The basic effect is that the kernel will not load.  Something breaks hard
-> in it.
-> 
-> My C is pretty rusty. (Too much IS work as of late...)  Does anyone know
-> what this message is and why it is occuring?
-> 
-> I am currently using 2.4.4-ac11 and it does not have this problem.  
-> 
-> My reason for upgrading is that cdrecord gave me the following error, and
-> I was hoping that 2.4.5 would have fixed it...
-> 
-> Starting new track at sector: 0
-> CDB:  2A 00 00 00 9E FF 00 00 1F 80
-> cdrecord: Input/output error. write_teac_g1: scsi sendcmd: retryable error
-> Sense Bytes: 70 00 0B 00 00 00 00 0A 00 00 00 01 BA 00 00 00
-> status: 0x2 (CHECK CONDITION)
-> Sense Key: 0xB Aborted Command, Segment 0
-> Sense Code: 0xBA Qual 0x00 (no write data - buffer empty) Fru 0x0
-> Sense flags: Blk 0 (not valid)
-> 
-> cdrecord: Input/output error. write_teac_g1: scsi sendcmd: retryable error
-> write track data: error after 83359744 bytes
-> status: 0x2 (CHECK CONDITION)
-> Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
-> WARNING: adding dummy block to close track.
-> CDB:  2A 00 00 00 9E FF 00 00 01 00
-> Sense Bytes: 70 00 0B 00 00 00 00 0A 00 00 00 01 BA 00 00 00
-> Sense Key: 0xB Aborted Command, Segment 0
-> Sense Code: 0xBA Qual 0x00 (no write data - buffer empty) Fru 0x0
-> Sense flags: Blk 0 (not valid)
-> 
-> Ideas...?  (At least it give me time to finish Linus's autobiography while
-> I am rebuilding things, but I am quickly running out of book. ]:> )
-> 
-> alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-> Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
->     "In the future, everything will have its 15 minutes of blame."
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
+	-- John
 

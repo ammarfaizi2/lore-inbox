@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUDBXOP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 18:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUDBXOP
+	id S261298AbUDBXSc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 18:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUDBXSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 18:14:15 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10232 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261296AbUDBXOO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 18:14:14 -0500
-Message-ID: <406DF3B0.4030300@mvista.com>
-Date: Fri, 02 Apr 2004 15:13:52 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick Mochel <mochel@digitalimplant.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Device suspend/resume fixes
-References: <20040402222838.GB2423@dhcp193.mvista.com> <Pine.LNX.4.50.0404021458150.20130-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0404021458150.20130-100000@monsoon.he.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 18:18:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43459 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261298AbUDBXSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 18:18:30 -0500
+Date: Fri, 2 Apr 2004 15:18:28 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, andrea@suse.de,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040402151828.I21045@build.pdx.osdl.net>
+References: <20040401135920.GF18585@dualathlon.random> <20040401170705.Y22989@build.pdx.osdl.net> <20040401173034.16e79fee.akpm@osdl.org> <20040402133540.1dfa0256.akpm@osdl.org> <20040402143639.G21045@build.pdx.osdl.net> <20040402150152.7675cf7e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040402150152.7675cf7e.akpm@osdl.org>; from akpm@osdl.org on Fri, Apr 02, 2004 at 03:01:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
->>(3) Flush signals between resume handlers in case a resume function
->>causes, for example, an ECHILD from modprobe or hotplug, so
->>interruptible APIs for the next handler aren't affected.
-> 
-> 
-> Are there really cases in which you see this as an issue?
+* Andrew Morton (akpm@osdl.org) wrote:
+> http://www.zip.com.au/~akpm/linux/patches/stuff/pam_cap-akpm.tar.gz
 
-Ugh, I meant SIGCHILD, not ECHILD.  We have seen this in the past on a 
-2.4 backport, although perhaps in a different environment than is 
-normally used (this was on a PowerPC embedded platform that powers off 
-the I/O ring during suspend).  For certain hotpluggable devices such as 
-USB we've found it best to completely de-init and re-init the controller 
-and re-sense plugged cards at suspend/resume time, which is when we saw 
-troublesome signals (I2C setup then "timed out" before the controller 
-was ready because a SIGCHILD was waiting).  I admit I don't know that 
-much about the hotplug handlers, maybe I just didn't have things setup 
-properly.  So if this seems bizarre then I'll withdraw it and try things 
-again later when I have such hardware running in 2.6.  Thanks,
+Cool, thanks.
 
+> That's my point, Chris.  "the feature is bollixed, so let's write a ton of
+> new parallel stuff but not fix the original code".  This is how cruft
+> accumulates.
+
+Yes, OK, point well-taken.
+
+> > Our goal was actually to keep is compatible.  All of it's limitations
+> > predate the security stuff.
+> 
+> Either the fine-grained capabilities are fixable, or they should be deleted
+> and we go back to suser().  One of those things should have happened before
+> adding more code, surely?
+
+I s'pose we rather viewed the behaviour as legacy...stuck with, don't
+muck with...Making it usable is certainly better than going back to
+suser(), so let's procede that way and reconcile the mistake.
+
+> > IIRC, changing those (existing) securebits settings creates an unusable
+> > machine.  Again, I think there was some anticipation of the fs bits
+> > going in later.  Perhaps those securebits pieces could just be removed.
+> 
+> OK.  Do you have time to do the honours?
+
+Sure thing.
+
+thanks,
+-chris
 -- 
-Todd Poynor
-MontaVista Software
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

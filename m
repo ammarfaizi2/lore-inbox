@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUCKV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 16:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUCKV4M
+	id S261779AbUCKV4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 16:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUCKV4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 16:56:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12222 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261763AbUCKV4H (ORCPT
+	Thu, 11 Mar 2004 16:56:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47533 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261779AbUCKV4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 16:56:07 -0500
-Date: Thu, 11 Mar 2004 21:57:31 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, Mickael Marchand <marchand@kde.org>,
-       linux-kernel@vger.kernel.org, dm@uk.sistina.com
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311215731.GN18345@reti>
-References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311144829.GA22284@colin2.muc.de> <20040311214354.GM18345@reti>
+	Thu, 11 Mar 2004 16:56:31 -0500
+Date: Thu, 11 Mar 2004 13:57:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1: 3c59x-xcvr-xif breaks 3CCFE575CT
+Message-Id: <20040311135729.2fbcdc2a.akpm@osdl.org>
+In-Reply-To: <1079040485.856.4.camel@teapot.felipe-alfaro.com>
+References: <1079040485.856.4.camel@teapot.felipe-alfaro.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311214354.GM18345@reti>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 09:43:54PM +0000, Joe Thornber wrote:
-> I'd thought we'd been careful about this.  You're suggesting that the
-> size of this structure has changed between kernel versions ?!
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+>
+> 2.6.4-mm1 has turned to be a tricky kernel...: it breaks the 3c9x
+> transceiver making my 3CCFE575CT CardBus NIC unable to process any
+> incoming network frames, that is, no network communication takes place.
+> 
+> Reverting 3c59x-xcvr-fix.patch fixes the problem for me.
 
-Ignore me, I'm being an idiot.
+Sorry, I meant to check that one against the docs.
 
-- Joe
+The patch is wrong.  For 3c905B, the transceiver select bits are
+InternalConfig:20-23 and for 3c590 the transceiver select bit are
+InternalConfig:20-22.
+
+That patch thinks the transceiver select bits are bits 21 to 36 of a 32-bit
+register so no, it won't work very well.
+

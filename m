@@ -1,95 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132903AbRA3XcE>; Tue, 30 Jan 2001 18:32:04 -0500
+	id <S130897AbRA3Xgf>; Tue, 30 Jan 2001 18:36:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132558AbRA3Xby>; Tue, 30 Jan 2001 18:31:54 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:46865 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S132903AbRA3Xbt>;
-	Tue, 30 Jan 2001 18:31:49 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Marcel J.E. Mol" <marcel@mesa.nl>
-Date: Wed, 31 Jan 2001 00:30:40 MET-1
+	id <S130864AbRA3XgY>; Tue, 30 Jan 2001 18:36:24 -0500
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:13051 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S130897AbRA3XgL>; Tue, 30 Jan 2001 18:36:11 -0500
+Date: Wed, 31 Jan 2001 00:36:07 +0100 (MET)
+From: "Andreas Ackermann (Acki)" <asackerm@stud.informatik.uni-erlangen.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.4.0: [kswapd+116/272]
+Message-ID: <Pine.GSO.4.30.0101310030560.22218-100000@faui02d.informatik.uni-erlangen.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Matrox G450 problems with 2.4.0 and xfree
-CC: linux-kernel@vger.kernel.org, tcl@bunzy.net
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14179DC03097@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jan 01 at 0:06, Marcel J.E. Mol wrote:
+Hi folks,
 
-> > > Installed a Matrox G450 on my linux system. Now it has problems
-> > > booting. The kernel is compiled with framebuffer support so is supposed
-> > > to boot up with the Linux logo. Unfortunately the systems hangs when 
-> > > the kernel switches to the graphics mode. When I first boot into windoze
-> > > and the reboot to linux it works fine. So it looks like an
-> > > initialisation problem...
+using the new Kernel it now occured for the 4th time that I get an Oops
+some minutes after bootup, with X-Windows running. However, if I get
+past this 'criticak period' the system seems to run ok (it never crashed
+a second time although running all day), even when heavily loaded
+(avifile, mtvp, transfers using samba etc.).
 
-Well, first to problem with G450. I was trying very hard to find what's
-wrong, last few weeks together with guys from some other OSes (I'm
-not sure if I can mention them publicaly) and we were not able to find
-what's wrong - and without datasheets we hardly can.
+Here's the log:
+...
+Jan 29 08:08:25 ane kernel: <Sound Blaster 16> at 0x300 irq 10 dma 0,0
+Jan 29 08:08:25 ane kernel: sb: 1 Soundblaster PnP card(s) found.
+Jan 29 08:08:25 ane kernel: lirc_serial: compile the serial port driver
+as module and
+Jan 29 08:08:25 ane kernel: lirc_serial: make sure this module is loaded
+first
+Jan 29 08:08:26 ane kernel: lirc_serial: auto-detected active low
+receiver
+Jan 29 08:08:27 ane lpd[212]: restarted
+Jan 29 08:17:39 ane kernel:  printing eip:
+Jan 29 08:17:39 ane kernel: c013d838
+Jan 29 08:17:39 ane kernel: Oops: 0002
+Jan 29 08:17:39 ane kernel: CPU:    0
+Jan 29 08:17:39 ane kernel: EIP:    0010:[prune_dcache+24/328]
+Jan 29 08:17:39 ane kernel: EFLAGS: 00010216
+Jan 29 08:17:39 ane kernel: eax: c021903c   ebx: c8b929c0   ecx:
+c8b12000   edx: ffffff20
+Jan 29 08:17:39 ane kernel: esi: c8b12920   edi: c8aff800   ebp:
+00000d8d   esp: cbfe7fa8
+Jan 29 08:17:39 ane kernel: ds: 0018   es: 0018   ss: 0018
+Jan 29 08:17:39 ane kernel: Process kswapd (pid: 3, stackpage=cbfe7000)
+Jan 29 08:17:39 ane kernel: Stack: 00010f00 00000004 00000002 00000000
+c013dbd1 00000f8f c01278eb 00000006
+Jan 29 08:17:39 ane kernel:        00000004 00010f00 c01dae77 cbfe6239
+0008e000 c012798c 00000004 00000000
+Jan 29 08:17:39 ane kernel:        c133ffb8 00000000 c0107418 00000000
+00000078 c0229fd8
+Jan 29 08:17:39 ane kernel: Call Trace: [shrink_dcache_memory+33/48]
+[do_try_to_free_pages+83/128] [kswapd+116/272] [kernel_thread+40/56]
+Jan 29 08:17:39 ane kernel:
+Jan 29 08:17:39 ane kernel: Code: 89 02 89 1b 89 5b 04 8d 73 e0 8b 43 e4
+a8 08 74 27 24 f7 89
+Jan 29 08:20:58 ane syslogd 1.3-3#33.1: restart.
+Jan 29 08:20:58 ane kernel: klogd 1.3-3#33.1, log source = /proc/kmsg
+started.
+Jan 29 08:20:58 ane kernel: Inspecting /boot/System.map-2.4.0
+Jan 29 08:20:59 ane kernel: Loaded 13095 symbols from
+/boot/System.map-2.4.0.
+Jan 29 08:20:59 ane kernel: Symbols match kernel version 2.4.0.
+Jan 29 08:20:59 ane kernel: Loaded 219 symbols from 13 modules.
 
-Problem is that sometime G450 is in strange state, where doing accelerated
-operations which does both read and write (not simple fill) locks
-accelerator. Windows drivers works around somehow, as after booting
-to Windows matroxfb works fine - but without Windows it is just pure luck.
-You can try powering off your box again and again - and sometime
-it will boot, and from this time it will boot always until you poweroff
-computer.
 
-It looks like that if you compile 'agpgart' into kernel, chances that it
-will work are better, but I have also reports that it did not changed
-anything.
+If this tells somebody what it's all about I can provide further
+information about system etc. I also can provide three similar excerpts
+form my logfile ;-)
 
-So currently I do not know. Only 100% safe way I know is booting with
-'video=matrox:noaccel' - but at cost of completely disabled acceleration.
-And if you'll start accelerated X with non-matrox mga driver (and with 
-'Option "UseFBDev"', of course) on such hardware, your computer locks 
-again...
+Yours
 
-> On Tue, Jan 30, 2001 at 04:53:45PM -0500, tc lewis wrote:
-> > 
-> > try the latest driver that matrox provides.  i had to do this with just a
-> > stock redhat 7.0 system.  i don't think the standard kernel distributions
-> > redhat packages use a driver that knows about the 450 yet.
-> > 
-> > http://www.matrox.com/mga/support/drivers/files/linux_04.cfm
-> 
-> In the G400 time I tried the 1.0.1, 1.0.3 and 1.0.4 matrox driver
-> with XFree 4.0.1 but only 1.0.1 worked. After installing XFree 4.0.2
-> I get the same results (the matrox drivers are build for XFree 4.0.1
-> but I guess the should work for 4.0.2 to as they are 'modules'...).
+-Andreas
+-------------------------------------------------------------------
+        http://www.acki-netz.de  email: acki@acki-netz.de
+   //   (+49)[0]9131/409500 or (+49)[0]9286/6399
+ \X/    acki or acki2 on #rommelwood
 
-I'm currently using Matrox driver 1.0.4 and XF 4.0.2 with 
-'Options "UseFBDev"' and 'Options "HWCursor" "off"' - I'm using 'UseFBDev'
-because of I want to manage first/second head by hand (matroxset) and
-not by XFree.
+   No trees were killed in the sending of this message. However
+     a large number of electrons were terribly inconvenienced.
 
-You can get it to work with xfree mga driver too (using usefbdev), but 
-mga driver in XF4.0.2 ignores usefbdev option when using DGA - so for
-VMware you need mga driver from Matrox, anything else fails...
-
-> > > Previously I had a matrox G400 card and that worked without any problems.
-> > > 
-> > > Also xfree fails when using the svga module (Xfree 4.0.2). When using the
-> > > fbdev module it works fine. Again, using the G400 card works fine with svga
-> > > module.
-> > > 
-> > > And yes, it really is a G450!
-
-Revision >= 80 => G450 : G400, DDRAM memory interface, different VCO, 
-                         better dualhead... And probably another BES
-                         used by CRTC2 in TVOut mode...
-
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264422AbUEEKEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUEEKMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264422AbUEEKEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 06:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbUEEKEr
+	id S264405AbUEEKMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 06:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264440AbUEEKMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 06:04:47 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:28994 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264422AbUEEKEp (ORCPT
+	Wed, 5 May 2004 06:12:13 -0400
+Received: from gprs214-31.eurotel.cz ([160.218.214.31]:14976 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264405AbUEEKMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 06:04:45 -0400
-Message-ID: <4098BC2B.4080601@samwel.tk>
-Date: Wed, 05 May 2004 12:04:27 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: nl, en-us, en
-MIME-Version: 1.0
-To: Libor Vanek <libor@conet.cz>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki> <4097A94C.8060403@samwel.tk> <20040505095406.GC5767@Loki>
-In-Reply-To: <20040505095406.GC5767@Loki>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+	Wed, 5 May 2004 06:12:09 -0400
+Date: Wed, 5 May 2004 12:11:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp documentation updates
+Message-ID: <20040505101158.GC1361@elf.ucw.cz>
+References: <20040505094719.GA4259@elf.ucw.cz> <1083750907.17294.27.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1083750907.17294.27.camel@laptop-linux.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Libor Vanek wrote:
-> OK - how can I "notify" userspace process? Signals are "weak" - I need
- > to send some data (filename etc.) to process. One solution is "on this
- > signal call this syscall and result of this syscall will be data you
- > need" - but I'd prefer to handle this in one "action".
+Hi!
 
-My first thoughts are to make it a blocking call.
+> > +There are two solutions to this:
+> > +
+> > +* require half of memory to be free during suspend. That way you can
+> > +read "new" data onto free spots, then cli and copy
+> 
+> Would you consider adding:
+> 
+> (Suspend2, which allows more than half of memory to be saved, is a
+> variant on this).
 
---Bart
+How would you like this added?
+
+swsusp2 shares this fundamental limitation, but does not include user
+data and disk caches into "used memory" by saving them in
+advance. That means that limitation goes away in practice.
+
+And perhaps you want to write "What is swsusp2?" question/answer?
+
+								Pavel
+-- 
+934a471f20d6580d5aad759bf0d97ddc

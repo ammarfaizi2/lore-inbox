@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267866AbUH2NvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267851AbUH2Nxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267866AbUH2NvV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 09:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUH2Nuo
+	id S267851AbUH2Nxr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 09:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267835AbUH2Nvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 29 Aug 2004 09:51:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13534 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267839AbUH2Nuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 29 Aug 2004 09:50:44 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:38317 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S267835AbUH2NuK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 09:50:10 -0400
-Message-ID: <4131DF0F.5040306@free.fr>
-Date: Sun, 29 Aug 2004 15:50:07 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Cc: "Li, Shaohua" <shaohua.li@intel.com>, Karol Kozimor <sziwan@hell.org.pl>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-mm1 and Asus L3C : problematic change found, can be reverted.
- Real fix still missing
-References: <B44D37711ED29844BEA67908EAF36F039A1877@pdsmsx401.ccr.corp.intel.com> <41245F59.4080608@free.fr> <20040829130423.GD17032@dominikbrodowski.de>
-In-Reply-To: <20040829130423.GD17032@dominikbrodowski.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sun, 29 Aug 2004 15:50:37 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Oliver Neukum <oliver@neukum.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch][3/3] mm/ BUG -> BUG_ON conversions
+Message-ID: <20040829135037.GA12134@fs.tum.de>
+References: <20040828151137.GA12772@fs.tum.de> <20040828212419.GM12772@fs.tum.de> <20040829120324.GB10112@suse.de> <200408291418.50255.oliver@neukum.org> <20040829130155.GA10279@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829130155.GA10279@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> On Thu, Aug 19, 2004 at 10:05:45AM +0200, Eric Valette wrote:
+On Sun, Aug 29, 2004 at 03:01:56PM +0200, Jens Axboe wrote:
+> On Sun, Aug 29 2004, Oliver Neukum wrote:
+> > Am Sonntag, 29. August 2004 14:03 schrieb Jens Axboe:
+> > > > The intention is, to add an option that lets BUG/BUG_ON/WARN_ON/PAGE_BUG 
+> > > > do nothing. This option should be hidden under EMBEDDED.
+> > > > 
+> > > > In some environments, this seems to be desirable.
+> > > 
+> > > That only makes sense if you are using BUG incorrectly. A BUG()
+> > > condition is something that is non-recoverable, undefining that doesn't
+> > > make any sense regardless of the environment.
+> > 
+> > Why not? Giving reports about unrecoverable errors is sensible
+> > only if the report can be read. On system this is not the case, you
+> > can just salvage the memory and let it crash.
 > 
->>Li, Shaohua wrote:
->>
->>>Eric,
->>>The patch for bug 3049 has been in 2.6.8.1 and should fix the IO port
->>>problem. If the Asus quirk is just because of IO port problem, I'd like
->>>to remove it.
-> 
-> It's not because of the IO port problem -- actually, this "IO" problem is a
-> new appearance, while the Asus quirk works perfectly for many people.
-> 
-> 
->>>Note PNP driver also reserves the IO port for the SMBus
->>>and lets SMBus driver to use it. ACPI motherboard driver behaves the
->>>same as PNP driver.
->>
->>Unfortunately, as I understand it, the fix is done to "unhide" the SMBus 
->>that otherwyse is not seen but it has unexpected side effect of messing 
->>ioports allocation/reservation. I guess lspci with and without the fix 
->>could help to understand the problem.
-> 
-> 
-> Indeed. lspci without the fix doesn't show the device, lspci with the fix
-> shows the device.
-> 
-> 	Dominik
+> "Unrecoverable" can quite easily mean "something really bad has
+> happened, corruption imminent". So maybe you would want BUG/BUG_ON to
+> restart the box there, the restart-on-panic should help you there.
+>...
 
-Dominik,
+The current sh/sh64 implementation doesn't seem to do any of the things 
+you expect from BUG:
 
-This is a little bit late. There are already two fixes for the SMBus 
-unhidding : one generic by linux, that is in 2.6.9-rc1-bk2 or 
-2.6.9-rc1-mm1 that fixes the SMBus but that is not really SMBus related 
-and one specific that you can find at 
-<http://bugme.osdl.org/show_bug.cgi?id=3191>. Linux blessed this patch 
-as it makes clear that unhiding the bus without reserving the IO space 
-is the root of the real problem but did not incorporate it probably 
-because the other fix is already in and mine should be done for buggy 
-BIOS (DTST) that access the hidden SMBus not indirect the IO BAR but via 
-  hardwired values,
+#define BUG() do { \
+        printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+        asm volatile("nop"); \
+} while (0)
 
-Patch is not yet merged and may well never be as now problem is masked,
+> Jens Axboe
 
+cu
+Adrian
 
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

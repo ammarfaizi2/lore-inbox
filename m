@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266442AbUFZVhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266454AbUFZVid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266442AbUFZVhO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 17:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUFZVhO
+	id S266454AbUFZVid (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 17:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266451AbUFZVic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 17:37:14 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:21966 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S266442AbUFZVhA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 17:37:00 -0400
-Message-ID: <40DDEC76.8060101@capitalgenomix.com>
-Date: Sat, 26 Jun 2004 17:36:54 -0400
-From: "Fao, Sean" <sean.fao@capitalgenomix.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+	Sat, 26 Jun 2004 17:38:32 -0400
+Received: from mail.gmx.de ([213.165.64.20]:141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266454AbUFZViS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 17:38:18 -0400
+X-Authenticated: #4512188
+Message-ID: <40DDECC5.4040008@gmx.de>
+Date: Sat, 26 Jun 2004 23:38:13 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040618)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Amit Gud <gud@eth.net>
-CC: "Fao, Sean" <Sean.Fao@dynextechnologies.com>, Alan <alan@clueserver.org>,
-       Pavel Machek <pavel@ucw.cz>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-References: <004e01c45abd$35f8c0b0$b18309ca@home>	 <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>	 <20040625162537.GA6201@elf.ucw.cz> <1088181893.6558.12.camel@zontar.fnordora.org> <40DC625F.3010403@eth.net> <40DC8981.7090703@dynextechnologies.com> <40DCF598.6000206@eth.net>
-In-Reply-To: <40DCF598.6000206@eth.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Wes Janzen <superchkn@sbcglobal.net>
+CC: Michael Buesch <mbuesch@freenet.de>, Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Pauli Virtanen <pauli.virtanen@hut.fi>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+References: <40DC38D0.9070905@kolivas.org> <40DDD6CC.7000201@sbcglobal.net> <200406262211.24373.mbuesch@freenet.de> <40DDE74A.3090301@sbcglobal.net>
+In-Reply-To: <40DDE74A.3090301@sbcglobal.net>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit Gud wrote:
-
-> Fao, Sean wrote:
->
->> Amit Gud wrote:
+Wes Janzen wrote:
+> 
+> Michael Buesch wrote:
+> 
+>> On Saturday 26 June 2004 22:04, you wrote:
 >>
->>> It cannot be denied that there _are_ applications for such a system 
->>> that we already discussed and theres a class of users who will find 
->>> the system useful.
+>> >Hi Con,
+>>
+>> >I don't know what's going on but 2.6.7-mm2 with the staircase v7.4 (with
+>> >or without staircase7.4-1) takes about 3 hours to get from loading the
+>> >kernel from grub to the login prompt.  Now I realize my K6-2 400 isn't
+>> >state of the art...  I don't have this problem running 2.6.7-mm2.
+>>
+>> >It just pauses after starting nearly every service for an extended
+>> >period of time.  It responds to sys-rq keys but just seems to be doing
+>> >nothing while waiting.
+>>
+>> >Any suggestions?
 >>
 >>
->>
->>
->> I personally see no use whatsoever. Why not just allocate 100% of the 
->> file system to everybody and ignore quota's, entirely?  Each user 
->> will use whatever he/she requires and when space starts to run out, 
->> users will manually clean up what they don't need.
->>
-> We should get our basics right first. We _do_ need quotas!! Without 
-> any quota system how are we going to avoid a malicious user  from 
-> taking away all the space to keep other people starving? In EQFS also 
-> this can happen, but we are giving *controlled flexibility* to the 
-> user. He is having some stretching power but not beyond a certain 
-> limit. And do you think users are sincere enough to clean up there 
-> files when they are done?
+>> Maybe same problem as mine?
+>> Some init-scripts don't get their timeslices?
+> 
+> 
+> I was wondering if not.  I didn't notice any problems while using it 
+> once it had booted, but then I didn't really try to stress it much 
+> either.  I'm running gentoo and have RC_PARALLEL_STARTUP="yes" set in my 
+> /etc/conf.d/rc, maybe that's what makes me hit this during init whereas 
+> I haven't seen anyone else mention this.
 
+I am not using 2.6.7-mm2, but 2.6.7-ck1 with latest staircase and also 
+run gentoo with parallel RC startup. I have no recognizeable delays. But 
+my machine is "a bit" more modern than the k6-2 on the other hand. ;-)
 
-And I suppose you think that users will be sincere enough to mark files 
-as elastic?  I, for one, already said that I absolutely would *not* mark 
-a single file as elastic.  If I'm using 110 MB and you need an 
-additional 10 MB for storage, you won't be getting it from me because I 
-don't want to come in some morning to find that a file has disappeared.
+Perhaps try 2.6.7-ck2 (or ck1) with latest staircase.
 
-The system that you're asking for is a system without quotas.  Think 
-about what you're saying.
+bye,
 
->
->> I am totally against the automatic deletion of files and believe that 
->> all users will _eventually_ walk in on a Monday morning to find out 
->> that the OS took it upon itself to delete a file that was flagged as 
->> elastic, that shouldn't have been.  
->
->
-> User is the king, he decides what files should be elastic and what 
-> not. This can always be controlled.
->
-Controlled how?  Who is anybody to inform me of what files I need/don't 
-need?
-
-Sean
+Prakash

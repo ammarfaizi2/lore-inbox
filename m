@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319055AbSHFKqW>; Tue, 6 Aug 2002 06:46:22 -0400
+	id <S319056AbSHFKsW>; Tue, 6 Aug 2002 06:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319056AbSHFKqW>; Tue, 6 Aug 2002 06:46:22 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:15013 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319055AbSHFKqU>;
-	Tue, 6 Aug 2002 06:46:20 -0400
-Date: Tue, 6 Aug 2002 16:29:47 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       vamsi_krishna@in.ibm.com
-Subject: Re: [PATCH] kprobes for 2.5.30
-Message-ID: <20020806162947.A22164@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <Pine.LNX.4.44.0208052247380.1171-100000@home.transmeta.com> <20020806073804.690DE4BA4@lists.samba.org> <20020806085918.A13396@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020806085918.A13396@infradead.org>; from hch@infradead.org on Tue, Aug 06, 2002 at 08:59:18AM +0100
+	id <S319059AbSHFKsW>; Tue, 6 Aug 2002 06:48:22 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:19462 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S319056AbSHFKsV>; Tue, 6 Aug 2002 06:48:21 -0400
+Message-ID: <3D4FA924.3030601@evision.ag>
+Date: Tue, 06 Aug 2002 12:47:00 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.30 IDE 113
+References: <13AC5F92253@vcnet.vc.cvut.cz> <20020806104414.GC1132@suse.de>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 08:59:18AM +0100, Christoph Hellwig wrote:
-> On Tue, Aug 06, 2002 at 05:22:15PM +1000, Rusty Russell wrote:
-> > Vamsi, what do you think of this patch?  Is it neccessary to restore
-> > interrupts before handle_vm86_trap (the original patch didn't do this
-> > either, not sure if it's required).
+Uz.ytkownik Jens Axboe napisa?:
+> On Tue, Aug 06 2002, Petr Vandrovec wrote:
 > 
-> Any chance you could split the i386-specific kprobes code into
-> arch/i386/kernel/kprobes.c instead of bloating traps.c?
+>>>After all ide_raw_taskfile only gets used for REQ_SPECIAL request
+>>>types. This does *not* contain normal data request from block IO.
+>>>As of master slave issues - well we have the data pre allocated per
+>>>device not per channel! If q->request_fn would properly return the
+>>>error count instead of void, we could even get rid ot the
+>>>checking for rq->errors after finishment... But well that's
+>>>entierly different story.
+>>
+>>For example do_cmd_ioctl() invokes ide_raw_taskfile, without any locking.
+>>Two programs, both issuing HDIO_DRIVE_CMD at same time, will compete
+>>over one drive->srequest struct: you'll get same drive->srequest structure
+>>submitted twice to blk_insert_request (hm, Jens, will this trigger
+>>BUG, or will this just damage request list?).
+> 
+> 
+> Just silently damage request list. We _could_ easily add code to detect
+> this, but it's not been a problem in the past so not worth looking for.
+> 
+> AFAICS, Petr is completely right wrt this race.
 
-Agreed. Please see the latest patch.
+For the ioctl case yes. But:
 
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+1. We already look for blk_queue_empty there.
+2. We have just to deal properly with the queue plugging there
+to close it up.
+3. I will just add spin locking on ide_lock to maintain that no two
+ioctl can overlapp at all.
+
+OK?
+
+

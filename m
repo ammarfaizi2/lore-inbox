@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135548AbREHWmH>; Tue, 8 May 2001 18:42:07 -0400
+	id <S135575AbREHWy7>; Tue, 8 May 2001 18:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135575AbREHWl5>; Tue, 8 May 2001 18:41:57 -0400
-Received: from mta1.snfc21.pbi.net ([206.13.28.122]:971 "EHLO
-	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S135548AbREHWlo>; Tue, 8 May 2001 18:41:44 -0400
-Date: Tue, 08 May 2001 15:38:09 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_pool_free from IRQ
-To: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pete Zaitcev <zaitcev@redhat.com>, johannes@erdfelt.com,
-        rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Message-id: <050701c0d80f$8f876ca0$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu>
- <E14xFD5-0000hh-00@the-village.bc.nu>
- <15096.27479.707679.544048@pizda.ninka.net>
-X-Priority: 3
+	id <S135589AbREHWyt>; Tue, 8 May 2001 18:54:49 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3076 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135575AbREHWyd>; Tue, 8 May 2001 18:54:33 -0400
+Date: Tue, 8 May 2001 18:16:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105072038280.8237-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105081813160.9717-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete's patch to pci_pool_free() is fine with me, and I'd be glad
-to see that bit of pci interface cleaned up.  Any changes needed
-other than the pci.txt doc update?
-
-- Dave
-
------ Original Message -----
-From: "David S. Miller" <davem@redhat.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>; "Pete Zaitcev" <zaitcev@redhat.com>;
-<david-b@pacbell.net>; <johannes@erdfelt.com>; <rmk@arm.linux.org.uk>;
-<linux-kernel@vger.kernel.org>
-Sent: Tuesday, May 08, 2001 2:55 PM
-Subject: Re: pci_pool_free from IRQ
 
 
->
-> Alan Cox writes:
->  > I suspect we should fix the documentation (and if need be the code) to reflect
->  > the fact that you have to be completely out of your tree to handle device
->  > removal in the irq handler
->
-> Agreed.
->
-> Later,
-> David S. Miller
-> davem@redhat.com
+On Mon, 7 May 2001, Linus Torvalds wrote:
+
+> 
+> On Mon, 7 May 2001, Marcelo Tosatti wrote:
+> > 
+> > So what about moving the check for a dead swap cache page from
+> > swap_writepage() to page_launder() (+ PageSwapCache() check) just before
+> > the "if (!launder_loop)" ? 
+> > 
+> > Yes, its ugly special casing. Any other suggestion ? 
+> 
+> My most favourite approach by far is to just remove the magic for
+> different writepage's altogether, and just unconditionally do a
+> writepage. But passing in enough information so that the writepage can
+> come to the right decision.
+> 
+> So take the old code, and remove the code that does
+> 
+> 	if (!launder_loop) {
+> 		.. move to head ..
+> 		continue;
+> 	}
+> 	writepage(page);
+> 
+> and instead make it do something like
+> 
+> 	if (writepage(page, launderloop)) {
+> 		.. not able to write, move to head ..
+> 		continue;
+> 	}
+> 
+> where "launderloop" is passed in to the writepage function as a priority.
+
+There are two issues which I missed yesterday: we have to get a reference
+on the page, mark it clean, drop the locks and then call writepage(). If
+the writepage() fails, we'll have to set_page_dirty(page).
+
+I guess this is too much overhead for the common case, don't you? 
 

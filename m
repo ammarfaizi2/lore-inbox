@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317746AbSGKCnB>; Wed, 10 Jul 2002 22:43:01 -0400
+	id <S317747AbSGKCoF>; Wed, 10 Jul 2002 22:44:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317747AbSGKCnB>; Wed, 10 Jul 2002 22:43:01 -0400
-Received: from [202.135.142.194] ([202.135.142.194]:64264 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S317746AbSGKCnA>; Wed, 10 Jul 2002 22:43:00 -0400
-Date: Thu, 11 Jul 2002 12:48:30 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit
-Message-Id: <20020711124830.26e2388b.rusty@rustcorp.com.au>
-In-Reply-To: <200207041724.KAA06758@adam.yggdrasil.com>
-References: <200207041724.KAA06758@adam.yggdrasil.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317748AbSGKCoE>; Wed, 10 Jul 2002 22:44:04 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:2156 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S317747AbSGKCoC>; Wed, 10 Jul 2002 22:44:02 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F94@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'CaT'" <cat@zip.com.au>, Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux <linux-kernel@vger.kernel.org>
+Subject: RE: HZ, preferably as small as possible
+Date: Wed, 10 Jul 2002 19:46:41 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jul 2002 10:24:11 -0700
-"Adam J. Richter" <adam@yggdrasil.com> wrote:
-> 	The system that I am composing this email on has 1.1MB of
-> modules and does not have sound drivers loaded.  It has ipv4 and a
-> number of other facilities modularized that are not modules in the
-> stock kernels.  Every system that I use has a configuration like this.
-> With a lower per-module overhead, I would be more inclined to try to
-> modularize other facilities and break up some larger modules into
-> smaller ones, in the case where there is substantial code that is not
-> needed for some configurations.
+> From: CaT [mailto:cat@zip.com.au] 
+> On Wed, Jul 10, 2002 at 05:42:51PM -0400, Benjamin LaHaise wrote:
+> > On Wed, Jul 10, 2002 at 02:38:32PM -0700, Andrew Morton wrote:
+> > > OK, I'll grant that.  Why is this useful?
+> > 
+> > Think video playback, where you want to queue the frame to 
+> be played as 
+> > close to the correct 1/60s time as possible.  With HZ=100, 
+> the code will 
+> 
+> Or 1/50 (think PAL), no? (Of course HZ=100 would be sweet for that. ;)
 
-For God's sake, WHY?  Look at what you're doing to your TLB (and if you
-made IPv4 a removable module, I'll bet real money you have a bug unless
-you are *very* *very* clever).
+I don't know if I should mention this, but...
 
-Modules are not "free".  Sorry.
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Win2k's default timer tick is 10ms (i.e. 100HZ) but it will go as low as 1ms
+(1000HZ) if people request timers with that level of granularity. On the
+fly.
+
+So, a changing tick *can* be done. If Linux does the same thing, seems like
+everyone is happy. What are the obstacles to this for Linux? If code is
+based on the assumption of a constant timer tick, I humbly assert that the
+code is broken.
+
+Regards -- Andy

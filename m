@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262760AbSIPRz7>; Mon, 16 Sep 2002 13:55:59 -0400
+	id <S262770AbSIPSLs>; Mon, 16 Sep 2002 14:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262766AbSIPRz7>; Mon, 16 Sep 2002 13:55:59 -0400
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:8623 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id <S262760AbSIPRz7>;
-	Mon, 16 Sep 2002 13:55:59 -0400
-Message-ID: <3D861C51.4D7AF687@isg.de>
-Date: Mon, 16 Sep 2002 20:00:49 +0200
-From: Peter Niemayer <niemayer@isg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, aaronl@vitelus.com, reiser@namesys.com
-Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
-Content-Type: text/plain; charset=us-ascii
+	id <S262772AbSIPSLs>; Mon, 16 Sep 2002 14:11:48 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:25009 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262770AbSIPSLs>; Mon, 16 Sep 2002 14:11:48 -0400
+Subject: Re: BUG: sym53c8xx_2 and highmem_io
+From: Todd Inglett <tinglett@vnet.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Gerard Roudier <groudier@free.fr>
+In-Reply-To: <1032198591.18300.22.camel@q.rchland.ibm.com>
+References: <1032198591.18300.22.camel@q.rchland.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 16 Sep 2002 13:16:42 -0500
+Message-Id: <1032200203.18299.27.camel@q.rchland.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+On Mon, 2002-09-16 at 12:49, Todd Inglett wrote:
 
-> Sometimes it is best to confess that one does not have the expertise 
-> appropriate for answering a question. Someone on our mailing list 
-> studied it carefully though. Perhaps they can comment. 
+> However, sym53c8xx_2 fails because after calling scsi_register() in its
+> attach it blindly slams highmem_io on (in sym_glue.c).  Is this
+> correct?  It seems to me that it should just leave it alone since
+> scsi_register already handled that.
 
-You can find all about the diploma thesis Constantin Loizides
-wrote on that topic under
+It's interesting that in 2.5 this assignment is still there, but the
+driver works.  However, scsi_merge.c is very different.  I won't pretend
+to know the scsi layer that well :).
 
- http://www.informatik.uni-frankfurt.de/~loizides/reiserfs/
+Maybe the real fix is still somewhere else....
 
-Alas, while fragmentation effects are measurable, their real-world-impact
-is so heavily masked by even the slightest differences in the VFS of
-different Linux kernel versions and the usage pattern of applications
-that it is hard to make a definitive general statement.
+-todd
 
-Regards,
-
-Peter Niemayer

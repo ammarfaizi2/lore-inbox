@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264755AbTFAWsj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 18:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbTFAWsj
+	id S264751AbTFAWzH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 18:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbTFAWzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 18:48:39 -0400
-Received: from dp.samba.org ([66.70.73.150]:5087 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264755AbTFAWsi (ORCPT
+	Sun, 1 Jun 2003 18:55:07 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:51644 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264751AbTFAWzA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 18:48:38 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16090.34236.144618.434700@argo.ozlabs.ibm.com>
-Date: Mon, 2 Jun 2003 09:01:16 +1000
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about style when converting from K&R to ANSI C.
-In-Reply-To: <1054479734.19552.51.camel@spc>
-References: <1054446976.19557.23.camel@spc>
-	<20030601132626.GA3012@work.bitmover.com>
-	<20030601134942.GA10750@alpha.home.local>
-	<20030601140602.GA3641@work.bitmover.com>
-	<1054479734.19552.51.camel@spc>
-X-Mailer: VM 7.15 under Emacs 21.3.2
+	Sun, 1 Jun 2003 18:55:00 -0400
+Date: Mon, 2 Jun 2003 01:08:20 +0200 (MEST)
+Message-Id: <200306012308.h51N8K6j001404@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: brian@interlinx.bc.ca
+Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole writes:
+On 01 Jun 2003 12:26:56 -0400, Brian J. Murrell wrote:
+>>    So what vendor/model CPU is used in the failure case?
+>
+>VMware 2.0.4.
 
-> Here is a snippet of a patch from arch/ppc/xmon/ppc-opc.c:
+Details, please. What does `cat /proc/cpuinfo` say?
 
-Given that that file is a direct lift from binutils, I would rather
-update it with the latest version from binutils than waste time on
-reformatting, if it really bothers you.
+My intention here is that we should be able to detect
+this apparently broken "CPU" by its vendor/model and
+clear cpu_has_apic for it.
 
-My opinion is that changing code that works and that doesn't need
-attention is a waste of time.  If you're working on some code (or even
-if you are just trying to understand it and you want to make it clearer),
-then fine, reformat/re-indent/fix argument declarations/whatever, but
-if you're not, find something more productive to do.
+Alternatively the no_apic label in detect_init_APIC()
+could clear cpu_has_apic.
 
-Paul.
+>> 3. What is the exact failure? Hang or crash?
+>
+>Normal boot until here:
+>
+>Using local APIC timer interrupts.
+>calibrating APIC timer ...
+>..... CPU clock speed is 1658.7651 MHz.
+>..... host bus clock speed is 0.0000 MHz.
+>cpu: 0, clocks: 0, slice: 0
+
+Hmm, obviously a 2.4 kernel.
+Looks like a hang in setup_APIC_timer(). My guess is that
+the do loops in that procedure don't work if clocks==0
+or the local APIC timer registers are frozen.
+
+/Mikael

@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUFCEmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUFCEzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265500AbUFCEmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 00:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbUFCEmT
+	id S265502AbUFCEzb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 00:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUFCEza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 00:42:19 -0400
-Received: from dialpool1-3.dial.tijd.com ([62.112.10.3]:10880 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S265500AbUFCEmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 00:42:16 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [2.6.6] ICH5 SATA problems
-Date: Thu, 3 Jun 2004 06:42:16 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406030642.16890.lkml@kcore.org>
+	Thu, 3 Jun 2004 00:55:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:19387 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265502AbUFCEz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 00:55:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Calvin Spealman <calvin@ironfroggy.com>
+Subject: Re: Possible bug: ext3 misreporting filesystem usage
+Date: Thu, 03 Jun 2004 00:49:40 +0000
+Message-ID: <1707149.1mCcARGuB2@ironfroggy.com>
+References: <1275157.LnyMtzroWT@ironfroggy.com> <c9l0me$cf1$1@news.cistron.nl>
+Reply-To: calvin@ironfroggy.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe-069-132-046-251.carolina.rr.com
+User-Agent: KNode/0.7.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+Miquel van Smoorenburg wrote:
 
-A friend of mine is trying to get both SATA and PATA working together on his Siemens box. The bios has a bunch of settings
-concering sata/pata, being:
-- SATA Standard (which is bootable by the bios). When this is selected, another setting is available
-	* Sata 1/2 only
-	* sata 1/2 + pata 3/4
-	* pata 1/2 + sata 1/2
+> In article <1275157.LnyMtzroWT@ironfroggy.com>,
+> Calvin Spealman  <calvin@ironfroggy.com> wrote:
+>>I've been getting a possible bug after running my system a few weeks. The
+>>ext3 partition's usage is being misreported. Right now, df -h says ive got
+>>no space left, but according to du /, I'm only using 17 gigs of my 40 gig
+>>drive. Restarting fixes the problem, so I'm thinking it might be some
+>>mis-handled variable in memory, not something on the disc itself? And,
+>>yes, I do know that du is right, not df, because I keep good track of my
+>>disc usage. This is pretty serious, it killed a 40+ hour process that i'll
+>>have to start over again from the beginning!
+> 
+> There's a process holding on to a 23 GB logfile that has been
+> deleted. Try "ls -l /proc/*/fd/* 2>&1 | grep deleted" . Kill the
+> process and you'll have your space back.
+> 
+> Mike.
 
-Unfortunately, linux doesn't seem to see this controller then. lspci output:
+All that shows is a couple things from konq's http cache, nothing adding
+nearly to the 23 gigs.
 
-0000:00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
-0000:00:01.0 PCI bridge: Intel Corp. 82865G/PE/P PCI to AGP Controller (rev 02)
-0000:00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) Ultra ATA 100 Storage Controller (rev 02)
-0000:00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti 200] (rev a3)
-0000:03:07.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 5598/6326 (rev 0b)
-0000:03:08.0 Ethernet controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) integrated LAN Controller (rev 02)
-0000:03:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-0000:03:09.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+If i delete some files, i have more space, but then the used space steadily
+increases until i have nothing left again. i am running a 2.6.6_rc1 kernel.
 
-Another option is 'OS Only' for SATA, after which Linux is able to see the controller:
-
-0000:00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
-0000:00:01.0 PCI bridge: Intel Corp. 82865G/PE/P PCI to AGP Controller (rev 02)
-0000:00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 (rev 02)
-0000:00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #2 (rev 02)
-0000:00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
-0000:00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4 (rev 02)
-0000:00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI Bridge (rev c2)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 02)
-0000:00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) Ultra ATA 100 Storage Controller (rev 02)
-==> 0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage Controller (rev 02) <==
-0000:00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti 200] (rev a3)
-0000:03:07.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 5598/6326 (rev 0b)
-0000:03:08.0 Ethernet controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) integrated LAN Controller (rev 02)
-0000:03:09.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-0000:03:09.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
-
-Is there a way to get both to work? Or will the box boot with the 'OS Only' selection? and only SATA disks in it?
-The standard IDE controller is needed for some ATAPI devices.
-
-Thanks.
-
--- 
-"Speed is subsittute fo accurancy."

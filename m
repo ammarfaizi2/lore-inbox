@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbTHYXAv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 19:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTHYXAu
+	id S262394AbTHYW6f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbTHYW6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 19:00:50 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:40977
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262396AbTHYW6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:58:51 -0400
-Date: Mon, 25 Aug 2003 15:58:47 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org
-Subject: Re: cache limit
-Message-ID: <20030825225847.GA16831@matchmail.com>
-Mail-Followup-To: Takao Indoh <indou.takao@soft.fujitsu.com>,
-	linux-kernel@vger.kernel.org
-References: <20030821234709.GD1040@matchmail.com> <AC36AB3038685indou.takao@soft.fujitsu.com> <20030825041117.GN4306@holomorphy.com>
+	Mon, 25 Aug 2003 18:58:34 -0400
+Received: from zok.sgi.com ([204.94.215.101]:16621 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262394AbTHYW6X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 18:58:23 -0400
+Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
+From: Steve Lord <lord@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Barry K. Nathan" <barryn@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <20030825124543.413187a5.akpm@osdl.org>
+References: <20030824171318.4acf1182.akpm@osdl.org>
+	 <20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
+	 <20030825124543.413187a5.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1061852050.25892.195.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030825041117.GN4306@holomorphy.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 25 Aug 2003 17:54:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 24, 2003 at 09:11:17PM -0700, William Lee Irwin III wrote:
-> On Thu, Aug 21, 2003 at 09:49:45AM +0900, Takao Indoh wrote:
-> >>> Actually, in the system I constructed(RedHat AdvancedServer2.1, kernel
-> >>> 2.4.9based), the problem occurred due to pagecache. The system's maximum
-> >>> response time had to be less than 4 seconds, but owing to the pagecache,
-> >>> response time get uneven, and maximum time became 10 seconds.
+On Mon, 2003-08-25 at 14:45, Andrew Morton wrote:
+> "Barry K. Nathan" <barryn@pobox.com> wrote:
+> >
+> > I'm really short on time right now, so this bug report might be vague,
+> > but it's important enough for me to try:
+> > 
+> > I have an NFS fileserver (running 2.6.0-test4-mm1) exporting stuff from
+> > three filesystems: ReiserFS, ext3, and XFS. I'm seeing no problems with
+> > my ReiserFS and ext3 filesystems. XFS is a different story.
+> > 
+> > My client machine is running 2.4.21bkn1 (my own kernel, not released to
+> > the public; the differences from vanilla 2.4.21 are XFS and Win4Lin). 
+> > 
+> > If I use my client machine to sign RPM packages (rpm --addsign ...),
+> > using rpm-4.2-16mdk, and the packages are on the XFS partition on the
+> > NFS server, about half of the packages are truncated by a couple hundred
+> > bytes afterwards (and GPG sig verification fails on those packages).
+> > 
+> > It's always the same packages that get truncated by the same amounts of
+> > data. This is 100% reproducible. It doesn't matter whether I compile the
+> > kernel with gcc 2.95.3 or 3.1.1. If I perform the operation on my non-XFS
+> > filesystem the problem doesn't happen. If I run 2.6.0-test4-bk2 instead of
+> > test4-mm1 on the NFS server, the problem goes away. (I have never run
+> > any previous -mm kernels on this server.)
+> > 
+> > Hmmm... If I sign the packages on the NFS server itself, even with
+> > test4-mm1 on the XFS partition, I can't reproduce the problem.
+> > *However*, that's a different version of RPM (4.0.4).
+> > 
+> > Is this enough information to help find the cause of the bug? If not,
+> > it might be several days (if I'm unlucky, maybe even a week or two)
+> > before I have time to do anything more...
+> > 
 > 
-> On Thu, 21 Aug 2003 16:47:09 -0700, Mike Fedyk wrote:
-> >> Please try the 2.4.18 based redhat kernel, or the 2.4-aa kernel.
+> -mm kernels have O_DIRECT-for-NFS patches in them.  And some versions of
+> RPM use O_DIRECT.  Whether O_DIRECT makes any difference at the server end
+> I do not know, but it would be useful if you could repeat the test on stock
+> 2.6.0-test4.
 > 
-> On Mon, Aug 25, 2003 at 11:45:58AM +0900, Takao Indoh wrote:
-> > I need a tuning parameter which can control pagecache
-> > like /proc/sys/vm/pagecache, which RedHat Linux has.
-> > The latest 2.4 or 2.5 standard kernel does not have such a parameter.
-> > 2.4.18 kernel or 2.4-aa kernel has a alternative method?
+> Alternatively, run
 > 
+> 	export LD_ASSUME_KERNEL=2.2.5
+> 
+> before running RPM.  I think that should tell RPM to not try O_DIRECT.
 
-Takao,
+I doubt the NFS client is O_DIRECT capable here, I have run some rpm
+builds over nfs to 2.6.0-test4 and an xfs filesystem, everything is
+behaving so far. I will try mm1 tomorrow.
 
-I doubt that there will be that option in the 2.4 stable series.  I think
-you are trying to fix the problem without understanding the entire picture.
-If there is too much pagechache, then the kernel developers need to know
-about your workload so that they can fix it.  But you have to try -aa first
-to see if it's already fixed.
+Do we know if this NFS V3 or V2 by the way?
 
-> This is moderately misguided; essentially the only way userspace can
-> utilize RAM at all is via the pagecache. It's not useful to limit this;
-> you probably need inode-highmem or some such nonsense.
+Steve
 
-Exactly.  Every program you have opened, and all of its libraries will show
-up as pagecache memory also, so seeing a large pagecache in and of itself
-may not be a problem.
+-- 
 
-Let's get past the tuning paramenter you want in /proc, and tell us more
-about what you are doing that is causing this problem to be shown.
-
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

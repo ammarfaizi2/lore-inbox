@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284235AbRLPDmG>; Sat, 15 Dec 2001 22:42:06 -0500
+	id <S284240AbRLPEBA>; Sat, 15 Dec 2001 23:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284237AbRLPDl5>; Sat, 15 Dec 2001 22:41:57 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:6016 "HELO fargo")
-	by vger.kernel.org with SMTP id <S284235AbRLPDlj> convert rfc822-to-8bit;
-	Sat, 15 Dec 2001 22:41:39 -0500
-From: "David Gomez" <davidge@jazzfree.com>
-Date: Sun, 16 Dec 2001 04:40:58 +0100 (CET)
-X-X-Sender: <huma@fargo>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Copying to loop device hangs up everything
-Message-ID: <Pine.LNX.4.33.0112160421170.372-100000@fargo>
+	id <S284242AbRLPEAv>; Sat, 15 Dec 2001 23:00:51 -0500
+Received: from ns.suse.de ([213.95.15.193]:23059 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284240AbRLPEAg>;
+	Sat, 15 Dec 2001 23:00:36 -0500
+Date: Sun, 16 Dec 2001 05:00:31 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: David Gomez <davidge@jazzfree.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Copying to loop device hangs up everything
+In-Reply-To: <Pine.LNX.4.33.0112160421170.372-100000@fargo>
+Message-ID: <Pine.LNX.4.33.0112160458500.15956-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 16 Dec 2001, David Gomez wrote:
 
-Hi,
+> I'm using kernel 2.4.17-rc1 and found what i think is a bug, maybe related
+> to the loop device. This is the situation:
 
-I'm using kernel 2.4.17-rc1 and found what i think is a bug, maybe related
-to the loop device. This is the situation:
+Can you repeat it with this applied ?
+ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc1aa1/00_loop-deadlock-1
 
-I've created and ext2 image (around 550Mb), and mounted it as loopback.
-Then i've tried to copy some files from another ext2 image also mounted in
-another loop device, with a 'cp -a'. After some data has been copied, I/O
-stopped but the system was still usable, loop, and cp process were in D
-state. Loop devices couldn't be umounted, so i rebooted the computer,
-e2fsck the images because of the reboot, and tried again to copy the data,
-this time successfully.
-Next, i had some more data in my root partition to add to the ext2 images,
-so i did another cp -a of some directory (around 200mb of data) to the
-ext2 image mounted as loop. This time i got a 'full hang' ;), i couldn't
-login, a alt+sysrq+t shows that cp and loop were again in D state, and
-syncing/umounting with the magic key didn't work at all. I can reproduce
-this hang always, copying the data to the mounted loop device.
+regards,
+Dave.
 
-All the data is in the same disk (hda1), which is an ext2 partition.
-
-Any ideas about what is causing this ?
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

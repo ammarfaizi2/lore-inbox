@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271191AbTHLSkj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 14:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271212AbTHLSkj
+	id S271820AbTHLSjM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 14:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHLSjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 14:40:39 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:21253 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S271191AbTHLSk3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 14:40:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Brandon Stewart <rbrandonstewart@yahoo.com>,
-       linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
-Date: Tue, 12 Aug 2003 21:40:12 +0300
-X-Mailer: KMail [version 1.4]
-References: <3F38FE5B.1030102@yahoo.com>
-In-Reply-To: <3F38FE5B.1030102@yahoo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308122140.13098.insecure@mail.od.ua>
+	Tue, 12 Aug 2003 14:39:11 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38052 "EHLO
+	pd6mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S271820AbTHLSjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 14:39:05 -0400
+Date: Tue, 12 Aug 2003 11:36:11 -0700
+From: Ken Savage <kens1835@shaw.ca>
+Subject: High CPU load with kswapd and heavy disk I/O
+To: linux kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <200308121136.11979.kens1835@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 August 2003 17:48, Brandon Stewart wrote:
-> Apparently, there is an issue with glibc on versions less than 2.3.1-15
-> (and maybe others), where it mistakenly treats CPUs as full i686
-> compliant when they only execute a subset of the i686 instructions. For
-> example, the VIA C3 supports pretty much everything i686 except CMOV,
-> yet the broken versions of glibc will detect it as fully i686 compliant.
->
->  From someone who emailed me privately, this apparently affects K6-III
-> as well. Possibly other Cyrix or AMD CPUs are affected, though I don't
-> have a complete list.
->
-> The problem is that Mandrake 9.1 ships with a broken glibc. So you would
-> expect that the incorrectly detected CPUs just wouldn't work. But
-> apparently, Mandrake added a CMOV instruction emulator patch to their
-> kernel, both the one that ships precompiled and the source rpm.
->
-> So people will find that compiling the Mandrake version works fine, yet
-> any kernel downloaded from kernel.org, 2.6 or other, will not work at
-> all. The symptom is that booting the shiny new kernel will hang after
-> "Freeing unused kernel memory". Doing a magic sysreq will reveal that
-> /sbin/init is executing do_invalid_op(). You can keep pressing the magic
-> sysreq stack dump key, and you will keep getting a new stack trace.
-> Caps-lock works, and CTRL-ALT-DEL will reboot the machine.
+Short version:
+----------------
+kernels 2.4.17 --> 2.4.21
+Dual Athlon SMP system
+4GB RAM, 2GB swap
+3ware RAID, filled with millions of files across thousands of directories.
+reiserfs 3.6
 
-Hm. I was right. ;)
+The following command is guaranteed to lock out the box by activating
+kswapd to >95% CPU, blocking out pings, everything.
 
-> There are three possible workarounds:
-> 1) Upgrade glibc to a working version. I haven't done this myself, so I
-> don't know if the bug has been fixed yet. But it would be the best
-> solution. 2) Remove i686 libraries from glibc. This can be done by 'mv
-> /lib/i686 /lib/i686.invalid'. This is what I did, and it works. While some
-> performance is lost, it's not noticeable, especially given that the
-> stock Mandrake kernel is i386 compatible, and so has limited optimization.
-> 3) Reapply the CMOV emulation patch to your downloaded kernel. Not
-> recommended since it turns one CPU cycle into 400.
+    find /RAID/data/ -type f -mtime +180 | xargs rm
 
-4) Never never never never NEVER compile for 586+
+Details:
+----------
+Applying the rmap patch seems to prevent kswapd from hogging the CPU,
+but causes it to freeze up for some other reason.  (The server is remote,
+so I can't view the console.)  Likewise 2.6.0-test* causes freezeups.
+Mind you, the server is under a fair bit of CPU and disk load -- hundreds
+of processes/threads all actively running.  I suspect something in rmap
+has made its way into 2.6 and our usage pattern is triggering the same
+fault in both places.
 
-You lost several days debugging this. It's $days*24*60*60=$days*86400 seconds
-~= $days * 86400000000000 CPU cycles. A bit high price for using optimized
-binaries, eh?
+It appears as though the system is unable to efficiently clean up disk
+buffer memory when called on to do so.  In the Documentation/, there
+is mention of a buffermem sysctl, but that's nowhere to be found.
+It's obviously been removed/replaced...  Is there any way to limit the
+amount of buffer memory used by the system, that way if/when kswapd
+needs to reclaim it, there's very little work for it to do?
 
-IMHO:
-Speed optimizations make sense in heavy CPU bound tasks like bzip2.
-CPU-heavy part of code is usually small, can be hand-optimized.
-The remaining 99,999% of code is best optimized for size.
-At least you will save on pagein and icache footprint.
+Admittedly, that's just masking the problem, as opposed to solving it.
+Any idea why kswapd is having such a tough go??  Known solutions
+for this problem?
 
-After you happily compiled a piece of code with all bells and
-whistles for your new shiny 986+ processor, do take a look at
-generated assembly. There might be surprizes.
+TIA,
 
-BTW, will anyone bet that gcc generates better code with cmov's
-than without? ;)
---
-vda
+Ken
+

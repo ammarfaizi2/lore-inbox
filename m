@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263146AbUJ2I3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbUJ2Ihk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbUJ2I3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 04:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUJ2I3U
+	id S263150AbUJ2Ihk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 04:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUJ2Ihk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 04:29:20 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:14503
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S263146AbUJ2I3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 04:29:16 -0400
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-In-Reply-To: <20041029080247.GC30400@elte.hu>
-References: <1099008264.4199.4.camel@krustophenia.net>
-	 <200410290057.i9T0v5I8011561@localhost.localdomain>
-	 <20041029080247.GC30400@elte.hu>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 29 Oct 2004 10:21:03 +0200
-Message-Id: <1099038063.22387.534.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 04:37:40 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:22656 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263150AbUJ2Ihf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 04:37:35 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] v850: Add definitions for memcpy_fromio and memcpy_toio
+Cc: linux-kernel@vger.kernel.org
+From: Miles Bader <miles@gnu.org>
+Message-Id: <20041029081546.0C21F4D9@mctpc71>
+Date: Fri, 29 Oct 2004 17:15:46 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 10:02 +0200, Ingo Molnar wrote:
-> there are multiple possibilities of how this ~700 usecs delay occured:
-> 
->  - the kernel still has a wakeup bug. But this should be detected by the
->    tracer which measures the time between when the task hits the
->    runqueue and the task gets to execute on the CPU. Also, if there is a
->    critical section in the kernel that is 700 usecs long it would be
->    detected by _another_, independent timing/tracing mechanism that
->    measures critical sections. The likelyhood of both the scheduler
->    _and_ two independent kernel-tracers being buggy in the same way is
->    quite significantly low. (not to mention the user-space amlat tool
->    which seems to agree with the kernel instrumentation.)
-> 
+Signed-off-by: Miles Bader <miles@gnu.org>
 
-The sound subsystem uses a lot of sleep_on() variants. We know that they
-are racy. Might this be related ?
+ include/asm-v850/io.h |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-tglx
-
-
+diff -ruN -X../cludes linux-2.6.9-uc0/include/asm-v850/io.h linux-2.6.9-uc0-v850-20041028/include/asm-v850/io.h
+--- linux-2.6.9-uc0/include/asm-v850/io.h	2004-02-24 18:22:54 +0900
++++ linux-2.6.9-uc0-v850-20041028/include/asm-v850/io.h	2004-10-28 13:32:47 +0900
+@@ -1,8 +1,8 @@
+ /*
+  * include/asm-v850/io.h -- Misc I/O operations
+  *
+- *  Copyright (C) 2001,02,03  NEC Electronics Corporation
+- *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
++ *  Copyright (C) 2001,02,03,04  NEC Electronics Corporation
++ *  Copyright (C) 2001,02,03,04  Miles Bader <miles@gnu.org>
+  *
+  * This file is subject to the terms and conditions of the GNU General
+  * Public License.  See the file COPYING in the main directory of this
+@@ -114,4 +114,7 @@
+ #define phys_to_virt(addr)	((void *)__phys_to_virt (addr))
+ #define virt_to_phys(addr)	((unsigned long)__virt_to_phys (addr))
+ 
++#define memcpy_fromio(dst, src, len) memcpy (dst, (void *)src, len)
++#define memcpy_toio(dst, src, len) memcpy ((void *)dst, src, len)
++
+ #endif /* __V850_IO_H__ */

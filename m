@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264539AbUASLbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUASLbN
+	id S264549AbUASLXn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUASLXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:31:13 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:27066 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264539AbUASLbL
+	Mon, 19 Jan 2004 06:23:43 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:17036 "EHLO balu.sysgo.de")
+	by vger.kernel.org with ESMTP id S264549AbUASLXl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:31:11 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Giuliano Pochini" <pochini@shiny.it>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: License question
-Date: Mon, 19 Jan 2004 03:31:02 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEJCJKAA.davids@webmaster.com>
-MIME-Version: 1.0
+	Mon, 19 Jan 2004 06:23:41 -0500
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2055
-In-Reply-To: <XFMail.20040119122403.pochini@shiny.it>
-Importance: Normal
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?J=FCrgen=20Urban?= <jur@sysgo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Lost memory, total memory size is not correct
+Date: Mon, 19 Jan 2004 12:22:23 +0100
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401191222.23449.jur@sysgo.com>
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.21.0.1; VDF: 6.21.0.30; host: balu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> On 17-Jan-2004 David Schwartz wrote:
-> >> > - Redistributions of source code must retain the above copyright
-> >> > notice, this list of conditions and the following disclaimers.
+I tried to get the amount of total physical memory. I looked at /proc/meminfo 
+and found this line (2.4.18):
 
-> > Sorry, that's an "additional restriction" not permitted
-> > under the GPL.
+MemTotal:        30844 kB
 
-> These are in fact the points I wished your opinion about...
-> Actually these are requirements (like others said), not
-> use restrictions.
+But this is not correct the system have 32768 kB Memory. I looked at kernel 
+sources and I found the variable max_mapnr. Can I use it to detect the 
+correct memory size? It seems that it stores the maximum number of pages 
+usable. So I can convert it with macro K() in linux/fs/proc/proc_misc.c to a 
+value in kB.
 
-	There is no difference. Every requirement can be rephrased as an equivalent
-restriction. The requirement that you maintain the terms is the same as a
-restriction against removing them.
+But there are 1924 kB not available (32768 kB - 30844 kB). On system boot I 
+get the following message:
+Memory: 30780k available (960k kernel code, 392k data, 64k init, 0k highmem)
+So I calculated:
 
-> btw, IANAL and IP rights are a minefield.
+1924 kB
+-960 kB Kernel
+- 392 kB Data
+- 64 kB Init
+--------------------
+508 kB
 
-	Definitely.
+There are 508 kB lost (?) memory. It seems the boot allocator is reserving 
+this memory, but linux doesn't tell for what. I want to know for what the 508 
+kB are. Is the kernel stack included in the 508 kB or in the 30844 kB. I 
+don't think so, because the value 30844 kB isn't changing after boot. And 
+every process should allocate 8 kB kernel stack.
 
-> Since their code is C++ I already rewote everything in C, but it
-> also contains the binary firmwares which I can't rewrite. That's
-> why I asked you about the license.
+Best Regards
+Jürgen Urban
 
-	Then you have another problem. You can't place something under the GPL if
-you don't have the source code to it. How can you offer the source code to
-others if you don't have it? (Though my opinion seems to differ from the
-mainstream on this point. It is my opinion that you must possess the source
-code to any object code you wish to GPL.)
+-- 
+Jürgen Urban <jur@sysgo.com>
+Software Engineer
 
-> It's likely Echoaudio will change the license in the next release
-> to a dual GPL/custom license, so this will be no more an issue.
+SYSGO Real-Time Solutions AG
+Am Pfaffenstein 14
+55270 Klein-Winternheim, Germany
 
-	Glad to hear that.
-
-> Thanks for you answers.
-
-	Of course, you shouldn't rely upon them.
-
-	DS
-
+Telefon: +49-6136-9948-0
+FAX: +49-6136-9948-10
+www.sysgo.com
 

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266507AbSLSVtH>; Thu, 19 Dec 2002 16:49:07 -0500
+	id <S267528AbSLSVwb>; Thu, 19 Dec 2002 16:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbSLSVtH>; Thu, 19 Dec 2002 16:49:07 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:6789 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S266507AbSLSVtE>; Thu, 19 Dec 2002 16:49:04 -0500
-Message-ID: <3E02429F.4080300@kegel.com>
-Date: Thu, 19 Dec 2002 14:05:19 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
+	id <S267520AbSLSVwb>; Thu, 19 Dec 2002 16:52:31 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:12993 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267528AbSLSVw3>;
+	Thu, 19 Dec 2002 16:52:29 -0500
+Date: Thu, 19 Dec 2002 13:55:20 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
 To: Eli Carter <eli.carter@inet.com>
-CC: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Dedicated kernel bug database
-References: <200212192008.gBJK8g7P002563@darkstar.example.net> <3E022E56.30509@inet.com>
-In-Reply-To: <3E022E56.30509@inet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3E0240CA.4000502@inet.com>
+Message-ID: <Pine.LNX.4.33L2.0212191354490.30841-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> But I see that starting from scratch is just the way you work: 
-> http://grabjohn.com/question.php?q=6
+On Thu, 19 Dec 2002, Eli Carter wrote:
 
-Ah, he must have sipped the same kool-aid as djb :-)
+| John Bradford wrote:
+| >>| > I'm not trying to discourage you - just raising a potential gotcha.
+| >>|
+| >>| Overall, though, would you rather be presented with a list of
+| >>| categories, or a list of people and what parts of the code they
+| >>| maintain.  Personally, I think that a list of people is more
+| >>| intuitive, rather than an abstract list of categories, but I could be
+| >>| wrong.
+| >>
+| >>Do we have anyone targeted for interrupt routing problems (PIC, IO APIC,
+| >>ACPI, etc.)?
+| >
+| >
+| > No.  I nominate Alan :-).
+| >
+| > OK, I see your point, but no bug system will ever be perfect.  Does
+| > that mean there is no point in trying to make a better one?  If
+| > everybody really thinks it's a waste of time, I won't bother.  It just
+| > seemed to me that we need something less generic than Bugzilla.  Maybe
+| > I am wrong, I don't know.
+|
+| Don't get discouraged... Our flamethrowers are set to 'stun'. ;)
+|
+| Bug tracking can get much better (I _hope_!), but I expect it to take
+| some beating on the problem.  Keep beating on it.
 
-That works only as long as you're incredibly talented,
-and don't mind being a loner.
-- Dan
+I agree.  I wasn't trying to discourage you.  There's much room for
+improvement IMO.
 
 -- 
-Dan Kegel
-Linux User #78045
-http://www.kegel.com
+~Randy
 

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265843AbTAJRaQ>; Fri, 10 Jan 2003 12:30:16 -0500
+	id <S265851AbTAJRcI>; Fri, 10 Jan 2003 12:32:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbTAJRaQ>; Fri, 10 Jan 2003 12:30:16 -0500
-Received: from mail2.scram.de ([195.226.127.112]:60170 "EHLO mail2.scram.de")
-	by vger.kernel.org with ESMTP id <S265843AbTAJRaP>;
-	Fri, 10 Jan 2003 12:30:15 -0500
-Date: Fri, 10 Jan 2003 18:37:46 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
+	id <S265854AbTAJRcH>; Fri, 10 Jan 2003 12:32:07 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:28954 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S265851AbTAJRcH>;
+	Fri, 10 Jan 2003 12:32:07 -0500
+Date: Fri, 10 Jan 2003 18:40:51 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
+Cc: John Bradford <john@grabjohn.com>, ludovic.drolez@freealter.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <1042219147.31848.65.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0301101833220.1492-100000@gfrw1044.bocc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: BLKBSZSET still not working on 2.4.18 ?
+Message-ID: <20030110174051.GB19942@win.tue.nl>
+References: <200301101708.h0AH8nUS013550@darkstar.example.net> <1042222490.32175.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042222490.32175.5.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Jan 2003, Alan Cox wrote:
+On Fri, Jan 10, 2003 at 06:14:51PM +0000, Alan Cox wrote:
 
-> On Fri, 2003-01-10 at 16:10, William Lee Irwin III wrote:
-> > Any specific concerns/issues/wishlist items you want taken care of
-> > before doing it or is it a "generalized comfort level" kind of thing?
-> > Let me know, I'd be much obliged for specific directions to move in.
->
-> IDE is all broken still and will take at least another three months to
-> fix - before we get to 'improve'.
+> On Fri, 2003-01-10 at 17:08, John Bradford wrote:
+> > Didn't some really obscure IBM drives use it for something internally,
+> > and shortly after everybody else had to stop using it incase they
+> > overwrote the custom data at the end of an IBM disk, or am I thinking
+> > of something else?
 
-As is the whole frame buffer mess. USB slowly seems to return to a working
-state. ISDN seems to be a total mess, as well.
+> Something else - EFI uses the last sector for partitioning as one example.
+> Drives do have protected private areas but they are shielded from normal
+> use for obvious reasons
 
-> No more "ISAPnP TNG" and module rewrites please
+There is also a much older matter. In the distant past IBM used the
+last cylinder for testing. That means that many FDISK versions and many
+BIOSes subtract one from the number of available cylinders.
+There are several ways to ask the BIOS for the size of a disk,
+and some of these calls may invoke others, and then subtract one.
+I have seen disks that had lost three cylinders that way.
 
-Full ACK. There are still archs without working module code, right now
-(parisc and mips come to my mind).
-
---jochen
-
+Andries

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290675AbSBTBBd>; Tue, 19 Feb 2002 20:01:33 -0500
+	id <S290685AbSBTBFn>; Tue, 19 Feb 2002 20:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290685AbSBTBBY>; Tue, 19 Feb 2002 20:01:24 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:22262 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S290675AbSBTBBM>; Tue, 19 Feb 2002 20:01:12 -0500
-From: "Keith Moore" <keithmo@earthlink.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Disgusted with kbuild developers
-Date: Tue, 19 Feb 2002 18:02:46 -0700
-Message-ID: <ICEKIOHBAAEGJIMOPIHGEEJBCHAA.keithmo@earthlink.net>
+	id <S290701AbSBTBFe>; Tue, 19 Feb 2002 20:05:34 -0500
+Received: from megan.staffnet.com ([207.226.80.14]:5393 "EHLO staffnet.com")
+	by vger.kernel.org with ESMTP id <S290689AbSBTBF0>;
+	Tue, 19 Feb 2002 20:05:26 -0500
+Message-ID: <3C72F651.7544845B@staffnet.com>
+Date: Tue, 19 Feb 2002 20:05:21 -0500
+From: Wade Hampton <whampton@staffnet.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Info on Intel Plumas E7500 support
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020219222754.GC1208@fefe.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is not something Microsoft could leverage.
-> Actually, it is something Linux can leverage against Microsoft, because
-> Microsoft keeps on telling people that using GPL is a nightmare because
-> it forces all your intellectual property on the street for free.  They
-> proved that wrong themselves.  That is quite a strong argument.  It
-> should be publicized, not buried.  We should thank them publicly.
->
-> Felix
+G'day,
 
-Don't read too much into this. As I understand it, the "Microsoft Engineer"
-that wrote scripts/configure did this work on his own time, not as part of a
-Microsoft project team.
+A customer of mine asked if RedHat 6.2 supported
+the new dual xeon e7500 chip set?  After a search
+which resulted in very few hits, I was wondering 
+if any Linux kernel supports this? 
 
+Also anyone know if support for it will be backported
+to the 2.2 series?
 
-Keith
-
+Cheers,
+-- 
+W. Wade, Hampton  <whampton@staffnet.com>  
+According to Microsoft, GPL and similar licenses are "viral" 
+licenses.  I guess .NET is clearly a "potentially viral 
+software platform".  It would be a nice way to propagate a virus.

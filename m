@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263312AbTC0RFq>; Thu, 27 Mar 2003 12:05:46 -0500
+	id <S263297AbTC0Q6s>; Thu, 27 Mar 2003 11:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263308AbTC0RE6>; Thu, 27 Mar 2003 12:04:58 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54149
+	id <S263298AbTC0Q6s>; Thu, 27 Mar 2003 11:58:48 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48517
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263307AbTC0REs>; Thu, 27 Mar 2003 12:04:48 -0500
-Date: Thu, 27 Mar 2003 18:22:16 GMT
+	id <S263297AbTC0Q6q>; Thu, 27 Mar 2003 11:58:46 -0500
+Date: Thu, 27 Mar 2003 18:16:14 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303271822.h2RIMGxk019684@hraefn.swansea.linux.org.uk>
+Message-Id: <200303271816.h2RIGEan019640@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: PATCH: DRIVERNAME SUPPRESSED DUE TO KERNEL.ORG FILTER BUGS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make cramfs compile again
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.66-bk3/fs/cramfs/inode.c linux-2.5.66-ac1/fs/cramfs/inode.c
---- linux-2.5.66-bk3/fs/cramfs/inode.c	2003-03-27 17:13:33.000000000 +0000
-+++ linux-2.5.66-ac1/fs/cramfs/inode.c	2003-03-26 20:16:08.000000000 +0000
-@@ -43,6 +43,7 @@
- static struct inode *get_cramfs_inode(struct super_block *sb, struct cramfs_inode * cramfs_inode)
+One from Jens - fix up the problems with older Samsung disks that don't
+abort unknown commands sometimes
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.66-bk3/drivers/ide/ide-disk.c linux-2.5.66-ac1/drivers/ide/ide-disk.c
+--- linux-2.5.66-bk3/drivers/ide/ide-disk.c	2003-03-27 17:13:19.000000000 +0000
++++ linux-2.5.66-ac1/drivers/ide/ide-disk.c	2003-03-26 20:23:01.000000000 +0000
+@@ -1098,6 +1098,7 @@
+  * in above order (i.e., if value of higher priority is available,
+  * reset will be ignored).
+  */
++#define IDE_STROKE_LIMIT	(32000*1024*2)
+ static void init_idedisk_capacity (ide_drive_t  *drive)
  {
- 	struct inode * inode = new_inode(sb);
-+	static struct timespec zerotime = { 0, 0 };
+ 	struct hd_driveid *id = drive->id;
+@@ -1118,7 +1119,7 @@
+ 		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+ 		drive->select.b.lba	= 1;
+ 		set_max_ext = idedisk_read_native_max_address_ext(drive);
+-		if (set_max_ext > capacity_2) {
++		if (set_max_ext > capacity_2 && capacity_2 > IDE_STROKE_LIMIT) {
+ #ifdef CONFIG_IDEDISK_STROKE
+ 			set_max_ext = idedisk_read_native_max_address_ext(drive);
+ 			set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
+@@ -1145,7 +1146,7 @@
+ 		drive->select.b.lba = 1;
+ 	}
  
- 	if (inode) {
- 		inode->i_mode = cramfs_inode->mode;
-@@ -51,7 +52,8 @@
- 		inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
- 		inode->i_blksize = PAGE_CACHE_SIZE;
- 		inode->i_gid = cramfs_inode->gid;
--		inode->i_mtime = inode->i_atime = inode->i_ctime = 0;
-+		/* Struct copy intentional */
-+		inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
- 		inode->i_ino = CRAMINO(cramfs_inode);
- 		/* inode->i_nlink is left 1 - arguably wrong for directories,
- 		   but it's the best we can do without reading the directory
+-	if (set_max > capacity) {
++	if (set_max > capacity && capacity > IDE_STROKE_LIMIT) {
+ #ifdef CONFIG_IDEDISK_STROKE
+ 		set_max = idedisk_read_native_max_address(drive);
+ 		set_max = idedisk_set_max_address(drive, set_max);

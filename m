@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271799AbRHWJwo>; Thu, 23 Aug 2001 05:52:44 -0400
+	id <S271802AbRHWKEz>; Thu, 23 Aug 2001 06:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271802AbRHWJwe>; Thu, 23 Aug 2001 05:52:34 -0400
-Received: from juicer02.bigpond.com ([139.134.6.78]:22741 "EHLO
-	mailin5.bigpond.com") by vger.kernel.org with ESMTP
-	id <S271799AbRHWJwV>; Thu, 23 Aug 2001 05:52:21 -0400
-Message-ID: <012401c12bb9$51ce4020$010da8c0@valhalla>
-From: "Kingsley Foreman" <Kingsley@wintronics.com.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.9 and an AMD compile
-Date: Thu, 23 Aug 2001 19:22:28 +0930
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S271944AbRHWKEp>; Thu, 23 Aug 2001 06:04:45 -0400
+Received: from mail.spylog.com ([194.67.35.220]:4267 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S271802AbRHWKEf>;
+	Thu, 23 Aug 2001 06:04:35 -0400
+Date: Thu, 23 Aug 2001 14:04:44 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8/2.4.9 problem
+Message-ID: <20010823140444.A14798@spylog.ru>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be> <20010819205452Z16128-32383+429@humbolt.nl.linux.org> <20010820011356.A6667@spylog.ru> <20010820211403Z16263-32383+585@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20010820211403Z16263-32383+585@humbolt.nl.linux.org>
+User-Agent: Mutt/1.3.20i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ive compiled kernel 2.4.9 as an amd athlon cpu
+Hello Daniel Phillips,
 
-ive got a amd 1.2 on a via kt133a mb
+> > I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
+> 
+> Could you please try it with this patch, which will tell us a little more 
+> about what's happening (patch -p0):
+> 
+> --- ../2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
+> +++ ./mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+> @@ -502,7 +502,7 @@
+>  	}
+>  
+>  	/* No luck.. */
+> -	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
+> +	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n", order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+>  	return NULL;
+>  }
 
-It compiles fine but when i try to boot that kernel it randomly segfaults
-and gives me gives me kernel panics at boot up ive tried
-2.4.6-2.4.8 and they all do the same but it works if i compile it as a i686
-cpu
+I applied patch, this is result:
+
+...
+Aug 23 14:00:29 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
+Aug 23 14:00:29 sol last message repeated 12 times
+Aug 23 14:00:29 sol kernel: cation failed (gfp=0x30/1).
+Aug 23 14:00:29 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
+Aug 23 14:00:53 sol last message repeated 334 times
+Aug 23 14:00:53 sol kernel: cation failed (gfp=0x30/1).
+Aug 23 14:00:53 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
+Aug 23 14:00:55 sol last message repeated 300 times
+Aug 23 14:00:55 sol kernel: cation failed (gfp=0x30/1).
+Aug 23 14:00:55 sol kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
+Aug 23 14:00:55 sol last message repeated 281 times
+...
 
 
-Im new to the list so if it has come up before i appoligize
-anyone got any ideas what causes this and any way of fixing it
+Hm. That is it?
 
-
-Kingsley
-||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-|||||||||||||||||||||||||||
-This signature set seems to have reduced my spam. Maybe if everyone does
- it we can defeat the email search bots.  tosspam@aol.com abuse@aol.com
- abuse@yahoo.com abuse@hotmail.com abuse@msn.com abuse@sprint.com
-abuse@earthlink.com uce@ftc.gov abuse@fbi.gov abuse@cia.gov abuse@nsa.gov
-
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

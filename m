@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318455AbSHWHXp>; Fri, 23 Aug 2002 03:23:45 -0400
+	id <S318546AbSHWH3x>; Fri, 23 Aug 2002 03:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318546AbSHWHXp>; Fri, 23 Aug 2002 03:23:45 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:43423 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S318455AbSHWHXo>; Fri, 23 Aug 2002 03:23:44 -0400
-Subject: Re: Hyperthreading
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: James Bourne <jbourne@mtroyal.ab.ca>,
-       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208211826180.10811-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208211826180.10811-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Aug 2002 10:28:08 +0300
-Message-Id: <1030087689.25063.7.camel@gby.benyossef.com>
+	id <S318599AbSHWH3x>; Fri, 23 Aug 2002 03:29:53 -0400
+Received: from serv-217-188.SerNet.DE ([193.159.217.188]:40197 "EHLO
+	mail.emlix.com") by vger.kernel.org with ESMTP id <S318546AbSHWH3w>;
+	Fri, 23 Aug 2002 03:29:52 -0400
+Date: Fri, 23 Aug 2002 09:38:12 +0200
+From: Oskar Schirmer <os@emlix.com>
+To: Holger Schurig <h.schurig@mn-logistik.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cell-phone like keyboard driver anywhere?
+References: <200208210932.36132.h.schurig@mn-logistik.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200208210932.36132.h.schurig@mn-logistik.de>
+User-Agent: Mutt/1.3.22.1i
+Organization: emlix GmbH
+Message-Id: <E17i91I-0007nB-00@mailer.emlix.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 20:33, Hugh Dickins wrote:
-> On Wed, 21 Aug 2002, James Bourne wrote:
-> > On Wed, 21 Aug 2002, Reed, Timothy A wrote:
-> > > 
-> > > Can anyone lead me to a good source of information on what options should be
-> > > in the kernel for hyperthreading??  I am still fighting with a
-> > > sub-contractor over kernel options.
-> > 
-> > As long as you have a P4 and use the P4 support you will get
-> > hyperthreading with 2.4.19 (CONFIG_MPENTIUM4=y).  2.4.18 you have to also 
-> > turn it on with a lilo option of acpismp=force on the kernel command line.
-> 
-> You do need CONFIG_SMP and a processor capable of HyperThreading,
-> i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> just appropriate to that processor in other ways.
+On Wed, Aug 21, 2002 at 09:32:36AM +0200, Holger Schurig wrote:
+> 1 pause -> send keycode for character "a"
+> 1 1 pause -> send keycode for character "b"
+> 1 1 1 pause -> send keycode for character "c"
+> 2 pause -> send keycode for character "d"
 
+IMO this should not be done by the kernel, but by the application.
 
-hmm... isn't there an option to tell the kernel you are using a
-HyperThreaded system, or is it detected on runtime?  I mean, think about
-a P4 Xeon 2 way SMP - unless told otherwise the kernel will 'see' it as
-a 4 way SMP box *but* the proccessors are not equel!
+Reasons:
+- actually, there is no key "a" etc that is pressed, but "1" etc.
+- you loose ability to keep the display up to date according
+  to the pressed key sequence while composing characters, otherwise.
+- it is easy for the application to check the timing of the
+  keys pressed and produce the desired characters instead [poll (2)].
+- not all projects using the keyboard in question will need the
+  sequence-to-character conversion You describe. e.g. cash register.
 
-If for example, you have a task running and another task just woke up
-and the scheduler needs to assign a CPU for it, choosing the other
-'instance' of the same CPU as the already running task to run it on as
-opposed to choosing one of the 'instanaces' of the other seperate CPU
-seems a mistake IMHO, but the scheduler won't be able to make the
-judgment because it doesn't know it is running on a SMT box at all.
-
-Or am I missing something? :-)
-
-Gilad.
-
+gruesse(oskar)
 -- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-http://benyossef.com
+oskar schirmer, emlix gmbh, http://www.emlix.com, mailto:os@emlix.com
+fon +49 551 37000-37, fax -38, friedländer weg 7, 37085 göttingen, germany
 
-"Money talks, bullshit walks and GNU awks."
-  -- Shachar "Sun" Shemesh, debt collector for the GNU/Yakuza
-
+emlix - your embedded linux partner

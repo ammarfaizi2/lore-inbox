@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S159809AbRA2HWo>; Mon, 29 Jan 2001 02:22:44 -0500
+	id <S132224AbRA2HiU>; Mon, 29 Jan 2001 02:38:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S159825AbRA2HWf>; Mon, 29 Jan 2001 02:22:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:41477 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S159809AbRA2HWY>; Mon, 29 Jan 2001 02:22:24 -0500
-Date: Sun, 28 Jan 2001 23:21:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Aaron Tiensivu <mojomofo@mojomofo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI IRQ routing problem in 2.4.0 (SiS results part 2)
-In-Reply-To: <004e01c089c2$a3a11ec0$0300a8c0@methusela>
-Message-ID: <Pine.LNX.4.10.10101282318402.5605-100000@penguin.transmeta.com>
+	id <S135706AbRA2HiK>; Mon, 29 Jan 2001 02:38:10 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:57031 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132224AbRA2HiA>;
+	Mon, 29 Jan 2001 02:38:00 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14965.7321.926528.391631@pizda.ninka.net>
+Date: Sun, 28 Jan 2001 23:32:41 -0800 (PST)
+To: James Sutherland <jas88@cam.ac.uk>
+Cc: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+In-Reply-To: <Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
+In-Reply-To: <951am4$gbf$1@ncc1701.cistron.net>
+	<Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+James Sutherland writes:
+ > Except you can detect and deal with these "PMTU black holes". Just as you
+ > should detect and deal with ECN black holes. Maybe an ideal Internet
+ > wouldn't have them, but this one does. If you can find an ideal Internet,
+ > go code for it: until then, stick with the real one. It's all we've got.
 
-On Mon, 29 Jan 2001, Aaron Tiensivu wrote:
-> | Which one was it you got a PIRQ conflict for before? as it te device at
-> | 00:01.00 with the strange "0x62" entry?
-> 
-> Yes.
+Guess what, Linux works not around PMTU black holes either for the
+same exact reason we will not work around ECN.
 
-You've got the pirq setup from hell.
+I'm getting a bit tired of you, and I suppose others are as
+well.  You are being nothing but a pompous ass.
 
-Mind doing that "dump_pirq" thing, preferably run on an _unmodified_ 2.4.0
-kernel (ie none of my test-hacks) or on a 2.2.x kernel (that doesn't even
-_try_ to do any routing at all - or you can get the same effect by just
-making "set_sis_pirq()" always just return 0 without doing anything)?
+Anyways, let me quote a comment from the Linux source code where
+we would have done PMTU black hole detection:
 
-I don't want to get quantum effects of the observer changing what is being
-observed..
+			/* NOTE. draft-ietf-tcpimpl-pmtud-01.txt requires pmtu black
+			   hole detection. :-(
 
-> | How about you try adding the line
-> | pirq = (pirq-1) & 3;
-> | at the top of both pirq_sis_get() and pirq_sis_set() (with my "alternate"
-> | SiS routines). What happens then?
-> 
-> Done.
+			   It is place to make it. It is not made. I do not want
+			   to make it. It is disguisting. It does not work in any
+			   case. Let me to cite the same draft, which requires for
+			   us to implement this:
 
-Not any better. The thing just moves around, it seems.
+   "The one security concern raised by this memo is that ICMP black holes
+   are often caused by over-zealous security administrators who block
+   all ICMP messages.  It is vitally important that those who design and
+   deploy security systems understand the impact of strict filtering on
+   upper-layer protocols.  The safest web site in the world is worthless
+   if most TCP implementations cannot transfer data from it.  It would
+   be far nicer to have all of the black holes fixed rather than fixing
+   all of the TCP implementations."
 
-I'll think about this, and try to find the SiS irq routing register spec
-somewhere..
+                           Golden words :-).
+		   */
 
-		Linus
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVAKTqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVAKTpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVAKTqf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVAKTqS
+	id S262234AbVAKTpo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbVAKTpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:46:18 -0500
-Received: from mail.joq.us ([67.65.12.105]:53667 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262190AbVAKTly (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:41:54 -0500
-To: Matt Mackall <mpm@selenic.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Chris Wright <chrisw@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050110212019.GG2995@waste.org>
-	<200501111305.j0BD58U2000483@localhost.localdomain>
-	<20050111191701.GT2940@waste.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Tue, 11 Jan 2005 13:42:33 -0600
-In-Reply-To: <20050111191701.GT2940@waste.org> (Matt Mackall's message of
- "Tue, 11 Jan 2005 11:17:02 -0800")
-Message-ID: <87ekgr3g7q.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Tue, 11 Jan 2005 14:45:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59327 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262407AbVAKTmw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 14:42:52 -0500
+Message-ID: <41E42C38.1090903@pobox.com>
+Date: Tue, 11 Jan 2005 14:42:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: klassert@mathematik.tu-chemnitz.de, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x: support more ethtool_ops
+References: <200501111913.j0BJDnIL009341@hera.kernel.org>
+In-Reply-To: <200501111913.j0BJDnIL009341@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Jan 11, 2005 at 08:05:08AM -0500, Paul Davis wrote:
->> I am not sure what you mean here. I think we've established that
->> SCHED_OTHER cannot be made adequate for realtime audio work. Its
->> intended purpose (timesharing the machine in ways that should
->> generally benefit tasks that don't do a lot and/or are dominated by
->> user interaction, thus rendering the machine apparently responsive) is
->> really at odds with what we need.
+Linux Kernel Mailing List wrote:
+> +static void vortex_get_ethtool_stats(struct net_device *dev,
+> +	struct ethtool_stats *stats, u64 *data)
+> +{
+> +	struct vortex_private *vp = netdev_priv(dev);
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&vp->lock, flags);
+> +	update_stats(dev->base_addr, dev);
+> +	spin_unlock_irqrestore(&vp->lock, flags);
+> +
+> +	data[0] = vp->stats.rx_packets;
+> +	data[1] = vp->stats.tx_packets;
+> +	data[2] = vp->stats.rx_bytes;
+> +	data[3] = vp->stats.tx_bytes;
+> +	data[4] = vp->stats.collisions;
+> +	data[5] = vp->stats.tx_carrier_errors;
+> +	data[6] = vp->stats.tx_heartbeat_errors;
+> +	data[7] = vp->stats.tx_window_errors;
+> +}
 
-Matt Mackall <mpm@selenic.com> writes:
-> We have not established that at all. In principle, because SCHED_OTHER
-> tasks running at full priority lie on the boundary between SCHED_OTHER
-> and SCHED_FIFO, they can be made to run arbitrarily close to the
-> performance of tasks in SCHED_FIFO. With the upside that they won't be
-> able to deadlock the machine.
->
-> And I mean arbitrarily close in the strict delta-epsilon sense.
-> It's not perfect, but neither is SCHED_FIFO, in principle or in
-> practice. 
+Everything in the patch is correct except for the above.
 
-Though inelegant in theory, SCHED_FIFO *has* been shown to work in
-practice.  The POSIX 1003.4 committee were not all a bunch of idiots.
-That stuff *is* useful and *does* work (given appropriate privileges).
+This is very wrong -- get_ethtool_stats() is for NIC-specific stats. 
+The above stats are already available through the generic net stack.
 
-Your assertions have not been reduced to practice.  This is a
-significant difference.  Write some code, then we can discuss whether
-it solves any problems or not.  I doubt it, but prove me wrong and
-next year you can be the proud author of a scheduler used for hundreds
-of audio applications.
+	Jeff
 
-Meanwhile, what about 2005?  It's "almost upon us".  :-/
--- 
-  joq
+

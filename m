@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283538AbRK3HiN>; Fri, 30 Nov 2001 02:38:13 -0500
+	id <S283541AbRK3Hhx>; Fri, 30 Nov 2001 02:37:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283539AbRK3HiE>; Fri, 30 Nov 2001 02:38:04 -0500
-Received: from mx3out.umbc.edu ([130.85.253.53]:248 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S283538AbRK3Hhw>;
-	Fri, 30 Nov 2001 02:37:52 -0500
-Date: Fri, 30 Nov 2001 02:37:51 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Ahmed Masud <masud@marauder.googgun.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Too buggy even for Linux [Was Re: some questions about wedding]
-In-Reply-To: <Pine.LNX.4.33.0111300225430.24164-100000@marauder.googgun.com>
-Message-ID: <Pine.SGI.4.31L.02.0111300234480.13649373-100000@irix2.gl.umbc.edu>
+	id <S283539AbRK3Hho>; Fri, 30 Nov 2001 02:37:44 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:53428 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S283538AbRK3Hhb>;
+	Fri, 30 Nov 2001 02:37:31 -0500
+Date: Fri, 30 Nov 2001 02:37:22 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jens Axboe <axboe@suse.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.1.4: fix rd.c build
+In-Reply-To: <20011130082855.E16796@suse.de>
+Message-ID: <Pine.GSO.4.21.0111300229570.13367-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Ahmed Masud wrote:
 
-> I think that marriage bugs cannot be solved on this list. But that's just
-> me.
 
->From what I've seen, the interface between husband and wife seems to be
-extremely buggy and rather fragile; sometimes deteriorating completely
-soon after the token rings are exchanged..
+On Fri, 30 Nov 2001, Jens Axboe wrote:
 
-We'll leave alone for the moment that husband and wife often seem to be
-speaking completely different and unrelated protocols.
+> On Fri, Nov 30 2001, Alexander Viro wrote:
+> > 
+> > 
+> > On Fri, 30 Nov 2001, Jens Axboe wrote:
+> > 
+> > > Actually, this is not even enough if rd receives a multi page bio.
+> > > Something like this should work, untested.
+> > > 
+> > > @@ -237,9 +238,9 @@
+> > >  	err = -EIO;
+> > 
+> > Make it err = 0...
+> 
+> Explain
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+Think what happens if you have all these pages in page cache.  Already.
+Returning -EIO is hardly a good idea in that case.  Look through the
+loop - we assign err in the body only if we have to allocate a new
+page.
+
+Notice that any bh brings the page in.  I.e. for smaller-than-page ones
+you are going to have a lot of fun...
+
+>From -pre2:
+
+@@ -227,19 +227,18 @@
+        commit_write: ramdisk_commit_write,
+ };
+ 
+-static int rd_blkdev_pagecache_IO(int rw, struct buffer_head * sbh, int minor)
++static int rd_blkdev_pagecache_IO(int rw, struct bio *sbh, int minor)
+ {
+        struct address_space * mapping;
+        unsigned long index;
+        int offset, size, err;
+ 
+        err = -EIO;
+-       err = 0;
+        mapping = rd_bdev[minor]->bd_inode->i_mapping;
+
+Sure, one of these assignments had to go away.  You'd picked the wrong one,
+though...
 

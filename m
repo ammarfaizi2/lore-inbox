@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132209AbRCVVsj>; Thu, 22 Mar 2001 16:48:39 -0500
+	id <S132194AbRCVVmT>; Thu, 22 Mar 2001 16:42:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132211AbRCVVs3>; Thu, 22 Mar 2001 16:48:29 -0500
-Received: from colorfullife.com ([216.156.138.34]:20485 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132209AbRCVVsO>;
-	Thu, 22 Mar 2001 16:48:14 -0500
-Message-ID: <000401c0b319$c2ba7dd0$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <geirt@powertech.no>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Serial port latency
-Date: Thu, 22 Mar 2001 22:45:58 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S132196AbRCVVmA>; Thu, 22 Mar 2001 16:42:00 -0500
+Received: from pa147.bialystok.sdi.tpnet.pl ([213.25.59.147]:2308 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S132194AbRCVVly>; Thu, 22 Mar 2001 16:41:54 -0500
+Date: Thu, 22 Mar 2001 22:36:08 +0100
+From: Jacek Pop³awski <jp@ulgo.koti.com.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2-ac21: aviplay slowdown
+Message-ID: <20010322223608.A788@darkwood.tpnet.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the computer otherwise idle?
-I've seen one unexplainable report with atm problems that disappeared
-(!) if a kernel compile was running.
+I compiled 2.4.3-pre6 and 2.4.2-ac21 and noticed, that aviplay works
+much worse than before. Avifile benchmark told me:
 
-Could you try to run a simple cpu hog (with nice 20)?
+Average video output speed: 20.566223 Mb/s
 
-<<
-main()
-{
-    for(;;) getpid();
-}
-<<
+On 2.2.18 and earlier 2.4.2-ac* it gives 50-55Mb/s.
 
-I'm aware of one bug that could cause a delay of up to 20 ms (cpu_idle()
-doesn't check for pending softirq's before sleeping), but that doesn't
-explain your 500 ms delay.
+mtrr is enabled:
 
---
-    Manfred
+[jp@darkwood jp]$ cat /proc/mtrr
+reg00: base=0xe8000000 (3712MB), size=  32MB: write-combining, count=2
+
+My hardware: K6-2 500, VIA MVP3, Voodoo3
 

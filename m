@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSHFQmq>; Tue, 6 Aug 2002 12:42:46 -0400
+	id <S313563AbSHFQqC>; Tue, 6 Aug 2002 12:46:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSHFQmq>; Tue, 6 Aug 2002 12:42:46 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:19370 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S313305AbSHFQmp>;
-	Tue, 6 Aug 2002 12:42:45 -0400
-Date: Tue, 6 Aug 2002 09:48:33 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: driverfs API Updates
-In-Reply-To: <20020805163839.A13073@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0208060923100.1241-100000@cherise.pdx.osdl.net>
+	id <S313571AbSHFQqC>; Tue, 6 Aug 2002 12:46:02 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59665 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313563AbSHFQqB>; Tue, 6 Aug 2002 12:46:01 -0400
+Date: Tue, 6 Aug 2002 12:58:57 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Patricia Gaughen <gone@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modularization of mem_init() for 2.4.20pre1
+In-Reply-To: <200208060317.g763Hx825104@w-gaughen.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208061258200.7534-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > DEVICE_ATTR(name,"strname",mode,show,store);
-> 
-> Do you any plans to simplify the show or store interfaces? 
 
-Yes. But, I'm not sure how I want to do it. A while back, I converted it 
-to use the seq_file interface, with a (probably broken) implementation of 
-seq_write(). I'm not sure how well it would fit into what we have now, but 
-I definitely agree that it should be simpler.
+On Mon, 5 Aug 2002, Patricia Gaughen wrote:
 
-> Passing a single page or two (4k to 8k buffer), with no offset, and letting
-> the driverfs_read_file fill buf might be OK, but breaks seeks (and short
-> buffer usage), but at least the show/restore functions would be less likely
-> to be broken. Limiting the offset to a fit in a page might help.
-> 
-> If the show and store interfaces could return a pointer, lengths, and
-> a specifier ("%s", "%d", etc.), that might be pretty simple, and would
-> allow for correct offset and overflow checks.
+>
+> Please consider this patch for inclusion into the 2.4.20pre tree.
+> It was accepted into the 2.4.19pre6aa1, with slight modifications
+> by Andrea that I have incorporated those changes into my patch.
+> This patch, along with the modularization of setup_arch, and the
+> {node,zone}_start_paddr to {node,zone}_start_pfn change, are the
+> patches that my i386 discontigmem patch depends on.
+>
+> This patch restructures mem_init() for i386 to make it easier to
+> include the i386 numa changes (for CONFIG_DISCONTIGMEM) I've been
+> working on.  It also makes mem_init() easier to read.
+>
+> This patch does not depend on the other patches I'm submitting today, but
+> my discontigmem patch does depend on this one.
+>
+> I've tested this patch on the following configurations: UP, SMP, SMP PAE,
+> multiquad, multiquad PAE, multiquad DISCONTIGMEM, multiquad DISCONTIGMEM PAE.
+>
+> Any and all feedback regarding this patch is greatly appreciated.
 
-The seq_file interface would allow for that.
-
-One purely evil solution might be to just pass a zero'd page-sized buffer 
-to be filled one time. We then do strlen() on it for the size, and copy 
-what the user wants. It would still require some extra state, but it would 
-force people to stick to ASCII, instead of trying to sneak in some binary 
-data ;)
-
-> Most of the current show interfaces are broken for a short buffer or seek,
-> and they are being copied to create new interfaces, example usage:
-> 
-> [patman@elm3a50 linux-2.5.29-p1]$ cat /devices/root/pci0/00:0f.2/name
-> PCI device 1166:0220
-> [patman@elm3a50 linux-2.5.29-p1]$ dd if=/devices/root/pci0/00:0f.2/name of=/tmp/xx bs=1 count=10 ; cat /tmp/xx ; echo 
-> 1+0 records in
-> 1+0 records out
-> P
-
-Yeah, that's definitely broken. 
-
-> For the above to function I also had to change:
-
-Thanks, applied. 
-
-	-pat
+It looks ok but what about surrounding init_one_highpage with
+CONFIG_HIGHMEM?
 

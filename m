@@ -1,83 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312491AbSDSQTr>; Fri, 19 Apr 2002 12:19:47 -0400
+	id <S312634AbSDSQWP>; Fri, 19 Apr 2002 12:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312498AbSDSQTq>; Fri, 19 Apr 2002 12:19:46 -0400
-Received: from venus.ci.uw.edu.pl ([193.0.74.207]:1542 "EHLO
-	venus.ci.uw.edu.pl") by vger.kernel.org with ESMTP
-	id <S312491AbSDSQTp>; Fri, 19 Apr 2002 12:19:45 -0400
-Date: Fri, 19 Apr 2002 18:14:12 +0200 (CEST)
-From: Jan Slupski <jslupski@email.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-In-Reply-To: <200204191556.g3JFuw131245@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.21.0204191801410.11418-100000@venus.ci.uw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312681AbSDSQWO>; Fri, 19 Apr 2002 12:22:14 -0400
+Received: from smtp2.san.rr.com ([24.25.195.39]:50164 "EHLO smtp2.san.rr.com")
+	by vger.kernel.org with ESMTP id <S312634AbSDSQWO>;
+	Fri, 19 Apr 2002 12:22:14 -0400
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support
+	for2.5.8(take2)
+From: George J Karabin <gkarabin@pobox.com>
+To: Oliver.Neukum@lrz.uni-muenchen.de
+Cc: Oliver Neukum <oliver@neukum.name>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        David Brownell <david-b@pacbell.net>,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.44.0204191304490.10754-100000@sun3.lrz-muenchen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-3) 
+Date: 19 Apr 2002 09:22:08 -0700
+Message-Id: <1019233329.1730.2.camel@pane.chasm.dyndns.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002, Pete Zaitcev wrote:
+On Fri, 2002-04-19 at 04:06, Oliver.Neukum@lrz.uni-muenchen.de wrote:
+> Why you do you want to derive a name from the specs ?
+> Someone who has read them will no what is refered to
+> whatever we name it. The significance of a the name
+> is important to those who look into usb code occasionaly.
+> These typically haven't read the spec.
 
-> > Broken BIOS of these notebooks assigns IRQ 10 for USB,
-> > even though it is actually wired to IRQ 9.
-> > 
-> > I use PCG-FX240 model of Sony Vaio, but I have proofs of other users, 
-> > that exactly the same problem exists on models:
-> > FX200, FX220, FX250, FX270, FX290, FX370, FX503, R505JS, R505JL
-> > These models use Intel's 82801BA controller, and Phoenix bios.
-> 
-> My Z505JE works perfectly without it. In general Z505's are
-> known to work.
+First thing that popped into my head, I guess. I'm not stuck on it - I
+guess that's all I have to say on it. Given the lack of other comments,
+I guess it's a dead idea anyway, or at least too far down in everyone's
+mail queues ;)
 
-I don't know nothing more than this...
-I already send an email, and I hope I'll get DMI & PCI informations
-for these computers.
-
-(fwd)
-From: girish <girishji@yahoo.com>
-
-Thanks for your USB patch. I got the USB mouse to work
-on Sony Vaio PCG-R505JL. I installed RedHat 7.2 first
-and the mouse would work for a few minutes and die
-(with timeout messages appearing on
-/var/log/messages). I did not find the source code for
-redhat on the CD. So I ended up compiling the latest
-kernel (2.4.18). This is the first time I compiled the
-linux kernel, couldn't have been easier!
-
-(fwd)
-From: Kirk VanOpdorp <kirk@chpc.utah.edu>
-
-I had the same USB problem on the Sony PCG-R505JS laptop. Your kernel
-patch worked perfectly. At least on the 2.4.18 kernel.
-
-> > +             dev->irq = 9;
-> > +             pci_write_config_byte(dev, PCI_INTERRUPT_LINE, 9);
-> > +             r->set(pirq_router_dev, dev, pirq, 9);
-> > +     }
->
-> So...
-> 
->         if (dev->irq == 9) {
->                 dev->irq = 9;
->         }
-> 
-> Are you sure it's right?
-
-OK.
-This line isn't very important. ;)
-Other two are!
-
-I just modified HP Pavillion code taht do the same, but 
-numbers are other .
-
-Jan
-
-   _  _  _  _  _____________________________________________
-   | |_| |\ |  S L U P S K I              jslupski@email.com
- |_| | | | \|                 http://www.pm.waw.pl/~jslupski  
-
+- George
 
 

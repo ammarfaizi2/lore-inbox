@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318818AbSHLU2T>; Mon, 12 Aug 2002 16:28:19 -0400
+	id <S318812AbSHLUfq>; Mon, 12 Aug 2002 16:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318819AbSHLU2T>; Mon, 12 Aug 2002 16:28:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53009 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318818AbSHLU2S>; Mon, 12 Aug 2002 16:28:18 -0400
-Date: Mon, 12 Aug 2002 13:32:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Robert Love <rml@tech9.net>, Skip Ford <skip.ford@verizon.net>,
-       "Adam J. Richter" <adam@yggdrasil.com>, <ryan.flanigan@intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.31: modules don't work at all
-In-Reply-To: <3D57F5D6.C54F5A2A@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0208121330310.1289-100000@penguin.transmeta.com>
+	id <S318814AbSHLUfq>; Mon, 12 Aug 2002 16:35:46 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:14842 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S318812AbSHLUfo>; Mon, 12 Aug 2002 16:35:44 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15704.7035.97347.606927@wombat.chubb.wattle.id.au>
+Date: Tue, 13 Aug 2002 06:32:59 +1000
+To: "Jim Roland" <jroland@roland.net>
+Cc: <Hell.Surfers@cwctv.net>, <riel@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: RE:Re: The spam problem.
+In-Reply-To: <861530955@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jim" == Jim Roland <jroland@roland.net> writes:
 
-On Mon, 12 Aug 2002, Andrew Morton wrote:
-> 
-> Gets tricky with nested lock_kernels.
+Jim> Now there's a good thought!  Post, Confirm, gets posted.  If
+Jim> member, no confirmation necessary.
 
-No, lock-kernel already only increments once, at the first lock_kernel. We 
-have a totally separate counter for the BKL depth, see <asm/smplock.h>
+It'd be impractical because you'd need to merge not only the people
+directly on the list as members, but also the people who get LKML as
+digest via Dell, as news, or via a mail exploder.
 
-		Linus
-
+Peter C

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSLFQF7>; Fri, 6 Dec 2002 11:05:59 -0500
+	id <S263276AbSLFQHp>; Fri, 6 Dec 2002 11:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSLFQF7>; Fri, 6 Dec 2002 11:05:59 -0500
-Received: from [207.61.129.108] ([207.61.129.108]:49545 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S263256AbSLFQF7>; Fri, 6 Dec 2002 11:05:59 -0500
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PROBLEM]: 2.5.50 w/ module-init-tools 0.9.1 and 0.8 - Invalid module format w/ NEWS patch
-Date: Fri, 6 Dec 2002 11:13:34 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S263321AbSLFQHp>; Fri, 6 Dec 2002 11:07:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47884 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263280AbSLFQHn>;
+	Fri, 6 Dec 2002 11:07:43 -0500
+Date: Fri, 6 Dec 2002 16:15:19 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.50: unused code in link_path_walk()
+Message-ID: <20021206161519.A16341@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200212061113.34741.shawn.starr@datawire.net>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After patching 2.5.50 with the patch from the NEWS file, and recompiling completely the kernel and modules I'm not able to load modules:
 
-file gameport.o:
-gameport.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
+@@ -700,7 +700,6 @@
+                                 if (this.name[1] != '.')
+                                         break;
+                                 follow_dotdot(&nd->mnt, &nd->dentry);
+-				inode = nd->dentry->d_inode;
+                                 /* fallthrough */
+                         case 1:
+                                 goto return_base;
 
-insmod:
-Error inserting `./gameport.o': -1 Invalid module format
+seems broken to me.  if follow_dotdot() changes nd->dentry (can happen!),
+inode needs to be changed.  look:
 
-modprobe:
-FATAL: Error inserting gameport (/lib/modules/2.5.50/kernel/gameport.o): Invalid module format
+        inode = nd->dentry->d_inode;
+        for(;;) {
+                err = exec_permission_lite(inode);
+                if (this.name[0] == '.') switch (this.len) {
+                        case 2: 
+                                if (this.name[1] != '.')
+                                        break;
+                                follow_dotdot(&nd->mnt, &nd->dentry);
+                                inode = nd->dentry->d_inode;
+                                /* fallthrough */
+                        case 1:
+                                continue;
+                }
+        }
 
-This occurs with 0.8 and 0.9.1
-
-Any solutions? I really need module support because there are some PnP issues that I'm trying to help solve.
-
-Shawn.
+btw, you should cc linux-fsdevel for patches to the VFS.
 
 -- 
-Shawn Starr
-UNIX Systems Administrator, Operations
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-shawn.starr@datawire.net
-"The power to Transact" - http://www.datawire.net
-
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270644AbTGZWtX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 18:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbTGZWqy
+	id S270618AbTGZXIb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 19:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270620AbTGZXIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 18:46:54 -0400
-Received: from smtp.terra.es ([213.4.129.129]:50025 "EHLO tsmtp6.mail.isp")
-	by vger.kernel.org with ESMTP id S270622AbTGZWqi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 18:46:38 -0400
-Date: Sun, 27 Jul 2003 01:01:53 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: phillips@arcor.de, ed.sweetman@wmich.edu, eugene.teo@eugeneteo.net,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Message-Id: <20030727010153.7e2e0d48.diegocg@teleline.es>
-In-Reply-To: <20030726113522.447578d8.akpm@osdl.org>
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com>
-	<20030726101015.GA3922@eugeneteo.net>
-	<3F2264DF.7060306@wmich.edu>
-	<200307271046.30318.phillips@arcor.de>
-	<20030726113522.447578d8.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sat, 26 Jul 2003 19:08:31 -0400
+Received: from lidskialf.net ([62.3.233.115]:24001 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S270618AbTGZXIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 19:08:30 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Subject: Re: 2.6.0-test1: irq18 nobody cared! on Intel D865PERL motherboard
+Date: Sun, 27 Jul 2003 00:23:43 +0100
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <20030714131240.21759.qmail@linuxmail.org> <200307262313.08819.adq_dvb@lidskialf.net> <1059260505.1119.6.camel@hades>
+In-Reply-To: <1059260505.1119.6.camel@hades>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307270023.43992.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sat, 26 Jul 2003 11:35:22 -0700 Andrew Morton <akpm@osdl.org> escribió:
+On Sunday 27 July 2003 00:01, Mika Liljeberg wrote:
+> On Sun, 2003-07-27 at 01:13, Andrew de Quincey wrote:
+> > Out of interest, do these boxes have an IO-APIC and are you using ACPI?
+> > If so, can you tell me if the attached patch helps?
+>
+> Yes, yes, nope. I tried your patch but the SATA driver now hangs during
+> boot waiting for an irq that never arrives.
 
-> It is interesting that Felipe says that stock 2.5.69 was the best CPU
-> scheduler of the 2.5 series.  Do others agree with that?
+This sounds very familiar. As I said, the patch fixes the IO-APIC so IRQ 
+polarities and  mode is it is now setup as per ACPI... its obviously doing 
+_something_ for you.
 
-No.
-For me, 2.5.63 was the best. Or perhaps it was .64 or .65?
+However, there is a second problem which I do not yet have a resolution for.
 
-What I know is that the best CPU scheduler was the one previous 
-to the "interactivity changes" from Linus. I mean, if Linus' changes
-went in .65, then it's .64, etc.
+On my board, it manifests itself with PCI addon cards.. I never see any IRQs 
+from them because the IO-APIC is configured (as per ACPI) for active high 
+IRQs, yet the PCI standard is active low IRQs.
 
-Perhaps for other people it's .69....probably it also depends a lot
-on the hardware side. For me .63 was "good"
+I am fairly certain that the IO-APIC is now configured correctly, and that the 
+PCI routing is correct, because Windows XP sets everything up in exactly the 
+same way, and everything works fine under it. 
+
+There is something else that is not being done by linux. I'd assumed this was 
+an nforce2-specific issue, but your results hint that it may be larger than 
+this. 
+

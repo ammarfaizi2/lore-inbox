@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272475AbRH3VQ4>; Thu, 30 Aug 2001 17:16:56 -0400
+	id <S272471AbRH3VQG>; Thu, 30 Aug 2001 17:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272476AbRH3VQr>; Thu, 30 Aug 2001 17:16:47 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:15890 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S272474AbRH3VQ3>; Thu, 30 Aug 2001 17:16:29 -0400
-Message-ID: <3B8EAD35.5695B30B@namesys.com>
-Date: Fri, 31 Aug 2001 01:16:37 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Nikita Danilov <Nikita@namesys.com>, Pavel Machek <pavel@ucw.cz>,
-        linux-kernel@vger.kernel.org, research@suse.de
-Subject: Re: Reiserfs: how to mount without journal replay?
-In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S272477AbRH3VPv>; Thu, 30 Aug 2001 17:15:51 -0400
+Received: from t2.redhat.com ([199.183.24.243]:56822 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272471AbRH3VPQ>; Thu, 30 Aug 2001 17:15:16 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200108302106.f7UL6t917787@oboe.it.uc3m.es> 
+In-Reply-To: <200108302106.f7UL6t917787@oboe.it.uc3m.es> 
+To: ptb@it.uc3m.es
+Cc: "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 30 Aug 2001 22:14:56 +0100
+Message-ID: <10868.999206096@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> >  > For recovering broken machine, I'd like to mount without replaying journal.
-> >
-> > You cannot mount without replaying even in read-only mode, because
-> > file-system meta-data are possibly inconsistent.
-> 
-> Then suse's  use of reiserfs is pretty b0rken. Putting reiserfsck on /
-> partition is pretty useless -- if it crashes during mount you can't
-> repair it.
 
-Every filesystem has this problem, if the root directory gets hosed you have to
-use the CDROM.
-Booting from CDROM with SuSE is not such a problem.
+ptb@it.uc3m.es said:
+>  And I was hoping that somebody could produce some gcc magic
+> replacement for BUG() that means "don't compile me". Perhaps a bit of
+> illegal assembler code with a line reference in? Surely gcc must have
+> something like __builtin_wont_compile()? It just needs to be a leaf of
+> the RTL that evokes a compile error.
 
-> 
-> If reiserfsck detects errors on /, you can't repair them because
-> reiserfsck is on that partition. Ouch.
-> 
-> >  > [reiserfs panics while replaying journal; seems there are still some bugs
-> >  > hidden in there]. Unfortunately, "nolog" option does not seem imlemented.
-> >
-> > There is a patch allowing to mount reiserfs if there was io error during
-> > journal replay on mount. It is included into 2.4.9-ac* tree (it was sent
-> > to Linus several times, but this did not avail).
-> 
-> I already repaired my system -- had to install another copy of suse to
-> another partition :-(.
+It's done. I believe it was called __builtin_ct_assertion(). I don't think 
+it got merged (yet?).
 
 
-I boot from CDROM when I have such problems.
+--
+dwmw2
 
-> 
-> > Can you send to Reiserfs mail-list <Reiserfs-List@Namesys.COM> more
-> > detailed information about your case, like ksymoopsed stack trace,
-> > etc.
-> 
-> No stack trace, sorry. It refused to mount saying that attempting to
-> write into log block.. That's panic. Reiserfsck is not usable in such
-> case, because ... how do you run reiserfsck from partition you can't
-> mount?
->                                                                 Pavel
-> --
-> The best software in life is free (not shareware)!              Pavel
-> GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+

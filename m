@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262977AbUCRVX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbUCRVX4
+	id S262968AbUCRVpy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUCRVpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:23:56 -0500
-Received: from [144.51.25.10] ([144.51.25.10]:26565 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S262951AbUCRVXw (ORCPT
+	Thu, 18 Mar 2004 16:45:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:62124 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262969AbUCRVpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:23:52 -0500
-Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory
-	machines.......
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, anton@samba.org, ak@suse.de,
-       raybry@sgi.com, lse-tech@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       mbligh@aracnet.com
-In-Reply-To: <20040318122524.3904db7d.akpm@osdl.org>
-References: <40528383.10305@sgi.com> <20040313034840.GF4638@wotan.suse.de>
-	 <20040313184547.6e127b51.akpm@osdl.org>
-	 <20040314040634.GC19737@krispykreme>
-	 <37640233.1079550324@42.150.104.212.access.eclipse.net.uk>
-	 <20040318122524.3904db7d.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1079644967.12704.216.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 18 Mar 2004 16:45:52 -0500
+Date: Thu, 18 Mar 2004 22:46:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: sched_setaffinity usability
+Message-ID: <20040318214646.GA12865@elte.hu>
+References: <20040318182407.GA1287@elte.hu> <Pine.LNX.4.44.0403181302460.8512-100000@bigblue.dev.mdolabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 18 Mar 2004 16:22:47 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403181302460.8512-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-3.229, required 5.9,
+	BAYES_00 -4.90, NO_COST 1.67
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 15:25, Andrew Morton wrote:
-> Seems reasonable, although "vm_enough_acctdom" makes my eyes pop.  Why not
-> keep the "vm_enough_memory" identifier?
+
+* Davide Libenzi <davidel@xmailserver.org> wrote:
+
+> > Right now the VDSO mostly contains code and exception-handling data, but
+> > it could contain real, userspace-visible data just as much: info that is
+> > only known during the kernel build. There's basically no cost in adding
+> > more fields to the VDSO, and it seems to be superior to any of the other
+> > approaches. Is there any reason not to do it?
 > 
-> I've asked Stephen for comment - assuming he's OK with it I'd ask you to
-> finish this off please.
+> With /proc/something you can have a single piece of code for all archs
+> that exports NR_CPUS. The VDSO should be added to all missing archs.
+> IMO performance is not an issue in getting NR_CPUS from userspace.
 
-To keep the name, he needs to update all callers, right?  Current patch
-appears to add a static inline for security_vm_enough_memory that
-retains the old interface to avoid having to update most callers.
+you just cannot beat the mapping performance of a near-zero-overhead
+(V)DSO. No copying. No syscalls to set it up. No runtime dependencies on
+having some filesystem mounted in the right spot. Already existing
+framework to handle various API issues. Debuggers know the layout.
 
-I don't have any fundamental problem with the nature of the change.  As
-a side note, patch was malformed (at least as I received it), not sure
-if that was just a problem on my end.
+glibc could in theory boot-time assemble a /etc/vdso.so file and
+open()/mmap()/close() it and then pagefault it in, which would be
+roughly +10% to the cost of an exec(). I find it hard to accept that if
+the best access method to this information by glibc is a DSO, and that
+the source of the information is the kernel and only the kernel, that
+glibc has to resort to some inferior method to access this information.
+[not to mention the practical problem of readonly or remote /etc, so one
+would have to mount ramfs, and mount /proc to construct /ram/vdso.so.
+Also, nothing runtime-critical can thus be put into the vdso.]
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+it could also be in /boot/modules/$ver/vdso.so, but this detaches the
+vdso from the kernel, breaking the single-image kernel concept (which
+concept is quite useful). It also forces glibc to do the uname() syscall
+to get to the kernel version in addition to the DSO mapping syscalls -
+again an inferior method to access this always-needed DSO.
 
+	Ingo

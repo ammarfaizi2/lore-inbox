@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUHDMvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUHDMyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUHDMvH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 08:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUHDMvH
+	id S264702AbUHDMyY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 08:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUHDMyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 08:51:07 -0400
-Received: from main.gmane.org ([80.91.224.249]:16358 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264702AbUHDMuf (ORCPT
+	Wed, 4 Aug 2004 08:54:24 -0400
+Received: from styx.suse.cz ([82.119.242.94]:2946 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264702AbUHDMyV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 08:50:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Juergen Stuber <juergen@jstuber.net>
-Subject: Re: Linux 2.6.8-rc3
-Date: Wed, 04 Aug 2004 14:44:06 +0200
-Message-ID: <86r7qn9ip5.fsf@jstuber.net>
-References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org>
+	Wed, 4 Aug 2004 08:54:21 -0400
+Date: Wed, 4 Aug 2004 14:56:11 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Marko Macek <Marko.Macek@gmx.net>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Eric Wong <eric@yhbt.net>
+Subject: Re: KVM & mouse wheel
+Message-ID: <20040804125611.GA2922@ucw.cz>
+References: <410FAE9B.5010909@gmx.net> <200408040025.20118.dtor_core@ameritech.net> <20040804071842.GA705@ucw.cz> <200408040738.55330.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl-082-083-103-196.arcor-ip.net
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/20.7 (gnu/linux)
-Cancel-Lock: sha1:hXukiMc0LTrKgzilNf5mIgROQt4=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408040738.55330.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
->[...]
->   o depends on PCI DMA API: Cisco/Aironet 34X/35X/4500/4800
-
-I guess it is this change that made the Airo driver disappear for me,
-because I didn't have ISA configured:
-
---- linux-2.6.8-rc2/drivers/net/wireless/Kconfig        2004-07-18 06:57:48.000000000 +0200
-+++ linux-2.6.8-rc3/drivers/net/wireless/Kconfig        2004-08-03 23:27:14.000000000 +0200
-@@ -139,7 +139,7 @@
+On Wed, Aug 04, 2004 at 07:38:55AM -0500, Dmitry Torokhov wrote:
+> On Wednesday 04 August 2004 02:18 am, Vojtech Pavlik wrote:
+> > On Wed, Aug 04, 2004 at 12:25:19AM -0500, Dmitry Torokhov wrote:
+> > 
+> > > On Tuesday 03 August 2004 11:29 pm, Marko Macek wrote:
+> > > > Jesper Juhl wrote:
+> > > > 
+> > > > > <>I also had problems with my KVM switch and mouse when I initially 
+> > > > > moved to
+> > > > > 2.6, but adding this kernel boot parameter fixed it, meybe it will help
+> > > > > you as well : psmouse.proto=imps
+> > > > 
+> > > > This doesn't help. Only the patch I sent helps me. The problem is that the
+> > > > even with psmouse.proto=imps or exps, the driver still probes for 
+> > > > synaptics which I
+> > > > consider a bug.
+> > > > 
+> > > 
+> > > No it is not - Synaptics with a track-point on a passthrough port will have
+> > > track-point disabled if it is not reset after probing for imps/exps.
+> >  
+> > Hmm, does the imps/exps probe succeed in this case?
+> 
+> No, it does not, at least not mine. It either does bare PS/2 or native, but
+> there are other Synaptics touchpads that can also do imps.
  
- config AIRO
-        tristate "Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards"
--       depends on NET_RADIO && (ISA || PCI)
-+       depends on NET_RADIO && ISA && (PCI || BROKEN)
-        ---help---
-          This is the standard Linux driver to support Cisco/Aironet ISA and
-          PCI 802.11 wireless cards.
-
-
-If I understand it correctly the logic is faulty and should better be
-
-       depends on NET_RADIO && ((ISA && BROKEN) || PCI)
-
-
-Jürgen
+Ok, so how about issuing a reset when the imps probe fails? That'd take
+care of all the cases, and I suppose a Synaptics pad that can do imps
+will not be confused by it.
 
 -- 
-Jürgen Stuber <juergen@jstuber.net>
-http://www.jstuber.net/
-gnupg key fingerprint = 2767 CA3C 5680 58BA 9A91  23D9 BED6 9A7A AF9E 68B4
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

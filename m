@@ -1,79 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbRBIH37>; Fri, 9 Feb 2001 02:29:59 -0500
+	id <S129030AbRBIIKN>; Fri, 9 Feb 2001 03:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130059AbRBIH3t>; Fri, 9 Feb 2001 02:29:49 -0500
-Received: from oker.escape.de ([194.120.234.254]:49928 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id <S129030AbRBIH3i>;
-	Fri, 9 Feb 2001 02:29:38 -0500
-Date: Fri, 9 Feb 2001 08:29:22 +0100
-From: Jochen Striepe <jochen@tolot.escape.de>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] modify ver_linux to check e2fsprogs and more.
-Message-ID: <20010209082922.A25273@tolot.escape.de>
-In-Reply-To: <01020813571906.04066@localhost.localdomain> <20010208223133.D21223@tolot.escape.de> <01020820024207.04066@localhost.localdomain>
+	id <S129059AbRBIIKD>; Fri, 9 Feb 2001 03:10:03 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:35602 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129030AbRBIIJw>;
+	Fri, 9 Feb 2001 03:09:52 -0500
+Date: Fri, 9 Feb 2001 09:09:35 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        "A.Sajjad Zaidi" <sajjad@vgkk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Promise, DMA and RAID5 problems running 2.4.1
+Message-ID: <20010209090935.A1691@suse.cz>
+In-Reply-To: <E14QarA-0001DC-00@the-village.bc.nu> <Pine.LNX.4.10.10102071253121.5890-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <01020820024207.04066@localhost.localdomain>; from elenstev@mesatop.com on Thu, Feb 08, 2001 at 08:02:42PM -0700
-X-Editor: vim/5.7.24
-X-Signature: http://alfie.ist.org/sigd/
-X-Signature-Color: blue
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10102071253121.5890-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Feb 07, 2001 at 12:53:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---M9NhX3UHpAaciwkO
+--X1bOJ3K7DJ5YkBrT
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-        Hi,
+On Wed, Feb 07, 2001 at 12:53:36PM -0800, Andre Hedrick wrote:
+> On Wed, 7 Feb 2001, Alan Cox wrote:
+> 
+> > > Iff CONFIG_BLK_DEV_IDECS is set then yes, doing schedule is better.
+> > > But I do not see any benefit in doing
+> > > 
+> > > unsigned long timeout = jiffies + ((HZ + 19)/20) + 1;
+> > > while (0 < (signed long)(timeout - jiffies));
+> > 
+> > On that bit we agree.
+> 
+> What do you want fixed?
+> Send a patch and lets try it....
 
-On 08 Feb 2001, Steven Cole <elenstev@mesatop.com> wrote:
->=20
-> But, there is an easy solution:
-> [root@localhost scripts]# ifconfig --version
-> net-tools 1.57
-> ifconfig 1.40 (2000-05-21)
->=20
-> I replaced the old code for Net-tools with this:
->=20
-> ifconfig --version 2>&1 | grep tools | awk \
-> 'NR=3D=3D1{print "Net-tools             ", $NF}'
->=20
-> That should work.  I hope.  Try it please.
+How about this?
 
-This works great for me. Thanks!
+-- 
+Vojtech Pavlik
+SuSE Labs
 
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=pdcpatch
 
-Greetings from Germany,
+--- pdc202xx.c.old	Fri Jul 28 21:08:30 2000
++++ pdc202xx.c	Fri Feb  9 09:08:55 2001
+@@ -747,14 +747,11 @@
+ {
+ 	unsigned long high_16	= pci_resource_start(HWIF(drive)->pci_dev, 4);
+ 	byte udma_speed_flag	= inb(high_16 + 0x001f);
+-	int i			= 0;
+ 
+ 	OUT_BYTE(udma_speed_flag | 0x10, high_16 + 0x001f);
+-	ide_delay_50ms();
+-	ide_delay_50ms();
++	mdelay(100)
+ 	OUT_BYTE(udma_speed_flag & ~0x10, high_16 + 0x001f);
+-	for (i = 0; i < 40; i++)
+-		ide_delay_50ms();
++	mdelay(2000);		/* 2 seconds ?! */
+ }
+ 
+ unsigned int __init pci_init_pdc202xx (struct pci_dev *dev, const char *name)
+@@ -767,7 +764,6 @@
+ 	if ((dev->device == PCI_DEVICE_ID_PROMISE_20262) ||
+ 	    (dev->device == PCI_DEVICE_ID_PROMISE_20265) ||
+ 	    (dev->device == PCI_DEVICE_ID_PROMISE_20267)) {
+-		int i = 0;
+ 		/*
+ 		 * software reset -  this is required because the bios
+ 		 * will set UDMA timing on if the hdd supports it. The
+@@ -779,11 +775,9 @@
+ 		 */
+ 
+ 		OUT_BYTE(udma_speed_flag | 0x10, high_16 + 0x001f);
+-		ide_delay_50ms();
+-		ide_delay_50ms();
++		mdelay(100);
+ 		OUT_BYTE(udma_speed_flag & ~0x10, high_16 + 0x001f);
+-		for (i=0; i<40; i++)
+-			ide_delay_50ms();
++		mdelay(2000);	/* 2 seconds ?! */
+ 	}
+ 
+ 	if (dev->resource[PCI_ROM_RESOURCE].start) {
 
-Jochen Striepe.
-
---=20
-"Gosh that takes me back ... or forward.  That's the trouble with time
-travel, you never can tell."
-                -- Dr. Who
-
-
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6g5xRm3eMyUx1sM4RAvrcAJwIL7ooeivjJ7ecQcS2qMzhKhFwCQCdGkfB
-ulDmuABaeKkfRlD2cmJCu9s=
-=ap4X
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--
+--X1bOJ3K7DJ5YkBrT--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbUBYKLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 05:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUBYKLT
+	id S261190AbUBYKTH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 05:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUBYKTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 05:11:19 -0500
-Received: from gprs147-32.eurotel.cz ([160.218.147.32]:24960 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261175AbUBYKLR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 05:11:17 -0500
-Date: Wed, 25 Feb 2004 11:11:00 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Bruno Ducrot <ducrot@poupinou.org>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Stefan Seyfried <seife@suse.de>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] swsusp/s3: Assembly interactions need asmlinkage
-Message-ID: <20040225101100.GA214@elf.ucw.cz>
-References: <20040224130051.GA8964@elf.ucw.cz> <20040225083957.GE2869@poupinou.org>
-Mime-Version: 1.0
+	Wed, 25 Feb 2004 05:19:07 -0500
+Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:65214 "EHLO
+	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261190AbUBYKTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 05:19:05 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225083957.GE2869@poupinou.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16444.30315.59303.753417@wombat.chubb.wattle.id.au>
+Date: Wed, 25 Feb 2004 21:18:19 +1100
+To: Darren Williams <dsw@gelato.unsw.edu.au>
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory exceeds 2.5GB (correction)
+In-Reply-To: <20040225005804.GE18070@cse.unsw.EDU.AU>
+References: <403AF155.1080305@colorfullife.com>
+	<20040223225659.4c58c880.akpm@osdl.org>
+	<403B8C78.2020606@colorfullife.com>
+	<20040225005804.GE18070@cse.unsw.EDU.AU>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "Darren" == Darren Williams <dsw@gelato.unsw.edu.au> writes:
 
-> > swsusp/s3 assembly parts, and parts called from assembly are not
-> > properly marked asmlinkage; that leads to double fault on resume when
-> > someone compiles kernel with regparm. Thanks go to Stefan Seyfried for
-> > discovering this. Please apply,
-> 
-> Does acpi_enter_sleep_state_s4bios() have the same issue ?
+Darren> Hi Manfred I have updated to the latest bk and new output can
+Darren> be found at:
+Darren> http://quasar.cse.unsw.edu.au/~dsw/public-files/lemon-debug/
+Darren> kern-log-bk
 
-Yes, it does; I missed that. Thanks. Here's the fix.
-								Pavel
+Intersting.  Offset 0x620 is well off the end of the struct skb, which
+is only 256 bytes big (I think), yet the object that's having problems
+is a 2k object.
 
---- clean/drivers/acpi/hardware/hwsleep.c	2004-02-05 01:53:59.000000000 +0100
-+++ linux/drivers/acpi/hardware/hwsleep.c	2004-02-25 11:08:15.000000000 +0100
-@@ -359,7 +359,7 @@
-  *
-  ******************************************************************************/
- 
--acpi_status
-+acpi_status asmlinkage
- acpi_enter_sleep_state_s4bios (
- 	void)
- {
+Darren> I took a look at alloc_skb(..) and there is a reference to an
+Darren> atomic_t token with this being the most suspect
 
+150> atomic_set(&(skb_shinfo(skb)->dataref), 1);
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+No, the skb_shinfo is off in kmalloced space, not part of the slab.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

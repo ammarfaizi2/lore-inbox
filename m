@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbUC2Kd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 05:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbUC2Kd0
+	id S262800AbUC2Kl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 05:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUC2Kl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 05:33:26 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58638 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262788AbUC2KdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 05:33:24 -0500
-Date: Mon, 29 Mar 2004 11:33:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm5
-Message-ID: <20040329113321.A23135@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040329014525.29a09cc6.akpm@osdl.org> <20040329105729.A20272@flint.arm.linux.org.uk> <20040329022556.255c71bb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040329022556.255c71bb.akpm@osdl.org>; from akpm@osdl.org on Mon, Mar 29, 2004 at 02:25:56AM -0800
+	Mon, 29 Mar 2004 05:41:59 -0500
+Received: from 217-162-71-11.dclient.hispeed.ch ([217.162.71.11]:29312 "EHLO
+	steudten.com") by vger.kernel.org with ESMTP id S262791AbUC2Kl6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 05:41:58 -0500
+Message-ID: <4067FD42.9030206@steudten.com>
+Date: Mon, 29 Mar 2004 12:41:06 +0200
+From: Thomas Steudten <alpha@steudten.com>
+Organization: STEUDTEN ENGINEERING
+MIME-Version: 1.0
+To: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
+CC: linux-raid@vger.kernel.org, mingo@redhat.com, neilb@cse.unsw.edu.au
+Subject: Re: md raid oops on 2.4.25/alpha
+References: <20031027141358.GA26271@gamma.logic.tuwien.ac.at> <20040327164153.GA7324@gamma.logic.tuwien.ac.at> <20040328160246.GA19965@gamma.logic.tuwien.ac.at> <40670BAE.4060901@steudten.com> <20040328223013.A15859@jurassic.park.msu.ru>
+In-Reply-To: <20040328223013.A15859@jurassic.park.msu.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Mailer
+X-Check: 2c1783c72b2809387bfafaa1e08e3128
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 02:25:56AM -0800, Andrew Morton wrote:
-> > and it is completely valid for ->close to be called while
-> > another thread is in ->open.  In fact, it's desirable since ->open may
-> > be waiting for the DCD line from a modem to activate, while there may
-> > be a simultaneous O_NONBLOCK open/ioctl/close from stty.
-> 
-> ->open is not called under tty_sem.  With this change, ->close is called
-> under tty_sem.
-> 
-> Are ->close implementations likely to block on hardware events?
+I know from my own system, that the oops in the raid1 sources, are
+not the only point, where gcc generates wrong assembler code.
+So it't better not to workaround just this single point, but
+use the fixed gcc instead.
 
-Historically they have blocked in a well defined manner - eg when
-dropping the DTR signal for a specified minimum time period.
+Ivan Kokshaysky wrote:
 
-They can also block until the data awaiting transmission has been
-sent, which by default has a 30 second timeout, or may be configured
-to be "until sent".  Of course, if CTS is deasserted, we will wait
-until the timeout.
+> Also, here is a hack (originally from Jay Estabrook) which
+> should work around a bug in older compilers.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

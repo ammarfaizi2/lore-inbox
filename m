@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313859AbSDPT6Y>; Tue, 16 Apr 2002 15:58:24 -0400
+	id <S313864AbSDPUBE>; Tue, 16 Apr 2002 16:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313862AbSDPT6X>; Tue, 16 Apr 2002 15:58:23 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:23227 "HELO atlrel9.hp.com")
-	by vger.kernel.org with SMTP id <S313859AbSDPT6W>;
-	Tue, 16 Apr 2002 15:58:22 -0400
-Message-ID: <3CBC81DF.FC060062@hp.com>
-Date: Tue, 16 Apr 2002 13:56:15 -0600
+	id <S313865AbSDPUBE>; Tue, 16 Apr 2002 16:01:04 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:34209 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S313864AbSDPUBC>;
+	Tue, 16 Apr 2002 16:01:02 -0400
+Message-ID: <3CBC8281.5A2BEDA3@hp.com>
+Date: Tue, 16 Apr 2002 13:58:57 -0600
 From: Khalid Aziz <khalid_aziz@hp.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Wade <lkml@bigpond.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre7
-In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva> <slrnabnps8.evm.kraxel@bytesex.org> <20020416200032.14fbd436.lkml@bigpond.com> <20020416123549.A16359@bytesex.org>
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre7, ppp problem
+In-Reply-To: <3CBC7D8E.5CC95F13@wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I broke this with a typo in my patch (I inserted a line one line above
-where I wanted to). Follwing patch will fix the problem.
+Try the following patch and see if it works:
 
 --
 Khalid
@@ -42,30 +41,17 @@ Khalid
         MCA_SERIAL_PORT_DFNS
 
 
-
-Gerd Knorr wrote:
+Jean-Luc Coulon wrote:
 > 
-> > > 16 10:44:42 bogomips agetty[1111]: ttyS0: ioctl: Input/output error
-> > > Apr 16 10:44:52 bogomips init: Id "S0" respawning too fast: disabled
-> > > for 5 minutes
-> >
-> > Hi, I found that my ttyS0 had turned into ttyS1 :-) My modem was
-> > unresponsive, until I changed the setting to use ttyS1, hope this helps.
+> Hi,
 > 
-> Making getty using ttyS1 works for me too, I have my login prompt back.
-> Looks like a off-by-one bug ...
+> I have a serial modem and I use ppp to connect my isp.
+> With 2.4.19-pre7 it does not works. Nothing happens after loading the
+> ppp module.
+> All is fine with pre5 and pre6
 > 
->   Gerd
-> 
-> --
-> #include </dev/tty>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
+> ----
+> Regards
 
 ====================================================================
 Khalid Aziz                              Linux Systems Operation R&D

@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281067AbRKKVBO>; Sun, 11 Nov 2001 16:01:14 -0500
+	id <S281068AbRKKVI1>; Sun, 11 Nov 2001 16:08:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281068AbRKKVBE>; Sun, 11 Nov 2001 16:01:04 -0500
-Received: from jgateadsl.cais.net ([205.252.5.196]:14881 "EHLO
-	tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S281067AbRKKVAq>; Sun, 11 Nov 2001 16:00:46 -0500
-Date: Sun, 11 Nov 2001 15:56:26 -0500 (EST)
-From: Maxwell Spangler <maxwax@mindspring.com>
-X-X-Sender: <maxwell@tyan.doghouse.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Disk Performance
-In-Reply-To: <Pine.LNX.4.10.10111111336030.13115-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0111111553220.17893-100000@tyan.doghouse.com>
+	id <S281069AbRKKVIR>; Sun, 11 Nov 2001 16:08:17 -0500
+Received: from blount.mail.mindspring.net ([207.69.200.226]:24895 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S281068AbRKKVIG>; Sun, 11 Nov 2001 16:08:06 -0500
+Message-ID: <3BEEE9E5.56D04353@mindspring.com>
+Date: Sun, 11 Nov 2001 13:13:09 -0800
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: ide floppy iomega zip driver or vfat?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001, Andre Hedrick wrote:
+I found a bug in iomega zip drives internal 100 meg drives.  It seems to
+be in 2.4.x kernels. I am not sure which ones work and which ones do
+not.  Currently I am using 2.4.14 and saw this in 2.4.9 to 2.4.14.
 
-> The significance of the tuning code is not just for init events.
-> Linux is the first and only OS to have the autodma down grade feature
-> (Intel borrowed my model, approved by me).  This allows for kernel to auto
-> reconfigure the drive to stablize the transfer rates to protect the data.
-> Of course the ATA hardware has iCRC's un Ultra modes, but excessive
-> retries which are/will be successfully defeat the power of Ultra
-> transfers.  Therefore the tuning code in conjunction the the
-> auto-down-grade functions will reduce the transfer rates until the iCRC's
-> go away.  This is the 0x84/0x51 error pairs.  There are various reasons
-> that can cause this error to occur; however, the first stage is to
-> stablize the transport data path and then allow the SA or EU to examine
-> the problems.
+I mount the zip drive floppy like "mount /mnt/zip100.0"  I then try to
+copy a file to that drive and the copy fails and the cp command becomes
+defunct.  It cannot be killed with kill -9 or kill -TERM.  I cannot shut
+the system down as it is trying to access the drive.
 
-So the system will boot at ATA100, for example, and if errors are seen,
-downgrade step by step until a satisfactory level is reached.  Perhaps, ATA66
-or ATA33 and the system would continue proper operation still at a "somewhat
-fast" (as compared to PIO) speed level AND in DMA mode, not PIO.  My situation
-with the 6.31 driver has DMA being disabled by the driver when errors are
-seen, as I think you have clearly stated.
+It seems that using the mount /mnt/zip100.0 command mounts the drive as
+vfat which causes this problem.  If I do an explicit mount "mount -t
+msdos /dev/hdd4 /zip100.0"  it works better.
 
-?? I'm assuming no to this, but I'm curious: Is there any chance the driver
-would "speed up" the transfers?  Ie: after a period of time at ATA33, would it
-try ATA66, 100 again?  I suppose this makes more sense for things like
-serial/modem communications where problems could come and go, but if one is
-experiencing problems between the ATA circuitry, cable and drive, they'll
-start good, get worse and never recover..?
+In either case using eject to eject the drive also hangs as dmesg shows
+lots of the following:
 
--------------------------------------------------------------------------------
-Maxwell Spangler
-Program Writer
-Greenbelt, Maryland, U.S.A.
-Washington D.C. Metropolitan Area
+hdd: lost interrupt
+ide-floppy: CoD != 0 in idefloppy_pc_intr
+hdd: ATAPI reset complete
+
+Then I just kill eject and then try umount <drive> and it says "driver
+not mounted"
+
+Ideas? Thanks
+
+Joe (not on the lkm list)
 

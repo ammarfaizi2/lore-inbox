@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbUCORlY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 12:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUCORlY
+	id S262632AbUCORob (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUCORob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 12:41:24 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:31562 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262626AbUCORlW
+	Mon, 15 Mar 2004 12:44:31 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:22341 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262632AbUCORoa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 12:41:22 -0500
-Date: Mon, 15 Mar 2004 18:41:48 +0100
+	Mon, 15 Mar 2004 12:44:30 -0500
+Date: Mon, 15 Mar 2004 18:45:06 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Fabian Fenaut <fabian.fenaut@free.fr>
+To: dick morales <gelstat_mystery@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1 and -mm2: include/linux/version.h missing (vanilla ok)
-Message-ID: <20040315174148.GA2163@mars.ravnborg.org>
-Mail-Followup-To: Fabian Fenaut <fabian.fenaut@free.fr>,
+Subject: Re: [KBUILD, FEATURE]
+Message-ID: <20040315174506.GB2163@mars.ravnborg.org>
+Mail-Followup-To: dick morales <gelstat_mystery@hotmail.com>,
 	linux-kernel@vger.kernel.org
-References: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org>
+References: <BAY14-F14t9NbbkFKJz0004f2ae@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org>
+In-Reply-To: <BAY14-F14t9NbbkFKJz0004f2ae@hotmail.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 03:35:01PM +0100, Fabian Fenaut wrote:
-> Hi,
+On Mon, Mar 15, 2004 at 04:49:57AM -0800, dick morales wrote:
+> Hi all!
 > 
-> Why is there no include/linux/version.h after having compiled -mm1 and -mm2 
-> ?
-> Compilation of kernel is fine, but because of this, my nvidia modules won't
-> compile.
-> 
-> As said in the subject, 2.6.4 vanilla is ok, version.h is here after
-> compilation.
-> 
-> I use debian woody, and I type
-> 
-> make-kpkg --append-to-version -ff --revision 1 binary-arch
-> make-kpkg --append-to-version -ff --revision 1 modules_image
+> Many times i saw and did things like "time make bzImage modules" or "times 
+> ..." to know
+> how long kernel compile process takes, many users and admins use similar 
+> technique.
+> Is it possible to add this feature to genuine kernel?
+> Like adding (in the top Makefile, kbuild hackers please help)
+> START_TIME=`date +"%s"`
+> END_TIME=`date +"%s"`
+> _TIME=$(($END_TIME-$START_TIME))
+> or in another form with days(anyone use 2.6 on 486 ;) ?), hours, min,sec.
 
-I dunno make-kpkg, but 'make clean' became a bit more effective in mm1.
-So now 'make clean' deletes version.h - maybe that's your problem?
-
-In that case, why are a make clean executed?
+I see no need to add this to kbuild when this is so easy to do.
+Just use the above mentioned command.
 
 	Sam
+

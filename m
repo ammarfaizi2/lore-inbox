@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281314AbRKLIDe>; Mon, 12 Nov 2001 03:03:34 -0500
+	id <S281312AbRKLIOF>; Mon, 12 Nov 2001 03:14:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281313AbRKLIDY>; Mon, 12 Nov 2001 03:03:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:44431 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281312AbRKLIDO>;
-	Mon, 12 Nov 2001 03:03:14 -0500
-Date: Mon, 12 Nov 2001 00:03:05 -0800 (PST)
-Message-Id: <20011112.000305.45744181.davem@redhat.com>
-To: andrea@suse.de
-Cc: mathijs@knoware.nl, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] fix loop with disabled tasklets
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011112021142.O1381@athlon.random>
-In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl>
-	<20011110173751.C1381@athlon.random>
-	<20011112021142.O1381@athlon.random>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281313AbRKLINz>; Mon, 12 Nov 2001 03:13:55 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:37767 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S281312AbRKLINo>;
+	Mon, 12 Nov 2001 03:13:44 -0500
+Message-Id: <200111120813.fAC8DS628910@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Fix for i810_audio trouble under KDE [Was: Re: PATCH: partial fix for i810_audio.c problems under KDE]
+Date: Mon, 12 Nov 2001 10:13:28 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15vdKC-0001eY-00@the-village.bc.nu> <200111030934.fA39YBf00763@hal.astr.lu.lv>
+In-Reply-To: <200111030934.fA39YBf00763@hal.astr.lu.lv>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Mon, 12 Nov 2001 02:11:42 +0100
+Verified that included patch together with patch from 
+Tobias Diedrich <ranma@gmx.at>:
 
-   I'm just guessing: the scheduler isn't yet functional when
-   spawn_ksoftirqd is called.
+	http://www.cs.helsinki.fi/linux/linux-kernel/2001-44/1023.html
 
-The scheduler is fully functional, this isn't what is going wrong.
+completely fixes problems with i810_audio.c I had under KDE (kernel 
+2.4.13-ac5). 
 
-Look at my other email from last night.  At this point in the booting
-process, what would we possibly switch to if ksoftirqd is in running
-state constantly?  No other kernel thread is of a higher priority if
-the only things running are the idle threads and ksoftird.  This is
-basically what I think is happening on sparc32.
+Andris
 
-Right?
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+On Saturday 03 November 2001 11:34, Andris Pavenis wrote:
+> On Monday 22 October 2001 14:32, Alan Cox wrote:
+> > > reverted one of the patches between 2.4.6-ac1 and 2.4.6-ac2) which
+> > > mostly works for KDE with fragment size up to 512 bytes. 2.4.7 worked
+> > > with any fragment size set in kcontrol.
+> >
+> > Thanks
+> >
+> > > I haven't tested much under GNOME, as I'm starting it very seldom
+> >
+> > Gnome esd is very simple in how it drives the hardware - it works in many
+> > cases where drivers are buggy and arts shows up problems
+>
+> Verified that reverting one patch from 2.4.6-ac time partially fixes
+> i810_audio problems for 2.4.13-ac5 for KDE (it works with fragment size not
+> larger than 512 bytes and gives garbled sound for larger fragment size).
+> This is the same patch which reverting helped me earlier. Below are diffs.
+>
+> Andris
+>
+> --- i810_audio.c.orig	Tue Oct 30 09:17:35 2001
+> +++ i810_audio.c	Sat Nov  3 11:00:45 2001
+> @@ -1405,30 +1405,23 @@
+>  		if (dmabuf->count < 0) {
+>  			dmabuf->count = 0;
+>  		}
+> -		cnt = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
+> -		// this is to make the copy_from_user simpler below
+> -		if(cnt > (dmabuf->dmasize - swptr))
+> -			cnt = dmabuf->dmasize - swptr;
+> +		cnt = dmabuf->dmasize - swptr;
+> +		if(cnt > (dmabuf->dmasize - dmabuf->count))
+> +			cnt = dmabuf->dmasize - dmabuf->count;
+>  		spin_unlock_irqrestore(&state->card->lock, flags);
+>
+> -#ifdef DEBUG2
+> -		printk(KERN_INFO "i810_audio: i810_write: %d bytes available space\n",
+> cnt);
+> -#endif
+>  		if (cnt > count)
+>  			cnt = count;
+>  		if (cnt <= 0) {
+>  			unsigned long tmo;
+>  			// There is data waiting to be played
+> +			i810_update_lvi(state,0);
+>  			if(!dmabuf->enable && dmabuf->count) {
+>  				/* force the starting incase SETTRIGGER has been used */
+>  				/* to stop it, otherwise this is a deadlock situation */
+>  				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
+>  				start_dac(state);
+>  			}
+> -			// Update the LVI pointer in case we have already
+> -			// written data in this syscall and are just waiting
+> -			// on the tail bit of data
+> -			i810_update_lvi(state,0);
+>  			if (file->f_flags & O_NONBLOCK) {
+>  				if (!ret) ret = -EAGAIN;
+>  				goto ret;

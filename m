@@ -1,57 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277509AbRJZEN6>; Fri, 26 Oct 2001 00:13:58 -0400
+	id <S277528AbRJZEWe>; Fri, 26 Oct 2001 00:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277528AbRJZENs>; Fri, 26 Oct 2001 00:13:48 -0400
-Received: from queen.bee.lk ([203.143.12.182]:23938 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S277509AbRJZENn>;
-	Fri, 26 Oct 2001 00:13:43 -0400
-Date: Fri, 26 Oct 2001 10:13:13 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-Message-ID: <20011026101313.A18310@bee.lk>
-In-Reply-To: <20011026084328.A14814@bee.lk> <1004064922.21997.7.camel@Eleusis> <20011026090505.A15880@bee.lk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011026090505.A15880@bee.lk>; from anuradha@gnu.org on Fri, Oct 26, 2001 at 09:05:05AM +0600
+	id <S277530AbRJZEWX>; Fri, 26 Oct 2001 00:22:23 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:24849 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277528AbRJZEWO>;
+	Fri, 26 Oct 2001 00:22:14 -0400
+Date: Thu, 25 Oct 2001 21:29:48 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] /dev/epoll updated to 2.4.13 ...
+Message-ID: <Pine.LNX.4.40.0110252128470.1023-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 09:05:05AM +0600, Anuradha Ratnaweera wrote:
-> On Thu, Oct 25, 2001 at 10:55:16PM -0400, Jeffrey H. Ingber wrote:
-> >
-> > I think this is what QoS and the like are for.
-> 
-> Well, we _are_ going to solve the problem using a firewall between the router
-> and the local area network.
-> 
-> But the real problem is a different one.
-> 
-> One machine begins an intensive downloading job.  How can this degrade the
-> network performance even for ICMP packets between another machine and the
-> router?  Notice that this can't be collitions because the download goes at
-> 64kbps and the local network is 100 Mbps.  Something funny is going on to
-> stop other people's packets.
 
-Just found out that this is _not_ a problem of the "download accelerator", but
-something to do with queuing algorithm of the router.  Even a normal wget
-process or a big mail has a big impart on the network.  Hopefully an iptables
-firewall would solve the problem.
+Patch update to 2.4.13 :
 
-Thanks.
+http://www.xmailserver.org/linux-patches/nio-improve.html
 
-Regards,
 
-Anuradha
 
--- 
 
-Debian GNU/Linux (kernel 2.4.13)
+- Davide
 
-Television has brought back murder into the home -- where it belongs.
-	-- Alfred Hitchcock
 

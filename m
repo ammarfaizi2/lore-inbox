@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVAGPOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVAGPS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVAGPOV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 10:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVAGPOV
+	id S261452AbVAGPS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 10:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVAGPS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 10:14:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:59050 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261450AbVAGPOJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:14:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=h9wfm9PR9vjSHY8nv6rBDusab+Gmkb0l6xEly6wS/NRDYWe86K+vEMQONP6/WSBBX4Xtc1raajiMcDaPp8NlknxYLMLOtcjtgHYetdCqRYpQONlXpNK9MZIsO+eC7CBOM+hluyccC9N6Du+aOi/kwSq0awlNegnX6Ox5fysQNBQ=
-Message-ID: <297f4e0105010707142be80168@mail.gmail.com>
-Date: Fri, 7 Jan 2005 16:14:07 +0100
-From: Ikke <ikke.lkml@gmail.com>
-Reply-To: Ikke <ikke.lkml@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kobject_uevent
-In-Reply-To: <297f4e01050107065060e0b2ad@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <297f4e01050107065060e0b2ad@mail.gmail.com>
+	Fri, 7 Jan 2005 10:18:59 -0500
+Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:43246 "EHLO
+	cascabel.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
+	id S261452AbVAGPS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 10:18:56 -0500
+Message-ID: <41DEA855.90702@mtg-marinetechnik.de>
+Date: Fri, 07 Jan 2005 16:18:45 +0100
+From: Richard Ems <Richard.Ems@mtg-marinetechnik.de>
+Organization: MTG Marinetechnik GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en, de, es
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, Hubert Mantel <mantel@suse.de>
+References: <41DD6F67.6070303@mtg-marinetechnik.de> <20050106173052.GW4597@dualathlon.random>
+In-Reply-To: <20050106173052.GW4597@dualathlon.random>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: [PROBLEM] Badness in out_of_memory (Plain)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next to this, there seems to be a mistake in the 2.6.10 changelog: it writes
-[quote]
-kobject_uevent(const char *signal,
-	                 struct kobject *kobj,
-	                 struct attribute *attr)
-[/quote]
-whilst include/linux/kobject_uevent.h defines
-[quote]
-int kobject_uevent(struct kobject *kobj,
-                   enum kobject_action action,
-                   struct attribute *attr);
-[/quote]
-which is something completely different.
+Andrea Arcangeli wrote:
 
-On Fri, 7 Jan 2005 15:50:52 +0100, Ikke <ikke.lkml@gmail.com> wrote:
-> One of the new features of 2.6.10 (well, AFAIK its new) is the
-> kobject_uevent function set.
-> Currently only some places send out events like this, so I was
-> thinking to add some more.
+> This is a warning only (2.6.9 had the swap token breakage that triggered
+> suprious oom kills, so the warning was meant to get more info), can you
+> try with the kernel of the day?
 > 
-> Question is: how can I test this? Is there any userland program that
-> catches these events and prints some information on them to the
-> screen?
+> 	http://ftp.suse.com/pub/projects/kernel/kotd/9.2-i386/SL92_BRANCH
 > 
-> I found out Kay Siever and RML's (maybe some others too?) work on
-> kernel->userspace events, but the syntax used there seems to be
-> somewhat different. Kay's got a listener
-> (http://vrfy.org/projects/kdbusd/kdbusd.c), but is this one
-> compatible?
-> 
-> Regards, Ikke
->
+> It has my latest oom fixes that I recently posted to l-k and it should
+> be very reliable for the first time in oom-killer terms.
+
+I tried it and it is working ok, when memory and swap become full 
+processes are being killed very fast and the system becomes responsive 
+again.
+
+Do you want me to do some specific test and send you some results?
+
+Thanks, Richard
+
+
+-- 
+Richard Ems
+Tel: +49 40 65803 312
+Fax: +49 40 65803 392
+Richard.Ems@mtg-marinetechnik.de
+
+MTG Marinetechnik GmbH - Wandsbeker Königstr. 62 - D 22041 Hamburg
+
+GF Dipl.-Ing. Ullrich Keil
+Handelsregister: Abt. B Nr. 11 500 - Amtsgericht Hamburg Abt. 66
+USt.-IdNr.: DE 1186 70571
+

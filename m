@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUFSFUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUFSF0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265825AbUFSFUy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 01:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFSFUy
+	id S261907AbUFSF0R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 01:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFSF0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 01:20:54 -0400
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:12255 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265825AbUFSFUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 01:20:52 -0400
-Message-ID: <40D3CD2D.5040004@kolivas.org>
-Date: Sat, 19 Jun 2004 15:20:45 +1000
+	Sat, 19 Jun 2004 01:26:17 -0400
+Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:448 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261907AbUFSF0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 01:26:14 -0400
+Message-ID: <40D3CE68.2000403@kolivas.org>
+Date: Sat, 19 Jun 2004 15:26:00 +1000
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.7a (X11/20040614)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Con Kolivas <kernel@kolivas.org>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.7-ck1
-References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <200406191348.57383.kernel@kolivas.org>
-In-Reply-To: <200406191348.57383.kernel@kolivas.org>
+References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406182004370.32121@alpha.polcom.net> <200406191406.45750.kernel@kolivas.org>
+In-Reply-To: <200406191406.45750.kernel@kolivas.org>
 Content-Type: multipart/mixed;
- boundary="------------000202020801010502030104"
+ boundary="------------040403060900080007010103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000202020801010502030104
+--------------040403060900080007010103
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Con Kolivas wrote:
-> On Sat, 19 Jun 2004 02:28, Felipe Alfaro Solana wrote:
+> On Sat, 19 Jun 2004 04:35, Grzegorz Kulewski wrote:
 > 
->>On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote:
+>>Hi Con,
 >>
->>>-----BEGIN PGP SIGNED MESSAGE-----
->>>Hash: SHA1
->>>
->>>Patchset update. The focus of this patchset is on system responsiveness
->>>with emphasis on desktops, but the scope of scheduler changes now makes
->>>this patch suitable to servers as well.
+>>I have two problems with 2.6.7-ck1. My distribution is Gentoo Linux
+>>unstable with all latest updates. Oh, yes, both 2.6.7-ck1 and 2.6.7-rc3
+>>I tested have vesafb-tng applied from http://dev.gentoo.org/~spock/, but
+>>it should not cause any problems because it is very non-intrusive patch I
+>>think. Maybe you should include this in your patchset?
 >>
->>I've found some interaction problems between, what I think it's, the
->>staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
->>save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
->>takes more than 1 minute to save the same amount of pages when
->>suspending to disk.
+>>1. When booting init script freezes after starting input hotplugging (it
+>>is udev system). The only way to make it run is to press Ctrl-Alt-SysRQ
+>>and various keys to display kernel state several times. After that system
+>>starts normally. I do not know if it is only -ck problem because I had
+>>no time to test 2.6.7 vanilla, but 2.6.7-rc3 worked fine. (Log included.)
 > 
 > 
-> If you're using -ck1 it may even be the autoswappiness. Try disabling that and 
-> setting a static value for swappiness. If it still exhibits the problem then 
-> it's probably a bug somewhere in staircase. While the overall design is 
-> finished (it doesn't really lend itself to tuning), surely there are bugs I 
-> haven't sorted out even though there are no serious bugs or stability issues 
-> that have come up. I'm auditing the code as we speak.
+> Yes I have a sneaking suspicion it's related to the fact kernel threads are 
+> fixed priority at the moment in staircase (they dont descend priority like 
+> normal tasks so act like relatively low priority real time tasks). I'm 
+> addressing that for the next version so hopefully that will fix it.
 
-You might want to try the attached patch which addresses an issue with 
-kernel threads that is going into staircase 7.1
+Here's a diff for -ck1 which brings you up to staircase7.1
+Can you try that?
 
 Con
 
---------------000202020801010502030104
+--------------040403060900080007010103
 Content-Type: text/x-troff-man;
  name="from-2.6.7-ck1_to_staircase7.1"
 Content-Transfer-Encoding: 7bit
@@ -82,4 +79,4 @@ Content-Disposition: inline;
  		prio = MAX_PRIO - 2;
  	return prio;
 
---------------000202020801010502030104--
+--------------040403060900080007010103--

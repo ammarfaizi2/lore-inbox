@@ -1,66 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbUKQHHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbUKQHKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbUKQHHX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 02:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUKQHHX
+	id S262220AbUKQHKO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 02:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbUKQHKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 02:07:23 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:1154 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262219AbUKQHHR convert rfc822-to-8bit (ORCPT
+	Wed, 17 Nov 2004 02:10:14 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:2453 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S262220AbUKQHJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 02:07:17 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Date: Wed, 17 Nov 2004 02:07:14 -0500
-User-Agent: KMail/1.6.2
-Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, Tejun Heo <tj@home-tj.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20041109223729.GB7416@kroah.com> <20041116061315.GG29574@neo.rr.com> <20041116201726.GA11069@kroah.com>
-In-Reply-To: <20041116201726.GA11069@kroah.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200411170207.14745.dtor_core@ameritech.net>
+	Wed, 17 Nov 2004 02:09:59 -0500
+Subject: Re: 2.6.10-rc2-mm1: oops when accessing reiser4 fs's (maybe fix
+	provided)
+From: Vladimir Saveliev <vs@namesys.com>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: reiserfs-list@namesys.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <874qjptyl1.fsf@barad-dur.crans.org>
+References: <874qjptyl1.fsf@barad-dur.crans.org>
+Content-Type: multipart/mixed; boundary="=-gLZgRza9uPOe2WI0L/IL"
+Message-Id: <1100675389.1399.27.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 17 Nov 2004 10:09:49 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 November 2004 03:17 pm, Greg KH wrote:
-> > 2.) I don't like having an "unbind" file.
-> 
-> Why?
 
-I do not like interfaces accepting and encouraging writing garbage data. What
-value sould be written into "unbind"? Yes, any junk.
+--=-gLZgRza9uPOe2WI0L/IL
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hello
+
+On Tue, 2004-11-16 at 21:53, Mathieu Segaud wrote:
+> I tried 2.6.10-rc2-mm1 and the last reiser4 updates gave some (many many)
+> oopses flooding my screen :).
+> I tried reverting reiser4-fix-deadlock.patch and oopses are gone.
+> 
+Would you please instead try the attached patch? 
+
+> I tried this one because thru the quick traces on my screen, I saw a reference
+> to get_current_context.
+> The speed of the traces and the unasibility of the box prevented me from
+> making differences between "real" oopses and BUG_ON(), sorry for that...
+> 
+> If you want some traces I can provide them ASAP (e.g. tomorrow)
+
+
+
+
+--=-gLZgRza9uPOe2WI0L/IL
+Content-Disposition: attachment; filename=1.1755
+Content-Type: text/plain; name=1.1755; charset=koi8-r
+Content-Transfer-Encoding: 7bit
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/11/15 16:23:47+03:00 vs@tribesman.namesys.com 
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+# plugin/file/file.c
+#   2004/11/15 16:23:45+03:00 vs@tribesman.namesys.com +5 -1
+#   unix_file_filemap_nopage: missing context creation is added
+# 
+diff -Nru a/plugin/file/file.c b/plugin/file/file.c
+--- a/plugin/file/file.c	2004-11-17 09:36:11 +03:00
++++ b/plugin/file/file.c	2004-11-17 09:36:11 +03:00
+@@ -1961,8 +1961,10 @@
+ {
+ 	struct page *page;
+ 	struct inode *inode;
+-
++	reiser4_context ctx;
++	
+ 	inode = area->vm_file->f_dentry->d_inode;
++	init_context(&ctx, inode->i_sb);
  
-> 
-> > This implies that we will have at least three seperate files controlling
-> > driver binding when we really need only one or two at the most.  Consider
-> > "bind", "unbind", and the link to the driver that is bound.
-> 
-> No.  Consider the fact that the "unbind" file will not be present if the
-> device is not bound to anything.  Once it is bound, the unbind file will
-> be created, and the symlink will be created.  The symlink matches other
-> parts of sysfs.  By trying to put the name of the driver in a file, that
-> makes userspace work a lot harder to try to figure out exactly what
-> driver is bound (consider the fact that I can have both a pci and a usb
-> driver with the same name in sysfs, and that's legal.)
+ 	/* block filemap_nopage if copy on capture is processing with a node of this file */
+ 	down_read(&reiser4_inode_data(inode)->coc_sem);
+@@ -1972,6 +1974,8 @@
+ 
+ 	drop_nonexclusive_access(unix_file_inode_data(inode));
+ 	up_read(&reiser4_inode_data(inode)->coc_sem);
++
++	reiser4_exit_context(&ctx);
+ 	return page;
+ }
+ 
 
-But not 2 drivers with the same name on the same bus so I don't think this
-is a valid argument. Anyway, we already have this symlink.
+--=-gLZgRza9uPOe2WI0L/IL--
 
-> 
-> So, when a device is not bound to a driver, there will be no symlink, or
-> a "unbind" file, only a "bind" file.  Really there is only 1 "control"
-> type file present at any single point in time.
-
-Does that imply that I can not rebind device while it is bound to a driver?
-("bind" would be missing it seems). And what about all other flavors of that
-operation - rescan, reconnect? Do we want to have separate attributes for
-them as well?
-
--- 
-Dmitry

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbUCJGRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 01:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUCJGRU
+	id S261468AbUCJGiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 01:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUCJGiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 01:17:20 -0500
-Received: from ext-ch1gw-3.online-age.net ([216.34.191.37]:55437 "EHLO
-	ext-ch1gw-3.online-age.net") by vger.kernel.org with ESMTP
-	id S262281AbUCJGQt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 01:16:49 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6521.0
-content-class: urn:content-classes:message
+	Wed, 10 Mar 2004 01:38:50 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:28321 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261468AbUCJGis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 01:38:48 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: evbug.ko
+Date: Wed, 10 Mar 2004 01:38:36 -0500
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, "James H. Cloos Jr." <cloos@jhcloos.com>
+References: <m3n06x4o0q.fsf@lugabout.jhcloos.org> <200403042238.13924.dtor_core@ameritech.net> <20040308213241.GE16396@kroah.com>
+In-Reply-To: <20040308213241.GE16396@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: (0 == foo), rather than (foo == 0)
-Date: Wed, 10 Mar 2004 11:46:40 +0530
-Message-ID: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: (0 == foo), rather than (foo == 0)
-Thread-Index: AcQGZ2o1g+OfH4jMTjGgADeRZVA0HQ==
-From: "Godbole, Amarendra \(GE Consumer & Industrial\)" 
-	<Amarendra.Godbole@ge.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Mar 2004 06:16:43.0970 (UTC) FILETIME=[4276DA20:01C40667]
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403100138.41453.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 08 March 2004 04:32 pm, Greg KH wrote:
+> On Thu, Mar 04, 2004 at 10:38:13PM -0500, Dmitry Torokhov wrote:
+> > On Wednesday 03 March 2004 04:30 pm, James H. Cloos Jr. wrote:
+> > > Any idea what might modprobe evbug.ko w/o operator intervention?
+> > > 
+> > 
+> > It's new hotplug scripts. Put modules you do not want to be automatically
+> > loaded even if they think they have hardware/facilities to bind to into
+> > /etc/hotplug/blacklist
+> > 
+> > I, for example, have evbug, joydev, tsdev and eth1394 there.
+> > 
+> > Greg, any chance adding evbug to the default version of hotplug package?
+> 
+> Care to send me a patch for it?
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-While writing code, the assignment operator (=) is many-a-times confused with the comparison operator (==) resulting in very subtle bugs difficult to track. To keep a check on this -- the constant can be written on the LHS rather than the RHS which will result in a compile time error if wrong operator is used.
+Ok, here it is, against today's CVS..
 
-Is this an encouraged practice while writing any code for the kernel ? Or is this choice left to the developer ? I was unable to find any reference to it in the CodingStyle document. I did find some code under drivers/ which used (NULL == foo) and similar constructs. 
-
-Can this be added to the CodingStyle document ?
-
-Cheers,
-Amarendra
-
---
-#include <std$disclaimer.h>
+--- admin/etc/hotplug/blacklist.orig	2004-03-10 00:51:59.000000000 -0500
++++ admin/etc/hotplug/blacklist	2004-03-10 00:53:30.000000000 -0500
+@@ -18,3 +18,6 @@
+ # At least 2.4.3 and later xircom_tulip doesn't have that conflict
+ # xircom_tulip_cb
+ dmfe
++
++#evbug is a debug tool and should be loaded explicitly
++evbug

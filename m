@@ -1,89 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUILHrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUILHsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268520AbUILHrX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 03:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUILHrX
+	id S268525AbUILHsN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 03:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268528AbUILHsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 03:47:23 -0400
-Received: from polaris.galacticasoftware.com ([206.45.95.222]:13515 "EHLO
-	polaris.galacticasoftware.com") by vger.kernel.org with ESMTP
-	id S268520AbUILHrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 03:47:07 -0400
-Message-ID: <4143FEFE.7020800@galacticasoftware.com>
-Date: Sun, 12 Sep 2004 02:47:10 -0500
-From: Adam Majer <adamm@galacticasoftware.com>
-Organization: Galactica Software Corporation
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wolfpaw - Dale Corse <admin-lists@wolfpaw.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [grsec] Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote)
- Denial of Service
-References: <004c01c49848$2608e180$0200a8c0@wolf>
-In-Reply-To: <004c01c49848$2608e180$0200a8c0@wolf>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Sep 2004 03:48:12 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:51619 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268525AbUILHrw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 03:47:52 -0400
+Date: Sun, 12 Sep 2004 09:49:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+Message-ID: <20040912074904.GA7777@elte.hu>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wolfpaw - Dale Corse wrote:
 
->Greetings,
->
-> My apologies if this is to the wrong place - it happens to be the
->first kernel bug I have found (or what appears to be one), and I'm
->not entirely sure how to properly inform the Linux community about
->it. 
->
->Anyway - on to the bug :)
->==========================
->Severity: HIGH
->Title: KERNEL: TCP Local (probable remote) Denial of Service
->Date: September 11, 2004
->  
->
+* Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
 
-Actually, it seems that the sockets that are not closing properly are
-the ones opened by your proof of concept code, *NOT* the server. The
-servers (mysql and Apache), close their sockets properly. I could verify
-this over a network. Locally, I got
+> > Agreed, Paul we may as well remove the cpu_relax() in __preempt_spin_lock 
+> > and use something like "cpu_yield" (architectures not supporting it would 
+> > just call cpu_relax) i'll have something for you later.
+> 
+> The following patch introduces cpu_lock_yield which allows
+> architectures to possibly yield processor resources during lock
+> contention. [...]
 
-tcp        0      0 192.168.53.2:41440      192.168.53.1:3306      
-TIME_WAIT
-tcp        0      0 192.168.53.2:41442      192.168.53.1:3306      
-TIME_WAIT
-tcp        0      0 192.168.53.2:41443      192.168.53.1:3306      
-TIME_WAIT
-tcp        0      0 192.168.53.2:41452      192.168.53.1:3306      
-TIME_WAIT
-tcp        0      0 192.168.53.2:41468      192.168.53.1:80        
-TIME_WAIT
-tcp        0      0 192.168.53.2:41441      192.168.53.1:80        
-TIME_WAIT
-tcp        0      0 192.168.53.2:41447      192.168.53.1:80        
-TIME_WAIT
-tcp        0      0 192.168.53.2:41444      192.168.53.1:80         TIME
+it is not clear from the Intel documentation how well MONITOR+MWAIT
+works on SMP. It seems to be targeted towards hyperthreaded CPUs - where
+i suspect it's much easier to monitor the stream of stores done to an
+address.
 
-etc..
+on SMP MESI caches the question is, does MONITOR+MWAIT detect a
+cacheline invalidate or even a natural cacheline flush? I doubt it does.
+But without having the monitored cacheline in Modified state in the
+sleeping CPU for sure it's fundamentally racy and it's not possible to
+guarantee latencies: another CPU could have grabbed the cacheline and
+could keep it dirty indefinitely. (it could itself go idle forever after
+this point!)
 
-But on the server, only 1 or two ESTABISHED entries, nothing more.
+the only safe way would be if MONITOR moved the cacheline into Exclusive
+state and if it would watch that cacheline possibly going away (i.e. 
+another CPU unlocking the spinlock) after this point - in addition to
+watching the stores of any HT sibling. But there is no description of
+the SMP behavior in the Intel docs - and i truly suspect it would be
+documented all over the place if it worked correctly on SMP... So i
+think this is an HT-only instruction. (and in that limited context we
+could indeed use it!)
 
-I don't see much of a DOS, except maybe to DOS a localhost. And you can
-do that already.
+one good thing to do would be to test the behavior and count cycles - it
+is possible to set up the 'wrong' caching case that can potentially lead
+to indefinite delays in mwait. If it turns out to work the expected way
+then it would be nice to use. (The deep-sleep worries are not a too big
+issue for latency-sensitive users as deep sleep can already occur via
+the idle loop so it has to be turned off / tuned anyway.)
 
->The socket table looks like this while it is going on:
->
->http://www.ancients.org/LG.txt
->(it is 29,000+ lines, so I didn't put it here)
->  
->
+but unless the SMP case is guaranteed to work in a time-deterministic
+way i dont think this patch can be added :-( It's not just the question
+of high latencies, it's the question of fundamental correctness: with
+large enough caches there is no guarantee that a CPU will _ever_ flush a
+dirty cacheline to RAM.
 
-
--- 
-Building your applications one byte at a time
-http://www.galacticasoftware.com
-
-
+	Ingo

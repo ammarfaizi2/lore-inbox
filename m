@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270063AbUJEPvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269371AbUJEPvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270063AbUJEPvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269998AbUJEPu7
+	id S269371AbUJEPvb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270063AbUJEPva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:50:59 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:5818 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S269454AbUJEPsV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:48:21 -0400
-Message-ID: <4162C1DA.5000808@rtr.ca>
-Date: Tue, 05 Oct 2004 11:46:34 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Mark Lord <lsml@rtr.ca>, Anton Blanchard <anton@samba.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-References: <1096401785.13936.5.camel@localhost.localdomain>	<1096467125.2028.11.camel@m	ulgrave> 	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com>	<1096984590.1765.2.camel@mulgrave>  <4162B345.9000806@rtr.ca> <1096988167.2064.7.camel@mulgrave>
-In-Reply-To: <1096988167.2064.7.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 11:51:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6879 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269917AbUJEPtZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:49:25 -0400
+Date: Tue, 5 Oct 2004 17:46:28 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] ide-dma blacklist behaviour broken
+Message-ID: <20041005154628.GG19971@suse.de>
+References: <20041005142001.GR2433@suse.de> <20041005163730.A19554@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041005163730.A19554@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
->
-> This is expected behaviour.  For orderly removal an cache sync command
-> must be sent to drives with a writeback cache before they're powered
-> down.  For forced ejection, the driver has to error the command.
+On Tue, Oct 05 2004, Christoph Hellwig wrote:
+> On Tue, Oct 05, 2004 at 04:20:01PM +0200, Jens Axboe wrote:
+> > Hi,
+> > 
+> > The blacklist stuff is broken. When set_using_dma() calls into
+> > ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
+> > of course succeeds, returning success to the caller of ide_dma_check().
+> > Not so good... It then uncondtionally calls ide_dma_on(), which turns on
+> > dma for the drive.
+> > 
+> > This moves the check to ide_dma_on() so we also catch the buggy
+> > ->ide_dma_check() defined by various chipset drivers.
+> 
+> Is this a bug introduced in the 2.6.9ish IDE changes or has it been there
+> for a longer time? 
 
-Yup, that's how it has to be done at present.
+I didn't check, someone just reported today. But looking at eg 2.6.5, it
+seems to have the same bug. So it's likely very old.
 
-Another weirdness I ran into at one point, was that the mid-layer
-could be made to segfault if a LLD asked it to remove a drive that
-had previously been set "offline" -- it complains about an illegal
-state transition during the removal, and then dies.  This sequence
-no longer occurs in the QStor driver, but it might resurface soon
-as more drivers begin to support hot insertion/removal.
-
-Cheers
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Jens Axboe
+

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261280AbRELQrT>; Sat, 12 May 2001 12:47:19 -0400
+	id <S261279AbRELQqT>; Sat, 12 May 2001 12:46:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261282AbRELQrJ>; Sat, 12 May 2001 12:47:09 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3858 "EHLO
+	id <S261280AbRELQqJ>; Sat, 12 May 2001 12:46:09 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3346 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261280AbRELQrD>; Sat, 12 May 2001 12:47:03 -0400
-Subject: Re: ENOIOCTLCMD?
-To: jlundell@pobox.com (Jonathan Lundell)
-Date: Sat, 12 May 2001 17:43:44 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <p05100305b722fde7cf26@[207.213.214.37]> from "Jonathan Lundell" at May 12, 2001 07:52:28 AM
+	id <S261279AbRELQpu>; Sat, 12 May 2001 12:45:50 -0400
+Subject: Re: Kernel "Oops" output
+To: oppaak@alaweb.com (Aubrey Kilpatrick)
+Date: Sat, 12 May 2001 17:42:30 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B0032926992@gate> from "Aubrey Kilpatrick" at May 12, 2001 09:48:16 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14ycUa-0004K0-00@the-village.bc.nu>
+Message-Id: <E14ycTP-0004Js-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's what's confusing me: why the distinction? It's true that the 
-> current scheme allows the dev->ioctlfunc() call below to force ENOTTY 
-> to be returned, bypassing the switch, but presumably that's not what 
-> one wants.
+> tried to find the "opps" output in the /var/log/messages file but there is
+> nothing there.  The system hangs at the last line of the oops output to the
+> screen and will not accept any commands.  The only recourse at this point is
+> to "CTRL-ALT-DEL" and let the system reboot.
+> 
+> The oops out follows:
+> 
+> Power down
+> general protection fault: f000
+> CPU: 0
+> EIP: 005: [<00008865>]
 
-It allows driver specific code to override generic code, including by reporting
-that a given feature is not available/appropriate.
-
-Alan
-
+That is a bug in the APM BIOS on your machine. Upgrading to 2.2.19 and 
+enabling the real mode bios poweroff might help..

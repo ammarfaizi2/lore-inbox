@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbTDNVsU (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTDNVrs (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:47:48 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:39941 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263982AbTDNVrb (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:47:31 -0400
-Date: Mon, 14 Apr 2003 14:58:52 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blockgroup_lock: hashed spinlocks for ext2 and ext3
-Message-Id: <20030414145852.6beabadf.akpm@digeo.com>
-In-Reply-To: <20030414214608.GA3392@wotan.suse.de>
-References: <200304131113.h3DBDvj2004773@hera.kernel.org>
-	<1050350782.7912.400.camel@averell>
-	<20030414143813.329609a6.akpm@digeo.com>
-	<20030414214608.GA3392@wotan.suse.de>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id S263986AbTDNV5Y (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTDNV5Y (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:57:24 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50443 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263986AbTDNV5U (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:57:20 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Memory mapped files question
+Date: 14 Apr 2003 15:08:48 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b7fbhg$sq4$1@cesium.transmeta.com>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com> <004301c302bd$ed548680$fe64a8c0@webserver>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Apr 2003 21:59:16.0340 (UTC) FILETIME=[17927340:01C302D1]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
+Followup to:  <004301c302bd$ed548680$fe64a8c0@webserver>
+By author:    "Bryan Shumsky" <bzs@via.com>
+In newsgroup: linux.dev.kernel
 >
-> > 
-> > And this hashed lock is not a per-cpu thing.  (No locks are!) It just uses
-> > NR_CPUS to decide how big the hash should be.
+> Hi, everyone.  Thanks for all your responses.  Our confusion is that in Unix
+> environments, when we modify memory in memory-mapped files the underlying
+> system flusher manages to flush the files for us before the files are
+> munmap'ed or msysnc'ed.
 > 
-> Isn't that what the IBM kmalloc_per_cpu() was for ? (I think the patch
-> was from Dipankar) 
 
-This is not a per-cpu data structure.
+Bullshit.  It might work on one particular Unix implementation, but
+the definition of Unix, the Single Unix Standard, does explicitly
+*not* require this behavior.
 
-It is a hashed spinlock which uses NR_CPUS as a sizing hint.
+> Rewriting all of our code to manually handle the flushing is a MAJOR
+> undertaking, so I was hoping there might be some sneaky solution you could
+> come up with.  Any ideas?
 
+Your code is fundamentally broken.  You need to fix it.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

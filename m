@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319191AbSHTQqi>; Tue, 20 Aug 2002 12:46:38 -0400
+	id <S319193AbSHTQwi>; Tue, 20 Aug 2002 12:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319193AbSHTQqi>; Tue, 20 Aug 2002 12:46:38 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:49848 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319191AbSHTQqh>;
-	Tue, 20 Aug 2002 12:46:37 -0400
-Message-Id: <200208201648.g7KGmkS02333@w-gaughen.beaverton.ibm.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (2/2) discontigmem support for i386 against 2.4.20pre4: 
- discontigmem
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "20 Aug 2002 14:07:25 BST." <1029848845.22982.23.camel@irongate.swansea.linux.org.uk> 
+	id <S319195AbSHTQwi>; Tue, 20 Aug 2002 12:52:38 -0400
+Received: from smtp4.vol.cz ([195.250.128.43]:23566 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S319193AbSHTQwi>;
+	Tue, 20 Aug 2002 12:52:38 -0400
+Date: Tue, 20 Aug 2002 13:09:10 +0200
+From: Stanislav Brabec <utx@penguin.cz>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: Andre Hedrick <andre@linux-ide.org>, Paul Bristow <paul@paulbristow.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ide-floppy & devfs - /dev entry not created if drive is empty
+Message-ID: <20020820110910.GB2831@utx>
+References: <Pine.LNX.4.10.10208191744570.458-100000@master.linux-ide.org> <3D619776.7010104@cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Aug 2002 09:48:46 -0700
-From: Patricia Gaughen <gone@us.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <3D619776.7010104@cox.net>
+User-Agent: Mutt/1.4i
+X-Accept-Language: cs, sk, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stanislav Brabec wrote:
+>If module ide-floppy is loaded and no disc is present in the drive,
+>/dev/ide/host0/bus1/target1/lun0/disc entry is not created. Later
+>inserted media cannot be checked in any way, because no /dev entry
+>exists.
+>
+Kevin P. Fleming wrote:
+> diff -X dontdiff -urN linux/drivers/ide/ide-probe.c
+> linux-probe/drivers/ide/ide-probe.c
 
-  > On Tue, 2002-08-20 at 04:03, Patricia Gaughen wrote:
-  > > Assumptions made: 
-  > > 
-  > >         - that the first node has at least 900Mb of memory
-  > 
-  > Is that assumption made for non NUMA too ?
+Does anybody know, whether this problem was present on LS-120/240,
+IOMEGA PocketZip and JAZ devices and is fixed now?
 
-No, this assumption is only for the i386 numa boxes.
-
- 
-
-
-
+-- 
+Stanislav Brabec
+http://www.penguin.cz/~utx

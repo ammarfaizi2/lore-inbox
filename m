@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267371AbSLES54>; Thu, 5 Dec 2002 13:57:56 -0500
+	id <S267365AbSLESzv>; Thu, 5 Dec 2002 13:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267372AbSLES54>; Thu, 5 Dec 2002 13:57:56 -0500
-Received: from mail006.mail.bellsouth.net ([205.152.58.26]:60751 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S267371AbSLES5z>; Thu, 5 Dec 2002 13:57:55 -0500
-Date: Thu, 5 Dec 2002 14:04:47 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: linux-kernel@vger.kernel.org
-cc: kai@tp1.ruhr-uni-bochum.de
-Subject: 2.5.50-bk5: KALLSYMS shows call trace as all _stext
-Message-ID: <Pine.LNX.4.43.0212051357230.10336-100000@morpheus>
+	id <S267371AbSLESzv>; Thu, 5 Dec 2002 13:55:51 -0500
+Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:21411 "HELO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
+	id <S267365AbSLESzu>; Thu, 5 Dec 2002 13:55:50 -0500
+Date: Thu, 5 Dec 2002 21:21:11 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
+To: Dave Olien <dmo@osdl.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Monitor utility (was Re: DAC960 at 2.5.50)
+In-Reply-To: <20021205094500.A6769@acpi.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33.0212052105300.22842-100000@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Starting in 2.5.50-bk5 (it works in bk4), oopses when CONFIG_KALLSYMS
-seems to mis-report all functions as _stext.
+On Thu, 5 Dec 2002, Dave Olien wrote:
 
-Call Trace:
- [<c014cec9>] _stext+0x47ec9/0x17ab4e
+....
+> I've heard of something Mylex provides called
+> "global array manager" that runs on Linux.  But, I
+> think it requires a graphical front end on a windows
+> box.  I don't think it's open source either.
+> I'll look it over as a second priority after
+> this one.
+>
+> Dave
+>
 
-However, as seen in the System.map,
-bwindle@razor:/giant/linux$ grep c014ce System.map
-c014ce50 T get_locks_status
+Hi Dave
 
+Yes, their software its pretty cool and its the only choice for using some
+of the features of the DAC960 (ex. MORE, setting queue tag len for single
+hdd, write-back cache for logical and physical drives, very nice event
+viewer, full SNMP variables exporting). They provide native linux
+drivers/server and win32 client (inside a rpm and using wine to start
+itself). Except for some minor visual problems the GAM client works pretty
+well with wine.
 
-Full example oops:
+I sugest you to try it out.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000008
- printing eip:
-c014cbd0
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c014cbd0>]    Not tainted
-EFLAGS: 00010286
-EIP is at _stext+0x47bd0/0x17ab4e
-eax: 00000000   ebx: c8b4902f   ecx: 0000002f   edx: 00000002
-esi: c13bad5c   edi: 00000000   ebp: c8b61ed8   esp: c8b61ecc
-ds: 0068   es: 0068   ss: 0068
-Process cat (pid: 263, threadinfo=c8b60000 task=c8cec760)
-Stack: c13badd0 c13bad60 c13bad5c c8b61f14 c014cec9 c8b4902f c13bad5c 00000002
-       c028a9d3 c8b60000 00000400 00000400 c8b61f0c c8b61f10 00000400 00000002
-       c8b4902f 0000002f c8b61f38 c01608fa c8b49000 c8b61f74 00000000 00000400
-Call Trace:
- [<c014cec9>] _stext+0x47ec9/0x17ab4e
- [<c01608fa>] _stext+0x5b8fa/0x17ab4e
- [<c015e708>] _stext+0x59708/0x17ab4e
- [<c013a4f7>] _stext+0x354f7/0x17ab4e
- [<c013a7c6>] _stext+0x357c6/0x17ab4e
- [<c0108b03>] _stext+0x3b03/0x17ab4e
+----------------------------
+Mihai RUSU
 
-Code: 8b 78 08 8b 45 14 50 8b 45 10 50 68 ec a8 28 c0 53 e8 b2 91
-
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
-
+Disclaimer: Any views or opinions presented within this e-mail are solely
+those of the author and do not necessarily represent those of any company,
+unless otherwise specifically stated.
 

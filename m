@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbQLCCjx>; Sat, 2 Dec 2000 21:39:53 -0500
+	id <S129523AbQLCDPI>; Sat, 2 Dec 2000 22:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbQLCCjn>; Sat, 2 Dec 2000 21:39:43 -0500
-Received: from CPE-61-9-148-163.vic.bigpond.net.au ([61.9.148.163]:7943 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S129352AbQLCCjd>; Sat, 2 Dec 2000 21:39:33 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Roger Crandell <rwc@lanl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiprocessor kernel problem 
-In-Reply-To: Your message of "Fri, 01 Dec 2000 09:41:58 PDT."
-             <3A27D4D6.4DA47346@lanl.gov> 
-Date: Sun, 03 Dec 2000 13:08:53 +1100
-Message-Id: <20001203020904.31A2C813F@halfway.linuxcare.com.au>
+	id <S129429AbQLCDO6>; Sat, 2 Dec 2000 22:14:58 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:16390 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S129523AbQLCDOs>;
+	Sat, 2 Dec 2000 22:14:48 -0500
+Message-Id: <200012030136.eB31aBM01753@sleipnir.valparaiso.cl>
+To: linux-kernel@vger.kernel.org
+cc: Alan.Cox@linux.org
+Subject: 2.2.18pre2[34] freezes
+X-Mailer: MH [Version 6.8.4]
+Date: Sat, 02 Dec 2000 22:36:11 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3A27D4D6.4DA47346@lanl.gov> you write:
-> 
-> I have 2.4.0  test 10 and test 11 installed on a multiprocessor (Intel)
-> machine.  I have tried both test versions of the kernel.  I configured
-> the kernel for single
-> and multi processor.  When I boot single processor, iptables will run
-> fine.  When I boot the machine with the multiprocessor kernel and run
-> iptables, the kernel dumps several pages of hex and the final two lines
-> of output are:
-> 
-> Killing interrupt handler
-> scheduling in interrupt
+P3/600 (Katmai, stepping 3), intel SR440BX mobo + latest BIOS, 128Mb; RH7 +
+local updates (notably binutils-2.10.0.33-1).
 
-My development box (running test10pre5) is SMP, and it works fine.  I
-haven't updated to the latest kernel version because I like my
-filesystems in one piece, and the netfilter code hasn't changed.
+2.2.18pre23: Machine was mostly idle (around 15:40, no users, running Gnome
++ screensaver). No response at all to mouse/keyboard (C-A-BS nor
+C-A-DEL). No traces in the logs.
 
-What is your kernel configuration, and iptables version?  Have you
-patched the kernel?
+2.2.18pre24: Rebooted into 24, downloaded latest CVS update for gcc started
+building, was reading email via emacs + mh-e in Gnome. Full freeze again.
 
-Thanks for the report,
-Rusty.
---
-Hacking time.
+First time this happens to me with this machine. Back to 2.2.18pre22 for
+now.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

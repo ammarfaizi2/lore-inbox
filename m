@@ -1,44 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129681AbRBGSqN>; Wed, 7 Feb 2001 13:46:13 -0500
+	id <S129373AbRBGSrd>; Wed, 7 Feb 2001 13:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130021AbRBGSqD>; Wed, 7 Feb 2001 13:46:03 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:3597 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129373AbRBGSps>; Wed, 7 Feb 2001 13:45:48 -0500
-Date: Wed, 07 Feb 2001 13:45:31 -0500
-From: Chris Mason <mason@suse.com>
-To: Vedran Rodic <vedran@renata.irb.hr>
-cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-Message-ID: <552640000.981571531@tiny>
-In-Reply-To: <20010207194125.A15780@renata.irb.hr>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
+	id <S129443AbRBGSrX>; Wed, 7 Feb 2001 13:47:23 -0500
+Received: from ns.caldera.de ([212.34.180.1]:20746 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129373AbRBGSrL>;
+	Wed, 7 Feb 2001 13:47:11 -0500
+Date: Wed, 7 Feb 2001 19:44:39 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010207194439.A25947@caldera.de>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Steve Lord <lord@sgi.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	kiobuf-io-devel@lists.sourceforge.net,
+	Ingo Molnar <mingo@redhat.com>
+In-Reply-To: <20010207192622.A23859@caldera.de> <Pine.LNX.4.10.10102071032390.4623-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10102071032390.4623-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Feb 07, 2001 at 10:36:47AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wednesday, February 07, 2001 07:41:25 PM +0100 Vedran Rodic
-<vedran@renata.irb.hr> wrote:
-
+On Wed, Feb 07, 2001 at 10:36:47AM -0800, Linus Torvalds wrote:
 > 
-> So could some of this bugs also be present in 3.5.x version of reiserfs?
-> Will you be fixing them for that version?
 > 
+> On Wed, 7 Feb 2001, Christoph Hellwig wrote:
+> 
+> > On Tue, Feb 06, 2001 at 12:59:02PM -0800, Linus Torvalds wrote:
+> > > 
+> > > Actually, they really aren't.
+> > > 
+> > > They kind of _used_ to be, but more and more they've moved away from that
+> > > historical use. Check in particular the page cache, and as a really
+> > > extreme case the swap cache version of the page cache.
+> > 
+> > Yes.  And that exactly why I think it's ugly to have the left-over
+> > caching stuff in the same data sctruture as the IO buffer.
+> 
+> I do agree.
+> 
+> I would not be opposed to factoring out the "pure block IO" part from the
+> bh struct. It should not even be very hard. You'd do something like
+> 
+> 	struct block_io {
+> 		.. here is the stuff needed for block IO ..
+> 	};
+> 
+> 	struct buffer_head {
+> 		struct block_io io;
+> 		.. here is the stuff needed for hashing etc ..
+> 	}
+> 
+> and then you make "generic_make_request()" and everything lower down take
+> just the "struct block_io".
 
-This list of reiserfs bugs was all specific to the 3.6.x versions, and they
-don't appear with the 3.5.x code.  You will probably have problems if you
-compile 3.5.x reiserfs with an unpatched redhat gcc 2.96, though.  
+Yep. (besides the name block_io sucks :))
 
--chris
+> You'd still leave "ll_rw_block()" and "submit_bh()" operating on bh's,
+> because they knoa about bh semantics (ie things like scaling the sector
+> number to the bh size etc). Which means that pretty much all the code
+> outside the block layer wouldn't even _notice_. Which is a sign of good
+> layering.
 
+Yep.
 
+> If you want to do this, please do go ahead.
 
+I'll take a look at it.
+
+> But do realize that this is not exactly a 2.4.x thing ;)
+
+Sure.
+
+	Christoph
+
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

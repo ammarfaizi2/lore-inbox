@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272250AbRHWMw2>; Thu, 23 Aug 2001 08:52:28 -0400
+	id <S272255AbRHWMys>; Thu, 23 Aug 2001 08:54:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272252AbRHWMwS>; Thu, 23 Aug 2001 08:52:18 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39174 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272250AbRHWMwN>; Thu, 23 Aug 2001 08:52:13 -0400
-Subject: Re: [patch] PCI64 + block zero-bounce highmem v11
-To: axboe@suse.de (Jens Axboe)
-Date: Thu, 23 Aug 2001 13:55:31 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel),
-        davem@redhat.com (David S. Miller), lse-tech@lists.sourceforge.net,
-        lnz@dandelion.com (Leonard N. Zubkoff), arjanv@redhat.com
-In-Reply-To: <20010823095324.Q604@suse.de> from "Jens Axboe" at Aug 23, 2001 09:53:24 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272253AbRHWMy2>; Thu, 23 Aug 2001 08:54:28 -0400
+Received: from web10402.mail.yahoo.com ([216.136.130.94]:7184 "HELO
+	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272252AbRHWMyR>; Thu, 23 Aug 2001 08:54:17 -0400
+Message-ID: <20010823125433.88094.qmail@web10402.mail.yahoo.com>
+Date: Thu, 23 Aug 2001 22:54:33 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: (was posted)2.4.9-compilation error, pls help
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Zu1D-0003mT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll include I2O highmem support in the next release -- haven't started
-> it yet, but it should be a breeze.
+sorry but I lost the email and can not compile it. I
+still remember that someone made a patch available to
+fix it. pls show me :-))
 
-It should be, however the amount of i2o firmware that gets 64bit right is
-unknown and I fear quite minimal.
 
-Alan
+
+ux/modversions.h -DNTFS_VERSION=\"1.1.16\"   -c -o
+unistr.o unistr.c
+unistr.c: In function `ntfs_collate_names':
+unistr.c:99: warning: implicit declaration of function
+`min'
+unistr.c:99: parse error before `unsigned'
+unistr.c:99: parse error before `)'
+unistr.c:97: warning: `c1' might be used uninitialized
+in this function
+unistr.c: At top level:
+unistr.c:118: parse error before `if'
+unistr.c:123: warning: type defaults to `int' in
+declaration of `c1'
+unistr.c:123: `name1' undeclared here (not in a
+function)
+unistr.c:123: warning: data definition has no type or
+storage class
+unistr.c:124: parse error before `if'
+make[2]: *** [unistr.o] Error 1
+make[2]: Leaving directory `/home/linux/fs/ntfs'
+make[1]: *** [_modsubdir_ntfs] Error 2
+make[1]: Leaving directory `/home/linux/fs'
+make: *** [_mod_fs] Error 2
+
+
+=====
+S.KIEU
+
+_____________________________________________________________________________
+http://shopping.yahoo.com.au - Father's Day Shopping
+- Find the perfect gift for your Dad for Father's Day

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292943AbSCDWcp>; Mon, 4 Mar 2002 17:32:45 -0500
+	id <S292948AbSCDWeG>; Mon, 4 Mar 2002 17:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292948AbSCDWcf>; Mon, 4 Mar 2002 17:32:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39179 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292943AbSCDWcW>; Mon, 4 Mar 2002 17:32:22 -0500
-Subject: Re: Need Suggestion(modifying kernel source)
-To: cvaka_kernel@yahoo.com (chiranjeevi vaka)
-Date: Mon, 4 Mar 2002 22:47:34 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020304212315.89890.qmail@web21305.mail.yahoo.com> from "chiranjeevi vaka" at Mar 04, 2002 01:23:15 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292952AbSCDWd6>; Mon, 4 Mar 2002 17:33:58 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:30933 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S292948AbSCDWdq>;
+	Mon, 4 Mar 2002 17:33:46 -0500
+Date: Mon, 4 Mar 2002 23:34:03 +0100 (CET)
+From: stephan@a2000.nu
+X-X-Sender: kernel@ddx.a2000.nu
+To: Mathieu Legrand <mathieu@accellion.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre2-ac2 || Linux 2.4.18-ac3, compilation error on
+ SPARC
+In-Reply-To: <20020304083236.GC3568@accellion.com>
+Message-ID: <Pine.LNX.4.44.0203042332160.9623-100000@ddx.a2000.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16i1F0-0000sC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The major problem I am getting is, as and when I do a
-> small change, to test that change, I have to compile
-> the whole kernel make boot floppy and reboot the
-> kernel with that floppy and test the code. This way is
-> takinbg too much time. I donno how linux kernel
-> developers will make changes to kernel and test them. 
+On Mon, 4 Mar 2002, Mathieu Legrand wrote:
 
-Tweak the file concerned , make bzImage make modules
-On the target box with the other machine NFS mounted
-make modules_install; cp the kernel and reboot the
-test box
+> Hello:
+>
+> I couldn't get the latest ac kernels to compile on a SUN sparc Ultra 10,
+> even using the default configuration (arch/sparc64/defconfig).
+>
+same problem here
+2.4.19-ac2 compiles ok
+when applying the ac patches is fails on the ide.h
 
-> Can you suggest me in this issue. If it is any thing
-> to deal with the kernel debugger can you give me
-> proper links so that I can get more information about
-> that.
+sun ultrasparc 10
+redhat 6.2 (lot of updates)
+gcc version :
 
-Search for "kdb" "linux"
+Reading specs from /usr/lib/gcc-lib/sparc-redhat-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
 
-Also look at usermode linux (on sourceforge), then you can run a Linux
-inside of Linux
+

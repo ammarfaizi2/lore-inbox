@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317846AbSGPONR>; Tue, 16 Jul 2002 10:13:17 -0400
+	id <S317847AbSGPOPr>; Tue, 16 Jul 2002 10:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317847AbSGPONQ>; Tue, 16 Jul 2002 10:13:16 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:14863 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317846AbSGPONP>; Tue, 16 Jul 2002 10:13:15 -0400
-Date: Tue, 16 Jul 2002 15:15:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Joerg Schilling <schilling@fokus.gmd.de>
-Cc: James.Bottomley@steeleye.com, lmb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020716151556.A13538@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Joerg Schilling <schilling@fokus.gmd.de>,
-	James.Bottomley@steeleye.com, lmb@suse.de,
-	linux-kernel@vger.kernel.org
-References: <200207161406.g6GE6tYh021918@burner.fokus.gmd.de>
+	id <S317848AbSGPOPq>; Tue, 16 Jul 2002 10:15:46 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30962 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317847AbSGPOPq>; Tue, 16 Jul 2002 10:15:46 -0400
+Subject: Re: Tyan s2466 stability
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maxwell Spangler <maxwax@speakeasy.net>
+Cc: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>, linux-kernel@vger.kernel.org,
+       ss@aao.gov.au
+In-Reply-To: <Pine.LNX.4.33.0207161000100.2603-100000@tyan.doghouse.com>
+References: <Pine.LNX.4.33.0207161000100.2603-100000@tyan.doghouse.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 16 Jul 2002 16:28:47 +0100
+Message-Id: <1026833327.1687.59.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207161406.g6GE6tYh021918@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Tue, Jul 16, 2002 at 04:06:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 04:06:55PM +0200, Joerg Schilling wrote:
-> Just a hint: the block layer is for caching blocks from disk type deveices.
+On Tue, 2002-07-16 at 15:08, Maxwell Spangler wrote:
+> 6) I have only one issue yet to be resolved: SCSI "loss of streaming" errors 
+> when trying to burn cd-rs.  I haven't taken the time to figure out what the 
+> problem is there but the fact that others aren't reporting it suggests 
+> configuration or something else specific to my system and not indicative of 
+> the MPX chipset or dual Athlon setup, etc.
 > 
-> -	Block device access is always going directly into the block cache.
-> 	So the I/O is always kernel I/O. In addition, it is async I/O - the 
-> 	block layer fires it up and may wait for it later after sending out other
-> 	requests.
-> 
-> -	Character device access is synchronous access and may be either kernel
-> 	or user space DMA access. In most cases, it is user space DMA access.
-> 
-> How try to ask your question again...
 
-The discussion would be much easier if you got the terminology right.
-The linux block layer does no caching at all, the caching of the block device
-nodes is handles by the page (>= 2.4.10) or buffer (<= 2.4.9) cache.
+That one isn a unique report. MPX boards seem to have problems burning
+CD-R's. I have no idea why
 
-> >That is not true. Late IDE also has this, and systems like drbd - which
-> >currently uses a quite clever heuristic to deduce barriers - could also
-> >utilize this input.
-> 
-> How is it implemented?
-
-RTFS: drivers/ide/tcq.c (in 2.5)
 

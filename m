@@ -1,98 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUAYTbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUAYTbA
+	id S265227AbUAYTdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUAYTdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:31:00 -0500
-Received: from diale017.ppp.lrz-muenchen.de ([129.187.28.17]:34749 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S265225AbUAYTa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:30:56 -0500
-Subject: rtl8169 problem and 2.4.23
-From: Daniel Egger <degger@fhm.edu>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rOQzZHKZ5sJxy6aYhxlI"
-Message-Id: <1075059124.13750.38.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Jan 2004 20:32:05 +0100
+	Sun, 25 Jan 2004 14:33:10 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:15854 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S265227AbUAYTdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 14:33:07 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Linux 2.4.25-pre7 - no DRQ after issuing WRITE
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet> <x6ptd8l7so@gzp>
+	<Pine.LNX.4.58L.0401251714400.1311@logos.cnet>
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Sun, 25 Jan 2004 20:33:02 +0100
+Message-ID: <x6oesrj029@gzp>
+User-Agent: Gnus/5.1004 (Gnus v5.10.4)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
 
---=-rOQzZHKZ5sJxy6aYhxlI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+| > Here we go: http://gzp.odpn.net/tmp/linux-2.4.25-pre7/
+| >
+| > The "no DRQ after issuing WRITE" problem with 2 120GB Seagate
 
-Hija,
+...
 
-I just discovered that the interface doesn't account outgoing bytes, so
-although I'm shoveling GBs over NFS to another machine, ifconfig and
-/proc/net/dev both state that the card hasn't transmitted anything:
+| I'm not IDE expert, but these errors look like hardware fault for me
+| (Bartlomiej CCed).
+| 
+| What about 2.6 and older 2.4 kernels on the same hardware ?
 
-eth2      Link encap:Ethernet  HWaddr 00:08:01:a3:64:97,
-          inet addr:192.168.11.2  Bcast:192.168.11.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:297638 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1334930 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:45831863 (43.7 MiB)  TX bytes:0 (0.0 b)
-          Interrupt:4 Base address:0xff00
+Same kernel works fine in a non-sw-raid environment, when I can't
+stress enough the harddisks to fail. When I boot NetBSD 1.6.1, I'm
+able to read-write the disks nonstop without any error. Thats why I
+think its not hw problem, but I would like to use Linux 2.4, so I'm
+waiting for Bartlomiej.
 
-Furthermore the performance is really scary slow: I'm not even getting=20
-100Base-T speeds from an Athlon XP to my G4 PowerBook under MacOS X over
-a PtP connection.
-
-What is interesting though is that the machine produces interrupt errors
-which only occur when the card is active:
-
-           CPU0
-  0:  110545371          XT-PIC  timer
-  1:          2          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:      35665          XT-PIC  ohci1394
-  4:    4314949          XT-PIC  eth2
-  8:          4          XT-PIC  rtc
- 12:   87125964          XT-PIC  eth0
- 14:    6035586          XT-PIC  ide0
- 15:    6986897          XT-PIC  ide1
-NMI:          0
-LOC:  110544807
-ERR:      10905
-MIS:          0
-
-And this is this output of the driver at initialisation:
-
-r8169 Gigabit Ethernet driver 1.2 loaded
-PCI: Found IRQ 4 for device 00:0d.0
-r8169: PCI device 00:0d.0: unknown chip version, assuming RTL-8169
-r8169: PCI device 00:0d.0: TxConfig =3D 0x800000
-eth2: Identified chip type is 'RTL-8169'.
-eth2: RealTek RTL8169 Gigabit Ethernet at 0xe093ff00, 00:08:01:a3:64:97, IR=
-Q 4
-eth2: Auto-negotiation Enabled.
-eth2: 1000Mbps Full-duplex operation.
-
---=20
-Servus,
-       Daniel
-
---=-rOQzZHKZ5sJxy6aYhxlI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQEVAwUAQBQZtDBkNMiD99JrAQL3VQf/bOTSz8pxGxULvVpodEb6j0oXco11Bxcg
-9N3VYagNbGIuDJE5cxPnme7tTCQ5zImO7CJR7KsLNJQuK4Q4Dn/u8TcBZY75OnJb
-XDsbqEWqgOtJ1z2LYltuByIYbZaLKUjTfPDqzK5a3dPy8L2deP3R04dIP6jZZ4QO
-dTiv329GGVWCYX9dvV+yQqVEwfOzzPyx1PYgbFGP7tcyuUEh/VpnJE+bEwzDdScq
-Lr2V4p2ff8g7BQoFLRJoy9UyL6AYjkGXX4UCvrpjjMyQyXesMjKiRWkMbwmaEkKT
-8I3TcYI/uLCgo/mf2q5DCaN0T8jBoEOlH2rpaygSO84DHCjuZvT4Ww==
-=4AVz
------END PGP SIGNATURE-----
-
---=-rOQzZHKZ5sJxy6aYhxlI--
+| -------------
+| Mounted devfs on /dev
+| Freeing unused kernel memory: 116k freed
+| hde: dma_timer_expiry: dma status == 0x21
+| hdg: dma_timer_expiry: dma status == 0x21
+| hde: error waiting for DMA
+| hde: dma timeout retry: status=0x7f { DriveReady DeviceFault SeekComplete
+| DataRequest CorrectedError Index Error }
+| hde: dma timeout retry: error=0x7f { DriveStatusError UncorrectableError
+| SectorIdNotFound TrackZeroNotFound AddrMarkNotFound },
+| LBAsect=9343692930943, high=556927, low=8355711, sector=4352
+| hde: DMA disabled
+| hdg: error waiting for DMA
+| hdg: dma timeout retry: status=0x58 { DriveReady SeekComplete DataRequest
+| }
+| hdg: status error: status=0x50 { DriveReady SeekComplete }
+| hdg: no DRQ after issuing MULTWRITE
+| hdg: status timeout: status=0xd0 { Busy }
 

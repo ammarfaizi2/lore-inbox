@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbUKZVZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbUKZVZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbUKZVZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKZVYr
+	id S262757AbUKZVZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbUKZVY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:24:47 -0500
-Received: from fallback.mail.elte.hu ([157.181.151.13]:9961 "EHLO
-	fallback.mail.elte.hu") by vger.kernel.org with ESMTP
-	id S264029AbUKZUOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:14:08 -0500
-Date: Thu, 25 Nov 2004 15:44:40 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch, 2.6.10-rc2] floppy boot-time detection fix
-Message-ID: <20041125144440.GA8022@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125120133.GA22431@elte.hu> <20041125143337.GA32051@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041125143337.GA32051@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 26 Nov 2004 16:24:56 -0500
+Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:9910 "EHLO
+	pbl.ca") by vger.kernel.org with ESMTP id S264020AbUKZUHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:07:48 -0500
+Message-ID: <41A78D0A.5060308@pbl.ca>
+Date: Fri, 26 Nov 2004 14:07:38 -0600
+From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: network console
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Has anybody attempted to implement console on network interface (with or 
+without encryption, preferably with some form of authentication)? 
+Either using TCP, UDP, Ethernet datagrams, or whatever.  Possibly with 
+LILO support so that LILO prompt can be accessed through it too (OK, 
+LILO support is probably *way* too much to ask for, but maybe some other 
+more complex boot loader?).
 
-> +	current->state = TASK_UNINTERRUPTIBLE;
-> +	schedule_timeout(HZ/100 + 1);
+I know the security implications of using such an console, but for my 
+home environment, if something like that existed it would be quite 
+handy.  I have a box with no keyboard/monitor, and to use serial console 
+I'd have to route loooooong serial cable through half of my house, and I 
+already have network cable in place (took me half of the day to route 
+that one, and another half of the day to wash myself from all the dirt 
+and dust hidden in most obscure places that light of the day never touches).
 
-should use msleep() of course:
+If such a beast exists, what would be required on the client side? 
+Linux-only client, or is there Windows client too?
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/drivers/block/floppy.c.orig
-+++ linux/drivers/block/floppy.c
-@@ -4504,6 +4504,12 @@ int __init floppy_init(void)
- 		floppy_track_buffer = NULL;
- 		max_buffer_sectors = 0;
- 	}
-+	/*
-+	 * Small 10 msec delay to let through any interrupt that
-+	 * initialization might have triggered, to not
-+	 * confuse detection:
-+	 */
-+	msleep(10);
- 
- 	for (i = 0; i < N_FDC; i++) {
- 		fdc = i;
+TIA,
+Alex

@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUIGQpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUIGQpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268268AbUIGQpg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUIGQmM
+	id S268269AbUIGQpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUIGOi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:42:12 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:8426 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S268223AbUIGQk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 12:40:56 -0400
-Subject: Re: clustering and 2.6
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <20040907161254.GA23325@beardog.cca.cpqcorp.net>
-References: <20040907161254.GA23325@beardog.cca.cpqcorp.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 07 Sep 2004 12:40:50 -0400
-Message-Id: <1094575251.1716.113.camel@mulgrave>
+	Tue, 7 Sep 2004 10:38:26 -0400
+Received: from verein.lst.de ([213.95.11.210]:30617 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268130AbUIGOgj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:36:39 -0400
+Date: Tue, 7 Sep 2004 16:36:32 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org, manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make kmem_find_general_cachep static in slab.c
+Message-ID: <20040907143632.GA8480@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	manfred@colorfullife.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-07 at 12:12, mikem wrote:
-> All,
-> I'm having some issues when trying to use some clustering software when
-> running any 2.6.x kernel.
-> Basically, there are 2 nodes connected to 1 storage storage enclosure.
-> When node 1 comes up it reserves the volume(s) in the enclosure. When
-> node 2 comes up the read capacity fails as expected because of the 
-> SCSI reservation. However, if node 1 fails node 2 breaks the reservation,
-> but cannot register the disk. At this time we're assuming it's because the read
-> capacity failed and the size of the disk is zero blocks.
-> 
-> The SCSI mid-layer sets a bogus size on a device when read capacity fails.
-> Is this the preferred way to get around this issue? Seems like there
-> should be a better way.
-> 
-> Any input is greatly appreciated.
 
-The bogus size thing is a holdover from the old days.
-
-However, I recently did a test where I forced the size to zero.  What I
-see is that the partition does indeed not get registered (even for the
-whole disc device).  However I can still send a BLKRRPART ioctl to it
-trigger a rescan and get the correct size.
-
-James
-
-
+--- 1.35/include/linux/slab.h	2004-09-03 11:08:25 +02:00
++++ edited/include/linux/slab.h	2004-09-07 14:47:58 +02:00
+@@ -55,7 +55,6 @@
+ /* prototypes */
+ extern void kmem_cache_init(void);
+ 
+-extern kmem_cache_t *kmem_find_general_cachep(size_t, int gfpflags);
+ extern kmem_cache_t *kmem_cache_create(const char *, size_t, size_t, unsigned long,
+ 				       void (*)(void *, kmem_cache_t *, unsigned long),
+ 				       void (*)(void *, kmem_cache_t *, unsigned long));
+--- 1.146/mm/slab.c	2004-09-03 11:08:25 +02:00
++++ edited/mm/slab.c	2004-09-07 14:48:33 +02:00
+@@ -562,6 +562,22 @@
+ 	return cachep->array[smp_processor_id()];
+ }
+ 
++static kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
++{
++	struct cache_sizes *csizep = malloc_sizes;
++
++	/* This function could be moved to the header file, and
++	 * made inline so consumers can quickly determine what
++	 * cache pointer they require.
++	 */
++	for ( ; csizep->cs_size; csizep++) {
++		if (size > csizep->cs_size)
++			continue;
++		break;
++	}
++	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
++}
++
+ /* Cal the num objs, wastage, and bytes left over for a given slab size. */
+ static void cache_estimate (unsigned long gfporder, size_t size, size_t align,
+ 		 int flags, size_t *left_over, unsigned int *num)
+@@ -2554,24 +2570,6 @@
+ }
+ 
+ EXPORT_SYMBOL(kmem_cache_size);
+-
+-kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
+-{
+-	struct cache_sizes *csizep = malloc_sizes;
+-
+-	/* This function could be moved to the header file, and
+-	 * made inline so consumers can quickly determine what
+-	 * cache pointer they require.
+-	 */
+-	for ( ; csizep->cs_size; csizep++) {
+-		if (size > csizep->cs_size)
+-			continue;
+-		break;
+-	}
+-	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
+-}
+-
+-EXPORT_SYMBOL(kmem_find_general_cachep);
+ 
+ struct ccupdate_struct {
+ 	kmem_cache_t *cachep;

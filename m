@@ -1,146 +1,448 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265035AbTIDVZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265570AbTIDVZ5
+	id S265523AbTIDVVw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTIDVVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:25:57 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15233 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265035AbTIDVZg
+	Thu, 4 Sep 2003 17:21:52 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:19410 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265523AbTIDVVa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:25:36 -0400
-Date: Thu, 4 Sep 2003 17:29:01 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: James Clark <jimwclark@ntlworld.com>
-cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-In-Reply-To: <200309042114.45234.jimwclark@ntlworld.com>
-Message-ID: <Pine.LNX.4.53.0309041723090.9557@chaos>
-References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com>
+	Thu, 4 Sep 2003 17:21:30 -0400
+Message-ID: <3F57AD88.CC54D482@free.fr>
+Date: Thu, 04 Sep 2003 23:24:24 +0200
+From: Jerome de Vivie <jerome.devivie@free.fr>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ksymoops@ocs.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: segfault in ksymoops
+References: <3F5674E1.9E270DFF@free.fr>
+Content-Type: multipart/mixed;
+ boundary="------------2E571490AAA7DC88CF2ECBC3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, James Clark wrote:
-
-> Thank you for this (and the few other) sensible appraisal of my 'proposal'.
->
-> I'm very surprised by the number of posts that have ranted about Open/Close
-> source, GPL/taint issues etc. This is not about source code it is about
-> making Linux usable by the masses. It may be technically superior to follow
-> the current model, but if the barrier to entry is very high (and it is!) then
-> the project will continue to be a niche project. A binary model doesn't alter
-> the community or the benefits of public source code. I agree that it is an
-> extra interface and will carry a performance hit - I think this is worth it.
-> Windows has many faults but drivers are often compatible across major
-> releases and VERY compatible across minor releases. It is no accident that it
-> has 90% of the desktop market. If we are going to improve this situation this
-> issue MUST be confronted.
->
-> I am currently collating the arguments for and (mostly) against the idea. If I
-> don't get flamed in the meantime I may come back with more...
->
-> James
->
+This is a multi-part message in MIME format.
+--------------2E571490AAA7DC88CF2ECBC3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
 
-The problem with Windows users is not that they are
-stupid or even uneducated. It's just that they have been
-taught that using a widely-used operating system that
-is defective in design and implementation is the way
-that operating systems should be.
+Jerome de Vivie wrote:
+> 
+> I have try ksymoops v2.4.9, v2.4.8 & v2.4.7 and each time i get a
+> segmentation fault. Here's the output: (the oops file is attached).
+> 
+> I use this configuration:
+> -binutils 2.13.90.0.20 20030319
+> -gcc version 3.2.2
+> -libc-2.2.5
+> 
+> Could you help me ?
+> 
+> regards,
+> 
+> j.
+> 
+> ~/dev/kernelspace >ksymoops -v /usr/src/linux/vmlinux < oops
+> ksymoops 2.4.9 on i686 2.4.21.  Options used
+>      -v /usr/src/linux/vmlinux (specified)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.21/ (default)
+>      -m /usr/src/linux/System.map (default)
+> 
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c011ec37>]    Not tainted
+> Using defaults from ksymoopsSegmentation fault
+> 
+> --
+> Jérôme de Vivie
+> 
+>   ------------------------------------------------------------------------
+> invalid operand: 0000
+> CPU:    1
+> EIP:    0010:[<c011ec37>]    Not tainted
+> EFLAGS: 00010286
+> eax: 00000026   ebx: dffface0   ecx: 00000092   edx: df113f7c
+> esi: defc500b   edi: 00000000   ebp: dbe2bf98   esp: dbe2bf1c
+> ds: 0018   es: 0018   ss: 0018
+> Process ls (pid: 727, stackpage=dbe2b000)
+> Stack: c0298ce0 000000f8 c014f7d9 000000f8 ded103a0 00000000 00000008 df4dad80
+>        ded103a0 defc5007 00000004 01aa954b bffffb9a dbe2bf98 defc5000 00000000
+>        00000008 c014f9e9 defc5000 defc5000 dbe2bf98 c014fd39 bffffb9a 00000077
+> Call Trace:    [<c014f7d9>] [<c014f9e9>] [<c014fd39>] [<c014be5f>] [<c0107713>]
+> 
+> Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4 26 00 00 00 00 8d bc
 
-They have been taught that bugs are normal. "Every program
-has bugs. It is impossible to check all possible execution
-paths to verify that there are no bugs, etc." This kind
-of teaching comes about when the teachers know little or
-nothing about their subjects and simply parrot what they
-have read in literature that, in many cases, has been written
-by the very persons who are incapable of writing bug-free code.
 
-They have been taught that the secret inner workings of
-the kernel are best treated like the objects of an object-
-oriented design. In fact, they are taught that it's
-harmful for a programmer, much less a user, to understand
-the underlying workings of the operating system. This
-is taught because Microsoft doesn't want you to know what
-an abysmal abortion the operating system is.
+Here's more details and logs from previous problem:
 
-Before Microsoft, nobody would dare sell a product that
-contained no warranty at all. Somehow, Microsoft has taught
-its customers that they should never expect software to
-actually work. Somehow, their lawyers have replaced the
-usual; "We warrant this product to be free of defects in
-workmanship and design for a period ..."  to a disclaimer
-that many persons think is some kind of a warranty. In
-most cases, you can't even take a defective CD, defective
-because it can't be read, back to the vendor without
-encountering; "On it's software. Nobody warrants that!"
 
-You can thank Microsoft for this.
+~/ksymoops-2.4.9 >./ksymoops ~/projet/kernelspace/oops
+ksymoops 2.4.9 on i686 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /usr/src/linux/System.map (default)
 
-There have been billions and billions of dollars of
-lost productivity in industry because of this defective
-Operating System.  In one company alone, there was
-over one million dollars lost last year to defective
-software. You can look at the financial filings of
-many of the publically-traded companies and see write-
-offs due to defective software in this order of magnitude.
-Multiply that by the number of companies in the world to
-get the big picture.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-And, somehow, companies still keep using that garbage!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c011ec37>]    Not tainted
+Using defaults from ksymoopsSegmentation fault (core dumped)
+~/ksymoops-2.4.9 >gdb ./ksymoops core
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i686-pc-linux-gnu"...
+Core was generated by `./ksymoops /home/jerome/projet/kernelspace/oops'.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /usr/lib/libbfd-2.13.90.0.20.so...done.
+Loaded symbols for /usr/lib/libbfd-2.13.90.0.20.so
+Reading symbols from /lib/i686/libc.so.6...done.
 
-Linux is something different. It strives for perfection.
-There is no way in hell that you are going to add some
-Microsoft-compatible driver interface to Linux. There
-are no drivers that could ever work on Windows and
-somehow work on Linux. These two systems are mutually
-exclusive, Alpha-Omega, 0->inf, good-evil, absolutely the
-antithesis of each other. I hear that's why Microsoft is
-attempting to kill Linux by funding the SCO lawsuit (check
-this week's EETimes, I didn't make it up).
+Loaded symbols for /lib/i686/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x42080b1b in strlen () from /lib/i686/libc.so.6
+(gdb) bt full
+#0  0x42080b1b in strlen () from /lib/i686/libc.so.6
+No symbol table info available.
+#1  0x42051e4d in vfprintf () from /lib/i686/libc.so.6
+No symbol table info available.
+#2  0x420551d8 in buffered_vfprintf () from /lib/i686/libc.so.6
+No symbol table info available.
+#3  0x42050347 in vfprintf () from /lib/i686/libc.so.6
+No symbol table info available.
+#4  0x4205a1dc in printf () from /lib/i686/libc.so.6
+No symbol table info available.
+#5  0x0804e3d1 in Oops_set_default_ta (me=0x82fd5c8 "./ksymoops",
+ibfd=0x83157f8, options=0xbffff8c0) at oops.c:89
+        procname = "Oops_set_default_ta"
+        bt = 0x736b2f2e <Address 0x736b2f2e out of bounds>
+        bai = (const struct bfd_arch_info *) 0x4008c9a0
+        t = 1
+        a = 1
+#6  0x0804f1d3 in Oops_set_eip (value=0x831fbe0 "c011ec37",
+eip=0xbffff860, ss=0xbffff830, 
+    me=0x82fd5c8 "./ksymoops", ibfd=0x83157f8, options=0xbffff8c0) at
+oops.c:500
+        procname = "Oops_set_eip"
+        eip_name = "\0\0\0\0\001\0\0\0y\020"
+        p = 0x83212b8 "Àß\022BÀß\022B¸ß\022B¸ß\022B"
+#7  0x08052fb0 in Oops_read (options=0xbffff8c0) at oops.c:2414
+        ret_addr = 0x0
+---Type <return> to continue, or q <return> to quit---
+        line = 0x8321050 "EIP:    0010:[<c011ec37>]    Not tainted"
+        string = (char **) 0x82a0690
+        me = 0x82fd5c8 "./ksymoops"
+        start = 0x831fbe0 "c011ec37"
+        text = 0x8321050 "EIP:    0010:[<c011ec37>]    Not tainted"
+        i = -1073743720
+        size = 50
+        lineno = 3
+        lastprint = 3
+        print = 1
+        eip = 0
+        sparc_regdump = 0
+        f = (struct _IO_FILE *) 0x82a0b48
+        ss_format = {source = 0x8313448 "Oops log data", used = 0, alloc
+= 0, symbol = 0x0, related = 0x0, 
+  object = 0x0, mtime = 0}
+        ibfd = (struct _bfd *) 0x83157f8
+        procname = "Oops_read"
+#8  0x0804c054 in main (argc=2, argv=0xbffff9a4) at ksymoops.c:778
+        spec_h = 0
+        ret = -1073743544
+        options = {vmlinux = 0x0, object = 0x805ae88, objects = 1, ksyms
+= 0x8056926 "/proc/ksyms", 
+  lsmod = 0x8056932 "/proc/modules", system_map = 0x805695d
+"/usr/src/linux/System.map", save_system_map = 0x0, 
+  filename = 0xbffff9ac, filecount = 0, short_lines = 1, endianess = 0,
+hex = 1, one_shot = 0, 
+---Type <return> to continue, or q <return> to quit---
+  ignore_insmod_path = 0, ignore_insmod_all = 0, truncate = 0, 
+  target = 0x736b2f2e <Address 0x736b2f2e out of bounds>, architecture =
+0x4008708f "i386", adhoc_addresses = 0x0, 
+  address_bits = 0, vli = 0}
+        procname = "main"
+#9  0x42017499 in __libc_start_main () from /lib/i686/libc.so.6
+No symbol table info available.
+===============================================================================
 
-Now, you propose to introduce a driver interface that is
-defective in concept. You propose this because you just
-don't get it. You just don't know anything about Operating
-Systems and you just don't know anything about Linux.
 
-It may not be your fault. There are lots of people who
-haven't a clue because they have been taught things that
-are simply not true at all. And, once you repeat a falsehood
-enough times it becomes accepted as fact.
 
-Before you can become qualified to propose a different
-driver interface, you need to learn about Operating Systems.
-I know that you do not know anything about Operating Systems
-in general, because of your proposal.
 
-I suggest that you read a book like "Developing Your Own
-32-bit Operating System", Burges, H.W.Sams, ISBN 0-627-30655-7
-This is an interesting book because it is not about Windows
-and it's not about Linux. It's about a roll-your-own Operating
-System. It even comes with a CD and you can boot a home-grown
-system on your PC.
 
-Now, I don't care if you studied Operating Systems in College.
-In fact, that just might be the reason why you don't know what
-you are talking about. Most such college courses in this subject
-are absolute crap, written by Masters candidates who learned
-a bunch of words and coined a few of their own.
 
-After you learn about Operating Systems, then you might be able
-to add some new capability to Linux. You know, they accept patches
-here. If you've got a better way, you make a patch and we'll all
-try it. It's really that simple.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
 
+
+Then, i ve try to set arch and target (even if i don't use cross
+compilation):
+Here's what i get:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+~/ksymoops-2.4.9 >./ksymoops -t elf32-i386 -a i386
+~/projet/kernelspace/oops
+ksymoops 2.4.9 on i686 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /usr/src/linux/System.map (default)
+     -t elf32-i386 -a i386
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c011ec37>]    Not tainted
+EFLAGS: 00010286
+eax: 00000026   ebx: c1590f20   ecx: 00000000   edx: debf3f7c
+esi: df0f500c   edi: 00000000   ebp: daf6df98   esp: daf6df1c
+ds: 0018   es: 0018   ss: 0018
+Process ls (pid: 776, stackpage=daf6d000)
+Stack: c0298ce0 000000f8 c014f7d9 000000f8 debfbde0 00000004 00000008
+ded91040 
+       debfbde0 df0f5007 00000004 01aa954b bffffb94 daf6df98 df0f5000
+00000000 
+       00000008 c014f9e9 df0f5000 df0f5000 daf6df98 c014fd39 bffffb94
+00000077 
+Call Trace:    [<c014f7d9>] [<c014f9e9>] [<c014fd39>] [<c014be5f>]
+[<c0107713>]
+Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4 26 00 00 00 00 8d bc 
+Segmentation fault (core dumped)
+
+
+~/ksymoops-2.4.9 >gdb ./ksymoops core
+GNU gdb 5.3
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i686-pc-linux-gnu"...
+Core was generated by `./ksymoops -t elf32-i386 -a i386
+/home/jerome/projet/kernelspace/oops'.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /usr/lib/libbfd-2.13.90.0.20.so...done.
+Loaded symbols for /usr/lib/libbfd-2.13.90.0.20.so
+Reading symbols from /lib/i686/libc.so.6...done.
+Loaded symbols for /lib/i686/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x082a0b48 in ?? ()
+(gdb) set args  -t elf32-i386 -a i386
+/home/jerome/projet/kernelspace/oops
+(gdb) bt full
+#0  0x082a0b48 in ?? ()
+No symbol table info available.
+#1  0x0804e7fa in Oops_code_to_file (code=0xbffff780 "\017\v\215",
+size=64, ibfd=0x83157f8, options=0xbffff8a0)
+    at oops.c:210
+        file = 0x83220b0 "/tmp/ksymoops.9J839I"
+        tmpdir = 0x8057680 "/tmp"
+        fd = 4
+        obfd = (struct _bfd *) 0x83220d0
+        bai = (const struct bfd_arch_info *) 0x4008c9a0
+        temp_suffix = "/ksymoops.XXXXXX"
+        procname = "Oops_code_to_file"
+#2  0x080524fc in Oops_decode_part (code=0xbffff780 "\017\v\215",
+code_size=64, eip=3222400055, adjust=0, 
+    type=67 'C', ss=0xbffff810, string=0xbffff868, string_max=300,
+ibfd=0x83157f8, options=0xbffff8a0)
+    at oops.c:2212
+        f = (struct _IO_FILE *) 0x1
+        file = 0x829a2f0 ""
+        line = 0x0
+        size = 0
+        lines = 0
+        procname = "Oops_decode_part"
+#3  0x080527b8 in Oops_decode (code_text=0x83218b8 "0f 0b 8d 00 06 8d 29
+c0 90 eb fe 8d b4 26 00 00 00 00 8d bc", 
+    eip=3222400055, ss=0xbffff810, string=0xbffff868, string_max=300,
+ibfd=0x83157f8, options=0xbffff8a0)
+    at oops.c:2250
+        code = "\017\v\215\0\006\215)À\220ëþ\215´&\0\0\0\0\215¼", '\0'
+<repeats 43 times>
+        adjust = 0
+        procname = "Oops_decode"
+#4  0x080533c6 in Oops_read (options=0xbffff8a0) at oops.c:2458
+        line = 0x8321940 "Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4
+26 00 00 00 00 8d bc "
+        string = (char **) 0x82a0690
+        me = 0x82fd5c8 "./ksymoops"
+        start = 0x83218b8 "0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4 26 00
+00 00 00 8d bc"
+        text = 0x8321940 "Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4
+26 00 00 00 00 8d bc "
+        i = -1073743752
+        size = 90
+        lineno = 14
+        lastprint = 14
+        print = 1
+        eip = 3222400055
+        sparc_regdump = 0
+        f = (struct _IO_FILE *) 0x82a0b48
+        ss_format = {source = 0x8313448 "Oops log data", used = 14,
+alloc = 20, symbol = 0x8321d08, related = 0x0, 
+  object = 0x0, mtime = 0}
+        ibfd = (struct _bfd *) 0x83157f8
+        procname = "Oops_read"
+#5  0x0804c054 in main (argc=6, argv=0xbffff984) at ksymoops.c:778
+        spec_h = 0
+        ret = -1073743576
+        options = {vmlinux = 0x0, object = 0x805ae88, objects = 1, ksyms
+= 0x8056926 "/proc/ksyms", 
+  lsmod = 0x8056932 "/proc/modules", system_map = 0x805695d
+"/usr/src/linux/System.map", save_system_map = 0x0, 
+  filename = 0xbffff99c, filecount = 0, short_lines = 1, endianess = 0,
+hex = 1, one_shot = 0, 
+  ignore_insmod_path = 0, ignore_insmod_all = 0, truncate = 0, target =
+0xbffffab4 "elf32-i386", 
+  architecture = 0xbffffac2 "i386", adhoc_addresses = 0x0, address_bits
+= 32, vli = 0}
+        procname = "main"
+#6  0x42017499 in __libc_start_main () from /lib/i686/libc.so.6
+No symbol table info available.
+(gdb) b oops.c:210
+Breakpoint 1 at 0x804e7da: file oops.c, line 210.
+(gdb) s
+The program is not being run.
+(gdb) r
+Starting program: /home/jerome/ksymoops-2.4.9/ksymoops -t elf32-i386 -a
+i386 /home/jerome/projet/kernelspace/oops
+ksymoops 2.4.9 on i686 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /usr/src/linux/System.map (default)
+     -t elf32-i386 -a i386
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c011ec37>]    Not tainted
+EFLAGS: 00010286
+eax: 00000026   ebx: c1590f20   ecx: 00000000   edx: debf3f7c
+esi: df0f500c   edi: 00000000   ebp: daf6df98   esp: daf6df1c
+ds: 0018   es: 0018   ss: 0018
+Process ls (pid: 776, stackpage=daf6d000)
+Stack: c0298ce0 000000f8 c014f7d9 000000f8 debfbde0 00000004 00000008
+ded91040 
+       debfbde0 df0f5007 00000004 01aa954b bffffb94 daf6df98 df0f5000
+00000000 
+       00000008 c014f9e9 df0f5000 df0f5000 daf6df98 c014fd39 bffffb94
+00000077 
+Call Trace:    [<c014f7d9>] [<c014f9e9>] [<c014fd39>] [<c014be5f>]
+[<c0107713>]
+Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4 26 00 00 00 00 8d bc 
+
+Breakpoint 1, Oops_code_to_file (code=0xbffff770 "\017\v\215", size=64,
+ibfd=0x8317e60, options=0xbffff890)
+    at oops.c:210
+210         if (!Oops_write_bfd_data(ibfd, obfd, code, size))
+(gdb) s
+Oops_write_bfd_data (ibfd=0x8317e60, obfd=0x83220d0, code=0xbffff770
+"\017\v\215", size=64) at oops.c:104
+104         if (!(isec = bfd_get_section_by_name((bfd *)ibfd, ".text")))
+{
+(gdb) s
+108         if (!bfd_set_start_address(obfd, 0)) {
+(gdb) s
+112         if (!(osec = bfd_make_section(obfd, ".text"))) {
+(gdb) s
+116         if (!bfd_set_section_flags(obfd, osec,
+(gdb) s
+121         if (!bfd_set_section_alignment(obfd, osec,
+(gdb) s
+126         osec->output_section = osec;
+(gdb) s
+127         if (!(osym = bfd_make_empty_symbol(obfd))) {
+(gdb) s
+
+Program received signal SIGSEGV, Segmentation fault.
+0x082a0b48 in ?? ()
+(gdb) The program is running.  Exit anyway? (y or n) y
+~/ksymoops-2.4.9 >
+=============================================================================
+
+I didn't go further in the search. Could you help me ?
+
+regards,
+
+j.
+
+
+-- 
+Jérôme de Vivie
+--------------2E571490AAA7DC88CF2ECBC3
+Content-Type: text/plain; charset=us-ascii;
+ name="oops"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oops"
+
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c011ec37>]    Not tainted
+EFLAGS: 00010286
+eax: 00000026   ebx: c1590f20   ecx: 00000000   edx: debf3f7c
+esi: df0f500c   edi: 00000000   ebp: daf6df98   esp: daf6df1c
+ds: 0018   es: 0018   ss: 0018
+Process ls (pid: 776, stackpage=daf6d000)
+Stack: c0298ce0 000000f8 c014f7d9 000000f8 debfbde0 00000004 00000008 ded91040 
+       debfbde0 df0f5007 00000004 01aa954b bffffb94 daf6df98 df0f5000 00000000 
+       00000008 c014f9e9 df0f5000 df0f5000 daf6df98 c014fd39 bffffb94 00000077 
+Call Trace:    [<c014f7d9>] [<c014f9e9>] [<c014fd39>] [<c014be5f>] [<c0107713>]
+
+Code: 0f 0b 8d 00 06 8d 29 c0 90 eb fe 8d b4 26 00 00 00 00 8d bc 
+ 
+--------------2E571490AAA7DC88CF2ECBC3--
 

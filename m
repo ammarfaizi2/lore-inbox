@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270773AbTGVA5h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 20:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTGVA5h
+	id S261773AbTGVBGi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 21:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbTGVBGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 20:57:37 -0400
-Received: from boo-mda02.boo.net ([216.200.67.22]:34777 "EHLO kaneda.boo.net")
-	by vger.kernel.org with ESMTP id S270773AbTGVA5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 20:57:16 -0400
-Message-Id: <5.2.1.1.2.20030721211347.00a583b0@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 21 Jul 2003 21:17:44 -0400
-To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: Re: [PATCH] AES for CryptoAPI - i586-optimized
+	Mon, 21 Jul 2003 21:06:38 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59019 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261773AbTGVBGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 21:06:37 -0400
+Date: Mon, 21 Jul 2003 21:21:37 -0400
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: hid: ctrl urb status -75?
+Message-ID: <20030722012137.GA7159@bittwiddlers.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.75 (Ponder)
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1059268898.4dcd80@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- > There already is an example for optimized variants - the z990 
-implementation.
- >
- > -Andi
+What does this error mean?  I'm attempting to plug in a USB keyboard I've got
+and it gives me the messages
 
-My Master's thesis involved developing custom AES implementations
-for the Alpha EV6, UltraSPARC, and P3.
+  hub 1-0:0: new USB device on port 1, assigned address 3
+  input: USB HID v1.10 Keyboard [CHESEN USB Keyboard] on usb-0000:00:11.2-1
+  drivers/usb/input/hid-core.c: ctrl urb status -75 received
 
-www.boo.net/~jasonp
+Other USB keyboards work fine so it must be something special with this one.
+This is under all kernels from 2.5.60 to 2.6.0-test1
 
-Source is included, but only the encrypt was implemented.
-
-Hope this helps,
-jasonp
-
+-- 
+  Matthew Harrell                          The Earth is like a tiny grain of
+  Bit Twiddlers, Inc.                       sand, only much, much heavier.
+  mharrell@bittwiddlers.com     

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286210AbRL0Emo>; Wed, 26 Dec 2001 23:42:44 -0500
+	id <S286211AbRL0FVz>; Thu, 27 Dec 2001 00:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286211AbRL0Emf>; Wed, 26 Dec 2001 23:42:35 -0500
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:54884 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S286210AbRL0EmY>; Wed, 26 Dec 2001 23:42:24 -0500
-Message-ID: <3C2AA64C.2CD1AD6E@randomlogic.com>
-Date: Wed, 26 Dec 2001 20:40:44 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S286212AbRL0FVq>; Thu, 27 Dec 2001 00:21:46 -0500
+Received: from oe67.law14.hotmail.com ([64.4.20.202]:7172 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286211AbRL0FVl>;
+	Thu, 27 Dec 2001 00:21:41 -0500
+X-Originating-IP: [65.27.38.196]
+From: "Idrigal \(Eric Rautenkranz\)" <darklordoflinux@hotmail.com>
+To: "Legacy Fishtank" <garzik@havoc.gtf.org>,
+        "Arturas V" <arturasv@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <F1331RVM0t2CD7Lsb0O0001005d@hotmail.com> <20011226174307.B14542@havoc.gtf.org>
+Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
+Date: Wed, 26 Dec 2001 23:21:43 -0600
+Organization: Ion Networks, Inc.
 MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Sound issues with kernel 2.4.14 - 2.4.17
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE67G6IFTirpI7vaZRf00007bbf@hotmail.com>
+X-OriginalArrivalTime: 27 Dec 2001 05:21:36.0045 (UTC) FILETIME=[5AAA8DD0:01C18E96]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sound worked fine through kernel 2.4.9. Since I upgraded to 2.4.14, and
-now to 2.4.17 (I skipped 2.4.10 - 2.4.13) I have several games that are
-FUBAR, all sound related: Quake III Arena and Quake II both core dump
-initializing sound; Soldier of Fortune, Railroad Tycoon II, Sid Myers
-Alpha Centaury all make strange noises with no intelligable game sound.
-Tribes 2, Unreal Tournament, and Descent 3 all work fine. GNOME and
-Enlightenment sound work fine as well, as does xmms.
+Depending on the model, also, some EEPro100s were buggy hardware wise, and
+had problems with various MBs.
+----- Original Message -----
+From: "Legacy Fishtank" <garzik@havoc.gtf.org>
+To: "Arturas V" <arturasv@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, 26 December, 2001 4:43 PM
+Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
 
-I have a SB Live! OEM and have tried compiling with and without the MIDI
-module. The main thing is I am trying to do some game development and
-it's impossible when sound is FUBAR. Any ideas?
 
-I hate to go back to an earlier kernel as IDE did not work (for me) in
-the previous kernels.
-
-PGA
--- 
-Paul G. Allen
-Owner, Sr. Engineer, Security Specialist
-Random Logic/Dream Park
-www.randomlogic.com
+> On Wed, Dec 26, 2001 at 03:43:52PM -0500, Arturas V wrote:
+> > We had similar problems with Compaq Proliant XEON EEPro100 NIC and
+Compaq
+> > Spart Array. System would periodically hang or panic. Problems went away
+> > after I replaced EEPRO100 NIC with TLAN NICs(Texas instruments or
+> > "Thunderland"). It's a good indication that there could be a problem
+with
+> > eepro driver.
+>
+> You not only replaced the driver but the hardware too.  So, that tells
+> us nothing about the eepro100 driver really.
+>
+> Jeff
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130485AbRC3UD5>; Fri, 30 Mar 2001 15:03:57 -0500
+	id <S131486AbRC3US1>; Fri, 30 Mar 2001 15:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130532AbRC3UDt>; Fri, 30 Mar 2001 15:03:49 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:7432 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S130485AbRC3UD3>; Fri, 30 Mar 2001 15:03:29 -0500
-Message-Id: <200103302001.f2UK1MMv024840@pincoya.inf.utfsm.cl>
-To: Keith Owens <kaos@ocs.com.au>
-cc: "Chris Funderburg" <chris@directcommunications.net>,
-   "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-   "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: memcpy in 2.2.19 
-In-Reply-To: Message from Keith Owens <kaos@ocs.com.au> 
-   of "Thu, 29 Mar 2001 23:28:37 PST." <7717.985937317@ocs3.ocs-net> 
-Date: Fri, 30 Mar 2001 16:01:22 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S131588AbRC3USS>; Fri, 30 Mar 2001 15:18:18 -0500
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:65033 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S131486AbRC3USC>; Fri, 30 Mar 2001 15:18:02 -0500
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200103302017.f2UKH8S07176@wildsau.idv-edu.uni-linz.ac.at>
+Subject: problem in drivers/block/Config.in
+To: linux-kernel@vger.kernel.org
+Date: Fri, 30 Mar 2001 22:17:08 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> said:
-> On Fri, 30 Mar 2001 08:04:17 +0100, 
-> "Chris Funderburg" <chris@directcommunications.net> wrote:
-> >drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
-> >aic7xxx.o(.text+0x116bf): undefined reference to `memcpy'
 
-> Under some circumstances gcc will generate an internal call to
-> memcpy().  Alas this bypasses the pre-processor so memcpy is not
-> converted to the kernel's internal memcpy code.  The cause is normally
-> a structure assignment, probably this line.
-> 
->   struct seeprom_config *sc = (struct seeprom_config *) scarray;
+hi,
 
-Just a pointer initialization.
+I noticed that the option CONFIG_PARIDE_PARPORT will always be "y",
+even if CONFIG_PARIDE_PARPORT="n". I checked with kernels 2.2.18
+and 2.2.19.
 
-[...]
+the file responsible is "drivers/block/Config.in", around line 126.
+it reads:
 
-> The other possibility I can see is
-> 
->     p->sc = *sc;
-> 
-> try
-> 
->     memcpy(&(p->sc), sc, sizeof(*sc));
--- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+# PARIDE doesn't need PARPORT, but if PARPORT is configured as a module,
+# PARIDE must also be a module.  The bogus CONFIG_PARIDE_PARPORT option
+# controls the choices given to the user ...
+
+if [ "$CONFIG_PARPORT" = "y" -o "$CONFIG_PARPORT" = "n" ] ; then
+   define_bool CONFIG_PARIDE_PARPORT y
+else
+   define_bool CONFIG_PARIDE_PARPORT m
+fi
+
+so, as you can see, CONFIG_PARIDE_PARPORT will be set to "yes" even
+if CONFIG_PARPORT="no".
+
+why not simply write:
+
+	define_bool CONFIG_PARIDE_PARPORT $CONFIG_PARPORT
+
+instead?
+
+regards,
+herbert rosmanith
+herp@wildsau.idv.uni-linz.ac.at
+

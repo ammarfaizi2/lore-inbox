@@ -1,74 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbRCCWCs>; Sat, 3 Mar 2001 17:02:48 -0500
+	id <S129811AbRCCWRR>; Sat, 3 Mar 2001 17:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129809AbRCCWC2>; Sat, 3 Mar 2001 17:02:28 -0500
-Received: from web11808.mail.yahoo.com ([216.136.172.162]:33801 "HELO
-	web11808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129807AbRCCWC0>; Sat, 3 Mar 2001 17:02:26 -0500
-Message-ID: <20010303220225.32501.qmail@web11808.mail.yahoo.com>
-Date: Sat, 3 Mar 2001 14:02:25 -0800 (PST)
-From: "Frédéric L. W. Meunier" <fredlwm1@yahoo.com>
-Subject: 2.4.2: What happened ? (No such file or directory)
-To: linux-kernel@vger.kernel.org
+	id <S129813AbRCCWQ6>; Sat, 3 Mar 2001 17:16:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12300 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129811AbRCCWQ4>; Sat, 3 Mar 2001 17:16:56 -0500
+Subject: Re: my first post to the list - newbie alert
+To: ahu@ds9a.nl (bert hubert)
+Date: Sat, 3 Mar 2001 22:20:02 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010303220639.E1591@home.ds9a.nl> from "bert hubert" at Mar 03, 2001 10:06:40 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ZKNh-0004DB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I was using 2.4.2 without any problems until a
-flood of warnings
-from multilog (daemontools) appeared at my console.
-What I first thought
-to be a log problem seems to be serious. For some
-reason applications
-and daemons (not all) can't find files.
+> > Also try the techtalk mailing list on linuxchix - www.linuxchix.org, IIRC.
+> > A good place to ask "newbie" questions without being told to RTFM!
+> 
+> <beavis>You might even score!</beavis>
 
-Mutt doesn't recognize ~/Mail/postponed if I try to
-postpone a message:
-/home/pervalidus/Mail/postponed: No such file or
-directory (errno = 2)
+Of course its attitudes like that which leads them to have to set up their
+own mailing lists, and contribute to the rather low count of women on the
+kernel credits
 
-CVS reports cvs [checkout aborted]: cannot rename file
-.new.foo to foo:
-No such file or directory
-
-Trying to build an application (for example devfsd) I
-get:
-
-cc -O2 -I. -Wall    -c -o devfsd.o devfsd.c
-In file included from /usr/include/signal.h:307,
-                 from /usr/include/sys/wait.h:30,
-                 from devfsd.c:188:
-/usr/include/bits/sigcontext.h:28: asm/sigcontext.h:
-No such file or directory
-make: *** [devfsd.o] Error 1
-
-All files and directories are there. I can add, move,
-remove, and
-edit/save everything. But if I try to move a directory
-with mc I get:
-Cannot move directory "/foo" to "/bar" No such file or
-directory (2)
-with mc. It works with mv(1). Also I can't umount the
-partitions. I'm
-using ext2. Any hints ? My .config is at
-http://members.nbci.com/pervalidus/.config-2.4.2.txt
-
-Sorry, I couldn't use Mutt and Exim to send this
-message:
-
-==> /var/exim/log/exim_mainlog <==
-2001-03-03 16:00:17 14ZHGL-0000Yj-00 Message
-abandoned: Spool write error (No such file or
-directory) while receiving message from pervalidus
-2001-03-03 16:00:17 14ZHGL-0000Yk-00 Message
-abandoned: Spool write error (No such file or
-directory) while receiving message from exim
-2001-03-03 16:00:17 14ZHGL-0000Yj-00 Child mail
-process returned status 1
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/

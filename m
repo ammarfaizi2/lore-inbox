@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUJHUSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUJHUX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUJHUSW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUJHUSV
+	id S264386AbUJHUX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJHUX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:18:21 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45006 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264443AbUJHUQs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:16:48 -0400
-Date: Fri, 08 Oct 2004 13:17:19 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-cc: Hanna Linder <hannal@us.ibm.com>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
-       paulus@samba.org, anton@samba.org
-Subject: [PATCH 2.6] u3_iommu.c replace pci_find_device with pci_get_device
-Message-ID: <78680000.1097266639@w-hlinder.beaverton.ibm.com>
-In-Reply-To: <73910000.1097257899@w-hlinder.beaverton.ibm.com>
-References: <70860000.1097257256@w-hlinder.beaverton.ibm.com> <73910000.1097257899@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 8 Oct 2004 16:23:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:27361 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264530AbUJHUXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 16:23:08 -0400
+Date: Fri, 8 Oct 2004 13:22:47 -0700
+From: Greg KH <greg@kroah.com>
+To: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: InfiniBand incompatible with the Linux kernel?
+Message-ID: <20041008202247.GA9653@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-As pci_find_device is going away I've replaced it with pci_get_device and pci_dev_put.
-If someone with a PPC64 system could test it I would appreciate it.
+Enough people have been asking me about this lately, that I thought I
+would just bring it up publicly here.
 
-Thanks.
+It seems that the Infiniband group (IBTA) has changed their licensing
+agrement of the basic Infiniband spec.  See:
+	http://www.theinquirer.net/?article=18922
+for more info about this.
 
-Hanna Linder
-IBM Linux Technology Center
+The main point that affects Linux is the fact that now, no non-member of
+the IBTA can implement any working Infiniband code, otherwise they might
+run into legal problems.  As an anonymous member of a IBTA company told
+me:
+	If someone downloads the spec without joining the IBTA, and
+	proceeds to use the spec for an implementation of the IBTA spec,
+	that person (company) runs the risk of being a target of patent
+	infringement claims by IBTA members.
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Another person, wanting to remain anonymous stated to me:
+	In justification for this position people say that they are just
+	trying to get more people to join the IBTA because they need the
+	dues, which by coincidence are $9500 per year, and point out
+	that some other commonly used specs are similarly made available
+	for steep prices. I don't know one way or the other about that
+	but this sounds a lot like the reason that we all gave ourselves
+	for NOT including SDP in the kernel[1].
 
----
-diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/u3_iommu.c linux-2.6.9-rc3-mm3patch2/arch/ppc64/kernel/u3_iommu.c
---- linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/u3_iommu.c	2004-09-29 20:05:52.000000000 -0700
-+++ linux-2.6.9-rc3-mm3patch2/arch/ppc64/kernel/u3_iommu.c	2004-10-08 13:10:06.883314632 -0700
-@@ -290,7 +290,7 @@ void iommu_setup_u3(void)
- 	/* We only have one iommu table on the mac for now, which makes
- 	 * things simple. Setup all PCI devices to point to this table
- 	 */
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	for_each_pci_dev(dev) {
- 		/* We must use pci_device_to_OF_node() to make sure that
- 		 * we get the real "final" pointer to the device in the
- 		 * pci_dev sysdata and not the temporary PHB one
+So, even if a IBTA member company creates a Linux IB implementation, and
+gets it into the kernel tree, any company who ships such a
+implementation, who is not a IBTA member, could be the target of any
+patent infringement claims[2].
 
+So, OpenIB group, how to you plan to address this issue?  Do you all
+have a position as to how you think your code base can be accepted into
+the main kernel tree given these recent events?
 
+thanks,
+
+greg k-h
+
+[1] SDP, for those who do not know, is a part of the IB spec that
+Microsoft has come out and stated they they currently own the patents
+that cover that portion of the specification, and that anyone who wants
+to implement it, needs to get a licensing agreement with them.  Of
+course, that license agreement does not allow for a GPLed version of the
+implementation.
+
+[2] Sure, any person who has a copy of the kernel source tree could be a
+target for any of a zillion other potential claims, nothing new there,
+but the point here is they are explicitly stating that they will go
+after non-IBTA members who touch IB code[3].
+
+[3] An insanely stupid position to take, given the fact that any normal
+industry group would be very happy to actually have people use their
+specification, but hey, the IB people have never been know for their
+brilliance in the past...

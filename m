@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270549AbTGSV6d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 17:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270550AbTGSV6d
+	id S270550AbTGSWLq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 18:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270554AbTGSWLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 17:58:33 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:46852 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S270549AbTGSV6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 17:58:33 -0400
-Message-ID: <3F19C2B2.90101@c-zone.net>
-Date: Sat, 19 Jul 2003 15:14:10 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE driver:  CBLID revisited
-References: <3F0A2129.5070705@c-zone.net> <3F133E61.1050705@c-zone.net> <20030715065450.GE27368@ucw.cz> <3F162FA0.9040504@c-zone.net> <20030717054737.GA23037@ucw.cz>
-In-Reply-To: <20030717054737.GA23037@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 19 Jul 2003 18:11:45 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13279
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270550AbTGSWLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 18:11:45 -0400
+Subject: Re: [OT] HURD vs Linux/HURD
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Ga?l Le Mignot <kilobug@freesurf.fr>,
+       Christian Reichert <c.reichert@resolution.de>,
+       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rms@gnu.org,
+       Valdis.Kletnieks@vt.edu
+In-Reply-To: <20030719220306.GE24197@work.bitmover.com>
+References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>
+	 <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org>
+	 <20030719172311.GA23246@work.bitmover.com>
+	 <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
+	 <20030719181249.GA24197@work.bitmover.com>
+	 <plopm38yqu8epz.fsf@drizzt.kilobug.org>
+	 <20030719220306.GE24197@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058653436.22005.33.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Jul 2003 23:23:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Wed, Jul 16, 2003 at 10:09:52PM -0700, jiho@c-zone.net wrote:
->>The latest I have is 2.4.20, so I'll have to download the latest for each. 
->>Imagine, all those MB for 1 character!  Sigh.
-> 
-> Well, the kernel sources are available also unpacked on the 'net, so you
-> can just download the latest VIA drivers. Anyway, if that's too big a
-> problem for you, I can make the patches myself.
+On Sad, 2003-07-19 at 23:03, Larry McVoy wrote:
+> guess than less than 1% of it was paid for by the FSF.  The rest of it
+> is all stuff they slapped their name on after convincing people to sign
+> over copyrights.
 
-I aleady downloaded.  Anyway, I probably should go through this, I've never made 
-any patches for Linux.  Good thing it's not very urgent.
+       The Master doesn't talk, he acts.
+        When his work is done,
+        the people say, "Amazing:
+        we did it, all by ourselves!"           -- Lao-tzu
 
-(Maybe after reading that you'll *prefer* to make them yourself....;)
-
-
--- Jim Howard  <jiho@c-zone.net>
-
+Linus great achievement was making Linux happen, not writing it. The FSF
+likewise.
 
 

@@ -1,50 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131155AbRAMScT>; Sat, 13 Jan 2001 13:32:19 -0500
+	id <S131061AbRAMScj>; Sat, 13 Jan 2001 13:32:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131115AbRAMSZO>; Sat, 13 Jan 2001 13:25:14 -0500
+	id <S131805AbRAMScb>; Sat, 13 Jan 2001 13:32:31 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:59872 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131063AbRAMSZC>;
-	Sat, 13 Jan 2001 13:25:02 -0500
-Date: Sat, 13 Jan 2001 17:06:16 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: linux-lvm@sistina.com
-Cc: Anton Blanchard <anton@linuxcare.com.au>, Mauelshagen@sistina.com,
-        linux-kernel@vger.kernel.org, lvm@sistina.com
-Subject: Re: [linux-lvm] Re: *** ANNOUNCEMENT *** LVM 0.9.1 beta1 available at www.sistina.com
-Message-ID: <20010113170616.B22699@caldera.de>
-Mail-Followup-To: linux-lvm@sistina.com,
-	Anton Blanchard <anton@linuxcare.com.au>, Mauelshagen@sistina.com,
-	linux-kernel@vger.kernel.org, lvm@sistina.com
-In-Reply-To: <20010113114507.D15915@linuxcare.com> <200101130143.f0D1hNF19829@webber.adilger.net>
+	by vger.kernel.org with ESMTP id <S131059AbRAMSYy>;
+	Sat, 13 Jan 2001 13:24:54 -0500
+Date: Sat, 13 Jan 2001 18:19:14 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+Message-ID: <20010113181914.A1803@suse.cz>
+In-Reply-To: <20010112212427.A2829@suse.cz> <E14HDv7-0005G6-00@the-village.bc.nu> <20010113144528.D1155@suse.cz> <87bstbpefi.fsf@pelerin.serpentine.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200101130143.f0D1hNF19829@webber.adilger.net>; from adilger@turbolinux.com on Fri, Jan 12, 2001 at 06:43:23PM -0700
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87bstbpefi.fsf@pelerin.serpentine.com>; from bos@serpentine.com on Sat, Jan 13, 2001 at 09:09:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 06:43:23PM -0700, Andreas Dilger wrote:
-> Anton, you write:
-> > Have a look at 2.4, arch/sparc64/kernel/ioctl32.c
-> 
-> Yuk.
-> 
-> > Would it be possible to clean up the ioctl interface so we dont need
-> > such large hacks for LVM support? I can do the work but I want to be
-> > sure you guys will agree to it.
-> 
-> What is the reason for all this?  Alignment/wordsize/other?  If you look
-> at the IOP10 code, much of the in-core data structs were changed to int
-> or long, so this sparc code may not be necessary.
+Hi!
 
-The longs are the biggest problem AFAICS.
-long is 64bit on sparc64 and 32bit on sparc32...
+This is not the case I'm looking for. You have a 686b, a chip that is
+not supported in 2.4.0 yet. You can try the via 3.11 driver I posted a
+while ago, it adds support for this chip, including UDMA100.
 
-	Christoph
+Thanks anyway,
+		Vojtech
+
+On Sat, Jan 13, 2001 at 09:09:05AM -0800, Bryan O'Sullivan wrote:
+> v> I can make one for you, but first I'd like to find out what exactly are
+> v> the problem cases.
+> 
+> I have a VT82C686 motherboard.  It has one UDMA-100 slot and two
+> regular IDE slots.  I have an IBM DTTA-371440 (about 18 months old) as
+> hda (only fat32 filesystems), and an IBM DTLA-307030 as hde
+> (i.e. plugged into the UDMA-100 slot).  I've never seen any problems
+> with DMA on the newer drive, but if I turn on DMA and do anything with
+> the older drive, I get stuff like this:
+> 
+>   /dev/ide/host0/bus0/target0/lun0:hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+>   hda: dma_intr: error=0x84 { DriveStatusError BadCRC } 
+>   hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+>   hda: dma_intr: error=0x84 { DriveStatusError BadCRC } 
+>   hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+>   hda: dma_intr: error=0x84 { DriveStatusError BadCRC } 
+>   hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+>   hda: dma_intr: error=0x84 { DriveStatusError BadCRC } 
+> 
+> The driver attempts to reset ide0 a few times, gets more of the above,
+> then gives up with an I/O error.
+> 
+> I've been seeing these problems as long as I've been tracking the 2.3
+> series, up to and including 2.4.0.  I can't boot a 2.2 kernel on this
+> machine to compare, as it doesn't recognise hde (which is where Linux
+> lives).
+> 
+> Here's the output of lspci under 2.4.0, in case it's useful:
+> 
+>   00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
+>   00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
+>   00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+>   00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+>   00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+>   00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+>   00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+>   00:09.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+>   00:09.1 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+>   00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+>   00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
+>   00:0b.1 Input device controller: Creative Labs SB Live! (rev 08)
+>   00:11.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown device 0d30 (rev 02)
+>   01:00.0 VGA compatible controller: nVidia Corporation: Unknown device 0150 (rev a3)
+> 
+> If you need any more information, I can dig it out.
+> 
+> 	<b
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVAWAwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVAWBDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVAWAwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 19:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVAWAwQ
+	id S261172AbVAWBDl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 20:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVAWBDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 19:52:16 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:3077
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261171AbVAWAwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 19:52:13 -0500
-Date: Sun, 23 Jan 2005 01:52:13 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <andrea@cpushare.com>, Pavel Machek <pavel@ucw.cz>,
-       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-Message-ID: <20050123005213.GK7587@dualathlon.random>
-References: <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net> <20050121195522.GA14982@elte.hu> <20050121203425.GB11112@dualathlon.random> <20050122103242.GC9357@elf.ucw.cz> <20050122172542.GF7587@dualathlon.random> <20050122194242.GB21719@elf.ucw.cz> <20050122233418.GH7587@dualathlon.random> <Pine.LNX.4.61.0501221943050.7152@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501221943050.7152@chimarrao.boston.redhat.com>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+	Sat, 22 Jan 2005 20:03:41 -0500
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:31668 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261172AbVAWBDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 20:03:37 -0500
+Message-ID: <41F2F7C1.70404@kolivas.org>
+Date: Sun, 23 Jan 2005 12:02:57 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jack O'Quin" <joq@io.com>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
+ scheduling
+References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>	<87oefkd7ew.fsf@sulphur.joq.us>	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>	<41F19907.2020809@kolivas.org> <87k6q6c7fz.fsf@sulphur.joq.us>	<41F1F735.1000603@kolivas.org> <41F1F7AF.7000105@kolivas.org>	<41F1FC1D.10308@kolivas.org> <87wtu55i3x.fsf@sulphur.joq.us>
+In-Reply-To: <87wtu55i3x.fsf@sulphur.joq.us>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6AD52CF3754AF51EDB84051E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 22, 2005 at 07:43:26PM -0500, Rik van Riel wrote:
-> On Sun, 23 Jan 2005, Andrea Arcangeli wrote:
-> 
-> >I'm doing something that requires the maximum level of
-> >security ever,
-> 
-> You're kidding, right ?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6AD52CF3754AF51EDB84051E
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Why should I be kidding? The client code I'm doing, has to be at least as secure
-as ssh and the firewall code, what else has to be more secure than that?
-Nor ssh nor the firewall code depends on ptrace for their security. The
-nice thing is that I can embed all the security in the kernel with
-seccomp, and I'd be a fool not trying it to get it merged and to
-complicate my life with ptrace.
+Jack O'Quin wrote:
+> Con Kolivas <kernel@kolivas.org> writes:
+> 
+> 
+>>So let's try again, sorry about the noise:
+>>
+>>==> jack_test4-2.6.11-rc1-mm2-fifo.log <==
+>>*********************************************
+>>XRUN Count  . . . . . . . . . :     3
+>>Delay Maximum . . . . . . . . : 20161   usecs
+>>*********************************************
+>>
+>>==> jack_test4-2.6.11-rc1-mm2-iso.log <==
+>>*********************************************
+>>XRUN Count  . . . . . . . . . :     6
+>>Delay Maximum . . . . . . . . :  4604   usecs
+>>*********************************************
+>>
+>>Pretty pictures:
+>>http://ck.kolivas.org/patches/SCHED_ISO/iso2-benchmarks/
+> 
+> 
+> Neither run exhibits reliable audio performance.  There is some low
+> latency performance problem with your system.  Maybe ReiserFS is
+> causing trouble even with logging turned off.  Perhaps the problem is
+> somewhere else.  Maybe some device is misbehaving.
+> 
+> Until you solve this problem, beware of drawing conclusions.
 
-Once seccomp is in, I believe there's a chance that security people uses
-it for more than Cpushare while I don't think there's a chance you'll
-see security people using ptrace_syscall hardcoding the syscall numbers
-in every userland app out there that may have to parse untrusted data
-with potentially buggy bytecode (i.e. decompression bytecode etc..).
+Sigh.. I guess you want me to do all the benchmarking. Well it's easy 
+enough to get good results. I'll simply turn off all services and not 
+run a desktop. This is all on ext3 on a fully laden desktop by the way, 
+but if you want to get the results you're looking for I can easily drop 
+down to a console and get perfect results.
+
+Con
+
+--------------enig6AD52CF3754AF51EDB84051E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB8vfFZUg7+tp6mRURAggwAJ4mX02HL339gbiOBzqNpCeWvrkI5gCfaS0J
+3G+8xq6A9rJmeL9gNFNXun4=
+=C7j7
+-----END PGP SIGNATURE-----
+
+--------------enig6AD52CF3754AF51EDB84051E--

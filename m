@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbSKKXEW>; Mon, 11 Nov 2002 18:04:22 -0500
+	id <S261581AbSKKXH7>; Mon, 11 Nov 2002 18:07:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbSKKXEW>; Mon, 11 Nov 2002 18:04:22 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:2688 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S261574AbSKKXEV>; Mon, 11 Nov 2002 18:04:21 -0500
-Date: Tue, 12 Nov 2002 10:10:53 +1100
-From: CaT <cat@zip.com.au>
+	id <S261613AbSKKXH6>; Mon, 11 Nov 2002 18:07:58 -0500
+Received: from mail.hometree.net ([212.34.181.120]:52910 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261581AbSKKXH5>; Mon, 11 Nov 2002 18:07:57 -0500
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.47 / unusual ext3 fs errors
-Message-ID: <20021111231053.GA1518@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH] [2.4.20-rc1] compiler fix drivers/ide/pdc202xx.c
+Date: Mon, 11 Nov 2002 23:14:45 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aqpdl5$kt6$1@forge.intermeta.de>
+References: <hps@intermeta.de> <200211111502.gABF2ajg031284@pincoya.inf.utfsm.cl>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1037056485 29977 212.34.181.4 (11 Nov 2002 23:14:45 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 11 Nov 2002 23:14:45 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.5.x I seem to be getting a lot of fs errors on fsck, mainly
-dealing with bad inode counts in groups. Just now though, I had /var
-remounted read-only due to the following:
+Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-t_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-...
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
+>"Henning P. Schmiedehausen" <hps@intermeta.de> said:
+>> Daniel Mehrmann <daniel.mehrmann@gmx.de> writes:
+>> 
+>> >Hello Marcelo,
+>> 
+>> >i fix a compiler warning from pdc202xx.c.
+>> >The "default:" value in the switch was empty. Gcc don`t like
+>> >this. We don`t need this one. 
+>> 
+>> Correct solution is not to remove the "default:" but to add a "break;"
 
-And again, on reboot into single user mode and a full fsck bad inode
-count errors were present. There were no errors detected whilst testing
-the disk with -c.
+>So people start wondering if somehow the content of the default case got
+>deleted by mistake? Better not. Plus it is needless (source) code bloat.
 
-Under 2.4.x my filesystems never showed errors.
+So comment it:
 
-I'd provide more info but this is all that I have. If you need more then
-you'll need to tell me what to do to get it. :)
+	default:
+		break;  /* Does nothing */
 
-Thanks.
+A switch without a default case is simply asking for trouble in the
+long run.
+
+	Regards
+		Henning
+
 
 -- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

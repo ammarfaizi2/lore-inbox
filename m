@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263439AbUJ3B7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUJ3CJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbUJ3B7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUJ3Bxr
+	id S261300AbUJ3CJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 22:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUJ3CIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 21:53:47 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:7330 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S263470AbUJ3BnX
+	Fri, 29 Oct 2004 22:08:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52949 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261300AbUJ3CC4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 21:43:23 -0400
-From: james4765@verizon.net
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, james4765@verizon.net
-Message-Id: <20041030014317.12427.77798.70363@localhost.localdomain>
-In-Reply-To: <20041030014310.12427.89090.67655@localhost.localdomain>
-References: <20041030014310.12427.89090.67655@localhost.localdomain>
-Subject: [PATCH 1/2] computone: Documentation/computone.txt update
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [209.158.211.53] at Fri, 29 Oct 2004 20:43:17 -0500
-Date: Fri, 29 Oct 2004 20:43:17 -0500
+	Fri, 29 Oct 2004 22:02:56 -0400
+Date: Sat, 30 Oct 2004 03:02:44 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+Cc: Scott Lockwood <lkml@www.lrsehosting.com>, Larry McVoy <lm@bitmover.com>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041030020244.GW24336@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4182923D.5040500@hispalinux.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Minor cleanup and status update to Documentation/computone.txt.
+On Fri, Oct 29, 2004 at 08:55:57PM +0200, Ramón Rey Vicente wrote:
+> The contracts without cause, or with illicit cause, do not produce
+> effect some.The cause is illicit when it is against to the laws or the moral
 
-Signed-off-by: James Nelson <james4765@gmail.com>
-
-diff -urN --exclude='*~' linux-2.6.9-original/Documentation/computone.txt linux-2.6.9/Documentation/computone.txt
---- linux-2.6.9-original/Documentation/computone.txt	2004-10-18 17:54:55.000000000 -0400
-+++ linux-2.6.9/Documentation/computone.txt	2004-10-29 21:35:52.102744264 -0400
-@@ -1,3 +1,13 @@
-+NOTE: This is an unmaintained driver.  It is not guaranteed to work due to
-+changes made in the tty layer in 2.6.  If you wish to take over maintenance of
-+this driver, contact Michael Warfield <mhw@wittsend.com>.
-+
-+Changelog:
-+----------
-+11-01-2001:	Original Document
-+
-+10-29-2004:	Minor misspelling & format fix, update status of driver.
-+		James Nelson <james4765@gmail.com>
- 
- Computone Intelliport II/Plus Multiport Serial Driver
- -----------------------------------------------------
-@@ -146,7 +156,7 @@
- ip2.c are used. If you are autoloading the driver module with kerneld or
- kmod the base addresses and interrupt number must also be set in ip2.c
- and recompile or just insert and options line in /etc/modprobe.conf or both.
--The options line is equivalent to the command line and takes precidence over 
-+The options line is equivalent to the command line and takes precedence over 
- what is in ip2.c. 
- 
- /etc/modprobe.conf sample:
-@@ -166,7 +176,8 @@
- 
- 
- Note:	Both io and irq should be updated to reflect YOUR system.  An "io"
--	address of 1 or 2 indicates a PCI or EISA card in the board table.		The PCI or EISA irq will be assigned automatically.
-+	address of 1 or 2 indicates a PCI or EISA card in the board table.
-+	The PCI or EISA irq will be assigned automatically.
- 
- Specifying an invalid or in-use irq will default the driver into
- running in polled mode for that card.  If all irq entries are 0 then
+And moral is defined by...?

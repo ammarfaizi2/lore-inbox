@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263038AbREWKqQ>; Wed, 23 May 2001 06:46:16 -0400
+	id <S263043AbREWKu4>; Wed, 23 May 2001 06:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263043AbREWKqG>; Wed, 23 May 2001 06:46:06 -0400
-Received: from maila.telia.com ([194.22.194.231]:24261 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S263038AbREWKpx>;
-	Wed, 23 May 2001 06:45:53 -0400
-Date: Wed, 23 May 2001 12:45:06 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <anedah-9@sm.luth.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.x TODO
-Message-ID: <20010523124506.A14654@sm.luth.se>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <80256A55.003665DF.00@DCSTRANS.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <80256A55.003665DF.00@DCSTRANS.COM>; from Martin.Garton@DCSTRANS.COM on Wed, May 23, 2001 at 10:54:04AM +0000
-X-Unexpected-Header: The Spanish Inquisition
+	id <S263044AbREWKuq>; Wed, 23 May 2001 06:50:46 -0400
+Received: from t2.redhat.com ([199.183.24.243]:22777 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S263043AbREWKud>; Wed, 23 May 2001 06:50:33 -0400
+To: Blesson Paul <blessonpaul@usa.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Re: __asm__ ] 
+In-Reply-To: Your message of "23 May 2001 03:00:46 MDT."
+             <20010523090046.13756.qmail@nw177.netaddress.usa.net> 
+Date: Wed, 23 May 2001 11:50:30 +0100
+Message-ID: <20987.990615030@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin.Garton@DCSTRANS.COM <Martin.Garton@DCSTRANS.COM> wrote:
+Okay,
 
-> Was the TODO list at http://linux24.sourceforge.net just meant to be useful
-> before 2.4.0 was released?
+"current" is a macro on i386 that expands to "get_current()". This gets the
+task_struct for the task currently running on the CPU executing the code.
 
-It would be interesting to know how many of these issues have been fixed by
-now.
--- 
+It does this by masking out the bottom bits of its kernel stack pointer.
 
-André Dahlqvist <anedah-9@sm.luth.se>
+For example, assuming that some running process has the following task record
+stored in an 8KB-aligned 8KB block.
+
+	0xD520BFFF	+---------------+
+			|		|
+			| kernel stack  |
+			|		|
+	0xD520B498	+---- TOS ------+  <-- stack pointer: %esp
+			|		|
+			| empty space	|
+			|		|
+			+---------------+
+			|		|
+			| task_struct	|
+			|		|
+	0xD520A000	+---------------+  <-- get_current()
+
+get_current() can work out where the base of this block is because the kernel
+(1) stack pointer is always within it, (2) it's aligned in memory with respect
+to its size:
+
+	get_current() { return %esp       & ~8191; }
+	get_current() { return 0xD520B498 & 0xFFFFE000; }
+	get_current() = 0xD520A000
+
+So "current->fs" is a structure that holds the current task's idea of its root
+filesystem (chroot), current working directory (chdir) and current umask.
+
+And so "current->fs->root" is the task's filesystem root dentry.
+
+David

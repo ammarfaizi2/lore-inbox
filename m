@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265540AbSJXQiB>; Thu, 24 Oct 2002 12:38:01 -0400
+	id <S265541AbSJXQiU>; Thu, 24 Oct 2002 12:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbSJXQiB>; Thu, 24 Oct 2002 12:38:01 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:26820 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265540AbSJXQiA>; Thu, 24 Oct 2002 12:38:00 -0400
-Subject: Re: [PATCH] New ARPHRD types
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Solomon Peachy <solomon@linux-wlan.com>
-Cc: "David S. Miller" <davem@rth.ninka.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021024155345.GC11876@linux-wlan.com>
-References: <20021021221936.GA32390@linux-wlan.com>
-	<1035330936.16084.23.camel@rth.ninka.net>
-	<20021023141651.GA6644@linux-wlan.com>
-	<1035433080.9629.8.camel@rth.ninka.net>
-	<20021024145822.GA11876@linux-wlan.com>
-	<1035473936.9867.60.camel@irongate.swansea.linux.org.uk> 
-	<20021024155345.GC11876@linux-wlan.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Oct 2002 18:01:14 +0100
-Message-Id: <1035478874.9867.65.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265542AbSJXQiU>; Thu, 24 Oct 2002 12:38:20 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:41884 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S265541AbSJXQiS>; Thu, 24 Oct 2002 12:38:18 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 24 Oct 2002 09:34:51 -0700 (PDT)
+Subject: Re: One for the Security Guru's
+In-Reply-To: <ap97nr$h6e$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.44.0210240933080.18594-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 16:53, Solomon Peachy wrote:
-> Out of curiousity, how far back to you trust the code? 2.2? 2.0? I only
-> ask because a lot of the driver work I do is for underpowered
-> embedded targets running relatively ancient 2.0 kernels. 
+Unfortunantly there are things that you can't do with a network based SSL
+accelerator box (specificly have your webserver give people an
+understandable warning if they are useing weak encryption) so this isn't
+the Right (tm) way of doing things, it's one of the ways to do them.
 
-I trust it back to 2.2, Im not sure about 2.0 but its probably ok.
+David Lang
 
-> > > 2) write an 802.11 equivalent of the code in eth.c
-> > That may be much cleaner and easier to get right. Its also easier to
-> > maintain
-> 
-> That's what I've been planning to do all along.   It will be nice not
-> having to convert 802.3<-->802.11 in every wireless driver.. plus the
-> added benefit of not having to realloc/memcpy buffers to work around
-> dumb DMA engines that require contiguious buffers..
+On Thu, 24 Oct 2002, Henning P. Schmiedehausen wrote:
 
-Remember that you want to land IP frame headers on a 4 byte boundary if 
-possible. Thats sometimes a conflicting constraint alas
-
+> Date: Thu, 24 Oct 2002 16:39:23 +0000 (UTC)
+> From: Henning P. Schmiedehausen <hps@intermeta.de>
+> To: linux-kernel@vger.kernel.org
+> Newsgroups: hometree.linux.kernel
+> Subject: Re: One for the Security Guru's
+>
+> Gerhard Mack <gmack@innerfire.net> writes:
+>
+> >It gets even worse if almost all of your services are encrypted(like you
+> >would find on an e-commerse site).  https will blind an IDS.  The last
+> >place I worked only had 3 ports open and 2 of them were encrypted.
+>
+> Nah. Do it right:
+>
+> Internet ----- Firewall ---- SSL Accelerator Box --+---- Webserver
+>          HTTPS          HTTPS                      | HTTP
+>                                                    |
+>                                                   IDS
+>
+> Check out the boxes from SonicWall, they're quite nice. Expensive,
+> though. If your E-Commerce site can't afford them, well, then they
+> shouldn't be able to affore a security consulant in the first
+> place. :-)
+>
+> 	Regards
+> 		Henning
+> --
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+>
+> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+> D-91054 Buckenhof     Fax.: 09131 / 50654-20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

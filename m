@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318740AbSG0Lji>; Sat, 27 Jul 2002 07:39:38 -0400
+	id <S318737AbSG0LhZ>; Sat, 27 Jul 2002 07:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318741AbSG0Lji>; Sat, 27 Jul 2002 07:39:38 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:15035 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318740AbSG0Ljg>; Sat, 27 Jul 2002 07:39:36 -0400
-Date: Sat, 27 Jul 2002 14:00:09 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Robert Love <rml@tech9.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@zip.com.au>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       <linux-kernel@vger.kernel.org>, lse <lse-tech@lists.sourceforge.net>,
-       <riel@conectiva.com.br>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Lse-tech] Re: [RFC] Scalable statistics counters using
- kmalloc_percpu
-In-Reply-To: <1027714922.928.8.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0207271357540.20701-100000@linux-box.realnet.co.sz>
+	id <S318738AbSG0LhZ>; Sat, 27 Jul 2002 07:37:25 -0400
+Received: from t5o913p16.telia.com ([212.181.179.16]:27011 "EHLO
+	best.localdomain") by vger.kernel.org with ESMTP id <S318737AbSG0LhY>;
+	Sat, 27 Jul 2002 07:37:24 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, ldm@flatcap.org
+Subject: Re: Linux v2.5.29
+References: <Pine.LNX.4.33.0207262004550.1357-100000@penguin.transmeta.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 27 Jul 2002 13:40:28 +0200
+In-Reply-To: <Pine.LNX.4.33.0207262004550.1357-100000@penguin.transmeta.com>
+Message-ID: <m28z3x761f.fsf@best.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jul 2002, Robert Love wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> Hmm, is your CPU-space sparse?
+> <ldm@flatcap.org>:
+>   o New LDM Driver (Windows Dynamic Disks)
 
-If you're referring to APIC IDs, even on generic SMP boxes APIC IDs can be 
-sparse, its not a requirment that they are consecutive (e.g. i have a dual 
-rig here which has a BSP with an ID of 4
+Breaks "make xconfig". Here is a patch to fix it:
 
-> If that is the case, and the max APIC ID is set to NR_CPUS, and the
-> kernel expects a 1:1 between NR_CPU value and logical CPU #... boom.
+--- linux/fs/partitions/Config.in.orig	Sat Jul 27 13:31:54 2002
++++ linux/fs/partitions/Config.in	Sat Jul 27 13:16:15 2002
+@@ -25,7 +25,7 @@
+       bool '    Solaris (x86) partition table support' CONFIG_SOLARIS_X86_PARTITION
+       bool '    Unixware slices support' CONFIG_UNIXWARE_DISKLABEL
+    fi
+-   dep_bool '  Windows Logical Disk Manager (Dynamic Disk) support' CONFIG_LDM_PARTITION
++   bool '  Windows Logical Disk Manager (Dynamic Disk) support' CONFIG_LDM_PARTITION
+    if [ "$CONFIG_LDM_PARTITION" = "y" ]; then
+       bool '    Windows LDM extra logging' CONFIG_LDM_DEBUG
+    fi
 
-the NR_CPU should only be used to satisfy the current running cpu count 
-no?
-
-Cheers,
-	Zwane
 -- 
-function.linuxpower.ca
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

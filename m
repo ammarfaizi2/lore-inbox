@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVAaLu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVAaLvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVAaLu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAaLu2
+	id S261158AbVAaLvC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:51:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVAaLvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:50:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25295 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261157AbVAaLuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:50:06 -0500
-Date: Mon, 31 Jan 2005 12:49:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: Fabio Coatti <cova@ferrara.linux.it>, akpm@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc[1,2]-mmX scsi cdrom problem, 2.6.10-mm2 ok
-Message-ID: <20050131114943.GD5058@suse.de>
-References: <200501310034.32005.cova@ferrara.linux.it> <20050131080021.GA9446@suse.de> <200501311108.19593.cova@ferrara.linux.it> <20050131110550.GA5058@suse.de> <41FE1B39.6030702@torque.net>
+	Mon, 31 Jan 2005 06:51:01 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:12452 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261158AbVAaLuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 06:50:44 -0500
+From: Benno <benjl@cse.unsw.edu.au>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Date: Mon, 31 Jan 2005 22:50:35 +1100
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: My System doesn't use swap!
+Message-ID: <20050131115034.GA9571@cse.unsw.edu.au>
+References: <41FE1B4B.2060305@tiscali.de> <200501311157.10932.mbuesch@freenet.de> <41FE2814.9030503@tiscali.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41FE1B39.6030702@torque.net>
+In-Reply-To: <41FE2814.9030503@tiscali.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31 2005, Douglas Gilbert wrote:
-> Jens Axboe wrote:
-> >On Mon, Jan 31 2005, Fabio Coatti wrote:
-> >
-> >>Alle 09:00, lunedì 31 gennaio 2005, Jens Axboe ha scritto:
-> >>
-> >>>>At this point k3b is stuck in D stat, needs reboot.
-> >>>
-> >>>The most likely suspect is the REQ_BLOCK_PC scsi changes. Can you try
-> >>>2.6.11-rc2-mm1 with bk-scsi backed out? (attached)
-> >>
-> >>just tried, right guess :)
-> >>backing out that patch the problem disappears.
-> >>Let me know if you need to narrow further that issue.
-> >
-> >
-> >Doug, it looks like your REQ_BLOCK_PC changes are buggy. Let me know if
-> >you cannot find the full post and I'll forward it to you.
-> 
-> Jens,
-> Hmm. Found the thread on lkml. I got an almost identical
-> lock up in k3b with a USB external cd/dvd drive recently.
-> My laptop didn't need rebooting (probably since the root
-> fs is one an ide disk).
-> 
-> That is a quite large patch that you referenced. I'll
-> try and replicate and report back.
+On Mon Jan 31, 2005 at 13:44:04 +0100, Matthias-Christian Ott wrote:
+>Michael Buesch wrote:
+>
+>>Quoting Matthias-Christian Ott <matthias.christian@tiscali.de>:
+>> 
+>>
+>>>Hi!
+>>>I have mysterious Problem:
+>>>90 % of my Ram are used (340 MB), but 0 Byte of my Swap (2GB) is used 
+>>>and about about 150 MB are swappable.
+>>>
+>>>[matthias-christian@iceowl ~]$ free
+>>>            total       used       free     shared    buffers     cached
+>>>Mem:        383868     362176      21692          0         12     208956
+>>>-/+ buffers/cache:     153208     230660
+>>>   
+>>>
+>>                                   ^^^^^^
+>>You have ~230M of 380M free.
+>>Nothing mysterious here.
+>>
+>>
+>Ok maybe I wasn't able to read the /free/ output correctly, but why is 
+>no swap used (more than 60% ram are used)?
 
-My guess would be the scsi_lib changes, I would suggest you start there.
+Why would you want to use swap when you still have free RAM? The kernel
+isn't using swap because there is no need to.
 
--- 
-Jens Axboe
-
+Benno

@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbTAJSRU>; Fri, 10 Jan 2003 13:17:20 -0500
+	id <S265708AbTAJSVA>; Fri, 10 Jan 2003 13:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbTAJSRU>; Fri, 10 Jan 2003 13:17:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10917 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265238AbTAJSRT>;
-	Fri, 10 Jan 2003 13:17:19 -0500
-Date: Fri, 10 Jan 2003 19:25:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>, fverscheure@wanadoo.fr,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
-Message-ID: <20030110182549.GN843@suse.de>
-References: <Pine.LNX.4.10.10301100502450.31168-100000@master.linux-ide.org> <1042207998.28469.98.camel@irongate.swansea.linux.org.uk> <20030110164834.GM843@suse.de> <1042222339.32175.3.camel@irongate.swansea.linux.org.uk>
+	id <S265689AbTAJSVA>; Fri, 10 Jan 2003 13:21:00 -0500
+Received: from netrealtor.ca ([216.209.85.42]:3590 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265708AbTAJSU7>;
+	Fri, 10 Jan 2003 13:20:59 -0500
+Date: Fri, 10 Jan 2003 13:38:14 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Richard Stallman <rms@gnu.org>
+Cc: jalvo@mbay.net, linux-kernel@vger.kernel.org
+Subject: Names as origin component paths...
+Message-ID: <20030110183814.GB4575@mark.mielke.cc>
+References: <E18WB8R-0004k9-00@fencepost.gnu.org> <010101c2b786$794d87a0$0200a8c0@wsl3> <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com> <E18WvqM-0000U7-00@fencepost.gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042222339.32175.3.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <E18WvqM-0000U7-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10 2003, Alan Cox wrote:
-> On Fri, 2003-01-10 at 16:48, Jens Axboe wrote:
-> > In the barrier patches, I just used drive->quiet to supress ide_error()
-> > complaining too much (on cache flushes, too). Whether that's per-drive
-> > of per-hwif entity, dunno...
-> 
-> Commands are queued per hwif so it doesn't actually matter I suspect.
+On Fri, Jan 10, 2003 at 04:52:50AM -0500, Richard Stallman wrote:
+>      If there was an ATT/Linux and an Intel/Linux,
+>     having a GNU/Linux would make some sense... but that is not the way it
+>     is. GNU/Linux is singular, so Linux makes a reasonable contraction.
+> It would be reasonable, if not for the fact that it gives the wrong
+> idea of who developed the system and--above all--why.
 
-True
+There is a reason why I am not named Mark Mielke-Newman, and our newborn
+son is not named Ethan Mielke-Herighty-Newman-Marr.
 
-> BTW do you plan to fix up the oopses in the tcq code or should I just mark
-> it disabled for anyone who has the time to finish the job ? There are a 
-> whole pile of drivers that fail with tcq - mostly because they have custom
-> dma end functions
+Some people like to maintain origin when deriving new names. Other
+people realize that the practice is impractical, and the consequence,
+if followed to the natural extreme, would allow for an exponentially
+increasing length in name as each generation passes.
 
-Yes I will get around to it, probably next week.
+If you properly attributed the origins of GNU projects, I think you
+would find an extremely impractical naming convention. GNU, and GNU
+software, is not 100% derivative free.
+
+Linux itself does not require any GNU software at all, except in the
+sense that it happens to use GNU software, and it may therefore rely
+on extensions that only exist in GNU software, however, that does not
+stop anybody else from enhancing their own products to include the
+GNU extensions. Freedom is as freedom does.
+
+If you want to bug RedHat to call their distribution RedHat GNU/Linux,
+go right ahead.
+
+As for "Linux", its only real attachment to GNU is that it happens to
+use a qualified reference to the GPL as its licensing restrictions. Not
+all GPL software is "GNU" software.
+
+So please... stop... You are not helping the free software movement by
+(badly) arguing minor technicalities. Your previous efforts have been
+very well received and respected. Don't ruin this.
+
+mark
 
 -- 
-Jens Axboe
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

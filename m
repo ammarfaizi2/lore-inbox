@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132425AbRDWWUg>; Mon, 23 Apr 2001 18:20:36 -0400
+	id <S132421AbRDWWX6>; Mon, 23 Apr 2001 18:23:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132421AbRDWWR3>; Mon, 23 Apr 2001 18:17:29 -0400
-Received: from colorfullife.com ([216.156.138.34]:19467 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132422AbRDWWQl>;
-	Mon, 23 Apr 2001 18:16:41 -0400
-Message-ID: <004201c0cc40$07c79ef0$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <ebiederman@lnxi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Longstanding elf fix (2.4.3 fix)
-Date: Mon, 23 Apr 2001 23:54:22 +0200
+	id <S132413AbRDWWWy>; Mon, 23 Apr 2001 18:22:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:17352 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132428AbRDWWVw>;
+	Mon, 23 Apr 2001 18:21:52 -0400
+Date: Mon, 23 Apr 2001 18:21:49 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Subject: [PATCH][CFT] (updated) ext2 directories in pagecache
+In-Reply-To: <Pine.GSO.4.21.0104121217580.19944-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0104231814030.4968-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well looking a little more closely than I did last night it looks like
-> access_process_vm (called from ptrace) can cause what amounts to a
-> page fault at pretty arbitrary times.
-
-It's also used for several /proc/<pid> files.
-
-I remember that I got crashes with concurrent exec+cat
-/proc/<pid>/cmdline until down(mmap_sem) was added into
-setup_arg_pages().
-
-> I'm actually a little curious what the big kernel lock in ptrace buys
-> us. I suspect it could be a performance issue with user mode linux.
-> Where you have multiple processes being ptraced at the same time.
-
-I checked it a few months ago, and the lock is only required to prevent
-multiple concurrent attaches to the same process and concorrent
-ptrace/suid exec (in fs/exec.c, compute_creds)
-
---
-    Manfred
 
 
+On Thu, 12 Apr 2001, Alexander Viro wrote:
 
+> 	Folks, IMO ext2-dir-patch got to the stable stage. Currently
+> it's against 2.4.4-pre2, but it should apply to anything starting with
+> 2.4.2 or so.
+> 
+> 	Ted, could you review it for potential inclusion into 2.4 once
+> it gets enough testing? It's ext2-only (the only change outside of
+> ext2 is exporting waitfor_one_page()), it doesn't change fs layout,
+> it seriously simplifies ext2/dir.c and ext2/namei.c and it gives better
+> VM behaviour.
 
+	Previous variant left junk in ->d_type of directory entries
+on "old" filesystems (i.e. ones where it should be zeroed). Harmless
+(on these filesystems readdir() returned DT_UNKNOWN anyway), but
+it PO'd fsck and was the wrong thing anyway.
+
+	Fixed and rediffed against current tree (2.4.4-pre6). Folks,
+please help with testing.
+
+ 	Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-S4-pre6.gz
+
+							Cheers,
+								Al
 

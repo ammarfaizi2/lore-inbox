@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTJBWN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 18:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTJBWN0
+	id S263523AbTJBWB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 18:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTJBWB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 18:13:26 -0400
-Received: from [212.97.163.22] ([212.97.163.22]:11505 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263522AbTJBWNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 18:13:24 -0400
-Date: Fri, 3 Oct 2003 00:13:12 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre6
-Message-ID: <20031002221312.GA4778@werewolf.able.es>
-References: <Pine.LNX.4.44.0310011434400.6488-100000@dmt.cyclades>
+	Thu, 2 Oct 2003 18:01:56 -0400
+Received: from vhe-530008.sshn.net ([195.169.222.38]:6016 "EHLO
+	elektron.atoom.net") by vger.kernel.org with ESMTP id S263523AbTJBWBz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 18:01:55 -0400
+Date: Fri, 3 Oct 2003 00:01:51 +0200
+From: Miek Gieben <miekg@atoom.net>
+To: linux-kernel@vger.kernel.org
+Subject: logitech scroll mouse
+Message-ID: <20031002220151.GA1074@atoom.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0310011434400.6488-100000@dmt.cyclades> (from marcelo.tosatti@cyclades.com on Wed, Oct 01, 2003 at 19:44:18 +0200)
-X-Mailer: Balsa 2.0.15
+User-Agent: Vim/Mutt/Linux
+X-Home: www.miek.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On 10.01, Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes -pre6. 
-> 
+I'm using a logitech scroll mouse (USB) and I just upgraded
+to kernel 2.6-test6 (which works flawlessly on my AMD system
+btw). But I seem to have lost the scroll capability of my mouse...
 
-make xconfig is broken:
+Is this already a known issues? Or am I forgetting something trivial?
+I could not find usefull information on the Internet.
 
-werewolf:/usr/src/linux-2.4.22-pre6# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.22-pre6/scripts'
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o tkparse.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
-gcc -o tkparse tkparse.o tkcond.o tkgen.o
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-make[1]: *** [kconfig.tk] Error 139
-make[1]: Leaving directory `/usr/src/linux-2.4.22-pre6/scripts'
-make: *** [xconfig] Error 2
+Please CC me on any follow-ups, as i'm only reading the linux kernel digest,
 
-Any way to get more info ? Some verbose mode for tkparse ?
+thank,
 
-TIA
+    grtz  Miek
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
+--
+"So long, and thanks for all the fish." 
+
+-- Hitchhikers Guide to the Galaxy

@@ -1,48 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbUCOSm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbUCOSm6
+	id S262665AbUCOSw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbUCOSwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:42:58 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:43626 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262597AbUCOSm4
+	Mon, 15 Mar 2004 13:52:25 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:37904 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S262678AbUCOSwU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:42:56 -0500
-Date: Mon, 15 Mar 2004 19:43:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Fabian Fenaut <fabian.fenaut@free.fr>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.4-mm1 and -mm2: include/linux/version.h missing (vanilla ok)
-Message-ID: <20040315184332.GA14464@mars.ravnborg.org>
-Mail-Followup-To: Fabian Fenaut <fabian.fenaut@free.fr>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org> <20040315174148.GA2163@mars.ravnborg.org> <4055F027.2070906@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Mar 2004 13:52:20 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: sys_swapoff() symlink bug
+Date: Mon, 15 Mar 2004 19:52:05 +0100
+User-Agent: KMail/1.6.50
+Cc: andrea@e-mind.com
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4055F027.2070906@free.fr>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403151952.17430.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 07:04:23PM +0100, Fabian Fenaut wrote:
-> 
-> And, to compile my modules successfully, I copied version.h from vanilla
-> to /usr/src/2.6.4-mm2/include/linux (and modified it the correct way).
-> Then I compiled my modules, and after that, my hand-made version.h is
-> still here, so make-kpkg doesn't delete anything.
-> 
-> => version.h is _never_ created.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Works for me - hmmm.
-1) Could you check you have write access to include/linux
-2) Show the output of a make (please, no magic debian shell scripts)
-3) Set CLEAN_FILES equal nothing in top-level Makefile
-   and try again.
+Hi,
 
-Please mail the result of the above.
+The following script demonstrates a bug in the swapon/swapoff
+syscalls in the latest 2.6 kernel (I did not check 2.4).
 
-	Sam
+#/bin/sh
+# 3:12 is hda12, which is a swap partition on my system.
+SWAP_MAJOR=3
+SWAP_MINOR=12
+echo "running swaps:"
+cat /proc/swaps
+echo "--"
+mkdir /testdev
+mknod /testdev/testnode b $SWAP_MAJOR $SWAP_MINOR
+ln -s /testdev/testnode /testdev/testlink
+swapon /testdev/testlink
+echo "swapon returned $?"
+echo "running swaps:"
+cat /proc/swaps
+echo "--"
+swapoff /testdev/testdev
+echo "swapoff returned $?"
+echo "running swaps:"
+cat /proc/swaps
+echo "--"
+rm -Rf /testdev
+
+
+The output of this script on my system is:
+
+running swaps:
+- --
+swapon returned 0
+running swaps:
+Filename                                Type            Size    Used    Priority
+/testdev/testnode                        partition      976712  0       -32
+- --
+swapoff returned 255
+running swaps:
+Filename                                Type            Size    Used    Priority
+/testdev/testnode                        partition      976712  0       -32
+- --
+
+
+As you can see the swapoff fails, because it is called on
+the node instead of the symlink that was used for swapon.
+I think this should not fail.
+
+The code that fails to detect, that the symlink _is_ actually
+the same swapspace as the node itself, is mm/swapfile.c:1038
+
+	for (type = swap_list.head; type >= 0; type = swap_info[type].next) {
+		p = swap_info + type;
+		if ((p->flags & SWP_ACTIVE) == SWP_ACTIVE) {
+
+/* I'm not really sure about what we should check here, instead
+ * of f_mapping to detect it.
+ */
+			if (p->swap_file->f_mapping == mapping)
+				break;
+		}
+		prev = type;
+	}
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAVftgFGK1OIvVOP4RAqMeAKCa8YNIziH6/HCYLjTxg98MBzUE+wCgv6pw
+qUptbBGt+jCXeDdJpQk71l4=
+=+JkD
+-----END PGP SIGNATURE-----

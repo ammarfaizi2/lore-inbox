@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285753AbRLHCDP>; Fri, 7 Dec 2001 21:03:15 -0500
+	id <S285750AbRLHCEv>; Fri, 7 Dec 2001 21:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285752AbRLHCDC>; Fri, 7 Dec 2001 21:03:02 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:1030 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285750AbRLHCCt>;
-	Fri, 7 Dec 2001 21:02:49 -0500
-Date: Sat, 8 Dec 2001 03:02:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Marvin Justice <mjustice@austin.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: highmem question
-Message-ID: <20011208020236.GD32569@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0112071404280.29154-100000@mustard.heime.net> <01120719300102.00764@bozo> <3C116CC6.2030808@zytor.com> <01120719534703.00764@bozo> <20011208015446.GC32569@suse.de> <3C1173B8.7030905@zytor.com>
-Mime-Version: 1.0
+	id <S285751AbRLHCEl>; Fri, 7 Dec 2001 21:04:41 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:44559 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S285750AbRLHCEb>; Fri, 7 Dec 2001 21:04:31 -0500
+Message-ID: <3C11752C.15FA7EBE@delusion.de>
+Date: Sat, 08 Dec 2001 03:04:28 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre6 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Compile fixes for 2.5.1-pre7
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C1173B8.7030905@zytor.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07 2001, H. Peter Anvin wrote:
-> Jens Axboe wrote:
-> 
-> > On Fri, Dec 07 2001, Marvin Justice wrote:
-> > 
-> >>>There is no way of fixing it.
-> >>>
-> >>All I know is that a streaming io app I was playing with showed a drastic 
-> >>performance hit when the kernel was compiled with CONFIG_HIGHMEM. On W2K we 
-> >>saw no slowdown with 2 or even 4GB of RAM so I think solutions must exist.
-> >>
-> > 
-> > That's because of highmem page bouncing when doing I/O. There is indeed
-> > a solution for this -- 2.5 or 2.4 + block-highmem-all patches will
-> > happily do I/O directly to any page in your system as long as your
-> > hardware supports it. I'm sure we're beating w2k with that enabled :-)
-> > 
-> 
-> 
-> I didn't realize we were doing page bouncing for I/O in the 1-4 GB range.
->  Yes, this would be an issue.
 
-All due to the "old" block stuff requiring a virtual mapping
-traditionally for doing I/O. Ugh. So yes, we are bouncing _any_ highmem
-page.
+Hello,
 
--- 
-Jens Axboe
+Below a trivial patch which fixes compiler warnings for -pre7.
 
+Regards,
+Udo.
+
+diff -urN -X dontdiff linux-vanilla/init/do_mounts.c linux-2.5.1/init/do_mounts.c
+--- linux-vanilla/init/do_mounts.c      Sat Dec  8 02:58:00 2001
++++ linux-2.5.1/init/do_mounts.c        Sat Dec  8 02:46:18 2001
+@@ -29,6 +29,9 @@
+
+ extern void rd_load(void);
+ extern void initrd_load(void);
++extern int get_filesystem_list(char *);
++extern void floppy_eject(void);
++extern void wait_for_keypress(void);
+
+ #ifdef CONFIG_BLK_DEV_INITRD
+ unsigned int real_root_dev;    /* do_proc_dointvec cannot handle kdev_t */
+diff -urN -X dontdiff linux-vanilla/kernel/device.c linux-2.5.1/kernel/device.c
+--- linux-vanilla/kernel/device.c       Sat Dec  8 02:58:00 2001
++++ linux-2.5.1/kernel/device.c Sat Dec  8 02:56:05 2001
+@@ -899,7 +899,6 @@
+ int __init device_driver_init(void)
+ {
+        int error = 0;
+-       int pid;
+
+        DBG("DEV: Initialising Device Tree\n");

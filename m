@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbQJaSXq>; Tue, 31 Oct 2000 13:23:46 -0500
+	id <S129029AbQJaSjd>; Tue, 31 Oct 2000 13:39:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130332AbQJaSXg>; Tue, 31 Oct 2000 13:23:36 -0500
-Received: from 041imtd118.chartermi.net ([24.247.41.118]:29176 "EHLO
-	oof.netnation.com") by vger.kernel.org with ESMTP
-	id <S129041AbQJaSX3>; Tue, 31 Oct 2000 13:23:29 -0500
-Date: Tue, 31 Oct 2000 13:23:06 -0500
-From: Simon Kirby <sim@stormix.com>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100: card reports no resources [was VM-global...]
-Message-ID: <20001031132306.A24147@stormix.com>
-In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi> <20001030142356.A3800@saw.sw.com.sg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001030142356.A3800@saw.sw.com.sg>; from saw@saw.sw.com.sg on Mon, Oct 30, 2000 at 02:23:56PM +0800
+	id <S130205AbQJaSjY>; Tue, 31 Oct 2000 13:39:24 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15123 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129029AbQJaSjJ>; Tue, 31 Oct 2000 13:39:09 -0500
+Date: Tue, 31 Oct 2000 10:38:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Vladislav Malyshkin <mal@gromco.com>
+cc: Peter Samuelson <peter@cadcamlab.org>, R.E.Wolff@BitWizard.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7
+In-Reply-To: <39FF0A71.FE05FAEB@gromco.com>
+Message-ID: <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 02:23:56PM +0800, Andrey Savochkin wrote:
 
-> > > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
-> > > > 
-> > > let me guess: intel eepro100 or similar??
-> > > Well known problem with that one. dont know if its fully fixed ... With
-> > 
-> > Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
-> > The network stalls for several minutes when it happens.
-> > 
-> > > 2.4.0-test9-pre3 it doesnt happen on my machine ...
-> > 
-> > What about a fix for a 2.2.x...?
-> 
-> The exact reason for this problem is still unknown.
 
-We were seeing this on a firewall a week or so ago -- it was actually
-coming from some sort of arp flood/loop on the uplink not being caused by
-us, and the speed of the incoming arp packets would cause these messages
-to occur.
+Ok, how about this approach? It only works for the case where we do not
+have the kind of multiple stuff that drivers/net has, but hey, we don't
+actually need to handle all the cases right now.
 
-We tried ifconfig up/down, warm reboot, cold reboot, power cycle, card
-swapping, and the messages continued.  We stopped the card with a 3c905
-and the messages stopped, but "ifconfig" showed Rx overruns at about the
-same frequency as the messages used to occur.  This is probably another
-way to trigger this error than what most people are seeing.
+We can leave that for the future, as the configuration process is likely
+to change anyway during 2.5.x, and the multiple object case may go away
+entirely (ie the case of slhc and 8390 will become just a normal
+configuration dependency: you'd have a "CONFIG_SLHC" entry that is
+computed by the dependency graph at configuration time, rather than by the
+Makefile at build time).
 
-Simon-
+This is the simplest rule base that I could come up with that should work
+for both SCSI and USB:
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+	# Translate to Rules.make lists.
+	multi-used      := $(filter $(list-multi), $(obj-y) $(obj-m))
+	multi-objs      := $(foreach m, $(multi-used), $($(basename $(m))-objs))
+	active-objs     := $(sort $(multi-objs) $(obj-y) $(obj-m))
+
+	O_OBJS          := $(obj-y)
+	M_OBJS          := $(obj-m)
+	MIX_OBJS        := $(filter $(export-objs), $(active-objs))
+
+Does anybody see any problems with it? Basically, we're sidestepping the
+sorting, because neither SCSI nor USB need it. Making the problem simpler
+is always good.
+
+Now, the above won't work for drivers/net, but I think it will work for
+just about anything else. So let's just leave drivers/net alone for now.
+Simplicity is good.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

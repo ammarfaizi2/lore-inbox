@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbSLaKkL>; Tue, 31 Dec 2002 05:40:11 -0500
+	id <S261426AbSLaKvb>; Tue, 31 Dec 2002 05:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSLaKkL>; Tue, 31 Dec 2002 05:40:11 -0500
-Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:62337 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S261376AbSLaKkK>; Tue, 31 Dec 2002 05:40:10 -0500
-Date: Tue, 31 Dec 2002 02:48:35 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr
-Subject: Re: [BUG] 2.2.24-rc2/2.4.18/2.4.20 UMSDOS hardlink OOPS
-Message-ID: <20021231104835.GC2323@ip68-4-86-174.oc.oc.cox.net>
-References: <20021231080117.GB2323@ip68-4-86-174.oc.oc.cox.net>
-Mime-Version: 1.0
+	id <S261456AbSLaKvb>; Tue, 31 Dec 2002 05:51:31 -0500
+Received: from packet.digeo.com ([12.110.80.53]:1946 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261426AbSLaKva>;
+	Tue, 31 Dec 2002 05:51:30 -0500
+Message-ID: <3E1178A4.8201D270@digeo.com>
+Date: Tue, 31 Dec 2002 02:59:48 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 5.53 mm2 oops during LMbench.
+References: <94F20261551DC141B6B559DC491086720445DD@blr-m3-msg.wipro.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021231080117.GB2323@ip68-4-86-174.oc.oc.cox.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 10:59:48.0854 (UTC) FILETIME=[BC8D3960:01C2B0BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 12:01:17AM -0800, Barry K. Nathan wrote:
-> 4. Obtain the glibc package from the "L" package set (I think the
-> filename is "slackware/l/glibc-2.2.5-i386-2.tgz" from your Slackware 8.1
-> FTP mirror, your Slackware CD burned from downloaded ISO file, or disc 1
-> from your Slackware boxed set), and install it. In my case, this means
-> inserting disc 1, mounting it on /mnt/cdrom, and "installpkg
-> /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz".
+Aniruddha M Marathe wrote:
+> 
+> Oops came when Lmbench was calculating memory load latency.
+> 
+> Couldn't capture the entire call trace. Here is the last screen.
+> 
+> 3ef4c>] shrink_list+0x3c/0x660
+>  [<c0109cea>] apic_timer_interrupt+0x1a/0x20
+>  [<c013dfca>] __pagevec_release+0x1a/0x30
+>  [<c013f7a8>] shrink_cache+0x238/0x460
+>  [<c01401b3>] shrink_zone+0x83/0xb0
+>  [<c0140250>] shrink_caches+0x70/0xa0
+>  [<c0140309>] try_to_free_pages+0x89/0xc0
+>  [<c01382a7>] __alloc_pages+0x1f7/0x2c0
+>  [<c013839a>] __get_free_pages+0x2a/0x70
+>  [<c013b6e1>] cache_grow+0x141/0x380
+>  [<c013ba51>] __cache_alloc_refill+0x131/0x440
+>  [<c013bda4>] cache_alloc_refill+0x44/0x60
+>  [<c013c316>] kmem_cache_alloc+0x56/0x100
+>  [<c01485b5>] pgtable_add_rmap+0x55/0x80
+>  [<c01416a1>] pte_alloc_map+0xe1/0x180
+>  [<c0148f61>] pte_chain_alloc+0x41/0x60
 
-Or, for more verbosity, replace
-installpkg /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz
-
-with
-cd / # important, if done from say /root the oops doesn't happen
-tar zxvf /mnt/cdrom/slackware/l/glibc-2.2.5-i386-2.tgz
-
-(Then you can strace tar if listing each filename isn't enough for you.)
-
-> At this point I'm not sure what should be done to fix this. Should
-> umsdos_solve_hlink (or UMSDOS_link?) be turning the negative dentry into
-> some kind of error (-ENOENT?) for the calling function? (Hmmm... after I
-> send this e-mail I think I'll try making a patch to do this and see what
-> effect it has.) Or is the negative dentry itself a symptom/result of
-
-Ok, I've done this (returning -ENOENT from umsdos_solve_link instead of
-oopsing). I guess I'll post the patches (one for 2.2, one for 2.4)
-tomorrow after I test them some more. This seems in my limited testing
-to improve stability and eliminate data loss vs. not having the patch,
-but I need to test it a bit more first. (In any case, the patch only
-makes a difference in cases that would have oopsed/segfaulted without
-it.)
-
-IOW, it's an incomplete (if not simply wrong) fix, but it could be
-better than what's there now, maybe.
-
--Barry K. Nathan <barryn@pobox.com>
+That's probably a `scheduling while atomic' warning coming out
+of pte_chain_alloc().   It has a bug.

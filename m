@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263426AbTH1C4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 22:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTH1C4z
+	id S263730AbTH1DBb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 23:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTH1DBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 22:56:55 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:5134 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S263426AbTH1C4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 22:56:54 -0400
-Date: Thu, 28 Aug 2003 12:56:37 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Poor IPSec performance with 2.6 kernels
-In-Reply-To: <1062038303.2947.11.camel@iso-8590-lx.zeusinc.com>
-Message-ID: <Mutt.LNX.4.44.0308281254180.18344-100000@excalibur.intercode.com.au>
+	Wed, 27 Aug 2003 23:01:31 -0400
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:56985 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id S263730AbTH1DBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 23:01:30 -0400
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200308280259.h7S2xFKV031299@wildsau.idv.uni.linz.at>
+Subject: Re: usb-storage: how to ruin your hardware(?)
+In-Reply-To: <Pine.LNX.4.53.0308271123480.659@chaos>
+To: root@chaos.analogic.com
+Date: Thu, 28 Aug 2003 04:59:14 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Aug 2003, Tom Sightler wrote:
-
-> My Internet connection is a DSL circuit that typically delivers about
-> 150KB/s.  When I connect with SuperFreeS/WAN my VPN throughput is quite
-> good, averaging about 125KB/s (this seems about reasonable with
-> overhead) but when making the identical connection with racoon and the
-> 2.6 kernel I can only achieve 50KB/s.  I've been unable to come up with
-> any reason why this would be the case.
 > 
-> Any hints would be appreciated.
+> With your NVRAM drive, it is likely that the drive parameters
+> are 'protected' by a partition table. If you overwrite this
+> partition table, the drive becomes broken. This means that,
+> whatever you do, you can't modify some important portion
+> of that table.
 
-I think SFS uses assembly crypto algorithms where possible, which would 
-account for roughly 2x performance increase.
+the contradiction to this is that the flashdisk can be used
+in a "partition-less" state where it is possible to use the
+whole device at one: "mke2fs /dev/sdb". you have to use the
+vendor formating-tool to make the flashdisk look like an USB_FDD
+device. but even in USB_HDD mode with partitions, the partitions
+still look strange, not ending on cylinder boundaries and so on.
 
+oh my. I guess I gonna contact Panram then and of course,
+thanks for the URL to the USB-snoop utility.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+thx
+h.rosmanith
 

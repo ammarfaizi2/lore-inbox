@@ -1,29 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273442AbRINRXp>; Fri, 14 Sep 2001 13:23:45 -0400
+	id <S273440AbRINRYz>; Fri, 14 Sep 2001 13:24:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273440AbRINRXf>; Fri, 14 Sep 2001 13:23:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11788 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273439AbRINRXX>; Fri, 14 Sep 2001 13:23:23 -0400
-Subject: Re: 2.4, 2.4-ac and quotas
-To: matt@theBachChoir.org.uk (Matt Bernstein)
-Date: Fri, 14 Sep 2001 18:27:46 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109141815020.30680-100000@nick.dcs.qmul.ac.uk> from "Matt Bernstein" at Sep 14, 2001 06:17:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273443AbRINRYq>; Fri, 14 Sep 2001 13:24:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52212 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S273440AbRINRYc>; Fri, 14 Sep 2001 13:24:32 -0400
+Message-ID: <3BA23D51.B456C9EE@mvista.com>
+Date: Fri, 14 Sep 2001 10:24:33 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Antonios G. Danalis" <danalis@udel.edu>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: increasing HZ in Linux kernel
+In-Reply-To: <3BA134F3.FA661E9E@udel.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15hwkk-0000bo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK.. so I download and build quota-3.01-pre9 on my woody box and I still
-> get EINVAL (2.4.9-ac10 + ext3 0.9.9 + ext3 speedup + ext3 experimental VM
-> patch + jfs 1.0.4). Can you tell me where the updated tools are please?
+"Antonios G. Danalis" wrote:
+> 
+> Hello,
+> 
+> I want to increase the frequency of the clock interrupt up
+> to ~10000 to run some experiments.
+> 
+> In the kernel I'm using (2.4.2-2) I've noticed that
+> if you increase HZ above 1536 you get a conflict with
+> .../include/linux/timex.h:75-77
+> and if you add some lines there, you get a problem with
+> .../include/net/tcp.h:377
+> when HZ is above 4096.
+> 
+> Is there an easy way to increase clock interrupt freq, or
+> do I have to mess with the whole kernel ?
+> 
+The approach we are taking in the high-res-timers project
+(http://sourceforge.net/projects/high-res-timers) is to leave HZ alone
+and schedule timer interrupts as needed between the 1/HZ ticks.  I have
+an kernel with most of the infrastructure ready to put on the
+sourceforge site (today I hope), that you may want to look at.  Be
+aware, however, it is not really a simple change.  You may also want to
+look at the UTIME patch from the University of Kansas, which, to some
+extent, is where I started.  We both leave HZ alone and schedule timer
+ticks as needed to get high resolution.
 
-I got them from the quota folks. They are also packaged by most (non debian)
-vendors. If you cant find the right tar ball I can pull it out from one
-and send it to you
+As you have noted, changing HZ impacts other sub systems.  There is also
+an issue of jiffie rollover which affects the longest time you can set
+timers for.  Currently with HZ =100 and 32-bit integers, this is about
+248.55 days.  If you move HZ to 1000, this moves to 24.855 days, and the
+10,000 you want moves it to 2.4855 days which will give problems with at
+least the cron sub system and probably a lot of others.
+
+George

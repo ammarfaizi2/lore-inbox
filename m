@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbTANIbU>; Tue, 14 Jan 2003 03:31:20 -0500
+	id <S261518AbTANIbN>; Tue, 14 Jan 2003 03:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbTANIbU>; Tue, 14 Jan 2003 03:31:20 -0500
-Received: from dp.samba.org ([66.70.73.150]:22162 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261721AbTANIbS>;
-	Tue, 14 Jan 2003 03:31:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: exception tables in 2.5.55 
-In-reply-to: Your message of "Mon, 13 Jan 2003 22:03:27 BST."
-             <200301132103.h0DL3R0p001528@eeyore.valparaiso.cl> 
-Date: Tue, 14 Jan 2003 19:28:02 +1100
-Message-Id: <20030114084011.5E9FA2C45C@lists.samba.org>
+	id <S261721AbTANIbN>; Tue, 14 Jan 2003 03:31:13 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:42751 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S261518AbTANIbM>; Tue, 14 Jan 2003 03:31:12 -0500
+Subject: Re: system freezes when using udma on promise pdc20268
+From: Soeren Sonnenburg <bugreports@nn7.de>
+To: Samuel Flory <sflory@rackable.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E236A0F.2080605@rackable.com>
+References: <1042492068.1199.11.camel@sun>  <3E236A0F.2080605@rackable.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042532997.1209.3.camel@sun>
+Mime-Version: 1.0
+Date: 14 Jan 2003 09:29:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200301132103.h0DL3R0p001528@eeyore.valparaiso.cl> you write:
-> [Massive snippage of Cc:]
-> Rusty Russell <rusty@rustcorp.com.au>
-> 
-> [...]
-> 
-> > This seems way overkill.  How about you move the search_extable()
-> > prototype out of linux/module.h and into each asm/uaccess.h, then:
-> > 
-> > include/asm-m68knommu/uaccess.h:
-> > 
-> > 	/* We don't use such things. */
-> > 	struct exception_table_entry
-> > 	{
-> > 		int unused;
-> > 	};
-> 
-> Why not just an empty structure?
+On Tue, 2003-01-14 at 02:38, Samuel Flory wrote:
 
-Ancient compilers.  See linux/spinlock.h.  Since it's not actually
-used, putting in a #ifdef is overkill...
+> >The setup is asus a7v8x with sound/ide/firewire onboard. Two 180GB WDC
+> >WD1800JB-00DUA0 on the primary and secondary internal VIA controller and
+> >3 drives on two pdc20268, where the third hard disk is on the secondary
+> >controller (I explain later why!). All harddisk are jumpered to be
+> >master's.
+> >  
+> >
+>   Are you stating this correctly.   You've got 2 drives on the PDC20268 
+> on a single ide chain jumpered as masters?  You should have one jumpered 
+> as a master and a as a slave.  A single ide chain can have only one master.
 
-Hope that helps!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+2 out of 8 possible drives on the two PDC20268. one drive is master on
+the primary controller, the other master on the secondary.
+another drive is secondary master on the second controller.
+
+So unfortunately no two masters on the same ide chain.
+
+Soeren.
+

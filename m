@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUIOUCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUIOUEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUIOUCo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUIOUCo
+	id S267361AbUIOUEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267356AbUIOUEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:02:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:37883 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S267359AbUIOUCe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:02:34 -0400
-Message-ID: <41489EED.6090400@mvista.com>
-Date: Wed, 15 Sep 2004 12:58:37 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Christoph Lameter <clameter@sgi.com>,
+	Wed, 15 Sep 2004 16:04:44 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:24724 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S267361AbUIOUD5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:03:57 -0400
+Date: Wed, 15 Sep 2004 22:02:30 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sf.net>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
        Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1095265942.29408.2847.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.58.0409150940420.1249@schroedinger.engr.sgi.com>	 <1095268408.29408.2918.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.58.0409151025090.3219@schroedinger.engr.sgi.com> <1095274131.29408.2990.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1095274131.29408.2990.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040915200230.GA13621@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+	Chris Wright <chrisw@osdl.org>
+References: <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914171525.GA14031@k3.hellgate.ch> <20040914174325.GX9106@holomorphy.com> <20040914184517.GA2655@k3.hellgate.ch> <20040914190747.GA9106@holomorphy.com> <20040915114430.GA28143@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915114430.GA28143@k3.hellgate.ch>
+X-Operating-System: Linux 2.6.9-rc2-bk1-nproc on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-~
+Here's another thing we haven't been able to do with /proc: Finding out
+the relative cost of computing the elements we offer to user space.
 
-> 
-> 
->>Real time features such as posix-timer's also depend on the ability to
->>deliver a signal at an exact point in time. Soft timers can only give a
->>very rough approximation in these cases.
->>
->>So I think this feature is essential.
-> 
-> 
-> I think the functionality is essential, but that it doesn't belong in the time of day code.
-> 
-> Basically we have two things we're trying to do: 
-> 
-> 1. Keep accurate time 
-> 2. Generate hardware interrupts accurately
-> 
-> While frequently the same hardware can do both, not all hardware is
-> usable for both functions. Thus I believe we should cleanly split these
-> two subsystems. My proposal only provided the keep accurate time part,
-> however one could using that functionality, to then manipulate hardware
-> interrupts to ensure accuracy in the timer subsystem.
-> 
-The thing I think is missing in all this is that, in some platforms, the 
-hardware to provide the interrupts is more accurate.  We have, IMHO, three cases 
-here:
-a) The interrupts are accurate but the clock info (e.g. TSC) is not.
-b) The clock in accurate but the timer is not, and
-c) The clock and interrupt come from the same accurate hardware source.
+I ran a test program against 2.6.9-rc2-bk1 + nproc to get:
 
-The X86 is in class a) in that the PIT is accurate and the TSC is not.  The 
-muddy part here is the pm-timer which is accurate but takes a _long_ time to access.
+Testing all process fields, best out of 10
+FieldID    CPU (s)  Wall (s) Label
+0x03000002 0.140000 0.202728 NOP
+0x21000100 0.150000 0.210021 Name
+0x22000105 0.120000 0.204886 PID
+0x22000109 0.130000 0.205319 UID
+0x22000117 0.140000 0.215275 VmSize
+0x22000118 0.130000 0.214240 VmLock
+0x22000119 0.120000 0.214870 VmRSS
+0x22000120 0.160000 1.020574 VmData
+0x22000121 0.140000 1.021185 VmStack
+0x22000122 0.170000 1.021619 VmExe
+0x22000123 0.170000 1.020045 VmLib
+0x23000421 0.140000 0.220748 wchan
 
-PPCs are in class c) as are some MIPS, ARM, and PARISC.  I am not sure about the 
-rest and can not lay my hands on one of class b).
+Ignore the absolute values (I requested each field individually for all
+processes on my workstation, 1000 times). The cost of walking all vmas
+for VmData & Co. is very visible.
 
-For the class a) machines, I think the best approach is to use a clock that has 
-reasonable short term accuracy and to use the timer to, from time to time, 
-correct it.  This should be on the order of an internal NTP sort of correction.
-
-For the class a) and b) machines, I think it would be wise to not seperated the 
-timer and the clock so much as to make it "hard" to use one to correct the other.
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+Roger

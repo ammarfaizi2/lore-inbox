@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUJGPBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUJGPCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUJGPBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUJGPBP
+	id S266316AbUJGPCP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUJGPBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:01:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15744 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266273AbUJGO7u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 10:59:50 -0400
-Date: Thu, 7 Oct 2004 10:57:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Martijn Sipkema <msipkema@sipkema-digital.com>, Paul Jakma <paul@clubi.ie>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <1097156929.31753.47.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0410071055300.3694@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> 
- <20041006080104.76f862e6.davem@davemloft.net>  <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
-  <20041006082145.7b765385.davem@davemloft.net> 
- <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com> 
- <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org>  <4164EBF1.3000802@nortelnetworks.com>
-  <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> 
- <001601c4ac72$19932760$161b14ac@boromir>  <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org>
-  <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156929.31753.47.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 7 Oct 2004 11:01:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32019 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266316AbUJGPBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 11:01:14 -0400
+Date: Thu, 7 Oct 2004 16:01:08 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Richard Earnshaw <Richard.Earnshaw@arm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Catalin Marinas <Catalin.Marinas@arm.com>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+Message-ID: <20041007160108.B8579@flint.arm.linux.org.uk>
+Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Richard Earnshaw <Richard.Earnshaw@arm.com>,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Catalin Marinas <Catalin.Marinas@arm.com>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20040927210305.A26680@flint.arm.linux.org.uk> <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org> <20041005125324.A6910@flint.arm.linux.org.uk> <1096981035.14574.20.camel@pc960.cambridge.arm.com> <20041005141452.B6910@flint.arm.linux.org.uk> <1097016532.32500.357.camel@localhost.localdomain> <41653814.1060405@grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41653814.1060405@grupopie.com>; from pmarques@grupopie.com on Thu, Oct 07, 2004 at 01:35:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Alan Cox wrote:
+On Thu, Oct 07, 2004 at 01:35:32PM +0100, Paulo Marques wrote:
+> The patch by Russel King seems ok to me, although I prefer Rusty's idea 
+> of not using any symbol that is not in the form "[A-Za-z0-9_]+". We just 
+> need to check if there are any real world users of these "weird" symbols.
 
-> On Iau, 2004-10-07 at 15:07, Martijn Sipkema wrote:
->>> Much can change between the select() and recvmsg - things outside of
->>> kernel control too, and it's long been known.
->>
->> There is no change; the current implementation just checks the validity of
->> the data in the recvmsg() call and not during select().
->
-> The accept one is documented by Stevens and well known. In the UDP case
-> currently we could get precise behaviour - by halving performance of UDP
-> applications like video streaming. We probably don't want to  because we
-> can respond intelligently to OOM situations by freeing the queue if we
-> don't enforce such a silly rule.
->
+This may filter out too much - we have symbols starting with a '.' on
+ARM, particularly used in some of the assembly code, which are useful
+to be decoded back to names, such as ".bug".
 
-Well if you accept(pun_intended) what Stevens says, then check his
-web-site on what he teaches about select() and sockets. His demo
-code certainly requires that select() not fail.
+However, including "." means that names like "__func__.0" also get
+included, which is probably a bad thing.  So, maybe it needs to be
 
+[A-Za-z0-9_\.][A-Za-z0-9_]*
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+?
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

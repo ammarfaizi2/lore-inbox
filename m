@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263780AbRF0Pjk>; Wed, 27 Jun 2001 11:39:40 -0400
+	id <S263334AbRF0Piu>; Wed, 27 Jun 2001 11:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263766AbRF0Pja>; Wed, 27 Jun 2001 11:39:30 -0400
-Received: from freerunner-o.cendio.se ([193.180.23.130]:27893 "EHLO
-	mail.cendio.se") by vger.kernel.org with ESMTP id <S263340AbRF0PjO>;
-	Wed, 27 Jun 2001 11:39:14 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User chroot
-In-Reply-To: <20010627014534.B2654@ondska> <9hb6rq$49j$1@cesium.transmeta.com>
-From: Marcus Sundberg <marcus@cendio.se>
-Date: 27 Jun 2001 17:39:12 +0200
-In-Reply-To: hpa@zytor.com's message of "26 Jun 2001 16:46:02 -0700"
-Message-ID: <ve4rt2aq5b.fsf@lipta.lkpg.cendio.se>
+	id <S263340AbRF0Pia>; Wed, 27 Jun 2001 11:38:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:23826 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263334AbRF0PiX>;
+	Wed, 27 Jun 2001 11:38:23 -0400
+To: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: printk and sk_buffs
+In-Reply-To: <OFC7C24EA9.6CB8EE5C-ONC1256A78.004CC2C0@de.ibm.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Jun 2001 17:38:20 +0200
+In-Reply-To: "Jens Hoffrichter"'s message of "27 Jun 2001 16:07:46 +0200"
+Message-ID: <oup7kxy3pcj.fsf@pigdrop.muc.suse.de>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com ("H. Peter Anvin") writes:
+"Jens Hoffrichter" <HOFFRICH@de.ibm.com> writes:
 
-> Followup to:  <20010627014534.B2654@ondska>
-> By author:    Jorgen Cederlof <jc@lysator.liu.se>
-> In newsgroup: linux.dev.kernel
-> > If we only allow user chroots for processes that have never been
-> > chrooted before, and if the suid/sgid bits won't have any effect under
-> > the new root, it should be perfectly safe to allow any user to chroot.
+> I do not fully unterstandt the printk code, so perhaps somebody can answer
+> me this (probably stupid ;) ) question:
 > 
-> Safe, perhaps, but also completely useless: there is no way the user
-> can set up a functional environment inside the chroot.
+> If I do a printk, is there a packet (aka a sk_buff) created? If I turn on
+> debugging in my code, I see a huge pile of sk_buffs which are allocated but
+> which do not get in touch with the "essential" parts of the network-code
+> (e.g. ip_rcv) where I have modified some code. I can't explain it to me
+> fully, but perhaps someone of yours has a suitable answer.
 
-Huh? Why wouldn't you be able to set up a functional environment?
-I can think of quite a lot of things you can do without device nodes
-or /proc ...
-Or are you referring to something else?
+klogd uses unix sockets to talk to syslogd. unix sockets use sk_buffs.
+You can kill klogd if you're not interested in logging kernel messages to disk.
 
-//Marcus
--- 
----------------------------------+---------------------------------
-         Marcus Sundberg         |      Phone: +46 707 452062
-   Embedded Systems Consultant   |     Email: marcus@cendio.se
-        Cendio Systems AB        |      http://www.cendio.com
+-Andi

@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136213AbRASVpr>; Fri, 19 Jan 2001 16:45:47 -0500
+	id <S136852AbRASV76>; Fri, 19 Jan 2001 16:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136421AbRASVpi>; Fri, 19 Jan 2001 16:45:38 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2061 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136213AbRASVpV>; Fri, 19 Jan 2001 16:45:21 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Is sendfile all that sexy?
-Date: 19 Jan 2001 13:45:09 -0800
-Organization: Transmeta Corporation
-Message-ID: <94ach5$mcs$1@penguin.transmeta.com>
-In-Reply-To: <Pine.GSO.4.10.10101190951390.23899-100000@zeus.fh-brandenburg.de> <200101192018.XAA25263@ms2.inr.ac.ru>
+	id <S136857AbRASV7j>; Fri, 19 Jan 2001 16:59:39 -0500
+Received: from mms1.broadcom.com ([63.70.210.58]:2321 "HELO mms1.broadcom.com")
+	by vger.kernel.org with SMTP id <S136852AbRASV7c>;
+	Fri, 19 Jan 2001 16:59:32 -0500
+X-Server-Uuid: 1e1caf3a-b686-11d4-a6a3-00508bfc9ae5
+Message-ID: <E1EBEF4633DBD3118AD1009027E2FFA00109BEDD@mail.sv.broadcom.com>
+From: gmo@broadcom.com
+To: "'Carles Pina i Estany'" <is08139@salleURL.edu>,
+        linux-kernel@vger.kernel.org
+cc: "'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
+Subject: RE: PCMCIA Cards on 2.4.0
+Date: Fri, 19 Jan 2001 13:59:28 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 16766748117112-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101192018.XAA25263@ms2.inr.ac.ru>,
- <kuznet@ms2.inr.ac.ru> wrote:
->Hello!
->
->> It's about direct i/o from/to pages,
->
->Yes. Formally, there are no problems to send to tcp directly from io space.
+I have a similar problem with a Thinkpad 600e:
 
-Actually, as long as there is no "struct page" there _are_ problems.
-This is why the NUMA stuff was brought up - it would require that there
-be a mem_map for the PCI pages.. (to do ref-counting etc).
+The machine has RedHat6.2, and the original kernel
+(2.2.14-5) as well as every 2.4.0-test* kernel I've
+tried (test5, test9, test10 and test12) have had
+no trouble with the PCMCIA (actually Cardbus)
+card I use (a 3Com 3C575, but I don't think it
+has anything to do with the card itself).
 
->But could someone explain me one thing. Does bus-mastering
->from io really work? And if it does, is it enough fast?
->At least, looking at my book on pci, I do not understand
->how such transfers are able to use bursts. MRM is banned for them...
+Well, 2.4.0 does not seem to be able to talk to
+the card. The first sign of trouble is the lines:
 
-It does work at least on some hardware.  But no, I don't think you can
-depend on bursting (but I don't see why it couldn't work in theory). 
+cs: socket c13d4800 timed out during reset.
+	Try increasing setup_delay.
 
-		Linus
+at the point where other kernels say instead:
+
+cs: cb_alloc(bus 5): vendor 0x10b7, device 0x5057
+
+and so the former does not seem to be able to access
+the card while the others are happy.
+
+All of this is with 2.4 kernels that include all the
+necessary pieces (no modules), which makes it harder
+to go change the setup_delay. I can make the PCMCIA
+stuff into modules, but the point is that neither
+setup_delay nor any other of the default values for
+the module parameters changed between test12 and
+release, so I'm not sure that it will really make
+a difference.
+
+One other thing I did try: If I eject and re-insert
+the card after the system is up, it then starts working.
+So I actually have a workaround, but I'd like to know
+what is really happening and how to fix it.
+
+Any suggestions?
+
+TIA,
+
+Gmo.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132802AbRDDL5K>; Wed, 4 Apr 2001 07:57:10 -0400
+	id <S132800AbRDDMTd>; Wed, 4 Apr 2001 08:19:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132805AbRDDL5B>; Wed, 4 Apr 2001 07:57:01 -0400
-Received: from mail.inf.elte.hu ([157.181.161.6]:47045 "HELO mail.inf.elte.hu")
-	by vger.kernel.org with SMTP id <S132802AbRDDL4r>;
-	Wed, 4 Apr 2001 07:56:47 -0400
-Date: Wed, 4 Apr 2001 13:56:05 +0200
-From: GOMBAS Gabor <gombasg@inf.elte.hu>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-Message-ID: <20010404135604.A192662@pandora.inf.elte.hu>
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es> <3ACA1A91.70401@kalifornia.com> <20010403211218.A2387@werewolf.able.es> <20010403123014.A17132@thune.yy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010403123014.A17132@thune.yy.com>; from dalgoda@ix.netcom.com on Tue, Apr 03, 2001 at 12:30:14PM -0700
-X-Copyright: Forwarding or publishing without permission is prohibited.
+	id <S132801AbRDDMTX>; Wed, 4 Apr 2001 08:19:23 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:29703 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132800AbRDDMTN>;
+	Wed, 4 Apr 2001 08:19:13 -0400
+Date: Wed, 4 Apr 2001 08:18:22 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Remko van der Vossen <remko.van.der.vossen@cmg.nl>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PThreads in kernel module & network interface
+In-Reply-To: <B569A4D2254ED2119FE500104BC1D5CD01294138@NL-EIN-MAIL01>
+Message-ID: <Pine.LNX.4.30.0104040812010.10013-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 12:30:14PM -0700, Mike Castle wrote:
 
-> Some patches, such as the RAID patches, sets up EXTRAVERSION to a specific
-> value.
+On Wed, 4 Apr 2001, Remko van der Vossen wrote:
+> second problem is that when I use the PThread functions from this module I
+> need the pthread library. As you probably know gcc doesn't link the pthread
+> library into the module, so I tried to do that with ld, that in itself
+> worked, I successfully linked the pthread library into the module I made,
 
-- If you apply such a patch first, and after that you edit EXTRAVERSION,
-your value will be used - no problem.
+The first problem you are running into is mixing user space with kernel
+code.  You cannot use pthreads in the kernel... not directly anyways.  You
+could use kernel_thread() instead.
 
-- If you edit EXTRAVERSION before applying such a patch, the specific hunk
-trying to change the EXTRAVERSION will be rejected - again no problem.
-Actually this is already the case when you apply 2 patches trying to set
-EXTRAVERSION to 2 different values...
+If your future stack will have a BSD socket interface you could prototype
+your server in user space - and use pthreads.  If you don't want the
+interface then you can hook into the stack directly by using the sock_*
+functions (see include/linux/net.h).  You will probably get everything you
+need to start you off from an article by Alessandro Rubini at the Linux
+Magazine:	http://www.linux-mag.com/2000-12/gear_01.html
 
-> I do with the make file also had a USERVERSION that would be hands off for
-> anyone but the builder.
+> Thank you in advance,
 
-It is not needed.
-
-Gabor
+Cheers,
+Bart.
 
 -- 
-Gabor Gombas                                       Eotvos Lorand University
-E-mail: gombasg@inf.elte.hu                        Hungary
+	WebSig: http://www.jukie.net/~bart/sig/
+
+

@@ -1,89 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSKSCER>; Mon, 18 Nov 2002 21:04:17 -0500
+	id <S261346AbSKSCKQ>; Mon, 18 Nov 2002 21:10:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbSKSCER>; Mon, 18 Nov 2002 21:04:17 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:28622 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S264950AbSKSCEQ>; Mon, 18 Nov 2002 21:04:16 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A51C@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: acpi-devel@sourceforge.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ACPI patches updated (20021115)
-Date: Mon, 18 Nov 2002 18:09:16 -0800
+	id <S261353AbSKSCKP>; Mon, 18 Nov 2002 21:10:15 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:29098 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261346AbSKSCKP>;
+	Mon, 18 Nov 2002 21:10:15 -0500
+Message-ID: <3DD99EA6.4010000@us.ibm.com>
+Date: Mon, 18 Nov 2002 18:15:02 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Pfiffer <andyp@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Linuxbios <linuxbios@clustermatic.org>
+Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7 
+References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>	<m1k7jb3flo.fsf_-_@frodo.biederman.org>	<m1el9j2zwb.fsf@frodo.biederman.org> <m11y5j2r9t.fsf_-_@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Eric W. Biederman wrote:
+> kexec is a set of systems call that allows you to load another kernel
+> from the currently executing Linux kernel.  The current implementation
+> has only been tested, and had the kinks worked out on x86, but the
+> generic code should work on any architecture.
+> 
+> Could I get some feed back on where this work and where this breaks.
+> With the maturation of kexec-tools to skip attempting bios calls,
+> I expect a new the linux kernel to load for most people.  Though I
+> also expect some device drivers will not reinitialize after the reboot.
 
-Linux patches are now available at http://sf.net/projects/acpi.
-Non-Linux-specific patches should be available by tomorrow night at
-http://developer.intel.com/technology/iapc/acpi/downloads.htm . For real
-this time. ;-)
+I give it a big thumbs-up.  Between the NUMAQs and the big xSeries 
+machines, we have a lot of slow rebooters.  The 16GB intel boxes take 
+at about 5 minutes to get back to the bootloader after a reboot, and 
+the 4 and 8-quad NUMAQ's take closer to 10.
 
-Regards -- Andy
+The IBM machines I've tried it on are a 4-way and 8-way PIII.  They 
+both have aic7xxx cards and the 8-way has a ServeRAID 4 controller. 
+They have a collection of acenic, e1000, pcnet32 and eepro100 net 
+cards.  All seem to work just fine.
 
-----------------------------------------
-15 November 2002.  Summary of changes for version 20021115.
+The NUMAQ is another story, though.  I get nothing after "Starting new 
+kernel".  But, I wasn't expecting much.  The NUMAQ is pretty weird 
+hardware and god knows what is actually happening.  I'll try it some 
+more when I'm more confident in what I'm doing.
 
-1) Linux
-
-Changed the implementation of the ACPI semaphores to use
-down() instead of down_interruptible().  It is important that
-the execution of ACPI control methods not be interrupted by
-signals.  Methods must run to completion, or the system may be
-left in an unknown/unstable state.
-
-Fixed a compilation error when CONFIG_SOFTWARE_SUSPEND is not
-set. (Shawn Starr)
-
-2) ACPI CA Core Subsystem:
-
-Fixed a memory leak problem where an error during resolution
-of method arguments during a method invocation from another
-method failed to cleanup properly by deleting all successfully
-resolved argument objects.
-
-Fixed a problem where the target of the Index() operator was
-not correctly constructed if the source object was a package.
-This problem has not been detected because the use of a target
-operand with Index() is very rare.
-
-Fixed a problem with the Index() operator where an attempt was
-made to delete the operand objects twice.
-
-Fixed a problem where an attempt was made to delete an operand
-twice during execution of the CondRefOf() operator if the
-target did not exist.
-
-Implemented the first of perhaps several internal create
-object functions that create and initialize a specific object
-type.  This consolidates duplicated code wherever the object
-is created, thus shrinking the size of the subsystem.
-
-Implemented improved debug/error messages for errors that
-occur during nested method invocations.  All executing method
-pathnames are displayed (with the error) as the call stack is
-unwound - thus simplifying debug.
-
-Fixed a problem introduced in the 10/02 release that caused
-premature deletion of a buffer object if a buffer was used as
-an ASL operand where an integer operand is required (Thus
-causing an implicit object conversion from Buffer to Integer.)
-The change in the 10/02 release was attempting to fix a memory
-leak (albeit incorrectly.)
-
-3) iASL Compiler/Disassembler
-
-Changed the default location of output files.  All output
-files are now placed in the current directory by default
-instead of in the directory of the source file.  This change
-may affect some existing makefiles, but it brings the behavior
-of the compiler in line with other similar tools.  The
-location of the output files can be overridden with the -p
-command line switch.
+What's the deal with "FIXME assuming 64M of ram"?  I was a little 
+surprised when my 16GB machine started to OOM as I did a "make -j8 
+bzImage" :)  Why is it that you need the memory size at load time?
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263444AbTCNRqK>; Fri, 14 Mar 2003 12:46:10 -0500
+	id <S263452AbTCNRvO>; Fri, 14 Mar 2003 12:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263445AbTCNRqK>; Fri, 14 Mar 2003 12:46:10 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:39856 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S263444AbTCNRqJ>; Fri, 14 Mar 2003 12:46:09 -0500
-Date: Fri, 14 Mar 2003 09:56:35 -0800 (PST)
-From: Tim Smith <tzs@tzs.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-In-Reply-To: <Pine.LNX.4.50.0303140845480.1903-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0303140916300.9247-100000@tzs.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263453AbTCNRvO>; Fri, 14 Mar 2003 12:51:14 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:58348 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263452AbTCNRvM>;
+	Fri, 14 Mar 2003 12:51:12 -0500
+Date: Fri, 14 Mar 2003 09:59:06 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: joern@wohnheim.fh-wedel.de, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Top stack (l)users for 2.5.64-ac4
+Message-Id: <20030314095906.20a270cb.rddunlap@osdl.org>
+In-Reply-To: <20030314174154.GX791@suse.de>
+References: <200303141509.h2EF9R017016@devserv.devel.redhat.com>
+	<20030314172820.GH23161@wohnheim.fh-wedel.de>
+	<20030314174154.GX791@suse.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Mar 2003, Davide Libenzi wrote:
-> See, this is a free world, and I very much respect your opinion. On the
-> other side you might want to actually *read* the kqueue man page and find
-> out of its 24590 flags, where 99% of its users will use only 1% of its
-> functionality. Talking about overbloating. You might also want to know
+On Fri, 14 Mar 2003 18:41:54 +0100 Jens Axboe <axboe@suse.de> wrote:
 
-Wow...that does sound overbloated.  Simpler is usually better in this kind
-of thing, because 99% of the users will be doing the same thing: a lot of
-TCP connections.  From what I've seen so far, I'm very much looking forward
-to your epoll stuff.
+| On Fri, Mar 14 2003, Joern Engel wrote:
+| > Hi!
+| > 
+| > 47 functions using >=1k of kernel stack on i386.
+| > 
+| > One improvement over 2.5.64, i2o_proc_* is gone. 4 down, 47 to go. :)
+| > 
+| > 0xc02063f6 presto_get_fileid:                            sub    $0x1168,%esp
+| > 0xc0204fc6 presto_copy_kml_tail:                         sub    $0x101c,%esp
+| > 0xc07b92c8 isp2x00_make_portdb:                          sub    $0xc38,%esp
+| > 0xc0879c05 cdromread:                                    sub    $0xa84,%esp
+| 
+| which function is this (cdromread)?
 
-However, just for the heck of it, let me throw out a (probably stupid) idea
-for the ultimate in non-overbloated interfaces for handling a ton of TCP
-connections in the (probably most) common case of those connections all
-being to the same port.  I've not looked into the kernel at all to see if
-this would actually be feasible...just speculating based on what I'd like
-as someone writing a server that I'd like to have handle 100k TCP
-connections on commodity hardware.
+must be drivers/cdrom/optcd.c::cdromread() (line 1601 in 2.5.64),
+due to
+	char buf[CD_FRAMESIZE_RAWER];
+and
+#define CD_FRAMESIZE_RAWER 2646 /* The maximum possible returned bytes */ 
+in include/linux/cdrom.h.
 
-How about an option to put a bound socket in a mode I'll call TCP Datagram
-Mode (TDM).  You can listen() on a TDM socket.  When you accept() on a TDM
-socket, you get a socket for the new connection, just like now.  However,
-that socket is only used for writing to the connection.
-
-When data is available to read on the connection, instead of getting POLLIN
-on the connection socket, you get a new event on the listen socket: POLLSDG
-(SDG == "stream datagram"...generalization of "TCP Datagram").  You can then
-use recvmsg on the listen socket, and that gives you a chunk of data from
-one of the connections.  The ancillary data tells you what connection the
-data is from.
-
-With this interface, plain old poll() should be good enough.  For reading,
-you are only poll()ing on the listen socket.  You only need to poll() on the
-write sockets if you fill up output buffers.  So, most of the time, poll()
-would only be used on one socket.  Even plain old poll() scales well
-to 1. :-)
-
-(Actually...it might even be reasonable to use sendmsg() on the listen
-socket to send data, too, and then get rid of the whole accept() thing for
-TDM sockets.  Basically, turn multiple TCP connections into a reliable form
-of UDP from the application's point of view)
-
---Tim Smith
-
+--
+~Randy

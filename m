@@ -1,18 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263171AbUJ2RTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbUJ2RTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbUJ2RTg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbUJ2RTQ
+	id S263407AbUJ2RTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263363AbUJ2RSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:19:16 -0400
-Received: from pop.gmx.de ([213.165.64.20]:64475 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263382AbUJ2RPu (ORCPT
+	Fri, 29 Oct 2004 13:18:53 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17085 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263419AbUJ2RIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:15:50 -0400
-X-Authenticated: #4399952
-Date: Fri, 29 Oct 2004 19:33:03 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
+	Fri, 29 Oct 2004 13:08:44 -0400
+Date: Fri, 29 Oct 2004 19:09:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
 Cc: Paul Davis <paul@linuxaudiosystems.com>,
        Thomas Gleixner <tglx@linutronix.de>,
        LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
@@ -24,44 +23,47 @@ Cc: Paul Davis <paul@linuxaudiosystems.com>,
        jackit-devel <jackit-devel@lists.sourceforge.net>,
        Rui Nuno Capela <rncbc@rncbc.org>
 Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029193303.7d3990b4@mango.fruits.de>
-In-Reply-To: <20041029170948.GA13727@elte.hu>
-References: <20041029090957.GA1460@elte.hu>
-	<200410291101.i9TB1uhp002490@localhost.localdomain>
-	<20041029111408.GA28259@elte.hu>
-	<20041029161433.GA6717@elte.hu>
-	<20041029183256.564897b2@mango.fruits.de>
-	<20041029162316.GA7743@elte.hu>
-	<20041029163155.GA9005@elte.hu>
-	<20041029191652.1e480e2d@mango.fruits.de>
-	<20041029170237.GA12374@elte.hu>
-	<20041029170948.GA13727@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20041029170948.GA13727@elte.hu>
+References: <20041029090957.GA1460@elte.hu> <200410291101.i9TB1uhp002490@localhost.localdomain> <20041029111408.GA28259@elte.hu> <20041029161433.GA6717@elte.hu> <20041029183256.564897b2@mango.fruits.de> <20041029162316.GA7743@elte.hu> <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029170237.GA12374@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004 19:09:48 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> ok, i've uploaded -V0.5.12 which has this BKL trick. I hope i got the
-> ALSA ioctls right: the ones that go outside the BKL for now are the
-> pcm_native playback/capture ones, and rawmidi's ioctl. All the others
-> are still BKL users. To recap, it's these ioctls that matter:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-doesn't build here:
+> > > let me try some more hacks to make this a little bit safer.
+> > 
+> > hehe, it even booted for me [kinda]. will build the one where you got
+> > xmms to run. but i will sure as hell hit "get new emails" during the
+> > build more than once ;)
+> 
+> indeed - i'm preparing 5.0.12 with a better way to do this. (the trick
+> is to allow the BKL to 'underflow' - this way ALSA can be kept largely
+> unmodified.)
 
-  CC      fs/exec.o
-  CC      fs/pipe.o
-  CC      fs/namei.o
-  CC      fs/fcntl.o
-  CC      fs/ioctl.o
-fs/ioctl.c: In function `sys_ioctl':
-fs/ioctl.c:75: error: structure has no member named `ioctl_nobkl'
-fs/ioctl.c:76: error: structure has no member named `ioctl_nobkl'
-make[1]: *** [fs/ioctl.o] Error 1
-make: *** [fs] Error 2
+ok, i've uploaded -V0.5.12 which has this BKL trick. I hope i got the
+ALSA ioctls right: the ones that go outside the BKL for now are the
+pcm_native playback/capture ones, and rawmidi's ioctl. All the others
+are still BKL users. To recap, it's these ioctls that matter:
 
-flo
+ 5971  ioctl(7, 0x4143, 0x446b7d3c)      = 0
+ 5971  ioctl(7, 0x4140, 0x446b7d3c)      = 0
+ 5971  ioctl(7, 0x4142, 0x446b7d3c)      = 0
+
+which ones are these? Look at the patch for how to change a .ioctl one
+to .ioctl_nobkl (lame solution ...). So if your setup uses any other
+ioctl (sndctl perhaps?) then you should change that one to nobkl too.
+
+	Ingo

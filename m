@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSDPVzC>; Tue, 16 Apr 2002 17:55:02 -0400
+	id <S313906AbSDPWCi>; Tue, 16 Apr 2002 18:02:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313906AbSDPVzB>; Tue, 16 Apr 2002 17:55:01 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:28044 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S287817AbSDPVzA>;
-	Tue, 16 Apr 2002 17:55:00 -0400
-Date: Tue, 16 Apr 2002 10:02:47 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andy Pfiffer <andyp@osdl.org>, suparna@in.ibm.com,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-Message-ID: <20020416100246.A37@toy.ucw.cz>
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]> <m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com> <m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com> <m1y9fvlfyb.fsf@frodo.biederman.org> <1018461522.4453.212.camel@andyp> <m1pu16l1c3.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+	id <S313907AbSDPWCh>; Tue, 16 Apr 2002 18:02:37 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:59151 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313906AbSDPWCh>; Tue, 16 Apr 2002 18:02:37 -0400
+Message-ID: <3CBC9F6D.3F4E6579@zip.com.au>
+Date: Tue, 16 Apr 2002 15:02:21 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rwhron@earthlink.net
+CC: jjs@lexus.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 final - another data point
+In-Reply-To: <20020416174827.A1845@rushmore>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > The new device model from Pat (mochel@osdl.org) is probably the best way
-> > to go here; you'll be able to walk the driver tree and reliably turn off
-> > devices.
+rwhron@earthlink.net wrote:
 > 
-> I totally agree.  Walking the driver tree is exactly what I want.
-> Disabling bus masters is just a quick hack to rule out a DMA killing
-> your linux booting linux.
+> >>Running dbench 128 on ext2 mounted with delalloc and Andrew's
+> >>patches from http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/
+> >>was 7.5x faster than 2.5.8 vanilla and 1.5x faster than
+> 
+> > Wow, good stuff - I'll have to pull those down
+> 
+> Hmm, I had to run e2fsck -f twice on the filesystem that ran
+> dbench, tiobench, bonnie++ on nfs, and osdb.  The filesystem
+> was showing 52% used and is normally 1% used before/after
+> testing.  No big files on the fs. The directory where
+> bonnie++ on nfs runs had some temporary directories that
+> were not deletable.  A bunch of files/directories were in
+> lost+found after e2fsck.  After removing the files, the
+> fs was back to 1% used.
+> 
 
-Is there easy way to disable all busmasters? It might help suspend-to-disk
-and suspend-to-ram to work well until  proper support is done...
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+ho-hum.  Presumably an unreservepage() got lost somewhere
+in the diff shuffling.
 
+All I'm doing with the delayed-allocation code at present
+is keeping the diffs up to date.  I haven't even compiled
+that stuff for over a week.  All work at present is against
+dallocbase-70-writeback.   It's probably not a good use of
+your time to test anything beyond that.  Sorry about that.
+
+I'll leave the later diffs available so anyone who's interested
+can see the multipage bio assembly stuff, but "dont use".
+
+-

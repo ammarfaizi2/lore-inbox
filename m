@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTKFJQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 04:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTKFJQ2
+	id S263486AbTKFJTs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 04:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTKFJTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 04:16:28 -0500
-Received: from smtp2.su.se ([130.237.93.212]:6622 "EHLO smtp2.su.se")
-	by vger.kernel.org with ESMTP id S263467AbTKFJQV (ORCPT
+	Thu, 6 Nov 2003 04:19:48 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:18134 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263486AbTKFJTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 04:16:21 -0500
-Message-ID: <3FAA1163.8040005@it.su.se>
-Date: Thu, 06 Nov 2003 10:16:19 +0100
-From: =?ISO-8859-1?Q?Jerry_Lundstr=F6m?= <jerry.lundstrom@it.su.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wee Teck Neo <slashboy84@msn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Over used cache memory?
-References: <BAY4-F18tJyMmxsywxZ00005d1a@hotmail.com>
-In-Reply-To: <BAY4-F18tJyMmxsywxZ00005d1a@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Nov 2003 04:19:47 -0500
+Date: Thu, 6 Nov 2003 15:10:35 +0500
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: linux-diag-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, mochel@osdl.org,
+       dsteklof@us.ibm.com, nitin@in.ibm.com, martin@piware.de
+Subject: [ANNOUNCE] libsysfs v0.3.0
+Message-ID: <20031106101035.GA16206@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wee Teck Neo wrote:
-> But seems like the swap space is begin used because of "insufficent" 
-> free memory. I'm not sure if there is a performance slow down.
-> 
+Hello,
 
-no no no, this is the way linux works. Memory from programs that are not 
-accessed alot are put into the swap so that the not-so-offen-used memory 
-can be used by other programs or the cache to speed up everything. When 
-that program later access the swaped memory it will load it up and 
-remove some of the cache and after a while it will put it back into the 
-swap (dont have any numbers on how long till it will but trust linux, it 
-does it very good).
+We have released libsysfs v0.3.0 as part of the sysfsutils package.
 
-I wouldnt worry at all about those numbers, they are very common in 1gig 
-server systems and ive worked with alot of them, even 4gig mem systems 
-use the swap, thats what its for...
+The package can be downloaded from http://linux-diag.sourceforge.net/
 
-If you are worried about preformance with memory and such after all 
-configure you systems like this:
+Changes include:
 
-If you use IDE have the system disk on one IDE channel and a standalone 
-swap disk on another IDE channel (not master or slave way but ide0 or 
-ide1). For SCSI you can just put the swap on a seperate disk.
-Doing this will speed up alot of stuff since linux have 100% access to 
-the swap when it needs too, it doesnt have to share the IO to the disk 
-with another partition.
+	* Support for the "block" subsystem. Block now is 
+		considered as a sysfs "class".
+	* Facility to build both shared and static libraries
+	* Fixed "write" attribute support.
+	* Added few "test" routines to demonstrate API usage.
+	* Headers now get installed to /usr/include/sysfs
+	* PCI name decode support.
 
-Otherwise Id just say, dont worry about it... Linux knows what its doing...
+Comments, suggestions and contributions welcome. The mailing list 
+for discussing libsysfs and other diagnostic utilities is
 
-hope it helps...
+http://lists.sourceforge.net/lists/listinfo/linux-diag-devel
+
+
+Thanks,
+Ananth
+-- 
+Ananth Narayan <ananth@in.ibm.com>
+Linux Technology Center,
+IBM Software Lab, INDIA
 

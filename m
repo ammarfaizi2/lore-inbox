@@ -1,80 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263441AbVCEAgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263428AbVCEAgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbVCEAgr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbVCEATh
+	id S263428AbVCEAgu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbVCEAci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:19:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23230 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263430AbVCEAFD (ORCPT
+	Fri, 4 Mar 2005 19:32:38 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:53219 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S263370AbVCEAYh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:05:03 -0500
-Date: Fri, 4 Mar 2005 16:04:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: ext2-devel@lists.sourceforge.net, sct@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-Message-Id: <20050304160451.4c33919c.akpm@osdl.org>
-In-Reply-To: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 4 Mar 2005 19:24:37 -0500
+Date: Fri, 4 Mar 2005 16:24:37 -0800
+To: "David S. Miller" <davem@davemloft.net>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] fix IrNET poll with empty disco log
+Message-ID: <20050305002437.GB23895@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> For the past few months there has been a slow but steady trickle of
-> reports of oopses in kjournald.
+ir261_irnet_poll_fix-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	o [CORRECT] poll would improperly exit when the discovery log was empty
+Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
 
-Yes, really tenuous stuff.  Very glad if this is the fix!
 
->  Recently I got a couple of reports that
-> were repeatable enough to rerun with extra debugging code.
-> 
-> It turns out that we're releasing a journal_head while it is still
-> linked onto the transaction's t_locked_list.  The exact location is in
-> journal_unmap_buffer().  On several exit paths, that does:
-> 
-> 		spin_unlock(&journal->j_list_lock); 
-> 		jbd_unlock_bh_state(bh);
-> 		spin_unlock(&journal->j_state_lock);
-> 		journal_put_journal_head(jh);
-> 
-> releasing the jh *after* dropping the j_list_lock and j_state_lock.
-> 
-> kjournald can then be doing journal_commit_transaction():
-> 
-> 	spin_lock(&journal->j_list_lock);
-> ...
-> 		if (buffer_locked(bh)) {
-> 			BUFFER_TRACE(bh, "locked");
-> 			if (!inverted_lock(journal, bh))
-> 				goto write_out_data;
-> 			__journal_unfile_buffer(jh);
-> 			__journal_file_buffer(jh, commit_transaction,
-> 						BJ_Locked);
-> 			jbd_unlock_bh_state(bh);
-> 
-> The problem happens if journal_unmap_buffer()'s own put_journal_head()
-> manages to get in between kjournald's *unfile_buffer and the following
-> *file_buffer.  Because journal_unmap_buffer() has dropped its bh_state
-> lock by this point, there's nothing to prevent this, leading to a
-> variety of unpleasant situations.  In particular, the jh is unfiled at
-> this point, so there's nothing to stop the put_journal_head() from
-> freeing the memory we're just about to link onto the BJ_Locked list.
 
-Right.  I don't know why journal_put_journal_head() looks at
-->b_transaction, really.  Should have made presence on a list contribute to
-b_jcount.  Oh well, it's been that way since 2.5.0 or older..
-
-Don't we have the same race anywhere where we're doing a
-journal_refile_buffer() (or equiv) in parallel with a
-journal_put_journal_head() outside locks?  There seem to be many such.
-
-Perhaps we could also fix this by elevating b_jcount whenever the jh is
-being moved between lists?
-
+diff -u -p linux/net/irda/irnet/irnet_irda.j1.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.j1.c	Fri Feb  4 16:28:22 2005
++++ linux/net/irda/irnet/irnet_irda.c	Fri Feb  4 16:28:58 2005
+@@ -632,7 +632,7 @@ irda_irnet_destroy(irnet_socket *	self)
+       self->iriap = NULL;
+     }
+ 
+-  /* Cleanup eventual discoveries from connection attempt */
++  /* Cleanup eventual discoveries from connection attempt or control channel */
+   if(self->discoveries != NULL)
+     {
+       /* Cleanup our copy of the discovery log */
+diff -u -p linux/net/irda/irnet/irnet_ppp.j1.c linux/net/irda/irnet/irnet_ppp.c
+--- linux/net/irda/irnet/irnet_ppp.j1.c	Fri Feb  4 16:28:30 2005
++++ linux/net/irda/irnet/irnet_ppp.c	Fri Feb  4 16:28:58 2005
+@@ -171,18 +171,44 @@ irnet_ctrl_write(irnet_socket *	ap,
+ #ifdef INITIAL_DISCOVERY
+ /*------------------------------------------------------------------*/
+ /*
+- * Function irnet_read_discovery_log (self)
++ * Function irnet_get_discovery_log (self)
++ *
++ *    Query the content on the discovery log if not done
++ *
++ * This function query the current content of the discovery log
++ * at the startup of the event channel and save it in the internal struct.
++ */
++static void
++irnet_get_discovery_log(irnet_socket *	ap)
++{
++  __u16		mask = irlmp_service_to_hint(S_LAN);
++
++  /* Ask IrLMP for the current discovery log */
++  ap->discoveries = irlmp_get_discoveries(&ap->disco_number, mask,
++					  DISCOVERY_DEFAULT_SLOTS);
++
++  /* Check if the we got some results */
++  if(ap->discoveries == NULL)
++    ap->disco_number = -1;
++
++  DEBUG(CTRL_INFO, "Got the log (0x%p), size is %d\n",
++	ap->discoveries, ap->disco_number);
++}
++
++/*------------------------------------------------------------------*/
++/*
++ * Function irnet_read_discovery_log (self, event)
+  *
+  *    Read the content on the discovery log
+  *
+  * This function dump the current content of the discovery log
+  * at the startup of the event channel.
+- * Return 1 if written on the control channel...
++ * Return 1 if wrote an event on the control channel...
+  *
+  * State of the ap->disco_XXX variables :
+- *	at socket creation :	disco_index = 0 ; disco_number = 0
+- *	while reading :		disco_index = X ; disco_number = Y
+- *	After reading :		disco_index = Y ; disco_number = -1
++ * Socket creation :  discoveries = NULL ; disco_index = 0 ; disco_number = 0
++ * While reading :    discoveries = ptr  ; disco_index = X ; disco_number = Y
++ * After reading :    discoveries = NULL ; disco_index = Y ; disco_number = -1
+  */
+ static inline int
+ irnet_read_discovery_log(irnet_socket *	ap,
+@@ -201,19 +227,8 @@ irnet_read_discovery_log(irnet_socket *	
+     }
+ 
+   /* Test if it's the first time and therefore we need to get the log */
+-  if(ap->disco_index == 0)
+-    {
+-      __u16		mask = irlmp_service_to_hint(S_LAN);
+-
+-      /* Ask IrLMP for the current discovery log */
+-      ap->discoveries = irlmp_get_discoveries(&ap->disco_number, mask,
+-					      DISCOVERY_DEFAULT_SLOTS);
+-      /* Check if the we got some results */
+-      if(ap->discoveries == NULL)
+-	ap->disco_number = -1;
+-      DEBUG(CTRL_INFO, "Got the log (0x%p), size is %d\n",
+-	    ap->discoveries, ap->disco_number);
+-    }
++  if(ap->discoveries == NULL)
++    irnet_get_discovery_log(ap);
+ 
+   /* Check if we have more item to dump */
+   if(ap->disco_index < ap->disco_number)
+@@ -417,7 +432,14 @@ irnet_ctrl_poll(irnet_socket *	ap,
+     mask |= POLLIN | POLLRDNORM;
+ #ifdef INITIAL_DISCOVERY
+   if(ap->disco_number != -1)
+-    mask |= POLLIN | POLLRDNORM;
++    {
++      /* Test if it's the first time and therefore we need to get the log */
++      if(ap->discoveries == NULL)
++	irnet_get_discovery_log(ap);
++      /* Recheck */
++      if(ap->disco_number != -1)
++	mask |= POLLIN | POLLRDNORM;
++    }
+ #endif /* INITIAL_DISCOVERY */
+ 
+   DEXIT(CTRL_TRACE, " - mask=0x%X\n", mask);

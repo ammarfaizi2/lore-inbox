@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264380AbTFIStO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 14:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTFIStO
+	id S261153AbTFITB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 15:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTFITB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 14:49:14 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:52434 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264380AbTFIStL (ORCPT
+	Mon, 9 Jun 2003 15:01:26 -0400
+Received: from main.gmane.org ([80.91.224.249]:38125 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261153AbTFITBZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 14:49:11 -0400
-Date: Mon, 09 Jun 2003 11:51:30 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+	Mon, 9 Jun 2003 15:01:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
 Subject: Re: 2.5.70-mm6
-Message-ID: <51250000.1055184690@flay>
-In-Reply-To: <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
-References: <20030607151440.6982d8c6.akpm@digeo.com><Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv> <46580000.1055180345@flay> <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Mon, 9 Jun 2003 19:07:30 +0000 (UTC)
+Message-ID: <bc2lti$ss7$1@main.gmane.org>
+References: <20030607151440.6982d8c6.akpm@digeo.com> <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
+Cc: linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If you don't nice the hell out of X, does it work OK?
-> No.
-> 
-> The way I reproduce the sound skips:
-> run xmms, run evolution, compose a mail with gpg.
-> on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
-> on mm5 xmms plays without stops. (with X -10)
+* Maciej Soltysiak <solt@dns.toxicfilms.tv>:
+>> . -mm kernels will be running at HZ=100 for a while.  This is because
+>>   the anticipatory scheduler's behaviour may be altered by the lower
+>>   resolution.  Some architectures continue to use 100Hz and we need the
+>>   testing coverage which x86 provides.
+> The interactivity seems to have dropped. Again, with common desktop
+> applications: xmms playing with ALSA, when choosing navigating through
+> evolution options or browsing with opera, music skipps.
+> X is running with nice -10, but with mm5 it ran smoothly.
 
-Does this (from Ingo?) do anything useful to it?
+I see that idle() is called much less often than before (1000
+calls/second down to 150 calls/second, estimated and non-scientifical).
 
-diff -urpN -X /home/fletch/.diff.exclude 400-reiserfs_dio/kernel/sched.c 420-sched_interactive/kernel/sched.c
---- 400-reiserfs_dio/kernel/sched.c	Fri May 30 19:26:34 2003
-+++ 420-sched_interactive/kernel/sched.c	Fri May 30 19:28:06 2003
-@@ -89,6 +89,8 @@ int node_threshold = 125;
- #define STARVATION_LIMIT	(starvation_limit)
- #define NODE_THRESHOLD		(node_threshold)
- 
-+#define TIMESLICE_GRANULARITY (HZ/20 ?: 1)
-+
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-  * array after it has expired its current timeslice. (it will not
-@@ -1365,6 +1367,27 @@ void scheduler_tick(int user_ticks, int 
- 			enqueue_task(p, rq->expired);
- 		} else
- 			enqueue_task(p, rq->active);
-+	} else {
-+		/*
-+		 * Prevent a too long timeslice allowing a task to monopolize
-+		 * the CPU. We do this by splitting up the timeslice into
-+		 * smaller pieces.
-+		 *
-+		 * Note: this does not mean the task's timeslices expire or
-+		 * get lost in any way, they just might be preempted by
-+		 * another task of equal priority. (one with higher
-+		 * priority would have preempted this task already.) We
-+		 * requeue this task to the end of the list on this priority
-+		 * level, which is in essence a round-robin of tasks with
-+		 * equal priority.
-+		 */
-+		if (!(p->time_slice % TIMESLICE_GRANULARITY) &&
-+			       		(p->array == rq->active)) {
-+			dequeue_task(p, rq->active);
-+			set_tsk_need_resched(p);
-+			p->prio = effective_prio(p);
-+			enqueue_task(p, rq->active);
-+		}
- 	}
- out_unlock:
- 	spin_unlock(&rq->lock);
+non-linear scale down is most probably because processes get more done
+and don't wait so much.
+
+idle() is also get called more when there is some load.
+
+There is something weird though, I have this constant 0.8 load which I
+can't pinpoint, in -mm4 fully idle machine was at about 0.1 load.
+
+Regarding my stupidly reported Xfree86 -problem, it was PEBKAC, though I
+can't tell what exactly that was. Only one module changed way to iterate
+pci_find_device between boots.
+
+
+-- 
+   Psi -- <http://www.iki.fi/pasi.savolainen>
 

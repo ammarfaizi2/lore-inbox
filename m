@@ -1,89 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266935AbTGGJly (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 05:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266939AbTGGJly
+	id S266939AbTGGJpp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 05:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbTGGJpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 05:41:54 -0400
-Received: from m239.net195-132-57.noos.fr ([195.132.57.239]:138 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S266935AbTGGJlw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 05:41:52 -0400
-Date: Mon, 7 Jul 2003 11:56:12 +0200
-From: Stelian Pop <stelian@popies.net>
-To: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.4.22-pre3] Export 'acpi_disabled' symbol to modules...
-Message-ID: <20030707095612.GA1507@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	acpi-devel@lists.sourceforge.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Jul 2003 05:45:45 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:42891 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S266939AbTGGJpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 05:45:44 -0400
+Date: Mon, 7 Jul 2003 11:00:14 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: 2.5.74-mm1
+In-Reply-To: <200307060414.34827.phillips@arcor.de>
+Message-ID: <Pine.LNX.4.53.0307071042470.743@skynet>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307060010.26002.phillips@arcor.de>
+ <20030706012857.GA29544@mail.jlokier.co.uk> <200307060414.34827.phillips@arcor.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 6 Jul 2003, Daniel Phillips wrote:
 
-'acpi_disabled' is not exported by the current 2.4-pre kernel, but
-is used by at least the sonypi module.
+> > > What are you going to do if you have one
+> > > application you want to take priority, re-nice the other 50?
+> >
+> > Is that effective?  It might be just the trick.
+>
+> Point.
+>
 
-I have submitted a similar patch for 2.5 some weeks ago (and it got
-applied) but for some reason the 2.4 ACPI branch don't have it.
+Alternatively, how about using PAM to grant the CAP_SYS_NICE capability to
+known interactive users that require it. Presumably the number of users
+that require it is very small (in the case of the music player, only one)
+so it wouldn't be a major security issue.
 
-Andy, Marcelo, please apply.
+There is something along these lines at http://www.pamcap.org but it
+requires some patching to the kernel (only available against 2.4.18
+currently) to inherit capabilities across exec and, from what I gather at
+a quick glance, to allow capabilities to be set for a process group.
 
-(Alan, a similar change is needed for -ac, but the current patch will
-not apply on top of the ac tree. Do you want me to send you a patch
-correcting this or you'll do the change by hand ?)
-
-Thanks,
-
-Stelian.
-
-===== arch/i386/kernel/setup.c 1.68 vs edited =====
---- 1.68/arch/i386/kernel/setup.c	Mon Jun 23 08:41:25 2003
-+++ edited/arch/i386/kernel/setup.c	Mon Jul  7 09:28:46 2003
-@@ -107,6 +107,7 @@
- #include <linux/seq_file.h>
- #include <asm/processor.h>
- #include <linux/console.h>
-+#include <linux/module.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -175,10 +176,11 @@
- static u32 disabled_x86_caps[NCAPINTS] __initdata = { 0 };
- 
- #ifdef CONFIG_ACPI_HT_ONLY
--int acpi_disabled __initdata = 1;
-+int acpi_disabled = 1;
- #else
--int acpi_disabled __initdata = 0;
-+int acpi_disabled = 0;
- #endif
-+EXPORT_SYMBOL(acpi_disabled);
- 
- extern int blk_nohighio;
- 
-===== arch/i386/kernel/Makefile 1.6 vs edited =====
---- 1.6/arch/i386/kernel/Makefile	Fri Jun 13 09:01:12 2003
-+++ edited/arch/i386/kernel/Makefile	Mon Jul  7 09:28:57 2003
-@@ -14,7 +14,7 @@
- 
- O_TARGET := kernel.o
- 
--export-objs     := mca.o mtrr.o msr.o cpuid.o microcode.o i386_ksyms.o time.o
-+export-objs     := mca.o mtrr.o msr.o cpuid.o microcode.o i386_ksyms.o time.o setup.o
- 
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
- 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
 -- 
-Stelian Pop <stelian@popies.net>
+Mel Gorman

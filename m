@@ -1,133 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265666AbSJXVeL>; Thu, 24 Oct 2002 17:34:11 -0400
+	id <S265675AbSJXVju>; Thu, 24 Oct 2002 17:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265668AbSJXVeL>; Thu, 24 Oct 2002 17:34:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2063 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265666AbSJXVeK>;
-	Thu, 24 Oct 2002 17:34:10 -0400
-Message-ID: <3DB868BC.1@pobox.com>
-Date: Thu, 24 Oct 2002 17:40:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S265671AbSJXVju>; Thu, 24 Oct 2002 17:39:50 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:64498 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265669AbSJXVjr>; Thu, 24 Oct 2002 17:39:47 -0400
+Message-ID: <3DB86AC4.1010004@mvista.com>
+Date: Thu, 24 Oct 2002 14:48:52 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: Mark Peloquin <peloquin@us.ibm.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: Switching from IOCTLs to a RAMFS
-References: <Pine.LNX.4.44.0210241051340.983-100000@cherise.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: James Bottomley <James.Bottomley@steeleye.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
+References: <Pine.LNX.4.33L2.0210241350230.20950-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
 
-> On Thu, 24 Oct 2002, Jeff Garzik wrote:
+
+Randy.Dunlap wrote:
+
+>On Thu, 24 Oct 2002, Steven Dake wrote:
 >
->> Mark Peloquin wrote:
->>
->>> Based on the feedback and comments regarding
->>> the use of IOCTLs in EVMS, we are switching to
->>> the more preferred method of using a ram based
->>> fs. Since we are going through this effort, I
->>> would like to get it right now, rather than
->>> having to switch to another ramfs system later
->>> on. The question I have is: should we roll our
->>> own fs, (a.k.a. evmsfs) or should we use sysfs
->>> for this purpose? My initial thoughts are that
->>> sysfs should be used. However, recent discussions
->>> about device mapper have suggested a custom ramfs.
->>> Which is the *best* choice?
->>
->>
->> (cc'd viro and mochel, as I feel they are 'owners' in the subject area)
->>
->> Let's jump back a bit, for a second. Why is procfs bad news? There are
->> minor issues with the implementation of single-page output and lack of
->> pure file operations, but the big issue is lack of a sane namespace.
->> sysfs is no better than procfs if we keep heaving junk into it without
->> thinking about proper namespace organization.
+>| James
+>| Some responses below:
+>|
+>| James Bottomley wrote:
+>|
+>| >sdake@mvista.com said:
 >
+>| >I don't really think it's the job of the kernel to conatin usage information.
+>| >That's the job of the user level documentation.
+>| >
+>| >
+>| I've gotten mixed feedback on this.  I'll add you to the list that
+>| doesn't like this.
 >
-> That's one of my personal goals: to mandate some amount of sanity in the
-> namespace organization. Without it, sysfs is basically just a modernized
-> procfs.
-
-
-Is there a namespace doc or guideline we can look at?
-(for existing nodes, sure, but more guidelines for future nodes)
-
-
+>add me to that list also.
 >
->> I personally prefer a separate filesystem for what you describe. That
->> gives the EVMS team control over their own portion of the namespace,
->> while giving complete flexibility. I do _not_ see sysfs as simply a
->> procfs replacement -- sysfs IMO is more intended as a way to organize
->> certain events and export internal kernel structure.
+>| perhaps it should be removed (even though it takes up minimal memory).
+>yes, i agree.
 >
+>| >>Imagine scanning each disk in driverfs looking at its WWN attribute
+>| >>(if  it has one) until a match is found.  Assume there are 16 FC
+>| >>devices.  That is  several hundred syscalls just to complete one
+>| >>hotswap operation.
+>| >>
+>| >>
+>| >
+>| >Why is speed so important?
+>| >
+>| >
+>| Telecoms and Datacoms have told me in numerous conversations that a hotswap
+>| operation should occur in 20msec.  I've arbitrarily set 10msec as my
+>| target to
+>| ensure that I meet the worse-case bus-is-loaded responses during scans, etc.
+>|
+>| I can't mention the names of the telecoms, but several with 10000+ employees
+>| have mentioned it.
 >
-> I do not view those as necessarily competing goals. The mission statement
-> of sysfs is to "export kernel objects, their attributes, and their
-> relation to other objects".
+>| >>I think this would be too slow.  10 msec for my entire hotswap is
+>| >>available.  If you calculate 2msec for the actual hotswap disk
+>| >>operation, that leaves 8 msec for the rest of the mess.  Scanning
+>| >>through tables or scanning tens or hundreds of files through hundreds
+>| >>of  syscalls may betoo slow.
+>| >>
+>| >
+>| >Where does the 10ms figure come from?
+>| >
+>| See above
 >
-> EVMS, like any other subsystem, has a set of objects and methods to
-> operate on them, as exported via attributes. They have their have their
-> own object hierarchy, and in no way do I want to dilute that (or pollute
-> anything else ;). sysfs should be able to handle this. It does today,
-> though it's not as seamless as I would prefer it.
-
-
-I hope that sysfs imposes some sort of structure on random sysfs users?
-
-
+>I've already ask Steve about this and received his answers.
+>Can't say that I agree with them though, so I asked someone from
+>a Telecom Equipment Mfr. about this.  He said that it's just for
+>equipment testing, where technicians verify that hotswap works,
+>and they are impatient to wait, so they practice surprise removal
+>instead of coordinated removal.  He doesn't think that's how it's
+>actually done out in the field, just in test labs.
 >
-> I would rather mature the API and consolidate the common code, than 
-> have N
-> copies of the same filesystem, each with a slightly different purpose, in
-> existence. There are so many benefits:
+>Preface question:  does cPCI support surprise removal (in the
+>PICMG specs, not in some implementation)?  I know that PCI hotplug
+>doesn't support surprise removal, only "coordinated" removal.
+>  
 >
-> - Less code duplication, and less places to fix identical bugs.
+PICMG 2.12 doesn't support surprise removal (the hardware does, the 
+software doesn't).
+The latch must first be popped, then the user must wait for the blue 
+led.  If the blue led
+isn't lit, the operating system isn't ready for the board to be removed.  
 
-Not in this argument :)  libfs.c handles this quite nicely.  And it's 
-just a matter of moving more code into libfs.c for things like this.
+This said, operators are paid 10 bucks an hour to replace boards and you 
+know how that goes. :)
 
-In fact it looks like some of the sysfs/inode.c code could be moved to 
-libfs.c or should be using libfs.c code ;-)
+For Compact PCI, the surprise removal rate is about 100 msec.  This is 
+as fast as the user can
+rip the board out of a chassis, meaning if you can light the blue led in 
+less then 100 msec
+it doesn't matter if the extraction is a surprise or not.
 
-Further, looking at current sysfs/inode.c code, it seems that ->read and 
-->write ops provided are severely lacking in flexibility.  If you let 
-users provide their own file_operations directly, that would be nice.   
-Calling __get_free_page and having users send data to that page is easy 
--- and kills quite a lot of flexibility that would push one towards 
-creating a private 'meta' filesystem.  Having that page provided for you 
-is IMO really only useful for spitting out status data...
-
+>So the question that has to be answered IMO is:  do we want to
+>support surprise removal for something like manufacturing test,
+>which doesn't abide by the coordinated removal protocol?
 >
-> - It makes it easier to write for; instead of having to copy n' paste a
-> new filesystem to export your subsystem's objects, you can add a field
-> to a structure and call a function.
+>or:  Do we have to support surprise removal, only because it can't
+>be prevented?  I expect that this is the case, but I still don't
+>see or understand the 20 ms time requirement.
+>  
+>
+For Advanced TCA, there isn't a "latch" required to unpop before 
+removing the board.  For
+Compact PCI, the latch must be popped, allowing a signal to be sent to 
+the board.  For ATCA,
+a button is pressed (which is a major complaint of Advanced TCA, boards 
+can be removed without
+any signaling to the OS that the board is being removed).  I'm not sure 
+what the PICMG3 foks
+are going to do about that problem.  I'm assuming they are going to 
+rework the enumeration of
+the hotswap event to be driven by extracting the board instead of by a 
+button.
 
-This is a function of any API.  copy-n-paste is not an argument against 
-a private filesystem -- see libfs.c counter-argument above.
+In this case, extremely fast hotswap times are required, because the 
+board can be removed
+very fast in Advanced TCA (vs the latched method of Compact PCI).
 
-> - It's easier for the user to mount one filesystem and get everything,
-> instead of trying to figure out what fs has what ifno. 
+Perhaps this is where the timing constraints originate.
 
-agreed
-
-> - It's easier to associate objects between subsystems, since you can
-> internally create relative symlinks between two objects (and soon with a
-> single call). 
-
-agreed
-
-So let users provide their own file_operations, and have guidelines for 
-new users, and I'll be happier :)
-
-    Jeff
-
-
-
+>  
+>
 

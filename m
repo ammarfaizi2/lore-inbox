@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265305AbTL0ECG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 23:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265307AbTL0ECG
+	id S265311AbTL0Eev (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 23:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbTL0Eev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 23:02:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39075 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265305AbTL0ECD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 23:02:03 -0500
-Date: Fri, 26 Dec 2003 20:01:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Rohit Seth <rohit.seth@intel.com>
-Subject: Re: 2.6.0 Huge pages not working as expected
-In-Reply-To: <20031227033620.GG1676@dualathlon.random>
-Message-ID: <Pine.LNX.4.58.0312261956510.14874@home.osdl.org>
-References: <20031226105433.GA25970@axis.demon.co.uk> <20031226115647.GH27687@holomorphy.com>
- <20031226201011.GA32316@axis.demon.co.uk> <Pine.LNX.4.58.0312261226560.14874@home.osdl.org>
- <20031227033620.GG1676@dualathlon.random>
+	Fri, 26 Dec 2003 23:34:51 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:8885 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S265311AbTL0Eet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 23:34:49 -0500
+Date: Fri, 26 Dec 2003 20:34:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: azarah@nosferatu.za.org
+cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 sound output - wierd effects
+Message-ID: <3820000.1072499679@[10.10.2.4]>
+In-Reply-To: <1072486379.12308.33.camel@nosferatu.lan>
+References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]> <1072486379.12308.33.camel@nosferatu.lan>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 27 Dec 2003, Andrea Arcangeli wrote:
+>> > If you right click on xmms, and then select options->preferences, on the
+>> > first page to the bottom there should be output plugin.  If you cannot
+>> > select alsa, see if there is a xmms-alsa or libxmms-alsa plugin.  Sorry,
+>> > I do not know Debian that well.
+>> 
+>> Thanks, it was on OSS - there's no ALSA selection, nor can I find one.
+>> There's probably one in unstable somewhere, but ... see below.
 > 
-> well, at least on the alpha the above mode = 1 is reproducibly a lot
-> better (we're talking about a wall time 2/3 times shorter IIRC) than
-> random placement. The l2 is huge and one way cache associative,
+> Btw, compile xmms yourself - should have alsa then =)  Not sure if
+> it will if you build with apt-get from source, or when they started
+> to ship the alsa module with xmms source - think it was not so long
+> ago.  Does with 1.2.8 though:
 
-What kind of strange and misguided hw engineer did that?
+Oh, I understand I could work around the problem in userspace, but that's 
+not the point - something broke in the kernel, presumably OSS emulation.
+test2 works, test3 doesn't. 
 
-I can understand a one-way L1, simply to keep the cycle time low, but 
-what's the point of a one-way L2? Braindead external cache controller?
+I suspect this changeset:
 
-> The current patch is for 2.2 with an horrible API (it uses a kernel
-> module to set those params instead of a sysctl, despite all the real
-> code is linked into the kernel), while developing it I only focused on
-> the algorithms and the final behaviour in production. the engine to ask
-> the allocator a page of the right color works O(1) with the number of
-> free pages and it's from Jason.
+ChangeSet@1.1046.572.2  2003-07-28 13:35:31+02:00  perex@cz:/home/perex/bk/linux-sound/linux-sound
+all diffs ALSA 0.9.6 update
+  - added __setup() to all midlevel modules
+  - sequencer protocol 1.0.1
+    - added timestamping flags for ports
+  - OSS PCM emulation
+    - fixed write() behaviour
+    - added two new options no-silence & whole-frag
+    - a try to fix OOPSes caused in the rate plugin
+  - emu10k1 driver
+    - more support for Audigy/Audigy2 EX
+    - fixed soundfont locking
+  - sb16 driver
+    - fixed fm_res handling (and proc OOPS)
+  - via82xx driver
+    - fixed revision check for 8233A
+  - usbaudio driver
+    - added a workaround for M-Audio Audiophile USB
 
-Does it keep fragmentation down?
+Particlarly the bit about OSS PCM emulation ;-)
 
-That's the problem that Davem had in one of his cache-coloring patches: it
-worked well enough if you had lots of memory, but it _totally_ broke down
-when memory was low. You couldn't allocate higher-order pages at all after
-a while because of the fragmented memory.
+M.
 
-			Linus

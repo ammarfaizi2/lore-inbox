@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266128AbRF2RPk>; Fri, 29 Jun 2001 13:15:40 -0400
+	id <S266126AbRF2RTa>; Fri, 29 Jun 2001 13:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266125AbRF2RPU>; Fri, 29 Jun 2001 13:15:20 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:23541 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S266121AbRF2RPR>; Fri, 29 Jun 2001 13:15:17 -0400
-Message-Id: <4.3.1.0.20010629101231.00e56780@mail1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
-Date: Fri, 29 Jun 2001 10:14:52 -0700
-To: Andrew Morton <andrewm@uow.edu.au>,
-        Andreas Schuldei <andreas@schuldei.org>
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: artificial latency for a network interface
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B3C0060.FBDB5F87@uow.edu.au>
-In-Reply-To: <20010629003900.A6065@sigrid.schuldei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266125AbRF2RTU>; Fri, 29 Jun 2001 13:19:20 -0400
+Received: from zmsvr04.tais.net ([12.106.80.12]:36621 "EHLO zmsvr04.tais.net")
+	by vger.kernel.org with ESMTP id <S266123AbRF2RTI>;
+	Fri, 29 Jun 2001 13:19:08 -0400
+Subject: Linux Sparc V9 code optimazation
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF01E29F0A.A587033D-ON88256A7A.005E7998@tais.net>
+From: Ramil.Santamaria@tais.toshiba.com
+Date: Fri, 29 Jun 2001 10:20:29 -0700
+X-MIMETrack: Serialize by Router on zmsvr04/tais_external(Release 5.0.6a |January 17, 2001) at
+ 06/29/2001 10:19:08 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To any Sparc guru,
 
-> > I wanted to do that using two tun devices.
-> > I had hoped to have a routing like this:
-> > 
-> >  <-> eth0 <-> tun0 <-> userspace, waiting queue <-> tun1 <-> eth1
->
->yes, that works very well.  A userspace app sits on top of the
->tun/tap device and pulls out packets, delays them and reinjects
->them.
-Right. And you don't even need tun1. Just write them back to tun0.
+This question relates to the effect of instruction alignment on a Sparc's
+Prefetch/Dispatch unit.
 
->The problem is routing: when you send the packet back to the
->kernel, it sends it straight back to you.  You need to rewrite
->the headers, which is a pain.
-True.
+Just how exactly does the branch prediction bits for instruction pairs in
+the I-Cache utilized.
 
-Max
+I'm trying to figure out the consequences of an odd word fetch into an
+Instruction cache line with a the fourth
+instruction being another branch.
 
-Maksim Krasnyanskiy	
-Senior Kernel Engineer
-Qualcomm Incorporated
+Please cc me as I am currently not on the mailing list.
 
-maxk@qualcomm.com
-http://bluez.sf.net
-http://vtun.sf.net
+Ramil J.Santamaria
+Toshiba America Information Systems
+(949) 461-4379
+(949) 206-3439 - fax
+ramil.santamaria@tais.toshiba.com
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129995AbRBOAUY>; Wed, 14 Feb 2001 19:20:24 -0500
+	id <S129534AbRBOAjM>; Wed, 14 Feb 2001 19:39:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131587AbRBOAUO>; Wed, 14 Feb 2001 19:20:14 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:39186 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129995AbRBOAT7>; Wed, 14 Feb 2001 19:19:59 -0500
-Date: Wed, 14 Feb 2001 16:19:57 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Bradley Kite <bradley@rug-rats.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: doing RAID 0 with HPT370
-In-Reply-To: <20010215002012.A21227@gamersgold.net>
-Message-ID: <Pine.LNX.4.30.0102141618260.6172-100000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130411AbRBOAjC>; Wed, 14 Feb 2001 19:39:02 -0500
+Received: from jalon.able.es ([212.97.163.2]:24807 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129534AbRBOAiy>;
+	Wed, 14 Feb 2001 19:38:54 -0500
+Date: Thu, 15 Feb 2001 01:38:46 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: modules_install target
+Message-ID: <20010215013846.A25812@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Feb 2001, Bradley Kite wrote:
+I have recently noticed that 'make modules_install' tries as a last step
 
-> I found this message while searching for a solution to getting
-> linux to see a raid array on my HPT370:
->
-> http://www.mailgate.org/linux/linux.dev.raid/msg00163.html
->
-> Its got someone from highpoint saying that raid support will
-> be offered "in the near future", and that message was dated October 2000.
->
-> I emailed highpoint to ask if they had got any where, but they dont seem to
-> reply.
->
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.1-ac13; fi
 
-I've emailed them myself as this is the 2nd board I have with the HPT370
-controller on it. HighPoint has not returned any of the 4 messages I've
-sent to them in the last 3 months. I don't know what their plans are but I
-do know I get the feeling they don't care to support Linux in any way
-shape or form. Feels like a pawn off job.
+I depends on 'make install' doing the right symlinks in /boot.
+Would not be better to do a:
 
+if [ -r System.map-2.4.1-ac13 ]; then /sbin/depmod -ae -F System.map-2.4.1-ac13 
+ 2.4.1-ac13; fi
+
+???
 
 -- 
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.1-ac10 #1 SMP Sun Feb 11 23:36:46 CET 2001 i686
 

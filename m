@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291845AbSBAQsz>; Fri, 1 Feb 2002 11:48:55 -0500
+	id <S291859AbSBAQxz>; Fri, 1 Feb 2002 11:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291846AbSBAQsp>; Fri, 1 Feb 2002 11:48:45 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:23235 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S291845AbSBAQsc>; Fri, 1 Feb 2002 11:48:32 -0500
-Date: Fri, 1 Feb 2002 17:48:13 +0100
-From: "Axel H. Siebenwirth" <axel@hh59.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
-Message-ID: <20020201164813.GA14296@neon>
-In-Reply-To: <20020201153303.A1508@prester.hh59.org> <5.1.0.14.2.20020201160018.026603b0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020201160018.026603b0@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.27i
-Organization: hh59.org
+	id <S291856AbSBAQxk>; Fri, 1 Feb 2002 11:53:40 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:16145 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291850AbSBAQxb>; Fri, 1 Feb 2002 11:53:31 -0500
+Message-ID: <3C5AC804.10605@evision-ventures.com>
+Date: Fri, 01 Feb 2002 17:53:24 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Thomas Capricelli <tcaprice@logatique.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VESA Anybody out there
+In-Reply-To: <Pine.LNX.4.33.0202011640070.2501-100000@unicef.org.yu> <3C5AC078.8010103@evision-ventures.com> <20020201163119.6ED6323CBB@persephone.dmz.logatique.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton!
+Thomas Capricelli wrote:
 
-On Fri, 01 Feb 2002, Anton Altaparmakov wrote:
+>
+>Do I have to understand that you're using : "vga=ask scan" ?
+>this can't work, cause it doesn't mean anything.
+>
+>The syntax is "vga=ask" _or_ "vga=scan"
+>
+>Or, if you prefer, 'ask' is a special scan code you can put, that will ask 
+>you (at boot time) which one you want (you'll get a list of scancode 
+>supported by your graphic card to choose from)
+>
 
-> I was about to send the drive (IBM 7200rpm 41GiB) back for replacement when 
-> I as last resort tried to upgrade the firmware of the drive.
-> 
-> After the upgrade the drive started working again, fully passed the Drive 
-> Fitness Test (IBM utility) and it has been working for a few weeks non-stop 
-> in my file server RAID-1 array since then.
-
-The thing is that they come up now, just since I installed 2.5.3. Might
-there be a hope that it is a kernel-related issue (new IDE driver...). Drive
-has been working fine ever since till now.
-
-Best regards,
-Axel Siebenwirth
+I use vga=ask as kernel parameter
+and type scan at the dialogue, which than hangs the system *allways*.
 
 
-P.S.: Would like to write to my WinXP NTFS Partition, is there some hope MS
-will ever give out exact specs (they don't, do they?) to have write 
-funtionality properly implemented? Is there some other way to contribute?
+

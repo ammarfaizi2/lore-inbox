@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUG0P7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUG0P7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUG0P7n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 11:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUG0P7n
+	id S266073AbUG0P7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 11:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUG0P7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 11:59:43 -0400
-Received: from webmail-benelux.tiscali.be ([62.235.14.106]:1618 "EHLO
-	mail.tiscali.be") by vger.kernel.org with ESMTP id S266124AbUG0P73 convert rfc822-to-8bit
+	Tue, 27 Jul 2004 11:59:33 -0400
+Received: from webmail-benelux.tiscali.be ([62.235.14.106]:1362 "EHLO
+	mail.tiscali.be") by vger.kernel.org with ESMTP id S266073AbUG0P73 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 27 Jul 2004 11:59:29 -0400
 Date: Tue, 27 Jul 2004 17:59:13 +0200
-Message-ID: <40FB87C400003E93@ocpmta3.freegates.net>
+Message-ID: <40FB87C400003E92@ocpmta3.freegates.net>
 In-Reply-To: <20040727125432.GA1960@logos.cnet>
 From: "Joel Soete" <soete.joel@tiscali.be>
 Subject: Re: Some cleanup patches for: '...lvalues is deprecated'

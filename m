@@ -1,100 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSJUHOh>; Mon, 21 Oct 2002 03:14:37 -0400
+	id <S261177AbSJUHU0>; Mon, 21 Oct 2002 03:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261177AbSJUHOh>; Mon, 21 Oct 2002 03:14:37 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:33212 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261173AbSJUHOg> convert rfc822-to-8bit; Mon, 21 Oct 2002 03:14:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: Bitkeeper outrage, old and new
-Date: Sun, 20 Oct 2002 21:20:37 -0500
-User-Agent: KMail/1.4.3
-Cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
-References: <E180rX3-0005dL-00@fencepost.gnu.org> <m1d6q4wzwb.fsf@frodo.biederman.org> <20021020194232.A15648@work.bitmover.com>
-In-Reply-To: <20021020194232.A15648@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210202120.37176.landley@trommello.org>
+	id <S261186AbSJUHU0>; Mon, 21 Oct 2002 03:20:26 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:36658 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S261177AbSJUHUZ>; Mon, 21 Oct 2002 03:20:25 -0400
+Date: Mon, 21 Oct 2002 09:26:29 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Priorities for I/O
+Message-ID: <20021021072629.GD6630@nbkurt.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Jens Axboe <axboe@suse.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zS7rBR6csb6tI2e1"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-UL1 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 October 2002 21:42, Larry McVoy wrote:
 
-> > The GPL forces people to respect others freedom to use a work so
-> > covered.  That is still a power, but used in a good way.  The power
-> > to silence criticism is definitely not a power that enhances anyones
-> > freedom.
->
-> Hogwash indeed.  Free means the freedom to do whatever you want.
-> Consider the US free speech.  Nobody says "this sort of speech is good
-> for the world, therefor it is the sanctioned form of free speech and
-> all other forms are prohibited".
+--zS7rBR6csb6tI2e1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Actually, they do.  Commercial speech can be more heavily regulated than 
-non-commercial speech, and then of course there's the old "obscenity" bit.  
-And of course the test of yelling "movie" in a crowed firehouse... :)
+Hi Jens,
 
-There are several important supreme court cases on this, attempting to 
-delineate the bounds of the first amendment.
+one of the shortcomings of Linux process priority system is that it only
+affects CPU resources (and even those are not affected strongly enough for
+some applications).=20
+As soon as processes waits for I/O, they are all equal.
 
-> playing God.  The GPL is *not* about freedom it is about forcing the
-> source code to be freely available.
+I wonder how difficult it was to just add priorities to your I/O scheduler.
+Basically, I think everything is there: You sort requests already and we
+have deadlines. For sorting scores are used.
+So the idea is: Why not just give I/O submitted on behalf of -19 processes
+(and RT) some higher score and a shorter deadline than +19 ones?
+Probably, it would only affect reads, as there we have the processes wait
+on them; writes are often triggered asynchronously anyway.
 
-The GPL is about giving free software an immune system so that Forker du jour 
-can't hire all your developers away to work on a closed fork of the codebase 
-the way netscape gutted Mosaic, BSDi shredded the berkeley CSRG, and the two 
-Lisp companies drained the original MIT AI lab.
+This should have the effects that we want: When there's no fight for I/O
+bandwidth, everybody just gets maximum performance as the I/O scheduler's
+queue will be short. As soon as processes fight for reads, unniced processes
+have a higher chance of getting served first.
 
-Technically speaking, the bill of rights is a list of restrictions.  Can't 
-shut people up, can't take the guns away, can't impose a religion on 
-people...
+Just think of nightly updatedb on a webserver for a real-world example why
+this may matter.
 
-> And it does a fairly poor job of that
+Looks like something not too difficult to do, but my current knowledge on
+2.5 code is somewhat sparse :-(
 
-Seems to have worked fine so far. :)
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers                        SuSE Labs
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
 
-> if it really wanted to do so it would be far more simplistic about
-> it and say "any changes you make must be published within 24 hours or
-> your license is revoked".
+--zS7rBR6csb6tI2e1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Wouldn't hold up in court, for a number of reasons.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-> All you are doing is saying that your goals are better than other goals.
+iD8DBQE9s6wkxmLh6hyYd04RAl8OAKCAaWpz82ZBeqtiAFewJM3IrSHEMQCgkokS
+cyzk5FRuXZ7MaifCiSd9nwg=
+=HuCi
+-----END PGP SIGNATURE-----
 
-Stallman isn't saying you can't put your code under the license you like.  
-He's not really addressing you.  (I think he's written you off as a lost 
-cause.)  He was talking to the rest of the kernel development list and going 
-"What are you, NUTS?  There be strings attached!"  And they went "So why 
-doesn't the FSF sponsor a bitcreeper replacement?"  And he has studiously 
-chosen to ignore this, it seems.  Either that or his inbox runneth over...
-
-> That's not freedom, that is you deciding what is best for the world.
-> You may well be right, your goals may be what is best for the world.
-> None the less, that's not freedom.  That's Big Brother making decisions
-> for all "the little people" in the world.
-
-The same could be said about the founding fathers and the constitution...
-
->  And, surprise surprise, you
-> may not be right.  Freedom is about everyone have equal rights to make
-> their own choices, nobody died and elected you God.
-
-If freedom is about everyone having equal rights, then if everybody is locked 
-up in the same size cell, we're all free.  (In prison you get to make any 
-choice you want.  Whether or not you can act on it is another matter, but 
-that's a pragmetic concern wherever you go.  It's easy to choose how to spend 
-a million dollars...)
-
-The difference between the utopian ideal of putting all your code in the 
-public domain and licensing it under the GPL, is that the GPL works and 
-putting our code in the public domain means, under our legal system, people 
-can sue you if your "hello world" fails to cure cancer for them.
-
-Who are you to take away their freedom to sue you by putting clauses in your 
-license forbidding it? :)
-
-Rob
+--zS7rBR6csb6tI2e1--

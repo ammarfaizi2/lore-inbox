@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUBDCS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 21:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266286AbUBDCS3
+	id S266220AbUBDCaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 21:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266277AbUBDCaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 21:18:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7147 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266293AbUBDCST (ORCPT
+	Tue, 3 Feb 2004 21:30:16 -0500
+Received: from ns.suse.de ([195.135.220.2]:27874 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266220AbUBDCaL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 21:18:19 -0500
-Date: Tue, 3 Feb 2004 21:18:11 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Matt Domsch <Matt_Domsch@dell.com>
-cc: Clay Haapala <chaapala@cisco.com>, Matt Mackall <mpm@selenic.com>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib
- routines
-In-Reply-To: <20040203172508.B26222@lists.us.dell.com>
-Message-ID: <Xine.LNX.4.44.0402032115090.2718-100000@thoron.boston.redhat.com>
+	Tue, 3 Feb 2004 21:30:11 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: johnstul@us.ibm.com, drepper@redhat.com, linux-kernel@vger.kernel.org,
+       andrea@suse.de
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com.suse.lists.linux.kernel>
+	<401894DA.7000609@redhat.com.suse.lists.linux.kernel>
+	<20040201012803.GN26076@dualathlon.random.suse.lists.linux.kernel>
+	<401F251C.2090300@redhat.com.suse.lists.linux.kernel>
+	<20040203085224.GA15738@mail.shareable.org.suse.lists.linux.kernel>
+	<20040203162515.GY26076@dualathlon.random.suse.lists.linux.kernel>
+	<20040203173716.GC17895@mail.shareable.org.suse.lists.linux.kernel>
+	<20040203181001.GA26076@dualathlon.random.suse.lists.linux.kernel>
+	<20040203182310.GA18326@mail.shareable.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Feb 2004 03:27:16 +0100
+In-Reply-To: <20040203182310.GA18326@mail.shareable.org.suse.lists.linux.kernel>
+Message-ID: <p73znbzlgu3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Feb 2004, Matt Domsch wrote:
+Jamie Lokier <jamie@shareable.org> writes:
 
-> > >> +MODULE_LICENSE("GPL and additional rights");
-> > > 
-> > > "additional rights?"
-> > > 
-> > Take it up with Matt_Domsch@dell.com -- it's his code that I
-> > cribbed, so that's the license line I used.
+> Andrea Arcangeli wrote:
+> > vsyscalls will never execute anything like execve. They can at most
+> > modify userspace memory a fixed address, so if the userspace isn't
+> > fixed, then nothing can be done with a vsyscall.
 > 
-> The crc32 code came from linux@horizon.com with the following
-> copyright abandonment disclaimer, which is still in lib/crc32.c:
+> Are we talking about the same x86_64?
 > 
-> /*
->  * This code is in the public domain; copyright abandoned.
->  * Liability for non-performance of this code is limited to the amount
->  * you paid for it.  Since it is distributed for free, your refund will
->  * be very very small.  If it breaks, you get to keep both pieces.
->  */
+> I see this in arch/x86_64/vsyscall.S:
 > 
-> Thus GPL plus additional rights is appropriate.
+> __kernel_vsyscall:
+> .LSTART_vsyscall:
+> 	push	%ebp
+> .Lpush_ebp:
+> 	movl	%ecx, %ebp
+> 	syscall
 > 
+> Is that page not mapped into userspace?
 
-Placing the code in the public domain then adding additional rights seems 
-to be inherently conflicted.
+It is. It is needed for the vsyscall fallback for UML (UML cannot
+support fixed address vsyscalls) and when we have to disable user
+space vgettimeofday for other reasons (e.g. to use alternative time
+sources that cannot be mapped to user space or doing time workarounds
+that require real locks)
 
-People will pay for distribution of the code, so these additional rights 
-would not be acceptable anyway.
+But any security advantages of not having it are at best illusionary.
+If you don't believe me just grep any random executable for 
+0xf 0x05 (= syscall) or 0xcd 0x80 (= int $0x80). Even if it wasn't 
+in the vsyscall page you just have to find these two bytes somewhere
+(doesn't have to be an own instruction, they occur commonly as part
+of other instructions or data) and jump to them. Executables are
+at fixed addresses.
 
-(IMHO).
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+-Andi

@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263970AbUDNIaz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 04:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUDNIaz
+	id S263976AbUDNIdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 04:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263978AbUDNIdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 04:30:55 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10676 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263970AbUDNIaw (ORCPT
+	Wed, 14 Apr 2004 04:33:06 -0400
+Received: from math.ut.ee ([193.40.5.125]:20930 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S263976AbUDNIdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 04:30:52 -0400
-Date: Wed, 14 Apr 2004 10:29:51 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] conditionalize some boring buffer_head checks
-Message-ID: <20040414082950.GD12558@suse.de>
-References: <407CEB91.1080503@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <407CEB91.1080503@pobox.com>
+	Wed, 14 Apr 2004 04:33:02 -0400
+Date: Wed, 14 Apr 2004 11:33:00 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.5+BK compile error: binfmt_elf on sparc64
+Message-ID: <Pine.GSO.4.44.0404141104370.28974-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14 2004, Jeff Garzik wrote:
-> 
-> These checks are executed billions of times per day, with no stack dump 
-> bug reports sent to lkml.  Arguably, they will only trigger on buggy 
-> filesystems (programmer error), and thus IMO shouldn't even be executed 
-> in a non-debug kernel.
-> 
-> Even though BUG_ON() includes unlikely(), I think this patch -- or 
-> something like it -- is preferable.  The buffer_error() checks aren't 
-> even marked unlikely().
-> 
-> This is a micro-optimization on a key kernel fast path.
+Because of -Werror, it bails out:
 
-As Andrew mentioned, this isn't a fast path at all. You are potentially
-even going to block on this call, and even if you don't you'll end up
-spending a butt load of cycles in the io scheduler.
+In file included from arch/sparc64/kernel/binfmt_elf32.c:154:
+fs/binfmt_elf.c: In function `load_elf_interp':
+fs/binfmt_elf.c:369: warning: comparison is always false due to limited range of data type
+fs/binfmt_elf.c: In function `load_elf_binary':
+fs/binfmt_elf.c:780: warning: comparison is always false due to limited range of data type
 
-> ===== fs/buffer.c 1.237 vs edited =====
-> --- 1.237/fs/buffer.c	Wed Apr 14 03:18:09 2004
-> +++ edited/fs/buffer.c	Wed Apr 14 03:39:15 2004
-> @@ -2688,6 +2688,7 @@
->  {
->  	struct bio *bio;
->  
-> +#ifdef BH_DEBUG
->  	BUG_ON(!buffer_locked(bh));
->  	BUG_ON(!buffer_mapped(bh));
->  	BUG_ON(!bh->b_end_io);
+It's the comparision "elf_ppnt->p_memsz > TASK_SIZE".
 
-The last one will be 'caught' at the other end of io completion, so I
-guess that could be killed (even though you already lost the context of
-the error, then). The first two are buffer state errors, I think those
-should be kept unconditionally.
+p_memsz is Elf32_Word, TASK_SIZE is defined as
+#define TASK_SIZE       ((unsigned long)-VPTE_SIZE)
 
-> @@ -2698,6 +2699,7 @@
->  		buffer_error();
->  	if (rw == READ && buffer_dirty(bh))
->  		buffer_error();
-> +#endif
-
-I'm fine with killing the buffer_error(), maybe
-
-	if (rw == WRITE && !buffer_uptodate(bh))
-		buffer_error();
-
-should be kept though.
+At the first glance I can't see what's wrong here.
 
 -- 
-Jens Axboe
+Meelis Roos (mroos@linux.ee)
+
 

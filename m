@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbUANXZG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 18:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUANXRe
+	id S266290AbUANXhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 18:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266315AbUANXe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 18:17:34 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60910 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266334AbUANXQs
+	Wed, 14 Jan 2004 18:34:26 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:45732 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265259AbUANXch
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 18:16:48 -0500
-Message-ID: <4005A03A.40409@mvista.com>
-Date: Wed, 14 Jan 2004 12:02:02 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+	Wed, 14 Jan 2004 18:32:37 -0500
+Message-ID: <4005D195.3010008@inp-net.eu.org>
+Date: Thu, 15 Jan 2004 00:32:37 +0100
+From: Raphael Rigo <raphael.rigo@inp-net.eu.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Andrew Morton <akpm@osdl.org>,
-       jim.houston@comcast.net, discuss@x86-64.org, ak@suse.de,
-       shivaram.upadhyayula@wipro.com, lkml <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com> <200401122020.08578.amitkale@emsyssoft.com> <40046296.1050702@mvista.com> <20040114063155.GF28521@waste.org>
-In-Reply-To: <20040114063155.GF28521@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: gsstark@mit.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial ATA (SATA) for Linux status report
+References: <20031203204445.GA26987@gtf.org> <87hdyyxjgl.fsf@stark.xeocode.com> <20040114225653.GA32704@codepoet.org>
+In-Reply-To: <20040114225653.GA32704@codepoet.org>
+X-Enigmail-Version: 0.82.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Tue, Jan 13, 2004 at 01:26:46PM -0800, George Anzinger wrote:
+Erik Andersen wrote:
+> On Wed Jan 14, 2004 at 05:18:34PM -0500, Greg Stark wrote:
 > 
->>>Serial interface should be configurable independent of kgdb and may not be 
->>>configured if ethernet interface is configured.  Serial interface is far 
->>>simpler hence superior for debugging purposes. If it's available, using 
->>>ethernet interface is out of question. Ethernet interface can be used when 
->>>serial hardware isn't present or is being used for some other purposes.
->>>
+>>Jeff Garzik <jgarzik@pobox.com> writes:
 >>
->>I rather think that the serial inteface should be the fall back unless the 
->>user has told us at configure time that it is not available.  I am not 
->>prepared to make a statment that it is better than eth.  The eth intface 
->>should be much faster, but it has its fingers into a large part of the 
->>kernel that MAY be the subject of the current session.  Thus, I think that 
->>eth may be better, IF one is clearly not involved in debugging those areas 
->>of the kernel.  (Which, by the way, we need to enumerate at some point.)
+>>
+>>>Intel ICH5
+>>>
+>>>Issue #2: Excessive interrupts are seen in some configurations.
+>>
+>>I guess I'm seeing this problem. I'm trying to get my P4P800 motherboard with
+>>an ICH5 chipset working completely. So far I've been living without the cdrom
+>>or DVD players. I see lots of other posts on linux-kernel about the same
+>>problems:
 > 
 > 
-> I have in mind creating some other interfaces that will be on a par
-> with serial for early boot availability. So lets not frame this in
-> terms of eth vs serial. We can throw a priority int in the config
-> interface, stuff that in the plug struct, and pick whichever one's
-> highest and claims to be currently available.
+> I have the same deal.  My offer to send Jeff a P4P800 motherboard
+> to test with is still open....
 > 
-Right.  I had hoped that we might one day be able to use the USB and I am sure 
-there are others.
+>  -Erik
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
+> --This message was written using 73% post-consumer electrons--
+> -
+One possible workaround it to enable both PATA and SATA drivers (using 
+libata) and pass "ide2=noprobe ide3=noprobe" to kernel at boot.
+More detailled answer can be found here : 
+http://www.hentges.net/howtos/p4p800_deluxe.html
+Regards,
+Raphaël.

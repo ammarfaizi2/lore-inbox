@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTLSQbL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 11:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSQbL
+	id S263466AbTLSQiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 11:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLSQiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 11:31:11 -0500
-Received: from slimnet.xs4all.nl ([194.109.194.192]:22418 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S263462AbTLSQbG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 11:31:06 -0500
-Subject: [2.6.0 cpufreq] longhaul trouble
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1071851531.9835.5.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 19 Dec 2003 17:32:11 +0100
+	Fri, 19 Dec 2003 11:38:10 -0500
+Received: from smtp11.eresmas.com ([62.81.235.111]:50393 "EHLO
+	smtp11.eresmas.com") by vger.kernel.org with ESMTP id S263466AbTLSQhz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 11:37:55 -0500
+Message-ID: <3FE322A6.4020109@wanadoo.es>
+Date: Fri, 19 Dec 2003 17:09:10 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>, arnaud@andesi.org
+Subject: Re: Oops with 2.4.23
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I insert the longhaul cpufreq module on my VIA EPIA 800 the system
-completely freezes. It does not give any oops or other helpful error
-message.
+Arnaud Fontaine wrote:
 
-Through ACPI I can only use the throttling function, I can not switch
-between 400 and 800 MHz.
+> So i'll test memtest86 on my box this afternoon. I tell you if i find a
+> problem with the memory. Thank you for your explanations.
 
-Jurgen
+cpuburn [1] is faster detecting faults. It stress on the CPU itself, memory,
+cooling system, motherboard (especially voltage regulators) and power supply.
 
-output of /proc/cpu
+[1] http://users.ev1.net/~redelm/
 
-processor       : 0
-vendor_id       : CentaurHauls
-cpu family      : 6
-model           : 7
-model name      : VIA Ezra
-stepping        : 8
-cpu MHz         : 800.048
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
-bogomips        : 1595.80
 
 

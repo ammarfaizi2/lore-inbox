@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263821AbTJCSYa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 14:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTJCSYa
+	id S263819AbTJCSOm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 14:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTJCSOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 14:24:30 -0400
-Received: from mail.midmaine.com ([66.252.32.202]:35534 "HELO
-	mail.midmaine.com") by vger.kernel.org with SMTP id S263821AbTJCSYA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 14:24:00 -0400
-To: Tomasz Rola <rtomek@cis.com.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CMD680, kernel 2.4.21, and heartache
-X-Eric-Conspiracy: There Is No Conspiracy
-References: <Pine.LNX.3.96.1031003200237.19402A-100000@pioneer.space.nemesis.pl>
-From: Erik Bourget <erik@midmaine.com>
-Date: Fri, 03 Oct 2003 14:22:58 -0400
-In-Reply-To: <Pine.LNX.3.96.1031003200237.19402A-100000@pioneer.space.nemesis.pl> (Tomasz
- Rola's message of "Fri, 3 Oct 2003 20:10:03 +0200 (CEST)")
-Message-ID: <87k77m89kt.fsf@loki.odinnet>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Fri, 3 Oct 2003 14:14:40 -0400
+Received: from mail.g-housing.de ([62.75.136.201]:47784 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263819AbTJCSOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 14:14:06 -0400
+Message-ID: <3F7DBC6E.3080804@g-house.de>
+Date: Fri, 03 Oct 2003 20:14:06 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031002
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-crypto@nl.linux.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: crypto benchmark results with 2.6.0-test6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Rola <rtomek@cis.com.pl> writes:
+Hi,
 
-> On Fri, 3 Oct 2003, Erik Bourget wrote:
->
->> Erik Bourget <erik@midmaine.com> writes:
->> 
->> (194)Temperature             0x0002   196   196   000       1441854
->
-> You should definitely take a look at other drives data in all computers,
-> esp. temperature. Consult this with max allowed temperature as defined by
-> hd manufacturer for this specific type of the drive (should be somewhere
-> on their website or on google). Each disk is different but the general
-> safe bet for a limit is 40-45 oC, from what I know.
->
-> Your room may be cool but it's better to check.
->
-> bye
-> T.
+i run a coule of tests with different crypto ciphers on 2.6.0-test6 
+(i386). machine is a AMD TB 900Mhz, 512MB RAM, X is running, but no 
+further load. more info soon on the website, but here the results:
 
-Yeah, it says 196, and that's bizarre.  196 whats?  From looking at other
-example output, the '1441854' number is usually the true deg. C of the
-machine.  But I'm reasonably sure that it's not at a million and a half
-centigrade.
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-aes.txt
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-blowfish.txt
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-cast5.txt
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-cast6.txt
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-serpent.txt
+http://nerdbynature.de/bits/bench/prinz/2.6.0-test6/crypto/prinz-2.6.0-test6-twofish.txt
 
-I can open the case up and put my hand on the drive.  It feels cooler to the
-touch than the 10k SCSI drives in the next machine over...
 
-Thanks though;
+(keybits=128, but really, more info soon.)
 
-Erik
+Thanks,
+Christian.
+-- 
+BOFH excuse #316:
+
+Elves on strike. (Why do they call EMAG Elf Magic)
 

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbTICPd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTICPd6
+	id S263505AbTICPlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263536AbTICPlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:33:58 -0400
-Received: from mail.wp-sa.pl ([212.77.102.105]:53439 "EHLO mail.wp-sa.pl")
-	by vger.kernel.org with ESMTP id S263886AbTICPd5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:33:57 -0400
-Date: Wed, 03 Sep 2003 17:33:43 +0200
-From: Mariusz Zielinski <levi@wp-sa.pl>
-Subject: Re: Driver Model
-In-reply-to: <003d01c3722d$ffe1d1b0$294b82ce@stuartm>
-To: Stuart MacDonald <stuartm@connecttech.com>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: root@chaos.analogic.com, "'James Clark'" <jimwclark@ntlworld.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Message-id: <200309031733.49593.levi@wp-sa.pl>
-Organization: Wirtualna Polska S.A.
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.9
-References: <003d01c3722d$ffe1d1b0$294b82ce@stuartm>
+	Wed, 3 Sep 2003 11:41:36 -0400
+Received: from mail.ecommerce.com ([213.208.20.32]:3740 "HELO
+	mail.ecommerce.com") by vger.kernel.org with SMTP id S263505AbTICPkt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 11:40:49 -0400
+Date: Wed, 3 Sep 2003 05:40:40 +0200
+From: Dumitru Stama <dics@ecommerce.com>
+X-Mailer: The Bat! (v1.60c) Personal
+Reply-To: Dumitru Stama <dics@ecommerce.com>
+Organization: Ecommerce
+X-Priority: 3 (Normal)
+Message-ID: <123-216863213.20030903054040@ecommerce.com>
+To: linux-kernel@vger.kernel.org
+Subject: Binary modules for 2.6
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 of September 2003 17:13, Stuart MacDonald wrote:
-> From: linux-kernel-owner@vger.kernel.org
->
-> > You could equally ask the same question about any other measure - its
-> > no different to "I could shoot the shopkeeper and not pay", its an
-> > incentive to behave, a way for developers to make it clear their code
->
-> That's what I figured, I just wanted to check.
->
-> > isnt for stealing and without denying people the choice of what they
-> > run. The reputable vendors on the whole not only seem to obey it but
-> > actually put informative MODULE_LICENSE() tags into their code for
-> > their proprietary licenses.
->
-> Any examples off the top of your head? I'm curious.
 
-Realtek 8180L wlan chipset driver.
+Hello all
+Everything i write in the next lines can be considered as a question
+also since this is what i come to find out studying the latest 2.6
+kernel.
+With the current layout of the kernel modules there will be no way of
+distributing binary kernel modules anymore. Considering the structures
+that combine to describe the way module works and the alignement of
+those depending on the processor type even if that processor is i386
+compatible. Personally i think this is a good move for open source
+community but what are we gona do with the proprietary drivers that do
+not have the sources available ?
+If i am mistaken by any chance please enlighten me.
 
--- 
-...and all that jazz
-Mariusz Zielinski - Wirtualna Polska
+Thanks
+Dumitru Stama
+

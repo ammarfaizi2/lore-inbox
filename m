@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUHWXcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268654AbUHWXkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268487AbUHWXcI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 19:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUHWXaP
+	id S268654AbUHWXkk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 19:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268634AbUHWXjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 19:30:15 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:5837 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S268410AbUHWX2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 19:28:11 -0400
-Date: Mon, 23 Aug 2004 17:28:02 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, Andreas Gruenbacher <agruen@suse.de>
-Subject: Re: [PATCH][2/7] xattr consolidation - LSM hook changes
-Message-ID: <20040823232802.GD1262@schnapps.adilger.int>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org,
-	Chris Wright <chrisw@osdl.org>, Andreas Gruenbacher <agruen@suse.de>
-References: <Xine.LNX.4.44.0408231414270.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231415310.13728-100000@thoron.boston.redhat.com> <20040823200353.A20114@infradead.org>
+	Mon, 23 Aug 2004 19:39:42 -0400
+Received: from colin2.muc.de ([193.149.48.15]:7185 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268591AbUHWXjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 19:39:24 -0400
+Date: 24 Aug 2004 01:39:20 +0200
+Date: Tue, 24 Aug 2004 01:39:20 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [broken?] Add MSI support to e1000
+Message-ID: <20040823233920.GA29854@muc.de>
+References: <C7AB9DA4D0B1F344BF2489FA165E50240619DA25@orsmsx404.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040823200353.A20114@infradead.org>
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240619DA25@orsmsx404.amr.corp.intel.com>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 23, 2004 at 12:41:36PM -0700, Nguyen, Tom L wrote:
+> On Monday, August 23, 2004 Andi Kleen wrote:
+> >There seems to be something wrong with the MSI code in the kernel.
+> >I tried to add MSI support to the s2io driver on x86-64, but it just
+> didn't
+> >work (/proc/interrupts still displayed IO-APIC mode). I haven't 
+> >investigated in detail yet though.
+> 
+> Would you please tell me whether the MSI enable bit of the MSI
+> capability 
+> structure of the s2io device is set or not after successfully calling 
+> pci_enable_msi()?
 
---2Z2K0IlrPCVsbNpk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, the flag word is 0x8b after the call. And pci_enable_msi returns 0.
 
-On Aug 23, 2004  20:03 +0100, Christoph Hellwig wrote:
-> On Mon, Aug 23, 2004 at 02:16:17PM -0400, James Morris wrote:
-> > This patch replaces the dentry parameter with an inode in the LSM
-> > inode_{set|get|list}security hooks, in keeping with the ext2/ext3 code.
-> > dentries are not needed here.
->=20
-> Given that the actual methods take a dentry this sounds like a bad design.
-> Can;t you just pass down the dentry through all of the ext2 interfaces?
->=20
-> (And again, mid-term these checks should move to the VFS)
+I guess it's an x86-64 specific issue? Did you test that recently?
 
-Actually, I recall something about it being desirable to pass the dentry
-down instead of just the inode, maybe Andreas G. recalls?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
-
-
---2Z2K0IlrPCVsbNpk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFBKn2CpIg59Q01vtYRAv6oAJ4lXLbCXqepxMCGCe9qOtEYov5IKQCfa6WG
-rlgoRmJcjhlRh/bUGvYqeq8=
-=gTm6
------END PGP SIGNATURE-----
-
---2Z2K0IlrPCVsbNpk--
+-Andi

@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbULMVG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULMVIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbULMVG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 16:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbULMVG6
+	id S261190AbULMVIu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 16:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbULMVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 16:06:58 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:39126 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261173AbULMVGp (ORCPT
+	Mon, 13 Dec 2004 16:08:49 -0500
+Received: from waste.org ([209.173.204.2]:30938 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261340AbULMVIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 16:06:45 -0500
-In-Reply-To: <200412131910.24255.rudmer@legolas.dynup.net>
-References: <20041213020319.661b1ad9.akpm@osdl.org> <Pine.LNX.4.61.0412131603370.14874@student.dei.uc.pt> <200412131910.24255.rudmer@legolas.dynup.net>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <DF0A1C6E-4D4A-11D9-B873-000D9352858E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: 2.6.10-rc3-mm1
-Date: Mon, 13 Dec 2004 22:06:34 +0100
-To: Rudmer van Dijk <rudmer@legolas.dynup.net>
-X-Mailer: Apple Mail (2.619)
+	Mon, 13 Dec 2004 16:08:15 -0500
+Date: Mon, 13 Dec 2004 13:07:33 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Arne Caspari <arne@datafloater.de>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] drivers/base/driver.c : driver_unregister
+Message-ID: <20041213210733.GD12189@waste.org>
+References: <41BB4268.8020908@datafloater.de> <20041211191113.A13985@flint.arm.linux.org.uk> <41BB4951.2080304@datafloater.de> <41BD42E6.6000402@datafloater.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BD42E6.6000402@datafloater.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Dec 2004, at 19:10, Rudmer van Dijk wrote:
+On Mon, Dec 13, 2004 at 08:21:10AM +0100, Arne Caspari wrote:
+> Arne Caspari wrote:
+> >Russell King wrote:
+> >>No.  The semaphore is there to ensure that the function does not
+> >>return until the driver structure has a use count of zero.  If you
+> >>tested your patch, you'd find that your change would deadlock on
+> >>the locked semaphore.
+> >
+> >I am sorry I can not test that patch since unloading of the modules I am 
+> >currently testing blocks anyway. This makes it very hard to test the 
+> >patch :-( and currently this was the reason why I was going to this.
+> 
+> I reverted the code to the original 2.6.9 and unloading of IEEE1394 
+> modules like 'eth1394' does just that: It deadlocks on this semaphore.
+> 
+> At least this is a good excuse why I was not able to test my patch ;-) 
+> The behaviour just remained the same as before...
+> 
+> Btw. I am developing/debugging on a machine without serial/parallel 
+> ports. Is there a way to connect a kernel mode debugger to this. I am 
+> used to windows development and there the debugger works on a IEEE1394 
+> connection. Does anybody have hints to improve development on such a 
+> machine?
 
-> On Monday 13 December 2004 17:15, Marcos D. Marado Torres wrote:
->> On Mon, 13 Dec 2004, Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/ 
->>> 2.6.10-rc3/
->>> 2.6.10-rc3-mm1/
->>>
->>> - Lots of new patches, lots of little fixes all over the place.
->>>
->>> - Probably the major change is the readahead rework, which may have
->>>  significant performance impacts on some workloads.  Not necessarily
->>> good, either...
->>>
->>> - See below for the list of 31 patches which I have pending for  
->>> 2.6.10.
->>> If there are other patches here which should go in, please let me  
->>> know.
->>
->> Greetings,
->>
->> Fortunately with this -rc3-mm1 I no longer have the acpi_power_off  
->> problem
->> that I had in -rc2-mm's, described in  
->> http://lkml.org/lkml/2004/12/12/110 .
->>
->> OTOH, while I had no problems with the previous mm's or with  
->> 2.6.10-rc3,
->> with -rc3-mm1 kdm has an weird function: with kdm/unstable uptodate
->> 4:3.3.1-3 from Debian it just restarts X when it's going to show the
->> login/password form, restarting over and over.
->
-> saw it too with gdm on Gentoo, I tried to track it down but could not  
-> come up
-> with a solution... I'm now back to rc2-mm4
+Netconsole, and/or kgdb-over-ethernet? You'll need a -mm or -tiny
+kernel for the latter, or just pull the patches individually.
 
-Seems a problem with an "ioctl" call.
-
+-- 
+Mathematics is the supreme nostalgia of our time.

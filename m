@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUHWWus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUHWWrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267988AbUHWWus (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 18:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUHWWsO
+	id S267936AbUHWWrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUHWWqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 18:48:14 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:26837 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267732AbUHWWpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 18:45:07 -0400
-Date: Mon, 23 Aug 2004 18:49:25 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH] find_isa_irq_pin should not be __init
-Message-ID: <Pine.LNX.4.58.0408231842220.13924@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Aug 2004 18:46:13 -0400
+Received: from av13-1-sn4.m-sp.skanova.net ([81.228.10.104]:42199 "EHLO
+	av13-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S267721AbUHWWbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 18:31:15 -0400
+Date: Tue, 24 Aug 2004 00:31:14 +0200 (CEST)
+Message-Id: <200408232231.i7NMVEh13558@d1o408.telia.com>
+From: "Voluspa" <lista4@comhem.se>
+Reply-To: "Voluspa" <lista4@comhem.se>
+To: "Patrick McHardy" <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
+X-Mailer: SF Webmail
+X-SF-webmail-clientstamp: [213.64.150.229] 2004-08-24 00:31:14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-find_isa_irq_pin should not be __init now, i'm surprised this one didn't
-bite you Eric...
+citerar Patrick McHardy:
 
-Signed-off-by: Zwane Mwaikambo <zwane@linuxpower.ca>
+> Did you also apply this patch ? If not, please try it and tell us
+> if it helps.
 
-Restarting system.
-Unable to handle kernel paging request at virtual address c07bdfb0
- printing eip:
-c07bdfb0
-*pde = 00843027
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c07bdfb0>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.8.1-mm4)
-EIP is at find_isa_irq_pin+0x0/0x70
-eax: 00000001   ebx: 00000000   ecx: 00000000   edx: 00000017
-esi: 01234567   edi: e842e000   ebp: e842fe88   esp: e842fe60
-ds: 007b   es: 007b   ss: 0068
-Process reboot (pid: 6024, threadinfo=e842e000 task=d18eea30)
-Stack: c011bc27 00000000 00000003 00000001 00000000 e842fe88 c0118286 00000000
-       01234567 e842e000 e842fe94 c01182b9 00000000 e842ffbc c01376c1 00000000
-       c0650a79 c080aac4 00000001 00000000 00000000 e842fee4 c0155212 c1506020
-Call Trace:
- [<c01089a5>] show_stack+0x75/0x90
- [<c0108b05>] show_registers+0x125/0x190
- [<c0108d09>] die+0x109/0x1f0
- [<c011d8a0>] do_page_fault+0x230/0x5b2
- [<c010856d>] error_code+0x2d/0x40
- [<c01182b9>] machine_restart+0x9/0x70
- [<c01376c1>] sys_reboot+0x151/0x3b0
- [<c01073e9>] sysenter_past_esp+0x52/0x79
-Code:  Bad EIP value.
+No, haven't seen that one before. Ok, results:
 
-Index: linux-2.6.8.1-mm4/arch/i386/kernel/io_apic.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm4/arch/i386/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 io_apic.c
---- linux-2.6.8.1-mm4/arch/i386/kernel/io_apic.c	23 Aug 2004 08:23:22 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm4/arch/i386/kernel/io_apic.c	23 Aug 2004 22:46:09 -0000
-@@ -747,7 +747,7 @@ static int __init find_irq_entry(int api
- /*
-  * Find the pin to which IRQ[irq] (ISA) is connected
-  */
--static int __init find_isa_irq_pin(int irq, int type)
-+static int find_isa_irq_pin(int irq, int type)
- {
- 	int i;
+01-2.6-cbq-leaks.diff aka [PKT_SCHED]: Fix class leak in CBQ scheduler
+plus
+[PKT_SCHED]: cacheline-align qdisc data in qdisc_create()
+
+_Clean environment_
+
+"shutdown -r now": OK
+"rmmod 8139too"  : OK
+
+_QoS through wshaper script_
+
+"shutdown -r now": OK
+"rmmod 8139too"  : OK
+
+_Compiled kernel for size, no debugging_
+
+Rest of my modules loaded. As above: OK and OK
+
+Nice work. Thanks.
+
+Mvh
+Mats Johannesson
 

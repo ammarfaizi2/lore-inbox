@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315183AbSDWMKc>; Tue, 23 Apr 2002 08:10:32 -0400
+	id <S315186AbSDWMUx>; Tue, 23 Apr 2002 08:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315184AbSDWMKb>; Tue, 23 Apr 2002 08:10:31 -0400
-Received: from trained-monkey.org ([209.217.122.11]:16138 "EHLO
+	id <S315187AbSDWMUw>; Tue, 23 Apr 2002 08:20:52 -0400
+Received: from trained-monkey.org ([209.217.122.11]:17162 "EHLO
 	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S315183AbSDWMKb>; Tue, 23 Apr 2002 08:10:31 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <20020421134851.B7828@havoc.gtf.org> <20020421105437.L10525@work.bitmover.com>
+	id <S315186AbSDWMUw>; Tue, 23 Apr 2002 08:20:52 -0400
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: fbdev BK tree ready for testing.
+In-Reply-To: <Pine.LNX.4.10.10204221516250.32538-100000@www.transvirtual.com>
 From: Jes Sorensen <jes@wildopensource.com>
-Date: 23 Apr 2002 08:10:28 -0400
-Message-ID: <m3elh6obt7.fsf@trained-monkey.org>
+Date: 23 Apr 2002 08:20:49 -0400
+Message-ID: <m3bscaobby.fsf@trained-monkey.org>
 X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Larry" == Larry McVoy <lm@bitmover.com> writes:
+>>>>> "James" == James Simmons <jsimmons@transvirtual.com> writes:
 
-Larry> On Sun, Apr 21, 2002 at 01:48:51PM -0400, Jeff Garzik wrote:
->> Can you get the bkbits.net interface to spit out text/plain
->> GNU-style patches?
+James> Hi!
 
-Larry> Not on bkbits.net.  It eats up too much bandwidth.  If someone
-Larry> else wants to host a bkbits.net mirror and they want to allow
-Larry> that, then I'll add the code.
+James>    I just finished sending up the last large change I like to
+James> send to Linus for the framebuffer changes. Since I can't test
+James> all the possible hardware there I like to ask people to test
+James> the BK tree out. Once I have positive reports I like to merge
+James> it with Linus BK tree. Thank you.
 
-One thing that really irritates me about the bkbits.com page (unless I
-missed figuring out how to so this) is that you can't seem to be able
-to pull down the plain text version of a source file. The only thing
-it will give you is a vile HTML'ified version which adds about 15
-chars/line with naming and which has all tab's converted into spaces.
+James> http://fbdev.bkbits.net/fbdev-2.5
 
-Any chance you'd add this?
+ARGH
+
+If you want people to test out the patches, posting a bitkeeper only
+URL is totally unreasonable!
+
+This is exactly what caused the long flame on linux-kernel the other
+day ;-(
 
 Jes

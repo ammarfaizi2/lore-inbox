@@ -1,94 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264180AbTI2SQW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTI2SFa
+	id S264543AbTI2TVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 15:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTI2TVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:05:30 -0400
-Received: from web40907.mail.yahoo.com ([66.218.78.204]:11654 "HELO
-	web40907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264125AbTI2SBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:01:51 -0400
-Message-ID: <20030929180149.93047.qmail@web40907.mail.yahoo.com>
-Date: Mon, 29 Sep 2003 11:01:49 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-To: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200309291254.22966.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Mon, 29 Sep 2003 15:21:24 -0400
+Received: from dp.samba.org ([66.70.73.150]:11466 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264543AbTI2TVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 15:21:22 -0400
+Date: Tue, 30 Sep 2003 05:19:44 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+Message-ID: <20030929191944.GC24019@krispykreme>
+References: <20030928144102.5097ad81.akpm@osdl.org> <Pine.GSO.4.21.0309291155090.7432-100000@vervain.sonytel.be> <20030929110806.A5855@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030929110806.A5855@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Torokhov,
 
---- Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Monday 29 September 2003 12:49 pm, Bradley Chapman wrote:
-> > Mr. Torokhov,
-> >
-> > --- Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > > On Monday 29 September 2003 11:41 am, Andrew Morton wrote:
-> > > > Bradley Chapman <kakadu_croc@yahoo.com> wrote:
-> > > > > I am experiencing defunct event/0 kernel daemons under
-> > > > > 2.6.0-test6-mm1 with synaptics_drv 0.11.7, Dmitry Torokhov's
-> > > > > gpm-1.20 with synaptics support, and XFree86 4.3.0-10. Moving the
-> > > > > touchpad in either X or with gpm causes defunct event/0 processes
-> > > > > to be created.
-> > > >
-> > > > Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
-> > > >
-> > > > You could try reverting synaptics-reconnect.patch, and then
-> > > > serio-reconnect.patch from
-> > > >
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0
-> > > >-tes t6/2.6.0-test6-mm1/broken-out
-> > >
-> > > Input subsystem uses only one kernel thread called kseriod, not
-> > > eventsX. I think it's not synaptics/serio reconnect but other patch
-> > > you mentioned (call_usermodehelper-retval-fix-2.patch)
-> >
-> > OK. I'll try reverting that one too. I'm inclined to agree that it
-> > could be the problem, because I noticed one more thing before I
-> > rebooted to 2.6.0-test6.
-> >
-> > I recently installed the latest RH9 hotplug packages from the hotplug
-> > Sourceforge website. Under 2.6.0-test6-mm1 the hotplug initscript
-> > leaves a defunct hotplug process along with the other events/0 defunct
-> > processes. Does this mean anything?
-> >
-> > The hotplug version is hotplug-2003_08_05-1.
-> 
-> Othe people reported that reverting call_suserhelper patch resolved their
-> eventsX/hotplug zombies problem.
+> I can confirm that no mail was received from the mail alias for the week
+> including September 18th.  Maybe the mail about sched_clock() never made
+> it to the alias in the first place?
 
-Yup! I'm running 2.6.0-test6-mm1 with synaptics-reconnect, serio-reconnect
-and call_usermodehlper-retval-fix reverted, and no more zombies. It was the
-call_usermodehelper reversion that fixed it. I looked at the patch and it
-appears to mess with SIGCHLD signal handling and the kernel stack. How would
-that mess up hotplug and the events/0 kernel thread?
+I got it just fine:
 
-> 
-> Btw, GPM does not work with test6 or test6-mm yet, I will hopefully have
-> the upated version later tonight.
+>From akpm@osdl.org  Thu Sep 18 20:09:05 2003
+Date:   Thu, 18 Sep 2003 12:45:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+Subject: sched_clock implementation
+Message-Id: <20030918124552.7eb34d6a.akpm@osdl.org>
+ 
+I'll be merging Ingo & Con's CPOU scheduler changes into Linus's tree
+soon.
+ 
+It does require that the architecture provides a new timing function:
 
-Yes it does ;-)
-
-On both 2.6.0-test6, 2.6.0-test6-mm1 full and 2.6.0-test6-mm1 minus the three
-patches I mentioned above, the touchpad does work (at least it moves the cursor
-and clicks). 
-
-> 
-> Dmitry
-
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+...

@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262926AbTDNKgc (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 06:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTDNKgc (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 06:36:32 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6016 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262926AbTDNKgb (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 06:36:31 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304141050.h3EAoVKc000205@81-2-122-30.bradfords.org.uk>
-Subject: Lack of documentation (Was: Re: kernel support for non-English user messages)
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Date: Mon, 14 Apr 2003 11:50:30 +0100 (BST)
-Cc: 76306.1226@compuserve.com (Chuck Ebbert),
-       alan@lxorguk.ukuu.org.uk (Alan Cox),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <200304140912.h3E9C8u02261@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Apr 14, 2003 12:07:09 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id S262951AbTDNKqw (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 06:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbTDNKqw (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 06:46:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61147 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262951AbTDNKqv (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 06:46:51 -0400
+Date: Mon, 14 Apr 2003 12:58:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-pre7 ide request races
+Message-ID: <20030414105833.GY9776@suse.de>
+References: <20030414093418.GQ9776@suse.de> <20030414030751.7bf17b04.akpm@digeo.com> <20030414101747.GR9776@suse.de> <20030414032339.27079dd8.akpm@digeo.com> <20030414102723.GS9776@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030414102723.GS9776@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > >   /Documentation is *awful*.
+On Mon, Apr 14 2003, Jens Axboe wrote:
+> On Mon, Apr 14 2003, Andrew Morton wrote:
+> > Jens Axboe <axboe@suse.de> wrote:
+> > >
+> > > How would that solve the problem? The request could be gone even before
+> > > end_that_request_last() is run, that is the issue.
+> > 
+> > In that case I didn't understand your description of the bug even the tiniest
+> > little bit.
+> > 
+> > That request is sitting in the kernel stack of some process which is sleeping
+> > in wait_for_completion().  Hence it is safe memory until someone runs
+> > complete() against the completion struct.
+> 
+> Sorry you are right, that should fix the problem as well! Your fix is
+> probably the better one for 2.4, less intrusive. I'll kill the stack
+> requests in 2.5 then.
 
-> > > You know where to submit contributions
+Marcelo,
 
-> > If I could *write* the documentation, I wouldn't need it,
-> > now would I?  Maybe that's the problem...
+Please apply this simpler variant. Thanks!
 
-> If nobody would write the docs, nobody would read them ;)
+--- /opt/kernel/linux-2.4.21-pre7/drivers/block/ll_rw_blk.c	2003-04-14 10:48:21.000000000 +0200
++++ drivers/block/ll_rw_blk.c	2003-04-14 12:53:03.000000000 +0200
+@@ -1375,11 +1403,12 @@
+ 
+ void end_that_request_last(struct request *req)
+ {
+-	if (req->waiting != NULL)
+-		complete(req->waiting);
+-	req_finished_io(req);
++	struct completion *waiting = req->waiting;
+ 
++	req_finished_io(req);
+ 	blkdev_release_request(req);
++	if (waiting)
++		complete(waiting);
+ }
+ 
+ int __init blk_dev_init(void)
 
-Compare:
+-- 
+Jens Axboe
 
-http://www.gnu.org/software/hurd/hacking-guide/hhg.html
-http://www.gnu.org/software/hurd/users-guide/using_gnuhurd.html
-
-with /Documentation
-
-I think we can do better.  I have made several offers to compile
-documentation that is forwarded to me in to a more user-friendly
-format, but few people seem interested.
-
-John.

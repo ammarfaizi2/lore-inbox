@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267001AbRGMKnh>; Fri, 13 Jul 2001 06:43:37 -0400
+	id <S267002AbRGMKqR>; Fri, 13 Jul 2001 06:46:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267002AbRGMKn1>; Fri, 13 Jul 2001 06:43:27 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57104 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267001AbRGMKnR>; Fri, 13 Jul 2001 06:43:17 -0400
-Subject: Re: SOMAXCONN - bump up or sysctl?
-To: thockin@sun.com (Tim Hockin)
-Date: Fri, 13 Jul 2001 11:44:08 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3B4E7EA1.F904DC43@sun.com> from "Tim Hockin" at Jul 12, 2001 09:52:49 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S267005AbRGMKqH>; Fri, 13 Jul 2001 06:46:07 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:40165 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S267002AbRGMKpu>; Fri, 13 Jul 2001 06:45:50 -0400
+Date: Fri, 13 Jul 2001 11:45:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [initramfs] wait_for_keypress() and ->wait_key()
+Message-ID: <20010713114545.C970@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.GSO.4.21.0107121851430.15756-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15L0Qa-0007it-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0107121851430.15756-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Jul 12, 2001 at 08:00:27PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We have a request to bump up SOMAXCONN.  Are there are repurcussions to
-> doing so?  Would it be better to make it a sysctl?
+On Thu, Jul 12, 2001 at 08:00:27PM -0400, Alexander Viro wrote:
+> ... On some of them (e.g. serial console) it actually
+> eats the character it had receieved.
+> ...
+> 	Better yet, attach a VT220 to serial console and press any key that
+> would send multiple characters. Yup, that will eat one of them. Have fun
+> if you call wait_for_keypress() more than once. (On a normal keyboard
+> the effect will differ - next call will block).
 
-Its pretty meaningless as a value. People who say they need a larger
-SOMAXCONN are as a general rule simply wrong in the Linux case
+We could get round this easily by draining the serial port of charactesr
+on entry to the wait_key method.  This would mean that the user would
+have to press the key after the message has been displayed, which I don't
+think is unreasonable, and probably reflects the keyboard behaviour more
+accurately.
 
+Note that as long as the device (whether it be VT or serial port) isn't
+actually open, the characters pressed will be discarded in both the serial
+port and keyboard case, so its not like you're storing up trouble later on.
+Currently that is the case.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

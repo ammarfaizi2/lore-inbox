@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268433AbUHLHN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268443AbUHLHTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268433AbUHLHN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 03:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHLHN6
+	id S268443AbUHLHTq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 03:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUHLHTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 03:13:58 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:50777 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S268433AbUHLHNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 03:13:55 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux running with / completely broken in 2.2, 2.4, 2.6
-From: <fabian.frederick@prov-liege.be>
-Cc: <fabian.frederick@prov-liege.be>
-Date: Thu, 12 Aug 2004 09:02:05 +0200
-Reply-To: <fabian.frederick@prov-liege.be>
+	Thu, 12 Aug 2004 03:19:46 -0400
+Received: from gateway.set-software.de ([193.218.212.121]:37794 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP id S268436AbUHLHTm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 03:19:42 -0400
+From: Michael Knigge <michael.knigge@set-software.de>
+Date: Thu, 12 Aug 2004 07:18:10 GMT
+Message-ID: <20040812.7181062@knigge.local.net>
+Subject: Re: Linux SATA RAID FAQ
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+In-Reply-To: <411B0F45.8070500@pobox.com>
+References: <411B0F45.8070500@pobox.com>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
 X-Priority: 3 (Normal)
-X-Originating-Ip: [10.8.0.56]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S268433AbUHLHNz/20040812071355Z+889@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-   I've been facing 3 times the same problem with 2.2.X, 2.4.X et 2.6.X kernel having ext2 root partition and lately reiserfs (with different HD every time, 2 completely different hardware and 3 different SuSE)... System runs netatalk, samba and is a backup unit (huge ncftpput from outside).
-  Symptom is always the same : The box keeps running, but I'm unable to access / directory ... If I try to reboot, box is completely broken -> no grub.If I try to rebuild-tree or anything, I'm told I've got bad blocks.The only way to use HD again is to reformat in ext2 and use it as it seems the root tree is deleted ...
+> Thus, I have created a FAQ.  You might sense a theme...
+> 
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/faq-sata-raid.html
 
-Any idea ? That box is still running.Can I do something before reinstalling ...again ?
 
-PS : Could you cc me ?
+;-) Funny.....
 
-Best regards,
-FabF
+I don't care about RAID, but could you tell which S-ATA 
+Controller/Chipset is the best for Hot-Swap?
 
-___________________________________
+
+Thanks,
+  Michael
+
 
 
 

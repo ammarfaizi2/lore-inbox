@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267667AbSLSWPJ>; Thu, 19 Dec 2002 17:15:09 -0500
+	id <S267227AbSLSWoI>; Thu, 19 Dec 2002 17:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267663AbSLSWOQ>; Thu, 19 Dec 2002 17:14:16 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2827 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267656AbSLSWNf>; Thu, 19 Dec 2002 17:13:35 -0500
-Date: Thu, 19 Dec 2002 23:21:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
+	id <S267374AbSLSWoI>; Thu, 19 Dec 2002 17:44:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8971 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267227AbSLSWoE>; Thu, 19 Dec 2002 17:44:04 -0500
+Date: Thu, 19 Dec 2002 14:49:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <bart@etpmod.phys.tue.nl>,
+       <davej@codemonkey.org.uk>, <terje.eggestad@scali.com>,
+       <drepper@redhat.com>, <matti.aarnio@zmailer.org>, <hugh@veritas.com>,
+       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021219222136.GC17941@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org> <20021218235327.GC705@elf.ucw.cz> <3E0245C1.5060902@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E0245C1.5060902@transmeta.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3E02479E.8050801@transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212191437220.5879-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >>don't many of the multi-CPU problems with tsc go away because you've got a
-> >>per-cpu physical page for the vsyscall?
-> >>
-> >>i.e. per-cpu tsc epoch and scaling can be set on that page.
-> > 
-> > Problem is that cpu's can randomly drift +/- 100 clocks or so... Not
-> > nice at all.
-> > 
+On Thu, 19 Dec 2002, H. Peter Anvin wrote:
 > 
-> нн?100 clocks is what... ?50 ns these days?  You can't get that kind of
-> accuracy for anything outside the CPU core anyway...
+> Unfortunately it means taking an indirect call cost for every invocation...
 
-50ns is bad enough when it makes your time go backwards.
+Ehh.. I just tested the "cost" of this on a PIII (comparing a indirect
+call with a direct one), and it's exactly one extra cycle.
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+ONE CYCLE. 
+
+On a P4 the difference was 4 cycles. On my test P95 system I didn't see
+any difference at all. And I don't have an athlon handy in my office.
+
+That's the difference between
+
+	static void *address = &do_nothing;
+	asm("call *%0" :"m" (address))
+
+and
+
+	asm("call do_nothing");
+
+So it's between 0-4 cycles on machines that take 200 - 1000 cycles for
+just the system call overhead.
+
+And for that "overhead", you get a binary that trivially works on all
+kernels, _and_ doesn't need extra mmap's etc (which are _easily_ thousands
+of cycles).
+
+		Linus
+

@@ -1,55 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135870AbREIHOo>; Wed, 9 May 2001 03:14:44 -0400
+	id <S135885AbREIHaz>; Wed, 9 May 2001 03:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135885AbREIHOe>; Wed, 9 May 2001 03:14:34 -0400
-Received: from coorong.anu.edu.au ([150.203.141.5]:55940 "EHLO
-	coorong.anu.edu.au") by vger.kernel.org with ESMTP
-	id <S135870AbREIHOU>; Wed, 9 May 2001 03:14:20 -0400
-Message-ID: <3AF8EE3A.21932E5D@tltsu.anu.edu.au>
-Date: Wed, 09 May 2001 17:14:02 +1000
-From: Robert Cohen <robert@coorong.anu.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S135889AbREIHao>; Wed, 9 May 2001 03:30:44 -0400
+Received: from mons.uio.no ([129.240.130.14]:49615 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S135885AbREIHaY>;
+	Wed, 9 May 2001 03:30:24 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Question: Status of VIA chipsets and 2.2 kernels
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <15096.61962.130340.998058@charged.uio.no>
+Date: Wed, 9 May 2001 09:30:18 +0200
+To: Kurt Garloff <garloff@suse.de>, Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nfs MAP_SHARED corruption fix
+In-Reply-To: <20010508173847.I22739@garloff.suse.de>
+In-Reply-To: <20010508160050.F543@athlon.random>
+	<shs3dafvpcx.fsf@charged.uio.no>
+	<20010508173847.I22739@garloff.suse.de>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What with all the various problem reports flying around for via
-chipsets, Ive lost track of the state of play as regards via
-northbridges and south bridges.
-I am thinking of buying a machine with a via chipset and I wan't to know
-how stable it is likely to be with Linux.
-I would appreciate it if someone who know's whats going on can give a
-report on the state of play
-as regards to all the problems and their current status with 2.2 kernels
-(and 2.4 if their feeling energetic).
 
-Possible machine are:
- a P3 machine with a ASUS CUV4X-E motherboard which uses the apollo pro
-694X northbridge and a 686B southbridge.
+In addition to the two changes I proposed to Andrea's new patch, I
+also realized we might want to do a fdatasync() when locking files. If
+we don't, then locking won't be atomic on mmap()...
 
-An athlon machine with an ASUS A7V motherboard which uses a KT133
-(VT8363) northbridge and a 686A southbridge.
+Here therefore is Andrea's patch with the changes I propose. Opinions?
 
-An athlon machine with an ASUS A7V133 motherboard which uses a KT133A
-(VT8363A) northbridge and a 686B southbridge.
+Cheers,
+  Trond
 
-Problems Ive been hearing about include DMA disk transfers between
-channels. Some reports say these only occur with Western digital disks.
-The 2 athlon boards listed include an onboard promise IDE controller. So
-I should be OK if I use this for disks, right?
-
-Any other problems I should know about?
-
-
---
-Robert Cohen
-Unix Support
-TLTSU
-Australian National University
-Ph: 612 58389
+diff -u --recursive --new-file linux-2.4.4-fixes/fs/nfs/file.c linux-2.4.4-mmap/fs/nfs/file.c
+--- linux-2.4.4/fs/nfs/file.c	Fri Feb  9 20:29:44 2001
++++ linux-2.4.4-mmap/fs/nfs/file.c	Wed May  9 09:18:45 2001
+@@ -39,6 +39,7 @@
+ static ssize_t nfs_file_write(struct file *, const char *, size_t, loff_t *);
+ static int  nfs_file_flush(struct file *);
+ static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
++static void nfs_file_close_vma(struct vm_area_struct *);
+ 
+ struct file_operations nfs_file_operations = {
+ 	read:		nfs_file_read,
+@@ -57,6 +58,11 @@
+ 	setattr:	nfs_notify_change,
+ };
+ 
++static struct vm_operations_struct nfs_file_vm_ops = {
++	nopage:		filemap_nopage,
++	close:		nfs_file_close_vma,
++};
++
+ /* Hack for future NFS swap support */
+ #ifndef IS_SWAPFILE
+ # define IS_SWAPFILE(inode)	(0)
+@@ -104,6 +110,20 @@
+ 	return result;
+ }
+ 
++static void nfs_file_close_vma(struct vm_area_struct * vma)
++{
++	struct inode * inode;
++
++	inode = vma->vm_file->f_dentry->d_inode;
++
++	if (inode->i_state & I_DIRTY_PAGES) {
++		down(&inode->i_sem);
++		filemap_fdatasync(inode->i_mapping);
++		nfs_wb_all(inode);
++		up(&inode->i_sem);
++	}
++}
++
+ static int
+ nfs_file_mmap(struct file * file, struct vm_area_struct * vma)
+ {
+@@ -115,8 +135,11 @@
+ 		dentry->d_parent->d_name.name, dentry->d_name.name);
+ 
+ 	status = nfs_revalidate_inode(NFS_SERVER(inode), inode);
+-	if (!status)
++	if (!status) {
+ 		status = generic_file_mmap(file, vma);
++		if (!status)
++			vma->vm_ops = &nfs_file_vm_ops;
++	}
+ 	return status;
+ }
+ 
+@@ -283,9 +306,10 @@
+ 	 * Flush all pending writes before doing anything
+ 	 * with locks..
+ 	 */
+-	down(&filp->f_dentry->d_inode->i_sem);
++	down(&inode->i_sem);
++	filemap_fdatasync(inode->i_mapping);
+ 	status = nfs_wb_all(inode);
+-	up(&filp->f_dentry->d_inode->i_sem);
++	up(&inode->i_sem);
+ 	if (status < 0)
+ 		return status;
+ 
+@@ -300,10 +324,11 @@
+ 	 */
+  out_ok:
+ 	if ((cmd == F_SETLK || cmd == F_SETLKW) && fl->fl_type != F_UNLCK) {
+-		down(&filp->f_dentry->d_inode->i_sem);
++		down(&inode->i_sem);
++		filemap_fdatasync(inode->i_mapping);
+ 		nfs_wb_all(inode);      /* we may have slept */
+ 		nfs_zap_caches(inode);
+-		up(&filp->f_dentry->d_inode->i_sem);
++		up(&inode->i_sem);
+ 	}
+ 	return status;
+ }

@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268329AbUH0Vsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUH0V7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268329AbUH0Vsn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 17:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUH0Vns
+	id S268107AbUH0V7v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 17:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUH0V6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 17:43:48 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:26341 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268786AbUH0VnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 17:43:01 -0400
-Date: Fri, 27 Aug 2004 22:42:52 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Christoph Hellwig <hch@infradead.org>,
-       Craig Milo Rogers <rogers@isi.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       webcam@smcc.demon.nl
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-In-Reply-To: <Pine.LNX.4.60.0408272225140.9310@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0408272241090.9310@hermes-1.csi.cam.ac.uk>
-References: <20040826233244.GA1284@isi.edu>  <20040827004757.A26095@infradead.org>
-  <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>  <20040827094346.B29407@infradead.org>
-  <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org> <1093628254.15313.14.camel@gonzales>
- <Pine.LNX.4.58.0408271106330.14196@ppc970.osdl.org>
- <Pine.LNX.4.60.0408272225140.9310@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 27 Aug 2004 17:58:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:14536 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267927AbUH0VyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 17:54:25 -0400
+Message-Id: <200408272154.i7RLsJk02714@owlet.beaverton.ibm.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1 
+In-reply-to: Your message of "Fri, 27 Aug 2004 22:54:58 +0200."
+             <200408272254.58646.rjw@sisk.pl> 
+Date: Fri, 27 Aug 2004 14:54:18 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004, Anton Altaparmakov wrote:
+    > Rafael, what baseline release are you comparing to?  I should be able
+    > to provide some tools to measure the effect on updatedb directly for
+    > both 2.6.9-rc1 and your baseline (so long as it's 2.6-based)
+    
+    2.6.8.1, for example.  I'd like to compate it with the 2.6.9-rc1-mm1, which 
+    contains the Nick's scheduler (2.6.9-rc1 has the same scheduler as 2.6.8.1, 
+    AFAIK).
 
-> On Fri, 27 Aug 2004, Linus Torvalds wrote:
-> > But Greg is right - we don't keep hooks that are there purely for binary
-> > drivers. If somebody wants a binary driver, it had better be a whole
-> > independent thing - and it won't be distributed with the kernel.
-> 
-> So how come we allow drivers which load binary firmware into the kernel?  
-> And there are plenty of them...
-> 
-> There isn't very much difference between binary firmware and the binary 
-> module in this case.  Lets see what each of these does:
-> 
-> - binary firmware: protects the intellectual rights of the people who 
-> designed the chips by not showing anyone how they work by not showing the 
-> original program code that drives the chips
-> 
-> - binary module at hand: protects the intellectual rights of the people 
-> who designed the chips by not showing anyone how they work by not 
-> showing the original program code that drives the extended functionality 
-> of the chips
-> 
-> Sound simillar?
-> 
-> IMHO they are identical except that the firmware is downloaded to the 
-> hardware and executed by a different cpu while the binary module is 
-> executed by the host cpu.
+Okay.  A schedstats patch for 2.6.8.1 is available at
 
-I was a bit fast, there is the issue of different arhitectures for the 
-host cpu but if the producers of the binary code care they would produce 
-the appropriate binary code for each architecture.  I do not know if this 
-is done in this case or not but it certainly is doable...
+    http://eaglet.rain.com/rick/linux/schedstat/patches/schedstat-2.6.8.1
+    or
+    http://oss.software.ibm.com/linux/patches/?patch_id=730
 
-> So how come binary firmware is welcome and binary modules which extend 
-> functionality are not?
-> 
-> Just curious.  (I personally prefer everything to be OSS but I do 
-> understand that some companies do not want to do this and I do have 
-> sympathy for their reasons in some cases.)
-> 
-> Best regards,
-> 
-> 	Anton
-> 
+You can also pick up the program "latency.c" at
 
-Best regards,
+    http://eaglet.rain.com/rick/linux/schedstat/v9/latency.c
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+With these two things in hand, you should be able to measure the latency
+on 2.6.8.1 of a particular process.
+
+A patch is not necessary for 2.6.9-rc1-mm1 (schedstats is already in there)
+but you will need to config the kernel to use it.  Then retrieve a slightly
+different latency.c:
+    
+    http://eaglet.rain.com/rick/linux/schedstat/v10/latency.c
+
+since 2.6.9-rc1-mm1 output format is different (as you noted, it's a
+different scheduler.)  Then you should be able to see if the latency of
+a particular process (updatedb, for instance) changes.
+
+Rick

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268591AbUIXIxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUIXI6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268591AbUIXIxo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 04:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUIXIxn
+	id S268553AbUIXI6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 04:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUIXI6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 04:53:43 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:53376 "EHLO ucw.cz")
-	by vger.kernel.org with ESMTP id S268591AbUIXIxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 04:53:40 -0400
-Date: Fri, 24 Sep 2004 10:30:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new class for led devices
-Message-ID: <20040924083018.GB1189@ucw.cz>
-References: <1095829641l.11731l.0l@hydra> <20040922072727.GA4553@ucw.cz> <1095882787l.4629l.0l@hydra> <20040922220715.GA30210@elf.ucw.cz> <1095960505l.4817l.0l@hydra>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095960505l.4817l.0l@hydra>
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Sep 2004 04:58:21 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:33438 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S268553AbUIXI6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 04:58:20 -0400
+Date: Fri, 24 Sep 2004 18:57:57 +1000 (EST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-calculator.math.uni-giessen.de
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+In-Reply-To: <200409240931.42356.andrew@walrond.org>
+Message-Id: <Pine.LNX.4.58.0409241856120.16011@fb07-calculator.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <200409240915.34471.andrew@walrond.org>
+ <Pine.LNX.4.58.0409241819370.15313@fb07-calculator.math.uni-giessen.de>
+ <200409240931.42356.andrew@walrond.org>
+Organization: University of Giessen * Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 05:28:25PM +0000, John Lenz wrote:
+On Fri, 24 Sep 2004, Andrew Walrond (AW) wrote:
 
-> >So right solution seems to be adding LED_MAIL and LED_CHARGING and be
-> >done with that...
-> 
-> Yeah, that would work.  And if userspace wants to use the led for something
-> else, just uses MAIL and CHARGING as the names of the leds.
-> 
-> Signed-off-by: John Lenz <lenz@cs.wisc.edu>
-> 
-> --- bk/include/linux/input.h~input
-> +++ bk/include/linux/input.h
-> @@ -542,6 +542,8 @@
-> #define LED_SUSPEND		0x06
-> #define LED_MUTE		0x07
-> #define LED_MISC		0x08
-> +#define LED_MAIL		0x09
-> +#define LED_CHARGING		0x0a
-> #define LED_MAX			0x0f
- 
-Thanks, applied. Now where is the driver for those Zaurus LEDs?
+AW> On Friday 24 Sep 2004 09:23, Sergei Haller wrote:
+AW> > It's the same for me if I use the non-SMP version of the kernel.
+AW> > but the SMP one seems to be panicking for some reason.
+AW> >
+AW> 
+AW> Just a thought; How are the memory modules arranged on the board?
+AW> I have 2 x 1Gb modules in each cpu-specific bank, rather than all four in 
+AW> cpu1's bank. How are yours arranged?
 
+my board has only four banks, each of them has a 1GB module sitting.
+(page 26 of ftp://ftp.tyan.com/manuals/m_s2875_102.pdf)
+
+
+        Sergei
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

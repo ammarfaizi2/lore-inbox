@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVCKDhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVCKDoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVCKDhA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 22:37:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVCKDhA
+	id S261208AbVCKDoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 22:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVCKDoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 22:37:00 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:13495 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261695AbVCKDgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 22:36:13 -0500
+	Thu, 10 Mar 2005 22:44:16 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:29322 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261566AbVCKDik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 22:38:40 -0500
 From: Peter Chubb <peterc@gelato.unsw.edu.au>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 11 Mar 2005 14:36:10 +1100
+Date: Fri, 11 Mar 2005 14:38:37 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-Subject: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Message-ID: <16945.4797.594678.975856@berry.gelato.unsw.EDU.AU>
+Subject: User mode drivers: part 2: PCI device handling (patch 2/2 for 2.6.11)
 X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
@@ -26,243 +26,79 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-As many of you will be aware, we've been working on infrastructure for
-user-mode PCI and other drivers.  The first step is to be able to
-handle interrupts from user space. Subsequent patches add
-infrastructure for setting up DMA for PCI devices.
+User-level drivers:  Add system calls for I386 and IA64.
+Signed-Off-By: Peter Chubb <peterc@gelato.unsw.edu.au>
 
-The user-level interrupt code doesn't depend on the other patches, and
-is probably the most mature of this patchset.
-
-
-This patch adds a new file to /proc/irq/<nnn>/ called irq.  Suitably 
-privileged processes can open this file.  Reading the file returns the 
-number of interrupts (if any) that have occurred since the last read.
-If the file is opened in blocking mode, reading it blocks until 
-an interrupt occurs.  poll(2) and select(2) work as one would expect, to 
-allow interrupts to be one of many events to wait for.
-(If you didn't like the file, one could have a special system call to
-return the file descriptor).
-
-Interrupts are usually masked; while a thread is in poll(2) or read(2) on the 
-file they are unmasked.  
-
-All architectures that use CONFIG_GENERIC_HARDIRQ are supported by
-this patch.
-
-A low latency user level interrupt handler would do something like
-this, on a CONFIG_PREEMPT kernel:
-
-  int irqfd;
-  int n_ints;
-  struct sched_param sched_param;
-
-  irqfd = open("/proc/irq/513/irq", O_RDONLY);
-  mlockall()
-  sched_param.sched_priority = sched_get_priority_max(SCHED_FIFO) - 10;
-  sched_setscheduler(0, SCHED_FIFO, &sched_param);
-
-  while(read(irqfd, n_ints, sizeof n_ints) == sizeof nints) {
-       ... talk to device to handle interrupt
-  }
-
-If you don't care about latency, then forget about the mlockall() and
-setting the priority, and you don't need CONFIG_PREEMPT.
-
-Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
-
- kernel/irq/proc.c |  163 ++++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 153 insertions(+), 10 deletions(-)
-
-Index: linux-2.6.11-usrdrivers/kernel/irq/proc.c
+# 
+# arch/i386/kernel/entry.S  |    4 ++++
+# arch/ia64/kernel/entry.S  |    8 ++++----
+# include/asm-i386/unistd.h |    6 +++++-
+# include/asm-ia64/unistd.h |    4 ++++
+# 4 files changed, 17 insertions(+), 5 deletions(-)
+#
+Index: linux-2.6.11-usrdrivers/arch/ia64/kernel/entry.S
 ===================================================================
---- linux-2.6.11-usrdrivers.orig/kernel/irq/proc.c	2005-03-11 10:30:57.875619102 +1100
-+++ linux-2.6.11-usrdrivers/kernel/irq/proc.c	2005-03-11 10:45:07.146928168 +1100
-@@ -9,6 +9,8 @@
- #include <linux/irq.h>
- #include <linux/proc_fs.h>
- #include <linux/interrupt.h>
-+#include <linux/poll.h>
-+#include "internals.h"
+--- linux-2.6.11-usrdrivers.orig/arch/ia64/kernel/entry.S	2005-03-11 13:59:28.940744950 +1100
++++ linux-2.6.11-usrdrivers/arch/ia64/kernel/entry.S	2005-03-11 13:59:41.236542676 +1100
+@@ -1577,10 +1577,10 @@
+ 	data8 sys_add_key
+ 	data8 sys_request_key
+ 	data8 sys_keyctl
+-	data8 sys_ni_syscall
+-	data8 sys_ni_syscall			// 1275
+-	data8 sys_ni_syscall
+-	data8 sys_ni_syscall
++	data8 sys_usr_pci_open
++	data8 sys_usr_pci_mmap			// 1275
++	data8 sys_usr_pci_munmap
++	data8 sys_usr_pci_get_consistent
+ 	data8 sys_ni_syscall
+ 	data8 sys_ni_syscall
  
- static struct proc_dir_entry *root_irq_dir, *irq_dir[NR_IRQS];
+Index: linux-2.6.11-usrdrivers/include/asm-i386/unistd.h
+===================================================================
+--- linux-2.6.11-usrdrivers.orig/include/asm-i386/unistd.h	2005-03-11 13:59:28.942698059 +1100
++++ linux-2.6.11-usrdrivers/include/asm-i386/unistd.h	2005-03-11 13:59:41.245331667 +1100
+@@ -294,8 +294,12 @@
+ #define __NR_add_key		286
+ #define __NR_request_key	287
+ #define __NR_keyctl		288
++#define __NR_usr_pci_open	289
++#define __NR_usr_pci_mmap	(__NR_usr_pci_open+1)
++#define __NR_usr_pci_munmap	(__NR_usr_pci_open+2)
++#define __NR_usr_pci_get_consistent	(__NR_usr_pci_open+3)
  
-@@ -90,27 +92,168 @@
- 	action->dir = proc_mkdir(name, irq_dir[irq]);
- }
+-#define NR_syscalls 289
++#define NR_syscalls 293
  
-+struct irq_proc {
-+ 	unsigned long irq;
-+ 	wait_queue_head_t q;
-+ 	atomic_t count;
-+ 	char devname[TASK_COMM_LEN];
-+};
-+ 
-+static irqreturn_t irq_proc_irq_handler(int irq, void *vidp, struct pt_regs *regs)
-+{
-+ 	struct irq_proc *idp = (struct irq_proc *)vidp;
-+ 
-+ 	BUG_ON(idp->irq != irq);
-+ 	disable_irq_nosync(irq);
-+ 	atomic_inc(&idp->count);
-+ 	wake_up(&idp->q);
-+ 	return IRQ_HANDLED;
-+}
-+ 
-+
-+/*
-+ * Signal to userspace an interrupt has occured.
-+ */
-+static ssize_t irq_proc_read(struct file *filp, char  __user *bufp, size_t len, loff_t *ppos)
-+{
-+ 	struct irq_proc *ip = (struct irq_proc *)filp->private_data;
-+ 	irq_desc_t *idp = irq_desc + ip->irq;
-+ 	int pending;
-+	
-+ 	DEFINE_WAIT(wait);
-+	
-+ 	if (len < sizeof(int))
-+ 		return -EINVAL;
-+	
-+	pending = atomic_read(&ip->count);
-+ 	if (pending == 0) {
-+ 		if (idp->status & IRQ_DISABLED)
-+ 			enable_irq(ip->irq);
-+ 		if (filp->f_flags & O_NONBLOCK)
-+ 			return -EWOULDBLOCK;
-+ 	}
-+	
-+ 	while (pending == 0) {
-+ 		prepare_to_wait(&ip->q, &wait, TASK_INTERRUPTIBLE);
-+		pending = atomic_read(&ip->count);
-+		if (pending == 0)
-+ 			schedule();
-+ 		finish_wait(&ip->q, &wait);
-+ 		if (signal_pending(current))
-+ 			return -ERESTARTSYS;
-+ 	}
-+	
-+ 	if (copy_to_user(bufp, &pending, sizeof pending))
-+ 		return -EFAULT;
-+
-+ 	*ppos += sizeof pending;
-+	
-+ 	atomic_sub(pending, &ip->count);
-+ 	return sizeof pending;
-+}
-+
-+
-+static int irq_proc_open(struct inode *inop, struct file *filp)
-+{
-+ 	struct irq_proc *ip;
-+ 	struct proc_dir_entry *ent = PDE(inop);
-+ 	int error;
-+
-+ 	ip = kmalloc(sizeof *ip, GFP_KERNEL);
-+ 	if (ip == NULL)
-+ 		return -ENOMEM;
-+	
-+ 	memset(ip, 0, sizeof(*ip));
-+ 	strcpy(ip->devname, current->comm);
-+ 	init_waitqueue_head(&ip->q);
-+ 	atomic_set(&ip->count, 0);
-+ 	ip->irq = (unsigned long)ent->data;
-+	
-+ 	error = request_irq(ip->irq,
-+			    irq_proc_irq_handler,
-+			    SA_INTERRUPT,
-+			    ip->devname,
-+			    ip);
-+	if (error < 0) {
-+		kfree(ip);
-+		return error;
-+	}
-+ 	filp->private_data = (void *)ip;
-+
-+ 	return 0;
-+}
-+
-+static int irq_proc_release(struct inode *inop, struct file *filp)
-+{
-+ 	struct irq_proc *ip = (struct irq_proc *)filp->private_data;
-+ 	(void)inop;
-+ 	free_irq(ip->irq, ip);
-+ 	filp->private_data = NULL;
-+ 	kfree(ip);
-+ 	return 0;
-+}
-+
-+static unsigned int irq_proc_poll(struct file *filp, struct poll_table_struct *wait)
-+{
-+ 	struct irq_proc *ip = (struct irq_proc *)filp->private_data;
-+ 	irq_desc_t *idp = irq_desc + ip->irq;
-+	
-+ 	if (atomic_read(&ip->count) > 0)
-+ 		return POLLIN | POLLRDNORM; /* readable */
-+
-+ 	/* if interrupts disabled and we don't have one to process... */
-+ 	if (idp->status & IRQ_DISABLED)
-+ 		enable_irq(ip->irq);
-+
-+ 	poll_wait(filp, &ip->q, wait);
-+
-+ 	if (atomic_read(&ip->count) > 0)
-+ 		return POLLIN | POLLRDNORM; /* readable */
-+
-+ 	return 0;
-+}
-+
-+static struct file_operations irq_proc_file_operations = {
-+ 	.read = irq_proc_read,
-+ 	.open = irq_proc_open,
-+ 	.release = irq_proc_release,
-+ 	.poll = irq_proc_poll,
-+};
-+ 
- #undef MAX_NAMELEN
+ /*
+  * user-visible error numbers are in the range -1 - -128: see
+Index: linux-2.6.11-usrdrivers/include/asm-ia64/unistd.h
+===================================================================
+--- linux-2.6.11-usrdrivers.orig/include/asm-ia64/unistd.h	2005-03-11 13:59:28.942698059 +1100
++++ linux-2.6.11-usrdrivers/include/asm-ia64/unistd.h	2005-03-11 13:59:41.247284776 +1100
+@@ -263,6 +263,10 @@
+ #define __NR_add_key			1271
+ #define __NR_request_key		1272
+ #define __NR_keyctl			1273
++#define __NR_usr_pci_open               1274
++#define __NR_usr_pci_mmap               1275
++#define __NR_usr_pci_unmap              1276
++#define __NR_usr_pci_get_consistent     1277
  
- #define MAX_NAMELEN 10
+ #ifdef __KERNEL__
  
- void register_irq_proc(unsigned int irq)
- {
-+	struct proc_dir_entry *entry;
- 	char name [MAX_NAMELEN];
+Index: linux-2.6.11-usrdrivers/arch/i386/kernel/entry.S
+===================================================================
+--- linux-2.6.11-usrdrivers.orig/arch/i386/kernel/entry.S	2005-03-11 13:59:28.941721505 +1100
++++ linux-2.6.11-usrdrivers/arch/i386/kernel/entry.S	2005-03-11 13:59:41.248261330 +1100
+@@ -864,5 +864,9 @@
+ 	.long sys_add_key
+ 	.long sys_request_key
+ 	.long sys_keyctl
++	.long sys_usr_pci_open
++	.long sys_usr_pci_mmap		/* 290 */
++	.long sys_usr_pci_munmap
++	.long sys_usr_pci_get_consistent
  
--	if (!root_irq_dir ||
--		(irq_desc[irq].handler == &no_irq_type) ||
--			irq_dir[irq])
-+	if (!root_irq_dir)
- 		return;
--
--	memset(name, 0, MAX_NAMELEN);
--	sprintf(name, "%d", irq);
--
--	/* create /proc/irq/1234 */
--	irq_dir[irq] = proc_mkdir(name, root_irq_dir);
-+	
-+	if (!irq_dir[irq]) {
-+		memset(name, 0, MAX_NAMELEN);
-+		sprintf(name, "%d", irq);
-+
-+		/* create /proc/irq/1234 */
-+		irq_dir[irq] = proc_mkdir(name, root_irq_dir);
-+
-+		/* 
-+		 * Create handles for user-mode interrupt handlers
-+		 * if the kernel hasn't already grabbed the IRQ
-+		 */
-+ 		entry = create_proc_entry("irq", 0600, irq_dir[irq]);
-+ 		if (entry) {
-+ 			entry->data = (void *)(unsigned long)irq;
-+ 			entry->read_proc = NULL;
-+ 			entry->write_proc = NULL;
-+ 			entry->proc_fops = &irq_proc_file_operations;
-+ 		}
-+	}
- 
- #ifdef CONFIG_SMP
--	{
-+	if (!smp_affinity_entry[irq]) {
- 		struct proc_dir_entry *entry;
- 
- 		/* create /proc/irq/<irq>/smp_affinity */
+ syscall_table_size=(.-sys_call_table)

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132586AbRDAWth>; Sun, 1 Apr 2001 18:49:37 -0400
+	id <S132574AbRDAWuh>; Sun, 1 Apr 2001 18:50:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132583AbRDAWt1>; Sun, 1 Apr 2001 18:49:27 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:19474 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132574AbRDAWtY>; Sun, 1 Apr 2001 18:49:24 -0400
-Date: Sun, 1 Apr 2001 17:48:34 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
-   linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <004601c0baf5$8fac4700$5517fea9@local>
-Message-ID: <Pine.LNX.3.96.1010401174633.28121d-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132577AbRDAWu2>; Sun, 1 Apr 2001 18:50:28 -0400
+Received: from monza.monza.org ([209.102.105.34]:16909 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S132574AbRDAWuN>;
+	Sun, 1 Apr 2001 18:50:13 -0400
+Date: Sun, 1 Apr 2001 15:49:05 -0700
+From: Tim Wright <timw@splhi.com>
+To: Philip Blundell <philb@gnu.org>
+Cc: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: unistd.h and 'extern's and 'syscall' "standard(?)"
+Message-ID: <20010401154905.B4455@kochanski>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Philip Blundell <philb@gnu.org>, LA Walsh <law@sgi.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3AC75DBF.31594195@sgi.com> <jelmpktors.fsf@hawking.suse.de> <3AC78E24.98DEA986@sgi.com> <law@sgi.com> <E14jocC-0008Jg-00@kings-cross.london.uk.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E14jocC-0008Jg-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Sun, Apr 01, 2001 at 09:38:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Manfred Spraul wrote:
-> From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-> >
-> > /proc/pci data alone with every bug report is usually invaluable.
+And furthermore, it's been around in Unix and unix-like systems for a very long
+time. Sounds like the lack of man page is an oversight. Anybody want to write
+one ?
+
+Tim
+
+On Sun, Apr 01, 2001 at 09:38:24PM +0100, Philip Blundell wrote:
+> >of action to take.  Seeing as you work for suse, would you know
+> >where this 'syscall(3)' interface should be documented?  Is it
+> >supposed to be present in all distro's?  
 > 
-> Even if the bug is a compile error?
-
-In fact, yes.  Having the tuple of: .config, /proc/pci, and compile
-error output, you can see additionally if the user is doing something
-wrong.
-
-It allows you to fix the user as well as the compile error ;-)
-
-
-> E.g.
-> BUG REPORT (a real one, I didn't have the time yet to post a patch):
-> kernel versions: tested with 2.4.2-ac24, afaics 2.4.3 is also affected
-> Description:
-> Several config options are missing in the 'if' at the end of
-> linux/drivers/net/pcmcia/Config.in.
-> This means that CONFIG_PCMCIA_NETCARD is not set, and then (iirc) the
-> kernel won't link.
+> It's documented in the glibc manual.  Yes, it should be present in all glibc 
+> based distributions.
 > 
-> CONFIG_ARCNET_COM20020_CS
-> CONFIG_PCMCIA_HERMES
-> CONFIG_AIRONET4500_CS
-> CONFIG_PCMCIA_IBMTR
-> are missing.
+> p.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-noted.
-
-> Obviously too much data doesn't hurt, as long as
-> * it's hidden somewhere deep in a database, clearly separated from the
-> important parts (if there is an oops: decoded oops, description, how
-> easy is it to trigger the bug, steps to reproduce)
-> * very easy for the bug reporter to collect.
-> * not mandatory.
-
-agreed.
-
-Regards,
-
-	Jeff
-
-
-
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

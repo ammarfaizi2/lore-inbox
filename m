@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSH0UbC>; Tue, 27 Aug 2002 16:31:02 -0400
+	id <S316538AbSH0UcL>; Tue, 27 Aug 2002 16:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSH0UbC>; Tue, 27 Aug 2002 16:31:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17809 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315265AbSH0UbB>;
-	Tue, 27 Aug 2002 16:31:01 -0400
-Date: Tue, 27 Aug 2002 13:29:44 -0700 (PDT)
-Message-Id: <20020827.132944.123972162.davem@redhat.com>
-To: ak@suse.de
-Cc: dcn@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: atomic64_t proposal
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <p73sn102hvu.fsf@oldwotan.suse.de>
-References: <200208271937.OAA78345@cyan.americas.sgi.com.suse.lists.linux.kernel>
-	<p73sn102hvu.fsf@oldwotan.suse.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316845AbSH0UcL>; Tue, 27 Aug 2002 16:32:11 -0400
+Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:59835 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316538AbSH0UcK>; Tue, 27 Aug 2002 16:32:10 -0400
+Date: Tue, 27 Aug 2002 14:36:26 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.32
+In-Reply-To: <20020827202250.GA24265@debian>
+Message-ID: <Pine.LNX.4.44.0208271435150.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 27 Aug 2002 21:58:45 +0200
+Hi,
 
-   If yes, the implementation on 32bit could be a problem. e.g. some 
-   archs need space in there for spinlocks, so it would be needed to limit
-   the usable range.
+On Tue, 27 Aug 2002, Stephane Wirtel wrote:
+> a small compile error 
 
-x86 would need 1 bit, some other 32-bit platforms would be ok
-with just a byte (ie. 8 bits).
+For a good reason:
 
-I don't like this whole transparent idea just like you Andi.
+>   i2o_block.c:43:2: #error Please convert me to
+> 	Documentation/DMA-mapping.txt
 
-People should ask for the types they want, if they want 64-bits
-of counter, they should explicitly use atomic64_t and use the
-atomic64_t operations on that type.
+Still not done?
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

@@ -1,197 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSGHLHP>; Mon, 8 Jul 2002 07:07:15 -0400
+	id <S316774AbSGHLI3>; Mon, 8 Jul 2002 07:08:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316847AbSGHLHO>; Mon, 8 Jul 2002 07:07:14 -0400
-Received: from mail.hot.ee ([194.126.101.94]:29702 "EHLO relay1.hot.ee")
-	by vger.kernel.org with ESMTP id <S316845AbSGHLHI>;
-	Mon, 8 Jul 2002 07:07:08 -0400
-Message-ID: <3D2980EF.3020306@hot.ee>
-Date: Mon, 08 Jul 2002 14:09:19 +0200
-From: digital_boy <chlor@hot.ee>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: ru, et, en
-MIME-Version: 1.0
+	id <S316847AbSGHLI1>; Mon, 8 Jul 2002 07:08:27 -0400
+Received: from romulus.cs.ut.ee ([193.40.5.125]:50123 "EHLO romulus.cs.ut.ee")
+	by vger.kernel.org with ESMTP id <S316774AbSGHLIQ>;
+	Mon, 8 Jul 2002 07:08:16 -0400
+Date: Mon, 8 Jul 2002 14:10:30 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.25 - problem with r128
-Content-Type: text/plain; charset=ISO-8859-13; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: sync() OOPS in 2.4.18
+Message-ID: <Pine.GSO.4.43.0207081406330.21356-100000@romulus.cs.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PIII Rage128 Xpert128
-Slackware8.1
-X4.2.0
-gcc-3.1
----------------------
-agpgart - as a module
-r128    - as a module
----------------------
-when compiling
-r128.o
-r128_v.o
-r128_cce.o
-r128_state.o
+Suddenly, sync started segfaulting. Some days uptime (previously  2
+months, has been stable for 1.5 years). Running 2.4.18 since february,
+no problem. But today, sync started oopsing and later dpkg went into D
+state. Halt was impossible (oops). Captured this ksymopps output through
+ssh (so disk reading worked). AMD Duron 600, ext2 filesystems.
 
-I see many warnings like this:
+ksymoops 2.4.5 on i686 2.4.18.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18/ (default)
+     -m /boot/System.map-2.4.18 (default)
 
-128_state.c:1502: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1512: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1512: warning: deprecated use of label at end of compound
-statement
-r128_state.c: In function `r128_cce_indirect':
-r128_state.c:1533: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1536: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1546: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1550: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1559: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1563: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1569: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1573: warning: concatenation of string literals with
-__FUNCTION__ is deprecated
-r128_state.c:1573: warning: deprecated use of label at end of compound
-statement
-    ld -m elf_i386  -r -o r128.o r128_drv.o r128_cce.o r128_state.o
-    make[3]: Leaving directory `/usr/src/linux-2.5.25/drivers/char/drm'
-    make[2]: Leaving directory `/usr/src/linux-2.5.25/drivers/char'
--------------------------------------------------------------------
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-After the boot all seems normal, but when i start XWin, system stops 
-responding.
-Here some logs:
-
-XFree86.0.log
--------
--skipped
-
-(II) ATI:  Candidate "Device" section "DefCard".
-(--) Assigning device section with no busID to primary device
-(--) Chipset ATI Rage 128 RF (AGP) found
-(II) Loading sub module "r128"
-(II) LoadModule: "r128"
-(II) Loading /usr/X11R6/lib/modules/drivers/r128_drv.o
-(II) Module r128: vendor="The XFree86 Project"
-	compiled for 4.2.0, module version = 4.0.1
-	Module class: XFree86 Video Driver
-	ABI class: XFree86 Video Driver, version 0.5
-(II) resource ranges after xf86ClaimFixedResources() call:
-	[0] -1	0xffe00000 - 0xffffffff (0x200000) MX[B](B)
-	[1] -1	0x00100000 - 0x3fffffff (0x3ff00000) MX[B]E(B)
-	[2] -1	0x000f0000 - 0x000fffff (0x10000) MX[B]
-	[3] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[4] -1	0x00000000 - 0x0009ffff (0xa0000) MX[B]
-	[5] -1	0xee000000 - 0xee0000ff (0x100) MX[B]
-	[6] -1	0xe0000000 - 0xe7ffffff (0x8000000) MX[B]
-	[7] -1	0xed000000 - 0xed003fff (0x4000) MX[B](B)
-	[8] -1	0xe8000000 - 0xebffffff (0x4000000) MX[B](B)
-	[9] -1	0x0000ffff - 0x0000ffff (0x1) IX[B]
-	[10] -1	0x00000000 - 0x000000ff (0x100) IX[B]
-	[11] -1	0x00007000 - 0x000070ff (0x100) IX[B]
-	[12] -1	0x00006c00 - 0x00006c1f (0x20) IX[B]
-	[13] -1	0x00006800 - 0x0000683f (0x40) IX[B]
-	[14] -1	0x00006400 - 0x0000641f (0x20) IX[B]
-	[15] -1	0x0000f000 - 0x0000f00f (0x10) IX[B]
-	[16] -1	0x0000e000 - 0x0000e0ff (0x100) IX[B](B)
-(II) resource ranges after probing:
-	[0] -1	0xffe00000 - 0xffffffff (0x200000) MX[B](B)
-	[1] -1	0x00100000 - 0x3fffffff (0x3ff00000) MX[B]E(B)
-	[2] -1	0x000f0000 - 0x000fffff (0x10000) MX[B]
-	[3] -1	0x000c0000 - 0x000effff (0x30000) MX[B]
-	[4] -1	0x00000000 - 0x0009ffff (0xa0000) MX[B]
-	[5] -1	0xee000000 - 0xee0000ff (0x100) MX[B]
-	[6] -1	0xe0000000 - 0xe7ffffff (0x8000000) MX[B]
-	[7] -1	0xed000000 - 0xed003fff (0x4000) MX[B](B)
-	[8] -1	0xe8000000 - 0xebffffff (0x4000000) MX[B](B)
-	[9] 0	0x000a0000 - 0x000affff (0x10000) MS[B]
-	[10] 0	0x000b0000 - 0x000b7fff (0x8000) MS[B]
-	[11] 0	0x000b8000 - 0x000bffff (0x8000) MS[B]
-	[12] -1	0x0000ffff - 0x0000ffff (0x1) IX[B]
-	[13] -1	0x00000000 - 0x000000ff (0x100) IX[B]
-	[14] -1	0x00007000 - 0x000070ff (0x100) IX[B]
-	[15] -1	0x00006c00 - 0x00006c1f (0x20) IX[B]
-	[16] -1	0x00006800 - 0x0000683f (0x40) IX[B]
-	[17] -1	0x00006400 - 0x0000641f (0x20) IX[B]
-	[18] -1	0x0000f000 - 0x0000f00f (0x10) IX[B]
-	[19] -1	0x0000e000 - 0x0000e0ff (0x100) IX[B](B)
-	[20] 0	0x000003b0 - 0x000003bb (0xc) IS[B]
-	[21] 0	0x000003c0 - 0x000003df (0x20) IS[B]
-(II) Setting vga for screen 0.
-(II) Loading sub module "vgahw"
-(II) LoadModule: "vgahw"
-(II) Loading /usr/X11R6/lib/modules/libvgahw.a
-(II) Module vgahw: vendor="The XFree86 Project"
-	compiled for 4.2.0, module version = 0.1.0
-	ABI class: XFree86 Video Driver, version 0.5
-(II) R128(0): PCI bus 1 card 0 func 0
-(**) R128(0): Depth 24, (--) framebuffer bpp 32
-(II) R128(0): Pixel depth = 24 bits stored in 4 bytes (32 bpp pixmaps)
-(==) R128(0): Default visual is TrueColor
-(**) R128(0): Option "AGPMode" "1"
-(==) R128(0): RGB weight 888
-(II) R128(0): Using 8 bits per RGB (8 bit DAC)
-(II) Loading sub module "int10"
-(II) LoadModule: "int10"
-(II) Loading /usr/X11R6/lib/modules/linux/libint10.a
-(II) Module int10: vendor="The XFree86 Project"
-	compiled for 4.2.0, module version = 1.0.0
-	ABI class: XFree86 Video Driver, version 0.5
-(II) R128(0): initializing int10
-(II) R128(0): Primary V_BIOS segment is: 0xc000
-(--) R128(0): Chipset: "ATI Rage 128 RF (AGP)" (ChipID = 0x5246)
-(--) R128(0): Linear framebuffer at 0xe8000000
-(--) R128(0): MMIO registers at 0xed000000
-(II) R128(0): Video RAM override, using 16384 kB instead of 16384 kB
-(**) R128(0): VideoRAM: 16384 kByte (128-bit SDR SGRAM 1:1)
-(WW) R128(0): Can't determine panel dimensions, and none specified. 		 
-         Disabling programming of FP registers.
-(II) R128(0): PLL parameters: rf=2950 rd=65 min=12500 max=25000; xclk=9000
-(II) Loading sub module "ddc"
-(II) LoadModule: "ddc"
-(II) Loading /usr/X11R6/lib/modules/libddc.a
-(II) Module ddc: vendor="The XFree86 Project"
-	compiled for 4.2.0, module version = 1.0.0
-	ABI class: XFree86 Video Driver, version 0.5
-(II) Loading sub module "vbe"
-(II) LoadModule: "vbe"
-(II) Loading /usr/X11R6/lib/modules/libvbe.a
-(II) Module vbe: vendor="The XFree86 Project"
-	compiled for 4.2.0, module version = 1.0.0
-	ABI class: XFree86 Video Driver, version 0.5
-
--end
------- This is end of the log here it stops responding...
-
-messages:
-
--skipped
-
-Jul  8 13:47:39 localhost kernel: Linux agpgart interface v0.99 (c) Jeff 
-Hartmann
-Jul  8 13:47:39 localhost kernel: agpgart: Maximum main memory to use 
-for agp memory: 96M
-Jul  8 13:47:39 localhost kernel: agpgart: Detected Intel 440BX chipset
-Jul  8 13:47:39 localhost kernel: agpgart: AGP aperture is 128M @ 0xe0000000
-Jul  8 13:47:40 localhost kernel: [drm] AGP 0.99 on Intel 440BX @ 
-0xe0000000 128MB
-Jul  8 13:47:40 localhost kernel: [drm] Initialized r128 2.2.0 20010917 
-on minor 0
-
--skipped
-----------------------------------------------------------------------
-I'm posting first time, sorry if something is wrong. :)
-And sorry for my english. :)
+cpu: 0, clocks: 2000105, slice: 1000052
+8139too Fast Ethernet driver 0.9.24
+ac97_codec: AC97 Audio codec, id: 0x4352:0x5913 (Cirrus Logic CS4297A rev A)
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c0143fbf
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0143fbf>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000000   ebx: c0215b9c   ecx: c9d32d48   edx: c166d868
+esi: c9d32d40   edi: c166d860   ebp: c166d868   esp: d1907f8c
+ds: 0018   es: 0018   ss: 0018
+Process sync (pid: 15093, stackpage=d1907000)
+Stack: c166d800 00000001 bffffaf4 bffffa8c c166d860 c0144276 c166d800 00000000
+       c0133427 00000000 d1906000 c0133467 00000000 c0106c6b bffffaf4 00000002
+       4013fe68 00000001 bffffaf4 bffffa8c 00000024 0000002b 0000002b 00000024
+Call Trace: [<c0144276>] [<c0133427>] [<c0133467>] [<c0106c6b>]
+Code: 89 50 04 89 02 8b 03 89 48 04 89 46 08 89 59 04 89 0b 8d 86
 
 
+>>EIP; c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+
+>>ebx; c0215b9c <inode_in_use+0/8>
+>>ecx; c9d32d48 <_end+9a9d1bc/185c0474>
+>>edx; c166d868 <_end+13d7cdc/185c0474>
+>>esi; c9d32d40 <_end+9a9d1b4/185c0474>
+>>edi; c166d860 <_end+13d7cd4/185c0474>
+>>ebp; c166d868 <_end+13d7cdc/185c0474>
+>>esp; d1907f8c <_end+11672400/185c0474>
+
+Trace; c0144276 <sync_inodes+36/50>
+Trace; c0133427 <fsync_dev+17/40>
+Trace; c0133467 <sys_sync+7/10>
+Trace; c0106c6b <system_call+33/38>
+
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>
+00000000 <_EIP>:
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0143fc2 <sync_inodes_sb+132/1e0>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  c0143fc4 <sync_inodes_sb+134/1e0>
+   5:   8b 03                     mov    (%ebx),%eax
+Code;  c0143fc6 <sync_inodes_sb+136/1e0>
+   7:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c0143fc9 <sync_inodes_sb+139/1e0>
+   a:   89 46 08                  mov    %eax,0x8(%esi)
+Code;  c0143fcc <sync_inodes_sb+13c/1e0>
+   d:   89 59 04                  mov    %ebx,0x4(%ecx)
+Code;  c0143fcf <sync_inodes_sb+13f/1e0>
+  10:   89 0b                     mov    %ecx,(%ebx)
+Code;  c0143fd1 <sync_inodes_sb+141/1e0>
+  12:   8d 86 00 00 00 00         lea    0x0(%esi),%eax
+
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c0143fbf
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0143fbf>]    Not tainted
+EFLAGS: 00010202
+eax: 00000000   ebx: c0215b9c   ecx: c037fdc8   edx: c166d868
+esi: c037fdc0   edi: c166d860   ebp: c166d868   esp: d1907f8c
+ds: 0018   es: 0018   ss: 0018
+Process sync (pid: 15094, stackpage=d1907000)
+Stack: c166d800 00000001 bffffaf4 bffffa8c c166d860 c0144276 c166d800 00000000
+       c0133427 00000000 d1906000 c0133467 00000000 c0106c6b bffffaf4 00000002
+       4013fe68 00000001 bffffaf4 bffffa8c 00000024 0000002b 0000002b 00000024
+Call Trace: [<c0144276>] [<c0133427>] [<c0133467>] [<c0106c6b>]
+Code: 89 50 04 89 02 8b 03 89 48 04 89 46 08 89 59 04 89 0b 8d 86
 
 
+>>EIP; c0143fbf <sync_inodes_sb+12f/1e0>   <=====
 
+>>ebx; c0215b9c <inode_in_use+0/8>
+>>ecx; c037fdc8 <_end+ea23c/185c0474>
+>>edx; c166d868 <_end+13d7cdc/185c0474>
+>>esi; c037fdc0 <_end+ea234/185c0474>
+>>edi; c166d860 <_end+13d7cd4/185c0474>
+>>ebp; c166d868 <_end+13d7cdc/185c0474>
+>>esp; d1907f8c <_end+11672400/185c0474>
+
+Trace; c0144276 <sync_inodes+36/50>
+Trace; c0133427 <fsync_dev+17/40>
+Trace; c0133467 <sys_sync+7/10>
+Trace; c0106c6b <system_call+33/38>
+
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>
+00000000 <_EIP>:
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0143fc2 <sync_inodes_sb+132/1e0>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  c0143fc4 <sync_inodes_sb+134/1e0>
+   5:   8b 03                     mov    (%ebx),%eax
+Code;  c0143fc6 <sync_inodes_sb+136/1e0>
+   7:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c0143fc9 <sync_inodes_sb+139/1e0>
+   a:   89 46 08                  mov    %eax,0x8(%esi)
+Code;  c0143fcc <sync_inodes_sb+13c/1e0>
+   d:   89 59 04                  mov    %ebx,0x4(%ecx)
+Code;  c0143fcf <sync_inodes_sb+13f/1e0>
+  10:   89 0b                     mov    %ecx,(%ebx)
+Code;  c0143fd1 <sync_inodes_sb+141/1e0>
+  12:   8d 86 00 00 00 00         lea    0x0(%esi),%eax
+
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c0143fbf
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0143fbf>]    Not tainted
+EFLAGS: 00010202
+eax: 00000000   ebx: c0215b9c   ecx: cf912788   edx: c166d868
+esi: cf912780   edi: c166d860   ebp: c166d868   esp: d1905f8c
+ds: 0018   es: 0018   ss: 0018
+Process sync (pid: 15097, stackpage=d1905000)
+Stack: c166d800 00000001 bffffaf4 bffffa8c c166d860 c0144276 c166d800 00000000
+       c0133427 00000000 d1904000 c0133467 00000000 c0106cd7 bffffaf4 00000002
+       4013fe68 00000001 bffffaf4 bffffa8c ffffffda 0000002b 0000002b 00000024
+Call Trace: [<c0144276>] [<c0133427>] [<c0133467>] [<c0106cd7>]
+Code: 89 50 04 89 02 8b 03 89 48 04 89 46 08 89 59 04 89 0b 8d 86
+
+
+>>EIP; c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+
+>>ebx; c0215b9c <inode_in_use+0/8>
+>>ecx; cf912788 <_end+f67cbfc/185c0474>
+>>edx; c166d868 <_end+13d7cdc/185c0474>
+>>esi; cf912780 <_end+f67cbf4/185c0474>
+>>edi; c166d860 <_end+13d7cd4/185c0474>
+>>ebp; c166d868 <_end+13d7cdc/185c0474>
+>>esp; d1905f8c <_end+11670400/185c0474>
+
+Trace; c0144276 <sync_inodes+36/50>
+Trace; c0133427 <fsync_dev+17/40>
+Trace; c0133467 <sys_sync+7/10>
+Trace; c0106cd7 <tracesys+1f/23>
+
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>
+00000000 <_EIP>:
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0143fc2 <sync_inodes_sb+132/1e0>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  c0143fc4 <sync_inodes_sb+134/1e0>
+   5:   8b 03                     mov    (%ebx),%eax
+Code;  c0143fc6 <sync_inodes_sb+136/1e0>
+   7:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c0143fc9 <sync_inodes_sb+139/1e0>
+   a:   89 46 08                  mov    %eax,0x8(%esi)
+Code;  c0143fcc <sync_inodes_sb+13c/1e0>
+   d:   89 59 04                  mov    %ebx,0x4(%ecx)
+Code;  c0143fcf <sync_inodes_sb+13f/1e0>
+  10:   89 0b                     mov    %ecx,(%ebx)
+Code;  c0143fd1 <sync_inodes_sb+141/1e0>
+  12:   8d 86 00 00 00 00         lea    0x0(%esi),%eax
+
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+c0143fbf
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0143fbf>]    Not tainted
+EFLAGS: 00010202
+eax: 00000000   ebx: c0215b9c   ecx: c315b6c8   edx: c166d868
+esi: c315b6c0   edi: c166d860   ebp: c166d868   esp: d459bf8c
+ds: 0018   es: 0018   ss: 0018
+Process sync (pid: 15245, stackpage=d459b000)
+Stack: c166d800 00000001 bffffaf4 bffffa8c c166d860 c0144276 c166d800 00000000
+       c0133427 00000000 d459a000 c0133467 00000000 c0106c6b bffffaf4 00000002
+       4013fe68 00000001 bffffaf4 bffffa8c 00000024 0000002b 0000002b 00000024
+Call Trace: [<c0144276>] [<c0133427>] [<c0133467>] [<c0106c6b>]
+Code: 89 50 04 89 02 8b 03 89 48 04 89 46 08 89 59 04 89 0b 8d 86
+
+
+>>EIP; c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+
+>>ebx; c0215b9c <inode_in_use+0/8>
+>>ecx; c315b6c8 <_end+2ec5b3c/185c0474>
+>>edx; c166d868 <_end+13d7cdc/185c0474>
+>>esi; c315b6c0 <_end+2ec5b34/185c0474>
+>>edi; c166d860 <_end+13d7cd4/185c0474>
+>>ebp; c166d868 <_end+13d7cdc/185c0474>
+>>esp; d459bf8c <_end+14306400/185c0474>
+
+Trace; c0144276 <sync_inodes+36/50>
+Trace; c0133427 <fsync_dev+17/40>
+Trace; c0133467 <sys_sync+7/10>
+Trace; c0106c6b <system_call+33/38>
+
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>
+00000000 <_EIP>:
+Code;  c0143fbf <sync_inodes_sb+12f/1e0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c0143fc2 <sync_inodes_sb+132/1e0>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  c0143fc4 <sync_inodes_sb+134/1e0>
+   5:   8b 03                     mov    (%ebx),%eax
+Code;  c0143fc6 <sync_inodes_sb+136/1e0>
+   7:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c0143fc9 <sync_inodes_sb+139/1e0>
+   a:   89 46 08                  mov    %eax,0x8(%esi)
+Code;  c0143fcc <sync_inodes_sb+13c/1e0>
+   d:   89 59 04                  mov    %ebx,0x4(%ecx)
+Code;  c0143fcf <sync_inodes_sb+13f/1e0>
+  10:   89 0b                     mov    %ecx,(%ebx)
+Code;  c0143fd1 <sync_inodes_sb+141/1e0>
+  12:   8d 86 00 00 00 00         lea    0x0(%esi),%eax
+
+
+1 warning issued.  Results may not be reliable.
+
+-- 
+Meelis Roos (mroos@linux.ee)
 

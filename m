@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317470AbSGTTYU>; Sat, 20 Jul 2002 15:24:20 -0400
+	id <S317002AbSGTTZk>; Sat, 20 Jul 2002 15:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSGTTYU>; Sat, 20 Jul 2002 15:24:20 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52209 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317470AbSGTTYU>; Sat, 20 Jul 2002 15:24:20 -0400
-Subject: Re: 2.4.18-2.4.19-rc1-ac4 + Promise SX6000 + i2o
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Amith Varghese <amith@xalan.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1027048267.4537.185.camel@viper>
-References: <1026941364.4547.91.camel@viper> 
-	<1026966681.4537.119.camel@viper>  <1027048267.4537.185.camel@viper>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Jul 2002 21:39:28 +0100
-Message-Id: <1027197568.16818.23.camel@irongate.swansea.linux.org.uk>
+	id <S317471AbSGTTZk>; Sat, 20 Jul 2002 15:25:40 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:9739 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317002AbSGTTZk>;
+	Sat, 20 Jul 2002 15:25:40 -0400
+Date: Sat, 20 Jul 2002 12:26:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [USB] uhci-hcd oops on APM resume (2.5.23-26)
+Message-ID: <20020720192659.GA27715@kroah.com>
+References: <20020719194326.GA23137@kroah.com> <Pine.LNX.4.44.0207192306030.5859-100000@loke.as.arizona.edu> <20020720143653.B23737@sventech.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020720143653.B23737@sventech.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sat, 22 Jun 2002 18:25:50 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-19 at 04:11, Amith Varghese wrote:
-> Ok, I am still having problems booting 2.4.19-rc2-ac2.... I get an APIC
-> error on CPU0 (and CPU1).  However, I tried 2.4.19-rc2 with my Promise
-> SX6000 and get a slightly different result than 2.4.18.  It almost looks
-> like the hard drives attached to the promise sx6000 are being
-> initialized before it gets to the i2o code and the i2o block driver is
-> unable to initialize /dev/i2o/hda (but thats a wild guess from my
+On Sat, Jul 20, 2002 at 02:36:53PM -0400, Johannes Erdfelt wrote:
+> On Fri, Jul 19, 2002, Craig Kulesa <ckulesa@as.arizona.edu> wrote:
+> > Excellent.  The patch from Jan Harkes that you posted 
+> > (http://www.cs.helsinki.fi/linux/linux-kernel/2002-28/1463.html)
+> > worked wonderfully for me.  No more rogue USB disconnects on APM resume, 
+> > and no more oopses. 
+> > 
+> > Any hopes for sending it Linus-ward? ;)
+> 
+> FWIW Greg, this patch is correct. Thanks!
 
-They are. 2.4.19 base doesn't yet avoid them it seems. 
+Great, I'll send it off in the next round of patches.  Craig, thanks for
+testing it out.
 
+greg k-h

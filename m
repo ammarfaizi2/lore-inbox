@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266121AbUFRQ2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUFRQc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266121AbUFRQ2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUFRQ2J
+	id S266139AbUFRQc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266144AbUFRQc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:28:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23763 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266121AbUFRQ2F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:28:05 -0400
-Date: Fri, 18 Jun 2004 09:27:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cross-sparse
-In-Reply-To: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org>
-References: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
+	Fri, 18 Jun 2004 12:32:28 -0400
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:61312 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S266139AbUFRQcU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:32:20 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: David Ford <david+challenge-response@blue-labs.org>
+Subject: Re: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
+Date: Fri, 18 Jun 2004 17:21:47 +0100
+User-Agent: KMail/1.6
+Cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <200406181611.37890.andrew@walrond.org> <40D313DC.7000202@blue-labs.org>
+In-Reply-To: <40D313DC.7000202@blue-labs.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406181721.47968.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Spam detection software, running on the system "cenedra.walrond.org", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi David, On Friday 18 Jun 2004 17:10, David Ford
+	wrote: > Iptables should be using linux-libc-headers headers instead of
+	kernel > headers. Is this acquired knowledge, or new Netfilter policy?
+	How dependant are the iptables tools on the specifc kernel running?
+	[...] 
+	Content analysis details:   (0.0 points, 7.5 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
+On Friday 18 Jun 2004 17:10, David Ford wrote:
+> Iptables should be using linux-libc-headers headers instead of kernel
+> headers.
 
-On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
-> 
-> I wanted to give sparse a try on m68k, and noticed the current infrastructure
-> doesn't handle cross-compilation (no sane m68k people compile kernels natively
-> anymore, unless they run a Debian autobuilder ;-).
-> 
-> After hacking the include paths in the sparse sources, installing the resulting
-> binary as m68k-linux-sparse, and applying the following patch, it seems to work
-> fine!
+Is this acquired knowledge, or new Netfilter policy?
+How dependant are the iptables tools on the specifc kernel running?
 
-Hmm.. It does make sense, but at the same time, sparse isn't even really 
-supposed to _care_ about the architecture. Especially not for a kernel 
-build.
+Ie
+Can I build iptables for use on 2.6.7 kernel with 2.6.6 linux-libc-headers? 
+(probably)
 
-Which part breaks when not just using the native sparse? As far as I know, 
-a kernel build should use all-kernel header files, with the exception of 
-"stdarg.h" which I thought was also architecture-independent (but hey, 
-maybe I'm just a retard, and am wrong).
+But could I build iptables for 2.6.7 kernel with 2.4.20 linux-libc-headers? 
+(probably not?)
 
-		Linus
+The INSTALL file states specifically to use 
+KERNEL_DIR=<<where-you-built-your-kernel>>
+
+Andrew

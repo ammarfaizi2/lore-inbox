@@ -1,125 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262634AbRFQSoN>; Sun, 17 Jun 2001 14:44:13 -0400
+	id <S262633AbRFQS7G>; Sun, 17 Jun 2001 14:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262622AbRFQSoD>; Sun, 17 Jun 2001 14:44:03 -0400
-Received: from p1.nas4.is5.u-net.net ([195.102.201.129]:46832 "EHLO
-	keston.u-net.com") by vger.kernel.org with ESMTP id <S262616AbRFQSnp>;
-	Sun, 17 Jun 2001 14:43:45 -0400
-Message-ID: <017601c0f75d$454c6e70$1901a8c0@node0.idium.eu.org>
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "David Flynn" <Dave@keston.u-net.com>,
-        "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-In-Reply-To: <00f501c0f74e$defac4e0$1901a8c0@node0.idium.eu.org>
-Subject: Re: [slightly OT] IDE problems ? or just a dead disk ?
-Date: Sun, 17 Jun 2001 19:42:33 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-MDRemoteIP: 192.168.0.50
-X-Return-Path: Dave@keston.u-net.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S262622AbRFQS6q>; Sun, 17 Jun 2001 14:58:46 -0400
+Received: from unthought.net ([212.97.129.24]:48849 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S262616AbRFQS6h>;
+	Sun, 17 Jun 2001 14:58:37 -0400
+Date: Sun, 17 Jun 2001 20:58:35 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 VM & swap question
+Message-ID: <20010617205835.A12767@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010617104836.B11642@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010617104836.B11642@opus.bloom.county>; from trini@kernel.crashing.org on Sun, Jun 17, 2001 at 10:48:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 17, 2001 at 10:48:36AM -0700, Tom Rini wrote:
+> 'lo all.  I've got a question about swap and RAM requirements in 2.4.  Now,
+> when 2.4.0 was kicked out, the fact that you need swap=2xRAM was mentioned.
+> But what I'm wondering is what exactly are the limits on this.  Right now
+> I've got an x86 box w/ 128ram and currently 256swap.  When I had 128, I'd get
+> low on ram/swap after some time in X, and doing this seems to 'fix' it, in
+> 2.4.4.  However, I've also got 2 PPC boxes, both with 256:256 in 2.4.  One
+> of which never has X up, but lots of other activity, and swap usage seems
+> to be about the same as 2.2.x (right now 'free' says i'm ~40MB into swap,
+> 18day+ uptime).  The other box is a laptop and has X up when it's awake and
+> that too doesn't seem to have any problem.  So what exactly is the real
+> minium swap ammount?
 
-> hi guys,
->         Since its relativley quiet at the moment, please excuse me for
-> asking for some advice about the following problem.
->
+It completely totally and absolutely depends on the kind of workloads you put
+your system under.
 
-i dont usually like following up my own sensless ramblings, but here is an
-interesting twist (probabally caused by my ill understanding of the issues
-involved)
+I have a database server with 1G phys and 1G swap. It uses 950+ MB for cache,
+as it should, and doesn't even *touch* swap.  This is 2.4.5.
 
-ive done the badblock test, and compiled a list of 2302 bad blocks on this
-disk ... however, when running mke2fs -l badblocfile /dev/hdc1
+I have another box with 384MB phys and 1G swap, and it's usually a few hundred
+megs into swap.  That's what long-running memory hogs and big compilers do.
 
-i got this interesting errormessage for every one of the bad blocks :
+There is no simple answer.  swap = 2*phys may be reasonable for some desktop
+uses, I don't know.  But there *is* *no* *simple* *answer*.
 
-Bad block 1006290 out of range; ignored.
-
-mke2fs said my disk was my disk would be 132480 inodes, 264592 blocks in
-size ...
-
-some bits in proc (well this capacity one i dont know what it measures)
-
-root:/root# cat /proc/ide/hdc/capacity
-2116800
-
-root:/root# cat /proc/ide/hdc/geometry
-physical     2100/16/63
-logical      525/64/63
-
-is there a geometry problem ? whats causing bad blocks to give apparently
-excessivly large bad blocks ...?
-
-any ideas ?
-
-Thanks,
-
-Dave
-
-> for a while now ive had a disk that causes errors to occur during reads,
-> however, ive finally got round to doing a
->
-> # badblocks -c 32 -o mybadblocks  -w -v -s /dev/hdc
->
-> so after one part of the test its found 2048 bad blocks, and dumped alot
-of
-> error messages, which look like this:
->
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-> sector=2116604
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-> sector=2116604
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-> sector=2116604
-> kernel: ide1: reset: success
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=2116604,
-> sector=2116604
-> kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116604
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x40 { UncorrectableError },
-LBAsect=2116607,
-> sector=2116607
-> kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116607
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x40 { UncorrectableError },
-LBAsect=2116608,
-> sector=2116608
-> kernel: end_request: I/O error, dev 16:00 (hdc), sector 2116608
-> kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-> Error }
-> kernel: hdc: read_intr: error=0x40 { UncorrectableError },
-LBAsect=2116610,
-> sector=2116610
->
-> i have tried the disk in 2 systems, one Socket7 pentium and a PII /w a BX
-> chipset ... the only thing i can think this is is either a geometry
-problem
-> ?? or a hard disk failiure ...
->
-> anyone got any ideas ?
->
-> Thanks.
->
-> Dave
->
+With the amount of work that's gone into just *understanding* why the VM
+behaves as it does (even after the VM rewrite that was done exactly in order to
+come up with a VM we could *understand*), it's beyond me how anyone can even
+begin to think that one can define a set of simple and exact rules for minimum
+or "optimal" (whatever that means) values for swap.
 
 
+(if I sound pissed, don't worry, I'm not. I'm frustrated, that's different  ;)
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262615AbRFBQg1>; Sat, 2 Jun 2001 12:36:27 -0400
+	id <S262618AbRFBQsl>; Sat, 2 Jun 2001 12:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbRFBQgQ>; Sat, 2 Jun 2001 12:36:16 -0400
-Received: from lenka.ph.ipex.cz ([212.71.128.11]:25640 "EHLO lenka.ph.ipex.cz")
-	by vger.kernel.org with ESMTP id <S262615AbRFBQgH>;
-	Sat, 2 Jun 2001 12:36:07 -0400
-Date: Sat, 2 Jun 2001 18:37:18 +0200
-From: Robert Vojta <vojta@ipex.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bug] at slab.c ...
-Message-ID: <20010602183718.A2310@ipex.cz>
-In-Reply-To: <E156EFq-0001ts-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
-Content-Disposition: inline
-In-Reply-To: <E156EFq-0001ts-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-Telephone: +420 603 167 911
-X-Company: IPEX, s.r.o.
+	id <S262622AbRFBQsb>; Sat, 2 Jun 2001 12:48:31 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57093 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262618AbRFBQs2>; Sat, 2 Jun 2001 12:48:28 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: missing sysrq
+Date: 1 Jun 2001 16:13:02 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9f97hu$83v$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20010601203841Z261493-933+3160@vger.kernel.org>
+By author:    Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+In newsgroup: linux.dev.kernel
+>
+> Am Freitag, 1. Juni 2001 16:51 schrieben Sie:
+> > > Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
+> > > You need both, compiled in and activation.
+> >
+> > no, look at the code.  the enable variable defaults to 1.
+> 
+> Then there must be a bug?
+> I get "0" with 2.4.5-ac2 and -ac5 without "echo 1".
+> 
+> Fresh booted 2.4.5-ac2:
+> 
+> SunWave1>cat /proc/version
+> Linux version 2.4.5-ac2 (root@SunWave1) (gcc version 2.95.2 19991024 
+> (release)) #1 Mon May 28 05:42:09 CEST 2001
+> SunWave1>cat /proc/sys/kernel/sysrq
+> 0
+> 
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Let me guess... you're using a RedHat system?  RedHat, for some
+idiotic reason, defaults to actively turning this off for you (and
+they turn Stop-A off on SPARC, too.)
 
-> What X server ? and also run the trace through ksymoops
-
-  It's fresh installation of RH 7.1 (XFree86-4.0.3-5) ...
-
->>EIP; c0129884 <try_to_swap_out+174/1d0>   <=3D=3D=3D=3D=3D
-Trace; c01b08db <skb_checksum+3b/220>
-Trace; c01affd7 <pskb_copy+167/170>
-Trace; c01e4e79 <netlink_create+59/d0>
-Trace; c0129ddc <reclaim_page+1ec/3c0>
-Trace; c01adc1c <sys_recvmsg+ac/200>
-Trace; c01b0a9b <skb_checksum+1fb/220>
-Trace; c01adf53 <sys_socketcall+1a3/200>
-Trace; c01adfeb <sock_register+3b/40>
-Trace; c01321bc <__remove_inode_queue+1c/20>
-Trace; c0129ddc <reclaim_page+1ec/3c0>
-Trace; c0140412 <locks_mandatory_locked+2/40>
-Trace; c0132323 <set_blocksize+63/1f0>
-Trace; c0106cab <system_call+33/38>
-Code;  c0129884 <try_to_swap_out+174/1d0>
-00000000 <_EIP>:
-Code;  c0129884 <try_to_swap_out+174/1d0>   <=3D=3D=3D=3D=3D
-   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-Code;  c0129886 <try_to_swap_out+176/1d0>
-   2:   58                        pop    %eax
-Code;  c0129887 <try_to_swap_out+177/1d0>
-   3:   8b 6b 10                  mov    0x10(%ebx),%ebp
-Code;  c012988a <try_to_swap_out+17a/1d0>
-   6:   5a                        pop    %edx
-Code;  c012988b <try_to_swap_out+17b/1d0>
-   7:   81 e5 00 04 00 00         and    $0x400,%ebp
-Code;  c0129891 <try_to_swap_out+181/1d0>
-   d:   74 4d                     je     5c <_EIP+0x5c> c01298e0 <swap_out_=
-pmd+0/100>
-Code;  c0129893 <try_to_swap_out+183/1d0>
-   f:   b8 a5 c2 0f 17            mov    $0x170fc2a5,%eax
-
-Best,
-  .R.V.
-
---=20
-   _
-  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
-  |=3D| [Ll]     IPEX, s.r.o.
-  "^" =3D=3D=3D=3D`o
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjsZFj4ACgkQInNB3KDLeVPLhACeNkTAy0QJcloMjB7BdL3CJdbT
-K7AAn0C0fbEgSs2Lu8jHRyNaLGQ0vx0V
-=1J90
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

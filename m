@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263989AbTDNVuq (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263986AbTDNVuH (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:50:07 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:22026
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263982AbTDNVsv 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:48:51 -0400
-Subject: Re: [RFC] 2.5 TASK_INTERRUPTIBLE preemption race
-From: Robert Love <rml@tech9.net>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Andrew Morton <akpm@digeo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030414215410.GA18922@rudolph.ccur.com>
-References: <20030414215410.GA18922@rudolph.ccur.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050357642.3664.89.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 14 Apr 2003 18:00:42 -0400
+	id S263995AbTDNVzb (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263986AbTDNVzb (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:55:31 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:54161 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263984AbTDNVz3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 17:55:29 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [RFC] /sbin/hotplug multiplexor
+Date: Tue, 15 Apr 2003 00:04:04 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       linux-hotplug-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200304150004.19213.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-14 at 17:54, Joe Korty wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Is this analysis correct?  If it is, perhaps there is an alternative
-> to fixing these cases individually: make the TASK_INTERRUPTIBLE/
-> TASK_UNINTERRUPTIBLE states block preemption.  In which case the
-> 'set_current_state(TASK_RUNNING)' macro would need to include the
-> same preemption check as 'preemption_enable'.
+Oliver Neukum wrote:
 
-Thankfully you are wrong or we would have some serious problems :)
+> Well, for a little elegance you might introduce subdirectories for each type
+> of hotplug event and use only them.
 
-See kernel/sched.c :: preempt_schedule() where we set p->preempt_count
-to PREEMPT_ACTIVE.
+I was just about to propose the same. Please use subdirs or namespaced files
+like in:
 
-Then see kernel/sched.c :: schedule() where we short-circuit the
-remove-from-runqueue code if PREEMPT_ACTIVE is set.
+for I in "${DIR}/$1".* "${DIR}/"default.* ; do
+	test -x $I && $I $1
+done
 
-Thus, it is safe to preempt regardless of the task's state.  It will
-eventually reschedule.
+Note that a single event can not only cause one hotplug event for many devices
+but also _multiple_ events for every device. E.g. enabling a dasd devices
+will cause hotplug to be called for the local subchannel devices as well as
+the actual (remote) disk. Maybe someone adds hotplug calls for partitions
+and logical volumes.
+Since dasds are usually not larger than 2GB, you are quite likely
+to enable many at the same time. Imagine you get 500 disks * 4 events * 10
+agents in response to a single user command...
 
-	Robert Love
+	Arnd <><
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+mzBY5t5GS2LDRf4RAiGEAKCDfJCOqc+IwyzN1cFOOiFKuwqfFwCbBiEe
+zaWlQP9P0s09DUNoF/xfdLs=
+=c6xb
+-----END PGP SIGNATURE-----
 

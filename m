@@ -1,54 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSGALZI>; Mon, 1 Jul 2002 07:25:08 -0400
+	id <S315472AbSGAL2I>; Mon, 1 Jul 2002 07:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315468AbSGALZH>; Mon, 1 Jul 2002 07:25:07 -0400
-Received: from mta04bw.bigpond.com ([139.134.6.87]:46057 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315456AbSGALZG>; Mon, 1 Jul 2002 07:25:06 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Ralph Corderoy <ralph@inputplus.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
-Date: Mon, 1 Jul 2002 21:24:20 +1000
-User-Agent: KMail/1.4.5
-References: <200207011102.g61B22305958@blake.inputplus.co.uk>
-In-Reply-To: <200207011102.g61B22305958@blake.inputplus.co.uk>
-MIME-Version: 1.0
+	id <S315479AbSGAL2H>; Mon, 1 Jul 2002 07:28:07 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:55174 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315472AbSGAL2G> convert rfc822-to-8bit;
+	Mon, 1 Jul 2002 07:28:06 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Subject: Re: Can't boot from /dev/md0 (RAID-1)
+Date: Mon, 1 Jul 2002 13:30:18 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-raid@vger.rutgers.edu,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0206301152150.1582-100000@twinlark.arctic.org>
+In-Reply-To: <Pine.LNX.4.44.0206301152150.1582-100000@twinlark.arctic.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200207012124.20330.bhards@bigpond.net.au>
+Message-Id: <200207011330.18973.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002 21:02, Ralph Corderoy wrote:
-> Hi,
->
-> Does anyone here have a USB Happy Hacking Keyboard Lite Mk 2 keyboard?
->
-> On connecting to my 2.4.18 Linux system I find that it works great,
-> except that certain triples of keys produce four characters instead of
-> three when typed in rapid succession.  This happens under XFree86 and
-> also at a tty.  For example, typing `swa' rapidly produces `swaw'.
-What is the event interface (dev/input/eventX) showing for this type of input?
+hi
 
-> Further investigation revealed that only certain combination of keys
-> exhibit the problem.  More examples are
->
->     keys produces
->     rty    rtty
->     yui    yuui
->     tyu    tyuy
->     swa    swaw
->     jhg    jhgh
->
-> But other won't show the problem, e.g. `zxc', `asd', and `qwe'.
->
-> My theory is that usbkbd.o doesn't cope with ErrorRollover which is
-> being generated, unlike hid.o which didn't used to but does now.
-Err, how do you reconcile that with only seeing it on some keys?
+trying this:
+--
+boot=/dev/md0
+map=/boot/map
+install=/boot/boot.b.hda
+backup=/boot/boot.b.rs.hda
+prompt
+timeout=50
+lba32
+raid-extra-boot=/dev/hda,/dev/hdb
+...
 
-BTW: usbkbd isn't meant for real work. You should use full HID.
+with lilo-21.4-4 (standard with rh73) it won't accept the raid-extra-boot 
+option
+
+and
+
+with lilo-22.3.1, it won't accept (i beleive boot=/dev/md0)
+
+[root@jumbo lilo-22.3.1]# lilo
+Warning: using BIOS device code 0x80 for RAID boot blocks
+Fatal: Filesystem would be destroyed by LILO boot sector: /dev/md0
+
+thanks 
+
+roy
+
+On Sunday 30 June 2002 20:57, dean gaudet wrote:
+> my system has 4 disks, but /dev/md0 is a RAID1 for /boot.  (/dev/md1 is a
+> RAID5 and LVM is on top of it...)  anyhow, this is what works for me.
+> i've even pulled out a disk and it still boots.
+>
+> btw, you really don't want to put two drives on an IDE controller.  not
+> just for performance reasons -- if a master drive fails it can easily
+> prevent access to the slave... so you'll have a two disk failure on your
+> hands.  or maybe this is just urban legend and i'm spreading it further ;)
+>
+> -dean
+>
+> lba32
+> boot=/dev/md0
+> root=/dev/arctic/root
+> install=/boot/boot-text.b
+> map=/boot/map
+> prompt
+> timeout=150
+> raid-extra-boot=/dev/hde,/dev/hdg,/dev/hdi,/dev/hdk
+>
+> password=XXXXXXXX
+>
+> serial=0,38400n8
+> append="console=tty0 console=ttyS0,38400n8"
+>
+> default=linux
+>
+> image=/boot/vmlinuz
+>         initrd=/boot/initrd-lvm-2.4.19-pre3-ac1.gz
+>         label=linux
+>         restricted
+>         read-only
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

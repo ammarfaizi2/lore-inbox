@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263823AbTCVT3A>; Sat, 22 Mar 2003 14:29:00 -0500
+	id <S263762AbTCVT0e>; Sat, 22 Mar 2003 14:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263831AbTCVT3A>; Sat, 22 Mar 2003 14:29:00 -0500
-Received: from main.gmane.org ([80.91.224.249]:12219 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263823AbTCVT27>;
-	Sat, 22 Mar 2003 14:28:59 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: reiserfs oops [2.5.65]
-Date: Sat, 22 Mar 2003 14:36:07 -0500
-Message-ID: <3E7CBB27.8090506@myrealbox.com>
-References: <20030319141048.GA19361@suse.de>	<20030320112559.A12732@namesys.com>	<20030320132409.GA19042@suse.de>	<20030320165941.0d19d09d.akpm@digeo.com>	<20030320231335.GB4638@suse.de> <20030320153427.6265e864.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263776AbTCVT0e>; Sat, 22 Mar 2003 14:26:34 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26011
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263762AbTCVT0d>; Sat, 22 Mar 2003 14:26:33 -0500
+Subject: Re: [CHECKER] potential dereference of user pointer errors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Wright <chris@wirex.com>
+Cc: Junfeng Yang <yjf@stanford.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.stanford.edu
+In-Reply-To: <20030321141507.B646@figure1.int.wirex.com>
+References: <200303041112.h24BCRW22235@csl.stanford.edu>
+	 <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
+	 <20030321141507.B646@figure1.int.wirex.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+Organization: 
+Message-Id: <1048366179.9219.38.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Mar 2003 20:49:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-[SNIP]
-> 
-> I've done some 2.5.xyz work on kmsgdump (dump kernel messages to
-> floppy).  I'll try to get back to it soon.
-> 
+On Fri, 2003-03-21 at 22:15, Chris Wright wrote:
+> on first pass of the cmd.  However, this is inconsistent with the rest
+> of the file, so here is a patch to use kcmd.resbuf.  I also added a NULL
+> check, as done in similar funcitons in this file.  Alan, this look ok?
 
-Thank you!  That'd be a god-send for those of us w/o serial 
-ports and who have very cramped hands from hand-copying 
-panics :-D.  Frankly, I can't imagine why something a simple 
-as this isn't in the kernel.  Technically, it isn't a 
-debugger, so I don't think it violates Linus' "No Kernel 
-Debuggers in the Kernel" rule.
+Looks slightly wrong to me
 
-Cheers,
-Nicholas
+#1 ->resbuf = NULL is a completely acceptable if odd user choice. If invalid
+its covered
 
+#2 - We copy to the users nominated cmd->resbuf. You are correct there, 
+that we should be using the kernel side copy. Fixed in my tree.
 

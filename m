@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272653AbTHEL3r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 07:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272655AbTHEL3r
+	id S272665AbTHELdz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 07:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272670AbTHELdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 07:29:47 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:36510
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272653AbTHEL3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 07:29:46 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Tue, 5 Aug 2003 21:34:55 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200308050207.18096.kernel@kolivas.org> <200308052112.12553.kernel@kolivas.org> <3F2F93A7.4070808@cyberone.com.au>
-In-Reply-To: <3F2F93A7.4070808@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 07:33:55 -0400
+Received: from verein.lst.de ([212.34.189.10]:30123 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S272665AbTHELdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 07:33:54 -0400
+Date: Tue, 5 Aug 2003 13:33:51 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] simplify i386 mca Kconfig bits
+Message-ID: <20030805113351.GA23754@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, James.Bottomley@steeleye.com,
+	linux-kernel@vger.kernel.org
+References: <20030805113154.GA23728@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308052134.55542.kernel@kolivas.org>
+In-Reply-To: <20030805113154.GA23728@lst.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4 () IN_REP_TO,PATCH_UNIFIED_DIFF,REFERENCES,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 21:23, Nick Piggin wrote:
-> I know you haven't been just tweaking numbers ;) But in the case of the
-> patch that provides different behaviour depending on whether a sleep is
-> interruptible or not really smelt of papering over symptoms. Now it might
-> be that nothing better can be done without move invasive changes, but I
-> just thought I'd voice my concerns.
+I should better attach the patch :)
 
-Indeed and the more discussion on the topic the better we can nut it out. 
-Especially on lkml where having the last word is important ;-D
 
-> Oh, and remember that your desktop load is devoid of make -j big compiles,
-> so that is not a requisite for good interactivity.
-
-Thank goodness ;-). It's an easy way to reproduce a problem on a grander 
-scale.
-
-Con
-
+diff -Nru a/include/linux/mca.h b/include/linux/mca.h
+--- a/include/linux/mca.h	Sun Jul 13 05:23:15 2003
++++ b/include/linux/mca.h	Sun Jul 13 05:23:15 2003
+@@ -10,9 +10,9 @@
+  * included mca.h to compile.  Take it out later when the MCA #includes
+  * are sorted out */
+ #include <linux/device.h>
+-
+-/* get the platform specific defines */
++#ifdef CONFIG_MCA
+ #include <asm/mca.h>
++#endif
+ 
+ /* The detection of MCA bus is done in the real mode (using BIOS).
+  * The information is exported to the protected code, where this

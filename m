@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281274AbRKESmB>; Mon, 5 Nov 2001 13:42:01 -0500
+	id <S281276AbRKESol>; Mon, 5 Nov 2001 13:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281273AbRKESlv>; Mon, 5 Nov 2001 13:41:51 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50181 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281278AbRKESln>; Mon, 5 Nov 2001 13:41:43 -0500
-Date: Mon, 5 Nov 2001 16:40:57 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ben Greear <greearb@candelatech.com>
-Cc: <dalecki@evision.ag>, Stephen Satchell <satch@concentric.net>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Jakob =?ISO-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
-        <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <3BE6DA52.6040100@candelatech.com>
-Message-ID: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S281278AbRKESob>; Mon, 5 Nov 2001 13:44:31 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:6 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S281276AbRKESo1>;
+	Mon, 5 Nov 2001 13:44:27 -0500
+Message-ID: <3BE6DC56.5A0984A4@osdl.org>
+Date: Mon, 05 Nov 2001 10:37:10 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederman@lnxi.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre8 Alt-SysRq-[TM] failure during lockup...
+In-Reply-To: <m3wv15n5c9.fsf@DLT.linuxnetworx.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Nov 2001, Ben Greear wrote:
+"Eric W. Biederman" wrote:
+> 
+> Summary:  I triggered a condition in 2.4.14-pre8 where SysRq triggered
+> but would not print reports.  I managed to unstick the condition but
+> had played to much to determine the root cause.  My guess is that
+> somehow my default loglevel was messed up.  Full information is
+> provided just case I did not muddy the waters too much.
 
-> I would rather have a header block, as well as docs in the
-> source. If the header cannot easily explain it, then the header
-> can have a URL or other link to the full explanation.
+Do you know what the console loglevel was when you tried
+to use Alt-SysRq-M (show_mem) or Alt-SysRq-T (show tasks ==
+show_state)?  (first value listed in /proc/sys/kernel/printk file)
 
-I think you've hit the core of the problem. There is no magical
-bullet which will stop badly written userland programs from
-breaking, but the kernel developers should have the courtesy
-of providing documentation for the /proc files so the writers
-of userland programs can have an idea what to expect.
+show_mem() and show_state() don't modify the current value of
+console_loglevel; they depend on the sysrq handler to do that.
+That value could be too low/small.
 
-The inline docbook stuff in the kernel should make it easy for
-kernel developers to keep code and documentation in sync, while
-also making it easy to generate documentation in a format which
-is nice to read ;)
+E.g., if console_loglevel is 4, show_mem and show_state don't
+show me anything on the console either, but they are added
+to the log file.
 
-regards,
+[rubout]
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+> I then tried playing with sysrq and this is where I got worried.
+> Alt-SysRq-Space gave the menu as normal.
+> Alt-SysRq-M (showMem) printed just: "SysRq: Show Memory"
+> Alt-SysRq-T (showTasks) printed just: "Sysrq: Show State"
+> 
+> Which is extremely strange the reports which should be at a higher
+> loglevel were not displayed.
+> 
+> Then I typoed and pressed. Alt-SysRq-E (tErm) and I started getting the
+> reports back.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Aye, sysrq_handle_term sets console_loglevel to 8 and leaves it there.
 
+[rubout]
+
+~Randy

@@ -1,162 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUJZQiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbUJZQkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbUJZQiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUJZQiQ
+	id S261328AbUJZQkf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUJZQkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:38:16 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48058 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261322AbUJZQhn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:37:43 -0400
-Subject: Re: [PATCH] ppc64: Fix g5-only build
-From: John Rose <johnrose@austin.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       External List <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <1098775712.6897.17.camel@gaston>
-References: <1098775712.6897.17.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1098808895.32293.23.camel@sinatra.austin.ibm.com>
+	Tue, 26 Oct 2004 12:40:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:8051 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261331AbUJZQkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:40:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=tGPKKScu6guWB+tgJNaFoScurdb1Vzj+Rxjr6tXQ0px2a9mamqalKZ2dslJJ27wVaH4DAtsTgE6fxCCNBo2ar9bsX0tHqV2EzHhQv6iO2KmdwaGgycS2+yiggCiNmYD1fEywIDhhM45KFcOrZUemPXWoAGmf9JSjjNFcQh29mE8=
+Message-ID: <58cb370e041026094016ac67d0@mail.gmail.com>
+Date: Tue, 26 Oct 2004 18:40:09 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: 2.6.9-mm1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <417E71C1.1080400@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 26 Oct 2004 11:41:35 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041022032039.730eb226.akpm@osdl.org> <417D7EB9.4090800@osdl.org>
+	 <20041025155626.11b9f3ab.akpm@osdl.org> <417D88BB.70907@osdl.org>
+	 <20041025164743.0af550ce.akpm@osdl.org> <417D8DFF.1060104@osdl.org>
+	 <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl>
+	 <417DBEC1.5000701@osdl.org> <417E71C1.1080400@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgive me for the cross-post, but I'm trying to answer two list
-messages on the same topic.  I think it's more productive to just fix
-the bug than to commit a giant comment pointing out a small bug, so I've
-attached an alternate fix (build tested for g5 :).
+On Tue, 26 Oct 2004 08:48:17 -0700, Randy.Dunlap <rddunlap@osdl.org> wrote:
+> 
+> >>>>> Yes, that gets further.   :(
+> >>>>> Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
+> >>
+> >>
+> >>
+> >> IDE PIO changes are the part of a vanilla kernel.
+> >>
+> >> If vanilla kernel (+akpm's fix) works OK then
+> >> this bug is not mine fault. :)
+> >>
+> >>
+> >>>> I doubt if it'll help much.  It looks like IDE PIO got badly broken.
+> >>
+> >>
+> >>
+> >> Weird, this code was in -mm for over a month.
+> >>
+> >>
+> >>>> That's something we have to fix - could you work with Bart on it
+> >>>> please?
+> >>>
+> >>>
+> >>> Sure.  Bart?
+> >>
+> >>
+> >>
+> >> I need more data, IDE PIO works fine here.
+> >>
+> >>
+> >>>> How come your disks are running in PIO mode anyway?
+> >>
+> >>
+> >>
+> >> Maybe disks are runing in DMA mode but some application
+> >> triggers PIO access (IDENTIFY command, S.M.A.R.T. etc.)...
+> >>
+> >>
+> >>> No idea.
+> >
+> >
+> > Andrew made me look.  Duh.  It's because I'm booting with
+> > ide=nodma.
+> >
+> > So Bart, can you check the noautodma=1 code path?
+> > And I'll test it again on Tuesday without using ide=nodma.
+> 
+> Booting 2.6.9-mm1 without using "ide=nodma" works well for me.
+> No other kernel changes.
 
-> - It breaks build without CONFIG_PPC_PSERIES (try a pmac-only build).
-> There is, more generally, a tendency at calling things in
-> pSeries_iommu.c with the prefix "iommu_" without any mention of
-> "pSeries" in the name. Hey guys ! pSeries isn't alone anymore ! So
-> please call those pSeries-specific things pSeries_* or tce_* or
-> whatever, but don't add back confusion where I had such a hard time
-> splitting things.
+I audited the code and only found the unrelated bug in
+/proc/ide/hd?/smart_thresholds, fix below...
 
-Apologies for the build break.  I mistakenly placed the function in a pSeries 
-file.  In our view, this is a generic function, complementary to
-iommu_init_table(), so I've moved it to iommu.c.
+--- ide-disk.c.orig	2004-10-26 15:50:51.000000000 +0200
++++ ide-disk.c	2004-10-26 18:34:50.736448416 +0200
+@@ -977,6 +977,7 @@
+ 	args.tfRegister[IDE_HCYL_OFFSET]	= SMART_HCYL_PASS;
+ 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SMART;
+ 	args.command_type			= IDE_DRIVE_TASK_IN;
++	args.data_phase				= TASKFILE_IN;
+ 	args.handler				= &task_in_intr;
+ 	(void) smart_enable(drive);
+ 	return ide_raw_taskfile(drive, &args, buf);
 
-> - It seems that any call to of_remove_node() will call
-> iommu_free_table() on np->iommu_table. That sounds bad. The iommu_table
-> pointer is copied at init time from the parent to all child nodes. So if
-> we add a phb, and then remove a device from that bus, we end up
-> disposing of the phb's iommu table ...
+I tried reproducing the OOPS but I couldn't.  Little bird tells me that
+this bug is SMP and/or highmem specific (I don't have such hardware).
 
-Good catch, although table allocation doesn't always happen at the PHB
-level.  On POWER5, it happens at the EADS level.  My fix checks for the
-ibm,dma-window property before calling the free function.  This is the
-criterion for which the table is alloc'ed in the first place.
+Randy, could you "ide=nodma" with 2.6.10-rc1 (+akpm's fix) and 2.6.9?
 
-Thanks-
-John
-
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
-
-diff -Nru a/arch/ppc64/kernel/iommu.c b/arch/ppc64/kernel/iommu.c
---- a/arch/ppc64/kernel/iommu.c	Tue Oct 26 11:36:42 2004
-+++ b/arch/ppc64/kernel/iommu.c	Tue Oct 26 11:36:42 2004
-@@ -425,6 +425,39 @@
- 	return tbl;
- }
- 
-+void iommu_free_table(struct device_node *dn)
-+{
-+	struct iommu_table *tbl = dn->iommu_table;
-+	unsigned long bitmap_sz, i;
-+	unsigned int order;
-+
-+	if (!tbl || !tbl->it_map) {
-+		printk(KERN_ERR "%s: expected TCE map for %s\n", __FUNCTION__,
-+				dn->full_name);
-+		return;
-+	}
-+
-+	/* verify that table contains no entries */
-+	/* it_mapsize is in entries, and we're examining 64 at a time */
-+	for (i = 0; i < (tbl->it_mapsize/64); i++) {
-+		if (tbl->it_map[i] != 0) {
-+			printk(KERN_WARNING "%s: Unexpected TCEs for %s\n",
-+				__FUNCTION__, dn->full_name);
-+			break;
-+		}
-+	}
-+
-+	/* calculate bitmap size in bytes */
-+	bitmap_sz = (tbl->it_mapsize + 7) / 8;
-+
-+	/* free bitmap */
-+	order = get_order(bitmap_sz);
-+	free_pages((unsigned long) tbl->it_map, order);
-+
-+	/* free table */
-+	kfree(tbl);
-+}
-+
- /* Creates TCEs for a user provided buffer.  The user buffer must be
-  * contiguous real kernel storage (not vmalloc).  The address of the buffer
-  * passed here is the kernel (virtual) address of the buffer.  The buffer
-diff -Nru a/arch/ppc64/kernel/pSeries_iommu.c b/arch/ppc64/kernel/pSeries_iommu.c
---- a/arch/ppc64/kernel/pSeries_iommu.c	Tue Oct 26 11:36:42 2004
-+++ b/arch/ppc64/kernel/pSeries_iommu.c	Tue Oct 26 11:36:42 2004
-@@ -412,39 +412,6 @@
- 	dn->iommu_table = iommu_init_table(tbl);
- }
- 
--void iommu_free_table(struct device_node *dn)
--{
--	struct iommu_table *tbl = dn->iommu_table;
--	unsigned long bitmap_sz, i;
--	unsigned int order;
--
--	if (!tbl || !tbl->it_map) {
--		printk(KERN_ERR "%s: expected TCE map for %s\n", __FUNCTION__,
--				dn->full_name);
--		return;
--	}
--
--	/* verify that table contains no entries */
--	/* it_mapsize is in entries, and we're examining 64 at a time */
--	for (i = 0; i < (tbl->it_mapsize/64); i++) {
--		if (tbl->it_map[i] != 0) {
--			printk(KERN_WARNING "%s: Unexpected TCEs for %s\n",
--				__FUNCTION__, dn->full_name);
--			break;
--		}
--	}
--
--	/* calculate bitmap size in bytes */
--	bitmap_sz = (tbl->it_mapsize + 7) / 8;
--
--	/* free bitmap */
--	order = get_order(bitmap_sz);
--	free_pages((unsigned long) tbl->it_map, order);
--
--	/* free table */
--	kfree(tbl);
--}
--
- void iommu_setup_pSeries(void)
- {
- 	struct pci_dev *dev = NULL;
-diff -Nru a/arch/ppc64/kernel/prom.c b/arch/ppc64/kernel/prom.c
---- a/arch/ppc64/kernel/prom.c	Tue Oct 26 11:36:42 2004
-+++ b/arch/ppc64/kernel/prom.c	Tue Oct 26 11:36:42 2004
-@@ -1818,8 +1818,9 @@
- 		return -EBUSY;
- 	}
- 
--	if (np->iommu_table)
-+	if ((np->iommu_table) && get_property(np, "ibm,dma-window", NULL)) {
- 		iommu_free_table(np);
-+	}
- 
- 	write_lock(&devtree_lock);
- 	OF_MARK_STALE(np);
-
+Cheers,
+Bartlomiej

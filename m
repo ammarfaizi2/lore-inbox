@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266898AbUHCWEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUHCWF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266898AbUHCWEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 18:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUHCWEM
+	id S266884AbUHCWF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 18:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUHCWF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 18:04:12 -0400
-Received: from adsl-68-95-0-242.dsl.rcsntx.swbell.net ([68.95.0.242]:29572
-	"EHLO arion.soze.net") by vger.kernel.org with ESMTP
-	id S266898AbUHCWDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 18:03:51 -0400
-Date: Tue, 3 Aug 2004 22:03:41 +0000
-From: Justin Guyett <justin@soze.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Hibbard.Smith@nasdaq.com
-Subject: Re: mainline i2o issues with adaptec raid (was: i2o and adaptec raid)
-Message-ID: <20040803220341.GA6010@arion.soze.net>
-References: <20040803050223.GB2295@arion.soze.net> <20040802230931.04c0769d.akpm@osdl.org>
+	Tue, 3 Aug 2004 18:05:28 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:36071 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266896AbUHCWFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 18:05:05 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
+Date: Tue, 3 Aug 2004 21:09:52 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <ceouv0$7s8$2@news.cistron.nl>
+References: <410F481C.9090408@bio.ifi.lmu.de> <64bf.410f9d6f.62af@altium.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802230931.04c0769d.akpm@osdl.org>
-X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
-X-Hashcash: 0:040803:akpm@osdl.org:b791745e5091adb4af51fa75
-X-Hashcash: 0:040803:linux-kernel@vger.kernel.org:b4ed16d2ac8ae5d65f95f1ad
-X-Hashcash: 0:040803:hibbard.smith@nasdaq.com:e19da3119c73211eec300535
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1091567392 8072 62.216.29.200 (3 Aug 2004 21:09:52 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-08-02T23:09:31-0700, Andrew Morton wrote:
-> By reading your .config I was able to divine that you're running some 2.6
-> kernel ;)
-> 
-> There's an i2o rewrite in
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm2/2.6.8-rc2-mm2.gz
-> - testing of that would be appreciated.
+In article <64bf.410f9d6f.62af@altium.nl>,
+Dick Streefland <dick.streefland@altium.nl> wrote:
+>Frank Steiner <fsteiner-mail@bio.ifi.lmu.de> wrote:
+>| Or is there any other way to get an initial console or
+>| output any messages from an init script if one boots via nfsroot
+>| and  / (and thus, /dev) is only exported read-only from the
+>| server?
+>
+>You can boot with a ramdisk as root, initialized with an initrd, and
+>then perform all NFS mounts manually in the init script. You can use
+>pivot_root to switch to an NFS root to get rid of the ramdisk.
 
-Build 103 (2.6.8-rc2-mm2) succeeds where mainline 2.6.8-rc2-bk12 i2o
-(adaptec 2110s) failed.
+If having /dev mounted read-only means you cannot open devices
+like /dev/console read/write then that is a bug in the NFS client
+in the kernel.
 
-8 concurrent 6-GB bonnie++ runs also succeed.
+On all other filesystems (ext2, ext3, xfs etc) there's no problem
+opening devices r/w on a read-only filesystem.
 
+Mike.
 -- 
-"When in our age we hear these words: It will be judged by the result--then we
-know at once with whom we have the honor of speaking.  Those who talk this way
-are a numerous type whom I shall designate under the common name of assistant
-professors."  -- Kierkegaard, Fear and Trembling (Wong tr.), III, 112
+The question is, what is a "manamanap".
+The question is, who cares ?
 

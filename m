@@ -1,51 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319272AbSHVBEM>; Wed, 21 Aug 2002 21:04:12 -0400
+	id <S319275AbSHVBlM>; Wed, 21 Aug 2002 21:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319273AbSHVBEM>; Wed, 21 Aug 2002 21:04:12 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28167
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319272AbSHVBEM>; Wed, 21 Aug 2002 21:04:12 -0400
-Date: Wed, 21 Aug 2002 18:07:42 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre2-ac6
-In-Reply-To: <20020821235808.GA26956@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10208211807301.10353-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S319277AbSHVBlM>; Wed, 21 Aug 2002 21:41:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28682 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319275AbSHVBlL>;
+	Wed, 21 Aug 2002 21:41:11 -0400
+Date: Thu, 22 Aug 2002 02:45:18 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move BKL down a little in setfl
+Message-ID: <20020822024518.T29958@parcelfarce.linux.theplanet.co.uk>
+References: <20020821234241.R29958@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0208211549100.1280-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208211549100.1280-100000@home.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 21, 2002 at 03:50:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 21, 2002 at 03:50:27PM -0700, Linus Torvalds wrote:
+> This exits with the BKL held, as far as I can tell:
 
-Erm were did it get lost then ?
+duh, you're right.  here's a fixed patch:
 
-On Wed, 21 Aug 2002, Erik Andersen wrote:
+diff -urpNX dontdiff linux-2.5.31/fs/fcntl.c linux-2.5.31-willy/fs/fcntl.c
+--- linux-2.5.31/fs/fcntl.c	2002-08-01 14:16:07.000000000 -0700
++++ linux-2.5.31-willy/fs/fcntl.c	2002-08-21 18:32:37.000000000 -0700
+@@ -227,23 +227,16 @@ asmlinkage long sys_dup(unsigned int fil
+ static int setfl(int fd, struct file * filp, unsigned long arg)
+ {
+ 	struct inode * inode = filp->f_dentry->d_inode;
+-	int error;
++	int error = 0;
+ 
+-	/*
+-	 * In the case of an append-only file, O_APPEND
+-	 * cannot be cleared
+-	 */
++	/* O_APPEND cannot be cleared if the file is marked as append-only */
+ 	if (!(arg & O_APPEND) && IS_APPEND(inode))
+ 		return -EPERM;
+ 
+-	/* Did FASYNC state change? */
+-	if ((arg ^ filp->f_flags) & FASYNC) {
+-		if (filp->f_op && filp->f_op->fasync) {
+-			error = filp->f_op->fasync(fd, filp, (arg & FASYNC) != 0);
+-			if (error < 0)
+-				return error;
+-		}
+-	}
++	/* required for strict SunOS emulation */
++	if (O_NONBLOCK != O_NDELAY)
++	       if (arg & O_NDELAY)
++		   arg |= O_NONBLOCK;
+ 
+ 	if (arg & O_DIRECT) {
+ 		if (!inode->i_mapping || !inode->i_mapping->a_ops ||
+@@ -251,13 +244,19 @@ static int setfl(int fd, struct file * f
+ 				return -EINVAL;
+ 	}
+ 
+-	/* required for strict SunOS emulation */
+-	if (O_NONBLOCK != O_NDELAY)
+-	       if (arg & O_NDELAY)
+-		   arg |= O_NONBLOCK;
++	lock_kernel();
++	if ((arg ^ filp->f_flags) & FASYNC) {
++		if (filp->f_op && filp->f_op->fasync) {
++			error = filp->f_op->fasync(fd, filp, (arg & FASYNC) != 0);
++			if (error < 0)
++				goto out;
++		}
++	}
+ 
+ 	filp->f_flags = (arg & SETFL_MASK) | (filp->f_flags & ~SETFL_MASK);
+-	return 0;
++ out:
++	unlock_kernel();
++	return error;
+ }
+ 
+ static long do_fcntl(unsigned int fd, unsigned int cmd,
+@@ -283,9 +282,7 @@ static long do_fcntl(unsigned int fd, un
+ 			err = filp->f_flags;
+ 			break;
+ 		case F_SETFL:
+-			lock_kernel();
+ 			err = setfl(fd, filp, arg);
+-			unlock_kernel();
+ 			break;
+ 		case F_GETLK:
+ 			err = fcntl_getlk(filp, (struct flock *) arg);
 
-> On Wed Aug 21, 2002 at 04:49:37PM -0700, Andre Hedrick wrote:
-> > 
-> > Erik,
-> > 
-> > I am working on the logic changes in the separtation of code.
-> > It is very likely I got some thing backwards but it is easy to test.
-> 
-> BTW, I took a look over the ide layer.  Its looking much nicer
-> already.  BTW CONFIG_BLK_DEV_IDECD_BAILOUT doesn't seem to be
-> applied to anything at the moment...
-> 
->  -Erik
-> 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+-- 
+Revolutions do not require corporate support.

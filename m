@@ -1,104 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266128AbSKLCR0>; Mon, 11 Nov 2002 21:17:26 -0500
+	id <S266120AbSKLCR1>; Mon, 11 Nov 2002 21:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266101AbSKLCQW>; Mon, 11 Nov 2002 21:16:22 -0500
-Received: from holomorphy.com ([66.224.33.161]:44728 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266118AbSKLCQB>;
+	id <S266114AbSKLCQO>; Mon, 11 Nov 2002 21:16:14 -0500
+Received: from holomorphy.com ([66.224.33.161]:45496 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266121AbSKLCQB>;
 	Mon, 11 Nov 2002 21:16:01 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [9/9] privatize has_pending_signals()
-Message-Id: <E18BQf6-00041O-00@holomorphy>
+Subject: [1/9] NUMA-Q: initialize pgdat_list later in boot
+Message-Id: <E18BQf6-000418-00@holomorphy>
 From: William Lee Irwin III <wli@holomorphy.com>
 Date: Mon, 11 Nov 2002 18:20:20 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch privatizes has_pending_signals() to kernel/signal.c, which was
-the file containing its only two callsites in the kernel.
+In order to remove the assumption pgdat's off of node 0 are mapped
+early, this patch moves the linking of the pgdats off node 0 into
+the pgdat_list into zone_sizes_init().
 
- include/linux/sched.h |   30 ------------------------------
- kernel/signal.c       |   30 ++++++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+), 30 deletions(-)
+There is also the cosmetic side-effect of ordering the nodes in a
+manner consistent with usual notions of their enumeration.
+
+ discontig.c |   17 ++++++++++-------
+ 1 files changed, 10 insertions(+), 7 deletions(-)
 
 
-diff -urpN 07_has_stopped_jobs/include/linux/sched.h 08_has_pending_signals/include/linux/sched.h
---- 07_has_stopped_jobs/include/linux/sched.h	2002-11-10 19:28:04.000000000 -0800
-+++ 08_has_pending_signals/include/linux/sched.h	2002-11-11 17:34:15.000000000 -0800
-@@ -545,36 +545,6 @@ extern int kill_proc(pid_t, int, int);
- extern int do_sigaction(int, const struct k_sigaction *, struct k_sigaction *);
- extern int do_sigaltstack(const stack_t *, stack_t *, unsigned long);
+diff -urpN numaq-2.5.47/arch/i386/mm/discontig.c 00_late_list/arch/i386/mm/discontig.c
+--- numaq-2.5.47/arch/i386/mm/discontig.c	2002-11-10 19:28:17.000000000 -0800
++++ 00_late_list/arch/i386/mm/discontig.c	2002-11-11 16:13:57.000000000 -0800
+@@ -251,13 +251,6 @@ unsigned long __init setup_memory(void)
+ 	 */
+ 	find_smp_config();
  
--/*
-- * Re-calculate pending state from the set of locally pending
-- * signals, globally pending signals, and blocked signals.
-- */
--static inline int has_pending_signals(sigset_t *signal, sigset_t *blocked)
--{
--	unsigned long ready;
--	long i;
--
--	switch (_NSIG_WORDS) {
--	default:
--		for (i = _NSIG_WORDS, ready = 0; --i >= 0 ;)
--			ready |= signal->sig[i] &~ blocked->sig[i];
--		break;
--
--	case 4: ready  = signal->sig[3] &~ blocked->sig[3];
--		ready |= signal->sig[2] &~ blocked->sig[2];
--		ready |= signal->sig[1] &~ blocked->sig[1];
--		ready |= signal->sig[0] &~ blocked->sig[0];
--		break;
--
--	case 2: ready  = signal->sig[1] &~ blocked->sig[1];
--		ready |= signal->sig[0] &~ blocked->sig[0];
--		break;
--
--	case 1: ready  = signal->sig[0] &~ blocked->sig[0];
+-	/*insert other nodes into pgdat_list*/
+-	for (nid = 1; nid < numnodes; nid++){       
+-		NODE_DATA(nid)->pgdat_next = pgdat_list;
+-		pgdat_list = NODE_DATA(nid);
 -	}
--	return ready !=	0;
--}
+-       
 -
- /* True if we are on the alternate signal stack.  */
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	if (LOADER_TYPE && INITRD_START) {
+ 		if (INITRD_START + INITRD_SIZE <= (system_max_low_pfn << PAGE_SHIFT)) {
+@@ -282,6 +275,16 @@ void __init zone_sizes_init(void)
+ {
+ 	int nid;
  
- static inline int on_sig_stack(unsigned long sp)
-diff -urpN 07_has_stopped_jobs/kernel/signal.c 08_has_pending_signals/kernel/signal.c
---- 07_has_stopped_jobs/kernel/signal.c	2002-11-10 19:28:10.000000000 -0800
-+++ 08_has_pending_signals/kernel/signal.c	2002-11-11 17:34:42.000000000 -0800
-@@ -160,6 +160,36 @@ int max_queued_signals = 1024;
- static int
- __send_sig_info(int sig, struct siginfo *info, struct task_struct *p);
- 
-+/*
-+ * Re-calculate pending state from the set of locally pending
-+ * signals, globally pending signals, and blocked signals.
-+ */
-+static inline int has_pending_signals(sigset_t *signal, sigset_t *blocked)
-+{
-+	unsigned long ready;
-+	long i;
-+
-+	switch (_NSIG_WORDS) {
-+	default:
-+		for (i = _NSIG_WORDS, ready = 0; --i >= 0 ;)
-+			ready |= signal->sig[i] &~ blocked->sig[i];
-+		break;
-+
-+	case 4: ready  = signal->sig[3] &~ blocked->sig[3];
-+		ready |= signal->sig[2] &~ blocked->sig[2];
-+		ready |= signal->sig[1] &~ blocked->sig[1];
-+		ready |= signal->sig[0] &~ blocked->sig[0];
-+		break;
-+
-+	case 2: ready  = signal->sig[1] &~ blocked->sig[1];
-+		ready |= signal->sig[0] &~ blocked->sig[0];
-+		break;
-+
-+	case 1: ready  = signal->sig[0] &~ blocked->sig[0];
++	/*
++	 * Insert nodes into pgdat_list backward so they appear in order.
++	 * Clobber node 0's links and NULL out pgdat_list before starting.
++	 */
++	pgdat_list = NULL;
++	for (nid = numnodes - 1; nid >= 0; nid--) {       
++		NODE_DATA(nid)->pgdat_next = pgdat_list;
++		pgdat_list = NODE_DATA(nid);
 +	}
-+	return ready !=	0;
-+}
 +
- #define PENDING(p,b) has_pending_signals(&(p)->signal, (b))
- 
- void recalc_sigpending_tsk(struct task_struct *t)
+ 	for (nid = 0; nid < numnodes; nid++) {
+ 		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
+ 		unsigned int max_dma;

@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHIU1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUHIUQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUHIU1J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUHIUXh
+	id S267186AbUHIUQK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHIULW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:23:37 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:47373 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267214AbUHIUVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:21:49 -0400
-Date: Mon, 9 Aug 2004 21:21:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       grif@cs.ucr.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] QLogic ISP2x00: remove needless busyloop
-Message-ID: <20040809212147.A9919@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, grif@cs.ucr.edu,
-	linux-kernel@vger.kernel.org
-References: <200408091252.58547.bjorn.helgaas@hp.com> <20040809210335.A9711@infradead.org> <200408091419.20029.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200408091419.20029.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Mon, Aug 09, 2004 at 02:19:20PM -0600
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 9 Aug 2004 16:11:22 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:41898 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S267184AbUHIUHy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:07:54 -0400
+Message-ID: <4117DA54.9090201@tmr.com>
+Date: Mon, 09 Aug 2004 16:11:00 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Hamie <hamish@travellingkiwi.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cs using 100% CPU
+References: <4113DD20.1010808@travellingkiwi.com><40FA4328.4060304@travellingkiwi.com> <1091917597.19077.38.camel@localhost.localdomain>
+In-Reply-To: <1091917597.19077.38.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 02:19:20PM -0600, Bjorn Helgaas wrote:
-> I don't use it (note the "there's no isp2x00" bit above).  But it's
-> still part of ia64 defconfig (which I don't maintain), and it's easier
-> to tell people "use generic_defconfig" than to tell them to remove
-> CONFIG_SCSI_QLOGIC_FC by hand.
+Alan Cox wrote:
+> On Gwe, 2004-08-06 at 20:33, Hamie wrote:
+> 
+>>Is 100% CPU not excessive? IIRC my PIII-750 used to use less CPU doing 
+>>the same job as quick, or even slightly faster...
+> 
+> 
+> PCMCIA IDE is PIO only so it burns CPU. This is one case where
+> hyperthreading is nice. Cardbus IDE is a lot better but very little
+> exists and we don't currently support hotplug IDE controllers.
+> 
+> 
+>>And should it not use system CPU rather than user CPU?
+> 
+> 
+> Yes - but figure out please if the kernel or userspace is getting that
+> wrong ;)
 
-So tell David to fix up the defconfig..
+He didn't mention seeing waitio in his stats (or I missed it) so he may 
+be using old userspace tools which don't show waitio.
 
-> In general, I think if a driver is in the tree, it should be fair
-> game for bugfixes.  In fact, I see you did the most recent one to
-> qlogicfc :-)
+Should this show as system or waitio? Typically waitio time can be used 
+for other thaings and this can't, so perhaps showing it as system is 
+correct in this case.
 
-That wasn't a bugfix, look harder.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

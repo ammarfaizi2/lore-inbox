@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311362AbSCSOmP>; Tue, 19 Mar 2002 09:42:15 -0500
+	id <S311367AbSCSOof>; Tue, 19 Mar 2002 09:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311363AbSCSOmF>; Tue, 19 Mar 2002 09:42:05 -0500
-Received: from www.wen-online.de ([212.223.88.39]:18439 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S311362AbSCSOlr>;
-	Tue, 19 Mar 2002 09:41:47 -0500
-Date: Tue, 19 Mar 2002 15:58:39 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: John Jasen <jjasen1@umbc.edu>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <Pine.SGI.4.31L.02.0203190915250.7550126-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.LNX.4.10.10203191555180.5833-100000@mikeg.wen-online.de>
+	id <S311366AbSCSOoZ>; Tue, 19 Mar 2002 09:44:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60682 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311365AbSCSOoL>; Tue, 19 Mar 2002 09:44:11 -0500
+Subject: Re: amd nvidia and mem=nopentium
+To: Nicolas.Turro@sophia.inria.fr (Nicolas Turro)
+Date: Tue, 19 Mar 2002 15:00:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Nicolas.Turro@sophia.inria.fr (Nicolas Turro),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200203191419.g2JEJfM07465@atlas.inria.fr> from "Nicolas Turro" at Mar 19, 2002 03:19:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nL60-0007uF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, John Jasen wrote:
+> choice on the configuration. I have to choose between this config
+> and a dual 2.0 Ghz Xeon (RDRAM) which has roughtly the same perfs,
+> but which is 50% more expensive !
 
-> Sorry, I lost track of attributions. Need more coffee,
-> 
-> 
-> > > 16:42:49.412862 10.0.0.101.netbios-dgm > 10.255.255.255.netbios-dgm:
-> > > >>> NBT UDP PACKET(138) Res=0x1102 ID=0x54 IP=10.0.0.101 Port=138 Length=193
-> > > Res2=0x0
-> > > SourceName=T1H6I3          NameType=0x00 (Workstation)
-> > > DestName=
-> > > SMB PACKET: SMBunknown (REQUEST)
-> > > SMB Command   =  0x43
-> > > Error class   =  0x46
-> > > Error code    =  20550
-> > > Flags1        =  0x45
-> > > Flags2        =  0x4E
-> > > Tree ID       =  17990
-> > > Proc ID       =  18000
-> > > UID           =  16720
-> > > MID           =  16707
-> > > Word Count    =  66
-> > > SMBError = ERROR: Unknown error (70,20550)
-> 
-> This looks like standard SMB garbage. It probably repeats on a regular
-> basis. From what I remember, I think it is a Windows box browsing
-> the network trying to discover other SMB boxes, finding a 'master
-> browser', and other such stuff.
+I'd go Athlon
 
-Yeah, this part is normal loking junk.  The abby-normal looking
-bit got snipped :)
+>  Do you have pointers  showing stability problems when using
+> XP processor in a multiprocessor context ?
 
-	-Mike
+Remember the XP's haven't been tested in MP configurations (or tested and
+failed). The same was true of celerons and as most people found the fail
+rate was pretty low 8)
+
+Alan
 

@@ -1,310 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbUKQJIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbUKQJTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbUKQJIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 04:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbUKQJIh
+	id S262242AbUKQJTw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 04:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbUKQJTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 04:08:37 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:61206 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262239AbUKQJIY
+	Wed, 17 Nov 2004 04:19:52 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:46346 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262242AbUKQJTs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 04:08:24 -0500
-Message-ID: <419B14F9.7080204@tebibyte.org>
-Date: Wed, 17 Nov 2004 10:08:09 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: pt-br, pt
-MIME-Version: 1.0
-To: Chris Ross <chris@tebibyte.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrea Arcangeli <andrea@novell.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Nick Piggin <piggin@cyberone.com.au>,
-       Rik van Riel <riel@redhat.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de,
-       akpm@osdl.org
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org>
-In-Reply-To: <419A2B3A.80702@tebibyte.org>
-Content-Type: multipart/mixed;
- boundary="------------080906070204030209020009"
+	Wed, 17 Nov 2004 04:19:48 -0500
+Date: Wed, 17 Nov 2004 01:19:02 -0800
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Amit Shah <amit.shah@codito.com>, Ingo Molnar <mingo@elte.hu>,
+       "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@raytheon.com,
+       Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>,
+       Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: BUG with 0.7.27-11, with KGDB
+Message-ID: <20041117091902.GA31039@nietzsche.lynx.com>
+References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com> <419A5A53.6050100@cybsft.com> <20041116212401.GA16845@elte.hu> <200411171329.41209.amit.shah@codito.com> <20041117082620.GA23226@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
+Content-Disposition: inline
+In-Reply-To: <20041117082620.GA23226@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080906070204030209020009
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-
-Chris Ross escreveu:
-> Marcelo Tosatti escreveu:
->> Chris, can you change the "500*HZ" in mm/vmscan.c balance_pgdat() 
->> function to "1000*HZ" and see what you get, please?
+On Wed, Nov 17, 2004 at 12:26:20AM -0800, Bill Huey wrote:
+> On Wed, Nov 17, 2004 at 01:29:33PM +0530, Amit Shah wrote:
+> > Initializing Cryptographic API
+> > kgdb <20030915.1651.33> : port =3f8, IRQ=4, divisor =1
+> > BUG: scheduling while atomic: swapper/0x00000001/1
+> > caller is schedule+0x3f/0x13c
+> >  [<c01041f4>] dump_stack+0x23/0x27 (20)
+> >  [<c02ce307>] __sched_text_start+0xc97/0xce7 (116)
+> >  [<c02ce396>] schedule+0x3f/0x13c (36)
+> >  [<c02ce60a>] wait_for_completion+0x95/0x137 (96)
+> >  [<c0138cd8>] kthread_create+0x22a/0x22c (368)
+> >  [<c0145a30>] start_irq_thread+0x4f/0x83 (32)
+> >  [<c01453ec>] setup_irq+0x55/0x140 (36)
+> >  [<c0145655>] request_irq+0x90/0x107 (44)
+> >  [<c01e1bc1>] kgdb_enable_ints_now+0xa5/0xb0 (28)
+> >  [<c03bfb89>] kgdb_enable_ints+0x2c/0x63 (16)
+> >  [<c03a8a23>] do_initcalls+0x31/0xc6 (32)
+> >  [<c01003bb>] init+0x87/0x19a (28)
+> >  [<c0101329>] kernel_thread_helper+0x5/0xb (1047322644)
 > 
-> ... I'll leave it running and see how it goes. The daily cron run is
-> a usually a popular time for killing off a few essential daemons
-> (ntpd, sshd &c), in fact I think the OOM Killer actually looks
-> forward to it :)
+> Woops, it means that KGDB needs a direct irq and not an irq-thread.
+> Let me see if I can work up something tonight before I head to bed.
 
-As I suspected, like a recalcitrant teenager it was sneakily waiting 
-until everyone was out then it threw a wild party with several ooms and 
-an oops. See below...
+It could be horribly wrong for a number of reasons (wait for Ingo
+for a proper irq code fix and additional support), but try this:
 
-This, obviously is still without Kame's patch, just the same tree as 
-before with the one change you asked for.
+[attachment]
 
-Regards,
-Chris R.
+It should be a good hint as to how to fix this problem.
 
---------------080906070204030209020009
-Content-Type: text/plain;
- name="today"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="today"
+bill
 
-Nov 17 06:19:30 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:30 sleepy DMA per-cpu:
-Nov 17 06:19:30 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:30 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:30 sleepy Normal per-cpu:
-Nov 17 06:19:30 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:30 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:30 sleepy HighMem per-cpu: empty
-Nov 17 06:19:30 sleepy
-Nov 17 06:19:30 sleepy Free pages:         236kB (0kB HighMem)
-Nov 17 06:19:30 sleepy Active:6386 inactive:6367 dirty:0 writeback:0 unstable:0 free:59 slab:1280 mapped:962 pagetables:96
-Nov 17 06:19:30 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:5912kB inactive:5788kB present:16384kB pages_scanned:3131 all_unreclaimable? no
-Nov 17 06:19:30 sleepy protections[]: 0 0 0
-Nov 17 06:19:30 sleepy Normal free:176kB min:188kB low:376kB high:564kB active:19632kB inactive:19680kB present:49144kB pages_scanned:10289 all_unreclaimable? no
-Nov 17 06:19:30 sleepy protections[]: 0 0 0
-Nov 17 06:19:30 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:30 sleepy protections[]: 0 0 0
-Nov 17 06:19:30 sleepy DMA: 4293918323*4kB 4294857582*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547244kB
-Nov 17 06:19:30 sleepy Normal: 4291283363*4kB 4294690597*8kB 4294945040*16kB 4294963914*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268916kB
-Nov 17 06:19:30 sleepy HighMem: empty
-Nov 17 06:19:30 sleepy Swap cache: add 189724, delete 189463, find 44119/68973, race 0+0
-Nov 17 06:19:30 sleepy Out of Memory: Killed process 21982 (pickup).
-Nov 17 06:19:30 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:30 sleepy DMA per-cpu:
-Nov 17 06:19:30 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:30 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:30 sleepy Normal per-cpu:
-Nov 17 06:19:30 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:30 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:30 sleepy HighMem per-cpu: empty
-Nov 17 06:19:30 sleepy 
-Nov 17 06:19:30 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:30 sleepy Active:6366 inactive:6386 dirty:0 writeback:0 unstable:0 free:61 slab:1278 mapped:951 pagetables:92
-Nov 17 06:19:30 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:5884kB inactive:5828kB present:16384kB pages_scanned:3237 all_unreclaimable? no
-Nov 17 06:19:30 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:19580kB inactive:19716kB present:49144kB pages_scanned:10810 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283355*4kB 4294690595*8kB 4294945039*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268820kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189751, delete 189495, find 44119/68977, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6813 (qmgr).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6495 inactive:6257 dirty:0 writeback:0 unstable:0 free:61 slab:1279 mapped:951 pagetables:92
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:6272kB inactive:5440kB present:16384kB pages_scanned:3922 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:19708kB inactive:19588kB present:49144kB pages_scanned:12326 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283355*4kB 4294690595*8kB 4294945039*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268820kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189751, delete 189495, find 44119/68977, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6473 (distccd).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6423 inactive:6337 dirty:0 writeback:0 unstable:0 free:61 slab:1277 mapped:951 pagetables:88
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:5884kB inactive:5828kB present:16384kB pages_scanned:3191 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:19808kB inactive:19520kB present:49144kB pages_scanned:10581 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283353*4kB 4294690595*8kB 4294945039*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268812kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189751, delete 189495, find 44119/68977, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6474 (distccd).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6488 inactive:6273 dirty:0 writeback:0 unstable:0 free:61 slab:1279 mapped:951 pagetables:84
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:6076kB inactive:5636kB present:16384kB pages_scanned:3727 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:19876kB inactive:19456kB present:49144kB pages_scanned:12483 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283351*4kB 4294690595*8kB 4294945039*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268804kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189751, delete 189495, find 44119/68977, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6598 (distccd).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6334 inactive:6427 dirty:0 writeback:0 unstable:0 free:61 slab:1278 mapped:951 pagetables:80
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:5756kB inactive:5956kB present:16384kB pages_scanned:9099 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:19580kB inactive:19752kB present:49144kB pages_scanned:30953 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283351*4kB 4294690595*8kB 4294945039*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268804kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189751, delete 189495, find 44119/68977, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6703 (distccd).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         228kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6506 inactive:6263 dirty:0 writeback:0 unstable:0 free:57 slab:1272 mapped:951 pagetables:76
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:6236kB inactive:5476kB present:16384kB pages_scanned:3925 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:168kB min:188kB low:376kB high:564kB active:19788kB inactive:19576kB present:49144kB pages_scanned:13009 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283343*4kB 4294690596*8kB 4294945038*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268764kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189759, delete 189503, find 44120/68980, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 6688 (ntpd).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         228kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6448 inactive:6321 dirty:0 writeback:0 unstable:0 free:57 slab:1274 mapped:951 pagetables:76
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:5884kB inactive:5828kB present:16384kB pages_scanned:5865 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:168kB min:188kB low:376kB high:564kB active:19908kB inactive:19456kB present:49144kB pages_scanned:20131 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283343*4kB 4294690596*8kB 4294945038*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268764kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189759, delete 189503, find 44120/68980, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 22018 (sh).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         244kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6516 inactive:6253 dirty:0 writeback:0 unstable:0 free:61 slab:1272 mapped:951 pagetables:72
-Nov 17 06:19:31 sleepy DMA free:60kB min:60kB low:120kB high:180kB active:6036kB inactive:5676kB present:16384kB pages_scanned:3228 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:184kB min:188kB low:376kB high:564kB active:20028kB inactive:19336kB present:49144kB pages_scanned:11010 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857581*8kB 4294953437*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547136kB
-Nov 17 06:19:31 sleepy Normal: 4291283342*4kB 4294690595*8kB 4294945038*16kB 4294963913*32kB 4294966633*64kB 4294966927*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268752kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189759, delete 189503, find 44120/68980, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 22019 (run-crons).
-Nov 17 06:19:31 sleepy oom-killer: gfp_mask=0xd0
-Nov 17 06:19:31 sleepy DMA per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 2, high 6, batch 1
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 2, batch 1
-Nov 17 06:19:31 sleepy Normal per-cpu:
-Nov 17 06:19:31 sleepy cpu 0 hot: low 4, high 12, batch 2
-Nov 17 06:19:31 sleepy cpu 0 cold: low 0, high 4, batch 2
-Nov 17 06:19:31 sleepy HighMem per-cpu: empty
-Nov 17 06:19:31 sleepy 
-Nov 17 06:19:31 sleepy Free pages:         172kB (0kB HighMem)
-Nov 17 06:19:31 sleepy Active:6515 inactive:6271 dirty:0 writeback:0 unstable:0 free:43 slab:1273 mapped:966 pagetables:72
-Nov 17 06:19:31 sleepy DMA free:44kB min:60kB low:120kB high:180kB active:6168kB inactive:5552kB present:16384kB pages_scanned:14058 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy Normal free:128kB min:188kB low:376kB high:564kB active:19892kB inactive:19532kB present:49144kB pages_scanned:48284 all_unreclaimable? yes
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Nov 17 06:19:31 sleepy protections[]: 0 0 0
-Nov 17 06:19:31 sleepy DMA: 4293918298*4kB 4294857580*8kB 4294953436*16kB 4294965767*32kB 4294966994*64kB 4294967193*128kB 4294967265*256kB 4294967275*512kB 4294967290*1024kB 4294967293*2048kB 4294967293*4096kB = 4289547112kB
-Nov 17 06:19:31 sleepy Normal: 4291283261*4kB 4294690580*8kB 4294945031*16kB 4294963911*32kB 4294966633*64kB 4294966926*128kB 4294967154*256kB 4294967204*512kB 4294967257*1024kB 4294967281*2048kB 4294967286*4096kB = 4277268004kB
-Nov 17 06:19:31 sleepy HighMem: empty
-Nov 17 06:19:31 sleepy Swap cache: add 189810, delete 189544, find 44123/68990, race 0+0
-Nov 17 06:19:31 sleepy Out of Memory: Killed process 29354 (slocate).
-Nov 17 06:19:31 sleepy run-crons: page allocation failure. order:0, mode:0x1d2
-Nov 17 06:19:31 sleepy [<c0105247>] dump_stack+0x16/0x18
-Nov 17 06:19:31 sleepy [<c0145c75>] __alloc_pages+0x2fe/0x31a
-Nov 17 06:19:31 sleepy [<c0148b53>] do_page_cache_readahead+0x101/0x18d
-Nov 17 06:19:31 sleepy [<c0141d10>] filemap_nopage+0x163/0x337
-Nov 17 06:19:31 sleepy [<c0153f36>] do_no_page+0x10f/0x52a
-Nov 17 06:19:31 sleepy [<c0154568>] handle_mm_fault+0xe2/0x261
-Nov 17 06:19:31 sleepy [<c01159b0>] do_page_fault+0x1ef/0x578
-Nov 17 06:19:31 sleepy [<c0104dc9>] error_code+0x2d/0x38
-Nov 17 06:19:31 sleepy run-crons: page allocation failure. order:0, mode:0x1d2
-Nov 17 06:19:31 sleepy [<c0105247>] dump_stack+0x16/0x18
-Nov 17 06:19:31 sleepy [<c0145c75>] __alloc_pages+0x2fe/0x31a
-Nov 17 06:19:31 sleepy [<c0141b1c>] page_cache_read+0x2e/0xbf
-Nov 17 06:19:31 sleepy [<c0141d7a>] filemap_nopage+0x1cd/0x337
-Nov 17 06:19:31 sleepy [<c0153f36>] do_no_page+0x10f/0x52a
-Nov 17 06:19:31 sleepy [<c0154568>] handle_mm_fault+0xe2/0x261
-Nov 17 06:19:31 sleepy [<c01159b0>] do_page_fault+0x1ef/0x578
-Nov 17 06:19:31 sleepy [<c0104dc9>] error_code+0x2d/0x38
-Nov 17 06:19:31 sleepy VM: killing process run-crons
-Nov 17 06:19:31 sleepy postfix/master[6783]: warning: process /usr/lib/postfix/qmgr pid 6813 killed by signal 9
-Nov 17 06:19:31 sleepy postfix/master[6783]: warning: process /usr/lib/postfix/pickup pid 21982 killed by signal 9
 
---------------080906070204030209020009--
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=t2
+
+diff -rwu linux.voluntary.virgin/kernel/irq/manage.c linux.voluntary/kernel/irq/manage.c
+--- linux.voluntary.virgin/kernel/irq/manage.c	2004-11-16 16:39:24.000000000 -0800
++++ linux.voluntary/kernel/irq/manage.c	2004-11-17 00:39:46.000000000 -0800
+@@ -362,6 +363,11 @@
+ 	}
+ #endif
+ 
++	if (irqflags & SA_NODELAYFORCED) {
++		irqflags &= ~SA_NODELAYFORCED;
++		irqflags |= SA_NODELAY;
++	}
++
+ 	action = kmalloc(sizeof(struct irqaction), GFP_ATOMIC);
+ 	if (!action)
+ 		return -ENOMEM;
+--- linux.voluntary.virgin/arch/i386/lib/kgdb_serial.c	2004-11-16 16:39:24.000000000 -0800
++++ linux.voluntary/arch/i386/lib/kgdb_serial.c	2004-11-17 00:40:04.000000000 -0800
+@@ -435,7 +435,7 @@
+ #endif
+ 		ints_disabled = request_irq(gdb_async_info->state->irq,
+ 					    gdb_interrupt,
+-					    IRQ_T(gdb_async_info),
++					    IRQ_T(gdb_async_info) | SA_NODELAYFORCED,
+ 					    "KGDB-stub", NULL);
+ 		intprintk(("KGDB: request_irq returned %d\n", ints_disabled));
+ 	}
+
+--- linux.voluntary.virgin/include/linux/irq.h	2004-11-16 16:39:24.000000000 -0800
++++ linux.voluntary/include/linux/irq.h	2004-11-17 00:27:29.000000000 -0800
+@@ -42,6 +42,7 @@
+  */
+ #ifndef SA_NODELAY
+ # define SA_NODELAY 0x01000000
++# define SA_NODELAYFORCED 0x02000000
+ #endif
+ 
+ /*
+
+--7AUc2qLy4jB3hD7Z--

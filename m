@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132256AbRAXA4R>; Tue, 23 Jan 2001 19:56:17 -0500
+	id <S132246AbRAXA6s>; Tue, 23 Jan 2001 19:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132228AbRAXA4J>; Tue, 23 Jan 2001 19:56:09 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:31785 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S132256AbRAXAz6>;
-	Tue, 23 Jan 2001 19:55:58 -0500
-Date: Wed, 24 Jan 2001 01:58:51 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <93t1q7$49c$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101240156150.3522-100000@iq.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132228AbRAXA6j>; Tue, 23 Jan 2001 19:58:39 -0500
+Received: from io.frii.com ([216.17.128.3]:22794 "EHLO io.frii.com")
+	by vger.kernel.org with ESMTP id <S132246AbRAXA6c>;
+	Tue, 23 Jan 2001 19:58:32 -0500
+Date: Tue, 23 Jan 2001 17:58:25 -0700
+From: Nicholas Dronen <ndronen@frii.com>
+To: Michael McLeod <michaelm@platypus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: monitoring I/O
+Message-ID: <20010123175825.A88907@frii.com>
+In-Reply-To: <8494866EDB1D3E4F9C7E6AC2F95C259B01DA1C@plat.platypus.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <8494866EDB1D3E4F9C7E6AC2F95C259B01DA1C@plat.platypus.net>; from michaelm@platypus.net on Wed, Jan 24, 2001 at 11:52:36AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Jan 2001, Linus Torvalds wrote:
+Check out the disk_io field in /proc/stat.
 
-> The only obvious use for it is file serving, and as high-performance
-> file serving tends to end up as a kernel module in the end anyway (the
-> only hold-out is samba, and that's been discussed too), "sendfile()"
-> really is more a proof of concept than anything else.
-
-No plans for samba to use sendfile? Even better make it a tux-like module?
-(that would enable Netware-Linux like performance with the standard
-kernel... would be cool afterall ;)
-
-
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
-
+On Wed, Jan 24, 2001 at 11:52:36AM +1100, Michael McLeod wrote:
+> Hello
+> 
+> I am hoping someone can give me a little information or point me in the
+> right direction.  I would like to write an application that monitors I/O
+> on a linux machine, but I need some help in determining where to get the
+> information I'm looking for.  What I would like to do is 'hook' into the
+> kernel and record information such as volume name, type of request (read
+> or write), the amount of data being read or written, how long each
+> transaction takes....  
+> 
+> Any help would be greatly appreciated, or if there is something like
+> this already available that would be even better.  Thanx
+> 
+> Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

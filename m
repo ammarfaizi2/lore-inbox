@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289353AbSA2OZn>; Tue, 29 Jan 2002 09:25:43 -0500
+	id <S289313AbSA2O0C>; Tue, 29 Jan 2002 09:26:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289372AbSA2OYx>; Tue, 29 Jan 2002 09:24:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1284 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289353AbSA2OYq>; Tue, 29 Jan 2002 09:24:46 -0500
-Subject: Re: pagecoloring: kernel 2.2 mm question: what is happening during fork ?
-To: Sebastien.Cabaniols@Compaq.com (Cabaniols, Sebastien)
-Date: Tue, 29 Jan 2002 14:37:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11EB52F86530894F98FFB1E21F9972540C239A@aeoexc01.emea.cpqcorp.net> from "Cabaniols, Sebastien" at Jan 29, 2002 02:36:24 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289372AbSA2OZq>; Tue, 29 Jan 2002 09:25:46 -0500
+Received: from ti200710a082-0324.bb.online.no ([148.122.9.68]:3076 "EHLO
+	empire.e") by vger.kernel.org with ESMTP id <S289313AbSA2OYi>;
+	Tue, 29 Jan 2002 09:24:38 -0500
+Message-ID: <3C56B09B.2020508@freenix.no>
+Date: Tue, 29 Jan 2002 15:24:27 +0100
+From: frode <frode@freenix.no>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: OOPS: kernel BUG at transaction.c:1857 on 2.4.17 while rm'ing 700mb file on ext3 partition.
+In-Reply-To: <3C502E3A.9070909@freenix.no> <20020124191927.A9564@redhat.com> <3C509067.20108@freenix.no> <20020129141146.B1873@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16VZNp-00044g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I do a fork, which part of the kernel is allocating the memory for
-> the childs, where and when the memory copy takes place ? I know that
-> linux is doing copy on write but I don't know which part of the kernel
-> is really doing the page allocation when the copy on write understands
-> that the process really wants to write now. Then the second question is
-> how is the memory copy done ?
+Stephen C. Tweedie wrote:
+> On Thu, Jan 24, 2002 at 11:53:27PM +0100, frode wrote:
+>>>>I got the following error while rm'ing a 700mb file from an ext3 partition:
+>>>>Assertion failure in journal_unmap_buffer() at transaction.c:1857:
+>>>>"transaction == journal->j_running_transaction"
+>>>Hmm --- this is not one I think I've ever seen before.
+> Have you been able to reproduce any problems yet?
 
-The page fault handler. When you write to a copy on write page its actually
-marked read-only in the hardware. The kernel copies the page marks both
-copies writable and fixes up the fault so that user space doesn't see anything
-happen.
+No reproducible problems, just more random oopses (like in
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101205570604468&w=2)
 
-Alan
+> iput() crash; page list crash; jbd transaction crash.  These look
+> perfectly consistent with random memory corruption.
+[memtest86]
+> Try leaving it running overnight --- half an hour is very little time
+> for a proper memory test.
+
+
+Others have suggested this by mail also, and after running memtest for 4 hours, 
+what do you know, a bit error occured.
+
+Test#: 4
+Pass#: 6
+Failing address: 0aed1f64 - 174.8mb
+Good pattern: 00080000
+Bad pattern:  000a0000
+Error bits:   00020000
+Count: 1
+
+I'm pretty sure that 256mb no-brand memory chip I added one year ago is to blame.
+I'll try running memtest86 for 8+ hours as soon as feasible, but I guess I 
+should just throw out the old RAM and put in some new.
+
+I guess all I have to say is, sorry for wasting your time! :(
+
+Anyway, thanks for your interest - at least I'm close to a solution now! :)
+
+- Frode
+
+
+

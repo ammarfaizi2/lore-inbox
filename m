@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262055AbSJVVHL>; Tue, 22 Oct 2002 17:07:11 -0400
+	id <S264860AbSJVVKR>; Tue, 22 Oct 2002 17:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264625AbSJVVHL>; Tue, 22 Oct 2002 17:07:11 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:58031 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S262055AbSJVVHK>; Tue, 22 Oct 2002 17:07:10 -0400
-Date: Tue, 22 Oct 2002 17:04:14 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: trivial netfilter compile problem in 2.5.4[34]-mm2
-Message-ID: <20021022150414.GN3039@naboo.club.berlin.ccc.de>
-References: <3DB46781.D4245373@folkwang-hochschule.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3DB46781.D4245373@folkwang-hochschule.de>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux naboo 2.4.19-pre4-ben0
-X-Date: Today is Sweetmorn, the 72nd day of Bureaucracy in the YOLD 3168
+	id <S264861AbSJVVKR>; Tue, 22 Oct 2002 17:10:17 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:49853 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S264860AbSJVVKJ> convert rfc822-to-8bit; Tue, 22 Oct 2002 17:10:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+Date: Tue, 22 Oct 2002 16:16:23 -0500
+User-Agent: KMail/1.4.3
+Cc: trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au, davem@redhat.com,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+References: <shs8z0w1f3k.fsf@charged.uio.no> <004d01c276bb$39b32980$2a060e09@beavis> <20021020.053424.41629995.taka@valinux.co.jp>
+In-Reply-To: <20021020.053424.41629995.taka@valinux.co.jp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210221616.23282.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 10:45:53PM +0200, Joern Nettingsmeier wrote:
-> hi *!
-> 
-> 
-> in order to compile 2.5.4[34], i had to add #include
-> <linux/netfilter_ipv4> to net/ipv4/raw.c, since it choked on
-> NF_IP_LOCAL_OUT being undefined in line 297.
-> 
-> since i've had this problem for two kernel releases now, i thought i'd
-> bring this to your attention.
+On Saturday 19 October 2002 15:34, Hirokazu Takahashi wrote:
+> Hello,
+>
+> > > Congestion avoidance mechanism of NFS clients might cause this
+> > > situation.  I think the congestion window size is not enough
+> > > for high end machines.  You can make the window be larger as a
+> > > test.
+> >
+> > Is this a concern on the client only?  I can run a test with just one
+> > client and see if I can saturate the 100Mbit adapter.  If I can, would we
+> > need to make any adjustments then?  FYI, at 115 MB/sec total throughput,
+> > that's only 2.875 MB/sec for each of the 40 clients.  For the TCP result
+> > of 181 MB/sec, that's 4.525 MB/sec, IMO, both of which are comfortable
+> > throughputs for a 100Mbit client.
+>
+> I think it's a client issue. NFS servers don't care about cogestion of UDP
+> traffic and they will try to response to all NFS requests as fast as they
+> can.
+>
+> You can try to increase the number of clients or the number of mount points
+> for a test. It's easy to mount the same directory of the server on some
+> directries of the client so that each of them can work simultaneously.
+>    # mount -t nfs server:/foo   /baa1
+>    # mount -t nfs server:/foo   /baa2
+>    # mount -t nfs server:/foo   /baa3
 
-Thanks a lot, I will investigate this once I am close to an internet
-connection and can download the respective kernel version(s).
+I don't think it is a client congestion issue at this point.  I can run the 
+test with just one client on UDP and achieve 11.2 MB/sec with just one mount 
+point.  The client has 100 Mbit Ethernet, so should be the upper limit (or 
+really close).  In the 40 client read test, I have only achieved 2.875 MB/sec 
+per client.  That and the fact that there are never more than 2 nfsd threads 
+in a run state at one time (for UDP only) leads me to believe there is still 
+a scaling problem on the server for UDP.  I will continue to run the test and 
+poke a prod around.  Hopefully something will jump out at me.  Thanks for all 
+the input!
 
-> regards,
-> jörn
-
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+Andrew Theurer

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317018AbSGNTSy>; Sun, 14 Jul 2002 15:18:54 -0400
+	id <S317020AbSGNTZ6>; Sun, 14 Jul 2002 15:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317020AbSGNTSx>; Sun, 14 Jul 2002 15:18:53 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:43750 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317018AbSGNTSw>; Sun, 14 Jul 2002 15:18:52 -0400
-Date: Sun, 14 Jul 2002 21:20:09 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141920.g6EJK9qm019370@burner.fokus.gmd.de>
-To: andersen@codepoet.org, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
+	id <S317022AbSGNTZ5>; Sun, 14 Jul 2002 15:25:57 -0400
+Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:14218 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317020AbSGNTZ4>; Sun, 14 Jul 2002 15:25:56 -0400
+Date: Sun, 14 Jul 2002 13:27:36 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Joerg Schilling <schilling@fokus.gmd.de>
+cc: andersen@codepoet.org, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <200207141918.g6EJI8kj019362@burner.fokus.gmd.de>
+Message-ID: <Pine.LNX.4.44.0207141326480.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Erik Andersen <andersen@codepoet.org>
+Hi,
 
->> >cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
->> >work regardless,
->> 
->> This only prooves that you are uninformed :-(
+On Sun, 14 Jul 2002, Joerg Schilling wrote:
+> That does not change anything.
+> 
+> Having a transport of limited usability is a problem for libscg.
 
->No.  This only proves _you_ have not tried it.  I've used the
->CDROM_SEND_PACKET ioctl on both SCSI and ATAPI cdrom devices.
->What do you need to do in cdrecord that cannot be done with it?
+What exactly are you missing w/the packet IOCTL?
 
-The only reason, why I did add support for it was to be able
-to use a CD writer in my notbook circumventing the driver bugs
-that prevent to use ise-scsi on top of PCATA.
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTKHDTy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 22:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTKHDTy
+	id S261538AbTKHDMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 22:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTKHDMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 22:19:54 -0500
-Received: from h80ad2614.async.vt.edu ([128.173.38.20]:15488 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261539AbTKHDTx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 22:19:53 -0500
-Message-Id: <200311080319.hA83JMZ2001899@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: James Morris <jmorris@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
-Subject: Re: kernel: ipt_hook: happy cracking. 
-In-Reply-To: Your message of "Fri, 07 Nov 2003 20:57:15 EST."
-             <Xine.LNX.4.44.0311072056390.24890-100000@thoron.boston.redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Xine.LNX.4.44.0311072056390.24890-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2026289278P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Nov 2003 22:19:21 -0500
+	Fri, 7 Nov 2003 22:12:17 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:60698 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261538AbTKHDMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 22:12:15 -0500
+Date: Fri, 7 Nov 2003 19:11:29 -0800 (PST)
+From: Jeremy Higdon <jeremy@classic.engr.sgi.com>
+Message-Id: <200311080311.hA83BT4O062092@classic.engr.sgi.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: patch to kernel/resource.c [lk2.6]
+Cc: cngam@classic.engr.sgi.com, habeck@sgi.com, jbarnes@classic.engr.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2026289278P
-Content-Type: text/plain; charset=us-ascii
+I believe there is a bug in kernel/resource.c.
 
-On Fri, 07 Nov 2003 20:57:15 EST, James Morris said:
+We (SGI sn2 I/O code) are using this for allocating dma map resources,
+and we tracked failures we were seeing to find_resource().
 
-> > Nov  6 14:36:37 turing-police kernel: ipt_hook: happy cracking.
+The problem is that when testing bounds in the forever loop, the
+end bound would be one higher than it should be if it gets set
+from another resource (it's set to the proper value when it gets
+set from the root), causing find_resource to return an invalid
+min/max when the requested size was one greater than would fit
+between two existing resources.
 
-> This is fixed in current bk, see 
-> http://marc.theaimsgroup.com/?l=linux-netdev&m=106814126307516&w=2
+jeremy
 
-Confirmed fixed, thanks...
 
---==_Exmh_2026289278P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/rGC5cC3lWbTT17ARAjJgAKDffGxj6TwYHU67AY607N/tADBiNgCdHrz5
-pOXaJEH2J1S2ekHEaoRhQD4=
-=s76Z
------END PGP SIGNATURE-----
-
---==_Exmh_2026289278P--
+--- ../linux-ioc4/kernel/resource.c	Fri Oct 24 18:47:19 2003
++++ kernel/resource.c	Fri Nov  7 18:53:14 2003
+@@ -236,25 +236,33 @@
+ static int find_resource(struct resource *root, struct resource *new,
+ 			 unsigned long size,
+ 			 unsigned long min, unsigned long max,
+ 			 unsigned long align,
+ 			 void (*alignf)(void *, struct resource *,
+ 					unsigned long, unsigned long),
+ 			 void *alignf_data)
+ {
+ 	struct resource *this = root->child;
+ 
+ 	new->start = root->start;
++	/*
++	 * Skip past an allocated resource that starts at 0, since the assignment
++	 * of this->start - 1 to new->end below would cause an underflow.
++	 */
++	if (this && this->start == 0) {
++		new->start = this->end + 1;
++		this = this->sibling;
++	}
+ 	for(;;) {
+ 		if (this)
+-			new->end = this->start;
++			new->end = this->start - 1;
+ 		else
+ 			new->end = root->end;
+ 		if (new->start < min)
+ 			new->start = min;
+ 		if (new->end > max)
+ 			new->end = max;
+ 		new->start = (new->start + align - 1) & ~(align - 1);
+ 		if (alignf)
+ 			alignf(alignf_data, new, size, align);
+ 		if (new->start < new->end && new->end - new->start + 1 >= size) {
+ 			new->end = new->start + size - 1;

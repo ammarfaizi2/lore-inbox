@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285317AbRLNJyW>; Fri, 14 Dec 2001 04:54:22 -0500
+	id <S285313AbRLNJqW>; Fri, 14 Dec 2001 04:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285316AbRLNJyD>; Fri, 14 Dec 2001 04:54:03 -0500
-Received: from uucp.cistron.nl ([195.64.68.38]:15890 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S285315AbRLNJxz>;
-	Fri, 14 Dec 2001 04:53:55 -0500
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: fd_setsize
-Date: Fri, 14 Dec 2001 09:53:54 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9vci7i$8eh$2@ncc1701.cistron.net>
-In-Reply-To: <OFB046FAEF.D6FAB48A-ON86256B22.00075ECB@3com.com>
-X-Trace: ncc1701.cistron.net 1008323634 8657 195.64.65.67 (14 Dec 2001 09:53:54 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S285315AbRLNJqN>; Fri, 14 Dec 2001 04:46:13 -0500
+Received: from t2.redhat.com ([199.183.24.243]:17145 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S285313AbRLNJqG>; Fri, 14 Dec 2001 04:46:06 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <066801c183f2$53f90ec0$5601010a@prefect> 
+In-Reply-To: <066801c183f2$53f90ec0$5601010a@prefect>  <20011213160007.D998D23CCB@persephone.dmz.logatique.fr> 
+To: "Bradley D. LaRonde" <brad@ltc.com>
+Cc: "Thomas Capricelli" <orzel@kde.org>, linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 14 Dec 2001 09:45:56 +0000
+Message-ID: <25867.1008323156@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <OFB046FAEF.D6FAB48A-ON86256B22.00075ECB@3com.com>,
- <Hui_Ning@3com.com> wrote:
->I am using 2.4 kernel. How can I increase the fd_setsize so that I can use
->select to check more than 1024 file descriptors?
 
-That's more a glibc question. On many systems, you can set
-FD_SETSIZE before including <sys/select.h> and the libs will
-use that FD_SETSIZE from that point on.
 
-With glibc, you can't do that. Well that's not entirely true, the
-following works but is not portable and an unbelievable hack.
+brad@ltc.com said:
+>  have maintained, on and off, a patch to crafms that supports
+> traditional cramfs decompress-and-read/run-from-RAM, plus direct
+> mmaping with no decompression and read/run straight out of ROM:
 
-BTW, why not use poll() - it has no fd_set imposed limit.
+> http://www.ltc.com/~brad/mips/cramfs-linear-root-xip-linux-2.4.9-2.diff 
 
-BTW2 don't forget to increase the ulimit filedescriptor max,
-and perhaps /proc/sys/fs/{file-max,inode-max}
++	if (remap_page_range(vma->vm_start, KSEG0ADDR(address), length,
++			     vma->vm_page_prot))
 
-/*
- * Cannot increase FD_SETSIZE on Linux, but we can increase __FD_SETSIZE
- * with glibc 2.2 (or later? remains to be seen). We do this by including
- * bits/types.h which defines __FD_SETSIZE first, then we redefine
- * __FD_SETSIZE. Ofcourse a user program may NEVER include bits/whatever.h
- * directly, so this is a dirty hack!
- */
-#include <features.h>
-#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)
-#    include <bits/types.h>
-#    undef __FD_SETSIZE
-#    define __FD_SETSIZE 8192
-#endif
 
-Mike.
--- 
-Deadlock, n.:
-        Deceased rastaman.
+Cute, but not very generic. The approach I was contemplating was to 
+allocate a set of 'struct page's for the pages containing XIP data, then 
+add those pages to the page cache manually on read_inode(). 
+
+It's a shame that ->readpage() doesn't get to say 'actually I used my own 
+page for that, I didn't want one allocated for me'.
+
+Extending the MTD API to return a set of pages representing a particular
+device, and handling the locking so that we don't try to write to the chips
+while pages are mapped, will also be necessary if we want to do it with
+flash chips that are used for anything else.
+
+--
+dwmw2
+
 

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267052AbSKMATA>; Tue, 12 Nov 2002 19:19:00 -0500
+	id <S267047AbSKMAPe>; Tue, 12 Nov 2002 19:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267054AbSKMATA>; Tue, 12 Nov 2002 19:19:00 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43536 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267052AbSKMAS7>;
-	Tue, 12 Nov 2002 19:18:59 -0500
-Date: Tue, 12 Nov 2002 16:20:32 -0800
-From: Greg KH <greg@kroah.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com, mochel@osdl.org
-Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <20021113002032.GF32274@kroah.com>
-References: <3DD172B8.8040802@us.ibm.com> <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com> <20021112235824.GG22031@holomorphy.com> <20021113000435.GE32274@kroah.com> <20021113001246.GC23425@holomorphy.com>
+	id <S267048AbSKMAPd>; Tue, 12 Nov 2002 19:15:33 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:18187 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266999AbSKMAPc>; Tue, 12 Nov 2002 19:15:32 -0500
+Date: Wed, 13 Nov 2002 00:22:22 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: Linux v2.5.47
+Message-ID: <20021113002222.B323@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.44.0211101944030.17742-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021113001246.GC23425@holomorphy.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211101944030.17742-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Nov 10, 2002 at 07:46:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 04:12:46PM -0800, William Lee Irwin III wrote:
-> On Tue, Nov 12, 2002 at 03:58:24PM -0800, William Lee Irwin III wrote:
-> >> Okay, an attempt to remedy this world-breaking braindamage with the
-> >> fewest lines of code:
-> >> This alters PCI bus number "clash" detection to compare ->sysdata in
-> >> addition to the numbers. The bus number is not a unique identifier.
+On Sun, Nov 10, 2002 at 07:46:06PM -0800, Linus Torvalds wrote:
 > 
-> On Tue, Nov 12, 2002 at 04:04:35PM -0800, Greg KH wrote:
-> > Um, why not?
-> > And what would /sys/bus/pci/devices look like if you allow the same
-> > identifiers for different devices?  :)
-> > thanks,
-> > greg k-h
-> 
-> (1) incorrect semantics:
-> 	multiple domains/segments exist, and the bus number is not
-> 	qualified with such
-> (2) insufficient cardinality:
-> 	even in the presence of remapping schemes the bus space is limited
-> 	to less than the number of buses requiring unique identifiers
+> I still have stuff pending, but this is what's currently merged. 
 
-Ok, then also please fix up drivers/pci/probe.c::pci_setup_device() to
-set a unique slot_name up for the pci_dev, if you have multiple
-domains/segments.
+Btw, here's a little headsup for all maintainers of scsi host adapter
+drivers.  In 2.5.47 the detect and release methods of the Scsi_Host_Template
+have become optional.  If you had an old pci driver with the following
+loop in foo_detcect:
 
-thanks,
+	while ((pdev = pci_find_device())) {
+		[do basic setup]
+		sdev = scsi_register();
+		[do more setup]
+	}
 
-greg k-h
+You can convert it easily into a new-style pci driver with the following
+probe routine:
+
+	[do basic setup]
+	sdev = scsi_register();
+	[do more setup]
+	return scsi_add_host();
+
+Similarly a new routine, scsi_remove_host exist to call at the end
+of the remove routine.
+
+

@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbUCEWsl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 17:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbUCEWsl
+	id S261401AbUCEWxn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 17:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbUCEWxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 17:48:41 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:8949 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261398AbUCEWsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 17:48:40 -0500
-Message-ID: <404903B2.9080805@matchmail.com>
-Date: Fri, 05 Mar 2004 14:48:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-CC: Nick Piggin <piggin@cyberone.com.au>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: nicksched v30
-References: <4048204E.8000807@cyberone.com.au> <1078488995.13256.1.camel@midux>
-In-Reply-To: <1078488995.13256.1.camel@midux>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 5 Mar 2004 17:53:43 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:59497 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261401AbUCEWxl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 17:53:41 -0500
+Date: Fri, 5 Mar 2004 23:56:10 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Daniel Mack <daniel@zonque.org>
+Subject: [PATCH] kbuild: fix usage with directories containing '.o'
+Message-ID: <20040305225610.GA6644@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Daniel Mack <daniel@zonque.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Hästbacka wrote:
-> On Fri, 2004-03-05 at 08:38, Nick Piggin wrote:
-> 
->>http://www.kerneltrap.org/~npiggin/v30.gz
->>
->>Applies to kernel 2.6.4-rc1-mm2.
->>Run X at about nice -10 or -15.
->>Please report interactivity problems with the default scheduler
->>before using this one etc etc.
->>
->>Thanks
-> 
-> Same patch for 2.6.4-rc2? mm breaks up a few things for me :(
+From: Daniel Mack <daniel@zonque.org>, me
 
-What does that mean?
+modpost unconditionally searched for ".o" assuming this is always
+the suffix of the module. This fails in two cases:
+a) when building external modules where any
+   directory include ".o" in the name.
+   One example is a directory named: .../cvs.alsa.org/...
+b) when someone names a kernel directory so it contains ".o".
+   One example is drivers/scsi/aic.ok/...
+
+case b) was triggered by renaming the directory for aic7xxx, and
+modifying Makefile and Kconfig. This caused make modules to fail.
+
+	Sam
+
+kbuild-fix-modpost.patch:
+===== scripts/modpost.c 1.19 vs edited =====
+--- 1.19/scripts/modpost.c	Fri Feb 27 06:33:07 2004
++++ edited/scripts/modpost.c	Fri Mar  5 23:42:26 2004
+@@ -64,17 +64,20 @@
+ {
+ 	struct module *mod;
+ 	char *p;
++	size_t len;
+ 	
+ 	mod = NOFAIL(malloc(sizeof(*mod)));
+ 	memset(mod, 0, sizeof(*mod));
+-	mod->name = NOFAIL(strdup(modname));
++	p = NOFAIL(strdup(modname));
+ 
+-	/* strip trailing .o */
+-	p = strstr(mod->name, ".o");
+-	if (p)
+-		*p = 0;
++	len = strlen(p);
+ 
++	/* strip trailing .o */
++	if (len > 2 && p[len-2] == '.' && p[len-1] == 'o')
++		p[len -2] = '\0';
++	
+ 	/* add to list */
++	mod->name = NOFAIL(strdup(p));	
+ 	mod->next = modules;
+ 	modules = mod;
+ 

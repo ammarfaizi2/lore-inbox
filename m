@@ -1,81 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130361AbQKWVoE>; Thu, 23 Nov 2000 16:44:04 -0500
+        id <S129295AbQKWVoE>; Thu, 23 Nov 2000 16:44:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130371AbQKWVn4>; Thu, 23 Nov 2000 16:43:56 -0500
-Received: from netcore.fi ([193.94.160.1]:30472 "EHLO netcore.fi")
-        by vger.kernel.org with ESMTP id <S130405AbQKWVjY>;
-        Thu, 23 Nov 2000 16:39:24 -0500
-Date: Thu, 23 Nov 2000 23:09:18 +0200 (EET)
-From: Pekka Savola <pekkas@netcore.fi>
-To: <linux-kernel@vger.kernel.org>
-Subject: Raising MAX_UNITS in net drivers oopses kernel reproducibly 
-Message-ID: <Pine.LNX.4.30.0011232253350.21863-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S130361AbQKWVn4>; Thu, 23 Nov 2000 16:43:56 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:40012
+        "HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+        id <S130396AbQKWVih>; Thu, 23 Nov 2000 16:38:37 -0500
+Date: Thu, 23 Nov 2000 22:00:38 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: mm->rss modified without the page_table_lock (revisited)
+Message-ID: <20001123220038.A626@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi.
 
-Using RHL 2.2.16-3 kernel on i686.
+Some time ago there was a thread about subject and a patch was posted
+(by davej?). It was rejected because of the vmlist_modify_{un}lock
+mess (AFAIR) and nothing has been done since. The first patch below 
+moves mm->rss inside the page_table_lock in mm/. 
 
-Raising MAX_UNITS define from 8 to 16 or 32 in net drivers (tested
-tulip.c) causes reproducible oops.  The latest Don Becker driver also does
-this.  Using DFE-570TX quad ethernet cards.
+I noticed that mm->rss is also modified in fs/{exec.c,binfmt_aout.c,
+binfmt_elf.c} without the lock being held. Am I missing something or
+are these buggy too? I have no idea of what assumptions can be made
+in these code paths so I have not tried to produce patches for them.
 
-So, why change MAX_UNITS?  Interfaces 9-> can't be passed options=,
-full_duplex= or similar parameters otherwise.  The actual interfaces
-should work in autonegotiation though.
-
-I've gotten this crash every time.  It can be done as follows:
-
-1) recompile a new tulip module with changed MAX_UNITS.
-2) insmod the module
-3) take one interface up, with e.g. ifup eth0. [note: traffic doesn't go
-anywhere]
-4) try to take the interface down, with e.g. ifconfig eth0
-5) watch oops in your syslog.
-
-Previous message on syslog was 'Trying to free free IRQ9'.
-
-See below:
------
-Unable to handle kernel paging request at virtual address 0000109f
-current->tss.cr3 = 01d69000, %%cr3 = 01d69000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[de4x5:de4x5_probe+24259/37172]
-EFLAGS: 00010282
-eax: c4056f00   ebx: 00001043   ecx: 00000246   edx: 00000000
-esi: 00001043   edi: c38cc5a0   ebp: c103deb4   esp: c103deac
-ds: 0018   es: 0018   ss: 0018
-Process ifconfig (pid: 1924, process nr: 7, stackpage=c103d000)
-Stack: 00000000 c38cc480 00001042 c014fe92 c38cc5a0 00001043 c38cc5a0 c0150980
-       c38cc5a0 c29c6300 00001042 c29c6324 c103df40 c0170f9c c38cc5a0 00001042
-       00008914 00008914 bffff9f4 c2671740 00008913 00000000 c103df40 c0150ee9
-Call Trace: [dev_close+78/156] [dev_change_flags+80/268] [devinet_ioctl+620/1404] [dev_ioctl+337/792] [inet_ioctl+294/412] [free_pages+36/40] [sock_ioctl+29/36]
-       [sys_ioctl+421/448] [system_call+52/56]
-Code: 8b 56 5c 31 c0 0f ab 46 24 19 c0 85 c0 74 29 a1 80 47 21 c0
------
-
-Note! EIP shows de4x5 for some reason.  Please note that de4x5 driver
-also "works" with this card.  The driver is _really_ buggy with it though.
-With Don Becker drivers the output is about the same; EIP is
-__insmod_tulip_S and Call Trace: begins with dev_deactivate.
+Patch against 240-test11. Please comment.
 
 
-Any ideas?  _Should_ raising MAX_UNITS work as I described or are there
-any known problems with it?
+diff -uar linux-240-t11/mm/memory.c linux/mm/memory.c
+--- linux-240-t11/mm/memory.c	Wed Nov 22 22:41:45 2000
++++ linux/mm/memory.c	Thu Nov 23 21:45:58 2000
+@@ -369,7 +369,6 @@
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (address && (address < end));
+-	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * Update rss for the mm_struct (not necessarily current->mm)
+ 	 * Notice that rss is an unsigned long.
+@@ -378,6 +377,7 @@
+ 		mm->rss -= freed;
+ 	else
+ 		mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
+ }
+ 
+ 
+@@ -1074,7 +1074,9 @@
+ 		flush_icache_page(vma, page);
+ 	}
+ 
++	spin_lock(&mm->page_table_lock);
+ 	mm->rss++;
++	spin_unlock(&mm->page_table_lock);
+ 
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 
+@@ -1113,7 +1115,9 @@
+ 			return -1;
+ 		clear_user_highpage(page, addr);
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
++		spin_lock(&mm->page_table_lock);
+ 		mm->rss++;
++		spin_unlock(&mm->page_table_lock);
+ 		flush_page_to_ram(page);
+ 	}
+ 	set_pte(page_table, entry);
+@@ -1152,7 +1156,9 @@
+ 		return 0;
+ 	if (new_page == NOPAGE_OOM)
+ 		return -1;
++	spin_lock(&mm->page_table_lock);
+ 	++mm->rss;
++	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * This silly early PAGE_DIRTY setting removes a race
+ 	 * due to the bad i386 page protection. But it's valid
+diff -uar linux-240-t11/mm/mmap.c linux/mm/mmap.c
+--- linux-240-t11/mm/mmap.c	Wed Nov 22 22:41:45 2000
++++ linux/mm/mmap.c	Thu Nov 23 21:45:58 2000
+@@ -889,8 +889,8 @@
+ 	spin_lock(&mm->page_table_lock);
+ 	mpnt = mm->mmap;
+ 	mm->mmap = mm->mmap_avl = mm->mmap_cache = NULL;
+-	spin_unlock(&mm->page_table_lock);
+ 	mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
+ 	mm->total_vm = 0;
+ 	mm->locked_vm = 0;
+ 	while (mpnt) {
+diff -uar linux-240-t11/mm/swapfile.c linux/mm/swapfile.c
+--- linux-240-t11/mm/swapfile.c	Sat Nov  4 23:27:17 2000
++++ linux/mm/swapfile.c	Thu Nov 23 21:45:58 2000
+@@ -231,7 +231,9 @@
+ 	set_pte(dir, pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+ 	swap_free(entry);
+ 	get_page(page);
++	spin_lock(&vma->vm_mm->page_table_lock);
+ 	++vma->vm_mm->rss;
++	spin_unlock(&vma->vm_mm->page_table_lock);
+ }
+ 
+ static inline void unuse_pmd(struct vm_area_struct * vma, pmd_t *dir,
+diff -uar linux-240-t11/mm/vmscan.c linux/mm/vmscan.c
+--- linux-240-t11/mm/vmscan.c	Wed Nov 22 22:41:45 2000
++++ linux/mm/vmscan.c	Thu Nov 23 21:45:58 2000
+@@ -95,7 +95,9 @@
+ 		set_pte(page_table, swp_entry_to_pte(entry));
+ drop_pte:
+ 		UnlockPage(page);
++		spin_lock(&mm->page_table_lock);
+ 		mm->rss--;
++		spin_unlock(&mm->page_table_lock);
+ 		flush_tlb_page(vma, address);
+ 		deactivate_page(page);
+ 		page_cache_release(page);
 
-Please Cc:.
 
 -- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Pekka.Savola@netcore.fi      not those you stumble over and fall"
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-
+Gates' Law: Every 18 months, the speed of software halves
+  -- Anonymous
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

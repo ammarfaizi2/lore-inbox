@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265109AbUFRLKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUFRLQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265109AbUFRLKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 07:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbUFRLKF
+	id S265108AbUFRLQy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 07:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbUFRLQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 07:10:05 -0400
-Received: from sanosuke.troilus.org ([66.92.173.88]:62105 "EHLO
-	sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S265109AbUFRLJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 07:09:59 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: greg@kroah.com, hch@lst.de, linux-kernel@vger.kernel.org
-Subject: Re: more files with licenses that aren't GPL-compatible
-From: mdpoole@troilus.org
-References: <200406180656.i5I6udn14886@adam.yggdrasil.com>
-Date: Fri, 18 Jun 2004 07:09:57 -0400
-In-Reply-To: <200406180656.i5I6udn14886@adam.yggdrasil.com> (Adam J.
- Richter's message of "Thu, 17 Jun 2004 23:56:39 -0700")
-Message-ID: <87k6y5w29m.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Fri, 18 Jun 2004 07:16:54 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:26087 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S265108AbUFRLQ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 07:16:27 -0400
+Date: Fri, 18 Jun 2004 12:12:51 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: 4Front Technologies <dev@opensound.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stop the linux kernel madness - SOLVED!
+In-Reply-To: <40D25477.1050006@opensound.com>
+Message-ID: <Pine.LNX.4.60.0406181208200.13171@student.dei.uc.pt>
+References: <40D25477.1050006@opensound.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Thu, Jun 17, 2004 at 04:22:42PM -0400, mdpoole@troilus.org wrote:
->> http://www.ipwatchdog.com/equitable_estoppel.html discusses equitable
->> estoppel vis-a-vis patent rights (which are treated similarly to
->> copyrights by many courts).  When you contributed your changes to the
->> USB maintainers, they -- and later redistributors -- inferred that you
->> would not allege copyright infringement by applying your changes to
->> the kernel that existed then.
+On Thu, 17 Jun 2004, 4Front Technologies wrote:
+
+> Hi Folks,
 >
-> 	From my reading of that web page, it does not seem to me
-> that one would have a case of either equitable estoppel or implied
-> license (for example, "silence alone is generally not sufficient
-> affirmative conduct to give rise to estoppel").  I've made my
-> opposition to the illegal drivers clear from the time that I've
-> been aware of them.
+> Here's the solution we have found:
+>
+> With the latest SuSE 2.6.5-7.75 kernel sources:
+>
+> The problem is that /lib/modules/2.6.5-7.75/build points to
+> /usr/src/linux-2.6.5-7.75-obj which is some kind of wierd directory
+> that has:
+>
+> .  ..  bigsmp  debug  default  out  smp
+>
+> So simply removing this symlink and putting back a link to
+> /usr/src/linux-2.6.5-7.75 fixes our problems.
+>
+> So the question is who is at fault here?. We used KBUILD to
+> build our modules and obviously the build link in /lib/modules/<kernel>/build
+> isn't pointing to the correct source tree.
 
-Really?  I see that one of the previous authors listed on your
-copyright filing is Hugh Blemings, listed as "author of keyspan
-support for Linux."  I will repeat my question: Did you really do
-copyrightable work on the USB serial drivers yet somehow fail to
-notice the many firmware header files already there?
+IF the fault here is SUSE's, then submit THEM a bug report and stop whining in lkml.
+If you did your homework in the first place you would see that that's not a
+Linux Kernel problem and would not start this whole discussion.
 
-> 	If you are not fabricating claims about inferences
-> by "the USB maintainers [...] and later distributors", I would
-> be interested in your citing some historical examples of the
-> "USB mainatiners" stating this inference and not being corrected.
+All you've managed with this was ening with any reputation 4Front Technologies
+could have between lkml readers.
 
-They need not have stated it explicitly; they just have to have relied
-on it.  People who are sent patches by the patch's author infer by
-that submission that including the patch(es) will not lead to claims
-of copyright infringement by that author.  This is common sense.  If
-you have any example where someone rejected a patch from the patch's
-author out of concern for copyright infringement claims by that
-author, I'd like to see it.
 
-There was recent in-depth discussion on debian-legal about further
-reasons that would bar your claim of copyright infringement.  Since
-you declined to answer all of what I wrote before, I will not bore you
-by repeating those arguments here.
+Mind Booster Noori
 
-Michael
+- -- 
+/* ************************************************************************* */
+    Marcos Daniel Marado Torres		AKA 		     Mind Booster Noori
+    http://student.dei.uc.pt/~marado 	 - 	       marado@student.dei.uc.pt
+() Join the ASCII ribbon campaign against html email and Microsoft attachments. 
+/\ Software patents are endangering the computer industry all around the world.
+    Join the LPF: 	http://lpf.ai.mit.edu/ 	 http://petition.eurolinux.org/ 
+/* ************************************************************************* */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFA0s43mNlq8m+oD34RAgx8AKDKlRG8j8ik3LFsjKDKsY4TnVkDcgCfUCoV
+gajxf21QF9lJfYNW37d19Wg=
+=eZ8j
+-----END PGP SIGNATURE-----
+

@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbUA0Rpa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbUA0Rpa
+	id S264874AbUA0RoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUA0RoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:45:30 -0500
-Received: from mail4-141.ewetel.de ([212.6.122.141]:44440 "EHLO
-	mail4.ewetel.de") by vger.kernel.org with ESMTP id S264898AbUA0RpU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:45:20 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MO: opening for write in cdrom.c
-In-Reply-To: <1iEqx-8bO-31@gated-at.bofh.it>
-References: <1izgH-3H4-37@gated-at.bofh.it> <1iBiv-5u0-27@gated-at.bofh.it> <1iEqx-8bO-31@gated-at.bofh.it>
-Date: Tue, 27 Jan 2004 18:45:17 +0100
-Message-Id: <E1AlXH3-0000UR-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Tue, 27 Jan 2004 12:44:21 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:34999 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264874AbUA0RoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:44:17 -0500
+Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040127155619.7efec284.ak@suse.de>
+References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
+	 <20040127155619.7efec284.ak@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075225399.1020.239.camel@new.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 27 Jan 2004 12:43:20 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jan 2004 17:40:45 +0100, you wrote in linux.kernel:
-
-> I'm surprised the sense messages don't show that it's a write to a write
-> protected disc (xx/27/zz, where xx == 0x07 or 0x05).
-
-Yep, I wasn't precise, that shows up before the error=0x70 line.
-
-> However, it's even
-> more annoying to _not_ be able to write to a media because the kernel
-> thinks it knows better. In your fsck case you sort of get what you ask
-> for, by shooting yourself in the foot :)
-
-Agreed. It just bit me extra hard because I was thinking my sector
-size patches were screwing things up. ;)
- 
->> It's fine with me either way. Do you want me to resend with the
->> default fallback changed?
-> Yes please.
-
-Ok, I'll do that.
-
->> +	unsigned short sectors_per_frame = drive->queue->hardsect_size >> 9;
+On Tue, 2004-01-27 at 09:56, Andi Kleen wrote:
+> On Mon, 26 Jan 2004 22:05:29 -0500 (EST)
+> Jim Houston <jim.houston@comcast.net> wrote:
+> > The attached patch updates my kgdb-x86_64-support.patch to work
+> > with linux-2.6.2-rc1-mm3.
 > 
-> Nitpick: sectors_per_frame = queue_hardsect_size(q) >> 9;
+> I already did this merge yesterday. Didn't you get mail? 
 
-Yes, I agree, better to use the existing abstraction. I'll split it
-then and initialize it as the first line of the function(s), otherwise
-it doesn't fit into 80 columns.
+Hi Andi,
 
-> That's about, the rest looks fine.
+No.  I didn't see your mail until this morning.
 
-I'll make that change everywhere and then send an updated version.
+It looks like we were working in lock step.  I had been meaning to
+update the patch so when I saw that Andrew had dropped it from 
+2.6.2-rc1-mm3 it seemed like a good time.
 
--- 
-Ciao,
-Pascal
+I'll leave it to you and Andrew to decide how we should resolve our
+conflicting patches.
+
+I'm including my notes on the difference between our patches. 
+
+Jim Houston - Concurrent Computer Corp.
+
+--
+
+arch/x86_64/kernel/kgdb_stub.c
+	Lots of white space changes.  I assume these are my fault.
+
+	I use the variable kgdb_enable to decide if the system should
+	stop in kgdb on an oops or other failure.  My intention was to
+	set this variable when the user connected.  I was doing this
+	for serial but not for kgdboe.  
+
+	I removed a \n from print_extra_info.
+
+init/main.c
+	This change puts trap_init before parse_args().  I needed this
+	for the early entry into kgdb with the gdb command line argument
+	to work.
+
+arch/x86_64/boot/compressed/head.S
+arch/x86_64/boot/compressed/misc.c
+include/linux/config.h
+	On the i386 asm/kgdb.h is included from config.h.  These changes
+	make the x86_64 do the same.  I'm not a fan of globally
+	included header files, but I wanted the x86_64 to work the same
+	as the i386.  The asm/kgdb.h provides a stub for
+	kgdb_process_breakpoint() avoiding the undefined symbol.
+
+arch/x86_64/kernel/irq.c
+	This change is not needed with the change above.
+
+
+arch/x86_64/Kconfig
+arch/x86_64/Kconfig.kgdb
+	We used a different approach to selecting DEBUG_INFO.
+	I was not really happy with the way select DEBUG_INFO worked.
+
+Makefile
+	I added -g to AFLAGS so the .S files get line number info.
+	I have a problem where gdb identifies error_exit as being
+	in elf_core.h.  I had hoped this would help.  It didn't,
+	but I still like this change.
+
+include/linux/bitops.h
+	I dropped this one.  I suspect that this fixed a compile 
+	warning in a forgotten Concurrent tree.
+
+include/asm-x86_64/kgdb_local.h
+	This file seems to be missing from your patch.  Maybe I'm 
+	missing something.  In my patch it is a copy of the i386
+	version.
+
+
+
+

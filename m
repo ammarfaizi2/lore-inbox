@@ -1,131 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270648AbUJUI4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270386AbUJTTZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270648AbUJUI4D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 04:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270513AbUJUIuj
+	id S270386AbUJTTZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbUJTTOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 04:50:39 -0400
-Received: from lug-owl.de ([195.71.106.12]:15530 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S270586AbUJUIrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 04:47:31 -0400
-Date: Thu, 21 Oct 2004 10:47:29 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Andi Kleen <ak@suse.de>, dhowells@redhat.com, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-m68k@vger.kernel.org, linux-sh@m17n.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, parisc-linux@parisc-linux.org,
-       linux-ia64@vger.kernel.org, linux-390@vm.marist.edu,
-       linux-mips@linux-mips.org
-Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386 archs
-Message-ID: <20041021084728.GA5033@lug-owl.de>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	Andi Kleen <ak@suse.de>, dhowells@redhat.com, torvalds@osdl.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-	sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-	linux-m68k@vger.kernel.org, linux-sh@m17n.org,
-	linux-arm-kernel@lists.arm.linux.org.uk,
-	parisc-linux@parisc-linux.org, linux-ia64@vger.kernel.org,
-	linux-390@vm.marist.edu, linux-mips@linux-mips.org
-References: <3506.1098283455@redhat.com> <20041020150149.7be06d6d.davem@davemloft.net> <20041020225625.GD995@wotan.suse.de> <20041020160450.0914270b.davem@davemloft.net>
+	Wed, 20 Oct 2004 15:14:35 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50082
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S269080AbUJTTHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:07:52 -0400
+Subject: [PATCH] Loopback: Use Completion instead semaphore
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098298791.20821.48.camel@thomas>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bpnyAEUPSyO7P1Gm"
-Content-Disposition: inline
-In-Reply-To: <20041020160450.0914270b.davem@davemloft.net>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 20:59:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bpnyAEUPSyO7P1Gm
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Use completion instead of the abused semaphore. Semaphores are slower
+and trigger owner conflicts during semaphore debugging.
 
-On Wed, 2004-10-20 16:04:50 -0700, David S. Miller <davem@davemloft.net>
-wrote in message <20041020160450.0914270b.davem@davemloft.net>:
-> On Thu, 21 Oct 2004 00:56:25 +0200
-> Andi Kleen <ak@suse.de> wrote:
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+---
 
-*VAX hacker's hat on*
+ 2.6.9-bk-041020-thomas/drivers/block/loop.c |   22
++++++++++++-----------
+ 2.6.9-bk-041020-thomas/include/linux/loop.h |    4 ++--
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-> I disagree quite strongly.  One major frustration for users of
-> non-x86 platforms is that functionality is often missing for some
-> time that we can make trivial to keep in sync.
+diff -puN drivers/block/loop.c~loop drivers/block/loop.c
+--- 2.6.9-bk-041020/drivers/block/loop.c~loop	2004-10-20
+15:56:15.000000000 +0200
++++ 2.6.9-bk-041020-thomas/drivers/block/loop.c	2004-10-20
+15:56:15.000000000 +0200
+@@ -378,7 +378,7 @@ static void loop_add_bio(struct loop_dev
+ 		lo->lo_bio = lo->lo_biotail = bio;
+ 	spin_unlock_irqrestore(&lo->lo_lock, flags);
+ 
+-	up(&lo->lo_bh_mutex);
++	complete(&lo->lo_bh_done);
+ }
+ 
+ /*
+@@ -427,7 +427,7 @@ static int loop_make_request(request_que
+ 	return 0;
+ err:
+ 	if (atomic_dec_and_test(&lo->lo_pending))
+-		up(&lo->lo_bh_mutex);
++		complete(&lo->lo_bh_done);
+ out:
+ 	bio_io_error(old_bio, old_bio->bi_size);
+ 	return 0;
+@@ -495,12 +495,12 @@ static int loop_thread(void *data)
+ 	/*
+ 	 * up sem, we are running
+ 	 */
+-	up(&lo->lo_sem);
++	complete(&lo->lo_done);
+ 
+ 	for (;;) {
+-		down_interruptible(&lo->lo_bh_mutex);
++		wait_for_completion_interruptible(&lo->lo_bh_done);
+ 		/*
+-		 * could be upped because of tear-down, not because of
++		 * could be completed because of tear-down, not because of
+ 		 * pending work
+ 		 */
+ 		if (!atomic_read(&lo->lo_pending))
+@@ -521,7 +521,7 @@ static int loop_thread(void *data)
+ 			break;
+ 	}
+ 
+-	up(&lo->lo_sem);
++	complete(&lo->lo_done);
+ 	return 0;
+ }
+ 
+@@ -708,7 +708,7 @@ static int loop_set_fd(struct loop_devic
+ 	set_blocksize(bdev, lo_blocksize);
+ 
+ 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
+-	down(&lo->lo_sem);
++	wait_for_completion(&lo->lo_done);
+ 	return 0;
+ 
+  out_putf:
+@@ -773,10 +773,10 @@ static int loop_clr_fd(struct loop_devic
+ 	spin_lock_irq(&lo->lo_lock);
+ 	lo->lo_state = Lo_rundown;
+ 	if (atomic_dec_and_test(&lo->lo_pending))
+-		up(&lo->lo_bh_mutex);
++		complete(&lo->lo_bh_done);
+ 	spin_unlock_irq(&lo->lo_lock);
+ 
+-	down(&lo->lo_sem);
++	wait_for_completion(&lo->lo_done);
+ 
+ 	lo->lo_backing_file = NULL;
+ 
+@@ -1153,8 +1153,8 @@ int __init loop_init(void)
+ 		if (!lo->lo_queue)
+ 			goto out_mem4;
+ 		init_MUTEX(&lo->lo_ctl_mutex);
+-		init_MUTEX_LOCKED(&lo->lo_sem);
+-		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
++		init_completion(&lo->lo_done);
++		init_completion(&lo->lo_bh_done);
+ 		lo->lo_number = i;
+ 		spin_lock_init(&lo->lo_lock);
+ 		disk->major = LOOP_MAJOR;
+diff -puN include/linux/loop.h~loop include/linux/loop.h
+--- 2.6.9-bk-041020/include/linux/loop.h~loop	2004-10-20
+15:56:15.000000000 +0200
++++ 2.6.9-bk-041020-thomas/include/linux/loop.h	2004-10-20
+15:56:15.000000000 +0200
+@@ -58,9 +58,9 @@ struct loop_device {
+ 	struct bio 		*lo_bio;
+ 	struct bio		*lo_biotail;
+ 	int			lo_state;
+-	struct semaphore	lo_sem;
++	struct completion	lo_done;
++	struct completion	lo_bh_done;
+ 	struct semaphore	lo_ctl_mutex;
+-	struct semaphore	lo_bh_mutex;
+ 	atomic_t		lo_pending;
+ 
+ 	request_queue_t		*lo_queue;
+_
 
-Full ACK.
 
-> Simply put, if you're not watching the tree in painstaking detail
-> every day, you miss all of these enhancements.
-
-Right; and these missing enhancements will cause extra-pain when they're
-used some time later from core code. That is, you missed the feature
-while it was discusses/accepted and need to put it in place later on. So
-you've got to do extra searching etc.
-
-> The knowledge should come from the person putting the changes into
-> the tree, therefore it gets done once and this makes it so that
-> the other platform maintainers will find out about it automatically
-> next time they update their tree.
-
-Here's my proposal:
-
-$ mkdir ./Documentation/new_enhancements_to_implement
-$ cat ./Documentation/new_enhancements_to_implement/new_key_syscalls << EOF
-> Dear Architecture Maintailers,
->=20
-> please add these four new cryptographic key functions to your syscall
-> table. It's quite easy; just extend the ./include/arch-xxx/unistd.h
-> for four new defines and then add them to your ./arch/xxx/kernel/entry.S
-> file. For reference, here's my i386 patch doing this:
->=20
-> diff -Nurp
-> --- path-old/to/file/one
-> +++ path-new/to/file/one
->  text
-> -del
-> +add
->  more text
->=20
->=20
-> Thanks, your keychain hacker:-)
-> EOF
-$
-
-This way, all arch maintainers just *see* what needs to be done and
-get a small introduction on how to do that. I'd *really* like to see
-that! That would particularly help those that cannot do full-time
-hacking on their port (like us VAX hackers:-)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---bpnyAEUPSyO7P1Gm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBd3egHb1edYOZ4bsRAjiYAKCGSC9V5w2kdxwg0IEMdrNz/AtYggCdFNim
-HrmvljvO83mhAXd2vnQzg5w=
-=kfus
------END PGP SIGNATURE-----
-
---bpnyAEUPSyO7P1Gm--

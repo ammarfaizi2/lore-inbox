@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291485AbSBHJQD>; Fri, 8 Feb 2002 04:16:03 -0500
+	id <S291504AbSBHJgt>; Fri, 8 Feb 2002 04:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291493AbSBHJPx>; Fri, 8 Feb 2002 04:15:53 -0500
-Received: from [217.6.75.131] ([217.6.75.131]:23207 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S291485AbSBHJPj>; Fri, 8 Feb 2002 04:15:39 -0500
-Message-ID: <3C6397C5.5749BF8E@internetwork-ag.de>
-Date: Fri, 08 Feb 2002 10:17:57 +0100
-From: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre9
-In-Reply-To: <Pine.LNX.4.21.0202071646550.17201-100000@freak.distro.conectiva>
+	id <S291508AbSBHJgj>; Fri, 8 Feb 2002 04:36:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:55054 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S291504AbSBHJgX>;
+	Fri, 8 Feb 2002 04:36:23 -0500
+Date: Fri, 8 Feb 2002 10:36:15 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Craig Rich <craig_rich@sundanceti.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scatter Gather List Questions
+Message-ID: <20020208103615.N4942@suse.de>
+In-Reply-To: <3C62FE47.6020708@sundanceti.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C62FE47.6020708@sundanceti.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Thu, Feb 07 2002, Craig Rich wrote:
+> 	One question I can start with is, how do you use pci_dma_sg?
+> 
+> pci_map_sg(dev, sglist, nents, direction);
+> 
+> 	I'm assuming I supply the dev and direction fields. How about the nents 
 
-is there any chance for including the latest PPP patch from Paul (2.4.2 -
-20020205) and Michael's pppoe patch 0.6.10 -- only those "two" patches eliminate
-the PPP deadlocks!  Might be worth putting these into 2.4.18 final ? :-)
-Thanks,
+Of course, dev being your pci device and direction the data direction --
+PCI_DMA_TODEVICE etc, see linux/pci.h.
 
-Immanuel
-Marcelo Tosatti wrote:
+> field? Is that supposed to be the largest number of fragments I can 
+> handle (that's what I assumed.) Finally, the sglist argument has me 
 
-> So here it goes.
->
-> pre9:
->
-> - Cris update                                   (Bjorn Wesen)
-> - SPARC update                                  (David S. Miller)
-> - Remove duplicate CONFIG_SUNLANCE entry in
->   Config.in                                     (David S. Miller)
-> - Change Netfilter maintainer                   (David S. Miller)
-> - More SunGEM bugfixes                          (David S. Miller)
-> - Update md5sums in ISDN's md5sums.asc          (Kai Germaschewski)
-> - 3ware driver update                           (Adam Radford)
-> - Fix cosa compile problem                      (Adrian Bunk)
-> - Change VIA "disabling write queue" message    (Oliver Feiler)
-> - Remove buggy Elan-specific handling code      (Robert Schwebel)
-> - Reiserfs bugfixes                             (Oleg Drokin)
-> - Fix ppp memory leak                           (Andrew Morton)
-> - Really add devfs fix for removable devices:
->   its on pre8 changelog but not on pre8 patch   (me)
-> - Add framebuffer support for trident graphics
->   card                                          (James Simmons)
-> - SCSI tape driver bugfixes                     (Kai Makisara)
-> - Add support to Ovislink card on 8139too
->   driver                                        (Jeff Garzik)
-> - Add SIOCxMIIxxxx ioctls for better binary
->   compatibility on au1000_eth driver            (Jeff Garzik)
-> - Fix initialization of phy on epic100 driver   (Jeff Garzik)
-> - Add MODULE_* info to mii.c                    (Jeff Garzik)
-> - Add new PCI ID to sundance driver             (Jeff Garzik)
-> - Merge some -ac3 patches                       (Alan Cox)
-> - Unify simple_strtol symbol export             (Russell King)
-> - Add amount of cached memory to sysreq-m
->   output                                        (Martin Knoblauch)
-> - Do not use SCSI device type to change
->   IO clustering                                 (Jens Axboe)
-> - IRC conntrack update                          (Harald Welte)
-> - sonypi driver update                          (Stelian Pop)
-> - Fix one of the PPP deadlocks                  (Manfred Spraul)
+nents is the number if segments in the sglist you are supplying as well.
+not the maximum number of entries the driver can handle.
+
+> really confused. Do I have to create this structure in advance (and if 
+> so how) or is pci_map_sg supposed to simply give me a pointer back via 
+> the sglist argument (that's what I assumed, but that doesn't seem to be 
+> the case unless I'm doing something else wrong.)
+
+No you have to allocate this structure yourself.
+
+> 	Also, were in the source code is pci_map_sg located? I'll admit I'm not 
+> an expert at looking through the source code of an OS like Linux, but 
+> I'm frustrated by the fact that a simple grep of /usr/src/linux-2.4.2 
+> does not show where this function is coded.
+
+You are not terribly good a grepping, it seems :-). The function is in
+asm/pci.h, depending on the architecture you may have to look inside
+arch/ for helpers too.
+
+-- 
+Jens Axboe
 

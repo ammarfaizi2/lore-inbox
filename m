@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTIVQZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 12:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTIVQZ3
+	id S263206AbTIVQ0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 12:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTIVQ0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 12:25:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14294 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263203AbTIVQZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 12:25:28 -0400
-Date: Mon, 22 Sep 2003 09:18:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Kirk Reiser <kirk@braille.uwo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unknown symbols loading modules under 2.6.x
-Message-Id: <20030922091800.3b2532ec.rddunlap@osdl.org>
-In-Reply-To: <E1A1TE1-00075s-00@speech.braille.uwo.ca>
-References: <E1A1TE1-00075s-00@speech.braille.uwo.ca>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 22 Sep 2003 12:26:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:29057 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263206AbTIVQ0H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 12:26:07 -0400
+Date: Mon, 22 Sep 2003 17:26:02 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
+Message-ID: <20030922162602.GB27209@mail.jlokier.co.uk>
+References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Sep 2003 12:07:45 -0400 Kirk Reiser <kirk@braille.uwo.ca> wrote:
+Alan Cox wrote:
+> (one part of the problem of course is you need inb_p/outb_p to drive
+> the timer chip on some x86 boards in order to calibrate the udelay
+> timer)
 
-| Hello Everyone:  I have been trying to hunt down the answer to
-| aproblem I am having attempting to load my modules under the 2.6.x
-| kernels.  They load just fine under the 2.4.x kernels.  Have there
-| been changes which need to be made to get symbols found with modprobe
-| other than the EXPORT_SYMBOL() macro?  The symbols show up in the
-| modules.symbols file created by depmod.  They appear to reference the
-| correct loadable module.  The loadable module these symbols are
-| exported in however is comprised of two separate .o files during
-| compile.  I am not sure whether that has anything to do with it or
-| not.
-| 
-| If someone could give me an idea what to read to solve this I'd
-| appreciate it.
+What sort of timer chip problems do you see?  Is it something that can
+be auto-detected, so that timer chip accesses can be made faster on
+boards where that is fine?
 
-Make sure that you have the current version of module-init-tools
-installed from http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-and that scripts are using them (ie, check PATH).
+I'm sure I've seen timer chip code in DOS programs that didn't have
+the extra delay I/Os.  Surely it cannot be a very widespread problem.
 
-If it's still not working, please post more complete info about the
-problem.
+> > When debugging this I modified arch/i386/io.h to read:
+> > #define  __SLOW_DOWN_IO__ ""
+> > Which totally removed the delay and the system ran fine.
+> 
+> Not all systems do - we had breakages from both the keyboard controller
+> and the timer chips even on some modern boards when this got messed up.
 
---
-~Randy
+I've also seen much DOS code that didn't have extra delays for
+keyboard I/Os.  What sort of breakage did you observe with the
+keyboard?
+
+Thanks,
+-- Jamie

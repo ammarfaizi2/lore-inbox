@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268125AbUHQG5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268126AbUHQHAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268125AbUHQG5r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 02:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268123AbUHQG5r
+	id S268126AbUHQHAa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUHQHA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 02:57:47 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:27476 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S268125AbUHQG53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 02:57:29 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: bjorn.helgaas@hp.com
-Subject: 2.6.8.1-mm1 broke USB driver with ACPI pci irq routing... info follows
-Date: Tue, 17 Aug 2004 02:57:20 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 17 Aug 2004 03:00:29 -0400
+Received: from holomorphy.com ([207.189.100.168]:11693 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268126AbUHQHAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 03:00:19 -0400
+Date: Tue, 17 Aug 2004 00:00:11 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Nathan Lynch <nathanl@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm1
+Message-ID: <20040817070011.GM11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Nathan Lynch <nathanl@austin.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040816143710.1cd0bd2c.akpm@osdl.org> <121120000.1092699569@flay> <1092706344.3081.4.camel@booger> <20040817065901.GB7173@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_QxaIB/YUAb3A4go"
-Message-Id: <200408170257.26712.shawn.starr@rogers.com>
+In-Reply-To: <20040817065901.GB7173@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 16, 2004 at 08:32:24PM -0500, Nathan Lynch wrote:
+>> I hit the same thing on ppc64 with gcc 3.3.2-ish.  Doing a non-parallel
+>> make (i.e. without -j) seems to work around it for me.
 
---Boundary-00=_QxaIB/YUAb3A4go
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Aug 17, 2004 at 08:59:01AM +0200, Sam Ravnborg wrote:
+> Fix below:
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The result of this appears to be:
+
+$ time make -s -j16 rpm
+Building target platforms: x86_64
+Building for target x86_64
+Executing(%prep): /bin/sh -e /mnt/rpmbuild/tmp/rpm-tmp.55854
++ umask 022
++ cd /mnt/rpmbuild/BUILD
++ cd /mnt/rpmbuild/BUILD
++ rm -rf kernel-2.6.8.1mm1
++ /usr/bin/gzip -dc /home/wli/kernel-2.6.8.1mm1.tar.gz
++ tar -xf -
++ STATUS=0
++ '[' 0 -ne 0 ']'
++ cd kernel-2.6.8.1mm1
+++ /usr/bin/id -u
++ '[' 1000 = 0 ']'
+++ /usr/bin/id -u
++ '[' 1000 = 0 ']'
++ /bin/chmod -Rf a+rX,g-w,o-w .
++ exit 0
+Executing(%build): /bin/sh -e /mnt/rpmbuild/tmp/rpm-tmp.95241
++ umask 022
++ cd /mnt/rpmbuild/BUILD
++ /bin/rm -rf /var/tmp/kernel-2.6.8.1mm1-root
+++ dirname /var/tmp/kernel-2.6.8.1mm1-root
++ /bin/mkdir -p /var/tmp
++ /bin/mkdir /var/tmp/kernel-2.6.8.1mm1-root
++ cd kernel-2.6.8.1mm1
++ make clean
+make[2]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
++ make -j16
+make[2]: warning: -jN forced in submake: disabling jobserver mode.
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  SYMLINK include/asm -> include/asm-x86_64
+  SPLIT   include/linux/autoconf.h -> include/config/*
+cc1: error: output filename specified twice
+make[2]: *** [scripts/kallsyms] Error 1
+make[2]: *** Waiting for unfinished jobs....
+error: Bad exit status from /mnt/rpmbuild/tmp/rpm-tmp.95241 (%build)
 
 
-here is the lspci info. If I enable pci=routeirq the driver loads fine.
+RPM build errors:
+    Bad exit status from /mnt/rpmbuild/tmp/rpm-tmp.95241 (%build)
+make[1]: *** [rpm] Error 1
+make: *** [rpm] Error 2
+make -s -j16 rpm  38.38s user 9.50s system 81% cpu 58.513 total
 
-Shawn.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBIaxSsX/SQXZigqcRAqLAAJ9sA5kzCWg7EG3MwEcgo9qQ7IjcUQCeM4Kz
-l7F3kjEODcXFiQAdet1LxTg=
-=1LP/
------END PGP SIGNATURE-----
-
---Boundary-00=_QxaIB/YUAb3A4go
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="lspci.dump"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="lspci.dump"
-
-0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev 03)
-0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 03)
-0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
-0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
-0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
-0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI Controller (rev 01)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 01)
-0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 01)
-0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
-0000:00:1f.6 Modem: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Modem Controller (rev 01)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV350 [Mobility Radeon 9600 M10]
-0000:02:00.0 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
-0000:02:00.1 CardBus bridge: Texas Instruments PCI4520 PC card Cardbus Controller (rev 01)
-0000:02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet Controller (Mobile) (rev 03)
-0000:02:02.0 Network controller: Intel Corp. PRO/Wireless 2200BG (rev 05)
-
---Boundary-00=_QxaIB/YUAb3A4go--
+-- wli

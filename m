@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265468AbTF3Q5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 12:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTF3Q5l
+	id S265499AbTF3RKk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 13:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbTF3RKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 12:57:41 -0400
-Received: from debian4.unizh.ch ([130.60.73.144]:47825 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265468AbTF3Q4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 12:56:14 -0400
-Date: Mon, 30 Jun 2003 19:10:33 +0200
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: restarting a kernel thread
-Message-ID: <20030630171033.GA27703@diamond.madduck.net>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Mon, 30 Jun 2003 13:10:40 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32143
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265499AbTF3RKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 13:10:39 -0400
+Subject: Re: Dell vs. GPL
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Svein Ove Aas <svein.ove@aas.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10306292053480.2711-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10306292053480.2711-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056993723.17590.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-X-OS: Debian GNU/Linux testing/unstable kernel 2.4.20-grsec1.9.9g+freeswan1.99+preempt20030413-diamond i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jun 2003 18:22:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-06-30 at 05:07, Andre Hedrick wrote:
+> Where is Dell's Head Quarters?
+> Please goto your local justice and get a UK ruling for a US Corporation.
+> What gives you the right to pursue in court GPL for materials you do not
+> have copyright ownership?  I use this loose in this case because you now
+> have copyright context in the material in question.
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I don't need to. The US as a berne signatory allows non US citizens to
+enforce copyright (regardless of US registration). Its one of the funny
+cases where US citizens have less rights in their own country than
+foreigners in some ways
 
-i am doing some USB development these days and just managed to crash
-khubd:
+Besides which if I wanted to sue Dell (and I don't) I'd do it in the UK,
+our lawyers are cheaper 8)
 
-  kernel:  <6>note: khubd[9] exited with preempt_count 1
-
-the system seems happy still, USB is not working anymore, though.
-
-I have USB support built into the kernel, and a custom driver
-written as a module.
-
-Restarting would fix the problem and get USB back into operation,
-but I am wondering if there is a way to restart the khubd kernel
-thread manually. Is there?
-
-I am soon going to switch to UML for this kind of development...
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid PGP subkeys? use subkeys.pgp.net as keyserver!
-=20
-stay the patient course.
-of little worth is your ire.
-the network is down.
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/AG8JIgvIgzMMSnURAgYwAJ49NXXtg4rGZR1KnQnoWLDlE7VnGQCgg6dt
-jGj2M5d0OrcCJI+1vq9z+YU=
-=F62/
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--

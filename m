@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318196AbSGWQNG>; Tue, 23 Jul 2002 12:13:06 -0400
+	id <S318133AbSGWQZQ>; Tue, 23 Jul 2002 12:25:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318197AbSGWQNG>; Tue, 23 Jul 2002 12:13:06 -0400
-Received: from server72.aitcom.net ([208.234.0.72]:4513 "EHLO test-area.com")
-	by vger.kernel.org with ESMTP id <S318196AbSGWQNF>;
-	Tue, 23 Jul 2002 12:13:05 -0400
-Message-Id: <200207231616.MAA27336@test-area.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: anton wilson <anton.wilson@camotion.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] RML pre-emptive 2.4.19-ac2 with O(1)
-Date: Tue, 23 Jul 2002 12:15:34 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207231756080.17062-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0207231756080.17062-100000@localhost.localdomain>
+	id <S318134AbSGWQZQ>; Tue, 23 Jul 2002 12:25:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14092 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318133AbSGWQZP>; Tue, 23 Jul 2002 12:25:15 -0400
+Date: Tue, 23 Jul 2002 09:29:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
+In-Reply-To: <15677.15834.295020.89244@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.44.0207230918090.5645-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > +#if CONFIG_PREEMPT
-> > +       /* Set the preempt count _outside_ the spinlocks! */
-> > +       idle->preempt_count = (idle->lock_depth >= 0);
-> > +#endif
+Hmm, I don't disagree, but "out_cast" reads like "outcast" to me, which
+has a totally different meaning than the one you want to imply.
 
+I'd rather call it "container_struct()" or something like that, which at
+least to me sounds more natural.
 
-This is the update I added.
+The difference is that in "out_cast()" you try to describe the operation
+you're doing. Which is to me not very important or interesting (never mind
+the confusion with a real word meaning something totally different).
 
-Anton
+In contrast, "container_struct()" tries to describe what the _result_ is,
+not how we got there. And I think that's the much more important part,
+especially when reading the code. You don't care how you get the result,
+but you do care abotu what the result actually _means_.
+
+And no, I'm not married to the "container_struct()" name. But any name we
+come up with should have that kind of flavor to it, I feel. I think you
+can more easily explain something like
+
+	#define to_pci_dev(n) \
+		container_struct(struct device, n, struct pci_dev, dev)
+
+by telling somebody "the 'struct device' is contained within the 'struct
+pci_dev', and 'to_pci_dev' converts from 'struct device' to the
+container". You can explain it at a _conceptual_ level without having to
+worry about what the implementation is. And that kind of conceptual notion
+is always good.
+
+While in contrast, to explain "out_cast()" you're already starting off at
+a low-level compiler implementation level.
+
+Maybe "member_to_container()" would be even better?
+
+		Linus
+

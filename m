@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTEFUdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbTEFUdW
+	id S261845AbTEFUjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTEFUjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:33:22 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:25189 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261824AbTEFUdV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:33:21 -0400
-Date: Tue, 6 May 2003 13:42:13 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: linux@1g6.biz, linux-kernel@vger.kernel.org
-Subject: Re: oops 2.5.68 ohci1394/ IRQ/acpi
-Message-Id: <20030506134213.48c0b3db.akpm@digeo.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A28E@orsmsx401.jf.intel.com>
-References: <F760B14C9561B941B89469F59BA3A84725A28E@orsmsx401.jf.intel.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 May 2003 16:39:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17793
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261845AbTEFUjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 16:39:14 -0400
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030506185433.GA6023@mail.jlokier.co.uk>
+References: <20030506164252.GA5125@mail.jlokier.co.uk>
+	 <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk>
+	 <20030506185433.GA6023@mail.jlokier.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 May 2003 20:45:47.0435 (UTC) FILETIME=[78BF6FB0:01C31410]
+Organization: 
+Message-Id: <1052250792.1983.160.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 20:53:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" <andrew.grover@intel.com> wrote:
->
-> Ohhh so we need to not just return nonzero, but return 1 (aka
-> IRQ_HANDLED?) Well, then this makes sense. Sorry about that.
+> What if this new-fangled other kernel is open source, but BSD license
+> instead?  Would that also anger the kernel developers?  (As I suspect
+> a closed-source binary kernel would, even if one could get away with it).
 
-Yup.  Unfortunately Nicolas reports that the patch made no difference.
+Then the combined result would be a GPL'd product. You can do that now.
+Add BSD code to GPL and the result comes out GPL.
 
+> Then, you can (a) rewrite everything, using the knowledge you gained
+> from reading the various open source drivers, or (b) just use those
+> drivers, and save a lot of effort.
+
+The GPL says "you can use them if your final new result is GPL", the BSD
+world says "Hey go do it, just say thanks". Its probably a lot simpler
+to use the FreeBSD code if you don't want a GPL result.
+
+For myself I'd be willing to discuss relicensing code in some cases but
+there is little that has a single author. 
+
+Alan
 

@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSIEQrE>; Thu, 5 Sep 2002 12:47:04 -0400
+	id <S317874AbSIEQtJ>; Thu, 5 Sep 2002 12:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSIEQrE>; Thu, 5 Sep 2002 12:47:04 -0400
-Received: from dsl-213-023-039-222.arcor-ip.net ([213.23.39.222]:21671 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317829AbSIEQrE>;
-	Thu, 5 Sep 2002 12:47:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Subject: Re: [RFC] Alternative raceless page free
-Date: Thu, 5 Sep 2002 18:31:45 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, Christian Ehrhardt <ulcae@in-ulm.de>
-References: <3D644C70.6D100EA5@zip.com.au> <E17myRo-00068H-00@starship> <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
+	id <S317887AbSIEQtI>; Thu, 5 Sep 2002 12:49:08 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:41664 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317874AbSIEQtF>;
+	Thu, 5 Sep 2002 12:49:05 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mzXm-00068j-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15735.35748.328193.108301@napali.hpl.hp.com>
+Date: Thu, 5 Sep 2002 09:51:48 -0700
+To: "R Sreelatha" <rsreelat@in.ibm.com>
+Cc: linux-ia64@linuxia64.org, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: patch for IA64: fix do_sys32_msgrcv bad address error.
+In-Reply-To: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com>
+References: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 18:04, Christian Ehrhardt wrote:
-> On Thu, Sep 05, 2002 at 05:21:31PM +0200, Daniel Phillips wrote:
-> > ...this particular piece of code can no doubt be considerably
-> > simplified, while improving robustness and efficiency at the same time.
-> > But that goes beyond the scope of this patch.
-> 
-> Well yes ;-) There's funny things going on like accessing a page
-> after page_cache_release...
+>>>>> On Thu, 5 Sep 2002 19:46:40 +0530, "R Sreelatha" <rsreelat@in.ibm.com> said:
 
-You're right about that one too, it should be put_page_nofree, since
-freeing the page there is a bug for two reasons: !!page->mapping tells
-us there should be a count on the page, and we continue to operate on
-the page immediately below.  Thanks again.
+  R> In sys_ia32.c file, in the do_sys32_msgrcv() function call, the
+  R> value of ipck.msgp is interpreted as a 64 bit address, whereas it
+  R> is a 32 bit address.  Hence, do_sys32_msgrcv() finally returns
+  R> EFAULT(bad address) error.  The patch below takes care of this by
+  R> type casting ipck.msgp to type u32.  The patch is created for
+  R> 2.5.32 version of the kernel.
 
--- 
-Daniel
+Yes, this was obviously broken.  I committed the attached patch to my 2.5
+tree.
+
+	--david
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.532   -> 1.533  
+#	arch/ia64/ia32/sys_ia32.c	1.18    -> 1.19   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/05	davidm@tiger.hpl.hp.com	1.533
+# ia64: Fix x86 struct ipc_kludge (reported by R Sreelatha, fix proposed by
+# 	Dave Miller).
+# --------------------------------------------
+#
+diff -Nru a/arch/ia64/ia32/sys_ia32.c b/arch/ia64/ia32/sys_ia32.c
+--- a/arch/ia64/ia32/sys_ia32.c	Thu Sep  5 09:51:05 2002
++++ b/arch/ia64/ia32/sys_ia32.c	Thu Sep  5 09:51:05 2002
+@@ -2111,8 +2111,8 @@
+ };
+ 
+ struct ipc_kludge {
+-	struct msgbuf *msgp;
+-	long msgtyp;
++	u32 msgp;
++	s32 msgtyp;
+ };
+ 
+ #define SEMOP		 1

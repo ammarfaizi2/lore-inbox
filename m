@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUCDTwG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 14:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUCDTwG
+	id S262107AbUCDUHp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 15:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUCDUHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 14:52:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:9629 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262101AbUCDTwE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 14:52:04 -0500
-Date: Thu, 4 Mar 2004 14:51:55 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Arthur Corliss <corliss@digitalmages.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] 2.6.x BSD Process Accounting w/High UID
-In-Reply-To: <Pine.LNX.4.58.0403040901010.30814@bifrost.nevaeh-linux.org>
-Message-ID: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44.0403041451362.20043@chimarrao.boston.redhat.com>
+	Thu, 4 Mar 2004 15:07:45 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:42814 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262107AbUCDUHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 15:07:44 -0500
+Subject: NFS problems with 2.6.4-rc1-mm2
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LzRaHk90TugnAy5jbAvq"
+Message-Id: <1078430862.3793.5.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 21:07:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Mar 2004, Arthur Corliss wrote:
 
-> The patch only changes two lines which redefine the ac_uid/ac_gid fields as
-> uid_t/gid_t respectively.  Fixes accounting for high uid/gids.
+--=-LzRaHk90TugnAy5jbAvq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Do the userspace commands that parse the acct files
-know how to deal with this format change ?
+Hi,
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+I've just build and booted 2.6.4-rc1-mm2, and mounting my NFS exports
+works. however when I try to unzip a file over those mount the process
+freezes over and any other IO to that mount results in more stuck
+processes. SIGKILL will not remove the processes, only reboot will
+manage.
+
+dmesg reports like:
+
+nfs: server 192.168.0.1 not responding, timed out
+
+which is total nonsense, because all other hosts on the network can
+access the exports just fine.
+
+I'm about to back out all nfs patches from the broken-out patch set to
+see what that does for me.
+
+Peter Zijlstra
+
+--=-LzRaHk90TugnAy5jbAvq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQBAR4yOtCb2m4B45HIRAiu6AJ4xWq3jMjagZ4yPxY5UALPj9QoZuACfb74c
+o4I7/VEux0pZrR5v4/+eXBY=
+=i5NR
+-----END PGP SIGNATURE-----
+
+--=-LzRaHk90TugnAy5jbAvq--
 

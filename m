@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUFJXA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUFJXDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263191AbUFJXA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 19:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUFJXA1
+	id S263184AbUFJXDE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 19:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUFJXDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 19:00:27 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:14985 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263191AbUFJXAV (ORCPT
+	Thu, 10 Jun 2004 19:03:04 -0400
+Received: from main.gmane.org ([80.91.224.249]:62361 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263228AbUFJXBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 19:00:21 -0400
-Date: Fri, 11 Jun 2004 00:59:38 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: michael@metaparadigm.com, linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: [STACK] >3k call path in ide
-Message-ID: <20040610225938.GF3340@wohnheim.fh-wedel.de>
-References: <20040609122921.GG21168@wohnheim.fh-wedel.de> <40C72B68.1030404@metaparadigm.com> <20040609162949.GC29531@wohnheim.fh-wedel.de> <20040609122721.0695cf96.akpm@osdl.org>
+	Thu, 10 Jun 2004 19:01:49 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Lars <terraformers@gmx.net>
+Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
+Date: Fri, 11 Jun 2004 01:01:59 +0200
+Message-ID: <caap8q$m51$1@sea.gmane.org>
+References: <ca9jj9$dr$1@sea.gmane.org> <200406102356.07920.bzolnier@elka.pw.edu.pl> <caamob$gb0$1@sea.gmane.org> <200406110035.48711.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040609122721.0695cf96.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e7ff0c.dip.t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 June 2004 12:27:21 -0700, Andrew Morton wrote:
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> >
-> >  Andrew, what do you thing about the patch below for sync_inodes_sb()?
-> >  It's stack consumption is reduced from 308 to 64, at the cost of one
-> >  more function call.
+Bartlomiej Zolnierkiewicz wrote:
+
+> On Friday 11 of June 2004 00:19, Lars wrote:
+>> just learned that
+>> setpci -H1 -s 0:0.0 6C.L=0x9F01FF01
+>> enables C1 *and* the 80ns stability fix.
+>>
+>> looks like i have to stick with my ugly little workaround for a while
 > 
-> Like this:
+> "ugly"?
+just kiddin' ;)
+
 > 
-> --- 25/fs/fs-writeback.c~sync_inodes_sb-stack-reduction	2004-06-09 12:25:57.111389456 -0700
-> +++ 25-akpm/fs/fs-writeback.c	2004-06-09 12:25:57.115388848 -0700
-> @@ -433,15 +433,15 @@ restart:
->   */
->  void sync_inodes_sb(struct super_block *sb, int wait)
->  {
-> -	struct page_state ps;
->  	struct writeback_control wbc = {
->  		.sync_mode	= wait ? WB_SYNC_ALL : WB_SYNC_HOLD,
->  	};
-> +	unsigned long nr_dirty = read_page_state(nr_dirty);
-> +	unsigned long nr_unstable = read_page_state(nr_unstable);
+> We can probably change kernel fixup to always do & 0x9F01FF01
+> but adding "force C1HD" kernel options sounds insane.
+i guess that always applying 0x9F01FF01 will force c1 for all users
+to *on* again, because the 9F value triggers this.
+its my understanding that
+0x9F01FF01 enables c1 and fix
+0x0F01FF01 disables c1, enables fix
+0x0F0FFF01 disables c1 and fix
 
-read_page_state doesn't exist in 2.6.7-rc3 or 2.6.6-mm5.  How is it
-defined?
+am i right ?
 
-If it is just a simple macro to access the right fields, then the
-patch looks fine to me.
 
-> -	get_page_state(&ps);
-> -	wbc.nr_to_write = ps.nr_dirty + ps.nr_unstable +
-> +	wbc.nr_to_write = nr_dirty + nr_unstable +
->  			(inodes_stat.nr_inodes - inodes_stat.nr_unused) +
-> -			ps.nr_dirty + ps.nr_unstable;
-> +			nr_dirty + nr_unstable;
->  	wbc.nr_to_write += wbc.nr_to_write / 2;		/* Bit more for luck */
->  	spin_lock(&inode_lock);
->  	sync_sb_inodes(sb, &wbc);
-> _
+best,
+lars
 
-Jörn
 
--- 
-Fantasy is more important than knowledge. Knowledge is limited,
-while fantasy embraces the whole world.
--- Albert Einstein

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbUB1A1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUB1AUC
+	id S263211AbUB1A1V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbUB1A0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:20:02 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:8685 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263236AbUB1AS4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 19:18:56 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 27 Feb 2004 19:26:43 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:49278 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263230AbUB1A0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 19:26:12 -0500
+Date: Fri, 27 Feb 2004 19:26:06 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Grigor Gatchev <grigor@zadnik.org>
+cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: A Layered Kernel: Proposal
+In-Reply-To: <Pine.LNX.4.44.0402271151040.26240-100000@lugburz.zadnik.org>
+Message-ID: <Pine.LNX.4.44.0402271925430.1747-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16447.56941.774257.925722@napali.hpl.hp.com>
-Date: Fri, 27 Feb 2004 16:18:53 -0800
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: [patch] u64 casts
-In-Reply-To: <1077915522.2255.28.camel@cube>
-References: <1077915522.2255.28.camel@cube>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 27 Feb 2004 15:58:42 -0500, Albert Cahalan <albert@users.sourceforge.net> said:
+On Fri, 27 Feb 2004, Grigor Gatchev wrote:
 
-  Albert> Casts are considered harmful, because they bypass
-  Albert> type checking, but how do you print a u64 value?
-  Albert> You cast it to "unsigned long long" like this:
+> Currently we talk not already coding, but still designing. And what I am
+> asking for is people to add to _my_ list to work on. If they would like to
+> contribute some design work, that will be nice, but a simple "It is weak
+> here, see to improve it" will be already excellent help.
 
-  Albert> printk("%llu\n", (unsigned long long)foo);
+The kernel janitors project could be a good starting point.
 
-  Albert> Well, this is silly and ugly. As x86-64 has shown,
-  Albert> even a 64-bit port can use "long long" for 64-bit
-  Albert> values. This patch changes all other 64-bit ports.
-  Albert> It now becomes possible to avoid adding new casts
-  Albert> all over the place; existing ones may be removed
-  Albert> if so desired.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-Did you verify that none of the kernel header files that are still
-being used by glibc contain declarations based on __u64 or __s64?  If
-not, your patch breaks user-level code.
-
-	--david

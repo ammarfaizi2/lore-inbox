@@ -1,53 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263082AbTCWPmK>; Sun, 23 Mar 2003 10:42:10 -0500
+	id <S263083AbTCWPrE>; Sun, 23 Mar 2003 10:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263083AbTCWPmK>; Sun, 23 Mar 2003 10:42:10 -0500
-Received: from main.gmane.org ([80.91.224.249]:44495 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263082AbTCWPmJ>;
-	Sun, 23 Mar 2003 10:42:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <dragon@gentoo.org>
-Subject: Re: 2.5 BK boot hang after ide
-Date: Sun, 23 Mar 2003 10:48:32 -0500
-Message-ID: <3E7DD750.70804@gentoo.org>
-References: <20030323143108.30109.qmail@linuxmail.org> <200303231534.50634.baldrick@wanadoo.fr>
+	id <S263087AbTCWPrD>; Sun, 23 Mar 2003 10:47:03 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:28154 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S263083AbTCWPrC>;
+	Sun, 23 Mar 2003 10:47:02 -0500
+Date: Sun, 23 Mar 2003 16:58:05 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: marcelo@connectiva.com.br, Jeff Garzik <jgarzik@pobox.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
+       szepe@pinerecords.com, arjanv@redhat.com, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-ID: <20030323155805.GL3475@pasky.ji.cz>
+Mail-Followup-To: marcelo@connectiva.com.br,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Pavel Machek <pavel@ucw.cz>, szepe@pinerecords.com,
+	arjanv@redhat.com, alan@redhat.com, linux-kernel@vger.kernel.org
+References: <200303171604.h2HG4Zc30291@devserv.devel.redhat.com> <1047923841.1600.3.camel@laptop.fenrus.com> <20030317182040.GA2145@louise.pinerecords.com> <20030317182709.GA27116@gtf.org> <20030321211708.GC12211@zaurus.ucw.cz> <20030323110052.5267cba8.skraw@ithnet.com> <3E7DB99B.5050509@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E7DB99B.5050509@pobox.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
->>I'm experiencing exactly the same as you: 2.5 won't
->>continue past IDE. I've tried 2.5.65-ac3, 2.5.65-bk3
->>and 2.5.65-mm4. All of them fail at the same point.
->>I've tried using ACPI, APM, disabling preempt, TCQ,
->>enabling SysRq support, but had no luck.
->>
->>The machine is a Pentium 4 2.0Gz, with a QDI
->>PlatiniX 2D/533-A (i845E), 2 UDMA100 disks
->>(Seagate ST380021A 80GB and IBM-DTLA-307030
->>20GB), a Pioneer DVD-ROM and Sony CRX185E3).
+Dear diary, on Sun, Mar 23, 2003 at 02:41:47PM CET, I got a letter,
+where Jeff Garzik <jgarzik@pobox.com> told me, that...
+> Stephan von Krawczynski wrote:
+> >On Fri, 21 Mar 2003 22:17:08 +0100
+> >Pavel Machek <pavel@ucw.cz> wrote:
+> >
+> >
+> >>Hi!
+> >>
+> >>
+> >>>>Would it make sense to repackage 2.4.20 into something like 2.4.20-p1
+> >>>>or 2.4.20.1 with only the critical stuff applied?
+> >>>
+> >>>There shouldn't be a huge need to rush 2.4.21 as-is, really.  If you
+> >>>want an immediate update, get the fix from your vendor.
+> >
+> >
+> >Sorry Jeff,
+> >
+> >this comment must obviously be flagged with a big community-buh. It is very
+> >likely that most readers of LKML read/write here _not_ because they are
+> >looking for a _vendor_ specific thing, but because they feel to a certain
+> >extent as part of a linux-community and (partly) want to give something 
+> >back
+> >for the good things they got from it.
+> >It is no hot news over here that linux does _not_ live because of 5 
+> >different
+> >(or more?) "vendor"-kernels, but solely because there is _the_ official
+> >kernel.org kernel (releases). 
+> [...]
+> >So IMHO: if there is a-known-to-work patch for the discussed exploit it 
+> >should
+> >be released as _some_ (pre-)release for 2.4 quickly, and thanks must go to 
+> >alan
+> >for taking quick approach on 2.2.
 > 
 > 
-> 2.5 BK worked for me two days ago, i.e. before Alan's
-> latest IDE changes went in.  Did any previous version
-> work for you?
-> 
+> I think you misunderstand my point:  there was a patch posted which 
+> fixes the ptrace issue.  If you want to fix your kernel, there are two 
+> options:  either you are capable enough apply that patch yourself, 
+> otherwise get a kernel update from a vendor.  Marcelo is under no 
+> obligation to provide hot-fix kernels...
 
-I'm seeing the exact same behavior for AMD Opus.  It just 
-hangs after the hdd, no messages.  I've been dropping 
-printk's in random places, but still haven't figured it out. 
-  Please see the "IDE Todo" thread for more info.  Also, it 
-was working for me 2 days ago as well.
+Just out of curiosity, Marcelo, when could we see 2.4.21-rc1 ? What is yet
+expected to go in before rc, and how long it could take to have 2.4.21 final
+out given that no other critical bugs would be discovered?
 
-Cheers,
-Nicholas
+The release cycle is probably getting indeed kind of ... long; that could be ok
+for ie. 2.2, but it would be nice to have shorter development cycle for the
+pair of latest two development lines. Sure that the larger changes need to get
+enough of testing, but then we could maybe spend the months rather between the
+-rc releases than both -pre and -rc releases...?
 
+Thanks in advance,
 
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+The pure and simple truth is rarely pure and never simple.
+		-- Oscar Wilde
+.
+Stuff: http://pasky.ji.cz/

@@ -1,104 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSJUDZg>; Sun, 20 Oct 2002 23:25:36 -0400
+	id <S264709AbSJUDhh>; Sun, 20 Oct 2002 23:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbSJUDZf>; Sun, 20 Oct 2002 23:25:35 -0400
-Received: from waste.org ([209.173.204.2]:36273 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S264716AbSJUDYa>;
-	Sun, 20 Oct 2002 23:24:30 -0400
-Date: Sun, 20 Oct 2002 22:30:33 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: patch management scripts
-Message-ID: <20021021033033.GL26443@waste.org>
-References: <3DB30283.5CEEE032@digeo.com> <20021021023546.GK26443@waste.org> <3DB36C70.DFB52831@digeo.com>
+	id <S264717AbSJUDhg>; Sun, 20 Oct 2002 23:37:36 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:26378 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S264709AbSJUDhf>; Sun, 20 Oct 2002 23:37:35 -0400
+Date: Mon, 21 Oct 2002 12:42:57 +0900 (JST)
+Message-Id: <20021021.124257.131358184.yoshfuji@linux-ipv6.org>
+To: davem@rth.ninka.net
+Cc: sandy@storm.ca, mk@linux-ipv6.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, cryptoapi-devel@kerneli.org,
+       design@lists.freeswan.org, usagi@linux-ipv6.org
+Subject: Re: [Design] [PATCH] USAGI IPsec
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1035168066.4817.1.camel@rth.ninka.net>
+References: <m3k7kpjt7c.wl@karaba.org>
+	<3DB41338.3070502@storm.ca>
+	<1035168066.4817.1.camel@rth.ninka.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB36C70.DFB52831@digeo.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 07:54:40PM -0700, Andrew Morton wrote:
-> Oliver Xymoron wrote:
-> > 
-> > On Sun, Oct 20, 2002 at 12:22:43PM -0700, Andrew Morton wrote:
-> > >
-> > > I finally got around to documenting the scripts which I use
-> > > for managing kernel patches.  See
-> > >
-> > > http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.1/
-> > >
-> > > These scripts are designed for managing a "stack" of patches against
-> > > a rapidly-changing base tree. Because that's what I use them for.
-> > >
-> > > I've been using and evolving them over about six months.  They're
-> > > pretty fast, and simple to use.  They can be used for non-kernel
-> > > source trees.
-> > 
-> > Thanks for posting these - hopefully it will generate some discussion.
-> > 
-> > My own personal scripts (while obviously not getting nearly the
-> > workout yours are) make at least one part noticeably simpler - I use a
-> > complete 'cp -al' for the current "top of the applied stack" rather
-> > than your foo.c~bar files.
+In article <1035168066.4817.1.camel@rth.ninka.net> (at 20 Oct 2002 19:41:06 -0700), "David S. Miller" <davem@rth.ninka.net> says:
+
+> > Is this code being checked in to the mainline kernel? Or becoming part 
+> > of the
+> > CryptoAPI patch set? Bravo, in either case.
 > 
-> That has always seemed unnatural to me.  By keeping everything
-> in the one tree you can easily:
-> 
-> - collapse patches together:
-> 
-> 	pushpatch first-patch
-> 	for i in $(cat pc/second-patch.pc)
-> 		fpatch $i
-> 	done
-> 	patch -p1 < patches/second-patch.patch
-> 	refpatch
+> We will be incorporating lots of ideas and small code pieces
+> from USAGI's work, but most of the core engine will be a new
+> implementation.
+:
+> It is intended that this work will be complete (it isn't done as I
+> type this) and pushed to Linus upon his return from vacation.
 
-Not sure if I follow you here. The above is not quite my definition of
-easy - I'd probably sooner concat a pair of patches and rediff 'em.
- 
-> - Reorder patches (edit series file, poppatch 10; pushpatch 10)
-
-I throw all my patches in a directory tree called patchset, ordering
-implicit in filenames. Note the tree part, which allows me to reorder
-series as directories or individual patches in series. My 'kapply'
-script takes a regex matching last patch to apply.
- 
-> - Remove a patch which is partway down the stack:
-> 
-> 	rpatch patch-7-out-of-10
-
-Just a filesystem op for me: mv patchset/a/07 patchset/a/07.skip
-
-> - make changes to a not-topmost patch without having to do
->   anything special.
-
-Unless of course you're touching that file somewhere else in the
-stack. As I see it, I'm generally doing one of two things:
-
-- doing serial changes on a few files for a rewrite
-- doing a tree-wide search and replace
-
-Both approaches lose for the first, mine wins for the second, yours
-wins for a third that's practically unique to the VM work you're doing:
-
-- tweak n file-orthogonal patches
-
-I think there might be a way to combine the good points of both by
-automating a don't-diff-list, but the first one is still a challenge. 
-
-> Changelog tracking is fairly important to me also.
-
-Not sure I see the connection? By the way, I keep my descriptions with
-my patches, so I only have to keep track of the 'final product'.
-Before I switched from bash to Python, I used something like this to
-pull out the preamble:
-
-    head -$((`grep -n "^diff -" ../$p | head -1 | cut -d : -f 1` - 1 )) \
-      ../$p > .patchdesc.tmp
+Well, we'd like to learn more about your ideas...
+Source code is our friend.
+If you don't mind, would you send "as-is" codes to us?
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

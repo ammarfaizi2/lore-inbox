@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270244AbTG1Or4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 10:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbTG1Or4
+	id S270093AbTG1PBw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 11:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270190AbTG1PBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 10:47:56 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:25037 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S270244AbTG1Orz (ORCPT
+	Mon, 28 Jul 2003 11:01:52 -0400
+Received: from math.ut.ee ([193.40.5.125]:43659 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S270093AbTG1PBv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 10:47:55 -0400
-Message-Id: <200307281503.h6SF2w630943@zeus.kernel.org>
-From: bpac31@juno.com
+	Mon, 28 Jul 2003 11:01:51 -0400
+Date: Mon, 28 Jul 2003 18:17:00 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
 To: linux-kernel@vger.kernel.org
-Subject: economic woes?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Tue, 29 Jul 2003 00:00:10 +0900
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4)
+Subject: raid5 autoselecting a slower checksum function
+Message-ID: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-whats up dude, you should see this! i saved a bomb..
 
-it's very special.only the banks know about it..
+This is 2.6.0-test2 on a Celeron 900:
 
-I hope your ready for lower mortgage repayments!
+raid5: measuring checksumming speed
+   8regs     :  1640.000 MB/sec
+   8regs_prefetch:  1316.000 MB/sec
+   32regs    :   824.000 MB/sec
+   32regs_prefetch:   788.000 MB/sec
+   pIII_sse  :  1744.000 MB/sec
+   pII_mmx   :  2244.000 MB/sec
+   p5_mmx    :  2400.000 MB/sec
+raid5: using function: pIII_sse (1744.000 MB/sec)
 
-http://btrack.iwon.com/r.pl?redir=http://money@cheapermortgage.cn/4/index.asp?RefID=198478
+Why doesn't it select p5_mmx if it is 37% faster than pIII_sse?
+
+-- 
+Meelis Roos (mroos@linux.ee)
+
+

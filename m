@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291989AbSB0EXd>; Tue, 26 Feb 2002 23:23:33 -0500
+	id <S291620AbSB0EXW>; Tue, 26 Feb 2002 23:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292005AbSB0EXW>; Tue, 26 Feb 2002 23:23:22 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:48651 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S291989AbSB0EXI>;
-	Tue, 26 Feb 2002 23:23:08 -0500
-Date: Tue, 26 Feb 2002 20:16:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Shane Nay <shane@minirl.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb@sii.li
-Subject: Re: Simple cyberjack diff
-Message-ID: <20020227041641.GG3353@kroah.com>
-In-Reply-To: <20020226211128Z292609-889+7550@vger.kernel.org>
+	id <S292017AbSB0EXM>; Tue, 26 Feb 2002 23:23:12 -0500
+Received: from zok.sgi.com ([204.94.215.101]:38044 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S291620AbSB0EWz>;
+	Tue, 26 Feb 2002 23:22:55 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Announce: kdb v2.1 is available for kernel 2.4.18 
+In-Reply-To: Your message of "Tue, 26 Feb 2002 12:25:07 +1100."
+             <16206.1014686707@kao2.melbourne.sgi.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020226211128Z292609-889+7550@vger.kernel.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 30 Jan 2002 01:30:39 -0800
+Date: Wed, 27 Feb 2002 15:21:47 +1100
+Message-ID: <4884.1014783707@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 02:16:35PM -0800, Shane Nay wrote:
-> While looking around the usb code I noticed this semaphore problem in
-> cyberjack.  Anyway, it's a quicky.
+On Tue, 26 Feb 2002 12:25:07 +1100, 
+Keith Owens <kaos@sgi.com> wrote:
+>ftp://oss.sgi.com/projects/kdb/download/v2.1/
+>
+>  kdb-v2.1-2.4.18-common-1.bz2
+>  kdb-v2.1-2.4.18-i386-1.bz2
 
-Good catch.  I'll add it to my 2.4 and 2.5 trees and push the changes
-onward.
+Thanks to Tom Duffy, there is also kdb-v2.1-2.4.18-sparc64-1.bz2, plus
+2.5.5 versions.  2.5.5-i386 compiles for me, I have not tested any of
+the 2.5 versions.
 
-The same problem is also in the copy_from_user() test a few lines below
-this one.  I'll fix it.
+  kdb-v2.1-2.5.5-common-1.bz2
+  kdb-v2.1-2.5.5-i386-1.bz2
+  kdb-v2.1-2.5.5-sparc64-1.bz2
 
-thanks again,
-
-greg k-h

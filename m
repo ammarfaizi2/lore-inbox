@@ -1,91 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbSI3XdL>; Mon, 30 Sep 2002 19:33:11 -0400
+	id <S261396AbSI3XoR>; Mon, 30 Sep 2002 19:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbSI3XdL>; Mon, 30 Sep 2002 19:33:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:59804 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261391AbSI3XdK>;
-	Mon, 30 Sep 2002 19:33:10 -0400
-Message-ID: <3D98DFA0.6020908@us.ibm.com>
-Date: Mon, 30 Sep 2002 16:34:56 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-CC: Martin Bligh <mjbligh@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch][rfc] xquad_portio cleanup
-Content-Type: multipart/mixed;
- boundary="------------060306060507030306080906"
+	id <S261393AbSI3XoR>; Mon, 30 Sep 2002 19:44:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47868 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261392AbSI3XoP>; Mon, 30 Sep 2002 19:44:15 -0400
+Date: Mon, 30 Sep 2002 19:49:57 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: mjacob@feral.com, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doingfiletransfers
+Message-ID: <20020930234957.GG25340@redhat.com>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	mjacob@feral.com, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>,
+	"Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+	Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.BSF.4.21.0209271417260.22542-100000@beppo> <200209272123.g8RLNAi21161@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209272123.g8RLNAi21161@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060306060507030306080906
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Sep 27, 2002 at 05:23:10PM -0400, James Bottomley wrote:
+> mjacob@feral.com said:
+> > Duh. There had been race conditions in the past which caused all of us
+> > HBA writers to in fact start swalloing things like QFULL and
+> > maintaining internal queues. 
+> 
+> That was true of 2.2, 2.3 (and I think early 2.4) but it isn't true of late 
+> 2.4 and 2.5
 
-Alan, Martin, Linus, and anyone else who cares, ;)
+Oh, it's true of current 2.4 (as of 2.4.19).  It's broken for new and old 
+eh drivers both in 2.4.  Hell, it's still broken for new eh drivers in 2.5 
+as well.
 
-	Here's a patch Martin and I put together a while ago to clean up the 
-xquad_portio kludgery that's been floating around for too long.  I think 
-this pretty much goes along with what you have in your tree, Alan.  It's 
-a small patch, so if no one complains, please apply Linus.
-
-
-Cheers!
-
--Matt
-
---------------060306060507030306080906
-Content-Type: text/plain;
- name="xquad_fixup-2539.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="xquad_fixup-2539.patch"
-
-diff -Nur linux-2.5.31-vanilla/arch/i386/boot/compressed/misc.c linux-2.5.31-xquad/arch/i386/boot/compressed/misc.c
---- linux-2.5.31-vanilla/arch/i386/boot/compressed/misc.c	Sat Aug 10 18:41:40 2002
-+++ linux-2.5.31-xquad/arch/i386/boot/compressed/misc.c	Thu Aug 15 14:28:33 2002
-@@ -9,6 +9,8 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
- 
-+#define STANDALONE
-+
- #include <linux/linkage.h>
- #include <linux/vmalloc.h>
- #include <linux/tty.h>
-@@ -120,10 +122,6 @@
- static int vidport;
- static int lines, cols;
- 
--#ifdef CONFIG_MULTIQUAD
--static void * xquad_portio = NULL;
--#endif
--
- #include "../../../../lib/inflate.c"
- 
- static void *malloc(int size)
-diff -Nur linux-2.5.31-vanilla/include/asm-i386/io.h linux-2.5.31-xquad/include/asm-i386/io.h
---- linux-2.5.31-vanilla/include/asm-i386/io.h	Sat Aug 10 18:41:28 2002
-+++ linux-2.5.31-xquad/include/asm-i386/io.h	Thu Aug 15 15:17:31 2002
-@@ -298,7 +298,11 @@
- #endif
- 
- #ifdef CONFIG_MULTIQUAD
--extern void *xquad_portio;    /* Where the IO area was mapped */
-+ #ifdef STANDALONE
-+  #define xquad_portio 0
-+ #else /* !STANDALONE */
-+  extern void *xquad_portio;    /* Where the IO area was mapped */
-+ #endif /* STANDALONE */
- #endif /* CONFIG_MULTIQUAD */
- 
- /*
-
---------------060306060507030306080906--
-
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSAXWen>; Thu, 24 Jan 2002 17:34:43 -0500
+	id <S290421AbSAXWfz>; Thu, 24 Jan 2002 17:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290422AbSAXWee>; Thu, 24 Jan 2002 17:34:34 -0500
-Received: from tapu.cryptoapps.com ([63.108.153.39]:37817 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S290421AbSAXWeZ>;
-	Thu, 24 Jan 2002 17:34:25 -0500
-Date: Thu, 24 Jan 2002 14:33:25 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
+	id <S290424AbSAXWfi>; Thu, 24 Jan 2002 17:35:38 -0500
+Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:45061
+	"EHLO awak") by vger.kernel.org with ESMTP id <S290421AbSAXWej> convert rfc822-to-8bit;
+	Thu, 24 Jan 2002 17:34:39 -0500
 Subject: Re: RFC: booleans and the kernel
-Message-ID: <20020124223325.GA886@tapu.f00f.org>
-In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: timothy.covell@ashavan.org
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201242123.g0OLNAL06617@home.ashavan.org.>
+In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org> 
+	<200201242123.g0OLNAL06617@home.ashavan.org.>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 24 Jan 2002 23:33:40 +0100
+Message-Id: <1011911622.2631.6.camel@bip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
-User-Agent: Mutt/1.3.26i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 12:42:58PM -0500, Jeff Garzik wrote:
+le ven 25-01-2002 à 22:24, Timothy Covell a écrit :
+> On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
+> >
+> > The compiler _will_ turn if(a==0) into a test of a with itself rather than
+> > a comparison against a constant. Since PDP days, no doubt.
+> 
+> I thought that the whole point of booleans was to stop silly errors
+> like 
+> 
+> if ( x = 1 )
+> {
+> 	printf ("\nX is true\n");
+> }
+> else
+> {
+> 	# we never get here...
+> }
+> 
 
-    A small issue...
+gcc already warns you about such errors.
 
-Which has spawn a bug ugly thread filled with opinions and other stuff
-hardly relevant :)
+	Xav
 
-    C99 introduced _Bool as a builtin type.  The gcc patch for it went
-    into cvs around Dec 2000.  Any objections to propagating this type
-    and usage of 'true' and 'false' around the kernel?
-
-It seems everyone is discussing code efficiency and such like.... How
-about we just assume that whether we use if(bool) or if(int) the
-compiler produces euqally good and bad code --- I see no evidence to
-suggest otherwise.
-
-I don't want to argue over correctness here, too many people already
-have.
-
-Surely what is left to discuss was Jeff's original email --- do people
-mind the use of this, does it make the source mode readable?
-
-Arguably, I think it does.  It certainly doesn't make it less
-readable.
-
-
-
-  --cw

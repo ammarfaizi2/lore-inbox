@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSEFO7A>; Mon, 6 May 2002 10:59:00 -0400
+	id <S314468AbSEFPIo>; Mon, 6 May 2002 11:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314463AbSEFO7A>; Mon, 6 May 2002 10:59:00 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14099 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314459AbSEFO67>; Mon, 6 May 2002 10:58:59 -0400
-Subject: Re: Review: Servercrash with kernel SuSE 2.4.16
-To: Oliver.Schersand@BASF-IT-Services.com
-Date: Mon, 6 May 2002 16:17:34 +0100 (BST)
-Cc: chris.mason@suse.com, alessandro.suardi@oracle.com, sbrand@mainz.ibm.com,
-        reiser@namesys.com, linux-kernel@vger.kernel.org
-In-Reply-To: <OF10FE0462.9B5B7937-ONC1256BB1.002ADC0F@bcs.de> from "Oliver.Schersand@BASF-IT-Services.com" at May 06, 2002 10:57:15 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314490AbSEFPIn>; Mon, 6 May 2002 11:08:43 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:32522 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S314468AbSEFPIn>; Mon, 6 May 2002 11:08:43 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A3A@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'Steve Whitehouse'" <Steve@ChyGwyn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Kernel deadlock using nbd over acenic driver.
+Date: Mon, 6 May 2002 11:05:52 -0400 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E174kF4-0005RU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This shows us a main problem of Linux in datacenter environment. The
-> automatic guarding of the local attached storage and the hardware is very
-> importend in this environments. In this environment we use expensive high
-> performance hardware. These hardware is not  good  supported by the
-> standard linux kernel. The companies which sell these hardware deliver not
-> all features of these hardware to the community of linux.  There drivers
-> and guarding agents are not distributed under GPL.
+Hi,
 
-I would suggest you review your vendor and hardware policies. The standard
-Linux i2c/smbus addons support extensive power and health monitoring for
-most standards based systems.
-
-Anyone who loads a product onto a critical datacentre system where the
-vendor says "well it might work, but we don't know even with the vendor
-supplied kernel" is not being terribly professional about it.
-
-Maybe your products are in fact also supported by open source code, maybe
-your choice of hardware is poor. Would you buy Win2K setups where the
-vendor said "well the monitoring might work, we dont know" ?
-
-My system temperatures, power status, disk array temperatures and disk SMART
-status are all happily being logged. I have no binary modules on the server.
+I am using 2.4.16 with xfs patch from SGI. It may not be the acenic
+driver problem, I can reproduce the deadlock in a 100 base-T network
+using eepro100 driver. Closing the server did not release the deadlock.
+What else can I try?
 
 
+-----Original Message-----
+From: Steven Whitehouse [mailto:steve@gw.chygwyn.com]
+Sent: Monday, May 06, 2002 4:46 AM
+To: chen, xiangping
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel deadlock using nbd over acenic driver.
+
+
+Hi,
+
+What kernel version are you using ? I suspect that its not the ethernet
+driver causing this deadlock. Am I right in thinking that if you kill the
+nbd server process that the hanging process is released ?
+
+Steve.
+
+> 
+> Hi,
+> 
+> I encounter a deadlock situation when using nbd device over gigabit
+> ethernet. The network card is 3c 985 giga card using acenic driver. When
+the
+> network has some significant back ground traffic, even making a ext2 file
+> system can not succeed. When the deadlock happens, the nbd client daemon
+> just stuck in tcp_recvmsg() without receiving any data, and the sender
+> threads continue to send out requests until the whole system hangs. Even I
+> set the nbd client daemon SNDTIMEO, the nbd client daemon could not exit
+> from tcp_recvmsg(). 
+> 
+> Is there any known problem with the acenic driver? How can I identify it
+is
+> a problem of the NIC driver, or somewhere else?
+> 
+> Thanks for help!
+> 
+> 
+> Xiangping Chen 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

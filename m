@@ -1,154 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbTDEBzd (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTDEBzd (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:55:33 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:3080 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261694AbTDEBza (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 20:55:30 -0500
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Date: Sat, 05 Apr 2003 02:06:51 +0000 (GMT)
-Subject: BK-kernel-tools/shortlog update (part 2 of 2)
-Content-type: message/partial; id="500.13515.1049508410.merlin"; number=2; total=2
-MIME-Version: 1.0
-Message-Id: <20030405020651.791B1527FB@merlin.emma.line.org>
+	id S261760AbTDECLa (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 21:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTDECLa (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 21:11:30 -0500
+Received: from mail-7.tiscali.it ([195.130.225.153]:37989 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S261760AbTDECL2 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 21:11:28 -0500
+Date: Sat, 5 Apr 2003 04:22:50 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, mingo@elte.hu, hugh@veritas.com,
+       dmccr@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <20030405022250.GM16293@dualathlon.random>
+References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain> <20030404105417.3a8c22cc.akpm@digeo.com> <20030404214547.GB16293@dualathlon.random> <20030404150744.7e213331.akpm@digeo.com> <20030405000352.GF16293@dualathlon.random> <20030404163154.77f19d9e.akpm@digeo.com> <20030405013143.GJ16293@dualathlon.random> <20030404205248.C21819@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030404205248.C21819@redhat.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ML3WA[_()?ATS1W),N: []4W?)&B[=3DR.SNW^:S3&>T%YX!,0ZS+A>31_!`=3D"TD
-M![A\45ZM*D$-13J*: 5:SUDXK'HSN_&`/I^@`;(;R]U,:XAT-!)Q,A.)6G&**
+On Fri, Apr 04, 2003 at 08:52:48PM -0500, Benjamin LaHaise wrote:
+> On Sat, Apr 05, 2003 at 03:31:43AM +0200, Andrea Arcangeli wrote:
+> > Also consider this significant factor: the larger the shmfs the smaller
+> > the nonlinear 1G window will be and the higher the trashing. With 32G of
+> > bigpages the remap_file_pages will trash like crazy generating an order
+> > of mangnitude more of "window misses". I mean 32bit are just pushed at
+> > the limit today regardless the lack of remap_file_pages. Example, if
+> > you don't use largepages going past 16G of shm is going to be derimental.
+> > The cost of the mmap doesn't sounds like the showstopper.
+> 
+> You're guessing here.  At least for oracle, that behaviour is dependant on 
+> the locality of accesses.  Given that each user has their own process you 
+> can bet there is a fair amount of locality to their transactions.
+> 
 
-MN1)['^@D3-@S73M>YTI&'TOJNK+M<52X8/-QN#^\&C93US>NZI%4PAI/DP-/
-MH1VU*,9>%H^4L,:KQ/5Z'6?PUHZUGQY%_Z\'DU5>02LM;:*MFGO-*QH@]DWX
-MU(RK92&VHBNI+^7H1Q+R!M9$`&J54&?HK3U=3D5*K!5J'_!I"PM6$@%Y,/2Q?'
-MY=3DWG8J8XZ(5)R$T;0A9,Z%D9W8CPOH289T%/0'NX##WK9Z&V#S^,(WH'1Q1B
-MO(M'\8Q-XK+=3DO)B6-*C_O-796ZU49UT+2YNJ`CQNF^"?$X6SC$<BY7AN--G]
-MT"A[J_*)HE2&UKV8GAF\0<ZG=3DV\KTS030U:UE6$*:G^"-3;"*0-_9>"^\358
-MA^N.C-;_CM[C`/"<.LM(AU-CN+4QW>S@SS0\I?)T4E!4+-[FCS$K^],X-\-&
-M$Z8VP9,P*XLU]3^)OXTGBVIGX:O`1"/G8R8-=3D73K$<&R)M85I2[,XU2T1A]Y
-M@#$VES5<Y"3C?LV+4E)U/N>61D*S@M!\R[BN7W2[.]F9?.MC+Z7:K845I*+9
-M].S+"E=3D\.?JU_^:G=3D@2,FT><OHYFD8_8VWBX'KV1S>)76;I<?&TR_WNTR^8S
-M@=3DLE$,SPOR&2%UMC1]NK%^24(!_$\F'?$`TFX9:@KET/3C=3D;[;_Y44(V+^`B
-M)OSO$94&XN"M*T(A2"-*Z++FS$]\#_45??##'DG)G5E(W/?TA&$7^DXVU&_P
-MO(_\`4-]A,,#N\1J5>]CIN;+)I\TYV#XO>M;W#6RYN[DB<5IB;F=3DQU!G]2&,
-M13\W#[$'AU"43\WC`#_&Z5';^&9W9)<YN+E>*378WC%5UIN=3DV"?;?:LZ::<O
-M1`?@*B#"%,,=3DT8=3DO"XAA?:"Z5O803?8EA?2[1&[7>NBBTH-?\]@8[9OT=3DZ=3DL
-M^W[*R@-X3I5N$D6]K8<$P@<%8_,HX]_(K(RN!V)-HP4UM3['V`T?\X8!C*T5
-MR:59>V^\1>E?0_6+9U+5B:1;!'[WO"/]&Q<:<YE*S:R@6RW6T5*UV3A,9BI'
-MO7XFY7U]H;L+G7OP!FOX=3D;*CS-._4W0I]JHB9"E.7H:?]#9,P!W>_O#J173Q
-MP\M_>__CG_&7/_U(]Y1%TCTLK"J::1W)!SZ!/O9B=3D'GF-US)-J1)#-F/^6D]
-M!E<7W-)@0#TPG\!5KDYT>_#UQ4XVS.\XWIM_]@>&C>;9+>DPSM0WDW(6AM]M
-MQ?`N5+OOG\+%-%^];0\<=3DO13."/)%>'>NK/>JJ<SJ.,T1)0B03XS(F^Y&_4[
-M/\9@FT"TJQ$?R[?MI)A.VQ<<G@A:8VV7$+EE1#JAUGRRIF;P.1]%TXF]-J?]
-M#BB=3D%]WS&,/P\NE^5KQ"_R.-6QX@R#8NG"SI:R=3DK1]VB.`8E>@U<4MGL-KK\
-MO[+?$-L+B%=3D(1-@;I("LZ[BXF7K?.6+HB6R(VGDR//7GQ>Q-:*FX_5(8JB'"
-MSIXG-CGS=3DMF/,IAY/Q0FVY,9JL=3D8?"R!F_.@Q]IJ/S'`\/P61JK+/<,)MFDM
-MSK2R&.P!#`Y]0+?"4=3DXC440]&NJ)1-I2^X:/?C#@-!6FY%U"W<$FY5C\>U8T
-M-K'!:$JU]EIR&IGA">^<+DJ_VPA9)RV\,TGJ<7YGO(H//Q#.P;YW+^>_C&!<
-M2=3D8*.T(V%!HL3.S_,Z:RIW'G]B?G_>YX6L`_[UFSUC'G<-2OAMC(U?'3T35X
-M<,T_JB-D0F/WB!7QD$>0R><_01Q@S9J6Q/O+8TZ)Q/H>G[3Q_NTVI<I6]?^=3D
-M75MSW#:6?HY_!4;QENR=3D::I;4C06O=3DE:)9K$+MMCKUJ1RLYFMT`V6LTT;P;(
-MIKH3[W^=3DJJF:FC^PSWN^`Y`-]L5VX@>WBO@`@K@<G'-P+MMQ6_FQ>$,RTH+X
-M<;OD]J[-WL)4(WW_/I09O+0]TTA-=3D$?<T+RZR"BEFO/-P[0@[JB"94KFRV>\
-MFE]`Z9>[9K6ZY_!I]]Z-AB[XZNO%DHB)]&!Y00N-_QX@TNPG*VRX#.Q`@2-Q
-MT:N]V=3DT,6FUQL9P0;T&+9A-I(XHZOM9A9W44!0V=3DTZGR/8-LA6]1VH%CDAU2
-MDE>W&;1=3DZ.)XTR7!HE[C.$QK*Y,0<H[;94D,QUP&$Z)UT;K+<WB/YD5J#T^'
-MU1+A@#X?R3E<_('8B:W4^SI)/Z_=3DCP2SVE5%APM.4K$@J7Y]C/("NVD+6F@2
-MS`O6!<+Z8IYT=3DQA`)[0>71G#69>1'>/^,):F^HBJHYP7SA<\5XWIM,UO9$-;
-M]H7E!LL4QB>[[E>9AA!GUZZ;-$XQL_3I.?RGO&^G;Q$OBU*M!M_*B+9XZK(Q
-ME<1I$)L9$K^1;!$Q+F+4I\6\4A<9M@%4*G$<]UV(+M)(*Q=3D@@8`PLNH%C;84
-MZ@H%]D,:"3@\93,9;R[3V[_;,B!I:>0P!-[!^+H00_]I$2T8<9+WF9(346=3DX
-MY?:V#E30%.ETBNO))N%[TW48",ACXA;%'9/[GNH@H,%$2<>W9C3/ZS&[HD+Q
-MS=3D^1#H+;!];#K6^C-W%$`/DN?J"13FLKC-)%(/Y:1"ZDLT9R@+2<A14MF?=3D^
-MH_8YB(%E88!<!I.:QJ=3DD[[Q5D?N=3D19*62RZUZ#H-RU0MV;G1@]%2^2OU;P6C
-MK0M-BX:O&@M$_K?UEH,4YOLTY!$-I-^C96N+J*/9<!C6E8$MH6^KV5[,/TLJ
-MRST0=3DZ,FX!+_)&9*E%I-D2['P=3D!0%695&OGW\,YTXULXO%G91L=3D5>#=3D3FM8;
-M,;&^M?DW122NM8SY:-$3-SA]Q<G6R"B9)M42RB=3DK!M(N_A\F!>9F7*DD;YEA
-M#=3DM:O>VS#@]EF`(:N["URC;>BIZMHS-JXJ(0A*7*IT%L$EUT%+\=3DL>\!\*#$
-M901U+-,[J9>=3DU+P#C*CJ.2X5O$DH;)8CXDDY<Y+BNR]-W+NI=3DMG@KR?-)4G0
-MLV:79?!5DL)[W(NWK6W-`.D-H)Z3V62[V6]LH<6K?;%_KI(YI\2Y<JD&]<^-
-MXJC(S3HX!7V8N,53!J3P/4@M*SKKMCEB9->JLC911-\01)FU-)V&YJH@X9Y$
-M;"YB5#8/I<Z"3HI:+T47L?V%DR*`G*;@1#X7GW+FJW-O`]K5_9(.*T84$2V<
-M)%^0<.L[Y>)3KVC\5PY$=3D8(BY301?&M@TK7VW#7Y.FTUY\2BS3`U?1'J$K;,
-M5Z[(PF:TOPT-UJ:!XA5*Q%A5#I>&TAR?C_[L*SEK'`&=3D3I0PN+6?4E?]9O!0
-MO(J_U[)K"K!-`7`OL"I*4_J^C0YYJ5O_+SK($E73HH)-?M5-,B+>_(-.><1/
-MH'(/.=3D7!JD!NJG6C.\%TTN^Z\;OO7=3D99ND,49;(KGX2;F"L.R$<X`Q7=3DIBH'
-M,]WI[J!RP=3DZD\VLR23U^J-NCJDL?9M$3HMW5;!F8:2276\Y9'ZE6_=3D8JQ+'=3D
-MR=3D_0,T.<T&]^R><WOS!%^9M:KV'B6ANYK=3D.[JA,Q1I'%&3H<\']<Z'ZVP"L4
-M";?)&4L4!%MR\Z[!'CDW21M"73<SC00OV\X0%OE,.]QJ9Z2A]GO>)1-DUN)%
-M9X@Q)-[(16FCLR+QS1^=3D^G_,H)X8;R0G;3,PO'94TWEKCF6;K\UPEE)BS;5<
-MY!$(G)]+@>B2?=3DI"/PM%A-^Z'3OA[":IU(JELS$*'8JD*L05BSA&/'&Y@W0)
-MHV3=3D-8M$#M<.8.O0%*N-2"<<'7%L2QRH2A`:B[CV<D;RJ^]Y/G:%S);5:5KT
-M]%M6N67@]B!G[-)/AP[1:U^DD`:!4BPBL>]K9+B4F<P*$O+NUH[WQEVYF1B]
-MF.KP3DJB$)!%O0!G<ZC:4*Y2=3DU-I8%(4[4XUR@&#HQ:53-04"J7-K&^>]8>#
-MV!I$=3DP*\)Y-;5NI,E,1WMK!#_X]T>VIKT5O\A;?EN$*V)\*5A4/]+UU?JJUS
-MH34:_#80UXU2DX3/3#,QH2J)`PIRY(;JTH&TZ$O87+-_;XNN8%GKITW8`U61
-M9(4]8GRHN[XQRK@MI,/G_ZR@1=3D2'CNTMG0O'F!3?*,M,F2D4"7E$5*3F+=3D*1
-MD[835T3`6]=3DP6*C<[3;<9]WUBU0EK0V1P\[=3DH_W)F794LC^?4Z6[$3`SE64<
-MO6R#U6V_XUE;;M\#G:0),Z-]HZ'6$,&6.F!^%UL[T(75<G1W@V.400)RJG0$
-M2R7VL<T,MFGB/UXEZ=3D\0HO1O\"'HFUT@8&L>A9#DEWF,`\"7.<8HA8-DNQ+F
-M21EPK.$M06M,1>([9\5J4A!L/^_LN*J1WNWE,K>V`R:K]71CP-PESZ6,G*[-
-MY$0:$2BR)?].XO7TWYNARGS=3DNR'20Y-2JKR1OHG6&,_%I<)=3DBIL51$]A*YA\
-M8[WFX@T7M8V[F+RP]4XP?"5NXT+[0P0Y4'5/*:@0R^$%2*N=3DJ-(06,7:NE5O
-MC/-?B-'?GY[+[%!CCG4""R%6O"%EIZ6B]F$X6>;G@],_#T9/!J/381`I&-HA
-M3-[O:N+)V>]JX7XT.!L,AX/1<"!/!T^BP?!L,#T+-IB]/4T463D-$[.^8Z<I
-MF3*W3@4,J60..]_F8];28PL2M^UN@2"+R>YY>\,_>VQ+'&C.41";0?OGON]W
-MZHNQ@[G:*>AE691@K+$M_20[8ULLWA2EAPX)G?A*B6V8SD-=3D-&#U@QF<S$C&
-M7&>C33DJ/6&VP>LLKAYH3<&PT)'E&KF]PWX\7G?0V#+7\$*%\6QYURRW-XN-
-MM-T&B;;8.WA[?3Y\'M7W2,,0L\JQ9Z@T?HD+(-UAIZ')IKCH&P4[HGO:\^8[
-M^%?,_"K\4QV/=3DE+Y3U9*JYCO0/;!0>8R"/.0YOO!!!T-?"7CRP*>@EP!QM>T
-M[W<>;:QH'3N$1><VNDT@D>V!J#61^2BIYDJ5OMO!-4ECSXIXGN3[Z%:=3D(_B&
-MC52^N5]0YL4I-\@Z0R=3D*8$@&F>V`HQA.`V,NYRH-ITD*:Y?><IUJG=3D=3D?TR51
-M,O"W_"R'S&HPA\UW0OS5=3D)>W;N?T1>2V#3!9R00&"&;I1WFZEHFI:5S?$B-J
-MC5PJJAHNY%:\2@0CF\M5S0YE,^D<RFB6Z.0D@74[R>=3DU,9G`8PW%MN$"(5B"
-M.EMK)5PL=3D1":61NQQ#^T4&=3DW5I:/U(F1$Y>8ZYWIK6P9'ZB5JF1)QTA5=3DVSZ
-M-6UL\2;1\[EU7]AS^E2ST?'Q^>D3DI#2D9,O>Z?E)Y><W\+)[VP!>K*YD5Z\
-M[:W(RI:D53-NR%KIFUD!WR?>-SO?ML;O[1!#:"F%$0O/D,;R.4<J6$=3DTXP5[
-M*].R=3DI9E57(''TU)VW>%XV!].W/-)>+"E5AP9IW8YR=3DL;Z%I=3D]/+U^U3;\9(
-M-:M2R;J8*B,^8ID78"?S13\5)B;^57SEBBT:KEVR?_WA^OR*BQA59-NQ&M#8
-M2_ILZ61L`L&F)DXV@O>]AJ2*#)1)U36&=3D,@]0Z2_3(!(.QT`':?+`*X0FW3E
-MF@K$RSJ>MRB("TQ0_>RT%SG-"P%ATZU)%#*#:ZP6ZZ]?Z21/$"<_'<`%+Z:M
-M$:4%VY+5>;5<?]U58AU3;(6]R8+[4"3*S98D9D3(3S9=3D0ME0=3D-ZKUR@7K]IR
-MKK(@AE/6DSTW-UC#\!:[L2A;0U=3DSR.?5:1W,G+A_S0\AE_^@Z?APJ[.1B$ZX
-M10!HT=3DRBA#'+RA2AG]3NX'JFBDFAE;@VA\4!]@]":SC($5<X:IKFB/,NSZHL
-M;5M!)&7:!'6^UL=3DL-M9">:M\`NL[R-0ZX@M34Q%[5_4<4G]`D;A-)O`FP2?5
-M*Z)F*]^($?%":BE^6#F%.=3D%U&D%+V^>2YA=3D:P58R>BG-*BW$#3`6;.]+PP7Q
-M'8NZZE_7]VY3"9K"2-HD+JQ_3Z'P+`":A)*ZL;H6XM44_&!)T$A,/-BP3+*J
-MFPJ1N)65CQ81,V.9BF$A>4>C7Y.@J:-.Z7^3Y#$G6?^G8\R(GYK+"B=3DUB4SS
-M)4+8;FRIFQ9"0HV#<$WX_W(>B=3D+4/D.I[EFK02O2NOXNBI\K:9'4O3E<[=3D=3DP
-M5GW?`-%"D;.S9WEP8Q_2VQ>I-<QO8563P".C"GR3C_WPCZ%V.L/0V8C,@2[K
-MU'JZ;K'5M;A8E^$UC9S1/$2:^(AP7A#]V";R'<#B-7MV]O)%7BKX6EU4;5S0
-M9H*@]6O%"2Y=3D[^`^>JELQKU&P5Q^0AQ+-AD%G>6(S6#*X=3DK\3!,N&<ZMK63K
-M<^`:7)MX'L:WBG5ANI-LFCN.\E;$O9YHF8GOT^*NY\6!U+4PB-DSX[=3DRF2OF
-MX9V\3I.8A@;95Z*Z\A-#N\LQ<45,8E?<UEANY1G<=3DH>RN(WP"OM@3=3D]W&B]?
-M$@^'^XC:H>CPB4,9%=3D:P>*U9L6;9+OR$IR9IZ'!.[FH$QF[MX6Z)M,*+=3D8Q,
-M-,H>4TV:P!&QR`I.8;WU_?"[?JX;(A#/GS_G"FX1P`C1I3)<K\UV@7RG$Y?X
-M;!=3DGUC81)G/3P$I3F>TU]@J/^85LB_@IB\1&I_-/8B"O&&?C1!)PIXYN/W9<
-M=3D8=3D\AVV06J$H/H:]1_@1.3QC'7XP52H@0ASI;K];N0"A2%IG[Z4,32I9C=3D[U
-M]JV4)'.+BSD15@0$M@S!LI@71,%HB&&]E)B@(E&@CB3L'%LNYBUC<.O;AI"`
-M6#&M?TYV.GP\2R;$8B;B+=3D!`>?NGJ[@K&^*.BE2#>)<0?L&Y;XOZMH:M6F]K
-MKF12Q6JQ=3D>!C58AWMA`-KI+\/E1E$IO"&YUW]%3<()*Q$[U725FJ=3D/<M"]34
-MXAT#&(H4'?3F32[Q.8XN\<Z6]C;/BF:=3DPQ!DTX1D11?!>%WS'<K%JT9"M1KQ
-M26.K[-I*>\'<]Q+4I3LC]V*S]I''DF^#+\^'7XGC!\_/AV?T(^A?@H0X:HJ0
-MDN(AG3(:+(OYI8BFM2'N4HF'<[7\\%C\\N`+K:I:YQ]!/:7VGQR+$;7//T)D
-M2_&0.**OQ7M]^.C1K*K*7Z/YK\;,'H=3D'1\&__OKC0`Y6%X-WP\%Y\!^/'O_T
-MQ_"_QG]\?/@4+7S%+;B74C<?%F7U"S&2Q&)E.-<^"-P//XQK_>/P)_'U_XKL
-MZ+]?H>#A$74$@?;0$_[]BC_5=3D@?QZ#%$U*F'_$M#U'[24X?#H/#K#KLO/+1C
-MT"*IMO?Q&]4_^,VT[T-U].K<]>J<>O6%]R*(&.W`NI<):KE&3K2VKT\??/%!
-MJ-2HG:4B$(?BWP[II^LE/?GW0]2B5Y\,3_C5]A?]H^-823IQ,2QMC4=3DUOH`S
-M",VG$?_2]<CV_N1X:)N@WV/T0(B#:#DP-$/T_C\0TWL`Y@2,+O[V)HO+>M](
-M3UP+W4#^X>#Q4[0.5X$'/"R]&A_H0T=3D/74%;QSU\/CH]HR5W_N!+<>52!8MA
-M<'XBQ/%P>'(T/#W"5P]#$M9/SX184+,/6J[J7+#1#X:#%D,CNA<^^'*CN>/-
-MYDY.0AJ*MCE$RA!9G59)F2J!W6L.!7&T=3D.P808QK0:OY3MV7HLC55MNCK;9'
-MX>EQUS8B-M\IX0UIVQ@U"UVL%E">V2]I$'/@$0WFE\0O3J@K"`^R%-`M3W#/
-M<L#[Y,#B!@.OT:UN#=3DMNG1R=3DC,1H%!Z?AB?4+95EZ-;K;A-TH_8G^E1A8IV4
-M2+$E<-^%7WI8U%5)$HAXS;]M#6JEG4V\$^J12`E#?8MG-#O%=3D-KV,R^Z:0^H
-MUAA^5<:%T>_?@`3\':]I]:S[)1KH?25/MDB,0&K6/!"/QOPF03*=3DZ5Y&E?EU
-M_O)[S-&G:)DD]]08LH4=3D3-BX-*[<[!"S*1!-;/UA,'*A!WP)A)*2;TP/1*F+
-M"*R'?WU.\\GVG!-T_OGHR6@H3BTA&0Q^S(N?>IUQ%&;C'R#B@&,DM9TXV/G9
-MO7;;,=3DW39C?#FPUW,TJ4X7QX3GN6?H^/Z9>^_`UGN:89C.>FSK[^ZF0R.H_C
-,LP?_#W-VR>0.G@``
-`
-end
+I'm definitely not guessing about the largepage factor, you'd better
+drop some ram and run with largepages. I've to guess about
+remap_file_pages only because that's not backported yet (thankfully due
+its insane api).  But if largepages makes such an huge difference, mmap
+can't be the big cost under such a tlb trashing scenarios. largepages
+shouldn't affect the mmap frequency at all.
 
+Sure the locality exists, but if you wouldn't need a moving window you
+wouldn't need the vlm and with 32G shm vs 512M window, your trashing
+will be an order of magnitude higher than with a 1G shm, obviously.
+
+I'm guessing but I'm guessing based on non-guesses.
+
+However I'm not questioning that remap_file_pages will help, it will
+obviously, I just don't think it's worthwhile enough and I don't see
+mmap as the big cost, the big cost is the pagetable mangling and tlb
+flushing that will have to happen anyways, regardless if you overwrite
+the vma with an mmap or if you call remap_file_pages.
+
+> > you could try to avoid the need of the sysctl by teaching the vm to
+> > unmap such vma, but I don't think it worth and I'm sure those apps
+> > prefers to have the stuff pinned anyways w/o the risk of sigbus and w/o
+> > the need of mlock and it looks cleaner to me to avoid any mess with the
+> > vm and long term nobody will care about this sysctl since 64bit will run
+> > so much fatster w/o any remap_file_pages and tlb flush running at all
+> 
+> It is still useful for things outside of the pure databases on 32 bits 
+> realm.  Consider a fast bochs running 32 bit apps on a 64 bit machine -- 
+> should it have to deal with the overhead of zillions of vmas for emulating 
+> page tables?
+
+I can't understand this very well so it maybe my fault, but it doesn't
+make any sense to me. I don't know how bochs works but for certain you
+won't get any help from the API of remap_file_pages implemented in
+2.5.66 in a 64bit arch.
+
+If you think you can get any benefit, then I tell you, rather than using
+remap_file_pages, just go ahead mmap the whole file for me, as large as
+it is, likely you're dealing with a 32bit address space so it will be
+a mere 4G. I doubt you're dealing with 1 terabytes files with bochs that
+is by definintion a 32bit thing.
+
+map it all with mmap, and access it sparse. Then you have
+remap_file_pages in the 64bit archs, for free w/o special syscalls and
+w/o any sigbus handling, the kernel will do the paging for you to the
+swap and back into the right place in ram w/o passing through a slower
+userspace signal.
+
+I can't see any useful application of the current API of
+remap_file_pages in a 64bit arch, but it's possible I'm missing
+something. And no, I don't mind to waste 3.8G of address space in the
+bochs process, since I still have some petabyte of it unused.
+
+> If anything, I think we should be moving in the direction of doing more 
+> along the lines of remap_file_pages: things like executables might as well 
+> keep their state in page tables since we never discard them and instead 
+> toss the vma out the window.
+
+I'm sorry, but I don't understand very well this, sorry. Could you
+elaborate? What state do you want to put in the pagetables? Are you
+talking about the pagetables of the cpu or a simulated one in userspace?
+
+Andrea

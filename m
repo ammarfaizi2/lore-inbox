@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFJNPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUFJN0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUFJNPT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 09:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUFJNPT
+	id S261239AbUFJN0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 09:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUFJN0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 09:15:19 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:62666 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261234AbUFJNPN (ORCPT
+	Thu, 10 Jun 2004 09:26:52 -0400
+Received: from main.gmane.org ([80.91.224.249]:58765 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261239AbUFJN0v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 09:15:13 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
+	Thu, 10 Jun 2004 09:26:51 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
-Date: Thu, 10 Jun 2004 08:16:18 +0000
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Alasdair G Kergon <agk@redhat.com>
-References: <20040602154129.GO6302@agk.surrey.redhat.com> <20040609231805.029672aa.akpm@osdl.org>
-In-Reply-To: <20040609231805.029672aa.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406100816.18263.kevcorry@us.ibm.com>
+From: Lars <terraformers@gmx.net>
+Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
+Date: Thu, 10 Jun 2004 15:26:47 +0200
+Message-ID: <ca9nid$bnc$1@sea.gmane.org>
+References: <ca9jj9$dr$1@sea.gmane.org> <200406101459.45750.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e7deef.dip.t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 June 2004 6:18 am, Andrew Morton wrote:
-> Alasdair G Kergon <agk@redhat.com> wrote:
-> > kcopyd
-> >
-> > ...
-> > +/* FIXME: this should scale with the number of pages */
-> > +#define MIN_JOBS 512
->
-> This pins at least 2MB of RAM up-front, even if devicemapper is not in use.
+hi
 
-Is that really the case? The MIN_JOBS value is used to initialize the mempool 
-of kcopyd_job structures (see kcopyd.c::jobs_init()). A kcopyd_job is 
-(according to my calculations on i386) 272 bytes. If you assume they are 
-nicely aligned, then we'll round that up to 512 bytes. This means you should 
-be able to fit 8 of those structures in a page, and initializing to MIN_JOBS 
-should only use 256kB of RAM. Granted, 256kB of RAM isn't all the great 
-either, but it's about an order of magnitude less than 2MB.
+thanks for answering!
 
-Or am I not understanding how kmem_caches and mempools work?
+rc2 worked completely stable with c1 disconnect halt enabled and low
+cpu temp.
+rc3 has no C1 enabled after booting, so the cpu temp rises, but its
+stable.
+when enabling the c1 disconnect halt after this with something like
+"setpci -v -H1 -s 0:0.0 6F=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6F) |
+0x10)))" 
+(from
+http://www.tldp.org/HOWTO/Athlon-Powersaving-HOWTO/approaches.html#commandline)
+the cpu is getting cool again but the system locks up frequently.
 
-The jobs_init() routine is run (and hence the kmem_cache and mempool are 
-created) when kcopyd() is loaded, so the min-value has to be set to some 
-static number. One possibility to cut down on the up-front memory usage would 
-be to reduce the static MIN_JOBS value, and then use mempool_resize() when 
-the kcopyd users call kcopyd_client_[create|destroy].
+so it would be great to have the fixup re-enabled at boottime.
+maybe a switch to force the fixup on boards without c1 disconnect
+bios-settings would do it ?
 
-Another thing we could do would be to build kcopyd as its own kernel module. 
-Right now it's built in the same module with the core DM driver, so it's 
-loaded any time DM is loaded, regardless of whether any DM module is using 
-it. It should be fairly easy to split it out in its own module, which means 
-that mempool won't be created until some other module is loaded that depends 
-on kcopyd.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+thanks,
+lars
+
+
+
+
+Bartlomiej Zolnierkiewicz wrote:
+
+> 
+> Do you get lockups with -rc3 and not with -rc2?
+> 
+
+

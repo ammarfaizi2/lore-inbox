@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288834AbSBDJmU>; Mon, 4 Feb 2002 04:42:20 -0500
+	id <S288821AbSBDJmk>; Mon, 4 Feb 2002 04:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288830AbSBDJmL>; Mon, 4 Feb 2002 04:42:11 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20744 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288821AbSBDJmB>;
-	Mon, 4 Feb 2002 04:42:01 -0500
-Date: Mon, 4 Feb 2002 10:39:56 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Cc: Erik Andersen <andersen@codepoet.org>,
-        "Calin A. Culianu" <calin@ajvar.org>, linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-Message-ID: <20020204103956.T29553@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <20020204070414.GA19268@codepoet.org> <20020204085712.O29553@suse.de> <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200202040933.g149Xidx006940@backfire.WH8.TU-Dresden.De>
+	id <S288830AbSBDJme>; Mon, 4 Feb 2002 04:42:34 -0500
+Received: from [66.185.70.129] ([66.185.70.129]:39615 "EHLO rachael.letnet.net")
+	by vger.kernel.org with ESMTP id <S288821AbSBDJmT>;
+	Mon, 4 Feb 2002 04:42:19 -0500
+Message-ID: <3C5E5775.8080709@letu.edu>
+Date: Mon, 04 Feb 2002 03:42:13 -0600
+From: Chris Dellicker <chrisdellicker@letu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Tulip Driver hangs system in vanilla 2.4.17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Feb 2002 09:42:12.0933 (UTC) FILETIME=[39168F50:01C1AD60]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 04 2002, Gregor Jasny wrote:
-> Am Montag, 4. Februar 2002 08:57 schrieb Jens Axboe:
-> > Yep, _no_ drives to date support queued event notification. However, a
-> > polled approach is really not too bad -- it simply means that we'll push
-> > it to user space instead. I've written a small utility for reference.
-> 
-> You're wrong.
+I have recently run into a problem with the tulip driver on my laptop.
 
-Not likely
+It loads fine at first, and I can get connected to a network, etc.  When 
+I reboot the machine, it hangs when it tries to load the tulip module. 
+This only happens with a warm reboot, not a cold boot.  It is quite 
+repeatable.  If I power off completely, there is no problem.  If I 
+comment the tulip driver out of my startup scripts, there is no problem. 
+  If I reboot, it hangs.
 
-> PLEXTOR CD-R PX-W2410A
-> media removal
-> eject request
-> media removal
-> media removal
-> 
-> HITACHI DVD-ROM GD-2500
-> no media change
-> new media
-> media removal
+This does not happen with the 2.4.5 kernel, only the 2.4.17.  These are 
+the only  2 I have tried.
 
-I'm wrong about what? If you mean that my test app works, then yes of
-course it works. It's a synchronous command poll for media status. I
-said that _queued event notification_ isn't implemented in any drives.
+I have found that if I bring down my ethernet interface and unload the 
+tulip module before the warm reboot, the system will not lock when it 
+comes back up, so I have added the neccessary commands to my shutdown 
+scripts.  However, it seems to me like a kernel bug that should probably 
+be fixed.
 
-Did you read the code?
+My specific hardware/software config is:
 
--- 
-Jens Axboe
+HP Pavillion XH555 laptop with:
+1 Ghz Athlon 4
+512 MB RAM
+ESS sound/modem  (sound using Maestro3 driver)
+Accton ethernet   (using tulip driver)
+
+Software:
+Slackware 8.0, kernel 2.4.17
+using ACPI, tulip, maestro3, ext3, framebuffer, etc.
+
+If there's any more info that would help, please let me know.
+
+-Chris
+
+PS This is the second time I've posted this, so sorry for the 
+repetition.  It went seemingly unnoticed the first time, and I have not 
+heard anything else about this apparent bug.  Speaking of which, is 
+there a place to get a changelog for just certain parts of the kernel? 
+(ie a specific driver).
 

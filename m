@@ -1,93 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVCAS7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVCATGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVCAS7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 13:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVCAS7q
+	id S261641AbVCATGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 14:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCATGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 13:59:46 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:13809 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261556AbVCAS7m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 13:59:42 -0500
-Date: Tue, 1 Mar 2005 12:59:39 -0600
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-Message-ID: <20050301185939.GC1220@austin.ibm.com>
-References: <422428EC.3090905@jp.fujitsu.com> <m1hdjvi8r3.fsf@muc.de> <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
+	Tue, 1 Mar 2005 14:06:41 -0500
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:9703 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261641AbVCATGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 14:06:33 -0500
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+From: Christophe Saout <christophe@saout.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andreas Gruenbacher <agruen@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050227212536.GG3120@waste.org>
+References: <2.416337461@selenic.com> <200502271417.51654.agruen@suse.de>
+	 <20050227212536.GG3120@waste.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mk64tZH3MCYAv1FxVOzE"
+Date: Tue, 01 Mar 2005 20:06:22 +0100
+Message-Id: <1109703983.16139.16.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 10:08:48AM -0800, Linus Torvalds was heard to remark:
-> 
-> On Tue, 1 Mar 2005, Andi Kleen wrote:
-> > 
-> > But what would the default handling be? It would be nice if there
-> > was a simple way for a driver to say "just shut me down on an error"
-> > without adding iochk_* to each function. Ideally this would be just
-> > a standard callback that knows how to clean up the driver.
-> 
-> There can't be any.
-> 
-> The thing is, IO errors just will be very architecture-dependent. Some 
 
-:) 
-FWIW, I've got a working prototype that is ppc64-architecture specific
-and I've been yelled at for not proposing an architecture-generic API
-and so my current goal is to hash out enough commonality with Seto to 
-come up with a generic API that's acceptable for the mainline kernel.
+--=-mk64tZH3MCYAv1FxVOzE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-(FYI, the 'prototype' currently ships with Novell/SUSE SLES9, but 
-I haven't been sucessful in getting the patches in upstream.)
+Am Sonntag, den 27.02.2005, 13:25 -0800 schrieb Matt Mackall:
 
-> might have exceptions happening, without the exception handler really 
-> having much of an idea of who caused it, unless that driver had prepared 
-> it some way, and gotten the proper locks.
+> Which kernel? There was an off-by-one for odd array sizes in the
+> original posted version that was quickly spotted:
+>=20
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4=
+/2.6.11-rc4-mm1/broken-out/sort-fix.patch
+>=20
+> I've since tested all sizes 1 - 1000 with 100 random arrays each, so
+> I'm fairly confident it's now fixed.
 
-Most hotplug-capable drivers are "most of the way there", since they
-can deal with the sudden loss of i/o to the pci card, and know how
-to clean themselves up.
+-	int i =3D (num/2 - 1) * size, n =3D num * size, c, r;
++	int i =3D (num/2) * size, n =3D num * size, c, r;
 
-> A non-converted driver just doesn't _do_ any of that. It doesn't guarantee 
-> that it's the only one accessing that bus, since it doesn't do the 
-> "iocheck_clear()/iocheck_read()" things that imply all the locking etc.
+What's probably meant is: ((num - 1)/2) * size
 
-Yes; for example, the pci error might affect multiple device drivers.
-The proposal is that there should be a "master cleanup thread" to
-deal with this (see my other email).
+`i' must cover half of the array or a little bit more (not less, in case
+of odd numbers). `i' (before my patch) is the highest address to start
+with, so that's why it should be ((num + 1)/2 - 1) * size or simpler:
+((num - 1)/2) * size
 
-> Shutting down the hardware by default might be a horribly bad thing to do
+Anyway, I was wondering, is there a specific reason you are not using
+size_t for the offset variables? size is a size_t and the only purpose
+of the variables i, n, c and r is to be compared or added to the start
+pointer (also I think it's just ugly to cast size_t down to an int).
 
-The current ppc64 prototype code does a pci-hotplug-remove/hotplug-add
-if we've detected a pci error, and the affected device driver doesn't 
-know what to do.  This works for ethernet cards, but can't work for
-anything with a file system on it (because a pci-hotplug-remove 
-on a scsi card trickles up to the block device, which trickles up to
-the file system, which can't be unmounted post-facto.) 
+On system where int is 32 bit but pointers are 64 bit the compiler might
+need to extend to adjust the size of the operands for the address
+calculation. Right?
 
-> In fact, I'd argue that even a driver that _uses_ the interface should not
-> necessarily shut itself down on error. Obviously, it should always log the
-> error, but outside of that it might be good if the operator can decide and
-> set a flag whether it should try to re-try (which may not always be
-> possible, of course), shut down, or just continue.
+Since size_t is unsigned I also had to modify the two loops since I
+can't check for any of the variables becoming negative. Tested with all
+kinds of array sizes.
 
-On ppc64, "just continue" is not an option; the pci slot is "isolated"
-all i/o is blocked, including dma. 
+Signed-off-by: Christophe Saout <christophe@saout.de>
 
-The current prototype code tells the device driver that the pci slot is
-hung, then it resets the slot, then it tells the device driver that the
-pci slot is good-to-go again.  
+diff -Nur linux-2.6.11-rc4-mm1.orig/include/linux/sort.h linux-2.6.11-rc4-m=
+m1/include/linux/sort.h
+--- linux-2.6.11-rc4-mm1.orig/include/linux/sort.h	2005-03-01 19:45:11.0000=
+00000 +0100
++++ linux-2.6.11-rc4-mm1/include/linux/sort.h	2005-03-01 19:47:13.456097896=
+ +0100
+@@ -5,6 +5,6 @@
+=20
+ void sort(void *base, size_t num, size_t size,
+ 	  int (*cmp)(const void *, const void *),
+-	  void (*swap)(void *, void *, int));
++	  void (*swap)(void *, void *, size_t));
+=20
+ #endif
+diff -Nur linux-2.6.11-rc4-mm1.orig/lib/sort.c linux-2.6.11-rc4-mm1/lib/sor=
+t.c
+--- linux-2.6.11-rc4-mm1.orig/lib/sort.c	2005-03-01 19:46:05.000000000 +010=
+0
++++ linux-2.6.11-rc4-mm1/lib/sort.c	2005-03-01 19:47:55.688677568 +0100
+@@ -7,14 +7,14 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+=20
+-void u32_swap(void *a, void *b, int size)
++void u32_swap(void *a, void *b, size_t size)
+ {
+ 	u32 t =3D *(u32 *)a;
+ 	*(u32 *)a =3D *(u32 *)b;
+ 	*(u32 *)b =3D t;
+ }
+=20
+-void generic_swap(void *a, void *b, int size)
++void generic_swap(void *a, void *b, size_t size)
+ {
+ 	char t;
+=20
+@@ -44,17 +44,19 @@
+=20
+ void sort(void *base, size_t num, size_t size,
+ 	  int (*cmp)(const void *, const void *),
+-	  void (*swap)(void *, void *, int size))
++	  void (*swap)(void *, void *, size_t size))
+ {
+ 	/* pre-scale counters for performance */
+-	int i =3D (num/2) * size, n =3D num * size, c, r;
++	size_t i =3D ((num + 1)/2) * size, n =3D num * size, c, r;
+=20
+ 	if (!swap)
+ 		swap =3D (size =3D=3D 4 ? u32_swap : generic_swap);
+=20
+ 	/* heapify */
+-	for ( ; i >=3D 0; i -=3D size) {
+-		for (r =3D i; r * 2 < n; r  =3D c) {
++	while(i > 0) {
++		i -=3D size;
++
++		for (r =3D i; r * 2 < n; r =3D c) {
+ 			c =3D r * 2;
+ 			if (c < n - size && cmp(base + c, base + c + size) < 0)
+ 				c +=3D size;
+@@ -65,7 +67,9 @@
+ 	}
+=20
+ 	/* sort */
+-	for (i =3D n - size; i >=3D 0; i -=3D size) {
++	for (i =3D n; i > 0;) {
++		i -=3D size;
++
+ 		swap(base, base + i, size);
+ 		for (r =3D 0; r * 2 < i; r =3D c) {
+ 			c =3D r * 2;
 
-My goal is to negotiate a standard set of interfaces in struct pci_driver 
-to do the above. (see other email).
 
---linas
+--=-mk64tZH3MCYAv1FxVOzE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCJL0uZCYBcts5dM0RAsngAJ9MnLJb7EEoqEuYMLK/OzgFtvdsEgCfeu8K
+rj9ePV6OeY6Z6GiD6EG9YUE=
+=gWRJ
+-----END PGP SIGNATURE-----
+
+--=-mk64tZH3MCYAv1FxVOzE--
 

@@ -1,99 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVAEQR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVAEPwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVAEQR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 11:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVAEQQF
+	id S262085AbVAEPwF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 10:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVAEPv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 11:16:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:42634 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261207AbVAEQOn (ORCPT
+	Wed, 5 Jan 2005 10:51:26 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:22278 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262085AbVAEPjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 11:14:43 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioct l32 revisited.
-Date: Wed, 5 Jan 2005 17:07:38 +0100
-User-Agent: KMail/1.6.2
-Cc: discuss@x86-64.org, Chris Wedgwood <cw@f00f.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, gordon.jin@intel.com,
-       Christoph Hellwig <hch@infradead.org>
-References: <200412262349.24856.arnd@arndb.de> <20050105152511.GB19758@mellanox.co.il>
-In-Reply-To: <20050105152511.GB19758@mellanox.co.il>
-MIME-Version: 1.0
-Message-Id: <200501051707.38960.arnd@arndb.de>
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_KDB3B416MXDVc/h";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 10:39:52 -0500
+Date: Wed, 5 Jan 2005 10:40:45 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: perex@suse.cz
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [patch] snd-intel8x0: ac97 quirk entries for HP xw6200 & xw8000
+Message-ID: <20050105154043.GB28626@tuxdriver.com>
+Mail-Followup-To: perex@suse.cz, linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add AC97 quick list entries to snd-intel8x0 for HP xw6200 and xw8000.
 
---Boundary-02=_KDB3B416MXDVc/h
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-On Middeweken 05 Januar 2005 16:25, Michael S. Tsirkin wrote:
-> You mean like this?
+ sound/pci/intel8x0.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletion(-)
 
-Yes, except that
-
-> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-> --- linux-2.6.10/fs/ioctl.c.ok =A02005-01-05 21:13:46.165718632 +0200
-> +++ linux-2.6.10/fs/ioctl.c =A0 =A0 2005-01-05 21:14:09.341195424 +0200
-> @@ -162,7 +162,7 @@ asmlinkage long sys_ioctl(unsigned int f
-> =A0out:
-> =A0 =A0 =A0 =A0 fput_light(filp, fput_needed);
-> =A0out2:
-> - =A0 =A0 =A0 return error;
-> + =A0 =A0 =A0 return error=3D=3D-ENOIOCTLCMD?-ENOTTY:error;
-> =A0}
->=20
-> =A0/*
-
-=2D Spacing is broken.
-=2D I think the convention would be to use EINVAL here. ENOTTY mean 'this
-  device does not support ioctl', while EINVAL is used for 'ioctl is
-  supported, but not this number'.
-=2D I would put the conversion only in the place that calls ->native_ioctl
-  in order to make clearer why it is done.
-
-> --- linux-2.6.10/fs/compat.c.ok 2005-01-05 21:15:34.221291688 +0200
-> +++ linux-2.6.10/fs/compat.c =A0 =A02005-01-05 21:16:04.922624376 +0200
-> @@ -476,7 +476,7 @@ asmlinkage long compat_sys_ioctl(unsigne
-> =A0out:
-> =A0 =A0 =A0 =A0 fput_light(filp, fput_needed);
-> =A0out2:
-> - =A0 =A0 =A0 return error;
-> + =A0 =A0 =A0 return error=3D=3D-ENOIOCTLCMD?-ENOTTY:error;
-> =A0}
->=20
-> =A0static int get_compat_flock(struct flock *kfl, struct compat_flock __u=
-ser *ufl)
-
-I don't think it's needed for the compat case, as we are already
-handling ENOIOCTLCMD here by doing to hash lookup.
-
-I'd also prefer the code to be based on Christophs version, which=20
-unfortunately is lacking handling for ENOIOCTLCMD from compat_ioctl,
-but otherwise looks better.
-
-	Arnd <><
-
---Boundary-02=_KDB3B416MXDVc/h
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD4DBQBB3BDK5t5GS2LDRf4RAoHbAKCZsllv//+mdndjvV4xTno5tXh2GwCYkgcz
-2elZe+/ITt3rpFFxqLiF2A==
-=kdnk
------END PGP SIGNATURE-----
-
---Boundary-02=_KDB3B416MXDVc/h--
+--- ac97_quirk/sound/pci/intel8x0.c.orig	2005-01-04 16:42:48.978078335 -0500
++++ ac97_quirk/sound/pci/intel8x0.c	2005-01-04 16:46:40.698137218 -0500
+@@ -1756,7 +1756,13 @@
+ 	{	/* FIXME: which codec? */
+ 		.vendor = 0x103c,
+ 		.device = 0x00c3,
+-		.name = "Hewlett-Packard onboard",
++		.name = "HP xw6000",
++		.type = AC97_TUNE_HP_ONLY
++	},
++	{
++		.vendor = 0x103c,
++		.device = 0x129d,
++		.name = "HP xw8000",
+ 		.type = AC97_TUNE_HP_ONLY
+ 	},
+ 	{
+@@ -1767,6 +1773,12 @@
+ 	},
+ 	{
+ 		.vendor = 0x103c,
++		.device = 0x12f2,
++		.name = "HP xw6200",
++		.type = AC97_TUNE_HP_ONLY
++	},
++	{
++		.vendor = 0x103c,
+ 		.device = 0x3008,
+ 		.name = "HP xw4200",	/* AD1981B*/
+ 		.type = AC97_TUNE_HP_ONLY

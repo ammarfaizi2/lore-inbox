@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbTIKJfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 05:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTIKJfv
+	id S261189AbTIKJ7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 05:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTIKJ7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 05:35:51 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:8720 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S261181AbTIKJft (ORCPT
+	Thu, 11 Sep 2003 05:59:00 -0400
+Received: from [218.18.135.104] ([218.18.135.104]:369 "ehlo citiz.net")
+	by vger.kernel.org with ESMTP id S261189AbTIKJ67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 05:35:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: DervishD <raul@pleyades.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Hardware supported by the kernel
-Date: Wed, 10 Sep 2003 17:47:10 +0300
-X-Mailer: KMail [version 1.4]
-Cc: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F59DF81.8000407@bluewin.ch> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk> <20030908152551.GB12162@DervishD>
-In-Reply-To: <20030908152551.GB12162@DervishD>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309101747.10972.insecure@mail.od.ua>
+	Thu, 11 Sep 2003 05:58:59 -0400
+From: "HY Tech" <hytechnologyhk@citiz.net>
+Subject: New price list for mp3 player, digital camera, cd/vcd/mp3 player and
+ USB flash drive!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hytechnologyhk@citiz.net
+Date: Thu, 11 Sep 2003 17:58:59 +0800
+X-Priority: 2
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Message-Id: <S261189AbTIKJ67/20030911095859Z+4930@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 September 2003 18:25, DervishD wrote:
-> > With XFree 4.3 810 seems pretty solid 2D/3D nowdays, and the later stuff
-> > 830/845/... is also a fair bit faster.
->
->     Well, then that another candidate. Thanks a lot for the info. How
-> goes your Welsh ;))?
+Dear valued customer,
 
-I used to read Alan's diary.
+Sorry to disturb you about this letter.
 
-While learning Welsh is not bad per se, writing public diary
-in Welsh defeats diary purpose. Bad, bad Alan ;) ;) ;)
---
-vda
+We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB 
+flash drive in Shenzhen, China.
+
+Please see the price of some products:
+mp3 player with digital recorder and USB flash drive
+64M 39USD      128M   52USD
+
+cd/vcd/mp3 player (3 function in 1)
+21.5USD
+
+digital camera
+300K pixels  15.5USD      1.3M pixels    24USD
+
+PC camera
+13USD 350K pixel
+
+USB flash drive
+64M  17.9USD       128M  29.9USD      256M  54.9USD     
+
+If you have interest, please contact us and we will give you the detailed catalogue and price 
+list. 
+
+We always try our best to attract our clients with unbeatable prices and quality. Our goal is 
+to treat every client the same as the most potential business partner.So however the client is 
+big or small,we offer the best service. 
+
+Any question, please contact me at any time.
+ 
+Have a nice day!
+
+Best Regards,
+
+Frank Ho
+HY Technology (Hong Kong) Company Ltd.

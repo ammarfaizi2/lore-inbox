@@ -1,34 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUFMVd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUFMVnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUFMVd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 17:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUFMVd6
+	id S261184AbUFMVnE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 17:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUFMVnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 17:33:58 -0400
-Received: from quechua.inka.de ([193.197.184.2]:20435 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261181AbUFMVd5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 17:33:57 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: jff2 filesystem in vanilla
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <213F9E7F-BD15-11D8-AAF6-000A958E35DC@axiros.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BZcbz-00018r-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 13 Jun 2004 23:33:55 +0200
+	Sun, 13 Jun 2004 17:43:04 -0400
+Received: from a62-216-22-210.adsl.cistron.nl ([62.216.22.210]:57608 "EHLO
+	mail.kwaak.net") by vger.kernel.org with ESMTP id S261184AbUFMVnD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 17:43:03 -0400
+Date: Sun, 13 Jun 2004 23:42:09 +0200
+From: Ard van Breemen <ard@kwaak.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] atiixp ac97 timeout gives error (2.6.7-rc2)
+Message-ID: <20040613214209.GA1274@kwaak.net>
+References: <20040608111621.GW18505@kwaak.net> <s5hk6yi2os4.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hk6yi2os4.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <213F9E7F-BD15-11D8-AAF6-000A958E35DC@axiros.com> you wrote:
-> Although JFFS2 on CF seems like a kludge at first it works
-> much better than expected and never let us down so far
+On Tue, Jun 08, 2004 at 02:54:35PM +0200, Takashi Iwai wrote:
+> At Tue, 8 Jun 2004 13:16:22 +0200,
+> Ard van Breemen wrote:
+> > I've patched the atiixp driver by ignoring the error when the
+> 
+> It's already fixed in the mm tree.  Please give a try.
 
-Of course, using ramdisks is the preffered method if possible (i.e. if
-enough ram and if not much persistent info)
-
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Yes, it works. Thanks. Now I also understand what happens :-).

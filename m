@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264327AbRFHV3e>; Fri, 8 Jun 2001 17:29:34 -0400
+	id <S264339AbRFHVbe>; Fri, 8 Jun 2001 17:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264347AbRFHV3Y>; Fri, 8 Jun 2001 17:29:24 -0400
-Received: from ibis.worldnet.net ([195.3.3.14]:30219 "EHLO ibis.worldnet.net")
-	by vger.kernel.org with ESMTP id <S264327AbRFHV3K> convert rfc822-to-8bit;
-	Fri, 8 Jun 2001 17:29:10 -0400
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
-Date: Fri, 08 Jun 2001 23:28:25 +0200
-Subject: Re: temperature standard - global config option?
-From: Chris Boot <bootc@worldnet.fr>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "Michael H. Warfield" <mhw@wittsend.com>
-CC: mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>,
-        "L. K." <lk@aniela.eu.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <B7471019.F9CF%bootc@worldnet.fr>
-In-Reply-To: <200106082116.f58LGd2497562@saturn.cs.uml.edu>
-Mime-version: 1.0
-Content-type: text/plain; charset="ISO-8859-1"
-Content-transfer-encoding: 8BIT
+	id <S264340AbRFHVbY>; Fri, 8 Jun 2001 17:31:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33664 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264339AbRFHVbM>;
+	Fri, 8 Jun 2001 17:31:12 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15137.17433.417079.475731@pizda.ninka.net>
+Date: Fri, 8 Jun 2001 14:31:05 -0700 (PDT)
+To: Felix von Leitner <leitner@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel headers violate RFC2553
+In-Reply-To: <20010608211247.A12925@codeblau.de>
+In-Reply-To: <20010608195719.A4862@fefe.de>
+	<15137.8668.590390.10485@pizda.ninka.net>
+	<20010608211247.A12925@codeblau.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> Only the truly stupid would assume accuracy from decimal places.
+Felix von Leitner writes:
+ > Thus spake David S. Miller (davem@redhat.com):
+ > > Don't user kernel headers for userspace.
+ > 
+ > What choice do I have?
 
-Well then, tell all the teachers in this world that they're stupid, and tell
-everyone who learnt from them as well.  I'm in high school (gd. 11, junior)
-and my physics teacher is always screaming at us for putting too many
-decimal places or having them inconsistent.  There are certain situations
-where adding a ±1 is too cumbersome and / or clumsy, so you can specify the
-accuracy using just decimal places.
+I didn't say anything about choice, I said "don't use kernel headers
+for userspace".  What part of it do you not understand.
 
-For example, 5.00 would mean pretty much spot on 5 (anywhere from 4.995 to
-5.00499), wheras 5 could mean anywhere from 4.5 to 5.499.
+It was decided long ago that keeping the kernel headers up to snuff
+with "user space standard of the day" was not in our interests, so we
+don't have "#if _POSIX == 19940XXX" type crap all over the kernel
+headers.
 
-Please, let's quit this dumb argument.  We all know that thermistors and
-other types of cheap temperature gauges are very inaccurate, and I don't
-think expensive thermocouples will make it into computer sensors very soon.
-Plus, who the hell could care whether their chip is at 45.4 or 45.5 degrees?
-Does it really matter?  A difference of 0.1 will not decide whether your
-chip will fry.
+In fact, in some headers the structures and names are purposely not
+what userspace wants.  In this way nobody is likely to get the ill
+conception that they are meant in any way to be used by userspace.
 
-Just my 2 eurocents.
-
--- 
-Chris Boot
-bootc@worldnet.fr
-
-DOS Computers manufactured by companies such as IBM, Compaq, Tandy, and
-millions of others are by far the most popular, with about 70 million
-machines in use worldwide. Macintosh fans, on the other hand, may note
-that cockroaches are far more numerous than humans, and that numbers
-alone do not denote a higher life form.
-New York Times, November 26, 1991
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,70 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268261AbUHFTnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268262AbUHFTrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268261AbUHFTnk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268259AbUHFTm1
+	id S268262AbUHFTrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbUHFTqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:42:27 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:36360 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268258AbUHFTkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:40:40 -0400
-Message-ID: <4113DE5F.6040801@lougher.demon.co.uk>
-Date: Fri, 06 Aug 2004 20:39:11 +0100
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
-References: <Pine.LNX.4.44.0408052104420.2241-100000@dyn319181.beaverton.ibm.com> <411322E8.4000503@yahoo.com.au> <4113BA65.8050901@lougher.demon.co.uk> <4113D76E.9060906@yahoo.com.au>
-In-Reply-To: <4113D76E.9060906@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 15:46:35 -0400
+Received: from gprs214-146.eurotel.cz ([160.218.214.146]:43648 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268262AbUHFToL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 15:44:11 -0400
+Date: Fri, 6 Aug 2004 21:43:52 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [0/25] Merge pmdisk and swsusp
+Message-ID: <20040806194352.GK3048@elf.ucw.cz>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net> <20040720164640.GH10921@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.50.0408012220160.8159-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0408012220160.8159-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Phillip Lougher wrote:
+Hi!
+
+> > * if machine halt fails, it is very dangerous to continue.
+> >
+> > diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
+> > --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
+> > +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
+> > @@ -63,6 +63,9 @@
+> >  		break;
+> >  	}
+> >  	machine_halt();
+> > +	/* Valid image is on the disk, if we continue we risk serious data corruption
+> > +	   after resume. */
+> > +	while(1);
+> >  	device_power_up();
+> >  	local_irq_restore(flags);
+> >  	return 0;
 > 
->> It doesn't work.  It correctly handles the case where *ppos is equal
->> to i_size on entry to the function (and this does work for files 0, 4k
->> and n * 4k in length), but it doesn't handle readahead inside the for
->> loop.  The check needs to be in the for loop.
->>
->>
+> This is nasty. We have to fail gracefully, ideally without expecting user
+> input.
 > 
-> I don't quite follow. What is i_size, *ppos, and desc->count
-> required for your problem to trigger?
+> Adding 'while(1)' will cause the CPU to enter a busy loop, artificially
+> increasing the power consumption of the system, which would be counter-
+> productive in a system that was configured to suspend when the battery was
+> low.
+
+> We need to at least print a message specifying what happened and
+> instructing them to reboot. It's dorky, but over time, all every system
+> should eventually be fixed to either enter a low-power mode or shut down
+> properly.
+
+Ok, it was a "too hot hotfix". Your solution is better (but see below).
+
+> Perhaps we could also fill in machine_halt(), which the patch below also
+> does.
+
+Good.
+
+> > * copy_page() is dangerous. This is actually my fault.
 > 
+> Why is copy_page() dangerous? Shouldn't it be fixed if that is the
+> case?
 
- From some output I prepared earlier :-)
+copy_page sometimes changes struct task_struct, does copy, changes it
+back. That makes it bad choice for copying task_structs,
+unfortunately. Do you want me to retransmit the patch?
 
-Aug  6 16:15:29 pierrot kernel: Entered do_generic_mapping_read: *ppos 0x0, isize 0x3000
-Aug  6 16:15:29 pierrot kernel: iteration 0x1
-Aug  6 16:15:29 pierrot kernel: Entered squashfs_readpage, page index 0x0, inode->i_size 0x3000
-Aug  6 16:15:29 pierrot kernel: at (ret == nr && desc->count) check: ret==nr ? yes, desc->count 0x3000
-Aug  6 16:15:29 pierrot kernel: iteration 0x2
-Aug  6 16:15:29 pierrot kernel: at (ret == nr && desc->count) check: ret==nr ? yes, desc->count 0x2000
-Aug  6 16:15:29 pierrot kernel: iteration 0x3
-Aug  6 16:15:29 pierrot kernel: at (ret == nr && desc->count) check: ret==nr ? yes, desc->count 0x1000
-Aug  6 16:15:29 pierrot kernel: iteration 0x4
-Aug  6 16:15:29 pierrot kernel: at "readpage: label", i_size 0x3000, *ppos 0x0, index 0x3
-Aug  6 16:15:29 pierrot kernel: Entered squashfs_readpage, page index 0x3, inode->i_size 0x3000
+> ===== kernel/power/disk.c 1.16 vs edited =====
+> --- 1.16/kernel/power/disk.c	2004-08-01 20:36:39 -07:00
+> +++ edited/kernel/power/disk.c	2004-08-01 22:38:19 -07:00
+> @@ -59,6 +59,7 @@
+>  		machine_restart(NULL);
+>  		break;
+>  	}
+> +	printk(KERN_EMERG "Suspend-to-disk succeeded, but power-down failed. Please reboot.\n");
+>  	machine_halt();
+>  	device_power_up();
+>  	local_irq_restore(flags);
 
-iteration 0x1 etc are the separate passes through the loop.
-The first squashfs_readpage is called via page_cache_readahead, which
-reads pages 0, 1 and 2 (which is why no readpage is called in
-iterations 2 and 3).  The second squashfs_readpage is called in the
-fourth loop iteration by the 'goto no_cached_page' code path when no
-page has been found by find_get_page, this is presumably because the
-index is now out of bounds.
+If i386 got it wrong, it is possible that other architectures get it
+wrong, too. Fixing i386 is good, but we should not risk continuing
+machine with valid image on disk.
 
-As I said in my previous email, I'm going to put an index
-check into my code.  I don't want this argument to proceed
-and myself to start (?) to look like an ass.
+I guess "device_power_up / local_irq_restore" should be replaced with
+BUG() or while(1)?
 
-Phillip
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

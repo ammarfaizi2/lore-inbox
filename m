@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262650AbTCYNr4>; Tue, 25 Mar 2003 08:47:56 -0500
+	id <S261443AbTCYNsx>; Tue, 25 Mar 2003 08:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262653AbTCYNrz>; Tue, 25 Mar 2003 08:47:55 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:11693 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262650AbTCYNrC> convert rfc822-to-8bit; Tue, 25 Mar 2003 08:47:02 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "'Francois-Rene Rideau'" <fare@tunes.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Bounty hunting for a linux kernel hacker
-Date: Tue, 25 Mar 2003 05:57:59 -0800
-Message-ID: <000401c2f2d6$8ed126f0$73c463d8@DreamTime>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <20030325112222.GA26899@hell.mine.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S262651AbTCYNsH>; Tue, 25 Mar 2003 08:48:07 -0500
+Received: from holomorphy.com ([66.224.33.161]:49313 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262652AbTCYNrf>;
+	Tue, 25 Mar 2003 08:47:35 -0500
+Date: Tue, 25 Mar 2003 05:58:25 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: init_inode_once() wants sizeof(struct hlist_head)
+Message-ID: <20030325135825.GJ30140@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	akpm@zip.com.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately, when H-P bought Compaq, they had two PDA lines -- the Compaq
-iPAQ and the HP Jornada. They had to take one out behind the barn and shoot
-it, and the Jornada is now dead. I have an iPAQ; I've got a 128 MB expansion
-pack in it. If it could be "dual-booted" PDA Linux and Windows CE, I might
-be interested, but there would need to be a *lot* more in it for me than a
-free Jornada.
+inode_init() wants to deal with things in in units of the size of
+struct hlist_head, not struct list_head.
 
--- 
-M. Edward (Ed) Borasky
-mailto: znmeb@borasky-research.net
-http://www.borasky-research.net
+
+diff -urpN merge-2.5.66-7/fs/inode.c merge-2.5.66-8/fs/inode.c
+--- merge-2.5.66-7/fs/inode.c	2003-03-24 14:01:48.000000000 -0800
++++ merge-2.5.66-8/fs/inode.c	2003-03-25 05:41:18.000000000 -0800
+@@ -1260,7 +1260,7 @@ void __init inode_init(unsigned long mem
+ 		init_waitqueue_head(&i_wait_queue_heads[i].wqh);
  
-Avoid cliches like the plague!
-
-
+ 	mempages >>= (14 - PAGE_SHIFT);
+-	mempages *= sizeof(struct list_head);
++	mempages *= sizeof(struct hlist_head);
+ 	for (order = 0; ((1UL << order) << PAGE_SHIFT) < mempages; order++)
+ 		;
+ 

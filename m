@@ -1,92 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318284AbSHKKOS>; Sun, 11 Aug 2002 06:14:18 -0400
+	id <S318274AbSHKKOw>; Sun, 11 Aug 2002 06:14:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318298AbSHKKOS>; Sun, 11 Aug 2002 06:14:18 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36067 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318284AbSHKKNo>;
-	Sun, 11 Aug 2002 06:13:44 -0400
-Date: Sun, 11 Aug 2002 12:17:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.30 IDE 115
-Message-ID: <20020811101709.GI8755@suse.de>
-References: <3D53AE13.7060907@evision.ag> <20020809134839.GO2243@suse.de> <3D54279B.2050500@evision.ag>
-Mime-Version: 1.0
+	id <S318312AbSHKKOw>; Sun, 11 Aug 2002 06:14:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31757 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318274AbSHKKOs>;
+	Sun, 11 Aug 2002 06:14:48 -0400
+Message-ID: <3D563C4C.2DE0CA82@zip.com.au>
+Date: Sun, 11 Aug 2002 03:28:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Simon Kirby <sim@netnation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com> <3D55FF30.6164040D@zip.com.au> <20020811084652.GB22497@netnation.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D54279B.2050500@evision.ag>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09 2002, Marcin Dalecki wrote:
-> Jens Axboe wrote:
-> >On Fri, Aug 09 2002, Marcin Dalecki wrote:
-> >
-> >>- Fix small typo introduced in 113, which prevented CD-ROMs from
-> >> working altogether.
-> >
-> >
-> >Have you fixed the sense reporting issue I told you about months ago?
+Simon Kirby wrote:
 > 
-> Well at least ide-116 will start to unify the corresponding code.
-> But please don't expecty anything "revolutionary" yet... Just for
-> example using GPCMD_ constants throughout the code and a unified error
-> dissection function. One of the issues involved is rq->buffer in
-> ide-floppy versus rq->special in ide-cd.c
-
-Well I consider the sense decoding a somewhat important feature, hence
-it's really bad it has been broken for months now. It's impossible to
-diagnose problems in ide-cd code without it.
-
-> >>- Eliminate block_ioctl(). This code can't be shared in the way
-> >> proposed by this file. We will port it to the proper
-> >> blk_insert_request() soon. This will eliminate the _elv_add_request()
-> >> "layering violation".
-> >
-> >
-> >What are you talking about?
+> ...
+> What's happening with my MP3 streaming is:
 > 
-> Hmm, so apparently you where not the one who "inventid" it?
+> 1. read(4k) gets data after a delay.  xmms starts playing.
+> 2. read(4k) gets some more data, right way, because readahead worked.
+>    xmms continues.
+>    ...
+> 3. read(4k) blocks for a long time while readahead starts up again and
+>    reads a huge block of data.  read() then returns the 4k.  meanwhile,
+>    xmms has underrun.  xmms starts again.
+> 4. goto 2.
+> 
+> It's really easy to see this behavior with the xmms-crossfade plugin and
+> a large buffer with "buffer debugging" display on.
 
-? I added block_ioct.c, yes.
+I happen to have a little test app for this stuff:
+http://www.zip.com.au/~akpm/linux/stream.tar.gz
 
-> Anyway I talk about the block_ioctl.c file, which was supposed
-> to contain the two eject ioctl functions for "generic" packet code.
+You can use it to slowly read or write a file.
 
-It _did_ contain two eject ioctl as a "here's what it's supposed to do"
-proof of concept type thing.
+	./stream -i /dev/fd0h1440 23 1000
 
-> But since we don't have any kind of "generic" packet commands this
-> didn't make much sense.
+will read 1000k from floppy at 23k per second.  It's a bit
+useless at those rates on 2.4 because of the coarse timer
+resolution.  But in 1000Hz 2.5 it works a treat.
 
-What are you talking about?!
+./stream -i /dev/fd0h1440 20 1000  0.00s user 0.01s system 0% cpu 51.896 total
+./stream -i /dev/fd0h1440 21 1000  0.00s user 0.02s system 0% cpu 49.825 total
+./stream -i /dev/fd0h1440 22 1000  0.00s user 0.02s system 0% cpu 47.843 total
+./stream -i /dev/fd0h1440 23 1000  0.00s user 0.01s system 0% cpu 45.853 total
+./stream -i /dev/fd0h1440 24 1000  0.01s user 0.02s system 0% cpu 44.077 total
+./stream -i /dev/fd0h1440 25 1000  0.00s user 0.02s system 0% cpu 42.307 total
+./stream -i /dev/fd0h1440 26 1000  0.00s user 0.01s system 0% cpu 41.305 total
+./stream -i /dev/fd0h1440 27 1000  0.00s user 0.02s system 0% cpu 40.493 total
+./stream -i /dev/fd0h1440 28 1000  0.01s user 0.02s system 0% cpu 39.122 total
+./stream -i /dev/fd0h1440 29 1000  0.00s user 0.01s system 0% cpu 39.118 total
 
-> It was inventing a function called blk_do_rq(), which was using
-> elv_add_request(). You called this not a long time ago a "layering
-> violation" yourself. And I simply intend to replace it in one of the
-> forthcomming patches  with the recently inventid blk_insert_request() 
-> function.
+What we see here is perfect readahead behaviour.  The kernel is keeping the
+read streaming ahead of the application's read cursor all the way out to the
+point where the device is saturated. (The numbers are all off by three
+seconds because of the initial spinup delay).
 
-Sigh... Martin, for fscks sake please stop always just assuming and get
-your facts straight. This is why you are repeatedly pissing me (and
-others) off. blk_do_rq() means "insert request and execute it, return
-when it's done". It probably should have been in ll_rw_blk.c itself,
-sinoce it's that sort of helper.
+If you strace it, the reads are smooth on 2.4 and 2.5.
 
-Using elv_add_request() is not a layering violation, that's the exported
-interface... The layering violation is using __elv_add_request() since
-it exposes the internal queue lists, which may not be appropriate for
-all io schedulers.
-
-> Oh, I realize I didn't express myself properly. I certinaly don't intend
-> to eliminate elv_add_request() itself any time soon ;-).
-
-No, I would appreciate it if you would keep your hands out of the block
-code.
-
--- 
-Jens Axboe
-
+So it may be an NFS peculiarity.  That's a bit hard for me to test over
+100bT.

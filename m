@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268275AbUJPJbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUJPJdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268275AbUJPJbr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 05:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUJPJbq
+	id S268059AbUJPJdh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 05:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268368AbUJPJdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 05:31:46 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30988 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S268275AbUJPJbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 05:31:44 -0400
-Date: Sat, 16 Oct 2004 11:31:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-bk3 - make[3]: *** [drivers/char/drm/gamma_drv.o] Error 1
-Message-ID: <20041016093112.GA5307@stusta.de>
-References: <4170C664.9000703@vgertech.com>
+	Sat, 16 Oct 2004 05:33:37 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:48560 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S268059AbUJPJdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 05:33:25 -0400
+Subject: Best way to find where a lock is taken and not released?
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1097919013.4763.55.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4170C664.9000703@vgertech.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 16 Oct 2004 19:30:13 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 07:57:40AM +0100, Nuno Silva wrote:
-> 
->   LD      drivers/char/drm/built-in.o
->   CC [M]  drivers/char/drm/gamma_drv.o
-> In file included from drivers/char/drm/gamma_drv.c:42:
-> drivers/char/drm/gamma_context.h: In function 
-> `gamma_context_switch_complete':
-> drivers/char/drm/gamma_context.h:193: error: structure has no member 
-> named `next_buffer'
->...
-> make[3]: *** [drivers/char/drm/gamma_drv.o] Error 1
->...
-> .config is attached
-> 
-> Thanks,
-> Nuno Silva
->...
-> CONFIG_EXPERIMENTAL=y
-> # CONFIG_CLEAN_COMPILE is not set
-> CONFIG_BROKEN=y
->...
-> CONFIG_DRM_GAMMA=m
->...
+Hi all.
 
+I saw a hang the other day (2.6.8.1) where all other processes except
+the suspending to disk one were refrigerated and the process doing the
+suspending was stuck trying to take the dcache_lock via
+shrink_all_memory. Obviously some path called via shrink_all_memory had
+taken the lock and not released it, then tried to retake it _or_ another
+process had taken the lock and then not released it when backing out and
+entering the refrigator. My question is, what's the best way to find the
+path on which this occurs? Grepping, I see dcache_lock all over the
+show, so if there's a more efficient method that reading the files, I'd
+like to learn it. It occurs to me that I might try wrapping calls to
+lock and unlock that lock in printks, but I'm wondering if there's some
+better way I don't yet know.
 
-If you answer "yes" to
+Regards,
 
-  "Prompt for development and/or incomplete code/drivers"
-
-and "no" to
-
-  "Select only drivers expected to compile cleanly"
-
-it souldn't be a big surprise if a driver doesn't compile.
-
-
-cu
-Adrian
-
+Nigel
 -- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

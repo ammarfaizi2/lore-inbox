@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288996AbSBDVsX>; Mon, 4 Feb 2002 16:48:23 -0500
+	id <S289056AbSBDVtd>; Mon, 4 Feb 2002 16:49:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289056AbSBDVsO>; Mon, 4 Feb 2002 16:48:14 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:4820 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S288996AbSBDVsA>;
-	Mon, 4 Feb 2002 16:48:00 -0500
-Date: Mon, 4 Feb 2002 23:47:51 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020204234751.U5808@mea-ext.zmailer.org>
-In-Reply-To: <3C5EB063.D6C18692@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C5EB063.D6C18692@uni-mb.si>; from david.balazic@uni-mb.si on Mon, Feb 04, 2002 at 05:01:39PM +0100
+	id <S289061AbSBDVtX>; Mon, 4 Feb 2002 16:49:23 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:11538 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S289056AbSBDVtH>; Mon, 4 Feb 2002 16:49:07 -0500
+Date: Mon, 4 Feb 2002 18:38:54 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre8
+In-Reply-To: <20020204211552.GA12150@come.alcove-fr>
+Message-ID: <Pine.LNX.4.21.0202041837000.14205-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 04, 2002 at 05:01:39PM +0100, David Balazic wrote:
-> Hi!
+
+
+On Mon, 4 Feb 2002, Stelian Pop wrote:
+
+> On Mon, Feb 04, 2002 at 05:44:17PM -0200, Marcelo Tosatti wrote:
 > 
-> This problem again :-)
+> > No more big patches for 2.4.18, please... We are getting close to the -rc
+> > stage.
+> > 
+> > pre8: 
+> [...]
 > 
-> I purchase/download a program for linux.
-> It says it requires certain kernel features, for example :
-> CONFIG_PROC_FS,CONFIG_NET,CONFIG_INET
-
-   If it wants THOSE, it is asking for wrong abstraction layer 
-   information.
-
-   No userspace program (beside of special sysadmin tools) should
-   be poking into PROC_FS.  The NET interface abstraction is already
-   wrapped inside  libc.
-
-> How can I figure out in 5 minutes, without a kernel hacker, if
-> my linux system has the correct settings ?
-
-   Good software gives clear diagnostics if some necessary facility
-   is missing at runtime.
-
-> This is a real life question, probably more suitable to ask
-> on some distributions mail list, but I thought I'll start here.
+> Do patches already send to you but not present in this release
+> got queued for -pre9 or got lost in the process and you want
+> them resubmitted (or maybe you just want them later for 2.4.19-pre1).
 > 
-> TIA,
-> david
-> -- 
-> David Balazic
+> I'm talking here about the sonypi driver update, but I guess there
+> are other people asking themselfs the same thing for other patches,
+> given the delay between pre7 and pre8...
 
-/Matti Aarnio
+I'll be including some of the patches sent to me as soon as I have time to
+read them: I usually read patches which are more important first.
+
+In your case, the (sonypi) patch will be included in -pre9. 
+

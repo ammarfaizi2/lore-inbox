@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSGYVsQ>; Thu, 25 Jul 2002 17:48:16 -0400
+	id <S316569AbSGYVt4>; Thu, 25 Jul 2002 17:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316576AbSGYVsQ>; Thu, 25 Jul 2002 17:48:16 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:30409 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S316574AbSGYVsQ>;
-	Thu, 25 Jul 2002 17:48:16 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Thu, 25 Jul 2002 15:44:25 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cheap lookup of symbol names on oops()
-Message-ID: <20020725154425.T2276@host110.fsmlabs.com>
-References: <20020725110033.G2276@host110.fsmlabs.com> <1027637183.11604.8.camel@irongate.swansea.linux.org.uk>
+	id <S316541AbSGYVt4>; Thu, 25 Jul 2002 17:49:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45316 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316569AbSGYVtz>; Thu, 25 Jul 2002 17:49:55 -0400
+Date: Thu, 25 Jul 2002 23:53:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix complile warnings in suspend.c, 2.5.28
+Message-ID: <20020725215312.GA489@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.44.0207250536451.17973-100000@loke.as.arizona.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1027637183.11604.8.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 25, 2002 at 11:46:23PM +0100
+In-Reply-To: <Pine.LNX.4.44.0207250536451.17973-100000@loke.as.arizona.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You don't lose the hex data.  The patch just prints data that the kernel
-already has.  For some situations this patch does match the needs of
-developers better.
+Hi!
 
-} I would much rather have hex data. It makes all the parsing tools
-} connected to the serial port that much easier. If instead of hacking the
-} kernel you bang out a little bit of expect you can do it all on the host
-} driving the embedded box, and find the file names, and open them in an
-} editor at the right function, and do a parallel lookup in bugzilla for
-} matching oops logs...
+> This fixes some compile time warnings in suspend.c.  Look sensible? 
+> It's tested, even with full rmap and slab-on-LRU patches.  Even worked 
+> when suspending from X!
+
+Does it work for you? I get reboot after S4 on 2.5.28. Can you mail me
+diff between clean and your tree?
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTF0Npp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 09:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTF0Npp
+	id S264289AbTF0Nsr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 09:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTF0Nsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 09:45:45 -0400
-Received: from mail.atr.bydgoszcz.pl ([212.122.192.35]:49609 "EHLO
-	mail.atr.bydgoszcz.pl") by vger.kernel.org with ESMTP
-	id S264277AbTF0Npn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 09:45:43 -0400
-From: "adamski" <adam_lista_linux@poczta.onet.pl>
-To: "Robert Olsson" <Robert.Olsson@data.slu.se>,
-       "adamski" <adam_lista_linux@poczta.onet.pl>
-Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-Subject: RE: How to do kernel packet forwarding performance analysys - please comment on my method 
-Date: Fri, 27 Jun 2003 15:59:21 +0200
-Message-ID: <GMEGLMHAELFDACHHIEPIGECECFAA.adam_lista_linux@poczta.onet.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <16124.17582.796111.577015@robur.slu.se>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4925.2800
-Importance: Normal
+	Fri, 27 Jun 2003 09:48:46 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33774 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264289AbTF0Nso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 09:48:44 -0400
+Date: Fri, 27 Jun 2003 16:02:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kill extra printk prototype
+Message-ID: <20030627140252.GF24661@fs.tum.de>
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva> <20030626233117.GO3827@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030626233117.GO3827@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > i would like to start two flows through linux router: PHB EF and BE PHB..
- > like voip and ftp or so...
- >
- > than i want to analyse what exactly happens ... since my theoretical
- > analysys show delays (or latencies - from packet entering the NIC to
-going
- > out of the outgoing interface) of hundereds of usec (~200us) while
- > experiments shows 5-10ms !!!!! with CBQ (configured like CBWFQ and LLQ)
+On Fri, Jun 27, 2003 at 01:31:17AM +0200, J.A. Magallon wrote:
+> 
+> On 06.27, Marcelo Tosatti wrote:
+> > 
+> > Hello,
+> > 
+> > Here goes -pre2 with a big number of changes, including the new aic7xxx
+> > driver.
+> > 
+> > I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
+> > short.
+> > 
+> 
+> Alredy declared in kernel.h.
+>...
 
- Seems you have to add your own hooks for this and I guess you've seen
- CONFIG_NET_PROFILE which does accurate measurements for network related
- operations. It was long time since I used though...
+It seems this issue is also present in 2.5.73.
 
+Could you send such cleanup changes for inclusion into 2.5 first?
 
-.... could you please say something about CONFIG_NET_PROFILE and hooks you
-have mentioned????
+TIA
+Adrian
 
-are there any documents ... related with hooks and CONFIG_NET_PROFILE
+-- 
 
-
-best regards
-
-adam
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

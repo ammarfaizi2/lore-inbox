@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281077AbRKDSVV>; Sun, 4 Nov 2001 13:21:21 -0500
+	id <S281074AbRKDS0V>; Sun, 4 Nov 2001 13:26:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281056AbRKDSVM>; Sun, 4 Nov 2001 13:21:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3535 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281074AbRKDSVA>;
-	Sun, 4 Nov 2001 13:21:00 -0500
-Date: Sun, 4 Nov 2001 13:20:58 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] ramfs/tmpfs readdir()
-In-Reply-To: <Pine.LNX.4.33.0111040943160.6919-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0111041314330.21449-100000@weyl.math.psu.edu>
+	id <S281069AbRKDS0L>; Sun, 4 Nov 2001 13:26:11 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:42192 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281076AbRKDSZ7>; Sun, 4 Nov 2001 13:25:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Date: Sun, 4 Nov 2001 19:27:16 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net>
+In-Reply-To: <20011104184159.E14001@unthought.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 04 November 2001 18:41, you wrote:
+> The "fuzzy parsing" userland has to do today to get useful information
+> out of many proc files today is not nice at all. 
+
+I agree, but you dont need a binary format to achieve this. A WELL-DEFINED 
+format is sufficient. XML is one of them, one-value-files another one. The 
+"fuzzy parsing" only happens because the files try to be friendly for human 
+readers.
 
 
-On Sun, 4 Nov 2001, Linus Torvalds wrote:
+> It eats CPU, it's error-prone, and all in all it's just "wrong".
 
-> This is better than what we have, though, so I wouldn't object to the
-> patch. I wonder why you export the internal dcache functions, though? The
-> only thing that _should_ need exporting is "dcache_dir_ops", no? We don't
-> want other filesystems mucking with the internals of this, as far as I can
-> tell.
+How much of your CPU time is spent parsing /proc files?
 
-I would love to.  But autofs4 doesn't allow that, what with ioctls on
-root directory...  It's the only place that uses individual functions,
-though - the rest just uses dcache_dir_ops.
 
-> Admittedly linear traversal is the _common_ case, and arguably the much
-> more important of the two. However, right is right, and a true quality
-> implementation gets seekdir/telldir right too.
-> 
-> Have you looked at how nasty the d_offset thing would be?
+> However - having a human-readable /proc that you can use directly with
+> cat, echo,  your scripts,  simple programs using read(), etc.   is
+> absolutely a *very* cool feature that I don't want to let go.  It is just
+> too damn practical.
 
-I'll look into that, but frankly, I'm not too optimistic.
+You shouldn't use them in scripts because they are likely to break. That's 
+the whole point. At least not when you want to distribute the scripts to 
+others. And BTW the one-value-files are much easier to parse for scripts than 
+any other solution that I have seen so far, including the current /proc 
+interface.
 
+bye...

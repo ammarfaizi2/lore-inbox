@@ -1,128 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270067AbTGPCSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 22:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270070AbTGPCSS
+	id S269933AbTGPCRn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 22:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbTGPCRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 22:18:18 -0400
-Received: from remt28.cluster1.charter.net ([209.225.8.38]:5290 "EHLO
-	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S270067AbTGPCSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 22:18:09 -0400
-From: Chris Morgan <cmorgan@alum.wpi.edu>
-To: Doug McNaught <doug@mcnaught.org>
-Subject: Re: 2.5.XX very sluggish
-Date: Tue, 15 Jul 2003 22:32:59 -0400
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200307131228.00155.cmorgan@alum.wpi.edu> <m38yr2e5pv.fsf@varsoon.wireboard.com> <200307132321.26835.cmorgan@alum.wpi.edu>
-In-Reply-To: <200307132321.26835.cmorgan@alum.wpi.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 22:17:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50122 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269933AbTGPCRj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 22:17:39 -0400
+Date: Tue, 15 Jul 2003 19:31:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hotplug Oops Re: Linux v2.6.0-test1
+Message-ID: <20030716023150.GA2302@kroah.com>
+References: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org> <20030716012948.GA1877@matchmail.com> <20030716013743.GA2112@kroah.com> <20030716014650.GB2681@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307152232.59606.cmorgan@alum.wpi.edu>
+In-Reply-To: <20030716014650.GB2681@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see the same behavior with 2.6.0 test1.  I can't imagine I'm the only person 
-seeing this issue, anything else I can do to help with debugging?
+On Tue, Jul 15, 2003 at 06:46:50PM -0700, Mike Fedyk wrote:
+> On Tue, Jul 15, 2003 at 06:37:43PM -0700, Greg KH wrote:
+> > On Tue, Jul 15, 2003 at 06:29:48PM -0700, Mike Fedyk wrote:
+> > > Here's a nice oops for you guys.
+> > > 
+> > > Hotplug is the trigger.  I can't reproduce without hotplug.
+> > > 
+> > > hotplug tries to load ohci, ehci, and finally uhci (the correct module), it
+> > > oopses for each driver with hotplug, but if I try without hotplug ('apt-get
+> > > remove hotplug' before rebooting), I can load all three usb drivers with no
+> > > oops.
+> > 
+> > If you just load these drivers by hand, does the oops happen?
+> > 
+> 
+> I didn't look into the hotplug scripts to see which hotplug modules (and
+> they are modules for me) were being loaded and in which order.
 
-Chris
+It should just do:
+	modprobe -q ehci-hcd >/dev/null 2>&1
+	modprobe -q ohci-hcd >/dev/null 2>&1
+	modprobe -q uhci-hcd >/dev/null 2>&1
+		    
+That's what the latest hotplug package has in it.  I don't know what
+Debian has lately...
+
+> I did load the usb drivers by hand with no oops though.
+
+That's really strange.
+
+> > Can you enable debugging in the kobject code, or the driver base code to
+> > try to get some better debug messages of what is going on?
+> > 
+> 
+> Please tell me which file that's in, and what I need to change, or give a
+> patch.
+
+Here's a patch that I always run with.  It is pretty verbose, but helps
+me out a lot in debugging and development.
+
+Let us know if it shows anything interesting.
+
+thanks,
+
+greg k-h
 
 
-On Sunday 13 July 2003 11:21 pm, Chris Morgan wrote:
-> Under 2.4.21:
->
-> For my boot drive, ide:
->
-> /dev/hdc2:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    =  8 (on)
->  geometry     = 2100/255/63, sectors = 32740470, start = 996030
->
-> For the scsi drives(2 drives in a raid 1 setup):
-> /dev/sda:
->  readonly     =  0 (off)
->  geometry     = 17885/255/63, sectors = 287332384, start = 0
->
-> And some performance numbers, maybe these are helpful:
->
-> /dev/md1:
->  Timing buffer-cache reads:   128 MB in  0.60 seconds =213.33 MB/sec
->  Timing buffered disk reads:  64 MB in  2.22 seconds = 28.83 MB/sec
->
-> /dev/hdc:
->  Timing buffer-cache reads:   128 MB in  0.56 seconds =228.57 MB/sec
->  Timing buffered disk reads:  64 MB in  4.33 seconds = 14.78 MB/sec
->
->
->
-> Under 2.5.75:
->
-> /dev/hdc:
->  multcount    = 16 (on)
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 33483/16/63, sectors = 33750864, start = 0
->
-> These are with X running:
->
-> /dev/hdc:
->  Timing buffer-cache reads:   128 MB in 30.58 seconds =  4.19 MB/sec
->  Timing buffered disk reads:  64 MB in 20.98 seconds =  3.05 MB/sec
-> Hmm.. suspicious results: probably not enough free memory for a proper
-> test.
->
-> /dev/md1:
->  Timing buffer-cache reads:   128 MB in 108.76 seconds =  1.18 MB/sec
->  Timing buffered disk reads:  64 MB in 44.86 seconds =  1.43 MB/sec
-> Hmm.. suspicious results: probably not enough free memory for a proper
-> test.
->
-> With X shutdown:
-> /dev/hdc:
->  Timing buffer-cache reads:   128 MB in 11.26 seconds = 11.36 MB/sec
->  Timing buffered disk reads:  64 MB in  6.88 seconds =  9.30 MB/sec
-> Hmm.. suspicious results: probably not enough free memory for a proper
-> test.
->
-> /dev/md1:
->  Timing buffer-cache reads:   128 MB in 11.88 seconds = 10.77 MB/sec
->  Timing buffered disk reads:  64 MB in  7.74 seconds =  8.27 MB/sec
-> Hmm.. suspicious results: probably not enough free memory for a proper
-> test.
->
-> I'm running xf4.2.1 and the 'nv' driver.
->
-> Any ideas as to what else I can look at?
->
-> Thanks,
-> Chris
->
-> On Sunday 13 July 2003 12:45 pm, Doug McNaught wrote:
-> > Chris Morgan <cmorgan@alum.wpi.edu> writes:
-> > > 1.4Ghz Athlon via 82cxx chipset, software raid 1 scsi drives, currently
-> > > running 2.4.21
-> > >
-> > > With 2.5.73/74/75(the only ones I've tried thus far) the kernel boots
-> > > fine until it tries to mount the reiserfs partition on the raid1 set.
-> > > Replaying the journal takes many times longer than with 2.4.  Once it
-> > > gets past that point the whole machine appears to be quite sluggish. 
-> > > Is this a known issue with reiserfs + software raid 1?  What
-> > > information would be useful to aid in debugging?
-> >
-> > What does 'hdparm' say about DMA settings on your drive under 2.5?
-> >
-> > -Doug
-
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	Tue Jul 15 19:23:44 2003
++++ b/drivers/base/bus.c	Tue Jul 15 19:23:44 2003
+@@ -8,7 +8,7 @@
+  *
+  */
+ 
+-#undef DEBUG
++#define DEBUG 1
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Tue Jul 15 19:24:11 2003
++++ b/drivers/base/class.c	Tue Jul 15 19:24:11 2003
+@@ -10,7 +10,7 @@
+  *
+  */
+ 
+-#undef DEBUG
++#define DEBUG 1
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	Tue Jul 15 19:23:45 2003
++++ b/drivers/base/core.c	Tue Jul 15 19:23:45 2003
+@@ -8,7 +8,7 @@
+  *
+  */
+ 
+-#undef DEBUG
++#define DEBUG 1
+ 
+ #include <linux/device.h>
+ #include <linux/err.h>
+diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
+--- a/drivers/base/driver.c	Tue Jul 15 19:24:11 2003
++++ b/drivers/base/driver.c	Tue Jul 15 19:24:11 2003
+@@ -8,7 +8,7 @@
+  *
+  */
+ 
+-#undef DEBUG
++#define DEBUG 1
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
+diff -Nru a/include/linux/usb.h b/include/linux/usb.h
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	Tue Jul 15 19:23:44 2003
++++ b/lib/kobject.c	Tue Jul 15 19:23:44 2003
+@@ -10,7 +10,7 @@
+  * about using the kobject interface.
+  */
+ 
+-#undef DEBUG
++#define DEBUG
+ 
+ #include <linux/kobject.h>
+ #include <linux/string.h>
+@@ -213,6 +213,7 @@
+ 
+ void kobject_init(struct kobject * kobj)
+ {
++	WARN_ON(atomic_read(&kobj->refcount));
+ 	atomic_set(&kobj->refcount,1);
+ 	INIT_LIST_HEAD(&kobj->entry);
+ 	kobj->kset = kset_get(kobj->kset);
+@@ -379,6 +380,7 @@
+ 		atomic_inc(&kobj->refcount);
+ 	} else
+ 		ret = NULL;
++	WARN_ON((kobj != NULL) && (ret==NULL));
+ 	return ret;
+ }
+ 

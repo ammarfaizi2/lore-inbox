@@ -1,84 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbTD1RGm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 13:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbTD1RGm
+	id S261213AbTD1RPx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 13:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbTD1RPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 13:06:42 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:7067 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261181AbTD1RGj
+	Mon, 28 Apr 2003 13:15:53 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31921 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261213AbTD1RPw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 13:06:39 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 28 Apr 2003 10:19:25 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mark Grosberg <mark@nolab.conman.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Combined fork-exec syscall.
-In-Reply-To: <Pine.BSO.4.44.0304281219420.22115-100000@kwalitee.nolab.conman.org>
-Message-ID: <Pine.LNX.4.50.0304280954000.1629-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.BSO.4.44.0304281219420.22115-100000@kwalitee.nolab.conman.org>
+	Mon, 28 Apr 2003 13:15:52 -0400
+Message-ID: <3EAD645F.8060301@us.ibm.com>
+Date: Mon, 28 Apr 2003 10:26:55 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Henti Smith <bain@tcsn.co.za>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: maximum possible memory limit ..
+References: <20030424200524.5030a86b.bain@tcsn.co.za> <3EAD27B2.9010807@gmx.net> <20030428141023.GC4525@Wotan.suse.de> <3EAD5AC1.7090003@us.ibm.com> <20030428171455.GC1068@Wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Apr 2003, Mark Grosberg wrote:
+Andi Kleen wrote:
+>>Let's say 32GB :)  It boots just fine with 2.5.68, no additional
+>>patches.  There's even half a gig of lowmem free.
+> 
+> But what happens when you stress test it? No deadlocks?
 
-> The point of my system call is:
->
->   (1) Save the extra overhead of vfork() and exec(). A single system
->       call would still be faster.
->
->   (2) Avoid the resulting file descriptor manipulations for setting
->       up pipelines (dup's and closes).
->
->   (3) Avoid having to do any execution of the child. vfork() shares the
->       address space but there is still overhead in doing the setup of
->       vfork().
+Actually, it is pretty stable.  It OOM's a bit more easily, but that
+isn't a surprise to anyone, especially with the smaller amount of
+ZONE_NORMAL.  I routinely run kernel compiles for days on it with no
+problems.
 
-You still have to do a fork inside the kernel. For sure you don't want to
-call do_execve() in the parent task context ;) So there's no save there.
-Saving a few syscalls gives you almost nothing compared to the cost of
-spawning a new process and to the machine resource consumption of the task
-itself. The only place where this might have a measurable impact is when
-you have the parent process with 100K fds open and still you have to have
-a pretty short lived child process to have a measurable impact. Supposed
-that this will be considered as worth, for sure you don't want to
-introduce another syscall not respecting the POSIX one. That, if I did
-read it correctly, sucks from that point of view. It suck because it is my
-understanding that you have to explicitly drop close actions inside the
-file actions list. So, suppose you have N fds and you want to close N-2
-fds and dup 2 of them, you need N-2 close actions and 2 dup actions. So
-you'll end up having an O(N) in user space to build the action list, and
-at least an O(N) in kernel space to walk through it again. Actually, since
-it is my understanding that the posix_spawn() interface assume an
-all-fds-open by default, you have a few options to setup the child file
-list :
-
-1) You have an std clone() to copy all files to the new task struct
-	( at *least* O(N) ) and you walk through the POSIX file action
-	list to apply close/dup ( O(N) )
-
-2) You have a special clone that starts with a brand new file table ( cost == 0 )
-	and you walk though the old files array ( O(N) ) by seeking if the
-	current file has actions passed by the caller. This is very bad
-	since the action list is not indexed, so going in this direction
-	w/out building some kind of index might be as O(N^2). Suppose you
-	build an index that it'll give you an O(1), you still have to
-	spend *at least* O(N) to build the index itself.
-
-3) Other ways are possible but the minimum cost is at least O(2*N).
-
-
-What would give the POSIX interface a boost would be to have a
-default-all-closed option. In this case, in our example, we will have the
-new process created with a blank file table ( cost == 0 ) plus 2 dups done
-on the parent file table.
-
-
-
-
-- Davide
+That is, of course, a NUMA-Q.  We're hoping to get a Summit box which is
+just as big sometime soon.  It will be much more interesting.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUHVIyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUHVI4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUHVIyA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 04:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHVIyA
+	id S266543AbUHVI4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 04:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUHVI4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 04:54:00 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:42402 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266539AbUHVIx6
+	Sun, 22 Aug 2004 04:56:07 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:10749 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S266543AbUHVI4A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 04:53:58 -0400
-Date: Sun, 22 Aug 2004 10:53:22 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Michael Kerrisk <mtk-lkml@gmx.net>
-Cc: roland@redhat.com, torvalds@osdl.org, akpm@osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
-Subject: Re: [PATCH] waitid system call
-Message-ID: <20040822085322.GA19768@thundrix.ch>
-References: <28571.1092981652@www22.gmx.net> <20310.1092992556@www22.gmx.net>
+	Sun, 22 Aug 2004 04:56:00 -0400
+Subject: [Transmeta hardware] Update of the CMS under Linux ?
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Aalborg University
+Message-Id: <1093165082.11189.20.camel@aphrodite.olympus.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-In-Reply-To: <20310.1092992556@www22.gmx.net>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 22 Aug 2004 10:58:02 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I would like to know if there is any hope to have a software that allow
+us to update the Transmeta CMS (Code Morphing Software) from Linux ?
 
-Salut,
+I tried to google around but I never managed to find something valuable.
+The only valuable link seems to be this one:
+http://h18007.www1.hp.com/support/files/compaqtabletpc/us/download/18120.html
 
-On Fri, Aug 20, 2004 at 11:02:36AM +0200, Michael Kerrisk wrote:
-> Someone has supplied with me with a data point for Irix 6.5=20
-> (and 6.2).  Irix behaves like Solaris 8.  So that's 3 out=20
-> of 3 for the "si_pid =3D=3D 0" behavior (plus a buggy HP-UX 11).
-> I will try to get a Unixware data point, but that will=20
-> probably take several days.  (I wonder if anyone can supply=20
-> an AIX data point?)
+So, it seems to be possible.
 
-If required I can test it on a RS/6000 next week.
+I have a CMS 4.3.2 on my computer (see below) but the 4.4 is now out
+(see: http://www.theinquirer.net/?article=8071 or
+http://www.realworldtech.com/page.cfm?ArticleID=RWT010204000000&p=3 ,
+first sentence) and I think there is a bug in the one I have (see:
+http://freedesktop.org/bugzilla/show_bug.cgi?id=455).
 
-			Tonnerre
+My version of the CMS is: 
+CPU: After generic identify, caps: 0080893f 0081813f 00000000 00000000
+CPU: After vendor identify, caps:  0080893f 0081813f 0000004e 00000000
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (32 bytes/line)
+CPU: L2 Cache: 512K (128 bytes/line)
+CPU: Processor revision 1.4.1.0, 933 MHz
+CPU: Code Morphing Software revision 4.3.2-9-343
+CPU: 20020426 17:54 official release 4.3.2#2
+CPU: After all inits, caps:        0080893f 0081813f 0000004e 00000000
+CPU: Transmeta(tm) Crusoe(tm) Processor TM5800 stepping 03
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
 
-iD8DBQFBKF8A/4bL7ovhw40RAigyAJ4y7NpX21mw9mqcLqM77y29qQ5aVQCfbMfi
-MQFgY1GiG2T+1h9wT90XFSc=
-=QjsO
------END PGP SIGNATURE-----
+See also:
+http://www.leog.net/fujp_forum/topic.asp?ARCHIVE=true&TOPIC_ID=2159
 
---FCuugMFkClbJLl1L--
+Regards
+-- 
+Emmanuel Fleury
+ 
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+

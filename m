@@ -1,96 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbTJZNor (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 08:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTJZNor
+	id S263171AbTJZNtL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 08:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTJZNtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 08:44:47 -0500
-Received: from smtp3.att.ne.jp ([165.76.15.139]:58814 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263130AbTJZNon (ORCPT
+	Sun, 26 Oct 2003 08:49:11 -0500
+Received: from eva.fit.vutbr.cz ([147.229.10.14]:14090 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S263171AbTJZNtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 08:44:43 -0500
-Message-ID: <374301c39bc7$27f83140$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Andries Brouwer" <aebr@win.tue.nl>
-Cc: "Hans Reiser" <reiser@namesys.com>, <linux-kernel@vger.kernel.org>
-References: <334201c39b94$286e7ae0$24ee4ca5@DIAMONDLX60> <20031026122040.GA9906@win.tue.nl>
-Subject: Re: ReiserFS, two oddities
-Date: Sun, 26 Oct 2003 22:43:27 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 26 Oct 2003 08:49:05 -0500
+Date: Sun, 26 Oct 2003 14:48:58 +0100
+From: David Jez <dave.jez@seznam.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diethotplug-0.4 utility patch
+Message-ID: <20031026134858.GA59277@stud.fit.vutbr.cz>
+References: <20031023184603.GA81234@stud.fit.vutbr.cz> <20031024054145.GA3233@kroah.com> <20031025120422.GB93355@stud.fit.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
+Content-Disposition: inline
+In-Reply-To: <20031025120422.GB93355@stud.fit.vutbr.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer replied to me:
 
-> > This is tangential to my observations about bad blocks (which the disk's
-> > firmware refused to reallocate during reads, writes, and S.M.A.R.T. long
-> > self-tests).  I have had two odd observations which seem related to
-> > ReiserFS on perfectly good blocks.
-> >
-> > Here is partial output from fdisk's p command, copied by hand:
-> >   /dev/hda8   18169578  29431079   5630751   83  Linux
-> >
-> > The sector is readable if I ignore partitions:
-> >   # dd if=/dev/hda of=/dev/null bs=512 skip=29431074 count=1
-> >   1+0 records in
-> >   1+0 records out
-> > but not if I address it from inside the partition:
-> >   # dd if=/dev/hda8 of=/dev/null bs=512 skip=11261496 count=1
-> >   dd: reading `/dev/hda8': Input/output error
-> >   0+0 records in
-> >   0+0 records out
-> >
-> > LBA sector number 29431074 is inside the partition.  18169578 + 11261496
-> > = 29431074, verified several times.  11261496 / 2 = 5630748, verified
-> > only twice, but it is within the quantity of 1K Linux blocks that the
-> > partition has.  Why is the sector unreadable when read from inside the
-> > partition?
->
-> If I understand you correctly, there may never have been a bad block.
-> That is good for Toshiba, no reason to say bad things about their disks.
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Dream on.  LBA sector number 29431074 might or might not be near LBA sector
-number 19021882, but 19021882 was indeed bad.  I already posted the filename
-of the file which used to contain that block (it took about two days of
-"find"ing and "cp"ing to /dev/null to find which file it was), and already
-posted several of my dd's of the LBA sector number in the non-partitioned
-device /dev/hda.  Dr. Brouwer, you know quite a lot about disks, how could
-you possibly pick on the situation with sector 29431074 and pretend that
-this explains the ton of observations about sector 19021882?
+> > > - for USB: matching by vendor & class, not only by vendor (-ENODEV bug)
+> > 
+> > Can you split this patch out?  It looks useful.
+>   of course
+-- 
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@eva.fit.vutbr.cz
+---------=[ ~EOF ]=------------------------------------
 
-> Also, if there was no bad block, then no reallocation is needed.
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="diethotplug-0.4.diff"
 
-Hey, I've received about 30 spams today trying to sell the kind of drugs
-that you seem to have taken today.
+diff -urN diethotplug-0.4.orig/ieee1394.c diethotplug-0.4/ieee1394.c
+--- diethotplug-0.4.orig/ieee1394.c	Wed Jan  9 20:57:29 2002
++++ diethotplug-0.4/ieee1394.c	Sat Oct 25 20:36:12 2003
+@@ -75,7 +75,7 @@
+ 			return retval;
+ 	}
+ 
+-	return -ENODEV;
++	return 0;
+ }
+ 
+ 
+diff -urN diethotplug-0.4.orig/usb.c diethotplug-0.4/usb.c
+--- diethotplug-0.4.orig/usb.c	Wed Jan  9 20:57:29 2002
++++ diethotplug-0.4/usb.c	Sat Oct 25 20:36:07 2003
+@@ -84,7 +84,7 @@
+ 		}
+ 	}
+ 
+-	return -ENODEV;
++	return 0;
+ }
+ 	
+ 
+@@ -121,7 +121,7 @@
+ 		}
+ 	}
+ 
+-	return -ENODEV;
++	return 0;
+ }
+ 
+ 
+@@ -158,7 +158,7 @@
+ 		}
+ 	}
+ 
+-	return -ENODEV;
++	return 0;
+ }
+ 
+ 
 
-By the way, after sector 19021882 was reallocated, the S.M.A.R.T log showed
-that the number of reallocations had increased from 3 to 4.  And further
-reads had no more failures and no more reallocations after that one finally
-took place.  So the drive even disagrees with you, although it took ages and
-an unknown amount of experiments to get it there.
-
-Dr. Brouwer, I know that you know more about disk drives than you pretend to
-in this message.  Please try to avoid spreading misinformation.
-
-> You show that dd reads this sector without problems.
-> But you see an I/O error when it is just at the edge of the partition.
-> That I/O error may well be generated by Linux, not by the disk.
-
-Yes, this one was, as explained by Oleg Drokin because of the 4K cluster
-size in ReiserFS.  This is still unrelated to the genuinely bad block.
-
-> [didnt you get error messages in dmesg?]
-
-I get so many boot errors about other things that scroll off the screen
-without getting into dmesg, sometimes I wonder why I still bother testing.
-Meanwhile, dmesg has a few comments from ReiserFS about properly
-initializing itself with respect to partitions, but no boot-time errors in
-ReiserFS.
-
+--mP3DRpeJDSE+ciuQ--

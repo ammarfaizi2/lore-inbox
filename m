@@ -1,118 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVBVSxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBVS7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVBVSxj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBVSxi
+	id S261281AbVBVS7T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVBVS7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:53:38 -0500
-Received: from mailman2.ppco.com ([138.32.33.140]:50870 "EHLO
-	mailman2.ppco.com") by vger.kernel.org with ESMTP id S261216AbVBVSxP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:53:15 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Problems with 2.6.11-rc4, Opteron server and MPTBase
-Date: Tue, 22 Feb 2005 12:53:12 -0600
-Message-ID: <D821697F08061F4FBB069FA1AAAA92370C44F7@hoexmb7.conoco.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with 2.6.11-rc4, Opteron server and MPTBase
-Thread-Index: AcUZD8GauRWrk1DOTQKVAz6YLx6Scw==
-From: "Weathers, Norman R." <Norman.R.Weathers@conocophillips.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Feb 2005 18:53:12.0473 (UTC) FILETIME=[C2498890:01C5190F]
+	Tue, 22 Feb 2005 13:59:18 -0500
+Received: from galileo.bork.org ([134.117.69.57]:17604 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261281AbVBVS7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 13:59:15 -0500
+Date: Tue, 22 Feb 2005 13:59:15 -0500
+From: Martin Hicks <mort@wildopensource.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, mingo@elte.hu, raybry@sgi.com,
+       linux-kernel@vger.kernel.org, hilgeman@sgi.com
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Message-ID: <20050222185915.GP26705@localhost>
+References: <20050214154431.GS26705@localhost> <20050214193704.00d47c9f.pj@sgi.com> <20050221192721.GB26705@localhost> <20050221134220.2f5911c9.akpm@osdl.org> <421A607B.4050606@sgi.com> <20050221144108.40eba4d9.akpm@osdl.org> <20050222075304.GA778@elte.hu> <20050222032633.5cb38abb.pj@sgi.com> <20050222104535.0b3a3c65.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050222104535.0b3a3c65.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-To all whom it may concern:
+On Tue, Feb 22, 2005 at 10:45:35AM -0800, Andrew Morton wrote:
+> Paul Jackson <pj@sgi.com> wrote:
+> >
+> >  As Martin wrote, when he submitted this patch:
+> >  > The motivation for this patch is for setting up High Performance
+> >  > Computing jobs, where initial memory placement is very important to
+> >  > overall performance.
+> > 
+> >  Any left over cache is wrong, for this situation.
+> 
+> So...  Cannot the applicaiton remove all its pagecache with posix_fadvise()
+> prior to exitting?
 
+I think Paul's referring to pagecache (as well as other caches) that are
+on the node from other uses, not necessarily another HPC job that has
+recently terminated.
 
-I am having trouble with several of the 2.6 kernels.  The last one is
-the one that is perhaps most annoying.
+mh
 
-I have a dual Opteron based NFS server that keeps crashing when I try to
-boot up with 2.6.11-rc4.
-
-The node is trying to boot from an mptbase device, and it is also
-loading modules for a qlogic fiber card (module is qla2300, qla2xxx, and
-the scsi_transport_fc).  Now, as it is scanning the drives, it does a
-perfect impersonation of a dying duck and crashes.  
-
-Here is the output from the crash:'
-
-Fusion MPT base driver 3.01.18
-Loading scsi_modCopyright (c) 1999-2004 LSI Logic Corporation
-.ko module
-Loadmptbase: Initiating ioc0 bringup
-ing sd_mod.ko module
-Loading mptbase.ko module
-ioc0: 53C1030: Capabilities={Initiator}
-Unable to handle kernel paging request at 00000000000025b0 RIP: 
-<ffffffff8012064d>{vmalloc_fault+557}
-PGD 821ad067 PUD 2c50067 PMD 0 
-Oops: 0000 [1] SMP 
-CPU 0 
-Modules linked in: mptbase sd_mod scsi_mod
-Pid: 0, comm: swapper Not tainted 2.6.11-rc4
-RIP: 0010:[<ffffffff8012064d>] <ffffffff8012064d>{vmalloc_fault+557}
-RSP: 0000:ffffffff80455230  EFLAGS: 00010212
-RAX: 00000000000fe050 RBX: 0000000000000001 RCX: 0000000000000018
-RDX: 0000000000000000 RSI: 03fffffffffff000 RDI: 00003fffffffffff
-RBP: 0000000000000000 R08: ffff8100fba3c000 R09: 00000000fba3c000
-R10: 0000000000000008 R11: ffff810081b44760 R12: ffffffff80455338
-R13: 0000000000000003 R14: ffffc20000000044 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffffffff804c1800(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 00000000000025b0 CR3: 0000000002c58000 CR4: 00000000000006e0
-Process swapper (pid: 0, threadinfo ffffffff804c8000, task
-ffffffff80358380)
-Stack: ffffffff801207ce 0000000000000001 0000000000000001
-ffffffff80455278 
-       ffffffff80358380 ffffffff80455338 ffffffff80317933
-0000000000000000 
-       0000000b0000000e 0000000000000082 
-Call Trace:<IRQ> <ffffffff801207ce>{do_page_fault+238}
-<ffffffff8014c179>{autoremove
-_wake_function+9} 
-       <ffffffff80131d83>{__wake_up_common+67}
-<ffffffff8010eddd>{error_exit+0} 
-       <ffffffff8802c02d>{:mptbase:mpt_interrupt+45}
-<ffffffff8013fbd9>{update_wall_
-time+9} 
-       <ffffffff8015777c>{handle_IRQ_event+44}
-<ffffffff8015788e>{__do_IRQ+222} 
-       <ffffffff80111392>{do_IRQ+66} <ffffffff8010e981>{ret_from_intr+0}
-
-        <EOI> <ffffffff802f7c4a>{thread_return+42}
-<ffffffff8010c420>{default_idle+0
-} 
-       <ffffffff8010c444>{default_idle+36}
-<ffffffff8010c58a>{cpu_idle+58} 
-       <ffffffff804ca910>{start_kernel+416}
-<ffffffff804ca294>{x86_64_start_kernel+4
-04} 
-       
-
-Code: 48 2b 82 b0 25 00 00 48 8d 34 c5 00 00 00 00 48 29 c6 48 8b 
-RIP <ffffffff8012064d>{vmalloc_fault+557} RSP <ffffffff80455230>
-CR2: 00000000000025b0
- <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-
-Has anyone seen this in this kernel?  2.6.7 - 2.6.10 has not had a
-problem booting, but there has been other problems that are forcing us
-to move up to a newer kernel (2.6.7 has stability issues, 2.6.9 had some
-interesting issues with our IBM servers and USB keyboards (complete
-lockups), and I had problems with kswapd on 2.6.7 - 2.6.10).
-
-Thanks for any help you may be able to shed on this problem.  Please CC
-me.  I was on the kernel list, but I think my company has blocked that
-email due to the volume of the traffic.
-
-Norman Weathers
-
+-- 
+Martin Hicks   ||   Silicon Graphics Inc.   ||   mort@sgi.com

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbTIQCoV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 22:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbTIQCoU
+	id S262666AbTIQCsr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 22:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbTIQCsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 22:44:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262668AbTIQCoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 22:44:16 -0400
-Date: Tue, 16 Sep 2003 19:44:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, richard.brunner@amd.com
-Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
-Message-Id: <20030916194446.030d8e70.akpm@osdl.org>
-In-Reply-To: <20030917022256.GA17624@wotan.suse.de>
-References: <20030917022256.GA17624@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 16 Sep 2003 22:48:47 -0400
+Received: from 200-63-155-39.speedy.com.ar ([200.63.155.39]:20354 "EHLO
+	runa.sytes.net") by vger.kernel.org with ESMTP id S262666AbTIQCsp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 22:48:45 -0400
+Date: Tue, 16 Sep 2003 23:49:49 -0300
+From: Martin Sarsale <runa@runa.sytes.net>
+To: linux-kernel@vger.kernel.org
+Subject: apache: page allocation failure. order:0, mode:0xd2
+Message-Id: <20030916234949.3b9784a1.runa@runa.sytes.net>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.xBI7G/nSAAp4xb"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> 
-> This is much more efficient than the previous workaround used in the kernel,
-> which checked for AMD CPUs in every prefetch(). This can be seen 
-> in the size of the vmlinux:
+--=.xBI7G/nSAAp4xb
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-That is hardly a serious comparison: the workaround is just to stop the
-oopses while this gets sorted out.  It makes no pretense at either
-efficiency or permanence.
+Dear all: Im running 2.6.0-test4 here and today I started experiencing some weird behaviour: from time to time the system freezes for some minutes. When I gain the control back, running top shows 400mb/ram free but running dmesg I some "out of memory" messages. I was playing with some hardware in the weekend so Im not sure if this is a hardware failure. I'll do some other experiments (running memtest, etc) and I'll clarify if it's a hardware issue.
+Some dmesg messages:
 
-> Without patch:
->    text    data     bss     dec     hex filename
-> 4020232  665956  169092 4855280  4a15f0 vmlinux
-> With patch:
-> 4011578  665973  169092 4846643  49f433
+Out of Memory: Killed process 565 (xmule).
+Out of Memory: Killed process 474 (apache).
+Out of Memory: Killed process 727 (apache).
+Out of Memory: Killed process 473 (apache).
+Out of Memory: Killed process 726 (apache).
+Out of Memory: Killed process 457 (apache).
+Out of Memory: Killed process 3082 (apache).
+Out of Memory: Killed process 2880 (xmule).
+apache: page allocation failure. order:0, mode:0xd2
+VM: killing process apache
 
-hrm.  Why did data grow?
 
-> With prefetch check:    3.7268 microseconds
-> Without prefetch check: 3.65945 microseconds
+thanks in advance
 
-We don't know how much of this difference is due to removing the branch and
-how much is due to reenabling prefetch.
+-- 
+you can find my public PGP/GPG key at http://www.n3rds.com.ar/files/martin_sarsale.key
 
-It would be interesting to see comparative benchmarking between prefetch
-and no prefetch at all, see whether this feature is worth its icache
-footprint.
+--=.xBI7G/nSAAp4xb
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Z8vWhruVGj+ub3MRAqL/AKDLiFjKFKf4PQKVCuvv48/TQrBo5ACdH3IL
+lAEvVDViTaFpdoEA/gfM3cw=
+=v1gT
+-----END PGP SIGNATURE-----
+
+--=.xBI7G/nSAAp4xb--

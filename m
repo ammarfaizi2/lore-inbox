@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVBYVbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVBYVdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVBYVbn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 16:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVBYVbn
+	id S261667AbVBYVdv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 16:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVBYVdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 16:31:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:2716 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261636AbVBYVbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 16:31:41 -0500
-Date: Fri, 25 Feb 2005 13:30:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@sgi.com>
-Cc: kaigai@ak.jp.nec.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
-       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
-       limin@dbear.engr.sgi.com, jbarnes@sgi.com
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050225133034.09da67f9.akpm@osdl.org>
-In-Reply-To: <421F6139.5020207@sgi.com>
-References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-	<421CEC38.7010008@sgi.com>
-	<421EB299.4010906@ak.jp.nec.com>
-	<20050224212839.7953167c.akpm@osdl.org>
-	<421F6139.5020207@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Feb 2005 16:33:51 -0500
+Received: from web50203.mail.yahoo.com ([206.190.38.44]:44391 "HELO
+	web50203.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261667AbVBYVdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 16:33:39 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=l71wvLyEcztxrayE6fbgQmG720XRmguYJv2F+CBQ64/siBFmHVPT7NX9JjToisFNHnB4Ac8B2xe/cRgaf9fTfe9BGDOqfC5STPK5STIvsmIc/XaZ9NiVyhaLfkQ4yQcZFbYJmeoarwAaVfHXFQUfpg/upLaHQRm41K1LIbBpeN4=  ;
+Message-ID: <20050225213336.58742.qmail@web50203.mail.yahoo.com>
+Date: Fri, 25 Feb 2005 13:33:36 -0800 (PST)
+From: Johan Braennlund <johan_brn@yahoo.com>
+Subject: ALPS touchpad not seen by 2.6.11 kernels
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@sgi.com> wrote:
->
-> Andrew Morton wrote:
->  > Kaigai Kohei <kaigai@ak.jp.nec.com> wrote:
->  > 
->  >>In my understanding, what Andrew Morton said is "If target functionality can
->  >> implement in user space only, then we should not modify the kernel-tree".
->  > 
->  > 
->  > fork, exec and exit upcalls sound pretty good to me.  As long as
->  > 
->  > a) they use the same common machinery and
->  > 
->  > b) they are next-to-zero cost if something is listening on the netlink
->  >    socket but no accounting daemon is running.
->  > 
->  > Question is: is this sufficient for CSA?
-> 
->  Yes, fork, exec, and exit upcalls are sufficient for CSA.
-> 
->  The framework i proposed earlier should satisfy your requirement a
->  and b, and provides upcalls needed by BSD, ELSA and CSA. Maybe i
->  misunderstood your concern of the 'very light weight' framework
->  i proposed besides being "overkill"?
+Hi. I've had trouble with my ALPS touchpad on my Acer Aspire, ever
+since ALPS support was merged into the kernel. I've tried various
+kernels from 2.6.11-rc3 to -rc5 (including some -mm kernels) and none
+of them detect the pad. After sprinkling some printk's in the mouse
+drivers, it seems like psmouse_connect in psmouse-base.c is never even
+called. 
 
-"upcall" is poorly defined.
+On the other hand, using earlier kernels (such as 2.6.9) with the
+kernel patch from Peter Osterlund's driver package works fine. In that
+case, I get lines like this in syslog:
 
-What I meant was that ELSA can perform its function when the kernel merely
-sends asynchronous notifications of forks out to userspace via netlink.
+kernel: alps.c: E6 report: 00 00 64
+kernel: alps.c: E7 report: 73 02 14
+kernel: alps.c: E6 report: 00 00 64
+kernel: alps.c: E7 report: 73 02 14
+kernel: alps.c: Status: 15 01 0a
+kernel: ALPS Touchpad (Glidepoint) detected
+kernel: input: AlpsPS/2 ALPS TouchPad on isa0060/serio4
 
-Further, I'm wondering if CSA can perform its function with the same level
-of kernel support, perhaps with the addition of netlink-based notification
-of exec and exit as well.
+With the newer kernels, there's nothing ALPS-related in the log. Any
+pointers on what to look for would be appreciated. My kernel config is
+at http://nullinfinity.org/config-2.6.11-rc5
 
-The framework patch which you sent was designed to permit the addition of
-more kernel accounting code, which is heading in the opposite direction.
+Thanks,
 
-In other words: given that ELSA can do its thing via existing accounting
-interfaces and a fork notifier, why does CSA need to add lots more kernel
-code?
+Johan
+
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Read only the mail you want - Yahoo! Mail SpamGuard. 
+http://promotions.yahoo.com/new_mail 

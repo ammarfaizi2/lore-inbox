@@ -1,119 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269094AbTCBDBL>; Sat, 1 Mar 2003 22:01:11 -0500
+	id <S269106AbTCBDUk>; Sat, 1 Mar 2003 22:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269099AbTCBDBK>; Sat, 1 Mar 2003 22:01:10 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:53006 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S269094AbTCBDBI>; Sat, 1 Mar 2003 22:01:08 -0500
-Date: Sat, 1 Mar 2003 19:11:19 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Cc: Hugo Mills <hugo-lkml@carfax.org.uk>
-Subject: Re: [PATCH] More spelling fixes: loose->lose
-Message-ID: <20030302031119.GB30797@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org, Hugo Mills <hugo-lkml@carfax.org.uk>
-References: <20030301202807.GA24998@carfax.org.uk>
+	id <S269107AbTCBDUk>; Sat, 1 Mar 2003 22:20:40 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:31507 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S269106AbTCBDUj>; Sat, 1 Mar 2003 22:20:39 -0500
+Subject: Re: [PATCH] kernel source spellchecker
+From: Steven Cole <elenstev@mesatop.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: Matthias Schniedermeyer <ms@citd.de>, Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca,
+       Tak-Shing Chan <chan@aleph1.co.uk>
+In-Reply-To: <3E6167B1.6040206@kegel.com>
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
+	<3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com> 
+	<3E6167B1.6040206@kegel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 01 Mar 2003 20:29:47 -0700
+Message-Id: <1046575789.7527.438.camel@spc1.mesatop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030301202807.GA24998@carfax.org.uk>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 01, 2003 at 08:28:07PM +0000, Hugo Mills wrote:
->    Loose, pronounced with a soft "s", as in the word "spelling", means
-> badly-fitting or vague.
+On Sat, 2003-03-01 at 19:08, Dan Kegel wrote:
+[snipped]
+> 
+> This corrections file is probably good enough to actually use.
+> I'm running it against linux-2.5.63-bk5 now...
+> - Dan
+[snippage]
+> Pseudo=Psuedo
 
-Actually it means "not tight" or unconstrained as in "loosen
-the collar and check airflow before performing
-mouth-to-mouth" or "let loose the dogs"
+Hmm, psuedo didn't get caught.  Is psuedo code particularly smooth?
 
-In actual usage loose and lose can be antonyms when
-referring to priveleges.  "loose privs" vs "lose privs".
+Anyway, looking beyond comments only may catch real bugs.
+I found this a few days ago whilst looking for commonly
+misspelled words, a much weaker technique than your spellchecker.
 
-I found at least one case of correction that looked wrong so
-i perused the lot, see comments.
+[steven@spc5 linus-2.5]$ bk export -tplain ../linux
+[steven@spc5 linus-2.5]$ cd ../linux
+[steven@spc5 linux]$ find . -type f | xargs grep psuedo
+./arch/ppc64/kernel/iSeries_IoMmTable.h:/*   allocated the psuedo I/O Address.                                  */
+./drivers/base/platform.c: * platform.c - platform 'psuedo' bus for legacy devices
+./drivers/scsi/aic7xxx/aic7xxx.seq: * use byte 27 of the SCB as a psuedo-next pointer and to thread a list
+./drivers/scsi/g_NCR5380.c: *   Perform a psuedo DMA mode read from an NCR53C400 or equivalent
+./drivers/scsi/g_NCR5380.c: *   Perform a psuedo DMA mode read from an NCR53C400 or equivalent
+./drivers/video/skeletonfb.c: * no color palettes are supported. Here a psuedo palette is created
+./drivers/video/anakinfb.c:     fb_info.psuedo_palette = colreg;
+----------------------------------------^^^^^^
+This shouldn't even compile.
 
-> diff -ur linux-2.5.63-orig/arch/ia64/kernel/perfmon.c linux-2.5.63/arch/ia64/kernel/perfmon.c
-> --- linux-2.5.63-orig/arch/ia64/kernel/perfmon.c	2003-03-01 16:19:41.000000000 +0000
-> +++ linux-2.5.63/arch/ia64/kernel/perfmon.c	2003-03-01 19:55:03.000000000 +0000
-> @@ -2995,7 +2995,7 @@
->  		 * interruptible). In this case, the PMU will be kept frozen and the process will 
->  		 * run to completion without monitoring enabled.
->  		 *
-> -		 * Of course, we cannot loose notify process when self-monitoring.
-> +		 * Of course, we cannot lose notify process when self-monitoring.
+[steven@spc5 linux]$ find . -name "*.h" | xargs grep pseudo_palette
+./drivers/video/i810/i810.h:    u32 pseudo_palette[17];
+./include/linux/fb.h:   void *pseudo_palette;                /* Fake palette of 16 colors and
 
-This might have been "loosely notify" but careful examination of the
-context idicates it should be "lose notification process" or
-"lose the notify process". 
+Yep, a mistake all right.  Adding the listed author to the cc list.
 
-> diff -ur linux-2.5.63-orig/drivers/scsi/atari_NCR5380.c linux-2.5.63/drivers/scsi/atari_NCR5380.c
-> --- linux-2.5.63-orig/drivers/scsi/atari_NCR5380.c	2003-01-09 04:04:16.000000000 +0000
-> +++ linux-2.5.63/drivers/scsi/atari_NCR5380.c	2003-03-01 20:05:24.000000000 +0000
-> @@ -2953,7 +2953,7 @@
->       * on any queue, so they won't be retried ...
->       *
->       * Conclusion: either scsi.c disables timeout for all resetted commands
+Steven
 
-[OT] Past tense of the verb reset is reset, not resetted.
-
-> -     * immediately, or we loose!  As of linux-2.0.20 it doesn't.
-> +     * immediately, or we lose!  As of linux-2.0.20 it doesn't.
->       */
->  
->      /* After the reset, there are no more connected or disconnected commands
-
-> diff -ur linux-2.5.63-orig/include/asm-mips/processor.h linux-2.5.63/include/asm-mips/processor.h
-> --- linux-2.5.63-orig/include/asm-mips/processor.h	2003-01-09 04:03:50.000000000 +0000
-> +++ linux-2.5.63/include/asm-mips/processor.h	2003-03-01 20:11:23.000000000 +0000
-> @@ -228,7 +228,7 @@
->   * Do necessary setup to start up a newly executed thread.
->   */
->  #define start_thread(regs, new_pc, new_sp) do {				\
-> -	/* New thread looses kernel privileges. */			\
-> +	/* New thread loses kernel privileges. */			\
-
-Good catch.  We don't want "New thread loosens kernel privileges."
-
->  	regs->cp0_status = (regs->cp0_status & ~(ST0_CU0|ST0_KSU)) | KU_USER;\
->  	regs->cp0_epc = new_pc;						\
->  	regs->regs[29] = new_sp;					\
-> diff -ur linux-2.5.63-orig/include/asm-mips64/processor.h linux-2.5.63/include/asm-mips64/processor.h
-> --- linux-2.5.63-orig/include/asm-mips64/processor.h	2003-01-09 04:04:14.000000000 +0000
-> +++ linux-2.5.63/include/asm-mips64/processor.h	2003-03-01 20:10:46.000000000 +0000
-> @@ -256,7 +256,7 @@
->  do {									\
->  	unsigned long __status;						\
->  									\
-> -	/* New thread looses kernel privileges. */			\
-> +	/* New thread loses kernel privileges. */			\
->  	__status = regs->cp0_status & ~(ST0_CU0|ST0_FR|ST0_KSU);	\
->  	__status |= KSU_USER;						\
->  	__status |= (current->thread.mflags & MF_32BIT) ? 0 : ST0_FR;	\
-
-> diff -ur linux-2.5.63-orig/include/linux/securebits.h linux-2.5.63/include/linux/securebits.h
-> --- linux-2.5.63-orig/include/linux/securebits.h	2003-01-09 04:03:56.000000000 +0000
-> +++ linux-2.5.63/include/linux/securebits.h	2003-03-01 20:10:11.000000000 +0000
-> @@ -14,7 +14,7 @@
->  #define SECURE_NOROOT            0
->  
->  /* When set, setuid to/from uid 0 does not trigger capability-"fixes"
-> -   to be compatible with old programs relying on set*uid to loose
-> +   to be compatible with old programs relying on set*uid to lose
->     privileges. When unset, setuid doesn't change privileges. */
-
-Youch,  Meaning inversion.
-
-
-
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt

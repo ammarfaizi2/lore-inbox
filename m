@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270806AbTHAP2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 11:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270807AbTHAP2J
+	id S270800AbTHAP0R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 11:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270801AbTHAP0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 11:28:09 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:35770
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S270806AbTHAP2F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 11:28:05 -0400
-Date: Fri, 1 Aug 2003 11:27:47 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: John Bradford <john@grabjohn.com>
-cc: rob@landley.net, lkml <linux-kernel@vger.kernel.org>,
-       <szepe@pinerecords.com>
-Subject: Re: Messing with Kconfig.
-In-Reply-To: <200308010901.h7191Wsd000946@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0308011112310.9934-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Aug 2003 11:26:17 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:2177 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S270800AbTHAP0Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 11:26:16 -0400
+Date: Fri, 1 Aug 2003 16:25:07 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Timothy Miller <miller@techsource.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+Message-ID: <20030801151945.GA12501@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com> <3F2928AD.90501@techsource.com> <Pine.LNX.4.53.0307311056540.9348@montezuma.mastecende.com> <20030731152007.GA6658@mail.jlokier.co.uk> <Pine.LNX.4.53.0307311741090.3779@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307311741090.3779@montezuma.mastecende.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003, John Bradford wrote:
-
-> > So I'm looking at menuconfig and contemplating rearranging the heck out of it
+Zwane Mwaikambo wrote:
+> > > iirc the screen already unblanks. But it's been a while since i've looked 
+> > > at a panic'ing box via the screen.
+> > 
+> > That's still not good enough if the boot-time crash is not a panic.
 > 
-> Please don't.  This comes up from time to time on the mailing list,
-> and massive re-arrangements are usually a Bad Thing.
+> You mean oopses?
 
-Of course "massive" re-arrangements all at once have always been rejected,
-and we've seen obvious examples of that in the kernel build/config system
-area already.
+I mean if /sbin/init or /linuxrc crash early, for example.
 
-One should have learned, though, that small incremental changes can achieve
-similar results and are much more acceptable to the rest of the community.
-
-
-Nicolas
-
+-- Jamie

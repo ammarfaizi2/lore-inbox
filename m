@@ -1,47 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbTIROaH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 10:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTIROaH
+	id S261492AbTIROio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 10:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTIROio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 10:30:07 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:12281 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261427AbTIROaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 10:30:04 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: cpu speed
-To: koala.gnu@tiscali.it
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF70311BA5.5F9F0160-ONC1256DA5.004F6FD6-C1256DA5.004F764C@italy.ibm.com>
-From: "Mario Noioso" <MNOIOSO@it.ibm.com>
-Date: Thu, 18 Sep 2003 16:29:55 +0200
-X-MIMETrack: Serialize by Router on D14ML009/14/M/IBM(Release 5.0.9a |January 7, 2002) at
- 18/09/2003 16:29:58
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Thu, 18 Sep 2003 10:38:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1298 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261492AbTIROin (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Thu, 18 Sep 2003 10:38:43 -0400
+Message-Id: <200309181438.h8IEc6105967@mx1.redhat.com>
+From: Harold <qwanise@yahoo.com>
+To: linux-kernel@vger.redhat.com
+Subject: Discover dirty secrets your in-laws don't want you to know!
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Thu, 18 Sep 2003 15:32:58 +0100
+X-Mailer: The Bat! (v1.52f) Business
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Koala GNU wrote:
-      >>Hi all,
-      >>I have a T21 thinkpad Pentium III 800 MHz.
-      >>I have redhat 8.0 with linux 2.4.18 installed on my machine.
-      >>Executing cat /proc/cpuinfo I noticed that cpu speed is 200 MHz.
-      >>Looking at BIOS the speed is correct.
+Investigate anyone
 
-Hi,
-This steps are for you:
-1. Go in bios setup
-2. Select config/power
-3. set to customized "power ac mode"
-4. set to customized "power mode for battery"
-5. set to fixed max processor speed
-
------------------------------------
-enjoy
-http://neuromante.homelinux.com
------------------------------------
-
+Visit http://UnbelievableSecretsCd.com for details.

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269736AbTGaV41 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269913AbTGaV41
+	id S274893AbTGaVyA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270634AbTGaVyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:56:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:43993 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269736AbTGaVyV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:54:21 -0400
-Date: Thu, 31 Jul 2003 14:55:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O11int for interactivity
-Message-ID: <20030731215523.GH15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <1059553792.548.2.camel@teapot.felipe-alfaro.com> <200307301040.38858.m.c.p@wolk-project.de> <20030731214314.GG15452@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 31 Jul 2003 17:54:00 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:64458 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S274921AbTGaVx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 17:53:57 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: HELP: cpufreq on HT and/or SMP systems
+Date: Thu, 31 Jul 2003 23:53:54 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030731214314.GG15452@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307312353.54735.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 02:43:14PM -0700, William Lee Irwin III wrote:
-> Could you make sure that you're not using 1A? (vanilla 1 and 1B are
-> both fine for these purposes).
-> Also, can I get a before/after of the following during an mp3 skip test?
-> vmstat 1 | tee -a vmstat.log
-> n=1; while true; do /usr/sbin/readprofile -n -m /boot/System.map-`uname -r` | sort -k 2,2 > profile.log.$n; n=$(( $n + 1 )); sleep 1; done
-> 
-> If you could stop the logging shortly after the skip in the kernel that
-> does skip (but not _too_ shortly after, give it at least 1 second) I
-> would be much obliged. The "before" picture is most important. An
-> "after" picture might also be helpful, but isn't strictly necessary.
+I have some doubts regarding cpufreq for SMP systems (for developing 
+http://mnm.uib.es/~gallir/cpudyn/).
 
-Please don't forget to boot with profile=1
+If I remember well, I read a while ago that cpufreq didn't work in SMP 
+systems, but reading the docs and kernel/cpufreq.c, it seems there should be 
+any problem? 
+
+Is it true?
+
+OTH, I trying it on a P4 HT, and it works, changes in the frequency of one of 
+the "cpu's",  changes both. 
+
+What happens in the case of several real cpu's? Does it keep the same 
+frequency for every cpu? According to a comment in cpufreq.c, it seems that 
+each cpu might have different frequencies.
+
+So, what's recommended? Change the frequency of every cpu one by one?
+
+Thanks,
+
+PS: sorry, I don't have any cpufreq/SMP machine at hand.
 
 
--- wli
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/

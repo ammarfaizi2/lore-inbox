@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265619AbTF2KfA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 06:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbTF2KfA
+	id S265628AbTF2LHh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 07:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbTF2LHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 06:35:00 -0400
-Received: from pop.gmx.net ([213.165.64.20]:15788 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265619AbTF2Ke7 convert rfc822-to-8bit
+	Sun, 29 Jun 2003 07:07:36 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:20657 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265628AbTF2LHg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 06:34:59 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: # of processors limit?
-Date: Sun, 29 Jun 2003 12:48:46 +0200
-User-Agent: KMail/1.4.3
+	Sun, 29 Jun 2003 07:07:36 -0400
+Message-ID: <3EFECBD1.9010409@namesys.com>
+Date: Sun, 29 Jun 2003 15:21:53 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306291248.51318.torsten.foertsch@gmx.net>
+To: "burnt_2@ziplip.com" <burnt_2@ziplip.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: inode problem?
+References: <MIJXCMB2BYF3IGODGJJ4OJOIOEKCMGEAGNADOJMH@ziplip.com>
+In-Reply-To: <MIJXCMB2BYF3IGODGJJ4OJOIOEKCMGEAGNADOJMH@ziplip.com>
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+burnt_2@ziplip.com wrote:
 
-Hi,
+>Hans Reiser wrote:
+>
+>  
+>
+>>inodes are yucky yucky.;-) We ain't got none.
+>>    
+>>
+>
+>So are birthday problems and hash collisions, but I haven't seen you guys address that little detail yet...
+>
+V4 handles duplicates, and has a larger hash.
 
-what is a reasonable number of processors limit with 2.4.x? Does it run well 
-with 32 processors?
+>
+>(Speaking only as somebody who lost their /usr/local tree to reiserfs.  KEEP BACKUPS, especially if you're using an experimental filesystem.)
+>
+>
+>  
+>
+Sorry that happened to you.  Were you using a kernel older than 2.4.18? 
 
-Thanks,
-Torsten
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+-- 
+Hans
 
-iD8DBQE+/sQTwicyCTir8T4RAmU8AJ0XfSIbmW4lZ1iSB+bowzEPS/SsXQCcCM9J
-fMNM2jqdNA2ojRjhwvyMOBg=
-=fzs9
------END PGP SIGNATURE-----
+

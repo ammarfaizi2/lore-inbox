@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbTKQUdl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 15:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTKQUdl
+	id S261575AbTKQUtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 15:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKQUtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 15:33:41 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:20747 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S261384AbTKQUdj (ORCPT
+	Mon, 17 Nov 2003 15:49:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32679 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261575AbTKQUta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 15:33:39 -0500
-Date: Mon, 17 Nov 2003 21:33:36 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HOWTO build modules in 2.6.0 ...
-Message-ID: <20031117203336.GA1714@mars.ravnborg.org>
-Mail-Followup-To: Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl>
+	Mon, 17 Nov 2003 15:49:30 -0500
+Date: Mon, 17 Nov 2003 12:49:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: sds@epoch.ncsc.mil, aviro@redhat.com, linux-kernel@vger.kernel.org,
+       russell@coker.com.au
+Subject: Re: [PATCH][RFC] Remove CLONE_FILES from init kernel thread
+ creation
+Message-Id: <20031117124954.6fa4e366.akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0311171439590.2731-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0311171439590.2731-100000@thoron.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 08:00:50PM +0100, Wojciech 'Sas' Cieciwa wrote:
+James Morris <jmorris@redhat.com> wrote:
+>
+> The patch below removes the CLONE_FILES flag from the kernel_thread() call
+> which starts init.
 > 
-> Hi,
+> This is to prevent other kernel threads from sharing file descriptors 
+> opened by init (try 'lsof /dev/initctl' on a 2.6 system :-).
 > 
-> How can I build kernel modele from other package without root, or copying 
-> all from /usr/scr/linux/ ??
-> When I try build kernel module from user i got error,
+> The reason this patch is being proposed is so that usermode helper apps
+> launched via kernel threads (e.g. modprobe, hotplug) do not then inherit
+> any such file descriptors.  This is not a problem in itself so far (other
+> than being messy), but it is a problem for SELinux, which will otherwise
+> need to grant access to /dev/initctl by modprobe and hotplug, a somewhat
+> undesirable scenario.
 > 
-> [...]
-> make[1]: Leaving directory `/users/cieciwa/rpm/BUILD/eagle-1.0.4/driver'
-> /usr/bin/make -C /usr/src/linux SUBDIRS=`pwd` modules;
-> make[1]: Entering directory `/usr/src/linux-2.6.0'
->   HOSTCC  scripts/fixdep
-> cc1: Permission denied: opening dependency file scripts/.fixdep.d
+> As far as I can tell, there is no reason why init needs to be spawned with
+> CLONE_FILES.  Please let me know if there are any objections to the
+> change, which I would like to propose for 2.6.0+ as a cleanup.
+> 
 
-Hi Sas.
-What you really need is the possibility to specify an alternate location
-for output files.
+No, I can't think of a reason why we'd need CLONE_FILES in there.  I'll
+toss it in and see what breaks.
 
-Use the following:
-make -C /usr/src/linux SUBDIRS=`pwd` O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux modules
+I wonder why call_usermodehelper() uses CLONE_FILES...
 
-O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux
-tell kbuild to locate all files in the specified directory, which must exist.
-This is also the location of .config, so make sure to copy that one over.
 
-	Sam

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263345AbSJTSPK>; Sun, 20 Oct 2002 14:15:10 -0400
+	id <S263403AbSJTSSj>; Sun, 20 Oct 2002 14:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263403AbSJTSPK>; Sun, 20 Oct 2002 14:15:10 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:7896 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S263345AbSJTSPI>;
-	Sun, 20 Oct 2002 14:15:08 -0400
-Date: Sun, 20 Oct 2002 20:21:13 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: nfsd/sunrpc boot on reboot in 2.5.44
-Message-ID: <20021020182113.GB26384@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-References: <20021020173142.GA26384@outpost.ds9a.nl>
+	id <S263589AbSJTSSj>; Sun, 20 Oct 2002 14:18:39 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:13914 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S263403AbSJTSSi>;
+	Sun, 20 Oct 2002 14:18:38 -0400
+Date: Sun, 20 Oct 2002 20:24:36 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Container_of considered harmful - was Re: usb storage sddr09
+Message-ID: <20021020182436.GA25975@win.tue.nl>
+References: <200210172155.49349.tomlins@cam.org> <20021018193523.GA25316@win.tue.nl> <200210200952.23430.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021020173142.GA26384@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200210200952.23430.tomlins@cam.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 07:31:42PM +0200, bert hubert wrote:
+> Both of these are fixed with 2.4.44
 
-> I'm looking if I can reproduce this.
+Yes, there is progress. Not to say that there are no oopses left,
+but with 2.5.44 the oopses are different.
 
-Like clockwork, it happens just after 'Unexporting directories'. If you run
-exportfs -au first, nothing happens. the error only happens when the entire
-script runs.
+Let me just report one, don't know whether I'll have time to track
+what happens.
 
-  stop)
-        printf "Stopping $DESC: mountd"
-        start-stop-daemon --stop --oknodo --quiet \
-            --name rpc.mountd --user 0
-        printf " nfsd"
-        start-stop-daemon --stop --oknodo --quiet \
-            --name nfsd --user 0 --signal 2
-        echo "."
+Insert and remove a usb-storage device while usb-storage
+is not loaded. Now load usb-storage. Oops.
 
-        printf "Unexporting directories for $DESC..."
-        $PREFIX/sbin/exportfs -au
-        echo "done."
-        ;;
+The oops is a dereference of fffffff0 in base/bus.c:driver_attach().
+I have seen several such oopses lately, various places in the kernel.
+The cause here is a NULL pointer that is turned into fffffff0 by
+container_of() and then fed to get_device(). And get_device() tests
+that it gets a non-NULL pointer, but that does not protect against
+fffffff0.
 
-This is /etc/exports:
- # /etc/exports: the access control list for filesystems which may be
-exported
-#		to NFS clients.  See exports(5)
-/ 10.0.0.0/255.0.0.0(rw)
-/mnt 10.0.0.0/255.0.0.0(rw)
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Andries

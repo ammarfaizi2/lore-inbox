@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316182AbSG2CPN>; Sun, 28 Jul 2002 22:15:13 -0400
+	id <S317471AbSG2C65>; Sun, 28 Jul 2002 22:58:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSG2CPN>; Sun, 28 Jul 2002 22:15:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14090 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316182AbSG2CPN>; Sun, 28 Jul 2002 22:15:13 -0400
-Date: Sun, 28 Jul 2002 23:18:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of  PAGE_{CACHE_,}{MASK,ALIGN}
-In-Reply-To: <3D44A4EB.C5EE33@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0207282317060.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317504AbSG2C65>; Sun, 28 Jul 2002 22:58:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55778 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317471AbSG2C64>;
+	Sun, 28 Jul 2002 22:58:56 -0400
+Date: Sun, 28 Jul 2002 19:50:55 -0700 (PDT)
+Message-Id: <20020728.195055.105468330.davem@redhat.com>
+To: akpm@zip.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D448D38.D156C249@zip.com.au>
+References: <3D439E10.67A839A5@zip.com.au>
+	<Pine.LNX.4.44.0207281649560.9427-100000@home.transmeta.com>
+	<3D448D38.D156C249@zip.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jul 2002, Andrew Morton wrote:
+   From: Andrew Morton <akpm@zip.com.au>
+   Date: Sun, 28 Jul 2002 17:32:56 -0700
+   
+   Also skb_release_data(), ___pskb_trim() and __pskb_pull_tail().  Can these
+   ever perform the final release against a page which is on the LRU?
+   In interrupt context?
 
-> > Together with the K42 people we found a way to avoid the
-> > badnesses of an object-based VM.
->
-> eek.  Please let's not tie the delivery of the 2.6 kernel to the success
-> of this R&D effort.  We need reasonable-sized fixes, fast, for the
-> current problems so that people who have feature work banked up can get
-> going on it.
+These page releases run from either user or softint context.
 
-Fully agreed.  We can go with the mechanisms we have now and
-should only work on new mechanisms later.
+They must never run from HW irqs, in fact there is a BUG()
+check there against this.
 
-I'm planning to keep the whole K42-style VM thing in design
-stage at least until after the feature freeze...
-
-(just so nobody gets tempted to sneak it into the kernel ;))
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Any page that can be found in the page cache can end up here.  So
+whatever that mean for "release against a page which is on the LRU"
+applies here.

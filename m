@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267681AbSLSX5y>; Thu, 19 Dec 2002 18:57:54 -0500
+	id <S267728AbSLTACX>; Thu, 19 Dec 2002 19:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267689AbSLSX5y>; Thu, 19 Dec 2002 18:57:54 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:38920
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267681AbSLSX5w>; Thu, 19 Dec 2002 18:57:52 -0500
-Date: Thu, 19 Dec 2002 19:08:23 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Burton Windle <bwindle@fint.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch][2.5][cft] OSS cs4232.c fix compilation
-Message-ID: <Pine.LNX.4.50.0212191905320.22130-100000@montezuma.mastecende.com>
+	id <S267730AbSLTACX>; Thu, 19 Dec 2002 19:02:23 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64144 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267728AbSLTACW>; Thu, 19 Dec 2002 19:02:22 -0500
+Date: Thu, 19 Dec 2002 16:19:03 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <62590000.1040343543@w-hlinder>
+In-Reply-To: <200212192359.gBJNxUI09113@devserv.devel.redhat.com>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <mailman.1040338801.24520.linux-kernel2news@redhat.com> <200212192359.gBJNxUI09113@devserv.devel.redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Burton,
-	You'll need the ad1848 patches i posted earlier too.
+--On Thursday, December 19, 2002 06:59:30 PM -0500 Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-Regards,
-	Zwane
+>> Why are bugs automatically assigned to owners? 
+>> 	If there was an unassigned category that would make it 
+>> 	easy to query.
+> 
+> Query for "NEW" status for a component and do not put anything
+> into "owner" fireld.
 
-Index: linux-2.5.52/sound/oss/cs4232.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.52/sound/oss/cs4232.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 cs4232.c
---- linux-2.5.52/sound/oss/cs4232.c	16 Dec 2002 05:17:07 -0000	1.1.1.1
-+++ linux-2.5.52/sound/oss/cs4232.c	19 Dec 2002 22:44:52 -0000
-@@ -357,7 +357,7 @@
+	If there was a NEW field that would be exactly what I was 
+asking for. When I do a query the only options I see are: OPEN, 
+ASSIGNED, RESOLVED, APPROVED, REJECTED, DEFERRED, CLOSED. 
+Where is the NEW? Is there somewhere else to do queries?
 
- /* All cs4232 based cards have the main ad1848 card either as CSC0000 or
-  * CSC0100. */
--static const struct pnp_id cs4232_pnp_table[] = {
-+static const struct pnp_device_id cs4232_pnp_table[] = {
- 	{ .id = "CSC0100", .driver_data = 0 },
- 	{ .id = "CSC0000", .driver_data = 0 },
- 	/* Guillemot Turtlebeach something appears to be cs4232 compatible
-@@ -368,7 +368,7 @@
+>> Also a list of people who arent maintainers but are available to help 
+>> 	could be useful for the owners to assign bugs to.
+> 
+> That's putting a cart in front of a horse. Such people have
+> to execute a simple Bugzilla to get lists, then select bugs
+> which they like. This way the overhead of maintaining such
+> lists disappears instantly.
 
- /*MODULE_DEVICE_TABLE(isapnp, isapnp_cs4232_list);*/
+Im trying to help make it easier for such people to get a list
+of bugs to start working on. If it looks like everything already
+has an owner it looks like there is nothing to do. Im just trying
+to figure out how to use it and hopefully help other people
+do the same thing.
 
--static int cs4232_pnp_probe(struct pnp_dev *dev, const struct pnp_id *card_id, const struct pnp_id *dev_id)
-+static int cs4232_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id)
- {
- 	struct address_info *isapnpcfg;
+Thanks a lot.
 
-@@ -386,20 +386,19 @@
- 		return -ENODEV;
- 	}
- 	attach_cs4232(isapnpcfg);
--	pci_set_drvdata(dev,isapnpcfg);
-+	pnp_set_drvdata(dev,isapnpcfg);
- 	return 0;
- }
+Hanna (obviously not a bugzilla user before)
 
- static void cs4232_pnp_remove(struct pnp_dev *dev)
- {
--	struct address_info *cfg = (struct address_info*) dev->driver_data;
-+	struct address_info *cfg = pnp_get_drvdata(dev);
- 	if (cfg)
- 		unload_cs4232(cfg);
- }
 
- static struct pnp_driver cs4232_driver = {
- 	.name		= "cs4232",
--	.card_id_table	= NULL,
- 	.id_table	= cs4232_pnp_table,
- 	.probe		= cs4232_pnp_probe,
- 	.remove		= cs4232_pnp_remove,
-
--- 
-function.linuxpower.ca

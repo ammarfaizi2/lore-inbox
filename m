@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVBGLoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVBGLo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVBGLoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 06:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVBGLoH
+	id S261400AbVBGLo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 06:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVBGLo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 06:44:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28943 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261252AbVBGLoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 06:44:04 -0500
-Date: Mon, 7 Feb 2005 11:43:59 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ARM undefined symbols.  Again.
-Message-ID: <20050207114359.A32277@flint.arm.linux.org.uk>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050124154326.A5541@flint.arm.linux.org.uk> <20050131161753.GA15674@mars.ravnborg.org>
+	Mon, 7 Feb 2005 06:44:29 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:11751 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261400AbVBGLoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 06:44:24 -0500
+Date: Mon, 7 Feb 2005 12:44:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: out-of-line x86 "put_user()" implementation
+Message-ID: <20050207114415.GA22948@elte.hu>
+References: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050131161753.GA15674@mars.ravnborg.org>; from sam@ravnborg.org on Mon, Jan 31, 2005 at 05:17:53PM +0100
+In-Reply-To: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 05:17:53PM +0100, Sam Ravnborg wrote:
-> On Mon, Jan 24, 2005 at 03:43:26PM +0000, Russell King wrote:
-> > Sam,
-> > 
-> > Where did the hacks go which detect the silent failure of the ARM binutils?
-> 
-> They weant away because it caused lots of troubles with sparc and um.
-> Can you use this (untested patch) for arm?
 
-After fixing the obvious problems with this patch, it leaves one remaining.
-make vmlinux doesn't invoke this check, and people actually use vmlinux
-in the embedded world (even though some of us would prefer them not to.)
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-Maybe we need an architecture hook or something for post-processing
-vmlinux?
+> I no longer use x86 as my main machine, so this patch is totally
+> untested.  I've compiled it to see that things look somewhat sane, but
+> that doesn't mean much. If I forgot some register or screwed something
+> else up, this will result in a totally nonworking kernel, but I
+> thought that maybe somebody else would be interested in looking at
+> whether this (a) works, (b) migth even shrink the kernel and (c) might
+> make us able to DTRT wrt the page table following crud (old i386 cores
+> may be hard to find these days, so maybe people don't care).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+boots fine and shrinks the image size quite noticeably:
+
+  [Nr] Name     Type        Addr     Off    Size
+  [ 1] .text    PROGBITS    c0100000 001000 2771a9   [vmlinux-orig]
+  [ 1] .text    PROGBITS    c0100000 001000 2742dd   [vmlinux-patched]
+
+that's 11980 bytes off a 2585001 bytes .text, a 0.5% size reduction.
+This patch we want ...
+
+	Ingo

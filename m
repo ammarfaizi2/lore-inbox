@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310405AbSCLFOc>; Tue, 12 Mar 2002 00:14:32 -0500
+	id <S310412AbSCLFRC>; Tue, 12 Mar 2002 00:17:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310414AbSCLFOM>; Tue, 12 Mar 2002 00:14:12 -0500
-Received: from ns.crrstv.net ([209.128.25.4]:57050 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S310412AbSCLFOI>;
-	Tue, 12 Mar 2002 00:14:08 -0500
-Date: Tue, 12 Mar 2002 01:13:48 -0400 (AST)
-From: skidley <skidley@crrstv.net>
-X-X-Sender: skidley@localhost.localdomain
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: marcelo@conectiva.com.br, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <200203120051.BAA20236@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.43.0203120111280.1508-100000@localhost.localdomain>
+	id <S310414AbSCLFQw>; Tue, 12 Mar 2002 00:16:52 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:52405 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S310412AbSCLFQl>;
+	Tue, 12 Mar 2002 00:16:41 -0500
+Message-ID: <3C8D8F35.7090608@tmsusa.com>
+Date: Mon, 11 Mar 2002 21:16:37 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shawn Starr <spstarr@sh0n.net>
+CC: Linux <linux-kernel@vger.kernel.org>
+Subject: Re: uname reports 'unknown'
+In-Reply-To: <1015897420.3054.0.camel@coredump>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Mar 2002, Mikael Pettersson wrote:
+Shawn Starr wrote:
 
-> Marcelo wrote in the 2.4.19-pre3 announcement:
-> >pre3:
-> >- Fix off-by-one error in bluesmoke			(Dave Jones)
-> 
-> NO NO NO! This is the same broken patch that somehow got into
-> 2.2.21pre4 as well. The patch changes the code to write to the
-> IA32_MC0_CTL MSR, which is a big no-no. Intel's IA32 Vol3 manual
-> (#245472-03) sections 13.3.2.1 and 13.5 make that point quite clear.
-> 
-> I have several P6 boxes that hang hard in MCE init trying to boot
-> vanilla 2.2.21pre4 and 2.4.19-pre3. The issue is real.
-> 
-> Please apply the backup patch below.
-> 
-> /Mikael
-> 
-> --- linux-2.4.19-pre3/arch/i386/kernel/bluesmoke.c.~1~	Tue Mar 12 00:25:53 2002
-> +++ linux-2.4.19-pre3/arch/i386/kernel/bluesmoke.c	Tue Mar 12 01:11:58 2002
-> @@ -169,7 +169,7 @@
->  	if(l&(1<<8))
->  		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
->  	banks = l&0xff;
-> -	for(i=0;i<banks;i++)
-> +	for(i=1;i<banks;i++)
->  	{
->  		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
->  	}
-Just to confirm your patch fixes my MCE init lockup problem here as well.
+>Linux coredump 2.4.19-pre2-ac4-xfs-shawn10 #2 Mon Mar 11 03:36:35 EST
+>2002 i586 unknown
+>
+>
+>what should 'unknown' really be? I've never seen it different on Intel
+>systems.
+>
 
---
-Chad Young - Registered Linux User #195191 @ http://counter.li.org
------------------------------------------------------------------------
-Linux localhost 2.4.19-pre3 #1 Tue Mar 12 00:43:17 AST 2002 i686 unknown
-  1:10am  up 0 min,  0 users,  load average: 0.39, 0.11, 0.03
+Many vendors ship a broken sh-utils.
+
+They don't have to:
+
+Linux neo.mirai.cx 2.4.19-pre2aa1 #1 Fri Mar 8 19:55:24 PST 2002 i686 
+GenuineIntel
+
+Linux emerald.mirai.cx 2.4.19pre1aa1 #1 Sat Mar 2 20:55:06 PST 2002 i586 
+AuthenticAMD
+
+Cheers,
+
+Joe
 
 

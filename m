@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265339AbUGAOXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265360AbUGAO0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUGAOXP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 10:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUGAOXP
+	id S265360AbUGAO0N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 10:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbUGAO0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 10:23:15 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:50095 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265339AbUGAOXO
+	Thu, 1 Jul 2004 10:26:13 -0400
+Received: from ns2.uk.superh.com ([193.128.105.170]:20939 "EHLO
+	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S265360AbUGAO0G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 10:23:14 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption & lockups & poor performance
-Date: Thu, 1 Jul 2004 16:23:09 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.40.0407010017360.1548-100000@xxx.xxx> <200407010904.39925.baldrick@free.fr> <Pine.LNX.4.58.0407010704570.4677@antonia.sgowdy.org>
-In-Reply-To: <Pine.LNX.4.58.0407010704570.4677@antonia.sgowdy.org>
-MIME-Version: 1.0
+	Thu, 1 Jul 2004 10:26:06 -0400
+Date: Thu, 1 Jul 2004 15:26:04 +0100
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Testing PROT_NONE and other protections, and a surprise
+Message-ID: <20040701142604.GA24713@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	linux-kernel@vger.kernel.org
+References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com> <20040701032606.GA1564@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407011623.09559.baldrick@free.fr>
+In-Reply-To: <20040701032606.GA1564@mail.shareable.org>
+User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 01 Jul 2004 14:28:11.0655 (UTC) FILETIME=[A32C4170:01C45F77]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 July 2004 16:06, Stephen J. Gowdy wrote:
-> On Thu, 1 Jul 2004, Duncan Sands wrote:
-> 
-> > > First of all, usb2 throughput was disappointing, i only got about
-> > > 5-15MB/s (usually about 8MB/s) while the manufacturer claims sustained
-> > > datarate of 35MB/s.
-> >
-> > Are you sure you plugged your device into a usb 2 port, and not a usb
-> > 1.1 port? Also, some products claim to be usb 2 devices, when they are
-> > in fact only usb 1.1.
-> 
-> 1.1 devices would only get less than 1MB/s.
+Hi Jamie,
 
-Ah, I misread it as 8 M bits / s, which is max 1.1 speed.
+* Jamie Lokier <jamie@shareable.org> [2004-07-01]:
+> 
+> I've just written a thorough test.  The attached program tries every
+> combination of PROT_* flags, and tells you what protection you really get.
+> 
+> It'll be interesting to see the results on other architectures.
 
-Bye, Duncan.
+I've got this working on sh64/2.6 (which was only merged a couple of
+days ago); here are the results:
+
+Requested PROT | ---    R--    -W-    RW-    --X    R-X    -WX    RWX
+========================================================================
+MAP_SHARED     | ---    r--    -w-    rw-    r-x    r-x    rwx    rwx
+MAP_PRIVATE    | ---    r--    -w-    rw-    r-x    r-x    rwx    rwx
+
+Although the hardware is capable of distinguish R and X, the kernel
+always allows R if X is specified to mmap().  This is for 2 reasons :
+
+1. jump tables for switch() get embedded into the code in 32-bit
+   (SHmedia) mode
+2. constant pools embedded in the code in 16-bit (SHcompact, i.e. SH-4
+   compatible) mode
+
+so in practice an exec-only page is pretty useless to a typical userland
+program.
+
+> This program should hopefully run on all architectures, however it
+> does depend on an empty function working when relocated.
+
+The empty function relocated fine.  But I had to make 2 trivial changes to
+handle using &void_function as an argument to memcpy and when casting
+addr to a function pointer.  These result from the way the SH-5 uses the
+LSB in function addresses and branch targets to switch between the
+SHmedia and SHcompact instruction sets.  (I can send you the patch if you
+want.)
+
+-- 
+Richard \\\ SH-4/SH-5 Core & Debug Architect
+Curnow  \\\         SuperH (UK) Ltd, Bristol

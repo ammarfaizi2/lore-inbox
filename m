@@ -1,73 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUIOEiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUIOEso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267480AbUIOEiU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 00:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUIOEiT
+	id S267263AbUIOEso (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 00:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUIOEso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 00:38:19 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:19942 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S267480AbUIOEiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 00:38:03 -0400
-Date: Tue, 14 Sep 2004 21:37:13 -0700
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-To: Arnout Engelen <arnouten@bzzt.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: truncated lines in /proc/net/tcp
-Message-Id: <20040914213713.14ce5348.randy.dunlap@verizon.net>
-In-Reply-To: <20040910163003.GT11646@bzzt.net>
-References: <20040910163003.GT11646@bzzt.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 15 Sep 2004 00:48:44 -0400
+Received: from [66.35.79.110] ([66.35.79.110]:3004 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S267263AbUIOEsj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 00:48:39 -0400
+Date: Tue, 14 Sep 2004 21:48:30 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Greg KH <greg@kroah.com>
+Cc: Robert Love <rml@ximian.com>, Kay Sievers <kay.sievers@vrfy.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel sysfs events layer
+Message-ID: <20040915044830.GA4919@hockin.org>
+References: <20040910235409.GA32424@kroah.com> <1094875775.10625.5.camel@lucy> <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org> <20040915000753.GA24125@kroah.com> <20040915010901.GA19524@vrfy.org> <20040915011146.GA27782@hockin.org> <1095214229.20763.6.camel@localhost> <20040915031706.GA909@hockin.org> <20040915034229.GA30747@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [4.5.49.23] at Tue, 14 Sep 2004 23:38:02 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915034229.GA30747@kroah.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004 18:30:03 +0200 Arnout Engelen wrote:
+On Tue, Sep 14, 2004 at 08:42:29PM -0700, Greg KH wrote:
+> > Yeah, it's much reduced in flexibility from where it started.
+> 
+> That's because the original proposal was not very well defined at all.
 
-Note:  netdev@oss.sgi.com would be more appropriate for this.
+True, I raised plenty of concerns about it in the first draft, too :)
 
+> > Well, it will be what it will be, I think.  I know several people who
+> > wanted it to be more than it is turning out to be, but that's not
+> > unexpected.  Of course we can cope with what it is.
+> 
+> Who are those people?  What did people want it to be that it now is not?
+> Will they not speak up publicly?  If not, how do they expect it to
+> address things they want?
 
-| Hi,
-| 
-| I noticed lines in the output of /proc/net/tcp sometimes appear 'truncated', like
-| this:
-| 
-|   52: 010310AC:9D95 030310AC:1770 06 00000000:00000000 03:0000146C
-|   00000000     0        0 0 2 c4e3f0c0
-| 
-| (also notice that the inode is '0' instead of some large integer)
-| 
-| This is print by the code at:
-| 
-|   http://lxr.linux.no/source/net/ipv4/tcp_ipv4.c?v=2.6.8.1#L2504
+Well, I knew several groups at Sun who could have benefitted from "driver
+hardening" event-logging stuff.  Things like IPMI, evlog, etc are what are
+being used today.
 
-That line is used/printed if socket state is case TCP_SEQ_STATE_ESTABLISHED:
-or case TCP_SEQ_STATE_LISTENING:
-(line 2559).  However, if socket state is case TCP_SEQ_STATE_OPENREQ:,
-get_openreq4() is called to print the info, and if socket state is
-case TCP_SEQ_STATE_TIME_WAIT:, get_timewait4_sock() is called to
-print the info.  The first case includes 5 fields after the %p (pointer),
-while the 2nd and 3rd cases do not.  Is that the truncation that you
-are referring to?
+> > What I think we'll find is that fringe users will hack around it.  It will
+> > become a documentum that the "insert" event of a Foo really means
+> > something else.  People will adapt to the limited "verbs" and overload
+> > them to mean whatever it is that they need.
+> 
+> Since when did I ever state that the verbs would be "limited"?  One of
+> the original issues that people were worried about was the possiblity of
+> a typo in a verb that we would be forced to live with.  The patch I just
+> proposed fixes that issue.
 
-| Maybe the value of 'tp' gets invalidated at some point during the
-| gathering of the data to be printed there?
+Sorry, don't get me wrong - I fully agree with amking it an enum or some
+such.  In fact, I think I suggested that in the first draft, too.  But
+adding a dozen enum verbs, of which each are used once in one single
+driver is just not going to fly.  The barrier to creating a new "verb" is
+not high, but there is a slight barrier.  Rather than deal with the
+barrier, I fear (and I could be wrong) that people will just overload
+existing verbs.
 
-That doesn't quite explain it.
+> > As much as we all like to malign "driver hardening", there is a *lot* that
+> > can be done to make drivers more robust and to report better diagnostics
+> > and failure events.
+> 
+> I agree.  But this interface is not designed or intended for that.  
 
-| (note that I'm not myself a kernel developer. I ran into this when
-| writing a userspace application and decided I wanted to know why this
-| happened. I saw this behaviour on a 2.4.26 kernel, but the code 
-| doesn't appear to be significantly different in 2.6. I'm not subscribed 
-| to the LKML, so if you want to ask me something please CC me personally).
+Right.  I originally asked Robert if there was some way to make this
+interface capable of handling that, too.  Maybe the answer is merely "no,
+not this API".
 
-Expect different output formats depending on socket state.
+> > I'd like to have a standardized way to spit things like ECC errors up to
+> > userspace, but I don't think that's what Greg K-H wants these used for.
+> 
+> You are correct.  I also would like to see a way ECC and other types of
+> errors and diagnostics be sent to userspace in a common and unified
+> manner.  But I have yet to see a proposal to do this that is acceptable.
 
---
-~Randy
+Well, let's open that discussion, then! :)  What requirements do you see?
+
+Basically, they need to be exactly like this, except there needs to be
+some amount of buffering of messages (somehow) and they need a data
+payload.
+
+For buffering, I could live with "all events with no listener get
+printk()ed and they get buffered in dmesg".  Now all we need to solve is
+the payload issue.
+
+Really, other than payload, why NOT use this API for ECC and driver
+faults?
+
+> > I'd like to ACPI events move to a standardized event system, but they
+> > *require* a data payload.
+> 
+> Great, that also would be wonderful.  Create such a event system for
+> ACPI if you desire.  I think the ACPI developers are still working on
+> bigger issues currently.
+
+ACPI *has* it's own event system.  It's fine, but it's Yet Another Event
+System.  I'd love to see it use this.  It has mostly the same behaviors,
+except it has a data payload (a string and couple unsigned ints, if I
+recall).  If this API can't handle that, then we have to keep ACPI's
+current event system.  Wouldn't it be nicer to remove code and encourage
+migrating towards standard(ish) APIs?
+
+Again, other than payload, why NOT use this API for ACPI?
+
+> > There are *way* too many places (IMHO) where we throw a printk() and punt,
+> > or do something which is less than ideal.  If I had my druthers, we would
+> > examine most places that call printk() at runtime (not startup, etc) and
+> > figure out if an event makes more sense.
+> 
+> Please do.
+
+I'll put it on my list.  The requirements that all kevents have a kobject
+and that verbs be single words with no payload makes it hard to do,
+though.
+
+> > This model serves well for "eth0 has a link" and "hda1 was mounted" sorts
+> > of events. [Though namespaces make mounting a lot of fun.  Which namespace
+> > was it mounted on?  Why should my app in namespace X see an event about
+> > namespace Y?]
+> 
+> Yeah, namespaces are interesting :)
+
+I started a paper on why namespaces should be ripped out of Linux or else
+they should be actually thought out and implemented properly.  Maybe one
+day I'll finish it.
+
+Tim

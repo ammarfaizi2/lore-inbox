@@ -1,48 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267428AbUHJFSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267432AbUHJFXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267428AbUHJFSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 01:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUHJFSM
+	id S267432AbUHJFXT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 01:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUHJFXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 01:18:12 -0400
-Received: from waste.org ([209.173.204.2]:7390 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S267428AbUHJFSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 01:18:10 -0400
-Date: Tue, 10 Aug 2004 00:17:47 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, linux-kernel@vger.kernel.org,
-       vonbrand@inf.utfsm.cl
-Subject: Re: Linux Kernel bug report (includes fix)
-Message-ID: <20040810051747.GC5414@waste.org>
-References: <200408091420.i79EKBEu010574@burner.fokus.fraunhofer.de>
+	Tue, 10 Aug 2004 01:23:19 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:45517 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267432AbUHJFXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 01:23:16 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Albert Cahalan <albert@users.sf.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
+       schilling@fokus.fraunhofer.de, axboe@suse.de
+In-Reply-To: <cone.1092113232.42936.29067.502@pc.kolivas.org>
+References: <1092082920.5761.266.camel@cube>
+	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
+	 <1092099669.5759.283.camel@cube>
+	 <cone.1092113232.42936.29067.502@pc.kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092106283.5761.304.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091420.i79EKBEu010574@burner.fokus.fraunhofer.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Aug 2004 22:51:24 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 04:20:11PM +0200, Joerg Schilling wrote:
-> >From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> 
-> >> As you don't know how kernel/user interfaces are handled, it would be wise for 
-> >> you to keep quiet.....
-> 
-> >Linux kernel include files are not meant to be used by user
-> >applications. He's perfectly correct. Glibc has its own exported set.
-> >This is intentional to seperate internals from user space.
-> 
-> You should know that GLIBc is unrelated to the Linux kernel interfaces we are> talking about. Start using serious arguments please.
+On Tue, 2004-08-10 at 00:47, Con Kolivas wrote:
+> Albert Cahalan writes:
+> > On Mon, 2004-08-09 at 18:59, Con Kolivas wrote:
+> >> Albert Cahalan writes:
 
-If you had any inkling, you'd have caught on by now that using kernel
-headers in userspace programs has been deprecated for about six years.
+> >> > Joerg:
+> >> >    "WARNING: Cannot do mlockall(2).\n"
+> >> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> >> > Fixed:
+> >> >    "Warning: You don't have permission to lock memory.\n"
+> >> >    "         If the computer is not idle, the CD may be ruined.\n"
+> >> > 
+> >> > Joerg:
+> >> >    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
+> >> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> >> > Fixed:
+> >> >    "Warning: You don't have permission to hog the CPU.\n"
+> >> >    "         If the computer is not idle, the CD may be ruined.\n"
+> >> 
+> >> Huh? That can't be right. Every cd burner this side of the 21st century has 
+> >> buffer underrun protection.
+> > 
+> > I'm pretty sure my FireWire CD-RW/CD-R is from
+> > another century. Not that it's unusual in 2004.
+> > 
+> >> I've burnt cds _while_ capturing and encoding 
+> >> video using truckloads of cpu and I/O without superuser privileges, had all 
+> >> the cdrecord warnings and didn't have a buffer underrun.
+> > 
+> > That's cool. My hardware won't come close to that.
+> > Burning a coaster costs money.
+> > 
+> > Let me put it this way: $$ $ $$$ $$ $ $$$ $$ $
+> > 
+> > The warning, if re-worded, will save people from
+> > frustration and wasted money.
+> 
+> Sounds good; how about something less terrifying? That warning sounds like a 
+> ruined cd is likely.
 
-They don't compile in userspace because it's not supported. Phased
-out, outmoded, obsolete, passe, renounced, defunct, disused,
-abandoned. The plumage doesn't enter into it. It's stone dead.
+I'm not about to burn CDs trying, but I do believe
+that "a ruined cd is likely" would be accurate if I
+were to keep busy with Mozilla and such. OpenOffice
+would surely ruin a cd. Light web browsing makes my
+mp3 player skip.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Not all of us have hardware like you do. Encoding
+video is something I wouldn't bother to try, even
+without the CD burner going!
+
+(the box isn't that old; it's fanless though)
+
+> >> Last time I gave 
+> >> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
+> >> rt_task safe.
+> > 
+> > So, you've been working on the scheduler anyway...
+> > An option to reserve some portion of CPU time for
+> > emergency use (say, 5% after 1 second has passed)
+> > would let somebody get out of this situation.
+> 
+> This breaks the real time policy entirely. That's why I run it SCHED_ISO ... 
+> but of course this isn't available in mainline linux.
+
+Of course it breaks the real time policy entirely.
+It would have to be enabled via a sysctl.
+
+The NMI watchdog breaks cli/sti. We have it anyway.
+This is the same thing.
+
+

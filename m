@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315421AbSEUSgh>; Tue, 21 May 2002 14:36:37 -0400
+	id <S315419AbSEUSms>; Tue, 21 May 2002 14:42:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSEUSgf>; Tue, 21 May 2002 14:36:35 -0400
-Received: from holomorphy.com ([66.224.33.161]:5774 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315421AbSEUSgf>;
-	Tue, 21 May 2002 14:36:35 -0400
-Date: Tue, 21 May 2002 11:36:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: lazy buddy prototype
-Message-ID: <20020521183628.GF2046@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020521175005.GN2035@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S315420AbSEUSmr>; Tue, 21 May 2002 14:42:47 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59911 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315419AbSEUSmr>; Tue, 21 May 2002 14:42:47 -0400
+Date: Tue, 21 May 2002 11:42:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Make 2.5.17 TLB even more friendlier
+In-Reply-To: <15594.17227.311046.740703@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.33.0205211139440.3073-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 10:50:05AM -0700, William Lee Irwin III wrote:
-> TODO:
-[...]
-> (13) figure out some way to get fragmentation stats out of the buddy bitmap
 
-And an important omission, of which Andrew Morton reminded me:
+On Tue, 21 May 2002, Paul Mackerras wrote:
+> 
+> I have a bit in the PTE that tells me if there is an MMU hash table
+> entry for the virtual address represented by the PTE.
 
-(14) document it
+This is exactly why 2.5.17 has the "tlb_remove_pte_entry()", and why it is 
+passed down the pte that we just cleared out - so that architectures can 
+hide details like this in the page tables (the other use is to hide things 
+like "iTBL vs dTLB" etc).
 
+Sp why don't you just make "tlb_remove_pte_entry()" look at your bit, and 
+then if that bit is set you try to remove the entry from the hash chains 
+at that point?
 
-Cheers,
-Bill
+You _have_ to do it this way, in fact, since reserved pages and other 
+"VM-invisible" pages aren't even passed down to "tlb_remove_page()" 
+(because they have no freeing logic, and they have no impact on RSS).
+
+		Linus
+

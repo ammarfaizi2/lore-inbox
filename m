@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264830AbUEYJg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUEYJvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264830AbUEYJg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 05:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbUEYJg4
+	id S264839AbUEYJvh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 05:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUEYJvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 05:36:56 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:19670 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264830AbUEYJgx (ORCPT
+	Tue, 25 May 2004 05:51:37 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17301 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264827AbUEYJvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 05:36:53 -0400
-Date: Tue, 25 May 2004 11:36:52 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Alan Cox <alan@redhat.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@alpha.home.local>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       vda@port.imtp.ilyichevsk.odessa.uay
-Subject: Re: i486 emu in mainline?
-Message-ID: <20040525093652.GA1912@lug-owl.de>
-Mail-Followup-To: Alan Cox <alan@redhat.com>,
-	Willy Tarreau <willy@w.ods.org>,
-	Christoph Hellwig <hch@alpha.home.local>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, vda@port.imtp.ilyichevsk.odessa.uay
-References: <20040522234059.GA3735@infradead.org> <20040523082912.GA16071@alpha.home.local> <20040523110836.GE25746@devserv.devel.redhat.com> <20040523115735.GA16726@alpha.home.local> <20040523131512.GA25185@devserv.devel.redhat.com> <20040524151715.GS1912@lug-owl.de> <20040524174156.GG19161@devserv.devel.redhat.com>
+	Tue, 25 May 2004 05:51:35 -0400
+Date: Tue, 25 May 2004 13:42:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding slow down
+Message-ID: <20040525114258.GA6674@elte.hu>
+References: <20040524062754.GO1833@holomorphy.com> <20040524063959.5107.qmail@web90007.mail.scd.yahoo.com> <20040524005331.71465614.akpm@osdl.org> <20040525103238.GA4212@elte.hu> <20040525022941.62ab4cc4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1Ne/rU5PZopP5O+/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040524174156.GG19161@devserv.devel.redhat.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040525022941.62ab4cc4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1Ne/rU5PZopP5O+/
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Andrew Morton <akpm@osdl.org> wrote:
 
-On Mon, 2004-05-24 13:41:56 -0400, Alan Cox <alan@redhat.com>
-wrote in message <20040524174156.GG19161@devserv.devel.redhat.com>:
-> On Mon, May 24, 2004 at 05:17:15PM +0200, Jan-Benedict Glaw wrote:
-> > There are some application that register signal handling functions IIRC
-> > for SIGILL, SIGSEGV and the like to do internal error trapping on their
-> > own (not only OOo comes to mind). These would probably be f*cked up if =
-they
-> > didn't call the LD_PRELOADed signal handler...
->=20
-> No. The LD_PRELOAD also hooks the signal setting functions. This really is
-> not rocket science at all.=20
+> Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> >  with the patch below we will print a big fat warning. (I did not want to
+> >  deny idle=poll altogether - future HT implementations might work fine
+> >  with polling idle.)
+> 
+> idle=poll is handy when profiling the kernel with oprofile
+> clock-unhalted events.  Because if you use the normal halt-based idle
+> loop no profile "ticks" are accounted to idle time at all and the
+> results are really hard to understand.
 
-But works only on dynamically linkes executables, and only on those that
-don't do system calls on their own, right?
+it makes it a bit more plausible, but kernel profiling based on ticks in
+a HT environment is still quite unreliable, even with idle=poll. The HT
+cores will yield to each other on various occasions - like spinlock
+loops. This disproportionatly increases the hits of various looping
+functions, creating false impressions of lock contention where there's
+only little contention. Plus idle=poll is a constant ~20% performance
+drain on the non-idle HT core, further distorting the profile. HT makes
+profiling really hard, no matter what.
 
-MfG, JBG
+but ... we agree on the warning printk, right?
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---1Ne/rU5PZopP5O+/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAsxOzHb1edYOZ4bsRAnfEAKCRP3Z4bk0jvRfXfcu6BD8GbASWPACdGU86
-yaR1N6ZRBm/YE0Nq1sXuGzI=
-=nmlI
------END PGP SIGNATURE-----
-
---1Ne/rU5PZopP5O+/--
+	Ingo

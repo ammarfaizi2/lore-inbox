@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269677AbUICNEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269678AbUICNEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269677AbUICNEB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 09:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269674AbUICNEA
+	id S269678AbUICNEw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 09:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269675AbUICNEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 09:04:00 -0400
-Received: from mailgate.urz.tu-dresden.de ([141.30.66.154]:63366 "EHLO
-	mailgate.urz.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S269663AbUICNBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:01:45 -0400
-Message-ID: <1094216504.41386b383000b@rmc60-231.urz.tu-dresden.de>
-Date: Fri,  3 Sep 2004 15:01:44 +0200
-From: Hendrik Fehr <s4248297@rcs.urz.tu-dresden.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Full CPU-usage on sis5513-chipset disc input/output-operations
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 217.238.206.14
-X-TUD-Virus-Scanned: by amavisd-new at rks24.urz.tu-dresden.de
-X-TUD-Spam-Checker-Version: SpamAssassin 2.63 (2004-01-11) on rks24
+	Fri, 3 Sep 2004 09:04:51 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33921
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S269674AbUICNEs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 09:04:48 -0400
+Date: Fri, 3 Sep 2004 15:03:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Andrey Savochkin <saw@saw.sw.com.sg>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: EXT3: problem with copy_from_user inside a transaction
+Message-ID: <20040903130309.GD8557@x30.random>
+References: <20040903150521.B1834@castle.nmd.msu.ru> <20040903123541.GB8557@x30.random> <1094213179.16078.19.camel@watt.suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094213179.16078.19.camel@watt.suse.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson writes:
-> [...]
-> These are "received illegal vector" errors. They indicate
-> a serious problem, either with the local APIC bus itself,
-> or with how the ACPI/MP tables cause us to program the local
-> and I/O APICs.
-> 
-> Do the errors persist if you disable ACPI?
-> 
-I just tried the following two things:
-Boot option "acpi=off" (made the cusour switching faster on and off). And when
-it came to ide setup i get lots of "hda lost interrupt". The system is
-unbootable with that option.
+On Fri, Sep 03, 2004 at 08:06:20AM -0400, Chris Mason wrote:
+> prepare_write could reserve blocks, which brings us half way to a
+> generic delayed allocation layer.  [..]
 
-With boot option "noapic" there are no more APIC error messages. Should i add
-that boot option to my defaults in /etc/lilo.conf?
+sounds good to me!

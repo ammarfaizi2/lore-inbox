@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274928AbTHPUd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 16:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274916AbTHPUd6
+	id S274923AbTHPUc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 16:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274928AbTHPUc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 16:33:58 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:24749 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S274928AbTHPUdF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 16:33:05 -0400
-Subject: Re: Compile problem with CONFIG_X86_CYCLONE_TIMER Re:
-	2.6.0-test3-mm2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, John Stultz <johnstul@us.ibm.com>
-In-Reply-To: <20030815203620.GO1027@matchmail.com>
-References: <20030813013156.49200358.akpm@osdl.org>
-	 <20030815193834.GL1027@matchmail.com> <20030815202322.GN1027@matchmail.com>
-	 <20030815203620.GO1027@matchmail.com>
-Content-Type: multipart/mixed; boundary="=-s2hh8Fv/6PQdVc4UFwto"
-Organization: 
-Message-Id: <1061065941.31662.35.camel@nighthawk>
+	Sat, 16 Aug 2003 16:32:56 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:30650 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S274923AbTHPUcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 16:32:53 -0400
+Date: Sat, 16 Aug 2003 13:09:38 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Driver Core fixes for 2.6.0-test3
+Message-ID: <20030816130938.H670@nightmaster.csn.tu-chemnitz.de>
+References: <20030815182459.GA3755@kroah.com> <20030815215459.Y639@nightmaster.csn.tu-chemnitz.de> <20030816032833.GA6680@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Aug 2003 13:32:22 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030816032833.GA6680@kroah.com>; from greg@kroah.com on Fri, Aug 15, 2003 at 08:28:33PM -0700
+X-Spam-Score: -4.2 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19o7jH-0000CH-00*J0L21R7yJyY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-s2hh8Fv/6PQdVc4UFwto
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Fri, Aug 15, 2003 at 08:28:33PM -0700, Greg KH wrote:
+> On Fri, Aug 15, 2003 at 09:54:59PM +0200, Ingo Oeser wrote:
+[...]
+> Hi, I've brought this back to lkml as I'm getting tired of private email
+> threads about this topic.  Hope you don't mind.
 
-On Fri, 2003-08-15 at 13:36, Mike Fedyk wrote:
-> On Fri, Aug 15, 2003 at 01:23:22PM -0700, Mike Fedyk wrote:
-> > On Fri, Aug 15, 2003 at 12:38:34PM -0700, Mike Fedyk wrote:
-> > > arch/i386/kernel/timers/timer_cyclone.c: In function `init_cyclone':
-> > > arch/i386/kernel/timers/timer_cyclone.c:157: `FIX_CYCLONE_TIMER' undeclared (first use in this function)
-> > > arch/i386/kernel/timers/timer_cyclone.c:157: (Each undeclared identifier is reported only once
-> > > arch/i386/kernel/timers/timer_cyclone.c:157: for each function it appears in.)
-> > >
+I don't.
 
-I couldn't replicate the problem, but I suspect this fix is correct in
-any case.  If this doesn't fix it, please post your config.  
+> > On Fri, Aug 15, 2003 at 11:25:00AM -0700, Greg KH wrote:
+> > > Here's some driver core changes that do the following things:
+> > > 	- remove struct device.name field and fix up remaining
+> > > 	  subsystems
+> > 
+> > Could you point me to the rationale about this?
+> > 
+> > I for one considered "everything should have a name" policy very
+> > useful and extendible.
+> Naming databases belong in userspace.  For PCI, PnP, and USB we can
+> determine the name ourselves from userspace using lspci, lspnp, and
+> lsusb.  Getting rid of the name field prevents us from relying on kernel
+> code when we shouldn't be.
+ 
+lspci at least shows only name OR number, but never both
+together. 
+      
+So that this tool is not very useful for name resolving in case
+of problems, because you have no simple way to match your input
+with its output. But don't worry, M$ does the same UI mistake and
+this can be easily fixed.
 
-John, I imagine that you probably haven't always had CONFIG_X86_CYCLONE,
-and this was just a leftover from then.  
+But this shifting is a good reason. This also helps the "product
+and company changing names" disease ;-)
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+> Hey, we're saving kernel memory, and this is a problem?  :)
 
---=-s2hh8Fv/6PQdVc4UFwto
-Content-Disposition: attachment; filename=cyclone-fixmap-2.6.0-test3-mm2-0.patch
-Content-Type: text/plain; name=cyclone-fixmap-2.6.0-test3-mm2-0.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+;-)
 
---- linux-2.6.0-test3-mm2-clean/include/asm-i386/fixmap.h	Sat Aug 16 13:18:22 2003
-+++ linux-2.6.0-test3-mm2-cyclonefix/include/asm-i386/fixmap.h	Sat Aug 16 13:28:30 2003
-@@ -73,7 +73,7 @@
- 	FIX_TSS_0,
- 	FIX_ENTRY_TRAMPOLINE_1,
- 	FIX_ENTRY_TRAMPOLINE_0,
--#ifdef CONFIG_X86_SUMMIT
-+#ifdef CONFIG_X86_CYCLONE
- 	FIX_CYCLONE_TIMER, /*cyclone timer register*/
- 	FIX_VSTACK_HOLE_2,
- #endif 
+> Hope this helps explain things.
 
---=-s2hh8Fv/6PQdVc4UFwto--
+Explains exactly what I liked to know. 
 
+Many thanks and regards
+
+Ingo Oeser

@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268194AbRGZQDf>; Thu, 26 Jul 2001 12:03:35 -0400
+	id <S268266AbRGZQFf>; Thu, 26 Jul 2001 12:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268231AbRGZQD0>; Thu, 26 Jul 2001 12:03:26 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:2312 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S268194AbRGZQDN>; Thu, 26 Jul 2001 12:03:13 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
+	id <S268265AbRGZQF0>; Thu, 26 Jul 2001 12:05:26 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:49280 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268223AbRGZQFV>; Thu, 26 Jul 2001 12:05:21 -0400
+Date: Thu, 26 Jul 2001 12:05:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: sentry21@cdslash.net
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Message-ID: <86256A95.00581EDA.00@smtpnotes.altec.com>
-Date: Thu, 26 Jul 2001 11:02:04 -0500
+cc: Dan Podeanu <pdan@spiral.extreme.ro>, linux-kernel@vger.kernel.org
 Subject: Re: Weird ext2fs immortal directory bug
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0107261150020.18300-100000@spring.webconquest.com>
+Message-ID: <Pine.LNX.3.95.1010726115915.17866A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Thu, 26 Jul 2001 sentry21@cdslash.net wrote:
 
+> > > root@Petra:0:~# debugfs -w /
+> > > debugfs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
+> > > /: Is a directory while opening filesystem
+> > > debugfs:  ^D
+> > >
+> > > root@Petra:0:~# debugfs -w /dev/hda5
+> > > debugfs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
+> > > debugfs:  unlink /lost+found/#3147
+> > > debugfs:  ^D
+> >         ^^^^^^^^
+> > How about 'Q' so debugfs gets to write the modifications to the
+> > drive?
+> 
+> root@Petra:0:/lost+found# debugfs -w /dev/hda5
+> debugfs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
+> debugfs:  unlink /lost+found/#3147
+> unlink_file_by_name: No free space in the directory
+> 
+> 
+> This is getting weirder and weirder.
+> 
+Okay, the file is a link, linked to /lost+found. So, using debugfs,
+just remove the directory:
+# debugfs -w /dev/hda5
+debugfs: rmdir /lost+found
 
-Try lsattr ./#3147 and see if the i attribute is set.  If so, then (as root) do
-chattr -i ./#3147 and try again to remove it.
-
-Wayne
-
-
-
-
-sentry21@cdslash.net on 07/26/2001 10:04:48 AM
-
-To:   "Richard B. Johnson" <root@chaos.analogic.com>
-cc:   linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Weird ext2fs immortal directory bug
-
-
-
-> On Thu, 26 Jul 2001 sentry21@cdslash.net wrote:
-> [SNIPPED...]
-> >
-> > Here's the problem(s) (or at least, the symptoms):
-> >
-> > sentry21@Petra:1:/lost+found$ ls -l
-> > total 0
-> > lr----S---    1 52       12337           0 Nov  1  2022 #3147 ->
-> >
->
-> Did you try..
-> # rm -r lost+found
-> # mklost+found
->
-> Without knowing how to use the ext2fs tools, and not wanting to
-> risk more damage, I tried this and it worked when I had such a
-> crash-induced problem.
-
-sentry21@Petra:1:/$ sudo rm -rf lost+found/
-rm: cannot unlink `lost+found/#3147': Operation not permitted
-rm: cannot remove directory `lost+found': Directory not empty
-
-
-Dang.
-
---Dan
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+My debugfs is too old, so the above command replies with "Unimplemented".
 
 
 
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

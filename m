@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbUKUSIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbUKUSKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbUKUSIe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 13:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKUSIe
+	id S261772AbUKUSKc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 13:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbUKUSKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 13:08:34 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:45192 "EHLO midnight.suse.cz")
-	by vger.kernel.org with ESMTP id S261758AbUKUSIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 13:08:19 -0500
-Date: Sun, 21 Nov 2004 19:08:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Sun, 21 Nov 2004 13:10:32 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:38663 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261755AbUKUSKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 13:10:20 -0500
+Subject: Re: [2.6 patch] MTD: some cleanups
+From: David Woodhouse <dwmw2@infradead.org>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-input@atrey.karlin.mff.cuni.cz,
-       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] small input cleanup
-Message-ID: <20041121180824.GA2538@ucw.cz>
-References: <20041107031256.GD14308@stusta.de> <200411062249.54887.dtor_core@ameritech.net> <20041107172929.GM14308@stusta.de> <20041107174757.GA10086@ucw.cz> <20041121174832.GB2924@stusta.de>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20041121180150.GE2924@stusta.de>
+References: <20041112135322.GB7707@stusta.de>
+	 <1100629567.8191.6993.camel@hades.cambridge.redhat.com>
+	 <20041121180150.GE2924@stusta.de>
+Content-Type: text/plain
+Date: Sun, 21 Nov 2004 18:06:11 +0000
+Message-Id: <1101060371.9988.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041121174832.GB2924@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 06:48:33PM +0100, Adrian Bunk wrote:
+On Sun, 2004-11-21 at 19:01 +0100, Adrian Bunk wrote:
+> > Again that's called from elsewhere.
+> 
+> The merging of the code calling it into the kernel is pending?
 
-> > Well, it works in its current form, and drivers should call it when
-> > their reinit logic fails to reinitialize the device. They don't, which
-> > is a bug, and should be fixed. I don't think removing gameport_rescan()
-> > will help fixing them.
-> 
-> Fine with me.
-> 
-> > > - could ps2_sendbyte be #ifdef 0'ed until it's required?
-> > >   this way, it wouldn't make the kernel bigger today
-> >  
-> > It is used, just not outside libps2. Does the EXPORT_SYMBOL() make the
-> > kernel so much bigger?
-> 
-> It doesn't make a big difference, but if an EXPORT_SYMBOL isn't required 
-> (and won't be required in the near future), where's the point keeping 
-> it?
-> 
-> The situation is clearly different if in-kernel users from other files 
-> will be added in the near future.
-
-So far all devices only need proper commands per PS/2 specification. The
-export is there in case some device will need to be sent separate bytes
-outside the command structure. 
+I believe so, yes.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+dwmw2
+

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVCVHVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVCVHV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVCVHVX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVCVHT0
+	id S262256AbVCVHV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVCVHTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:19:26 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:51089 "HELO
+	Tue, 22 Mar 2005 02:19:55 -0500
+Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:52625 "HELO
 	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262140AbVCVHSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:18:51 -0500
+	id S262195AbVCVHSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 02:18:52 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Kenan Esau <kenan.esau@conan.de>
-Subject: [PATCH 2/4] Lifebook: various cleanups
-Date: Tue, 22 Mar 2005 02:15:33 -0500
+Subject: [PATCH 3/4] Lifebook: rearrange init code
+Date: Tue, 22 Mar 2005 02:16:38 -0500
 User-Agent: KMail/1.7.2
 Cc: harald.hoyer@redhat.de, linux-input@atrey.karlin.mff.cuni.cz,
        linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <20050217194217.GA2458@ucw.cz> <200503220213.46375.dtor_core@ameritech.net> <200503220214.55379.dtor_core@ameritech.net>
-In-Reply-To: <200503220214.55379.dtor_core@ameritech.net>
+References: <20050217194217.GA2458@ucw.cz> <200503220214.55379.dtor_core@ameritech.net> <200503220215.34198.dtor_core@ameritech.net>
+In-Reply-To: <200503220215.34198.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503220215.34198.dtor_core@ameritech.net>
+Message-Id: <200503220216.38756.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
-Input: lifebook - various cleanups:
-       - do not try to set rate and resolution in init method, let
-         psmouse core do it for us. This also removes special quirks
-         from the core;
-       - do not disable mouse before doing full reset - meaningless;
-       - some formatting and whitespace cleanups.
+Input: lifebook - adjust initialization routines to be in line with
+       the rest of protocols in preparation to dynamic protocol
+       switching.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- lifebook.c     |   31 ++++++++++---------------------
- lifebook.h     |    2 +-
- psmouse-base.c |    2 --
- 3 files changed, 11 insertions(+), 24 deletions(-)
+ lifebook.c     |   46 ++++++++++++++++++++++++++++------------------
+ lifebook.h     |    4 ++--
+ psmouse-base.c |   14 ++++++++++++--
+ 3 files changed, 42 insertions(+), 22 deletions(-)
 
 Index: dtor/drivers/input/mouse/lifebook.h
 ===================================================================
@@ -52,100 +49,102 @@ Index: dtor/drivers/input/mouse/lifebook.h
  #ifndef _LIFEBOOK_H
  #define _LIFEBOOK_H
  
--int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto, 
-+int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto,
-                     int set_properties);
+-int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto,
+-                    int set_properties);
++int lifebook_detect(struct psmouse *psmouse, int set_properties);
++int lifebook_init(struct psmouse *psmouse);
  
  #endif
 Index: dtor/drivers/input/mouse/psmouse-base.c
 ===================================================================
 --- dtor.orig/drivers/input/mouse/psmouse-base.c
 +++ dtor/drivers/input/mouse/psmouse-base.c
-@@ -579,8 +579,6 @@ static void psmouse_set_rate(struct psmo
- 
- static void psmouse_initialize(struct psmouse *psmouse)
+@@ -424,8 +424,18 @@ static int psmouse_extensions(struct psm
  {
--        if (psmouse->type==PSMOUSE_LIFEBOOK)
--                return;
+ 	int synaptics_hardware = 0;
+ 
+-	if (lifebook_detect(psmouse, max_proto, set_properties) == 0)
+-		return PSMOUSE_LIFEBOOK;
++/*
++ * We always check for lifebook because it does not disturb mouse
++ * (it only checks DMI information).
++ */
++	if (lifebook_detect(psmouse, set_properties) == 0 ||
++	    max_proto == PSMOUSE_LIFEBOOK) {
++
++		if (max_proto > PSMOUSE_IMEX) {
++			if (!set_properties || lifebook_init(psmouse) == 0)
++				return PSMOUSE_LIFEBOOK;
++		}
++	}
+ 
  /*
-  * We set the mouse into streaming mode.
-  */
+  * Try Kensington ThinkingMouse (we try first, because synaptics probe
 Index: dtor/drivers/input/mouse/lifebook.c
 ===================================================================
 --- dtor.orig/drivers/input/mouse/lifebook.c
 +++ dtor/drivers/input/mouse/lifebook.c
-@@ -19,8 +19,6 @@
- #include "psmouse.h"
- #include "lifebook.h"
- 
--static int max_y = 1024;
--
- #if defined(__i386__)
- #include <linux/dmi.h>
- static struct dmi_system_id lifebook_dmi_table[] = {
-@@ -46,7 +44,7 @@ static psmouse_ret_t lifebook_process_by
- 	unsigned char *packet = psmouse->packet;
- 	struct input_dev *dev = &psmouse->dev;
- 
--	if ( psmouse->pktcnt != 3 )
-+	if (psmouse->pktcnt != 3)
- 		return PSMOUSE_GOOD_DATA;
- 
- 	input_regs(dev, regs);
-@@ -56,12 +54,12 @@ static psmouse_ret_t lifebook_process_by
- 		input_report_abs(dev, ABS_X,
- 				 (packet[1] | ((packet[0] & 0x30) << 4)));
- 		input_report_abs(dev, ABS_Y,
--				 max_y - (packet[2] | ((packet[0] & 0xC0) << 2)));
-+				 1024 - (packet[2] | ((packet[0] & 0xC0) << 2)));
- 	} else {
--		input_report_rel(dev, REL_X, 
--				((packet[0] & 0x10) ? packet[1]-256 : packet[1]));
--		input_report_rel(dev, REL_Y, 
--				(- (int)((packet[0] & 0x20) ? packet[2]-256 : packet[2])));
-+		input_report_rel(dev, REL_X,
-+				((packet[0] & 0x10) ? packet[1] - 256 : packet[1]));
-+		input_report_rel(dev, REL_Y,
-+				 -(int)((packet[0] & 0x20) ? packet[2] - 256 : packet[2]));
- 	}
- 
- 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
-@@ -78,26 +76,17 @@ static int lifebook_initialize(struct ps
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	unsigned char param;
- 
--	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE))
--		return -1;
--
--	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_BAT))
-+	if (psmouse_reset(psmouse))
- 		return -1;
- 
--	/* 
-+	/*
- 	   Enable absolute output -- ps2_command fails always but if
- 	   you leave this call out the touchsreen will never send
- 	   absolute coordinates
--	*/ 
-+	*/
- 	param = 0x07;
- 	ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
- 
--	psmouse->set_rate(psmouse, psmouse->rate);
--	psmouse->set_resolution(psmouse, psmouse->resolution);
--	
--	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE))
--		return -1;
--
- 	return 0;
+@@ -71,7 +71,7 @@ static psmouse_ret_t lifebook_process_by
+ 	return PSMOUSE_FULL_PACKET;
  }
  
-@@ -106,7 +95,7 @@ static void lifebook_disconnect(struct p
+-static int lifebook_initialize(struct psmouse *psmouse)
++static int lifebook_absolute_mode(struct psmouse *psmouse)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	unsigned char param;
+@@ -95,27 +95,37 @@ static void lifebook_disconnect(struct p
  	psmouse_reset(psmouse);
  }
  
--int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto, 
-+int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto,
-                     int set_properties)
+-int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto,
+-                    int set_properties)
++int lifebook_detect(struct psmouse *psmouse, int set_properties)
  {
-         if (lifebook_check_dmi() && max_proto != PSMOUSE_LIFEBOOK)
+-        if (lifebook_check_dmi() && max_proto != PSMOUSE_LIFEBOOK)
++        if (lifebook_check_dmi())
+                 return -1;
+ 
+ 	if (set_properties) {
+-		psmouse->vendor = "Fujitsu Lifebook";
+-		psmouse->name = "TouchScreen";
+-		psmouse->dev.evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
+-		psmouse->dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
+-		psmouse->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
+-		psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
+-		input_set_abs_params(&psmouse->dev, ABS_X, 0, 1024, 0, 0);
+-		input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1024, 0, 0);
+-
+-		psmouse->protocol_handler = lifebook_process_byte;
+-		psmouse->disconnect = lifebook_disconnect;
+-		psmouse->reconnect  = lifebook_initialize;
+-		psmouse->pktsize = 3;
++		psmouse->vendor = "Fujitsu";
++		psmouse->name = "Lifebook TouchScreen";
++
+ 	}
+ 
+-        return lifebook_initialize(psmouse);
++        return 0;
+ }
++
++int lifebook_init(struct psmouse *psmouse)
++{
++	if (lifebook_absolute_mode(psmouse))
++		return -1;
++
++	psmouse->dev.evbit[0] = BIT(EV_ABS) | BIT(EV_KEY) | BIT(EV_REL);
++	psmouse->dev.keybit[LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
++	psmouse->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
++	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
++	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1024, 0, 0);
++	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1024, 0, 0);
++
++	psmouse->protocol_handler = lifebook_process_byte;
++	psmouse->disconnect = lifebook_disconnect;
++	psmouse->reconnect  = lifebook_absolute_mode;
++	psmouse->pktsize = 3;
++
++	return 0;
++}
++

@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262721AbTCPS0O>; Sun, 16 Mar 2003 13:26:14 -0500
+	id <S262719AbTCPSZt>; Sun, 16 Mar 2003 13:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262722AbTCPS0O>; Sun, 16 Mar 2003 13:26:14 -0500
-Received: from modemcable011.162-200-24.mtl.mc.videotron.ca ([24.200.162.11]:17537
-	"HELO chezsoi") by vger.kernel.org with SMTP id <S262721AbTCPS0M> convert rfc822-to-8bit;
-	Sun, 16 Mar 2003 13:26:12 -0500
-From: "James Watkins-Harvey" <james.watkins-harvey.1@ens.etsmtl.ca>
-To: "Maxime" <x@organigramme.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: make bzImage fails when LANG set
-Date: Sun, 16 Mar 2003 13:38:48 -0500
-Message-ID: <FAEHLJECFOOHNNMFHACOCEJICAAA.james.watkins-harvey.1@ens.etsmtl.ca>
+	id <S262721AbTCPSZt>; Sun, 16 Mar 2003 13:25:49 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:56813 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262719AbTCPSZs>;
+	Sun, 16 Mar 2003 13:25:48 -0500
+Date: Sun, 16 Mar 2003 19:36:32 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Osamu Tomita <tomita@cinet.co.jp>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
+In-Reply-To: <1047836839.9267.29.camel@mulgrave>
+Message-ID: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <3E74AC1C.8010901@organigramme.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 16 Mar 2003, James Bottomley wrote:
+> On Sat, 2003-03-15 at 19:15, Osamu Tomita wrote:
+> >     /* This is what the 3393 chip looks like to us */
+> >  typedef struct {
+> > +#ifdef CONFIG_WD33C93_PIO
+> > +   unsigned int   SASR;
+> > +   unsigned int   SCMD;
+> > +#else
+> >     volatile unsigned char  *SASR;
+> >     volatile unsigned char  *SCMD;
+> > +#endif
+> >  } wd33c93_regs;
+> >  
+> 
+> This really doesn't look right.  For non PIO (which is all drivers apart
+> from yours), they expect to dereference SASR to get the port number (as
+> an unsigned char).  If you remove the dereference, don't they all break?
 
-> /usr/src/linux-2.4.19/include/linux/kernel.h:10:20: stdarg.h: Aucun fichier ou répertoire de ce type
-> /usr/src/linux-2.4.19/include/linux/kernel.h:73: erreur d'analyse syntaxique avant « va_list »
-> /usr/src/linux-2.4.19/include/linux/kernel.h:73: AVERTISSEMENT:  déclaration de fonction n'est pas un prototype
-> /usr/src/linux-2.4.19/include/linux/kernel.h:76: erreur d'analyse syntaxique avant « va_list »
-> /usr/src/linux-2.4.19/include/linux/kernel.h:76: AVERTISSEMENT: déclaration de fonction n'est pas un prototype
-> /usr/src/linux-2.4.19/include/linux/kernel.h:80: erreur d'analyse syntaxique avant « va_list »
-> /usr/src/linux-2.4.19/include/linux/kernel.h:80: AVERTISSEMENT: déclaration de fonction n'est pas un prototype
+On m68k and MIPS, we do not derefence SASR to get the port number, SASR _is_
+the MMIO pointer to the 8-bit SASR register. Hence you access the register by
+dereferencing the pointer.
 
+> Perhaps the better thing to do is to make your driver use an unsigned
+> int *, so the dereference works in all cases.
 
-The first line just means that the stdarg.h file cannot be found; following lines are consequence of the va_list macro not being included.  Well stdarg.h is provided by GCC, so it seems to me like this is rather a GCC problem...  Let's continue, in case a defective makefile would be in cause...
+Actually, it was my suggestion to remove the dereference for PIO accesses. In
+that case SASR contains the I/O port register.
 
+Gr{oetje,eeting}s,
 
+						Geert
 
-> Notice it is in french.  I search on the web for similar problem, and 
-> find a few examples, all in foreing language.  Nobody seemed to know how 
-> to solve this.  I then remembered I added these lines to my /etc/profile:
->
-> export LANG=fr
-> export LC_ALL=fr_CA
->
-> By removing them, the kernel compiled just fine.  Stange bug!
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-I don't know very well about the LC_ALL consequence, but it seems that GCC use it (and also LANG) for some reason...
-
-Guess it could help including the GCC version (gcc -v) and the location of any stdarg.h file on your drive (locate stdarg.h  or  find /usr -name stdarg.h, the second may be long).  If you have some spare time, also try using only the LANG, then only the LC_ALL.
-
-
-James Watkins-Harvey
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

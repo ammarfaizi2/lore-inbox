@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261202AbREOR4K>; Tue, 15 May 2001 13:56:10 -0400
+	id <S261198AbREOR4K>; Tue, 15 May 2001 13:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261198AbREOR4C>; Tue, 15 May 2001 13:56:02 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:58117 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S261191AbREORxZ>;
-	Tue, 15 May 2001 13:53:25 -0400
-Date: Tue, 15 May 2001 13:52:46 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.4.3 is available
-Message-ID: <20010515135246.A6594@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S261191AbREOR4C>; Tue, 15 May 2001 13:56:02 -0400
+Received: from csa.iisc.ernet.in ([144.16.67.8]:2569 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S261213AbREORzH>;
+	Tue, 15 May 2001 13:55:07 -0400
+Date: Tue, 15 May 2001 23:24:18 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: strange behaviour in syscall
+Message-ID: <Pine.SOL.3.96.1010515230910.8808A-100000@kohinoor.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-Release 1.4.3: Mon May 14 01:35:07 EDT 2001
-	* Rulesfile sync with 2.4.5-pre2.
+Hello,
+	I know that this is a newbies question, but I didn't get any
+answer in the newbies list, so I am posting it here. 
 
-It's notable that the configurator codebase has now been unchanged for
-ten days.  It's looking really stable now, all the action is in rulesfile
-updates and fixes. 
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+	In 2.2.14, I have implemented a set of system calls(This is just
+academic). The numbers are from 191 - 196. (The virgin source tree has
+up to 190 in entry.S). I have given a printk in the system call proper in
+the last one(196),(and at many other places in the call chain from there).
+(Is it fair to use those syacall numbers ?)
 
-Question with boldness even the existence of a God; because, if there
-be one, he must more approve the homage of reason, than that of
-blindfolded fear.... Do not be frightened from this inquiry from any
-fear of its consequences. If it ends in the belief that there is no
-God, you will find incitements to virtue in the comfort and
-pleasantness you feel in its exercise...
-	-- Thomas Jefferson, in a 1787 letter to his nephew
+	But when I boot up that kernel that printk gets executed. While 
+booting, at least to my knowledge, that part of the code is not supposed
+to get executed. Also while the kernel goes down, that printk speaks
+again. 
+
+	All other system calls are working fine.
+
+	I am getting some oops and panic while that syscall executes, so I
+am suspicious that I am doing something that I should never have done.
+
+	Do anybody has any idea what might be going wrong?
+
+Sorry to you all for disturbing,
+
+--
+sourav 
+

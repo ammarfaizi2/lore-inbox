@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbSJHTNn>; Tue, 8 Oct 2002 15:13:43 -0400
+	id <S263282AbSJHTXT>; Tue, 8 Oct 2002 15:23:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261472AbSJHTNc>; Tue, 8 Oct 2002 15:13:32 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26384 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263254AbSJHTHr>; Tue, 8 Oct 2002 15:07:47 -0400
-Subject: PATCH: fix t128 for new NCR5380
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 20:04:42 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S263289AbSJHTWU>; Tue, 8 Oct 2002 15:22:20 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:16776 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S263282AbSJHTWB>; Tue, 8 Oct 2002 15:22:01 -0400
+Date: Tue, 8 Oct 2002 14:27:15 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+cc: Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.41-ac1 
+In-Reply-To: <200210081900.g98J0CL09162@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210081426380.32256-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17yzes-0004uk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/scsi/t128.h linux.2.5.41-ac1/drivers/scsi/t128.h
---- linux.2.5.41/drivers/scsi/t128.h	2002-10-02 21:32:55.000000000 +0100
-+++ linux.2.5.41-ac1/drivers/scsi/t128.h	2002-10-06 23:17:50.000000000 +0100
-@@ -95,7 +95,9 @@
- int t128_biosparam(Disk *, struct block_device *, int*);
- int t128_detect(Scsi_Host_Template *);
- int t128_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--int t128_reset(Scsi_Cmnd *, unsigned int reset_flags);
-+int t128_host_reset(Scsi_Cmnd *);
-+int t128_bus_reset(Scsi_Cmnd *);
-+int t128_device_reset(Scsi_Cmnd *);
- int t128_proc_info (char *buffer, char **start, off_t offset,
- 		   int length, int hostno, int inout);
- 
-@@ -121,8 +123,10 @@
- 	name:           "Trantor T128/T128F/T228",	\
- 	detect:         t128_detect,			\
- 	queuecommand:   t128_queue_command,		\
--	abort:          t128_abort,			\
--	reset:          t128_reset,			\
-+	eh_abort_handler: t128_abort,			\
-+	eh_bus_reset_handler:    t128_bus_reset,	\
-+	eh_host_reset_handler:   t128_host_reset,	\
-+	eh_device_reset_handler: t128_device_reset,	\
- 	bios_param:     t128_biosparam,			\
- 	can_queue:      CAN_QUEUE,			\
-         this_id:        7,				\
-@@ -162,7 +166,9 @@
- #define do_NCR5380_intr do_t128_intr
- #define NCR5380_queue_command t128_queue_command
- #define NCR5380_abort t128_abort
--#define NCR5380_reset t128_reset
-+#define NCR5380_host_reset t128_hostreset
-+#define NCR5380_device_reset t128_device_reset
-+#define NCR5380_bus_reset t128_bus_reset
- #define NCR5380_proc_info t128_proc_info
- 
- /* 15 14 12 10 7 5 3 
+On Tue, 8 Oct 2002, James Bottomley wrote:
+
+> kai@tp1.ruhr-uni-bochum.de said:
+> > And you do not really want to do this, you rather want CONFIG_VOYAGER
+> > to  define_bool CONFIG_X86_SMP y and be done without ugly hacks in the
+> >  Makefiles. 
+> 
+> I'm afraid voyager can't do that.  CONFIG_SMP was split from CONFIG_X86_SMP 
+> for precisely this reason.  CONFIG_X86_SMP is for generic intel SMP 
+> architectures (i.e. APIC based).  The voyager has it's own rather wierd VIC 
+> based SMP architecture.
+> 
+> However, how about the attached patch, which fixes the problem for me (I can 
+> only compile, not test, because my voyager system is at home and I'm away on 
+> business)
+
+The patch does exactly what I would have suggested next, so I am very 
+happy with it ;)
+
+--Kai
+
+

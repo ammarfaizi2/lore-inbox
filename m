@@ -1,47 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292316AbSCMFCg>; Wed, 13 Mar 2002 00:02:36 -0500
+	id <S292390AbSCMFon>; Wed, 13 Mar 2002 00:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292329AbSCMFC1>; Wed, 13 Mar 2002 00:02:27 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:21748 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S292316AbSCMFCU>; Wed, 13 Mar 2002 00:02:20 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 12 Mar 2002 22:01:08 -0700
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: (FORWARD) =?unknown-8bit?Q?Ren=E9_Scha?=
-	=?unknown-8bit?Q?rfe=3A?= [PATCH] MS DOS filesystem option mistreatment
-Message-ID: <20020313050108.GN18882@turbolinux.com>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-In-Reply-To: <E16l0Py-0005nk-00@wagner.rustcorp.com.au> <Pine.GSO.4.21.0203122333460.20323-100000@weyl.math.psu.edu>
+	id <S292389AbSCMFod>; Wed, 13 Mar 2002 00:44:33 -0500
+Received: from [202.108.36.216] ([202.108.36.216]:8824 "HELO smtp.netease.com")
+	by vger.kernel.org with SMTP id <S292384AbSCMFo0>;
+	Wed, 13 Mar 2002 00:44:26 -0500
+Date: Wed, 13 Mar 2002 13:48:35 +0800
+From: coody <coody@netease.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Introduce a tool to access ext2 partition under win2k/xp
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0203122333460.20323-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020313054423.BACA61C575D9C@smtp.netease.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 12, 2002  23:35 -0500, Alexander Viro wrote:
-> On Wed, 13 Mar 2002, Rusty Russell wrote:
-> > This seems correct.  Al?
-> 
-> Looks sane...  I don't know who maintains fs/msdos/* these days (and I
-> seriously suspect that the answer is "nobody"), so probably patch should
-> go straight to Linus.
+Hi, everyone!
 
-Maybe OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>?  He has been sending
-a few FAT patches recently.
+I got the project ext2fsd at http://sys.xiloo.com. This ext2fsd project is an open source ext2 file system driver for win2k/winxp.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Just to share to everyone, who is annoied about accessing ext2 partition under windows.
+
+~Cheer!
 

@@ -1,39 +1,46 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S.rDDWK160511>; Sat, 15 May 1999 00:31:18 -0400
-Received: by vger.rutgers.edu id <S.rD641160883>; Fri, 14 May 1999 16:03:15 -0400
-Received: from hqinbh1.ms.com ([205.228.12.71]:49310 "EHLO hqinbh1.ms.com") by vger.rutgers.edu with ESMTP id <S.rD0bv284257>; Fri, 14 May 1999 09:49:47 -0400
-Message-ID: <373C34F8.5DE45537@ms.com>
-Date: Fri, 14 May 1999 15:36:40 +0100
-From: Jan-Simon Pendry <jsp@ms.com>
-X-Mailer: Mozilla 4.5 [en] (X11; I; Linux 2.3.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jakub Jelinek <jj@sunsite.ms.mff.cuni.cz>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.rutgers.edu
-Subject: Re: [PATCH][2.3.0] Read-write locks instead semaphores on UTS structures
-References: <Pine.LNX.4.10.9905121645430.498-200000@freak.conectiva> <373B07EF.58664F9B@ms.com> <19990514123456.R3172@mff.cuni.cz>
+Received: by vger.rutgers.edu via listexpand id <S.rDLyR156436>; Sat, 15 May 1999 10:07:25 -0400
+Received: by vger.rutgers.edu id <S.rDFCd154892>; Sat, 15 May 1999 02:26:49 -0400
+Received: from mgelinas.ne.mediaone.net ([24.128.237.24]:29303 "EHLO mr-gateway.internal.net") by vger.rutgers.edu with ESMTP id <S.rD8bC160959>; Fri, 14 May 1999 18:55:10 -0400
+Message-Id: <199905142345.TAA17348@mr-gateway.internal.net>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.rutgers.edu
+Subject: In kernel userspace process checkpoint support?
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 14 May 1999 19:45:55 -0400
+From: "J. Maynard Gelinas" <maynard@jmg.com>
 Sender: owner-linux-kernel@vger.rutgers.edu
-X-UIDL: 926742673.455407.3615
+X-UIDL: 926777237.221314.27315
 
-Jakub Jelinek wrote
-> 
-> Huh? His patch uses read-write locks and not normal spin-locks, so I don't
-> understand what you find wrong on it.
+   Folks,
+   I sent this mail out on Wednesday and no one answered. (3)  There's been
+a bunch of stuff going on, what with 2.3.0 and 2.2.[89] released so
+recently... I figure my question just got lost in the noise.  So here goes
+again:
 
-read-write locks are a variant of spin locks.  you can deadlock
-the system if you go to sleep holding holding any spin lock.
-the only exception is the kernel lock which has special code
-to deal with it in schedule().
+---------------------------------------------------------------------
 
-ideally the spinlock code (spin_lock and read_lock et al)
-would have debug versions that counted how many locks were
-held (in some per-cpu data structure), and have schedule()
-check that this number was zero before putting the process
-to sleep.
+   Can someone give an official word regarding kernel process checkpointing
+support?  "Eduardo Pinheiro" <edpin@cos.ufrj.br> has a checkpoint patch,
+EPCKPT(1), available against 2.2.1 and 2.0.36 with which "Werner G. Krebs"
+<werner.krebs@yale.edu> is using for checkpoint and process migration
+support in the development version of GNU/QUEUE(2).  This feature is of
+interest to my employer and we're wondering if it, or something like it,
+will wind up supported in the kernel proper. (4)
 
-jan-simon.
+Thanks!
+J. Maynard Gelinas 
+
+(1)http://www.cos.ufrj.br/~edpin/epckpt/
+(2)http://bioinfo.mbb.yale.edu/~wkrebs/queue.html
+
+---------------------------------------------------------------------
+
+(3) http://www.linuxhq.com/lnxlists/linux-kernel/lk_9905_02/msg00671.html
+(4) Personally, I think it would be a cool feature -- but that's JMHO.
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbUKUV6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbUKUWCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbUKUV6z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 16:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKUV6z
+	id S261820AbUKUWCy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 17:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKUWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 16:58:55 -0500
-Received: from mail.dif.dk ([193.138.115.101]:14803 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261818AbUKUV6x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 16:58:53 -0500
-Date: Sun, 21 Nov 2004 23:08:21 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] silence sparse warning in fs/reiserfs/namei.c about using
- plain integer as NULL pointer
-Message-ID: <Pine.LNX.4.61.0411212304180.3423@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Nov 2004 17:02:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17679 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261820AbUKUWCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 17:02:53 -0500
+Date: Sun, 21 Nov 2004 23:02:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: johnpol@2ka.mipt.ru
+Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: drivers/w1/: why is dscore.c not ds9490r.c ?
+Message-ID: <20041121220251.GE13254@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Evgeniy,
 
-Hi,
+drivers/w1/Makefile in recent 2.6 kernels contains:
+  obj-$(CONFIG_W1_DS9490)         += ds9490r.o 
+  ds9490r-objs    := dscore.o
 
-sparse complains about passing 0 to functions execting a pointer argument:
+Is there a reason, why dscore.c isn't simply named ds9490r.c ?
 
-  CHECK   fs/reiserfs/namei.c
-fs/reiserfs/namei.c:617:50: warning: Using plain integer as NULL pointer
+TIA
+Adrian
 
-Trivial patch to change it to pass NULL instead below.
+-- 
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c
---- linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c	2004-11-17 01:20:16.000000000 +0100
-+++ linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c	2004-11-21 22:52:41.000000000 +0100
-@@ -614,7 +614,7 @@ static int reiserfs_create (struct inode
-         goto out_failed;
-     }
- 
--    retval = reiserfs_new_inode (&th, dir, mode, 0, 0/*i_size*/, dentry, inode);
-+    retval = reiserfs_new_inode (&th, dir, mode, NULL, 0/*i_size*/, dentry, inode);
-     if (retval)
-         goto out_failed;
- 	
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

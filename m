@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264174AbTKSXIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 18:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTKSXIT
+	id S264190AbTKSXa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 18:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264194AbTKSXa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 18:08:19 -0500
-Received: from mrout2.yahoo.com ([216.145.54.172]:55635 "EHLO mrout2.yahoo.com")
-	by vger.kernel.org with ESMTP id S264174AbTKSXIS (ORCPT
+	Wed, 19 Nov 2003 18:30:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:49320 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264190AbTKSXa0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 18:08:18 -0500
-Message-ID: <3FBBF7BF.5040108@bigfoot.com>
-Date: Wed, 19 Nov 2003 15:07:43 -0800
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: notes on 2.4 -> 2.6 upgrade with a Serial ATA root
-References: <20031119225425.GF24852@BL4ST>
-In-Reply-To: <20031119225425.GF24852@BL4ST>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Nov 2003 18:30:26 -0500
+Date: Wed, 19 Nov 2003 15:26:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
+Message-ID: <20031119232651.GA22676@kroah.com>
+References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1069283566.5032.21.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Wong wrote:
-> When using the 2.4.22-xfs kernel (Knoppix -> Debian installation), our
-> SATA root drive shows up as /dev/hdg, but under 2.6, it's now a SCSI
-> device, /dev/sda.  It took us a while to figure out what was wrong until
-> we finally got a serial line and were able to read the boot message
-> outputs.
+On Thu, Nov 20, 2003 at 01:12:46AM +0200, Martin Schlemmer wrote:
+> On Thu, 2003-11-20 at 00:14, Greg KH wrote:
+> > On Wed, Nov 19, 2003 at 10:32:38PM +0100, Adrian Bunk wrote:
+> > > The trivial documentation patch forwarded below still applies (with a 
+> > > few lines offset) against 2.6.0-test9-mm4.
+> > 
+> > Hm, with the 006 release, what do you find lacking in udev?
+> > 
 > 
-> This is the error message we got originally _before_ we appended
-> "root=/dev/sda3" to our command-line:
-> 
-> VFS: Cannot open root device "2203" or unknown-block(34,3)
-> Please append a correct "root=" boot option
-> 
-> I have a feeling this will take a lot of SATA users by surprise, so
-> hopefully it'll be documented from now on.
+> I am guessing its more driver support, etc.  Input devices for
+> instance do not seem to have any sysfs support yet,
 
-   you can use SATA drives as scsi drives on 2.4.x kernels too (I use it 
-with 2.4.21-ac4), actually at least in my case it's better because when 
-I try to use it as IDE drive the system freezes (during probing IDE, 
-right after it prints out the info about disks).
+Yes, we do need better driver support.  But that's nothing that udev
+itself can do :)
 
-	erik
+I have a number of patches pending for 2.6.1 that will add more driver
+support for sysfs.
 
+> and full initramfs support with udev in there,
 
+The people keeping the klibc kernel bk tree have enough support in it to
+place udev into initramfs.  Again, nothing that udev needs to do for
+this.
+
+> and udev.permissions setup to get general permissions, etc right,
+
+We now support wildcards in udev.permissions, forgot to mention that in
+the 006 release.  So it's just a matter of distros building up a
+permissions file that matches their needs.
+
+> might make it more advertisable for the masses (no need to maintain
+> /dev or the initial costs for users not so interested in the workings
+> of things).
+
+Mostly it's a implementation issue with a distro to get everything tied
+together properly.  Much like devfs had issues when it was added to the
+kernel and people had to tweak userspace a bunch to get it to work
+properly.
+
+> Lets just say from what I have seen from users talking/asking, the
+> initial setup and seeming 'lack of functionality' is the biggest
+> blocker.
+
+Initial setup will be done by distros when they implement it into their
+system.  What do you mean by "lack of functionality"?  What users are
+telling you this, and what functions are they?  Please feel free to
+forward them on to me, otherwise I will not know...
+
+Now yes, I do know that udev still has a way to go to be solid and
+mature, but it is usable for the most part :)
+
+thanks,
+
+greg k-h

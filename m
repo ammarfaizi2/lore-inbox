@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUBPXCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265984AbUBPWyk
+	id S265965AbUBPXCI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 18:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUBPXBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 17:54:40 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:60868 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265992AbUBPWx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 17:53:57 -0500
-Date: Mon, 16 Feb 2004 17:53:38 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       lhcs-devel@lists.sourceforge.net, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH][2.6-mm] split drain_local_pages
-In-Reply-To: <20040216224425.GB6628@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0402161752590.11793@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0402161720390.11793@montezuma.fsmlabs.com>
- <20040216224425.GB6628@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 18:01:15 -0500
+Received: from gate.crashing.org ([63.228.1.57]:41377 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265965AbUBPW6x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 17:58:53 -0500
+Subject: Re: [PATCH] back out fbdev sysfs support
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0402162248040.21833-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0402162248040.21833-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1076972292.3648.83.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 17 Feb 2004 09:58:12 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004, Pavel Machek wrote:
+On Tue, 2004-02-17 at 09:49, James Simmons wrote:
+> > I'll send you/andrew individually the drivers I control and the ones I
+> > already fixed in james tree (5 or 6 drivers)
+> 
+> I have drivers as well which I need to send. 
+>  
+> > James: The fbcon & cursor changes must get in asap. There are races that
+> > I fixed, without the changes, those races will be in 2.6.3.
+> 
+> I just sent out a patch for people to try and look over before I submit 
+> it.
 
-> ...but code was passing cpu? The old version could not have compiled
-> according to the patch..
+Double check with what I already commited.
 
-No, it didn't compile, but the code wasn't enabled anyway, so that's ok.
+Ben.
+
+

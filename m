@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267426AbSLEU5P>; Thu, 5 Dec 2002 15:57:15 -0500
+	id <S267419AbSLEUwQ>; Thu, 5 Dec 2002 15:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267393AbSLEU4t>; Thu, 5 Dec 2002 15:56:49 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:14596 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267385AbSLEU4l>;
-	Thu, 5 Dec 2002 15:56:41 -0500
-Date: Wed, 4 Dec 2002 14:05:14 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: md support
-Message-ID: <20021204130514.GA8235@elf.ucw.cz>
+	id <S267420AbSLEUwQ>; Thu, 5 Dec 2002 15:52:16 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:60935 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S267419AbSLEUwP>;
+	Thu, 5 Dec 2002 15:52:15 -0500
+Date: Thu, 5 Dec 2002 21:58:17 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] ipv4: how to choose src ip?
+Message-ID: <20021205205817.GB21070@alpha.home.local>
+References: <20021205190054.GE23877@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20021205190054.GE23877@louise.pinerecords.com>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Dec 05, 2002 at 08:00:54PM +0100, Tomas Szepe wrote:
+ 
+> Suppose I have two IP addresses from the same subnet on the same
+> interface, and this interface also happens to be what my default
+> gateway is on, like so:
+> 
+> /sbin/ifconfig eth1   213.168.178.209 netmask 255.255.255.192 \
+> 					broadcast 213.168.178.255
+> /sbin/ifconfig eth1:0 213.168.178.210 netmask 255.255.255.192 \
+> 					broadcast 213.168.178.255
+> /sbin/route add default gw 213.168.178.193
 
-This adds basic support to md.c. Please apply,
-								Pavel
+Honnestly, the simplest way to deal with aliases and source addresses is to
+forget ifconfig/route and replace them with iproute2 (ftp.inr.ac.ru), which
+lets you specify the source address among many other settings. Really a
+wonderful and cleanly coded tool.
 
---- clean/drivers/md/md.c	2002-11-23 19:55:20.000000000 +0100
-+++ linux-swsusp/drivers/md/md.c	2002-11-23 19:57:55.000000000 +0100
-@@ -36,6 +36,7 @@
- #include <linux/bio.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/buffer_head.h> /* for invalidate_bdev */
-+#include <linux/suspend.h>
- 
- #include <linux/init.h>
- 
-@@ -2466,6 +2467,8 @@
- 
- 		wait_event_interruptible(thread->wqueue,
- 					 test_bit(THREAD_WAKEUP, &thread->flags));
-+		if (current->flags & PF_FREEZE)
-+			refrigerator(PF_IOTHREAD);
- 
- 		clear_bit(THREAD_WAKEUP, &thread->flags);
- 
+In your case, you'd call it this way :
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+  ip addr add 213.168.178.209/26 dev eth0
+  ip addr add 213.168.178.210/26 dev eth0
+  ip route add default via 213.168.178.193
+
+When several addresses can resolve for the source, the first one is used by
+default, so in the above case, it will be .209. But it's easy to specify the
+other one :
+
+  ip route add default via 213.168.178.193 src 213.168.178.210
+
+In fact, you can even set the source of another interface, which is very useful
+on point-to-point connections above private networks.
+
+I really don't understand why modern distros don't use it by default, and still
+prefer prehistoric ifconfig and route. These ones are extremely limited
+regarding what the kernel can do.
+
+Cheers,
+Willy
+

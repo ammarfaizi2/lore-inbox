@@ -1,49 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUELWJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUELWKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUELWJz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUELWJz
+	id S261580AbUELWKa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUELWKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:09:55 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:53920 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261580AbUELWJt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:09:49 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16546.41076.572371.307153@napali.hpl.hp.com>
-Date: Wed, 12 May 2004 15:08:52 -0700
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: ebiederm@xmission.com (Eric W. Biederman), drepper@redhat.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       akpm <akpm@osdl.org>
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-In-Reply-To: <20040512143233.0ee0405a.rddunlap@osdl.org>
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-	<40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Wed, 12 May 2004 18:10:30 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:35639 "EHLO
+	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S261580AbUELWJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:09:58 -0400
+Message-Id: <200405122209.i4CM9vqS013716@falcon10.austin.ibm.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: ppc64 HDIO_TASK_* ioctls 2.4, 2.6
+Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-20308396050"
+Date: Wed, 12 May 2004 17:09:57 -0500
+From: Doug Maxey <dwm@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 12 May 2004 14:32:33 -0700, "Randy.Dunlap" <rddunlap@osdl.org> said:
+This is a multipart MIME message.
 
-  Randy> I don't know when vdso will be available (for non-x86[2]) or
+--==_Exmh_-20308396050
+Content-Type: text/plain; charset=us-ascii
 
-  Randy> [2] kexec is currently only available for x86, but there is interest
-  Randy> in it for ia64 and ppc64 at least.
 
-ia64 does have VDSO (and has had it for some time).
+Howdy,
 
-I quite like Uli's idea.
+  I need a some guidance on enabling the ioctls on ppc64 to allow
+  the smartmontools to run the appropriate set of commands.
 
-	--david
+  Does this look ok?
+
+  Have sniff tested, and the smart tools do run without ioctl errors.
+
+++doug
+
+
+--==_Exmh_-20308396050
+Content-Type: application/octet-stream ; name="ppc64-26-hdio-ioctls.diff"
+Content-Description: ppc64-26-hdio-ioctls.diff
+
+Index: arch/ppc64/kernel/ioctl32.c
+===================================================================
+RCS file: /cvs/linuxppc64/sles-9-7/arch/ppc64/kernel/ioctl32.c,v
+retrieving revision 1.1.1.1
+diff -w -p -u -r1.1.1.1 ioctl32.c
+--- arch/ppc64/kernel/ioctl32.c	4 May 2004 16:43:27 -0000	1.1.1.1
++++ arch/ppc64/kernel/ioctl32.c	10 May 2004 14:46:20 -0000
+@@ -349,6 +349,11 @@ COMPATIBLE_IOCTL(TIOCSLTC)
+ /* Little p (/dev/rtc, /dev/envctrl, etc.) */
+ COMPATIBLE_IOCTL(_IOR('p', 20, int[7])) /* RTCGET */
+ COMPATIBLE_IOCTL(_IOW('p', 21, int[7])) /* RTCSET */
++COMPATIBLE_IOCTL(HDIO_DRIVE_CMD)
++#ifdef CONFIG_IDE_TASK_IOCTL
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASKFILE),
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASK),
++#endif CONFIG_IDE_TASK_IOCTL
+ 
+ /* And these ioctls need translation */
+ 
+
+--==_Exmh_-20308396050
+Content-Type: application/octet-stream ; name="ppc64-24-hdio-ioctls.diff"
+Content-Description: ppc64-24-hdio-ioctls.diff
+
+Index: arch/ppc64/kernel/ioctl32.c
+===================================================================
+RCS file: /cvs/linuxppc64/sles8-sp3aa/arch/ppc64/kernel/ioctl32.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.1.1.1.2.3
+diff -w -p -u -r1.1.1.1 -r1.1.1.1.2.3
+--- arch/ppc64/kernel/ioctl32.c	23 Apr 2004 15:59:34 -0000	1.1.1.1
++++ arch/ppc64/kernel/ioctl32.c	6 May 2004 00:31:17 -0000	1.1.1.1.2.3
+@@ -3846,6 +3846,10 @@ COMPATIBLE_IOCTL(HDIO_SET_UNMASKINTR),
+ COMPATIBLE_IOCTL(HDIO_SET_NOWERR),
+ COMPATIBLE_IOCTL(HDIO_SET_32BIT),
+ COMPATIBLE_IOCTL(HDIO_SET_MULTCOUNT),
++#ifdef CONFIG_IDE_TASK_IOCTL
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASKFILE),
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASK),
++#endif CONFIG_IDE_TASK_IOCTL
+ COMPATIBLE_IOCTL(HDIO_DRIVE_CMD),
+ COMPATIBLE_IOCTL(HDIO_SET_PIO_MODE),
+ COMPATIBLE_IOCTL(HDIO_SCAN_HWIF),
+
+--==_Exmh_-20308396050--
+
+

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbTKTNEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 08:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTKTNEu
+	id S261740AbTKTNHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 08:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTKTNHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 08:04:50 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:49930 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261724AbTKTNEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 08:04:50 -0500
-Date: Thu, 20 Nov 2003 13:04:32 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: =?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <aradorlinux@yahoo.es>
-Cc: Nick Piggin <piggin@cyberone.com.au>, wli@holomorphy.com,
-       jgarzik@pobox.com, jt@hpl.hp.com, linux-kernel@vger.kernel.org,
-       pof@users.sourceforge.net
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031120130432.A30975@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	=?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <aradorlinux@yahoo.es>,
-	Nick Piggin <piggin@cyberone.com.au>, wli@holomorphy.com,
-	jgarzik@pobox.com, jt@hpl.hp.com, linux-kernel@vger.kernel.org,
-	pof@users.sourceforge.net
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC402E.6070109@cyberone.com.au> <20031120043848.GG19856@holomorphy.com> <3FBC4A42.8010806@cyberone.com.au> <20031120134121.02e11aff.aradorlinux@yahoo.es>
+	Thu, 20 Nov 2003 08:07:10 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17894 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261740AbTKTNHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 08:07:07 -0500
+Date: Wed, 19 Nov 2003 20:06:56 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, rob@landley.net
+Subject: Re: Patrick's Test9 suspend code.
+Message-ID: <20031119190656.GD6293@openzaurus.ucw.cz>
+References: <87fzgkwlci.wl@drakkar.ibe.miee.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031120134121.02e11aff.aradorlinux@yahoo.es>; from aradorlinux@yahoo.es on Thu, Nov 20, 2003 at 01:41:21PM +0100
+In-Reply-To: <87fzgkwlci.wl@drakkar.ibe.miee.ru>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 01:41:21PM +0100, Diego Calleja García wrote:
-> "windows driver model" abi which doesn't change even between W9x and nt)
+Hi!
 
-that's what microsoft PR says.  in fact it's rather difficult to have a driver
-working on win9x and nt without very ugly hacks.  And for some driver classes
-it doesn't work at all.
+> > A) Any scheme we come up with there will be a way the user can do something 
+> > stupid enough to break it.  (Put the swap partition on a ramdisk living on 
+> > the video card, or on a device require an initrd to load the driver to 
+> > access...)
+> > 
+> > B) A heuristic that looks at the mounted block devices for things that smell 
+> > like a resume partition would actually be more robust in that case.
+> 
+> Really, what i think here is appropriate is a more fundamental approach.
+> 
+> We should reserve a new partition type in addition to three already
+> existing, namely "linux"==0x83, "linux swap"==0x82 and "linux lvm"==0x8e.
+> 
+> And call it something like "linux suspend".
+> And initialize it, if needed (i presume to write a signature etc), with
+> something like "mksusp".
+
+Yes and we should create separate partition type for root filesystem
+and have separate mkfs.ext2.root.
+
+NOT!
+
+I see no advantages in mksusp; it only means you need to re-fdisk
+your machine. Bad idea, and its way too late for 2.6 anyway.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

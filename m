@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276552AbRJCRG4>; Wed, 3 Oct 2001 13:06:56 -0400
+	id <S276562AbRJCRJg>; Wed, 3 Oct 2001 13:09:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276562AbRJCRGr>; Wed, 3 Oct 2001 13:06:47 -0400
-Received: from imo-d06.mx.aol.com ([205.188.157.38]:51118 "EHLO
-	imo-d06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S276552AbRJCRGc>; Wed, 3 Oct 2001 13:06:32 -0400
-Message-ID: <3BBB4534.774668AC@cs.com>
-Date: Wed, 03 Oct 2001 10:04:52 -0700
-From: Charles Marslett <cmarslett9@cs.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,zh-TW,ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: partition table read incorrectly
-In-Reply-To: <200110031621.QAA03519@vlet.cwi.nl>
+	id <S276564AbRJCRJa>; Wed, 3 Oct 2001 13:09:30 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:54766 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S276562AbRJCRJY>; Wed, 3 Oct 2001 13:09:24 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 3 Oct 2001 11:09:10 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-lvm@sistina.com
+Subject: Re: [linux-lvm] Re: partition table read incorrectly
+Message-ID: <20011003110910.F8954@turbolinux.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+In-Reply-To: <20011002202934.G14582@wiggy.net> <E15oUUf-0005Xw-00@the-village.bc.nu> <20011002220053.H14582@wiggy.net> <20011002150820.N8954@turbolinux.com> <20011003142633.A16089@cistron.nl> <20011003144236.A31796@cistron.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011003144236.A31796@cistron.nl>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+On Oct 03, 2001  14:42 +0200, Wichert Akkerman wrote:
+> Here are the first 512 bytes for the disk which the kernel gets
+> wrong (/dev/sdb):
 > 
-> >> Maybe there is still "0xaa55" on the disk at 0x1fe and the kernel
-> >> thinks it is a DOS partition?
-> 
-> > Note that that is true for *ANY* partition scheme which is bootable,
-> > since this is a requirement of the boot firmware interface, rather of
-> > any particular partitioning scheme...
-> 
-> You mean on i386 hardware? With the most common BIOS versions?
+> 000000 48 4d 01 00 00 00 00 00 00 04 00 00 00 10 00 00
+> 000010 00 10 00 00 00 20 00 00 00 80 00 00 00 a0 00 00
+> 000020 00 48 01 00 00 f0 01 00 00 00 41 00 47 59 75 35
+> 000030 50 30 6a 63 58 57 45 42 74 38 64 44 74 70 51 6d
+> 000040 31 6a 50 38 57 41 31 4e 5a 46 39 65 00 00 00 00
+> 000050 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> *
+> 0000a0 00 00 00 00 00 00 00 00 00 00 00 00 76 67 5f 75
+> 0000b0 73 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 0000c0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> *
+> 000120 00 00 00 00 00 00 00 00 00 00 00 00 63 6c 6f 75
+> 000130 64 31 30 30 31 37 38 30 32 30 38 00 00 00 00 00
+> 000140 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> *
+> 0001a0 00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00
+> 0001b0 01 00 00 00 01 00 00 00 02 00 00 00 70 90 23 02
+> 0001c0 01 00 00 00 00 20 00 00 1b 11 00 00 80 00 00 00
+> 0001d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> *
+> 0001f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 aa
 
-I think it applies to almost all boot firmware -- the Atari 68000 hard
-disk format used it, all the x86 firmware I am familiar with uses it, and
-I think Apple uses it in all it's Mac incarnations.  That's pretty wide
-coverage (I know nothing about Sun or other workstation formats).
+OK, so it turns out that LVM is NOT zeroing any of the metadata outside
+of the actual allocated fields in the on-disk structs.  Since the on-disk
+structs DO NOT include padding at the end, this means we leave garbage
+like the DOS partition table signature on the disk.  Yuck.
 
-If the 0xAA55 marker is not present, the standard interpretation is that
-the disk is not partitioned, and the disk may still boot, but you may
-just be lucky it works if it really is partitioned.
+Likely places to fix this are:
+- pv_setup_for_create(): zap the first few MB of the PV (and the end while
+  you are at it, to remove old MD RAID signatures).  This is slow, and will
+  duplicate some of the I/O when writing the VGDA/PE tables, etc.
+- pv_disk_t(): increase the size with padding at the end to LVM_PV_DISK_SIZE
+  You will need to do the same for all of the other on-disk structures.
+  You also need zero bytes from pe_on_disk.base + pe_total*sizeof(pe_disk_t)
+  to pe_on_disk.base + pe_on_disk.size.  This is also a problem because the
+  LVM_PV_*_SIZE were changed, so the amount of padding is not constant.
+- pv_write(): ugly since it adds constant overhead.  This will be "handled"
+  if pv_disk_t() is increased in size.
 
-Or have I missed something (I'm not all that familiar with non-x86 hardware
-so I could be missing something big -- and I'd like to know that)?
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
---Charles

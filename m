@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292307AbSBPBWA>; Fri, 15 Feb 2002 20:22:00 -0500
+	id <S292308AbSBPBYW>; Fri, 15 Feb 2002 20:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292308AbSBPBVu>; Fri, 15 Feb 2002 20:21:50 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33549
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S292307AbSBPBVb>; Fri, 15 Feb 2002 20:21:31 -0500
-Date: Fri, 15 Feb 2002 17:10:37 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Nick Urbanik <nicku@vtc.edu.hk>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: cmd649 not working with 2 CPU box; what IDE card should I use?
-In-Reply-To: <3C6C7F29.DE677AB4@vtc.edu.hk>
-Message-ID: <Pine.LNX.4.10.10202151709100.10501-100000@master.linux-ide.org>
+	id <S292310AbSBPBYL>; Fri, 15 Feb 2002 20:24:11 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:17170 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S292308AbSBPBYC>;
+	Fri, 15 Feb 2002 20:24:02 -0500
+Date: Fri, 15 Feb 2002 17:18:54 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] new VFS documentation
+In-Reply-To: <Pine.GSO.4.21.0202142246020.23441-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33L2.0202151712220.11494-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Feb 2002, Nick Urbanik wrote:
+On Thu, 14 Feb 2002, Alexander Viro wrote:
 
-> Dear folks,
-> 
-> I have tried cmd649 ATA pci cards; they work great with single CPU
-> kernels, not at all with SMP kernels.  The SMP kernel just does not make
-> an entry in /proc/ide.  Some details are in my post on 13 Feb, with
-> subject: cmd649 ok 1 cpu, 2 cpus, not working.  I would appreciate any
-> pointers that may lead to getting them working.
-> 
-> So if this is not a common problem, does _anyone_ use ATA cards with SMP
-> boxes?  If so, which ones work?  HPT?
+| 	First of all, since 2.5.5-pre1 there is an up-to-date guide for
+| porting filesystems from 2.4 to 2.5.<latest>.  Location:
+|
+| 	Documentation/filesystems/porting
+|
+| It WILL be kept up-to-date.  IOW, submit an API change that may require
+| filesystem changes without a corresponding patch to that file and I will
+| hunt you down and hurt you.  Badly.
+|
+| New locking scheme is described in Documentation/filesystems/directory-locking.
+| In details and with proof of correctness.
+|
+| Documentation/filesystems/Locking is slowly getting up-to-date.  Descriptions
+| of several superblock methods are still missing and I would really appreciate
+| it if folks who had introduced them would document them.
 
+Way to go, Al!
 
-LOL, I had the same question asked to me by CMD and probed to them it
-works.  Obviously you have not configured something correct :-/
+Anyone:
+Are there any linux-filesystem-like web pages, sorta like what
+Rik has for MM/VM?
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+Here's a beginning, if someone would like to use it or add to it:
+
+  http://www.osdl.org/archive/rddunlap/linux-fs.html
+
+-- 
+~Randy
 

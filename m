@@ -1,61 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319416AbSIFWth>; Fri, 6 Sep 2002 18:49:37 -0400
+	id <S319386AbSIFXPP>; Fri, 6 Sep 2002 19:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319419AbSIFWtg>; Fri, 6 Sep 2002 18:49:36 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:8359 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319416AbSIFWtg>;
-	Fri, 6 Sep 2002 18:49:36 -0400
-Date: Fri, 6 Sep 2002 17:48:32 -0500
-From: Amos Waterland <apw@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: pwaechtler@mac.com, golbi@mat.uni.torun.pl, linux-kernel@vger.kernel.org,
-       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] POSIX message queues
-Message-ID: <20020906174832.A25611@kvasir.austin.ibm.com>
-References: <20020901015025.A10102@kvasir.austin.ibm.com> <Pine.LNX.4.44.0209041311550.4000-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209041311550.4000-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 04, 2002 at 01:13:28PM +0200
+	id <S319418AbSIFXPO>; Fri, 6 Sep 2002 19:15:14 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:39952 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S319386AbSIFXPN>;
+	Fri, 6 Sep 2002 19:15:13 -0400
+From: <Hell.Surfers@cwctv.net>
+To: reiser@namesys.com, aaronl@vitelus.com, Nikita@Namesys.COM, sct@redhat.com,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Date: Sat, 7 Sep 2002 00:19:00 +0100
+Subject: RE:Re: ext3 throughput woes on certain (possibly heavily fragmented)
+ files
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1031354340758"
+Message-ID: <0dafd0118230692DTVMAIL9@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 01:13:28PM +0200, Ingo Molnar wrote:
-> 
-> On Sun, 1 Sep 2002, Amos Waterland wrote:
-> 
-> > That is the fundamental problem with a userspace shared memory
-> > implementation: write permissions on a message queue should grant
-> > mq_send(), but write permissions on shared memory grant a lot more than
-> > just that.
-> 
-> is it really a problem? As long as the read and write queues are separated
-> per sender, all that can happen is that a sender is allowed to read his
-> own messages - that is not an exciting capability.
 
-Ingo:
+--1031354340758
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I can see no way to keep the queues separated per sender if userspace
-shared memory is used.  The data structures used to keep track of the
-messages must be writable by both the senders and receivers, because of
-the kernel persistent nature of message queues: messages must stay in
-the queue during the interval of arbitrary length between the sender
-calling mq_send() and the receiver calling mq_receive().
+Perhaps you could use a fat partition, you can defragment those, or ntfs [mwaaaahahaha].
 
-That is, suppose process X posts message M, and then exits.  Process Y
-wants to receive message M, which means it must acquire a process-shared
-lock and then remove M from the queue: so Y must be able to update the
-data structures representing the queue.  I see no way to allow Y to
-update the data structures in shared memory without giving Y write
-permission to the pages.  If Y has write permission to the pages, it can
-spoof messages/wreck the queue, etc.  If you see a way around this,
-please correct me.  Thanks.
 
-Ulrich/Jakub:
 
-Is the above related to glibc's position that mq's will not go in until
-there is kernel support?  Thanks.
+On 	Sat, 07 Sep 2002 02:05:12 +0400 	Hans Reiser <reiser@namesys.com> wrote:
 
-Amos Waterland
+--1031354340758
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Fri, 6 Sep 2002 23:05:42 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S319405AbSIFWAj>; Fri, 6 Sep 2002 18:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S319406AbSIFWAj>; Fri, 6 Sep 2002 18:00:39 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:30725 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S319405AbSIFWAi>; Fri, 6 Sep 2002 18:00:38 -0400
+Received: (qmail 19618 invoked from network); 6 Sep 2002 22:05:12 -0000
+Received: from reload.namesys.com (HELO namesys.com) (212.16.7.75)
+  by thebsh.namesys.com with SMTP; 6 Sep 2002 22:05:12 -0000
+Message-ID: <3D792698.4010401@namesys.com>
+Date: Sat, 07 Sep 2002 02:05:12 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: Nikita Danilov <Nikita@Namesys.COM>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented)
+ files
+References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com> <3D78E44E.5020107@namesys.com> <20020906210214.GA25666@vitelus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+Aaron Lehmann wrote:
+
+>On Fri, Sep 06, 2002 at 09:22:22PM +0400, Hans Reiser wrote:
+>  
+>
+>>I think I prefer that we implement a repacker for reiser4 though, as 
+>>that, combined with delayed allocation, will be a balanced and thorough 
+>>solution.
+>>    
+>>
+>
+>How does current ReiserFS fare against extreme fragmentation? What
+>about XFS? Without trying to risk a flamewar, what Linux filesystems
+>are the most preventive of fragmentation?
+>
+>The filesystem could make a huge difference on a machine like a mail
+>server...
+>
+>
+>  
+>
+Sometimes it is best to confess that one does not have the expertise 
+appropriate for answering a question. Someone on our mailing list 
+studied it carefully though. Perhaps they can comment.
+
+Hans
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1031354340758--
+
+

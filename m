@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261759AbSJMXKE>; Sun, 13 Oct 2002 19:10:04 -0400
+	id <S261753AbSJMX0c>; Sun, 13 Oct 2002 19:26:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261769AbSJMXKE>; Sun, 13 Oct 2002 19:10:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34311 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261759AbSJMXKD>; Sun, 13 Oct 2002 19:10:03 -0400
-Date: Mon, 14 Oct 2002 00:15:52 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: ebiederm@xmission.com, eblade@blackmagik.dynup.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-Message-ID: <20021014001552.Q23142@flint.arm.linux.org.uk>
-References: <200210132310.QAA01044@adam.yggdrasil.com>
+	id <S261755AbSJMX0c>; Sun, 13 Oct 2002 19:26:32 -0400
+Received: from wv-morgantown1-235.mgtnwv.adelphia.net ([24.50.80.235]:31228
+	"EHLO silvercoin") by vger.kernel.org with ESMTP id <S261753AbSJMX0c>;
+	Sun, 13 Oct 2002 19:26:32 -0400
+Subject: Re: harddisk corruption with 2.5.41bk and tcq enabled
+From: Scott Henson <shenson2@silvercoin.dyndns.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1034422647.3da8097797dd3@smartmail.portrix.net>
+References: <200210121050.01471.jan@jandittmer.de>
+	<20021012091653.GD26719@suse.de> 
+	<1034422647.3da8097797dd3@smartmail.portrix.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 13 Oct 2002 19:30:22 -0400
+Message-Id: <1034551822.10428.7.camel@GreyGhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210132310.QAA01044@adam.yggdrasil.com>; from adam@yggdrasil.com on Sun, Oct 13, 2002 at 04:10:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 04:10:01PM -0700, Adam J. Richter wrote:
-> 	I have no objection to replacing or supplementing the reboot
-> notifier chain with a method in struct device_driver, but let's not
-> overload these methods with ambiguous semantics.  I do not want to
-> call thirty functions that primarily return memory to various memory
-> allocators, mark a bunch of inodes as invalid, and otherwise arrange
-> things so that the kernel can smoothly continue to run user level
-> programs when, in fact, we just want to pull the reset line on the
-> computer.
+On Sat, 2002-10-12 at 07:37, Jan Dittmer wrote:
+> > > attempt to access beyond end of device
+> > > ide0(3,2): rw=0, want=1076371720, limit=19535040
+> >
+> At least not ide related. Just ext3 moaning.
+> I'm just reinstalling debian, e2fsck just killed most of my filesystem :-(
+> (including old dmesg/config).
+> I'll give 2.4.42 a try on a fresh install with ext_2_. But I think there
+> were no changes with respect to ext3 lately?!
+> 
 
-And what about setups where you can't pull the reset line from software.
-I have several machines here like that.  And one of them needs software
-to talk to the cards to put them back into a sane state before rebooting.
-
-"rebooting" in this particular case is "turn MMU off, jump to location 0"
-
-And I never said anything about needing to allocate memory to do this.
-I agree with you that suspending devices on reboot _is_ silly.  However,
-that's not what I was proposing.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I had similar problems with 2.4.20-pre5-ac6 where my /home partition was
+totally killed.  Though I used 2.4.19 to dd it off and ran fsck on
+copies till I got it back and remounted it as a ext2 partition.  It had
+some really bad corruption in the journal, but as far as I could tell
+there was no other corruption.  I originally thought it was bad hard
+disk, but I reinstalled to the same drive and no more errors with
+2.4.20-pre8-ac3.  I also got all kinds off errors about trying to read
+past the end of the device and partition magic said something about the
+partition table being corrupt and not being able to determine the
+partition type. Though cfdisk didnt say a thing about any of this.  Just
+a wierd situation that had me confused for several days.  
+-Scott Henson
 

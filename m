@@ -1,47 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284948AbRLZVQs>; Wed, 26 Dec 2001 16:16:48 -0500
+	id <S284942AbRLZVwM>; Wed, 26 Dec 2001 16:52:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284942AbRLZVQj>; Wed, 26 Dec 2001 16:16:39 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59075 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284940AbRLZVQ2>; Wed, 26 Dec 2001 16:16:28 -0500
-Date: Wed, 26 Dec 2001 14:16:19 -0700
-Message-Id: <200112262116.fBQLGJY22088@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199.6 available
+	id <S284952AbRLZVwC>; Wed, 26 Dec 2001 16:52:02 -0500
+Received: from mx.fluke.com ([129.196.128.53]:53766 "EHLO
+	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
+	id <S284942AbRLZVvr>; Wed, 26 Dec 2001 16:51:47 -0500
+Date: Wed, 26 Dec 2001 13:51:47 -0800 (PST)
+From: David Dyck <dcd@tc.fluke.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: need LATEST-IS-2.5.1 in ftp://ftp.kernel.org/pub/linux/kernel/v2.5/
+Message-ID: <Pine.LNX.4.33.0112261351220.32393-100000@dd.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199.6 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+When I looked in
+ ftp://ftp.kernel.org/pub/linux/kernel/v2.5/
+I noticed that the file LATEST-IS-2.5.0 needs to be
+renamed to be LATEST-IS-2.5.1  since linux-2.5.1.tar.bz2
+has been released
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-This is against 2.4.17. Highlights of this release:
-
-- Corrected (made useful) debugging message in <unregister>
-
-- Moved <kmem_cache_create> in <mount_devfs_fs> to <init_devfs_fs>
-
-- Fixed drivers/md/lvm-fs.c to create "lvm" entry
-
-- Added magic number to guard against scribbling drivers
-
-- Only return old entry in <devfs_mk_dir> if a directory
-
-- Defined macros for error and debug messages
-
-- Updated README from master HTML file
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

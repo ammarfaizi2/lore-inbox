@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315154AbSEHUkM>; Wed, 8 May 2002 16:40:12 -0400
+	id <S315155AbSEHUqf>; Wed, 8 May 2002 16:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315155AbSEHUkK>; Wed, 8 May 2002 16:40:10 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:22523 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S315154AbSEHUju>;
-	Wed, 8 May 2002 16:39:50 -0400
-Date: Wed, 8 May 2002 22:39:28 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, marcello@acc.umu.se,
-        cyeoh@samba.org, anton@samba.org, paulus@samba.org, davidm@hpl.hp.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: WRT SIGURG incorrectly delivered to process
-Message-ID: <20020508223928.J9980@khan.acc.umu.se>
-Mime-Version: 1.0
+	id <S315163AbSEHUqf>; Wed, 8 May 2002 16:46:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5648 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315155AbSEHUqe>;
+	Wed, 8 May 2002 16:46:34 -0400
+Message-ID: <3CD98E6D.F0F5BC4B@zip.com.au>
+Date: Wed, 08 May 2002 13:45:33 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rscuss@omniti.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3C509C Odd Behavior
+In-Reply-To: <3CD98B36.8060203@omniti.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On, or about, April 18, Christopher Yeoh fixed a problem in the
-v2.4-kernel where SIGURG got terminated incorrectly, in violation to
-SuSv3. I intend to merge this fix into v2.0 as well, unless someone has
-any objections.
+Robert Scussel wrote:
+> 
+> I have read through the list seeing many emails on the 3c59x module,
+> however, what I found for the recent posts was for laptops.
+> 
+> Here is the situation
+> 
+>     Tyan S2466 motherboard with 3Com (3c509c) onboard nic, Intel
+> eepro100 pci nic.  RedHat 7.2 XFS. When the machine boots, the intel
+> card comes up fine. The 3com card appears to initialize, can be seen
+> from the box itself, however cannot ping out to anything else, and
+> cannot be pinged from anywhere. If I down and up the card twice, it
+> comes up fine with no more worries. No errors are generated.  The same
+> behavior occurs with the default 2.4.9 kernel that comes with 7.2
+> install, and with the 2.4.18 kernel.
 
-However, I noticed that kernel/signal.c also contains similar code that
-does not contain SIGURG (mangled whitespace):
+Please enable debugging with the `debug=7' module parameter
+and send me the logs from the whole session, including when
+it doesn't work, and when it does.  There's more info on the
+debug tools in Documentation/networking/vortex.txt.
 
-(on line 1112 or thereabouts)
-
-  if (k->sa.sa_handler == SIG_IGN
-                    || (k->sa.sa_handler == SIG_DFL
-                        && (sig == SIGCONT ||
-                            sig == SIGCHLD ||
-                            sig == SIGWINCH))) {
-                        spin_lock_irq(&current->sigmask_lock);
-                        if (rm_sig_from_queue(sig, current))
-                                recalc_sigpending(current);
-                        spin_unlock_irq(&current->sigmask_lock);
-                }
-
-
-Is this intentionally left this way, or did it get missed out by
-mistake?!
-
-
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Thanks.

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264447AbRGNRnl>; Sat, 14 Jul 2001 13:43:41 -0400
+	id <S264489AbRGNRru>; Sat, 14 Jul 2001 13:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264489AbRGNRna>; Sat, 14 Jul 2001 13:43:30 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24077 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264447AbRGNRn3>; Sat, 14 Jul 2001 13:43:29 -0400
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sat, 14 Jul 2001 18:44:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <3B5083AE.71515696@mandrakesoft.com> from "Jeff Garzik" at Jul 14, 2001 01:38:54 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264632AbRGNRrl>; Sat, 14 Jul 2001 13:47:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52325 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S264489AbRGNRrb>; Sat, 14 Jul 2001 13:47:31 -0400
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu, linux-mm@kvack.org
+Subject: Re: RFC: Remove swap file support
+In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com>
+	<m1elrk3uxh.fsf@frodo.biederman.org>
+	<20010715032528.E6722@weta.f00f.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Jul 2001 11:35:52 -0600
+In-Reply-To: <20010715032528.E6722@weta.f00f.org>
+Message-ID: <m13d7z4dmv.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15LTSu-0001Vy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is a flag day change so it generates [a lot of] work once... it has
-> always been policy that userspace shouldn't be including kernel
-> headers.  uClibc and now dietlibc are following this policy.
+Chris Wedgwood <cw@f00f.org> writes:
+
+> On Sat, Jul 14, 2001 at 12:07:38AM -0600, Eric W. Biederman wrote:
 > 
-> IMHO we have made an exception for glibc for long enough...
+>     Yes, and no.  I'd say what we need to do is update rw_swap_page to
+>     use the address space functions directly.  With block devices and
+>     files going through the page cache in 2.5 that should remove any
+>     special cases cleanly.
+> 
+> Will block devices go through the page cache in 2.5.x?
+> 
+> I had hoped they would, that any block devices would just be
+> page-cache views of underlying character devices, thus allowing us to
+> remove the buffer-cache and the /dev/raw stuff.
 
-Glibc includes a copy of the kernel headers it wants to get the kernel side
-ABI structures not to export them to user space. Thats quite different and
-attempting to maintain that seperately as well will just lead to an ever
-increasing number of stupid ABI coping errors and weird bugs.
+<orcale>
+Block devices will go through the page cache in 2.5.  It will take a
+while for the buffer cache to go away completely, but it is there for
+the code paths that haven't been updated.  Buffer heads will stay.
 
-The kernel headers define syscall interfaces for the libraries. They don't
-define user app interfaces. Two different things and we need __KERNEL__ to make
-the former (sane) use work
+The /dev/raw stuff is for those users that don't want to the kernel to
+cache their data and will continue to exist in some form.
+</oracle>
 
+I can't see how any device that doesn't support read or writing just a
+byte can be a character device.
+
+Eric

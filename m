@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277918AbRKSKpZ>; Mon, 19 Nov 2001 05:45:25 -0500
+	id <S277713AbRKSKwQ>; Mon, 19 Nov 2001 05:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277738AbRKSKpP>; Mon, 19 Nov 2001 05:45:15 -0500
-Received: from ns.roland.net ([65.112.177.35]:10762 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S277653AbRKSKpB>;
-	Mon, 19 Nov 2001 05:45:01 -0500
-Message-ID: <001e01c170e7$d2056610$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "David Rundle" <davekern@ihug.co.nz>,
-        "kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BF8DDDC.DD060034@ihug.co.nz>
-Subject: Re: lost all files
-Date: Mon, 19 Nov 2001 04:49:08 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S277738AbRKSKwG>; Mon, 19 Nov 2001 05:52:06 -0500
+Received: from mta.sara.nl ([145.100.16.144]:15255 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S277713AbRKSKv4> convert rfc822-to-8bit;
+	Mon, 19 Nov 2001 05:51:56 -0500
+Message-Id: <200111191051.LAA04099@zhadum.sara.nl>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Swap 
+In-Reply-To: Message from James A Sutherland <jas88@cam.ac.uk> 
+   of "Mon, 19 Nov 2001 09:18:11 GMT." <E165kZ4-0005I4-00@mauve.csi.cam.ac.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 19 Nov 2001 11:51:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sure I'm preaching to the converted but there is this little word called
-BACKUP.  :-P
 
-What NVidia card do you have?  Have you tried going to the NVidia website to
-get drivers and/or driver source?
+--8<--
+
+> Except that openoffice and mozilla can be swapped out in BOTH cases: the 
+> kernel can discard mapped pages and reread as needed, whether you have a swap 
+> partition or not.
+>
+No they can't without swap, nothing can be SWAPPED out. The code pages can be 
+paged out (discarded), but no SWAPPING takes place.
+ 
+
+> Whereas without swapspace, only the read-only mapped pages can be swapped out.
+
+Again, pages do not gat swapped out, only applications can get swapped out. 
+Swapping is per definition the process of removing all pages used by one 
+application from RAM, and moving ALL pages to swap.
 
 
------ Original Message -----
-From: "David Rundle" <davekern@ihug.co.nz>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Sent: Monday, November 19, 2001 4:24 AM
-Subject: lost all files
+> Provided the VM is doing its job properly, adding swap will always be a net 
+> win for efficiency: the kernel is able to dump unused pages to make more room 
+> for others. Of course, you tend to "feel" the response times to interactive 
+> events, rather than the overall throughput, so a change which slows the 
+> system down but makes it more "responsive" to mouse clicks etc feels like a 
+> net win...
+> 
+> 
+> James.
+
+With any properly sized system, it will NEVER SWAP. Paging is a completely 
+different thing. A little paging is not a problem. Up to 70 pagescans/s on 
+occasion is quite acceptable. If paging activety grows above that, you may 
+have a real problem. I don't know about the current VM, but with most unixes 
+when you hit this mark, the system actually starts swapping, and your 
+responsiveness goes down the drain....
 
 
-> help i have just lost all my linux work :(
->
-> i had all my nvidia work now none
->
-> if any one has nvidia prog files  or docs !!PLAES! can you send them
->
-> i all so lost my nvidia driver i was building
->
-> I REALY NEED THEES ONES !!!
-> nvlinux.x86.gcc.zip
-> nvosdk.zip
-> nvsdk.zip
->
-> thank you
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
 

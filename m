@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277408AbRJEPY1>; Fri, 5 Oct 2001 11:24:27 -0400
+	id <S277411AbRJEPZ1>; Fri, 5 Oct 2001 11:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277411AbRJEPYR>; Fri, 5 Oct 2001 11:24:17 -0400
-Received: from IP-213157001138.dialin.heagmedianet.de ([213.157.1.138]:15366
-	"EHLO gateway.me") by vger.kernel.org with ESMTP id <S277408AbRJEPYD>;
-	Fri, 5 Oct 2001 11:24:03 -0400
-Message-ID: <3BBDD0BA.94E53586@frontsite.de>
-Date: Fri, 05 Oct 2001 17:24:42 +0200
-From: Matthias Welwarsky <matthias.welwarsky@frontsite.de>
-Reply-To: matze@stud.fbi.fh-darmstadt.de
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-rt i686)
-X-Accept-Language: en
+	id <S277413AbRJEPZI>; Fri, 5 Oct 2001 11:25:08 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60468 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277414AbRJEPYu>; Fri, 5 Oct 2001 11:24:50 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Mike Kravetz <kravetz@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+In-Reply-To: <Pine.LNX.4.33.0110041647130.975-100000@penguin.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Oct 2001 09:15:37 -0600
+In-Reply-To: <Pine.LNX.4.33.0110041647130.975-100000@penguin.transmeta.com>
+Message-ID: <m1adz6yv6u.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem understanding cap_emulate_setxuid()
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-I'm having certain difficulties to understand how cap_emulate_setxuid()
-in kernel/sys.c is supposed to work. I have a program that needs
-CAP_SYS_NICE in order to create realtime threads.
+> On Thu, 4 Oct 2001, Mike Kravetz wrote:
+> 
+> > On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
+> > > Could we try to hit just two? Probably, but it doesn't really matter,
+> > > though: to make the lmbench scheduler benchmark go at full speed, you
+> > > want to limit it to _one_ CPU, which is not sensible in real-life
+> > > situations.
+> >
+> > Can you clarify?  I agree that tuning the system for the best LMbench
+> > performance is not a good thing to do!  However, in general on an
+> > 8 CPU system with only 2 'active' tasks I would think limiting the
+> > tasks to 2 CPUs would be desirable for cache effects.
+> 
+> Yes, limiting to 2 CPU's probably gets better cache behaviour, and it
+> might be worth looking into why it doesn't. The CPU affinity _should_
+> prioritize it down to two, but I haven't thought through your theory about
+> IPI latency.
 
-For security reasons, I don't want the program to run as the root user.
-So, I initially start the program setuid-root, then set CAP_SYS_NICE,
-then drop root privileges. In pseudo-C, the program looks like this:
+I don't know what it is but I have seen this excessive cpu switching
+in the wild.  In particular on a dual processor machine I ran 2 cpu
+intensive jobs, and a handful of daemons.  And the cpu intensive jobs
+would switch cpus every couple of seconds.  
 
-prctl(PR_SET_KEEPCAPS, 1);
-cap_set(CAP_SYS_NICE);
-seteuid(getuid());
+I was investigating it because on the Athlon I was running on a
+customer was getting a super linear speed up.  With one processes it
+would take 8 minutes, and with 2 processes one would take 8 minutes
+and the other would take 6 minutes.  Very strange.  
 
-However, from looking at cap_emulate_setxuid() I learned that when
-switching the effective uid != 0, current->cap_effective is cleared,
-regardless the settings of current->keep_capabilities. Huh? How is this
-supposed to work at all? It at least seems to be a little impractical.
+These processes except at their very beginning did no I/O and were
+pure cpu hogs until they spit out their results.  Very puzzling.
+I can't see why we would ever want to take the cache miss penalty of
+switching cpus, in this case.
 
-When a program is started setuid-root, getuid() == real_user_id and
-geteuid() == 0. So, how would I drop root privileges without switching
-the effective user id away from 0? Is this a bug in
-cap_emulate_setxuid() or am I missing something?
-
-It seems that with the current implementation, cap_effective ==
-cap_permitted is only true when the effective uid == 0? However, to
-minimize security implications, I'd like the process to run with
-real_uid == effective_uid so that e.g. plugins cannot switch the
-effective uid back to 0 and do funny things on root-owned files.
-Shouldn't this be possible with capabilities?
-
-best regards,
-    Matthias
-
---
-Matthias Welwarsky
-Fachschaft Informatik FH Darmstadt
-Email: matze@stud.fbi.fh-darmstadt.de
-
-"I bet the human brain is a kludge."
-                -- Marvin Minsky
+Eric

@@ -1,72 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271399AbRIJRUy>; Mon, 10 Sep 2001 13:20:54 -0400
+	id <S271431AbRIJR1Y>; Mon, 10 Sep 2001 13:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271401AbRIJRUo>; Mon, 10 Sep 2001 13:20:44 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:47605 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S271399AbRIJRUc>;
-	Mon, 10 Sep 2001 13:20:32 -0400
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S271467AbRIJR1P>; Mon, 10 Sep 2001 13:27:15 -0400
+Received: from ns1.openratings.com ([64.55.77.195]:26867 "EHLO
+	exchange.hq.openratings.com") by vger.kernel.org with ESMTP
+	id <S271431AbRIJR04>; Mon, 10 Sep 2001 13:26:56 -0400
+Message-ID: <4A46E75D51A2D5119F2A00B0D03D7F09018D@exchange.hq.openratings.com>
+From: Paul Hamm <paulhamm@OpenRatings.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Panic: Aiee, Killing Interupt Handler, Process kpnpbios
+Date: Mon, 10 Sep 2001 13:27:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15260.63089.955454.709358@napali.hpl.hp.com>
-Date: Mon, 10 Sep 2001 10:20:49 -0700
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-In-Reply-To: <20010908191108.B11329@athlon.random>
-In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
-	<20010907021900.L11329@athlon.random>
-	<15256.6038.599811.557582@napali.hpl.hp.com>
-	<20010907032801.N11329@athlon.random>
-	<15256.22858.57091.769101@napali.hpl.hp.com>
-	<20010907152858.O11329@athlon.random>
-	<15256.59715.523045.796917@napali.hpl.hp.com>
-	<20010908191108.B11329@athlon.random>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 8 Sep 2001 19:11:08 +0200, Andrea Arcangeli <andrea@suse.de> said:
+PC hard crashes with a GPF 0000.  Leaves no log on the error.
 
-  Andrea> On Fri, Sep 07, 2001 at 08:35:31AM -0700, David Mosberger
-  Andrea> wrote:
-  >> Also, other signals will still wake up the task.  Yes, it won't
-  >> get very far as do_signal() will notify the parent instead, but
-  >> still, the task will run and that could be enough to create some
-  >> race condition.
+Default RedHat roswell install
+PC is a Dell GX110 w/ i810 chipset integrated audio/video/networking with 1
+additional 3com 3c905b installed
 
-  Andrea> this is the real issue, agreed.
+>more /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 730.971
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mm
+x fxsr sse
+bogomips        : 1458.17
 
-Good.
+>more /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  128176128 120569856  7606272    28672  6221824 35848192
+Swap: 534601728 21389312 513212416
+MemTotal:       125172 kB
+MemFree:          7428 kB
+MemShared:          28 kB
+Buffers:          6076 kB
+Cached:          18084 kB
+SwapCached:      16924 kB
+Active:          11552 kB
+Inact_dirty:     28640 kB
+Inact_clean:       920 kB
+Inact_target:    32428 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       125172 kB
+LowFree:          7428 kB
+SwapTotal:      522072 kB
+SwapFree:       501184 kB
+NrSwapPages:    125296 pages
 
-  Andrea> However still I don't like the cpus_allowed racy approch. I
-  Andrea> either prefer to force the deschedule with a new ptrace
-  Andrea> bitflag with new hooks in the scheduler or with a blocker
-  Andrea> (delayer) to the signals again with a new ptrace bitflag but
-  Andrea> in this case with hooks in the signal code. I think putting
-  Andrea> the hooks in the signal code is better.
+>uname -a
+Linux xxxxx 2.4.6-3.1 #1 Tue Jul 24 14:54:56 EDT 2001 i686 unknown
 
-Yes, though I don't really see how you could do this without any
-change to the scheduler.
+The complete screen of the error is below, there is one error in the second
+block of the STACK info.  Had to hand write it and did not notice until I
+typed it out.
 
-  Andrea> BTW, checking this stuff I found two bugs, one is the check
-  Andrea> for cpus_allowed before calling reschedule_idle, such check
-  Andrea> has to be removed, then it also seems the signals seems to
-  Andrea> wakeup the task two times unless I've overlooked something.
+General Protection Fault 0000
+CPU: 0
+EIP: 0010:[<c01d2acd>]
+EFLAGS: 00010282
+EAX:00000006	EBX: c4b9392c	ECX: 00000006	EDX: 000000d8
+ESI: c1847012	EDI: c4100c68	EBP: c1847012	ESP: c7e912e50
+DS: 0018	ES: 0078	SS: 0018
+Process kpnpbios (PID: 2, STACKPAGE=c7e9f000)
+STACK:	c4b9392c	04000001	c4100c00	000000e6
+c8883265	c4b9392c	c4100c00	0000001f
+	000080e6	0000ec00	00000015	c4100d40
+c3052000	00000800	c30527ff	00000246
+	c5eec794	04000001	00000005	0000e401
+c88829af	c4100c00	c4100c00	00000020
+CALL TRACE:	[<c8883265>]	[<88829af>]	[<c010851a>]	[<c0108698>]
+[<c0218eba>]  <<<<< (missing 1 digit on second block)
+	[<c0130078>]	[<cb680018>]	[<c01b3fef?]	[<c0116390>]
+[<c01b41f3>]
+	[<c0105000>]
 
-  Andrea> You may want to make a new patch at the light of those
-  Andrea> considerations otherwise I'll put this in my todo list once
-  Andrea> more important things are solved.
+	[<c01056e6>]	[<c01b4180>]
 
-Why don't you keep it on your todo list.  I too have a couple of other
-things I need to finish first so it will be a while before I'd get to
-this (not before November, I'd guess).  But I'll keep it in mind as
-well.
+Code	f3 a6 0f 92 c0 0f 97 c2 38 c2 0f 95 c0 fe c0 88 43 6a eb
 
-Thanks,
+<0> Kernel Panic: Aiee, Killing Interupt Handler
+	In Interupt Handler - Not Syncing
 
-	--david
+We disabled the integrated audio in bios.  Other than that is is a stock.
+The PC crashes about once a day with this error.  Let me know if there is
+anything else that is needed, as this is my first post.  Also no useful log
+data.  Just happily chugging along and the syslog restarting after a manual
+reset.  Yes it will be posted to RedHat.
+
+Paul Hamm
+Manager  Technical Services
+Open Ratings Inc
+617-582-5124
+www.openratings.com
+

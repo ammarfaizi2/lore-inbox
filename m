@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135892AbRD0LGy>; Fri, 27 Apr 2001 07:06:54 -0400
+	id <S135975AbRD0LKo>; Fri, 27 Apr 2001 07:10:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135828AbRD0LGo>; Fri, 27 Apr 2001 07:06:44 -0400
-Received: from [212.208.59.162] ([212.208.59.162]:35834 "EHLO zeus.nsi.fr")
-	by vger.kernel.org with ESMTP id <S135939AbRD0LG3>;
-	Fri, 27 Apr 2001 07:06:29 -0400
-Message-ID: <3AE949F6.B92F6CB1@nsi.fr>
-Date: Fri, 27 Apr 2001 12:29:10 +0200
-From: Eric Pennamen <Pennamen@nsi.fr>
-X-Mailer: Mozilla 4.75 [fr] (Win98; U)
-X-Accept-Language: fr
-MIME-Version: 1.0
-To: dave.fraser@baesystems.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Resetting a PCI device
-In-Reply-To: <001901c0ceff$c0ae88e0$64ccdd89@edinbr.gmav.gecm.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S136017AbRD0LKe>; Fri, 27 Apr 2001 07:10:34 -0400
+Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:753
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S135975AbRD0LK1>; Fri, 27 Apr 2001 07:10:27 -0400
+Subject: Re: 2.4 and 2GB swap partition limit
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <87elw8v2ay.fsf@mose.informatik.uni-tuebingen.de>
+In-Reply-To: <200103031114.MAA13672@cave.bitwizard.nl> 
+	<87elw8v2ay.fsf@mose.informatik.uni-tuebingen.de>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 27 Apr 2001 12:51:34 +0200
+Message-Id: <988368729.1406.2.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why don't do a local RESET by writing in CNTRL register of the PLX9080 ?
-(PLX datasheet page 79 bit 29 and 28 for reset and reload eeprom config)
+Le 08 Mar 2001 14:05:25 +0100, Goswin Brederlow a écrit :
 
-dave.fraser@baesystems.com a écrit :
+> I believe the 2xRAM rule comes from the OS's where ram was only buffer
+> for the swap. So with 1xRAM you had a running system with 1xRAM
+> memory, so nothing is gained by that much swap.
 
-> Is there any way of issuing a PCI reset (safely) without rebooting?  I am
-> developing a peripheral device (using a pci card with an FPGA and a plx9080
-> pci interface), and find that its local bus is prone to hanging up.  It
-> would be nice if I could just reset the entire device via the PCI reset,
-> without having to go through the hassle of a reboot.  Is this wishful
-> thinking?
->
-> - Dave
->
-> ---------------------------------------------------------------------
->  Dave Fraser
->  Development Engineer
->  BAE Systems, Ferry Road,
->  Edinburgh, EH5 2XS
->  Tel: +44 131 3434729
->  Fax: +44 131 3434124
-> ---------------------------------------------------------------------
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I think kernels 2.4.x came back to this behavior.
+ 
+> On Linux any swap adds to the memory pool, so 1xRAM would be
+> equivalent to 2xRAM with the old old OS's.
 
---
-__________________________________
+no more true AFAIK
 
-Eric PENNAMEN
-Service Etudes, R&D
-
-NSI
-Parc des Glaisins
-6, avenue du Pré de Challes
-BP 350
-F-74943 ANNECY LE VIEUX Cedex
-
-Téléphone   + 33 (0)4 50 09 46 30
-Télécopie   + 33 (0)4 50 09 46 31
-
-E-Mail :  Pennamen@nsi.fr
-Internet : http://www.nsi.fr
-
+Xav
 

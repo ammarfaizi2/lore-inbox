@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267349AbUHIX0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267347AbUHJAAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267349AbUHIX0d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 19:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267348AbUHIX0d
+	id S267347AbUHJAAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 20:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUHJAAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 19:26:33 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:57016 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S267349AbUHIXZ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 19:25:27 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
-Date: Mon, 9 Aug 2004 16:25:01 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <cone.1092092365.461905.29067.502@pc.kolivas.org>
-Message-ID: <Pine.LNX.4.60.0408091624310.5013@dlang.diginsite.com>
-References: <1092082920.5761.266.camel@cube> <cone.1092092365.461905.29067.502@pc.kolivas.org>
+	Mon, 9 Aug 2004 20:00:09 -0400
+Received: from pat.qlogic.com ([198.70.193.2]:61003 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S267347AbUHJAAB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 20:00:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C47E6C.811F4276"
+Subject: RE: 2.6.8-rc3-mm2:  Debug: sleeping function called from invalid context at mm/mempool.c:197
+Date: Mon, 9 Aug 2004 16:56:36 -0700
+Message-ID: <B179AE41C1147041AA1121F44614F0B0DD03A6@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.8-rc3-mm2:  Debug: sleeping function called from invalid context at mm/mempool.c:197
+thread-index: AcR+bPD04M+Nx9g3RHGa8CxT+CnamQ==
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: "Janet Morgan" <janetmor@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Cc: <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 09 Aug 2004 23:54:04.0562 (UTC) FILETIME=[26CAF720:01C47E6C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have burned one coaster in the last year with CDrecord (running as root) 
-so it's still possible, it's just very rare.
+This is a multi-part message in MIME format.
 
-David Lang
+------_=_NextPart_001_01C47E6C.811F4276
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 10 Aug 2004, Con Kolivas wrote:
-
-> Date: Tue, 10 Aug 2004 08:59:25 +1000
-> From: Con Kolivas <kernel@kolivas.org>
-> To: Albert Cahalan <albert@users.sourceforge.net>
-> Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
->     alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
->     schilling@fokus.fraunhofer.de, axboe@suse.de
-> Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-> 
-> Albert Cahalan writes:
->
->
->> Joerg:
->>    "WARNING: Cannot do mlockall(2).\n"
->>    "WARNING: This causes a high risk for buffer underruns.\n"
->> Fixed:
->>    "Warning: You don't have permission to lock memory.\n"
->>    "         If the computer is not idle, the CD may be ruined.\n"
->> 
->> Joerg:
->>    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
->>    "WARNING: This causes a high risk for buffer underruns.\n"
->> Fixed:
->>    "Warning: You don't have permission to hog the CPU.\n"
->>    "         If the computer is not idle, the CD may be ruined.\n"
->
-> Huh? That can't be right. Every cd burner this side of the 21st century has 
-> buffer underrun protection. I've burnt cds _while_ capturing and encoding 
-> video using truckloads of cpu and I/O without superuser privileges, had all 
-> the cdrecord warnings and didn't have a buffer underrun. Last time I gave 
-> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
-> rt_task safe.
->
-> Con
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Monday, August 09, 2004 6:42 AM, linux-kernel-owner@vger.kernel.org
+wrote:=20
+> I see the msg below while running on 2.6.8-rc3-mm2, but not
+> on the plain
+> rc3 tree;
+> ditto for rc1-mm1 vs rc1, which is as far back as I've gone so far.
 >
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+This allocation should be done with GFP_ATOMIC flags.  The attached=20
+patch should apply cleanly to any recent kernel.
+
+Regards,
+Andrew Vasquez
+
+------_=_NextPart_001_01C47E6C.811F4276
+Content-Type: application/octet-stream;
+	name="mpool_alloc.diff"
+Content-Transfer-Encoding: base64
+Content-Description: mpool_alloc.diff
+Content-Disposition: attachment;
+	filename="mpool_alloc.diff"
+
+PT09PT0gZHJpdmVycy9zY3NpL3FsYTJ4eHgvcWxhX29zLmMgMS4zOSB2cyBlZGl0ZWQgPT09PT0K
+LS0tIDEuMzkvZHJpdmVycy9zY3NpL3FsYTJ4eHgvcWxhX29zLmMJMjAwNC0wNy0xMiAwOTo1NDo0
+OSAtMDc6MDAKKysrIGVkaXRlZC9kcml2ZXJzL3Njc2kvcWxhMnh4eC9xbGFfb3MuYwkyMDA0LTA4
+LTA5IDE2OjQ4OjI5IC0wNzowMApAQCAtMzU5MCw3ICszNTkwLDcgQEAKIHsKIAlzcmJfdCAqc3A7
+CiAKLQlzcCA9IG1lbXBvb2xfYWxsb2MoaGEtPnNyYl9tZW1wb29sLCBHRlBfS0VSTkVMKTsKKwlz
+cCA9IG1lbXBvb2xfYWxsb2MoaGEtPnNyYl9tZW1wb29sLCBHRlBfQVRPTUlDKTsKIAlpZiAoc3Ap
+CiAJCWF0b21pY19zZXQoJnNwLT5yZWZfY291bnQsIDEpOwogCXJldHVybiAoc3ApOwo=
+
+------_=_NextPart_001_01C47E6C.811F4276--

@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUEHWyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264242AbUEHW7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUEHWyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 18:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbUEHWyH
+	id S264242AbUEHW7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 18:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUEHW7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 18:54:07 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29110 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264225AbUEHWyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 18:54:02 -0400
-Date: Sun, 9 May 2004 00:54:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Message-ID: <20040508225401.GF29255@atrey.karlin.mff.cuni.cz>
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz> <200405042018.23043.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405042018.23043.rob@landley.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 8 May 2004 18:59:15 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:24808 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264242AbUEHW7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 18:59:13 -0400
+Date: Sat, 8 May 2004 23:59:00 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rmap 24 pte_young first
+In-Reply-To: <20040508234529.B20560@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0405082350420.26698-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I'm one of the people for whom Patrick's suspend worked and yours didn't.  Now 
-> I've been busy with other things for a couple months (Penguicon 2.0 went 
-> quite well, by the way), and there's talk of yanking Patrick's suspend code 
-> from the kernel.  Right, so I've got to deal with this.  I can't say I'm 
-> thrilled, but I DO want to continue to be able to suspend my laptop.
+On Sat, 8 May 2004, Russell King wrote:
+> On Sat, May 08, 2004 at 11:39:32PM +0100, Hugh Dickins wrote:
+> > On Sat, 8 May 2004, Christoph Hellwig wrote:
+> > > 
+> > > stupid question - shouldn't the pte_young check simply move to
+> > > the beginning of ptep_test_and_clear_young?
+> > 
+> > I don't think that would be a good idea.  We're used to those
+> > test_and_clear operations being atomic, putting an initial non-atomic
+> > test inside would make it fundamentally non-atomic.  We know here that
+> > it's not the end of the world if we miss a racing transition of the
+> > young bit, but it wouldn't be good to hide and force that on others.
 > 
-> What kind of debug info do I need to report to get your suspend code fixed, 
-> and who do I need to report it to?
+> EAGAIN.
 > 
-> I just tested 2.6.5, which went "boing" trying to suspend with some kind of 
-> debug message that gave me a hex number (not a panic, but I didn't have a pen 
-> handy, I can try again and write it down if you like.  Anything else I should 
-> do?)
+> include/asm-generic/pgtable.h:
+> 
+> #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+> static inline int ptep_test_and_clear_young(pte_t *ptep)
+> {
+>         pte_t pte = *ptep;
+>         if (!pte_young(pte))
+>                 return 0;
+>         set_pte(ptep, pte_mkold(pte));
+>         return 1;
+> }
+> #endif
 
-Try it with minimal drivers from signle user mode...
+Hah!  Delightful refutation of my little lecture.  Thanks a lot for
+turning that up.  Hmm.  Well, I guess I need to research that one
+further: a first guess would be that the generic variety is silly
+to be doing an optimization which the specialist versions don't do:
+but perhaps when I look I'll find some of them do.  Can scrub that
+patch for now if you prefer, Andrew: world won't stop turning either way.
 
-> I asked Nigel a few months ago, and he pointed me to an enormous flag day 
-> patch that will probably be integrated into the kernel when hell freezes 
-> over.  (I have no idea why it's so intrusive, by the way.  Isn't half the 
-> point of sysfs and the new 2.6 device infrastructure that finding all the 
-> devices that need to be shut up doesn't require the kind of insanity doing it 
-> under 2.4 did?
+Hugh
 
-Nigel's refrigerator is way more elaborate and very intrusive, but he
-seems to work *always*. Original refrigerator (shared by swsusp and
-pmdisk) only tries a bit and eventually gives up if stopping system is
-too hard. Hopefully Nigel's code can be simplified.
-
-> I read the docs and read through your code a bit, and every screenful or so it 
-> says "this code is guaranteed to eat your data if you look at it funny".  
-> I've been using Patrick's suspend code for something like eight months now, 
-> and it never ate any of my data.  Failed to resume a few times, but no worse 
-> than sync followed by yanking the power cord, fsck did its thing and life 
-> went on.  (Yes, I back up regularly.  But I've gotten the distinct impression 
-> that you have no faith whatsoever in your own work, and reinstalling and 
-> restoring from backups is a real pain, especially when you're on the
-> road.)
-
-It did not eat *my* data in last eight months.
-
-If patrick does not warn you, its his problem. If you suspend, mount
-your filesytems, do some work and then resume, you are probably going
-to do some pretty nasty corruption. Just don't do that.
-
-But this problem is shared by swsusp, swsusp2 *and* pmdisk.
-
-> Sigh.  I _really_ don't have time for this right now.  I wonder if it would be 
-> possible to just send Patrick some money?
-
-He's out of time, so money is not likely to help. Sending some money
-to Nigel might do the trick ;-).
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

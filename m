@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbSJOQHW>; Tue, 15 Oct 2002 12:07:22 -0400
+	id <S264679AbSJOQOr>; Tue, 15 Oct 2002 12:14:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263302AbSJOQHW>; Tue, 15 Oct 2002 12:07:22 -0400
-Received: from f31.pav1.hotmail.com ([64.4.31.31]:49675 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S263249AbSJOQHU>;
-	Tue, 15 Oct 2002 12:07:20 -0400
-X-Originating-IP: [63.229.167.10]
-From: "Anthony Martinez" <i_am_pi_@hotmail.com>
-To: jbradford@dial.pipex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD PCNet adapter
-Date: Tue, 15 Oct 2002 10:13:10 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F31nZS08i7M4BAyxJMX000029d5@hotmail.com>
-X-OriginalArrivalTime: 15 Oct 2002 16:13:10.0617 (UTC) FILETIME=[C177D490:01C27465]
+	id <S264677AbSJOQOr>; Tue, 15 Oct 2002 12:14:47 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:46211 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264679AbSJOQOq> convert rfc822-to-8bit; Tue, 15 Oct 2002 12:14:46 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Use of yield() in the kernel
+Date: Tue, 15 Oct 2002 18:20:24 +0200
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Duncan Sands <baldrick@wanadoo.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210151820.24429.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Duncan,
 
-
-
->From: jbradford@dial.pipex.com
->To: i_am_pi_@hotmail.com (Anthony Martinez)
->Subject: Re: AMD PCNet adapter
->Date: Tue, 15 Oct 2002 16:58:28 +0100 (BST)
+> The semantics of sched_yield() changed in the 2.5 kernel.
+> In the 2.4 series it meant "sleep a little".
+> The new 2.5 semantics are correct (move to the end of the
+> run queue) but can mean "sleep a lot" under load.
 >
-> > Hello
-> > Are there modem drivers available for an AMD PCNet adapter, chip 
->AM79C978XC,
-> > or is this even the right place to ask?
-> >
-> > This card has both ethernet and modem ports, and works with the windoze
-> > drivers.
-> >
-> > I saw some discussion about an AM79C973 in the archives, but that was an
-> > ethernet card.
+> This already bit ext3 transaction batching, c.f. Andrew Morton's
 >
->What _is_ a PCNet adaptor???
+>> [PATCH] remove the sched_yield from the ext3 fsync path
+where did you read this ^^? :)
 
-This card has modem and ethernet ports. Since we're not going to be 
-connecting this box via ethernet, i need modem drivers for the thing (either 
-that or a real modem that works, but you can't help with that :))
-
->
->AM79C978 is an Ethernet chipset as far as I know, and it is supported
->by Linux, via the pcnet32.c driver.
->
->John.
-Pi
-
-PS: I found some drivers sitting around on AMD's webpage, i'll compile them 
-when I get home, or take a modem that's sitting around here.
-
-
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
-
+ciao, Marc

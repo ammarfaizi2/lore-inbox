@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272462AbTGaL4d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 07:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272997AbTGaL4d
+	id S272465AbTGaMF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 08:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272467AbTGaMF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 07:56:33 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:42231 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272462AbTGaL4c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 07:56:32 -0400
-Subject: Re: Emulating i486 on i386 (was: TSCs are a no-no on i386)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030731113838.GU1873@lug-owl.de>
-References: <20030730135623.GA1873@lug-owl.de>
-	 <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com>
-	 <20030730184529.GE21734@fs.tum.de>
-	 <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
-	 <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de>
-	 <20030731062252.GM1873@lug-owl.de>
-	 <20030731071719.GA26249@alpha.home.local>
-	 <20030731113838.GU1873@lug-owl.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 31 Jul 2003 08:05:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:42917 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S272465AbTGaMFW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 08:05:22 -0400
+Date: Thu, 31 Jul 2003 14:05:12 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lou Langholtz <ldl@aros.net>
+Cc: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2+ext3+dbench=Buffer I/O error
+Message-ID: <20030731120512.GQ22104@suse.de>
+References: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de> <20030730150902.5281f72c.akpm@osdl.org> <3F284CE6.6080701@aros.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Jul 2003 12:51:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F284CE6.6080701@aros.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-07-31 at 12:38, Jan-Benedict Glaw wrote:
-> Thanks for that. In the meantime, I've started to give a try to the
-> userspace version (using a LD_PRELOAD lib). My current Problem:
+On Wed, Jul 30 2003, Lou Langholtz wrote:
+> Andrew Morton wrote:
 > 
-> amtus:~/sigill_catcher# LD_PRELOAD=./libsigill.so ls
-> sigill.c:_init():69: sigill started, sigaction() = 0
-> build.sh  intercept.h  libsigill.so  run.sh  sigill.c  sigill.o
-> amtus:~/sigill_catcher# LD_PRELOAD=./libsigill.so apt-get update
-> Illegal instruction
-> 
-> See? It's loaded at the "ls" call, but it seems to be not loaded for
-> apt-get.
+> >Mike Galbraith <efault@gmx.de> wrote:
+> > 
+> >
+> >>Greetings,
+> >>
+> >>While trying to duplicate Randy Hron's "dbench has intermittent hang on 
+> >>2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
+> >>/dev/hda8, logical block N" messages.  (changing elevators makes no 
+> >>difference fwiw).
+> >>   
+> >>
+> >
+> >That's just a gremlinlet.  You can delete the offending printk for now.
+> >
+> > 
+> >
+> >>I went back to test1, and it spat up a couple of "buffer 
+> >>layer error" messages and associated traces.   Attempting to umount 
+> >>afterward to run fsck left umount in D state.  See attachment.
+> >>   
+> >>
+> >
+> >Well that's a worry.  Is it repeatable? . . .
+> >
+> Any chance this problem is a consequence of not yet having Sean 
+> Estabrooks partial bvec patch in this person's kernel??? 
+> <http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0861.html>. Jens 
+> said he applied it on 2003/7/27 so it doesn't seem like this could have 
+> made it into 2.6.0-test1-ac2.
 
-Remember you need to overload signal setting functions like sigaction.
-My guess is apt decided to disable your signal and you didnt stop it
+no not unless Mike is using taskfile + pio, and even then I've never
+heard of it triggering.
+
+-- 
+Jens Axboe
 

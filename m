@@ -1,67 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263462AbTCNTPo>; Fri, 14 Mar 2003 14:15:44 -0500
+	id <S263461AbTCNTRP>; Fri, 14 Mar 2003 14:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263447AbTCNTPo>; Fri, 14 Mar 2003 14:15:44 -0500
-Received: from mx01.nexgo.de ([151.189.8.96]:28895 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id <S263462AbTCNTPn>;
-	Fri, 14 Mar 2003 14:15:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <bzzz@tmi.comex.ru>
-Subject: Re: [Ext2-devel] Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-Date: Fri, 14 Mar 2003 20:30:23 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-References: <m3el5bmyrf.fsf@lexa.home.net> <m3of4fgjob.fsf@lexa.home.net> <20030313165641.H12806@schatzie.adilger.int>
-In-Reply-To: <20030313165641.H12806@schatzie.adilger.int>
+	id <S263463AbTCNTRP>; Fri, 14 Mar 2003 14:17:15 -0500
+Received: from ponyexpress1.seisint.com ([209.243.55.188]:18436 "EHLO
+	PONYEXPRESS.Seisint.com") by vger.kernel.org with ESMTP
+	id <S263461AbTCNTRK> convert rfc822-to-8bit; Fri, 14 Mar 2003 14:17:10 -0500
+Message-ID: <9B50B310A51FB74FA053703945DB7400099D3B3C@ponyexpress.seisint.com>
+From: "Villanustre, Flavio" <FVillanustre@seisint.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.4.20 oops report 642911
+Date: Fri, 14 Mar 2003 14:27:09 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030314192631.8935342AF9@mx01.nexgo.de>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 14 Mar 03 00:56, Andreas Dilger wrote:
-> There was a desire to keep ext2 small and simple, and ext3 would get the
-> fancy high-end features that make sense if you have a large filesystem
-> that you would likely be using in conjunction with ext3 anyways.
->
-> It does make sense to test this out on ext2 since it is definitely easier
-> to code for ext2 than ext3, and the journaling doesn't skew the performance
-> so much.  Of course one of the reasons that ext2 is easier to code for is
-> exactly _because_ we don't put all of the features into ext2...
->
-> Comments on the code inline below...
 
-Ext3 is getting to the point, or has already gotten to the point, where it's 
-so reliable that it's reasonable to call it Linux's new native filesystem. At 
-this point, Ext2 can become more of a crucible for new techniques, hopefully, 
-techniques that simplify things, shorten up data paths, clarify the code, 
-make it more parallel and so on.  For example, I can't help thinking that's 
-there's some fundamental improvement possible to the truncate path (hmm, I 
-wonder if I'm giving Alex new ideas...) and that proving such a thing out in 
-Ext2 first would make a whole lot of sense.
+I got an Oops message in kernel 2.4.20 this morning. The server is a brand
+new Pentium III single processor Dell Blade 1655MC server, with 2GB of RAM
+and SCSI hard drives. There are two 512 MB swap partitions allocated (one
+per hard drive) and mounted.
 
-I do intend to pick up the Ext2 HTree patch again in due course and attempt 
-some simplification of it, as well as working on the outstanding 
-optimizations, i.e., improved inode allocation and delete coalescing.  HTree 
-is an example of a feature that adds a few K of code, but in my opinion it's 
-worth it in order to match up better with the Ext3 feature set.  Besides, 
-Ext2 is still quite attractive as a host filesystem for NFS export, and would 
-be still more attractive with the directory index.
+The application (thorslave) apparently was trying to allocate memory, and
+instead of getting some out_of_memory condition, the kernel triggered an
+Oops.
 
-(By the way, on the HTree simplification front, there's a whole lot of 
-forward declaration cruft that can go away as soon as CONFIG_EXT3_INDEX
-is declared to be always on.)
+The ksymoops results follow.
 
-So anyway, the point you were making and that I agree with, is that Ext2 is
-growing into the role of experimental filesystem; Ext3 is now the stable 
-filesystem.  Hopefully, the experiments will make Ext2 smaller, cleaner and 
-at the same time, more powerful, over time.  Sort of like the role that RAMFS 
-plays: besides being useful, Ext2 should be thought of as a showcase for best 
-filesystem coding practices.
+Can anybody provide some light to it? Is there any known bug in kernel
+2.4.20 related to this Oops that got fixed in the 2.4.21pre versions?
 
-Regards,
+Thank you,
 
-Daniel
+Flavio Villanustre
+
+
+[root@MommaBlade root]# ksymoops -v /usr/src/linux-2.4.20/vmlinux -K -L -O
+-m /u
+sr/src/linux-2.4.20/System.map < /thor/19_142.txt
+ksymoops 2.4.4 on i686 2.4.20.  Options used
+     -v /usr/src/linux-2.4.20/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /usr/src/linux-2.4.20/System.map (specified)
+ 
+Unable to handle kernel paging request at virtual address 071ac774
+c01214fc
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01214fc>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 071ac774   ebx: f5ac2864   ecx: f5ac2864   edx: 000000c2
+esi: 0004212c   edi: 000000c2   ebp: 071ac774   esp: dc33be60
+ds: 0018   es: 0018   ss: 0018
+Process thorslave (pid: 14960, stackpage=dc33b000)
+Stack: c01226dc f5ac2864 000000c2 071ac774 0004212c f5aa63c0 f5ac2864
+c1c5c3a0
+       c1000020 c011ee53 00000001 00000001 420c2d50 c0122620 f5ac2820
+f39f3320
+       c011eec1 f39f3320 420c2000 00000000 420c2d50 00000000 f5ac2820
+f39f3320
+Call Trace:    [<c01226dc>] [<c011ee53>] [<c0122620>] [<c011eec1>]
+[<c011f078>]
+  [<c011009a>] [<c012206c>] [<c0121f20>] [<c012e6f2>] [<c012e5fc>]
+[<c010ff20>]
+  [<c0108a04>]
+Code: 8b 00 eb 03 8b 40 10 85 c0 74 0a 39 48 08 75 f4 39 50 0c 75
+ 
+>>EIP; c01214fc <__find_get_page+c/30>   <=====
+Trace; c01226dc <filemap_nopage+bc/210>
+Trace; c011ee53 <do_anonymous_page+d3/f0>
+Trace; c0122620 <filemap_nopage+0/210>
+Trace; c011eec1 <do_no_page+51/1b0>
+Trace; c011f078 <handle_mm_fault+58/c0>
+Trace; c011009a <do_page_fault+17a/4ab>
+Trace; c012206c <generic_file_read+7c/110>
+Trace; c0121f20 <file_read_actor+0/d0>
+Trace; c012e6f2 <sys_read+e2/f0>
+Trace; c012e5fc <sys_llseek+cc/e0>
+Trace; c010ff20 <do_page_fault+0/4ab>
+Trace; c0108a04 <error_code+34/3c>
+Code;  c01214fc <__find_get_page+c/30>
+00000000 <_EIP>:
+Code;  c01214fc <__find_get_page+c/30>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  c01214fe <__find_get_page+e/30>
+   2:   eb 03                     jmp    7 <_EIP+0x7> c0121503
+<__find_get_page+
+13/30>
+Code;  c0121500 <__find_get_page+10/30>
+   4:   8b 40 10                  mov    0x10(%eax),%eax
+Code;  c0121503 <__find_get_page+13/30>
+   7:   85 c0                     test   %eax,%eax
+Code;  c0121505 <__find_get_page+15/30>
+   9:   74 0a                     je     15 <_EIP+0x15> c0121511
+<__find_get_pag
+e+21/30>
+Code;  c0121507 <__find_get_page+17/30>
+   b:   39 48 08                  cmp    %ecx,0x8(%eax)
+Code;  c012150a <__find_get_page+1a/30>
+   e:   75 f4                     jne    4 <_EIP+0x4> c0121500
+<__find_get_page+
+10/30>
+Code;  c012150c <__find_get_page+1c/30>
+  10:   39 50 0c                  cmp    %edx,0xc(%eax)
+Code;  c012150f <__find_get_page+1f/30>
+  13:   75 00                     jne    15 <_EIP+0x15> c0121511
+<__find_get_pag
+e+21/30>
+ 
+ <1>Unable to handle kernel paging request at virtual address 0718ee50
+c01214fc
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01214fc>]    Not tainted
+EFLAGS: 00010292
+eax: 0718ee50   ebx: f58ebb64   ecx: f58ebb64   edx: 0000002d
+esi: 0004212c   edi: 0000002d   ebp: 0718ee50   esp: f3abfe60
+ds: 0018   es: 0018   ss: 0018
+Process klogd (pid: 128, stackpage=f3abf000)
+Stack: c01226dc f58ebb64 0000002d 0718ee50 0004212c f5aa63c0 f58ebb64
+f58e5c60
+       f2eba620 f3b5b0a0 7fffffff c01dd072 4202d5c4 c0122620 f5ac24a0
+f58f1ec0
+       c011eec1 f58f1ec0 4202d000 00000000 4202d5c4 00000000 f5ac24a0
+f58f1ec0
+Call Trace:    [<c01226dc>] [<c01dd072>] [<c0122620>] [<c011eec1>]
+[<c011f078>]
+  [<c01da5dc>] [<c011009a>] [<c01da7f7>] [<c012e7e2>] [<c0115402>]
+[<c010ff20>]
+  [<c0108a04>]
+Code: 8b 00 eb 03 8b 40 10 85 c0 74 0a 39 48 08 75 f4 39 50 0c 75
+ 
+>>EIP; c01214fc <__find_get_page+c/30>   <=====
+Trace; c01226dc <filemap_nopage+bc/210>
+Trace; c01dd072 <sock_def_readable+22/50>
+Trace; c0122620 <filemap_nopage+0/210>
+Trace; c011eec1 <do_no_page+51/1b0>
+Trace; c011f078 <handle_mm_fault+58/c0>
+Trace; c01da5dc <sock_sendmsg+6c/90>
+Trace; c011009a <do_page_fault+17a/4ab>
+Trace; c01da7f7 <sock_write+a7/c0>
+Trace; c012e7e2 <sys_write+e2/f0>
+Trace; c0115402 <sys_time+12/60>
+Trace; c010ff20 <do_page_fault+0/4ab>
+Trace; c0108a04 <error_code+34/3c>
+Code;  c01214fc <__find_get_page+c/30>
+00000000 <_EIP>:
+Code;  c01214fc <__find_get_page+c/30>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  c01214fe <__find_get_page+e/30>
+   2:   eb 03                     jmp    7 <_EIP+0x7> c0121503
+<__find_get_page+
+13/30>
+Code;  c0121500 <__find_get_page+10/30>
+   4:   8b 40 10                  mov    0x10(%eax),%eax
+Code;  c0121503 <__find_get_page+13/30>
+   7:   85 c0                     test   %eax,%eax
+Code;  c0121505 <__find_get_page+15/30>
+   9:   74 0a                     je     15 <_EIP+0x15> c0121511
+<__find_get_pag
+e+21/30>
+Code;  c0121507 <__find_get_page+17/30>
+   b:   39 48 08                  cmp   
+%ecx,0x8(%eax)                                                              
+            
+Code;  c012150a <__find_get_page+1a/30>
+   e:   75 f4                     jne    4 <_EIP+0x4> c0121500
+<__find_get_page+
+10/30>
+Code;  c012150c <__find_get_page+1c/30>
+  10:   39 50 0c                  cmp    %edx,0xc(%eax)
+Code;  c012150f <__find_get_page+1f/30>
+  13:   75 00                     jne    15 <_EIP+0x15> c0121511
+<__find_get_pag
+e+21/30>
+ 

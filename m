@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272498AbRH3V5H>; Thu, 30 Aug 2001 17:57:07 -0400
+	id <S272517AbRH3V75>; Thu, 30 Aug 2001 17:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272510AbRH3V45>; Thu, 30 Aug 2001 17:56:57 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:22282 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272498AbRH3V4m>;
-	Thu, 30 Aug 2001 17:56:42 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108302156.f7ULujo24456@oboe.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <11528.999208069@redhat.com> from "David Woodhouse" at "Aug 30,
- 2001 10:47:49 pm"
-To: "David Woodhouse" <dwmw2@infradead.org>
-Date: Thu, 30 Aug 2001 23:56:45 +0200 (MET DST)
-CC: ptb@it.uc3m.es, "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S272516AbRH3V7h>; Thu, 30 Aug 2001 17:59:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11667 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272514AbRH3V72>;
+	Thu, 30 Aug 2001 17:59:28 -0400
+Date: Thu, 30 Aug 2001 14:56:09 -0700 (PDT)
+Message-Id: <20010830.145609.42773013.davem@redhat.com>
+To: val@nmt.edu
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Lost TCP retransmission timer
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010830121025.A15880@boardwalk>
+In-Reply-To: <20010829195259.B11544@boardwalk>
+	<200108301621.UAA05134@ms2.inr.ac.ru>
+	<20010830121025.A15880@boardwalk>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago David Woodhouse wrote:"
-> Code which relies on "if(0) __call_nonexistent_function();" actually compiling 
-> is just broken.
+   From: Val Henson <val@nmt.edu>
+   Date: Thu, 30 Aug 2001 12:10:25 -0600
 
-You got me curious enough to try it.  It compiles and links fine with
--O1 and higher under
+   On Thu, Aug 30, 2001 at 08:21:16PM +0400, kuznet@ms2.inr.ac.ru wrote:
+   > Your hopes were groundless.
+   > Actually, you could change subject, this apparently has nothing
+   > to do with your problem and this is misleading.
+   
+   You're right.  I thought the subject was "tcp connection hangs." :)
 
-       gcc version 2.95.2 20000220 (Debian GNU/Linux)
-       gcc version 2.8.1
-       gcc version 2.7.2.3
+BTW, you mentioned that you are seeing this on PPC, do you have any
+way to verify if the bug can be triggered on any other platform?
 
-> You'd have thought we'd have learned by now to stop relying on the observed 
-> current behaviour of gcc and start trying to get it right, wouldn't you?
-
-One CAN rely on this behaviour so long as branch reduction (well,
-whatever it's called) is an optimizing step following constant
-expression evaluation.  The fn call will never make it outside of gcc's
-internal repreentation.
-
-> The answer in this case is that gcc can't safely do what we require for this
-> and for other compile-time checks, until something like David's
-> __builtin_ct_assertion() is added.
-
-
-Peter
+Later,
+David S. Miller
+davem@redhat.com

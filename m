@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbTFRHQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 03:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTFRHQb
+	id S265071AbTFRHX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 03:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTFRHX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 03:16:31 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:17672 "EHLO
+	Wed, 18 Jun 2003 03:23:57 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:58632 "EHLO
 	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265054AbTFRHQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 03:16:28 -0400
-Date: Wed, 18 Jun 2003 00:31:10 -0700
+	id S265071AbTFRHX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 03:23:56 -0400
+Date: Wed, 18 Jun 2003 00:38:38 -0700
 From: Andrew Morton <akpm@digeo.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: copy_from_user
-Message-Id: <20030618003110.6a9751a5.akpm@digeo.com>
-In-Reply-To: <16112.2991.972670.344808@cargo.ozlabs.ibm.com>
-References: <16112.2991.972670.344808@cargo.ozlabs.ibm.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: 2.5.70-mm9
+Message-Id: <20030618003838.06144cf9.akpm@digeo.com>
+In-Reply-To: <1055920382.1374.11.camel@w-ming2.beaverton.ibm.com>
+References: <20030613013337.1a6789d9.akpm@digeo.com>
+	<3EEAD41B.2090709@us.ibm.com>
+	<20030614010139.2f0f1348.akpm@digeo.com>
+	<1055637690.1396.15.camel@w-ming2.beaverton.ibm.com>
+	<20030614232049.6610120d.akpm@digeo.com>
+	<1055920382.1374.11.camel@w-ming2.beaverton.ibm.com>
 X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jun 2003 07:30:24.0570 (UTC) FILETIME=[7B7761A0:01C3356B]
+X-OriginalArrivalTime: 18 Jun 2003 07:37:52.0882 (UTC) FILETIME=[86AE5D20:01C3356C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
+Mingming Cao <cmm@us.ibm.com> wrote:
 >
-> Some time ago (in the 2.1 series IIRC) we added code to copy_from_user
->  to zero the remainder of the destination buffer if we faulted on the
->  source.  The motive was to eliminate some potential security holes
->  that could arise if callers didn't check the return value from
->  copy_from_user and continued on to pass the contents of the
->  destination buffer back to userspace in one way or another.
-> 
->  However, I notice that copy_from_user on i386 in 2.5 doesn't clear the
->  destination if the access_ok() check fails,
+> I re-run the many fsx tests with feral driver on 2.5.70mm9, ext3
+>  fileystems, on deadline scheduler and as scheduler respectively.  Both
+>  tests passed.  They were running for more than 24 hours without any
+>  problems. So it could be a bug in the device driver that I used
+>  before(QLA2xxx V8).  Before the fsx tests failed on ext3 on either
+>  deadline scheduler or as scheduler.
 
-This was not deliberate - the memset simply got lost.
+Well it could be a bug in the driver, or it could be a bug in the generic
+block/iosched area which was just triggered by the particular way in which
+that driver exercises the core code.
 
-It is simple enough to fix.  Do we remember the details of the
-security hole?
-
-> or if the size is 1, 2 or 4.
-
-This one is OK - __get_user_asm() does the zeroing in the fixup code.
-
-
-
+James, do we have the latest-and-greatest version of the qlogic driver
+in-tree?  ISTR that there's an update out there somewhere?

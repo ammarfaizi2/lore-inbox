@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbTDZOig (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 10:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTDZOif
+	id S261312AbTDZOjI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 10:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbTDZOjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 10:38:35 -0400
-Received: from srv01.glis.net ([216.234.108.75]:11227 "HELO srv01.glis.net")
-	by vger.kernel.org with SMTP id S261296AbTDZOie convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 10:38:34 -0400
-From: "Tom Dietz" <tom@glis.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 3ware 7500 RAID problems....
-Date: Sat, 26 Apr 2003 09:50:39 -0500
-Message-ID: <000001c30c03$38963870$6501a8c0@typhoon>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sat, 26 Apr 2003 10:39:07 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:57493 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261312AbTDZOjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 10:39:05 -0400
+Date: Sat, 26 Apr 2003 10:34:45 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The IEEE-1394 saga continued... [ was: IEEE-1394 problem on init ]
+Message-ID: <20030426143445.GC2774@phunnypharm.org>
+References: <20030423142131.GK820@hottah.alcove-fr> <20030423142353.GL354@phunnypharm.org> <20030423145122.GL820@hottah.alcove-fr> <20030423144857.GN354@phunnypharm.org> <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva> <20030423202002.GA10567@vitel.alcove-fr> <20030423202453.GA354@phunnypharm.org> <20030423204258.GB10567@vitel.alcove-fr> <20030426082956.GB18917@vitel.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030426082956.GB18917@vitel.alcove-fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded to RedHat 9.0 only to find that my 600GB RAID system no
-longer works.  It worked fine with RH 8.0, however once I upgraded, it no
-longer came up cleanly and I got lots of error messages during boot.
+On Sat, Apr 26, 2003 at 10:29:57AM +0200, Stelian Pop wrote:
+> On Wed, Apr 23, 2003 at 10:42:58PM +0200, Stelian Pop wrote:
+> 
+> > > I haven't been able to figure out how to get the scsi
+> > > subsystem to remove devices in this condition:
+> > 
+> > Well, hopefully someone here will direct you towards the 
+> > correct solution before 2.4.21 gets final... Firewire devices
+> > tend to be plugged / unplugged quite often.
+> 
+> This was three days ago. Today, without *any* notice (like posting
+> a patch on lkml for example, as I already suggested it), I saw a
+> new IEEE1394 patch was checked in into Marcelo's tree.
+> 
+> As usual, the patch was quite big, in Ben's own words "virtualy
+> bloated [...] by format changes". Why he continues to submit patches
+> like that one in -rc stage is beyond my understanding.
+> 
+> And guess what ? The new patch broke (again) my setup. When I plug
+> in my iPod, the scsi layer does not see it anymore.
 
-I contacted RedHat and they said to try a fresh install, which I did-and got
-the same thing.   Currently I am running RH 9.0 with the 2.4.20-9 kernel.
-I read through the list archives regarding other's problems with 3ware, and
-while at first it sounded like the same problems I am having, when I went to
-the Western Digital site to download the firmware (as suggested in the
-post), I found that it was only for 180GB and 200GB drives.  All my drives
-in my RAID array are 120GB.
+Good lord would you calm down.
 
-The western digital firmware upgrade page is here:
-http://wdc.custhelp.com/cgi-bin/wdc.cfg/php/enduser/std_adp.php?p_admin=1&p_
-faqid=913&p_created=1047068027
+Run the rescan-scan-scsi.sh script floating around. Out own website
+describes having to use this for 2.4 kernels. It was either leave sbp2
+oopsing, or rewrite the load logic so that there was no way for left
+over scsi cruft. The side affect is that the only hot-plug situation
+ieee1394 had in 2.4 is gone.
 
-The kernel thread I am referring to is here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104854143005751&w=2
+Before, loading sbp2 before loading ohci1394 gave the same affect. Now,
+loading sbp2 before ohci1394 also requires running rescan-scan-scsi.sh.
+Blame the scsi layer, not me.
 
-Any ideas?  My system worked fine with RH8 and there have been no hardware
-changes.  I checked the ARRAY's integrity with the 3ware tools and it
-reported ok.
-
-Here's a snipit of my boot log regarding the 3ware controller (there should
-be only one big partition (sda1)
-
---cut-
-VFS: Mounted root (ext2 filesystem).
-SCSI subsystem driver Revision: 1.00
-3ware Storage Controller device driver for Linux v1.02.00.031.
-PCI: Found IRQ 15 for device 02:01.0
-scsi0 : Found a 3ware Storage Controller at 0xa000, IRQ: 15, P-chip: 1.3
-scsi0 : 3ware Storage Controller
-blk: queue c366a614, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: 3ware     Model: 3w-xxxx           Rev: 1.0 
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-blk: queue c366a814, I/O limit 4095Mb (mask 0xffffffff)
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 1172197760 512-byte hdwr sectors (600165 MB)
- sda: sda1 sda2 sda4
-Journalled Block Device driver loaded
-3w-xxxx: scsi0: Command failed: status = 0xc1, flags = 0x11, unit #0.
-3w-xxxx: scsi0: AEN: ERROR: Drive error: Port #0.
-3w-xxxx: scsi0: Reset succeeded.
-3w-xxxx: scsi0: Command failed: status = 0xc1, flags = 0x11, unit #0.
-scsi: device set offline - not ready or command retry failed after host
-reset: host 0 channel 0 id 0 lun 0
-3w-xxxx: scsi0: AEN: ERROR: Drive error: Port #0.
-SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 2
- I/O error: dev 08:01, sector 0
- I/O error: dev 08:01, sector 2
- I/O error: dev 08:01, sector 0
---cut-
-
-I have A LOT of stuff on there I need to get to, if anyone has any advice on
-how to get it working again, please let me know.  I did try to go back to
-RH8, but it just sat there after I select "no I don't want to initialize
-/sda1 and destroy all data).
-
-Thanks.
-
-
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

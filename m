@@ -1,62 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285468AbRLNT11>; Fri, 14 Dec 2001 14:27:27 -0500
+	id <S285469AbRLNTa5>; Fri, 14 Dec 2001 14:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285469AbRLNT1R>; Fri, 14 Dec 2001 14:27:17 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15888 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S285468AbRLNT1H>; Fri, 14 Dec 2001 14:27:07 -0500
-Date: Fri, 14 Dec 2001 20:26:13 +0100
-From: Jan Kara <jack@suse.cz>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Johan Ekenberg <johan@ekenberg.se>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.14 and 2.4.16
-Message-ID: <20011214202613.D18256@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE> <000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny> <3C1A3652.52B989E4@zip.com.au> <3845670000.1008352380@tiny>
-Mime-Version: 1.0
+	id <S285471AbRLNTas>; Fri, 14 Dec 2001 14:30:48 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S285469AbRLNTai>; Fri, 14 Dec 2001 14:30:38 -0500
+Date: Fri, 14 Dec 2001 11:25:08 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Needham, Douglas" <douglas.needham@lmco.com>
+cc: "'Andrew Morton'" <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: RE: kernel performance issues 2.4.7 -> 2.4.17-pre8
+In-Reply-To: <1B7FCD9C07D3D4118FC500508BDF42E80457DFB6@emss09m02.ems.lmco.com>
+Message-ID: <Pine.LNX.4.10.10112140832500.10131-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3845670000.1008352380@tiny>
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday, December 14, 2001 09:26:42 AM -0800 Andrew Morton
-> <akpm@zip.com.au> wrote:
-> 
-> >> So, this will hit any journaled FS that uses quotas and logs inodes under
-> >> during a write.  ext3 doesn't seem to do special things for quota anymore,
-> >> so it should be affected too.
-> > 
-> > mm.. most of the ext3 damage-avoidance hacks are around writepage().
-> 
-> sct talked about how the ext3 data logging code allowed quotas to be
-> consistent after a crash.  Perhaps this was just in 2.2.x...
-> 
-> > 
-> >> The only fix I see is to make sure kswapd doesn't run shrink_icache, and to
-> >> have it done via a dedicated daemon instead.  Does anyone have a better
-> >> idea?
-> > 
-> > Well, we already need to do something like that to prevent the
-> > abuse of keventd in there.  It appears that somebody had a
-> > problem with deadlocks doing the inode writeout in kswapd but
-> > missed the quota problem.
-> > 
-> > Is it possible for the quota code to just bale out if PF_MEMALLOC
-> > is set?  To leave the dquot dirty?
-> 
-> We could change prune_icache to skip inodes with dirty quota fields.  It
-> already skips dirty inodes, so this isn't a huge change.
-  Umm. I don't think it's good idea (at least with current state) - if any
-data was written to inode, quota was dirtified and probably never written
-so you're going to have *lots* of inodes with dirty quota... So you end up
-freeing nothing.
-  I think that leaving writing of dquots on bdflush or some other thread
-would be better solution...
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Douglas,
+
+What is really needed is for a correct packetized ACB to be adopted.
+Second is if you would allow the driver to correctly tune the hardware,
+you could see things like this:
+
+Device: Maxtor 5T020H2 Serial Number: T2J0HC0C
+LBA 0 DMA Read Test                      = 68.67 MB/Sec (3.64 Seconds)
+Outer Diameter Sequential DMA Read Test  = 36.68 MB/Sec (6.82 Seconds)
+Inner Diameter Sequential DMA Read Test  = 21.37 MB/Sec (11.70 Seconds)
+LBA 1 DMA Write Test                     = 65.68 MB/Sec (3.81 Seconds)
+Outer Diameter Sequential DMA Write Test = 36.91 MB/Sec (6.77 Seconds)
+Inner Diameter Sequential DMA Write Test = 21.45 MB/Sec (11.66 Seconds)
+
+
+Wrote 19073 Meg / 39062400 blockse 0 Meg / 0 blocks
+Device length: 20000000000 Bytes / 19073 Meg / 18 Gig
+Total Diameter Sequential Pattern Write Test = 30.29 MB/Sec (629.67 Seconds)
+Read 19073Meg (39062400 blocks)
+Device length: 19999948800 Bytes / 19073 Meg / 18 Gig
+Total Diameter Sequential Pattern Read Test  = 23.50 MB/Sec (811.75 Seconds)
+Device passed CLEAN!
+
+Maybe this kind of data-transport integrity checking means something to
+you, but I have found that most do not care about making this a standard
+for storage development.
+
+Next "hdparm -X66 -d1 -u1 -m16 -c3 /dev/hda" is silly.
+
+Driver will setup and time correctly -X66 -d1 -m16 -c0 -u0.
+Unless you have an old ATA1/2 drive "-c3" is meaningless.
+-c describes the data_io register
+
+drive->no_io_32bit = id->dword_io ? 1 : 0;
+
+Just maybe if I could put some consistance in the driver ..
+
+static ide_startstop_t drive_cmd_intr (ide_drive_t *drive)
+{
+<snip>
+                drive->io_32bit = 0;
+                ide_input_data(drive, &args[4], args[3] * SECTOR_WORDS);
+                drive->io_32bit = io_32bit;
+<snip>
+}
+
+Which is an pio-out-data of one sector == read_intr of one sector, we just
+might get a more stable platform.
+
+I was hoping to be some what quiet, but now it looks like the good old
+grenade launch is going to be needed -- and this is not productive -- just
+informative because people grind their heals in deeper and refuse to allow
+corrections.
+
+Maybe you should try the preferred driver of mine that one day may be
+adopted.
+
+Regards,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+
+
+On Fri, 14 Dec 2001, Needham, Douglas wrote:
+
+> Thanks for the feed back. 
+> Here are my latest results re-running the same tests with the following
+> enhancements. 
+> I also added .17-rc1.
+> 
+> I did two things :
+> the first was :
+> 
+> 	echo 70 64 64 256 30000 3000 80 0 0 > /proc/sys/vm/bdflush
+> the second was : 
+> 	hdparm -X66 -d1 -u1 -m16 -c3 /dev/hda
+> 	following the document at :
+> http://linux.oreillynet.com/lpt/a//linux/2000/06/29/hdparm.html
+> 
+> I did see some performance gains, but
+> 
+> My new questions are : 
+> 	Do we(people running Linux) need to do more work on tuning the
+> hardware in the current kernels? 
+> 
+> >Note: before running the hdparm test on hda1, you should mount a 4k
+> blocksize
+> >filesystem onto hda1. 
+>       Where could I find more info on how to do this? Wouldn't changing the
+> blocksize of my file system kill my existing data? Or do I just need to
+> create some filesystem on the device that has a 4k blocksize? I hate to ask
+> a dumb question, but I had not heard of this being done before. 
+> 
+> Thanks, 
+> 
+> Doug 
+> 
+> 
+> 
+> 
+> 
+> -----Original Message-----
+> From: Andrew Morton [mailto:akpm@zip.com.au]
+> Sent: Thursday, December 13, 2001 2:50 PM
+> To: Needham, Douglas
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: kernel performance issues 2.4.7 -> 2.4.17-pre8
+> 
+> 
+> "Needham, Douglas" wrote:
+> > 
+> > ...
+> >         Overall I discovered that the Red Hat modified kernel beat the
+> stock
+> > kernel hands down in throughput.  Both the base Red Hat 7.2 kernel and the
+> > 7.2 update kernel (2.4.7-9, 2.4.9-13 respectively) had far better
+> throughput
+> > than the .10, .15, .14, .16, and .17-pre8 kernels.
+> > 
+> 
+> The 60% drop in bonnie throughput going from 2.4.9 to 2.4.10 indicates that
+> something strange has happened.  This hasn't been observed by others.
+> 
+> My suspicion would be that something is wrong with the IDE tuning in your
+> builds of later kernels.  Please check this with `hdparm -t /dev/hda1' -
+> make
+> sure that these numbers are consistent across kernel versions before you
+> even start.
+> 
+> Note: before running the hdparm test on hda1, you should mount a 4k
+> blocksize
+> filesystem onto hda1.  This changes the softblocksize for the device from 1k
+> to 4k and, for some devices, speeds up access to the block device by
+> a factor of thirty.  This is some bizarro kooky brokenness which the
+> 2.4.10 patch exposed and I'm still investigating...
+> 
+> For dbench, errr, just don't bother using it, unless you're using
+> a large number of clients - 64 or more.  At lower client numbers,
+> throughput is enormously dependent upon tiny changes in kernel
+> behaviour.   Try this:
+> 
+> 	echo 70 64 64 256 30000 3000 80 0 0 > /proc/sys/vm/bdflush
+> 
+> and see the numbers go up greatly.
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+

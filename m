@@ -1,112 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUEaTi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264749AbUEaTnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264748AbUEaTi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 15:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264749AbUEaTi4
+	id S264749AbUEaTnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 15:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264751AbUEaTns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 15:38:56 -0400
-Received: from nacho.alt.net ([207.14.113.18]:47034 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S264748AbUEaTiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 15:38:51 -0400
-Date: Mon, 31 May 2004 12:38:48 -0700 (PDT)
-To: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
-Subject: Re: crashes in prune_icache() in 2.4.26
-In-Reply-To: <Pine.LNX.4.44.0405302345250.12337-100000@nacho.alt.net>
-Message-ID: <Pine.LNX.4.44.0405311233450.16373-100000@nacho.alt.net>
+	Mon, 31 May 2004 15:43:48 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:50340 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264749AbUEaTno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 15:43:44 -0400
+Message-ID: <40BB7C12.3040002@kegel.com>
+Date: Mon, 31 May 2004 11:40:18 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-From: Chris Caputo <ccaputo@alt.net>
-X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bringing back 'make symlinks'?
+References: <40B36A0E.5080509@kegel.com> <20040525214328.GA2675@mars.ravnborg.org> <40B41367.5070607@kegel.com> <20040530105502.GA19882@mars.ravnborg.org>
+In-Reply-To: <20040530105502.GA19882@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Made a little more progress...
+Sam Ravnborg wrote:
+>>The way things are now, I can build toolchains for everything
+>>except the sh architecture (though my toolchain bootstrap script
+>>is ugly as noted due to the lack of 'make symlinks').
+> 
+> Does the following meet the needs of your cross-tool scripts?
+> 
+> 	Sam
+> 
+> ===== Makefile 1.492 vs edited =====
+> --- 1.492/Makefile	2004-05-30 08:24:06 +02:00
+> +++ edited/Makefile	2004-05-30 12:52:36 +02:00
+> @@ -632,6 +632,10 @@
+>  # All the preparing..
+>  prepare-all: prepare0 prepare
+>  
+> +# symlinks provided for compatibility with 2.4 - this allows boot-strapping
+> +# tool chains to be simpler
+> +symlinks: prepare-all
+> +
+>  #	Leave this as default for preprocessing vmlinux.lds.S, which is now
+>  #	done in arch/$(ARCH)/kernel/Makefile
 
-Turns out the infinite loop wasn't in the CONFIG_HIGMEM while() loop, but 
-rather in the while() loop at the top of the code.  Sorry about that.  I 
-misunderstood the disassembly until now.
+Well, let's try it:
 
-So basically both types of crashes I am seeing (NULL deref and infinite
-loop) are happening in the primary/top while() loop of prune_icache()  
-and I suspect they are both the result of a corrupted inode_unused list.
+$ make ARCH=sh prepare
+   Making asm-sh/cpu -> asm-sh/ link
+   Making asm-sh/mach -> asm-sh/ link
+   Generating include/asm-sh/machtypes.h
 
-Now I am trying to figure out where/how the inode_unused list is getting
-corrupted...  If anyone has any existing code for validating list
-integrity, which I could sprinkle around the code, I'd love a copy.
+So far so good (excellent, in fact, since there is no other way
+at the moment to create those two links).
 
-Thanks,
-Chris
+$ make ARCH=ppc prepare
+   HOSTCC  scripts/conmakehash
+   HOSTCC  scripts/kallsyms
+   CC      scripts/empty.o
+cc1: invalid option `multiple'
+cc1: invalid option `string'
+cc1: warning: unknown register name: r2
+make[1]: *** [scripts/empty.o] Error 1
 
-On Mon, 31 May 2004, Chris Caputo wrote:
-> [CC'ed lkml in case anyone else wants to take a shot.]
-> 
-> A little more info...  I added some printk's to the function to highlight
-> the input value of parameter 'goal' and also to show where the function
-> was returning.
-> 
-> My understanding is these printk's all happened in rapid succession:
-> 
->     entry > prune_icache(goal = 92370)
->     exit < prune_icache() at if (goal <= 0)
-> 
->   Above the function completed without entering the CONFIG_HIGHMEM while
->   loop.
-> 
->     entry > prune_icache(goal = 94037)
->     exit < prune_icache() - end of function
-> 
->   Above the function went through the CONFIG_HIGHMEM while loop.  This was
->   the first time this happened since boot, after a number of 
->   prune_icache() calls that had returned prior to the CONFIG_HIGHMEM while 
->   loop.
-> 
->     entry > prune_icache(goal = 98609)
->     Unable to handle kernel NULL pointer dereference at virtual address 00000004
-> 
->   The final printk above shows the function being entered and then hitting
->   the NULL dereference.
-> 
-> Chris
-> 
-> On Sun, 30 May 2004, Chris Caputo wrote:
-> > Hi.  I have been experiencing a number of crashes in fs/inode.c's
-> > prune_icache() function.  I found on linux.bkbits.net that you made the
-> > most recent major change to this function back in January.  With that in
-> > mind I hope it is okay to write directly to you.
-> > 
-> > I have experienced two kinds of crashes with this function.
-> > 
-> > The first is in the older part of the code.  Basically the inode_unused 
-> > list is somehow getting corrupt and when it does an Oops happens at:
-> > 
-> >     entry = entry->prev;   (line 808 of the 2.4.26 fs/inode.c)
-> > 
-> > I haven't yet figured out how it is getting corrupt so any tips welcome.
-> > 
-> > A second problem I have seen is that my system has gotten into an infinite
-> > loop in the while loop in the CONFIG_HIGHMEM part of the prune_icache()
-> > code.  I haven't yet figured out why.  But I am curious about the code at 
-> > the beginning of the loop:
-> > 
-> >         while (goal-- > 0) {
-> >                 if (list_empty(&inode_unused_pagecache))
-> >                         break;
-> >                 entry = inode_unused_pagecache.prev;
-> >                 list_del(entry);
-> >                 list_add(entry, &inode_unused_pagecache);
-> > 
-> > Is the intent of the last 3 lines to remove the entry from the end of the
-> > linked-list and then add it to the front, as a way of traversing the list?  
-> > Or is it intended that the add be an add to the inode_unused list as
-> > opposed to the inode_unused_pagecache list?
-> > 
-> > I'd love to figure out the problems I am experiencing, so any advice on
-> > how to proceed is welcome.  The bug happens every few days on our main
-> > fileserver and I have been able to reproduce it on a test fileserver too.
-> > 
-> > Chris
-> 
-> 
-> 
+Whoops, bad luck.  Let's try another:
 
+$ make ARCH=arm prepare
+   SPLIT   include/linux/autoconf.h -> include/config/*
+   HOSTCC  scripts/conmakehash
+   HOSTCC  scripts/kallsyms
+   CC      scripts/empty.o
+cc1: invalid option `apcs'
+cc1: invalid option `no-sched-prolog'
+cc1: invalid option `little-endian'
+cc1: invalid option `apcs-32'
+cc1: invalid option `short-load-bytes'
+make[1]: *** [scripts/empty.o] Error 1
+make: *** [scripts] Error 2
+
+Bad luck again.
+
+Your change works for some architectures, but for those
+that try to build something with the target compilers, it fails
+because at this point in the bootstrap process, there *is* no
+target compiler.  (That's the next step.  We have to install the
+kernel headers to build the target compiler...)
+
+By the way, the mips architecture doesn't even make symlinks anymore,
+preferring instead to use -I's.   This makes emulating 'make symlinks'
+a bit more challenging.
+
+For what it's worth, here's my current workaround.  I'm up
+and happy on all architectures with this, I think.  (Well,
+happy but ugly and afraid of future breakage, I guess.
+And maybe not so happy on mips.)
+
+case "$KERNEL_VERSION.$KERNEL_PATCHLEVEL.x" in
+2.2.x|2.4.x) make ARCH=$ARCH symlinks    include/linux/version.h
+              ;;
+2.6.x)       case $ARCH in
+              sh*)        # sh does secret stuff in 'make prepare' that can't be triggered separately,
+                          # but happily, it doesn't use target gcc, so we can use it
+                          make ARCH=$ARCH prepare
+                          ;;
+              arm*|cris*) make ARCH=$ARCH include/asm include/linux/version.h include/asm-$ARCH/.arch
+                          ;;
+              mips*)      # for linux-2.6, 'make prepare' for mips doesn't
+                          # actually create any symlinks.  Hope generic is ok.
+                          # Note that glibc ignores all -I flags passed in CFLAGS,
+                          # so you have to use -isystem.
+                          make ARCH=$ARCH include/asm include/linux/version.h
+                          TARGET_CFLAGS="$TARGET_CFLAGS -isystem $LINUX_DIR/include/asm-mips/mach-generic"
+                          ;;
+              *)          make ARCH=$ARCH include/asm include/linux/version.h
+                          ;;
+              esac
+              ;;
+*)           abort "Unsupported kernel version $KERNEL_VERSION.$KERNEL_PATCHLEVEL"
+esac
+
+- Dan
+
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

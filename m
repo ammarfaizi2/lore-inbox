@@ -1,60 +1,295 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTKYL0L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 06:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKYL0L
+	id S262352AbTKYLkt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 06:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTKYLkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 06:26:11 -0500
-Received: from trantor.org.uk ([213.146.130.142]:31121 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S262327AbTKYL0I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 06:26:08 -0500
-Subject: Re: hard links create local DoS vulnerability and security problems
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Jakob Lell <jlell@JakobLell.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200311241736.23824.jlell@JakobLell.de>
-References: <200311241736.23824.jlell@JakobLell.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IsaTHVjf4QiFmMG2YZtS"
-Message-Id: <1069759557.24559.274.camel@lemsip>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 25 Nov 2003 12:26:03 +0100
+	Tue, 25 Nov 2003 06:40:49 -0500
+Received: from leon.mat.uni.torun.pl ([158.75.2.17]:37773 "EHLO
+	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id S262352AbTKYLkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 06:40:42 -0500
+Date: Tue, 25 Nov 2003 12:40:24 +0100 (CET)
+From: Michal Wronski <wrona@mat.uni.torun.pl>
+X-X-Sender: wrona@Juliusz
+To: linux-kernel@vger.kernel.org
+cc: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+Subject: [PATCH] 1/2 POSIX message queues 
+Message-ID: <Pine.GSO.4.58.0311251233040.12527@Juliusz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-IsaTHVjf4QiFmMG2YZtS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here is improved version of mqueues (against 2.6.0-test10).
+As suggested it is split into two patches.
+The first one moves free/load/store_msg from msg.c to util.c
+The second one contains mqueues specific code.
 
-On Mon, 2003-11-24 at 17:36, Jakob Lell wrote:
-> To solve the problem, the kernel shouldn't allow users to create hard lin=
-ks to=20
-> files belonging to someone else.
+We have applied some fixes and added support for sysctls. Each parameter
+is now tunable. Global limit for messages size was removed.
+Also there are some changes taken from J. Korty patch to make this code
+more arch portable.
 
-chmod(fn, 0);
-truncate(fn, 0);
-unlink(fn);
+New library is available at:
+http://www.mat.uni.torun.pl/~wrona/posix_ipc
 
-then just the inode remains.
+Regards,
+Michal
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
---=-IsaTHVjf4QiFmMG2YZtS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+diff -urN 2.6.0-test10-orig_1/ipc/msg.c 2.6.0-test10-patched_1/ipc/msg.c
+--- 2.6.0-test10-orig_1/ipc/msg.c	2003-11-07 17:07:13.000000000 +0100
++++ 2.6.0-test10-patched_1/ipc/msg.c	2003-11-21 17:11:17.000000000 +0100
+@@ -51,11 +51,6 @@
+ 	struct task_struct* tsk;
+ };
 
-iD8DBQA/wzxFkbV2aYZGvn0RAiZzAJ41PhJBMH2cE3DtPrW+aPEAfK7/EQCfcrke
-e3n/SBW/2CtIAeV1zfciBNk=
-=47Nl
------END PGP SIGNATURE-----
+-struct msg_msgseg {
+-	struct msg_msgseg* next;
+-	/* the next part of the message follows immediately */
+-};
+-
+ #define SEARCH_ANY		1
+ #define SEARCH_EQUAL		2
+ #define SEARCH_NOTEQUAL		3
+@@ -129,106 +124,6 @@
+ 	return msg_buildid(id,msq->q_perm.seq);
+ }
 
---=-IsaTHVjf4QiFmMG2YZtS--
+-static void free_msg(struct msg_msg* msg)
+-{
+-	struct msg_msgseg* seg;
+-
+-	security_msg_msg_free(msg);
+-
+-	seg = msg->next;
+-	kfree(msg);
+-	while(seg != NULL) {
+-		struct msg_msgseg* tmp = seg->next;
+-		kfree(seg);
+-		seg = tmp;
+-	}
+-}
+-
+-static struct msg_msg* load_msg(void* src, int len)
+-{
+-	struct msg_msg* msg;
+-	struct msg_msgseg** pseg;
+-	int err;
+-	int alen;
+-
+-	alen = len;
+-	if(alen > DATALEN_MSG)
+-		alen = DATALEN_MSG;
+-
+-	msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
+-	if(msg==NULL)
+-		return ERR_PTR(-ENOMEM);
+-
+-	msg->next = NULL;
+-	msg->security = NULL;
+-
+-	if (copy_from_user(msg+1, src, alen)) {
+-		err = -EFAULT;
+-		goto out_err;
+-	}
+-
+-	len -= alen;
+-	src = ((char*)src)+alen;
+-	pseg = &msg->next;
+-	while(len > 0) {
+-		struct msg_msgseg* seg;
+-		alen = len;
+-		if(alen > DATALEN_SEG)
+-			alen = DATALEN_SEG;
+-		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
+-		if(seg==NULL) {
+-			err=-ENOMEM;
+-			goto out_err;
+-		}
+-		*pseg = seg;
+-		seg->next = NULL;
+-		if(copy_from_user (seg+1, src, alen)) {
+-			err = -EFAULT;
+-			goto out_err;
+-		}
+-		pseg = &seg->next;
+-		len -= alen;
+-		src = ((char*)src)+alen;
+-	}
+-
+-	err = security_msg_msg_alloc(msg);
+-	if (err)
+-		goto out_err;
+-
+-	return msg;
+-
+-out_err:
+-	free_msg(msg);
+-	return ERR_PTR(err);
+-}
+-
+-static int store_msg(void* dest, struct msg_msg* msg, int len)
+-{
+-	int alen;
+-	struct msg_msgseg *seg;
+-
+-	alen = len;
+-	if(alen > DATALEN_MSG)
+-		alen = DATALEN_MSG;
+-	if(copy_to_user (dest, msg+1, alen))
+-		return -1;
+-
+-	len -= alen;
+-	dest = ((char*)dest)+alen;
+-	seg = msg->next;
+-	while(len > 0) {
+-		alen = len;
+-		if(alen > DATALEN_SEG)
+-			alen = DATALEN_SEG;
+-		if(copy_to_user (dest, seg+1, alen))
+-			return -1;
+-		len -= alen;
+-		dest = ((char*)dest)+alen;
+-		seg=seg->next;
+-	}
+-	return 0;
+-}
+-
+ static inline void ss_add(struct msg_queue* msq, struct msg_sender* mss)
+ {
+ 	mss->tsk=current;
+diff -urN 2.6.0-test10-orig_1/ipc/util.c 2.6.0-test10-patched_1/ipc/util.c
+--- 2.6.0-test10-orig_1/ipc/util.c	2003-11-07 17:07:13.000000000 +0100
++++ 2.6.0-test10-patched_1/ipc/util.c	2003-11-21 17:11:17.000000000 +0100
+@@ -611,3 +611,107 @@
+ }
 
+ #endif /* CONFIG_SYSVIPC */
++
++#ifdef CONFIG_SYSVIPC
++
++void free_msg(struct msg_msg* msg)
++{
++	struct msg_msgseg* seg;
++
++	security_msg_msg_free(msg);
++
++	seg = msg->next;
++	kfree(msg);
++	while(seg != NULL) {
++		struct msg_msgseg* tmp = seg->next;
++		kfree(seg);
++		seg = tmp;
++	}
++}
++
++struct msg_msg* load_msg(void* src, int len)
++{
++	struct msg_msg* msg;
++	struct msg_msgseg** pseg;
++	int err;
++	int alen;
++
++	alen = len;
++	if(alen > DATALEN_MSG)
++		alen = DATALEN_MSG;
++
++	msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
++	if(msg==NULL)
++		return ERR_PTR(-ENOMEM);
++
++	msg->next = NULL;
++	msg->security = NULL;
++
++	if (copy_from_user(msg+1, src, alen)) {
++		err = -EFAULT;
++		goto out_err;
++	}
++
++	len -= alen;
++	src = ((char*)src)+alen;
++	pseg = &msg->next;
++	while(len > 0) {
++		struct msg_msgseg* seg;
++		alen = len;
++		if(alen > DATALEN_SEG)
++			alen = DATALEN_SEG;
++		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
++		if(seg==NULL) {
++			err=-ENOMEM;
++			goto out_err;
++		}
++		*pseg = seg;
++		seg->next = NULL;
++		if(copy_from_user (seg+1, src, alen)) {
++			err = -EFAULT;
++			goto out_err;
++		}
++		pseg = &seg->next;
++		len -= alen;
++		src = ((char*)src)+alen;
++	}
++
++	err = security_msg_msg_alloc(msg);
++	if (err)
++		goto out_err;
++
++	return msg;
++
++out_err:
++	free_msg(msg);
++	return ERR_PTR(err);
++}
++
++int store_msg(void* dest, struct msg_msg* msg, int len)
++{
++	int alen;
++	struct msg_msgseg *seg;
++
++	alen = len;
++	if(alen > DATALEN_MSG)
++		alen = DATALEN_MSG;
++	if(copy_to_user (dest, msg+1, alen))
++		return -1;
++
++	len -= alen;
++	dest = ((char*)dest)+alen;
++	seg = msg->next;
++	while(len > 0) {
++		alen = len;
++		if(alen > DATALEN_SEG)
++			alen = DATALEN_SEG;
++		if(copy_to_user (dest, seg+1, alen))
++			return -1;
++		len -= alen;
++		dest = ((char*)dest)+alen;
++		seg=seg->next;
++	}
++	return 0;
++}
++
++#endif /* CONFIG_SYSVIPC */
+diff -urN 2.6.0-test10-orig_1/ipc/util.h 2.6.0-test10-patched_1/ipc/util.h
+--- 2.6.0-test10-orig_1/ipc/util.h	2003-11-07 17:07:13.000000000 +0100
++++ 2.6.0-test10-patched_1/ipc/util.h	2003-11-21 17:11:17.000000000 +0100
+@@ -25,6 +25,16 @@
+ 	struct kern_ipc_perm* p;
+ };
+
++struct msg_msgseg {
++	struct msg_msgseg* next;
++	/* the next part of the message follows immediately */
++};
++
++void free_msg(struct msg_msg* msg);
++struct msg_msg* load_msg(void* src, int len);
++int store_msg(void* dest, struct msg_msg* msg, int len);
++
++
+ void __init ipc_init_ids(struct ipc_ids* ids, int size);
+
+ /* must be called with ids->sem acquired.*/

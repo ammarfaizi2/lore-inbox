@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288994AbSAUBBw>; Sun, 20 Jan 2002 20:01:52 -0500
+	id <S288998AbSAUBFC>; Sun, 20 Jan 2002 20:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288992AbSAUBBm>; Sun, 20 Jan 2002 20:01:42 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:58639 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288994AbSAUBB1>; Sun, 20 Jan 2002 20:01:27 -0500
-Message-ID: <3C4B6778.7040509@namesys.com>
-Date: Mon, 21 Jan 2002 03:57:28 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Matt <matt@progsoc.uts.edu.au>
-CC: Rik van Riel <riel@conectiva.com.br>, Shawn <spstarr@sh0n.net>,
-        linux-kernel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com> <3C4B3B67.60505@namesys.com> <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288995AbSAUBEw>; Sun, 20 Jan 2002 20:04:52 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:56196 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S288921AbSAUBEm>;
+	Sun, 20 Jan 2002 20:04:42 -0500
+Message-Id: <5.1.0.14.2.20020121010328.02672020@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 21 Jan 2002 01:06:41 +0000
+To: Frank van de Pol <fvdpol@home.nl>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Hardwired drivers are going away?
+Cc: Keith Owens <kaos@ocs.com.au>,
+        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020121002041.B1958@idefix.fvdpol.home.nl>
+In-Reply-To: <14160.1011396163@ocs3.intra.ocs.com.au>
+ <Pine.LNX.4.44.0201181632000.18867-100000@filesrv1.baby-dragons.com>
+ <14160.1011396163@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt wrote:
+At 23:20 20/01/02, Frank van de Pol wrote:
 
->On Mon, Jan 21, 2002 at 12:49:27AM +0300, Hans Reiser wrote:
+>On Sat, Jan 19, 2002 at 10:22:43AM +1100, Keith Owens wrote:
+> > On Fri, 18 Jan 2002 17:20:02 -0500 (EST),
+> > "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+> > >     Linux doesn't have a method to load encrypted & signed modules at
+> > >     this time .
+> >
+> > And never will.  Who loads the module - root.  Who maintains the list
+> > of signatures - root.  Who controls the code that verifies the
+> > signature - root.
+> >
+> > Your task Jim, should you choose to accept it, is to make the kernel
+> > distinguish between a good use of root and a malicious use by some who
+> > has broken in and got root privileges.  When you can do that, then we
+> > can add signed modules.
 >
->>Rik van Riel wrote:
->>
->
->[snip snip]
->
->>>On basically any machine we'll have multiple memory zones.
->>>
->
->>>Each of those memory zones has its own free list and each of the
->>>zones can get low on free pages independantly of the other zones.
->>>
->
->>>This means that if the VM asks to get a particular page freed, at
->>>the very minimum you need to make a page from the same zone
->>>freeable.
->>>
->
->>>regards,
->>>
->
->>>Rik
->>>
->
->
->>I'll discuss with Josh tomorrow how we might implement support for that. 
->>  A clean and simple mechanism does not come to my mind immediately.
->>
->
->>Hans
->>
->
->i know this sounds semi-evil, but can't you just drop another non
->dirty page and do a copy if you need the page you have been asked to
->write out? because if you have no non dirty pages around you'd
->probably have to drop the page anyway at some stage..
->
->	matt
->
-Yes, but it is seriously suboptimal to do copies if not really needed.
-So, if we really must, then yes, but must we?  Would be best if VM told us
-if we really must write that page.
+>If you want to secure your box, why don't you simply put a lock on it and
+>throw away the key? Really, what might help the paranoid admins in this case
+>is a setting in the kernel which basically disables the ability to load or
+>unload modules. Of course once set this setting can not been turned with
+>rebooting the box.
 
-Hans
+Er that sounds like just disabling modules in the kernel altogether (kernel 
+compile option exists for this since the beginning of time)... I do that on 
+all servers I control. Not only for security reasons but also because I 
+suspect it produces smaller and probably faster kernels (I haven't tested 
+this in any way, just a guess).
+
+Best regards,
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

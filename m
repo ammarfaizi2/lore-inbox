@@ -1,80 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262400AbRE3CIk>; Tue, 29 May 2001 22:08:40 -0400
+	id <S262590AbRE3CH6>; Tue, 29 May 2001 22:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262564AbRE3CI2>; Tue, 29 May 2001 22:08:28 -0400
-Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:45981 "EHLO
-	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S262400AbRE3CIY>; Tue, 29 May 2001 22:08:24 -0400
-Message-ID: <3B145606.7494C177@didntduck.org>
-Date: Tue, 29 May 2001 22:08:06 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rsousa@grad.physics.sunysb.edu
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] EMU10K1 joystick bug
-Content-Type: multipart/mixed;
- boundary="------------640D7CC8580BAF9FBCAB74E6"
+	id <S262564AbRE3CHs>; Tue, 29 May 2001 22:07:48 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:1297 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S262568AbRE3CHh>; Tue, 29 May 2001 22:07:37 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Leif Sawyer <lsawyer@gci.com>
+cc: linux kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.5 -ac series broken on Sparc64 
+In-Reply-To: Your message of "Tue, 29 May 2001 16:30:46 PST."
+             <BF9651D8732ED311A61D00105A9CA3150446E125@berkeley.gci.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 30 May 2001 12:07:29 +1000
+Message-ID: <13472.991188449@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------640D7CC8580BAF9FBCAB74E6
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Tue, 29 May 2001 16:30:46 -0800, 
+Leif Sawyer <lsawyer@gci.com> wrote:
+>include/linux/irq.h:61: asm/hw_irq.h: No such file or directory
+>*** [sched.o] Error 1
 
-The EMU10K1 driver currently disables the joystick port on module load
-and unload.  This patch preserves the HCFG_JOYENABLE bit when the HCFG
-register is modified.
-
--- 
-
-						Brian Gerst
---------------640D7CC8580BAF9FBCAB74E6
-Content-Type: text/plain; charset=us-ascii;
- name="diff-emu10k1joy"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-emu10k1joy"
-
-diff -urN linux-2.4.5/drivers/sound/emu10k1/main.c linux/drivers/sound/emu10k1/main.c
---- linux-2.4.5/drivers/sound/emu10k1/main.c	Sat May 26 09:41:32 2001
-+++ linux/drivers/sound/emu10k1/main.c	Tue May 29 21:17:06 2001
-@@ -363,10 +363,11 @@
- static int __devinit hw_init(struct emu10k1_card *card)
- {
- 	int nCh;
--	u32 pagecount; /* tmp */
-+	u32 pagecount, tmp;
- 
- 	/* Disable audio and lock cache */
--	emu10k1_writefn0(card, HCFG, HCFG_LOCKSOUNDCACHE | HCFG_LOCKTANKCACHE_MASK | HCFG_MUTEBUTTONENABLE);
-+	tmp = emu10k1_readfn0(card, HCFG) & HCFG_JOYENABLE;
-+	emu10k1_writefn0(card, HCFG, tmp | HCFG_LOCKSOUNDCACHE | HCFG_LOCKTANKCACHE_MASK | HCFG_MUTEBUTTONENABLE);
- 
- 	/* Reset recording buffers */
- 	sblive_writeptr_tag(card, 0,
-@@ -557,6 +558,7 @@
- static void __devinit emu10k1_exit(struct emu10k1_card *card)
- {
- 	int ch;
-+	u32 tmp;
- 
- 	emu10k1_writefn0(card, INTE, 0);
- 
-@@ -574,7 +576,8 @@
- 	}
- 
- 	/* Disable audio and lock cache */
--	emu10k1_writefn0(card, HCFG, HCFG_LOCKSOUNDCACHE | HCFG_LOCKTANKCACHE_MASK | HCFG_MUTEBUTTONENABLE);
-+	tmp = emu10k1_readfn0(card, HCFG) & HCFG_JOYENABLE;
-+	emu10k1_writefn0(card, HCFG, tmp | HCFG_LOCKSOUNDCACHE | HCFG_LOCKTANKCACHE_MASK | HCFG_MUTEBUTTONENABLE);
- 
- 	sblive_writeptr_tag(card, 0,
-                             PTB, 0,
-
---------------640D7CC8580BAF9FBCAB74E6--
+You must run make {old,menu,x}config first to define the asm -> asm-$(ARCH)
+symlink.
 

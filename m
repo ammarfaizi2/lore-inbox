@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278927AbRJ2A4g>; Sun, 28 Oct 2001 19:56:36 -0500
+	id <S278928AbRJ2BBq>; Sun, 28 Oct 2001 20:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278930AbRJ2A40>; Sun, 28 Oct 2001 19:56:26 -0500
-Received: from f05s15.cac.psu.edu ([128.118.141.58]:47809 "EHLO
-	f05n15.cac.psu.edu") by vger.kernel.org with ESMTP
-	id <S278926AbRJ2A4O>; Sun, 28 Oct 2001 19:56:14 -0500
-Message-ID: <3BDCA9BD.9030308@stones.com>
-Date: Sun, 28 Oct 2001 19:58:37 -0500
-From: Justin Mierta <Crazed_Cowboy@stones.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.5) Gecko/20011011
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lung@theuw.net, linux-kernel@vger.kernel.org
-Subject: Re: ECS k7s5a motherboard doesnt work
-In-Reply-To: <Pine.LNX.4.33.0110281907240.22555-100000@narboza.theuw.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278930AbRJ2BB0>; Sun, 28 Oct 2001 20:01:26 -0500
+Received: from t10-09.ra.uc.edu ([129.137.228.225]:30080 "EHLO cartman")
+	by vger.kernel.org with ESMTP id <S278928AbRJ2BBS>;
+	Sun, 28 Oct 2001 20:01:18 -0500
+Date: Sun, 28 Oct 2001 20:01:53 -0500
+To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] 8139too reparent_to_init() race
+Message-ID: <20011028200153.A331@cartman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: Robert Kuebel <kuebelr@email.uc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using this archive:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/index.html
+hello all,
 
-and nowhere can i find the thread you mentioned.
+lately i noticed this message during boot-up (when the network
+interfaces were being configured) ...
 
-Also, this motherboard works *perfect* in windows (which is 
-unfortunately where i've been stuck) -- it hasnt crashed in the last 
-several weeks i've been using it! (probably the longest uptime i've ever 
-seen for a windows machine that's actually being used)  So I *seriously* 
-doubt its bad hardware.
+"task `ifconfig' exit_signal 17 in reparent_to_init"
 
-Can  you maybe give me a link to the thread you mention?
+this happens only about 1/2 of the time.
 
-Justin
+after some digging this is what i found...
+sometimes ifconfig's parent exits before ifconfig reaches
+rtl8139_thread().  when this happens, ifconfig's exit_signal is set to
+SIGCHLD (in forget_original_parent), because its new parent is init.
+then rlt8139_thread() is reached it calls reparent_to_init(), which
+complains that exit_signal is already non-zero.
 
+basically this patch stops rtl8139_thread() from calling
+reparent_to_init() when its parent is already init.
 
-lung@theuw.net wrote:
+is this the right way to fix the problem?
+should reparent_to_init() check that the parent is not already init?
 
->You might be interested in my recently initiated tread:
->
->Subject: Repeatable File Corruption (ECS K7S5A w/SIS735)
->
->
->You should always check the archives before posting.  You problems seem
->much worse than mine, so I'm going to assume there is something else not
->working for you.  Alan's suggestion that you might have some bad hardware
->makes sense.  RAM is a common culprit.  Good luck.
->
->
+as a budding kernel hacker i would appreciate any comment on this
+change.
 
+please, cc me on replies.  i can only handle the digest form of this
+list.
 
+thanks.
+rob.
 
+--- linux-2.4.13/drivers/net/8139too.orig.c	Sun Oct 28 18:16:48 2001
++++ linux-2.4.13/drivers/net/8139too.c	Sun Oct 28 18:18:47 2001
+@@ -1654,7 +1654,8 @@
+ 	unsigned long timeout;
+ 
+ 	daemonize ();
+-	reparent_to_init();
++	if (current->p_opptr != child_reaper)
++		reparent_to_init();
+ 	spin_lock_irq(&current->sigmask_lock);
+ 	sigemptyset(&current->blocked);
+ 	recalc_sigpending(current);

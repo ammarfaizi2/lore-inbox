@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
+	id <S266876AbSLDDs4>; Tue, 3 Dec 2002 22:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266876AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
-Received: from windlord.Stanford.EDU ([171.64.13.23]:39335 "HELO
-	windlord.stanford.edu") by vger.kernel.org with SMTP
-	id <S266868AbSLDDnQ>; Tue, 3 Dec 2002 22:43:16 -0500
-To: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bincancels in linux.kernel
-References: <fa.d6sj37v.97gj3h@ifi.uio.no> <fa.frmc8vv.pkcm2i@ifi.uio.no>
-In-Reply-To: <fa.frmc8vv.pkcm2i@ifi.uio.no> ("Miquel van Smoorenburg"'s
- message of "Tue, 3 Dec 2002 10:19:48 GMT")
-From: Russ Allbery <rra@stanford.edu>
-Organization: The Eyrie
-Date: Tue, 03 Dec 2002 19:50:42 -0800
-Message-ID: <ylr8cyzbl9.fsf@windlord.stanford.edu>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
- sparc-sun-solaris2.6)
+	id <S266886AbSLDDs4>; Tue, 3 Dec 2002 22:48:56 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:55483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266876AbSLDDsz>;
+	Tue, 3 Dec 2002 22:48:55 -0500
+Date: Tue, 3 Dec 2002 19:53:15 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: James Stevenson <james@stev.org>
+cc: Duncan Sands <baldrick@wanadoo.fr>, <linux-kernel@vger.kernel.org>
+Subject: Re: Reserving physical memory at boot time
+In-Reply-To: <1038957801.13490.5.camel@god.stev.org>
+Message-ID: <Pine.LNX.4.33L2.0212031952530.7246-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg <miquels@cistron.nl> writes:
+On 3 Dec 2002, James Stevenson wrote:
 
-> The big problem is when multiple gateways to news exist in multiple
-> hierarchies. News servers accept a certain message only once - and the
-> only thing that is looked at is the message-id.
+| On Tue, 2002-12-03 at 12:03, Duncan Sands wrote:
+| > I would like to reserve a particular page of physical memory when
+| > the kernel boots.  By reserving I mean that no one else gets to read
+| > from it or write to it: it is mine.  Any suggestions for the best way
+| > to go about this with a 2.5 kernel?
+|
+| try having a look for the linux badmem patches i belive they might do
+| the same sort of thing.
 
-> So if your news server gets fa.linux.kernel and linux.kernel, half of
-> the articles will end up in the first group and half of the articles in
-> the second.
-
-fa.linux.kernel rewrites the message IDs.  I believe that linux.kernel
-does as well.
+see http://badmem.sourceforge.net/
 
 -- 
-Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>
+~Randy
+

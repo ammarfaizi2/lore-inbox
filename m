@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288258AbSACV3P>; Thu, 3 Jan 2002 16:29:15 -0500
+	id <S288308AbSACVbZ>; Thu, 3 Jan 2002 16:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288308AbSACV3H>; Thu, 3 Jan 2002 16:29:07 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:17926 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288258AbSACV2r>; Thu, 3 Jan 2002 16:28:47 -0500
-Message-ID: <3C34CC02.31848E01@zip.com.au>
-Date: Thu, 03 Jan 2002 13:24:18 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S288320AbSACVbP>; Thu, 3 Jan 2002 16:31:15 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30620 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S288308AbSACVbA>;
+	Thu, 3 Jan 2002 16:31:00 -0500
+Date: Thu, 3 Jan 2002 16:30:55 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: State of the new config & build system 
+In-Reply-To: <20733.1010090809@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.GSO.4.21.0201031623580.23693-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?Jos=E9?= Luis Domingo =?iso-8859-1?Q?L=F3pez?= 
-	<jdomingo@internautas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Suspected bug in shrink_caches()
-In-Reply-To: <200201030538.g035ceM31957@mysql.sashanet.com>,
-		<200201030538.g035ceM31957@mysql.sashanet.com> <20020103184609.GA3890@localhost>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-José Luis Domingo López wrote:
-> 
-> On Wednesday, 02 January 2002, at 22:38:40 -0700,
-> Sasha Pachev wrote:
-> 
-> > I am quite sure there is still a bug in shrink_caches(), at least there was
-> > one in 2.4.17-rc2. I have not tried later releases, but there is nothing in
-> > the changelog about the fixes anywhere near that area of the code, so I have
-> > to assume the problem is still there.
-> > [...]
-> > When we get to the point where free memory starts running low, even though we
-> > may have something like 100 MB of cache, shrink_caches() fails to free up
-> > enough memory, which triggers the evil oom killer. Obviously, in the above
-> > situation the correct behaviour is to go on cache diet before considering the
-> > murders.
+
+
+On Fri, 4 Jan 2002, Keith Owens wrote:
+
+> On Thu, 3 Jan 2002 15:35:19 -0500 (EST), 
+> Alexander Viro <viro@math.psu.edu> wrote:
+> >On Thu, 3 Jan 2002, Dave Jones wrote:
+> >> And being able to NFS share 1 kernel tree, and be able to do parallel
+> >> builds on multiple boxes without having to wait until 1 is finished.
 > >
-> I can confirm this behaviour in my own machine. 128 MB of RAM, swap
-> space turned off, machine running KDE 2.2.x, Konqueror, rxvt's, gkrellm,
-> xmms and some daemons, and mighty Mozilla :). At this point there are
-> still a couple of MB free, a couple buffered and aproximately 40 MB
-> in caches.
-
-The current VM gets really unhappy when you push it hard if there's no
-swap available.
-
-> ...
+> >	Sigh...  As soon as we get to prototype change in
+> >getattr()/setattr()/permission() - we get CoW fs.  I.e. equivalent of
+> >*BSD unionfs.  I hope to get around to that stuff around 2.5.4 or so.
 > 
-> Maybe unrelated, maybe not, is the fact that in 2.4.17 I still see short
-> "freezes" in interactive response after doing intensive disk access
-> (untarring something, finishing some dd'ing, rebuilding Debian package
-> database, etc.). Both on medium-end hardware (128 MB RAM, PIII 600) and
-> low-end hardware (64 MB RAM, P166). Vanilla 2.4.17 on both, with ext2 as
-> the only filesystem used in mounted partitions.
+> Unionfs and cow fs will be nice but kernel build will not use it.
+> Users can build a Linux kernel on other operating systems, including
+> Solaris, Irix, Cygwin etc.  kbuild requires a Posix compliant fs and
+> GNU tools, but it must not use additional fs features that only exist
+> on Linux or only on specific versions of Linux.
 
-Please test
-http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre1/read-latency2.patch
+<shrug> kernel build doesn't have to use it - if I mount a writable layer
+atop of the clean tree and build in the resulting tree, build system
+doesn't need to have any idea of that fact.  That's the point - you are
+emulating the thing that is generally useful and belongs to different
+layer - namely, the kernel.
 
--

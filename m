@@ -1,92 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280988AbRKGVhE>; Wed, 7 Nov 2001 16:37:04 -0500
+	id <S280821AbRKGVlo>; Wed, 7 Nov 2001 16:41:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280996AbRKGVgz>; Wed, 7 Nov 2001 16:36:55 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34289
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280988AbRKGVgu>; Wed, 7 Nov 2001 16:36:50 -0500
-Date: Wed, 7 Nov 2001 13:36:44 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
-Message-ID: <20011107133644.D20245@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.23i
+	id <S280991AbRKGVle>; Wed, 7 Nov 2001 16:41:34 -0500
+Received: from smtp6.mindspring.com ([207.69.200.110]:43 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S281005AbRKGVlZ>; Wed, 7 Nov 2001 16:41:25 -0500
+Date: Wed, 7 Nov 2001 06:58:11 -0500 (EST)
+From: rpjday <rpjday@mindspring.com>
+X-X-Sender: <rpjday@localhost.localdomain>
+To: J Sloan <jjs@lexus.com>
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+In-Reply-To: <3BE9A8D2.22D46175@lexus.com>
+Message-ID: <Pine.LNX.4.33.0111070656540.4140-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 02:03:35PM -0800, Mike Fedyk wrote:
-> Hello,
-> 
-> I am trying to track down a memory accounting problem I've seen ever since I
-> tried a 2.4.13 based kernel.  Specifically I've noticed an overflow for the
-> "Cached" entry in /proc/meminfo, but also the numbers don't add up to the
-> total memory count.  Shouldn't they add up?  If they should, I haven't seen
-> one that does....
-> 
-> I first noticed it on:
-> 2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
-> 2.4.14-pre6+preempt+netdev_random+ext3_0.9.14-2414p5
-> 
-> I thought it may be preempt so I tried:
-> 2.4.14-pre8+netdev_random-p7+xsched+ext3_0.9.14-2414p8+elevator
-> 
-> But I still get the same problem with "Cached".
-> 
-> Now I'm trying to see if it could be ext3 with:
-> 2.4.14-ext3-2.4-0.9.14-2414p8
-> 
-> And I haven't noticed the problem after 16 hours uptime.  Sometimes it would
-> show earlier, or later.
-> 
-> >From current (2.4.14-ext3-2.4-0.9.14-2414p8) kernel:
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  261443584 254337024  7106560        0 58957824 76398592
-> Swap: 199815168  1228800 198586368
-> MemTotal:       255316 kB
-> MemFree:          6940 kB
-> MemShared:           0 kB
-> Buffers:         57576 kB
-> Cached:          73408 kB
-> SwapCached:       1200 kB
-> Active:          65048 kB
-> Inactive:       138040 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       255316 kB
-> LowFree:          6940 kB
-> SwapTotal:      195132 kB
-> SwapFree:       193932 kB
-> 
-> Subtracted from MemTotal should = 0:
-> MemFree:          6940 kB
-> Active:          65048 kB
-> Inactive:       138040 kB
-> = 45288 kB remaining
-> 
-> Shouldn't these numbers add up to MemTotal?
-> 
-> $ dpkg -l "*gcc*"|grep ii
-> ii  gcc            2.95.4-8       The GNU C compiler.
-> ii  gcc-2.95       2.95.4-0.01100 The GNU C compiler.
-> 
-> On Debian Sid.
-> 
-> I can provide more information upon request...
-> 
+On Wed, 7 Nov 2001, J Sloan wrote:
 
-To continue the results...
+> "Mohammad A. Haque" wrote:
+> 
+> > On Wednesday, November 7, 2001, at 03:49 PM, Roeland Th. Jansen wrote:
+> >
+> > > when mounting an EFS cd on the loop it also froze. this is _without_
+> > > removing the lines. ...
+> >
+> > I'm a little confused. How did you even get a working kernel (or module)
+> > without removing the lines?
+> >
+> 
+> Probably compiled it modular -
 
-Now  : 1 day(s), 15:47:31 running Linux 2.4.14-ext3-2.4-0.9.14-2414p8
+if you try to compile it modular, the "make modules" will work, but
+the "make modules_install" will choke after copying the modules under
+/lib/modules when it tries to run the final "depmod" at the end.
 
-has also exibited the problem with cached.
+so, yes, i'm curious -- how did he get a final kernel and modules
+without removing those lines?
 
-I'm going to try unpatched 2.4.14 now...
+rday
 
-Mike

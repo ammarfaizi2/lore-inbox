@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315222AbSD2WWv>; Mon, 29 Apr 2002 18:22:51 -0400
+	id <S315225AbSD2WXy>; Mon, 29 Apr 2002 18:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315223AbSD2WWu>; Mon, 29 Apr 2002 18:22:50 -0400
-Received: from jalon.able.es ([212.97.163.2]:41951 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315222AbSD2WWt>;
-	Mon, 29 Apr 2002 18:22:49 -0400
-Date: Tue, 30 Apr 2002 00:22:43 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Wanghong Yuan <wyuan1@ews.uiuc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Accurately measure CPU cycles used by a program? thanks
-Message-ID: <20020429222243.GC1732@werewolf.able.es>
-In-Reply-To: <20020428.204911.63038910.davem@redhat.com> <001001c1ef3d$890a6d50$e6f7ae80@ad.uiuc.edu> <005d01c1efcb$561b8c10$e6f7ae80@ad.uiuc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.5
+	id <S315224AbSD2WXy>; Mon, 29 Apr 2002 18:23:54 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:60939 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315223AbSD2WXw>; Mon, 29 Apr 2002 18:23:52 -0400
+Date: Mon, 29 Apr 2002 15:23:44 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Miles Lane <miles@megapathdsl.net>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.11 + framebuffer compile patch -- OOPS in blk_get_readahead+a/60
+In-Reply-To: <1020118099.1918.25.camel@turbulence.megapathdsl.net>
+Message-ID: <Pine.LNX.4.10.10204291522510.29647-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.04.30 Wanghong Yuan wrote:
->Is there any package or program, which can be used to accurately measure the
->CPU cycles used by a program? I think the following code can only provide an
->inaccurate one, beause it may count on the waiting time of the program.
->
->gettimeofday(t1)
->runprogam
->gettimeofday(t2)
->t2-t1
->
->If I need to instrument the kernel, which part I should investigate? Thanks
->a lot in advance
->
+> >>EIP; c01ee59a <blk_get_readahead+a/60>   <=====
+> Trace; c023a87c <device_size_calculation+ac/230>
+> Trace; c023ab1f <do_md_run+11f/3d0>
+> Trace; c02286eb <fbcon_cursor+9b/200>
 
-man getrusage
+That is strange. Which framebuffer driver are you using?
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam7 #1 SMP jue abr 25 00:19:56 CEST 2002 i686
+

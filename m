@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129674AbRBYUHj>; Sun, 25 Feb 2001 15:07:39 -0500
+	id <S129686AbRBYUJI>; Sun, 25 Feb 2001 15:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129686AbRBYUH2>; Sun, 25 Feb 2001 15:07:28 -0500
-Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:26362
-	"EHLO champ.drew.net") by vger.kernel.org with ESMTP
-	id <S129674AbRBYUHP>; Sun, 25 Feb 2001 15:07:15 -0500
-From: Drew Bertola <drew@drewb.com>
+	id <S129691AbRBYUI7>; Sun, 25 Feb 2001 15:08:59 -0500
+Received: from mailout4-0.nyroc.rr.com ([24.92.226.120]:53437 "EHLO
+	mailout4-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S129686AbRBYUIi>; Sun, 25 Feb 2001 15:08:38 -0500
+Message-ID: <3A996644.A5856F14@rochester.rr.com>
+Date: Sun, 25 Feb 2001 15:08:36 -0500
+From: James D Strandboge <jstrand1@rochester.rr.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac1loop6jds1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: fat problem in 2.4.2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15001.26086.318898.287148@champ.drew.net>
-Date: Sun, 25 Feb 2001 20:07:02 +0000 ()
-To: Matthias Bruestle <m@mbsks.franken.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Power management on Sony C1Vx
-In-Reply-To: <20010225205521.C3253@mbsks.franken.de>
-In-Reply-To: <20010225205521.C3253@mbsks.franken.de>
-X-Mailer: VM 6.75 under Emacs 19.34.1
-Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Bruestle writes:
-> Note as stated in the FAQ: I am not subscribed, so please CC also to me,
-> when answering. (Or else my spies have to do this. :) )
-> 
-> Mahlzeit
-> 
-> 
-> I have been told, that I might get help here. I have a Sony VAIO C1Vx.
-> (In my case x=E.) My problem is the power management, i.e. standby and
-> suspend. I was not able to get it working (properly). Is here someone
-> who got it working or knows, that it will not work?
+The bug with truncate in the fat filesystem that was present in 2.4.0,
+and fixed with the 2.4.0-ac12 (or earlier) patch is still in the main
+(unpatched) kernel, both 2.4.1 and 2.4.2.  The problem is that I cannot
+apply the 2.4.0-ac patch to the newer kernels and I cannot patch up to
+2.4.1 from 2.4.0 if I already applied the ac patch (so I obviously can't
+get to 2.4.2).  I also can't patch from 2.4.0-ac12 to 2.4.1-ac20 using
+only ac patches.  Neither of the ac patches for 2.4.1 and 2.4.2 have
+this fix for fat, so giving the '-R' option to patch took away the fix.
 
-Try Gvaiocontrols for screen brightness (the volume control doesn't
-work yet).
+I would be happy to extract the fix from 2.4.0-ac12, but I am not a
+kernel developer and am not sure how many files were changed to fix this
+bug.
 
-http://gvaiocontrols.serialhacker.net/
+I want to move up to 2.4.2 for the reiserfs updates and then eventually
+to at least 2.4.2-ac2 for the loopback fix (but need the fat
+functionality too).
 
--- 
-Drew Bertola  | Send a text message to my pager or cell ... 
-              |   http://jpager.com/Drew
+Thanks for any help or suggestions.
+
+James Strandboge
+jstrand1@rochester.rr.com
 

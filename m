@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbUGLTgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUGLTgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbUGLTgS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUGLTgM
+	id S261987AbUGLTgs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:36:12 -0400
-Received: from smtp.loomes.de ([212.40.161.2]:19691 "EHLO falcon.loomes.de")
-	by vger.kernel.org with ESMTP id S261867AbUGLTgF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:36:05 -0400
-From: Sebastian Slota <sebastian@sslota.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SiI SATA kernel driver
-Date: Mon, 12 Jul 2004 21:35:59 +0200
-User-Agent: KMail/1.6.2
-References: <3254.1089628481@www2.gmx.net>
-In-Reply-To: <3254.1089628481@www2.gmx.net>
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 15:36:48 -0400
+Received: from mail-relay-4.tiscali.it ([212.123.84.94]:34726 "EHLO
+	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
+	id S261875AbUGLTgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:36:25 -0400
+Date: Mon, 12 Jul 2004 21:36:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040712193606.GP20947@dualathlon.random>
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710005208.GW20947@dualathlon.random> <s5hpt71cyxq.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407122135.59081.sebastian@sslota.de>
+In-Reply-To: <s5hpt71cyxq.wl@alsa2.suse.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Jul 12, 2004 at 12:17:05PM +0200, Takashi Iwai wrote:
+> Couldn't it be simply written like below?
+> 
+> #define BUILD_BUG_ON(condition) do { if (unlikely(condition)) BUILD_BUG(); } while(0)
 
-As far as I know ( using Sil 3114) the driver is called medley. its for 2.4 
-kernels and included in 2.4.27 (?) google for it and you'll find it.
-Its a kind of software raid anyway...
+BUILD_BUG_ON is a different thing. the "condition" is meant to be
+evaluated at _compile_ time, not at runtime (so the unlikely is useless
+since the compiler knows the result before it generates the bytecode).
+This is why BUILD_BUG() isn't implemented anywhere, so you get a linker
+error during the compilation.
 
-For 2.6 kernels there should be used dm or md (dont know which).
+For example with it you can do things like:
 
-Anyway I've tested linux software raid and have to tell that Raid0 is far 
-better with linux raid0!  (if you got the right HDs!). Raid1 is the same.
-You've nothing to gain using ~Sil Raid~!
-Only when you have a Win system installed there too you'll have to use it!
+	BUILD_BUG_ON(offsetof(struct task_struct, thread.i387.fxsave) & 15);
 
-My advise: Use Linux Software Raid! far better documented!!!
-
-Tool I use: mdadm ( google for it if its not included in your distri! )
-
-Sebastian
-
-
-On Monday 12 July 2004 12:34, Markus Nicolussi wrote:
-> please can u help me with this problem:
->
-> can u tell me if the driver supports the SiI3112 Chip in _RAID_mode_? Or
-> ist there a website which is constantly updated where i can look to from
-> time to time and which tells me that?
->
-> merci, nico.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+(see asm-i386/bugs.h, it's doing the BUILD_BUG_ON by hand right now)

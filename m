@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbUC2KuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 05:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUC2KuQ
+	id S262807AbUC2LEE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 06:04:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbUC2LEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 05:50:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48795 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262797AbUC2KuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 05:50:12 -0500
-Date: Mon, 29 Mar 2004 02:49:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm5
-Message-Id: <20040329024959.34c9b77e.akpm@osdl.org>
-In-Reply-To: <20040329113321.A23135@flint.arm.linux.org.uk>
-References: <20040329014525.29a09cc6.akpm@osdl.org>
-	<20040329105729.A20272@flint.arm.linux.org.uk>
-	<20040329022556.255c71bb.akpm@osdl.org>
-	<20040329113321.A23135@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 06:04:04 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:41983 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262807AbUC2LEA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 06:04:00 -0500
+Subject: Re: [PATCH] s390 (8/10): zfcp fixes.
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF2D02D7FE.D57DABBB-ONC1256E66.0036A8C5-C1256E66.00373A2C@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Mon, 29 Mar 2004 12:03:13 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 29/03/2004 13:03:12
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+
+
+
+
+Hi Greg,
+
+> > This is not ok.  If you have to do something like this, I really suggest
+> > that you not allow the "sub modules" be able to unload before the upper
+> > module can.  In fact, why would you want to do such a thing?
+> How do sub modules help with the release function problem? The unit/port
+> objects get unregistered in zfcp_unit_dequeue. This happens e.g. when
+> a zfcp adapter gets removed because of a detach. After the last zfcp
+> adapter got removed the module is in principle ready to be removed.
+> Now there are two cases. 1) The module count of the zfcp module (or one
+> of the non-existent sub-modules) is NOT increase because of the outstanding
+> call to the release function. It obvious that the release function can't
+> be part of the zfcp module(s) in this case. 2) The module count of the
+> zfcp module(s) is elevated because of the outstanding call to release.
+> Who does the module_put in this case? The release function only can do it
+> if it is not part of ANY of the modules. If it is part of a zfcp module
+> the cpu doing the module_put might not be able to get out of the release
+> function fast enough before another cpu has removed the module(s)
+> (including the sub-modules).
+> Did I miss something ?
 >
-> On Mon, Mar 29, 2004 at 02:25:56AM -0800, Andrew Morton wrote:
-> > > and it is completely valid for ->close to be called while
-> > > another thread is in ->open.  In fact, it's desirable since ->open may
-> > > be waiting for the DCD line from a modem to activate, while there may
-> > > be a simultaneous O_NONBLOCK open/ioctl/close from stty.
-> > 
-> > ->open is not called under tty_sem.  With this change, ->close is called
-> > under tty_sem.
-> > 
-> > Are ->close implementations likely to block on hardware events?
-> 
-> Historically they have blocked in a well defined manner - eg when
-> dropping the DTR signal for a specified minimum time period.
-> 
-> They can also block until the data awaiting transmission has been
-> sent, which by default has a 30 second timeout, or may be configured
-> to be "until sent".  Of course, if CTS is deasserted, we will wait
-> until the timeout.
+> > I still really strongly object to this patch.  If it's a scsi problem,
+> > fix it there, but odds are it's your driver's problem as no other scsi
+> > driver needs this.
+> If we can move the port/unit objects to the scsi mid layer that would
+> "solve" the problem for the zfcp module. But the problem itself doesn't
+> go away. It's just moved one step up the ladder.
 
-I suspect such drivers have always had a barndoor-sized hole in them, if
-someone tries to open the thing while ->close is sleeping.
+Did I manage to convince you or are you just fed up with the discussion?
+I'll ask because the zfcp patches are still pending and I want to get this
+issue resolved before the next try to get them integrated.
 
-I'll take another look at the darn thing tomorrrow.
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
+
 

@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUFAJI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264948AbUFAJNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264955AbUFAJI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 05:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbUFAJI0
+	id S264948AbUFAJNr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 05:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbUFAJNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 05:08:26 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:53704 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S264955AbUFAJIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 05:08:24 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: compat syscall args
-Date: Tue, 1 Jun 2004 11:07:42 +0200
-User-Agent: KMail/1.6.1
-References: <20040529122319.49eaafe1.davem@redhat.com> <20040601150633.5f708220.sfr@canb.auug.org.au>
-In-Reply-To: <20040601150633.5f708220.sfr@canb.auug.org.au>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+	Tue, 1 Jun 2004 05:13:47 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:65433 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S264948AbUFAJNp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 05:13:45 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <xb73c5f8z9f.fsf@savona.informatik.uni-freiburg.de> <20040528195709.GB5175@pclin040.win.tue.nl> <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
+Subject: BUG FIX: atkbd.c keyboard driver bug [Was: keyboard problem with 2.6.6]
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Date: 01 Jun 2004 11:13:43 +0200
+Message-ID: <xb7n03n7i9k.fsf@savona.informatik.uni-freiburg.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_hdEvA1+vHo1mU9j";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406011107.46096.arnd@arndb.de>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_hdEvA1+vHo1mU9j
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+    Dan> Relatedly, drivers/char/keyboard.c assumes that SysRq cannot
+    Dan> be activated unless the Alt key(s) is/are pressed (and not
+    Dan> yet released).  I'm going to fix this.  But since this not a
+    Dan> module, I need to reboot to test it.  So, please be patient.
 
-On Tuesday 01 June 2004 07:06, Stephen Rothwell wrote:
-> On Sat, 29 May 2004 12:23:19 -0700 "David S. Miller" <davem@redhat.com> w=
-rote:
-> > I remember discussing this with Andi Kleen before.
->=20
-> Yeah, you and Andi and I (and others, I think) had this discussion, but i=
-t ended like this:
->=20
-> > Subject: Re: [PATCH] Consolidate sys32_utime
-> > From: "David S. Miller" <davem@redhat.com>
-> >=20
-> > So be it, the convention is that all arguments are zero extended from
-> > 32-bits to 64-bits when the syscall is invoked.
->=20
-> Did something change along the way?
+Fixed.  The patch is already added to Bugzilla.
 
-I wasn't aware of the convention but it absolutely makes sense. If I find
-the time, I'll go through the existing compat_sys_* handlers to see if they
-all do sign-extension correctly. Note that on s390, we also need 31-bit
-zero-extension for pointers, which is done in architecture-specific code.
-Otherwise every compat_* syscall would need to use compat_uptr_t arguments
-which appears unnecessarily ugly to me.
+Using these  patches, the  keyboard behaviour is  correct again  on my
+notebook:
 
-Also, what should be the conversion for positive signed arguments like the
-futex 'op' value? Sign-extension would be the formally correct solution,
-but simply using the zero-extended value (like we do in most places) works
-just as well.
+        SysRq ==> Input Event with code KEY_SYSRQ
+        PrintScreen ==> Input Event with code KEY_KPASTERISK
+                        (because PrintScreen is Alt-KP_ASTERISK)
 
-	Arnd <><
+        SysRq SPACE gives sysrq help screen
+        Alt-PrintScreen SPACE gives sysrq help screen
+        PrintScreen SPACE gives "*" and no sysrq help screen        
 
---Boundary-02=_hdEvA1+vHo1mU9j
-Content-Type: application/pgp-signature
-Content-Description: signature
+    Dan> See http://bugzilla.kernel.org/show_bug.cgi?id=2808 for more
+    Dan> info.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Both patches are there at the Bugzilla site.
 
-iD8DBQBAvEdh5t5GS2LDRf4RAobMAJ9z0SGlU3deLzHVCKmd6P/PqujVUwCfcBmS
-PQyrK+LomsIhya0Bwo1Polg=
-=MfWJ
------END PGP SIGNATURE-----
 
---Boundary-02=_hdEvA1+vHo1mU9j--
+(BTW, why did  Vojtech REJECT this bug report at  Bugzilla?  Give me a
+reason!  I do observe the bug and I have even found a fix.)
+
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

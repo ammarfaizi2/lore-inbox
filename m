@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267476AbUIATxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIATxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267476AbUIATxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUIATuY
+	id S267464AbUIATxy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUIATt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:50:24 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:19737 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267483AbUIATt3
+	Wed, 1 Sep 2004 15:49:59 -0400
+Received: from psems1.agilysys.com ([199.33.129.48]:36109 "HELO
+	psems1.pios.com") by vger.kernel.org with SMTP id S267494AbUIATtM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:49:29 -0400
-Date: Wed, 1 Sep 2004 21:51:32 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] kallsyms: speed up /proc/kallsyms
-Message-ID: <20040901195132.GA15432@mars.ravnborg.org>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-References: <4134DEF4.8090001@grupopie.com> <1094016277.17828.53.camel@bach> <4135AFBE.1000707@grupopie.com> <20040901192755.GC7219@mars.ravnborg.org> <41362694.9070101@grupopie.com>
+	Wed, 1 Sep 2004 15:49:12 -0400
+Subject: Re: Kernel or Grub bug.
+From: "Wise, Jeremey" <jeremey.wise@agilysys.com>
+To: Oliver Hunt <oliverhunt@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <4699bb7b04090109415f64fea1@mail.gmail.com>
+References: <1094008341.4704.32.camel@wizej.agilysys.com>
+	 <200408312358.08153.dsteven3@maine.rr.com>
+	 <1094041227.4635.7.camel@wizej.agilysys.com>
+	 <200409011135.36537.dsteven3@maine.rr.com>
+	 <1094055985.4635.44.camel@wizej.agilysys.com>
+	 <4699bb7b04090109415f64fea1@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 01 Sep 2004 15:46:43 -0400
+Message-Id: <1094068003.15795.26.camel@wizej.agilysys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41362694.9070101@grupopie.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 1.5.93 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 08:44:20PM +0100, Paulo Marques wrote:
-> Sam Ravnborg wrote:
-> >...
-> >
-> >When you have made the split Rusty requested and implemented
-> >the above could you please send patches to me. I will add them to
-> >my kbuild queue.
+On Thu, 2004-09-02 at 04:41 +1200, Oliver Hunt wrote:
+> If the reiserfs module is compiled as, well, a module, rather than
+> built in to the kernel you won't be able to boot.
 > 
-> I'd be glad to do this, but AFAICT the patch already entered the mm
-> tree, so I think that splitting it now, or sending it through a
-> different path would probably add to the confusion I already
-> managed to create :(
+> To load modules kernel needs access to modules, but as these reside on
+> a reiserfs partition it needs to load the reiserfs module... hence it
+> isn't possible to do that.
+> 
+Thanks for your response but I guess I need a little clarification. I
+believe you meant one of the two options below:
 
-I prefer the split-up Rusty requested.
-It will then enter -mm via my queue - but as three logical separated
-patches. This is much better when looking into this later.
+1) If I choose to compile the required file system modules "reiserfs"
+monolithicaly into my 2.8.1 kernel I can NOT also allow the kernel to
+see a module in initrd for reiserfs.ko? If this is what you mean .. my
+question is why would the kernel even care? The mount request would be
+called and the proper module (reiserfs) would be present to parse said
+request. Please correct
+2) If I choose to compile the kernel with reiserfs as a modules (ie not
+monolithicaly  in the kernel) then I will have issues as the kernel has
+to have the driver reiserfs to mount the root file system to be able to
+load /lib/modules/..../reiserfs.ko. If this is what you meant then
+again, I am a bit confused. I thought that was the whole point of the
+initrd image in that those modules (RAID, FC, USB, Network
+etc....)required to get the OS to the state that it has a / they must be
+compiled in the initrd which is called and referaned in grub or lilo.
+Again, please correct me if I am wrong.
 
-Andrew will just back-out your previous patch and mark it as 'merged'.
 
-	Sam
+-- 
+Thanks,
+
+Jeremey Wise
+jeremey.wise@agilysys.com
+
+All opinions or information expressed here are personal in nature and do
+not reflect the official position of Agilysys Inc.

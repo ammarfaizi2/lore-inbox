@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUFFQdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263799AbUFFQkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUFFQdV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUFFQdU
+	id S263799AbUFFQkY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUFFQkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:33:20 -0400
-Received: from sphinx.mythic-beasts.com ([212.69.37.6]:4244 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id S263795AbUFFQdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:33:19 -0400
-Date: Sun, 6 Jun 2004 17:33:06 +0100 (BST)
-From: chris@scary.beasts.org
-X-X-Sender: cevans@sphinx.mythic-beasts.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kalin KOZHUHAROV <kalin@ThinRope.net>,
-       Davide Libenzi <davidel@xmailserver.org>, Robert Love <rml@ximian.com>,
-       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-In-Reply-To: <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0406061725450.28570@sphinx.mythic-beasts.com>
-References: <40C1E6A9.3010307@elegant-software.com> 
- <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> 
- <20040605205547.GD20716@devserv.devel.redhat.com>  <20040605215346.GB29525@taniwha.stupidest.org>
- <1086475663.7940.50.camel@localhost> <Pine.LNX.4.58.0406051553130.2261@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org> <40C2A6E4.7020103@ThinRope.net>
- <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Jun 2004 12:40:24 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:640
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S263799AbUFFQkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 12:40:22 -0400
+Date: Sun, 6 Jun 2004 09:40:21 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: linux-kernel@vger.kernel.org
+Subject: SysRq oddity with iptables logging
+Message-ID: <20040606164021.GA1021@linuxace.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On a heavily loaded gateway/firewall which performs quite a bit of logging (at
+level DEBUG), I occasionally see iptables logs bleeding into SysRq data.
+For example via serial:
 
-On Sat, 5 Jun 2004, Linus Torvalds wrote:
+telnet> send brk
+m
+SysRq : Show Memory
+Mem-info:
+DMA per-cpu:<7>EXT: IN=eth0 OUT=eth1 SRC=82.133.69.241 DST=10.2.242.181 LEN=98 TOS=0x00 PREC=0x00 TTL=20 ID=5087 PROTO=UDP SPT=60516 DPT=2967 LEN=78 
 
-> But no, even despite the strange usage, this isn't a performance issue.
-> qmail will call "getpid()" a few tens of times per connection because of
-> the wonderful quality of randomness it provides, or something.
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
 
-The openssl library seems to have a strange love for getpid() too. At
-least, my old-ish version "openssl-0.9.6b-35.7" does.
-My strace logs show over 50 consecutive getpid() calls during the
-processing of the SSL_accept() routine. (I'm adding SSL support to vsftpd;
-SSL_accept() is called every client connect and also to accept passive
-data connections).
+...
 
-Cheers
-Chris
+Note how the packet log just sandwiched itself in the middle of the data.
+
+Is this expected behavior?
+
+Phil Oester
+

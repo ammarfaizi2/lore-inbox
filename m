@@ -1,238 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVBKIMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVBKIP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVBKIMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVBKIMS
+	id S262219AbVBKIP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVBKIP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:12:18 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:45233 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262216AbVBKILt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:11:49 -0500
-Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>,
-       Jay Lan <jlan@engr.sgi.com>
-In-Reply-To: <20050207154623.33333cda.akpm@osdl.org>
-References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr>
-	 <20050207154623.33333cda.akpm@osdl.org>
-Date: Fri, 11 Feb 2005 09:11:44 +0100
-Message-Id: <1108109504.30559.43.camel@frecb000711.frec.bull.fr>
+	Fri, 11 Feb 2005 03:15:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:12525 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262217AbVBKIOu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 03:14:50 -0500
+Date: Fri, 11 Feb 2005 09:14:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
+Subject: Re: 2.6.11-rc3-mm2
+Message-ID: <20050211081422.GB2287@elte.hu>
+References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/02/2005 09:20:25,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 11/02/2005 09:20:28,
-	Serialize complete at 11/02/2005 09:20:28
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050211020956.GC15058@waste.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-07 at 15:46 -0800, Andrew Morton wrote:
-> Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
-> >
-> > Hello,
-> > 	
-> >    This module sends a signal to one or several processes (in user
-> > space) when a fork occurs in the kernel. It relays information about
-> > forks (parent and child pid) to a user space application.
-> >
-> So this permits ELSA to maintain a complete picture of the process/thread
-> hierarchy?  I guess that fits into the "do it in userspace" mantra -
-> certainly hooking into fork() is a minimal way of doing this, although I
-> wonder what the limitations are.
+
+* Matt Mackall <mpm@selenic.com> wrote:
+
+> > > What happened to the RT rlimit code from Chris?
+> > 
+> > I still have it, but I had the impression Ingo didn't like it as a long
+> > term solution/hack (albeit small) to the scheduler.  Whereas the rt-lsm
+> > patch is wholly self-contained.
 > 
-> Implementation-wise: there's a lot of code there and the interface is a bit
-> awkward.  Why not just feed that kobject you have there into
-> kobject_uevent()?
+> I think it's important to recognize that we're trying to address an
+> issue that has a much wider potential audience than pro audio users,
+> and not very far off - what is high end audio performance today will
+> be expected desktop performance next year.
 
-  Like Andrew suggested, I wrote a new patch (tested on 2.6.11-rc3-mm2)
-that notifies to user space application the creation of a new process
-when kernel forks by using the kobject_uevent() routine. This funtion
-sends a new event (KOBJ_FORK) through the netlink interface. This new
-event needs an environment (parent pid and child pid) so I used
-send_uevent() like it is done in kobject_hotplug(). 
+i disagree that desktop performance tomorrow will necessarily have to
+utilize SCHED_FIFO. Today's desktop audio applications perform quite
+good at SCHED_NORMAL priorities [with the 2.6.11 kernel that has more
+interactivity/latency fixes such as PREEMPT_BKL].
 
-  I tested this patch on a 2.6.11-rc3-mm2 kernel and there is a little
-overhead when I compile a Linux kernel:
+I agree (and hope) that tomorrow's "stock" desktop will be based on
+today's pro audio architectures, but tomorrows CPUs will be much faster
+and tomorrows desktop apps dont want to spend 30%+ CPU time on creating
+audio.
 
-   #time sh -c 'make O=/home/guill/build/k2610 bzImage && 
-   make O=/home/guill/build/k2610 modules'
+the pro applications will always want to have a 100% guarantee (it
+really sucks to generate a nasty audio click during a live performance)
+and want to utilize as much CPU time for audio as needed. They are also
+clearly the most complex creators of audio so they go far above the
+normal (and reasonable) CPU-use/latency expectations and tradeoffs of
+the stock scheduler.
 
-   with a vanilla kernel: real    8m10.797s
-	                  user    7m29.652s
-			  sys     0m49.275s
-   
-   with the forkuevent patch : real    8m16.189s
-                    	       user    7m28.841s
-		    	       sys     0m49.155s
+> So I think it's critical that we find solution that's appropriate for
+> _every single box_, because realistically vendors are going to ship
+> with this "wholly self-contained" feature turned on by default next
+> year, at which point the "containment" will be nil and whatever warts
+> it has will be with us forever.
 
-  I paste the diff at the end of the mail with wrap line disabled. is it
-better to wrap the patch to 80 characters or is it ok like this?
+an "RT priorities rlimit" is still not adequate as a desktop solution,
+because it still allows the box to be locked up. Also, if it turns out
+to be a mistake then it's already codified into the ABI, while RT-LSM is
+much less 'persistent' and could be replaced much easier. RT-LSM is also
+more flexible and more practical. (an rlimit needs changes across a
+number of userspace components, delaying its adoptation.)
 
-  Every comments are welcome. For exemple is it better to use a
-structure instead of two pid_t parameters? I also like to know if this
-is useful for someone else... thus, any feedback will be appreciate.
- 
- 
-Regards,
-Guillaume
+> The rlimit stuff is not perfect, but it's a much better fit for the
+> UNIX model generally, which is a fairly big win. [...]
 
-guill@karakorum $ diffstat linux-2.6.11-rc3-mm2-forkuevent.patch
- include/linux/kobject.h        |    2 +
- include/linux/kobject_uevent.h |    1
- kernel/fork.c                  |   13 ++++++++
- lib/kobject_uevent.c           |   63 ++++++++++++++...++++++++++++
- 4 files changed, 79 insertions(+)
+a 'locked up box' is as far away from the UNIX model as it gets.
 
-Signed-off-by: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+perhaps, if the need arises, we can add the RT-throttling sysctl (which
+still wont give RT priorities to unprivileged users and would serve as a
+way to throttle privileged RT tasks), which could thus make the RT-LSM
+solution pretty safe. Right now Jack has its own watchdog thread which
+should solve most of the lockup situations.  Lets not overdesign the
+solution, especially when we dont yet know how the problem really looks
+like.
 
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/include/linux/kobject.h linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject.h
---- linux-2.6.11-rc3-mm2/include/linux/kobject.h	2005-02-03 02:54:59.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject.h	2005-02-11 08:38:25.000000000 +0100
-@@ -253,5 +253,7 @@ static inline int add_hotplug_env_var(ch
- { return 0; }
- #endif
- 
-+extern void kobject_fork(struct kobject *, pid_t, pid_t);
-+
- #endif /* __KERNEL__ */
- #endif /* _KOBJECT_H_ */
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/include/linux/kobject_uevent.h linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject_uevent.h
---- linux-2.6.11-rc3-mm2/include/linux/kobject_uevent.h	2005-02-03 02:54:38.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/include/linux/kobject_uevent.h	2005-02-11 08:38:25.000000000 +0100
-@@ -29,6 +29,7 @@ enum kobject_action {
- 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
- 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
- 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
-+	KOBJ_FORK	= (__force kobject_action_t) 0x08,	/* a child process has been created */
- };
- 
- 
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/kernel/fork.c linux-2.6.11-rc3-mm2-forkuevent/kernel/fork.c
---- linux-2.6.11-rc3-mm2/kernel/fork.c	2005-02-11 08:37:48.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/kernel/fork.c	2005-02-11 08:39:33.000000000 +0100
-@@ -41,6 +41,7 @@
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
-+#include <linux/kobject.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -57,6 +58,9 @@ int nr_threads; 		/* The idle threads do
- 
- int max_threads;		/* tunable limit on nr_threads */
- 
-+/* kobject used to notify user space application when a fork occurs */
-+struct kobject fork_kobj;
-+			
- DEFINE_PER_CPU(unsigned long, process_counts) = 0;
- 
-  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
-@@ -148,6 +152,13 @@ void __init fork_init(unsigned long memp
- 
- 	init_task.signal->rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
- 	init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
-+
-+	/*
-+	 * We init the fork_kobj which is the event sends when a fork
-+	 * occurs.
-+	 */
-+	kobject_init(&fork_kobj);
-+	kobject_set_name(&fork_kobj, "fork_kobj");
- }
- 
- static struct task_struct *dup_task_struct(struct task_struct *orig)
-@@ -1238,6 +1249,8 @@ long do_fork(unsigned long clone_flags,
- 			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
- 				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
- 		}
-+
-+		kobject_fork(&fork_kobj, current->pid, p->pid);
- 	} else {
- 		free_pidmap(pid);
- 		pid = PTR_ERR(p);
-diff -uprN -X dontdiff linux-2.6.11-rc3-mm2/lib/kobject_uevent.c linux-2.6.11-rc3-mm2-forkuevent/lib/kobject_uevent.c
---- linux-2.6.11-rc3-mm2/lib/kobject_uevent.c	2005-02-11 08:37:48.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-forkuevent/lib/kobject_uevent.c	2005-02-11 08:38:25.000000000 +0100
-@@ -46,6 +46,8 @@ static char *action_to_string(enum kobje
- 		return "offline";
- 	case KOBJ_ONLINE:
- 		return "online";
-+	case KOBJ_FORK:
-+		return "fork";
- 	default:
- 		return NULL;
- 	}
-@@ -433,3 +435,64 @@ int add_hotplug_env_var(char **envp, int
- EXPORT_SYMBOL(add_hotplug_env_var);
- 
- #endif /* CONFIG_HOTPLUG */
-+
-+/* 
-+ * The buffer will contain 1 integer which has 20 digits for
-+ * 64 bits integer. So a size of 32 is large enough...
-+ */
-+#define FORK_BUFFER_SIZE	32
-+
-+/* 
-+ * number of env pointers is set to FORK_BUFFER_NB 
-+ *	env[0] - Not used
-+ *	env[1] - Not used
-+ *	env[2] - parent pid
-+ *	env[3] - child pid
-+ *	env[4] - NULL
-+ */
-+#define FORK_BUFFER_NB		5
-+
-+/**
-+ * kobject_fork - notify userspace when forking
-+ *
-+ * @kobj: struct kobject that the action is happening to
-+ */
-+void kobject_fork(struct kobject *kobj, pid_t parent, pid_t child)
-+{
-+	char *kobj_path = NULL;
-+	char *action_string = NULL;
-+	char **envp = NULL;
-+	char ppid_string[FORK_BUFFER_SIZE];
-+	char cpid_string[FORK_BUFFER_SIZE];
-+
-+	action_string = action_to_string(KOBJ_FORK);
-+	if (!action_string)
-+		return;
-+	
-+	kobj_path = kobject_get_path(kobj, GFP_KERNEL);
-+	if (!kobj_path)
-+		return;
-+
-+	envp = kmalloc(FORK_BUFFER_NB * sizeof (char *), GFP_KERNEL);
-+	if (!envp) {
-+		kfree(kobj_path);
-+		return;
-+	}
-+	memset (envp, 0x0, FORK_BUFFER_NB * sizeof (char *));
-+
-+	snprintf(ppid_string, FORK_BUFFER_SIZE, "%i", parent);
-+	snprintf(cpid_string, FORK_BUFFER_SIZE, "%i", child);
-+	
-+	envp[0] = "Not used";
-+	envp[1] = "Not used";
-+	envp[2] = ppid_string;
-+	envp[3] = cpid_string;
-+	envp[4] = NULL;
-+	
-+	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
-+
-+	kfree(envp);
-+	kfree(kobj_path);
-+	return;
-+}
-+EXPORT_SYMBOL(kobject_fork);
+or an even simpler solution for the lockup problem would be a
+kernel-based RT watchdog. In fact 2.6.11-rc3-mm2 already includes such a
+watchdog (written by yours truly):
 
+ http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm2/broken-out/detect-soft-lockups.patch
 
+right now softlockup-detect runs at SCHED_FIFO prio 99 and only prints a
+warning - but it could easily run at SCHED_FIFO prio 1 [to detect
+lockups generated by all RT tasks] and it could actively try to renice
+(or kill) tasks that run for too long. So very likely there will be an
+easy upstream mechanism for any problem that could arise out of RT-LSM.
+
+	Ingo

@@ -1,126 +1,194 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278497AbRJPCKi>; Mon, 15 Oct 2001 22:10:38 -0400
+	id <S278501AbRJPCOi>; Mon, 15 Oct 2001 22:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278498AbRJPCKa>; Mon, 15 Oct 2001 22:10:30 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:12687 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S278497AbRJPCKW>;
-	Mon, 15 Oct 2001 22:10:22 -0400
-Message-ID: <3BCB966E.82600865@sun.com>
-Date: Mon, 15 Oct 2001 19:07:42 -0700
+	id <S278500AbRJPCOT>; Mon, 15 Oct 2001 22:14:19 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:16017 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S278498AbRJPCOH>;
+	Mon, 15 Oct 2001 22:14:07 -0400
+Message-ID: <3BCB9750.D9B10A16@sun.com>
+Date: Mon, 15 Oct 2001 19:11:28 -0700
 From: Tim Hockin <thockin@sun.com>
 Organization: Sun Microsystems, Inc.
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: mingo@redhat.com, neilb@cse.unsw.edu.au,
+To: mj@suse.cz, jgarzik@mandrakesoft.com,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         alan@redhat.com, torvalds@transmeta.com
-Subject: [PATCH] misc minor md fixes
+Subject: [PATCH] minor PCI tweaks
 Content-Type: multipart/mixed;
- boundary="------------DF276087E4676959B7318E52"
+ boundary="------------76CC1165A59419D36908873F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------DF276087E4676959B7318E52
+--------------76CC1165A59419D36908873F
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 All,
 
-Attached is a small patch to fix up some md issues we've run across.
+Attached is a small patch to tweak a couple items in the PCI subsystem. 
+They've been in use here for some time.  Please apply, or let me know of
+any issues.
 
-The changes are pretty obvious, and were needed here - please apply.  Let
-me know if there is a problem with them.
+1) set the PCI busspeed(s) from the kernel commandline (this is useful for
+systems that have busses other than 33 or 66 MHz.  
 
-Thanks
+2) clear the Received Master Abort bit on bridges after probing
 
+Thanks!
 Tim
+
 -- 
 Tim Hockin
 Systems Software Engineer
 Sun Microsystems, Cobalt Server Appliances
 thockin@sun.com
---------------DF276087E4676959B7318E52
+--------------76CC1165A59419D36908873F
 Content-Type: text/plain; charset=us-ascii;
- name="md-misc.diff"
+ name="pci-misc.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="md-misc.diff"
+ filename="pci-misc.diff"
 
-diff -ruN dist-2.4.12+patches/drivers/md/md.c cvs-2.4.12+patches/drivers/md/md.c
---- dist-2.4.12+patches/drivers/md/md.c	Mon Oct 15 10:21:57 2001
-+++ cvs-2.4.12+patches/drivers/md/md.c	Mon Oct 15 10:21:57 2001
-@@ -542,8 +542,10 @@
- 		goto abort;
- 	}
+diff -ruN dist-2.4.12+patches/drivers/pci/pci.c cvs-2.4.12+patches/drivers/pci/pci.c
+--- dist-2.4.12+patches/drivers/pci/pci.c	Mon Oct 15 10:22:23 2001
++++ cvs-2.4.12+patches/drivers/pci/pci.c	Mon Oct 15 10:22:22 2001
+@@ -20,6 +20,7 @@
+ #include <linux/ioport.h>
+ #include <linux/spinlock.h>
+ #include <linux/pm.h>
++#include <linux/ctype.h>
+ #include <linux/kmod.h>		/* for hotplug_path */
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
+@@ -38,6 +39,8 @@
+ LIST_HEAD(pci_root_buses);
+ LIST_HEAD(pci_devices);
  
--	if (calc_sb_csum(sb) != sb->sb_csum)
-+	if (calc_sb_csum(sb) != sb->sb_csum) {
- 		printk(BAD_CSUM, partition_name(rdev->dev));
-+		goto abort;
++static int get_bus_speed(struct pci_bus *bus);
++
+ /**
+  * pci_find_slot - locate PCI device from a given PCI slot
+  * @bus: number of PCI bus on which desired PCI device resides
+@@ -1069,6 +1072,7 @@
+ 	child->number = child->secondary = busnr;
+ 	child->primary = parent->secondary;
+ 	child->subordinate = 0xff;
++	child->bus_speed = get_bus_speed(child);
+ 
+ 	/* Set up default resource pointers.. */
+ 	for (i = 0; i < 4; i++)
+@@ -1254,8 +1258,19 @@
+ 		return NULL;
+ 
+ 	/* some broken boards return 0 or ~0 if a slot is empty: */
+-	if (l == 0xffffffff || l == 0x00000000 || l == 0x0000ffff || l == 0xffff0000)
++	if (l == 0xffffffff || l == 0x00000000 
++	 || l == 0x0000ffff || l == 0xffff0000) {
++		/*
++		 * host/pci and pci/pci bridges will set Received Master Abort
++		 * (bit 13) on failed configuration access (happens when
++		 * searching for devices).  To be safe, clear the status
++		 * register.
++		 */
++		unsigned short st;
++		pci_read_config_word(temp, PCI_STATUS, &st);
++		pci_write_config_word(temp, PCI_STATUS, st);
+ 		return NULL;
 +	}
- 	ret = 0;
- abort:
- 	return ret;
-diff -ruN dist-2.4.12+patches/drivers/md/raid1.c cvs-2.4.12+patches/drivers/md/raid1.c
---- dist-2.4.12+patches/drivers/md/raid1.c	Mon Oct 15 10:21:58 2001
-+++ cvs-2.4.12+patches/drivers/md/raid1.c	Mon Oct 15 10:21:57 2001
-@@ -1690,7 +1690,8 @@
- 		}
- 	}
  
--	if (!start_recovery && !(sb->state & (1 << MD_SB_CLEAN))) {
-+	if (!start_recovery && !(sb->state & (1 << MD_SB_CLEAN)) &&
-+	    (conf->working_disks > 1)) {
- 		const char * name = "raid1syncd";
+ 	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+@@ -1383,6 +1398,7 @@
+ 	list_add_tail(&b->node, &pci_root_buses);
  
- 		conf->resync_thread = md_register_thread(raid1syncd, conf,name);
-diff -ruN dist-2.4.12+patches/drivers/md/raid5.c cvs-2.4.12+patches/drivers/md/raid5.c
---- dist-2.4.12+patches/drivers/md/raid5.c	Mon Oct 15 10:21:58 2001
-+++ cvs-2.4.12+patches/drivers/md/raid5.c	Mon Oct 15 10:21:57 2001
-@@ -488,22 +488,24 @@
- 	PRINTK("raid5_error called\n");
+ 	b->number = b->secondary = bus;
++	b->bus_speed = get_bus_speed(b);
+ 	b->resource[0] = &ioport_resource;
+ 	b->resource[1] = &iomem_resource;
+ 	return b;
+@@ -1935,7 +1951,67 @@
+ 	return 1;
+ }
  
- 	for (i = 0, disk = conf->disks; i < conf->raid_disks; i++, disk++) {
--		if (disk->dev == dev && disk->operational) {
--			disk->operational = 0;
--			mark_disk_faulty(sb->disks+disk->number);
--			mark_disk_nonsync(sb->disks+disk->number);
--			mark_disk_inactive(sb->disks+disk->number);
--			sb->active_disks--;
--			sb->working_disks--;
--			sb->failed_disks++;
--			mddev->sb_dirty = 1;
--			conf->working_disks--;
--			conf->failed_disks++;
--			md_wakeup_thread(conf->thread);
--			printk (KERN_ALERT
--				"raid5: Disk failure on %s, disabling device."
--				" Operation continuing on %d devices\n",
--				partition_name (dev), conf->working_disks);
-+		if (disk->dev == dev) {
-+			if (disk->operational) {
-+				disk->operational = 0;
-+				mark_disk_faulty(sb->disks+disk->number);
-+				mark_disk_nonsync(sb->disks+disk->number);
-+				mark_disk_inactive(sb->disks+disk->number);
-+				sb->active_disks--;
-+				sb->working_disks--;
-+				sb->failed_disks++;
-+				mddev->sb_dirty = 1;
-+				conf->working_disks--;
-+				conf->failed_disks++;
-+				md_wakeup_thread(conf->thread);
-+				printk (KERN_ALERT
-+					"raid5: Disk failure on %s, disabling device."
-+					" Operation continuing on %d devices\n",
-+					partition_name (dev), conf->working_disks);
++#define MAX_OVERRIDES 256
++static int pci_speed_overrides[MAX_OVERRIDES] __initdata;
++
++static int __init get_bus_speed(struct pci_bus *bus)
++{
++	if (!bus) {
++		return -1;
++	}
++
++	if (pci_speed_overrides[bus->number]) {
++		return pci_speed_overrides[bus->number];
++	} else {
++		/* printk("PCI: assuming 33 MHz for bus %d\n", bus->number); */
++		return 33;
++	}
++}
++
++/* handle pcispeed=0:33,1:66 parameter (speed=0 means unknown) */
++static int __init pci_speed_setup(char *str)
++{
++        while (str) {
++                char *k = strchr(str, ',');
++                if (k) {
++                        *k++ = '\0';
++		}
++
++                if (*str) {
++                        int bus;
++                        int speed;
++                        char *endp;
++
++			if (!isdigit(*str)) {
++				printk("PCI: bad bus number for "
++					"pcispeed parameter\n");
++				str = k;
++				continue;
 +			}
- 			return 0;
- 		}
- 	}
++                        bus = simple_strtoul(str, &endp, 0);
++
++                        if (!*endp || !isdigit(*(++endp))) {
++				printk("PCI: bad speed for "
++					"pcispeed parameter\n");
++				str = k;
++				continue;
++			}
++			speed = simple_strtoul(endp, NULL, 0);
++			pci_speed_overrides[bus] = speed;
++			printk("PCI: setting bus %d speed to %d MHz\n",
++				bus, speed);
++
++			str = k;
++		} else {
++			break;
++		}
++	}
++	return 1;
++}
++
+ __setup("pci=", pci_setup);
++__setup("pcispeed=", pci_speed_setup);
++
+ 
+ EXPORT_SYMBOL(pci_read_config_byte);
+ EXPORT_SYMBOL(pci_read_config_word);
+diff -ruN dist-2.4.12+patches/include/linux/pci.h cvs-2.4.12+patches/include/linux/pci.h
+--- dist-2.4.12+patches/include/linux/pci.h	Mon Oct 15 10:23:43 2001
++++ cvs-2.4.12+patches/include/linux/pci.h	Mon Oct 15 10:23:43 2001
+@@ -420,6 +420,7 @@
+ 	unsigned char	primary;	/* number of primary bridge */
+ 	unsigned char	secondary;	/* number of secondary bridge */
+ 	unsigned char	subordinate;	/* max number of subordinate buses */
++	int		bus_speed;	/* the speed of this PCI segment */
+ 
+ 	char		name[48];
+ 	unsigned short	vendor;
 
---------------DF276087E4676959B7318E52--
+--------------76CC1165A59419D36908873F--
 

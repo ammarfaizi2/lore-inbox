@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130380AbQLOS0i>; Fri, 15 Dec 2000 13:26:38 -0500
+	id <S130460AbQLOS1s>; Fri, 15 Dec 2000 13:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130338AbQLOS03>; Fri, 15 Dec 2000 13:26:29 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8252 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130330AbQLOS0M>; Fri, 15 Dec 2000 13:26:12 -0500
-Date: Fri, 15 Dec 2000 18:55:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
-        rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
-Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
-Message-ID: <20001215185528.C17781@inspiron.random>
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random> <200012011819.KAA02951@pizda.ninka.net> <20001201201444.A2098@inspiron.random> <20001215164626.C16586@inspiron.random> <200012151711.JAA20826@pizda.ninka.net>
+	id <S130464AbQLOS1i>; Fri, 15 Dec 2000 13:27:38 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:21477 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S130460AbQLOS1U>; Fri, 15 Dec 2000 13:27:20 -0500
+Date: Fri, 15 Dec 2000 19:56:11 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: ferret@phonewave.net
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Linus's include file strategy redux
+Message-ID: <20001215195611.L829@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <FBF96516CD5@vcnet.vc.cvut.cz> <Pine.LNX.3.96.1001215093002.16439B-100000@tarot.mentasm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200012151711.JAA20826@pizda.ninka.net>; from davem@redhat.com on Fri, Dec 15, 2000 at 09:11:31AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.3.96.1001215093002.16439B-100000@tarot.mentasm.org>; from ferret@phonewave.net on Fri, Dec 15, 2000 at 09:31:57AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 09:11:31AM -0800, David S. Miller wrote:
-> Can you name the mm_struct member "context" [..]
-
-I got you was proposing that but once we change it I preferred to use a generic
-mm_arch structure (not just a context field) to have a more generic interface
-in the long run.  (maybe some port wants to collect something else than a MM
-`context')
-
-> Then all the code changes will make the accesses look less
-> meaningful.  Consider:
+On Fri, Dec 15, 2000 at 09:31:57AM -0800, ferret@phonewave.net wrote:
+> > Maybe you did not notice, but for months we have
+> > /lib/modules/`uname -r`/build/include, which points to kernel headers,
+> > and which should be used for compiling out-of-tree kernel modules
+> > (i.e. latest vmware uses this).
 > 
-> 	if (CTX_VALID(mm->mm_arch))
-> 
-> whereas before the code said:
-> 
-> 	if (CTX_VALID(mm->context))
-> 
-> which tells the reader lot more. [..]
+> This symlink really should be a copy instead, because the finished kernel
+> may be installed on a machine that does not have kernel source installed
+> on it. Dangling symlinks are BAD.
 
-What I propose is to convert the current:
+But if you compile for another machine, this copy is bad. It also
+takes to much time and space to create this copy.
 
-	if (CTX_VALID(mm->context)) 
+I really disagree here.
 
-to
+Regards
 
-	if (CTX_VALID(mm->mm_arch.context))
-
-(that's the same I did in the alpha tree from mm->context[] to
-mm->mm_arch.context[])
-
-I'm aware this way all ports actively using `mm->context' needs to be changed
-but the change is certainly a no-brainer... OK?
-
-Andrea
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264958AbRGIVSh>; Mon, 9 Jul 2001 17:18:37 -0400
+	id <S264959AbRGIVTr>; Mon, 9 Jul 2001 17:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264959AbRGIVS1>; Mon, 9 Jul 2001 17:18:27 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15627 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S264958AbRGIVSN>;
-	Mon, 9 Jul 2001 17:18:13 -0400
-Date: Mon, 9 Jul 2001 18:18:08 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Adam Shand <larry@spack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-In-Reply-To: <Pine.LNX.4.32.0107091250170.25061-100000@maus.spack.org>
-Message-ID: <Pine.LNX.4.33L.0107091816500.24217-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S264963AbRGIVTh>; Mon, 9 Jul 2001 17:19:37 -0400
+Received: from pille1.addcom.de ([62.96.128.35]:8467 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S264959AbRGIVTX>;
+	Mon, 9 Jul 2001 17:19:23 -0400
+Date: Mon, 9 Jul 2001 23:12:25 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Patrick Mochel <mochel@transmeta.com>
+cc: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <saw@saw.sw.com.sg>
+Subject: Re: 2.4.6.-ac2: Problems with eepro100
+In-Reply-To: <Pine.LNX.4.10.10107090841550.1391-100000@nobelium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0107092302450.2729-100000@vaio>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jul 2001, Adam Shand wrote:
+On Mon, 9 Jul 2001, Patrick Mochel wrote:
 
->  * What is the maximum amount of RAM that a *single* process can address
->    under a 2.4 kernel, with PAE enabled?  Without?
+> Can you do an 'lspci -vv' on the device? The current device state should
+> be listed 2 lines after the Power Management Capabilities revision.
 
-3 GB, 3GB.  This is basically a hardware limit.
+I already talked to Martin off list about this problem (since it's my 
+patch which is causing trouble).
 
->  * And, what (if any) paramaters can effect this (recompiling the app
->    etc)?
+To summarize the results: His eepro100 does only survive one
+D0-D2-D0 transition, after another D2 transition it's possible to place it 
+back in D0, but it won't work.
 
-Alpha, AMD Hammer, ...  ;)
+It comes up in D0, eepro100 module load will place it in D2, first
+ifconfig up will switch to D0, works. Another ifconfig down / up cycle 
+will kill the network (same happens with the unpatched version).
 
+If someone feels able to find out what's really happening, that'd be great
+of course. To the question of what to do about this, the only thing I can
+think of is adding a parameter/config option for eepro100 to supply the
+power state when inactive (default would be D2, for Martin D0 will work).
 
-regards,
+Better ideas anyone?
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+--Kai
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

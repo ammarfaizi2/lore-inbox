@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUIONjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUIOOBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUIONjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUIONhi
+	id S266465AbUIOOBD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUION7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:37:38 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54412 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266155AbUIONgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:36:22 -0400
-Message-ID: <41484558.6060301@namesys.com>
-Date: Wed, 15 Sep 2004 06:36:24 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Wed, 15 Sep 2004 09:59:06 -0400
+Received: from pyxis.pixelized.ch ([213.239.200.113]:13960 "EHLO
+	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S266465AbUIONzt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:55:49 -0400
+Message-ID: <414849CE.8080708@debian.org>
+Date: Wed, 15 Sep 2004 15:55:26 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Lee Revell <rlrevell@joe-job.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Robert Love <rml@ximian.com>, Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-References: <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095185103.23385.1.camel@betsy.boston.ximian.com> <20040914185212.GY9106@holomorphy.com> <1095188569.23385.11.camel@betsy.boston.ximian.com> <20040914192104.GB9106@holomorphy.com> <1095189593.16988.72.camel@localhost.localdomain> <1095207749.2406.36.camel@krustophenia.net> <20040915014610.GG9106@holomorphy.com> <1095213644.2406.90.camel@krustophenia.net> <20040915023611.GH9106@holomorphy.com>
-In-Reply-To: <20040915023611.GH9106@holomorphy.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Greg KH <greg@kroah.com>
+CC: "Marco d'Itri" <md@Linux.IT>, linux-kernel@vger.kernel.org
+Subject: Re: udev is too slow creating devices
+References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com>
+In-Reply-To: <20040914230409.GA23474@kroah.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+Greg KH wrote:
+> Sitting and waiting is a band-aid, I agree.  That's why we created the
+> /etc/dev.d/ notifier system to fix this issue (that is there for systems
+> that don't even use udev.)
 
->On Tue, 2004-09-14 at 21:46, William Lee Irwin III wrote:
->  
->
->>>I've not heard a peep about anyone trying to fix this. It should be
->>>killed off along with the rest, of course, but like I said before, it's
->>>the messiest, dirtiest, and ugliest code that's left to go through,
->>>which is why it's been left for last. e.g. driver ->ioctl() methods.
->>>      
->>>
->
->On Tue, Sep 14, 2004 at 10:00:44PM -0400, Lee Revell wrote:
->  
->
->>Andrew tried to fix this a few times in 2.4 and it broke the FS in
->>subtle ways.  Don't have an archive link but the message is
->><20040712163141.31ef1ad6.akpm@osdl.org>.  I asked Hans directly about it
->>and he said "balancing makes it hard, the fix is reiser4", see
->><411925FA.2000303@namesys.com>.
->>    
->>
->
->I have neither of these locally. I suspect someone needs to care enough
->about the code for anything to happen soon. I suppose there are things
->that probably weren't tried, e.g. auditing to make sure dependencies on
->external synchronization are taken care of, removing implicit sleeping
->with the BKL held, then punt a private recursive spinlock in reiser3's
->direction. Not sure what went on, or if I want to get involved in this
->particular case.
->
->
->-- wli
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-Why bother?  It is V3, it should be left undisturbed except for 
-bugfixes.  Please, spend your efforts on reducing V4 latency and 
-measuring whether it fails to scale to multiple processors.  That would 
-be very useful to me if someone helped with that.  V4 has the 
-architecture for doing such things well, but there are always accidental 
-bottlenecks that testing can discover, and I am sure we will have a 
-handful of things preventing us from scaling well that are not hard to 
-fix.  It would be nice to fix those......
+Hello Greg!
 
-The hard stuff for scalability, the locking of the tree, we did that.  
-We just haven't tested and evaluated and refined like we need to in V4.
+[note that I really appreciate udev].
+
+You said me to use dev.d, but really I don't see it as a working
+solution. Maybe because I missinterpreted the documentation,
+so maybe you can give me some hints.
+
+Real case: distribution boot script.
+It should work with non udev kernel, udev non modular kernel and
+udev very modular kernel. The script load (directly or not) a module
+and need the device impelmented by module.
+
+Old behaviour (modprobe "waits" for the creation of device):
+normal init.d script, with normal boot priorities.
+
+New behaviour (dev.d). What I should do?
+My init.d script is loaded with priority XX, so
+I require that dev.d on my device is executed after
+boot priority XX (else I don't have the needed
+functionalities), also in case of non-udev or non modular kernel.
+How should I implement script in dev.d/?
+
+I see some design problems in dev.d/, or am I wrong?
+
+ciao
+	cate
 
 
-
-Hans
+PS: - What are the best (on topic) mailing list?
+     - What do other distributions?

@@ -1,118 +1,226 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbSKHWeY>; Fri, 8 Nov 2002 17:34:24 -0500
+	id <S262500AbSKHWeh>; Fri, 8 Nov 2002 17:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262689AbSKHWeY>; Fri, 8 Nov 2002 17:34:24 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:32907 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S262525AbSKHWeV>;
-	Fri, 8 Nov 2002 17:34:21 -0500
-To: sparclinux@vger.kernel.org
-Reply-To: sparclinux@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: sparc32: 2.4.20-pre11 oopses in flush_sigqueue()
-From: Philippe Troin <phil@fifi.org>
-Date: 08 Nov 2002 14:41:02 -0800
-Message-ID: <87d6pfr8g1.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262492AbSKHWeh>; Fri, 8 Nov 2002 17:34:37 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:13001 "HELO mail.broadpark.no")
+	by vger.kernel.org with SMTP id <S262641AbSKHWe3>;
+	Fri, 8 Nov 2002 17:34:29 -0500
+Message-ID: <3DCC3D41.386DB98C@broadpark.no>
+Date: Fri, 08 Nov 2002 23:40:01 +0100
+From: Helge Hafting <helge.hafting@broadpark.no>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.46bk4 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: raidneilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: raid-0 BUG in 2.5.46-bk4
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seen on a UP SS20 box.
-The kernel killed a `cp' process and went on...
+I installed 2.5.46-bk4 in order to try the new
+raid patches.  (I have raid-1 and raid-0
+on smp, scsi)
 
-Phil.
+Raid-1 seems to work fine, but processes
+trying to use the raid-0 (/usr/src)
+either segfaults or gets stuck in D-state
+quickly.
 
-ksymoops 2.4.5 on sparc 2.4.20-pre11.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20-pre11/ (default)
-     -m /boot/System.map-2.4.20-pre11 (default)
+Make menuconfig segfaults immediately,
+find /usr/src prints 4 files and gets
+stuck in D-state.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+I can't umount either -  the device is busy.
 
-16257MB HIGHMEM available.
-Unable to handle kernel paging request at virtual address 809c4000
-tsk->{mm,active_mm}->context = 00000322
-tsk->{mm,active_mm}->pgd = fc041400
-              \|/ ____ \|/
-              "@'/ ,. \`@"
-              /_| \__/ |_\
-                 \__U_/
-cp(829): Oops
-PSR: 1e800fc7 PC: f00304f4 NPC: f00304f8 Y: 00000000    Not tainted
-Using defaults from ksymoops -t elf32-sparc -a sparc
-g0: 7fffffff g1: 1e400fe0 g2: 00000000 g3: 1e800fe1 g4: f004017c g5: 00000322 g6: fa54c000 g7: 00000001
-o0: 00000005 o1: 809c4400 o2: f01c2c08 o3: f019f400 o4: 00000005 o5: effff000 sp: fa54ddd0 o7: f004017c
-l0: fab5a020 l1: f019f400 l2: f0029b18 l3: 00000004 l4: 00000008 l5: 00000000 l6: 5002c130 l7: 500283c8
-i0: f019f400 i1: fab5b2c0 i2: f01c2ce8 i3: f019f400 i4: f0198400 i5: 00000001 fp: fa54de38 i7: f00305a8
-Caller[f00305a8]
-Caller[f0029c90]
-Caller[f0029d90]
-Caller[f0011184]
-Caller[5005e7d0]
-Instruction DUMP: c0260000  233c067d  313c067d <e0024000> 40003f0b  d0046334  82162338  84102001  8810000f 
+I use gcc 2.95.4 from debian unstable,
+the kernel is compiled with preempt.
+
+Here's some BUGs from dmesg:
+
+md: md0: sync done.
+RAID1 conf printout:
+ --- wd:2 rd:2
+ disk 0, wo:0, o:1, dev:scsi/host0/bus0/target0/lun0/part2
+ disk 1, wo:0, o:1, dev:scsi/host0/bus0/target1/lun0/part1
+md: updating md0 RAID superblock on device
+md: scsi/host0/bus0/target1/lun0/part1 <6>(write)
+scsi/host0/bus0/target1/lun0/p
+art1's sb offset: 98240
+md: scsi/host0/bus0/target0/lun0/part2 <6>(write)
+scsi/host0/bus0/target0/lun0/p
+art2's sb offset: 98240
+------------[ cut here ]------------
+kernel BUG at drivers/block/ll_rw_blk.c:1949!
+invalid operand: 0000
+CPU:    1
+EIP:    0060:[<c0247ea6>]    Not tainted
+EFLAGS: 00010246
+EIP is at submit_bio+0x16/0x94
+eax: 00000000   ebx: 00000000   ecx: d7fa1d80   edx: 00000000
+esi: d7fa1d80   edi: 00000000   ebp: 00000001   esp: cf2b5c0c
+ds: 0068   es: 0068   ss: 0068
+Process make (pid: 905, threadinfo=cf2b4000 task=cd5cb980)
+Stack: 00001000 000c2c37 c016f1d6 00000000 d7fa1d80 c016f4a7 00000000
+d7fa1d80 
+       c11c0ac8 c11c0ac0 00000002 d7fa1ad8 00000020 00000000 d113ac7c
+00000001 
+       00000007 00000000 00000003 00000000 00000001 0000000c cb8452e4
+00000010 
+Call Trace:
+ [<c016f1d6>] mpage_bio_submit+0x22/0x28
+ [<c016f4a7>] do_mpage_readpage+0x25b/0x390
+ [<c011d734>] autoremove_wake_function+0x0/0x38
+ [<c011d734>] autoremove_wake_function+0x0/0x38
+ [<c01d4b04>] radix_tree_extend+0x64/0xa4
+ [<c01d4b82>] radix_tree_insert+0x3e/0xc8
+ [<c013605e>] add_to_page_cache+0x4a/0xe4
+ [<c016f662>] mpage_readpages+0x86/0x128
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c0262274>] sym53c8xx_queue_command+0xd0/0xfc
+ [<c018497d>] ext2_readpages+0x19/0x20
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c014620d>] read_pages+0x3d/0x108
+ [<c014022f>] buffered_rmqueue+0x15b/0x168
+ [<c01402e4>] __alloc_pages+0xa8/0x280
+ [<c0146462>] do_page_cache_readahead+0x18a/0x1b8
+ [<c0146562>] page_cache_readahead+0xd2/0x124
+ [<c013678d>] do_generic_mapping_read+0x51/0x398
+ [<c0136dd5>] __generic_file_aio_read+0x1cd/0x1f4
+ [<c0136b14>] file_read_actor+0x0/0xf4
+ [<c0136ecb>] generic_file_read+0x7b/0x9c
+ [<c0134d6e>] do_mmap_pgoff+0x462/0x588
+ [<c010f912>] old_mmap+0xda/0x114
+ [<c014dc11>] vfs_read+0xc5/0x18c
+ [<c014df42>] sys_read+0x2a/0x3c
+ [<c0108f53>] syscall_call+0x7/0xb
+
+Code: 0f 0b 9d 07 f9 7d 38 c0 89 f6 83 7e 28 00 75 0a 0f 0b 9e 07 
+
+ ------------[ cut here ]------------
+kernel BUG at drivers/block/ll_rw_blk.c:1949!
+invalid operand: 0000
+CPU:    1
+EIP:    0060:[<c0247ea6>]    Not tainted
+EFLAGS: 00013246
+EIP is at submit_bio+0x16/0x94
+eax: 00000000   ebx: 00000000   ecx: cc8ea8b8   edx: 00000000
+esi: cc8ea8b8   edi: 00000000   ebp: 00000001   esp: cf2b5cf8
+ds: 0068   es: 0068   ss: 0068
+Process make (pid: 907, threadinfo=cf2b4000 task=cd5cb980)
+Stack: 00001000 000d13b7 c016f1d6 00000000 cc8ea8b8 c016f4a7 00000000
+cc8ea8b8 
+       c1149f38 00000000 00000000 cb8451a8 c0262274 00000000 d113ac7c
+00000001 
+       00000001 00000000 00000001 00000000 00000001 0000000c cb845120
+00000010 
+Call Trace:
+ [<c016f1d6>] mpage_bio_submit+0x22/0x28
+ [<c016f4a7>] do_mpage_readpage+0x25b/0x390
+ [<c0262274>] sym53c8xx_queue_command+0xd0/0xfc
+ [<c011ad86>] schedule+0x3fe/0x500
+ [<c013605e>] add_to_page_cache+0x4a/0xe4
+ [<c016f72e>] mpage_readpage+0x2a/0x44
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c018495f>] ext2_readpage+0xf/0x14
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c0137746>] read_cache_page+0xae/0x1e4
+ [<c018229b>] ext2_get_page+0x1f/0x90
+ [<c0184950>] ext2_readpage+0x0/0x14
+ [<c018270f>] ext2_find_entry+0x83/0x1e8
+ [<c01828e6>] ext2_inode_by_name+0x1a/0x5c
+ [<c0185b17>] ext2_lookup+0x27/0x8c
+ [<c015a82c>] real_lookup+0x60/0xe4
+ [<c015ac60>] do_lookup+0xe8/0x2d0
+ [<c015b18d>] link_path_walk+0x345/0xa8c
+ [<c015bd3b>] path_lookup+0x207/0x20c
+ [<c015c2b3>] open_namei+0x8b/0x4d0
+ [<c0127a86>] update_wall_time+0x12/0x3c
+ [<c014ce63>] filp_open+0x3b/0x5c
+ [<c014d2cb>] sys_open+0x37/0x70
+ [<c0108f53>] syscall_call+0x7/0xb
+
+Code: 0f 0b 9d 07 f9 7d 38 c0 89 f6 83 7e 28 00 75 0a 0f 0b 9e 07 
+
+------------[ cut here ]------------
+kernel BUG at drivers/block/ll_rw_blk.c:1949!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c0247ea6>]    Not tainted
+EFLAGS: 00010246
+EIP is at submit_bio+0x16/0x94
+eax: 00000000   ebx: 00000000   ecx: cc8ea5cc   edx: 00000000
+esi: cc8ea5cc   edi: 00000000   ebp: 00000001   esp: ca5b5df4
+ds: 0068   es: 0068   ss: 0068
+Process ls (pid: 934, threadinfo=ca5b4000 task=ca3a7360)
+Stack: 00001000 0006302f c016f1d6 00000000 cc8ea5cc c016f4a7 00000000
+cc8ea5cc 
+       c10c3be0 00000000 00000000 cbb5db7c c0452d00 00000000 d113ac7c
+00000001 
+       00000001 00000000 00000001 00000000 00000001 0000000c cbb5daf4
+00000010 
+Call Trace:
+ [<c016f1d6>] mpage_bio_submit+0x22/0x28
+ [<c016f4a7>] do_mpage_readpage+0x25b/0x390
+ [<c0229b14>] pty_write+0x134/0x140
+ [<c0225f03>] opost_block+0x167/0x174
+ [<c013605e>] add_to_page_cache+0x4a/0xe4
+ [<c016f72e>] mpage_readpage+0x2a/0x44
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c018495f>] ext2_readpage+0xf/0x14
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c0137746>] read_cache_page+0xae/0x1e4
+ [<c018229b>] ext2_get_page+0x1f/0x90
+ [<c0184950>] ext2_readpage+0x0/0x14
+ [<c0182447>] ext2_readdir+0x13b/0x380
+ [<c015fa05>] vfs_readdir+0x75/0x88
+ [<c015fc90>] filldir64+0x0/0x104
+ [<c015fdde>] sys_getdents64+0x4a/0x96
+ [<c015fc90>] filldir64+0x0/0x104
+ [<c0108f53>] syscall_call+0x7/0xb
+
+Code: 0f 0b 9d 07 f9 7d 38 c0 89 f6 83 7e 28 00 75 0a 0f 0b 9e 07 
 
 
->>PC;  f00304f4 <flush_sigqueue+28/5c>   <=====
+ ------------[ cut here ]------------
+kernel BUG at drivers/block/ll_rw_blk.c:1949!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c0247ea6>]    Not tainted
+EFLAGS: 00010246
+EIP is at submit_bio+0x16/0x94
+eax: 00000000   ebx: 00000000   ecx: cc8ea148   edx: 00000000
+esi: cc8ea148   edi: 00000000   ebp: 00000001   esp: ca5b5df4
+ds: 0068   es: 0068   ss: 0068
+Process find (pid: 936, threadinfo=ca5b4000 task=ca3a79a0)
+Stack: 00001000 000b951f c016f1d6 00000000 cc8ea148 c016f4a7 00000000
+cc8ea148 
+       c10c2a88 00000000 00000000 cbb5d46c 0000c2e6 00000000 d113ac7c
+00000001 
+       00000001 00000000 00000001 00000000 00000001 0000000c cbb5d3e4
+00000010 
+Call Trace:
+ [<c016f1d6>] mpage_bio_submit+0x22/0x28
+ [<c016f4a7>] do_mpage_readpage+0x25b/0x390
+ [<c01402e4>] __alloc_pages+0xa8/0x280
+ [<c0133a3b>] do_anonymous_page+0x1fb/0x25c
+ [<c013605e>] add_to_page_cache+0x4a/0xe4
+ [<c016f72e>] mpage_readpage+0x2a/0x44
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c018495f>] ext2_readpage+0xf/0x14
+ [<c0184548>] ext2_get_block+0x0/0x3f4
+ [<c0137746>] read_cache_page+0xae/0x1e4
+ [<c018229b>] ext2_get_page+0x1f/0x90
+ [<c0184950>] ext2_readpage+0x0/0x14
+ [<c0182447>] ext2_readdir+0x13b/0x380
+ [<c015fa05>] vfs_readdir+0x75/0x88
+ [<c015fc90>] filldir64+0x0/0x104
+ [<c015fdde>] sys_getdents64+0x4a/0x96
+ [<c015fc90>] filldir64+0x0/0x104
+ [<c015ef6d>] sys_fcntl64+0x85/0x98
+ [<c015ef79>] sys_fcntl64+0x91/0x98
+ [<c0108f53>] syscall_call+0x7/0xb
 
->>g0; 7fffffff Before first symbol
->>g1; 1e400fe0 Before first symbol
->>g3; 1e800fe1 Before first symbol
->>g4; f004017c <kmem_cache_free+58/110>
->>g6; fa54c000 <end+a38b420/e141420>
->>o1; 809c4400 Before first symbol
->>o2; f01c2c08 <end+2028/e141420>
->>o3; f019f400 <uidhash_table+cc/400>
->>o5; effff000 Before first symbol
->>sp; fa54ddd0 <end+a38d1f0/e141420>
->>o7; f004017c <kmem_cache_free+58/110>
->>l0; fab5a020 <end+a999440/e141420>
->>l1; f019f400 <uidhash_table+cc/400>
->>l2; f0029b18 <do_exit+d0/320>
->>l6; 5002c130 Before first symbol
->>l7; 500283c8 Before first symbol
->>i0; f019f400 <uidhash_table+cc/400>
->>i1; fab5b2c0 <end+a99a6e0/e141420>
->>i2; f01c2ce8 <end+2108/e141420>
->>i3; f019f400 <uidhash_table+cc/400>
->>i4; f0198400 <kstat+1280/145c>
->>fp; fa54de38 <end+a38d258/e141420>
->>i7; f00305a8 <exit_sighand+68/9c>
-
-Trace; f00305a8 <exit_sighand+68/9c>
-Trace; f0029c90 <do_exit+248/320>
-Trace; f0029d90 <sys_exit+8/10>
-Trace; f0011184 <syscall_is_too_hard+34/40>
-Trace; 5005e7d0 Before first symbol
-
-Code;  f00304e8 <flush_sigqueue+1c/5c>
-00000000 <_PC>:
-Code;  f00304e8 <flush_sigqueue+1c/5c>
-   0:   c0 26 00 00       clr  [ %i0 ]
-Code;  f00304ec <flush_sigqueue+20/5c>
-   4:   23 3c 06 7d       sethi  %hi(0xf019f400), %l1
-Code;  f00304f0 <flush_sigqueue+24/5c>
-   8:   31 3c 06 7d       sethi  %hi(0xf019f400), %i0
-Code;  f00304f4 <flush_sigqueue+28/5c>   <=====
-   c:   e0 02 40 00       ld  [ %o1 ], %l0   <=====
-Code;  f00304f8 <flush_sigqueue+2c/5c>
-  10:   40 00 3f 0b       call  fc3c <_PC+0xfc3c> f0040124 <kmem_cache_free+0/110>
-Code;  f00304fc <flush_sigqueue+30/5c>
-  14:   d0 04 63 34       ld  [ %l1 + 0x334 ], %o0
-Code;  f0030500 <flush_sigqueue+34/5c>
-  18:   82 16 23 38       or  %i0, 0x338, %g1
-Code;  f0030504 <flush_sigqueue+38/5c>
-  1c:   84 10 20 01       mov  1, %g2
-Code;  f0030508 <flush_sigqueue+3c/5c>
-  20:   88 10 00 0f       mov  %o7, %g4
-
-
-1 warning issued.  Results may not be reliable.
+Code: 0f 0b 9d 07 f9 7d 38 c0 89 f6 83 7e 28 00 75 0a 0f 0b 9e 07

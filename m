@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVC1VJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVC1VPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVC1VJS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 16:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVC1VJS
+	id S262080AbVC1VPe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 16:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVC1VPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 16:09:18 -0500
-Received: from smtp05.auna.com ([62.81.186.15]:49033 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S262082AbVC1VJP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 16:09:15 -0500
-From: "Fabio Valpondi" <fvalpondi@salleurl.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Override 802.11 MAC functions in Linux Kernel
-Date: Mon, 28 Mar 2005 23:08:48 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUz2lWbXwmKuXC+RzuDprkncIJLSw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Message-Id: <20050328210908.IMON1111.smtp05.retemail.es@LupoLaptop>
+	Mon, 28 Mar 2005 16:15:34 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:63881 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262080AbVC1VPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 16:15:30 -0500
+Date: Mon, 28 Mar 2005 23:17:07 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: jayalk@intworks.biz
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: Re: [RFC 2.6.11.2 1/1] Add reboot fixup for gx1/cs5530a
+Message-ID: <20050328211707.GA8240@mars.ravnborg.org>
+References: <200503281415.j2SEFwg4014119@intworks.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503281415.j2SEFwg4014119@intworks.biz>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Small comments below.
 
-I am trying to implement the EDCF described in new standard 802.11e (This
-standard -well, actually it's a draft- tries to define QoS for 802.11
-networks).
-I would like to implement it with a module over the 2.6.11.5 kernel.
-My idea is to override the regular 802.11 MAC operation and redirect it to
-the module so that I can treat it like 802.11e MAC specifies.
-I have browsed a lot of pages, but none of them explains how to override the
-functions. Do you know how can I redirect all the functions to the modules?
-Is it possible to do it with a module? Or maybe should I work directly over
-the kernel code?
-If I had to work over the kernel code, which are the files directly involved
-with the 802.11 MAC?
+>  
+> +#ifdef CONFIG_X86_REBOOTFIXUPS
+> +extern void mach_reboot_fixups(void);
+> +#endif
+Move this to header file.
 
-Thank you very much!
+> +#ifdef CONFIG_X86_REBOOTFIXUPS
+> +			mach_reboot_fixups();
+> +#endif
+And hide this ifdef in same hederfile.
 
-Fabio Valpondi
-fvalpondi@salleurl.edu
-Ingenieria La Salle - Barcelona (Spain)
+#ifndef CONFIG_X86_REBOOTFIXUPS
+#define mach_reboot_fixups  do {} while (0);
+#endif
 
-
-
+	Sam

@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313189AbSDDPRl>; Thu, 4 Apr 2002 10:17:41 -0500
+	id <S313190AbSDDPVl>; Thu, 4 Apr 2002 10:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSDDPRb>; Thu, 4 Apr 2002 10:17:31 -0500
-Received: from anchor.engin.umich.edu ([141.213.40.34]:36613 "EHLO
-	anchor.engin.umich.edu") by vger.kernel.org with ESMTP
-	id <S313189AbSDDPRM>; Thu, 4 Apr 2002 10:17:12 -0500
-Date: Thu, 4 Apr 2002 10:17:06 -0500 (EST)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: <mharris@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Process Accounting 32bit UID/GID support
-Message-ID: <Pine.LNX.4.33.0204041011520.23808-100000@anchor.engin.umich.edu>
+	id <S313194AbSDDPVb>; Thu, 4 Apr 2002 10:21:31 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6665 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S313190AbSDDPVQ>;
+	Thu, 4 Apr 2002 10:21:16 -0500
+Date: Thu, 4 Apr 2002 12:21:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.4.44.0204040747260.25330-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44L.0204041217290.18660-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike:
+On Thu, 4 Apr 2002, Ingo Molnar wrote:
 
-Are you sure you want to do this:
+> I consider 'abuse' for example a kernel derivative with a 'modified'
+> scheduler. The day it will be possible to put a binary-only sched.o into
+> the kernel i'll stop doing Linux. I am not here to develop some 'lite'
+> version of the OS, where all the interesting stuff happens behind closed
+> doors. I'm not here either to see the quality of the OS degrade due to
+> sloppy programming in widely used binary-only modules, without being able
+> to fix it.
 
--	char		ac_pad[10];		/* Accounting Padding Bytes */
-+	__u32		ac_uid32;		/* Accounting Real 32bit User ID */
-+	__u32		ac_gid32;		/* Accounting Real 32bit Group ID */
-+	char		ac_pad[2];		/* Accounting Padding Bytes */
+Absolutely agreed.  I've already seen it happen a few times that
+a user needed _2_ binary-only modules, modules which weren't even
+available for the same kernel version.
+
+As it stands right now it is IMPOSSIBLE to support binary only
+drivers and I can only see two ways out of this situation:
+
+(1) don't allow binary only modules at all
+
+(2) have a stable ABI for binary only modules and don't allow
+    these binary only modules to use other symbols, so people
+    in need of binary only modules won't be locked to one
+    particular version of the kernel (or have two binary only
+    modules locked to _different_ versions of the kernel)
 
 
 
-This changes the size of the accounting structure because the new fields
-are padded to 4 byte alignment.
+kind regards,
 
-Support for process accounting was part of my original patches for 32 bit
-UIDs, but it never got picked up. I think that at the time there was an
-expectation that accounting was going to be replaced entirely with new
-code (SGI accounting stuff?)
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-
-Here's an updated version of my patch:
-
-	http://www.engin.umich.edu/caen/systems/Linux/code/misc/acct/linux-2.4.17-acct-uid32.patch
-
-
-Thanks,
-
-Chris Wing
-wingc@engin.umich.edu
+http://www.surriel.com/		http://distro.conectiva.com/
 

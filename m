@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTB0InP>; Thu, 27 Feb 2003 03:43:15 -0500
+	id <S262418AbTB0Ipv>; Thu, 27 Feb 2003 03:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262201AbTB0InP>; Thu, 27 Feb 2003 03:43:15 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:12815 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262038AbTB0InM>; Thu, 27 Feb 2003 03:43:12 -0500
-Date: Thu, 27 Feb 2003 08:53:29 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: jh@sgi.com, barnes@sgi.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre5
-Message-ID: <20030227085329.A27797@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, jh@sgi.com,
-	barnes@sgi.com, lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+	id <S262380AbTB0Ipv>; Thu, 27 Feb 2003 03:45:51 -0500
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:55813 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S262418AbTB0Ipv>; Thu, 27 Feb 2003 03:45:51 -0500
+Date: Thu, 27 Feb 2003 08:55:39 +0000
+To: Greg KH <greg@kroah.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
+Message-ID: <20030227085538.GA1495@fib011235813.fsnet.co.uk>
+References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk> <20030226181454.GA16350@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 27, 2003 at 03:14:44AM -0300
+In-Reply-To: <20030226181454.GA16350@kroah.com>
+User-Agent: Mutt/1.5.3i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> <jh@sgi.com[helgaas]>:
->   o ia64: Update SGI SN files
+On Wed, Feb 26, 2003 at 10:14:54AM -0800, Greg KH wrote:
+> By special casing the logic in your __LOW() macro, you're only asking
+> for trouble in the long run :)
 
-This one adds a strtok_r implementation instead of just using strsep,
-strange, strange..
+I think you're right, the __HIGH and __LOW macros are just obfuscating
+things.  I'll fix in the next patchset.
+
+Thanks,
+
+- Joe

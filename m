@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284903AbRLPXE0>; Sun, 16 Dec 2001 18:04:26 -0500
+	id <S284890AbRLPXD4>; Sun, 16 Dec 2001 18:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284905AbRLPXEQ>; Sun, 16 Dec 2001 18:04:16 -0500
-Received: from harddata.com ([216.123.194.198]:48648 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S284903AbRLPXEH>;
-	Sun, 16 Dec 2001 18:04:07 -0500
-Date: Sun, 16 Dec 2001 16:04:04 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17-rc1 does not boot my Alphas
-Message-ID: <20011216160404.A2945@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S284903AbRLPXDr>; Sun, 16 Dec 2001 18:03:47 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:55424 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S284890AbRLPXDh>; Sun, 16 Dec 2001 18:03:37 -0500
+To: raul@viadomus.com, rml@tech9.net
+Subject: Re: Is /dev/shm needed?
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E16FkV9-00010E-00@DervishD.viadomus.com>
+Date: Mon, 17 Dec 2001 00:15:23 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just happen to have an access right now to two Alpha machines,
-UP1100 and UP1500, both with Nautilus chipset.  Neither of these
-can be booted with 2.4.16 or 2.4.17rc1. On an attempt to boot
-I can see only messages from a boot loader (aboot):
-.....
-zero-filling 155872 bytes at 0xffffc0000ad1308
-starting kernel vmlinux.......
+    Hello Robert :)
 
-and that is it.  The only thing which works now is a power switch.
-The same happens if I try 2.4.17aa1rc1 (Andrea patches).
+>It is not needed.  /dev/shm mounted with tmpfs is only needed for POSIX
+>shared memory, which is still fairly rare.
 
-A kernel with the highest version which I managed to boot so far,
-on both machines, is 2.4.13-ac8.  Anybody with a handly on what is
-going on?  I did not check yet if various Alpha specific patches
-which were present in "ac" were merged into mainline.  But so
-far things seem to be quite thorougly broken for Alpha (or at
-least Nautilus).
+    That this means that I can mount more than one 'tmpfs' just like
+if it's a *real* filesystem? I wasn't sure, since it's implemented
+thru the page cache.
 
-  Michal
-  michal@harddata.com
+>It is dynamic, so you don't need to specify a size.
+
+    Yes, I knew, I meant the maximum size. I don't want half of the
+RAM occupied just by a programming mistake ;)))
+
+    Thanks a lot for your help :)
+    Raúl

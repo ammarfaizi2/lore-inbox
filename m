@@ -1,61 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131056AbRCTWVg>; Tue, 20 Mar 2001 17:21:36 -0500
+	id <S131231AbRCTWcr>; Tue, 20 Mar 2001 17:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131079AbRCTWV1>; Tue, 20 Mar 2001 17:21:27 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12299 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131056AbRCTWVR>; Tue, 20 Mar 2001 17:21:17 -0500
-Date: Tue, 20 Mar 2001 19:18:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Josh Grebe <squash@primary.net>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-In-Reply-To: <Pine.LNX.4.21.0103201403440.2405-100000@scarface.primary.net>
-Message-ID: <Pine.LNX.4.21.0103201857170.3750-100000@imladris.rielhome.conectiva>
+	id <S131232AbRCTWci>; Tue, 20 Mar 2001 17:32:38 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:8275 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131231AbRCTWcZ>; Tue, 20 Mar 2001 17:32:25 -0500
+Message-ID: <3AB7D949.FC508065@mvista.com>
+Date: Tue, 20 Mar 2001 14:27:21 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: nigel@nrg.org
+CC: Roger Larsson <roger.larsson@norran.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <Pine.LNX.4.05.10103201333590.26772-100000@cosmic.nrg.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001, Josh Grebe wrote:
-
-> slabinfo reports:
+Nigel Gamble wrote:
 > 
-> inode_cache       189974 243512    480 30439 30439    1 :  124   62
-> dentry_cache      201179 341940    128 11398 11398    1 :  252  126
-                                      ^
-  <name>            <used> <allocd>   |  <used> <allocd>
-                     <in objects>  <size>   <in pages>
+> On Tue, 20 Mar 2001, Roger Larsson wrote:
+> > One little readability thing I found.
+> > The prev->state TASK_ value is mostly used as a plain value
+> > but the new TASK_PREEMPTED is or:ed together with whatever was there.
+> > Later when we switch to check the state it is checked against TASK_PREEMPTED
+> > only. Since TASK_RUNNING is 0 it works OK but...
+> 
+> Yes, you're right.  I had forgotten that TASK_RUNNING is 0 and I think I
+> was assuming that there could be (rare) cases where a task was preempted
+> while prev->state was in transition such that no other flags were set.
+> This is, of course, impossible given that TASK_RUNNING is 0.  So your
+> change makes the common case more obvious (to me, at least!)
+> 
+> > --- sched.c.nigel       Tue Mar 20 18:52:43 2001
+> > +++ sched.c.roger       Tue Mar 20 19:03:28 2001
+> > @@ -553,7 +553,7 @@
+> >  #endif
+> >                         del_from_runqueue(prev);
+> >  #ifdef CONFIG_PREEMPT
+> > -               case TASK_PREEMPTED:
+> > +               case TASK_RUNNING | TASK_PREEMPTED:
+> >  #endif
+> >                 case TASK_RUNNING:
+> >         }
+> >
+> >
+> > We could add all/(other common) combinations as cases
+> >
+> >       switch (prev->state) {
+> >               case TASK_INTERRUPTIBLE:
+> >                       if (signal_pending(prev)) {
+> >                               prev->state = TASK_RUNNING;
+> >                               break;
+> >                       }
+> >               default:
+> > #ifdef CONFIG_PREEMPT
+> >                       if (prev->state & TASK_PREEMPTED)
+> >                               break;
+> > #endif
+> >                       del_from_runqueue(prev);
+> > #ifdef CONFIG_PREEMPT
+> >               case TASK_RUNNING               | TASK_PREEMPTED:
+> >               case TASK_INTERRUPTIBLE | TASK_PREEMPTED:
+> >               case TASK_UNINTERRUPTIBLE       | TASK_PREEMPTED:
+> > #endif
+> >               case TASK_RUNNING:
+> >       }
+> >
+> >
+> > Then the break in default case could almost be replaced with a BUG()...
+> > (I have not checked the generated code)
+> 
+> The other cases are not very common, as they only happen if a task is
+> preempted during the short time that it is running while in the process
+> of changing state while going to sleep or waking up, so the default case
+> is probably OK for them; and I'd be happier to leave the default case
+> for reliability reasons anyway.
 
-> However, I am hard pressed to find documentation on how to actually
-> read this data, especially on a SMP box. Could someone give me a brief
-> runwdown?
+Especially since he forgot:
 
-See above. The columns further to the right are debugging info.
+TASK_ZOMBIE
+TASK_STOPPED
+TASK_SWAPPING
 
-> Also, if this memory is cached, wouldn't it make sense if it were
-> reported as part of the total cached memory in /proc/meminfo?
+I don't know about the last two but TASK_ZOMBIE must be handled
+correctly or the task will never clear.
 
-I'd definately like to see this. It would be great if somebody
-would sit down and implement this.   <hint> <hint>
+In general, a task must run till it gets to schedule() before the actual
+state is "real" so the need for the TASK_PREEMPT.  
 
-> And can this behavior be tuned so that it uses less of the overall
-> memory?
+The actual code generated with what you propose should be the same (even
+if TASK_RUNNING != 0, except for the constant).
 
-This isn't currently possible. Also, I suspect what we really want
-for most situations is a way to better balance between the different
-uses of memory.  Again, patches are welcome (I haven't figured out a
-way to take care of this balancing yet ... maybe we DO want some way
-of limiting memory usage of each subsystem??).
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+George

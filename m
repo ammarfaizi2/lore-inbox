@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293549AbSCGH4N>; Thu, 7 Mar 2002 02:56:13 -0500
+	id <S310146AbSCGIMO>; Thu, 7 Mar 2002 03:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293553AbSCGH4D>; Thu, 7 Mar 2002 02:56:03 -0500
-Received: from h139n1fls24o900.telia.com ([213.66.143.139]:51934 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S293549AbSCGHz4>;
-	Thu, 7 Mar 2002 02:55:56 -0500
-Date: Thu, 7 Mar 2002 08:56:36 +0100
-From: Voluspa <voluspa@bigfoot.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
-Message-Id: <20020307085636.4feb2372.voluspa@bigfoot.com>
-In-Reply-To: <Pine.GSO.4.21.0203070127190.24127-100000@weyl.math.psu.edu>
-In-Reply-To: <20020307072124.6365c8ac.voluspa@bigfoot.com>
-	<Pine.GSO.4.21.0203070127190.24127-100000@weyl.math.psu.edu>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S310139AbSCGIME>; Thu, 7 Mar 2002 03:12:04 -0500
+Received: from smtp.actcom.co.il ([192.114.47.13]:60609 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S293553AbSCGILv>; Thu, 7 Mar 2002 03:11:51 -0500
+Message-Id: <200203070811.g278BwL19069@lmail.actcom.co.il>
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH] via82cxxx recording bug
+Date: Thu, 7 Mar 2002 10:11:47 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_N3GLF3RRIM7VXLG01HMB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002 01:29:30 -0500 (EST)
-Alexander Viro <viro@math.psu.edu> wrote:
 
-> Add
-> 		printk("mount() -> %d\n", err);
-> right before
->                 printk ("VFS: Cannot open root device \"%s\" or %s\n",
->                         root_device_name, kdevname (ROOT_DEV));
-> in init/do_mounts.c and see what it prints.
+--------------Boundary-00=_N3GLF3RRIM7VXLG01HMB
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-(An hour of compile time later):
+This fixes a recording problem that I experienced
+on an Asus CUV4X mainboard (via686a + cs4299 rev D).
 
-[...]
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-mount() -> -14
-VFS: Cannot open root device "302" or 03:02
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 03:02
+Recording resulted in bad noise when using frags
+smaller than a page size (either using default params
+with low sample rate or explicit with
+SNDCTL_DSP_SETFRAGMENT ioctl).
 
-I'm writing this on the exact same partition setup with 2.4.18-pre7-ac2 so there's nothing wrong with how lilo handles the boot process.
+Some apps that use the sound card (eg, gnomemeeting)
+were completely useless.
 
-Regards,
-Mats Johannesson
-Sweden
+Patch is against 2.4.19-pre1.
+
+Jeff, I'll appreciate if you could give it at least a
+visual inspection - thanks.
+
+-- Itai
+
+
+--------------Boundary-00=_N3GLF3RRIM7VXLG01HMB
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="via82cxxx_audio.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="via82cxxx_audio.diff"
+
+LS0tIGRyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMub3JpZwlUaHUgTWFyICA3IDA5OjA3
+OjMxIDIwMDIKKysrIGRyaXZlcnMvc291bmQvdmlhODJjeHh4X2F1ZGlvLmMJVGh1IE1hciAgNyAw
+OTowNjo0NCAyMDAyCkBAIC0yMDUxLDcgKzIwNTEsNyBAQAogCXdoaWxlICgoY291bnQgPiAwKSAm
+JiAoY2hhbi0+c2xvcF9sZW4gPCBjaGFuLT5mcmFnX3NpemUpKSB7CiAJCXNpemVfdCBzbG9wX2xl
+ZnQgPSBjaGFuLT5mcmFnX3NpemUgLSBjaGFuLT5zbG9wX2xlbjsKIAkJdm9pZCAqYmFzZSA9IGNo
+YW4tPnBndGJsW24gLyAoUEFHRV9TSVpFIC8gY2hhbi0+ZnJhZ19zaXplKV0uY3B1YWRkcjsKLQkJ
+dW5zaWduZWQgb2ZzID0gbiAlIChQQUdFX1NJWkUgLyBjaGFuLT5mcmFnX3NpemUpOworCQl1bnNp
+Z25lZCBvZnMgPSAobiAlIChQQUdFX1NJWkUgLyBjaGFuLT5mcmFnX3NpemUpKSAqIGNoYW4tPmZy
+YWdfc2l6ZTsKIAogCQlzaXplID0gKGNvdW50IDwgc2xvcF9sZWZ0KSA/IGNvdW50IDogc2xvcF9s
+ZWZ0OwogCQlpZiAoY29weV90b191c2VyICh1c2VyYnVmLAo=
+
+--------------Boundary-00=_N3GLF3RRIM7VXLG01HMB--

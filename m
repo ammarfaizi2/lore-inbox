@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVBIOLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVBIOXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVBIOLY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 09:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVBIOLY
+	id S261825AbVBIOXl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 09:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVBIOXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 09:11:24 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:36589 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261824AbVBIOLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 09:11:19 -0500
-Subject: Re: [PATCH] New sys_chmod() hook for the LSM framework
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
-In-Reply-To: <20050208161530.F469@build.pdx.osdl.net>
-References: <1107879275.3754.279.camel@localhost.localdomain>
-	 <20050208161530.F469@build.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zPbJSgdMhldBDyAdZooW"
-Date: Wed, 09 Feb 2005 15:10:54 +0100
-Message-Id: <1107958254.3754.292.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 9 Feb 2005 09:23:41 -0500
+Received: from smtp.gentoo.org ([156.56.111.197]:8384 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S261825AbVBIOXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 09:23:39 -0500
+From: Stefan Knoblich <stkn@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6 - alpha: add missing dma_mapping_error
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Date: Wed, 9 Feb 2005 15:23:45 +0100
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xi2zBPjl5P1VNkg";
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502091523.45868.stkn@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-zPbJSgdMhldBDyAdZooW
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+attached patch defines dma_mapping_error on alpha. Without this libata-core.c 
+won't compile.
 
-El mar, 08-02-2005 a las 16:15 -0800, Chris Wright escribi=F3:
-> * Lorenzo Hern=E1ndez Garc=EDa-Hierro (lorenzo@gnu.org) wrote:
-> > As commented yesterday, I was going to release a few more hooks for som=
-e
-> > *critical* syscalls, this one adds a hook to sys_chmod(), and makes us
-> > able to apply checks and logics before releasing the operation to
-> > sys_chmod().
->=20
-> This is exactly the kind of hook we've tried to avoid.  This is really
-> asking for permission to alter inode attribute data.  This type of
-> hook is incomplete because there are other ways to alter this data,
-> and this access is already controlled by the inode_setattr hook (as
-> Tony mentioned).  So this is a no go.
+stefan
 
-Right, the patch is no longer available as notify_change grabs the
-inode_setattr hook returned data.
-
-Did you checked the other one on sys_chroot()? (I've updated it a day or
-so ago).
-
-Cheers, thanks for commenting on it.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-zPbJSgdMhldBDyAdZooW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCChnuDcEopW8rLewRAikPAJ48KENE4CfeuSwHvlsbvF8JC7NV0ACfUkTj
-8J16RLqS+FLMdWBwJh0r2n8=
-=Lx2w
------END PGP SIGNATURE-----
-
---=-zPbJSgdMhldBDyAdZooW--
-
+--- linux-2.6.10/include/asm-alpha/dma-mapping.h.orig 2004-12-26 
+20:45:25.139475104 +0100
++++ linux-2.6.10/include/asm-alpha/dma-mapping.h 2004-12-26 20:46:54.684862136 
++0100
+@@ -25,6 +25,8 @@
+   pci_unmap_sg(alpha_gendev_to_pci(dev), sg, nents, dir)
+ #define dma_supported(dev, mask)   \
+   pci_dma_supported(alpha_gendev_to_pci(dev), mask)
++#define dma_mapping_error(addr)   \
++  pci_dma_mapping_error(addr)
+ 
+ #else /* no PCI - no IOMMU. */
+ 
+@@ -43,6 +45,8 @@
+ #define dma_unmap_page(dev, addr, size, dir) do { } while (0)
+ #define dma_unmap_sg(dev, sg, nents, dir) do { } while (0)
+ 
++#define dma_mapping_error(addr)  (0)
++
+ #endif /* !CONFIG_PCI */
+ 
+ #define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)

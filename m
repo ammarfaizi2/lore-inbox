@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUIPPy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268174AbUIPP5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268232AbUIPPy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUIPPy1
+	id S268174AbUIPP5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268355AbUIPP5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:54:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:24797 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268295AbUIPPvS (ORCPT
+	Thu, 16 Sep 2004 11:57:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2486 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268176AbUIPPxE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:51:18 -0400
-Message-ID: <5d6b657504091608511f100109@mail.gmail.com>
-Date: Thu, 16 Sep 2004 17:51:04 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Stelian Pop <stelian@popies.net>, Buddy Lucas <buddy.lucas@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-In-Reply-To: <20040916152919.GG3146@crusoe.alcove-fr>
+	Thu, 16 Sep 2004 11:53:04 -0400
+Subject: Re: input: Disable the AUX LoopBack command in i8042.c on Compaq
+	ProLiant
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: vojtech@suse.cz
+In-Reply-To: <200409161509.i8GF90iJ021552@hera.kernel.org>
+References: <200409161509.i8GF90iJ021552@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uukXCIB3lqfy/CkUgFP7"
+Organization: Red Hat UK
+Message-Id: <1095349977.2698.17.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-	 <20040915153013.32e797c8.akpm@osdl.org>
-	 <20040916064320.GA9886@deep-space-9.dsnet>
-	 <20040916000438.46d91e94.akpm@osdl.org>
-	 <20040916104535.GA3146@crusoe.alcove-fr>
-	 <5d6b657504091608093b171e30@mail.gmail.com>
-	 <20040916152919.GG3146@crusoe.alcove-fr>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Sep 2004 17:52:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004 17:29:19 +0200, Stelian Pop <stelian@popies.net> wrote:
-> On Thu, Sep 16, 2004 at 05:09:51PM +0200, Buddy Lucas wrote:
-> 
-> > > +       total = remaining = min(len, fifo->size - fifo->tail + fifo->head);
-> >
-> > I could be mistaken (long day at the office ;-) but doesn't this fail after
-> > wrapping?
-> 
-> No, because the type is *unsigned* int.
 
-Indeed, that would exactly be the reason *why* this would fail. ;-) 
+--=-uukXCIB3lqfy/CkUgFP7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The expression fifo->size - fifo->tail + fifo->head might be negative
-at some point, right? (fifo->head has wrapped to some small value and
-fifo->tail > fifo->size)
+On Wed, 2004-06-02 at 13:44, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1722.87.1, 2004/06/02 13:44:20+02:00, vojtech@suse.cz
+>=20
+> 	input: Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
+> 	       8-way Xeon ProFusion systems, as it causes crashes and reboots
+> 	       on these machines. DMI data is used for determining if the
+> 	       workaround should be enabled.
+> =09
+> 	Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+>=20
+
+is there any reason you do this in dmi_scan.c and not via the "new"
+since some time method where the user gives the dmi code a table with
+callbacks instead ????
 
 
-Cheers,
-Buddy
+--=-uukXCIB3lqfy/CkUgFP7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> 
-> Stelian.
-> --
-> 
-> 
-> Stelian Pop <stelian@popies.net>
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBSbbZxULwo51rQBIRAjiUAKCDrM51bxyVOlxUe0PvPUFDLTdi5QCfUwtl
+XH8WwT8sYbh5tNxHBtmvibg=
+=EbYn
+-----END PGP SIGNATURE-----
+
+--=-uukXCIB3lqfy/CkUgFP7--
+

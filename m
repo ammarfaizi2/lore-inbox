@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRDKFqx>; Wed, 11 Apr 2001 01:46:53 -0400
+	id <S131289AbRDKFtn>; Wed, 11 Apr 2001 01:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131289AbRDKFqn>; Wed, 11 Apr 2001 01:46:43 -0400
-Received: from [216.18.81.161] ([216.18.81.161]:44808 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S131275AbRDKFq3>; Wed, 11 Apr 2001 01:46:29 -0400
-Date: Wed, 11 Apr 2001 01:46:40 -0400
-From: William Park <parkw@better.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.2.19.04092001.patch
-Message-ID: <20010411014640.A4929@better.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10104091720030.1878-100000@master.linux-ide.org> <20010410223554.A938@cm.nu>
-Mime-Version: 1.0
+	id <S131307AbRDKFtd>; Wed, 11 Apr 2001 01:49:33 -0400
+Received: from relay03.valueweb.net ([216.219.253.237]:11792 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S131289AbRDKFtS>; Wed, 11 Apr 2001 01:49:18 -0400
+Message-ID: <3AD3F1C0.62363C4A@opersys.com>
+Date: Wed, 11 Apr 2001 01:55:12 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Mark Salisbury <mbs@mc.com>
+CC: Martin Mares <mj@suse.cz>, Andi Kleen <ak@suse.de>,
+        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <200104091830.NAA03017@ccure.karaya.com> <20010410075109.A9549@gruyere.muc.suse.de> <20010410113309.A16825@atrey.karlin.mff.cuni.cz> <0104100818281A.01893@pc-eng24.mc.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010410223554.A938@cm.nu>; from shane@cm.nu on Tue, Apr 10, 2001 at 10:35:54PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 10:35:54PM -0700, Shane Wegner wrote:
-> Hi,
+Mark Salisbury wrote:
 > 
-> This isn't working here on my Abit VP6 board.  The
-> ide.2.2.18.1221 works fine but this latest patch as well as
-> ide.2.2.19.0325 fails.
+> It would probably be a good compile config option to allow fine or coarse
+> process time accounting, that leaves the choice to the person setting up the
+> system to make the choice based on their needs.
 > 
-> Uniform Multi-Platform E-IDE driver Revision: 6.30
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> VP_IDE: IDE controller on PCI bus 00 dev 39
-> VP_IDE: chipset revision 6
-> VP_IDE: not 100% native mode: will probe irqs later
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
->     ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:pio, hdd:pio
-> HPT370: IDE controller on PCI bus 00 dev 70
-> HPT370: chipset revision 3
-> HPT370: not 100% native mode: will probe irqs later
->     ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
->     ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:DMA, hdh:pio
-> hda: Maxtor 92720U8, ATA DISK drive
-> hdg: Maxtor 96147U8, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide3 at 0xe400-0xe407,0xe802 on irq 10
-> 
-> That's where it stops.  Locks solid, not even sysrq-b
-> works.
 
-Same here with my VP6.  ide-2.2.18 worked, but ide-2.2.19 doesn't.  
+I suggested this a while ago during a discussion about performance
+measurement. This would be fairly easy to implement using the patch
+provided with the Linux Trace Toolkit since all entry points and
+exit points are known (and it already is available in post-mortem
+analysis). Implementing the measurement code within the kernel should
+be fairly easy to implement and it would be provided as part of the
+compile option. All in all, given the measurements I made, I'd place
+the overhead at around 1% for the computations. (The overhead is very
+likely to be negligeable when eventual fixes are taken into account.)
 
---William Park, Open Geometry Consulting, Linux/Python/LaTeX/vim, 8 CPUs.
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,123 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbUJZBKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbUJZBND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbUJZBKY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 21:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUJZBKW
+	id S261872AbUJZBND (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUJZBME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:10:22 -0400
+	Mon, 25 Oct 2004 21:12:04 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:2762 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261912AbUJZBJ3 (ORCPT
+	by vger.kernel.org with ESMTP id S261928AbUJZBJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:09:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C4BAF1.AF7ADA7D"
-Subject: [PATCH]Add do_proc_doulonglongvec_minmax to sysctl functions
-Date: Tue, 26 Oct 2004 08:21:06 +0800
-Message-ID: <894E37DECA393E4D9374E0ACBBE7427013C948@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]Add do_proc_doulonglongvec_minmax to sysctl functions
-Thread-Index: AcS68a9LvzP0eL8AQZimVnQuxGVfPg==
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <akpm@osdl.org>, <torvalds@osdl.org>
-X-OriginalArrivalTime: 26 Oct 2004 00:21:10.0345 (UTC) FILETIME=[B1A48390:01C4BAF1]
+	Mon, 25 Oct 2004 21:09:57 -0400
+Subject: [PATCH TRIVIAL 2.6] X.25 : Dont log "unknown frame type" when
+	receiving clear confirm
+From: Andrew Hendry <ahendry@tusc.com.au>
+To: linux-x25@vger.kernel.org, eis@baty.hanse.de
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1098749619.3099.194.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 26 Oct 2004 10:13:39 +1000
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Oct 2004 00:16:27.0169 (UTC) FILETIME=[08DB4910:01C4BAF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+No need to log this for clear confirm.
 
-------_=_NextPart_001_01C4BAF1.AF7ADA7D
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+
+diff -up linux-2.6.8.1/net/x25/x25_dev.c.orig linux-2.6.8.1/net/x25/x25_dev.c
+--- linux-2.6.8.1/net/x25/x25_dev.c.orig        2004-10-26 09:58:36.158922080 +1000
++++ linux-2.6.8.1/net/x25/x25_dev.c     2004-10-26 10:03:01.134639648 +1000
+@@ -92,7 +92,12 @@ static int x25_receive_data(struct sk_bu
+ /*
+        x25_transmit_clear_request(nb, lci, 0x0D);
+ */
+-       printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
++
++       /*
++        *      Dont spam the logs for clear confirms.
++        */
++       if (frametype != X25_CLEAR_CONFIRMATION)
++               printk(KERN_DEBUG "x25_receive_data(): unknown frame type %2x\n",frametype);
+  
+        return 0;
+ }
 
 
-I will need read and write unsigned long long value via sysctl interface
-in my next patch.=20
-So I add this.
-This patch is against kernel 2.6.9.
-
-Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
-
-------_=_NextPart_001_01C4BAF1.AF7ADA7D
-Content-Type: application/octet-stream;
-	name="sysctl-ulonglong.patch"
-Content-Transfer-Encoding: base64
-Content-Description: sysctl-ulonglong.patch
-Content-Disposition: attachment;
-	filename="sysctl-ulonglong.patch"
-
-ZGlmZiAtTnJhdXAgYS9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oIGIvaW5jbHVkZS9saW51eC9zeXNj
-dGwuaAotLS0gYS9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDQtMTAtMTggMDU6MTE6MzkuMDAw
-MDAwMDAwIC0wNzAwCisrKyBiL2luY2x1ZGUvbGludXgvc3lzY3RsLmgJMjAwNC0xMC0yNSAwMDow
-NTowNS42OTQ5Nzk0MDIgLTA3MDAKQEAgLTc5NCw2ICs3OTQsOCBAQCBleHRlcm4gaW50IHByb2Nf
-ZG9pbnR2ZWNfdXNlcmh6X2ppZmZpZXMoCiAJCQkJCXZvaWQgX191c2VyICosIHNpemVfdCAqLCBs
-b2ZmX3QgKik7CiBleHRlcm4gaW50IHByb2NfZG91bG9uZ3ZlY19taW5tYXgoY3RsX3RhYmxlICos
-IGludCwgc3RydWN0IGZpbGUgKiwKIAkJCQkgIHZvaWQgX191c2VyICosIHNpemVfdCAqLCBsb2Zm
-X3QgKik7CitleHRlcm4gaW50IHByb2NfZG91bG9uZ2xvbmd2ZWNfbWlubWF4KGN0bF90YWJsZSAq
-LCBpbnQsIHN0cnVjdCBmaWxlICosCisJCQkJICB2b2lkIF9fdXNlciAqLCBzaXplX3QgKiwgbG9m
-Zl90ICopOwogZXh0ZXJuIGludCBwcm9jX2RvdWxvbmd2ZWNfbXNfamlmZmllc19taW5tYXgoY3Rs
-X3RhYmxlICp0YWJsZSwgaW50LAogCQkJCSAgICAgIHN0cnVjdCBmaWxlICosIHZvaWQgX191c2Vy
-ICosIHNpemVfdCAqLCBsb2ZmX3QgKik7CiAKZGlmZiAtTnJhdXAgYS9rZXJuZWwvc3lzY3RsLmMg
-Yi9rZXJuZWwvc3lzY3RsLmMKLS0tIGEva2VybmVsL3N5c2N0bC5jCTIwMDQtMTAtMTggMDU6MTE6
-MzkuMDAwMDAwMDAwIC0wNzAwCisrKyBiL2tlcm5lbC9zeXNjdGwuYwkyMDA0LTEwLTI1IDAwOjA2
-OjA2LjY4ODE0MjcxOCAtMDcwMApAQCAtMTgwNCw2ICsxODA0LDExNyBAQCBpbnQgcHJvY19kb3Vs
-b25ndmVjX21pbm1heChjdGxfdGFibGUgKnRhCiAgICAgcmV0dXJuIGRvX3Byb2NfZG91bG9uZ3Zl
-Y19taW5tYXgodGFibGUsIHdyaXRlLCBmaWxwLCBidWZmZXIsIGxlbnAsIHBwb3MsIDFsLCAxbCk7
-CiB9CiAKK3N0YXRpYyBpbnQgZG9fcHJvY19kb3Vsb25nbG9uZ3ZlY19taW5tYXgoY3RsX3RhYmxl
-ICp0YWJsZSwgaW50IHdyaXRlLAorCQkJCSAgICAgc3RydWN0IGZpbGUgKmZpbHAsCisJCQkJICAg
-ICB2b2lkIF9fdXNlciAqYnVmZmVyLAorCQkJCSAgICAgc2l6ZV90ICpsZW5wLCBsb2ZmX3QgKnBw
-b3MsCisJCQkJICAgICB1bnNpZ25lZCBsb25nIGxvbmcgY29udm11bCwKKwkJCQkgICAgIHVuc2ln
-bmVkIGxvbmcgbG9uZyBjb252ZGl2KQoreworI2RlZmluZSBUTVBCVUZMRU4gMjEKKwl1bnNpZ25l
-ZCBsb25nIGxvbmcgKmksICptaW4sICptYXgsIHZhbDsKKwlpbnQgdmxlZnQsIGZpcnN0PTEsIG5l
-ZzsKKwlzaXplX3QgbGVuLCBsZWZ0OworCWNoYXIgYnVmW1RNUEJVRkxFTl0sICpwOworCWNoYXIg
-X191c2VyICpzID0gYnVmZmVyOworCisJaWYgKCF0YWJsZS0+ZGF0YSB8fCAhdGFibGUtPm1heGxl
-biB8fCAhKmxlbnAgfHwKKwkgICAgKCpwcG9zICYmICF3cml0ZSkpIHsKKwkJKmxlbnAgPSAwOwor
-CQlyZXR1cm4gMDsKKwl9CisKKwlpID0gKHVuc2lnbmVkIGxvbmcgbG9uZyAqKSB0YWJsZS0+ZGF0
-YTsKKwltaW4gPSAodW5zaWduZWQgbG9uZyBsb25nICopIHRhYmxlLT5leHRyYTE7CisJbWF4ID0g
-KHVuc2lnbmVkIGxvbmcgbG9uZyAqKSB0YWJsZS0+ZXh0cmEyOworCXZsZWZ0ID0gdGFibGUtPm1h
-eGxlbiAvIHNpemVvZih1bnNpZ25lZCBsb25nIGxvbmcpOworCWxlZnQgPSAqbGVucDsKKworCWZv
-ciAoOyBsZWZ0ICYmIHZsZWZ0LS07IGkrKywgbWluKyssIG1heCsrLCBmaXJzdD0wKSB7CisJCWlm
-ICh3cml0ZSkgeworCQkJd2hpbGUgKGxlZnQpIHsKKwkJCQljaGFyIGM7CisJCQkJaWYgKGdldF91
-c2VyKGMsIHMpKQorCQkJCQlyZXR1cm4gLUVGQVVMVDsKKwkJCQlpZiAoIWlzc3BhY2UoYykpCisJ
-CQkJCWJyZWFrOworCQkJCWxlZnQtLTsKKwkJCQlzKys7CisJCQl9CisJCQlpZiAoIWxlZnQpCisJ
-CQkJYnJlYWs7CisJCQluZWcgPSAwOworCQkJbGVuID0gbGVmdDsKKwkJCWlmIChsZW4gPiBUTVBC
-VUZMRU4tMSkKKwkJCQlsZW4gPSBUTVBCVUZMRU4tMTsKKwkJCWlmIChjb3B5X2Zyb21fdXNlcihi
-dWYsIHMsIGxlbikpCisJCQkJcmV0dXJuIC1FRkFVTFQ7CisJCQlidWZbbGVuXSA9IDA7CisJCQlw
-ID0gYnVmOworCQkJaWYgKCpwID09ICctJyAmJiBsZWZ0ID4gMSkgeworCQkJCW5lZyA9IDE7CisJ
-CQkJbGVmdC0tLCBwKys7CisJCQl9CisJCQlpZiAoKnAgPCAnMCcgfHwgKnAgPiAnOScpCisJCQkJ
-YnJlYWs7CisJCQl2YWwgPSBzaW1wbGVfc3RydG91bGwocCwgJnAsIDApICogY29udm11bCAvIGNv
-bnZkaXYgOworCQkJbGVuID0gcC1idWY7CisJCQlpZiAoKGxlbiA8IGxlZnQpICYmICpwICYmICFp
-c3NwYWNlKCpwKSkKKwkJCQlicmVhazsKKwkJCWlmIChuZWcpCisJCQkJdmFsID0gLXZhbDsKKwkJ
-CXMgKz0gbGVuOworCQkJbGVmdCAtPSBsZW47CisKKwkJCWlmKG5lZykKKwkJCQljb250aW51ZTsK
-KwkJCWlmICgobWluICYmIHZhbCA8ICptaW4pIHx8IChtYXggJiYgdmFsID4gKm1heCkpCisJCQkJ
-Y29udGludWU7CisJCQkqaSA9IHZhbDsKKwkJfSBlbHNlIHsKKwkJCXAgPSBidWY7CisJCQlpZiAo
-IWZpcnN0KQorCQkJCSpwKysgPSAnXHQnOworCQkJc3ByaW50ZihwLCAiJWxsdSIsIGNvbnZkaXYg
-KiAoKmkpIC8gY29udm11bCk7CisJCQlsZW4gPSBzdHJsZW4oYnVmKTsKKwkJCWlmIChsZW4gPiBs
-ZWZ0KQorCQkJCWxlbiA9IGxlZnQ7CisJCQlpZihjb3B5X3RvX3VzZXIocywgYnVmLCBsZW4pKQor
-CQkJCXJldHVybiAtRUZBVUxUOworCQkJbGVmdCAtPSBsZW47CisJCQlzICs9IGxlbjsKKwkJfQor
-CX0KKworCWlmICghd3JpdGUgJiYgIWZpcnN0ICYmIGxlZnQpIHsKKwkJaWYocHV0X3VzZXIoJ1xu
-JywgcykpCisJCQlyZXR1cm4gLUVGQVVMVDsKKwkJbGVmdC0tLCBzKys7CisJfQorCWlmICh3cml0
-ZSkgeworCQl3aGlsZSAobGVmdCkgeworCQkJY2hhciBjOworCQkJaWYgKGdldF91c2VyKGMsIHMr
-KykpCisJCQkJcmV0dXJuIC1FRkFVTFQ7CisJCQlpZiAoIWlzc3BhY2UoYykpCisJCQkJYnJlYWs7
-CisJCQlsZWZ0LS07CisJCX0KKwl9CisJaWYgKHdyaXRlICYmIGZpcnN0KQorCQlyZXR1cm4gLUVJ
-TlZBTDsKKwkqbGVucCAtPSBsZWZ0OworCSpwcG9zICs9ICpsZW5wOworCXJldHVybiAwOworI3Vu
-ZGVmIFRNUEJVRkxFTgorfQorCitpbnQgcHJvY19kb3Vsb25nbG9uZ3ZlY19taW5tYXgoY3RsX3Rh
-YmxlICp0YWJsZSwgaW50IHdyaXRlLCBzdHJ1Y3QgZmlsZSAqZmlscCwKKwkJCSAgIHZvaWQgX191
-c2VyICpidWZmZXIsIHNpemVfdCAqbGVucCwgbG9mZl90ICpwcG9zKQoreworICAgIHJldHVybiBk
-b19wcm9jX2RvdWxvbmdsb25ndmVjX21pbm1heCh0YWJsZSwgd3JpdGUsIGZpbHAsIGJ1ZmZlciwg
-bGVucCwgcHBvcywgMUxMVSwgMUxMVSk7Cit9CisKIC8qKgogICogcHJvY19kb3Vsb25ndmVjX21z
-X2ppZmZpZXNfbWlubWF4IC0gcmVhZCBhIHZlY3RvciBvZiBtaWxsaXNlY29uZCB2YWx1ZXMgd2l0
-aCBtaW4vbWF4IHZhbHVlcwogICogQHRhYmxlOiB0aGUgc3lzY3RsIHRhYmxlCkBAIC0yMTkyLDYg
-KzIzMDMsNyBAQCBFWFBPUlRfU1lNQk9MKHByb2NfZG9pbnR2ZWNfbWlubWF4KTsKIEVYUE9SVF9T
-WU1CT0wocHJvY19kb2ludHZlY191c2VyaHpfamlmZmllcyk7CiBFWFBPUlRfU1lNQk9MKHByb2Nf
-ZG9zdHJpbmcpOwogRVhQT1JUX1NZTUJPTChwcm9jX2RvdWxvbmd2ZWNfbWlubWF4KTsKK0VYUE9S
-VF9TWU1CT0wocHJvY19kb3Vsb25nbG9uZ3ZlY19taW5tYXgpOwogRVhQT1JUX1NZTUJPTChwcm9j
-X2RvdWxvbmd2ZWNfbXNfamlmZmllc19taW5tYXgpOwogRVhQT1JUX1NZTUJPTChyZWdpc3Rlcl9z
-eXNjdGxfdGFibGUpOwogRVhQT1JUX1NZTUJPTChzeXNjdGxfaW50dmVjKTsK
-
-------_=_NextPart_001_01C4BAF1.AF7ADA7D--

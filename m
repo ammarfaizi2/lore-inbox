@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUGEPlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266129AbUGEP67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266144AbUGEPlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 11:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUGEPld
+	id S266129AbUGEP67 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 11:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbUGEP67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 11:41:33 -0400
-Received: from mail.gmx.net ([213.165.64.20]:25486 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266130AbUGEPlW (ORCPT
+	Mon, 5 Jul 2004 11:58:59 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63884 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266129AbUGEP65 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 11:41:22 -0400
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20040705162139.00b1caa8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 05 Jul 2004 17:33:09 +0200
-To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: RE: Maximum frequency of re-scheduling (minimum time quantum)
-  que stio n
-In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FD4@whq-msgusr-02.pit
- .comms.marconi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 5 Jul 2004 11:58:57 -0400
+To: Benjamin Collar <benjamin.collar@siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: using _syscall4 to call sys_futex with -fPIC won't
+ compile
+References: <1089023944.8355.52.camel@mhpajh5c>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I know things about TROY DONAHUE that can't even be PRINTED!!
+Date: Mon, 05 Jul 2004 17:58:56 +0200
+In-Reply-To: <1089023944.8355.52.camel@mhpajh5c> (Benjamin Collar's message
+ of "Mon, 05 Jul 2004 12:39:04 +0200")
+Message-ID: <je1xjqigxr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:18 AM 7/5/2004 -0400, Povolotsky, Alexander wrote:
+Benjamin Collar <benjamin.collar@siemens.com> writes:
 
->Mike - the part of my original question was - what is the minimum "measure"
->(in time ticks or is fraction of the time tick ?) of that "(almost) any time
->? In another words, assuming what is the latency between the moment, when
->the higher priority process (or thread ) is becoming available  to run (and
->assuming that "schedule()" system call is not explicitly called at that time
->...)and the moment when the scheduler STARTS (I am not including context
->switch time into the question here) the process of preemtion (start of the
->context switch). Is this time  settable (at compile time ) ?
-
-Ah, you want wakeup latency numbers.  Sorry, I don't have any.  I believe 
-Andrew and Davide both wrote tools for measuring in the wild, a search of 
-the archives should turn up something that will give you the numbers you're 
-looking for.
-
-If I'm understanding your question, no, there is no latency guarantee.
-
-
-> >If you're looking for an interface into the scheduler that allows you to
-> >twiddle slice length
+> Greetings
 >
->you mean at the run time (vs compile time), I assume ?
+> [1.]
+> If I use _syscall4 in order to call sys_futex and compile with -fPIC, I
+> receive this compiler error:
+> "can't find a register in class `BREG' while reloading `asm'"
 
-Yes.
+Don't do that then.
 
-         -Mike 
+> [2.]
+> I'm using futexes in a project and I have to build a shared library;
+> thus I need to use -fPIC when compiling. When doing so, I get the error
+> mentioned in [1.].
 
+Don't use kernel headers in user space.  Use syscall(3) instead.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSKRLqQ>; Mon, 18 Nov 2002 06:46:16 -0500
+	id <S262324AbSKRL6k>; Mon, 18 Nov 2002 06:58:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSKRLqQ>; Mon, 18 Nov 2002 06:46:16 -0500
-Received: from noose.gt.owl.de ([62.52.19.4]:46093 "HELO noose.gt.owl.de")
-	by vger.kernel.org with SMTP id <S262312AbSKRLqP>;
-	Mon, 18 Nov 2002 06:46:15 -0500
-Date: Mon, 18 Nov 2002 12:52:32 +0100
-From: Florian Lohoff <flo@rfc822.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ALI 1533 / hang on boot / vaio c1mhp / 2.4.19 + acpi backport
-Message-ID: <20021118115232.GA553@paradigm.rfc822.org>
-References: <20021117194745.GA1281@paradigm.rfc822.org> <1037573400.5356.1.camel@irongate.swansea.linux.org.uk>
+	id <S262326AbSKRL6k>; Mon, 18 Nov 2002 06:58:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63623 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262324AbSKRL6j>;
+	Mon, 18 Nov 2002 06:58:39 -0500
+Date: Mon, 18 Nov 2002 13:05:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Steve Lord <lord@sgi.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI I/O performance problems when CONFIG_HIGHIO is off
+Message-ID: <20021118120531.GC839@suse.de>
+References: <1037392310.13531.419.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037573400.5356.1.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organization: rfc822 - pure communication
+In-Reply-To: <1037392310.13531.419.camel@jen.americas.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 15 2002, Steve Lord wrote:
+> Jens,
+> 
+> As you know, for the last week or so I have been battling some
+> performance issues in XFS and 2.4.20-rc1. Well, we finally found
+> the culprit back in 2.4.20-pre2.
+> 
+> When the block highmem patch was included, it added highmem_io to the
+> scsi controller structure. This can only ever be set to one if
+> CONFIG_HIGHIO is set. Yet there are several spots in the scsi
+> code which test based on its value regardless.
+> 
+>         /*
+>          * we really want to use sg even for a single segment request,
+>          * however some people just cannot be bothered to write decent
+>          * driver code so we can't risk to break somebody making the
+>          * assumption that sg requests will always contain at least 2
+>          * segments. if the driver is 32-bit dma safe, then use sg for
+>          * 1 entry anyways. if not, don't rely on the driver handling this
+>          * case.
+>          */
+>         if (count == 1 && !SCpnt->host->highmem_io) {
+>                 this_count = req->current_nr_sectors;
+>                 goto single_segment;
+>         }
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Steve,
 
-On Sun, Nov 17, 2002 at 10:50:00PM +0000, Alan Cox wrote:
-> On Sun, 2002-11-17 at 19:47, Florian Lohoff wrote:
-> >=20
-> > Hi,
-> > i am seeing a hang on boot on a Crusoe based Vaio C1MHP when enabling
-> > the ALI IDE Driver:
-> >=20
-> > These are the last lines:
-> >=20
-> > Unform Multi-Platform E-IDE driver Revision: 6.31
-> > ide: Assuming 33Mhz system bus speed for PIO modes: override with idebu=
-s=3Dxx
-> > ALI15X3: IDE controller on PCI bus 00 dev 80
-> >  pci_irq-0293 [05] acpi_pci_irq_derive   : Unable to derive IRQ for dev=
-ice 00:10.0
-> > PCI: No IRQ known for interrupt pin A of device 00:10.0 - using IRQ 255
-> > ALI15X3: chipset revision 196
-> > ALI15X3: not 100% native mode: will probe irqs later
->=20
-> Try it without the ACPI first. Let me know if that also hangs
+Something isn't quite making sense. If we go over every single instance
+of checking ->highmem_io, they all look sane (ie checking on non-highmem
+setup must yield 0). So that part looks good.
 
-It does - With acpi=3Doff and acpi=3Doff pci=3Dbiosirq (as mentioned in that
-crash). I also tried the somewhere mentioned UDMA66 force (ide0=3Data66
-ide1=3Data66) which does get over this point but fails to mount the root
-filesystem with IDE errors.
+However, I think a typo snuck in there, in exactly the spot you pasted
+above. Could you try 2.4.20-rc2 with this patch applied?
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-5201-669912
-                        Heisenberg may have been here.
+===== drivers/scsi/scsi_merge.c 1.9 vs edited =====
+--- 1.9/drivers/scsi/scsi_merge.c	Mon Sep 16 09:25:10 2002
++++ edited/drivers/scsi/scsi_merge.c	Mon Nov 18 13:04:41 2002
+@@ -835,7 +835,7 @@
+ 	 * case.
+  	 */
+ 	if (count == 1 && !SCpnt->host->highmem_io) {
+-		this_count = req->current_nr_sectors;
++		this_count = req->nr_sectors;
+ 		goto single_segment;
+ 	}
+ 
 
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+Jens Axboe
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE92NSAUaz2rXW+gJcRAkSCAJ412PD1uuyI/iidVAZqg8vIMpmqLACeOjWe
-nJBMfI9285ulkKc1tqX/HtY=
-=FRG5
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--

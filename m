@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131026AbRARB0k>; Wed, 17 Jan 2001 20:26:40 -0500
+	id <S130996AbRARBaW>; Wed, 17 Jan 2001 20:30:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131184AbRARB0a>; Wed, 17 Jan 2001 20:26:30 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:42736 "EHLO
+	id <S131257AbRARBaN>; Wed, 17 Jan 2001 20:30:13 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:61680 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131026AbRARB0Y>; Wed, 17 Jan 2001 20:26:24 -0500
-Date: Thu, 18 Jan 2001 12:26:02 +1100 (EST)
+	id <S131184AbRARB35>; Wed, 17 Jan 2001 20:29:57 -0500
+Date: Thu, 18 Jan 2001 12:29:52 +1100 (EST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What happened to your kernel changelogs?
-In-Reply-To: <Pine.LNX.4.30.0101171438260.11321-100000@svea.tellus>
-Message-ID: <Pine.LNX.4.31.0101181223220.31432-100000@localhost.localdomain>
+To: Xuan Baldauf <xuan--lkml@baldauf.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Relative CPU time limit
+In-Reply-To: <3A65E573.D004302B@baldauf.org>
+Message-ID: <Pine.LNX.4.31.0101181227221.31432-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Tobias Ringstrom wrote:
+On Wed, 17 Jan 2001, Xuan Baldauf wrote:
 
-> I liked them a lot, and I bet I'm not alone.  Are they gone for
-> good, or have you just ceased writing them for test kernels?
+> is it possible with linux2.4 to limit the relative CPU time
+> per process or per UID?
 
-I like them a lot too.
+The (more complex) userbeans patches are IMHO something that
+should wait for 2.5, but I will be "porting" my fair share
+scheduler to 2.4 RSN.
 
-Without the changelogs Linus is just a "black box"
-which outputs random patches.
+The fair share scheduler I created some time ago doesn't have
+a lot of configurability, isn't always fair to within the last
+few percent and doesn't do some other funky things.
 
-With a good changelog, we all have a much better idea
-what Linus wants and, consequently, what kind of patches
-we should give him (and which kind of patches we should
-wait with for a week or so).
+Instead, it changes the current Linux scheduler the minimum amount
+possible and makes sure nobody can completely hog the CPU.
 
-Also, the changelog items are a good way to keep track
-of what's happening with the kernel, it makes it so much
-faster to track down exactly when a bug was fixed or
-introduced and what change had this effect.
+A version against 2.3.99 and 2.2.x is available from my home page:
+	http://www.surriel.com/patches/
 
-regards,
+cheers,
 
 Rik
 --

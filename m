@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVDAFNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVDAFPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbVDAFNx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 00:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVDAFNx
+	id S262627AbVDAFPN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 00:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVDAFPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 00:13:53 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42943 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262624AbVDAFNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 00:13:51 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050401044307.GB22753@elte.hu>
-References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-	 <1112212608.3691.147.camel@localhost.localdomain>
-	 <1112218750.3691.165.camel@localhost.localdomain>
-	 <20050331110330.GA24842@elte.hu>
-	 <1112273378.3691.228.camel@localhost.localdomain>
-	 <20050331141040.GA2544@elte.hu>
-	 <1112290916.12543.19.camel@localhost.localdomain>
-	 <20050331174927.GA11483@elte.hu>
-	 <1112317173.28076.10.camel@localhost.localdomain>
-	 <20050401044307.GB22753@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 01 Apr 2005 00:13:46 -0500
-Message-Id: <1112332426.28076.21.camel@localhost.localdomain>
+	Fri, 1 Apr 2005 00:15:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:63218 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262627AbVDAFOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 00:14:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=EJp8wPHLgAXxjGiKM1lIZ+vmW8odvHq0KCC2mUbsRqD+r9ZaKPGJv1LzO7E6GxMoAfZf9oH9q/NRJ0eZwEnzQTLGUBgNgEcbQJvpq+AXTEmRiRJoVFilvO/sqv61Qd2CTdqYGO7v36US4C6j7+HbysrImcB0gBkL2iPRjImaTMs=
+Date: Fri, 1 Apr 2005 14:14:42 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 02/13] scsi: don't turn on REQ_SPECIAL on sgtable allocation failure.
+Message-ID: <20050401051442.GC11318@htj.dyndns.org>
+References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.C0E52845@htj.dyndns.org> <1112291625.5619.21.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112291625.5619.21.camel@mulgrave>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 06:43 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
+ Hello, James.
+
+On Thu, Mar 31, 2005 at 11:53:45AM -0600, James Bottomley wrote:
+> On Thu, 2005-03-31 at 18:08 +0900, Tejun Heo wrote:
+> > 	Don't turn on REQ_SPECIAL on sgtable allocation failure.  This
+> > 	was the last place where REQ_SPECIAL is turned on for normal
+> > 	requests.
 > 
-> > Hi Ingo,
-> > 
-> > I was wondering if the issue the bit_spin_lock has gone into the side 
-> > burner? [...]
-> 
-> could you send me your latest patch for the bit-spin issue? My main 
-> issue was cleanliness, so that the patch doesnt get stuck in the -RT 
-> tree forever.
+> If you do this, you'll leak a command every time the sgtable allocation
+> fails.
 
-I think that's the main problem. Without changing the design of the ext3
-system, I don't think there is a clean patch.  The implementation that I
-finally settled down with was to make the j_state and j_journal_head
-locks two global locks. I had to make a few modifications to some spots
-to avoid deadlocks, but this worked out well. The problem I was worried
-about was this causing too much overhead. So the ext3 buffers would have
-to contend with each other. I don't have any tests to see if this had
-too much of an impact.
+ AFAICT, not really.  We don't allocate another scsi_cmnd for normal
+requests if req->special != NULL.
 
-If you are still interested, then let me know and I'll pull it out and
-send it to you.  I preferred this method over the other wait_on_bit,
-since using normal spin_locks gives priority inheritance, but to put
-this into the buffer head seemed too much of an overhead.
+ Thanks.
 
-Also, there was that inverted_lock crap in commit.c that also caused
-problems. I just used the expensive wait_queue fix, where instead of
-just calling schedule, I put the task on the wait queue to wake up when
-the lock was released, and had unlock of j_state_lock wake it up. But
-this is expensive since every time j_state_lock is unlocked, you need to
-try to wake up a task that is most likely not there.  This I still need
-to optimize.
-
--- Steve
-
+-- 
+tejun
 

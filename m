@@ -1,72 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTIJP5k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTIJP5k
+	id S265085AbTIJPzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbTIJPzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:57:40 -0400
-Received: from halon.barra.com ([144.203.11.1]:56045 "EHLO halon.barra.com")
-	by vger.kernel.org with ESMTP id S262652AbTIJP5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:57:35 -0400
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: Jeff Garzik <jgarzik@pobox.com>, Sven-Haegar Koch <haegar@sdinet.de>
-Subject: Re: [PATCH] Re: ifconfig up/down problem
-Date: Wed, 10 Sep 2003 09:00:01 -0700
-User-Agent: KMail/1.5.3
-Cc: netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.56.0309090004100.24700@space.comunit.de> <200309092308.48099.fedor@karpelevitch.net> <200309100752.19594.fedor@karpelevitch.net>
-In-Reply-To: <200309100752.19594.fedor@karpelevitch.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 11:55:48 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:14274 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S265085AbTIJPzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 11:55:43 -0400
+Date: Wed, 10 Sep 2003 08:55:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.6.0-test5: serio config broken?
+Message-ID: <20030910155542.GD4559@ip68-0-152-218.tc.ph.cox.net>
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309100900.01865.fedor@karpelevitch.net>
+In-Reply-To: <20030910110225.GC27368@fs.tum.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fedor Karpelevitch wrote:
-> Fedor Karpelevitch wrote:
-> > Fedor Karpelevitch wrote:
-> > > Jeff Garzik wrote:
-> > > > Sven-Haegar Koch wrote:
-> > > > > Kernel 2.4.20-pre2-ac3 is ok (my last kernel, running for
-> > > > > month')
-> > > >
-> > > > Does the attached patch fix it?
-> > > >
-> > > > 	Jeff
-> > >
-> > > does not help me (assuming I have the same problem). I have a
-> > > total lockup a few seconds after setting up the interface (not
-> > > immidiately).
-> > >
-> > > Fedor.
-> >
-> > actually it seemed to have helped with 2.6.0-test5 where I was
-> > apparently having the same issue. Not with 2.4.23-pre3 however...
-> >
-> > Fedor.
->
-> I am really sorry for giving all this misleading information but
-> now it works fine for me with 2.4.23-pre3 as well, but I bet it did
-> lock up the first time I tried it. So there may be something wrong
-> with me or it is some other random problem I am seeing...
->
-> Fedor
+On Wed, Sep 10, 2003 at 01:02:25PM +0200, Adrian Bunk wrote:
 
-shit, it DOES happen. somehow, when network cable is unplugged it 
-seems to never happen, when I am plugged in at home I believe I could 
-have gotten that lockup once or twice, but when I am plugged in to 
-the network at my office it seems to happen 100% of the time. I use 
-DHCP in either case. I wonder if it could be related to the noise 
-traffic on the network or what. I get it with both 2.4.23-pre3 and 
-2.6.0-test5 with your patch. It does not seem to occur at any 
-particular time - just some time (seconds to minute or two) after the 
-boot up.
+> On Tue, Sep 09, 2003 at 09:40:15PM +1000, Eyal Lebedinsky wrote:
+> >...
+>  In -test4 I have:
+> > 
+> > CONFIG_SERIO=m
+> > CONFIG_SERIO_I8042=m
+> > CONFIG_SERIO_SERPORT=m
+> > CONFIG_SERIO_CT82C710=m
+> > CONFIG_SERIO_PARKBD=m
+> > CONFIG_SERIO_PCIPS2=m
+> > 
+> > but -test5 insists on:
+> > 
+> > CONFIG_SERIO=m
+> > CONFIG_SERIO_I8042=y
+> > CONFIG_SERIO_SERPORT=m
+> > CONFIG_SERIO_CT82C710=m
+> > CONFIG_SERIO_PARKBD=m
+> > CONFIG_SERIO_PCIPS2=m
+> > 
+> > Removing the I8042 line and doing 'make oldconfig' does not even
+> > ask about it but sets it to '=y'. As a result I get:
+> > 
+> >   LD      init/built-in.o
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o: In function `atkbd_interrupt':
+> > drivers/built-in.o(.text+0x6d10f): undefined reference to `serio_rescan'
+> > drivers/built-in.o: In function `atkbd_disconnect':
+> > drivers/built-in.o(.text+0x6d726): undefined reference to `serio_close'
+> > drivers/built-in.o: In function `atkbd_connect':
+> > drivers/built-in.o(.text+0x6d84e): undefined reference to `serio_open'
+> > drivers/built-in.o(.text+0x6d883): undefined reference to `serio_close'
+> > drivers/built-in.o: In function `atkbd_init':
+> > drivers/built-in.o(.init.text+0x5fd6): undefined reference to
+> > `serio_register_de
+> > vice'
+> > drivers/built-in.o: In function `atkbd_exit':
+> > drivers/built-in.o(.exit.text+0x196): undefined reference to
+> > `serio_unregister_d
+> > evice'
+> > make: *** [.tmp_vmlinux1] Error 1
+> 
+> The patch below should fix it.
+> 
+> cu
+> Adrian
+> 
+> --- linux-2.6.0-test4-mm5-modular-no-smp/drivers/input/keyboard/Kconfig.old	2003-09-04 19:03:45.000000000 +0200
+> +++ linux-2.6.0-test4-mm5-modular-no-smp/drivers/input/keyboard/Kconfig	2003-09-04 19:04:49.000000000 +0200
+> @@ -13,7 +13,8 @@
+>  
+>  config KEYBOARD_ATKBD
+>  	tristate "AT keyboard support" if EMBEDDED || !X86 
+> -	default y
+> +	default y if INPUT=y && INPUT_KEYBOARD=y && SERIO=y
+> +	default m
+>  	depends on INPUT && INPUT_KEYBOARD && SERIO
+>  	help
+>  	  Say Y here if you want to use a standard AT or PS/2 keyboard. Usually
+> --- linux-2.6.0-test5+tr-modular-no-smp/drivers/input/serio/Kconfig.old	2003-09-10 12:52:22.000000000 +0200
+> +++ linux-2.6.0-test5+tr-modular-no-smp/drivers/input/serio/Kconfig	2003-09-10 12:52:47.000000000 +0200
+> @@ -20,7 +20,8 @@
+>  
+>  config SERIO_I8042
+>  	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+> -	default y
+> +	default y if SERIO=y
+> +	default m
+>  	depends on SERIO
+>  	---help---
+>  	  i8042 is the chip over which the standard AT keyboard and PS/2
 
-Could you suggest any way to at least trace this problem down?
+A slightly better fix is for SERIO to default to Y on X86 and to
+'select SERIO_I8042 if X86'.  Then have INPUT_KEYBOARD similarly select
+KEYBOARD_ATKBD.
 
-Fedor.
+Or, IMHO, even better would be my patch to remove EMBEDDED and replace
+it with STANDARD || NONSTD_ABI which also fixes the wierd uses of
+EMBEDDED we have now.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

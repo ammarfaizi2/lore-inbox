@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261289AbRETBqu>; Sat, 19 May 2001 21:46:50 -0400
+	id <S261296AbRETBqk>; Sat, 19 May 2001 21:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261294AbRETBqk>; Sat, 19 May 2001 21:46:40 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:52753 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S261289AbRETBqe>;
-	Sat, 19 May 2001 21:46:34 -0400
+	id <S261294AbRETBqa>; Sat, 19 May 2001 21:46:30 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:50449 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S261289AbRETBqY>;
+	Sat, 19 May 2001 21:46:24 -0400
 Subject: Re: Brown-paper-bag bug in m68k, sparc, and sparc64 config files
 From: Miles Lane <miles@megapathdsl.net>
 To: Benedict Bridgwater <bennyb@ntplx.net>
@@ -14,8 +14,8 @@ In-Reply-To: <3B0718AB.7E2FF3A2@ntplx.net>
 In-Reply-To: <3B0718AB.7E2FF3A2@ntplx.net>
 Content-Type: text/plain
 X-Mailer: Evolution/0.10 (Preview Release)
-Date: 19 May 2001 18:51:42 -0700
-Message-Id: <990323503.13907.1.camel@agate>
+Date: 19 May 2001 18:51:30 -0700
+Message-Id: <990323493.13903.0.camel@agate>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

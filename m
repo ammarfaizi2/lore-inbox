@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUKFVMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbUKFVV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbUKFVMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 16:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUKFVMZ
+	id S261470AbUKFVV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 16:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbUKFVV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 16:12:25 -0500
-Received: from adsl-70-241-70-1.dsl.hstntx.swbell.net ([70.241.70.1]:23944
-	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
-	id S261473AbUKFVMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 16:12:23 -0500
-Date: Sat, 6 Nov 2004 15:12:22 -0600
-From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Console 80x50 SVGA
-Message-ID: <20041106211222.GA18108@leamonde.no-ip.org>
-References: <20041105224206.GA16741@leamonde.no-ip.org> <20041106073901.GA783@alpha.home.local> <20041106184112.GC16891@leamonde.no-ip.org> <20041106194343.GA29874@middle.of.nowhere>
+	Sat, 6 Nov 2004 16:21:58 -0500
+Received: from mx.inch.com ([216.223.198.27]:25607 "EHLO util.inch.com")
+	by vger.kernel.org with ESMTP id S261470AbUKFVVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 16:21:55 -0500
+Date: Sat, 6 Nov 2004 16:23:27 -0500
+From: John McGowan <jmcgowan@inch.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: (non) "bug" in 810 (kernel 2.6.9)
+Message-ID: <20041106212327.GA3592@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106194343.GA29874@middle.of.nowhere>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 08:43:43PM +0100, Jurriaan wrote:
-> From: Camilo A. Reyes <camilo@leamonde.no-ip.org>
-> Date: Sat, Nov 06, 2004 at 12:41:12PM -0600
-> > 
-> > If I may ask what vga number are you using to set it to 1024x768.
-> > I believe I have tried it before with no success, but I'm willing
-> > to try again.
-> 
-> Might I again refer you to google?
-> 
-> Searching for 'linux framebuffer 1024x768 vga=' gives me 11.800 hits,
-> which surely is enough to choose from. Also, this is mentioned in
-> /usr/src/linux-<whatever version>/Documentation/fb/<somefile, depending
-> on your framebuffer, which you didn't mention>. Those docs were lovingly
-> crafted by kernel hackers hoping to answer all the questions users may
-> have, so it would be a shame not to use them, right?
-> 
-> Good luck,
-> Jurriaan
-> -- 
-> A seminar on Time Travel will be held two weeks ago.
-> Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.05
+Re: (non) "bug" in 810 (kernel 2.6.9)
 
-Actually I knew what the answer to that question was, its 795 for 1024x768
-and 32 bpp, I was just asking to check for consistency. :-P Anyhow, that
-documentation talks about using fbset, I gave that a shot and now my entire
-tty is dead. :-( It also mentions lots of bugs, hmmm not sure if it's even
-worth looking deeper into this. But let me set up some kernel parameters
-and restart my system to see what happens, I always refrain from restarting
-the system, but oh well.
+I had reported a problem with getting a working screen in X with kernel
+2.6.9. It is not a bug, but a change.
 
-BTW, my framebuffer its the aty128fb.
+It may have annoyed you a bit, but it annoyed me far more, I assure you
+(though I was sure one could use Knoppix to patch, recompile and reinstall a
+kernel one had played around with on a hard disk and which would only boot
+into a "panic"- now I know one can do it).
+
+In Fedora Core2, the xorg-rpm has a dependency of "kernel-drm" and while I
+like to configure and compile a kernel with my options, I left in the
+DRI/drm item for the Intel 810 chip. I like 24 bit color and since kernel
+2.2.? there was no problem. One might not have acceleration, but one could
+use a 24 bit screen with drm compiled in. It was true in 2.4. In 2.6.[1-8].
+It is not true in kernel 2.6.9. While it used to be that if the driver did
+not support it, acceleration simply was not used. Now, even commenting out
+any mention of dri in xorg.conf is not sufficient in 2.6.9 (at least for my
+system) to get a workable screen. Adding the option,
+ Option "NoAccel" "true",
+however, does get me a working screen at 1024x768, 24 bit color.
+
+However, I don't seem to get a working screen with acceleration enabled for
+a 1024x768 16 bit screen.
+
+On the other hand, I do get a working 1024x768 24 bit screen using the
+Intel 8x0 framebuffer driver (with generalized timing to get better than a
+60Hz refresh rate).
+
+I had tried quite a bit, from modifying the 2.6.8->2.6.9 kernel patch (which
+is how I wound up with a system with a single kernel which would only
+"panic") through rebuilding the Xorg RPM.
+
+I feel like rather a fool to find out that while there may be a problem (as
+I don't seem to have a working 16 bit screen with DRI) what I use (24 bit)
+was just a matter of the proper configuration (though a change from what
+worked for all prior 2.x kernels I had used).

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265578AbUABN5l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 08:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbUABN5l
+	id S265585AbUABN5w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 08:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbUABN5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 08:57:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8835 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265578AbUABN4w (ORCPT
+	Fri, 2 Jan 2004 08:57:47 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:3482 "EHLO stine.vestdata.no")
+	by vger.kernel.org with ESMTP id S265580AbUABN51 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:56:52 -0500
-Date: Fri, 2 Jan 2004 14:56:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Christophe Saout <christophe@saout.de>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Move bv_offset/bv_len update after bio_endio in __end_that_request_first
-Message-ID: <20040102135645.GA20572@suse.de>
-References: <20040101173214.GA4496@leto.cs.pocnet.net> <20040102104637.GN5523@suse.de> <1073048438.4239.10.camel@leto.cs.pocnet.net>
+	Fri, 2 Jan 2004 08:57:27 -0500
+Date: Fri, 2 Jan 2004 14:57:13 +0100
+From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Libor Vanek <libor@conet.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Syscall table AKA hijacking syscalls
+Message-ID: <20040102135713.GA9935@vestdata.no>
+References: <3FF56B1C.1040308@conet.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1073048438.4239.10.camel@leto.cs.pocnet.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3FF56B1C.1040308@conet.cz>
+User-Agent: Mutt/1.5.2i
+X-Zet.no-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Christophe Saout wrote:
-> Am Fr, den 02.01.2004 schrieb Jens Axboe um 11:46:
+On Fri, Jan 02, 2004 at 01:59:08PM +0100, Libor Vanek wrote:
+> Hi,
+> I'm writing some project which needs to hijack some syscalls in VFS 
+> layer. AFAIK in 2.6 is this "not-wanted" solution (even that there are 
+> some very nasty ways of doing it - see 
+> http://mail.nl.linux.org/kernelnewbies/2002-12/msg00266.html )
 > 
-> > > That's why I need to know exactly how many and which  bvecs were completed
-> > > in my bi_end_io function.
-> > > 
-> > > Or do you think it is safer to count backwards using bi_vcnt and bi_size?
-> > 
-> > I'm inclined to thinking that, indeed. Those two fields have a more well
-> > established usage, so I think you'll be better off doing that in the
-> > long run.
-> 
-> Ok, if you say so. This and the IDE multwrite thing are the only two
-> places in the kernel preventing bi_idx to be usable this way. I just
-> thought it was nicer.
+> Also I've found out that Linus stated that intercepting syscalls is "bad 
+> thing" (load module a, load module b, unload module b => crash) but I 
+> think that there are some very good reasons (and ways) to do it (see 
+> http://syscalltrack.sourceforge.net ). My main reason to do it is that I 
+> want my GPLed module to be able to modify some VFS syscalls without 
+> patching and recompiling whole kernel and rebooting the machine.
 
-It is nicer, I agree. I'm not adverse to including the ll_rw_blk change,
-you'll have to deal with IDE yourself :)
+As part of the openxdsm-project we wrote an syscall-intercept module
+that "solves" the (load module a, load module b, unload module b =>
+crash) part by providing a common infrastructure for intercepting
+syscalls.
+
+It's available at:
+http://cvs.sourceforge.net/viewcvs.py/openxdsm/openxdsm/eventmodule/module/events.c?rev=1.1.1.1&view=auto
+
 
 -- 
-Jens Axboe
-
+Ragnar Kjørstad

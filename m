@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUJBKLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUJBK2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUJBKLr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 06:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUJBKLr
+	id S267330AbUJBK2F (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 06:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUJBK2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 06:11:47 -0400
-Received: from port-222-152-48-85.fastadsl.net.nz ([222.152.48.85]:11904 "EHLO
-	tornado.reub.net") by vger.kernel.org with ESMTP id S267381AbUJBKLp
+	Sat, 2 Oct 2004 06:28:05 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:22685 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S267330AbUJBK2A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 06:11:45 -0400
-Message-ID: <415E7EE0.60200@reub.net>
-Date: Sat, 02 Oct 2004 22:11:44 +1200
-From: Reuben Farrelly <reuben-news@reub.net>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040929)
+	Sat, 2 Oct 2004 06:28:00 -0400
+Message-ID: <415E828D.5020705@jonmasters.org>
+Date: Sat, 02 Oct 2004 11:27:25 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+Organization: World Organi[sz]ation Of Broken Dreams
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm1
-References: <fa.h7b6720.im6q1m@ifi.uio.no>
-In-Reply-To: <fa.h7b6720.im6q1m@ifi.uio.no>
+To: jmerkey@galt.devicelogics.com
+CC: "Theodore Ts'o" <tytso@mit.edu>, "Jeff V. Merkey" <jmerkey@drdos.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <20041002020003.GA5230@thunk.org> <20041002064620.GA8568@galt.devicelogics.com>
+In-Reply-To: <20041002064620.GA8568@galt.devicelogics.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+jmerkey@galt.devicelogics.com wrote:
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm1/
-> 
-> - Various fixups, cleanups, etc.  Nothing particularly notable.
-> 
-> - ppc64 build are still broken.
-> 
-> - sparc64 builds are still broken.
-> 
-> 
-> 
-> 
-> Changes since 2.6.9-rc2-mm4:
+[ You snipped the original sender identification - the quote below forms 
+part of a response from Theodore Ts'o. ]
 
-This is the first -mm kernel in a while that compiles and runs without 
-patches, although I did get this trace (which appears to be non critical 
-as USB still works).
+>>You should have attended Harald Welte's "Enforcing the GPL" talk at
+>>the Linux Kongress this year.  There are plenty of worked examples
+>>where Harald and the Netfilter kernel developers have successfully
+>>taken commercial vendors to court and got them to either (a) release
+>>their enhancements under the GPL, or (b) stop distributing the GPL'ed
+>>code.  It can and has been done in the real world, with multiple
+>>vendors, and they haven't lost a case yet.
+>>
+>>					- Ted
 
-uhci_hcd 0000:00:1d.3: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #4
-PCI: Setting latency timer of device 0000:00:1d.3 to 64
-uhci_hcd 0000:00:1d.3: irq 16, io base 0xb800
-uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
-hub 5-0:1.0: USB hub found
-usb 3-1: new full speed USB device using address 2
-hub 5-0:1.0: 2 ports detected
-slab error in kmem_cache_destroy(): cache `uhci_urb_priv': Can't free 
-all objects
-  [<c0104ddc>] dump_stack+0x17/0x19
-  [<c013dfd5>] kmem_cache_destroy+0xea/0x15b
-  [<c03e17eb>] uhci_hcd_init+0xc8/0xff
-  [<c03ca89f>] do_initcalls+0x56/0xb3
-  [<c01004f5>] init+0x81/0x189
-  [<c01022f1>] kernel_thread_helper+0x5/0xb
-drivers/usb/host/uhci-hcd.c: not all urb_priv's were freed!
-Badness in remove_proc_entry at fs/proc/generic.c:688
-  [<c0104ddc>] dump_stack+0x17/0x19
-  [<c017c196>] remove_proc_entry+0x129/0x133
-  [<c03e1810>] uhci_hcd_init+0xed/0xff
-  [<c03ca89f>] do_initcalls+0x56/0xb3
-  [<c01004f5>] init+0x81/0x189
-  [<c01022f1>] kernel_thread_helper+0x5/0xb
-drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 2 if 0 
-alt 0 proto 2 vid 0x03F0 pid 0x6204
-usbcore: registered new driver usblp
-drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+> If you can obtain discovery and catch people with a "smoking gun."
+> Very hard to do.
 
-Reuben
+The smoking gun is very often obtained by dissassembling the device 
+firmware or program binaries and/or runing string comparisons.
+
+> Inside some of these big companies with lots
+> of money, most folks won't come clean or spoilate evidence.
+
+It's hard to spoil the evidence when all of your customers have it.
+
+<snip more anti-Novell comments>
+
+> The simplest way is to add a clause to the GPL requiring people
+> to obtain a license from the copyright holders if code is 
+> ever used in a commerical venture.  There's no wiggle room --
+> they will have to sign and ackowledge they accepted the GPL
+> and ackowledge their obligations from the copyright holder.   
+
+I don't know what the world is like where you are (I admit that if 
+you're in the States you probably *are* more repressed than I am in the 
+UK right now) but you seem to have some extreme paranoia which seems 
+more than a little unfounded. The above is completely unnecessary - it 
+does nothing that using the GPL already does not do - but you seem to 
+have convinced yourself that the real problem here is the GPL.
+
+Jon.
+

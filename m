@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271006AbTGVSwD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271007AbTGVSwD
+	id S271002AbTGVS5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271004AbTGVS5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:52:03 -0400
-Received: from codepoet.org ([166.70.99.138]:57728 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S271006AbTGVSwA (ORCPT
+	Tue, 22 Jul 2003 14:57:43 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:6672 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S271002AbTGVS5l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:52:00 -0400
-Date: Tue, 22 Jul 2003 13:07:05 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030722190705.GA2500@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org>
+	Tue, 22 Jul 2003 14:57:41 -0400
+Date: Tue, 22 Jul 2003 21:12:41 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Xiaoji Liu <xiaoji14@yahoo.com>, Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1: kernel image compile ok, but modules compile failed
+Message-ID: <20030722191241.GA2003@mars.ravnborg.org>
+Mail-Followup-To: Xiaoji Liu <xiaoji14@yahoo.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <20030722184842.76569.qmail@web41906.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030722185443.GB6004@gtf.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+In-Reply-To: <20030722184842.76569.qmail@web41906.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jul 22, 2003 at 02:54:43PM -0400, Jeff Garzik wrote:
-> Bart, Alan, and I have been looking at this.  It uses the ancient CAM
-> model, that we don't really want to merge directly in the kernel.  It's
-> very close to the libata model, from the user perspective, so life is 
-> good.
+On Tue, Jul 22, 2003 at 11:48:42AM -0700, Xiaoji Liu wrote:
+> Hello,
+> 
+> when i compile kernel 2.6.0-test1
+> It gave 'parse error' message when compiling file
+> drivers/mtd/devices/blkmtd.c
+> (around line 700)
+> 
+> I opened the source file and saw this:
+> 
+> static int blkmtd_write(struct mtd_info *mtd, loff_t
+> to, size_t len,
+> size_t *retlen, const u_char *buf)
+> {
+> mtd_raw_dev_data_t *rawdevice = mtd->priv;
+> int err = 0;
+> int offset;
+> int pagenr;
+> size_t len1 = 0, len2 = 0, len3 = 0;
+> struct page **pages;
+> int pagecnt = 0;
+> char b[BDEVNAME_SIZE];
+> 21 e3
+> *retlen = 0;
 
-I was reading over your libata driver yesterday.  Certainly a lot
-cleaner than the cam stuff IMHO.  Given the info made available
-via the Promise driver, I expect that I could get an initial
-libata host adaptor driver hacked together in short order.  After
-all, the Intel one is just 400 lines.  So unless you (or anyone
-else) have already started or would prefer to do the honors,
-I'll try to hack something together this evening,
+They where added by Andrew by accident, and can safely be deleted.
+It was part of the "[PATCH] make the bdevname() API sane"
+that involved several files.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+	Sam

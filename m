@@ -1,71 +1,131 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSEMLqM>; Mon, 13 May 2002 07:46:12 -0400
+	id <S313113AbSEMLxY>; Mon, 13 May 2002 07:53:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313113AbSEMLqL>; Mon, 13 May 2002 07:46:11 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:55224 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S313060AbSEMLqF>;
-	Mon, 13 May 2002 07:46:05 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Bill Davidsen <davidsen@tmr.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] IO wait accounting
-In-Reply-To: <Pine.LNX.4.44L.0205121812500.32261-100000@imladris.surriel.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Mon, 13 May 2002 13:45:54 +0200
-Message-ID: <dnvg9sfez1.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313114AbSEMLxX>; Mon, 13 May 2002 07:53:23 -0400
+Received: from infa.abo.fi ([130.232.208.126]:58642 "EHLO infa.abo.fi")
+	by vger.kernel.org with ESMTP id <S313113AbSEMLxW>;
+	Mon, 13 May 2002 07:53:22 -0400
+Date: Mon, 13 May 2002 14:52:40 +0300
+From: Marcus Alanen <marcus@infa.abo.fi>
+Message-Id: <200205131152.OAA05817@infa.abo.fi>
+To: riel@conectiva.com.br, Johnny Mnemonic <johnny@themnemonic.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changelogs on kernel.org
+In-Reply-To: <Pine.LNX.4.44L.0205122146310.32261-100000@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+>>  - changedescription                         (author)
+>So, is there anybody willing to put together the scripts to
+>generate this changelog format automatically ?
 
-> On Sun, 12 May 2002, Zlatko Calusic wrote:
->> Rik van Riel <riel@conectiva.com.br> writes:
->> >
->> > And should we measure read() waits as well as page faults or
->> > just page faults ?
->>
->> Definitely both.
->
-> OK, I'll look at a way to implement these stats so that
-> every IO wait counts as iowait time ... preferably in a
-> way that doesn't touch the code in too many places ;)
->
->> Somewhere on the web was a nice document explaining
->> how Solaris measures iowait%, I read it few years ago and it was a
->> great stuff (quite nice explanation).
->>
->> I'll try to find it, as it could be helpful.
->
-> Please, it would be useful to get our info compatible with
-> theirs so sysadmins can read their statistics the same on
-> both systems.
->
+Combining the efforts, the following almost makes coffee.
 
-Yes, that would be nice. Anyway, finding the document I mentioned will
-be much harder than I thought. Googling last 15 minutes didn't make
-progress. But, I'll keep trying.
+- Short mode
+- Full mode
+- Original mode
 
-Anyway, here is how Aix defines it:
+The original mode you requested prints the e-mail address, I guess
+it should be the author's real name to look more nice.
 
- Average percentage of CPU time that the CPUs were idle during which
- the system had an outstanding disk I/O request. This value may be
- inflated if the actual number of I/O requesting threads is less than
- the number of idling processors.
 
-(http://support.bull.de/download/redbooks/Performance/OptimizingYourSystemPerformance.pdf)
+#!/usr/bin/perl -w
 
-Also, Sun has a nice collection of articles at
-http://www.sun.com/sun-on-net/itworld/, and among them
-http://www.sun.com/sun-on-net/itworld/UIR981001perf.html which speaks
-about wait time, but I'm still searching for a more technical document...
+use strict;
+
+
+# 0 for short, 1 for full, 2 for "original changelog"
+my $mode = 2;
+
+
+
+# minimum space between entry and author for the original mode
+my $space = 5;
+
+
+my %people = ();
+my $addr = "";
+my @cur = ();
+my $comment = 0;
+
+
+sub append_item() {
+        if (!$addr) {
+                return;
+        }
+        if (!$people{$addr}) {
+                @{$people{$addr}} = ();
+        }
+        push @{$people{$addr}}, [@cur];
+
+        @cur = ();
+}
+
+while (<>) {
+        # Match address
+        if (/^\s*<([^>]+)>/) {
+                # Add old item (if any) before beginning new
+                append_item();
+                $addr = $1;
+                $comment = 1;
+        } elsif ($addr) {
+                # Add line to patch
+                s/^\s*(.*)\s*$/$1/;
+                $_ =~ s/\[PATCH\] //g;
+                $_ =~ s/\s*PATCH //g;
+                if ($comment == 1 or $mode != 0) {
+                        push @cur, "$_\n";
+                        $comment = 0;
+                }
+        } else {
+                # Header information
+                print;
+        }
+}
+append_item();
+
+
+sub print_items($) {
+        my $person = $_[0];
+        my @items = @{$people{$person}};
+        # Vain attempt to sort patches from one address
+        @items = sort @items;
+	if ($mode == 0 or $mode == 1) {
+                print "<$person>\n";
+	} else {
+	        $person = "($person)";
+	}
+        while ($_ = shift @items) {
+	        if ($mode == 0) {
+		        print "\to " . @$_[0];
+	        } elsif ($mode == 1) {
+		        print "\t------------------------------------------------------------\n";
+                        foreach $_ (@$_) {
+			        print "\t$_";
+			}
+		} elsif ($mode == 2) {
+		        $_ = @$_[0];
+			chop;
+			$_ = "- $_";
+			# Split it onto two lines if necessary
+		        if (length("$_ . $person") > 76 - $space) {
+			        print ("$_\n" . " " x (76-length($person)) . "$person\n");
+			} else {
+			        print ("$_" . " " x (76-length($person)-length($_)) . "$person\n");
+			}
+		}
+        }
+}
+
+# Print the information
+foreach $addr (sort keys %people) {
+        print_items($addr);
+        if ($mode != 2) { print "\n"; }
+}
+
+
+
 -- 
-Zlatko
+Marcus Alanen
+maalanen@abo.fi

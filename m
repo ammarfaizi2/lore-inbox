@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317132AbSEXPKj>; Fri, 24 May 2002 11:10:39 -0400
+	id <S317142AbSEXPJk>; Fri, 24 May 2002 11:09:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317146AbSEXPKi>; Fri, 24 May 2002 11:10:38 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:34831 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317132AbSEXPKe>; Fri, 24 May 2002 11:10:34 -0400
-Message-ID: <3CEE4905.5010503@evision-ventures.com>
-Date: Fri, 24 May 2002 16:07:01 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S317146AbSEXPJi>; Fri, 24 May 2002 11:09:38 -0400
+Received: from daimi.au.dk ([130.225.16.1]:1375 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S317142AbSEXPIO>;
+	Fri, 24 May 2002 11:08:14 -0400
+Message-ID: <3CEE5756.69DF322F@daimi.au.dk>
+Date: Fri, 24 May 2002 17:08:06 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] New driver for Artop [Acard] controllers.
-In-Reply-To: <Pine.SOL.4.30.0205241620440.16894-100000@mion.elka.pw.edu.pl> <20020524165021.B10656@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-pre8-ac5 swsusp panic
+In-Reply-To: <20020524011322.GA6612@merlin.emma.line.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Vojtech Pavlik napisa?:
-> On Fri, May 24, 2002 at 04:29:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
->>Hi!
->>
->>I have a very quick look over patch/driver... looks quite ok...
->>
->>But it doesn't support multiple controllers.
-> 
-> 
-> Yes, right! That's a bug. Ahh, that's why all the drivers use the PCI
-> device id over and over and over in the sources ...
-> 
-> 
->>We should add 'unsigned long private' to 'ata_channel struct' and
->>store index in the chipset table there.
-> 
-> 
-> That'd be great. Though I prefer void*. Looks like "drive_data" is
-> intended for that purpose. Martin: How about renaming this to "private"
-> and a comment "solely for use by chip-specific drivers"?
+On my system I'm actually able to suspend and start
+the system again using kernel 2.4.19-pre8-ac5. But
+there are some problems.
 
-Indeed strcut ata_channel should be virtualized this way.
-However you can't reuse drive_data for this purpose - that
-get's consumed by ide-scsi already if I remember correctly.
-(Will have to double check.)
+If there is not enough free physical memory it
+complaints about not enough free memory and system
+continues without suspending. However runing this
+program before suspending helps:
 
-> 
-> A private member in the ata_pci_device[] struct would be also very
-> useful. Or is the "extra" field for that?
+#define BUFSIZE (1024*1024*256)
+int main()
+{
+  char *buf = malloc(BUFSIZE);
+  int i;
+  for (i=0;i<BUFSIZE;i+=4096) buf[i]++;
+  return 0;
+}
 
-extra is it already for host chip driver specific flags.
-pdc202xx is the only one using it. Indeed this should be moved
-to a void *private as well.
+There is plenty of swap space on my system, so that
+is not a problem.
 
-But anyway principally I agree with all the suggestions.
-BTW.> Please note that right now we have a bit
-of dichotomy about where the actual driver
-methods get stored, after I have generalized the registration
-of the driver. This should be unified at some point in time as well.
-(xxxproc and udma_xxx method famili is what I have in mind here.)
+When the system has been started again after a
+suspend my PS/2 mouse and my serial logins are
+all dead. Restarting gpm and sending a SIGHUP to
+the serial logins get the connections to live up.
+But if I start X all input devices die, but the
+screen output is correct and keep getting updated.
 
->>You can remove duplicate entries from module data table.
-> 
-> 
-> I wonder how they got there ...
+Finally ntpd does complain about loosing sync.
 
-Already gone in nr. 70.
-
->>BTW: please don't touch pdc202xx.c I am playing with it...
-> 
-> 
-> Ok, I won't. Send it to me for comments later.
-
-You guys are reducing me more and more to a spinnlock for
-synchronization ;-).
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312401AbSCUR5w>; Thu, 21 Mar 2002 12:57:52 -0500
+	id <S312404AbSCUSEO>; Thu, 21 Mar 2002 13:04:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312400AbSCUR5n>; Thu, 21 Mar 2002 12:57:43 -0500
-Received: from scfdns02.sc.intel.com ([143.183.152.26]:40959 "EHLO
-	crotus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S312404AbSCUR5a>; Thu, 21 Mar 2002 12:57:30 -0500
-Message-Id: <200203211756.g2LHuvW11535@unix-os.sc.intel.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Mark Gross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
-Date: Thu, 21 Mar 2002 09:59:49 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dan@debian.org (Daniel Jacobowitz),
-        vamsi@in.ibm.com (Vamsi Krishna S .), pavel@suse.cz (Pavel Machek),
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        tachino@jp.fujitsu.com, jefreyr@pacbell.net, vamsi_krishna@in.ibm.com,
-        richardj_moore@uk.ibm.com, hanharat@us.ibm.com, bsuparna@in.ibm.com,
-        bharata@in.ibm.com, asit.k.mallick@intel.com, david.p.howell@intel.com,
-        tony.luck@intel.com, sunil.saxena@intel.com
-In-Reply-To: <E16o6SJ-0005mD-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S312409AbSCUSEF>; Thu, 21 Mar 2002 13:04:05 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18171
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312404AbSCUSDw>; Thu, 21 Mar 2002 13:03:52 -0500
+Date: Thu, 21 Mar 2002 10:05:16 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac4
+Message-ID: <20020321180516.GD3201@matchmail.com>
+Mail-Followup-To: "J.A. Magallon" <jamagallon@able.es>,
+	Adam Kropelin <akropel1@rochester.rr.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu> <006101c1d084$275029b0$02c8a8c0@kroptech.com> <20020321152852.GA2028@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 March 2002 12:34 pm, Alan Cox wrote:
-> > This why I grabbed all those locks, and did the two sets of IPI's in the
-> > tcore patch.  Once the runqueue lock is grabbed, even if that process on
-> > the
->
-> If you IPI holding a lock whats going to happen if while the IPI is going
-> across the cpus the other processor tries to grab the runqueue lock and
-> is spinning on it with interrupts off ?
+On Thu, Mar 21, 2002 at 04:28:52PM +0100, J.A. Magallon wrote:
+> 
+> On 2002.03.21 Adam Kropelin wrote:
+> >Alan Cox wrote:
+> >> Linux 2.4.19pre3-ac4
+> >
+> ><snip>
+> >
+> >> o The incredible shrinking kernel patch (Andrew Morton)
+> >
+> >Is there a magic incantation I need in order to see an improvement from this?
+> >I'm observing a slight (< 10 KB) increase from -ac3 to -ac4. Same .config, same
+> >compiler.
+> >
+> >I only build 2 modules; everything else is static. Perhaps Andrew's fix is for
+> >heavy module users?
+> >
+> 
+> I think it gives about 100k size decrease IFF you have verbose BUG activated.
 
-Then the at least 2 CPU's would quickly become dead locked on the 
-synchronization IPI this patch sends at the end of the suspend_other_threads 
-function call.
-
-Interrupts shouldn't be turned off when grabbing the runqueue lock.  Its also 
-a bad thing if they would happen to be off while calling into to schedule.  
-
-I think schedule was designed to be called only while interrupts are turned 
-on.  It BUG's if "in_interrupt" to enforce this.
-
---mgross
-
+Wasn't that config option removed (I haven't checked...) with this patch?

@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUAVOO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 09:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAVOO4
+	id S266002AbUAVOl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 09:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266019AbUAVOl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 09:14:56 -0500
-Received: from mail.convergence.de ([212.84.236.4]:19591 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264527AbUAVOOx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 09:14:53 -0500
-Date: Thu, 22 Jan 2004 15:14:48 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: mocm@mocm.de
-Cc: Linus Torvalds <torvalds@osdl.org>, Zan Lynx <zlynx@acm.org>,
-       Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: List 'linux-dvb' closed to public posts
-Message-ID: <20040122141448.GB1103@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>, mocm@mocm.de,
-	Linus Torvalds <torvalds@osdl.org>, Zan Lynx <zlynx@acm.org>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de> <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org> <1074717499.18964.9.camel@localhost.localdomain> <Pine.LNX.4.58.0401211413100.2123@home.osdl.org> <16399.1205.643528.19928@sheridan.metzler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16399.1205.643528.19928@sheridan.metzler>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 22 Jan 2004 09:41:56 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:7678 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S266002AbUAVOlz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 09:41:55 -0500
+Message-ID: <01e301c3e0f5$dda58f10$6d29e282@babayaro>
+From: "Gianluca Bosco" <nextstepn@katamail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [leadership/opensource] invitation to online survey
+Date: Thu, 22 Jan 2004 15:41:17 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Metzler wrote:
-> Linus Torvalds writes:
->  > 
->  > Bug reports should be more important to the recipient than to the sender. 
->  > Anything you do to make it more of a bother is WRONG. 
-> 
-> That's true. And being on the linux-dvb list I can't see why they
-> would want to give it as a maintainer address. 
-> AFAIR, recently there was only one guy from convergence sending in
-> patches for the kernel anyway.
+Dear all,
 
-Someone has to do the job, and IMHO Michael does it very well.
-Why do you think it would be a good idea if every patch would
-be submitted by a differnt person?
+      I have just put online a survey addressing the topic "good
+leadership in the open-source environment". Basically, my objective is to
+identify the personal conceptions of good leadership that reside in
+the minds of the contributors, in terms of leaders' _behaviors_ and
+_characteristics_.
 
-> But maybe they have some problems
-> within the company so they don't want to name one single person as a 
-> maintainer.
+What is a good open-source project leader, from the contributor's point of
+view? To what extent, those personal believes are shared among developers?
+Can the contributor's national cultural belonging and level of experience in
+contributing to open-source projects explain such differences in their idea
+of what a good leader is?
 
-There isn't a single maintainer. The different drivers in linuxtv.org
-CVS are maintained by different people.
+I would really appreciate your participation to the survey! Contribution
+(completely anonymous) consists in rating a list of statements that may be
+used to describe the behaviors of an open-source leader. It will take around
+ten minutes - there aren't any "time-consuming" open ended questions;)
 
-> Still they could give some joint mailing address. I don't think it is
-> necessary to discuss all patches on the list, especially since those
-> coming from people that are not on the list will probably be quite
-> trivial or more kernel related than DVB hardware related.
+Following, the link to the survey:
 
-I beg to differ. IMHO patches sent to the list from anyone are
-invaluable input, especially (but not only) if they solve
-actual bugs.
+http://freeonlinesurveys.com/rendersurvey.asp?id=49776
 
-Anyway, the *only* reason why the linux-dvb list is closed is
-the fear of spam. We are currently discussing whether to open
-linux-dvb or create a second, open list for patch submission
-only. It depends on the ability of the list admins to configure
-effective spam filters.
+If you are interested, I will not miss to email you a link to the
+final report, when ready ;) (approx, a couple of months from now)
+
+Thank you in advance, and don't hesitate to contact me if you have
+any questions or comments :)
+
+Gianluca Bosco
+g.bosco@GETRIDOFTHISinwind.it
+Denmark Technical University
+Department of manufacturing engineering and management
 
 
-Johannes
+

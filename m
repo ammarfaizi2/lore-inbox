@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269873AbUJNDPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269899AbUJNDWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269873AbUJNDPS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 23:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269899AbUJNDPS
+	id S269899AbUJNDWi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 23:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269948AbUJNDWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 23:15:18 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:59090 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269873AbUJNDPH (ORCPT
+	Wed, 13 Oct 2004 23:22:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54206 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269899AbUJNDWc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 23:15:07 -0400
-Message-ID: <46561a7904101320151575843d@mail.gmail.com>
-Date: Thu, 14 Oct 2004 08:45:06 +0530
-From: suthambhara nagaraj <suthambhara@gmail.com>
-Reply-To: suthambhara nagaraj <suthambhara@gmail.com>
-To: nhorman@redhat.com
-Subject: Re: kernel stack
-Cc: main kernel <linux-kernel@vger.kernel.org>,
-       kernel <kernelnewbies@nl.linux.org>, gaurav.dhiman@ca.com
-In-Reply-To: <46561a7904101220299d1604e@mail.gmail.com>
+	Wed, 13 Oct 2004 23:22:32 -0400
+Date: Wed, 13 Oct 2004 20:20:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nathan Scott <nathans@sgi.com>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-Id: <20041013202041.2e7066af.akpm@osdl.org>
+In-Reply-To: <20041014005300.GA716@frodo>
+References: <20041013054452.GB1618@frodo>
+	<20041012231945.2aff9a00.akpm@osdl.org>
+	<20041013063955.GA2079@frodo>
+	<20041013000206.680132ad.akpm@osdl.org>
+	<20041013172352.B4917536@wobbly.melbourne.sgi.com>
+	<416CE423.3000607@cyberone.com.au>
+	<20041013013941.49693816.akpm@osdl.org>
+	<20041014005300.GA716@frodo>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <46561a79041011231549ea310a@mail.gmail.com>
-	 <416BBB55.6020509@redhat.com>
-	 <46561a7904101220299d1604e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-I went through the code of do_fork.
-do_fork calls copy_process which in turn calls 
-dup_task_struct .Here alloc_thread_info allocates the 
-kernel stack for the process
-
-Thanks all
-
-Regards
-Suthambhara
-
-
-On Wed, 13 Oct 2004 08:59:14 +0530, suthambhara nagaraj
-<suthambhara@gmail.com> wrote:
-> Thanks Neil. I was an idiot to have overlooked  that.
-> Thanks once again
-> 
-> Regards
-> Suthambhara
-> 
-> 
-> 
-> 
-> On Tue, 12 Oct 2004 07:09:09 -0400, Neil Horman <nhorman@redhat.com> wrote:
-> >
-> >
-> > suthambhara nagaraj wrote:
-> > > Hi all,
-> > >
-> > > I have not understood how the common kernel stack in the
-> > > init_thread_union(2.6 ,init_task_union in case of 2.4) works for all
-> > > the processes which run on the same processor. The scheduling is round
-> > > robin and yet the things on the stack (saved during SAVE_ALL) have to
-> > > be maintained after a switch without them getting erased. I am
-> > > familiar with only the i386 arch implementation.
-> > >
-> > > Please help
-> > >
-> > There is no such thing as "the common kernel stack".  Each process
-> > (represented by a task_struct in the kernel) has its own private data
-> > space to be used as a kernel stack when that process traps into the
-> > kernel.  You can see where this per task_struct stack space is reserved
-> > in the definition of task_union.  init_[task|thread]_union just defines
-> > the first task union in the system.  Because of the way unions are laid
-> > out in memory, The kernel knows that when a process traps into kernel
-> > space, it just needs to round the current task pointer to the nearest 8k
-> > (prehaps 4k in 2.6) boundary, and thats the start of that processes
-> > kernel stack.  Thats how the SAVE_ALL command avoids trampling registers.
-> >
-> > HTH
-> > Neil
-> > > regards,
-> > > Suthambhara
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> > --
-> > /***************************************************
-> >  *Neil Horman
-> >  *Software Engineer
-> >  *Red Hat, Inc.
-> >  *nhorman@redhat.com
-> >  *gpg keyid: 1024D / 0x92A74FA1
-> >  *http://pgp.mit.edu
-> >  ***************************************************/
-> >
+Nathan Scott <nathans@sgi.com> wrote:
 >
+> On Wed, Oct 13, 2004 at 01:39:41AM -0700, Andrew Morton wrote:
+>  > Nick Piggin <piggin@cyberone.com.au> wrote:
+>  > >
+>  > >  Andrew probably has better ideas.
+>  > 
+>  > uh, is this an ia32 highmem box?
+> 
+>  Yep, it is.
+> 
+>  > If so, you've hit the VM sour spot.
+>  > ...
+>  > Basically, *any* other config is fine.  896MB and below, 1.5GB and above.
+> 
+>  I just tried switching CONFIG_HIGHMEM off, and so running the
+>  machine with 512MB; then adjusted the test to write 256M into
+>  the page cache, again in 1K sequential chunks.  A similar mis-
+>  behaviour happens, though the numbers are slightly better (up
+>  from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
+>  drop the file size down to 128M with this kernel, I see good
+>  results again (as we'd expect).
+
+No such problem here, with
+
+	dd if=/dev/zero of=x bs=1k count=128k
+
+on a 256MB machine.  xfs and ext2.
+
+Can you exhibit this one more than one machine?
+
+Silly question: what does `grep sync' /etc/fstab say over there? ;)

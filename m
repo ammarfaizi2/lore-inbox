@@ -1,88 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266263AbRHYIss>; Sat, 25 Aug 2001 04:48:48 -0400
+	id <S267852AbRHYJaq>; Sat, 25 Aug 2001 05:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbRHYIsj>; Sat, 25 Aug 2001 04:48:39 -0400
-Received: from www.wen-online.de ([212.223.88.39]:40199 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S266263AbRHYIs2>;
-	Sat, 25 Aug 2001 04:48:28 -0400
-Date: Sat, 25 Aug 2001 10:48:22 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Roger Larsson <roger.larsson@norran.net>
-cc: <linux-kernel@vger.kernel.org>, Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: [PATCH][RFC] simpler __alloc_pages{_limit}
-In-Reply-To: <200108250055.f7P0tGh28170@mailg.telia.com>
-Message-ID: <Pine.LNX.4.33.0108250946560.540-100000@mikeg.weiden.de>
+	id <S268342AbRHYJag>; Sat, 25 Aug 2001 05:30:36 -0400
+Received: from maile.telia.com ([194.22.190.16]:33230 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S267852AbRHYJa3>;
+	Sat, 25 Aug 2001 05:30:29 -0400
+Message-Id: <200108250930.f7P9UZH10871@maile.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: =?iso-8859-1?q?G=E9rard=20Roudier?= <groudier@free.fr>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Sat, 25 Aug 2001 11:26:10 +0200
+X-Mailer: KMail [version 1.3]
+Cc: "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
+        <oesi@plan9.de>
+In-Reply-To: <20010825094000.O756-100000@gerard>
+In-Reply-To: <20010825094000.O756-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Roger Larsson wrote:
-
-> Hi again,
-
-Howdy,
-
-> [two typos corrected from the version at linux-mm]
+On Saturday den 25 August 2001 10:02, Gérard Roudier wrote:
+> On Fri, 24 Aug 2001, Rik van Riel wrote:
+> > On Fri, 24 Aug 2001, Gérard Roudier wrote:
+> > > The larger the read-ahead chunks, the more likely trashing will
+> > > occur. In my opinion, using more than 128 K IO chunks will not
+> > > improve performances with modern hard disks connected to a
+> > > reasonnably fast controller, but will increase memory pressure
+> > > and probably thrashing.
+> >
+> > Your opinion seems to differ from actual measurements
+> > made by Roger Larsson and other people.
 >
-> I read through __alloc_pages again and found out that allocs with order > 0
-> are not treated nicely.
-
-But they shouldn't be treated _too_ nicely ;-)  IMHO, you should never
-exaust the entire clean list trying to service a high order allocation.
-These allocations can wait.
-
-> To begin with if order > 0 then direct_reclaim will be false even if it is
-> allowed to wait...
+> The part of my posting that talked about modern hard disks sustaining more
+> than 8000 IOs per second and controllers sustaining 15000 IOs per second
+> is a _measurement_.
 >
-> This version allows "direct_reclaim" with order > 0 !
+> With such values, given a U160 SCSI BUS, using 64K IO chunks will result
+> in about less than 25% of bandwidth used for the SCSI protocol and 75% for
+> useful data at full load (about 2000 IO/s - 120 MB/s). This is a
+> _calculation_. With 128K IO chunks, less than 15% of the SCSI BUS will be
+> used for the SCSI protocol and more than 85% for usefull data. Still a
+> _calculation_.
 >
-> How?
->
-> Like we finally end up doing anyway...
-> reclaiming pages and freeing.
+> This let me claim - opinion based on fairly simple calculations - that if
+> using more 128 K IO chunks gives significantly better throughput, then
+> some serious IO scheduling problem should exist in kernel IO subsystems.
 
-Yes, and the way we currently do it endangers other allocations in
-that the effect the high order allocation will have upon the zone is
-not accounted for.  If we're at that point, servicing a high order
-allocation, and you actually succeed in assembling that possibly BIG
-chunk, you may deplete the zone and leave yourself in a situation where
-you can't service an incoming burst of atomic allocations.  That makes
-drivers that try fallback allocations happy, but can hurt like heck.
-If the thing continues to fail, you're also in pain, because the entire
-time you're reclaiming, you're eating cached data for possibly no gain.
+Where did the seek time go? And rotational latency?
 
-> While adding this I thought why not always do it like this,
-> even with order == 0?
-> since it will allow for merging of pages to higher orders.
-> Before returning a page that was not mergeable...
->
-> Doing this - the code started to collaps...
-> __alloc_pages_limit could suddenly handle all special cases!
-> (with small functional differences)
->
-> Comments?
+[I hope my calculations are correct]
 
- +        /* Always alloc via rmqueue */
 
-That adds overhead to order 0 allocations.
+This is mine (a IBM Deskstar 75GXP)
+Sustained data rate (MB/sec)	37
+Seek time  (read typical)
+	Average (ms)		 8.5
+	Track-to-track (ms)	 1.2
+	Full-track (ms)		15.0
+Data buffer			2 MB
+Latency (calculated 7200 RPM)	4.2 ms
 
-MHO:
+So sustained data rate is 37 MB/s
+> hdparm -t gives around 35 MB/s
+best I got during testing or real files is 32 MB/s
 
-I think the easiest way to handle high order allocations is to do _low_
-volume background reclamation if high order allocations might fail.  ie
-put a little effort into keeping such allocations available, but don't
-do massive effort.  Cache tends to lose it's value over time, so dumping
-small quantities over time shouldn't hurt.  This would also have the
-benefit of scanning the inactive lists even when there's little activity
-so that list information (page accessed _yesterday_?) won't get stale.
+A small calculation:
+Track-to-track time is 1.2 ms + time to rotate 4.2 ms = 5.4 ms
+In this time I can read 37 MB/s * 5.4 ms = 200 kB or 
+more than 48 pages (instead of moving the head to the closest
+track I could read 48 pages...)
 
-I think it's ~fine to reclaim for up to say order 2, but beyond that, it
-doesn't have any up side that I can see.. only down.
+Average is 8.5 ms + 4.2 ms => 114 pages 
 
-btw, I wonder why we don't do memory_pressure [+-]= 1 << order.
+Reading a maximum of 114 pages at a time gives on the average
+half the maximum sustained throughput for this disk.
+But the buffer holds 512 pages... => I tried with that. [overkill]
 
-	-Mike
+* Data from a Seagate Cheetah X15 ST336732LC (Better than most
+disks out there - way better than mine)
+Formatted Int Transfer Rate (min)	51 MBytes/sec
+Formatted Int Transfer Rate (max)	69 MBytes/sec
+Average Seek Time, Read		3.7 msec typical
+Track-to-Track Seek, Read	0.5 msec typical
+Average Latency			2 msec
+Default Buffer (cache) Size	8,192 Kbytes
+Spindle Speed			15K RPM
 
+Same calculation:
+Track-to-track: (2 + 0.5) ms * 51 MB = 127 kB or 31 pages (42 pages max)
+Average: (2 + 3.7 ms) * 51 MB/s = 290 kB or almost 71 pages (96 pages max)
+
+Reading a maximum of 71 pages gives on the average half the
+maximum sustained throughput. [smart buffering in the drive might help
+when reading from several streams]
+
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

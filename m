@@ -1,54 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTEUHv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbTEUHmv
+	id S261158AbTEUH7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTEUHzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:42:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:58838 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261506AbTEUHl2 (ORCPT
+	Wed, 21 May 2003 03:55:46 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:37591 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261797AbTEUHnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:41:28 -0400
-Date: Wed, 21 May 2003 08:41:40 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Menno Smits <menno@netbox.biz>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic with pptpd when mss > mtu
-In-Reply-To: <20030521091442.1bfb41b6.menno@netbox.biz>
-Message-ID: <Pine.LNX.4.44.0305210831540.8188-100000@gfrw1044.bocc.de>
+	Wed, 21 May 2003 03:43:43 -0400
+Date: Wed, 21 May 2003 10:52:42 +1000 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
+To: linux-kernel@vger.kernel.org
+Subject: ppp problems in 2.5.69-bk14
+Message-ID: <Pine.LNX.4.44.0305211051100.22168-100000@bad-sports.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Menno,
 
-> I'm seeing a kernel oops with 2.4.20 which seems to be related to the
-> PopTop PPTP server.
+Hey,
 
-> Decoded oops and module list follow. The crash is reproducable on a
-> variety of different hardware. PopTop version is 1.1.3-20030409. PPP
-> version is 2.4.1 with MPPE patches.
+I got this lovely mess when trying to run ppp under 2.5.69-bk14
 
-> Trace; c4b63442 <END_OF_CODE+902b/????>
-> Trace; c4b6344a <END_OF_CODE+9033/????>
+using devfs
+all ppp is modular
 
-Unfortunately, your Oops doesn't contain symbol infomartion for modules.
-Did you really follow the steps in Documentation/oops-tracing.txt?
+thanks,
 
-> Module                  Size  Used by    Tainted: PF
-> ppp_mppe               23320   0  (autoclean)
+	/ Brett
 
-However, i still have a sneeky suspicion, that the bug is in ppp_mppe (why
-did you have to load it using insmod -f?). IIRC from discussions before, a
-compressor is not allowed to grow a packet, but when using encryption this
-might well happen. If then ppp_mppe calls skb_put to update the len field,
-it will trigger the above bug() and cause the oops.
+PPP generic driver version 2.4.2
+devfs_mk_cdev: could not append to parent for ppp
+failed to register PPP device (-17)
+Unable to handle kernel paging request at virtual address c38755c0
+ printing eip:
+c0150743
+*pde = 01092067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0150743>]    Not tainted
+EFLAGS: 00010286
+EIP is at lookup_chrfops+0x83/0xd0
+eax: c38755c0   ebx: c129c600   ecx: c1e4c000   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: 0000006c   esp: c1e4def0
+ds: 007b   es: 007b   ss: 0068
+Process pppd (pid: 402, threadinfo=c1e4c000 task=c145d380)
+Stack: c1e4c000 00000000 0000006c 00000000 c01507da 0000006c 00000000 c2048b20 
+       c2048b20 ffffffed c21adea0 c0150a42 0000006c 00000000 c2048b20 c21adea0 
+       ffffffed c107b220 c01986c9 c21adea0 c2048b20 c2048b20 c21adea0 c10c6084 
+Call Trace:
+ [<c01507da>] get_chrfops+0x4a/0x70
+ [<c0150a42>] chrdev_open+0x22/0xa0
+ [<c01986c9>] devfs_open+0xd9/0x110
+ [<c0147b8a>] dentry_open+0x1da/0x210
+ [<c01479a0>] filp_open+0x50/0x60
+ [<c0147e2b>] sys_open+0x3b/0x70
+ [<c0108df7>] syscall_call+0x7/0xb
 
-So better check why the above trace misses the module information and if
-the trace really shows ppp_mppe in the path, forward the problem to the
-PopTop people ;-)
+Code: 8b 00 be 01 00 00 00 85 c0 74 24 8b 69 14 45 89 69 14 83 38 
+ <6>note: pppd[402] exited with preempt_count 2
+bad: scheduling while atomic!
+Call Trace:
+ [<c0114fc7>] schedule+0x3b7/0x3c0
+ [<c0139ddd>] unmap_vmas+0x1ed/0x260
+ [<c013de66>] exit_mmap+0x66/0x180
+ [<c0116763>] mmput+0x53/0xa0
+ [<c011a19a>] do_exit+0x10a/0x420
+ [<c0109654>] die+0xc4/0xd0
+ [<c0112d51>] do_page_fault+0x111/0x469
+ [<c0125247>] queue_work+0x97/0xb0
+ [<c012516e>] call_usermodehelper+0xbe/0xd0
+ [<c0125060>] __call_usermodehelper+0x0/0x50
+ [<c0112c40>] do_page_fault+0x0/0x469
+ [<c010905d>] error_code+0x2d/0x40
+ [<c0150743>] lookup_chrfops+0x83/0xd0
+ [<c01507da>] get_chrfops+0x4a/0x70
+ [<c0150a42>] chrdev_open+0x22/0xa0
+ [<c01986c9>] devfs_open+0xd9/0x110
+ [<c0147b8a>] dentry_open+0x1da/0x210
+ [<c01479a0>] filp_open+0x50/0x60
+ [<c0147e2b>] sys_open+0x3b/0x70
+ [<c0108df7>] syscall_call+0x7/0xb
 
---jochen
+PPP generic driver version 2.4.2
+failed to register PPP device (-16)
+ppp_async: Unknown symbol ppp_channel_index
+ppp_async: Unknown symbol ppp_register_channel
+ppp_async: Unknown symbol ppp_input
+ppp_async: Unknown symbol ppp_input_error
+ppp_async: Unknown symbol ppp_output_wakeup
+ppp_async: Unknown symbol ppp_unregister_channel
+ppp_async: Unknown symbol ppp_unit_number
 

@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTKCFfb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 00:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbTKCFfb
+	id S261914AbTKCF4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 00:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTKCF4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 00:35:31 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45829
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261903AbTKCFfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 00:35:23 -0500
-Date: Sun, 2 Nov 2003 21:34:30 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ville Herva <vherva@niksula.hut.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks
- slightly during reboot]
-In-Reply-To: <20031102082827.GO4868@niksula.cs.hut.fi>
-Message-ID: <Pine.LNX.4.10.10311022124480.23682-100000@master.linux-ide.org>
+	Mon, 3 Nov 2003 00:56:33 -0500
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:29312 "EHLO
+	mail.longlandclan.hopto.org") by vger.kernel.org with ESMTP
+	id S261914AbTKCF4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 00:56:31 -0500
+Message-ID: <3FA5EE0C.30006@longlandclan.hopto.org>
+Date: Mon, 03 Nov 2003 15:56:28 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: gulu gulu <rgshi2002@yahoo.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux on SGI O2
+References: <20031102120740.13306.qmail@web80702.mail.yahoo.com>
+In-Reply-To: <20031102120740.13306.qmail@web80702.mail.yahoo.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Nov 2003, Ville Herva wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sat, Nov 01, 2003 at 10:05:31PM -0800, you [Andre Hedrick] wrote:
-> > 
-> > I added the flush code to flush a drive in several places but it got
-> > pulled and munged.
-> > 
-> > The original model was to flush each time a device was closed, when any
-> > partition mount point was released, and called by notifier.
-> > 
-> > In a minimal partition count of 1, you had at least two flush before
-> > shutdown or reboot.
-> > 
-> > So it was not the code because I fixed it, but then again I am retiring
-> > from formal maintainership.
+gulu gulu wrote:
+
+> Hallo all,
 > 
-> Thanks, Andre :(.
-> 
-> As an^Wthe IDE expert, can you clarify a few points:
-> 
->   - How long can the unwritten data linger in the drive cache if the drive
->     is otherwise idle? (Without an explicit flush and with write caching
->     enabled.)
+>    can anyone tell me if linux already supports SGI
+> O2.
+> I have 2 SGIs. It will be pity to leave them there.
 
-Basically forever, until a read is issued to a range of lba's which starts
-smaller than the uncommitted contents's lba, and includes the content in
-question.  Or if a flush cache or disable write-back cache is issued.
+Certainly can, I'm not sure how well, the information I have here seems 
+to suggest that you need to use a serial console (there's no framebuffer 
+support), but otherwise, the SGI O2 will certainly run Linux.
 
->     I had unmounted the fs an raidstopped the md minutes before the boot.
+Some useful links:
+	http://www.debian.org/ports/mips/
+		- Debian MIPS{,-el} port
 
-The problem imho, is a break down of fundamental cascading callers.
+	http://dev.gentoo.org/~kumba/mips/mips.html
+		- Gentoo for MIPS
 
-Unmount MD -> flush MD
+These are mainly orientated at the Indy, especially the latter one, 
+however there is some information on the O2.
+- -- 
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-	MD is a fakie device :-/
-
-MD fakie calls for flush of R_DEV's
-
-Likewise unloading or stopping MD operations should repeat regardless of
-mount or not.
-
->   - Can this corruption happen on warmboot or only on poweroff?
-
-Given POST (assume x86 for only a brief moment) will issue execute
-diagnositics to hunt for signatures on the ribbon, that basically wacks
-the content.  Cool cycle obviously wacks the buffer.
-
->   - What kind of corruption can one see the if boot takes place "too fast"
->     and drive hasn't got enough time to flush its cache?
-
-erm, I am lost with the above.
-Flush Cache is a hold and wait on completion, period.
-However, a cache error at this point is a wasted effort to attempt
-recovery.
-
-Not sure I helped or not ...
-
-Cheers,
-
-Andre
+iD8DBQE/pe4MIGJk7gLSDPcRAnk8AJ4jY4MoNHtZGXKsrLrLg+JyCpuR/QCfefEE
+tXPrRh597dYsB8BUor6lL3g=
+=WTXm
+-----END PGP SIGNATURE-----
 

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263070AbREWM3z>; Wed, 23 May 2001 08:29:55 -0400
+	id <S263071AbREWMeZ>; Wed, 23 May 2001 08:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263071AbREWM3p>; Wed, 23 May 2001 08:29:45 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:7371 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263070AbREWM3l>;
-	Wed, 23 May 2001 08:29:41 -0400
-Date: Wed, 23 May 2001 14:29:05 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105231229.OAA19155.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+	id <S263073AbREWMeQ>; Wed, 23 May 2001 08:34:16 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57097 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263071AbREWMeG>; Wed, 23 May 2001 08:34:06 -0400
 Subject: Re: [PATCH] struct char_device
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, viro@math.psu.edu
+To: Andries.Brouwer@cwi.nl
+Date: Wed, 23 May 2001 13:30:59 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        viro@math.psu.edu
+In-Reply-To: <UTC200105231229.OAA19155.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 23, 2001 02:29:05 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152Xn1-0003ZF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From alan@lxorguk.ukuu.org.uk Wed May 23 14:16:46 2001
+> the piggyback stuff today. This default initrd does
+> the partition parsing that up to now the kernel did.
+> That way nobody need to notice a difference, except for
+> those who use initrd already now. They can solve their
+> problems.
 
-    > It is entirely possible to remove all partition table handling code
-    > from the kernel. User space can figure out where the partitions
-    > are supposed to be and tell the kernel.
-    > For the initial boot this user space can be in an initrd,
-    > or it could just be a boot parameter: rootdev=/dev/hda,
-    > rootpartition:offset=N,length=L, rootfstype=ext3.
-
-    Not if you want compatibility.
-
-I don't think compatibility is a problem.
-It would go like this: at configure time you get the
-choice of the default initrd or a custom initrd.
-If you choose the custom one you construct it yourself.
-If you choose the default one, then you get something
-that comes together with the kernel image, just like
-the piggyback stuff today. This default initrd does
-the partition parsing that up to now the kernel did.
-That way nobody need to notice a difference, except for
-those who use initrd already now. They can solve their
-problems.
-
-Andries
-
+as a longer term path that seems reasonable. If we want large numbers of less
+than guru level developers to play with 2.5 kernels for fun then its likely to
+be a barrier unless its progressed stage by stage
 

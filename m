@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270632AbTGNQjw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270609AbTGNQjl
+	id S270651AbTGNQg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270636AbTGNQdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:39:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27613 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270636AbTGNQgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:36:49 -0400
-Date: Mon, 14 Jul 2003 13:47:17 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com
-Subject: Re: PATCH: make pcmcica devices report pcmcia bus info in gdrvinfo
-In-Reply-To: <1058195703.561.76.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55L.0307141346170.29144@freak.distro.conectiva>
-References: <200307141221.h6ECLLDM030866@hraefn.swansea.linux.org.uk> 
- <20030714141425.C18177@flint.arm.linux.org.uk> <1058195703.561.76.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 14 Jul 2003 12:33:33 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:1288 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S270616AbTGNQc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:32:59 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.4 patch] Configure.help updates from -ac
+Date: Mon, 14 Jul 2003 18:47:25 +0200
+User-Agent: KMail/1.5.2
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <200307141504.48728.m.c.p@wolk-project.de> <20030714162953.GN12104@fs.tum.de>
+In-Reply-To: <20030714162953.GN12104@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307141847.25101.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 14 July 2003 18:29, Adrian Bunk wrote:
 
+Hi Adrian,
 
-On Mon, 14 Jul 2003, Alan Cox wrote:
+> It's not me, this was directly taken from -ac.
+yeah, ok.
 
-> On Llu, 2003-07-14 at 14:14, Russell King wrote:
-> > >  		strncpy(info.driver, "3c574_cs", sizeof(info.driver)-1);
-> > > +		sprintf(info.bus_info, "PCMCIA 0x%lx", dev->base_addr);
-> > >  		if (copy_to_user(useraddr, &info, sizeof(info)))
-> > >  			return -EFAULT;
-> > >  		return 0;
-> >
-> > We should probably ensure that the bus info is compatible with the bus
-> > info which Dominik's going to be using in 2.6.x
->
-> I think thats a good point. Marcelo , bin that diff for now
+> Please correct me if I'm wrong, but AFAIK these lines are used nowhere,
+> they are just copies of the one-line descriptions in the Config.in
+> files.
+nope, you are right. But I think we should either leave all one-line 
+descriptions from Config.in in or rip all out.
 
-Done.
+ciao, Marc
 

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbRALRxr>; Fri, 12 Jan 2001 12:53:47 -0500
+	id <S130673AbRALSB7>; Fri, 12 Jan 2001 13:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130027AbRALRxi>; Fri, 12 Jan 2001 12:53:38 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4627 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129595AbRALRxZ>; Fri, 12 Jan 2001 12:53:25 -0500
-Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 12 Jan 2001 17:54:24 +0000 (GMT)
-Cc: andrea@suse.de (Andrea Arcangeli), cowboy@vnet.ibm.com (Richard A Nelson),
-        sorisor@Hell.WH8.TU-Dresden.De (Udo A. Steinberg),
-        ak@suse.de (Andi Kleen), linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.10.10101120931520.1806-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 09:35:14 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130582AbRALSBt>; Fri, 12 Jan 2001 13:01:49 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27152 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130027AbRALSBq>; Fri, 12 Jan 2001 13:01:46 -0500
+Date: Fri, 12 Jan 2001 09:51:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <Pine.LNX.4.10.10101120054570.32320-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10101120949040.1858-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14H8PC-0004hZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The fact that 2.2.x has bad control over capabilities and is messy is NOT
-> an excuse to screw up forever. 
 
-2.2 has a mix of 'can I use' and 'does the cpu have' so using 2.2 as an 
-example doesnt work
+
+On Fri, 12 Jan 2001, Andre Hedrick wrote:
+> 
+> Scratch that patch it has 2 typos that are in amd74xx.c 
+> 
+> will do it again..........
+
+I will scratch your new patch too.
+
+I want to see the code to handle the apparent VIA DMA bug. At this point,
+preferably by just disabling DMA on VIA chipsets or something like that
+(if it has only gotten worse since 2.2.x, I'm not interested in seeing any
+experimental patches for it during early 2.4.x).
+
+We've already had one major fs corruption due to this, I want that fixed
+_first_.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

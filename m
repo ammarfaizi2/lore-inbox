@@ -1,83 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261583AbSJYUXx>; Fri, 25 Oct 2002 16:23:53 -0400
+	id <S261451AbSJYUco>; Fri, 25 Oct 2002 16:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbSJYUXx>; Fri, 25 Oct 2002 16:23:53 -0400
-Received: from dhcp80ff23b2.dynamic.uiowa.edu ([128.255.35.178]:34948 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S261583AbSJYUXw>;
-	Fri, 25 Oct 2002 16:23:52 -0400
-Date: Fri, 25 Oct 2002 15:29:57 -0500
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Patti Ordonez <Patti@trainingetc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about problem you posted at http://www.cs.helsinki.fi/linux/linux-kernel/2002-18/0689.html
-Message-ID: <20021025202953.GA2290@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Patti Ordonez <Patti@trainingetc.com>,
-	linux-kernel@vger.kernel.org
-References: <01C27C41.41FE52A0.Patti@trainingetc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01C27C41.41FE52A0.Patti@trainingetc.com>
-User-Agent: Mutt/1.4i
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S261571AbSJYUco>; Fri, 25 Oct 2002 16:32:44 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:63180 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S261451AbSJYUcm>;
+	Fri, 25 Oct 2002 16:32:42 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "'Robert Love'" <rml@tech9.net>, "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: RE: [PATCH] How to get number of physical CPU in linux from user 
+	space?
+Date: Fri, 25 Oct 2002 13:38:55 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Posted to Linux-Kernel since it's still a valid ALi 15XX driver problem.
+You might want to remove __initdata (in smpboot.c):
+int __initdata phys_proc_id[NR_CPUS];
 
->From Patti Ordonez on Friday, 25 October, 2002:
->Hello,
->I found a problem you posted at 
-> http://www.cs.helsinki.fi/linux/linux-kernel/2002-18/0689.html.
->I am having the same problem while trying to load Linux on my Toshiba 
->1625CDT.  Did you ever find a solution to your problem? Were you able to 
->install linux on your machine.  I believe it has to do with repartitioning 
->space for hibernation.
->Any recommendations would be greatly appreciated.
+Jun Nakajima
 
-Yes; I have everything working on this laptop (with maybe the exception of
-  the lid-close switch, which somehow causes the laptop to crash or simply
-  not suspend properly.).
-
-What I did was create (with Toshiba's/Phoenix's hibernation partition
-  creation utility; I forget what it's called and where I got it; if you
-  find it, please tell me so I can archive off a copy of it for later. :)
-  a suspend partition for the BIOS.  I set the laptop to suspend to disk
-  (otherwise, suspending to RAM causes the processor to overheat (I
-  highly suspect a BIOS bug, but, natch, Linux is unsupported so they
-  won't look into it.  *sigh*)).
-
-The critical point is to *disable* ALi 15xx IDE support.  Otherwise,
-  the laptop suspends everything but "extended" memory and simply hangs
-  at the start of saving off that data.
-
-You can get around using PIO mode by creating one ALi kernel, booting
-  into it to activate DMA, then rebooting into a non-ALi (generic IDE
-  drivers) kernel so that you can suspend to disk.  It's an annoying
-  workaround, though, and I'd like to finally have BIOS and the ALi
-  drivers play nice.
-
-I look forward to the software suspend coming up, since I can then not
-  have to rely on a gronky, highly proprietary (so far as I can tell)
-  BIOS.
-
--Joseph
-
--- 
-Joseph===============================================trelane@digitasaru.net
-"Alt text doesn't pop up unless you use an ancient browser from the days of
- yore. The relevant standards clearly indicate that it should not, and I
- only know about one browser released in the last two years that violates
- this, and it's still claiming compatibility with Mozilla 4 (which was
- obsolete quite long ago), so it really can't be considered a modern
- browser."  --jonadab, in a slashdot.org comment.
+-----Original Message-----
+From: Nakajima, Jun 
+Sent: Friday, October 25, 2002 12:49 PM
+To: Robert Love; Dave Jones; akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; chrisl@vmware.com;
+Martin J. Bligh
+Subject: RE: [PATCH] How to get number of physical CPU in linux from
+user space?
 
 
+One more request :-)
 
+Actually "processor" keyword was not good in "physical processor ID"
+(someone may be grepping it to find out the number of processors), and it
+was one of the reasons it was changed/fixed in the AC tree. 
+
+Since (H/W) threads (rather than "siblings") in a CPU is generic (i.e. not
+just an Intel thing), I would like to propose this ("physical id" is from
+AC). Alan also simplified "number of simblings" to  "siblings". 
+
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
++	}
++#endif
+
+Thanks,
+Jun
+
+-----Original Message-----
+From: Robert Love [mailto:rml@tech9.net]
+Sent: Friday, October 25, 2002 12:21 PM
+To: Dave Jones; akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; chrisl@vmware.com;
+Martin J. Bligh
+Subject: Re: [PATCH] How to get number of physical CPU in linux from
+user space?
+
+
+On Fri, 2002-10-25 at 15:13, Dave Jones wrote:
+
+> Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
+> Seems silly to be displaying HT information on non-HT CPUs.
+
+I am neutral, but is fine with me. It is just "cpu_has_ht", btw.
+
+Take two...
+
+This displays the physical processor id and number of siblings of each
+processor in /proc/cpuinfo.
+
+	Robert Love
+
+ .proc.c.swp |binary
+ proc.c      |    7 +++++++
+ 2 files changed, 7 insertions(+)
+
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c
+linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19
+00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,12 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical processor ID\t: %d\n",
+phys_proc_id[n]);
++		seq_printf(m, "number of siblings\t: %d\n",
+smp_num_siblings);
++	}
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either
+seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

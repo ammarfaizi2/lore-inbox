@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbTIMWPm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTIMWPm
+	id S262231AbTIMWS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 18:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTIMWS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:15:42 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:10435 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S262229AbTIMWPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:15:41 -0400
-From: Folkert van Heusden <folkert@vanheusden.com>
-Reply-To: folkert@vanheusden.com
-Organization: vanheusdendotcom
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0test-1 error while writing files to loopback UDF filesystem UDF-fs DEBUG fs/udf/balloc.c:192:udf_
-bitmap_free_blocks: bit 3128 already set
-Date: Sun, 14 Sep 2003 00:15:40 +0200
-User-Agent: KMail/1.5.3
-WebSite: http://www.vanheusden.com/
+	Sat, 13 Sep 2003 18:18:26 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:17300 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262231AbTIMWSZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 18:18:25 -0400
+Message-Id: <200309132218.h8DMIBHj007826@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
+To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>
+Date: Sun, 14 Sep 2003 00:18:02 +0200
+References: <u8mV.so.19@gated-at.bofh.it> <ufor.30e.21@gated-at.bofh.it> <usvj.6s9.17@gated-at.bofh.it> <uxv1.5D5.23@gated-at.bofh.it> <uCuI.5hY.13@gated-at.bofh.it> <uRWI.xK.5@gated-at.bofh.it> <voSF.8l7.17@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309140015.40063.folkert@vanheusden.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Manfred Spraul wrote:
 
-I created an UDF filesystem (dd of=file if=... && mkudffs file && mount -o 
-loop -t udf /mnt) and then added some files to it (tar cf - * | (cd /mnt ; 
-tar xvpf -)).
-That went well for a while, but after aprox 2GB (beware: no file was longer 
-then +/- 1GB), I got these errors in syslog:
-Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
-bitmap_free_blocks: bit 3125 already set
-Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
-bitmap_free_blocks: byte=20
-Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
-bitmap_free_blocks: bit 3125 already set
-Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
-bitmap_free_blocks: byte=60
-etc.
-I then did a compare (cmp -l) and found that the copied file was different 
-from the original one, so it seems something is going wrong while writing to 
-the UDF filesystem.
-As I wrote in the subjectline, I'm using 2.6.0-test1.
+> But back to the patch that started this thread: Do you still need the 
+> ability to set an explicit alignment for slab allocations? If yes, then 
+> I'd polish my patch, double check all kmem_cache_create callers and then 
+> send the patch to akpm. Otherwise I'd wait - the patch is not a bugfix.
 
+The explicit alignment would be my preferred way to fix slab debugging
+on s390. We still have the problem that practically all s390 device drivers
+need 64-bit alignment on slab allocations.
 
-Folkert van Heusden
+Our current hack is to redefine BYTES_PER_WORD in slab.c to 8, but what
+I'd like to see is a per-architecture alignment in kmem_cache_init
+that would default to 8 on s390 and to sizeof(long) otherwise.
 
-+--------------------------------------------------------------------------+
-| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
-| a try, it brings monitoring logfiles (and such) to a different level!    |
-+---------------------------------------------------= www.vanheusden.com =-+
+Using the current SLAB_MUST_HWCACHE_ALIGN is not an option since
+it wastes a lot of memory with our 2048-bit L1 cache lines.
+I'd also like to avoid creating special slab caches for anything
+that needs 8-byte alignment.
 
+        Arnd <><

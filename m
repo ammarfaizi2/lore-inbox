@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317433AbSGDPwO>; Thu, 4 Jul 2002 11:52:14 -0400
+	id <S317434AbSGDQHq>; Thu, 4 Jul 2002 12:07:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317434AbSGDPwN>; Thu, 4 Jul 2002 11:52:13 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:14166 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317433AbSGDPwN>; Thu, 4 Jul 2002 11:52:13 -0400
-Message-Id: <5.1.0.14.2.20020704165437.00b09c60@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 04 Jul 2002 16:55:23 +0100
-To: James Bottomley <James.Bottomley@steeleye.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [BUG-2.5.24-BK] DriverFS panics on boot!
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
-       sullivan@austin.ibm.com
-In-Reply-To: <200207041541.g64FfNW02097@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317435AbSGDQHq>; Thu, 4 Jul 2002 12:07:46 -0400
+Received: from pophost.cs.tamu.edu ([128.194.130.106]:27355 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S317434AbSGDQHp>;
+	Thu, 4 Jul 2002 12:07:45 -0400
+Date: Thu, 4 Jul 2002 11:10:16 -0500 (CDT)
+From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+To: george anzinger <george@mvista.com>
+cc: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel timers vs network card interrupt
+In-Reply-To: <3D23FD5F.19C0DDDC@mvista.com>
+Message-ID: <Pine.SOL.4.10.10207041109300.12365-100000@dogbert>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 16:41 04/07/02, James Bottomley wrote:
->Er, oops, I think this one's my fault.
->
->The recent driverfs additions for SCSI also added partition handling in
->driverfs.  The code is slightly more invasive than it should be so the IDE
->driver needs to know how to use it (which it doesn't yet).  In theory there's
->a NULL pointer check in driverfs_create_partitions for precisely this case,
->but it looks like the IDE code is forgetting to zero out a kmalloc of a 
->struct
->gendisk somewhere (hence the 5a5a... contents).  At a cursory glance, this
->seems to be in ide/probe.c, so does the attached patch fix it?
->
->I'll try to reproduce, but I'm all SCSI here except for my laptop.
+        In fact I want a timer (either in user level or kernel level).
+This timer (hope it is a periodic timer) must expire at the interval that
+I specify. For example, if I
+want that the timer expires at 10ms, it should never be fired at
+10.0000000001ms or
+9.9999999999ms. That is the key part that I want!
 
-Your patch fixed it. Please submit to Linus!
+        Have an idea?
 
-Best regards,
+        Thanks!
 
-         Anton
+Xinwen Fu
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+On Thu, 4 Jul 2002, george anzinger wrote:
+
+> "Richard B. Johnson" wrote:
+> > 
+> > On Wed, 3 Jul 2002, Xinwen - Fu wrote:
+> > 
+> > > Hi, all,
+> > >       I'm curious that if a network card interrupt happens at the same
+> > > time as the kernel timer expires, what will happen?
+> > >
+> > >       It's said the kernel timer is guaranteed accurate. But if
+> > > interrupts are not masked off, the network interrupt also should get
+> > > response when a kernel timer expires. So I don't know who will preempt
+> > > who.
+> > >
+> > >       Thanks for information!
+> > >
+> > > Xinwen Fu
+> > 
+> > The highest priority interrupt will get serviced first. It's the timer.
+> > Interrupts are serviced in priority-order. Hardware "remembers" which
+> > ones are pending so none are lost if some driver doesn't do something
+> > stupid.
+> 
+> That is true as far as it goes, HOWEVER, timers are serviced
+> by bottom half code which is run at the end of the
+> interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
+> servicing can be interrupted by an interrupt and thus be
+> delayed.
+>  
+> -- 
+> George Anzinger   george@mvista.com
+> High-res-timers: 
+> http://sourceforge.net/projects/high-res-timers/
+> Real time sched:  http://sourceforge.net/projects/rtsched/
+> Preemption patch:
+> http://www.kernel.org/pub/linux/kernel/people/rml
+> 
 

@@ -1,52 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbSKWRpA>; Sat, 23 Nov 2002 12:45:00 -0500
+	id <S267020AbSKWSXy>; Sat, 23 Nov 2002 13:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267019AbSKWRo7>; Sat, 23 Nov 2002 12:44:59 -0500
-Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:6461 "EHLO
-	ubik.localnet") by vger.kernel.org with ESMTP id <S266999AbSKWRo7>;
-	Sat, 23 Nov 2002 12:44:59 -0500
-Message-ID: <3DDFC044.30701@murphy.dk>
-Date: Sat, 23 Nov 2002 18:52:04 +0100
-From: Brian Murphy <brian@murphy.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: joakim.tjernlund@lumentis.se
-Subject: Re: [PATCH 2.5] crc32 static initialization
-References: <IGEFJKJNHJDCBKALBJLLEEEEFIAA.joakim.tjernlund@lumentis.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267023AbSKWSXy>; Sat, 23 Nov 2002 13:23:54 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:39691 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S267020AbSKWSXx>;
+	Sat, 23 Nov 2002 13:23:53 -0500
+Date: Sat, 23 Nov 2002 19:25:47 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Hard Lockup with 2.4.20-rc3 and ISDN (ippp)
+Message-Id: <20021123192547.5f084d4e.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0211230908590.23257-100000@chaos.physics.uiowa.edu>
+References: <20021123123322.3e6ef7c2.skraw@ithnet.com>
+	<Pine.LNX.4.44.0211230908590.23257-100000@chaos.physics.uiowa.edu>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joakim Tjernlund wrote:
+On Sat, 23 Nov 2002 09:12:21 -0600 (CST)
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
 
->I have tested the new CRC32 patch on my big endian CPU(mpc860) in
->linux 2.4. Since the Makefiles look different in 2.4 vs. 2.5 I built and ran 
->gen_crctable.c manually, so I can not comment on the Makefile changes.
->
->Also, testing this in 2.4 makes it hard to generate a new 2.5 patch, so 
->I will just comment and send the whole file(se below)
->  
->
-Thanks for the testing.
+> Yup, my bad. Could you confirm that the attached patch which I sent to 
+> Marcelo already fixes it?
 
->Found this:
-> 
->   crc32.c in crc32_be(): crc32table_le should be crc32table_be
->  
->
-Can you send me a patch? I just used the original patch you sent me 
-which uses
-crc32table_le in crc32_be.
+Hello Kai, hello Marcelo,
 
+I can confirm that below patch you sent fixes the lockup issue that came up
+with rc3.
+
+Regards,
+Stephan
+
+
+> -----------------------------------------------------------------------------
+> ChangeSet@1.795.1.2, 2002-11-22 15:24:43-06:00, kai@tp1.ruhr-uni-bochum.de
+>   ISDN: Fix the fix
 >   
->    Finally, I think the new local crc32.h should be renamed to crc32defs.h to
->    avoid confusion with the real linux/crc32.h.
+>   Argh, I must have been asleep or something. The original patch by Herbert
+>   Xu was right, I extended it to cover more error paths and broke it in 
+>   doing so. Now fixed again.
+> 
+>   
+> ---------------------------------------------------------------------------
+> 
+> diff -Nru a/drivers/isdn/isdn_ppp.c b/drivers/isdn/isdn_ppp.c
+> --- a/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
+> +++ b/drivers/isdn/isdn_ppp.c	Fri Nov 22 15:29:42 2002
+> @@ -1147,7 +1147,7 @@
+>  		printk(KERN_ERR "isdn_ppp_xmit: lp->ppp_slot(%d)\n",
+>  			mlp->ppp_slot);
+>  		kfree_skb(skb);
+> -		goto unlock;
+> +		goto out;
+>  	}
+>  	ipts = ippp_table[slot];
 >  
->
-Possibly, all h files contain "defs".
-
-/Brian
-
+> @@ -1155,7 +1155,7 @@
+>  		if (ipts->debug & 0x1)
+>  			printk(KERN_INFO "%s: IP frame delayed.\n", netdev->name);
+>  		retval = 1;
+> -		goto unlock;
+> +		goto out;
+>  	}
+>  
+>  	switch (ntohs(skb->protocol)) {
+> @@ -1169,7 +1169,7 @@
+>  			printk(KERN_ERR "isdn_ppp: skipped unsupported protocol:
+>  			%#x.\n", 
+>  			       skb->protocol);
+>  			dev_kfree_skb(skb);
+> -			goto unlock;
+> +			goto out;
+>  	}
+>  
+>  	lp = isdn_net_get_locked_lp(nd);
+> @@ -1336,6 +1336,7 @@
+>  
+>   unlock:
+>  	spin_unlock_bh(&lp->xmit_lock);
+> + out:
+>  	return retval;
+>  }
+>  

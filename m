@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265172AbUAERRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUAERRQ
+	id S265060AbUAEROz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUAEROz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:17:16 -0500
-Received: from smtp2.dei.uc.pt ([193.137.203.229]:29083 "EHLO smtp2.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S265172AbUAERRI (ORCPT
+	Mon, 5 Jan 2004 12:14:55 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:3456 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S265060AbUAEROf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:17:08 -0500
-Date: Mon, 5 Jan 2004 17:16:43 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] psmouse info in 2.6.1-rc1
-Message-ID: <Pine.LNX.4.58.0401051711170.23750@student.dei.uc.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Mon, 5 Jan 2004 12:14:35 -0500
+Date: Mon, 5 Jan 2004 18:14:31 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Ville Herva <vherva@twilight.cs.hut.fi>
+Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org
+Subject: floppy driver and multiple floppies (was Re: 2.6.0 under vmware ?)
+Message-ID: <20040105171431.GA1776@vana.vc.cvut.cz>
+References: <1073297203.12550.30.camel@bip.parateam.prv> <20040105142032.GE11115091@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105142032.GE11115091@niksula.cs.hut.fi>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jan 05, 2004 at 04:20:32PM +0200, Ville Herva wrote:
+> On Mon, Jan 05, 2004 at 11:06:43AM +0100, you [Xavier Bestel] wrote:
+> > Hi,
+> > 
+> > Has anyone managed to make another distro with 2.6 work under vmware ?
+> 
+> 2.6.1rc1 works great for me under vmware 4.05 (6030), but that's with an
+> ancient glibc and /sbin/init that do not know of sysenter among other
+> things.
+> 
+> There is one regression, though: 2.2.x and 2.4.x can see /dev/fd0 and
+> /dev/fd1 under vmware. 2.6.1rc1 only find /dev/fd0. Does anyone else see
+> this?
 
+Are you sure that VMware is a culprit? I had to apply patch below to get
+floppy option to work at all (otherwise buggy kernel options parser which
+does not understand quotes comes in a way making it impossible to do
+f.e. "floppy=1,6,cmos").
 
-Hi there...
-I don't really know if this is only in -rc1-mm1 but I suppose -rc1 is affected also.
+And even then configuration with more than one floppy drive is broken:
+all floppies will use same queue, but it is not allowed - there is even
+comment in the code saying "to be cleaned up" before add_disk() call,
+and from my understanding there must be 1:1 relation between queues
+and registered disks. Otherwise (at least) sysfs breaks and will
+crash on floppy unload as queue is deleted twice from sysfs, and it does not 
+like doing such things...
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-The new changes in drivers/input/mouse/psmouse-base.c make that we don't have
-anymore to give to kernel  psmouse_proto=imps, but only proto=imps , so the
-info about it is wrong... Please apply the patch:
-
-- --- linux-2.6.1-rc1-mm2/drivers/input/mouse/Kconfig     2004-01-05 10:51:16.000000000 +0100
-+++ linux-2.6.1-rc1-mm2-mbn1/drivers/input/mouse/Kconfig        2004-01-05 13:34:26.000000000 +0100
-@@ -30,7 +30,7 @@
-                http://www.geocities.com/dt_or/gpm/gpm.html
-          to take advantage of the advanced features of the touchpad.
-          If you do not want install specialized drivers but want tapping
-- -         working please use option psmouse.proto=imps.
-+         working please use option proto=imps.
-
-          If unsure, say Y.
-
-
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQE/+ZwAmNlq8m+oD34RAuUWAJ9XSnA+ECpsMp1fxQHnt1Hi0m2A8QCffdZ5
-4SCPS9GM8NjUUVe7bGUg/dA=
-=qAnS
------END PGP SIGNATURE-----
-
+ 
+diff -urdN linux/drivers/block/floppy.c linux/drivers/block/floppy.c
+--- linux/drivers/block/floppy.c	2003-12-31 02:59:44.000000000 +0100
++++ linux/drivers/block/floppy.c	2003-12-31 14:14:21.000000000 +0100
+@@ -150,6 +150,7 @@
+ /* do print messages for unexpected interrupts */
+ static int print_unex=1;
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/sched.h>
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+@@ -4618,9 +4619,9 @@
+ 	wait_for_completion(&device_release);
+ }
+ 
+-MODULE_PARM(floppy,"s");
+-MODULE_PARM(FLOPPY_IRQ,"i");
+-MODULE_PARM(FLOPPY_DMA,"i");
++module_param(floppy, charp, 0);
++module_param(FLOPPY_IRQ, int, 0);
++module_param(FLOPPY_DMA, int, 0);
+ MODULE_AUTHOR("Alain L. Knaff");
+ MODULE_SUPPORTED_DEVICE("fd");
+ MODULE_LICENSE("GPL");

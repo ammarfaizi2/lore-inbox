@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUARBpk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 20:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266213AbUARBpk
+	id S266025AbUARBms (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 20:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUARBms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 20:45:40 -0500
-Received: from mail3.absamail.co.za ([196.35.40.69]:41596 "EHLO absamail.co.za")
-	by vger.kernel.org with ESMTP id S266208AbUARBpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 20:45:34 -0500
-Subject: [2.6.1 MCE falseness?] Hardware reports non-fatal error
-From: Niel Lambrechts <antispam@absamail.co.za>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1074390255.8198.22.camel@ksyrium.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 18 Jan 2004 03:44:16 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jan 2004 20:42:48 -0500
+Received: from smtp2.fre.skanova.net ([195.67.227.95]:39402 "EHLO
+	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S266025AbUARBmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 20:42:46 -0500
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove sleep_on from sunrpc
+References: <40098260.20800@colorfullife.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 18 Jan 2004 02:45:36 +0100
+In-Reply-To: <40098260.20800@colorfullife.com>
+Message-ID: <m2wu7qf2rj.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred Spraul <manfred@colorfullife.com> writes:
 
-I get the following problem with 2.6.1 consistently after apm resuming:
+> -	while (rpciod_pid) {
+> +	add_wait_queue(&rpciod_killer, &wait);
+> +	for (;;) {
+> +		set_current_state(TASK_INTERRUPTIBLE);
+> +		if (rpciod_pid == 0)
+> +			break;
+>  		dprintk("rpciod_down: waiting for pid %d to exit\n", rpciod_pid);
+>  		if (signalled()) {
+>  			dprintk("rpciod_down: caught signal\n");
+>  			break;
+>  		}
+> -		interruptible_sleep_on(&rpciod_killer);
+> +		schedule();
+>  	}
+> -	spin_lock_irqsave(&current->sighand->siglock, flags);
+> +	remove_wait_queue(&rpciod_killer, &wait);
+> +	spin_lock_irq(&current->sighand->siglock);
+>  	recalc_sigpending();
+> -	spin_unlock_irqrestore(&current->sighand->siglock, flags);
+> +	spin_unlock_irq(&current->sighand->siglock);
+>  out:
+>  	up(&rpciod_sema);
+>  }
 
-"ksyrium kernel: MCE: The hardware reports a non fatal, correctable
-incident occurred on CPU 0.
+Aren't you forgetting to set_current_state(TASK_RUNNING) after the
+loop?
 
-Message from syslogd@ksyrium at Wed Jan 14 13:33:06 2004 ...
-ksyrium kernel: Bank 1: f2000000000001c5"
-
-It does not happen on any other kernels I use (vanilla 2.4.24, SuSE 9
-2.4.21-166) - even though CONFIG_X86_MCE=y for both. The equipment is
-brand-new - an IBM Thinkpad R50P - and it passes all IBM's s/w
-diagnostic.
-
-I'd appreciate help with the parameters for parsemce to interpret the
-problem...not sure if my usage is correct? ;)
-
-# ./parsemce -b 1 -a 0 -e f2000000000001c5
-Status: (f2000000000001c5) Machine Check in progress.
-Restart IP valid.
-
-Is this really hardware (maybe a bug in  the BIOS?) or are false
-positives possible with 2.6 MCE code?
-
--Niel
-
-
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273994AbRJDO15>; Thu, 4 Oct 2001 10:27:57 -0400
+	id <S274082AbRJDOfi>; Thu, 4 Oct 2001 10:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273996AbRJDO1r>; Thu, 4 Oct 2001 10:27:47 -0400
-Received: from web11806.mail.yahoo.com ([216.136.172.160]:28423 "HELO
-	web11806.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S273994AbRJDO1e>; Thu, 4 Oct 2001 10:27:34 -0400
-Message-ID: <20011004142803.72199.qmail@web11806.mail.yahoo.com>
-Date: Thu, 4 Oct 2001 16:28:03 +0200 (CEST)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: specific optimizations for unaccelerated framebuffers
-To: linux-kernel@vger.kernel.org
-Cc: Christopher Friesen <cfriesen@nortelnetworks.com>
-In-Reply-To: <3BBC6BBD.128161B5@nortelnetworks.com>
+	id <S274064AbRJDOf3>; Thu, 4 Oct 2001 10:35:29 -0400
+Received: from [212.172.122.16] ([212.172.122.16]:60682 "EHLO qmail.root.at")
+	by vger.kernel.org with ESMTP id <S273996AbRJDOfS>;
+	Thu, 4 Oct 2001 10:35:18 -0400
+Date: Thu, 4 Oct 2001 16:35:46 +0200 (CEST)
+From: Karl Pitrich <pit@root.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: 100% sync block device on 2.2 ?
+Message-ID: <Pine.LNX.4.33.0110041629170.1056-100000@warp.root.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Christopher Friesen <cfriesen@nortelnetworks.com> wrote:
-> >   Been able to DMA the complete video memory image around 5-10
-> > times/second should be over the human eye sensitivity.
-> 
-> Since anything less than 75Hz gives me headaches, how do you propose to
-> make this work?
 
-  Because there is still memory on the video board, the display stay
- at whatever refresh the video board is set up, 80 Hz if you want.
+hi.
 
- That is updating the video memory from main memory which is at 10 Hz,
- if a dot is displayed in another color for a duration of 0.01 second
- (100 Hz), the human eye will not see it, so there is no need to
- display it.
+i wrote a block driver for a custom battery-backup'ed sram-isa card
+which is io mapped. (kernel is 2.2.16, switch to 2.4.x impossible)
 
- I am _not_ a specialist of the eye, but if something is displayed for
- less than 1/10 of a second, I am not sure to see it. So I can probably
- accept to have a 100 ms delay in between a click and the associated
- window appearing.
+i have a minix fs on it.
 
-  Etienne.
+everything works fine, except that i need my sram-disk _absolutely_
+in sync. i mounted -o sync, but the kernel does'nt seem to sync
+immediately.
+so after any reboot my data is corrupt, which is a problem.
 
+this is my /proc/sys/vm/bdflush, which i tuned:
+1 5000 5 25 1 100 100 1 1
 
-___________________________________________________________
-Do You Yahoo!? -- Un e-mail gratuit @yahoo.fr !
-Yahoo! Courrier : http://fr.mail.yahoo.com
+so, it should flush dirty buffers all 100hz, if i am right.
+
+is there any way to bypass/disable buffer cache for my block device?
+why does this work in floppy.c?
+how does sct's rawdevice stuff do this?
+(i checked both .c but cant get the clue)
+
+thanks a lot for help, karl.
+

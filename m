@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbSLXVNb>; Tue, 24 Dec 2002 16:13:31 -0500
+	id <S265886AbSLXVnF>; Tue, 24 Dec 2002 16:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265865AbSLXVNb>; Tue, 24 Dec 2002 16:13:31 -0500
-Received: from f178.law7.hotmail.com ([216.33.237.178]:37893 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265863AbSLXVNa>;
-	Tue, 24 Dec 2002 16:13:30 -0500
-X-Originating-IP: [198.70.229.121]
-From: "Randy S." <hey_randy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: nForce2 chipset and agpgart: unsupported bridge?
-Date: Tue, 24 Dec 2002 16:21:37 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F178vHerWJncooYw6zX00012563@hotmail.com>
-X-OriginalArrivalTime: 24 Dec 2002 21:21:38.0157 (UTC) FILETIME=[71BCD1D0:01C2AB92]
+	id <S265890AbSLXVnF>; Tue, 24 Dec 2002 16:43:05 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:4356
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S265886AbSLXVnE>; Tue, 24 Dec 2002 16:43:04 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
+Date: Tue, 24 Dec 2002 16:52:44 -0500
+User-Agent: KMail/1.5.9
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200212241533.21347.spstarr@sh0n.net> <20021224204029.GB3052@kroah.com>
+In-Reply-To: <20021224204029.GB3052@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200212241652.45041.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+2.5.53-mm1 compiled w/ lm_sensors merged in:
 
-  I recently acquired a motherboard with an NVidia nForce 2 chipset (more 
-specifically, its a Chaintech CT-7NJS). I have a Radeon 9700PRO video card 
-that I'm running in this machine.  I've got integrated networking, sound, 
-XFree86, etc. working, but am having trouble getting 3D acceleration to 
-work.
+Same error however new thing:
 
-   My kernel is 2.4.19.  Agpgart does not appear to be able to detect the 
-nForce 2 chipset's bridge. There is no vendor entry for nvidia at all, 
-actually -- otherwise I might have gotten by with agp_try_unsupported=1.
+When a non-root user tries to configure the USB device the userland program 
+returns 'Unable to claim USB device'
 
-   Has anyone written nForce2 support for agp? Is so, where can I find the 
-source?   I found drivers for the nvidia IGP (which I don't have), but not 
-for agpgart itself at the nvidia site.  If I find the source, I believe I'll 
-have to merge it manually since the 3D driver for Radeon 9700 (fglrx) 
-includes a modified agpgart_be.c.
+When a root user tries to it reports the same errors as in the previous email.
 
-    If this is not a new question, my apologies -- I couldn't find an answer 
-anywhere in the archives.
+Shawn.
 
-   Please CC me directly on any reply, as I'm not currently subscribed.
+On Tuesday 24 December 2002 3:40 pm, Greg KH wrote:
+> On Tue, Dec 24, 2002 at 03:33:21PM -0500, Shawn Starr wrote:
+> > * NOTE: This is -mm2. I will be compiling 2.5.53 (-mm1) today and test
+> > this as well.
+>
+> Please let us know how 2.5.53 works, as there were a number of ehci
+> patches in it that might have helped.
+>
+> thanks,
+>
+> greg k-h
 
-Thanks!
-   Randy Sharo
-   hey_randy@hotmail.com
-
-
-_________________________________________________________________
-MSN 8: advanced junk mail protection and 3 months FREE*. 
-http://join.msn.com/?page=features/junkmail&xAPID=42&PS=47575&PI=7324&DI=7474&SU= 
-http://www.hotmail.msn.com/cgi-bin/getmsg&HL=1216hotmailtaglines_advancedjmf_3mf
 

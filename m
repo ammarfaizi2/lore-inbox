@@ -1,76 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267166AbUFZNDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267167AbUFZNRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267166AbUFZNDw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 09:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUFZNDw
+	id S267167AbUFZNRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 09:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUFZNRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 09:03:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:54424 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267166AbUFZNDu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 09:03:50 -0400
+	Sat, 26 Jun 2004 09:17:17 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:28681 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id S267167AbUFZNRN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 09:17:13 -0400
+Message-ID: <40DD7814.779DEF17@tv-sign.ru>
+Date: Sat, 26 Jun 2004 17:20:20 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: [PATCH] kill mm_struct.used_hugetlb
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-ID: <16605.29745.932062.225051@cargo.ozlabs.ibm.com>
-Date: Sat, 26 Jun 2004 23:03:45 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: torvalds@osdl.org, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix compilation for ppc32
-In-Reply-To: <20040626122935.GA15896@lst.de>
-References: <20040626122935.GA15896@lst.de>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+Hello.
 
-> PPC has an out of line and exported abs() that gives lots of nice and
-> wierd compilation erorrs.  Also kill the duplicate cpu_online() in
-> asm-ppc/smp.h.
+mm_struct.used_hugetlb used to eliminate costly find_vma()
+from follow_page(). Now it is used only in ia64 version of
+follow_huge_addr(). I know nothing about ia64, but this
+REGION_NUMBER() looks simple enough to kill used_hugetlb.
 
-Looks good, Andrew or Linus, please apply.  I never understood why we
-kept that abs thing floating around.
+There is debug version (commented out) of follow_huge_addr()
+in i386 which looks at used_hugetlb, but it can work without
+this check.
 
---- 1.59/arch/ppc/kernel/ppc_ksyms.c	2004-06-18 08:41:08 +02:00
-+++ edited/arch/ppc/kernel/ppc_ksyms.c	2004-06-25 14:52:53 +02:00
-@@ -68,7 +68,6 @@
- long long __ashrdi3(long long, int);
- long long __ashldi3(long long, int);
- long long __lshrdi3(long long, int);
--int abs(int);
+Am i missed somethimg?
+
+Oleg.
+
+Signed-off: Oleg Nesterov
+
+diff -urp 6.7-clean/arch/i386/mm/hugetlbpage.c 6.7-hugetlb/arch/i386/mm/hugetlbpage.c
+--- 6.7-clean/arch/i386/mm/hugetlbpage.c	2004-05-24 14:15:58.000000000 +0400
++++ 6.7-hugetlb/arch/i386/mm/hugetlbpage.c	2004-06-26 16:48:08.000000000 +0400
+@@ -147,9 +147,6 @@ follow_huge_addr(struct mm_struct *mm, u
+ 	struct page *page;
+ 	struct vm_area_struct *vma;
  
- extern unsigned long mm_ptov (unsigned long paddr);
- 
-@@ -275,8 +274,6 @@
- EXPORT_SYMBOL(memscan);
- EXPORT_SYMBOL(memcmp);
- EXPORT_SYMBOL(memchr);
+-	if (! mm->used_hugetlb)
+-		return ERR_PTR(-EINVAL);
 -
--EXPORT_SYMBOL(abs);
+ 	vma = find_vma(mm, addr);
+ 	if (!vma || !is_vm_hugetlb_page(vma))
+ 		return ERR_PTR(-EINVAL);
+diff -urp 6.7-clean/arch/ia64/mm/hugetlbpage.c 6.7-hugetlb/arch/ia64/mm/hugetlbpage.c
+--- 6.7-clean/arch/ia64/mm/hugetlbpage.c	2004-05-24 14:15:58.000000000 +0400
++++ 6.7-hugetlb/arch/ia64/mm/hugetlbpage.c	2004-06-26 16:48:21.000000000 +0400
+@@ -158,8 +158,6 @@ struct page *follow_huge_addr(struct mm_
+ 	struct page *page;
+ 	pte_t *ptep;
  
- #if defined(CONFIG_FB_VGA16_MODULE)
- EXPORT_SYMBOL(screen_info);
---- 1.15/include/asm-ppc/smp.h	2004-01-19 07:32:52 +01:00
-+++ edited/include/asm-ppc/smp.h	2004-06-25 14:51:47 +02:00
-@@ -47,8 +47,6 @@
+-	if (! mm->used_hugetlb)
+-		return ERR_PTR(-EINVAL);
+ 	if (REGION_NUMBER(addr) != REGION_HPAGE)
+ 		return ERR_PTR(-EINVAL);
  
- #define smp_processor_id() (current_thread_info()->cpu)
+diff -urp 6.7-clean/include/linux/hugetlb.h 6.7-hugetlb/include/linux/hugetlb.h
+--- 6.7-clean/include/linux/hugetlb.h	2004-06-08 13:44:18.000000000 +0400
++++ 6.7-hugetlb/include/linux/hugetlb.h	2004-06-26 16:50:59.000000000 +0400
+@@ -34,13 +34,6 @@ extern unsigned long max_huge_pages;
+ extern const unsigned long hugetlb_zero, hugetlb_infinity;
+ extern int sysctl_hugetlb_shm_group;
  
--#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
+-static inline void
+-mark_mm_hugetlb(struct mm_struct *mm, struct vm_area_struct *vma)
+-{
+-	if (is_vm_hugetlb_page(vma))
+-		mm->used_hugetlb = 1;
+-}
 -
- extern int __cpu_up(unsigned int cpu);
+ #ifndef ARCH_HAS_HUGEPAGE_ONLY_RANGE
+ #define is_hugepage_only_range(addr, len)	0
+ #define hugetlb_free_pgtables(tlb, prev, start, end) do { } while (0)
+@@ -72,7 +65,6 @@ static inline unsigned long hugetlb_tota
+ #define unmap_hugepage_range(vma, start, end)	BUG()
+ #define is_hugepage_mem_enough(size)		0
+ #define hugetlb_report_meminfo(buf)		0
+-#define mark_mm_hugetlb(mm, vma)		do { } while (0)
+ #define follow_huge_pmd(mm, addr, pmd, write)	0
+ #define is_aligned_hugepage_range(addr, len)	0
+ #define prepare_hugepage_range(addr, len)	(-EINVAL)
+diff -urp 6.7-clean/include/linux/sched.h 6.7-hugetlb/include/linux/sched.h
+--- 6.7-clean/include/linux/sched.h	2004-06-16 12:38:59.000000000 +0400
++++ 6.7-hugetlb/include/linux/sched.h	2004-06-26 16:49:06.000000000 +0400
+@@ -217,9 +217,6 @@ struct mm_struct {
+ 	unsigned long saved_auxv[40]; /* for /proc/PID/auxv */
  
- extern int smp_hw_index[];
---- 1.24/include/asm-ppc/system.h	2004-06-18 08:41:08 +02:00
-+++ edited/include/asm-ppc/system.h	2004-06-25 14:51:29 +02:00
-@@ -82,7 +82,6 @@
- extern void cvt_fd(float *from, double *to, unsigned long *fpscr);
- extern void cvt_df(double *from, float *to, unsigned long *fpscr);
- extern int call_rtas(const char *, int, int, unsigned long *, ...);
--extern int abs(int);
- extern void cacheable_memzero(void *p, unsigned int nb);
- extern int do_page_fault(struct pt_regs *, unsigned long, unsigned long);
- extern void bad_page_fault(struct pt_regs *, unsigned long, int);
+ 	unsigned dumpable:1;
+-#ifdef CONFIG_HUGETLB_PAGE
+-	int used_hugetlb;
+-#endif
+ 	cpumask_t cpu_vm_mask;
+ 
+ 	/* Architecture-specific MM context */
+diff -urp 6.7-clean/mm/mmap.c 6.7-hugetlb/mm/mmap.c
+--- 6.7-clean/mm/mmap.c	2004-06-08 13:44:19.000000000 +0400
++++ 6.7-hugetlb/mm/mmap.c	2004-06-26 16:51:21.000000000 +0400
+@@ -318,7 +318,6 @@ static void vma_link(struct mm_struct *m
+ 	if (mapping)
+ 		spin_unlock(&mapping->i_mmap_lock);
+ 
+-	mark_mm_hugetlb(mm, vma);
+ 	mm->map_count++;
+ 	validate_mm(mm);
+ }

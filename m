@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275720AbRJFUmi>; Sat, 6 Oct 2001 16:42:38 -0400
+	id <S275716AbRJFUm7>; Sat, 6 Oct 2001 16:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275719AbRJFUm2>; Sat, 6 Oct 2001 16:42:28 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:65153 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S275716AbRJFUmP>; Sat, 6 Oct 2001 16:42:15 -0400
-Date: Sat, 6 Oct 2001 15:42:38 -0500
-From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: low-latency patches
-Message-ID: <20011006154238.B749@draal.physics.wisc.edu>
-In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <3BBEA8CF.D2A4BAA8@zip.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3BBEA8CF.D2A4BAA8@zip.com.au>; from akpm@zip.com.au on Fri, Oct 05, 2001 at 11:46:39PM -0700
+	id <S275718AbRJFUms>; Sat, 6 Oct 2001 16:42:48 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:12955 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S275716AbRJFUmh>; Sat, 6 Oct 2001 16:42:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Olaf Zaplinski <o.zaplinski@mediascape.de>
+Subject: Re: Linux 2.4.11-pre4
+Date: Sat, 6 Oct 2001 22:42:59 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1565164462.1002292544@mbligh.des.sequent.com>
+In-Reply-To: <1565164462.1002292544@mbligh.des.sequent.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011006204242Z275716-761+16343@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag, 5. Oktober 2001 23:35 schrieb Martin J. Bligh:
+> > 1. OK, it fixes the UP UP_IOAPIC compilation problem.
+> > System (with preempt-patch) up and runnig.
+>
+> Good.
+>
+> > 2. Woohu. I have 8 CPUs, now...;-)
+> > --- /proc is somewhat broken
+>
+> Bugger. Didn't realise that cpu_online_map didn't get initialised
+> to anything sensible under UP. Should be just cosmetic (it's only
+> the output of /proc/cpuinfo, not the sceduler or anything), but
+> try this (I haven't tested it yet - if it doesn't work, just change the
+> 8 to 1 for a second whilst I fix it properly).
 
---aM3YZ0Iwxop3KEKx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The first version works nice.
 
-Andrew Morton [akpm@zip.com.au] wrote:
-> Bob McElrath wrote:
-> > 3) Is there a possibility that either of these will make it to non-x86
-> >     platforms?  (for me: alpha)  The second patch looks like it would
-> >     straightforwardly work on any arch, but the config.in for it is onl=
-y in
-> >     arch/i386.  Robert Love's patches would need some arch-specific asm=
-...
->=20
-> The rescheduling patch should work fine on any architecture - just copy
-> the arch/i386/config.in changes.
+Have a nice weekend.
 
-I'm running it (2.4.10-pre4-low-latency) on my alpha now, so if you want to=
- add
-the appropriate magic to arch/alpha/config.in, please do.
+-Dieter
 
-Unfortunately, the use-once stuff broke again in the vm of this kernel, and=
- now
-I can't perceive any advantage due to low-latency because of all the swappi=
-ng. :(
 
-Cheers,
--- Bob
-
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
-
---aM3YZ0Iwxop3KEKx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAju/bL4ACgkQjwioWRGe9K1lRwCfQ9pyqMaKwQf+vUB/b9YQzl0S
-Q6wAoLYxtyp0C+SCWPsdQje0Hf4+40k3
-=ufVt
------END PGP SIGNATURE-----
-
---aM3YZ0Iwxop3KEKx--
+> ===========================
+>
+> --- setup.c.old	Fri Oct  5 14:20:29 2001
+> +++ setup.c	Fri Oct  5 14:28:51 2001
+> @@ -2420,7 +2420,7 @@
+>  	 * WARNING - nasty evil hack ... if we print > 8, it overflows the
+>  	 * page buffer and corrupts memory - this needs fixing properly
+>  	 */
+> -	for (n = 0; n < 8; n++, c++) {
+> +	for (n = 0; n < (clustered_apic_mode ? 8 : NR_CPUS); n++, c++) {
+>  	/* for (n = 0; n < NR_CPUS; n++, c++) { */
+>  		int fpu_exception;
+>  #ifdef CONFIG_SMP
+>
+> ===========================
+>
+> The reason for this hackery is that get_cpuinfo writes to a page
+> without proper bounds on itself. If you have more than about 8
+> cpus, it tramples merrily all over the next page, corrupting page
+> tables, etc, etc.
+>
+> The real fix for this overflow was published here a few weeks ago
+> by James Cleverdon (whom I work with). It's in Alan's tree, but not
+> Linus' as yet.
+>
+> M.

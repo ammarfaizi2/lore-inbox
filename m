@@ -1,40 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUJVTsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUJVTpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267521AbUJVTsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUJVTqN
+	id S267251AbUJVTpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJVTpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:46:13 -0400
-Received: from holomorphy.com ([207.189.100.168]:30661 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267164AbUJVTks (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:40:48 -0400
-Date: Fri, 22 Oct 2004 12:40:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V1 [4/4]: Numa patch
-Message-ID: <20041022194040.GC17038@holomorphy.com>
-References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212158290.3524@schroedinger.engr.sgi.com> <20041022110038.GN17038@holomorphy.com> <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 22 Oct 2004 15:45:02 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:15374 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265222AbUJVToW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:44:22 -0400
+Message-ID: <417965E7.8010408@techsource.com>
+Date: Fri, 22 Oct 2004 15:56:23 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com> <41796083.9060301@pobox.com>
+In-Reply-To: <41796083.9060301@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, William Lee Irwin III wrote:
->> dequeue_huge_page() seems to want a nodemask, not a vma, though I
->> suppose it's not particularly pressing.
-
-On Fri, Oct 22, 2004 at 12:37:13PM -0700, Christoph Lameter wrote:
-> How about this variation following __alloc_page:
-
-Looks reasonable. The bit that struck me as quirky was the mpol_* on
-the NULL vma. This pretty much eliminates the hidden dispatch, so I'm
-happy.
 
 
--- wli
+Jeff Garzik wrote:
+> Timothy Miller wrote:
+> 
+
+> 
+>> At this moment, I'm taking a cue from the Linux driver ABI and 
+>> thinking that standardizing the interface would be more limiting than 
+>> helpful. 
+> 
+> 
+> No offense, but I strongly disagree :)
+> 
+> Standardizing the hardware interface lowers the cost of doing an OS 
+> driver for every chip maker that implements the interface.  The more 
+> chip makers that implement the interface, the greater the cost savings.
+> 
+> Concrete examples:
+> * IDE BMDMA interface on PCI.  Practically every ATA chipset in 
+> production supports this interface.  As a consequence, each individual 
+> ATA driver mainly involves setting chip-specific timings, and not much 
+> else.
+> 
+> * tulip (ethernet MAC).  Its ring and register designs were widely 
+> imitated across ethernet NICs; as a result, each ethernet driver is 
+> mainly a "paint by numbers" affair.
+> 
+> * the new AHCI SATA interface, which Intel has on all its new 
+> motherboards, and SiS soon will as well (as will others, I hope).
+
+Sure, but those standards had time to evolve to where they are.  I don't 
+have that luxury in many respects.
+
+> 
+> 
+>> While it might be a pain to have to carry around multiple driver 
+>> versions, the fact that it's all open source kinda makes it easy to 
+>> make drastic changes without hurting anything.
+> 
+> 
+> Ever-changing hardware and firmware interfaces are a huge pain.  I've 
+> been writing and maintaining drivers for years... I feel this pain every 
+> day :)
+> 
+> You want to design a hardware interface that allows you to upgrade and 
+> enhance your hardware over time, while keeping the changes to the 
+> hardware<->OS interface itself to a _bare minimum_.  That's why I 
+> suggested the microcontroller+GPU approach.  The microcontroller's 
+> firmware can be used to mask the transition between GPU revisions.
+> 
+> Drivers live for many years, even decades, and long after the hardware 
+> they support has been EOL'd.  It's in everybody's best interests to keep 
+> the changes to the drivers to a minimum.
+
+Ok, let me say this:  I will not change something I don't have to 
+change, but I'm not going to be held back (and hold everyone else back) 
+by some mistake I made in the past.
+
+> 
+>> Plus, I don't expect to get it perfect the first time.  The first design 
+> 
+> 
+> Part of open source is open development.  If you develop the hardware 
+> interface in public, actively soliciting feedback during development, 
+> you'll wind up with a much better interface.
+
+Fair enough, although the problem of a competitor getting the jump on us 
+that way is yet to be addressed.
+

@@ -1,124 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313314AbSEDDPY>; Fri, 3 May 2002 23:15:24 -0400
+	id <S315273AbSEDDSu>; Fri, 3 May 2002 23:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313896AbSEDDPX>; Fri, 3 May 2002 23:15:23 -0400
-Received: from dsl092-144-112.wdc1.dsl.speakeasy.net ([66.92.144.112]:42373
-	"EHLO roz.db2adm.com") by vger.kernel.org with ESMTP
-	id <S313314AbSEDDPW>; Fri, 3 May 2002 23:15:22 -0400
-Date: Fri, 3 May 2002 23:15:10 -0400 (EDT)
-From: Ward Fenton <ward@db2adm.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre8 syntax errors in fs/ufs/super.c
-Message-ID: <Pine.LNX.4.44.0205032310200.21194-100000@roz.db2adm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315176AbSEDDSu>; Fri, 3 May 2002 23:18:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40832 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315273AbSEDDSs>;
+	Fri, 3 May 2002 23:18:48 -0400
+Date: Fri, 03 May 2002 20:07:47 -0700 (PDT)
+Message-Id: <20020503.200747.104775821.davem@redhat.com>
+To: bruce.holzrichter@monster.com
+Cc: linux-kernel@vger.kernel.org, ak@muc.de
+Subject: Re: my slab cache broken on sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A781780F9@nocmail101.ma.tmpw.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is a portion of the 2.4.19-pre8 patch with a correction
-for a few syntax errors.
+   From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+   Date: Fri, 3 May 2002 22:15:56 -0500 
 
-from patch-2.4.19-pre8
-missing commas in several added printk statements...
+Your patch is buggy:
 
-@@ -653,14 +657,34 @@
- 	uspi->s_fmask = fs32_to_cpu(sb, usb1->fs_fmask);
- 	uspi->s_fshift = fs32_to_cpu(sb, usb1->fs_fshift);
- 
--	if (uspi->s_bsize != 4096 && uspi->s_bsize != 8192 
--	  && uspi->s_bsize != 32768) {
--		printk("ufs_read_super: fs_bsize %u != {4096, 8192, 
-32768}\n", uspi->s_bsize);
-+	if (uspi->s_fsize & (uspi->s_fsize - 1)) {
-+		printk("ufs_read_super: fragment size %u is not a power of 
-2\n",
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize < 512) {
-+		printk("ufs_read_super: fragment size %u is too small\n"
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize > 4096) {
-+		printk("ufs_read_super: fragment size %u is too large\n"
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize & (uspi->s_bsize - 1)) {
-+		printk("ufs_read_super: block size %u is not a power of 
-2\n",
-+			uspi->s_bsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize < 4096) {
-+		printk("ufs_read_super: block size %u is too small\n"
-+			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_fsize != 512 && uspi->s_fsize != 1024 
--	  && uspi->s_fsize != 2048 && uspi->s_fsize != 4096) {
--		printk("ufs_read_super: fs_fsize %u != {512, 1024, 2048. 
-4096}\n", uspi->s_fsize);
-+	if (uspi->s_bsize / uspi->s_fsize > 8) {
-+		printk("ufs_read_super: too many fragments per block 
-(%u)\n"
-+			uspi->s_bsize / uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_fsize != block_size || uspi->s_sbsize != 
-super_block_size) {
+   +			mm_segment_t old_fs = get_fs();
+   +			set_fs(KERNEL_DS);
+    			if (__get_user(tmp,pc->name)) { 
+    				printk("SLAB: cache with size %d has lost
+   its name\n", 
+    					pc->objsize); 
+    				continue; 
+   -			} 	
+   +			}
+   +			set_fs(old_fs); 	
 
+If the __get_user() fails, you will leave the kernel in the
+KERNEL_DS segment.
 
-Correction for missing commas...
+Do it like this instead.
 
-@@ -653,14 +657,34 @@
- 	uspi->s_fmask = fs32_to_cpu(sb, usb1->fs_fmask);
- 	uspi->s_fshift = fs32_to_cpu(sb, usb1->fs_fshift);
- 
--	if (uspi->s_bsize != 4096 && uspi->s_bsize != 8192 
--	  && uspi->s_bsize != 32768) {
--		printk("ufs_read_super: fs_bsize %u != {4096, 8192, 
-32768}\n", uspi->s_bsize);
-+	if (uspi->s_fsize & (uspi->s_fsize - 1)) {
-+		printk("ufs_read_super: fragment size %u is not a power of 
-2\n",
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize < 512) {
-+		printk("ufs_read_super: fragment size %u is too small\n",
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize > 4096) {
-+		printk("ufs_read_super: fragment size %u is too large\n",
-+			uspi->s_fsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize & (uspi->s_bsize - 1)) {
-+		printk("ufs_read_super: block size %u is not a power of 
-2\n",
-+			uspi->s_bsize);
-+		goto failed;
-+	}
-+	if (uspi->s_bsize < 4096) {
-+		printk("ufs_read_super: block size %u is too small\n",
-+			uspi->s_fsize);
- 		goto failed;
- 	}
--	if (uspi->s_fsize != 512 && uspi->s_fsize != 1024 
--	  && uspi->s_fsize != 2048 && uspi->s_fsize != 4096) {
--		printk("ufs_read_super: fs_fsize %u != {512, 1024, 2048. 
-4096}\n", uspi->s_fsize);
-+	if (uspi->s_bsize / uspi->s_fsize > 8) {
-+		printk("ufs_read_super: too many fragments per block 
-(%u)\n",
-+			uspi->s_bsize / uspi->s_fsize);
- 		goto failed;
- 	}
- 	if (uspi->s_fsize != block_size || uspi->s_sbsize != 
-super_block_size) {
+	int fault;
+	mm_segment_t old_fs;
 
+	...
 
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+	fault = __get_user(tmp, pc->name);
+	set_fs(old_fs);
+
+	if (fault) {
+	...

@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUG0SHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUG0SMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUG0SHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUG0SHI
+	id S266507AbUG0SMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUG0SMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:07:08 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:30346 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266505AbUG0SDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:03:39 -0400
-Message-ID: <410698FA.40400@namesys.com>
-Date: Tue, 27 Jul 2004 11:03:38 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Rutt <rutt.4+news@osu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: clearing filesystem cache for I/O benchmarks
-References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org> <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org> <4106013E.30408@namesys.com> <87vfg9nyqv.fsf@osu.edu>
-In-Reply-To: <87vfg9nyqv.fsf@osu.edu>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jul 2004 14:12:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58540 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266507AbUG0SIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:08:07 -0400
+Date: Tue, 27 Jul 2004 10:47:37 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
+Message-Id: <20040727104737.0de2da5b.rddunlap@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
+References: <20040723231158.068d4685.rddunlap@osdl.org>
+	<Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Rutt wrote:
+On Tue, 27 Jul 2004 14:55:39 +0200 (MEST) Geert Uytterhoeven wrote:
 
->Hans Reiser <reiser@namesys.com> writes:
->
->  
->
->>when benchmarking, please be careful that you don't end up
->>benchmarking umount/mount, or sync, or..... it can be remarkably hard
->>to avoid such mistakes.....
->>    
->>
->
->I agree, I've made some blunders like that in the past.  However for
->write tests, we are including fsync() time, once, at the end of a file
->write, since I feel it's unfair to trim that time.
->
-fsync performance gives you different performance.  Better to write more 
-stuff to flush the cache.
+| On Fri, 23 Jul 2004, Randy.Dunlap wrote:
+| > . localizes the following symbols in lib/Kconfig.debug:
+| >     DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
+| >     DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
+| >     DEBUG_INFO
+| 
+| Which architecture does _not_ use DEBUG_KERNEL or DEBUG_SLAB? The list is quite
+| long... Aren't these generic?
 
->  Not including
->fsync() time would only test the ability of the various parts of the
->I/O systems to do write buffering.  It's easy to do lots of write
->buffering, if you buy enough memory.  Forcing the disks to write is
->the only fair way to compare writes between I/O systems.
->  
->
-It isn't fair.  fsync is a different code path, and may be less 
-efficient.  Or more, depending on the fs.  reiser4 is currently not well 
-optimized for fsync, maybe next year I will change that but not this 
-week....
+Looks like all of them use DEBUG_KERNEL.
 
-Benchmarking well is hard.....
+DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
+or v850 AFAICT.  Yes/no ?
 
-Hans
+
+| Perhaps DEBUG_SPINLOCK can depend on just SMP only? Or do people want
+| to debug spinlock code on machines that don't have SMP?
+
+Yes, sounds good, I'll change that.
+| 
+| Perhaps DEBUG_HIGHMEM can depend on just HIGHMEM only?
+
+Yes, will change that one also.
+
+| (didn't check the whole list) Perhaps the first instance of DEBUG_INFO
+| can depend on !SUPERH64 && !USERMODE only?
+
+It could.  It depends on one's config (or code/patch) philosophy.
+I was trying to be explicit about which arches support a config option
+by including each arch in a list ("inclusion").  Or I could exclude
+certain arches from config options ("exclusion").  The inclusion
+method seems safer and more readable/maintainable to me, but that's
+just one opinion.
+
+--
+~Randy

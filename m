@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263543AbTJCOAz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 10:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTJCOAz
+	id S263587AbTJCOEt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 10:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTJCOEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 10:00:55 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:51387 "EHLO
-	natsmtp01.webmailer.de") by vger.kernel.org with ESMTP
-	id S263543AbTJCOAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 10:00:53 -0400
-Message-ID: <3F7D817A.7020603@softhome.net>
-Date: Fri, 03 Oct 2003 16:02:34 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <aebr@win.tue.nl>
-Subject: Re: [PATCH] linuxabi
-References: <BCSP.62t.7@gated-at.bofh.it> <CcWl.7kh.9@gated-at.bofh.it> <CdIL.8ts.13@gated-at.bofh.it>
-In-Reply-To: <CdIL.8ts.13@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 10:04:49 -0400
+Received: from users.linvision.com ([62.58.92.114]:64648 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263587AbTJCOEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 10:04:48 -0400
+Date: Fri, 3 Oct 2003 16:04:42 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Zhang Jian <jzhang001@hotmail.com>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, vojtech@suse.cz
+Subject: Re: urgent! help, ide driver bug?
+Message-ID: <20031003140442.GA3702@bitwizard.nl>
+References: <LAW11-F66x33E1ioWwr00014013@hotmail.com> <Pine.LNX.4.44.0309301545310.2912-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309301545310.2912-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+On Wed, Oct 01, 2003 at 10:34:41AM -0300, Marcelo Tosatti wrote:
 > 
-> Possibly. So we need discussion.
+> Zhang, 
 > 
-> I have registered comment #1: Al prefers the enum style.
-> A possibility.
-> 
-> Now you come with comment #2: write LINUX_MS_RDONLY instead of
-> MS_RDONLY. You have not convinced me.
-> 
+> The filesystem is getting corrupted it seems. Try turning DMA off? 
 
-   My 0.02 euro.
+> > inode=1097631760, rec_len=0, name_len=0
 
-   LINUX_* - not right stuff. It makes a lot of sence to have the same 
-name for same thing, even in different contexts. Or you are going to 
-create a hell for some-one who may wish to make a documentation.
+Did you notice that the inode number is 0x416c8810 ? Which is: "Alx\n" .
 
-   Headers are going to be used in different context (hopefully) so 
-would be no collisions (hopefully).
-
-   Another question does GCC have something like C++'s namespace for C?
-   That's would be good. Changing names - bad.
-
-   And #define LINUX_NS(x) doesn't make sound - you will lose ability to 
-grep over defines and [ce]tags will not work on this anymore. cpp is not
-correct tool for namespace implementation.
+		Roger. 
 
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

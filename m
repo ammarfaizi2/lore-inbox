@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbUEJXpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUEJXta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUEJXpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEJXpO
+	id S262065AbUEJXta (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEJXta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:45:14 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:64916 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262035AbUEJXmk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:42:40 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 May 2004 16:42:39 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Valdis.Kletnieks@vt.edu
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement 
-In-Reply-To: <200405102310.i4ANA7Eh022394@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0405101630180.1156@bigblue.dev.mdolabs.com>
-References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org>
- <1084227460.28663.8.camel@vertex> <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com>
- <1084228900.28903.2.camel@vertex>            <Pine.LNX.4.58.0405101548230.1156@bigblue.dev.mdolabs.com>
- <200405102310.i4ANA7Eh022394@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 May 2004 19:49:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30944 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262079AbUEJXtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:49:05 -0400
+Date: Mon, 10 May 2004 16:51:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+Message-Id: <20040510165132.5107472e.akpm@osdl.org>
+In-Reply-To: <20040510233342.GA5614@taniwha.stupidest.org>
+References: <20040510024506.1a9023b6.akpm@osdl.org>
+	<20040510223755.A7773@infradead.org>
+	<20040510150203.3257ccac.akpm@osdl.org>
+	<20040510231146.GA5168@taniwha.stupidest.org>
+	<20040510162818.376b4a55.akpm@osdl.org>
+	<20040510233342.GA5614@taniwha.stupidest.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004 Valdis.Kletnieks@vt.edu wrote:
-
-> On Mon, 10 May 2004 15:52:58 PDT, Davide Libenzi said:
+Chris Wedgwood <cw@f00f.org> wrote:
+>
+> On Mon, May 10, 2004 at 04:28:18PM -0700, Andrew Morton wrote:
 > 
-> > And it should not even be that much hard to do, since you can just 
-> > backtrace the the point where the change happened to see if there are 
-> > watchers on the parent directories.
+> > If vendors are forced to ship a nasty hack it often points at
+> > problems in the mainline kernel.  Certainly that's true in this
+> > case.
 > 
-> Umm.. can you?  That sounds suspiciously like "given an inode, how
-> do I find the pathname?".
+> Yes, so let's discuss it and think about a nice clean solution rather
+> than hastily merge something that 'seems to work' without considering
+> the long term consequences of this.
 
-It'd be from a file* not from an inode* (where you have a dentry and a 
-vfsmount). So *one* path can be found.
+Has been discussed on this list.  It requires worrisome changes to the
+capability system, changes to PAM, changes to login and changes to
+applications.
 
-
-
-> How do you handle the case of a file that's hard-linked into 2 different
-> directories a "long way" apart in the heirarchy?  It's easy enough to
-> backtrack and find *A* path - the problem is if the watcher was on
-> some *other* directory:
+> > And if we are unable to fix the kernel acceptably then I'd prefer
+> > that the expedient fix be in the mainstream kernel so as to prevent
+> > divergence in user-visible features between vendor kernels.
 > 
-> mkdir -p /tmp/a/foo/bar/baz
-> mkdir -p /tmp/b/que/er/ty
-> touch /tmp/a/foo/bar/baz/flag
-> ln /tmp/a/foo/bar/baz/flag /tmp/b/qu/er/ty/flag
+> And when we have a clean solution we will have to live with this hack
+> too.
+
+Maybe that's the price we pay for leaving this problem unsolved for a year.
+I must say that it's also to some extent a consequence of ISV's and
+vendors quitely working on problems in little corners.
+
+> > And let's remember, code-wise, this is a very small change.
 > 
-> If you modify 'flag' again, how do you ensure that you find a watcher on
-> /tmp/a/foo or /tmp/b/qu, given that either or both might be there?
+> It's not the code size --- it's the fact we add a strange new semantic
+> (magic group) without what IMO is sufficient thought and discussion
+> into a stable kernel series knowing that we will probably *NEVER* be
+> able to remove this wart once we have a better solution.
 
-Yep, links are a problem to be implemented right. OTOH I don't think that 
-an rmap-fs can be asked only to solve such problem ;)
+There is no magic group unless the admin chooses to set the sysctl.
 
+> > But it's too late.
+> 
+> Why?  Also, most existing users will be 2.4.x --- why does that not
+> nee this but 2.6.x _MUST_ had it?
+> 
+> > This stuff is going out the door to end 2.6 users and that's just
+> > tough luck.  The least we can do is to ensure that it works the same
+> > across different vendor's kernels.
+> 
+> When was this issue properly discussed?  It seems like it's a new
+> issue that's be hurried out the door without much consultation.
+> 
+> It might be my interpretation, but this also reads to me like "I don't
+> think it's too ugly, it's my party so tough shit if you don't like it"
+> :)
 
+You misunderstand.  Nasty workarounds will be shipped to end users by
+vendors.  That's a certainty.  We cannot change this now.
 
-- Davide
-
+What I wish to do is to ensure that all users receive the *same* nasty
+workaround.  Call it damage control.

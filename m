@@ -1,107 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbUBYJS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 04:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUBYJS3
+	id S262580AbUBYJe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 04:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUBYJe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 04:18:29 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:52959 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262571AbUBYJSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 04:18:23 -0500
-Subject: [BKPATCH] ACPI for 2.6
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1077700686.5911.186.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 25 Feb 2004 04:18:06 -0500
+	Wed, 25 Feb 2004 04:34:26 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:62216 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262580AbUBYJeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 04:34:25 -0500
+Message-ID: <403C7D4D.1040104@aitel.hist.no>
+Date: Wed, 25 Feb 2004 11:47:41 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3 sometimes freeze on "sync"
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a 
+2.6.3-mm3 (and 2.6.3-mm1) occationally freeze on "sync".
+They will run fine for several days, but if I do a sync
+they might freeze completely and sysrq+B is the only action
+that gets any response after that.  The mouse stops, the
+x clock stops, and so on.
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.4
+I only saw this once in mm1, and thought it might be some
+glitch.  But it have happened several times with mm3,
+so I'm reporting it.  It even hapopened when I ran sync
+immediately after boot+login (in X) just to test.
 
-thanks,
--Len
+I use the ext2 filesystem on two IDE drives.  The
+root fs is ext2 on a RAID-1 on the same two drives.
+I also mount nfs, but no nfs was mounted when I did
+the "sync after boot+login" test.
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.3/acpi-20040211-2.6.3.diff.gz
+This is the IDE controller, from lspci:
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+I also have proc, tmpfs, devpts and sysfs mounted.
 
-This will update the following files:
+The machine is single-cpu, the kernel is compiled without
+preempt and with register arguments and frame pointer,
+using gcc 3.3.3 from debian testing.
 
- drivers/acpi/dispatcher/dsmthdat.c |    9 ++++--
- drivers/acpi/dispatcher/dsobject.c |    5 +++
- drivers/acpi/dispatcher/dsopcode.c |    6 ++--
- drivers/acpi/dispatcher/dsutils.c  |    3 +-
- drivers/acpi/dispatcher/dswstate.c |    2 -
- drivers/acpi/executer/exconvrt.c   |   35 ++++++++++++++++---------
- drivers/acpi/executer/exfldio.c    |    4 +-
- drivers/acpi/executer/exmisc.c     |    8 +++--
- drivers/acpi/executer/exoparg2.c   |    4 ++
- drivers/acpi/executer/exprep.c     |    2 -
- drivers/acpi/executer/exresolv.c   |    6 ++--
- drivers/acpi/executer/exresop.c    |    4 +-
- drivers/acpi/executer/exstore.c    |   29 ++++++++++++++------
- drivers/acpi/executer/exstoren.c   |    8 +++++
- drivers/acpi/namespace/nsaccess.c  |    2 -
- drivers/acpi/parser/psargs.c       |    4 +-
- drivers/acpi/sleep/proc.c          |    8 ++---
- drivers/acpi/utils.c               |    2 -
- include/acpi/acconfig.h            |    2 -
- 19 files changed, 92 insertions(+), 51 deletions(-)
+There obviously were no logs after this freeze.
 
-through these ChangeSets:
-
-<akpm@osdl.org> (04/02/25 1.1617.1.3)
-   [PATCH] drivers/acpi/sleep/proc.c warnings
-   
-   drivers/acpi/sleep/proc.c:359: warning: initialization from
-incompatible pointer type
-   drivers/acpi/sleep/proc.c:367: warning: initialization from
-incompatible pointer type
-
-<akpm@osdl.org> (04/02/25 1.1617.1.2)
-   [PATCH] acpi/utils.c warning fix
-   
-   drivers/acpi/utils.c: In function `acpi_evaluate_reference':
-   drivers/acpi/utils.c:353: warning: unsigned int format, different
-type arg (arg 5)
-
-<len.brown@intel.com> (04/02/13 1.1493.1.19)
-   [ACPI] ACPICA 20040211 udpate from Bob Moore
-   
-   Completed investigation and implementation of the
-   call-by-reference mechanism for control method arguments.
-   
-   Fixed a problem where a store of an object into an indexed
-   package could fail if the store occurs within a different
-   method than the method that created the package.
-   
-   Fixed a problem where the ToDecimal operator could return
-   incorrect results.
-   
-   Fixed a problem where the CopyObject operator could fail
-   on some of the more obscure objects (e.g., Reference objects.)
-   
-   Improved the output of the Debug object to display buffer,
-   package, and index objects.
-   
-   Fixed a problem where constructs of the form "RefOf (ArgX)"
-   did not return the expected result.
-   
-   Added permanent ACPI_REPORT_ERROR macros for all instances of the
-   ACPI_AML_INTERNAL exception.
-
-<len.brown@intel.com> (04/02/13 1.1493.1.18)
-   [ACPI] revert previous AML param patch for ACPICA update
-
-
-
+Helge Hafting
 

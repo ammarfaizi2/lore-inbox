@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUJOXzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUJOX6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbUJOXzj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 19:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUJOXzj
+	id S267678AbUJOX6L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 19:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUJOX6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 19:55:39 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12249 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267504AbUJOXzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 19:55:37 -0400
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alain Schroeder <alain@parkautomat.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>
-In-Reply-To: <1097876587.4170.16.camel@marvin.home.parkautomat.net>
-References: <1097876587.4170.16.camel@marvin.home.parkautomat.net>
-Content-Type: text/plain
-Message-Id: <1097879702.6737.7.camel@krustophenia.net>
+	Fri, 15 Oct 2004 19:58:11 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:48935 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267678AbUJOX6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 19:58:08 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IFqwU1ypl870vzcBHSp4NSoTb74S4XMob13dEPajSsUBuRVlL9In3MIBkyx91Dkph8C1yFJAFykU8I9L9sOhFbWXLWRInkwcprYMYgkPYRV47hNqRUuvpuTHawf8rlHOR2V1jzPMTyhFqYohvZObM/TpO0V9LKnw7kIeW15vawA
+Message-ID: <9e47339104101516585e590a6d@mail.gmail.com>
+Date: Fri, 15 Oct 2004 19:58:07 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Kendall Bennett <kendallb@scitechsoft.com>
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <416FFFFD.28877.2F2B6C9@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 18:35:03 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200410160551.40635.adaplas@hotpop.com>
+	 <9e47339104101516206c8597d3@mail.gmail.com>
+	 <416FFFFD.28877.2F2B6C9@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 17:43, Alain Schroeder wrote:
-> I was getting these traces on a SMP host:
+On Fri, 15 Oct 2004 16:51:09 -0700, Kendall Bennett
+<kendallb@scitechsoft.com> wrote:
+> I have not used initramfs at all (I am not sure I know what it is
+> actually) so I don't know. I know there is quite a long period of time on
+> most machines from when the kernel starts booting and when the real file
+> system based init process takes over.
 
-Your patch:
+initramfs/initrd comes up very early in the boot process. For example
+it holds your supplemental device drivers and initial /dev.
+/dev/console is opened from this /dev so it much be up before the
+console is. This is much earlier than normal user space starts.
 
-+       preempt_disable();
-        netif_rx_ni(skb);
-+       preempt_enable();
+I believe the current Fedora 3 uses udev from initramfs, but I haven't
+tried it yet.
 
-just wraps this code in preempt_disable/enable:
-
-static inline int netif_rx_ni(struct sk_buff *skb)
-{
-       int err = netif_rx(skb);
-       if (softirq_pending(smp_processor_id()))
-               do_softirq();
-       return err;
-}
-
-Isn't this considered an incorrect use of preempt_disable/enable?  My
-reasoning is that if this was correct we would see preempt_dis/enable
-sprinkled all over the code which it isn't.
-
-Why do you have to call do_softirq like that?  I was under the
-impression that you raise a softirq and it gets run later.
-
-Lee
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

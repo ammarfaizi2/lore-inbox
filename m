@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130242AbRBCWK6>; Sat, 3 Feb 2001 17:10:58 -0500
+	id <S129044AbRBCWtY>; Sat, 3 Feb 2001 17:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130933AbRBCWKs>; Sat, 3 Feb 2001 17:10:48 -0500
-Received: from [209.53.19.107] ([209.53.19.107]:22400 "EHLO continuum.cm.nu")
-	by vger.kernel.org with ESMTP id <S130242AbRBCWKk>;
-	Sat, 3 Feb 2001 17:10:40 -0500
-Date: Sat, 3 Feb 2001 14:10:39 -0800
-From: Shane Wegner <shane@cm.nu>
+	id <S129699AbRBCWtO>; Sat, 3 Feb 2001 17:49:14 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:49829 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129044AbRBCWs6>; Sat, 3 Feb 2001 17:48:58 -0500
+Message-ID: <3A7C8AC4.D3CAAF57@Home.net>
+Date: Sat, 03 Feb 2001 17:48:36 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: SMP problem with 2.2.19pre8
-Message-ID: <20010203141039.A3032@cm.nu>
-In-Reply-To: <20010203140727.A2873@cm.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010203140727.A2873@cm.nu>; from shane@cm.nu on Sat, Feb 03, 2001 at 02:07:27PM -0800
-Organization: Continuum Systems, Vancouver, Canada
+Subject: PS hanging in 2.4.1 - HAPPENING NOW!!!
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 03, 2001 at 02:07:27PM -0800, Shane Wegner wrote:
-> Hi,
-> 
-> I just built this SMP system and am getting some weird
-> errors from kern.log.  The system will run smoothly but
-> after about a half hour running the distributed.net RC5
-> client, the following errors show up.
-> 
-> Feb  3 04:40:18 continuum kernel: stuck on TLB IPI wait
-> (CPU#0)
-> Feb  3 04:40:23 continuum last message repeated 4 times
-> Feb  3 04:40:45 continuum last message repeated 4 times
-> Feb  3 04:40:56 continuum kernel: stuck on TLB IPI wait
-> (CPU#1)
-> Feb  3 04:41:02 continuum last message repeated 2 times
+[root@coredump spstarr]# killall -9 gnomeicu
 
-I should also mention that the kernel has the following
-patches applied.
-00-piii-8
-01-ide-2.2.18.1221.patch
-02-raid-2.2.18b3
+... waiting...
 
+spstarr     67 -bash            read_chan
+root        68 /sbin/mingetty t read_chan
+root        69 /sbin/mingetty t read_chan
+root        73 inetd            do_select
+root        74 xfs              do_select
+spstarr     83 -bash            wait4
+daemon     561 named -u daemon  rt_sigsuspend
+daemon     562 named -u daemon  do_poll
+daemon     563 named -u daemon  rt_sigsuspend
+daemon     564 named -u daemon  nanosleep
+daemon     565 named -u daemon  do_select
+root     26231 ./a.out          wait_for_connect
+spstarr   9297 /bin/sh /usr/X11 wait4
+spstarr   9300 xinit /usr/X11R6 wait4
+root      9301 X :0             do_select
+spstarr   9303 gnome-session    do_poll
+spstarr   9309 esd -terminate - down_interruptible
+spstarr   9311 gnome-smproxy -- do_select
+spstarr   9325 /usr/local/bin/s do_select
+spstarr   9327 panel --sm-confi do_poll
+spstarr   9329 gnome-name-servi do_poll
+spstarr   9332 tasklist_applet  do_poll
+spstarr   9334 quicklaunch_appl unix_stream_data_wait
 
--- 
-Shane Wegner: shane@cm.nu
-              http://www.cm.nu/~shane/
-PGP:          1024D/FFE3035D
-              A0ED DAC4 77EC D674 5487
-              5B5C 4F89 9A4E FFE3 035D
+[root@coredump /root]# uptime
+  5:45pm  up 4 days,  7:04,  4 users,  load average: 3.37, 1.81, 0.92
+
+Huh??/ why is my load average gone up?!?
+
+the load average just went crazy..
+
+uname -a
+Linux coredump 2.4.1 #1 Tue Jan 30 10:21:42 EST 2001 i586 unknown
+
+Help, I forgot the small script Linus made to see the /proc values:
+
+XMMS *WAS* running at the time of this lock. Im waiting further
+instructions.
+
+Shawn.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

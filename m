@@ -1,62 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVDFM1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVDFMbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVDFM1p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 08:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVDFM1p
+	id S262189AbVDFMbx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 08:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVDFMbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 08:27:45 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:17550 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262187AbVDFM1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 08:27:43 -0400
-Date: Wed, 6 Apr 2005 14:27:51 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Renate Meijer <kleuske@xs4all.nl>
-Cc: Blaisorblade <blaisorblade@yahoo.it>, jdike@karaya.com,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Greg KH <gregkh@suse.de>
-Subject: Re: [08/08] uml: va_copy fix
-Message-ID: <20050406122750.GE7031@wohnheim.fh-wedel.de>
-References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <20050406113233.GD7031@wohnheim.fh-wedel.de> <14410feafdb3a83e1ae457b93e593b81@xs4all.nl>
+	Wed, 6 Apr 2005 08:31:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54500 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262188AbVDFMbm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 08:31:42 -0400
+Date: Wed, 6 Apr 2005 14:31:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+Message-ID: <20050406123147.GD9417@suse.de>
+References: <20050329122226.94666.qmail@web52902.mail.yahoo.com> <20050329122635.GP16636@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <14410feafdb3a83e1ae457b93e593b81@xs4all.nl>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050329122635.GP16636@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 April 2005 14:04:39 +0200, Renate Meijer wrote:
->
-> >And you did read this thread as well, right?
-> >http://kerneltrap.org/node/4126
+On Tue, Mar 29 2005, Jens Axboe wrote:
+> On Tue, Mar 29 2005, Chris Rankin wrote:
+> > >> > I have one IDE hard disc, but I was using a USB memory stick at one
+> > > > point. (Notice the usb-storage and vfat modules in my list.) Could
+> > > > that be the troublesome SCSI device?
+> > 
+> > --- Jens Axboe <axboe@suse.de> wrote:
+> > > Yes, it probably is. What happens is that you insert the stick and do io
+> > > against it, which sets up a process io context for that device. That
+> > > context persists until the process exits (or later, if someone still
+> > > holds a reference to it), but the queue_lock will be dead when you yank
+> > > the usb device.
+> > > 
+> > > It is quite a serious problem, not just for CFQ. SCSI referencing is
+> > > badly broken there.
+> > 
+> > That would explain why it was nautilus which caused the oops then.
+> > Does this mean that the major distros aren't using the CFQ then?
+> > Because how else can they be avoiding this oops with USB storage
+> > devices?
 > 
-> <quote>
-> Things seem to have improved a bit lately. The gcc-3.x series was
-> basically not worth it for plain C until 3.3 or so.
-> </quote>
+> CFQ with io contexts is relatively new, only there since 2.6.10 or so.
+> On UP, we don't grab the queue lock effetively so the problem isn't seen
+> there.
 > 
-> Yes. You did read the actual data as produced by that guy from Suse, 
-> did you? In the past,
-> people may have justly stuck to (e.g.) 2.95.3, however, support for 
-> that version now starts to
-> require dependencies on compiler internals. This is one argument in 
-> favor of dropping support
-> for that version, or at least not to spread compiler dependent stuff 
-> all over the code.
+> You can work around this issue by using a different default io scheduler
+> at boot time, and then select cfq for your ide hard drive when the
+> system has booted with:
+> 
+> # echo cfq > /sys/block/hda/queue/scheduler
+> 
+> (substitute hda for any other solid storage device).
 
-Fyi, another fact that was missing from the quoted thread: gcc 2.95
-catches bugs that 3.x compilers simply miss.  Support for the old
-compiler is more work, no doubt, and at times requires to work around
-plain compiler bugs as well.  But there is some return on investment.
+Can you check if this work-around solves the problem for you? Thanks!
 
-Is it worth the effort?  Not sure.  But the "it's old, drop support
-for it" argument just doesn't cut it and it doesn't get any better by
-repetition.
-
-Jörn
+===== include/linux/blkdev.h 1.162 vs edited =====
+--- 1.162/include/linux/blkdev.h	2005-03-29 03:42:37 +02:00
++++ edited/include/linux/blkdev.h	2005-04-06 11:22:44 +02:00
+@@ -279,6 +288,7 @@
+ typedef int (issue_flush_fn) (request_queue_t *, struct gendisk *, sector_t *);
+ typedef int (prepare_flush_fn) (request_queue_t *, struct request *);
+ typedef void (end_flush_fn) (request_queue_t *, struct request *);
++typedef void (release_queue_data_fn) (request_queue_t *);
+ 
+ enum blk_queue_state {
+ 	Queue_down,
+@@ -324,6 +334,7 @@
+ 	issue_flush_fn		*issue_flush_fn;
+ 	prepare_flush_fn	*prepare_flush_fn;
+ 	end_flush_fn		*end_flush_fn;
++	release_queue_data_fn	*release_queue_data_fn;
+ 
+ 	/*
+ 	 * Auto-unplugging state
+===== drivers/scsi/scsi_sysfs.c 1.72 vs edited =====
+--- 1.72/drivers/scsi/scsi_sysfs.c	2005-03-28 07:03:53 +02:00
++++ edited/drivers/scsi/scsi_sysfs.c	2005-04-06 11:24:27 +02:00
+@@ -175,9 +175,6 @@
+ 
+ 	scsi_target_reap(scsi_target(sdev));
+ 
+-	kfree(sdev->inquiry);
+-	kfree(sdev);
+-
+ 	if (parent)
+ 		put_device(parent);
+ }
+===== drivers/scsi/scsi_lib.c 1.153 vs edited =====
+--- 1.153/drivers/scsi/scsi_lib.c	2005-03-30 21:49:45 +02:00
++++ edited/drivers/scsi/scsi_lib.c	2005-04-06 11:24:32 +02:00
+@@ -1420,6 +1420,18 @@
+ }
+ EXPORT_SYMBOL(scsi_calculate_bounce_limit);
+ 
++static void scsi_release_queue_data(request_queue_t *q)
++{
++	struct scsi_device *sdev = q->queuedata;
++
++	if (sdev) {
++		kfree(sdev->inquiry);
++		kfree(sdev);
++	}
++
++	q->queuedata = NULL;
++}
++
+ struct request_queue *scsi_alloc_queue(struct scsi_device *sdev)
+ {
+ 	struct Scsi_Host *shost = sdev->host;
+@@ -1437,6 +1449,8 @@
+ 	blk_queue_bounce_limit(q, scsi_calculate_bounce_limit(shost));
+ 	blk_queue_segment_boundary(q, shost->dma_boundary);
+ 	blk_queue_issue_flush_fn(q, scsi_issue_flush_fn);
++
++	q->release_queue_data_fn = scsi_release_queue_data;
+ 
+ 	/*
+ 	 * ordered tags are superior to flush ordering
 
 -- 
-Schrödinger's cat is <BLINK>not</BLINK> dead.
--- Illiad
+Jens Axboe
+

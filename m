@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSGLQUT>; Fri, 12 Jul 2002 12:20:19 -0400
+	id <S316632AbSGLQ10>; Fri, 12 Jul 2002 12:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316632AbSGLQUS>; Fri, 12 Jul 2002 12:20:18 -0400
-Received: from jalon.able.es ([212.97.163.2]:24305 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316623AbSGLQTr>;
-	Fri, 12 Jul 2002 12:19:47 -0400
-Date: Fri, 12 Jul 2002 18:22:29 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
+	id <S316637AbSGLQ1Z>; Fri, 12 Jul 2002 12:27:25 -0400
+Received: from speech.braille.uwo.ca ([129.100.109.30]:9684 "EHLO
+	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
+	id <S316632AbSGLQ1Y>; Fri, 12 Jul 2002 12:27:24 -0400
+To: Nicolas Pitre <nico@cam.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Advice saught on math functions
-Message-ID: <20020712162229.GC2348@werewolf.able.es>
-References: <E17T1a9-00037I-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E17T1a9-00037I-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 12, 2002 at 16:39:41 +0200
-X-Mailer: Balsa 1.3.6
+References: <Pine.LNX.4.44.0207121102230.25178-100000@xanadu.home>
+From: Kirk Reiser <kirk@braille.uwo.ca>
+Date: 12 Jul 2002 12:30:09 -0400
+In-Reply-To: <Pine.LNX.4.44.0207121102230.25178-100000@xanadu.home>
+Message-ID: <x7d6tsewoe.fsf@speech.braille.uwo.ca>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nicolas Pitre <nico@cam.org> writes:
 
-On 2002.07.12 Alan Cox wrote:
->> Are these functions which are supplied by the FPU?  I've looked
->> through the fpu emulation headers and exp() is the only one I can find
->
->You can't use FPU operations in the x86 kernel.
->
+> Of course!  The maintenance cost of a kernel space solution is simply too
+> high for the single benefit of actually having speech output while the
+> kernel is in the process of booting.  And yet with an initial ramdisk
+> (initrd) containing all the user space daemon for speech I'm pretty sure we
+> can have the kernel reach the init process (or the /linuxrc process for that
+> matter) without failing in 99.9% of the cases.  This gives you virtually the
+> same result as a kernel space solution.
 
-Are you to worried about precission ? Can't you just do your sin() etc.
-in fixed point ? (and move all your fpdata to fixed point, of course)
+I don't understand this statement.  Why would the maintanance cost of
+providing speech output be any higher than serial or video or disk
+filing or anything else for that matter?
 
-Or perhaps you could use some kind of DCT ?
+I like the rest of your observations though and want to look over your
+article in more depth and think about it.  On first glance though,
+modifying vcsa0 to support select is pretty much the same as providing
+an output hook the same as I've done in speakup already.
+
+This has somewhat strayed from my original questions though. 'wink'
+
+  Kirk
 
 -- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc1-jam3, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)
+
+Kirk Reiser				The Computer Braille Facility
+e-mail: kirk@braille.uwo.ca		University of Western Ontario
+phone: (519) 661-3061

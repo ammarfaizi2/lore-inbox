@@ -1,104 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266343AbUAVSP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 13:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUAVSP5
+	id S266243AbUAVMLd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 07:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUAVMLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 13:15:57 -0500
-Received: from mail.kroah.org ([65.200.24.183]:56502 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266343AbUAVSPt (ORCPT
+	Thu, 22 Jan 2004 07:11:33 -0500
+Received: from mail.donpac.ru ([80.254.111.2]:26500 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S266243AbUAVML1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 13:15:49 -0500
-Date: Thu, 22 Jan 2004 10:15:50 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 014 release
-Message-ID: <20040122181550.GA14725@kroah.com>
+	Thu, 22 Jan 2004 07:11:27 -0500
+Date: Thu, 22 Jan 2004 15:11:31 +0300
+From: Andrey Panin <pazke@donpac.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove SIIG combo cards PCI ids from parport_pc
+Message-ID: <20040122121131.GH5045@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 014 version of udev.  It can be found at:
- 	kernel.org/pub/linux/utils/kernel/hotplug/udev-014.tar.gz
 
-rpms built against Red Hat FC1 are available at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-014-1.i386.rpm
-with the source rpm at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-014-1.src.rpm
-
-udev allows users to have a dynamic /dev and provides the ability to
-have persistent device names.  It uses sysfs and /sbin/hotplug and runs
-entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
-enabled to run.  Please see the udev FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
-
-For any udev vs devfs questions anyone might have, please see:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
-
-Major changes from the 013 version:
-	- speed!  This version is _much_ faster than the 013 release.
-	  Thanks to Ananth Narayan for the libsysfs changes (and udev
-	  patch) that enabled this.
-	- there's a new program called udevinfo in the extras/ directory
-	  that helps in determining the sysfs information for a specific
-	  device.  This is useful in writing new udev rules.
-	- the %D modifier is now gone.  People who were using it to
-	  provide a devfs naming scheme will need to rewrite their rules
-	  (look at the examples on the linux-hotplug-devel mailing list
-	  for more details.)
-	- lots of little changes and bug fixes.
-
-Thanks again to everyone who has send me patches for this release, a
-full list of everyone, and their changes is below.
-
-udev development is done in a BitKeeper repository located at:
-	bk://linuxusb.bkbits.net/udev
-
-Daily snapshots of udev from the BitKeeper tree can be found at:
-	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-If anyone ever wants a tarball of the current bk tree, just email me.
-
-thanks,
-
-greg k-h
+--vv4Sf/kQfcwinyKX
+Content-Type: multipart/mixed; boundary="AkbCVLjbJ9qUtAXD"
+Content-Disposition: inline
 
 
-Summary of changes from v013 to v014
-============================================
+--AkbCVLjbJ9qUtAXD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<ananthmg:rediffmail.com>:
-  o libsysfs update for refresh + namedev.c changes
+Hi all,
 
-<christophe.varoqui:free.fr>:
-  o udev-013/extras/multipath update
+support for SIIG made serial/parallel conbo cards was moved
+to parport_serial driver some months ago, but their PCI ids
+still remain in parport_pc PCI device table.
+Attached patch (2.6.1) removes them. Please apply.
 
-<flamingice:sourmilk.net>:
-  o minor patch for devfs rules
+Best regards.
 
-Kay Sievers:
-  o udev - program to query all device attributes to build a rule
-  o set default owner/group in db - update
-  o udev - reverse user query options
-  o udev - kill %D from udev-test.pl
-  o add udev logging to info log
-  o udev - mention format string escape char in man page
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-Greg Kroah-Hartman:
-  o misc code cleanups
-  o fixup logging.h to handle different logging options properly
-  o clean up the logging patch a bit to make the option more like the other options
-  o remove the %D modifier as it is not longer needed
-  o remove unneeded keyboard rule
-  o add usb_host and pci_bus to the class blacklist
-  o added input device rules to udev.rules and udev.rules.devfs
+--AkbCVLjbJ9qUtAXD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-siig-combo-parport-remove-2.6"
+Content-Transfer-Encoding: quoted-printable
 
-Hanna V. Linder:
-  o set default owner/group in db
-  o small cut n paste error fix
+diff -urN -X /usr/share/dontdiff linux-2.6.0-test11.vanilla/drivers/parport=
+/parport_pc.c linux-2.6.0-test11/drivers/parport/parport_pc.c
+--- linux-2.6.0-test11.vanilla/drivers/parport/parport_pc.c	2003-12-05 01:4=
+3:22.000000000 +0300
++++ linux-2.6.0-test11/drivers/parport/parport_pc.c	2003-12-05 01:34:02.000=
+000000 +0300
+@@ -2686,25 +2686,10 @@
+=20
+=20
+ enum parport_pc_pci_cards {
+-	siig_1s1p_10x_550 =3D last_sio,
+-	siig_1s1p_10x_650,
+-	siig_1s1p_10x_850,
+-	siig_1p_10x,
++	siig_1p_10x =3D last_sio,
+ 	siig_2p_10x,
+-	siig_2s1p_10x_550,
+-	siig_2s1p_10x_650,
+-	siig_2s1p_10x_850,
+ 	siig_1p_20x,
+ 	siig_2p_20x,
+-	siig_2p1s_20x_550,
+-	siig_2p1s_20x_650,
+-	siig_2p1s_20x_850,
+-	siig_1s1p_20x_550,
+-	siig_1s1p_20x_650,
+-	siig_1s1p_20x_850,
+-	siig_2s1p_20x_550,
+-	siig_2s1p_20x_650,
+-	siig_2s1p_20x_850,
+ 	lava_parallel,
+ 	lava_parallel_dual_a,
+ 	lava_parallel_dual_b,
+@@ -2766,25 +2751,10 @@
+ 	 * is non-zero we couldn't use any of the ports. */
+ 	void (*postinit_hook) (struct pci_dev *pdev, int failed);
+ } cards[] __devinitdata =3D {
+-	/* siig_1s1p_10x_550 */		{ 1, { { 3, 4 }, } },
+-	/* siig_1s1p_10x_650 */		{ 1, { { 3, 4 }, } },
+-	/* siig_1s1p_10x_850 */		{ 1, { { 3, 4 }, } },
+ 	/* siig_1p_10x */		{ 1, { { 2, 3 }, } },
+ 	/* siig_2p_10x */		{ 2, { { 2, 3 }, { 4, 5 }, } },
+-	/* siig_2s1p_10x_550 */		{ 1, { { 4, 5 }, } },
+-	/* siig_2s1p_10x_650 */		{ 1, { { 4, 5 }, } },
+-	/* siig_2s1p_10x_850 */		{ 1, { { 4, 5 }, } },
+ 	/* siig_1p_20x */		{ 1, { { 0, 1 }, } },
+ 	/* siig_2p_20x */		{ 2, { { 0, 1 }, { 2, 3 }, } },
+-	/* siig_2p1s_20x_550 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_2p1s_20x_650 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_2p1s_20x_850 */		{ 2, { { 1, 2 }, { 3, 4 }, } },
+-	/* siig_1s1p_20x_550 */		{ 1, { { 1, 2 }, } },
+-	/* siig_1s1p_20x_650 */		{ 1, { { 1, 2 }, } },
+-	/* siig_1s1p_20x_850 */		{ 1, { { 1, 2 }, } },
+-	/* siig_2s1p_20x_550 */		{ 1, { { 2, 3 }, } },
+-	/* siig_2s1p_20x_650 */		{ 1, { { 2, 3 }, } },
+-	/* siig_2s1p_20x_850 */		{ 1, { { 2, 3 }, } },
+ 	/* lava_parallel */		{ 1, { { 0, -1 }, } },
+ 	/* lava_parallel_dual_a */	{ 1, { { 0, -1 }, } },
+ 	/* lava_parallel_dual_b */	{ 1, { { 0, -1 }, } },
+@@ -2836,44 +2806,14 @@
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, sio_ite_8872 },
+=20
+ 	/* PCI cards */
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_10x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_10x_850 },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1P_10x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1p_10x },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P_10x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p_10x },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_10x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_10x_850 },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1P_20x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1p_20x },
+ 	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P_20x,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p_20x },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2P1S_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2p1s_20x_850 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S1P_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_1s1p_20x_850 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_550,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_550 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_650,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_650 },
+-	{ PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_2S1P_20x_850,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, siig_2s1p_20x_850 },
+ 	{ PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_PARALLEL,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, lava_parallel },
+ 	{ PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_DUAL_PAR_A,
 
-Patrick Mansfield:
-  o update udev scsi_id to scsi_id 0.3
+--AkbCVLjbJ9qUtAXD--
 
+--vv4Sf/kQfcwinyKX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAD73zby9O0+A2ZecRApSqAJ40PjWy6hD+p6r1eG9fDz8GiXKjOACfXG/y
+UwcLtN/ubp42r0rxG22vksM=
+=kmRg
+-----END PGP SIGNATURE-----
+
+--vv4Sf/kQfcwinyKX--

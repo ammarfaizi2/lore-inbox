@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261821AbSIXVaX>; Tue, 24 Sep 2002 17:30:23 -0400
+	id <S261826AbSIXVk0>; Tue, 24 Sep 2002 17:40:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261822AbSIXVaX>; Tue, 24 Sep 2002 17:30:23 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59144 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261821AbSIXVaR>; Tue, 24 Sep 2002 17:30:17 -0400
-Date: Tue, 24 Sep 2002 17:27:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Con Kolivas <conman@kolivas.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gcc@gcc.gnu.org
-Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-In-Reply-To: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020924172145.19732F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261830AbSIXVk0>; Tue, 24 Sep 2002 17:40:26 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:36664 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S261826AbSIXVkY>;
+	Tue, 24 Sep 2002 17:40:24 -0400
+Subject: Re: 2.4.19: oops in ide-scsi
+From: James Stevenson <james@stev.org>
+To: Philippe Troin <phil@fifi.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87smzzksri.fsf@ceramic.fifi.org>
+References: <87n0q8tcs8.fsf@ceramic.fifi.org>
+	<1032891985.2035.1.camel@god.stev.org>  <87smzzksri.fsf@ceramic.fifi.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 24 Sep 2002 22:41:46 +0100
+Message-Id: <1032903706.2445.4.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Ingo Molnar wrote:
-
+On Tue, 2002-09-24 at 22:00, Philippe Troin wrote:
+> James Stevenson <james@stev.org> writes:
 > 
-> On Mon, 23 Sep 2002, Con Kolivas wrote:
+> > Hi
+> > 
+> > i am glad somebody else sees the same crash as me the
+> > request Q gets set to NULL for some reson then tries to
+> > increment a stats counter in the null pointer.
+> > i know what the bug is i just dont know how to fix it :>
 > 
-> > IO Full Load:
-> > 2.5.38                  170.21          42%
-> > 2.5.38-gcc32            230.77          30%
-> 
-> > This time only the IO loads showed a statistically significant
-> > difference.
-> 
-> how many times are you running each test? You should run them at least
-> twice (ideally 3 times at least), to establish some sort of statistical
-> noise measure. Especially IO benchmarks tend to fluctuate very heavily
-> depending on various things - they are also very dependent on the initial
-> state - ie. how the pagecache happens to lay out, etc. Ie. a meaningful
-> measurement result would be something like:
+> I'm not sure which Q you're talking about.
+> Is that rq (in idescsi_pc_intr())?
 
-Do note that the instructions for the benchmark suggest you boot single
-user, which cuts down one problem, and since Con adopted my suggestion to
-allow the user to set the location of the test file, I put the big file in
-a filesystem which is formatted just before the test (I knew I'd find a
-use for all that disk ;-) so that stays pretty constant.
+the crash happens on
 
-The problem of memory size on the halfmem io is more serious, on a large
-system the writes are all in memory, on a small system they cause
-thrashing. I run in 256m for all tests just for this reason.
+if (status & ERR_STAT)
+	rq->errors++;
 
-Not disagreeing with what you said, but the test is not inherently subject
-to much jitter given care in running it.
+because 
+struct request *rq = pc->rq;
+is NULL
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+
+from ide-scsi.c
+
+static ide_startstop_t idescsi_pc_intr (ide_drive_t *drive)
+{
+	idescsi_scsi_t *scsi = drive->driver_data;
+	byte status, ireason;
+	int bcount;
+	idescsi_pc_t *pc=scsi->pc;
+	struct request *rq = pc->rq;
+	unsigned int temp;
+
+// SNIPED some code
+
+	if ((status & DRQ_STAT) == 0) {					/* No more interrupts */
+		if (test_bit(IDESCSI_LOG_CMD, &scsi->log))
+			printk (KERN_INFO "Packet command completed, %d bytes transferred\n",
+pc->actually_transferred);
+		ide__sti();
+		if (status & ERR_STAT)
+			rq->errors++;
+		idescsi_end_request (1, HWGROUP(drive));
+		return ide_stopped;
+	}
+	bcount = IN_BYTE (IDE_BCOUNT
+
+
+
 

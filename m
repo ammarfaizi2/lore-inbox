@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUKOBNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbUKOBNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUKOBNh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 20:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUKOBN3
+	id S261403AbUKOBNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 20:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUKOBNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 20:13:29 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:48028 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261404AbUKOBLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 20:11:53 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Sun, 14 Nov 2004 17:11:47 -0800
-Message-ID: <52u0rrq5kc.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 14 Nov 2004 20:13:46 -0500
+Received: from fsmlabs.com ([168.103.115.128]:19844 "EHLO musoma.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261424AbUKOBLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 20:11:18 -0500
+Date: Sun, 14 Nov 2004 18:10:49 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andi Kleen <ak@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] lockless MCE i386 port
+In-Reply-To: <20041114085147.GD16795@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0411141808030.3754@musoma.fsmlabs.com>
+References: <Pine.LNX.4.61.0411090126190.3047@musoma.fsmlabs.com>
+ <Pine.LNX.4.61.0411130627050.3062@musoma.fsmlabs.com> <20041114085147.GD16795@wotan.suse.de>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH] cdev_init: zero out cdev before kobject_init()
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 15 Nov 2004 01:11:52.0638 (UTC) FILETIME=[174095E0:01C4CAB0]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right now, cdev_init() works in a way that is not very intuitive.  If
-a driver passes an uninitialized struct cdev to cdev_init(), then an
-uninitialized struct kobject will be passed to kobject_init(), which
-does kset_get() on kobj->kset, which probably points off into space
-and causes an oops.  Drivers can work around this by zeroing out their
-struct cdev in advance (and indeed most if not all of the things
-passed to cdev_init() come from BSS) but I think it makes more sense
-for cdev_init() to live up to its name and actually work on an
-uninitialized cdev.
+On Sun, 14 Nov 2004, Andi Kleen wrote:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> Looks good from a first look.
+> 
+> One issue is that you will need people to run the mcelog cron job
+> and create /dev/mcelog, otherwise they won't see any non fatal
+> warnings anymore.
+> 
+> I'm actually considering to add a tasklet/bit on x86-64 to printk
+> a one line warning when any events are in the log. Perhaps that
+> would be a good idea here too to make the migration smoother.
 
-Index: x/fs/char_dev.c
-===================================================================
---- x.orig/fs/char_dev.c	2004-11-14 17:02:48.000000000 -0800
-+++ x/fs/char_dev.c	2004-11-14 17:03:39.000000000 -0800
-@@ -417,6 +417,7 @@
- 
- void cdev_init(struct cdev *cdev, struct file_operations *fops)
- {
-+	memset(cdev, 0, sizeof *cdev);	
- 	INIT_LIST_HEAD(&cdev->list);
- 	cdev->kobj.ktype = &ktype_cdev_default;
- 	kobject_init(&cdev->kobj);
+I've actually left the nonfatal code to printk from it's timer, then i 
+have the events which come via int18 to schedule a tasklet which prints 
+all the output. So it should all functional similarly to the same code 
+without any userspace changes. Do folks want /dev/mcelog?
+
+Thanks,
+	Zwane
+

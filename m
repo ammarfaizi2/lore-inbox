@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbSLZSvJ>; Thu, 26 Dec 2002 13:51:09 -0500
+	id <S263039AbSLZS7i>; Thu, 26 Dec 2002 13:59:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263039AbSLZSvJ>; Thu, 26 Dec 2002 13:51:09 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2308 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262449AbSLZSvH>;
-	Thu, 26 Dec 2002 13:51:07 -0500
-Date: Mon, 23 Dec 2002 19:17:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: acpi_os_queue_for_execution()
-Message-ID: <20021223181747.GA10363@elf.ucw.cz>
+	id <S263276AbSLZS7i>; Thu, 26 Dec 2002 13:59:38 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:34746 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S263039AbSLZS7h>; Thu, 26 Dec 2002 13:59:37 -0500
+Date: Thu, 26 Dec 2002 20:07:48 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [OOPS] Re: Linux v2.5.53
+Message-Id: <20021226200748.4d2cea0d.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.8claws1 (GTK+ 1.2.10; Linux 2.5.53)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.xaQ7F'NUKYh'nZ"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--=.xaQ7F'NUKYh'nZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Acpi seems to create short-lived kernel threads, and I don't quite
-understand why. 
+On Mon, 23 Dec 2002 21:45:30 -0800 (PST) Linus Torvalds (LT) wrote:
 
-In thermal.c
+LT> Summary of changes from v2.5.52 to v2.5.53
+LT> ============================================
 
+Hello,
 
-                        tz->timer.data = (unsigned long) tz;
-                        tz->timer.function = acpi_thermal_run;
-                        tz->timer.expires = jiffies + (HZ * sleep_time) / 1000;
-                        add_timer(&(tz->timer));
+One of the changes between 2.5.52 and 2.5.53 broke parport autoprobing.
+I have a 2.5.53 kernel with all of parport built into the kernel and on
+the kernel's command line "parport=auto". If I remove that, the oops goes
+away. Since I don't have a serial console I wrote down the most important
+bits of the oops:
 
-and acpi_thermal_run creates kernel therad that runs
-acpi_thermal_check. Why is not acpi_thermal_check called directly? I
-don't like idea of thread being created every time thermal zone needs
-to be polled...
-								Pavel
+EIP is at dma_alloc_coherent +0x18/0x80
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Trace:
+
+parport_pc_probe_port +0x42b/0x720
+vgacon_scroll +0x140/0x230
+scrup +0x133/0x140
+mod_timer +0x12a/0x180
+alloc_inode +0x17f/0x1b0
+__pci_conf1_read +0xc3/0x100
+pci_conf1_read +0x4a/0x50
+pci_bus_read_config_byte +0x81/0x90
+register_sysctl_table +0x67/0x90
+init +0x3a/0x160
+init +0x0/0x160
+kernel_thread_helper +0x5/0x18
+
+Hope this helps anyone to sort this out. If more info is necessary,
+let me know.
+
+Regards,
+-Udo.
+
+--=.xaQ7F'NUKYh'nZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+C1OGnhRzXSM7nSkRAkocAJ0ZrjEdmbY+E+xM1CyeGK16qGR2agCfWJ4M
+favMx38y9SRdRZifLXO+WK4=
+=xG8y
+-----END PGP SIGNATURE-----
+
+--=.xaQ7F'NUKYh'nZ--

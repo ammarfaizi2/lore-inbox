@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbTD2MKq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTD2MKq
+	id S261821AbTD2MLi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTD2MLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:10:46 -0400
-Received: from [203.124.139.208] ([203.124.139.208]:61612 "EHLO
-	pcsbom.patni.com") by vger.kernel.org with ESMTP id S261814AbTD2MKp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:10:45 -0400
-Reply-To: <chandrasekhar.nagaraj@patni.com>
-From: "Chandrasekhar" <chandrasekhar.nagaraj@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Stack Trace dump in do_IRQ
-Date: Tue, 29 Apr 2003 18:04:28 +0530
-Message-ID: <NHBBIPBFKBJLCPPIPIBCCEAICAAA.chandrasekhar.nagaraj@patni.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	Tue, 29 Apr 2003 08:11:38 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:27658 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261821AbTD2MLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:11:37 -0400
+Date: Tue, 29 Apr 2003 16:23:22 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] DMA mapping API for Alpha
+Message-ID: <20030429162322.B5767@jurassic.park.msu.ru>
+References: <wrp65oycvrw.fsf@hina.wild-wind.fr.eu.org> <20030429150532.A3984@jurassic.park.msu.ru> <wrpvfwx5xcq.fsf@hina.wild-wind.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <wrpvfwx5xcq.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Tue, Apr 29, 2003 at 01:58:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-We have a custom driver which runs on Red Hat Advanced Server 2.1(kernel
-version 2.4.9-e.3).
-On loading  the driver (using insmod) and running our configuration program,
-we got folowing warning message "do_IRQ: stack overflow: 1786" and along
-with the stack trace.
+On Tue, Apr 29, 2003 at 01:58:29PM +0200, Marc Zyngier wrote:
+> That's exactly what I wanted to avoid : It we feed NULL (for a non PCI
+> device) to pci_map_single (for example), we limit the max DMA address
+> to 24 bits, and this is quite bad for an EISA device, which is 32 bits
+> capable.
 
-The configuration program, however, ran successfully.
+Agreed, but what if your EISA-PCI bridge has only 30 address lines wired
+to PCI? Yes, we can check this for EISA device because it has *real*
+PCI parent (thanks, Marc :-), but what about ISA/legacy/whatever drivers?
+I doubt that all of them bother to set dma_mask pointer (so you can have
+an oops there).
 
-On going through the do_IRQ code in arch/i386/kernel/irq.c we found that is
-is used for debugging check for stack overflow i.e if the stack size is less
-than 2KB free.
-There is no similar debugging check in other kernels like 2.4.7-10,2.4.18-3
-and 2.4.18-14.
-What is the significance of this debugging information and why other kernels
-dont have the same check? Also, if the stack overflow can cause future
-problems, then
-how can we increase the stack size? Thanks in advance for any information on
-this.
-
-Thanks and Regards
-Chandrasekhar
-
+Ivan.

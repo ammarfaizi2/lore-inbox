@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbTD1OTy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 10:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbTD1OTy
+	id S261161AbTD1O0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 10:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbTD1O0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 10:19:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:26758 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S261157AbTD1OTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 10:19:52 -0400
-Date: Mon, 28 Apr 2003 16:30:10 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Zack Gilburd <zack@tehunlose.com>
-cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-In-Reply-To: <20030428070128.566ede0a.zack@tehunlose.com>
-Message-ID: <Pine.GSO.4.21.0304281629330.11373-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Apr 2003 10:26:32 -0400
+Received: from h80ad24b9.async.vt.edu ([128.173.36.185]:52352 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261161AbTD1O0a (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 10:26:30 -0400
+Message-Id: <200304281438.h3SEcFdA003667@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Andreas Schwab <schwab@suse.de>, Mark Grosberg <mark@nolab.conman.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Combined fork-exec syscall. 
+In-Reply-To: Your message of "Mon, 28 Apr 2003 10:16:21 EDT."
+             <Pine.LNX.4.53.0304281001200.16752@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.BSO.4.44.0304272207431.23296-100000@kwalitee.nolab.conman.org> <Pine.LNX.4.53.0304280855240.16444@chaos> <jed6j67o4o.fsf@sykes.suse.de> <Pine.LNX.4.53.0304280951500.16637@chaos> <jeadea7mj3.fsf@sykes.suse.de>
+            <Pine.LNX.4.53.0304281001200.16752@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1467049834P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Apr 2003 10:38:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Apr 2003, Zack Gilburd wrote:
-> On Mon, 28 Apr 2003 03:35:10 -0700 (PDT)
-> Andre Hedrick <andre@linux-ide.org> wrote:
+--==_Exmh_-1467049834P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 28 Apr 2003 10:16:21 EDT, "Richard B. Johnson" said:
+
+> Read the bash documentation `man bash`. The first argument becomes
+> $0 (the process name), the second becomes $1, etc. Please  don't
+> just keep assuming that I don't know what I'm talking about.
 > 
-> > There is one fundamental problem, and nobody has addressed.
-> > 
-> > Who will enforce the GPL over DRM violations?
-> > Since it is a blanket over the entire kernel, and you have formally
-> > (for the most part) have authorized DRM, thus one assumes you are the only
-> > one who can pursue in a court of law.
-> 
-> Unless I am missing something, I was hoping for more of a sparse DRM implementation; not a blanket.
-> 
-> I was hoping to be able to `modprobe drm` for when I needed to use DRM and likewise `rmmod drm` for when I didn't want it.  Maybe I am a little late in this disucssion, but that's just my hopes and whishes.
+> $ sh -c 'ignore echo a b c'
+> Works fine.
 
-Unfortunately that's not going to work, since your DRM module cannot trust the
-kernel it's loaded by.
+[~]2 /bin/bash -c ignore echo a b c
+echo: line 1: ignore: command not found
+[~]2 /bin/bash -c 'ignore echo a b c'
+/bin/bash: line 1: ignore: command not found
 
-Gr{oetje,eeting}s,
+Obviously, tokenization makes a difference here. ;)
 
-						Geert
+So let's try forcing $0 to /bin/bash rather than 'ignore'...
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+[~]2 sh -c '/bin/bash echo a b c'
+echo: /bin/echo: cannot execute binary file
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Correct, but unexpected results..
 
+[~]2 sh -c /bin/echo echo a b c
+
+[~]2 sh -c '/bin/echo a b c'
+a b c
+
+Again, tokenization matters - try working out what the value of argc is
+for the exec of /bin/bash for each of these cases...
+
+Dick, do you have an 'ignore' in your $PATH?
+
+
+--==_Exmh_-1467049834P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+rTzWcC3lWbTT17ARAv2BAJ4o+c3b+HuL3iew1texOep99wq5fACgt1t1
+4kSfc6aWdBo8HdZ3NY0i4lI=
+=Jmbh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1467049834P--

@@ -1,55 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261489AbSJMKgF>; Sun, 13 Oct 2002 06:36:05 -0400
+	id <S261490AbSJMKoP>; Sun, 13 Oct 2002 06:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSJMKgF>; Sun, 13 Oct 2002 06:36:05 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:40123 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261489AbSJMKgF>; Sun, 13 Oct 2002 06:36:05 -0400
-Message-ID: <3DA94F07.7070109@t-online.de>
-Date: Sun, 13 Oct 2002 12:46:31 +0200
-From: Ingo.Adlung@t-online.de (Ingo Adlung)
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S261494AbSJMKoO>; Sun, 13 Oct 2002 06:44:14 -0400
+Received: from uranus.lan-ks.de ([194.45.71.1]:14355 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S261490AbSJMKoN>;
+	Sun, 13 Oct 2002 06:44:13 -0400
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-CC: "Linus Torvalds" <"Linus Torvalds"@t-online.de>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-References: <3DA4B1EC.781174A6@mvista.com> <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [2.5.42] compile error in sound/isa/opl3sa2.c
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Sun, 13 Oct 2002 11:41:34 +0200
+Message-ID: <87vg46llpt.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+  gcc -Wp,-MD,sound/isa/.opl3sa2.o.d -D__KERNEL__ -Iinclude -Wall
+  -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+  -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+  -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+  -DMODULE   -DKBUILD_BASENAME=opl3sa2   -c -o sound/isa/opl3sa2.o
+  sound/isa/opl3sa2.c
+sound/isa/opl3sa2.c: In function `snd_opl3sa2_isapnp':
+sound/isa/opl3sa2.c:643: warning: passing arg 1 of `isapnp_find_dev'
+  from incompatible pointer type
+sound/isa/opl3sa2.c:643: warning: assignment from incompatible pointer
+  type
+sound/isa/opl3sa2.c:644: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:650: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:653: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:655: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:657: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:659: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:661: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:663: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:665: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:667: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:668: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:672: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:673: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:674: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:675: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:676: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:677: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:678: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:679: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c: In function `snd_opl3sa2_deactivate':
+sound/isa/opl3sa2.c:690: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c: In function `alsa_card_opl3sa2_init':
+sound/isa/opl3sa2.c:893: warning: passing arg 2 of
+  `isapnp_probe_cards' from incompatible pointer type
+make[3]: *** [sound/isa/opl3sa2.o] Fehler 1
+make[2]: *** [sound/isa] Fehler 2
+make[1]: *** [sound] Fehler 2
+make[1]: Leaving directory `/usr/src/linux-2.5.42'
+make: *** [stamp-build] Fehler 2
+/usr/bin/make -f sound/isa/Makefile
+  gcc -Wp,-MD,sound/isa/.opl3sa2.o.d -D__KERNEL__ -Iinclude -Wall
+  -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+  -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+  -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+  -DMODULE   -DKBUILD_BASENAME=opl3sa2   -c -o sound/isa/opl3sa2.o
+  sound/isa/opl3sa2.c
+sound/isa/opl3sa2.c: In function `snd_opl3sa2_isapnp':
+sound/isa/opl3sa2.c:643: warning: passing arg 1 of `isapnp_find_dev'
+  from incompatible pointer type
+sound/isa/opl3sa2.c:643: warning: assignment from incompatible pointer
+  type
+sound/isa/opl3sa2.c:644: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:650: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:653: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:655: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:657: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:659: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:661: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:663: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:665: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:667: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:668: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:672: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:673: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:674: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:675: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:676: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:677: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:678: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c:679: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c: In function `snd_opl3sa2_deactivate':
+sound/isa/opl3sa2.c:690: dereferencing pointer to incomplete type
+sound/isa/opl3sa2.c: In function `alsa_card_opl3sa2_init':
+sound/isa/opl3sa2.c:893: warning: passing arg 2 of
+  `isapnp_probe_cards' from incompatible pointer type
+make[3]: *** [sound/isa/opl3sa2.o] Fehler 1
+make[2]: *** [sound/isa] Fehler 2
+make[1]: *** [sound] Fehler 2
+make[1]: Leaving directory `/usr/src/linux-2.5.42'
+make: *** [stamp-build] Fehler 2
 
-Linus Torvalds wrote:
-> On Wed, 9 Oct 2002, george anzinger wrote:
-> 
->>This patch, in conjunction with the "core" high-res-timers
->>patch implements high resolution timers on the i386
->>platforms.
-> 
-> 
-> I really don't get the notion of partial ticks, and quite frankly, this 
-> isn't going into my tree until some major distribution kicks me in the 
-> head and explains to me why the hell we have partial ticks instead of just 
-> making the ticks shorter.
-> 
-> 		Linus
-
-In any kind of virtual environment you would rather prefer a completely 
-tickless system alltogether than increased tick rates. In a S/390 
-virtual machine, running many hundreds of virtual Linux servers the 
-100Hz timer pops are already considerably painful, and going to a higher 
-tick rate achieving higher timer resolution is completely prohibitive. 
-Similar is true in many embedded systems related to power consumption of 
-high frequency ticks.
-
-However, George has shown that introducing the notion of a completely 
-tickless system is expensive on Intel overhead wise, thus partial ticks 
-seem to be a possibility addressing the needs for embedded and virtual 
-environments, getting decent timer resolution as needed.
-
-Ingo Adlung
 

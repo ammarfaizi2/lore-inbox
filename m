@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUHaWBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUHaWBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUHaWBM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269110AbUHaUGJ
+	id S268101AbUHaWBK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269105AbUHaUGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:06:09 -0400
-Received: from main.gmane.org ([80.91.224.249]:18883 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269006AbUHaUAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:00:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Markus T." <markus@trippelsdorf.net>
-Subject: Re: Linux 2.6.8.1-ac1
-Date: Tue, 31 Aug 2004 21:58:37 +0200
-Message-ID: <pan.2004.08.31.19.58.37.508685@trippelsdorf.net>
-References: <20040831170839.GA18799@devserv.devel.redhat.com>
+	Tue, 31 Aug 2004 16:06:00 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:32157 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S267380AbUHaUBQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 16:01:16 -0400
+Date: Tue, 31 Aug 2004 14:59:02 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Adrian Yee <brewt-linux-kernel@brewt.org>
+Cc: Eric Mudama <edmudama@gmail.com>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HDD LED doesn't light.
+Message-ID: <20040831195902.GA3945@lists.us.dell.com>
+References: <311601c904082709107a8c8475@mail.gmail.com> <GMail.1093981448.21536945.017857081112@brewt.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: port-212-202-35-96.dynamic.qsc.de
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <GMail.1093981448.21536945.017857081112@brewt.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Tue, 31 Aug 2004 13:08:39 -0400 schrieb Alan Cox:
+On Tue, Aug 31, 2004 at 12:44:08PM -0700, Adrian Yee wrote:
+> But this doesn't explain why I have two motherboards here where the HDD
+> activity LED does not light up in linux (for SATA drives) but does in
+> windows .  Note that it only starts working in windows *after* the
+> driver has loaded.
 
-> I've posted up a 2.6.8.1-ac1. This is mostly aimed at people wanting to
-> try the newer IDE stuff while I work on feeding it to Bartlomiej.
-> 
-> http://www.kernel.org/pub/linux/kernel/people/alan/2.6/linux-2.6/2.6.8.1/..
-Should be:
-http://www.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.8/
+I've heard of implementations of the drive light on SATA where it is
+controlled through a general-purpose I/O pin somewhere else in the
+chipset.  If that's the case, then the Windows driver may well know
+how to drive the GPIO to indicate drive activity for you...
 
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

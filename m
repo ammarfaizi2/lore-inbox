@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVARLkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVARLq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVARLkM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 06:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVARLkM
+	id S261209AbVARLq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 06:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVARLq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 06:40:12 -0500
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:47536 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S261277AbVARLkC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 06:40:02 -0500
-Message-ID: <41ECF0B6.30106@sdl.hitachi.co.jp>
-Date: Tue, 18 Jan 2005 20:19:18 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lkst-develop@lists.sourceforge.net
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
-In-Reply-To: <m1zmzcpfca.fsf@muc.de>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by maila.sdl.hitachi.co.jp id j0IBJ887024679
+	Tue, 18 Jan 2005 06:46:26 -0500
+Received: from relay.muni.cz ([147.251.4.35]:20458 "EHLO tirith.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S261209AbVARLqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 06:46:25 -0500
+Date: Tue, 18 Jan 2005 12:45:30 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org,
+       kruty@fi.muni.cz
+Subject: Re: XFS: inode with st_mode == 0
+Message-ID: <20050118114530.GC27995@fi.muni.cz>
+References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041222182344.GB14586@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christoph Hellwig wrote:
+: I have a better patch than the one I gave you (attached below).  If you
+: send me a mail with steps to reproduce your remaining problems I'll put
+: this very high on my TODO list after christmas.  Btw, any chance you could
+: try XFS CVS (which is at 2.6.9) + the patch below instead of plain 2.6.9,
+: there have been various other fixes in the last months.
+: 
+	Just FWIW, this patch (applied to 2.6.10) seems to fix the problem
+for me. I was not able to reproduce it by running my test script for ~24 hours.
 
-I’m a developer of yet another kernel tracer, LKST. I and co-developers 
-are very glad to hear that LTT was merged into -mm tree and to talk 
-about the kernel tracer on this ML. Because we think that the kernel 
-event tracer is useful to debug Linux systems, and to improve the kernel 
-reliability.
+	Thanks!
 
-Andi Kleen wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
->>- Added the Linux Trace Toolkit (and hence relayfs).  Mainly because I
->>  haven't yet taken as close a look at LTT as I should have.  Probably neither
->>  have you.
-> 
-> 
-> I think it would be better to have a standard set of kprobes instead
-> of all the ugly LTT hooks. kprobes could then log to relayfs or another
-> fast logging mechanism.
-
-I agree.
-I’m interested in kprobes. Currently, LKST can switch off and on each 
-hook. But, even if a hook was disabled, there is a little overhead-time 
-(one conditional-jump instruction should be executed). I think 
-kprobes-based hooks can completely remove this overhead-time. Moreover, 
-kprobes-based hooks can be inserted dynamically into the code-point 
-specified by user. This feature is greatly useful for debugging. So, I 
-have an idea to renew LKST to kprobes-based hooks.
-Also, I’m developing a prototype implementation.
-
-
-> The problem relayfs has IMHO is that it is too complicated. It 
-> seems to either suffer from a overfull specification or second system
-> effect. There are lots of different options to do everything,
-> instead of a nice simple fast path that does one thing efficiently.
-> IMHO before merging it should go through a diet and only keep
-> the paths that are actually needed and dropping a lot of the current
-> baggage.
-> 
-> Preferably that would be only the fastest options (extremly simple
-> per CPU buffer with inlined fast path that drop data on buffer overflow), 
-> with leaving out anything more complicated. My ideal is something
-> like the old SGI ktrace which was an extremly simple mechanism
-> to do lockless per CPU logging of binary data efficiently and
-> reading that from a user daemon.
-
-LKST’s logging buffer is (much) simpler than relayfs. It is just the 
-linked-perCPU-buffer.
-
-If you are interested in this, please try LKST.
-
+-Yenya
 
 -- 
-Masami HIRAMATSU
-
-Hitachi, Ltd., Systems Development Laboratory
-E-mail: hiramatu@sdl.hitachi.co.jp
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

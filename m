@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUEVC5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUEVDI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbUEVC5I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUEVC5H
+	id S264878AbUEVDI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 23:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUEVDI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:57:07 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32189 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264835AbUEVC5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:57:05 -0400
-Date: Fri, 21 May 2004 19:56:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting PCI ROMs via syfs
-Message-ID: <20040522025623.GA15224@kroah.com>
-References: <20040521010510.84867.qmail@web14928.mail.yahoo.com> <200405212338.i4LNcV8Z007967@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405212338.i4LNcV8Z007967@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.6i
+	Fri, 21 May 2004 23:08:29 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:47569 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S264878AbUEVDIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 23:08:25 -0400
+Date: Fri, 21 May 2004 21:08:22 -0600 (MDT)
+From: Stephen Smoogen <smoogen@lanl.gov>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: where is www.kernel.org ?!
+In-Reply-To: <200405201924.52350.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.58.0405212107390.9222@smoogen1.lanl.gov>
+References: <200405201924.52350.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 07:38:31PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 20 May 2004 18:05:10 PDT, Jon Smirl <jonsmirl@yahoo.com>  said:
-> > GregKH has suggested that a good interface for accessing the contents of PCI
-> > ROMs from user space would be to make them available from sysfs. What would be a
-> > good way to structure the code for doing this? Should this be part of the pci
-> > driver, and how would this interface into class_simple to make the attribute
-> > appear?
-> 
-> Hmm... how do you make that fit with the "one file, one value" rule for sysfs?
-> Have the "one value" be a nnnK binary blob representing the ROM image?
 
-Exactly, just like the pci "config" file is in sysfs today.
+Red Hat is having some problems with their OC-3 in North Carolina. They 
+are trying to get it working ASAP. 
 
-thanks,
 
-greg k-h
+On Thu, 20 May 2004, Denis Vlasenko wrote:
+
+>I can't see www.kernel.org.
+>I thought my ISP is to blame.
+>
+>But traceroute using
+>http://vger.kernel.org/traceroute.html
+>gave similar results:
+>
+>Traceroute from VGER.KERNEL.ORG server at INFLOW co-location facility at the East Cost/USA site
+>Result for www.kernel.org;   modeset: {AS-Query , SOA-Owner-Query , ICMP-Query }:
+>
+>traceroute.exe to zeus-pub.kernel.org (204.152.189.116), 30 hops max, 38 byte packets
+> 1  router.redhat.com (12.107.209.254) [(null)] noc@redhat.com  139.390 ms  148.342 ms  149.684 ms
+> 2  12.119.93.61 (12.119.93.61) [(null)] rm-hostmaster@ems.att.com  139.623 ms  138.592 ms  149.753 ms
+> 3  tbr2-p013102.wswdc.ip.att.net (12.122.3.62) [(null)] rm-hostmaster@ems.att.com  129.658 ms  118.111 ms  139.788 ms
+> 4  ggr2-p3120.wswdc.ip.att.net (12.123.9.117) [(null)] rm-hostmaster@ems.att.com  179.692 ms  147.944 ms  179.788 ms
+> 5  att-gw.nyc.verio.net (192.205.32.18) [(null)] rm-hostmaster@ems.att.com  129.677 ms  138.576 ms  129.869 ms
+> 6  p16-0-1-2.r20.plalca01.us.bb.verio.net (129.250.2.192) [AS2914] hostmaster@verio.net  119.499 ms  148.368 ms  129.752 ms
+> 7  ge-1-1.a01.snfcca05.us.ra.verio.net (129.250.28.89) [AS2914] hostmaster@verio.net  139.687 ms  138.333 ms  169.950 ms
+> 8  fa-5-2.a01.snfcca05.us.ce.verio.net (140.174.28.46) [AS2914] dns@verio.net  159.924 ms  138.570 ms  119.775 ms
+> 9  * * *
+>10  * * *
+>11  * * *
+>
+>What's up?
+>--
+>vda
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
+Stephen John Smoogen		smoogen@lanl.gov
+Los Alamos National Lab  CCN-5 Sched 5/40  PH: 4-0645
+Ta-03 SM-1498 MailStop B255 DP 10S  Los Alamos, NM 87545
+-- You should consider any operational computer to be a security problem --

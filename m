@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbRF2OaC>; Fri, 29 Jun 2001 10:30:02 -0400
+	id <S266097AbRF2ObM>; Fri, 29 Jun 2001 10:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266094AbRF2O3w>; Fri, 29 Jun 2001 10:29:52 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39654 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266095AbRF2O3h>;
-	Fri, 29 Jun 2001 10:29:37 -0400
-Message-ID: <3B3C90F4.F068D314@mandrakesoft.com>
-Date: Fri, 29 Jun 2001 10:30:12 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S266096AbRF2ObC>; Fri, 29 Jun 2001 10:31:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17414 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266094AbRF2Oao>;
+	Fri, 29 Jun 2001 10:30:44 -0400
+Date: Fri, 29 Jun 2001 15:30:36 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
 Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-In-Reply-To: <200106291410.HAA10170@baldur.yggdrasil.com>
+Message-ID: <20010629153036.A10196@flint.arm.linux.org.uk>
+In-Reply-To: <200106291410.HAA10170@baldur.yggdrasil.com> <27582.993824469@ocs3.ocs-net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <27582.993824469@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Jun 30, 2001 at 12:21:09AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
->         I will put together patch to convert this to ugly but correct
-> "if then; ... ; fi" statements later today if nobody has any better
-> suggestions.
+On Sat, Jun 30, 2001 at 12:21:09AM +1000, Keith Owens wrote:
+> Create arch/Config.in which contains
+> 
+>   define_bool CONFIG_ARCH_i386 n
+>   define_bool CONFIG_ARCH_ia64 n
+>   define_bool CONFIG_ARCH_sparc n
+> 
+> etc., then change each of the arch/xxx/Config.in files to
+> source arch/Config.in as their first line first.  Still ugly but the
+> mainline configs will be much more readable.  It also guarantees that
+> any future tests on $CONFIG_ARCH_somearch will work, even if the code
+> does not use if statements.
 
-Don't dirty up the Config.in.  Define CONFIG_ARCH_xxx in various arches
-where needed.
+I'd rather that we fixed dep_* so that undefined symbols were treated as
+'n', just like the makefiles treat undefined symbols.
 
-Some, like CONFIG_X86 for example, definitely needs to be declared in
-arch/$arch/config.in in some places.
+On ARM, we have a lot of CONFIG_ARCH_* variables (which yes, I know, should
+be CONFIG_MACH_*, but its too late to change it now), and cluttering up the
+place with lots of if ... then fi stuff is much less readable than the
+dep_* stuff.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

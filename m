@@ -1,77 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289115AbSBJBPm>; Sat, 9 Feb 2002 20:15:42 -0500
+	id <S289138AbSBJBUm>; Sat, 9 Feb 2002 20:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289138AbSBJBPb>; Sat, 9 Feb 2002 20:15:31 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:26025 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S289115AbSBJBPK>; Sat, 9 Feb 2002 20:15:10 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Larry McVoy <lm@bitmover.com>,
+	id <S289139AbSBJBUd>; Sat, 9 Feb 2002 20:20:33 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:50117 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S289138AbSBJBUY>;
+	Sat, 9 Feb 2002 20:20:24 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 10 Feb 2002 01:20:22 GMT
+Message-Id: <UTC200202100120.BAA52437.aeb@cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, andre@linuxdiskcert.org,
         linux-kernel@vger.kernel.org
-Date: Sat, 9 Feb 2002 17:14:00 -0800 (PST)
-Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make cardbus
-  compile in -pre4))
-In-Reply-To: <3C65C4C5.C287A3@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0202091713180.25220-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: [PATCH] tiny IDE fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-how does this work when running something from cron? (I think that's the
-type of thing Larry is trying to do)
+In order to use all of my 160 GB disk, I booted linux-2.4.18-pre7-ac3
+and was told that it had geometry 317632/255/63, a disk of terabyte size.
+Moving the assignment to cyls two lines this becomes 19929/255/63,
+as expected.
 
-David Lang
+The deleted part in the first hunk is dead code.
 
-On Sat, 9 Feb 2002, Jeff Garzik wrote:
+As remarked earlier, all addr++ should be done only when
+something was assigned to addr. Maybe there are more such places.
 
-> Date: Sat, 09 Feb 2002 19:54:29 -0500
-> From: Jeff Garzik <jgarzik@mandrakesoft.com>
-> To: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-> Subject: ssh primer (was Re: pull vs push (was Re: [bk patch] Make
->     cardbus  compile in -pre4))
->
-> Herbert Xu wrote:
-> >
-> > Larry McVoy <lm@bitmover.com> wrote:
-> >
-> > > This is my problem.  You could help if you could tell me what exactly
-> > > are the magic wands to wave such that you can ssh in without typing
-> > > a password.  I know about ssh-agent but that doesn't help for this,
-> >
-> > Setup your key with an empty passphrase should do the trick.
->
-> Ug.  no.  That is way way insecure.
->
-> Most modern distros have an ssh-agent running as a parent of all
-> X-spawned processed (including processes spawned by xterms).  So, one
-> only needs to run
-> 	ssh-add ~/.ssh/id_dsa ~/.ssh/identity
-> once, and input your password once.  After that, no passwords are
-> needed.
->
->
-> For those with multiple peer shells and no X-parented ssh-agent, you
-> will need to run ssh-agent ONCE, like so:
->
-> 	ssh-agent > ~/tmp/ssh-agent.out
->
-> and then for each shell, you need to run:
->
-> 	eval `cat ~/tmp/ssh-agent.out`
->
-> and then run the ssh-add command from above.
->
-> --
-> Jeff Garzik      | "I went through my candy like hot oatmeal
-> Building 1024    |  through an internally-buttered weasel."
-> MandrakeSoft     |             - goats.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Apart from such tiny flaws, everything works beautifully.
+
+Andre, in this geometry stuff more than half of the code can be
+deleted. For example, drive->CHS is used when talking CHS with
+the drive; no use assigning very large values to drive->C; nobody
+will ever use such values. Then again, bios_CHS is what the BIOS
+tells us, which is to be used by fdisk and lilo.
+Again, no use assigning very large values to bios_cyl.
+fdisk has only 10 bits to write these values in,
+lilo cannot use more than 16 bits.
+In particular, the ioctl HDIO_GETGEO_BIG is superfluous.
+
+I said it before and I repeat: I really hope that you remove
+all occurrences of HDIO_GETGEO_BIG. The values returned by it
+are not used by fdisk, or by lilo, or by the kernel, or by
+the disk drive, they are just nonsense numbers.
+
+The convention for the use of HDIO_GETGEO is:
+Get heads and sectors from HDIO_GETGEO. In case one wants
+cylinders, ask for total size with BLKGETSIZE and divide by
+heads*sectors. Consider the cyls field of the struct returned
+by HDIO_GETGEO to be undefined.
+
+Andries
+
+
+diff -u --recursive --new-file ../linux-2.4.18-pre7-ac3/linux/drivers/ide/ide-disk.c ./linux/drivers/ide/ide-disk.c
+--- ../linux-2.4.18-pre7-ac3/linux/drivers/ide/ide-disk.c	Mon Feb 11 02:53:28 2002
++++ ./linux/drivers/ide/ide-disk.c	Mon Feb 11 02:28:09 2002
+@@ -111,11 +111,6 @@
+ {
+ 	unsigned long lba_sects, chs_sects, head, tail;
+ 
+-	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
+-		printk("48-bit Drive: %llu \n", id->lba_capacity_2);
+-		return 1;
+-	}
+-
+ 	/*
+ 	 * The ATA spec tells large drives to return
+ 	 * C/H/S = 16383/16/63 independent of their size.
+@@ -789,8 +784,8 @@
+ 		     | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
+ 		     | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
+ 		     | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
++		addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	}
+-	addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	return addr;
+ }
+ 
+@@ -818,8 +813,8 @@
+ 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
+ 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
+ 		addr = ((__u64)high << 24) | low;
++		addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	}
+-	addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	return addr;
+ }
+ 
+@@ -850,8 +845,8 @@
+ 			 | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
+ 			 | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
+ 			 | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
++		addr_set++;
+ 	}
+-	addr_set++;
+ 	return addr_set;
+ }
+ 
+@@ -929,9 +924,9 @@
+ 
+ 	if (id->cfs_enable_2 & 0x0400) {
+ 		capacity_2 = id->lba_capacity_2;
+-		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+ 		drive->head		= drive->bios_head = 255;
+ 		drive->sect		= drive->bios_sect = 63;
++		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
+ 		drive->select.b.lba	= 1;
+ 		set_max_ext = idedisk_read_native_max_address_ext(drive);
+ 		if (set_max_ext > capacity_2) {

@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289004AbSBIQEe>; Sat, 9 Feb 2002 11:04:34 -0500
+	id <S289007AbSBIQFP>; Sat, 9 Feb 2002 11:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289007AbSBIQEZ>; Sat, 9 Feb 2002 11:04:25 -0500
-Received: from paule.demon.co.uk ([158.152.178.86]:16644 "HELO
-	paule.demon.co.uk") by vger.kernel.org with SMTP id <S289004AbSBIQEO>;
-	Sat, 9 Feb 2002 11:04:14 -0500
-Date: Sat, 9 Feb 2002 16:04:07 +0000
-From: paule@ilu.vu
-To: Chris Ball <chris@void.printf.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3com pcmcia modules.
-Message-ID: <20020209160407.A1222@ilu.vu>
-In-Reply-To: <20020209151533.A644@ilu.vu> <877kpmvetv.fsf@lexis.house.pkl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <877kpmvetv.fsf@lexis.house.pkl.net>; from chris@void.printf.net on Sat, Feb 09, 2002 at 03:45:48PM +0000
+	id <S289009AbSBIQFF>; Sat, 9 Feb 2002 11:05:05 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:64140 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S289007AbSBIQEz>; Sat, 9 Feb 2002 11:04:55 -0500
+From: "Karl" <ktatgenhorst@earthlink.net>
+To: "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>, <lwn@lwn.net>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Kernel Janitor Project" 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+        <kernelnewbies@nl.linux.org>
+Subject: RE: ANNOUNCE: Janitor weekend!
+Date: Sat, 9 Feb 2002 10:20:10 -0500
+Message-ID: <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20020207020105.GP8973@conectiva.com.br>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 03:45:48PM +0000, Chris Ball wrote:
-> >>>>> "paule" == paule  <paule@ilu.vu> writes:
-> 
->     paule> Apologies if this has been brought up before, but whatever
->     paule> happened to the 3c575 (3com pcmcia) card driver/module in
->     paule> 2.5.x branch? (it was in 2.2.19 for sure).
-> 
-> In the case of my laptop's Boomerang card, it's now 3c59x; which
-> supports all of the 3Com CardBus adaptors.
-> 
-> More info on Don Becker's site: http://www.scyld.com/network/vortex.html
-> 
 
-Thanks for the help,
-problem (under 2.5.3) however,
 
-root@paule:/lib/modules/2.5.3/kernel/drivers/net# insmod 3c59x
-Using /lib/modules/2.5.3/kernel/drivers/net/3c59x.o
-/lib/modules/2.5.3/kernel/drivers/net/3c59x.o: unresolved symbol 
-del_timer_sync
+     Is this perhaps the WRONG weekend? I have checked many times. There is
+a fella 'Johnflux' asleep there but he is alone.
 
-Which would probably be why it isnt loaded at boot time either :(
-
-Any help would be appreciated.
-
--- 
-Paul Edwards

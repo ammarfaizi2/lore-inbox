@@ -1,96 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288146AbSAMVlx>; Sun, 13 Jan 2002 16:41:53 -0500
+	id <S288165AbSAMVpD>; Sun, 13 Jan 2002 16:45:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288159AbSAMVlo>; Sun, 13 Jan 2002 16:41:44 -0500
-Received: from petasus.iil.intel.com ([192.198.152.69]:48373 "EHLO
-	petasus.iil.intel.com") by vger.kernel.org with ESMTP
-	id <S288146AbSAMVlj>; Sun, 13 Jan 2002 16:41:39 -0500
-Message-ID: <3C41FEF0.2010402@intel.com>
-Date: Sun, 13 Jan 2002 23:41:04 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Organization: Intel
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S288160AbSAMVox>; Sun, 13 Jan 2002 16:44:53 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:4556 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S288159AbSAMVoq>; Sun, 13 Jan 2002 16:44:46 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200201132144.g0DLikH27385@devserv.devel.redhat.com>
+Subject: Linux 2.4.18pre3-ac1
 To: linux-kernel@vger.kernel.org
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: __FUNCTION__ - for /arch/mips
-Content-Type: multipart/mixed;
- boundary="------------070706030603020602000809"
+Date: Sun, 13 Jan 2002 16:44:46 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070706030603020602000809
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+People keep bugging me about the -ac tree stuff so this is whats in my
+current internal diff with the ll patch and the ide changes excluded.
 
-Hi,
-patch attached fixes __FUNCTION__ concatenation for mips arch. No side 
-effects. Patch against 2.4.18-pre3.
+Much of this is stuff just waiting to go to Marcelo but it has the 32bit
+uid quota that some folks consider pretty critical and the rmap-11b VM
+which I consider pretty essential
 
+(Marcelo I'll be sending you stuff I've done from this anyway, if there
+ is other stuff you want extracting just ask)
 
---------------070706030603020602000809
-Content-Type: text/plain;
- name="__FUNCTION__.mips.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="__FUNCTION__.mips.patch"
+Linux 2.4.18pre3-ac1
 
-diff -ur -X /home/vkondra-l/lib/dontdiff linux-2.4.18-pre3.orig/arch/mips/kernel/traps.c linux-2.4.18-pre3.patched/arch/mips/kernel/traps.c
---- linux-2.4.18-pre3.orig/arch/mips/kernel/traps.c	Sun Sep  9 20:43:01 2001
-+++ linux-2.4.18-pre3.patched/arch/mips/kernel/traps.c	Fri Jan 11 23:54:42 2002
-@@ -191,13 +191,13 @@
- spinlock_t die_lock;
- 
- extern void __die(const char * str, struct pt_regs * regs, const char *where,
--                  unsigned long line)
-+                  const char* func, unsigned long line)
- {
- 	console_verbose();
- 	spin_lock_irq(&die_lock);
- 	printk("%s", str);
- 	if (where)
--		printk(" in %s, line %ld", where, line);
-+		printk(" in %s:%s, line %ld", where, (func ? : "???"), line);
- 	printk(":\n");
- 	show_regs(regs);
- 	printk("Process %s (pid: %d, stackpage=%08lx)\n",
-@@ -211,10 +211,10 @@
- }
- 
- void __die_if_kernel(const char * str, struct pt_regs * regs, const char *where,
--	unsigned long line)
-+	const char* func, unsigned long line)
- {
- 	if (!user_mode(regs))
--		__die(str, regs, where, line);
-+		__die(str, regs, where, func, line);
- }
- 
- extern const struct exception_table_entry __start___dbe_table[];
-diff -ur -X /home/vkondra-l/lib/dontdiff linux-2.4.18-pre3.orig/include/asm-mips/system.h linux-2.4.18-pre3.patched/include/asm-mips/system.h
---- linux-2.4.18-pre3.orig/include/asm-mips/system.h	Sun Sep  9 20:43:01 2001
-+++ linux-2.4.18-pre3.patched/include/asm-mips/system.h	Sat Jan 12 00:03:07 2002
-@@ -252,13 +252,13 @@
- extern void *set_except_vector(int n, void *addr);
- 
- extern void __die(const char *, struct pt_regs *, const char *where,
--	unsigned long line) __attribute__((noreturn));
-+	const char* func, unsigned long line) __attribute__((noreturn));
- extern void __die_if_kernel(const char *, struct pt_regs *, const char *where,
--	unsigned long line);
-+	const char* func, unsigned long line);
- 
- #define die(msg, regs)							\
--	__die(msg, regs, __FILE__ ":"__FUNCTION__, __LINE__)
-+	__die(msg, regs, __FILE__, __FUNCTION__, __LINE__)
- #define die_if_kernel(msg, regs)					\
--	__die_if_kernel(msg, regs, __FILE__ ":"__FUNCTION__, __LINE__)
-+	__die_if_kernel(msg, regs, __FILE__, __FUNCTION__, __LINE__)
- 
- #endif /* _ASM_SYSTEM_H */
-
---------------070706030603020602000809--
-
+o	32bit uid quota
+o	rmap-11b VM					(Rik van Riel,
+							 William Irwin etc)
+o	Make scsi printer visible			(Stefan Wieseckel)
+o	Report Hercules Fortissimo card			(Minya Sorakinu)
+o	Fix O_NDELAY close mishandling on the following	(me)
+	sound cards: cmpci, cs46xx, es1370, es1371,
+	esssolo1, sonicvibes
+o	tdfx pixclock handling fix			(Jurriaan)
+o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
+o	generic_serial cleanups				(Rasmus Andersen)
+o	serial.c locking fixes for SMP - move from cli	(Kees)
+	too
+o	Truncate fixes from old -ac tree		(Andrew Morton)
+o	Hopefully fix the i2o oops			(me)
+	| Not the right fix but it'll do till I rewrite this
+o	Fix non blocking tty blocking bug		(Peter Benie)
+o	IRQ routing workaround for problem HP laptops	(Cory Bell)
+o	Fix the rcpci driver				(Pete Popov)
+o	Fix documentation of aedsp location		(Adrian Bunk)
+o	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
+o	Correct icmp documentation			(Pierre Lombard)
+o	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
+o	ldm header fix					(Anton Altaparmakov)
+o	Fix unchecked kmalloc in i2o_proc	(Ragnar Hojland Espinosa)
+o	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
+o	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
+o	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
+o	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
+o	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
+o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
+o	ISAPnP init fix					(Chris Rankin)
+o	Export release_console_sem			(Andrew Morton)
+o	Output nat crash fix				(Rusty Russell)
+o	Fix PLIP					(Tim Waugh)
+o	Natsemi driver hang fix				(Manfred Spraul)
+o	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262917AbSJGI3C>; Mon, 7 Oct 2002 04:29:02 -0400
+	id <S262925AbSJGIez>; Mon, 7 Oct 2002 04:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262919AbSJGI3C>; Mon, 7 Oct 2002 04:29:02 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:64499 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262917AbSJGI3B>; Mon, 7 Oct 2002 04:29:01 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021002120540.D24770@flint.arm.linux.org.uk> 
-References: <20021002120540.D24770@flint.arm.linux.org.uk>  <200210021257.43121.devilkin-lkml@blindguardian.org> 
-To: Russell King <rmk@arm.linux.org.uk>
+	id <S262926AbSJGIez>; Mon, 7 Oct 2002 04:34:55 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59652 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262925AbSJGIey>; Mon, 7 Oct 2002 04:34:54 -0400
+Date: Mon, 7 Oct 2002 09:40:26 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
 Cc: DevilKin <devilkin-lkml@blindguardian.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.50 - 8250_cs does NOT work 
+Subject: Re: 2.4.50 - 8250_cs does NOT work
+Message-ID: <20021007094026.B803@flint.arm.linux.org.uk>
+References: <20021002120540.D24770@flint.arm.linux.org.uk> <200210021257.43121.devilkin-lkml@blindguardian.org> <20021002120540.D24770@flint.arm.linux.org.uk> <18990.1033979667@passion.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 Oct 2002 09:34:27 +0100
-Message-ID: <18990.1033979667@passion.cambridge.redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <18990.1033979667@passion.cambridge.redhat.com>; from dwmw2@infradead.org on Mon, Oct 07, 2002 at 09:34:27AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 07, 2002 at 09:34:27AM +0100, David Woodhouse wrote:
+> Doesn't compile. ALPHA_KLUDGE_MCR undefined. That crap in the generic 8250
+> code should go away in favour of some mask bits set by the platform-specific
+> code when it registers the ports. You probably want to set the default _and_
+> the permitted bits that way.
 
-rmk@arm.linux.org.uk said:
-> > If i load the 8250_cs module, I get _nothing_ at all. No text in
-> > system logs, nothing. Modem doesn't respond under the old /dev/ttyS1, 
-> > I've tried all other /dev/ttySx's to see if it hasn't been remapped.
-> > Unfortunately, no.
-> > 
-> > Is there anything else I can try? I really need my modem back...
+Oddly, thats what DevilKin reported.  This isn't the patch I sent Linus.
+8)
 
-> Known problem.  I've sent a fix to someone else for it but iirc they
-> never came back.  The following patch is completely untested - I'm
-> still trying to get 2.5.40 to build at present. 
-
-Doesn't compile. ALPHA_KLUDGE_MCR undefined. That crap in the generic 8250
-code should go away in favour of some mask bits set by the platform-specific
-code when it registers the ports. You probably want to set the default _and_
-the permitted bits that way.
-
---
-dwmw2
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

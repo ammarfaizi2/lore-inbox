@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267963AbUI1QKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267958AbUI1QNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267963AbUI1QKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 12:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUI1QKU
+	id S267958AbUI1QNU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 12:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267957AbUI1QNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 12:10:20 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:8083 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S267957AbUI1QKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 12:10:08 -0400
-Date: Tue, 28 Sep 2004 18:09:44 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: [PATCH] add sysfs attribute 'carrier' for net devices
-Message-ID: <20040928160944.GK4172@admingilde.org>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Jesper Juhl <juhl-lkml@dif.dk>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Nico Schottelius <nico-kernel@schottelius.org>
-References: <Pine.LNX.4.61.0409270041460.2886@dragon.hygekrogen.localhost> <1096306153.1729.2.camel@localhost.localdomain> <415954AD.7010905@grupopie.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pMCBjikF2xGw87uL"
-Content-Disposition: inline
-In-Reply-To: <415954AD.7010905@grupopie.com>
-User-Agent: Mutt/1.3.28i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+	Tue, 28 Sep 2004 12:13:20 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:17050 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267958AbUI1QNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 12:13:19 -0400
+To: Paul Jackson <pj@sgi.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <1096302710971@topspin.com> <10963027102899@topspin.com>
+	<20040927131014.695b8212.pj@sgi.com> <52fz53e526.fsf@topspin.com>
+	<20040927234333.7cceff47.pj@sgi.com> <52mzzacsyk.fsf@topspin.com>
+	<20040928090032.292d12e8.pj@sgi.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 28 Sep 2004 09:13:17 -0700
+In-Reply-To: <20040928090032.292d12e8.pj@sgi.com> (Paul Jackson's message of
+ "Tue, 28 Sep 2004 09:00:32 -0700")
+Message-ID: <52wtyebcde.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][1/2] [RESEND] kobject: add HOTPLUG_ENV_VAR
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 28 Sep 2004 16:13:18.0002 (UTC) FILETIME=[10D03120:01C4A576]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Paul> Perhaps - but perhaps also I've shown you ways to use a
+    Paul> function with fewer non-const variables.
 
---pMCBjikF2xGw87uL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yeah, you've convinced me.  I'll reroll my patches.
 
-hi :)
-
-On Tue, Sep 28, 2004 at 01:10:21PM +0100, Paulo Marques wrote:
-> Of course your way is more robust to future 'netif_carrier_ok' changes=20
-> and the compiler should optimize it way anyway since it is an inline=20
-> function, so I actually prefer the !! version :)
-
-But perhaps those future changes would be interesting for userspace,
-too?
-
---=20
-Martin Waitz
-
---pMCBjikF2xGw87uL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBWYzHj/Eaxd/oD7IRAuwUAJ4m00GGSwpzKcICE/c+vsgZqJJGDACfQOlm
-xXMkPdP94+hFUrXy3CqRe+k=
-=W7Ao
------END PGP SIGNATURE-----
-
---pMCBjikF2xGw87uL--
+Thanks,
+  Roland

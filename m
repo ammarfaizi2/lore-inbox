@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVAGLmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVAGLoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVAGLmy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 06:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVAGLmy
+	id S261347AbVAGLoW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 06:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVAGLoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 06:42:54 -0500
-Received: from smtp.ono.com ([62.42.230.12]:7859 "EHLO resmta05.ono.com")
-	by vger.kernel.org with ESMTP id S261346AbVAGLmw (ORCPT
+	Fri, 7 Jan 2005 06:44:22 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:63973 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261347AbVAGLoN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 06:42:52 -0500
-Message-ID: <41DE75B6.6040709@usuarios.retecal.es>
-Date: Fri, 07 Jan 2005 12:42:46 +0100
-From: =?ISO-8859-15?Q?Ram=F3n_Rey_Vicente?= <rrey@usuarios.retecal.es>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041218)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Werner <werner@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm2
-References: <41DD87C0.4C45ECC8@sgi.com>
-In-Reply-To: <41DD87C0.4C45ECC8@sgi.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 7 Jan 2005 06:44:13 -0500
+Date: Fri, 7 Jan 2005 12:43:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, rusty@rustcorp.com.au,
+       paulus@au1.ibm.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG] mm_struct leak on cpu hotplug (s390/ppc64)
+Message-ID: <20050107114353.GA29779@elte.hu>
+References: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com> <1104892877.8954.27.camel@localhost.localdomain> <20050105110833.GA14956@elte.hu> <1104939854.18695.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104939854.18695.29.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Mike Werner wrote:
+* Nathan Lynch <nathanl@austin.ibm.com> wrote:
 
-| Can you apply this and see if it helps you.
+> OK, how's this?  I'll submit the sched and ppc64 bits separately if
+> there are no objections.  I assume Heiko can take care of s390.
+> 
+> Note that in the ppc64 cpu_die function we must call idle_task_exit
+> before calling ppc_md.cpu_die, because the latter does not return.
 
-Works fine with r128 and via agp. Thanks.
-- --
-Ramón Rey Vicente <ramon.rey en hispalinux.es>
-JID rreylinux@jabber.org - GPG public key id 0x9F28E377
-GPG Fingerprint 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
-Planet AUGCyL - http://augcyl.org/planet/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-iD8DBQFB3nW1w4Wp058o43cRAitoAJ4vJjI17o4KUaTv+OQTXTGKQ9GPSgCcCfwd
-9DI3I5iYwrETWGbgrjO4lgA=
-=YBtC
------END PGP SIGNATURE-----
+	Ingo

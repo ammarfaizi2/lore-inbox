@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbTAICNI>; Wed, 8 Jan 2003 21:13:08 -0500
+	id <S261375AbTAICXh>; Wed, 8 Jan 2003 21:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbTAICNH>; Wed, 8 Jan 2003 21:13:07 -0500
-Received: from ftp.tpi.com ([198.107.51.136]:13074 "EHLO mailgate.tpi.com")
-	by vger.kernel.org with ESMTP id <S261370AbTAICNF> convert rfc822-to-8bit;
-	Wed, 8 Jan 2003 21:13:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Gardner <timg@tpi.com>
-Reply-To: timg@tpi.com
-Organization: TriplePoint, Inc
-To: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-Subject: Re: 2.4.19 ICMP redirects erroneously ignored
-Date: Wed, 8 Jan 2003 19:21:44 -0700
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200301081852.05547.rtg@tim.rtg.net> <1042046214.17783.7.camel@ranjeet-linux-1>
-In-Reply-To: <1042046214.17783.7.camel@ranjeet-linux-1>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301081921.44506.timg@tpi.com>
+	id <S261371AbTAICXh>; Wed, 8 Jan 2003 21:23:37 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:36738 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261375AbTAICXg>; Wed, 8 Jan 2003 21:23:36 -0500
+Date: Thu, 9 Jan 2003 03:32:04 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Billy Rose <passive_induction@sbcglobal.net>
+Cc: rms@gnu.org, lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: free software
+Message-ID: <20030109023204.GB7420@louise.pinerecords.com>
+References: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand the ramifications of ICMP redirect and how it can be mis-used. 
-However, the SuSE 8.1 default for non-forwarding 
-(/proc/sys/net/ipv4ip_forward==0) Linux is to accept redirects. I also own 
-the router, so I trust it.
+> [passive_induction@sbcglobal.net]
+> 
+> after growing tired of trying to sift through the emails for tidbits of 
+> useful code, i have come to the conclusion that this thread should be 
+> geared towards something more constructive, otherwise i fear people will 
+> begin to find `open source' and `free software' distasteful.
 
-rtg
-On Wednesday 08 January 2003 10:16, Ranjeet Shetye wrote:
-> On Thu, 2003-01-09 at 02:52, Tim Gardner wrote:
-> > I'm getting pounded by ICMP redirects from my Nortel router. The
-> > setup is a SuSE 8.1 (2.4.19) standard client with fixed IP and netmask.
-> > The client is configured with a default route. However, there are
-> > several routers on the subnet that the default router knows about.
-> > Hence, the reason that the Nortel router emits ICMP redirects
-> > which my client steadfastly ignores.
-> >
-> > I've RTFM, read the kernel source, and checked the relevant settings
-> > (/proc/sys/net/ipv4/conf/all/*). I find in /proc/net/rt_cache that there
-> > are 2 entries, one of which is marked RTCF_REDIRECTED.
-> >
-> > Why isn't this redirected route being used?
->
-> AFAIK, because that would mean that you are allowing another machine to
-> manipulate your routing tables by simply using ICMP. How do you know
-> that you can trust the other machine, in this case, the nortel router ?
-> The problem is not of (missing) functionality, its about trusting the
-> integrity of the source of the ICMP redirect.
->
-> > This seems like a problem that ought to be common to anyone that
-> > has multiple routers on the same subnet. What am I missing?
-> >
-> > rtg
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+Would you guys *PLEASE* remove your earplugs and get this off lkml?
+You have been hinted->told->flamed->insulted and you still don't get it.
 
+Gear the thread towards whatever topics/issues/problems/points you find
+important, but please do so somewhere else!  linux-kernel is NOT the place
+for such discussions.
+
+Thanks for understanding,
 -- 
-Tim Gardner - timg@tpi.com 406-443-5357
-TriplePoint, Inc. - http://www.tpi.com
-PGP: http://www.tpi.com/PGP/Tim.txt
+Tomas Szepe <szepe@pinerecords.com>

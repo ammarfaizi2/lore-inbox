@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSHAW0M>; Thu, 1 Aug 2002 18:26:12 -0400
+	id <S317280AbSHAWcV>; Thu, 1 Aug 2002 18:32:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317182AbSHAW0M>; Thu, 1 Aug 2002 18:26:12 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:13302 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317025AbSHAW0L>; Thu, 1 Aug 2002 18:26:11 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0208011430450.1647-100000@penguin.transmeta.com> 
-References: <Pine.LNX.4.33.0208011430450.1647-100000@penguin.transmeta.com> 
+	id <S317282AbSHAWcV>; Thu, 1 Aug 2002 18:32:21 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:4871 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317280AbSHAWcU>; Thu, 1 Aug 2002 18:32:20 -0400
+Date: Fri, 2 Aug 2002 00:35:40 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
-       alan@redhat.com, linux-kernel@vger.kernel.org
+cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: manipulating sigmask from filesystems and drivers 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Aug 2002 23:29:31 +0100
-Message-ID: <11294.1028240971@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0208011430450.1647-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208020009490.28515-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-torvalds@transmeta.com said:
->  Any regular file IO is supposed to give you the full result. 
+On Thu, 1 Aug 2002, Linus Torvalds wrote:
 
-read(2) is permitted to return -EINTR. Granted, we shouldn't allow it to be
-interrupted and return a partial read after the point we start to
-copy_to_user(), but before then it's fair game.
+> This is not "sloppy programming". See the read() system call manual, which
+> says
+>
+>      Upon successful completion, read(), readv(), and pread() return the num-
+>      ber of bytes actually read and placed in the buffer.  The system guaran-
+>      tees to read the number of bytes requested if the descriptor references a
+>      normal file that has that many bytes left before the end-of-file, but in
+>      no other case.
+>
+> Note the "The system guarantees to read the number of bytes requested .."
+> part.
 
-Regular file I/O through the page cache is inherently restartable, anyway, 
-as long as you're careful about fpos.
+Relying on that the fd will always point to a normal file is only asking
+for trouble.
 
-There are better examples where you really can't have a cleanup path without
-severe pain, even using ERESTARTNOINTR, and I was only joking about removing
-TASK_UNINTERRUPTIBLE _entirely_ -- but the point remains that reducing its
-usage would be nice.
+> Stop arguing about this. It's a FACT.
 
---
-dwmw2
+Linus, it's not that I don't want to believe you, but e.g. the SUS doesn't
+make that special exception.
+Installing signal handlers and not expecting EINTR _is_ sloppy
+programming.
 
+bye, Roman
 

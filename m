@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268709AbUHaPOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUHaPR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268709AbUHaPOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 11:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268686AbUHaPOE
+	id S268686AbUHaPR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 11:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUHaPR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 11:14:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:47170 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268710AbUHaPMX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 11:12:23 -0400
-Message-ID: <9ae345c00408310812212e371e@mail.gmail.com>
-Date: Tue, 31 Aug 2004 18:12:20 +0300
-From: Yuval Turgeman <yuvalt@gmail.com>
-Reply-To: Yuval Turgeman <yuvalt@gmail.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] Searching parameters in menuconfig
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0408311427110.981@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Aug 2004 11:17:56 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:44936 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268686AbUHaPO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 11:14:58 -0400
+Subject: Re: Driver retries disk errors.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20040831135403.GB2854@bitwizard.nl>
+References: <20040830163931.GA4295@bitwizard.nl>
+	 <1093952715.32684.12.camel@localhost.localdomain>
+	 <20040831135403.GB2854@bitwizard.nl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <9ae345c0040831005257c245da@mail.gmail.com> <Pine.LNX.4.61.0408311427110.981@scrub.home>
+Message-Id: <1093961570.597.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 31 Aug 2004 15:12:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004 16:33:36 +0200 (CEST), Roman Zippel
-<zippel@linux-m68k.org> wrote:
+On Maw, 2004-08-31 at 14:54, Rogier Wolff wrote:
+> So, can we agree on: 
+> 	- might be needed for 
+> 		- Floppies?
+> 		- MO drives
+> 		- older drives
 
-> Andrew already commented on the coding style, so I can skip that.
+Other random stuff it saves our backside on we don't know about.
 
-Yeah sorry about that... I didn't read the CodingStyle doc... I'll pay
-more attention to it from now on.
+> How about we set the num-retries to 1, and increase to 8 for
+> "weird devices" (floppy, MO), and older drives. 
 
-> You get to this information easier by iterating over the properties
-> attached to a symbol (sym->prop) and a symbol can have multiple menu
-> prompts, you show only the first one (which might not be the right one)
-> and sym->prop->text might not even be a menu prompt at all.
+Disagree. I want it robust. If you want to set low retry counts then
+the user should do so for special cases like forensics.
 
-Ok, I wasn't aware that a symbol could be located in several submenus
-- I just tried to follow the build_conf routine.
+> I do want to make the num_retries thing a configurable parameter,
+> should the autodetect get it wrong: We get drives that we want to
+> recover without the kernel-level retries...
 
-> It would be nice to actually make it really useful, by first building a
-> list of found symbols (and possibly allow wildcards for searching) and
-> generate a menu of this. After a symbol is selected, build a new menu with
-> all the prompts, which could also include the option to change parent
-> symbols.
+Making it configurable is good, but I can't help feeling that this
+belongs at the block layer - I wonder what Jens thinks, it might well
+have to be done by the driver because only the driver knows enough but
+the ioctl/config option ought to be common.
 
-Yeah I tought about it also - I guess I'll try to implement this soon.  
-The usability of the search can be improved a lot... this was just a
-tiny prototype to help me find the parameter i was missing. :-)
-Thanks!
+> (still: I argue that you need to consider a "retry-works" error as an
+> early warning that your media is going bad, and you need to get your
+> data off ASAP! If the kernel silently retries and succeeds, the user
+> won't notice a thing and continue using the drive (or MO media) until
+> the error becomes irrecoverable. I recommend we put the retry at the
+> user level. As in "person behind keyboard".)
 
--- 
-Yuval Turgeman
+M/O media retries generally do the right thing and have the right
+effect. If you want to know if your drive is failing use SMART and ask
+the drive
+
+Remember: Storage appliance not disk. Treat it like a storage
+appliance and you'll get better results.
+
+Alan
+

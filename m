@@ -1,84 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271975AbRHVSer>; Wed, 22 Aug 2001 14:34:47 -0400
+	id <S272074AbRHVSkr>; Wed, 22 Aug 2001 14:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272074AbRHVSej>; Wed, 22 Aug 2001 14:34:39 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:26636 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S271975AbRHVSe0>; Wed, 22 Aug 2001 14:34:26 -0400
-Message-ID: <3B83FB3F.A0BDC056@zip.com.au>
-Date: Wed, 22 Aug 2001 11:34:39 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Filling holes in ext2
-In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk>
+	id <S272077AbRHVSk1>; Wed, 22 Aug 2001 14:40:27 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:31412 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S272074AbRHVSkX>; Wed, 22 Aug 2001 14:40:23 -0400
+Date: Wed, 22 Aug 2001 19:40:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: george anzinger <george@mvista.com>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>,
+        =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How should nano_sleep be fixed (was: ptrace(), fork(), sleep(), exit(), SIGCHLD)
+Message-ID: <20010822194035.K18391@flint.arm.linux.org.uk>
+In-Reply-To: <20010817125727.A16475@hq2> <3B7D76EF.DA34EB23@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B7D76EF.DA34EB23@mvista.com>; from george@mvista.com on Fri, Aug 17, 2001 at 12:56:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox wrote:
-> 
-> I've been looking at generic_file_write() a lot recently, and I'm a
-> little bothered by this section, as mangled here by Mozilla:
-> 
-> status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
-> if (status)
->         goto unlock;
-> status = __copy_from_user(kaddr+offset, buf, bytes);
-> flush_dcache_page(page);
-> if (status)
->         goto fail_write;
-> status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
-> 
-> If the __copy_from_user() does fail when writing to a hole or extending
-> a file on ext2, disk blocks get added to the file, but are never
-> cleared. The result is that data from a free block appears in the file.
+On Fri, Aug 17, 2001 at 12:56:31PM -0700, george anzinger wrote:
+> Uh..?  I though that was what I was allowing.  It seems to me to be a
+> lot of extra work to put the same code in 15 different archs. 
+> Especially if one does not really know each of them, nor can any one
+> group (or individual) be expected to be able to test (or even have the
+> hardware to test) each of them.
 
-Yup.
+Umm, my best advice is to look at sys_fork() and do_fork(), sys_execve()
+and do_execve().
 
-> I've not managed to trigger this in a real system, but I have explored
-> the failure path by running UML under gdb. I filled the filesystem with
-> data as root (yes > /mnt/test), deleted the files, then triggered this
-> path on an application running as a normal user. The result was that
-> root's old data appeared in the user file.
-> 
-> So:
-> Can this really happen on the mainstream kernel? (The kernel I tested on
->   was 2.4.7 with the corresponding UML patch.)
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Yes, it can.
-
-> Can this actually be exploited?  I assume the test on __copy_from_user()
-> is there in case another thread changes memory mappings while
-> generic_file_write() is running. My attempts to do this haven't yet
-> succeeded.
-
-I'd expect it to occur if you simply pass an unmapped address
-to write()?
- 
-> If this can happen, does it matter?
-
-It matters.  -ac kernels handle this by clearing out the blocks
-on the error path in __block_prepare_write().  If you retest with
--ac kernels, you should just see zeroes.
-
-> Should ext2 have an abort_write() operation like ext3() has?
-
-abort_write() is an expediency - it was (much) easier and safer
-to add a new operation rather than running all over the kernel
-and redefining the commit_write() API.
-
-ext3 definitely needs to know about prepare/commit imbalance in
-lo_send() and generic_file_write(), and in block_symlink() if that
-is ever changed to error out after the prepare_write().
-
-But long-term, we need to change the commit_write() definition so
-that it is called even in the error case, thus informing the
-underlying fs of the partial write.
-
--

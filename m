@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVB0IIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVB0INM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVB0IIM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 03:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVB0IIL
+	id S261367AbVB0INM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 03:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVB0INM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 03:08:11 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:7561 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261366AbVB0IIF (ORCPT
+	Sun, 27 Feb 2005 03:13:12 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:16267 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261367AbVB0IMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 03:08:05 -0500
-Date: Sun, 27 Feb 2005 09:07:37 +0100 (CET)
+	Sun, 27 Feb 2005 03:12:38 -0500
+Date: Sun, 27 Feb 2005 09:12:25 +0100 (CET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Olaf Hering <olh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: 2.6.11-rc5
-In-Reply-To: <1109380389.15026.112.camel@gaston>
-Message-ID: <Pine.LNX.4.62.0502270906420.3143@numbat.sonytel.be>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
- <20050224145049.GA21313@suse.de>  <20050226004137.GA25539@suse.de>
- <1109380389.15026.112.camel@gaston>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vsprintf.c cleanups 
+In-Reply-To: <200502251337.j1PDbVbo005932@laptop11.inf.utfsm.cl>
+Message-ID: <Pine.LNX.4.62.0502270910100.3143@numbat.sonytel.be>
+References: <200502251337.j1PDbVbo005932@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Feb 2005, Benjamin Herrenschmidt wrote:
-> On Sat, 2005-02-26 at 01:41 +0100, Olaf Hering wrote:
-> > modedb can not be __init because fb_find_mode() may get db == NULL.
-> > fb_find_mode() is called from modules.
+On Fri, 25 Feb 2005, Horst von Brand wrote:
+> Brian Gerst <bgerst@didntduck.org> said:
+> > Horst von Brand wrote:
+> > > Brian Gerst <bgerst@didntduck.org> said:
+> > > 
+> > >>- Make sprintf call vsnprintf directly
+> > >>- use INT_MAX for sprintf and vsprintf
 > 
-> Ahhh, good catch ! I though that was fixed long ago, looks like I was
-> wrong.
+> > > This is the size limit on what is written. 4GiB sounds a bit extreme...
+> 
+> > Sprintf has no limit, which is why it's generally bad to use it.  I just 
+> > replaced an open coded ((~0U)>>1) value with the equivalent INT_MAX.
+> 
+> Which is the same as "no limit" in my book. Either you know a limit (in
+> which case vsprintf() is OK) or you don't (in which case vsnprintf() is
+> just obfuscation).
 
-Yep, I was surprised by this bug as well...
+Indeed. So the only place that is allowed to pass the `no limit' value to
+snprintf() is in the sprintf() wrapper that calls snprintf().
+
+Calls to sprintf() must not be converted to snprintf(..., `no limit', ...), so
+it's easier to find them when doing buffer overflow audits.
 
 Gr{oetje,eeting}s,
 

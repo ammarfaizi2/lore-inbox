@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264139AbSIQMcH>; Tue, 17 Sep 2002 08:32:07 -0400
+	id <S264156AbSIQNG3>; Tue, 17 Sep 2002 09:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264145AbSIQMcG>; Tue, 17 Sep 2002 08:32:06 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:24072 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S264139AbSIQMcF>; Tue, 17 Sep 2002 08:32:05 -0400
-Message-ID: <3D8721FB.70B74C27@aitel.hist.no>
-Date: Tue, 17 Sep 2002 14:37:15 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.35 i686)
-X-Accept-Language: no, en, en
+	id <S264157AbSIQNG3>; Tue, 17 Sep 2002 09:06:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1974 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264156AbSIQNG2>;
+	Tue, 17 Sep 2002 09:06:28 -0400
+Date: Tue, 17 Sep 2002 09:11:26 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: route inode->block_device in 2.5?
+In-Reply-To: <5.1.0.14.2.20020917132943.00b239e0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.GSO.4.21.0209170845020.1645-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Thomas Molina <tmolina@cox.net>
-CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: 2.5 Problem Report Status
-References: <Pine.LNX.4.44.0209162050140.10084-100000@dad.molina>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina wrote:
 
-> 14   RAID boot problem          open                  2.5.34
+
+On Tue, 17 Sep 2002, Anton Altaparmakov wrote:
+
+> At 17:22 12/09/02, Peter T. Breuer wrote:
+> >Is there a pointer chain by which one can get to the struct
+> >block_device of the underlying block device from an inode?
 > 
-This one got fixed in 2.5.34-bk6 and is ok in 2.5.35.
+> struct inode->i_sb (== struct super_block)->s_bdev (== struct block_device).
 
-One may boot from a root RAID-1 now, if it don't
-need to resync.
+... is meaningful only for local filesystems that happen to live on a
+single block device and even that only if said local filesystems want
+to use the helper functions that expect ->s_bdev to be there.
 
-The kernel dies within a minute or two 
-if it has to resync a sufficiently big
-raid-1 though - by freezing solid.  Sometimes
-with several 0-order allocation failures first.
-this is a known problem.
+IOW, upper layers have no business using that field - it's for the
+filesystem-specific code and helper functions such code decides to
+call.
 
-This is made a bit worse by the way later
-kernels also makes shutdown segfault so
-the RAID's cannot be shutdown correctly.
+There might be such thing as underlying block device of a <foofs> inode.
+There is no such thing as underlying block device of an inode.  For
+quite a few filesystems it simply makes no sense.  For some it does
+and for many of them ->i_sb->s_bdev indeed would give you that, but
+that's it - it _is_ fs-dependent and there is no guarantee that
+e.g. minixfs in 2.6.4-pre2 won't change leaving ->s_bdev NULL and
+storing pointer to block device elsewhere (at which point it will
+have to switch from sb_bread() and friends to something else).
 
-My solution is to always boot 2.5.7 for
-a correct 5-min sync after shutdown, before testing
-a new kernel. :-/
+The point being, VFS doesn't know, doesn't care and shouldn't presume
+anything about private details of fs implementation.  Notice that
+VFS != "all stuff in fs/*.c" - the latter includes a pile of library
+functions intended for use by filesystem code.  That stuff obviously
+can make whatever assumptions about fs internals it wants - the callers
+know what data structures they have and can decide what can be called.
 
-Helge Hafting

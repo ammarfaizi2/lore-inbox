@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264989AbUD3Pq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263628AbUD3Pwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264989AbUD3Pq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 11:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbUD3Pq0
+	id S263628AbUD3Pwz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 11:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbUD3Pwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 11:46:26 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:12075 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264989AbUD3PqV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 11:46:21 -0400
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-From: Bart Samwel <bart@samwel.tk>
-Reply-To: bart@samwel.tk
-To: Clay Haapala <chaapala@cisco.com>
-Cc: Timothy Miller <miller@techsource.com>, Paul Jackson <pj@sgi.com>,
-       vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
-       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <yquj65bhtr5o.fsf@chaapala-lnx2.cisco.com>
-References: <40904A84.2030307@yahoo.com.au>
-	 <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	 <20040429133613.791f9f9b.pj@sgi.com> <409175CF.9040608@techsource.com>
-	 <20040429144737.3b0c736b.pj@sgi.com> <40917F1E.8040106@techsource.com>
-	 <20040429154632.4ca07cf9.pj@sgi.com> <40918AD2.9060602@techsource.com>
-	 <1083328293.2204.53.camel@samwel.tk>
-	 <yquj65bhtr5o.fsf@chaapala-lnx2.cisco.com>
-Content-Type: text/plain
+	Fri, 30 Apr 2004 11:52:54 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:14606 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263628AbUD3Pwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 11:52:53 -0400
+Message-ID: <4092776A.5020705@techsource.com>
+Date: Fri, 30 Apr 2004 11:57:30 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Sean Estabrooks <seanlkml@rogers.com>
+CC: Marc Boucher <marc@linuxant.com>, koke@sindominio.net, paul@wagland.net,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, riel@redhat.com,
+       david@gibson.dropbear.id.au
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>	<4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>	<4091757B.3090209@techsource.com>	<200404292347.17431.koke_lkml@amedias.org>	<0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com> <20040429195553.4fba0da7.seanlkml@rogers.com>
+In-Reply-To: <20040429195553.4fba0da7.seanlkml@rogers.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1083339885.2204.61.camel@samwel.tk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Apr 2004 17:44:46 +0200
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: bsamwel@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-30 at 17:35, Clay Haapala wrote:
-> On Fri, 30 Apr 2004, Bart Samwel uttered the following:
-> > 
-> > Thought experiment: what would happen when you set the hypothetical
-> > cpu-nice and io-nice knobs very differently?
-> > 
-> Dunno why, but this talk of knobs makes me think of the "effects-mix"
-> knob on my bass amp that controls how much effects-loop signal is
-> mixed with the "dry" guitar signal.
+
+
+Sean Estabrooks wrote:
+> On Thu, 29 Apr 2004 18:24:58 -0400
+> Marc Boucher <marc@linuxant.com> wrote:
 > 
-> Getting back to kernel talk, we have a "swappiness" knob, right?
-> Should there be, or is there already, a way to dynamically vary the
-> effect of swappiness [within a range], based on some monitored system
-> characteristics such as keyboard/mouse (HID) input or some other
-> identifiable profile?  Perhaps this is similar to nice/fairness logic
-> in the process schedulers.
+> 
+> 
+>>I think that Rik is right when saying that the key information that 
+>>should be conveyed is who is responsible for providing support. The 
+>>wording should be kept neutral, without negative connotation nor 
+>>religious bias.
+> 
+> 
+> Perhaps others on this list are getting as tired as I am of your using
+> the term "religious bias" as a negative connotation against people who
+> support and protect the open source nature of Linux.   Maybe you could
+> at least pretend to respect the people who you supposedly apologized to. 
 
-This kind of thing is exactly what has been avoided by using
-interactivity boosts, and taking that into account in an "io-nice" value
-as well should solve that. Other profiles might be interesting though.
 
-Interactive tasks have a tendency to be interactive for a short while,
-and then be noninteractive for a long time. I'm thinking that it might
-be worthwhile to do something with that, i.e. to keep a bonus for "past
-interactivity" on some pages based on the fact that they were originally
-loaded by a still-existing process that was once/is marked as
-interactive.
+Quite true.  This isn't about religion.  It's about people's right to 
+choose how they license their the code they write.
 
---Bart
+This is about copyright law and our right to choose what others we can 
+do with what we have copyrighted.
+
+While I agree that there is a political agenda behind the GPL, we have 
+to respect the rights of those who choose to apply it as a license to 
+their creative works.
+
+And furthermore, having a political agenda is not inherently wrong.
+

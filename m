@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263528AbTDIPnr (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbTDIPnr (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:43:47 -0400
-Received: from host.atlantavirtual.com ([209.239.35.47]:11982 "EHLO
-	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S263528AbTDIPnq (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 11:43:46 -0400
-Subject: Re: mounting partitions on loopback
-From: kernel <kernel@crazytrain.com>
-Reply-To: kernel@crazytrain.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049907303.4504.46.camel@thong>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 09 Apr 2003 12:55:03 -0400
-Content-Transfer-Encoding: 7bit
+	id S263539AbTDIPwM (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263541AbTDIPwM (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:52:12 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:35513 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263539AbTDIPwL convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 11:52:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Alistair Strachan <alistair@devzero.co.uk>, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.67-mm1
+Date: Wed, 9 Apr 2003 07:59:57 -0800
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200304081741.10129.alistair@devzero.co.uk> <200304081606.13405.pbadari@us.ibm.com> <200304090800.43022.alistair@devzero.co.uk>
+In-Reply-To: <200304090800.43022.alistair@devzero.co.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304090859.57356.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren
+On Wednesday 09 April 2003 12:00 am, Alistair Strachan wrote:
 
-you'll have to either specify the offsets that the partitions start at
-via;
+>
+> Sorry for the delay, I've only just woken up. I applied the patch, it
+> wouldn't compile, you missed the following (I think obvious) chunk:
+>
+> --- linux-2.5/fs/partitions/check.c.old 2003-04-09 07:49:29 +0100
+> +++ linux-2.5/fs/partitions/check.c     2003-04-09 07:51:26 +0100
+> @@ -160,7 +160,7 @@
+>  {
+>  #ifdef CONFIG_DEVFS_FS
+>         devfs_handle_t dir;
+> -       struct hd_struct *p = dev->part;
+> +       struct hd_struct **p = dev->part;
+>         char devname[16];
+>
+>         if (p[part-1]->de)
+>
+> With that in place, it compiled without warning and the machine now
+> boots with the dynamic hd_struct work + aggregate stats patch.
+>
+> Thanks for your time.
 
-mount -o ro,loop,offset=XXX  blah blah blah
+Thank you for testing it with devfs. 
 
-Or, use a program such as SMART for Linux (asrdata.com) that will do
-that for you and allow you to right-click on them (logical partitions)
-and mount them.
-
-Remember, though, if that start of the filesystem is beyond 2GB into the
-image you'll not be able to mount it even specifying the offset.  (I
-think this is a 'bug' with the loop driver that ships with kernel?)
-However, NASA has come up with a nice workaround I use and you can find
-it here;
-
-ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/
-
-This modified loopback driver will automatically mount the partitions
-within that physical image file read only using the loop devices on your
-system.  (no calculation of offsets is necessary, no problem if beyond
-2GB, etc.).
-
-
-hope this helps!
-
-farmerdude
-
-
-
-
+- Badari

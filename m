@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279552AbRJXMsG>; Wed, 24 Oct 2001 08:48:06 -0400
+	id <S279551AbRJXMpQ>; Wed, 24 Oct 2001 08:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279554AbRJXMr4>; Wed, 24 Oct 2001 08:47:56 -0400
-Received: from [160.131.145.131] ([160.131.145.131]:41488 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S279552AbRJXMrr>;
-	Wed, 24 Oct 2001 08:47:47 -0400
-Message-ID: <00a601c15c8a$28f9b420$839183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110240042570.1210-100000@u.domain.uli> <3BD65188.1060203@blue-labs.org> <02b601c15c53$c02f4990$0800a8c0@century.cz>
-Subject: Re: issue: deleting one IP alias deletes all
-Date: Wed, 24 Oct 2001 08:48:18 -0400
+	id <S279552AbRJXMpH>; Wed, 24 Oct 2001 08:45:07 -0400
+Received: from mail6.speakeasy.net ([216.254.0.206]:6404 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S279551AbRJXMpA>; Wed, 24 Oct 2001 08:45:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.12-ac, lm-sensors broken ??
+Date: Wed, 24 Oct 2001 08:45:34 -0400
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200110241238.OAA02419@db0bm.ampr.org>
+In-Reply-To: <200110241238.OAA02419@db0bm.ampr.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011024124503Z279551-17408+4359@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Petr Titera" <owl@century.cz>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, October 24, 2001 2:18 AM
-Subject: Re: issue: deleting one IP alias deletes all
+On Wednesday 24 October 2001 08:38, f5ibh wrote:
+> Hi,
+>
+> I use the lm-sensors on my system, it works fine with 2.2.20pre and 2.4.13
+> but not with the ac tree, is there any reason for that ? I compile the i2c
+> and lm-sensors package as modules outside the kernel. The .config are the
+> same for both the kernels. The various modules (w83781d i2c-proc i2c-isa
+> i2c-core) loads fine with both systems.
 
-> > Switch to 'ip' instead of 'ifconfig', several large distros now include
-> > it.  Addresses can be added and removed completely indiscriminately on
-> > interfaces.
-> >
-> 
-> I'd like to, but there's nothing like documentation with it.
-> 
-
-iproute should come with the ip command reference.
-On RedHat 7.1, it lives here:
-/usr/share/doc/iproute-2.2.4/ip-cref.ps
-I've converted it to PDF, if you don't like PS:
-http://www.hellninjacommando.com/misc/ip-cref.pdf
-
-They accused us of suppressing freedom of expression.
-This was a lie and we could not let them publish it.
--- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
-
-
-
+I use it quite nicely on 2.4.12-ac3   the latest i2c stack is already in the 
+ac branch, you need not compile it on your own.  lm sensors version 2.6.1 and 
+up is supported.  Just compile and install it.  (make;make install). 

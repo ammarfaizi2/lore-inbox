@@ -1,65 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbULOB2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbULOBXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbULOB2p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 20:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbULOB1r
+	id S261787AbULOBXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 20:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbULOBVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 20:27:47 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:61418 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261834AbULOBLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 20:11:50 -0500
-Date: Tue, 14 Dec 2004 17:11:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
-Message-ID: <20041215011132.GA16099@kroah.com>
-References: <20041214164548.GA18817@kroah.com> <Pine.LNX.4.44.0412142304160.11826-100000@localhost.localdomain> <20041215001912.GA15575@kroah.com>
+	Tue, 14 Dec 2004 20:21:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57100 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261794AbULOArt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 19:47:49 -0500
+Date: Wed, 15 Dec 2004 01:47:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/packet/af_packet.c: make some code static
+Message-ID: <20041215004745.GI23151@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041215001912.GA15575@kroah.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 04:19:12PM -0800, Greg KH wrote:
-> On Tue, Dec 14, 2004 at 11:26:48PM +0000, Hugh Dickins wrote:
-> > One case that's easy to explain: if it was preceded (perhaps hours
-> > earlier) by a "Bad page state" message and stacktrace, referring to
-> > the same page (in ecx, edx, ebp in your dump), which showed non-zero
-> > mapcount, then this is an after-effect of bad_page resetting mapcount.
-> > And the real problem was probably a double free, which bad_page noted,
-> > but carried on regardless.  Worth checking your logs for, let us know,
-> > but there have been several reports where that's definitely not so.
-> 
-> Nope, nothing like that in my logs, sorry.
-> 
-> > I presume this was just a one-off?  If you can repeat it from time to
-> > time, I'll try to devise some printk'ing to shed more light.
-> 
-> I'll try to see if I can reproduce it.  If so, I'll let you know.
+The patch below makes some needlessly global code static.
 
-Yes, I can duplicate it easily now:
-	- running X with drm and the radeon driver
-	- start a gish game up in 640x480 mode and start the initial
-	  level.
-	- as the laptop just can't handle the cpu demands of this
-	  program, everything runs way too slow.
-	- switch back to the console that I started X up on and hit
-	  ctrl-C.
-	- X dies, and the kernel oops happens.
 
-And yes, it does only show up when I'm using drm/agp for me, as this is
-the only way I've ever seen this error.  I can't really even get gish to
-start up without drm, but I guess I could try to see if I can do that
-later tonight.
+diffstat output:
+ net/packet/af_packet.c |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
-Any testing you want me to do?
 
-Oh, and this also happens on 2.6.10-rc3-bk8.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-thanks,
+--- linux-2.6.10-rc3-mm1-full/net/packet/af_packet.c.old	2004-12-14 21:47:49.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/packet/af_packet.c	2004-12-14 21:50:25.000000000 +0100
+@@ -145,10 +145,10 @@
+  */
+ 
+ /* List of all packet sockets. */
+-HLIST_HEAD(packet_sklist);
++static HLIST_HEAD(packet_sklist);
+ static rwlock_t packet_sklist_lock = RW_LOCK_UNLOCKED;
+ 
+-atomic_t packet_socks_nr;
++static atomic_t packet_socks_nr;
+ 
+ 
+ /* Private packet socket structures. */
+@@ -215,7 +215,7 @@
+ 
+ #define pkt_sk(__sk) ((struct packet_opt *)(__sk)->sk_protinfo)
+ 
+-void packet_sock_destruct(struct sock *sk)
++static void packet_sock_destruct(struct sock *sk)
+ {
+ 	BUG_TRAP(!atomic_read(&sk->sk_rmem_alloc));
+ 	BUG_TRAP(!atomic_read(&sk->sk_wmem_alloc));
+@@ -234,10 +234,10 @@
+ }
+ 
+ 
+-extern struct proto_ops packet_ops;
++static struct proto_ops packet_ops;
+ 
+ #ifdef CONFIG_SOCK_PACKET
+-extern struct proto_ops packet_ops_spkt;
++static struct proto_ops packet_ops_spkt;
+ 
+ static int packet_rcv_spkt(struct sk_buff *skb, struct net_device *dev,  struct packet_type *pt)
+ {
+@@ -1350,8 +1350,8 @@
+ 	}
+ }
+ 
+-int packet_getsockopt(struct socket *sock, int level, int optname,
+-		      char __user *optval, int __user *optlen)
++static int packet_getsockopt(struct socket *sock, int level, int optname,
++			     char __user *optval, int __user *optlen)
+ {
+ 	int len;
+ 	struct sock *sk = sock->sk;
+@@ -1500,7 +1500,8 @@
+ #define packet_poll datagram_poll
+ #else
+ 
+-unsigned int packet_poll(struct file * file, struct socket *sock, poll_table *wait)
++static unsigned int packet_poll(struct file * file, struct socket *sock,
++				poll_table *wait)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct packet_opt *po = pkt_sk(sk);
+@@ -1747,7 +1748,7 @@
+ 
+ 
+ #ifdef CONFIG_SOCK_PACKET
+-struct proto_ops packet_ops_spkt = {
++static struct proto_ops packet_ops_spkt = {
+ 	.family =	PF_PACKET,
+ 	.owner =	THIS_MODULE,
+ 	.release =	packet_release,
+@@ -1769,7 +1770,7 @@
+ };
+ #endif
+ 
+-struct proto_ops packet_ops = {
++static struct proto_ops packet_ops = {
+ 	.family =	PF_PACKET,
+ 	.owner =	THIS_MODULE,
+ 	.release =	packet_release,
 
-greg k-h

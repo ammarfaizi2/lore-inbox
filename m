@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292951AbSBVSXT>; Fri, 22 Feb 2002 13:23:19 -0500
+	id <S292890AbSBVS03>; Fri, 22 Feb 2002 13:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292952AbSBVSXJ>; Fri, 22 Feb 2002 13:23:09 -0500
-Received: from mail.scs.ch ([212.254.229.5]:10118 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id <S292951AbSBVSXD>;
-	Fri, 22 Feb 2002 13:23:03 -0500
-Message-ID: <3C768C80.C5C3DBE@scs.ch>
-Date: Fri, 22 Feb 2002 19:22:56 +0100
-From: Thomas Sailer <sailer@scs.ch>
-Reply-To: t.sailer@alumni.ethz.ch
-Organization: SCS
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-21jnx i686)
-X-Accept-Language: en
+	id <S292902AbSBVS0T>; Fri, 22 Feb 2002 13:26:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45573 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292952AbSBVS0I>; Fri, 22 Feb 2002 13:26:08 -0500
+Subject: Re: is CONFIG_PACKET_MMAP always a win?
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Date: Fri, 22 Feb 2002 18:40:01 +0000 (GMT)
+Cc: dank@kegel.com (Dan Kegel),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        zab@zabbo.net (Zach Brown)
+In-Reply-To: <20020222180957.A16796@kushida.apsleyroad.org> from "Jamie Lokier" at Feb 22, 2002 06:09:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Samium Gromoff <root@ibe.miee.ru>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Ess Solo-1 interrupt behaviour
-In-Reply-To: <200202191412.g1JECvV12317@ibe.miee.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16eKbx-0002k2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff wrote:
-> "  Alan Cox wrote:"
-> > Yes. It has diff fragment limits
->         So the point is we should fix esd, not the solo-1 driver, i presume?
->         (esd_fixed -> irq_load_fixed -> disk_io_is_back)... sounds ok
+> >    Overhead: kernel does a full memcpy of the packet body to get it
+> >    into the ring buffer, and my program does another to get it out.
+> 
+> I had a look at this about a year ago, and it seems there is no method
+> provided to read the packets without copying them, if you need them in
+> user space.
 
-Note that solo1 has differnet limits depending whether the program (esd)
-runs as root or not. root may shoot him/herself into the foot...
-
-Tom
+You can process them in the ring buffer. If you can't keep up then you
+are screwed any way you look at it 8)

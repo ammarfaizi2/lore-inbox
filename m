@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSGWJoK>; Tue, 23 Jul 2002 05:44:10 -0400
+	id <S318008AbSGWJut>; Tue, 23 Jul 2002 05:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318008AbSGWJoK>; Tue, 23 Jul 2002 05:44:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:60621 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318007AbSGWJoJ>;
-	Tue, 23 Jul 2002 05:44:09 -0400
-Date: Tue, 23 Jul 2002 11:46:02 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] big IRQ lock removal, 2.5.27-F3
-Message-ID: <Pine.LNX.4.44.0207231142160.5844-100000@localhost.localdomain>
+	id <S318009AbSGWJut>; Tue, 23 Jul 2002 05:50:49 -0400
+Received: from [202.145.83.35] ([202.145.83.35]:32271 "EHLO ite.techarea.org")
+	by vger.kernel.org with ESMTP id <S318008AbSGWJus>;
+	Tue, 23 Jul 2002 05:50:48 -0400
+Date: Tue, 23 Jul 2002 17:53:46 +0800
+From: Richard Liu <richliu@ite.techarea.org>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: How to use ioctl write data to ide device?
+Message-Id: <20020723174653.4B46.RICHLIU@ite.techarea.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all:
 
-the latest irqremove patch, against 2.5.27-BK-current:
+   I have a ide device which need use special command to configure it.
+I want to write a user space program to control it. 
 
-   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-F3
+so I try to use ioctl send my command, but after I send IDE command
+I must send 512byte to device. 
 
-Changes:
+does anyone know how to write data from user space?
 
- - the entry.S cleanups/speedups by Oleg Nesterov.
-
- - a rather critical synchronize_irq() bugfix: if a driver frees an 
-   interrupt that is still being probed then synchronize_irq() locks up.
-   This bug has caused a spurious boot-lockup on one of my testsystems,
-   ifconfig would lock up trying to close eth0.
-
- - remove duplicate definitions from asm-i386/system.h, this fixes 
-   compiler warnings.
-
-compiles, boots, works just fine.
-
-	Ingo
-
+and I have another question, 
+    what is "hwif->drives[0].unmask = 1;", how to use it correctly?
+--
+Richard Liu
 

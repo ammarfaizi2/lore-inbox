@@ -1,156 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318879AbSH1PoT>; Wed, 28 Aug 2002 11:44:19 -0400
+	id <S318884AbSH1Pqe>; Wed, 28 Aug 2002 11:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318884AbSH1Pmn>; Wed, 28 Aug 2002 11:42:43 -0400
-Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:4739 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S318879AbSH1PlK>; Wed, 28 Aug 2002 11:41:10 -0400
-Date: Wed, 28 Aug 2002 16:45:20 +0100
-Message-Id: <200208281545.g7SFjKE14338@sisko.scot.redhat.com>
-From: Stephen Tweedie <sct@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 5/8] 2.4.20-pre4/ext3: Fix O_SYNC for non-data-journaled modes.
+	id <S318897AbSH1PqP>; Wed, 28 Aug 2002 11:46:15 -0400
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:52786
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S318884AbSH1Ppj>; Wed, 28 Aug 2002 11:45:39 -0400
+Message-ID: <3D6CF132.4090205@bonin.ca>
+Date: Wed, 28 Aug 2002 11:50:10 -0400
+From: Andre Bonin <Bonin@bonin.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: hch@infradead.org, aia21@cantab.net, kernel@bonin.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: Loop devices under NTFS
+References: <200208280106.SAA05492@adam.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [65.39.24.214] using ID <bonin@rogers.com> at Wed, 28 Aug 2002 11:49:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext3 has its own code which marks buffers dirty, in addition to the setting
-done by the core generic_commit_write code.  However, the core code does
+Adam J. Richter wrote:
 
-                        if (!atomic_set_buffer_dirty(bh)) {
-                                __mark_dirty(bh);
-                                buffer_insert_inode_queue(bh, inode);
+>On Wed, 28 Aug 2002 at 00:59:55AM +0100, Christoph Hellwig wrote:
+>  
+>
+>>On Tue, Aug 27, 2002 at 04:42:56PM -0700, Adam J. Richter wrote:
+>>    
+>>
+>>>>On Tue, Aug 27, 2002 at 06:53:19AM -0700, Adam J. Richter wrote:
+>>>>        
+>>>>
+>>>>>	Why?
+>>>>>
+>>>>>	According to linux-2.5.31/Documentation/Locking,
+>>>>>"->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
+>>>>>may be called from the request handler (/dev/loop)."
+>>>>>          
+>>>>>
+>>>>Just because it's present in current code it doesn't mean it's right.
+>>>>Calling aops directly from generic code is a layering violation and
+>>>>it will not survive 2.5.
+>>>>        
+>>>>
+>>>	Only according your own proclamation.  You are arguing
+>>>circular logic, and I am aruging a concrete benefit: we can avoid an
+>>>extra copying of all data in the input and output paths going through
+>>>an encrypted device.
+>>>
+I'me new to kernel development and i've never fooled around with drivers 
+before (I do have a course in it this september though, Wohoo!).
 
-so if ext3 marks the buffer dirty itself, the core fails to put it on the
-per-inode list of dirty buffers.  Hence, fsync_inode_buffers() misses it.
+Why are you saying it would copy the data? Couldn't you just make some 
+sort of shared memory system that would let you unencript/uncompress the 
+data without having to do a copy?  The way i see it you can read the 
+block, pass it through the necessary mods using the same data.  You 
+could get a wierd race condition if your uncompress and your unencript 
+work on the same data at the same time but that can easily be avoided 
+ The way i see it, the NTFS driver should be able to read the file and 
+uncompress.  The loop driver should have access to that block without 
+having to do a copy to present it to a third party driver. Which then 
+reads the data read by the driver and rpesents it as a filesystem.  
 
-The fix is to let ext3 put the buffer on the inode queue manually when
-walking the page's buffer lists in its page write code.
+Maby even do away with loop.c, there should really be no loop.c .  A 
+normal mount (/dev/hda1 for example) is a first level mount.  If you let 
+/mnt/foo/myfile.iso be from /dev/hda1, then the chain should be 
+/dev/hda1->ISO9660 module-->presentation.
 
---- linux-ext3-2.4merge/fs/ext3/inode.c.=K0006=.orig	Tue Aug 27 23:19:57 2002
-+++ linux-ext3-2.4merge/fs/ext3/inode.c	Tue Aug 27 23:19:57 2002
-@@ -949,11 +949,13 @@
- }
- 
- static int walk_page_buffers(	handle_t *handle,
-+				struct inode *inode,
- 				struct buffer_head *head,
- 				unsigned from,
- 				unsigned to,
- 				int *partial,
- 				int (*fn)(	handle_t *handle,
-+						struct inode *inode,
- 						struct buffer_head *bh))
- {
- 	struct buffer_head *bh;
-@@ -971,7 +973,7 @@
- 				*partial = 1;
- 			continue;
- 		}
--		err = (*fn)(handle, bh);
-+		err = (*fn)(handle, inode, bh);
- 		if (!ret)
- 			ret = err;
- 	}
-@@ -1004,7 +1006,7 @@
-  * write.  
-  */
- 
--static int do_journal_get_write_access(handle_t *handle, 
-+static int do_journal_get_write_access(handle_t *handle, struct inode *inode,
- 				       struct buffer_head *bh)
- {
- 	return ext3_journal_get_write_access(handle, bh);
-@@ -1030,7 +1032,7 @@
- 		goto prepare_write_failed;
- 
- 	if (ext3_should_journal_data(inode)) {
--		ret = walk_page_buffers(handle, page->buffers,
-+		ret = walk_page_buffers(handle, inode, page->buffers,
- 				from, to, NULL, do_journal_get_write_access);
- 		if (ret) {
- 			/*
-@@ -1051,24 +1053,32 @@
- 	return ret;
- }
- 
--static int journal_dirty_sync_data(handle_t *handle, struct buffer_head *bh)
-+static int journal_dirty_sync_data(handle_t *handle, struct inode *inode,
-+				   struct buffer_head *bh)
- {
--	return ext3_journal_dirty_data(handle, bh, 0);
-+	int ret = ext3_journal_dirty_data(handle, bh, 0);
-+	if (bh->b_inode != inode)
-+		buffer_insert_inode_data_queue(bh, inode);
-+	return ret;
- }
- 
- /*
-  * For ext3_writepage().  We also brelse() the buffer to account for
-  * the bget() which ext3_writepage() performs.
-  */
--static int journal_dirty_async_data(handle_t *handle, struct buffer_head *bh)
-+static int journal_dirty_async_data(handle_t *handle, struct inode *inode, 
-+				    struct buffer_head *bh)
- {
- 	int ret = ext3_journal_dirty_data(handle, bh, 1);
-+	if (bh->b_inode != inode)
-+		buffer_insert_inode_data_queue(bh, inode);
- 	__brelse(bh);
- 	return ret;
- }
- 
- /* For commit_write() in data=journal mode */
--static int commit_write_fn(handle_t *handle, struct buffer_head *bh)
-+static int commit_write_fn(handle_t *handle, struct inode *inode, 
-+			   struct buffer_head *bh)
- {
- 	set_bit(BH_Uptodate, &bh->b_state);
- 	return ext3_journal_dirty_metadata(handle, bh);
-@@ -1103,7 +1113,7 @@
- 		int partial = 0;
- 		loff_t pos = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
- 
--		ret = walk_page_buffers(handle, page->buffers,
-+		ret = walk_page_buffers(handle, inode, page->buffers,
- 			from, to, &partial, commit_write_fn);
- 		if (!partial)
- 			SetPageUptodate(page);
-@@ -1113,7 +1123,7 @@
- 		EXT3_I(inode)->i_state |= EXT3_STATE_JDATA;
- 	} else {
- 		if (ext3_should_order_data(inode)) {
--			ret = walk_page_buffers(handle, page->buffers,
-+			ret = walk_page_buffers(handle, inode, page->buffers,
- 				from, to, NULL, journal_dirty_sync_data);
- 		}
- 		/* Be careful here if generic_commit_write becomes a
-@@ -1195,7 +1205,8 @@
- 	return generic_block_bmap(mapping,block,ext3_get_block);
- }
- 
--static int bget_one(handle_t *handle, struct buffer_head *bh)
-+static int bget_one(handle_t *handle, struct inode *inode, 
-+		    struct buffer_head *bh)
- {
- 	atomic_inc(&bh->b_count);
- 	return 0;
-@@ -1294,7 +1305,7 @@
- 			create_empty_buffers(page,
- 				inode->i_dev, inode->i_sb->s_blocksize);
- 		page_buffers = page->buffers;
--		walk_page_buffers(handle, page_buffers, 0,
-+		walk_page_buffers(handle, inode, page_buffers, 0,
- 				PAGE_CACHE_SIZE, NULL, bget_one);
- 	}
- 
-@@ -1312,7 +1323,7 @@
- 
- 	/* And attach them to the current transaction */
- 	if (order_data) {
--		err = walk_page_buffers(handle, page_buffers,
-+		err = walk_page_buffers(handle, inode, page_buffers,
- 			0, PAGE_CACHE_SIZE, NULL, journal_dirty_async_data);
- 		if (!ret)
- 			ret = err;
+I think the filesystem drivers should be written in such a way that they 
+are totally pluggable with eachother.  That it doesn't matter where the 
+blocks are comming from and going to.  You could have a mount of 
+/dev/hda1 of an iso containing an ext2 image within it etc etc etc.
+
+But like i said i'me new to kernel development so I think i might have 
+the wrong perspective.  
+
+
+-----------------------------------
+Andre Bonin
+Student in Software Engineering
+Lakehad University
+Thunder Bay,
+Canada
+-----------------------------------
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+
+
+
+

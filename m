@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbUCJTFH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUCJTFH
+	id S262574AbUCJTGe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:06:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUCJTGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:05:07 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:49873 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S262769AbUCJTFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:05:00 -0500
-Subject: Re: a7n8x-x & i2c
-From: Craig Bradney <cbradney@zip.com.au>
-To: backblue <backblue@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040310185047.454779fc.backblue@netcabo.pt>
-References: <20040310185047.454779fc.backblue@netcabo.pt>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-G8kfJTOIKOAmUDWYB/aa"
-Message-Id: <1078945499.8828.10.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 20:05:00 +0100
+	Wed, 10 Mar 2004 14:06:34 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:12748 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262574AbUCJTGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:06:30 -0500
+To: David Ford <david+challenge-response@blue-labs.org>
+Cc: root@chaos.analogic.com, "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
+	<20040310100215.1b707504.rddunlap@osdl.org>
+	<Pine.LNX.4.53.0403101324120.18709@chaos>
+	<404F6375.3080500@blue-labs.org>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 10 Mar 2004 11:06:28 -0800
+In-Reply-To: <404F6375.3080500@blue-labs.org>
+Message-ID: <52ad2o4j4b.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 10 Mar 2004 19:06:29.0198 (UTC) FILETIME=[CB015EE0:01C406D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    David> Really, your mail reading software should be capable of
+    David> wrapping things by itself, we really have progressed from
+    David> yesteryear.
 
---=-G8kfJTOIKOAmUDWYB/aa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The problem is that if (say) you use 100 character lines, then someone
+reading it in an 80-column window sees 80-char line, 20-char line, etc
+etc and it's very annoying to read.  If you make every paragraph one
+huge line, then when someone wants to quote your message, they have to
+wrap the quote themselves.
 
-Hi,
+Keeping email lines to about 70 characters is still the best policy.
 
-> I have compiled 2.6.3, with i2c suporte for my chipset "nforce2" to the b=
-oard asus a7n8x-x, but, it crashes my box all the time, dont know why!
-> But it only crashes after login and a couple of minutes working...
-> any one know womething about this?
-
-Is the crash only with i2c or are you just trying linux on this board?
-
-Craig
-
---=-G8kfJTOIKOAmUDWYB/aa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAT2bbi+pIEYrr7mQRAu7PAJ9lPR5fl1y9Av4/XJjaxpBd+OgFbQCfRyQa
-TpILQ3Vt9+gLexzu6ZjUjLI=
-=OtQI
------END PGP SIGNATURE-----
-
---=-G8kfJTOIKOAmUDWYB/aa--
-
+ - Roland

@@ -1,74 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUJHULr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUJHUMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUJHULr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUJHULr
+	id S263818AbUJHUMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJHUMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:11:47 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:9167 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263795AbUJHULo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:11:44 -0400
-Subject: Re: io_remap_page_range (was Re: [Alsa-devel] alsa-driver will
-	not	compile with kernel  2.6.9-rc2-mm4-S7)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <1097263396.1442.28.camel@krustophenia.net>
-References: <1096675930.27818.74.camel@krustophenia.net>
-	 <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
-	 <1096678268.27818.84.camel@krustophenia.net> <s5hmzz2zeqn.wl@alsa2.suse.de>
-	 <1097263396.1442.28.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1097266294.1442.34.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 16:11:34 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 16:12:06 -0400
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:20192 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263818AbUJHULy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 16:11:54 -0400
+Date: Fri, 8 Oct 2004 21:11:46 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: blaisorblade_spam@yahoo.it, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is
+ right for sector_t
+In-Reply-To: <20041008121239.464151bd.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.60.0410082105351.26699@hermes-1.csi.cam.ac.uk>
+References: <20041008144034.EB891B557@zion.localdomain>
+ <20041008121239.464151bd.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1870869256-341398517-1097266306=:26699"
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 15:23, Lee Revell wrote:
-> On Mon, 2004-10-04 at 11:26, Takashi Iwai wrote:
-> > At Fri, 01 Oct 2004 20:51:08 -0400,
-> > Lee Revell wrote:
-> > > 
-> > > On Fri, 2004-10-01 at 20:34, Rui Nuno Capela wrote:
-> > > > Lee Revell wrote:
-> > > > Good grief! I'm having this too, and I was desperate thinking I was the
-> > > > only one, and ultimately offering the blame to gcc 3.4.1 which is what I'm
-> > > > test-driving now on my laptop (Mdk 10.1c).
-> > > > 
-> > > > Now I remember that -mm4 has some issue about remap_page_range kernel
-> > > > symbol being renamed to something else, which is breaking the build of
-> > > > outsider modules (i.e. not the ones bundled under the kernel source tree).
-> > > > Or so it seems.
-> > > 
-> > > Looking through my archives I cannot find a report of this exact issue,
-> > > but you are probably right.  Looks like ALSA drivers need to be updated.
-> > 
-> > The alsa-kernel code there (pcm_native.c) is ok but the patch in
-> > alsa-driver looks broken for the recent change of remap_pfn_range().
-> > 
-> > Also, there was another API brekage about pci_save/restore_state().
-> > 
-> > Fixed both on CVS now.
-> 
-> I think this is still broken.  Same problem when I went to configure
-> ALSA for -mm3-T3.  The configure script gets
-> CONFIG_HAVE_OLD_REMAP_PAGE_RANGE wrong; I have the new version but
-> configure fails to detect it.
-> 
-> AFAICT the test in configure is a NOOP and
-> CONFIG_HAVE_OLD_REMAP_PAGE_RANGE always gets set to 1.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Nope, sorry, it works now.  But, I did cvs update, make clean, ./build
-prep then configure and I was still hitting the bug.  I was only able to
-fix it by deleting my working directory and checking out again.  I don't
-think "make clean" cleans everything up.
+--1870869256-341398517-1097266306=:26699
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Lee
+On Fri, 8 Oct 2004, Andrew Morton wrote:
+> blaisorblade_spam@yahoo.it wrote:
+> > The Device Manager code barfs when sector_t is 64bit wide (i.e. an u64)=
+;
+> > this can happen with CONFIG_LBD on i386, too, but sector_t is usually a=
+ long.
+> > And region_t, chunk_t are typedefs for sector_t.
+> >=20
+> > The problem is this code in drivers/md/dm.h (wouldn't we better fix the
+> > FIXME?):
+> >=20
+> > /*
+> >  * FIXME: I think this should be with the definition of sector_t
+> >  * in types.h.
+> >  */
+> > #ifdef CONFIG_LBD
+> > #define SECTOR_FORMAT "%Lu"
+> > #else
+> > #define SECTOR_FORMAT "%lu"
+> > #endif
+> >=20
+> > Btw, x86_64 does not need to define sector_t on its own.
+> > If there is any _good_ reason for that, the fix becomes adding a=20
+> > #define SECTOR_FORMAT "%Lu"
+> > in fact, gcc tries to be smart for warnings to ensure portability; so, =
+even
+> > when sizeof(long) =3D=3D sizeof(long long), "%ld" and "%Ld" are differe=
+nt, for the
+> > warnings).
+> >=20
+> > Sample warnings (from both 2.6.8.1 and 2.6.9-rc2):
+> > drivers/md/dm-raid1.c: In function `get_mirror':
+> > drivers/md/dm-raid1.c:930: warning: long unsigned int format, sector_t =
+arg (arg 3)
+> > drivers/md/dm-raid1.c: In function `mirror_status':
+> > drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t=
+ arg (arg 4)
+> > drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t=
+ arg (arg 5)
+> > drivers/md/dm-raid1.c:1206: warning: long unsigned int format, sector_t=
+ arg (arg 5)
+> > drivers/md/dm-raid1.c:1212: warning: long unsigned int format, sector_t=
+ arg (arg 5)
+> >=20
+>=20
+> I would prefer that SECTOR_FORMAT be removed altogether.
+>=20
+> The industry-standard way of printing a sector_t is:
+>=20
+> =09printk("%llu", (unsigned long long)sector);
+>=20
+> Or %Ld or %llo or whatever.  The key point is that the format string shou=
+ld
+> specify long long and the argument should be typecast to long long.
 
+Actually %Ld is completely wrong.  I know in the kernel it makes no=20
+difference but people see it in the kernel and then go off an use it in=20
+userspace and it generates junk output on at least some architectures. =20
+This is because %L means "long double (floating point)" not "long long=20
+integer" and when you stuff an integer into it it goes wrong (on some=20
+architectures)...  From the printf(3) man page:
+
+ll     (ell-ell).   A  following integer conversion corre=AD
+       sponds to a long long int or unsigned long long int
+       argument,  or  a following n conversion corresponds
+       to a pointer to a long long int argument.
+
+L      A following a, A, e, E, f, F, g,  or  G  conversion
+       corresponds to a long double argument.  (C99 allows
+       %LF, but SUSv2 does not.)
+
+Best regards,
+
+=09Anton
+--=20
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+--1870869256-341398517-1097266306=:26699--

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbRGRNXd>; Wed, 18 Jul 2001 09:23:33 -0400
+	id <S267874AbRGRNYx>; Wed, 18 Jul 2001 09:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267876AbRGRNXX>; Wed, 18 Jul 2001 09:23:23 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28167 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S267874AbRGRNXN>;
-	Wed, 18 Jul 2001 09:23:13 -0400
-Date: Wed, 18 Jul 2001 10:23:07 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Inclusion of zoned inactive/free shortage patch 
-In-Reply-To: <Pine.LNX.4.21.0107172118200.7772-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0107181016500.27454-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267876AbRGRNYn>; Wed, 18 Jul 2001 09:24:43 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:4882 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S267874AbRGRNYb>;
+	Wed, 18 Jul 2001 09:24:31 -0400
+Date: Wed, 18 Jul 2001 17:24:27 +0400
+To: mdaljeet@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ppc Linux-2.4.2 not generating core dump for SIGSEGV and abort()
+Message-ID: <20010718172427.A30098@orbita1.ru>
+In-Reply-To: <CA256A8D.0047BE63.00@d73mta01.au.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <CA256A8D.0047BE63.00@d73mta01.au.ibm.com>; from mdaljeet@in.ibm.com on Wed, Jul 18, 2001 at 06:31:25PM +0530
+X-Uptime: 5:22pm  up 1 day,  7:58,  1 user,  load average: 0.06, 0.04, 0.00
+X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
+From: pazke@orbita1.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jul 2001, Marcelo Tosatti wrote:
 
-> The following patch (against 2.4.6-ac2, already merged in 2.4.6-ac3) adds
-> specific perzone inactive/free shortage handling code.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Marcelo, now that you have the nice VM statistics
-patch, do you have some numbers on how this patch
-affects the system, or is this patch based on
-guesswork ?  ;)
+On Wed, Jul 18, 2001 at 06:31:25PM +0530, mdaljeet@in.ibm.com wrote:
+> Hi all,
+>      I am using Suse-linux-7.1 with default linux -ppc kernel on apple G4
+> machine.
+> SIGSEGV is never generating the core dump. though this signal is being
+> caught by the user process.
+> I also tried with "abort" call which should generate the core dump, but
+> this is also not working. The same program with abort call is generating
+> core dumps on other linux/unix platforms.
+> Can anybody tell me where is the problem?
+>=20
+> Daljeet.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+What does 'ulimit -a' print ?
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7VY4KBm4rlNOo3YgRApyXAJ9gJpkxyU2T1LrnCWhS7UjYHmntmACfWD6H
+9WAnU6pAaH77Oq4bSIzS1PQ=
+=1NNe
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--

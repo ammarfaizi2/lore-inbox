@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbTAQFeV>; Fri, 17 Jan 2003 00:34:21 -0500
+	id <S267390AbTAQFo0>; Fri, 17 Jan 2003 00:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbTAQFeV>; Fri, 17 Jan 2003 00:34:21 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14820 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267387AbTAQFeU>;
-	Fri, 17 Jan 2003 00:34:20 -0500
-Date: Thu, 16 Jan 2003 21:44:24 -0800
+	id <S267392AbTAQFo0>; Fri, 17 Jan 2003 00:44:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:25572 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267390AbTAQFoZ>;
+	Fri, 17 Jan 2003 00:44:25 -0500
+Date: Thu, 16 Jan 2003 21:54:30 -0800
 From: Andrew Morton <akpm@digeo.com>
 To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, rml@tech9.net
-Subject: Re: [PATCH][2.5] smp_call_function_mask
-Message-Id: <20030116214424.037f57aa.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
+Subject: Re: [PATCH][2.5] fix for_each_cpu compilation on UP
+Message-Id: <20030116215430.6c0ac6a0.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0301162358060.24250-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0301162358060.24250-100000@montezuma.mastecende.com>
 X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jan 2003 05:43:11.0149 (UTC) FILETIME=[520F3DD0:01C2BDEB]
+X-OriginalArrivalTime: 17 Jan 2003 05:53:17.0110 (UTC) FILETIME=[BB3D8D60:01C2BDEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Zwane Mwaikambo <zwane@holomorphy.com> wrote:
 >
-> This patch adds a smp_call_function which also accepts a cpu mask which is 
-> needed for targetting specific or groups of cpus.
-
-What is it needed for?
-
-> Index: linux-2.5.58-cpu_hotplug/arch/i386/kernel/smp.c
-
-ia32 only?
-
+> This adds a definition for for_each_cpu when !CONFIG_SMP
+> 
+> Please apply
+> 
+> Index: linux-2.5.58-cpu_hotplug/include/linux/smp.h
+> ===================================================================
+> RCS file: /build/cvsroot/linux-2.5.58/include/linux/smp.h,v
+> retrieving revision 1.1.1.1.2.3
+> diff -u -r1.1.1.1.2.3 smp.h
+> --- linux-2.5.58-cpu_hotplug/include/linux/smp.h	17 Jan 2003 03:13:12 -0000	1.1.1.1.2.3
+> +++ linux-2.5.58-cpu_hotplug/include/linux/smp.h	17 Jan 2003 03:14:40 -0000
+> @@ -109,6 +109,7 @@
+>  #define num_booting_cpus()			1
+>  #define cpu_possible(cpu)			({ BUG_ON((cpu) != 0); 1; })
+>  #define smp_prepare_boot_cpu()			do {} while (0)
+> +#define for_each_cpu(cpu, mask)			for (cpu = 0; cpu == 0; cpu++)
 >  
-> +int smp_call_function_mask (void (*func) (void *info), void *info, int nonatomic,
-> +			int wait, unsigned long mask)
-> +/*
-> + * [SUMMARY] Run a function on specific CPUs, save self.
-> + * <func> The function to run. This must be fast and non-blocking.
-> + * <info> An arbitrary pointer to pass to the function.
-> + * <nonatomic> currently unused.
-> + * <wait> If true, wait (atomically) until function has completed on other CPUs.
-> + * <mask> The bitmask of CPUs to call the function
-> + * [RETURNS] 0 on success, else a negative status code. Does not return until
-> + * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-> + *
-> + * You must not call this function with disabled interrupts or from a
-> + * hardware interrupt handler or from a bottom half handler.
-> + */
 
-Please don't invent new coding styles.  The comment block goes outside the
-function.  Nice comment block though.
+This will cause nasty warnings (and posibly break) x86_64 builds, which
+define their own for_each_cpu() in the !CONFIG_SMP case.
 
-> +{
-> +	struct call_data_struct data;
-> +	int num_cpus = hweight32(mask);
-> +
-> +	if (num_cpus == 0)
-> +		return -EINVAL;
-> +
-> +	if ((1UL << smp_processor_id()) & mask)
-> +		return -EINVAL;
+wimpy fix: move this into include/asm-i386/smp.h
 
-Preempt safety?
+nice fix: do a generic for_each_cpu() in include/linux/wherever.h, and rip
+out the arch-private definitions.
 
 

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268269AbUBRWMO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 17:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUBRWMO
+	id S267144AbUBRXVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267168AbUBRXVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 17:12:14 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:42678 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S268269AbUBRWMM (ORCPT
+	Wed, 18 Feb 2004 18:21:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22763 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267158AbUBRXVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 17:12:12 -0500
-Date: Wed, 18 Feb 2004 07:06:07 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040218150607.GE1269@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218211035.A13866@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Feb 2004 18:21:16 -0500
+Date: Wed, 18 Feb 2004 15:21:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: kernel/microcode.c error from new 64bit code
+In-Reply-To: <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0402181516300.18038@home.osdl.org>
+References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net>
+ <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 09:10:35PM +0000, Christoph Hellwig wrote:
-> On Wed, Feb 18, 2004 at 06:00:21AM -0800, Paul E. McKenney wrote:
-> > There is a small shim layer required, but the bulk of the code
-> > implementing GPFS is common between AIX and Linux.  It was on AIX
-> > first by quite a few years.
+
+
+On Wed, 18 Feb 2004, Linus Torvalds wrote:
 > 
-> Small glue layer?  Unfortunately ibm took it off the website, but
-> the thing is damn huge.
+> How about this patch?
 
-Perhaps it is huge, but it is a small fraction of the GPFS kernel
-implementation.
+Btw, it does show a bug in our "wrmsr()" macro on x86.
 
-> > > it only uses "core unix" apis ?
-> > 
-> > If they are made available, yes.  That is the point of this patch,
-> > after all.  ;-)
-> 
-> No, that's wrong.  It patches the syscall table and plays evilish
-> tricks with lowlevel MM code.
+We should make sure to cast the values to 32-bit values in wrmsr(), or use
+an inline function to make sure that the right conversions happen. Because
+we arguably shouldn't give some meaningless error message just because we
+passed in a 64-bit argument.
 
-The sys_call_table stuff was under #ifdef, and was intended for
-use by a research project that was later put out of its misery.
-This stuff has since been removed from the source tree.
+So in addition to fixing "microcode.c" to not do the silly thing in the 
+first place, we should probably clean up wrmsr().
 
-As to the evilish tricks with lowlevel MM code, the whole point
-of the mmap_invalidate_range() patch is to be able to rid GPFS
-of exactly these evilish tricks.
+I'll think about it. In one sense it was _useful_ to see that the 
+microcode update tried to do something that was nonsensical on a 32-bit 
+x86. On the other hand, the compiler should do the right thing regardless, 
+and it might be useful to allow 64-bit values to be silently truncated 
+for compatibility reasons.
 
-> > > It doesn't require knowledge of deep and changing internals ? *buzz*
-> > 
-> > That is indeed the idea.
-> 
-> The one on the ibm website a little ago did.  You're free to upload
-> a new one that clearly doesn't need all this, but..
+I'll commit the microcode fix, and think a bit more about the wrmsr() 
+thing.
 
-Again, the point of the mmap_invalidate_range() patch is to be able
-to do precisely this.
-
-						Thanx, Paul
+		Linus

@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUIDXpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUIEAQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUIDXpu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 19:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUIDXpu
+	id S264795AbUIEAQk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 20:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUIEAQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 19:45:50 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:4242 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S264903AbUIDXpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 19:45:49 -0400
-Date: Sun, 5 Sep 2004 00:44:15 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Tim Fairchild <tim@bcs4me.com>, Christoph Hellwig <hch@infradead.org>,
-       Sid Boyce <sboyce@blueyonder.co.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NVIDIA Driver 1.0-6111 fix
-In-Reply-To: <1094327788.6575.209.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.61.0409050041500.23011@fogarty.jakma.org>
-References: <41390988.2010503@blueyonder.co.uk>  <20040904103601.D13149@infradead.org>
-  <200409041954.05272.tim@bcs4me.com> <1094327788.6575.209.camel@krustophenia.net>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Sat, 4 Sep 2004 20:16:40 -0400
+Received: from smtpout3.compass.net.nz ([203.97.97.135]:22745 "EHLO
+	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
+	id S264795AbUIEAQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 20:16:37 -0400
+Date: Sun, 5 Sep 2004 12:17:07 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@linuxcd
+Reply-To: haiquy@yahoo.com
+To: pavel@atrey.karlin.mff.cuni.cz
+cc: linux-kernel@vger.kernel.org
+Subject: nbd questions and problems
+Message-ID: <Pine.LNX.4.53.0409051154170.21075@linuxcd>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Sep 2004, Lee Revell wrote:
 
-> I bet 99.9% of the people who signed that stupid petition already own
-> freaking ATI hardware.  The people yelling the loudest seem to be those
-> who didn't realize the hardware wasn't Linux compatible when they bought
-> it, when it would have taken 10 seconds to find out.
+Hi,
 
-Urm... the ATi R1xx and R2xx cards *are* open-source supported 
-(thanks weather channel!). The R2xx ATi FireGL is the fastest 
-open-driver DRI card..
+I have just tested nbd and got touble with it.
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-I don't have any use for bodyguards, but I do have a specific use for two
-highly trained certified public accountants.
- 		-- Elvis Presley
+Kernel 2.6.8.1 (from kernel.org)
+
+nbd server and client version
+
+When I download the latest version there are many patches under the directory
+nbd but when run configure it seems not to apply any patch. No README file
+to instruct anything.
+So I just ./configure then make. produce nbd-client and nbd-server
+The nbd kernel module is the original one from 2.6.8.1
+
+dd if=/dev/zero of=swap bs=1M count=64
+nbd-server 1024 swap
+
+The client is a diskless ; get its root via NFS . In client I run
+
+nbd-client 10.0.0.2 1024 /dev/nbd/0
+
+mkswap /dev/nbd/0
+
+swapon /dev/nbd/0
+
+It seems fine, but when the system touch swap there are error in the kernel log
+
+nbd0 Receive control failed result -104
+
+and the server exited .
+
+If I run
+nbd-client 10.0.0.2 1024 /dev/nbd/0 -swap
+
+it ask me to apply some patches to work but there is no documentation I found on net
+or in the nbd tar ball tell me which patch t apply
+
+And now if I dont use swap, I did exactly like the above and then run
+mke2fs /dev/nbd/0
+
+It immiedately gave errors like
+---
+nbd0: Receive control failed (result -104)
+nbd0: shutting down socket
+-- many other error which is because of the above one
+
+Is there anyway to fix these? please help.
+
+Steve Kieu

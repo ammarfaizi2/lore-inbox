@@ -1,142 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbTIOMsO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 08:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbTIOMsO
+	id S261348AbTIONqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 09:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTIONql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 08:48:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9229 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261327AbTIOMsL (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 15 Sep 2003 08:48:11 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Linux Kernel <linux-kernel@vger.redhat.com>
-Subject: Re: Oops on 2.4.22 when mounting from broken NFS server
-Date: Mon, 15 Sep 2003 22:47:20 +1000
-User-Agent: KMail/1.5.3
-References: <200309131938.40177.russell@coker.com.au>
-In-Reply-To: <200309131938.40177.russell@coker.com.au>
+	Mon, 15 Sep 2003 09:46:41 -0400
+Received: from m029-045.nv.iinet.net.au ([203.217.29.45]:46209 "EHLO
+	enki.rimspace.net") by vger.kernel.org with ESMTP id S261348AbTIONqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 09:46:37 -0400
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: IDE-CD issue: total capacity set to 0 incorrectly on some DVD-R
+ discs. 
+From: Daniel Pittman <daniel@rimspace.net>
+Date: Mon, 15 Sep 2003 23:46:33 +1000
+Message-ID: <873cey6u6e.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.5 (cassava, linux)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_YTbZ/W0fHPH1wew"
-Message-Id: <200309152247.20462.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens, I mentioned a little while ago on the linux-kernel list that I had
+an issue with my DVD drive (Pioneer DVD-ROM ATAPIModel DVD-106S 012)
+incorrectly determining a zero blocks size for some DVD-R discs.
 
---Boundary-00=_YTbZ/W0fHPH1wew
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+After a lot of working to track down what the failure was, I found that
+the following code in ide-cd.c, and cdrom.c, was the source of the
+issue.
 
-On Sat, 13 Sep 2003 19:38, Russell Coker wrote:
-> Attached is the output of ksymoops from an Oops when mounting from a broken
-> NFS server.  I was experimenting with a new security policy for the NFS
-> server and didn't grant the daemons all the access they needed.  Afterwards
-> I noticed that kernel had Oops'd on a mount command (I should have
-> suspected when the mount SEGV'd).
->
-> I can probably reproduce this if requested.  It's 2.4.22 client and server.
+When checking the TOC of a disc the first time through, the following
+code at line 2376 in ide-cd.c is executed:
 
-This is embarassing.  I attached the wrong file to the last message.  Attached 
-is the correct one.
+	stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
+	if (stat)
+		stat = cdrom_read_capacity(drive, &toc->capacity, sense);
+	if (stat)
+		toc->capacity = 0x1fffff;
+
+	set_capacity(drive->disk, toc->capacity * SECTORS_PER_FRAME);
+
+On the problematic disc/drive combination, cdrom_get_last_written
+returns 0, and sets toc->capacity to 0.
+
+At the time, the cdrom_get_last_written code went through, checked the
+'ti.lra_v' field, which the comment suggests is "last recorded sector",
+then did the "make it up" path.
+
+The values of ti.track_start, ti.track_size and ti.free_blocks were all
+zero as well, suggesting that the structure returned by
+cdrom_get_track_info was not very well populated at all.
+
+Obviously, though, from testing the function cdrom_read_capacity does
+get the correct size for the track, but something (the recording
+software, perhaps) is not setting up the "last written" stuff correctly.
+
+For me, the following trivial patch to ide-cd.c corrects the issue, and
+all my software works just fine afterwards.
+
+I am happy to continue to work on the issue if you don't think that this
+is the right fix, but I would need some guidance in how to continue --
+or just a patch to test. ;)
+
+Regards,
+   Daniel Pittman
+
+Index: ide-cd.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/ide/ide-cd.c,v
+retrieving revision 1.122
+diff -u -u -r1.122 ide-cd.c
+--- ide-cd.c	4 Sep 2003 17:11:54 -0000	1.122
++++ ide-cd.c	15 Sep 2003 04:20:34 -0000
+@@ -2365,7 +2365,7 @@
+ 
+ 	/* Now try to get the total cdrom capacity. */
+ 	stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
+-	if (stat)
++	if (stat || toc->capacity == 0)
+ 		stat = cdrom_read_capacity(drive, &toc->capacity, sense);
+ 	if (stat)
+ 		toc->capacity = 0x1fffff;
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_YTbZ/W0fHPH1wew
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="oops"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="oops"
-
-ksymoops 2.4.8 on i586 2.4.22-cobalt.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-cobalt/ (default)
-     -m /boot/System.map-2.4.22-cobalt (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-d88891ee
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<d88891ee>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: 00000000   ecx: c1425348   edx: c1425350
-esi: c69958a0   edi: d88b5940   ebp: d88b59c0   esp: c9787da4
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 8396, stackpage=c9787000)
-Stack: c7f9a4f0 d88a98ee 00000000 c15b9e60 00000286 c9787ed0 00000000 c0129fe7 
-       c14255d0 00000286 d7981ec0 c01df4ab c7f9a410 00000002 00000001 c9787e84 
-       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
-Call Trace:    [<d88a98ee>] [<c0129fe7>] [<c01df4ab>] [<c013730a>] [<d88b7c50>]
-  [<d88b7c50>] [<d88b7c50>] [<c01375f7>] [<d88b7c50>] [<c01377e0>] [<d88b7c50>]
-  [<c0148cf8>] [<c0148fd2>] [<c0148e36>] [<c0149394>] [<c0107203>]
-Code: 8b 03 85 c0 74 29 f6 05 2c 89 89 d8 02 75 29 80 63 20 3f 53 
-
-
->>EIP; d88891ee <[sunrpc]rpc_shutdown_client+e/80>   <=====
-
->>ecx; c1425348 <_end+11492f8/1853f010>
->>edx; c1425350 <_end+1149300/1853f010>
->>esi; c69958a0 <_end+66b9850/1853f010>
->>edi; d88b5940 <[nfs].rodata.end+659/2599>
->>ebp; d88b59c0 <[nfs].rodata.end+6d9/2599>
->>esp; c9787da4 <_end+94abd54/1853f010>
-
-Trace; d88a98ee <[nfs]nfs_read_super+42e/960>
-Trace; c0129fe7 <kfree+27/40>
-Trace; c01df4ab <kfree_skbmem+b/60>
-Trace; c013730a <get_anon_super+8a/e0>
-Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
-Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
-Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
-Trace; c01375f7 <get_sb_nodev+37/80>
-Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
-Trace; c01377e0 <do_kern_mount+100/140>
-Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
-Trace; c0148cf8 <do_add_mount+58/140>
-Trace; c0148fd2 <do_mount+132/180>
-Trace; c0148e36 <copy_mount_options+56/c0>
-Trace; c0149394 <sys_mount+74/c0>
-Trace; c0107203 <system_call+33/40>
-
-Code;  d88891ee <[sunrpc]rpc_shutdown_client+e/80>
-00000000 <_EIP>:
-Code;  d88891ee <[sunrpc]rpc_shutdown_client+e/80>   <=====
-   0:   8b 03                     mov    (%ebx),%eax   <=====
-Code;  d88891f0 <[sunrpc]rpc_shutdown_client+10/80>
-   2:   85 c0                     test   %eax,%eax
-Code;  d88891f2 <[sunrpc]rpc_shutdown_client+12/80>
-   4:   74 29                     je     2f <_EIP+0x2f>
-Code;  d88891f4 <[sunrpc]rpc_shutdown_client+14/80>
-   6:   f6 05 2c 89 89 d8 02      testb  $0x2,0xd889892c
-Code;  d88891fb <[sunrpc]rpc_shutdown_client+1b/80>
-   d:   75 29                     jne    38 <_EIP+0x38>
-Code;  d88891fd <[sunrpc]rpc_shutdown_client+1d/80>
-   f:   80 63 20 3f               andb   $0x3f,0x20(%ebx)
-Code;  d8889201 <[sunrpc]rpc_shutdown_client+21/80>
-  13:   53                        push   %ebx
-
-
-1 warning issued.  Results may not be reliable.
-
---Boundary-00=_YTbZ/W0fHPH1wew--
-
+These eyes see only what they wanna see 
+These ears hear only what they wanna hear 
+These minds think only what they wanna think 
+These lies, these lies
+        -- Pop Will Eat Itself, _Everything's Cool_ (Dos Dedos Mis Amigos)

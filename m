@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290277AbSAOUmk>; Tue, 15 Jan 2002 15:42:40 -0500
+	id <S290279AbSAOUoU>; Tue, 15 Jan 2002 15:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290270AbSAOUm1>; Tue, 15 Jan 2002 15:42:27 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:34434 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S290283AbSAOUmM>;
-	Tue, 15 Jan 2002 15:42:12 -0500
-Message-Id: <m16QaOc-000OVeC@amadeus.home.nl>
-Date: Tue, 15 Jan 2002 20:41:26 +0000 (GMT)
-From: arjanv@redhat.com
-To: root@chaos.analogic.com
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020115143729.1338A-100000@chaos.analogic.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S290283AbSAOUoE>; Tue, 15 Jan 2002 15:44:04 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16111 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290280AbSAOUnZ>; Tue, 15 Jan 2002 15:43:25 -0500
+Message-ID: <3C449426.6000300@us.ibm.com>
+Date: Tue, 15 Jan 2002 12:42:14 -0800
+From: "David C. Hansen" <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020114
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] cs46xx: sound distortion after hours of use
+In-Reply-To: <200201151224.g0FCO8E06163@Port.imtp.ilyichevsk.odessa.ua> <20020115152000.GD13196@arthur.ubicom.tudelft.nl> <3C4482A2.8040903@us.ibm.com> <20020115153439.A413@davetop.uacdd.wvu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.3.95.1020115143729.1338A-100000@chaos.analogic.com> you wrote:
+ >Erik Mouw wrote:
+ >I have the same problem, but very rarely.  I, too, use the
+ >rmmod/modprobe technique to fix it.  Have either of you found a way to
+ >excite the problem without waiting hours for it to happen?
+ >
 
-Ok I shouldn't but...
+dshepard@wvu.edu wrote:
+ > Open and close XMMS a couple of times, while listening to mp3s. This
+ > almost always does it for me. I reported this problem many, many
+ > months ago, but was told I needed to contact the driver maintainer. I
+ > did this and received no reply. I wish you better luck! Using here:
+ > IBM Thinkpad A20m.
+ >
 
-> RedHat 7 is a prime example. I put it on a box in the other room.
-> /usr/src didn't contain ANYTHING after an installation.
-> However, /usr/include/asm and /usr/include/linux existed, not
-> as symlinks, but as files that would-have-existed within a
-> kernel distribution. 
+Hmmm.  I've tried doing this: while true; do cat /proc/apm; done > /dev/null
+I then open and close XMMS a few times and plug/unplug my AC adapter
+trying to get something to happen.  I haven't had any luck.  The
+frustrating part is that I've had the problem before.  I just can't get
+it to do it now.
+BTW, I have a Thinkpad T21.  Do any of you have a non-IBM notebook?
 
-Exactly and 100% correct. Those are GLIBC headers and have NOTHING to do
-with the kerenl.
 
-> So... I did RPM install for the kernel after I found what was
-
-Well you should have installed the kernel-source rpm if you wanted the full
-expanded source... we make that one for a reason you know...
-
-> alleged to have been the kernel. Now I had a /usr/src/linux/..., but
-
-> The usr/src/linux/.config was the .config obtained off from Linus`
-> tree, not something provided by RedHat so `make oldconfig` would have
-> made a "standard kernel" like you download from ftp.kernel.org.
-
-Ehm yes it does if you use the kernel-source RPM, also we ship about a dozen
-different configs (differing in cpu type and up/smp mostly), ALL those
-.config files are neatly available in the configs/ subdirectory.
-
-> Now, looking in /usr/src/redhat/../.., I find some patches that are
-> impossible to use to patch the kernel to bring it up (or down) to
-> the configuration used to build the distribution. The default
-> configuration, before I "installed" the kernel sources was some
-> empty directories of /usr/src/redhat/BUILD, /usr/src/redhat/RPMS,
-> /usr/src/redhat/SOURCES, /usr/src/redhat/SPECS, and /usr/src/redhat/SRPMS.
-> Now there were some patches and other files with no scripts
-
-Ehm the .spec file is the script!
-rpm -bp kernel-2.2.spec to "run" it to create a source, or rpm -bb to make
-rpm -i'able rpm binaries files from it.
-
-> and no
-> way to actually use them to modify the kernel. I spent hours, putting
-> them in order, based upon the time/date stamp within the files, not
-> the file time which was something more or less random. I made a script
-> and tried, over a period of weeks, to patch the supplied kernel with
-> the supplied patches. Forget it. If anything in this universe is truly
-> impossible, then making a Red Hat distribution kernel from the provided
-> tools, patches, and sources is a definitive example.
-
-Ok now you offend me. I spent quite a bit of time making the .spec file easy
-to read, AND we provide a convenient kernel-source rpm which installs
-/usr/src/linux (for RHL7.0) or /usr/src/linux-2.4 for 2.4 kernels (7.1/7.2) 
-which contains the full source AND all configs we used. AND if you type
-"make oldconfig" it picks the one you are currently running. Heck I even put
-a (ok partial) description of each patch (in addition to the brief
-description in the spec file) for the 7.1 kernel on
-http://people.redhat.com/arjanv/patches.html for people who were interested
-in why a patch existed.
-
-Now what more would you want ?  
-
-Greetings,
-   Arjan van de Ven
-   Red Hat Linux kernel maintainer
-   

@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUEMTy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUEMT7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUEMTy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUEMTxt
+	id S265149AbUEMT7x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUEMT67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:53:49 -0400
-Received: from smtp-out2.xs4all.nl ([194.109.24.12]:19722 "EHLO
-	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S264926AbUEMTvY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:51:24 -0400
-In-Reply-To: <20040513121141.37f32035.akpm@osdl.org>
-References: <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu> <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com> <200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu> <20040512202807.GA16849@elte.hu> <20040512203500.GA17999@elte.hu> <20040512205028.GA18806@elte.hu> <20040512140729.476ace9e.akpm@osdl.org> <20040512211748.GB20800@elte.hu> <20040512221823.GK1397@holomorphy.com> <61D92BA6-A504-11D8-BD91-000A95CD704C@wagland.net> <20040513121141.37f32035.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-46-943942460"
-Message-Id: <D0659356-A516-11D8-BD91-000A95CD704C@kungfoocoder.org>
+	Thu, 13 May 2004 15:58:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12251 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265130AbUEMT6T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:58:19 -0400
+Date: Thu, 13 May 2004 12:57:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eric.valette@free.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm2 : Hitting Num Lock kills keyboard
+Message-Id: <20040513125750.59434a33.akpm@osdl.org>
+In-Reply-To: <40A3CF97.5000405@free.fr>
+References: <40A3C951.9000501@free.fr>
+	<40A3CF97.5000405@free.fr>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       jgarzik@pobox.com, netdev@oss.sgi.com, wli@holomorphy.com,
-       davidel@xmailserver.org, Valdis.Kletnieks@vt.edu
-From: Paul Wagland <paul@kungfoocoder.org>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Date: Thu, 13 May 2004 21:50:41 +0200
-To: Andrew Morton <akpm@osdl.org>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Apple-Mail-46-943942460
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-
-
-On May 13, 2004, at 21:11, Andrew Morton wrote:
-
-> Paul Wagland <paul@wagland.net> wrote:
->>  This changes behaviour when HZ==(z)000
->>
->>  JIFFIES_TO_MSECS  goes from
->>  ((x) * 1000) / (z)000  to (((x) + (z) - 1)/(z))
->>
->>  i.e. for x=1, z=2 this goes from ((1)*1000)/2000)=0 to 
->> (((1)+(2)-1)/2)=1
+Eric Valette <eric.valette@free.fr> wrote:
 >
-> hm, so you're saying that we now round 0.5 up to 1 rather than down to 
-> zero?
+> Eric Valette wrote:
+> > Andrew,
+> > 
+> > I tested 2.6.6-mm2 this afternoon and twice I totally lost my keyboard. 
+> 
+> Well, I can reproduce it at will : I just need to hit the numlock key 
+> and keyboard is frozen.
 
-More precisely, we round .x up, where before it was rounded down, but 
-yeah, _and_ only when HZ is a multiple of 1000, and greater than 1000. 
-This is also only the case for the patch as proposed by wli, currently 
-I don't know of any architectures that have a HZ of 2000 or more... but 
-I just note that it _is_ a behaviour change in those cases, whether or 
-not it is important is for other people to decide :-)
+Could you please do
 
-Cheers,
-Paul
+	patch -p1 -R -i bk-input.patch
 
---Apple-Mail-46-943942460
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+and see if it fixes it?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFAo9GRtch0EvEFvxURAhORAJ4gYSRI0mv2qgrEBqqWSAsJ9IVVoACgl9eP
-801yhelPMICs2UkqMg82H4s=
-=snV2
------END PGP SIGNATURE-----
-
---Apple-Mail-46-943942460--
-
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm2/broken-out/bk-input.patch

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135235AbRDLR0R>; Thu, 12 Apr 2001 13:26:17 -0400
+	id <S135239AbRDLR2R>; Thu, 12 Apr 2001 13:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135236AbRDLR0I>; Thu, 12 Apr 2001 13:26:08 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:45064 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S135235AbRDLRZy>;
-	Thu, 12 Apr 2001 13:25:54 -0400
-Date: Thu, 12 Apr 2001 19:25:44 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Let init know user wants to shutdown
-To: pavel@suse.cz
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3AD5E518.3641B73A@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S135238AbRDLR2H>; Thu, 12 Apr 2001 13:28:07 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52464 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135236AbRDLR1x>; Thu, 12 Apr 2001 13:27:53 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104121727.f3CHR4gT029899@webber.adilger.int>
+Subject: Re: [CFT][PATCH] Re: Fwd: Re: memory usage - dentry_cache
+In-Reply-To: <15061.27388.843554.687422@pizda.ninka.net> "from David S. Miller
+ at Apr 12, 2001 01:44:44 am"
+To: "David S. Miller" <davem@redhat.com>
+Date: Thu, 12 Apr 2001 11:27:03 -0600 (MDT)
+CC: Alexander Viro <viro@math.psu.edu>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek (pavel@suse.cz) wrote :
-
-> Hi! 
+David writes:
+> Alexander Viro writes:
+>  > OK, how about wider testing? Theory: prune_dcache() goes through the
+>  > list of immediately killable dentries and tries to free given amount.
+>  > It has a "one warning" policy - it kills dentry if it sees it twice without
+>  > lookup finding that dentry in the interval. Unfortunately, as implemented
+>  > it stops when it had freed _or_ warned given amount. As the result, memory
+>  > pressure on dcache is less than expected.
 > 
-> Init should get to know that user pressed power button (so it can do 
-> shutdown and poweroff). Plus, it is nice to let user know that we can 
-> read such event. [I hunted bug for few hours, thinking that kernel 
-> does not get the event at all]. 
-> 
-> Here's patch to do that. Please apply, 
->                                                                 Pavel 
+> The reason the code is how it is right now is there used to be a bug
+> where that goto spot would --count but not check against zero, making
+> count possibly go negative and then you'd be there for a _long_ time
+> :-)
 
-Isn't it better to just send the event to userspace , where
-is it caught by apmd ( or whatever has replaced it ).
-Then it can decide what to do about it, instead of dictating
-a shutdown from kernel ( policy alert ;-) )
+Actually, this is the case if we call shrink_dcache_memory() with priority
+zero.  It calls prune_dcache(count = 0), which gets into the situation you
+describe (i.e. negative count).  I first thought this was a bug, but then
+realized for priority 0 (i.e. highest priority) we want to check the whole
+dentry_unused list for unreferenced dentries.
 
-
+Cheers, Andreas
 -- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

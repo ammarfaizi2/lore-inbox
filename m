@@ -1,61 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265507AbUAPTbh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265547AbUAPTbg
+	id S265756AbUAPTua (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUAPTua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:31:36 -0500
-Received: from mail4.edisontel.com ([62.94.0.37]:20113 "EHLO
-	mail4.edisontel.com") by vger.kernel.org with ESMTP id S265507AbUAPTbe
+	Fri, 16 Jan 2004 14:50:30 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:51087 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265756AbUAPTtm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:31:34 -0500
-From: Eduard Roccatello <lilo.please.no.spam@roccatello.it>
-Organization: SPINE
-To: linux-kernel@vger.kernel.org
-Subject: p4-clockmod does not compile under 2.6.1-mm3
-Date: Fri, 16 Jan 2004 20:14:24 +0100
-User-Agent: KMail/1.5.4
-X-IRC: #hardware@azzurra.org #rolug@freenode
-X-Jabber: eduardroccatello@jabber.linux.it
-X-GPG-Keyserver: keyserver.linux.it
-X-GPG-FingerPrint: F7B3 3844 038C D582 2C04 4488 8D46 368B 474D 6DB0
-X-GPG-KeyID: 474D6DB0
-X-Website: http://www.pcimprover.it
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401162014.24567.lilo.please.no.spam@roccatello.it>
+	Fri, 16 Jan 2004 14:49:42 -0500
+Subject: Re: [PATCH] add sysfs class support for vc devices [10/10]
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       linux-hotplug-devel@lists.sourceforge.net
+In-Reply-To: <20040116111738.74636496.akpm@osdl.org>
+References: <20040115204048.GA22199@kroah.com>
+	 <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com>
+	 <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com>
+	 <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com>
+	 <20040115204259.GH22199@kroah.com> <20040115204311.GI22199@kroah.com>
+	 <20040115204329.GJ22199@kroah.com> <20040115204356.GK22199@kroah.com>
+	 <20040115201358.75ffc660.akpm@osdl.org>
+	 <1074279897.23742.754.camel@nosferatu.lan>
+	 <20040116111738.74636496.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qYZGaeuHUKtl3awj3Sw4"
+Message-Id: <1074282773.23742.756.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jan 2004 21:52:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello :-)
 
-bash-2.05b# gcc --version
-gcc (GCC) 3.2.3
+--=-qYZGaeuHUKtl3awj3Sw4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-bash-2.05b# make
-  SPLIT   include/linux/autoconf.h -> include/config/*
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In function `cpufreq_p4_setdc':
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: `cpu_sibling_map' undeclared 
-(first use in this function)
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: (Each undeclared identifier 
-is reported only once
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: for each function it appears 
-in.)
-make[3]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Error 1
-make[2]: *** [arch/i386/kernel/cpu/cpufreq] Error 2
-make[1]: *** [arch/i386/kernel/cpu] Error 2
-make: *** [arch/i386/kernel] Error 2
+On Fri, 2004-01-16 at 21:17, Andrew Morton wrote:
+> Martin Schlemmer <azarah@nosferatu.za.org> wrote:
+> >
+> > On Fri, 2004-01-16 at 06:13, Andrew Morton wrote:
+> > > Greg KH <greg@kroah.com> wrote:
+> > > >
+> > > > This patch add sysfs support for vc char devices.
+> > > >=20
+> > > >  Note, Andrew Morton has reported some very strange oopses with thi=
+s
+> > > >  patch, that I can not reproduce at all.  If anyone else also has
+> > > >  problems with this patch, please let me know.
+> > >=20
+> > > It seems to have magically healed itself :(
+> > >=20
+> > > Several people were hitting it.  We shall see.
+> >=20
+> > Might it be due to the vt-locking-fixes patch?
+> >=20
+>=20
+> No, I was able to reproduce the oops with just two of Greg's patches on
+> bare 2.6.1-rcX.
+>=20
+> It was some refcounting problem in the tty layer.  100% deterministic, no=
+t
+> a race.
 
-adding a cpumask_t cpu_sibling_map[NR_CPUS] to the function make it compile 
-but i think this is a very bad solution (sorry I'm not a kernel hacker :-)
+No, I meant that fixed it.  The locking patch was added _after_ you
+removed the vc patch ...
 
+--=20
+Martin Schlemmer
 
-Thanks,
-Eduard
+--=-qYZGaeuHUKtl3awj3Sw4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBACEEVqburzKaJYLYRAkP2AJ0a1hNYrG36vE4KA599X43T09hiogCfZq3Z
+fnmeuZCdMNhtmg0vldPHqtU=
+=9MH3
+-----END PGP SIGNATURE-----
+
+--=-qYZGaeuHUKtl3awj3Sw4--
 

@@ -1,109 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135452AbRAMBMG>; Fri, 12 Jan 2001 20:12:06 -0500
+	id <S135712AbRAMBOQ>; Fri, 12 Jan 2001 20:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135712AbRAMBL5>; Fri, 12 Jan 2001 20:11:57 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:6150 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S135452AbRAMBLj>;
-	Fri, 12 Jan 2001 20:11:39 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Christian Zander <phoenix@minion.de>
-cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
-In-Reply-To: Your message of "Fri, 12 Jan 2001 20:11:30 BST."
-             <20010112201130.A710@chronos> 
-Mime-Version: 1.0
+	id <S136107AbRAMBOG>; Fri, 12 Jan 2001 20:14:06 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:51466
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S136106AbRAMBNx>; Fri, 12 Jan 2001 20:13:53 -0500
+Date: Fri, 12 Jan 2001 17:12:23 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: John Heil <kerndev@sc-software.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <Pine.LNX.4.10.10101121649220.8097-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101121655010.2411-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 13 Jan 2001 12:11:31 +1100
-Message-ID: <3654.979348291@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001 20:11:30 +0100, 
-Christian Zander <phoenix@minion.de> wrote:
->Saying that I should have made use of this mechanism for the specific
->code in the Nvidia driver that we are talking about clearly shows that
->you didn't look at it. The module used get_module_symbol to search its
->own symbol table for parameters that may have been passed to it at load
->time.
+On Fri, 12 Jan 2001, Linus Torvalds wrote:
 
-My apologies.  I read the patch, not the full source code and the patch
-does not have enough programming context to show that the driver is
-only searching its own symbol space.  In my own defense, the references
-to spinlock_t unload_lock and MOD_CAN_QUERY(mp) in the patch are highly
-misleading, those statements only make sense when you are looking at a
-symbol table for another module.  When searching your own symbol table
-the current module must be live with a non-zero use count, not being
-unloaded and it can always be queried.
+> 
+> 
+> On Fri, 12 Jan 2001, John Heil wrote:
+> 
+> > On Sat, 13 Jan 2001, Alan Cox wrote:
+> > 
+> > > Date: Sat, 13 Jan 2001 00:25:28 +0000 (GMT)
+> > > From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> > > To: Linus Torvalds <torvalds@transmeta.com>
+> > > Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+> > > Subject: Re: ide.2.4.1-p3.01112001.patch
+> > > 
+> > > > what the bug is, and whether there is some other work-around, and whether
+> > > > it is 100% certain that it is just those two controllers (maybe the other
+> > > > ones are buggy too, but the 2.2.x tests basically cured their symptoms too
+> > > > and peopl ehaven't reported them because they are "fixed").
+> > > 
+> > > I've not seen reports on the later chips. If they had been buggy and then 
+> > > fixed I'd have expected much unhappy ranting before the change
+> > 
+> > The "fix" was an hdparm command like hdparm -X66 -m16c1d1 /dev/hda.
+                                                         ^^
+There no chipset calls that allow one to envoke 32-bit data access on the
+data-taskfile register.  This may bite you in the arse! (see below)
 
->Contrary to what you're saying, the patch does not just inline the old
->get_module_symbol algorithm nor does it access any of module.c's internal
->data.
+> > Which I set for my VIA 686a on a Tyan mobo w a 1G Athlon.
+> 
+> Careful. It may be that your fix just avoids the corruption because the
+> other changes make it ok - like the 16-sector multi-count thing maybe
+> hides a problem that might still exist - it just changes the "normal"
+> timing so that you won't ever see it in practice any more.
 
-unload_lock and MOD_CAN_QUERY were copied verbatim from the old
-get_module_symbol, even though they are completely unnecessary.  That
-looks like inlining the old algorithm to me.
+This is why it is better to do on paper the timings and not create code
+that is varible based on the "ide-bus-clock" not the "pci-bus-clock".
+You can only run timings at 33MHz clocking, period.  The exceptions are
+for those that can report from the chipset that a clocking-base other than
+33 is detected.
 
-struct module_symbol, mp->nsyms and mp->syms are module.c internal
-data.  If it is ever necessary to change those structures, nothing
-outside module.c, the 32/64 handlers for module system calls and
-modutils should be affected.  Now if I change module_symbol, other bits
-of the kernel will unexpectedly break, this is not good.
+I told you that I have the new code that is scheduled for 2.5 certified on
+analizers to be technically correct as it relates to the "state diagrams"
+in the standard.
 
->> Whoever coded that patch should be taken out and shot, hung, drawn and
->> quartered then forced to write COBOL for the rest of their natural
->> life.
->
->Excellent comment - it is just as appropriate as it is helpful.
+> These kinds of magic interactions is why I'm not at all happy about driver
+> changes until people really know what it was that caused it, and _know_
+> that it's gone.
 
-Over emphasis for humorous effect.  Must remember to add smiley.
+Linus I know how the driver is to work and how it behaves in
+non-multimodes, but I am not sure that even Mark Lord could tells you or
+me about the true nature of the current multimode with various chipsets.
 
+Sheesh some of them are now documenting that special bits must be set to
+do 32-bit word access on the dataport.
 
-What this patch and David Woodhouse's comments show is that I need to
-look at a generic and safe mechanism for kernel/module symbol lookup.
-The existing static mechanism works for fixed symbol names but does not
-work for symbol names that are generated at run time nor for symbols
-that may or may not be present.
+Cheers,
 
-get_module_symbol() "worked" but was horribly unsafe.  It broke with
-module versions, it did zero type checking which left the code open to
-version skew and it assumed that all addresses are equivalent to an
-unsigned long.
-
-That last point is especially important for IA64 where function
-pointers do not reference the function directly, instead they point to
-a function descriptor with two fields, one of which is the function
-address.  Casting the unsigned long address of a function into a
-function pointer fails miserably on IA64, and gcc does not even give
-any warnings.  foo = (int (*)(int))get_module_symbol(NULL, "funcname")
-is architecture dependent.
-
-Using EXPORT_SYMBOL_NOVERS() to "fix" the modversions problem for
-get_module_symbol() removes all inter module checks on the relevant
-symbols.  Not just for the caller of get_module_symbol for all modules
-that access those symbols.  This leaves too much code open to version
-skew and is not acceptable.
-
-inter_module_xxx is modversions safe.  It still does no type checking
-because it uses void * for the data structure, but the exporter and
-user have to declare their common data area which reduces the chance of
-version skew.  I am still not happy about this possibility of skew but
-anything is better than no checks at all.  Passing a data structure
-which contains real declarations for function pointers instead of
-assuming you can cast a number to a function pointer makes
-inter_module_xxx architecture independent.
+Andre Hedrick
+Linux ATA Development
 
 
-I will look at a general kernel and module symbol lookup routine that
-does the job properly.  The hard part is making sure that the provider
-and consumer have exactly the same types for a symbol.  Both
-get_module_symbol and inter_module_xxx completely bypass the
-modversions checks and are wide open to undetectable version skew,
-although inter_module_xxx is a little bit safer.  Any replacement for
-these functions must be able to do type checking at run time, which
-probably means it is 2.5 code.  And yes, David, it should be able to
-handle static data.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

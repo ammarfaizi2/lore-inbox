@@ -1,77 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUHVRDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268034AbUHVRGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268029AbUHVRDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 13:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUHVRDH
+	id S268034AbUHVRGO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 13:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHVRGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 13:03:07 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:37611 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268029AbUHVRDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 13:03:02 -0400
-Subject: Re: [PATCH] ppc32 use simplified mmenonics
-From: Albert Cahalan <albert@users.sf.net>
-To: Vincent Hanquez <tab@snarc.org>
-Cc: benh@kernel.crashing.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040822162845.GA10911@snarc.org>
-References: <1093135526.5759.2513.camel@cube>
-	 <20040822094317.GA2589@snarc.org> <1093171291.5759.2544.camel@cube>
-	 <20040822144501.GA10017@snarc.org> <1093178422.2301.2674.camel@cube>
-	 <20040822162845.GA10911@snarc.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1093184939.2301.2799.camel@cube>
+	Sun, 22 Aug 2004 13:06:14 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33260 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S268030AbUHVRGN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 13:06:13 -0400
+Date: Sun, 22 Aug 2004 19:04:08 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Unai Garro <ugarro@telefonica.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RTL-8139 Network card slow down on 2.6.8.1-mm
+Message-ID: <20040822170408.GA26426@electric-eye.fr.zoreil.com>
+References: <200408221850.34538.ugarro@telefonica.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 Aug 2004 10:29:00 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408221850.34538.ugarro@telefonica.net>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-22 at 12:28, Vincent Hanquez wrote:
+Unai Garro <ugarro@telefonica.net> :
+> Hi, it seems the last mm patches for 2.6.8.1 have caused my network card 
+> (Realtek 8139)  to go buggy. 
 
-> However each person that has read some documentations about ppc assembly know
-> that a 'clrrwi' is a macro to a more complex instruction 'rlwinm'.
-> 
-> Any documentation that wouldn't mention that is just plain wrong.
+*blush*
 
-It's buried in Appendix F.
+This should fix it:
 
-> > OK, that's 8. Dividing 456 by that, I still see a 57:1 ratio.
-> > 
-> > There's also that matter of the 1848 operations you can't
-> > access via the "simplified" instruction names.
-> 
-> Are you counting one operations for 'rlwinm' and one for 'rlwinm.' to have
-> so much (1848) operations ? or is your figures totally random ?
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-mm-revert.patch
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-10.patch
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc4-mm1/8139too-20.patch
 
-That's just for branches.
-
-There are 32 condition register bits.
-There are 9 values for the BO field. (so far)
-There are 8 of these: bc,bca,bcl,bcla,bcctr,bcctrl,bclr,bclrl
-
-That comes to 2304. Subtract the 456 "simplified"
-instruction names you have. That leaves 1848 that
-you are unable to access.
-
-Take a look at the crand instruction. It uses numbers.
-Now, just imagine mixing that with branch instructions
-that hide the numbers. I hope you see the problem.
-
-> But anyway it seems, we could discuss the benefit or not, of using simplified
-> instructions the whole night. I think this is a good idea (obviously) and it
-> seems Benjamin thinks it too. Thoses simplified instructions are mentioned in
-> all officials ppc assembly documentation because they are simple and help.
-
-It doesn't appear to be so. He wrote:
-
-: Oh well.. I've got quite used to tweaking rlwinm directly
-: but I suppose it's more clear for others to go to clrrwi.
-
-So I'd like him to know that others like rlwinm directly too.
-Using instructions that are in the index makes sense.
-Using a zillion poorly documented alternatives is madness.
-
-
+--
+Ueimor

@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283724AbRLSTWK>; Wed, 19 Dec 2001 14:22:10 -0500
+	id <S285408AbRLSTWl>; Wed, 19 Dec 2001 14:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285412AbRLSTWA>; Wed, 19 Dec 2001 14:22:00 -0500
-Received: from adsl-64-109-202-217.dsl.milwwi.ameritech.net ([64.109.202.217]:3580
-	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
-	id <S283724AbRLSTVm>; Wed, 19 Dec 2001 14:21:42 -0500
-Date: Wed, 19 Dec 2001 13:21:40 -0600
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: J Sloan <jjs@lexus.com>
-Cc: nbecker@fred.net, Benoit Poulot-Cazajous <poulot@ifrance.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-Message-ID: <20011219192140.GG19236@0xd6.org>
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com> <20011219184745.GF19236@0xd6.org> <3C20E1F8.9C8D2825@lexus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cPi+lWm09sJ+d57q"
-Content-Disposition: inline
-In-Reply-To: <3C20E1F8.9C8D2825@lexus.com>
-User-Agent: Mutt/1.3.24i
+	id <S285412AbRLSTWc>; Wed, 19 Dec 2001 14:22:32 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57676 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S285408AbRLSTWU>; Wed, 19 Dec 2001 14:22:20 -0500
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Dec 2001 12:01:56 -0700
+In-Reply-To: <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
+Message-ID: <m1vgf3uj8b.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro <viro@math.psu.edu> writes:
 
---cPi+lWm09sJ+d57q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On 19 Dec 2001, Eric W. Biederman wrote:
+> 
+> > I have alarm bells ringing in my gut saying there are pieces of your
+> > proposal that are on the edge of being overly complex... But without
+> > source I can't really say.  Arbitrary NULL padding between images is
+> > cool but why?
+> 
+> 	Alignment that might be wanted by loaders.  Take that with hpa - for
+> all I care it's a non-issue.  while(!*p) p++; added before p = handle_part(p);
+> in the main loop...
 
-* J Sloan <jjs@lexus.com> on Wed, Dec 19, 2001:
+Right there are definitely cases where it makes sense, and it isn't too bad.
 
-> "M. R. Brown" wrote:
->=20
-> > * nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
-> >
-> > > Is it safe to use gcc-3.0.2 to compile the kernel?
-> >
-> > Absolutely not.  There was at least one reported ICE (internal compiler
-> > error) with drivers/net/8139too.c.  Stick to the 2.95.x series.
->=20
-> BTW 2.96 is fine also -
->=20
+My basic design filter checks to see if there if there is one feature per
+requirement.  At one feature per requirement it is a uninspired design.  At less
+than one feature per requirement it approaches an elegant design.  At greater
+than one feature per requirement it approaches a crap design.
 
-There is no 2.96 except the Red Hat maintained version of GCC, but if
-you're saying that Red Hat's compiler works, more power to you.
+The whole moving excess kernel code into user space, and use cpio
+instead of a raw disk image part is elegant.  I just don't want the
+idea to loose it in the small details.
 
-M. R.
+And you have mentioned enough small features my reaction is to want to review
+the code and think it through.  So I'll have to look it over very closely next
+time you post a patch.
 
---cPi+lWm09sJ+d57q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8IOjEaK6pP/GNw0URAh1tAJ40ioYJS71E58ij3tHKUL/+aVc5BwCffwNw
-qQqBYqS604PtvKMQ+B6uhzg=
-=k/VQ
------END PGP SIGNATURE-----
-
---cPi+lWm09sJ+d57q--
+Eric

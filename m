@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265113AbUD3Ia0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUD3IaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265113AbUD3Ia0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 04:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbUD3IaZ
+	id S265114AbUD3IaX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 04:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbUD3IaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 04:30:25 -0400
-Received: from holomorphy.com ([207.189.100.168]:16000 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265113AbUD3IaW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 30 Apr 2004 04:30:22 -0400
-Date: Fri, 30 Apr 2004 01:30:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NUMA API
-Message-ID: <20040430083017.GB1298@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <409201BE.9000909@redhat.com>
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41490 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265114AbUD3IaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 04:30:18 -0400
+Date: Fri, 30 Apr 2004 09:30:12 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Todd Poynor <tpoynor@mvista.com>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hotplug for device power state changes
+Message-ID: <20040430093012.A30928@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Todd Poynor <tpoynor@mvista.com>,
+	Patrick Mochel <mochel@digitalimplant.org>,
+	linux-hotplug-devel@lists.sourceforge.net,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <409201BE.9000909@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1083286226.20473.159.camel@gaston>; from benh@kernel.crashing.org on Fri, Apr 30, 2004 at 10:50:26AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 12:35:26AM -0700, Ulrich Drepper wrote:
-> In the last weeks I have been working on designing a new API for a NUMA
-> support library.  I am aware of the code in libnuma by ak but this code
-> has many shortcomings:
-> ~ inadequate topology discovery
-> ~ fixed cpu set size
-> ~ no clear separation of memory nodes
-> ~ no inclusion of SMT/multicore in the cpu hierarchy
-> ~ awkward (at best) memory allocation interface
-> ~ etc etc
-> and last but not least
-> ~ a completely unacceptable library interface (e.g., global variables as
-> part of the API, WTF?)
+On Fri, Apr 30, 2004 at 10:50:26AM +1000, Benjamin Herrenschmidt wrote:
+> This is dangerous.
+> 
+> If the device you are suspending is on the VM path in any way,
+> beeing synchronous with a userland call can deadlock you solid.
 
-Regardless of issues addressed, Andi's been working with everyone for
-something on the order of 12+ months and this is out of the blue. I very
-very strongly suggest that you take up each of these issues with him so
-that they can be addressed as individual incremental improvements to the
-API everyone's been working with for all that time as opposed to screwing
-the world (esp. now that commodity NUMA boxen are becoming more prevalent)
-with transparent and deliberate distro-competition motivated API skew.
+And not being synchronous means that there's no point in calling
+userland, because userland won't run before the machine has
+suspended, so there's no point in calling it in the first place.
+Also consider the case where you suspend, and asynchronously queue
+up all these suspend scripts to run.  Then you resume and queue up
+the resume scripts to run.  What order do the suspend and resume
+scripts ultimately end up being run?
 
--- wli
+What if the scripts have side effects like releasing and re-acquiring
+your DHCP allocation - what would be the effect of the suspend script
+completing after the resume script?
+
+What about the case where suspend/resume scripts bring up/tear down
+any communication protocol?
+
+Maybe we should have a two-pass approach, where the first pass
+synchronously tells userspace about the suspend, and the second
+pass does the actual suspend.  Then for resume the opposite.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

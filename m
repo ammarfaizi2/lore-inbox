@@ -1,80 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTJPMxy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 08:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTJPMxy
+	id S262882AbTJPMtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 08:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTJPMtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 08:53:54 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:16845 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262884AbTJPMxw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 08:53:52 -0400
-Date: Thu, 16 Oct 2003 09:52:30 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: andrea@suse.de, <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre VM regression?
-Message-ID: <Pine.LNX.4.44.0310160949230.2388-100000@logos.cnet>
+	Thu, 16 Oct 2003 08:49:18 -0400
+Received: from shiva.jussieu.fr ([134.157.0.129]:7695 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id S262882AbTJPMtR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 08:49:17 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16270.37635.176658.541909@gargle.gargle.HOWL>
+Date: Thu, 16 Oct 2003 14:45:55 +0200
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Roberto Di Cosmo <roberto@dicosmo.org>, linux-kernel@vger.kernel.org,
+       fedor@karpelevitch.net
+Subject: Re: Full specifications available for RealTek 8180 wireless chipset
+In-Reply-To: <3F8E7F2F.3060109@pobox.com>
+References: <16270.23843.175822.920013@gargle.gargle.HOWL>
+	<3F8E7F2F.3060109@pobox.com>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: Roberto Di Cosmo <roberto@dicosmo.org>
+From: roberto@dicosmo.org
+X-Antivirus: scanned by sophie at shiva.jussieu.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrea, 
+Who told you the document is stolen?
 
-Martin first reported problems with "gzip -dc file | less" (280MB file).
-less was getting killed. He had no swap... I asked him to add some swap
-and it works now. Fine. 
+I received it *officially* from RealTek's support people.
 
-The thing is that with 2.4.22 less was being killed, but with 2.4.23-pre
-he gets:
+Nevetheless, since you seem to imply that people inside RealTek might "leak"
+this document against the orders of their hierarchy, I am removing it, and
+I will only put it back online, and reannounce it, when I have _written_
+authorization from their headquarters, instead of just a mail.
 
->> And yes, the app was killed:
-> >
-> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > VM: killing process named
-> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > VM: killing process gpm
-> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > VM: killing process sendmail
-> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > VM: killing process less
+Thanks for casting doubt on the honesty and reliability of RealTek's
+employees, something I would never have imagined before your post
 
-So a lot of processes which should not get killed are dying. This is
-really bad. I was afraid it could happen and it did.
+--Roberto Di Cosmo
 
-What now? Resurrect OOM-killer? 
+>>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> > Hi,
-> >   it's a long time I haven't seen sthis messages, but it just happened that
-> > I did on my laptop ASUS L3880C(1GB RAM). The message show on
-> > 2.4.23-pre5+acpi20030918 and 2.4.23-pre7. The application get's killed on
-> > 2.4.22-acpi20030918 too, just without the "0-order allocation" message.
-> > I enabled in kernel the VM allocation debug option when configuring, but
-> > apparently I have to turn it on also somewhere else. *Documentation* is
-> > missing: 1) the help in "make config/menuconfig" etc. doesn't say anything,
-> > the Documentation subdirectory doesn't say anything except "debug" as
-> > kernel boot option on command-line(I did that too, but no change) and also
-> > linux kernel-FAQ doesn't say either. :(
-> >
-> > How I tested?
-> > `gzip -dc file | less' and pressed `G' to jump to the very end of the file.
-> > The filesize is 280MB only. In a while, the mouse stopps moving for a
-> > while, than the system gets sometimes unloaded, fan is raises it's RPM's up
-> > and down town to time, and mouse cursor eventually does a move and then
-> > less command gets killed. In dmesg I found:
-> >
-> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> > VM: killing process less
-
-With 2.4.22:
-
-> 2.4.22-acpi-20030918 with HIGHMEM gives only in dmesg:
->
-> Out of Memory: Killed process 1904 (less).
+    Jeff> Roberto Di Cosmo wrote:
+    >> Having experienced a large set of delusions using the closed source
+    >> drivers for the RealTek 8180 wireless chipset available on RealTek web
+    >> site on a stock kernel 2.4.20, that do confirm the posting of
+    >> fedor@karpelevitch.net on September 11 2003 about kernel freeze with
+    >> stock 2.4.22, I politely complained with RealTek, suggesting they open
+    >> the code or release the chipset specifications to the community.
+    >> 
+    >> I received today the full chipset specifications, that I uploaded to
+    >> http://www.dicosmo.org/RTL8180spec_1_3.pdf
+    >> 
+    >> I hope this may help, if somebody is willing to undertake writing a real,
+    >> full fledged, Linux-quality driver for this chipset.
+    >> 
+    >> Sorry for not being able to do this myself.
 
 
+    Jeff> Having announced this to thousands of people -- including RealTek
+    Jeff> subscribers, no doubt -- you have poisoned any effort to write a
+    Jeff> driver off this obviously-stolen document.
+
+    Jeff> I hope others learn from your example, of what NOT to do.
+
+    Jeff> Thanks for damaging my efforts to work on this through RealTek,
+
+    Jeff> 	Jeff
 
 

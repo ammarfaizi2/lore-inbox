@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbTLOPoz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTLOPoz
+	id S263679AbTLOPm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTLOPm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:44:55 -0500
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:2052 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S263740AbTLOPox convert rfc822-to-8bit
+	Mon, 15 Dec 2003 10:42:29 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:9654 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263679AbTLOPm1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:44:53 -0500
-From: Witold Krecicki <adasi@kernel.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: raid0 slower than devices it is assembled of?
-Date: Mon, 15 Dec 2003 16:44:46 +0100
-User-Agent: KMail/1.5.93
-References: <200312151434.54886.adasi@kernel.pl>
-In-Reply-To: <200312151434.54886.adasi@kernel.pl>
-MIME-Version: 1.0
+	Mon, 15 Dec 2003 10:42:27 -0500
+Date: Mon, 15 Dec 2003 07:42:26 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+       bitkeeper-users@bitmover.com
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <20031215154226.GD16554@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+	bitkeeper-users@bitmover.com
+References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200312151644.46130.adasi@kernel.pl>
+In-Reply-To: <2259130000.1071469863@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Monday 15 of December 2003 14:34, Witold Krecicki napisa³:
-also, what I got while investigating why one drive is slower than another - is 
-there a way to use SMART on a drive connected via SATA-libata?
+On Sun, Dec 14, 2003 at 10:31:04PM -0800, Martin J. Bligh wrote:
+> One thing that I've wished for in the past which looks like it *might*
+> be trivial to do is to grab a raw version of the patch you already
+> put out in HTML format, eg if I surf down changesets and get to a page
+> like this:
+> 
+> http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
 
+We can do that and we will, it's just not hit the top of the priority list.
+Given past discussions on this list I had thought there was a strong need 
+for a way to trivially track any BK tree without BK, maybe I misunderstood
+what was being asked.
+
+There isn't any reason we can't do both.
 -- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

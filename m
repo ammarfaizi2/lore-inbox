@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265560AbUALO6n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 09:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUALO6n
+	id S266189AbUALPMG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 10:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266190AbUALPMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 09:58:43 -0500
-Received: from mail.alu.ua.es ([193.145.233.9]:35257 "EHLO mail.alu.ua.es")
-	by vger.kernel.org with ESMTP id S265560AbUALO6l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 09:58:41 -0500
-Subject: [PATCH] ACPI dispatcher, kernel 2.6.1
-From: Daniel Micol Ponce <dmp18@alu.ua.es>
-Reply-To: daniel.micol@unix.net
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-DWBk6eQcEznkpjybuXAR"
-Message-Id: <1073919520.5457.8.camel@DMICOL.MICOLPONCE>
+	Mon, 12 Jan 2004 10:12:06 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:12163
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S266189AbUALPME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 10:12:04 -0500
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1073917652.1639.21.camel@nidelv.trondhjem.org>
+References: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
+	 <1073745028.1146.13.camel@nidelv.trondhjem.org>
+	 <btt971$3p8$1@gatekeeper.tmr.com>
+	 <1073917652.1639.21.camel@nidelv.trondhjem.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1073920323.1639.28.camel@nidelv.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 12 Jan 2004 15:58:40 +0100
+Date: Mon, 12 Jan 2004 10:12:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-DWBk6eQcEznkpjybuXAR
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> The 8k limit that you find in RFC1094 was an ad-hoc "limit" based purely
+> on testing using pre-1989 hardware. AFAIK most if not all of the
+> commercial vendors (Solaris, AIX, Windows/Hummingbird, EMC and Netapp)
+> are all currently setting the defaults to 32k block sizes for both TCP
+> and UDP.
+> Most of them want to bump that to a couple of Mbyte in the very near
+> future.
 
-I've found a non-sense line of code in
-drivers/acpi/dispatcher/dsmthdat.c that does nothing and gives a warning
-when compiling. Here I attach the diff file and a README.
+Note: the future Mbyte sizes can, of course, only be supported on TCP
+since UDP has an inherent limit at 64k. The de-facto limit on UDP is
+therefore likely to remain at 32k (although I think at least one vendor
+has already tried pushing it to 48k).
 
-Daniel Micol
-
---=-DWBk6eQcEznkpjybuXAR
-Content-Disposition: attachment; filename=patch.diff.gz
-Content-Type: application/x-gzip; name=patch.diff.gz
-Content-Transfer-Encoding: base64
-
-H4sICLsH/z8AA3BhdGNoLmRpZmYAfVDLboMwEDzDV+ypCgJjmxASiBoRVa0UqYeqSc4WNY5CGx6y
-TdOqyr/XkNDHobUP3tXOzI4HIQS4VRIryfGhqNo3nMviVUiFM94UOC9Uk2m+FxLnqtT7PNM+twJC
-QkQoIjEEJKFRMg59MhxwCSXEdl0X/qRMooRO/VlI4iCkYXihpCmgiFBvCm73RJCmNliVOLL66Znl
-QnG4hqGcm1Gxg9HQowWvy7KufCl2QoqKC8brttKwAOrAh0FbSme6VUaj+xprtQE076wwCoJrpuuh
-/Bb14Orneg+O2eGFdTrCmdvI+mWuc9RbWt48rNjdcnW/fbyF0Xmrc/FgSaFbWbEes94sN9v1F6QX
-OJ1jiIk3MTHMYm/cx2BG/zNPNjL3EwgEl9nQAQAA
-
---=-DWBk6eQcEznkpjybuXAR
-Content-Disposition: attachment; filename=README
-Content-Type: text/x-readme; name=README; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-Daniel Micol Ponce <dmp18@alu.ua.es> [ACPI] Removed a non-sense line of code that returned a warning when compiling
-
---=-DWBk6eQcEznkpjybuXAR--
-
+Trond

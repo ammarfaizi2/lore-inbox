@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266234AbUARG6a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 01:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUARG63
+	id S266247AbUARHEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 02:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUARHEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 01:58:29 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:27530
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S266234AbUARG62 convert rfc822-to-8bit (ORCPT
+	Sun, 18 Jan 2004 02:04:41 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:21919 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S266247AbUARHEk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 01:58:28 -0500
-Subject: Re: [RFC] kill sleep_on
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       manfred@colorfullife.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040117224139.5585fb9c.akpm@osdl.org>
-References: <40098251.2040009@colorfullife.com>
-	 <1074367701.9965.2.camel@imladris.demon.co.uk>
-	 <20040117201000.GL21151@parcelfarce.linux.theplanet.co.uk>
-	 <1074383111.9965.4.camel@imladris.demon.co.uk>
-	 <20040117224139.5585fb9c.akpm@osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1074409074.1569.12.camel@nidelv.trondhjem.org>
+	Sun, 18 Jan 2004 02:04:40 -0500
+Date: Sat, 17 Jan 2004 23:03:48 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, colpatch@us.ibm.com,
+       akpm@osdl.org, paulus@samba.org
+Subject: Re: [PATCH] bitmap parsing routines, version 3
+Message-Id: <20040117230348.76d26691.pj@sgi.com>
+In-Reply-To: <20040118055233.GA24421@holomorphy.com>
+References: <20040114204009.3dc4c225.pj@sgi.com>
+	<20040115081533.63c61d7f.akpm@osdl.org>
+	<20040115181525.GA31086@tsunami.ccur.com>
+	<20040115161732.458159f5.pj@sgi.com>
+	<400873EC.2000406@us.ibm.com>
+	<20040117063618.GA14829@tsunami.ccur.com>
+	<20040117020815.3ac17c46.pj@sgi.com>
+	<20040117145545.GA16318@tsunami.ccur.com>
+	<20040117153615.GA16385@tsunami.ccur.com>
+	<20040117153344.1072ae7c.pj@sgi.com>
+	<20040118055233.GA24421@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 18 Jan 2004 01:57:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 18/01/2004 klokka 01:41, skreiv Andrew Morton:
-> It would be nice to fix up the lock_kernel()s in the NFS client: SMP lock
-> contention is quite high in there.
+> There has never been any confusion. The slop bits are treated
+> consistently as "don't cares".
 
-Chuck did a study of that particular issue some 2-3 years ago, but we've
-addressed all the top problems on his list since then. Do you have any
-new numbers to show us? I ask because I'm not at all convinced that the
-BKL adds significantly to our latencies for the moment (I've been
-looking at those number in the last few days due to the readahead
-problems that have already been reported).
+Hmmm ... you seem to be quite right about the bitmap stuff.
+The cpumask stuff that sits on top of this still worries me.
 
-I am, however, quite convinced that we need new statistics on this sort
-of issue. Chuck is therefore working on a set of patches to add an
-"iostat"-like tool to the NFS client. Hopefully that will help settle
-these questions.
+I need to look more closely.  Sorry, Bill.
 
-Cheers,
-  Trond
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

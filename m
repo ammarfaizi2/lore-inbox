@@ -1,77 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbTIHMq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 08:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbTIHMq0
+	id S261811AbTIHNDb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIHNDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 08:46:26 -0400
-Received: from ejc.ecomda.com ([212.18.24.150]:62438 "EHLO ejc.ecomda.com")
-	by vger.kernel.org with ESMTP id S261160AbTIHMqY (ORCPT
+	Mon, 8 Sep 2003 09:03:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:35567 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261811AbTIHND2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 08:46:24 -0400
-Subject: Re: possible GPL violation by Sigma Designs
-From: Torgeir Veimo <torgeir@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1063024404.21084.7.camel@dhcp23.swansea.linux.org.uk>
-References: <1062985742.3771.16.camel@africa.netenviron.com>
-	 <1063024404.21084.7.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1063025187.3284.55.camel@africa.netenviron.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 13:46:27 +0100
+	Mon, 8 Sep 2003 09:03:28 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] use size_t for the broken ioctl numbers
+Date: Mon, 8 Sep 2003 15:03:20 +0200
+User-Agent: KMail/1.5.1
+Cc: Andreas Schwab <schwab@suse.de>, <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+References: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0309071617380.21192-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309081503.20459.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-08 at 13:33, Alan Cox wrote:
-> On Llu, 2003-09-08 at 02:49, Torgeir Veimo wrote:
-> > The Sigma Designs EM8500 is apparently a combined mpeg4 decoder and RISC
-> > processor. I'd assume that they would be required to release source code
-> > on request for their kernel, even if the code is executed on the EM8500
-> > directly, as opposed being controller by a kernel driver running on a
-> > separate processor?
-> 
-> If the EM8500 is running a linux kernel then they need to state that
-> provide the offer of source code or provide the source and obey the GPL.
-> I'd suspect if it runs Linux on the 8500 it runs Linux + apps and the
-> interesting DVD stuff is the apps not the kernel however 8)
+On Monday 08 September 2003 01:21, Linus Torvalds wrote:
 
-The romfs filesystem has a linux.bin.z kernel file, fipmodule.o and a
-khwl.o file, both of which I think are modules. The khwl.o file seems to
-be the driver. `strings khwl.o` reveals among other things:
+> In fact, what you'd want to do is not just verify that it compiles, but
+> also verify that the object code matches.
 
-(hwl0)minor_ioctl: REALMAGICHWL_IOCTL_CLEAR_MODULE_USE_COUNT done.
-(hwl0)minor_ioctl: process %d enters (case %d) ----------------
-(hwl0)minor_ioctl: unknown ioctl or feature not supported (see
-REALMAGICHWL_FEATURES)
-(hwl0)minor_ioctl: process %d leaves (case %d, return %d) ------
-(hwl0)open done by %d (user count #%d)
-(hwl0)close done by %d (user count #%d)
-(hwl#)init_module: begun
-realmagichwl0
-(hwl#)init_module: devfs_register failed
-(hwl#)init_module: device (%d:%d) registered in devfs
-(hwl#)init_module: found JASPER
-(hwl#)cleanup_module: begun
-(hwl#)cleanup_module: done
-...
-DICOM_PackedPicBuf
-Decoder_Config
-Force_PanScanDefHorSize
-...
-Audio_PTSFifo
-Audio_PTSSize
-Audio_PTSRdPtr
-Audio_Dec_Mode
-Audio_CompDualOCfg_Mode
-Audio_DynamicRange
+I have checked now that the object code for arch/s390/kernel/compat_ioctl.o
+remains identical and that the whole kernel compiles for s390 and i386,
+after fixing the broken ioctl numbers.
 
-The player is a file called mpegplayer.bin. 
+> Because there _is_ one case where adding the [1] will still compile, but
+> generate wrong code: if the "size" argument to the _IOx() was not a type,
+> but a real actual array.
 
-uClinux supports module loading, doesn't it?
+Yes, there had to be a catch. The new version below catches that error
+too, making that a link time failure and also checks that the size
+field does not overflow.
+
+	Arnd <><
+
+--- 1.1/include/asm-i386/ioctl.h	Tue Feb  5 18:39:44 2002
++++ edited/include/asm-i386/ioctl.h	Mon Sep  8 13:21:28 2003
+@@ -52,11 +52,21 @@
+ 	 ((nr)   << _IOC_NRSHIFT) | \
+ 	 ((size) << _IOC_SIZESHIFT))
  
--- 
-Torgeir Veimo <torgeir@pobox.com>
-
++/* provoke compile error for invalid uses of size argument */
++extern int __invalid_size_argument_for_IOC;
++#define _IOC_TYPECHECK(t) \
++	((sizeof(t) == sizeof(t[1]) && \
++	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
++	  sizeof(t) : __invalid_size_argument_for_IOC)
++
+ /* used to create numbers */
+ #define _IO(type,nr)		_IOC(_IOC_NONE,(type),(nr),0)
+-#define _IOR(type,nr,size)	_IOC(_IOC_READ,(type),(nr),sizeof(size))
+-#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
+-#define _IOWR(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
++#define _IOR(type,nr,size)	_IOC(_IOC_READ,(type),(nr),(_IOC_TYPECHECK(size)))
++#define _IOW(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
++#define _IOWR(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
++#define _IOR_BAD(type,nr,size)	_IOC(_IOC_READ,(type),(nr),sizeof(size))
++#define _IOW_BAD(type,nr,size)	_IOC(_IOC_WRITE,(type),(nr),sizeof(size))
++#define _IOWR_BAD(type,nr,size)	_IOC(_IOC_READ|_IOC_WRITE,(type),(nr),sizeof(size))
+ 
+ /* used to decode ioctl numbers.. */
+ #define _IOC_DIR(nr)		(((nr) >> _IOC_DIRSHIFT) & _IOC_DIRMASK)

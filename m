@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269036AbTHOQbl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbTHOQ3U
+	id S270420AbTHOQe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbTHOQNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:29:20 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:32709
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S267520AbTHOQ2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:28:49 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: [PATCH] O12.2int for interactivity
-Date: Sat, 16 Aug 2003 02:35:04 +1000
-User-Agent: KMail/1.5.3
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <200308141659.33447.kernel@kolivas.org> <3F3BE9BD.20304@techsource.com>
-In-Reply-To: <3F3BE9BD.20304@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 12:13:08 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268702AbTHOQJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:09:34 -0400
+Date: Fri, 15 Aug 2003 16:13:28 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+Message-ID: <20030815141328.GA16176@ucw.cz>
+References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308160235.05105.kernel@kolivas.org>
+In-Reply-To: <20030815135248.GA7315@win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Aug 2003 05:57, Timothy Miller wrote:
-> > Actually the timeslice handed out is purely dependent on the static
-> > priority, not the priority it is elevated or demoted to by the
-> > interactivity estimator. However lower priority tasks (cpu bound ones if
-> > the estimator has worked correctly) will always be preempted by higher
-> > priority tasks (interactive ones) whenever they wake up.
->
-> Ok, so tasks at priority, say, 5 are all run before any tasks at
-> priority 6, but when a priority 6 task runs, it gets a longer timeslice?
+On Fri, Aug 15, 2003 at 03:52:48PM +0200, Andries Brouwer wrote:
+> On Fri, Aug 15, 2003 at 10:46:07PM +1000, Neil Brown wrote:
+> 
+> > It seems to work (though some of the keys actually generate 'down'
+> > events for both the down and up transitions, so it seems that the key
+> > is pressed twice.
+> 
+> Maybe it really is as you say. But your description sounds fishy.
+> It would be nice to know what really happens.
+> (And it would be nice to know which scancodes are involved.)
 
-All "nice" 0 tasks get the same size timeslice. If their dynamic priority is 
-different (the PRI column in top) they still get the same timeslice.
+Indeed. Neil, please enable DEBUG in i8042.c ... both with and without the
+i8042_direct=1 and atkbd_set=3 options from my previous e-mail.
 
-> How much longer?
+And for Andries, if you can, do the showkey -s test on 2.4, too ...
 
-Different nice levels are about 5ms apart in size.
-
-Con
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

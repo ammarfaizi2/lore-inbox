@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132125AbRDPVRj>; Mon, 16 Apr 2001 17:17:39 -0400
+	id <S132140AbRDPVS7>; Mon, 16 Apr 2001 17:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132130AbRDPVR3>; Mon, 16 Apr 2001 17:17:29 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:772 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131408AbRDPVRT>;
-	Mon, 16 Apr 2001 17:17:19 -0400
-Date: Mon, 16 Apr 2001 15:29:29 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: SodaPop <soda@xirr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oscillations in disk write compaction, poor interactive performance
-Message-ID: <20010416152928.B40@(none)>
-In-Reply-To: <200104122134.QAA24106@xirr.com>
-Mime-Version: 1.0
+	id <S132146AbRDPVSu>; Mon, 16 Apr 2001 17:18:50 -0400
+Received: from mail1.rdc2.ab.home.com ([24.64.2.48]:23695 "EHLO
+	mail1.rdc2.ab.home.com") by vger.kernel.org with ESMTP
+	id <S132140AbRDPVSg>; Mon, 16 Apr 2001 17:18:36 -0400
+Message-ID: <3ADB608C.4D2E3ED5@home.com>
+Date: Mon, 16 Apr 2001 15:13:48 -0600
+From: swds.mlowe@home.com
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Slow LAN /w 2.4.3
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200104122134.QAA24106@xirr.com>; from soda@xirr.com on Thu, Apr 12, 2001 at 04:34:32PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi, I've just switched from kernel 2.2.16 to 2.4.3 (because of a smbfs
+bug). Anyways, all is well except for one little thing. Over the LAN in
+2.2.16 I was getting around 900k/sec between the linux server and the
+rest of the computers. After I upgraded I only get 200k/sec. I've
+rebooted using 2.2.16 and all the sudden I get 900k/sec again. So, does
+anyone know what's going on?
 
-> It also seems that in the 2.4 kernels, we can get into a sort of
-> oscillation mode, where we can have long periods of disk activity
-> where nothing can get done - the low points, where only 2-3 writes
-> per second can occur, so completely screw up the interactive
-> performance that you simply have to take your hands off the
-> keyboard and go get coffee until the disk writes complete.  I know
-> we get better performance overall this way, but it can be
-> frustrating when this occurs in the middle of video capture.
+I've got two nics (Realtek PCI - External INet, Ehterlink III ISA -
+LAN). I'm running Redhat 7.0, as well as ipchains.
 
-I see oscilation even in 2.2.X case....
-
-Can you try running while true; do sync; sleep 1; done? It should help.
-
-If it helps, try playing with bdflush/kupdate or how is it called/ parameters.
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Thanks,
+  Matt
 

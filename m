@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTL2Ruf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTL2Ruf
+	id S263983AbTL2SFR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 13:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTL2SFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:50:35 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:57570 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263834AbTL2Rue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:50:34 -0500
-Date: Mon, 29 Dec 2003 18:49:51 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, linux-kernel@vger.kernel.org
-Subject: Re: Can't mount USB partition as root
-Message-ID: <20031229174951.GA304@louise.pinerecords.com>
-References: <20031229173853.A32038@beton.cybernet.src> <Pine.LNX.4.58.0312300045070.24938@silk.corp.fedex.com> <20031229183302.B32137@beton.cybernet.src>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031229183302.B32137@beton.cybernet.src>
-User-Agent: Mutt/1.4.1i
+	Mon, 29 Dec 2003 13:05:17 -0500
+Received: from imap.gmx.net ([213.165.64.20]:25809 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263983AbTL2SFL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 13:05:11 -0500
+X-Authenticated: #20450766
+Date: Mon, 29 Dec 2003 19:05:06 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Oleg Drokin <green@linuxhacker.ru>
+cc: linux-kernel@vger.kernel.org, <g.liakhovetski@gmx.de>
+Subject: Re: Reiserfs-3.6.25 (2.4.21) ., instead of .., rsync Q
+In-Reply-To: <200312291454.hBTEspwF025036@car.linuxhacker.ru>
+Message-ID: <Pine.LNX.4.44.0312291859310.20257-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-29 2003, Mon, 18:33 +0100
-Karel Kulhavý <clock@twibright.com> wrote:
+On Mon, 29 Dec 2003, Oleg Drokin wrote:
 
-> > You'll need to load the usb modules using initrd ramdisk, then switch root
-> > to the usb device to continue booting the system.
-> 
-> This is the problem #2. I am not able to remount /. "device or resource busy".
-> How do I remount the "/"?
+> GL> After running a machine for some time I've got an empty directory with
+> GL> ls -a /var/run/sudo/user/ showing
+> GL> .  .,
+>
+> Sounds like a single bit error to me.
+>
+> GL> and
+> GL> ls -al /var/run/sudo/user/
+> GL> ls: /var/run/sudo/user/.,: No such file or directory
+>
+> Sure, because only "." and ".." hash is calculated in a special way.
+>
+> GL> Don't know if this would be of much help, though - I've already removed
+> GL> the directory (rmdir worked ok), I had to do a backup, and with that
+> GL> structure rsync couldn't go further.
+>
+> What if you try to run memtest86 to see if you have good RAM?
 
-/sbin/mount -o remount,rw /
+Hm, you mean it would have gone after a reboot?... No, don't think I tried
+to reboot. And, as said above, the directory is gone, so, can't check. I
+did try to run the memtest at some point, once it did catch an error...
+Well, I guess, we can just archive this error-report for statistical
+purposes, but alone it hardly should raise any worries:-)
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Thanks and regards
+Guennadi
+---
+Guennadi Liakhovetski
+
+

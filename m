@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLEWYI>; Tue, 5 Dec 2000 17:24:08 -0500
+	id <S130552AbQLEWZG>; Tue, 5 Dec 2000 17:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbQLEWX6>; Tue, 5 Dec 2000 17:23:58 -0500
-Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:45771 "EHLO
-	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
-	id <S129849AbQLEWXo>; Tue, 5 Dec 2000 17:23:44 -0500
-Date: Tue, 5 Dec 2000 20:42:15 +0100
-From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11: kernel: waitpid(823) failed, -512
-Message-ID: <20001205204215.B17332@iapetus.localdomain>
-In-Reply-To: <20001203233611.A8410@iapetus.localdomain>; <200012050133.eB51XdJ14685@snap.thunk.org> <3A2C4917.1AEEE91D@uow.edu.au>
-Mime-Version: 1.0
+	id <S130517AbQLEWY4>; Tue, 5 Dec 2000 17:24:56 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14852 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129849AbQLEWYi>; Tue, 5 Dec 2000 17:24:38 -0500
+Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
+To: lists@cyclades.com (Ivan Passos)
+Date: Tue, 5 Dec 2000 21:56:08 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List), netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.10.10012051118140.1713-100000@main.cyclades.com> from "Ivan Passos" at Dec 05, 2000 11:23:50 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3A2C4917.1AEEE91D@uow.edu.au>; from andrewm@uow.edu.au on Tue, Dec 05, 2000 at 12:47:03PM +1100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E143Q4I-0000EZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2000 at 12:47:03PM +1100, Andrew Morton wrote:
-> tytso@mit.edu wrote:
-> > 
-> > On Sun, Dec 03, 2000 at 11:36:11PM +0100, Frank van Maarseveen wrote:
-> > > While playing with routing (zebra) and PPP I regularly see this
-> > > message appearing. It always happens when pppd terminates a connection,
-> > > e.g:
-> > > Dec  3 23:09:08 mimas kernel: waitpid(823) failed, -512
-> > 
-> > This means a system call returned with an error code of -ERESTARTSYS
-> > when a signal wasn't pending; this is a kernel bug.
-> > 
-> > However, I've looked at the code to sys_wait4 (which implements
-> > waitpid), and I can't see where this might happen.  Just before
-> > end_wait4, it does do something potentially dangerous in that it
-> > leaves retval set to -ERESTARTSYS, but in all of the code paths I can
-> > see, retval gets reset before it exits.  The only thing I can think of
-> > is a compiler bug; what version of gcc are you using?
-
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release), from RH6.1
-
-> > 
-> > Puzzled
+> Alan, what's the approach you'd feel more comfortable with:
+> - One ioctl that passes a pointer to a known structure in ifr.ifr_data as 
+>   its argument.
+> - Several ioctl's, one for each parameter, that pass only the specific 
+>   parameter new value as the argument.
 > 
-> Ted,
-> 
-> it's caused by exec_usermodehelper().
+> The former is good because it relies on a _single_ ioctl. However, every
+> time you change the ioctl structure you may lose backward compatibility.
 
-I'm using modules as much as possible (for the fun of it). something
-(zebra?) often tries to load net-pf-10 which I believe is ipv6. Not
-configured however.
+One ioctl with a set of subcommands seems to be quite common
 
-I'll try the patch.
-
--- 
-Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

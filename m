@@ -1,131 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281684AbRKUJIw>; Wed, 21 Nov 2001 04:08:52 -0500
+	id <S281685AbRKUJJe>; Wed, 21 Nov 2001 04:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281685AbRKUJIm>; Wed, 21 Nov 2001 04:08:42 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:34565 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S281684AbRKUJIb>;
-	Wed, 21 Nov 2001 04:08:31 -0500
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: slab: avoid linear search in kmalloc? (GCC Guru wanted :)
-In-Reply-To: <20011121024525.A18750@lina.inka.de>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20011121024525.A18750@lina.inka.de>
-Date: 21 Nov 2001 11:14:55 +0200
-Message-ID: <873d38wkmo.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S281686AbRKUJJW>; Wed, 21 Nov 2001 04:09:22 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:36105 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S281685AbRKUJJH>;
+	Wed, 21 Nov 2001 04:09:07 -0500
+Date: Wed, 21 Nov 2001 10:08:49 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: New ac patch???
+Message-ID: <20011121100849.D15851@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <Pine.LNX.4.30.0111202146260.17569-100000@mustard.heime.net> <E166KTa-00036Z-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E166KTa-00036Z-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 20, 2001 at 11:38:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Bernd" == Bernd Eckenfels <ecki@lina.inka.de> writes:
+Hi,
 
-Bernd> Hello,
-Bernd> I noticed that kmalloc and kmem_find_general_cachep are doing a linear
-Bernd> search in the cache_sizes array. Isnt it better to speed that up by doing a
-Bernd> binary search or a b-tree if like the following patch?
 
-Here is a patch using a gcc extension. gcc generates binary search for the case.  
+2.4.13-ac will "flushing ide drives" on shutdown. This helped my laptop
+from not '/dev/hdax no cleanly unmounted, checking' on startup. I'm sure
+the system did not crash before that.
 
-Regards,
--velco
+2.4.15-pre6 does not have this code and now sometimes some filesystems
+seem not to be clean anymore on startup...
 
---- slab.c.orig	Wed Sep 19 00:16:26 2001
-+++ slab.c	Wed Nov 21 11:11:09 2001
-@@ -1533,15 +1533,9 @@ void * kmem_cache_alloc (kmem_cache_t *c
-  */
- void * kmalloc (size_t size, int flags)
- {
--	cache_sizes_t *csizep = cache_sizes;
--
--	for (; csizep->cs_size; csizep++) {
--		if (size > csizep->cs_size)
--			continue;
--		return __kmem_cache_alloc(flags & GFP_DMA ?
--			 csizep->cs_dmacachep : csizep->cs_cachep, flags);
--	}
--	return NULL;
-+	kmem_cache_t *cp = kmem_find_general_cachep (size, flags);
-+	
-+	return cp == NULL ? NULL : __kmem_cache_alloc(cp, flags);
- }
- 
- /**
-@@ -1589,18 +1583,66 @@ void kfree (const void *objp)
- 
- kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
- {
--	cache_sizes_t *csizep = cache_sizes;
-+	int idx;
- 
--	/* This function could be moved to the header file, and
--	 * made inline so consumers can quickly determine what
--	 * cache pointer they require.
--	 */
--	for ( ; csizep->cs_size; csizep++) {
--		if (size > csizep->cs_size)
--			continue;
-+	switch (size) {
-+#if PAGE_SIZE == 4096
-+	case 0 ... 32: 
-+		idx = 0;
-+		break;
-+	case 33 ... 64:
-+		idx = 1;
-+		break;
-+#else
-+	case 0 ... 64:
-+		idx = 1;
-+		break;
-+#endif
-+	case 65 ... 128:
-+		idx = 2;
-+		break;
-+	case 129 ... 256:
-+		idx = 3;
-+		break;
-+	case 257 ...512:
-+		idx = 4;
-+		break;
-+	case 513 ... 1024:
-+		idx = 5;
-+		break;
-+	case 1025 ... 2048:
-+		idx = 6;
-+		break;
-+	case 2049 ... 4096:
-+		idx = 7;
-+		break;
-+	case 4097 ... 8192:
-+		idx = 8;
-+		break;
-+	case 8193 ... 16384:
-+		idx = 9;
-+		break;
-+	case 16385 ... 32768:
-+		idx = 10;
-+		break;
-+	case 32769 ... 65536:
-+		idx = 11;
-+		break;
-+	case 65537 ... 131072:
-+		idx = 12;
-+		break;
-+	default:
-+		idx = -1;
- 		break;
- 	}
--	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
-+
-+	if (idx == -1)
-+		return NULL;
-+
-+#if PAGE_SIZE != 4096
-+	idx = idx - 1;
-+#endif
-+	return (gfpflags & GFP_DMA) ? cache_sizes [idx].cs_dmacachep : cache_sizes [idx].cs_cachep;
- }
- 
- #ifdef CONFIG_SMP
+Will the ide_notify_reboot be included in 2.4.15 final?
+
+-Marcel
+
+On Tue, Nov 20, 2001 at 11:38:50PM +0000, Alan Cox wrote:
+> > > to Linus that are 2.5 material (eg PnPBIOS). The only "-ac" patch as such
+> > > would be for 32bit quota and other oddments so I don't think its worth the
+> > > effort.
+> > 
+> > Will this include the patches to allow for /proc/sys/vm/(min|max)-readahead
+> > soon?
+> 
+> Thats pretty low on my priority list. Its actually not a hard patch to
+> extract although I'd prefer someone like Andrea who knows the new rather
+> undocumented VM did the merge
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

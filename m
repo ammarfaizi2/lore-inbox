@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268095AbTBWJbn>; Sun, 23 Feb 2003 04:31:43 -0500
+	id <S268111AbTBWJn7>; Sun, 23 Feb 2003 04:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268097AbTBWJbn>; Sun, 23 Feb 2003 04:31:43 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:41344 "EHLO
+	id <S268113AbTBWJn7>; Sun, 23 Feb 2003 04:43:59 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:50816 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S268095AbTBWJ3W>; Sun, 23 Feb 2003 04:29:22 -0500
-Date: Sun, 23 Feb 2003 18:36:48 +0900
+	id <S268111AbTBWJnr>; Sun, 23 Feb 2003 04:43:47 -0500
+Date: Sun, 23 Feb 2003 18:50:10 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (2/21) APM
-Message-ID: <20030223093648.GC1324@yuzuki.cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (11/21) parport
+Message-ID: <20030223095010.GL1324@yuzuki.cinet.co.jp>
 References: <20030223092116.GA1324@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,337 +22,176 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is additional patch to support NEC PC-9800 subarchitecture
-against 2.5.62-ac1. (2/21)
+against 2.5.62-ac1. (11/21)
 
-APM support for PC98. Including PC98's BIOS bug fix.
-I've cleaned up this patch by using mach-* scheme.
+Parallel port support.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux-2.5.62/arch/i386/kernel/apm.c linux98-2.5.62/arch/i386/kernel/apm.c
---- linux-2.5.62/arch/i386/kernel/apm.c	2003-02-22 08:34:41.000000000 +0900
-+++ linux98-2.5.62/arch/i386/kernel/apm.c	2003-02-23 16:37:51.000000000 +0900
-@@ -226,6 +226,8 @@
- #include <asm/uaccess.h>
- #include <asm/desc.h>
+diff -Nru linux/drivers/parport/parport_pc.c linux98/drivers/parport/parport_pc.c
+--- linux/drivers/parport/parport_pc.c	2002-12-16 11:08:22.000000000 +0900
++++ linux98/drivers/parport/parport_pc.c	2002-12-22 20:51:23.000000000 +0900
+@@ -332,7 +332,10 @@
  
-+#include "io_ports.h"
-+
- extern spinlock_t i8253_lock;
- extern unsigned long get_cmos_time(void);
- extern void machine_real_restart(unsigned char *, int);
-@@ -294,6 +296,8 @@
-  */
- #define APM_ZERO_SEGS
- 
-+#include "apm.h"
-+
- /*
-  * Define to make all _set_limit calls use 64k limits.  The APM 1.1 BIOS is
-  * supposed to provide limit information that it recognizes.  Many machines
-@@ -555,24 +559,11 @@
- 		unsigned int saved_fs; unsigned int saved_gs;
- #	define APM_DO_SAVE_SEGS \
- 		savesegment(fs, saved_fs); savesegment(gs, saved_gs)
--#	define APM_DO_ZERO_SEGS \
--		"pushl %%ds\n\t" \
--		"pushl %%es\n\t" \
--		"xorl %%edx, %%edx\n\t" \
--		"mov %%dx, %%ds\n\t" \
--		"mov %%dx, %%es\n\t" \
--		"mov %%dx, %%fs\n\t" \
--		"mov %%dx, %%gs\n\t"
--#	define APM_DO_POP_SEGS \
--		"popl %%es\n\t" \
--		"popl %%ds\n\t"
- #	define APM_DO_RESTORE_SEGS \
- 		loadsegment(fs, saved_fs); loadsegment(gs, saved_gs)
- #else
- #	define APM_DECL_SEGS
- #	define APM_DO_SAVE_SEGS
--#	define APM_DO_ZERO_SEGS
--#	define APM_DO_POP_SEGS
- #	define APM_DO_RESTORE_SEGS
- #endif
- 
-@@ -614,22 +605,7 @@
- 	local_save_flags(flags);
- 	APM_DO_CLI;
- 	APM_DO_SAVE_SEGS;
--	/*
--	 * N.B. We do NOT need a cld after the BIOS call
--	 * because we always save and restore the flags.
--	 */
--	__asm__ __volatile__(APM_DO_ZERO_SEGS
--		"pushl %%edi\n\t"
--		"pushl %%ebp\n\t"
--		"lcall *%%cs:apm_bios_entry\n\t"
--		"setc %%al\n\t"
--		"popl %%ebp\n\t"
--		"popl %%edi\n\t"
--		APM_DO_POP_SEGS
--		: "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx),
--		  "=S" (*esi)
--		: "a" (func), "b" (ebx_in), "c" (ecx_in)
--		: "memory", "cc");
-+	apm_bios_call_asm(func, ebx_in, ecx_in, eax, ebx, ecx, edx, esi);
- 	APM_DO_RESTORE_SEGS;
- 	local_irq_restore(flags);
- 	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
-@@ -672,26 +648,7 @@
- 	local_save_flags(flags);
- 	APM_DO_CLI;
- 	APM_DO_SAVE_SEGS;
--	{
--		int	cx, dx, si;
--
--		/*
--		 * N.B. We do NOT need a cld after the BIOS call
--		 * because we always save and restore the flags.
--		 */
--		__asm__ __volatile__(APM_DO_ZERO_SEGS
--			"pushl %%edi\n\t"
--			"pushl %%ebp\n\t"
--			"lcall *%%cs:apm_bios_entry\n\t"
--			"setc %%bl\n\t"
--			"popl %%ebp\n\t"
--			"popl %%edi\n\t"
--			APM_DO_POP_SEGS
--			: "=a" (*eax), "=b" (error), "=c" (cx), "=d" (dx),
--			  "=S" (si)
--			: "a" (func), "b" (ebx_in), "c" (ecx_in)
--			: "memory", "cc");
--	}
-+	error = apm_bios_call_simple_asm(func, ebx_in, ecx_in, eax);
- 	APM_DO_RESTORE_SEGS;
- 	local_irq_restore(flags);
- 	cpu_gdt_table[smp_processor_id()][0x40 / 8] = save_desc_40;
-@@ -1211,11 +1168,11 @@
+ unsigned char parport_pc_read_status(struct parport *p)
  {
- #ifdef INIT_TIMER_AFTER_SUSPEND
- 	/* set the clock to 100 Hz */
--	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
- 	udelay(10);
--	outb_p(LATCH & 0xff , 0x40);	/* LSB */
-+	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
- 	udelay(10);
--	outb(LATCH >> 8 , 0x40);	/* MSB */
-+	outb(LATCH >> 8, PIT_CH0);	/* MSB */
- 	udelay(10);
- #endif
+-	return inb (STATUS (p));
++	if (pc98 && p->base == 0x40)
++		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
++	else
++		return inb (STATUS (p));
  }
-diff -Nru linux-2.5.62/include/asm-i386/mach-default/apm.h linux98-2.5.62/include/asm-i386/mach-default/apm.h
---- linux-2.5.62/include/asm-i386/mach-default/apm.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.62/include/asm-i386/mach-default/apm.h	2003-02-23 16:34:37.000000000 +0900
-@@ -0,0 +1,75 @@
-+/*
-+ *  include/asm-i386/mach-default/apm.h
-+ *
-+ *  Machine specific APM BIOS functions for generic.
-+ *  Split out from apm.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+
-+#ifndef _ASM_APM_H
-+#define _ASM_APM_H
-+
-+#ifdef APM_ZERO_SEGS
-+#	define APM_DO_ZERO_SEGS \
-+		"pushl %%ds\n\t" \
-+		"pushl %%es\n\t" \
-+		"xorl %%edx, %%edx\n\t" \
-+		"mov %%dx, %%ds\n\t" \
-+		"mov %%dx, %%es\n\t" \
-+		"mov %%dx, %%fs\n\t" \
-+		"mov %%dx, %%gs\n\t"
-+#	define APM_DO_POP_SEGS \
-+		"popl %%es\n\t" \
-+		"popl %%ds\n\t"
-+#else
-+#	define APM_DO_ZERO_SEGS
-+#	define APM_DO_POP_SEGS
-+#endif
-+
-+static inline void apm_bios_call_asm(u32 func, u32 ebx_in, u32 ecx_in,
-+					u32 *eax, u32 *ebx, u32 *ecx,
-+					u32 *edx, u32 *esi)
-+{
-+	/*
-+	 * N.B. We do NOT need a cld after the BIOS call
-+	 * because we always save and restore the flags.
-+	 */
-+	__asm__ __volatile__(APM_DO_ZERO_SEGS
-+		"pushl %%edi\n\t"
-+		"pushl %%ebp\n\t"
-+		"lcall *%%cs:apm_bios_entry\n\t"
-+		"setc %%al\n\t"
-+		"popl %%ebp\n\t"
-+		"popl %%edi\n\t"
-+		APM_DO_POP_SEGS
-+		: "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx),
-+		  "=S" (*esi)
-+		: "a" (func), "b" (ebx_in), "c" (ecx_in)
-+		: "memory", "cc");
-+}
-+
-+static inline u8 apm_bios_call_simple_asm(u32 func, u32 ebx_in,
-+						u32 ecx_in, u32 *eax)
-+{
-+	int	cx, dx, si;
-+	u8	error;
-+
-+	/*
-+	 * N.B. We do NOT need a cld after the BIOS call
-+	 * because we always save and restore the flags.
-+	 */
-+	__asm__ __volatile__(APM_DO_ZERO_SEGS
-+		"pushl %%edi\n\t"
-+		"pushl %%ebp\n\t"
-+		"lcall *%%cs:apm_bios_entry\n\t"
-+		"setc %%bl\n\t"
-+		"popl %%ebp\n\t"
-+		"popl %%edi\n\t"
-+		APM_DO_POP_SEGS
-+		: "=a" (*eax), "=b" (error), "=c" (cx), "=d" (dx),
-+		  "=S" (si)
-+		: "a" (func), "b" (ebx_in), "c" (ecx_in)
-+		: "memory", "cc");
-+	return error;
-+}
-+
-+#endif /* _ASM_APM_H */
-diff -Nru linux-2.5.62/include/asm-i386/mach-pc9800/apm.h linux98-2.5.62/include/asm-i386/mach-pc9800/apm.h
---- linux-2.5.62/include/asm-i386/mach-pc9800/apm.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98-2.5.62/include/asm-i386/mach-pc9800/apm.h	2003-02-23 16:35:36.000000000 +0900
-@@ -0,0 +1,82 @@
-+/*
-+ *  include/asm-i386/mach-pc9800/apm.h
-+ *
-+ *  Machine specific APM BIOS functions for NEC PC9800.
-+ *  Split out from apm.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+
-+#ifndef _ASM_APM_H
-+#define _ASM_APM_H
-+
-+#include <linux/apm_bios.h>
-+
-+#ifdef APM_ZERO_SEGS
-+#	define APM_DO_ZERO_SEGS \
-+		"pushl %%ds\n\t" \
-+		"pushl %%es\n\t" \
-+		"xorl %%edx, %%edx\n\t" \
-+		"mov %%dx, %%ds\n\t" \
-+		"mov %%dx, %%es\n\t" \
-+		"mov %%dx, %%fs\n\t" \
-+		"mov %%dx, %%gs\n\t"
-+#	define APM_DO_POP_SEGS \
-+		"popl %%es\n\t" \
-+		"popl %%ds\n\t"
-+#else
-+#	define APM_DO_ZERO_SEGS
-+#	define APM_DO_POP_SEGS
-+#endif
-+
-+static inline void apm_bios_call_asm(u32 func, u32 ebx_in, u32 ecx_in,
-+					u32 *eax, u32 *ebx, u32 *ecx,
-+					u32 *edx, u32 *esi)
-+{
-+	/*
-+	 * N.B. We do NOT need a cld after the BIOS call
-+	 * because we always save and restore the flags.
-+	 */
-+	__asm__ __volatile__(APM_DO_ZERO_SEGS
-+		"pushl %%edi\n\t"
-+		"pushl %%ebp\n\t"
-+		"pushfl\n\t"
-+		"lcall *%%cs:apm_bios_entry\n\t"
-+		"setc %%al\n\t"
-+		"popl %%ebp\n\t"
-+		"popl %%edi\n\t"
-+		APM_DO_POP_SEGS
-+		: "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx),
-+		  "=S" (*esi)
-+		: "a" (func), "b" (ebx_in), "c" (ecx_in)
-+		: "memory", "cc");
-+}
-+
-+static inline u8 apm_bios_call_simple_asm(u32 func, u32 ebx_in,
-+						u32 ecx_in, u32 *eax)
-+{
-+	int	cx, dx, si;
-+	u8	error;
-+
-+	/*
-+	 * N.B. We do NOT need a cld after the BIOS call
-+	 * because we always save and restore the flags.
-+	 */
-+	__asm__ __volatile__(APM_DO_ZERO_SEGS
-+		"pushl %%edi\n\t"
-+		"pushl %%ebp\n\t"
-+		"pushfl\n\t"
-+		"lcall *%%cs:apm_bios_entry\n\t"
-+		"setc %%bl\n\t"
-+		"popl %%ebp\n\t"
-+		"popl %%edi\n\t"
-+		APM_DO_POP_SEGS
-+		: "=a" (*eax), "=b" (error), "=c" (cx), "=d" (dx),
-+		  "=S" (si)
-+		: "a" (func), "b" (ebx_in), "c" (ecx_in)
-+		: "memory", "cc");
-+	if (func == APM_FUNC_VERSION)
-+		*eax = (*eax & 0xff00) | ((*eax & 0x00f0) >> 4);
-+
-+	return error;
-+}
-+
-+#endif /* _ASM_APM_H */
-diff -Nru linux-2.5.61/include/linux/apm_bios.h linux98-2.5.61/include/linux/apm_bios.h
---- linux-2.5.61/include/linux/apm_bios.h	2003-02-15 08:51:47.000000000 +0900
-+++ linux98-2.5.61/include/linux/apm_bios.h	2003-02-20 08:51:34.000000000 +0900
-@@ -20,6 +20,7 @@
- typedef unsigned short	apm_eventinfo_t;
  
- #ifdef __KERNEL__
-+#include <linux/config.h>
+ void parport_pc_disable_irq(struct parport *p)
+@@ -1644,6 +1647,8 @@
+ {
+ 	unsigned char r, w;
  
- #define APM_CS		(GDT_ENTRY_APMBIOS_BASE * 8)
- #define APM_CS_16	(APM_CS + 8)
-@@ -60,6 +61,28 @@
- /*
-  * The APM function codes
-  */
++	if (pc98 && pb->base == 0x40)
++		return PARPORT_MODE_PCSPP;
+ 	/*
+ 	 * first clear an eventually pending EPP timeout 
+ 	 * I (sailer@ife.ee.ethz.ch) have an SMSC chipset
+@@ -1777,6 +1782,9 @@
+ {
+ 	int ok = 0;
+   
++	if (pc98 && pb->base == 0x40)
++		return 0;  /* never support */
++
+ 	clear_epp_timeout(pb);
+ 
+ 	/* try to tri-state the buffer */
+@@ -1908,6 +1916,9 @@
+ 			config & 0x80 ? "Level" : "Pulses");
+ 
+ 		configb = inb (CONFIGB (pb));
++		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
++			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
++
+ 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
+ 			pb->base, config, configb);
+ 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
+@@ -2048,6 +2059,9 @@
+ 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
+ 
+ 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
++	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
++		intrLine = 5; /* IRQ 14 */
++
+ 	irq = lookup[intrLine];
+ 
+ 	ECR_WRITE (pb, oecr);
+@@ -2212,7 +2226,14 @@
+ 	struct parport tmp;
+ 	struct parport *p = &tmp;
+ 	int probedirq = PARPORT_IRQ_NONE;
+-	if (check_region(base, 3)) return NULL;
++	if (pc98 && base == 0x40) {
++		int i;
++		for (i = 0; i < 8; i += 2)
++			if (check_region(base + i, 1)) return NULL;
++	} else {
++		if (check_region(base, 3)) return NULL;
++	}
++
+ 	priv = kmalloc (sizeof (struct parport_pc_private), GFP_KERNEL);
+ 	if (!priv) {
+ 		printk (KERN_DEBUG "parport (0x%lx): no memory!\n", base);
+@@ -2245,7 +2266,7 @@
+ 	if (base_hi && !check_region(base_hi,3))
+ 		parport_ECR_present(p);
+ 
+-	if (base != 0x3bc) {
++	if (!pc98 && base != 0x3bc) {
+ 		if (!check_region(base+0x3, 5)) {
+ 			if (!parport_EPP_supported(p))
+ 				parport_ECPEPP_supported(p);
+@@ -2343,7 +2364,12 @@
+ 		printk(KERN_INFO "%s: irq %d detected\n", p->name, probedirq);
+ 	parport_proc_register(p);
+ 
+-	request_region (p->base, 3, p->name);
++	if (pc98 && p->base == 0x40) {
++		int i;
++		for (i = 0; i < 8; i += 2)
++			request_region(p->base + i, 1, p->name);
++	} else
++		request_region (p->base, 3, p->name);
+ 	if (p->size > 3)
+ 		request_region (p->base + 3, p->size - 3, p->name);
+ 	if (p->modes & PARPORT_MODE_ECP)
+@@ -2413,7 +2439,13 @@
+ 		free_dma(p->dma);
+ 	if (p->irq != PARPORT_IRQ_NONE)
+ 		free_irq(p->irq, p);
+-	release_region(p->base, 3);
++	if (pc98 && p->base == 0x40) {
++		int i;
++		for (i = 0; i < 8; i += 2)
++			release_region(p->base + i, 1);
++	} else
++		release_region(p->base, 3);
++
+ 	if (p->size > 3)
+ 		release_region(p->base + 3, p->size - 3);
+ 	if (p->modes & PARPORT_MODE_ECP)
+@@ -2996,6 +3028,30 @@
+ {
+ 	int count = 0;
+ 
++	if (pc98) {
++		/* Set default resource settings for old style parport */
++		int	base = 0x40;
++		int	base_hi = 0;
++		int	irq = PARPORT_IRQ_NONE;
++		int	dma = PARPORT_DMA_NONE;
++
++		/* Check PC9800 old style parport */
++		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
++		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
++			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
++			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
++				/* Set default settings for IEEE1284 parport */
++				base = 0x140;
++				base_hi = 0x14c;
++				irq = 14;
++				/* dma = PARPORT_DMA_NONE; */
++			}
++		}
++
++		if (parport_pc_probe_port(base, base_hi, irq, dma, NULL))
++			count++;
++	}
++
+ 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
+ 		count++;
+ 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
+diff -Nru linux/include/linux/parport_pc.h linux98/include/linux/parport_pc.h
+--- linux/include/linux/parport_pc.h	2002-06-12 11:15:27.000000000 +0900
++++ linux98/include/linux/parport_pc.h	2002-08-19 14:13:09.000000000 +0900
+@@ -119,6 +119,11 @@
+ #endif
+ 	ctr = (ctr & ~mask) ^ val;
+ 	ctr &= priv->ctr_writable; /* only write writable bits. */
 +#ifdef CONFIG_X86_PC9800
-+#define	APM_FUNC_INST_CHECK	0x9a00
-+#define	APM_FUNC_REAL_CONN	0x9a01
-+#define	APM_FUNC_16BIT_CONN	0x9a02
-+#define	APM_FUNC_32BIT_CONN	0x9a03
-+#define	APM_FUNC_DISCONN	0x9a04
-+#define	APM_FUNC_IDLE		0x9a05
-+#define	APM_FUNC_BUSY		0x9a06
-+#define	APM_FUNC_SET_STATE	0x9a07
-+#define	APM_FUNC_ENABLE_PM	0x9a08
-+#define	APM_FUNC_RESTORE_BIOS	0x9a09
-+#define	APM_FUNC_GET_STATUS	0x9a3a
-+#define	APM_FUNC_GET_EVENT	0x9a0b
-+#define	APM_FUNC_GET_STATE	0x9a0c
-+#define	APM_FUNC_ENABLE_DEV_PM	0x9a0d
-+#define	APM_FUNC_VERSION	0x9a3e
-+#define	APM_FUNC_ENGAGE_PM	0x9a3f
-+#define	APM_FUNC_GET_CAP	0x9a10
-+#define	APM_FUNC_RESUME_TIMER	0x9a11
-+#define	APM_FUNC_RESUME_ON_RING	0x9a12
-+#define	APM_FUNC_TIMER		0x9a13
-+#else
- #define	APM_FUNC_INST_CHECK	0x5300
- #define	APM_FUNC_REAL_CONN	0x5301
- #define	APM_FUNC_16BIT_CONN	0x5302
-@@ -80,6 +103,7 @@
- #define	APM_FUNC_RESUME_TIMER	0x5311
- #define	APM_FUNC_RESUME_ON_RING	0x5312
- #define	APM_FUNC_TIMER		0x5313
-+#endif
++	if (p->base == 0x40 && ((priv->ctr) ^ ctr) & 0x01)
++		outb(0x0e | ((ctr & 0x01) ^ 0x01), 0x46);
++	else
++#endif /* CONFIG_X86_PC9800 */
+ 	outb (ctr, CONTROL (p));
+ 	priv->ctr = ctr;	/* Update soft copy */
+ 	return ctr;
+@@ -191,6 +196,11 @@
  
- /*
-  * Function code for APM_FUNC_RESUME_TIMER
+ extern __inline__ unsigned char parport_pc_read_status(struct parport *p)
+ {
++#ifdef CONFIG_X86_PC9800
++	if (p->base == 0x40)
++		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
++	else
++#endif /* CONFIG_X86_PC9800 */
+ 	return inb(STATUS(p));
+ }
+ 

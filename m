@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbTAATT5>; Wed, 1 Jan 2003 14:19:57 -0500
+	id <S263589AbTAAT12>; Wed, 1 Jan 2003 14:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbTAATT5>; Wed, 1 Jan 2003 14:19:57 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:56330 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S261529AbTAATT5>;
-	Wed, 1 Jan 2003 14:19:57 -0500
-To: John Bradford <john@grabjohn.com>
-Cc: jochen@scram.de (Jochen Friedrich), xavier.bestel@free.fr,
-       andrew@walrond.org, linux-kernel@vger.kernel.org
+	id <S264001AbTAAT12>; Wed, 1 Jan 2003 14:27:28 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:13579 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S263589AbTAAT11>;
+	Wed, 1 Jan 2003 14:27:27 -0500
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-References: <200212311431.gBVEVLVB001666@darkstar.example.net>
+References: <Pine.LNX.4.44.0212311541160.12063-100000@dunlop.admin.ie.alphyra.com>
 From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 01 Jan 2003 20:28:15 +0100
-In-Reply-To: John Bradford's message of "Tue, 31 Dec 2002 14:31:21 +0000 (GMT)"
-Message-ID: <yw1x7kdozn3k.fsf@gladiusit.e.kth.se>
+Date: 01 Jan 2003 20:35:54 +0100
+In-Reply-To: Paul Jakma's message of "Tue, 31 Dec 2002 15:44:58 +0000 (GMT)"
+Message-ID: <yw1x3coczmqt.fsf@gladiusit.e.kth.se>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -22,16 +20,14 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> writes:
+Paul Jakma <paulj@alphyra.ie> writes:
 
-> > Alpha works around this by using an X86 emulator in their PAL code.
-> 
-> That's interesting, I didn't know that.  How complete is it?  Does it
-> just emulate a subset of X86 instructions that are enough for 90% of
-> initialisation code?
+> PS: do you think Linux PPC or Alpha users are happy that NVidia
+> provide drivers?
 
-AFAIK it only emulates 16-bit real mode, which is what the bios code
-is.  I've never seen a card that failed to work because of this.
+Being an Alpha user, I can assure you that for me nvidia's drivers are
+worth nothing.  Even if they did work, I would want the complete specs
+for the chip.  There's usually something you can do with them.
 
 -- 
 Måns Rullgård

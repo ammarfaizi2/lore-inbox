@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVCGOu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVCGO5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVCGOu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 09:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVCGOu2
+	id S261270AbVCGO5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 09:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCGO5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 09:50:28 -0500
-Received: from colino.net ([213.41.131.56]:45565 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261208AbVCGOuT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 09:50:19 -0500
-Date: Mon, 7 Mar 2005 15:49:26 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Make therm_adt746x handle latest powerbooks
-Message-ID: <20050307154926.2706085b@jack.colino.net>
-X-Mailer: Sylpheed-Claws 1.0.1cvs22.2 (GTK+ 2.6.1; powerpc-unknown-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 09:57:08 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:1288 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261270AbVCGO5D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 09:57:03 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 4/29] let fat handle MS_SYNCHRONOUS flag
+References: <87ll92rl6a.fsf@devron.myhome.or.jp>
+	<87hdjqrl44.fsf@devron.myhome.or.jp>
+	<87d5uerl2j.fsf_-_@devron.myhome.or.jp>
+	<878y52rl17.fsf_-_@devron.myhome.or.jp>
+	<874qfqrl03.fsf_-_@devron.myhome.or.jp>
+	<20050306223815.GA5827@infradead.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 07 Mar 2005 23:56:31 +0900
+In-Reply-To: <20050306223815.GA5827@infradead.org> (Christoph Hellwig's
+ message of "Sun, 6 Mar 2005 22:38:15 +0000")
+Message-ID: <87ll8zcxnk.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Hellwig <hch@infradead.org> writes:
 
-This patch lets therm_adt746x handle the latest powerbooks. In these
-ones, Apple doesn't put the i2c bus number in the "reg" property of
-the fan node. Instead, we can get the bus number from the fan node
-path, which looks like "/proc/device-tree/.../i2c-bus@1/.../fan". 
-Here's a patch that handles both old and new form.
+>>  		mark_buffer_dirty(bh);
+>> +		if (sb->s_flags & MS_SYNCHRONOUS)
+>> +			sync_dirty_buffer(bh);
+>
+> These three lines are duplicated a lot. I think you want a helper ala:
+>
+> static inline void fat_buffer_modified(struct super_block *sb,
+> 		struct buffer_head *bh)
+> {
+> 	mark_buffer_dirty(bh);
+> 	if (sb->s_flags & MS_SYNCHRONOUS)
+> 		sync_dirty_buffer(bh);
+> }
 
-Please apply :)
+Yes, I may want the following helper. However I'll put it as is for now.
 
-Signed-off-by: Colin Leroy <colin@colino.net>
---- a/drivers/macintosh/therm_adt746x.c	2005-03-07
-09:03:58.000000000 +0100
-+++ b/drivers/macintosh/therm_adt746x.c	2005-03-07
-09:04:35.000000000 +0100
-@@ -548,7 +548,15 @@
- 	prop = (u32 *)get_property(np, "reg", NULL);
- 	if (!prop)
- 		return -ENODEV;
--	therm_bus = ((*prop) >> 8) & 0x0f;
-+	
-+	/* look for bus either by path or using "reg" */
-+	if (strstr(np->full_name, "/i2c-bus@") != NULL) {
-+		const char *tmp_bus = (strstr(np->full_name, "/i2c-bus@") + 9);
-+		therm_bus = tmp_bus[0]-'0';
-+	} else {
-+		therm_bus = ((*prop) >> 8) & 0x0f;
-+	}
-+	
- 	therm_address = ((*prop) & 0xff) >> 1;
- 
- 	printk(KERN_INFO "adt746x: Thermostat bus: %d, address: 0x%02x, "
+static inline void fat_buffer_modified(struct super_block *sb,
+		struct buffer_head *bh, int wait)
+{
+	int err = 0;
+	mark_buffer_dirty(bh);
+	if (wait)
+		err = sync_dirty_buffer(bh);
+	return err;
+}
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

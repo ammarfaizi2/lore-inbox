@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUDYHdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbUDYHgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUDYHdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 03:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUDYHdJ
+	id S262864AbUDYHgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 03:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUDYHgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 03:33:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48905 "EHLO
+	Sun, 25 Apr 2004 03:36:23 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52233 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261704AbUDYHdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 03:33:06 -0400
-Date: Sun, 25 Apr 2004 08:33:02 +0100
+	id S262339AbUDYHgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Apr 2004 03:36:19 -0400
+Date: Sun, 25 Apr 2004 08:36:11 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Jason Cox <steel300@gentoo.org>, linux-kernel@vger.kernel.org
-Subject: Re: Change number of tty devices
-Message-ID: <20040425083302.A18033@flint.arm.linux.org.uk>
-Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
-	Jason Cox <steel300@gentoo.org>, linux-kernel@vger.kernel.org
-References: <20040422093302.B19797@flint.arm.linux.org.uk> <Pine.LNX.4.44.0404250414330.15965-100000@phoenix.infradead.org>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (round 3 - the charm?)
+Message-ID: <20040425083611.B18033@flint.arm.linux.org.uk>
+Mail-Followup-To: Bob Tracy <rct@gherkin.frus.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20040420172447.A27454@infradead.org> <20040425030154.52120DBDB@gherkin.frus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0404250414330.15965-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Sun, Apr 25, 2004 at 04:15:57AM +0100
+In-Reply-To: <20040425030154.52120DBDB@gherkin.frus.com>; from rct@gherkin.frus.com on Sat, Apr 24, 2004 at 10:01:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 25, 2004 at 04:15:57AM +0100, James Simmons wrote:
-> 
-> > On Thu, Apr 22, 2004 at 02:24:06AM +0000, Jason Cox wrote:
-> > > > When the kernel supports multi-desktop systems we will have to deal
-> > > > with the serial and VT issue. Most likely the serial tty drivers will
-> > > > be given a different major number. 
-> > > 
-> > > Why isn't this done now?
-> > 
-> > It's a API change and requires a flag day "everyone update their
-> > filesystem."  Especially in a stable kernel series.
-> 
-> By the time 2.7.X comes around everyone should be using udev. That should 
-> settle any problems. 
+On Sat, Apr 24, 2004 at 10:01:54PM -0500, Bob Tracy wrote:
+> In addition to all the concerns Christoph raised in response to the
+> previous two submissions, there was an issue with the code for handling
+> a CS_EVENT_CARD_RESET event: the event handler was calling the bus_reset
+> function with a NULL scsi_cmnd argument.
 
-I have my doubts about that first statement.
+Hmm, so what happens if you're in the middle of a transaction, and
+you receive a CS_EVENT_CARD_RESET.  What happens to the command in
+progress ?
+
+Sure, the hardware is reset to a sane state, but what about the
+software state in the driver?
 
 -- 
 Russell King

@@ -1,116 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264602AbUADWFr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 17:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUADWFq
+	id S265811AbUADWBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 17:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUADWBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 17:05:46 -0500
-Received: from web21503.mail.yahoo.com ([66.163.169.14]:1642 "HELO
-	web21503.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264602AbUADWFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 17:05:38 -0500
-Message-ID: <20040104220537.85534.qmail@web21503.mail.yahoo.com>
-Date: Sun, 4 Jan 2004 14:05:37 -0800 (PST)
-From: Shivu V <shivu_sv2004@yahoo.com>
-Subject: oops from my test driver at poll_wait (__pollwait from select.c)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sun, 4 Jan 2004 17:01:12 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:16142 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265811AbUADWBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 17:01:09 -0500
+Date: Sun, 4 Jan 2004 23:01:04 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040104230104.A11439@pclin040.win.tue.nl>
+References: <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org>; from torvalds@osdl.org on Sun, Jan 04, 2004 at 01:05:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Jan 04, 2004 at 01:05:20PM -0800, Linus Torvalds wrote:
 
-I am a newbie in driver development. In one of my test
-driver, I am getting the oops at poll_wait.  The
-ksymoops o/p is as follows :
+> Oh, _I_ always understood. You were the one that was arguing for
+> stable numbers as somehow important.
 
-Unable to handle kernel NULL pointer dereference at
-virtual address 00000005
-c01190f5
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01190f5>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: f7ae0f18   ebx: 00000001   ecx: f6d40014   edx:
-f6d4000c
-esi: 00000246   edi: 00000000   ebp: f6d47ef4   esp:
-f6d47ec0
-ds: 0018   es: 0018   ss: 0018
-Process test (pid: 1228, stackpage=f6d47000)
-Stack: f72b3520 f7ae0e80 f8e144c6 f6d8f0e0 f7ae0f18
-f6d47fa8 f6d47f04 00000000
-      c012bee9 f6f513c0 f6d8f0e0 00000000 f6d47fa8
-f6d47f24 f8e14987 f6d8f0e0
-      f6d47fa8 420d2220 f6d93900 c01169f8 00000212
-00001000 00000145 f6d41000
-Call Trace: [<f8e144c6>] daemon_poll [mytest] 0x78
-(0xf6d47ec8))
-[<c012bee9>] handle_mm_fault [kernel] 0x89
-(0xf6d47ee0))
-[<f8e14987>] mytest_poll [mytest] 0x6d (0xf6d47ef8))
-[<c01169f8>] do_page_fault [kernel] 0x138
-(0xf6d47f0c))
-[<c0150255>] do_pollfd [kernel] 0x95 (0xf6d47f28))
-[<c015035f>] do_pollfd [kernel] 0x19f (0xf6d47f44))
-[<c01504d3>] sys_poll [kernel] 0x163 (0xf6d47f78))
-[<c010910f>] system_call [kernel] 0x33 (0xf6d47fc0))
-Code: 89 4b 04 89 5a 08 89 41 04 89 08 56 9d 8b 1c 24
-8b 74 24 04
+Indeed. I said "preferably stable across reboots".
+
+> I'm just telling you that they aren't stable, and that a
+> user application that depends on their stability or
+> their uniqueness is BROKEN.
+
+Surprise! Are you leaving POSIX? Or ditching NFS?
+Or demanding that NFS servers must never reboot?
+
+A common Unix idiom is testing for the identity
+of two files by comparing st_ino and st_dev.
+A broken idiom?
+
+No idea what part of our Unix heritage you now have decided to call broken.
+
+Andries
 
 
->>EIP; c01190f5 <add_wait_queue+15/30>   <=====
-
->>eax; f7ae0f18 <_end+3770f398/384564e0>
->>ecx; f6d40014 <_end+3696e494/384564e0>
->>edx; f6d4000c <_end+3696e48c/384564e0>
->>ebp; f6d47ef4 <_end+36976374/384564e0>
->>esp; f6d47ec0 <_end+36976340/384564e0>
-
-Trace; f8e144c6 <[mytest]daemon_poll+78/d6>
-Trace; c012bee9 <handle_mm_fault+89/160>
-Trace; f8e14987 <[mytest]mytest_poll+6d/96>
-Trace; c01169f8 <do_page_fault+138/4cf>
-Trace; c0150255 <do_pollfd+95/a0>
-Trace; c015035f <do_poll+ff/110>
-Trace; c01504d3 <sys_poll+163/300>
-Trace; c010910f <system_call+33/38>
-
-Code;  c01190f5 <add_wait_queue+15/30>
-00000000 <_EIP>:
-Code;  c01190f5 <add_wait_queue+15/30>   <=====
-  0:   89 4b 04                  mov    %ecx,0x4(%ebx)
-  <=====
-Code;  c01190f8 <add_wait_queue+18/30>
-  3:   89 5a 08                  mov    %ebx,0x8(%edx)
-Code;  c01190fb <add_wait_queue+1b/30>
-  6:   89 41 04                  mov    %eax,0x4(%ecx)
-Code;  c01190fe <add_wait_queue+1e/30>
-  9:   89 08                     mov    %ecx,(%eax)
-Code;  c0119100 <add_wait_queue+20/30>
-  b:   56                        push   %esi
-Code;  c0119101 <add_wait_queue+21/30>
-  c:   9d                        popf  Code;  c0119102
-<add_wait_queue+22/30>
-  d:   8b 1c 24                  mov    (%esp,1),%ebx
-Code;  c0119105 <add_wait_queue+25/30>
- 10:   8b 74 24 04               mov   
-0x4(%esp,1),%esi
-
-
-2 warnings and 5 errors issued.  Results may not be
-reliable. 
-
-
-
-Any ideas ??
-
-Thanks
--Shivu
-
-__________________________________
-Do you Yahoo!?
-Find out what made the Top Yahoo! Searches of 2003
-http://search.yahoo.com/top2003

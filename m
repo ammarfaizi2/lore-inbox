@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293061AbSBWA5S>; Fri, 22 Feb 2002 19:57:18 -0500
+	id <S293064AbSBWAy3>; Fri, 22 Feb 2002 19:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293062AbSBWA5I>; Fri, 22 Feb 2002 19:57:08 -0500
-Received: from amdext.amd.com ([139.95.251.1]:64496 "EHLO amdext.amd.com")
-	by vger.kernel.org with ESMTP id <S293061AbSBWA44>;
-	Fri, 22 Feb 2002 19:56:56 -0500
-From: harish.vasudeva@amd.com
-X-Server-Uuid: 02753650-11b0-11d5-bbc5-00508bf987eb
-Message-ID: <CB35231B9D59D311B18600508B0EDF2F04F280E9@caexmta9.amd.com>
-To: ionut@cs.columbia.edu
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Need some help with IP/TCP Checksum Offload
-Date: Fri, 22 Feb 2002 16:56:46 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 1068375B4877452-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S293062AbSBWAyT>; Fri, 22 Feb 2002 19:54:19 -0500
+Received: from u212-239-157-160.goplanet.pi.be ([212.239.157.160]:42245 "EHLO
+	jebril.pi.be") by vger.kernel.org with ESMTP id <S293061AbSBWAyA>;
+	Fri, 22 Feb 2002 19:54:00 -0500
+Message-Id: <200202230053.g1N0qBYb029551@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/filesystems.c compile failure in 2.5.x
+Date: Sat, 23 Feb 2002 01:52:11 +0100
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i tried setting the NETIF_F_SG flag, but the stack still gives the right checksum. 
 
-Now, i have this 1 more question. If @ all the stack does offload chksum to the hardware, how will the driver come to know about this? Is there a per packet indication from the stack asking the driver TO-DO/OR-NOT-TO-DO chksum offloading?
+In 2.5.x, fs/filesystems.c does not compile if nfsd is not 
+compiled in and CONFIG_MODULES is defined. The attached 
+patch fixes it.
 
-thanx again
-HV
+MCE
 
------Original Message-----
-From: Ion Badulescu [mailto:ionut@cs.columbia.edu]
-Sent: Friday, February 22, 2002 4:01 PM
-To: Vasudeva, Harish
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Need some help with IP/TCP Checksum Offload
-
-
-On Fri, 22 Feb 2002 14:57:22 -0800, harish.vasudeva@amd.com wrote:
-> 
-> I am trying to offload checksum calculation to my hardware. What i am doing in my driver (kernel 2.4.6) is :
-> 
-> dev->features = NETIF_F_IP_CHECKSUM;
-> 
-> Then, in my start_xmit( ) routine, i am parsing for the right headers & when i get the IP/TCP header, i print out the checksum & it is already the right checksum. When does the OS/Protocol offload this task? Am i missing something here?
-
-I haven't looked at this in a long time, but at the time the checksum
-offloading support was introduced, the IP stack needed both NETIF_F_SG
-and NETIF_F_IP_CSUM in dev->features before it would start offloading.
-
-The idea was that cksum support without scatter-gather support is useless,
-because the csum gets calculated essentially for free while copying the data
-to linearize the skbuf.
-
-Ion
+=====================================================================
+--- include/linux/nfsd/interface.h.old	Thu Feb 21 01:26:04 2002
++++ include/linux/nfsd/interface.h	Sat Feb 23 01:46:14 2002
+@@ -12,12 +12,14 @@
+ 
+ #include <linux/config.h>
+ 
+-#ifdef CONFIG_NFSD_MODULE
+-
+-extern struct nfsd_linkage {
++struct nfsd_linkage {
+ 	long (*do_nfsservctl)(int cmd, void *argp, void *resp);
+ 	struct module *owner;
+-} * nfsd_linkage;
++};
++
++#ifdef CONFIG_NFSD_MODULE
++
++extern struct nfsd_linkage * nfsd_linkage;
+ 
+ #endif
+ 
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+========================================================================
+M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
+GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
+ V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
+========================================================================
+
+-- 
+========================================================================
+M. Eyckmans (MCE)          Code of the Geeks v3.1       mce-at-pi-dot-be
+GCS d+ s+:- a36 C+++$ UHLUASO+++$ P+ L+++ E--- W++ N+++ !o K w--- !O M--
+ V-- PS+ PE+ Y+ PGP- t--- !5 !X R- tv- b+ DI++ D-- G++ e+++ h+(*) !r y?
+========================================================================
 

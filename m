@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267177AbUFZPy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267179AbUFZP5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267177AbUFZPy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 11:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267178AbUFZPy6
+	id S267179AbUFZP5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 11:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267181AbUFZP5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 11:54:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24793 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267177AbUFZPy4 (ORCPT
+	Sat, 26 Jun 2004 11:57:39 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:12282 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S267179AbUFZP5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 11:54:56 -0400
-Date: Sat, 26 Jun 2004 08:54:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, george@galis.org
-Subject: Re: SATA_SIL works with 2.6.7-bk8 seagate drive, but oops
-In-Reply-To: <1088253429.9831.1449.camel@cube>
-Message-ID: <Pine.LNX.4.58.0406260852130.14449@ppc970.osdl.org>
-References: <1088253429.9831.1449.camel@cube>
+	Sat, 26 Jun 2004 11:57:30 -0400
+Organization: 
+Date: Sat, 26 Jun 2004 18:57:15 +0300 (EEST)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: David Eger <eger@havoc.gtf.org>
+cc: Hamie <hamish@travellingkiwi.com>, linux-kernel@vger.kernel.org
+Subject: Re: radeonfb == blank screen (Thinkpad r50p - FireGL T2 1600x1200
+ LCD)
+In-Reply-To: <20040626153018.GA17639@havoc.gtf.org>
+Message-ID: <Pine.GSO.4.58.0406261852480.29659@thanatos.csd.uoc.gr>
+References: <20040618154118.ED0D5106@damned.travellingkiwi.com>
+ <20040626153018.GA17639@havoc.gtf.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I also have the same problem with the new radeon driver.
+If I use the old radeon driver, it works Ok.
+I am using 2.6.7-bk.
 
+I load the kernel with:
+"video=radeonfb:1024x768-32@85"
 
-On Sat, 26 Jun 2004, Albert Cahalan wrote:
-> 
-> You never did come up with an alternative to HZ-guessing
-> that would work on those old 1200-HZ Alpha boxes, the ARM
-> boxes that ran at 64 HZ and so on.
+I have the following options in my .config
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RADEON=y
 
-The fix for those should be that they should all export the same HZ to 
-user space, regardless of any internal tick. So that's a kernel bug, in 
-that those architectures expose the _internal_ HZ rather than some 
-user-visible well-defined one.
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
 
-> I suppose you can blame the arch maintainers, but user-space has to deal
-> with it.
+Regards
+	Panagiotis Papadakos
 
-If the user space tools didn't try to deal with it, the architectures 
-would probably get fixed in a jiffy. All the support for kernel-to-user HZ 
-conversion is there.
+On Sat, 26 Jun 2004, David Eger wrote:
 
-So I still maintain that procps should _not_ try to guess HZ. As it is, 
-it's a bug, and it helps make excuses for _other_ bugs.
-
-		Linus
+> It doesn't look like you have fbcon enabled... make sure you have
+> at least the following set in your .config:
+>
+> CONFIG_FB=y
+> CONFIG_FB_RADEON=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+>
+> -dte
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,513 +1,192 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316402AbSEWIf3>; Thu, 23 May 2002 04:35:29 -0400
+	id <S315455AbSEWInK>; Thu, 23 May 2002 04:43:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316403AbSEWIf2>; Thu, 23 May 2002 04:35:28 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:16392 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316402AbSEWIfY>; Thu, 23 May 2002 04:35:24 -0400
-Message-ID: <3CEC9AF2.2010107@evision-ventures.com>
-Date: Thu, 23 May 2002 09:32:02 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.17 sysvipc (AKA: spoiling oil in to the flames)
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------060507010009050009020604"
+	id <S316390AbSEWInJ>; Thu, 23 May 2002 04:43:09 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:43790 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315455AbSEWInH>; Thu, 23 May 2002 04:43:07 -0400
+Date: Thu, 23 May 2002 10:42:51 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Cc: Joris Braakman <jorisb@nl.euro.net>, aurora-sparc-devel@linuxpower.org
+Subject: Re: 2.2 kernel - Ext3 & Raid patches
+Message-ID: <20020523084250.GC4370@louise.pinerecords.com>
+In-Reply-To: <3CEA7866.23557.390B7FFC@localhost> <20020523011144.GA4006@matchmail.com> <20020523070244.GA4370@louise.pinerecords.com> <20020523.000303.46488296.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="DIOMP1UsTsWJauNi"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: GNU/Linux 2.2.21 SMP
+X-Architecture: sparc
+X-Uptime: 10:44
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060507010009050009020604
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Kill /proc/sysvipc and friends. This is a pure case of interface duplication,
-since we have the ipcs command and nice fine /proc/sys/kernel entries for the
-relevant stuff... Fortunately apparently nothing is using it.
+--DIOMP1UsTsWJauNi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Fix improper extern inline usage in ipc/utils.h as well as add
-some static attributes to local functions found there.
+Hi,
 
-If some "embedded" system user starts to holler about
-memory issues. Well:
 
-[root@domek linux]# size /usr/bin/ipcs
-    text    data     bss     dec     hex filename
-   13433     324      32   13789    35dd /usr/bin/ipcs
+>    From: Tomas Szepe <szepe@pinerecords.com>
+>    Date: Thu, 23 May 2002 09:02:44 +0200
+> 
+>    > > 2. What is the "proper" fix for the patch collision between the raid
+>    > > patch and the ext3 patch in /include/linux/fs.h? 
+>    > 
+>    > Use 2.4.
+>    
+>    Impossible on sparc32 on account of the lurking SRMMU bug.
+>    (See yesterday's post by Joris Braakman <jorisb@nl.euro.net>.)
+>    
+> There have been several patches posted to deal with that
+> problem, you can apply them yourself or grab Marcelo's
+> current 2.4.x BK tree.
 
-And now count the pages used to implement /proc/sysvipc entires +
-the few kilbytes of actual code removed from the kernel.
 
-As an added bonus the functions implementing /proc/sysvipc
-where accessible by everyone and getting the msg_ide.sem and similar
-semaphores for quite a significant amount of time...
+Here comes for all sparc people who can't install BK:
 
-Perhaps it is time as well to look at the two different
-IPC structures carried around there ("64 bit" and 32 bit)
-and the double liked list usage there?
+All sparc32/sparc64 related changes since 2.4.19-pre8 in one diff
+copied and fixed up by hand from
+http://linux.bkbits.net:8080/linux-2.4/ChangeSet@-3w?nav=index.html
 
---------------060507010009050009020604
-Content-Type: text/plain;
- name="kill-sysvipc-2.5.17.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kill-sysvipc-2.5.17.patch"
+All I can claim as to the patched kernel's functionality --
+it has compiled for me on sparc32. I'm going to try to boot
+it next week when I'm changing disks in my server.
 
-diff -urN linux-2.5.17/fs/proc/root.c linux/fs/proc/root.c
---- linux-2.5.17/fs/proc/root.c	2002-05-21 07:07:42.000000000 +0200
-+++ linux/fs/proc/root.c	2002-05-23 07:07:38.000000000 +0200
-@@ -53,9 +53,6 @@
- 	}
- 	proc_misc_init();
- 	proc_net = proc_mkdir("net", 0);
--#ifdef CONFIG_SYSVIPC
--	proc_mkdir("sysvipc", 0);
--#endif
- #ifdef CONFIG_SYSCTL
- 	proc_sys_root = proc_mkdir("sys", 0);
- #endif
-Binary files linux-2.5.17/fs/proc/.root.c.swp and linux/fs/proc/.root.c.swp differ
-diff -urN linux-2.5.17/ipc/msg.c linux/ipc/msg.c
---- linux-2.5.17/ipc/msg.c	2002-05-21 07:07:29.000000000 +0200
-+++ linux/ipc/msg.c	2002-05-22 22:37:32.000000000 +0200
-@@ -8,8 +8,6 @@
-  * Fixed up the unchecked user space derefs
-  * Copyright (C) 1998 Alan Cox & Andi Kleen
-  *
-- * /proc/sysvipc/msg support (c) 1999 Dragos Acostachioaie <dragos@iname.com>
-- *
-  * mostly rewritten, threaded and wake-one semantics added
-  * MSGMAX limit removed, sysctl's added
-  * (c) 1999 Manfred Spraul <manfreds@colorfullife.com>
-@@ -20,9 +18,12 @@
- #include <linux/msg.h>
- #include <linux/spinlock.h>
- #include <linux/init.h>
--#include <linux/proc_fs.h>
- #include <linux/list.h>
-+#include <linux/stat.h>
-+#include <linux/err.h>
-+
- #include <asm/uaccess.h>
-+
- #include "util.h"
- 
- /* sysctl: */
-@@ -54,8 +55,8 @@
- };
- /* one msg_msg structure for each message */
- struct msg_msg {
--	struct list_head m_list; 
--	long  m_type;          
-+	struct list_head m_list;
-+	long  m_type;
- 	int m_ts;           /* message text size */
- 	struct msg_msgseg* next;
- 	/* the actual message follows immediately */
-@@ -101,17 +102,10 @@
- 
- static void freeque (int id);
- static int newque (key_t key, int msgflg);
--#ifdef CONFIG_PROC_FS
--static int sysvipc_msg_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
--#endif
- 
- void __init msg_init (void)
- {
- 	ipc_init_ids(&msg_ids,msg_ctlmni);
--
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/msg", 0, 0, sysvipc_msg_read_proc, NULL);
--#endif
- }
- 
- static int newque (key_t key, int msgflg)
-@@ -847,57 +841,3 @@
- 		msg_unlock(msqid);
- 	return err;
- }
--
--#ifdef CONFIG_PROC_FS
--static int sysvipc_msg_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
--{
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	down(&msg_ids.sem);
--	len += sprintf(buffer, "       key      msqid perms      cbytes       qnum lspid lrpid   uid   gid  cuid  cgid      stime      rtime      ctime\n");
--
--	for(i = 0; i <= msg_ids.max_id; i++) {
--		struct msg_queue * msq;
--		msq = msg_lock(i);
--		if(msq != NULL) {
--			len += sprintf(buffer + len, "%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
--				msq->q_perm.key,
--				msg_buildid(i,msq->q_perm.seq),
--				msq->q_perm.mode,
--				msq->q_cbytes,
--				msq->q_qnum,
--				msq->q_lspid,
--				msq->q_lrpid,
--				msq->q_perm.uid,
--				msq->q_perm.gid,
--				msq->q_perm.cuid,
--				msq->q_perm.cgid,
--				msq->q_stime,
--				msq->q_rtime,
--				msq->q_ctime);
--			msg_unlock(i);
--
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--				begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
--
--	}
--	*eof = 1;
--done:
--	up(&msg_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
--}
--#endif
-diff -urN linux-2.5.17/ipc/sem.c linux/ipc/sem.c
---- linux-2.5.17/ipc/sem.c	2002-05-21 07:07:37.000000000 +0200
-+++ linux/ipc/sem.c	2002-05-22 23:01:02.000000000 +0200
-@@ -49,8 +49,6 @@
-  *      increase. If there are decrement operations in the operations
-  *      array we do the same as before.
-  *
-- * /proc/sysvipc/sem support (c) 1999 Dragos Acostachioaie <dragos@iname.com>
-- *
-  * SMP-threaded, sysctl's added
-  * (c) 1999 Manfred Spraul <manfreds@colorfullife.com>
-  * Enforced range limit on SEM_UNDO
-@@ -61,9 +59,12 @@
- #include <linux/slab.h>
- #include <linux/spinlock.h>
- #include <linux/init.h>
--#include <linux/proc_fs.h>
- #include <linux/smp_lock.h>
-+#include <linux/stat.h>
-+#include <linux/err.h>
-+
- #include <asm/uaccess.h>
-+
- #include "util.h"
- 
- 
-@@ -78,9 +79,6 @@
- 
- static int newary (key_t, int, int);
- static void freeary (int id);
--#ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
--#endif
- 
- #define SEMMSL_FAST	256 /* 512 bytes on stack */
- #define SEMOPM_FAST	64  /* ~ 372 bytes on stack */
-@@ -91,7 +89,7 @@
-  *	sem_array.sem_pending{,last},
-  *	sem_array.sem_undo: sem_lock() for read/write
-  *	sem_undo.proc_next: only "current" is allowed to read/write that field.
-- *	
-+ *
-  */
- 
- int sem_ctls[4] = {SEMMSL, SEMMNS, SEMOPM, SEMMNI};
-@@ -106,10 +104,6 @@
- {
- 	used_sems = 0;
- 	ipc_init_ids(&sem_ids,sc_semmni);
--
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/sem", 0, 0, sysvipc_sem_read_proc, NULL);
--#endif
- }
- 
- static int newary (key_t key, int nsems, int semflg)
-@@ -158,7 +152,7 @@
- 	if (nsems < 0 || nsems > sc_semmsl)
- 		return -EINVAL;
- 	down(&sem_ids.sem);
--	
-+
- 	if (key == IPC_PRIVATE) {
- 		err = newary(key, nsems, semflg);
- 	} else if ((id = ipc_findkey(&sem_ids, key)) == -1) {  /* key not used */
-@@ -321,7 +315,7 @@
- 	struct sem_queue * q;
- 
- 	for (q = sma->sem_pending; q; q = q->next) {
--			
-+
- 		if (q->status == 1)
- 			continue;	/* this one was woken up before */
- 
-@@ -370,6 +364,7 @@
- 	}
- 	return semncnt;
- }
-+
- static int count_semzcnt (struct sem_array * sma, ushort semnum)
- {
- 	int semzcnt;
-@@ -441,7 +436,7 @@
- 	}
- }
- 
--int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
-+static int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
- {
- 	int err = -EINVAL;
- 
-@@ -1115,7 +1110,7 @@
- 			spin_lock_init(&undo_list->lock);
- 		atomic_inc(&undo_list->refcnt);
- 		tsk->sysvsem.undo_list = undo_list;
--	} else 
-+	} else
- 		tsk->sysvsem.undo_list = NULL;
- 
- 	return 0;
-@@ -1226,52 +1221,3 @@
- 
- 	unlock_kernel();
- }
--
--#ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
--{
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	len += sprintf(buffer, "       key      semid perms      nsems   uid   gid  cuid  cgid      otime      ctime\n");
--	down(&sem_ids.sem);
--
--	for(i = 0; i <= sem_ids.max_id; i++) {
--		struct sem_array *sma;
--		sma = sem_lock(i);
--		if(sma) {
--			len += sprintf(buffer + len, "%10d %10d  %4o %10lu %5u %5u %5u %5u %10lu %10lu\n",
--				sma->sem_perm.key,
--				sem_buildid(i,sma->sem_perm.seq),
--				sma->sem_perm.mode,
--				sma->sem_nsems,
--				sma->sem_perm.uid,
--				sma->sem_perm.gid,
--				sma->sem_perm.cuid,
--				sma->sem_perm.cgid,
--				sma->sem_otime,
--				sma->sem_ctime);
--			sem_unlock(i);
--
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--	    			begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
--	}
--	*eof = 1;
--done:
--	up(&sem_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
--}
--#endif
-diff -urN linux-2.5.17/ipc/shm.c linux/ipc/shm.c
---- linux-2.5.17/ipc/shm.c	2002-05-21 07:07:39.000000000 +0200
-+++ linux/ipc/shm.c	2002-05-22 22:44:16.000000000 +0200
-@@ -22,7 +22,6 @@
- #include <linux/init.h>
- #include <linux/file.h>
- #include <linux/mman.h>
--#include <linux/proc_fs.h>
- #include <linux/shmem_fs.h>
- #include <asm/uaccess.h>
- 
-@@ -60,9 +59,6 @@
- static int newseg (key_t key, int shmflg, size_t size);
- static void shm_open (struct vm_area_struct *shmd);
- static void shm_close (struct vm_area_struct *shmd);
--#ifdef CONFIG_PROC_FS
--static int sysvipc_shm_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data);
--#endif
- 
- size_t	shm_ctlmax = SHMMAX;
- size_t 	shm_ctlall = SHMALL;
-@@ -73,9 +69,6 @@
- void __init shm_init (void)
- {
- 	ipc_init_ids(&shm_ids, 1);
--#ifdef CONFIG_PROC_FS
--	create_proc_read_entry("sysvipc/shm", 0, 0, sysvipc_shm_read_proc, NULL);
--#endif
- }
- 
- static inline int shm_checkid(struct shmid_kernel *s, int id)
-@@ -688,65 +681,3 @@
- 	up_write(&mm->mmap_sem);
- 	return retval;
- }
--
--#ifdef CONFIG_PROC_FS
--static int sysvipc_shm_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
--{
--	off_t pos = 0;
--	off_t begin = 0;
--	int i, len = 0;
--
--	down(&shm_ids.sem);
--	len += sprintf(buffer, "       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n");
--
--	for(i = 0; i <= shm_ids.max_id; i++) {
--		struct shmid_kernel* shp;
--
--		shp = shm_lock(i);
--		if(shp!=NULL) {
--#define SMALL_STRING "%10d %10d  %4o %10u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
--#define BIG_STRING   "%10d %10d  %4o %21u %5u %5u  %5d %5u %5u %5u %5u %10lu %10lu %10lu\n"
--			char *format;
--
--			if (sizeof(size_t) <= sizeof(int))
--				format = SMALL_STRING;
--			else
--				format = BIG_STRING;
--			len += sprintf(buffer + len, format,
--				shp->shm_perm.key,
--				shm_buildid(i, shp->shm_perm.seq),
--				shp->shm_flags,
--				shp->shm_segsz,
--				shp->shm_cprid,
--				shp->shm_lprid,
--				shp->shm_nattch,
--				shp->shm_perm.uid,
--				shp->shm_perm.gid,
--				shp->shm_perm.cuid,
--				shp->shm_perm.cgid,
--				shp->shm_atim,
--				shp->shm_dtim,
--				shp->shm_ctim);
--			shm_unlock(i);
--
--			pos += len;
--			if(pos < offset) {
--				len = 0;
--				begin = pos;
--			}
--			if(pos > offset + length)
--				goto done;
--		}
--	}
--	*eof = 1;
--done:
--	up(&shm_ids.sem);
--	*start = buffer + (offset - begin);
--	len -= (offset - begin);
--	if(len > length)
--		len = length;
--	if(len < 0)
--		len = 0;
--	return len;
--}
--#endif
-diff -urN linux-2.5.17/ipc/util.h linux/ipc/util.h
---- linux-2.5.17/ipc/util.h	2002-05-21 07:07:40.000000000 +0200
-+++ linux/ipc/util.h	2002-05-22 22:55:08.000000000 +0200
-@@ -42,15 +42,15 @@
- /* for rare, potentially huge allocations.
-  * both function can sleep
-  */
--void* ipc_alloc(int size);
--void ipc_free(void* ptr, int size);
-+extern void* ipc_alloc(int size);
-+extern void ipc_free(void* ptr, int size);
- 
--extern inline void ipc_lockall(struct ipc_ids* ids)
-+static inline void ipc_lockall(struct ipc_ids* ids)
- {
- 	spin_lock(&ids->ary);
- }
- 
--extern inline struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
-+static inline struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
- {
- 	struct kern_ipc_perm* out;
- 	int lid = id % SEQ_MULTIPLIER;
-@@ -61,11 +61,12 @@
- 	return out;
- }
- 
--extern inline void ipc_unlockall(struct ipc_ids* ids)
-+static inline void ipc_unlockall(struct ipc_ids* ids)
- {
- 	spin_unlock(&ids->ary);
- }
--extern inline struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id)
-+
-+static inline struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id)
- {
- 	struct kern_ipc_perm* out;
- 	int lid = id % SEQ_MULTIPLIER;
-@@ -79,28 +80,28 @@
- 	return out;
- }
- 
--extern inline void ipc_unlock(struct ipc_ids* ids, int id)
-+static inline void ipc_unlock(struct ipc_ids* ids, int id)
- {
- 	spin_unlock(&ids->ary);
- }
- 
--extern inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
-+static inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
- {
- 	return SEQ_MULTIPLIER*seq + id;
- }
- 
--extern inline int ipc_checkid(struct ipc_ids* ids, struct kern_ipc_perm* ipcp, int uid)
-+static inline int ipc_checkid(struct ipc_ids* ids, struct kern_ipc_perm* ipcp, int uid)
- {
- 	if(uid/SEQ_MULTIPLIER != ipcp->seq)
- 		return 1;
- 	return 0;
- }
- 
--void kernel_to_ipc64_perm(struct kern_ipc_perm *in, struct ipc64_perm *out);
--void ipc64_perm_to_ipc_perm(struct ipc64_perm *in, struct ipc_perm *out);
-+extern void kernel_to_ipc64_perm(struct kern_ipc_perm *in, struct ipc64_perm *out);
-+extern void ipc64_perm_to_ipc_perm(struct ipc64_perm *in, struct ipc_perm *out);
- 
- #ifdef __ia64__
--  /* On IA-64, we always use the "64-bit version" of the IPC structures.  */ 
-+  /* On IA-64, we always use the "64-bit version" of the IPC structures.  */
- # define ipc_parse_version(cmd)	IPC_64
- #else
- int ipc_parse_version (int *cmd);
+T.
 
---------------060507010009050009020604--
+--DIOMP1UsTsWJauNi
+Content-Type: application/x-gunzip
+Content-Disposition: attachment; filename="patch-2.4.19-pre8-sparcfixes-upto020523-1.gz"
+Content-Transfer-Encoding: base64
 
+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
+
+--DIOMP1UsTsWJauNi--

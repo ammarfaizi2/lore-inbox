@@ -1,1232 +1,1134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbUB2WGn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 17:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbUB2WGn
+	id S262161AbUB2WIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 17:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbUB2WIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 17:06:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26038 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262165AbUB2WFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 17:05:09 -0500
-Date: Sun, 29 Feb 2004 14:06:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.4-rc1-mm1
-Message-Id: <20040229140617.64645e80.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 29 Feb 2004 17:08:45 -0500
+Received: from gyge.telenet-ops.be ([195.130.132.48]:8585 "EHLO
+	gyge.telenet-ops.be") by vger.kernel.org with ESMTP id S262161AbUB2WGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 17:06:14 -0500
+Date: Sun, 29 Feb 2004 23:05:51 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] v2.6.3 pcwd_usb-watchdog
+Message-ID: <20040229230551.I30061@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm1/
-
-
-- Added the POSIX message queue implementation.  We're still stitching
-  together a decent description of all of this.  Reference information is at
-
-	http://www.mat.uni.torun.pl/~wrona/posix_ipc/
- and
-	http://www.opengroup.org/onlinepubs/007904975/basedefs/mqueue.h.html
-
-- A fair amount of work against the page reclaim code.  Mainly
-  reorganisation and simplification of various little glitches.  This means
-  that a few of the optimisations which were in 2.6.3-mm4 were broken and
-  were dropped.  But this is a better basis upon which to reintroduce them.
-
-  Performance, however, seems similar to 2.6.3-mm4 in a few tests. 
-  Inter-zone balancing is much better than 2.6.3 but still could be improved a
-  little.
-
-  Slab reclaim balancing is improved, however with some (artificial)
-  workloads slab is still being a problem because of tremendous internal
-  fragmentation problems: 6% occupancy of the pages which are allocated to
-  dcache, for example.  More work is needed to account for this.
-
-  I tested the swapout code with 7.2G of tmpfs pagecache on a 7G machine. 
-  The rotate_reclaimable_page() logic seems to work fine here - only 200M of
-  memory was added to swapcache and was swapped out.  
-
-- Plus the usual various little fixes and cleanups.
-
-- The contents of the broken-out/ directory are now available in the
-  2.6.4-rc1-mm1-broken-out.tar.gz file.  This includes the `series' file
-  which describes the patching order.
-
-  People who are using patch-scripts can recreate the patching machinery by
-  doing:
-
-	cd /usr/src/linux
-	tar xfz ~/2.6.4-rc1-mm1-broken-out.tar.gz
-	mv broken-out/*.patch patches
-	mv broken-out/series .
-	for i in $(cat-series series)
-	do
-		pcpatch $i
-	done
-	rmdir broken-out
-
-
-
-Changes since 2.6.3-mm4:
-
-
- linus.patch
- bk-acpi.patch
- bk-alsa.patch
- bk-arm.patch
- bk-driver-core.patch
- bk-ieee1394.patch
- bk-netdev.patch
- bk-scsi.patch
- bk-usb.patch
-
- Latest versions of various external trees.  bk-i2c.patch was dropped
- pending it getting its lmsensors act together.  And bk-input was dropped
- because it was old and nobody will tell me the input project's bk URL.
-
--nfsd-NGROUPS-fixes.patch
--kill-old-dead-netdev-apis.patch
--gcc-35-pdaudiocf_irq-build-fix.patch
--m68k-406.patch
--bk-driver-core-x86_64-build-fix.patch
--ppc64-tulip-build-fix.patch
--hfs-rewrite.patch
--hfsplus-support.patch
--knfsd-rpcsec_gss-minimal-support.patch
--knfsd-rpcsec_gss-minimal-support-NGROUPS-fix.patch
--knfsd-rpcsec_gss-minimal-support-NGROUPS-fix-2.patch
--knfsd-gss-api-integrity-checking.patch
--knfsd-IDmap-support.patch
--knfsd-nfs4-pointer-cleanup.patch
--knfsd-nfs4-locking-state-fix.patch
--knfsd-v4-exclusive-open-fix.patch
--knfsd-changeinfo-time-higher-resolution.patch
--knfsd-shareowner-fix.patch
--knfsd-replaying-fixes.patch
--knfsd-setclientid-fix.patch
--knfsd-lockowner-fix.patch
--knfsd-readdir-error-code-fix.patch
--knfsd-nfserr_nofilehandle-fix.patch
--knfsd-lookup_parent-fix.patch
--knfsd-error-code-return-fixes.patch
--knfsd-xdr-error-fix.patch
--knfsd-symlink-fixes.patch
--knfsd-lock-length-fix.patch
--knfsd-rename-error-code-fixes.patch
--knfsd-unlock-on-close-fix.patch
--knfsd-comment-fix.patch
--knfsd-fh_dup2-fix.patch
--knfsd-implement-RELEASE_LOCKOWNER.patch
--knfsd-add-OP_ILLEGAL.patch
--knfsd-OP_CREATE-fix.patch
--knfsd-OP_LOCK-check.patch
--knfsd-OP_OPEN_CONFIRM-fix.patch
--knfsd-open_downgrade-enforcement.patch
--knfsd-readlink-error-return-fix.patch
--knfsd-nfsd4_remove-error-fix.patch
--knfsd-stateid-replay-fixes.patch
--knfsd-attribute-decoding-retval-fix.patch
--knfsd-READ_BUF-cleanup.patch
--knfsd-sunrpc_init-ordering-fixes.patch
--knfsd-readdir-more-than-one-page.patch
--add-MODULE_VERSION-macro.patch
--rename-MODULE_VERSION.patch
--ide-siimage-seagate.patch
--ide-ali-UDMA6-support.patch
--fbdev-cursor-1.patch
--cursor-fix.patch
--superblock-fixes.patch
--zoran-refcounting-fixes.patch
--s390-01-general-update.patch
--s390-02-common-io-layer.patch
--s390-03-console-driver.patch
--s390-04-compat_timer_settime.patch
--s390-05-ctc-net-driver.patch
--s390-06-lcs-net-driver.patch
--s390-07-iucv-net-driver.patch
--s390-08-dasd-driver.patch
--s390-09-virtual-timer-interface.patch
--s390-10-zvm-monitor-stream.patch
--s390-11-collaborative-memory-management.patch
--s390-12-cannel-measurement-block-interface.patch
--s390-zfcp-host-adapter.patch
--s390-syscalls-h-update.patch
--s390-dcss-block-driver.patch
--ide-io-CONFIG_LBD-fix.patch
--dvb-01-update-subsystem-docs.patch
--dvb-02-update-saa7146-core.patch
--dvb-03-skystar2-updates.patch
--dvb-04-core-updates.patch
--dvb-05-frontend-updates.patch
--dvb-06-stv0299-frontend-update.patch
--dvb-07-tda1004x-update.patch
--dvb-08-av7110-update.patch
--dvb-09-ttusb-budget-update.patch
--dvb-ttusb-budget-compile-fix.patch
--n_tty-cleanup.patch
--mac-driver-config-update.patch
--request_firmware-01-class-fixes.patch
--request_firmware-02-more-class-fixes.patch
--request_firmware-03-bitmap.patch
--request_firmware-04-priv-leak-fix.patch
--request_firmware-05-release-race-fixes.patch
--request_firmware-06-cleanups.patch
--request_firmware-07-attribute-fixes.patch
--early-printk-doc-fix.patch
--radeon-config-fix-2.patch
--remove-tty-CALLOUT-defines.patch
--tdfx-remove-float.patch
--mtd-locking-fix.patch
--afs-c99-fix.patch
--remove-KERNEL_SYSCALLS-stuff.patch
--msi-kirqd-build-fix.patch
--isdn-c99-fixes.patch
--airo-c99-fixes.patch
--wanxl-c99-fixes.patch
--pci200syn-c99-fixes.patch
--irda-usb-c99-fixes.patch
--saa7146_video-c99-fixes.patch
--stv0229-c99-fixes.patch
--alps_tdlb7-c99-fixes.patch
--sp887x-c99-fixes.patch
--budget-av-c99-fixes.patch
--saa5246a-rev1-2.6.3.patch
--kbuild-add-defconfig-targets-to-make-help.patch
--wanmain-build-fix.patch
--3c505-build-fix.patch
-
- Merged
-
-+move-dma_consistent_dma_mask.patch
-+move-dma_consistent_dma_mask-x86_64-fix.patch
-
- move pci_dev.consistent_dma_mask to dev.coherent_dma_mask
-
-+scsi-external-build-fix.patch
-
- Fix scsi.h for inclusion by userspace apps - it used to work, so...
-
-+umount-dataloss-fix.patch
-
- Fix a rare race whch can cause umount data loss.
-
-+ppc64-iseries-mmu-hashtable-fix.patch
-+ppc64-export-numa-symbols.patch
-
- PPC64 stuff
-
-+remove-sys_ioperm-stubs.patch
-
- Clean up syscall stubs
-
-+readdir-cleanups.patch
-
- Hoist directory atime updates up to the VFS layer.
-
-+sched-domains-improvements.patch
-
- CPU scheduler tuning
-
--vm-dont-rotate-active-list.patch
--vm-lru-info.patch
--vm-shrink-zone.patch
--vm-tune-throttle.patch
--zone-balancing-fix.patch
--zone-balancing-batching.patch
-+shrink_slab-precision-fix.patch
-+try_to_free_pages-shrink_slab-evenness.patch
-+vmscan-total_scanned-fix.patch
-+zone-balancing-fix-2.patch
-+vmscan-control-by-nr_to_scan-only.patch
-+vmscan-balance-zone-scanning-rates.patch
-+vmscan-dont-throttle-if-zero-max_scan.patch
-+kswapd-avoid-higher-zones.patch
-+vmscan-throttle-later.patch
-+slab-no-higher-order.patch
-
- Page reclaim rework
-
--nfs-write-throttling.patch
--nfs-mount-error-recovery.patch
-+nfs-mount-fix.patch
-+nfs_unlink-oops-fix.patch
-+nfs-remove-XID-spinlock.patch
-+nfs-misc-rpc-fixes.patch
-
- Reworked NFS patches
-
-+initramfs-search-for-init.patch
-
- Nth version of this patch, still churning.
-
--expanded-pci-config-space.patch
-
- Drop this - it's causing problems for some people and is still churning
- somewhat.
-
--dm-crypt-cipher-digest.patch
-
- Dropped, was old.
-
-+remove-__io_virt_debug.patch
-
- Clean up old debug code
-
-+rioctrl-retval-fixes.patch
-
- errnos are negative
-
-+doc-index-updates.patch
-
- Fix up references to internal documentation
-
-+genrtc-cleanups.patch
-
- cleanup
-
-+piix_ide_init-can-be-__init.patch
-
- Make a function __init
-
-+fusion-use-min-max.patch
-
- Use generic min()/max()
-
-+doc2000-warning-fixes.patch
-
- Fix a warning
-
-+initrd-kconfig-dependencies.patch
-
- Fix initrd dependencies
-
-+poweroff-atomicity-fix.patch
-
- Part-fix sysrq-o
-
-+bio-highmem-fix.patch
-
- Fix BIO memory referencing
-
-+ini9100u-build-fix.patch
-
- Compile fix
-
-+dm-crypt-cleanups.patch
-+dm-crypt-end_io-bv_offset-fix.patch
-
- dm-crypt fixes
-
-+queue-congestion-callout.patch
-+queue-congestion-dm-implementation.patch
-
- Make device mapper queues correctly implement the queue congestion APIs
-
-+proc-thread-visibility-revert.patch
-
- Revert the /proc/<tid> "fix".
-
-+zr36067-update.patch
-
- Driver update
-
-+keyspan-c99-fixes.patch
-+hisax-c99-fixes.patch
-+cs46_xx-c99-fix.patch
-
- C99 initialiser fixes
-
-+scsi-host-allocation-fix.patch
-
- First-fit allocation of scsi host indices
-
-+i386-early-memory-cleanup.patch
-
- Clean up the super-early x86 memory handling code.
-
-+raid1-bio_put-oops-fix.patch
-
- RAID1 oops fix.
-
-+modular-mce-handler.patch
-
- permit the x86 MCE handler to be used as a module.
-
-+LOOP_CHANGE_FD.patch
-
- Add a sort of pivot-backing-file for loop.
-
-+fastcall-warning-fixes.patch
-
- Declaration consistency for FASTCALL
-
-+README-update.patch
-
- Update the README file.
-
-+DCSSBLK-depends-on-s390.patch
-
- DCSSBLK is s390-only.
-
-+slab-warning-fix.patch
-
- Fix a warnnig in slab.c
-
-+remove-more-KERNEL_SYSCALLS.patch
-+remove-more-KERNEL_SYSCALLS-build-fix.patch
-+remove-more-KERNEL_SYSCALLS-build-fix-2.patch
-
- Remove lots of the kernel-internal syscalls and just directly call
- sys_foo() instead.
-
-+xprt_create_socket-fix.patch
-
- Fix an error-path bug in xprt_create_socket()
-
-+remove-nlmclnt_grace_wait.patch
-
- Dead function
-
-+tty-drivers-devfs-fix.patch
-
- Make all tty drivers set the devfs name.
-
-+vt-mode-changes-fix.patch
-
- Fix switching between KD_GRAPHICS and KD_TEXT.
-
-+sys_alarm-retval-fix.patch
-
- Fix the return value from sys_alarm().
-
-+gcc-35-lec-fix.patch
-
- gcc-3.5 build fix.
-
-+ip_rt_init-sizing-fix.patch
-
- Fix the sizing of the tcp and route caches.
-
-+buslogic-sections-fix.patch
-
- Make a function non-__init.
-
-+mq-01-codemove.patch
-+mq-02-syscalls.patch
-+mq-03-core.patch
-+mq-03-core-update.patch
-+mq-04-linuxext-poll.patch
-+mq-05-linuxext-mount.patch
-
- POSIX messages queues.
-
-+remove-make-dep-references.patch
-
- Comment fixes
-
-+use-set_task_cpu-in-kthread_bind.patch
-
- Cleanup in kthread code.
-
-+HPFS1-hpfs2-RC4-rc1.patch
-+HPFS2-hpfs_namei-RC4-rc1.patch
-+HPFS3-hpfs_iget-RC4-rc1.patch
-+HPFS4-hpfs_lock_iget-RC4-rc1.patch
-+HPFS5-hpfs_locking-RC4-rc1.patch
-+HPFS6-hpfs_cleanup-RC4-rc1.patch
-+HPFS7-hpfs_cleanup2-RC4-rc1.patch
-+HPFS8-hpfs_race2-RC4-rc1.patch
-+HPFS9-hpfs_deadlock-RC4-rc1.patch
-
- HPFS fixes
-
-+tcp-oops-fix.patch
-
- Fix rare oops in TCP
-
-+swap-config-clarity.patch
-
- Kconfig clarity
-
-+powernow-k8-fix.patch
-
- Fix this cpufreq driver
-
-+x86_64-update.patch
-
- Latest x86_64 tree
-
-+libata-fix.patch
-
- SATA fix
-
-+usb-pc-watchdog-implementation.patch
-
- New watchdog driver
-
-+pdflush-use-kthread.patch
-
- Switch pdflush to use kthread()
-
-+firmware-pin-module.patch
-+firmware-delay-hotplug.patch
-
- Firmware loader updates
-
-
-
-All 237 patches:
-
-linus.patch
-
-bk-acpi.patch
-
-bk-alsa.patch
-
-bk-arm.patch
-
-bk-driver-core.patch
-
-bk-ieee1394.patch
-
-bk-netdev.patch
-
-bk-scsi.patch
-
-bk-usb.patch
-
-mm.patch
-  add -mmN to EXTRAVERSION
-
-dma_sync_for_device-cpu.patch
-  dma_sync_for_{cpu,device}()
-
-compat-signal-noarch-2004-01-29.patch
-  Generic 32-bit compat for copy_siginfo_to_user
-
-compat-generic-ipc-emulation.patch
-  generic 32 bit emulation for System-V IPC
-
-move-dma_consistent_dma_mask.patch
-  move consistent_dma_mask to the generic device
-
-move-dma_consistent_dma_mask-x86_64-fix.patch
-
-kgdb-ga.patch
-  kgdb stub for ia32 (George Anzinger's one)
-  kgdbL warning fix
-  kgdb buffer overflow fix
-  kgdbL warning fix
-  kgdb: CONFIG_DEBUG_INFO fix
-  x86_64 fixes
-  correct kgdb.txt Documentation link (against  2.6.1-rc1-mm2)
-
-kgdb-ga-recent-gcc-fix.patch
-  kgdb: fix for recent gcc
-
-kgdboe-netpoll.patch
-  kgdb-over-ethernet via netpoll
-
-kgdboe-non-ia32-build-fix.patch
-
-kgdb-warning-fixes.patch
-  kgdb warning fixes
-
-kgdb-x86_64-support.patch
-  kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-
-kgdb-THREAD_SIZE-fixes.patch
-  THREAD_SIZE fixes for kgdb
-
-scsi-external-build-fix.patch
-  use __u8 in scsi.h
-
-umount-dataloss-fix.patch
-  fix umount dataloss problem
-
-must-fix.patch
-  must fix lists update
-  must fix list update
-  mustfix update
-
-must-fix-update-5.patch
-  must-fix update
-
-ppc64-iseries-mmu-hashtable-fix.patch
-  ppc64: fix a bug in iSeries MMU hash management
-
-ppc64-export-numa-symbols.patch
-  Add missing numa EXPORT_SYMBOLs
-
-ppc64-reloc_hide.patch
-
-remove-sys_ioperm-stubs.patch
-  Clean up sys_ioperm stubs
-
-readdir-cleanups.patch
-  readdir() cleanups
-
-invalidate_inodes-speedup.patch
-  invalidate_inodes speedup
-  more invalidate_inodes speedup fixes
-
-cfq-4.patch
-  CFQ io scheduler
-  CFQ fixes
-
-config_spinline.patch
-  uninline spinlocks for profiling accuracy.
-
-pdflush-diag.patch
-
-zap_page_range-debug.patch
-  zap_page_range() debug
-
-get_user_pages-handle-VM_IO.patch
-  fix get_user_pages() against mappings of /dev/mem
-
-support-zillions-of-scsi-disks.patch
-  support many SCSI disks
-
-pci_set_power_state-might-sleep.patch
-
-CONFIG_STANDALONE-default-to-n.patch
-  Make CONFIG_STANDALONE default to N
-
-extra-buffer-diags.patch
-
-CONFIG_SYSFS.patch
-  From: Pat Mochel <mochel@osdl.org>
-  Subject: [PATCH] Add CONFIG_SYSFS
-
-CONFIG_SYSFS-boot-from-disk-fix.patch
-
-slab-leak-detector.patch
-  slab leak detector
-
-scale-nr_requests.patch
-  scale nr_requests with TCQ depth
-
-truncate_inode_pages-check.patch
-
-local_bh_enable-warning-fix.patch
-
-sched-find_busiest_node-resolution-fix.patch
-  sched: improved resolution in find_busiest_node
-
-sched-domains.patch
-  sched: scheduler domain support
-  sched: fix for NR_CPUS > BITS_PER_LONG
-  sched: clarify find_busiest_group
-  sched: find_busiest_group arithmetic fix
-
-sched-domains-improvements.patch
-  sched domains kernbench improvements
-
-sched-clock-fixes.patch
-  fix sched_clock()
-
-sched-sibling-map-to-cpumask.patch
-  sched: cpu_sibling_map to cpu_mask
-  p4-clockmod sibling_map fix
-  p4-clockmod: handle more than two siblings
-
-sched-domains-i386-ht.patch
-  sched: implement domains for i386 HT
-  sched: Fix CONFIG_SMT oops on UP
-  sched: fix SMT + NUMA bug
-  Change arch_init_sched_domains to use cpu_online_map
-  Fix build with NR_CPUS > BITS_PER_LONG
-
-sched-domain-tweak.patch
-  i386-sched-domain code consolidation
-
-sched-no-drop-balance.patch
-  sched: handle inter-CPU jiffies skew
-
-sched-directed-migration.patch
-  sched_balance_exec(): don't fiddle with the cpus_allowed mask
-
-sched-domain-debugging.patch
-  sched_domain debugging
-
-sched-domain-balancing-improvements.patch
-  scheduler domain balancing improvements
-
-sched-group-power.patch
-  sched-group-power
-
-sched-group-power-warning-fixes.patch
-  sched-group-power warning fixes
-
-sched-domains-use-cpu_possible_map.patch
-  sched_domains: use cpu_possible_map
-
-ppc64-cpu_vm_mask-fix.patch
-  ppc64: cpu_vm_mask fix
-
-fa311-mac-address-fix.patch
-  wrong mac address with netgear FA311 ethernet card
-
-laptop-mode-2.patch
-  laptop-mode for 2.6, version 6
-  Documentation/laptop-mode.txt
-  laptop-mode documentation updates
-  Laptop mode documentation addition
-  laptop mode simplification
-
-pid_max-fix.patch
-  Bug when setting pid_max > 32k
-
-use-soft-float.patch
-  Use -msoft-float
-
-DRM-cvs-update.patch
-  DRM cvs update
-
-drm-include-fix.patch
-
-process-migration-speedup.patch
-  Reduce TLB flushing during process migration
-
-hotplugcpu-generalise-bogolock.patch
-  Atomic Hotplug CPU: Generalize Bogolock
-
-hotplugcpu-generalise-bogolock-fix-for-kthread-stop-using-signals.patch
-
-hotplugcpu-use-bogolock-in-modules.patch
-  Atomic Hotplug CPU: Use Bogolock in module.c
-
-hotplugcpu-core.patch
-  Atomic Hotplug CPU: Hotplug CPU Core
-
-stop_machine-warning-fix.patch
-
-hotplugcpu-core-sparc64-build-fix.patch
-  hotplugcpu-core sparc64 build fix
-
-hotplugcpu-core-fix-for-kthread-stop-using-signals.patch
-
-migrate_to_cpu-dependency-fix.patch
-  migrate_to_cpu() dependency fix
-
-hotplugcpu-core-drain_local_pages-fix.patch
-  split drain_local_pages
-
-hotplugcpu-rcupdate-many-cpus-fix.patch
-  CPU hotplug, rcupdate high NR_CPUS fix
-
-nfs-31-attr.patch
-  NFSv2/v3/v4: New attribute revalidation code
-
-nfs-reconnect-fix.patch
-
-nfs-mount-fix.patch
-  Update to NFS mount....
-
-nfs-d_drop-lowmem.patch
-  NFS: handle nfs_fhget() error
-
-nfs-avoid-i_size_write.patch
-  NFS: avoid unlocked i_size_write()
-
-nfs_unlink-oops-fix.patch
-  nfs: fix "busy inodes after umount"
-
-nfs-remove-XID-spinlock.patch
-  nfs: Remove an unnecessary spinlock from XID generation...
-
-nfs-misc-rpc-fixes.patch
-  nfs: Misc RPC fixes...
-
-nfs-server-in-root_server_path.patch
-  Pull NFS server address out of root_server_path
-
-non-readable-binaries.patch
-  Handle non-readable binfmt_misc executables
-
-binfmt_misc-credentials.patch
-  binfmt_misc: improve calaulation of interpreter's credentials
-
-sleep_on-needs_lock_kernel.patch
-  sleep_on(): check for lock_kernel
-
-initramfs-search-for-init.patch
-  search for /init for initramfs boots
-
-centaur-crypto-core-support.patch
-  First steps toward VIA crypto support
-
-adaptive-lazy-readahead.patch
-  adaptive lazy readahead
-
-ext3-journalled-quotas.patch
-  ext3: Journalled quotas
-
-ext3-journalled-quotas-warning-fix.patch
-
-ext3-journalled-quotas-cleanups.patch
-
-sysfs_remove_dir-race-fix.patch
-  sysfs_remove_dir-vs-dcache_readdir race fix
-
-sysfs_remove_subdir-dentry-leak-fix.patch
-  Fix dentry refcounting in sysfs_remove_group()
-
-per-node-rss-tracking.patch
-  Track per-node RSS for NUMA
-
-aic7xxx-deadlock-fix.patch
-  aic7xxx deadlock fix
-
-futex_wait-debug.patch
-  futex_wait debug
-
-module_exit-deadlock-fix.patch
-  module unload deadlock fix
-
-tulip-printk-cleanup.patch
-  tulip printk cleanup
-
-parport-01-move-exports.patch
-  parport: move exports
-
-parport-02-use-module_init.patch
-  parport: use module_init() for low-level driver init
-
-parport-03-sysctls-use-module_init.patch
-  parport: use module_init() for sysctl registration
-
-parport-04-move-option-parsing.patch
-  parport: move parport_pc option parsing
-
-parport-irq-warning-fix.patch
-  parport warning fixes
-
-parport-05-parport_pc_probe_port-fixes.patch
-  parport: sanitize parport_pc_probe_port()
-
-parport-06-refcounting-fixes.patch
-  parport: refcounting fixes
-
-parport-07-unregister-fixes.patch
-  parport: parport_unregister_port() splitups abd fixes
-
-parport-08-parport_announce-cleanups.patch
-  parport: parport_announce_port() cleanup
-
-parport-09-track-used-ports.patch
-  parport: parport_pc(): keep track of ports
-
-parport-09-track-used-ports-fix.patch
-
-parport-10-sunbpp-track-ports.patch
-  parport: parport_sunbpp(): keep track of ports
-
-parport-11-remove-parport_enumerate.patch
-  parport: remove parport_enumerate()
-
-parport-12-driver-list-cleanup.patch
-  parport: use list.h for driver list
-
-hitachi-scsi_devinfo-fix.patch
-  Add Hitachi 9960 Storage on SCSI devlist as BLIST_SPARSELUN|BLIST_LARGELUN
-
-selinux-inode-race-trap.patch
-  Try to diagnose Bug 2153
-
-ext3-dirty-debug-patch.patch
-  ext3 debug patch
-
-ufs2-01.patch
-  read-only support for UFS2
-
-ide-scsi-error-handling-fixes.patch
-  ide-scsi error handling fixes
-
-fb_console_init-fix.patch
-  fb_console_init fix
-
-poll-select-longer-timeouts.patch
-  poll()/select(): support longer timeouts
-
-poll-select-range-check-fix.patch
-  poll()/select() range checking fix
-
-poll-select-handle-large-timeouts.patch
-  poll()/select(): handle long timeouts
-
-zwane-is-floppy-maintainer-now.patch
-  floppy oops fix(?)
-
-pcmcia-debugging-rework-1.patch
-  Overhaul PCMCIA debugging (1)
-
-cs_err-compile-fix.patch
-  pcmcia: workaround for gcc-2.95 bug in cs_err()
-
-pcmcia-debugging-rework-2.patch
-  Overhaul PCMCIA debugging (2)
-
-distribute-early-allocations-across-nodes.patch
-  Manfred's patch to distribute boot allocations across nodes
-
-time-interpolator-fix.patch
-  time interpolator fix
-
-kmsg-nonblock.patch
-  teach /proc/kmsg about O_NONBLOCK
-
-mixart-build-fix.patch
-  CONFIG_SND_MIXART doesn't compile
-
-add-a-slab-for-ethernet.patch
-  Add a kmalloc slab for ethernet packets
-
-remove-__io_virt_debug.patch
-  remove __io_virt_debug
-
-rioctrl-retval-fixes.patch
-  char/rio/rioctrl: fix ioctl return values
-
-doc-index-updates.patch
-  Doc/00-index additions
-
-genrtc-cleanups.patch
-  genrtc: cleanups
-
-piix_ide_init-can-be-__init.patch
-  piix_ide_init can be __init
-
-fusion-use-min-max.patch
-  message/fusion: use kernel min/max
-
-doc2000-warning-fixes.patch
-  mtd/doc200x: warning fixes
-
-initrd-kconfig-dependencies.patch
-  Fix initrd Kconfig dependencies
-
-poweroff-atomicity-fix.patch
-  sysrq-o atomicity fix
-
-bio-highmem-fix.patch
-  fix small highmem bio bounce bvec handling glitch
-
-ini9100u-build-fix.patch
-  ini9100u build fix
-
-move-scatterwalk-functions-to-own-file.patch
-  move scatterwalk functions to own file
-
-in-place-encryption-fix.patch
-  fix in-place de/encryption bug with highmem
-
-dm-crypt-cleanups.patch
-  dm-crypt cleanups
-
-dm-crypt-end_io-bv_offset-fix.patch
-  dm-crypt end_io bv_offset fix
-
-queue-congestion-callout.patch
-  Add queue congestion callout
-
-queue-congestion-dm-implementation.patch
-  Implement queue congestion callout for device mapper
-
-proc-thread-visibility-revert.patch
-  revert the /proc thread visibility fix
-
-zr36067-update.patch
-  zr36067 driver update
-
-keyspan-c99-fixes.patch
-  C99 initializers for drivers/usb/serial/keyspan.h
-
-hisax-c99-fixes.patch
-  C99 initiailzers for drivers/isdn/hisax/hisax_fcpcipnp.c
-
-scsi-host-allocation-fix.patch
-  SCSI host num allocation improvement
-
-i386-early-memory-cleanup.patch
-  i386 very early memory detection cleanup patch
-
-raid1-bio_put-oops-fix.patch
-  raid1: fix oops in bio_put()
-
-modular-mce-handler.patch
-  Allow X86_MCE_NONFATAL to be a module
-
-LOOP_CHANGE_FD.patch
-  LOOP_CHANGE_FD ioctl
-
-fastcall-warning-fixes.patch
-  fastcall / regparm fixes
-
-README-update.patch
-  linux/README update
-
-DCSSBLK-depends-on-s390.patch
-  DCSSBLK depends on CONFIG_S390
-
-slab-warning-fix.patch
-  mm/slab.c warning in cache_alloc_debugcheck_after
-
-cs46_xx-c99-fix.patch
-  c99 initializers for cs46xx_wrapper
-
-remove-more-KERNEL_SYSCALLS.patch
-  further __KERNEL_SYSCALLS__ removal
-
-remove-more-KERNEL_SYSCALLS-build-fix.patch
-  build fix for remove-more-KERNEL_SYSCALLS.patch
-
-remove-more-KERNEL_SYSCALLS-build-fix-2.patch
-  fix the build for remove-more-KERNEL_SYSCALLS
-
-xprt_create_socket-fix.patch
-  NFS SUNRPC fix
-
-remove-nlmclnt_grace_wait.patch
-  kill a dead function in lockd
-
-tty-drivers-devfs-fix.patch
-  Fix tty drivers which dont set tty_driver->devfs_name
-
-vt-mode-changes-fix.patch
-  Fix VT mode change vs. fbcon
-
-sys_alarm-retval-fix.patch
-  sys_alarm() return value fix
-
-gcc-35-lec-fix.patch
-  gcc-3.5 fix for net/atm/lec.c
-
-ip_rt_init-sizing-fix.patch
-  Fix network hashtable sizing
-
-buslogic-sections-fix.patch
-  buslogic initsection fix
-
-mq-01-codemove.patch
-  posix message queues: code move
-
-mq-02-syscalls.patch
-  posix message queues: syscall stubs
-
-mq-03-core.patch
-  posix message queues: implementation
-
-mq-03-core-update.patch
-  posix message queues: update to core patch
-
-mq-04-linuxext-poll.patch
-  posix message queues: linux-specific poll extension
-
-mq-05-linuxext-mount.patch
-  posix message queues: made user mountable
-
-remove-make-dep-references.patch
-  remove a few remaining "make dep" references
-
-use-set_task_cpu-in-kthread_bind.patch
-  use set_task_cpu() in kthread_bind()
-
-HPFS1-hpfs2-RC4-rc1.patch
-
-HPFS2-hpfs_namei-RC4-rc1.patch
-
-HPFS3-hpfs_iget-RC4-rc1.patch
-
-HPFS4-hpfs_lock_iget-RC4-rc1.patch
-
-HPFS5-hpfs_locking-RC4-rc1.patch
-
-HPFS6-hpfs_cleanup-RC4-rc1.patch
-
-HPFS7-hpfs_cleanup2-RC4-rc1.patch
-
-HPFS8-hpfs_race2-RC4-rc1.patch
-
-HPFS9-hpfs_deadlock-RC4-rc1.patch
-
-tcp-oops-fix.patch
-  TCP oopser fix
-
-swap-config-clarity.patch
-  clarify CONFIG_SWAP Kconfig help
-
-powernow-k8-fix.patch
-  Make powernow-k8 cpufreq control work again
-
-x86_64-update.patch
-  x86-64 fixes for 2.6.4rc1
-
-libata-fix.patch
-  2.6.x libata fix
-
-usb-pc-watchdog-implementation.patch
-  pcwd_usb watchdog implementation
-
-pdflush-use-kthread.patch
-  convert pdflush to kthread
-
-firmware-pin-module.patch
-  firmware loader: pin firmware module
-
-firmware-delay-hotplug.patch
-  firmware loader: delay firmware hotplug event
-
-instrument-highmem-page-reclaim.patch
-  vm: per-zone vmscan instrumentation
-
-blk_congestion_wait-return-remaining.patch
-  return remaining jiffies from blk_congestion_wait()
-
-vmscan-remove-priority.patch
-  mm/vmscan.c: remove unused priority argument.
-
-kswapd-throttling-fixes.patch
-  kswapd throttling fixes
-
-vm-refill_inactive-preserve-referenced.patch
-  vmscan: preserve page referenced info in refill_inactive()
-
-shrink_slab-precision-fix.patch
-  shrink_slab: math precision fix
-
-try_to_free_pages-shrink_slab-evenness.patch
-  vm: shrink slab evenly in try_to_free_pages()
-
-vmscan-total_scanned-fix.patch
-  vmscan: fix calculation of number of pages scanned
-
-shrink_slab-for-all-zones-2.patch
-  vm: scan slab in response to highmem scanning
-
-zone-balancing-fix-2.patch
-  vmscan: zone balancing fix
-
-vmscan-control-by-nr_to_scan-only.patch
-  vmscan: drive everything via nr_to_scan
-
-vmscan-balance-zone-scanning-rates.patch
-  Balance inter-zone scan rates
-
-vmscan-dont-throttle-if-zero-max_scan.patch
-  vmscan: avoid bogus throttling
-
-kswapd-avoid-higher-zones.patch
-  kswapd: avoid unnecessary reclaiming from higher zones
-
-vmscan-throttle-later.patch
-  vmscan: less throttling of page allocators and kswapd
-
-slab-no-higher-order.patch
-  slab: avoid higher-order allocations
-
-list_del-debug.patch
-  list_del debug check
-
-oops-dump-preceding-code.patch
-  i386 oops output: dump preceding code
-
-lockmeter.patch
-
-ia64-lockmeter-fix.patch
-
-lockmeter-2.2-cruft.patch
-  lockmeter.h: remove kernel 2.2 #ifdef (i386 + alpha)
-
-4g-2.6.0-test2-mm2-A5.patch
-  4G/4G split patch
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g/4g usercopy atomicity fix
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g/4g usercopy atomicity fix
-  4G/4G preempt on vstack
-  4G/4G: even number of kmap types
-  4g4g: fix __get_user in slab
-  4g4g: Remove extra .data.idt section definition
-  4g/4g linker error (overlapping sections)
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g4g: show_registers() fix
-  4g/4g usercopy atomicity fix
-  4g4g: debug flags fix
-  4g4g: Fix wrong asm-offsets entry
-  cyclone time fixmap fix
-  4G/4G preempt on vstack
-  4G/4G: even number of kmap types
-  4g4g: fix __get_user in slab
-  4g4g: Remove extra .data.idt section definition
-  4g/4g linker error (overlapping sections)
-  4G/4G: remove debug code
-  4g4g: pmd fix
-  4g/4g: fixes from Bill
-  4g4g: fpu emulation fix
-  4g4g: show_registers() fix
-  4g/4g usercopy atomicity fix
-  4g4g: debug flags fix
-  4g4g: Fix wrong asm-offsets entry
-  cyclone time fixmap fix
-  use direct_copy_{to,from}_user for kernel access in mm/usercopy.c
-  4G/4G might_sleep warning fix
-  4g/4g pagetable accounting fix
-  Fix 4G/4G and WP test lockup
-  4G/4G KERNEL_DS usercopy again
-  Fix 4G/4G X11/vm86 oops
-  Fix 4G/4G athlon triplefault
-  4g4g SEP fix
-  Fix 4G/4G split fix for pre-pentiumII machines
-  4g/4g PAE ACPI low mappings fix
-  zap_low_mappings() cannot be __init
-  4g/4g: remove printk at boot
-
-4g4g-THREAD_SIZE-fixes.patch
-
-4g4g-locked-userspace-copy.patch
-  Do a locked user-space copy for 4g/4g
-
-ppc-fixes.patch
-  make mm4 compile on ppc
-
-O_DIRECT-race-fixes-rollup.patch
-  O_DIRECT data exposure fixes
-
-O_DIRECT-ll_rw_block-vs-block_write_full_page-fix.patch
-  Fix race between ll_rw_block() and block_write_full_page()
-
-blockdev-direct-io-speedup.patch
-  blockdev direct-io speedups
-
-O_DIRECT-vs-buffered-fix.patch
-  Fix O_DIRECT-vs-buffered data exposure bug
-
-O_DIRECT-vs-buffered-fix-pdflush-hang-fix.patch
-  pdflush hang fix
-
-serialise-writeback-fdatawait.patch
-  serialize_writeback_fdatawait patch
-
-dio-aio-fixes.patch
-  direct-io AIO fixes
-
-aio-fallback-bio_count-race-fix-2.patch
-  AIO+DIO bio_count race fix
-
-
-
+Hi Linus, Andrew,
+
+I added 2 extra changesets since yesterday, so if you do a 
+
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
+
+You will get updates for the following files:
+
+ arch/sparc64/Kconfig                 |   22 
+ drivers/char/watchdog/Kconfig        |   46 +
+ drivers/char/watchdog/Makefile       |    3 
+ drivers/char/watchdog/cpu5wdt.c      |    1 
+ drivers/char/watchdog/eurotechwdt.c  |    1 
+ drivers/char/watchdog/ib700wdt.c     |    1 
+ drivers/char/watchdog/machzwd.c      |    1 
+ drivers/char/watchdog/mixcomwd.c     |    3 
+ drivers/char/watchdog/pcwd.c         |    5 
+ drivers/char/watchdog/pcwd_usb.c     |  810 +++++++++++++++++++++++++++++++++++
+ drivers/char/watchdog/sa1100_wdt.c   |    1 
+ drivers/char/watchdog/sc1200wdt.c    |    1 
+ drivers/char/watchdog/w83627hf_wdt.c |    2 
+ drivers/char/watchdog/w83877f_wdt.c  |    1 
+ drivers/char/watchdog/wdt285.c       |    1 
+ drivers/char/watchdog/wdt977.c       |    2 
+ drivers/char/watchdog/wdt_pci.c      |    2 
+ 17 files changed, 878 insertions(+), 25 deletions(-)
+
+And these are the ChangeSets:
+
+<wim@iguana.be> (04/02/29 1.1628)
+   [WATCHDOG] v2.6.3 pcwd_usb-watchdog
+   
+   Add the Berkshire Products USB-PC Watchdog driver
+
+<wim@iguana.be> (04/02/29 1.1629)
+   [WATCHDOG] v2.6.3 MODULE_*-patch
+   
+   Add MODULE_* info
+
+<wim@iguana.be> (04/02/29 1.1630)
+   [WATCHDOG/SPARC64] v2.6.3 Kconfig-WATCHDOG_CP1XXX/WATCHDOG_RIO-patch
+   
+   Move WATCHDOG_CP1XXX and WATCHDOG_RIO for SPARC64 architecture
+   from arch/sparc64/Kconfig to drivers/char/watchdog/Kconfig
+   and made them dependant of WATCHDOG also
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
+--- a/drivers/char/watchdog/Kconfig	Sun Feb 29 22:53:13 2004
++++ b/drivers/char/watchdog/Kconfig	Sun Feb 29 22:53:13 2004
+@@ -455,4 +455,26 @@
+ 	  Fahrenheit. This works only if you have a WDT501P watchdog board
+ 	  installed.
+ 
++#
++# USB-based Watchdog Cards
++#
++
++comment "USB-based Watchdog Cards"
++	depends on WATCHDOG && USB
++
++config USBPCWATCHDOG
++	tristate "Berkshire Products USB-PC Watchdog"
++	depends on WATCHDOG && USB
++	---help---
++	  This is the driver for the Berkshire Products USB-PC Watchdog card.
++	  This card simply watches your kernel to make sure it doesn't freeze,
++	  and if it does, it reboots your computer after a certain amount of
++	  time. The card can also monitor the internal temperature of the PC.
++	  More info is available at <http://www.berkprod.com/usb_pc_watchdog.htm>.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pcwd_usb.
++
++	  Most people will say N.
++
+ endmenu
+diff -Nru a/drivers/char/watchdog/Makefile b/drivers/char/watchdog/Makefile
+--- a/drivers/char/watchdog/Makefile	Sun Feb 29 22:53:13 2004
++++ b/drivers/char/watchdog/Makefile	Sun Feb 29 22:53:13 2004
+@@ -1,5 +1,5 @@
+ #
+-# Makefile for the kernel character device drivers.
++# Makefile for the WatchDog device drivers.
+ #
+ 
+ # Only one watchdog can succeed. We probe the hardware watchdog
+@@ -35,3 +35,4 @@
+ obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
+ obj-$(CONFIG_INDYDOG) += indydog.o
+ obj-$(CONFIG_PCIPCWATCHDOG) += pcwd_pci.o
++obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
+diff -Nru a/drivers/char/watchdog/pcwd_usb.c b/drivers/char/watchdog/pcwd_usb.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/char/watchdog/pcwd_usb.c	Sun Feb 29 22:53:13 2004
+@@ -0,0 +1,810 @@
++/*
++ *	Berkshire USB-PC Watchdog Card Driver
++ *
++ *	(c) Copyright 2004 Wim Van Sebroeck <wim@iguana.be>.
++ *
++ *	Based on source code of the following authors:
++ *	  Ken Hollis <kenji@bitgate.com>,
++ *	  Alan Cox <alan@redhat.com>,
++ *	  Matt Domsch <Matt_Domsch@dell.com>,
++ *	  Rob Radez <rob@osinvestor.com>,
++ *	  Greg Kroah-Hartman <greg@kroah.com>
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ *
++ *	Neither Wim Van Sebroeck nor Iguana vzw. admit liability nor
++ *	provide warranty for any of this software. This material is
++ *	provided "AS-IS" and at no charge.
++ *
++ *	Thanks also to Simon Machell at Berkshire Products Inc. for
++ *	providing the test hardware. More info is available at
++ *	http://www.berkprod.com/ or http://www.pcwatchdog.com/
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/miscdevice.h>
++#include <linux/watchdog.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
++#include <linux/fs.h>
++#include <linux/smp_lock.h>
++#include <linux/completion.h>
++#include <asm/uaccess.h>
++#include <linux/usb.h>
++
++
++#ifdef CONFIG_USB_DEBUG
++	static int debug = 1;
++#else
++	static int debug;
++#endif
++
++/* Use our own dbg macro */
++#undef dbg
++#define dbg(format, arg...) do { if (debug) printk(KERN_DEBUG PFX format "\n" , ## arg); } while (0)
++
++
++/* Module and Version Information */
++#define DRIVER_VERSION "v1.00 (28/02/2004)"
++#define DRIVER_AUTHOR "Wim Van Sebroeck <wim@iguana.be>"
++#define DRIVER_DESC "Berkshire USB-PC Watchdog driver"
++#define DRIVER_LICENSE "GPL"
++#define DRIVER_NAME "pcwd_usb"
++#define PFX DRIVER_NAME ": "
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
++MODULE_ALIAS_MISCDEV(TEMP_MINOR);
++
++/* Module Parameters */
++module_param(debug, int, 0);
++MODULE_PARM_DESC(debug, "Debug enabled or not");
++
++#define WATCHDOG_HEARTBEAT 2	/* 2 sec default heartbeat */
++static int heartbeat = WATCHDOG_HEARTBEAT;
++module_param(heartbeat, int, 0);
++MODULE_PARM_DESC(heartbeat, "Watchdog heartbeat in seconds. (0<heartbeat<65536, default=" __MODULE_STRING(WATCHDOG_HEARTBEAT) ")");
++
++#ifdef CONFIG_WATCHDOG_NOWAYOUT
++static int nowayout = 1;
++#else
++static int nowayout = 0;
++#endif
++
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
++
++/* The vendor and product id's for the USB-PC Watchdog card */
++#define USB_PCWD_VENDOR_ID	0x0c98
++#define USB_PCWD_PRODUCT_ID	0x1140
++
++/* table of devices that work with this driver */
++static struct usb_device_id usb_pcwd_table [] = {
++	{ USB_DEVICE(USB_PCWD_VENDOR_ID, USB_PCWD_PRODUCT_ID) },
++	{ }					/* Terminating entry */
++};
++MODULE_DEVICE_TABLE (usb, usb_pcwd_table);
++
++/* according to documentation max. time to process a command for the USB
++ * watchdog card is 100 or 200 ms, so we give it 250 ms to do it's job */
++#define USB_COMMAND_TIMEOUT	250
++
++/* Watchdog's internal commands */
++#define CMD_READ_TEMP			0x02	/* Read Temperature; Re-trigger Watchdog */
++#define CMD_TRIGGER			CMD_READ_TEMP
++#define CMD_GET_STATUS			0x04	/* Get Status Information */
++#define CMD_GET_FIRMWARE_VERSION	0x08	/* Get Firmware Version */
++#define CMD_GET_DIP_SWITCH_SETTINGS	0x0c	/* Get Dip Switch Settings */
++#define CMD_READ_WATCHDOG_TIMEOUT	0x18	/* Read Current Watchdog Time */
++#define CMD_WRITE_WATCHDOG_TIMEOUT	0x19	/* Write Current Watchdog Time */
++#define CMD_ENABLE_WATCHDOG		0x30	/* Enable / Disable Watchdog */
++#define CMD_DISABLE_WATCHDOG		CMD_ENABLE_WATCHDOG
++
++/* Some defines that I like to be somewhere else like include/linux/usb_hid.h */
++#define HID_REQ_SET_REPORT		0x09
++#define HID_DT_REPORT			(USB_TYPE_CLASS | 0x02)
++
++/* We can only use 1 card due to the /dev/watchdog restriction */
++static int cards_found;
++
++/* some internal variables */
++static unsigned long is_active;
++static char expect_release;
++
++/* Structure to hold all of our device specific stuff */
++struct usb_pcwd_private {
++	struct usb_device *	udev;			/* save off the usb device pointer */
++	struct usb_interface *	interface;		/* the interface for this device */
++
++	unsigned int		interface_number;	/* the interface number used for cmd's */
++
++	unsigned char *		intr_buffer;		/* the buffer to intr data */
++	dma_addr_t		intr_dma;		/* the dma address for the intr buffer */
++	size_t			intr_size;		/* the size of the intr buffer */
++	struct urb *		intr_urb;		/* the urb used for the intr pipe */
++
++	unsigned char		cmd_command;		/* The command that is reported back */
++	unsigned char		cmd_data_msb;		/* The data MSB that is reported back */
++	unsigned char		cmd_data_lsb;		/* The data LSB that is reported back */
++	atomic_t		cmd_received;		/* true if we received a report after a command */
++
++	int			exists;			/* Wether or not the device exists */
++	struct semaphore	sem;			/* locks this structure */
++};
++static struct usb_pcwd_private *usb_pcwd_device;
++
++/* prevent races between open() and disconnect() */
++static DECLARE_MUTEX (disconnect_sem);
++
++/* local function prototypes */
++static int usb_pcwd_probe	(struct usb_interface *interface, const struct usb_device_id *id);
++static void usb_pcwd_disconnect	(struct usb_interface *interface);
++
++/* usb specific object needed to register this driver with the usb subsystem */
++static struct usb_driver usb_pcwd_driver = {
++	.owner =	THIS_MODULE,
++	.name =		DRIVER_NAME,
++	.probe =	usb_pcwd_probe,
++	.disconnect =	usb_pcwd_disconnect,
++	.id_table =	usb_pcwd_table,
++};
++
++
++static void usb_pcwd_intr_done(struct urb *urb, struct pt_regs *regs)
++{
++	struct usb_pcwd_private *usb_pcwd = (struct usb_pcwd_private *)urb->context;
++	unsigned char *data = usb_pcwd->intr_buffer;
++	int retval;
++
++	switch (urb->status) {
++	case 0:			/* success */
++		break;
++	case -ECONNRESET:	/* unlink */
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dbg("%s - urb shutting down with status: %d", __FUNCTION__, urb->status);
++		return;
++	/* -EPIPE:  should clear the halt */
++	default:		/* error */
++		dbg("%s - nonzero urb status received: %d", __FUNCTION__, urb->status);
++		goto resubmit;
++	}
++
++	dbg("received following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
++		data[0], data[1], data[2]);
++
++	usb_pcwd->cmd_command  = data[0];
++	usb_pcwd->cmd_data_msb = data[1];
++	usb_pcwd->cmd_data_lsb = data[2];
++
++	/* notify anyone waiting that the cmd has finished */
++	atomic_set (&usb_pcwd->cmd_received, 1);
++
++resubmit:
++	retval = usb_submit_urb (urb, GFP_ATOMIC);
++	if (retval)
++		printk(KERN_ERR PFX "can't resubmit intr, usb_submit_urb failed with result %d\n",
++			retval);
++}
++
++static int usb_pcwd_send_command(struct usb_pcwd_private *usb_pcwd, unsigned char cmd,
++	unsigned char *msb, unsigned char *lsb)
++{
++	int got_response, count;
++	unsigned char buf[6];
++
++	/* We will not send any commands if the USB PCWD device does not exist */
++	if ((!usb_pcwd) || (!usb_pcwd->exists))
++		return -1;
++
++	/* The USB PC Watchdog uses a 6 byte report format. The board currently uses
++	 * only 3 of the six bytes of the report. */
++	buf[0] = cmd;			/* Byte 0 = CMD */
++	buf[1] = *msb;			/* Byte 1 = Data MSB */
++	buf[2] = *lsb;			/* Byte 2 = Data LSB */
++	buf[3] = buf[4] = buf[5] = 0;	/* All other bytes not used */
++
++	dbg("sending following data cmd=0x%02x msb=0x%02x lsb=0x%02x",
++		buf[0], buf[1], buf[2]);
++
++	atomic_set (&usb_pcwd->cmd_received, 0);
++
++	if (usb_control_msg(usb_pcwd->udev, usb_sndctrlpipe(usb_pcwd->udev, 0),
++			HID_REQ_SET_REPORT, HID_DT_REPORT,
++			0x0200, usb_pcwd->interface_number, buf, sizeof(buf),
++			HZ) != sizeof(buf)) {
++		dbg("usb_pcwd_send_command: error in usb_control_msg for cmd 0x%x 0x%x 0x%x\n", cmd, *msb, *lsb);
++	}
++	/* wait till the usb card processed the command,
++	 * with a max. timeout of USB_COMMAND_TIMEOUT */
++	got_response = 0;
++	for (count = 0; (count < USB_COMMAND_TIMEOUT) && (!got_response); count++) {
++		mdelay(1);
++		if (atomic_read (&usb_pcwd->cmd_received))
++			got_response = 1;
++	}
++
++	if ((got_response) && (cmd == usb_pcwd->cmd_command)) {
++		/* read back response */
++		*msb = usb_pcwd->cmd_data_msb;
++		*lsb = usb_pcwd->cmd_data_lsb;
++	}
++
++	return got_response;
++}
++
++static int usb_pcwd_start(struct usb_pcwd_private *usb_pcwd)
++{
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
++	int retval;
++
++	/* Enable Watchdog */
++	retval = usb_pcwd_send_command(usb_pcwd, CMD_ENABLE_WATCHDOG, &msb, &lsb);
++
++	if ((retval == 0) || (lsb == 0)) {
++		printk(KERN_ERR PFX "Card did not acknowledge enable attempt\n");
++		return -1;
++	}
++
++	return 0;
++}
++
++static int usb_pcwd_stop(struct usb_pcwd_private *usb_pcwd)
++{
++	unsigned char msb = 0xA5;
++	unsigned char lsb = 0xC3;
++	int retval;
++
++	/* Disable Watchdog */
++	retval = usb_pcwd_send_command(usb_pcwd, CMD_DISABLE_WATCHDOG, &msb, &lsb);
++
++	if ((retval == 0) || (lsb != 0)) {
++		printk(KERN_ERR PFX "Card did not acknowledge disable attempt\n");
++		return -1;
++	}
++
++	return 0;
++}
++
++static int usb_pcwd_keepalive(struct usb_pcwd_private *usb_pcwd)
++{
++	unsigned char dummy;
++
++	/* Re-trigger Watchdog */
++	usb_pcwd_send_command(usb_pcwd, CMD_TRIGGER, &dummy, &dummy);
++
++	return 0;
++}
++
++static int usb_pcwd_set_heartbeat(struct usb_pcwd_private *usb_pcwd, int t)
++{
++	unsigned char msb = t / 256;
++	unsigned char lsb = t % 256;
++
++	if ((t < 0x0001) || (t > 0xFFFF))
++		return -EINVAL;
++
++	/* Write new heartbeat to watchdog */
++	usb_pcwd_send_command(usb_pcwd, CMD_WRITE_WATCHDOG_TIMEOUT, &msb, &lsb);
++
++	heartbeat = t;
++	return 0;
++}
++
++static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd, int *temperature)
++{
++	unsigned char msb, lsb;
++
++	usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
++
++	/*
++	 * Convert celsius to fahrenheit, since this was
++	 * the decided 'standard' for this return value.
++	 */
++	*temperature = (lsb * 9 / 5) + 32;
++
++	return 0;
++}
++
++/*
++ *	/dev/watchdog handling
++ */
++
++static ssize_t usb_pcwd_write(struct file *file, const char *data,
++			      size_t len, loff_t *ppos)
++{
++	/* Can't seek (pwrite) on this device  */
++	if (ppos != &file->f_pos)
++		return -ESPIPE;
++
++	/* See if we got the magic character 'V' and reload the timer */
++	if (len) {
++		if (!nowayout) {
++			size_t i;
++
++			/* note: just in case someone wrote the magic character
++			 * five months ago... */
++			expect_release = 0;
++
++			/* scan to see whether or not we got the magic character */
++			for (i = 0; i != len; i++) {
++				char c;
++				if(get_user(c, data+i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_release = 42;
++			}
++		}
++
++		/* someone wrote to us, we should reload the timer */
++		usb_pcwd_keepalive(usb_pcwd_device);
++	}
++	return len;
++}
++
++static int usb_pcwd_ioctl(struct inode *inode, struct file *file,
++			  unsigned int cmd, unsigned long arg)
++{
++	static struct watchdog_info ident = {
++		.options =		WDIOF_KEEPALIVEPING |
++					WDIOF_SETTIMEOUT |
++					WDIOF_MAGICCLOSE,
++		.firmware_version =	1,
++		.identity =		DRIVER_NAME,
++	};
++
++	switch (cmd) {
++		case WDIOC_GETSUPPORT:
++			return copy_to_user((struct watchdog_info *) arg, &ident,
++				sizeof (ident)) ? -EFAULT : 0;
++
++		case WDIOC_GETSTATUS:
++		case WDIOC_GETBOOTSTATUS:
++			return put_user(0, (int *) arg);
++
++		case WDIOC_GETTEMP:
++		{
++			int temperature;
++
++			if (usb_pcwd_get_temperature(usb_pcwd_device, &temperature))
++				return -EFAULT;
++
++			return put_user(temperature, (int *) arg);
++		}
++
++		case WDIOC_KEEPALIVE:
++			usb_pcwd_keepalive(usb_pcwd_device);
++			return 0;
++
++		case WDIOC_SETOPTIONS:
++		{
++			int new_options, retval = -EINVAL;
++
++			if (get_user (new_options, (int *) arg))
++				return -EFAULT;
++
++			if (new_options & WDIOS_DISABLECARD) {
++				usb_pcwd_stop(usb_pcwd_device);
++				retval = 0;
++			}
++
++			if (new_options & WDIOS_ENABLECARD) {
++				usb_pcwd_start(usb_pcwd_device);
++				retval = 0;
++			}
++
++			return retval;
++		}
++
++		case WDIOC_SETTIMEOUT:
++		{
++			int new_heartbeat;
++
++			if (get_user(new_heartbeat, (int *) arg))
++				return -EFAULT;
++
++			if (usb_pcwd_set_heartbeat(usb_pcwd_device, new_heartbeat))
++			    return -EINVAL;
++
++			usb_pcwd_keepalive(usb_pcwd_device);
++			/* Fall */
++		}
++
++		case WDIOC_GETTIMEOUT:
++			return put_user(heartbeat, (int *)arg);
++
++		default:
++			return -ENOIOCTLCMD;
++	}
++}
++
++static int usb_pcwd_open(struct inode *inode, struct file *file)
++{
++	/* /dev/watchdog can only be opened once */
++	if (test_and_set_bit(0, &is_active))
++		return -EBUSY;
++
++	/* Activate */
++	usb_pcwd_start(usb_pcwd_device);
++	usb_pcwd_keepalive(usb_pcwd_device);
++	return 0;
++}
++
++static int usb_pcwd_release(struct inode *inode, struct file *file)
++{
++	/*
++	 *      Shut off the timer.
++	 */
++	if (expect_release == 42) {
++		usb_pcwd_stop(usb_pcwd_device);
++	} else {
++		printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
++		usb_pcwd_keepalive(usb_pcwd_device);
++	}
++	clear_bit(0, &is_active);
++	expect_release = 0;
++	return 0;
++}
++
++/*
++ *	/dev/temperature handling
++ */
++
++static ssize_t usb_pcwd_temperature_read(struct file *file, char *data,
++				size_t len, loff_t *ppos)
++{
++	int temperature;
++
++	/* Can't seek (pwrite) on this device  */
++	if (ppos != &file->f_pos)
++		return -ESPIPE;
++
++	if (usb_pcwd_get_temperature(usb_pcwd_device, &temperature))
++		return -EFAULT;
++
++	if (copy_to_user (data, &temperature, 1))
++		return -EFAULT;
++
++	return 1;
++}
++
++static int usb_pcwd_temperature_open(struct inode *inode, struct file *file)
++{
++	return 0;
++}
++
++static int usb_pcwd_temperature_release(struct inode *inode, struct file *file)
++{
++	return 0;
++}
++
++/*
++ *	Notify system
++ */
++
++static int usb_pcwd_notify_sys(struct notifier_block *this, unsigned long code, void *unused)
++{
++	if (code==SYS_DOWN || code==SYS_HALT) {
++		/* Turn the WDT off */
++		usb_pcwd_stop(usb_pcwd_device);
++	}
++
++	return NOTIFY_DONE;
++}
++
++/*
++ *	Kernel Interfaces
++ */
++
++static struct file_operations usb_pcwd_fops = {
++	.owner =	THIS_MODULE,
++	.llseek =	no_llseek,
++	.write =	usb_pcwd_write,
++	.ioctl =	usb_pcwd_ioctl,
++	.open =		usb_pcwd_open,
++	.release =	usb_pcwd_release,
++};
++
++static struct miscdevice usb_pcwd_miscdev = {
++	.minor =	WATCHDOG_MINOR,
++	.name =		"watchdog",
++	.fops =		&usb_pcwd_fops,
++};
++
++static struct file_operations usb_pcwd_temperature_fops = {
++	.owner =	THIS_MODULE,
++	.llseek =	no_llseek,
++	.read =		usb_pcwd_temperature_read,
++	.open =		usb_pcwd_temperature_open,
++	.release =	usb_pcwd_temperature_release,
++};
++
++static struct miscdevice usb_pcwd_temperature_miscdev = {
++	.minor =	TEMP_MINOR,
++	.name =		"temperature",
++	.fops =		&usb_pcwd_temperature_fops,
++};
++
++static struct notifier_block usb_pcwd_notifier = {
++	.notifier_call =	usb_pcwd_notify_sys,
++};
++
++/**
++ *	usb_pcwd_delete
++ */
++static inline void usb_pcwd_delete (struct usb_pcwd_private *usb_pcwd)
++{
++	if (usb_pcwd->intr_urb != NULL)
++		usb_free_urb (usb_pcwd->intr_urb);
++	if (usb_pcwd->intr_buffer != NULL)
++		usb_buffer_free(usb_pcwd->udev, usb_pcwd->intr_size,
++				usb_pcwd->intr_buffer, usb_pcwd->intr_dma);
++	kfree (usb_pcwd);
++}
++
++/**
++ *	usb_pcwd_probe
++ *
++ *	Called by the usb core when a new device is connected that it thinks
++ *	this driver might be interested in.
++ */
++static int usb_pcwd_probe(struct usb_interface *interface, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(interface);
++	struct usb_host_interface *iface_desc;
++	struct usb_endpoint_descriptor *endpoint;
++	struct usb_pcwd_private *usb_pcwd = NULL;
++	int pipe, maxp;
++	int retval = -ENOMEM;
++	int got_fw_rev;
++	unsigned char fw_rev_major, fw_rev_minor;
++	char fw_ver_str[20];
++	unsigned char option_switches, dummy;
++
++	/* See if the device offered us matches what we can accept */
++	if ((udev->descriptor.idVendor != USB_PCWD_VENDOR_ID) ||
++	    (udev->descriptor.idProduct != USB_PCWD_PRODUCT_ID)) {
++		return -ENODEV;
++	}
++
++	cards_found++;
++	if (cards_found > 1) {
++		printk(KERN_ERR PFX "This driver only supports 1 device\n");
++		return -ENODEV;
++	}
++
++	/* get the active interface descriptor */
++	iface_desc = &interface->altsetting[interface->act_altsetting];
++
++	/* check out that we have a HID device */
++	if (!(iface_desc->desc.bInterfaceClass == USB_CLASS_HID)) {
++		printk(KERN_ERR PFX "The device isn't a Human Interface Device\n");
++		return -ENODEV;
++	}
++
++	/* check out the endpoint: it has to be Interrupt & IN */
++	endpoint = &iface_desc->endpoint[0].desc;
++
++	if (!((endpoint->bEndpointAddress & USB_DIR_IN) &&
++	     ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				== USB_ENDPOINT_XFER_INT))) {
++		/* we didn't find a Interrupt endpoint with direction IN */
++		printk(KERN_ERR PFX "Couldn't find an INTR & IN endpoint\n");
++		return -ENODEV;
++	}
++
++	/* get a handle to the interrupt data pipe */
++	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
++	maxp = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
++
++	/* allocate memory for our device and initialize it */
++	usb_pcwd = kmalloc (sizeof(struct usb_pcwd_private), GFP_KERNEL);
++	if (usb_pcwd == NULL) {
++		printk(KERN_ERR PFX "Out of memory\n");
++		goto error;
++	}
++	memset (usb_pcwd, 0x00, sizeof (*usb_pcwd));
++
++	usb_pcwd_device = usb_pcwd;
++
++	init_MUTEX (&usb_pcwd->sem);
++	usb_pcwd->udev = udev;
++	usb_pcwd->interface = interface;
++	usb_pcwd->interface_number = iface_desc->desc.bInterfaceNumber;
++	usb_pcwd->intr_size = (endpoint->wMaxPacketSize > 8 ? endpoint->wMaxPacketSize : 8);
++
++	/* set up the memory buffer's */
++	if (!(usb_pcwd->intr_buffer = usb_buffer_alloc(udev, usb_pcwd->intr_size, SLAB_ATOMIC, &usb_pcwd->intr_dma))) {
++		printk(KERN_ERR PFX "Out of memory\n");
++		goto error;
++	}
++
++	/* allocate the urb's */
++	usb_pcwd->intr_urb = usb_alloc_urb(0, GFP_KERNEL);
++	if (!usb_pcwd->intr_urb) {
++		printk(KERN_ERR PFX "Out of memory\n");
++		goto error;
++	}
++
++	/* initialise the intr urb's */
++	usb_fill_int_urb(usb_pcwd->intr_urb, udev, pipe,
++			usb_pcwd->intr_buffer, usb_pcwd->intr_size,
++			usb_pcwd_intr_done, usb_pcwd, endpoint->bInterval);
++	usb_pcwd->intr_urb->transfer_dma = usb_pcwd->intr_dma;
++	usb_pcwd->intr_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	/* register our interrupt URB with the USB system */
++	if (usb_submit_urb(usb_pcwd->intr_urb, GFP_KERNEL)) {
++		printk(KERN_ERR PFX "Problem registering interrupt URB\n");
++		retval = -EIO; /* failure */
++		goto error;
++	}
++
++	/* The device exists and can be communicated with */
++	usb_pcwd->exists = 1;
++
++	/* disable card */
++	usb_pcwd_stop(usb_pcwd);
++
++	/* Get the Firmware Version */
++	got_fw_rev = usb_pcwd_send_command(usb_pcwd, CMD_GET_FIRMWARE_VERSION, &fw_rev_major, &fw_rev_minor);
++	if (got_fw_rev) {
++		sprintf(fw_ver_str, "%u.%02u", fw_rev_major, fw_rev_minor);
++	} else {
++		sprintf(fw_ver_str, "<card no answer>");
++	}
++
++	printk(KERN_INFO PFX "Found card (Firmware: %s) with temp option\n",
++		fw_ver_str);
++
++	/* Get switch settings */
++	usb_pcwd_send_command(usb_pcwd, CMD_GET_DIP_SWITCH_SETTINGS, &dummy, &option_switches);
++
++	printk(KERN_INFO PFX "Option switches (0x%02x): Temperature Reset Enable=%s, Power On Delay=%s\n",
++		option_switches,
++		((option_switches & 0x10) ? "ON" : "OFF"),
++		((option_switches & 0x08) ? "ON" : "OFF"));
++
++	/* Check that the heartbeat value is within it's range ; if not reset to the default */
++	if (heartbeat < 1 || heartbeat > 0xFFFF) {
++		heartbeat = WATCHDOG_HEARTBEAT;
++		printk(KERN_INFO PFX "heartbeat value must be 0<heartbeat<65536, using %d\n",
++			heartbeat);
++	}
++
++	/* Calculate the watchdog's heartbeat */
++	usb_pcwd_set_heartbeat(usb_pcwd, heartbeat);
++
++	retval = register_reboot_notifier(&usb_pcwd_notifier);
++	if (retval != 0) {
++		printk(KERN_ERR PFX "cannot register reboot notifier (err=%d)\n",
++			retval);
++		goto error;
++	}
++
++	retval = misc_register(&usb_pcwd_miscdev);
++	if (retval != 0) {
++		printk(KERN_ERR PFX "cannot register miscdev on minor=%d (err=%d)\n",
++			WATCHDOG_MINOR, retval);
++		goto err_out_unregister_reboot;
++	}
++
++	retval = misc_register(&usb_pcwd_temperature_miscdev);
++	if (retval != 0) {
++		printk(KERN_ERR PFX "cannot register miscdev on minor=%d (err=%d)\n",
++			TEMP_MINOR, retval);
++		goto err_out_misc_deregister;
++	}
++
++	/* we can register the device now, as it is ready */
++	usb_set_intfdata (interface, usb_pcwd);
++
++	printk(KERN_INFO PFX "initialized. heartbeat=%d sec (nowayout=%d)\n",
++		heartbeat, nowayout);
++
++	return 0;
++
++err_out_misc_deregister:
++	misc_deregister(&usb_pcwd_miscdev);
++err_out_unregister_reboot:
++	unregister_reboot_notifier(&usb_pcwd_notifier);
++error:
++	usb_pcwd_delete (usb_pcwd);
++	usb_pcwd_device = NULL;
++	return retval;
++}
++
++
++/**
++ *	usb_pcwd_disconnect
++ *
++ *	Called by the usb core when the device is removed from the system.
++ *
++ *	This routine guarantees that the driver will not submit any more urbs
++ *	by clearing dev->udev.
++ */
++static void usb_pcwd_disconnect(struct usb_interface *interface)
++{
++	struct usb_pcwd_private *usb_pcwd;
++
++	/* prevent races with open() */
++	down (&disconnect_sem);
++
++	usb_pcwd = usb_get_intfdata (interface);
++	usb_set_intfdata (interface, NULL);
++
++	down (&usb_pcwd->sem);
++
++	/* Stop the timer before we leave */
++	if (!nowayout)
++		usb_pcwd_stop(usb_pcwd);
++
++	/* We should now stop communicating with the USB PCWD device */
++	usb_pcwd->exists = 0;
++
++	/* Deregister */
++	misc_deregister(&usb_pcwd_temperature_miscdev);
++	misc_deregister(&usb_pcwd_miscdev);
++	unregister_reboot_notifier(&usb_pcwd_notifier);
++
++	up (&usb_pcwd->sem);
++
++	/* Delete the USB PCWD device */
++	usb_pcwd_delete(usb_pcwd);
++
++	cards_found--;
++
++	up (&disconnect_sem);
++
++	printk(KERN_INFO PFX "USB PC Watchdog disconnected\n");
++}
++
++
++
++/**
++ *	usb_pcwd_init
++ */
++static int __init usb_pcwd_init(void)
++{
++	int result;
++
++	/* register this driver with the USB subsystem */
++	result = usb_register(&usb_pcwd_driver);
++	if (result) {
++		printk(KERN_ERR PFX "usb_register failed. Error number %d\n",
++		    result);
++		return result;
++	}
++
++	printk(KERN_INFO PFX DRIVER_DESC " " DRIVER_VERSION "\n");
++	return 0;
++}
++
++
++/**
++ *	usb_pcwd_exit
++ */
++static void __exit usb_pcwd_exit(void)
++{
++	/* deregister this driver with the USB subsystem */
++	usb_deregister(&usb_pcwd_driver);
++}
++
++
++module_init (usb_pcwd_init);
++module_exit (usb_pcwd_exit);
+diff -Nru a/drivers/char/watchdog/cpu5wdt.c b/drivers/char/watchdog/cpu5wdt.c
+--- a/drivers/char/watchdog/cpu5wdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/cpu5wdt.c	Sun Feb 29 22:53:35 2004
+@@ -293,6 +293,7 @@
+ MODULE_DESCRIPTION("sma cpu5 watchdog driver");
+ MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+ 
+ MODULE_PARM(port, "i");
+ MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
+diff -Nru a/drivers/char/watchdog/eurotechwdt.c b/drivers/char/watchdog/eurotechwdt.c
+--- a/drivers/char/watchdog/eurotechwdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/eurotechwdt.c	Sun Feb 29 22:53:35 2004
+@@ -503,3 +503,4 @@
+ MODULE_AUTHOR("Rodolfo Giometti");
+ MODULE_DESCRIPTION("Driver for Eurotech CPU-1220/1410 on board watchdog");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/ib700wdt.c b/drivers/char/watchdog/ib700wdt.c
+--- a/drivers/char/watchdog/ib700wdt.c	Sun Feb 29 22:53:36 2004
++++ b/drivers/char/watchdog/ib700wdt.c	Sun Feb 29 22:53:36 2004
+@@ -350,5 +350,6 @@
+ MODULE_AUTHOR("Charles Howes <chowes@vsol.net>");
+ MODULE_DESCRIPTION("IB700 SBC watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+ 
+ /* end of ib700wdt.c */
+diff -Nru a/drivers/char/watchdog/machzwd.c b/drivers/char/watchdog/machzwd.c
+--- a/drivers/char/watchdog/machzwd.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/machzwd.c	Sun Feb 29 22:53:35 2004
+@@ -98,6 +98,7 @@
+ MODULE_AUTHOR("Fernando Fuganti <fuganti@conectiva.com.br>");
+ MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+ 
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+ static int nowayout = 1;
+diff -Nru a/drivers/char/watchdog/mixcomwd.c b/drivers/char/watchdog/mixcomwd.c
+--- a/drivers/char/watchdog/mixcomwd.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/mixcomwd.c	Sun Feb 29 22:53:35 2004
+@@ -302,4 +302,7 @@
+ module_init(mixcomwd_init);
+ module_exit(mixcomwd_exit);
+ 
++MODULE_AUTHOR("Gergely Madarasz <gorgo@itc.hu>");
++MODULE_DESCRIPTION("MixCom Watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/pcwd.c b/drivers/char/watchdog/pcwd.c
+--- a/drivers/char/watchdog/pcwd.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/pcwd.c	Sun Feb 29 22:53:35 2004
+@@ -705,5 +705,8 @@
+ module_init(pcwatchdog_init);
+ module_exit(pcwatchdog_exit);
+ 
++MODULE_AUTHOR("Ken Hollis <kenji@bitgate.com>");
++MODULE_DESCRIPTION("Berkshire ISA-PC Watchdog driver");
+ MODULE_LICENSE("GPL");
+-
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
++MODULE_ALIAS_MISCDEV(TEMP_MINOR);
+diff -Nru a/drivers/char/watchdog/sa1100_wdt.c b/drivers/char/watchdog/sa1100_wdt.c
+--- a/drivers/char/watchdog/sa1100_wdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/sa1100_wdt.c	Sun Feb 29 22:53:35 2004
+@@ -218,3 +218,4 @@
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started");
+ 
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/sc1200wdt.c b/drivers/char/watchdog/sc1200wdt.c
+--- a/drivers/char/watchdog/sc1200wdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/sc1200wdt.c	Sun Feb 29 22:53:35 2004
+@@ -486,3 +486,4 @@
+ MODULE_AUTHOR("Zwane Mwaikambo <zwane@commfireservices.com>");
+ MODULE_DESCRIPTION("Driver for National Semiconductor PC87307/PC97307 watchdog component");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/w83627hf_wdt.c b/drivers/char/watchdog/w83627hf_wdt.c
+--- a/drivers/char/watchdog/w83627hf_wdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/w83627hf_wdt.c	Sun Feb 29 22:53:35 2004
+@@ -321,4 +321,4 @@
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Pádraig Brady <P@draigBrady.com>");
+ MODULE_DESCRIPTION("w38627hf WDT driver");
+-
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/w83877f_wdt.c b/drivers/char/watchdog/w83877f_wdt.c
+--- a/drivers/char/watchdog/w83877f_wdt.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/w83877f_wdt.c	Sun Feb 29 22:53:35 2004
+@@ -427,3 +427,4 @@
+ MODULE_AUTHOR("Scott and Bill Jennings");
+ MODULE_DESCRIPTION("Driver for watchdog timer in w83877f chip");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/wdt285.c b/drivers/char/watchdog/wdt285.c
+--- a/drivers/char/watchdog/wdt285.c	Sun Feb 29 22:53:35 2004
++++ b/drivers/char/watchdog/wdt285.c	Sun Feb 29 22:53:35 2004
+@@ -222,6 +222,7 @@
+ MODULE_AUTHOR("Phil Blundell <pb@nexus.co.uk>");
+ MODULE_DESCRIPTION("Footbridge watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+ 
+ module_param(soft_margin, int, 0);
+ MODULE_PARM_DESC(soft_margin,"Watchdog timeout in seconds");
+diff -Nru a/drivers/char/watchdog/wdt977.c b/drivers/char/watchdog/wdt977.c
+--- a/drivers/char/watchdog/wdt977.c	Sun Feb 29 22:53:36 2004
++++ b/drivers/char/watchdog/wdt977.c	Sun Feb 29 22:53:36 2004
+@@ -365,5 +365,7 @@
+ module_init(nwwatchdog_init);
+ module_exit(nwwatchdog_exit);
+ 
++MODULE_AUTHOR("Woody Suwalski <woody@netwinder.org>");
+ MODULE_DESCRIPTION("W83977AF Watchdog driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+diff -Nru a/drivers/char/watchdog/wdt_pci.c b/drivers/char/watchdog/wdt_pci.c
+--- a/drivers/char/watchdog/wdt_pci.c	Sun Feb 29 22:53:36 2004
++++ b/drivers/char/watchdog/wdt_pci.c	Sun Feb 29 22:53:36 2004
+@@ -653,3 +653,5 @@
+ MODULE_AUTHOR("JP Nollmann, Alan Cox");
+ MODULE_DESCRIPTION("Driver for the ICS PCI watchdog cards");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
++MODULE_ALIAS_MISCDEV(TEMP_MINOR);
+diff -Nru a/arch/sparc64/Kconfig b/arch/sparc64/Kconfig
+--- a/arch/sparc64/Kconfig	Sun Feb 29 22:53:58 2004
++++ b/arch/sparc64/Kconfig	Sun Feb 29 22:53:58 2004
+@@ -450,28 +450,6 @@
+ 	  another UltraSPARC-IIi-cEngine boardset with a 7-segment display,
+ 	  you should say N to this option.
+ 
+-config WATCHDOG_CP1XXX
+-	tristate "CP1XXX Hardware Watchdog support"
+-	depends on PCI
+-	---help---
+-	  This is the driver for the hardware watchdog timers present on
+-	  Sun Microsystems CompactPCI models CP1400 and CP1500.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called cpwatchdog.
+-
+-	  If you do not have a CompactPCI model CP1400 or CP1500, or
+-	  another UltraSPARC-IIi-cEngine boardset with hardware watchdog,
+-	  you should say N to this option.
+-
+-config WATCHDOG_RIO
+-	tristate "RIO Hardware Watchdog support"
+-	depends on PCI
+-	help
+-	  Say Y here to support the hardware watchdog capability on Sun RIO
+-	  machines.  The watchdog timeout period is normally one minute but
+-	  can be changed with a boot-time parameter.
+-
+ config CMDLINE_BOOL
+ 	bool "Default bootloader kernel arguments"
+ 
+diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
+--- a/drivers/char/watchdog/Kconfig	Sun Feb 29 22:53:58 2004
++++ b/drivers/char/watchdog/Kconfig	Sun Feb 29 22:53:58 2004
+@@ -339,6 +339,30 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called shwdt.
+ 
++# SPARC64 Architecture
++
++config WATCHDOG_CP1XXX
++	tristate "CP1XXX Hardware Watchdog support"
++	depends on WATCHDOG && SPARC64 && PCI
++	---help---
++	  This is the driver for the hardware watchdog timers present on
++	  Sun Microsystems CompactPCI models CP1400 and CP1500.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called cpwatchdog.
++
++	  If you do not have a CompactPCI model CP1400 or CP1500, or
++	  another UltraSPARC-IIi-cEngine boardset with hardware watchdog,
++	  you should say N to this option.
++
++config WATCHDOG_RIO
++	tristate "RIO Hardware Watchdog support"
++	depends on WATCHDOG && SPARC64 && PCI
++	help
++	  Say Y here to support the hardware watchdog capability on Sun RIO
++	  machines.  The watchdog timeout period is normally one minute but
++	  can be changed with a boot-time parameter.
++
+ #
+ # ISA-based Watchdog Cards
+ #

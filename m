@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUJFBAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUJFBC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266560AbUJFBAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 21:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUJFBAd
+	id S266561AbUJFBC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 21:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUJFBC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 21:00:33 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:63829 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266560AbUJFBAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 21:00:23 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <4136E4660006E2F7@mail-7.tiscali.it> <41634236.1020602@pobox.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 05 Oct 2004 18:00:16 -0700
-In-Reply-To: <41634236.1020602@pobox.com> (Jeff Garzik's message of "Tue, 05
- Oct 2004 20:54:14 -0400")
-Message-ID: <52is9or78f.fsf_-_@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 5 Oct 2004 21:02:59 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:6227 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266561AbUJFBC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 21:02:57 -0400
+Message-ID: <4163443B.8030103@yahoo.com.au>
+Date: Wed, 06 Oct 2004 11:02:51 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
- VIA SATA))
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 06 Oct 2004 01:00:17.0697 (UTC) FILETIME=[D8830110:01C4AB3F]
+To: Con Kolivas <kernel@kolivas.org>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Ingo Molnar'" <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       "'Andrew Morton'" <akpm@osdl.org>
+Subject: Re: Default cache_hot_time value back to 10ms
+References: <200410060042.i960gn631637@unix-os.sc.intel.com> <cone.1097023654.564251.26724.502@pc.kolivas.org>
+In-Reply-To: <cone.1097023654.564251.26724.502@pc.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> I strongly recommend disabling kernel preemption.  It is a
-    Jeff> hack that hides bugs.
+Con Kolivas wrote:
 
-Why do you say that?  Preempt seems to be the cleanest way to low
-latency, and if anything it exposes locking bugs and races rather than
-hiding anything.
+> Should it not be based on the cache flush time? We measure that and set 
+> the cache_decay_ticks and can base it on that. What is the 
+> cache_decay_ticks value reported in the dmesg of your hardware?
+> 
 
-Thanks,
-  Roland
+It should be, but the cache_decay_ticks calculation is so crude that I
+preferred to use a fixed value to reduce the variation between different
+setups.
+
+I once experimented with attempting to figure out memory bandwidth based
+on reading an uncached page. That might be the way to go.

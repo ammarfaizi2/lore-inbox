@@ -1,29 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131841AbRC1OzC>; Wed, 28 Mar 2001 09:55:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131842AbRC1Oyw>; Wed, 28 Mar 2001 09:54:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:263 "EHLO www.linux.org.uk") by vger.kernel.org with ESMTP id <S131841AbRC1Oyl>; Wed, 28 Mar 2001 09:54:41 -0500
-Date: Wed, 28 Mar 2001 15:53:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: kaos@ocs.com.au, jesse@cats-chateau.net, linux-kernel@vger.kernel.org
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131887AbRC1PBn>; Wed, 28 Mar 2001 10:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131878AbRC1O7o>; Wed, 28 Mar 2001 09:59:44 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:43202 "EHLO math.psu.edu") by vger.kernel.org with ESMTP id <S131836AbRC1O63>; Wed, 28 Mar 2001 09:58:29 -0500
+Date: Wed, 28 Mar 2001 09:57:47 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Romano Giannetti <romano@dea.icai.upco.es>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Disturbing news..
-Message-ID: <20010328155331.B6867@flint.arm.linux.org.uk>
-References: <200103281415.IAA47715@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103281415.IAA47715@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Wed, Mar 28, 2001 at 08:15:57AM -0600
+In-Reply-To: <20010328163244.D11584@pern.dea.icai.upco.es>
+Message-ID: <Pine.GSO.4.21.0103280954140.26500-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 28, 2001 at 08:15:57AM -0600, Jesse Pollard wrote:
-> objcopy - copies object files. Object files are not marked executable...
 
-objcopy copies executable files as well - check the kernel makefiles
-for examples.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Wed, 28 Mar 2001, Romano Giannetti wrote:
+
+> Now the binary can do much less harm than before, or am I missing something?
+> It have no access to real user data, but can use the system library and
+> services without changing anything in the system. 
+
+You mean, like mailbombing the living hell out of somebody? Or playing
+interesting games with sending signals all over the place...
 

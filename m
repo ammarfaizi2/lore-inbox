@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264523AbTFEJHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 05:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTFEJHm
+	id S264537AbTFEJIF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 05:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFEJIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 05:07:42 -0400
-Received: from sol.cc.u-szeged.hu ([160.114.8.24]:62349 "EHLO
-	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S264523AbTFEJHl
+	Thu, 5 Jun 2003 05:08:05 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:15798 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264537AbTFEJID
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 05:07:41 -0400
-Date: Thu, 5 Jun 2003 11:21:11 +0200 (CEST)
-From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc7-ac1
-In-Reply-To: <200306051002.54089.m.watts@eris.qinetiq.com>
-Message-ID: <Pine.LNX.4.44.0306051117050.24047-100000@petra.hos.u-szeged.hu>
+	Thu, 5 Jun 2003 05:08:03 -0400
+Date: Thu, 5 Jun 2003 11:21:29 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.70-mm4
+In-Reply-To: <200306042333.26850.rudmer@legolas.dynup.net>
+Message-ID: <Pine.LNX.4.51.0306051120250.17494@dns.toxicfilms.tv>
+References: <20030603231827.0e635332.akpm@digeo.com>
+ <200306042333.26850.rudmer@legolas.dynup.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jun 2003, Mark Watts wrote:
-
-> I wonder if you could confirm whether the usb-ohci module should be loaded
-> automatically if I have the following line in modules.conf (this is with
-> 2.4.21-rc6-ac2)
+> I got the following errors with every file that includes
+> include/linux/bitops.h
 >
-> probeall usb-interface usb-ohci
+> include/linux/bitops.h: In function `generic_hweight64':
+> include/linux/bitops.h:118: warning: integer constant is too large for "long"
+> type
+> include/linux/bitops.h:118: warning: integer constant is too large for "long"
+> type
+> include/linux/bitops.h:119: warning: integer constant is too large for "long"
+<snip>
 
-No. You have to modprobe 'usb-interface' somewhere in your rc scripts.
-See the manpage for modules.conf
+Same here with debian unstable with gcc-3.3, it started to act like that
+since -mm4, mm3 was ok.
 
-What distribution are you using?
-
-In debian, /etc/modules contains the modules, which are loaded at system
-startup.
+> This is on UP, athlon, gcc 3.3
+Also UP on P4.
 
 Regards,
-
-  Geller Sandor
+Maciej
 

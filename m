@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSELC0a>; Sat, 11 May 2002 22:26:30 -0400
+	id <S315287AbSELChM>; Sat, 11 May 2002 22:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315287AbSELC03>; Sat, 11 May 2002 22:26:29 -0400
-Received: from pD9E2404B.dip.t-dialin.net ([217.226.64.75]:60998 "EHLO
-	extern.linux-systeme.org") by vger.kernel.org with ESMTP
-	id <S315282AbSELC03>; Sat, 11 May 2002 22:26:29 -0400
-Date: Sun, 12 May 2002 04:26:13 +0200 (MET DST)
-From: mcp@linux-systeme.de
-Reply-To: mcp@linux-systeme.de
-To: Pawel Kot <pkot@ziew.org>
-cc: mcp@linux-systeme.de, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
-Message-ID: <Pine.LNX.3.96.1020512040757.27097A-100000@fps>
+	id <S316297AbSELChL>; Sat, 11 May 2002 22:37:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26124 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315287AbSELChJ>;
+	Sat, 11 May 2002 22:37:09 -0400
+Message-ID: <3CDDD614.FA8A4AB9@zip.com.au>
+Date: Sat, 11 May 2002 19:40:20 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: yodaiken@fsmlabs.com
+CC: Lincoln Dale <ltd@cisco.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Larry McVoy <lm@bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14 IDE 
+ 56)
+In-Reply-To: <20020511111935.B30126@work.bitmover.com> <Pine.LNX.4.44.0205111130080.879-100000@home.transmeta.com> <5.1.0.14.2.20020512092751.02bcca40@mira-sjcm-3.cisco.com> <20020511183616.A10381@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pawel,
+yodaiken@fsmlabs.com wrote:
+> 
+> We did some i/o profiling about 6 years ago on a big scientific
+>  app that had started in fortran and had been rewritten in c++
+> the fortran code used r/w on files and used temp files
+> the c++ did memmaps and had big data structures - taking advantage of
+> memory management.
+> one thing I thought was interesting is that it was easy to see how a smart
+> algorithm, not even such a smart one, could adapt i/o to the patterns of
+> i/o in the fortran code, but the c++ i/o patters were really complex.
+> 
+> when everything goes into the page cache, it seems like you will loose
+> information.
+> 
 
->Backported NTFS 2.0.7 from 2.5.x to 2.4.18 is available from linux-ntfs
->project page:
-i've tried this, have a look:
+That is certainly the case.  If the application is seekily writing
+to a file then we currently lay the file out on-disk in the order
+in which the application seeked.  So reading the file back
+linearly is very slow.
 
-cc  -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -Wno-unused -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODULE
--DNTFS_VERSION=\"2.0.7a\" -DDEBUG -DKBUILD_BASENAME=debug  -c -o debug.o
-debug.c
-debug.c: In function `__ntfs_warning':
-debug.c:58: `current' undeclared (first use in this function)
-debug.c:58: (Each undeclared identifier is reported only once
-debug.c:58: for each function it appears in.)
-debug.c:68: warning: implicit declaration of function `preempt_schedule'
-debug.c: In function `__ntfs_error':
-debug.c:98: `current' undeclared (first use in this function)
-debug.c: In function `__ntfs_debug':
-debug.c:126: `current' undeclared (first use in this function)
-make[2]: *** [debug.o] Error 1
-make[2]: Leaving directory
-`/usr/src/linux-2.4.18/fs/ntfs'
-make[1]: *** [_modsubdir_ntfs] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.18/fs'
-make: *** [_mod_fs] Error 2
+Now this is not necessarily a bad thing - if the file was created
+seekily then it will probably be _used_ seekily so no big
+loss probably.
 
-Yes, 2.4.18 + preempt and some other additional stuff.
-NTFS is a Module, happs with/without selecting debug feature in kernel
-config.
+This problem is pretty unsolvable for filesystems which map blocks
+to their disk address at write(2) time.  It can be solved for
+allocate-on-flush filesystems via a sort of the dirty page list,
+or by maintaining ->dirty_pages in a tree or whatever.
 
-Kind regards,
-	Marc
+There is one "file" where this problem really does matter - the
+blockdev mapping "/dev/hda1".  It is both highly fragmented and
+poorly sorted on the dirty_pages list.
 
+It's pretty trivial to perform a sillysort at writeout time:
+if we just wrote page N and the next page isn't N+1 then do a
+pagecache probe for "N+1".   That's probably sufficient.  If
+not, there's a simple little sort routine over at 
+http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
+which is appropriate to our lists.
 
+I'll be taking a look at the sillysort option once I've cleared away
+some other I/O scheduling glitches.
+
+-

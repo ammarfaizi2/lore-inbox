@@ -1,109 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265637AbTFXCk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 22:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbTFXCk0
+	id S265639AbTFXCpy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 22:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbTFXCpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 22:40:26 -0400
-Received: from [203.94.130.164] ([203.94.130.164]:45773 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id S265637AbTFXCkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 22:40:17 -0400
-Date: Tue, 24 Jun 2003 12:25:47 +1000 (EST)
-From: Brett <generica@email.com>
-X-X-Sender: brett@bad-sports.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] PCMCIA patches (fwd)
-Message-ID: <Pine.LNX.4.44.0306241225050.30736-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jun 2003 22:45:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9859 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265639AbTFXCpw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 22:45:52 -0400
+Date: Tue, 24 Jun 2003 03:59:59 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Lou Langholtz <ldl@aros.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] nbd driver for 2.5+: enhanced diagnostics support
+Message-ID: <20030624025959.GO6754@parcelfarce.linux.theplanet.co.uk>
+References: <3EF7B1C1.5040502@aros.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF7B1C1.5040502@aros.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 23, 2003 at 08:04:49PM -0600, Lou Langholtz wrote:
+> This third patch (for enhancing diagnostics support) applies 
+> incrementally after my last LKML'd patch (for cosmetic changes). These 
+> changes introduce configurable KERN_DEBUG level printk output for a 
+> variety of different things that the driver does and provides the 
+> framework for enhanced future debugging support as well.
+> 
+> As always, comments welcome!
 
-since russell doesn't want to accept my mail,
-forwarded here
+> +	case BLKROSET: return "set-read-only";
+> +	case BLKROGET: return "get-read-only";
+> +	case BLKGETSIZE: return "block-get-size";
+> +	case BLKFLSBUF: return "flush-buffer-cache";
 
----------- Forwarded message ----------
-Date: Tue, 24 Jun 2003 12:17:00 +1000 (EST)
-From: Brett <generica@email.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [CFT] PCMCIA patches
+The last 4 never make it to the driver (nor should they, being generic
+ioctls).
 
+> +	reply.magic = ntohl(reply.magic);
+> +	if (reply.magic != NBD_REPLY_MAGIC) {
+> +		printk(KERN_ERR "%s: Wrong magic (0x%lx)\n",
+> +				lo->disk->disk_name,
+> +				(unsigned long)reply.magic);
 
-Hey,
+> +	reply.error = ntohl(reply.error);
+> +	if (reply.error) {
+> +		printk(KERN_ERR "%s: Other side returned error (%d)\n",
+> +				lo->disk->disk_name, reply.error);
 
-works for me,
-i82365 controller
-xirc2ps_cs and 8250_cs
+Generally a bad taste - it's harmless in this case, but such endianness
+conversions in place are asking for trouble.
 
-i still get "Trying to free nonexistent resource <000002f8-000002ff>" on 
-eject/shutdown, but you can't have everything
+>  	lo->refcnt--;
+> +	dprintk(DBG_RELEASE, "%s: %s refcnt=%d\n", lo->disk->disk_name,
+> +			__FUNCTION__, lo->refcnt);
+>  	/* N.B. Doesn't lo->file need an fput?? */
+>  	return 0;
 
-thanks,
+a) please, lose __FUNCTION__ - using it in macros is one thing, but
+directly in a function that got a name shorter than `__FUNCTION__'?
 
-	/ Brett
+b) no, it doesn't.
 
-On Mon, 23 Jun 2003, Russell King wrote:
+c) ->refcnt is never used.  How about losing it completely?  Along with
+->open() and ->release()...
 
-> Ok guys,
-> 
-> Here's another set of PCMCIA patches to keep people occupied for a while.
-> Tested sa11xx and yenta here.  Please report successes/failures.
-> 
-> Note: if you are using modules, you will only be able to remove the
-> socket driver when the cards are ejected (by either physically removing
-> the card or via cardctl eject.)  Some init scripts may get upset with
-> this on shutdown; this will eventually be noted in davej's 2.6 changes
-> document.  The script needs to run cardctl eject before rmmoding the
-> pcmcia modules.
-> 
->  drivers/pcmcia/cs.c           |  103 ++++++++++++++++++++++++------------------
->  drivers/pcmcia/i82092.c       |   46 ++----------------
->  drivers/pcmcia/i82092aa.h     |    1
->  drivers/pcmcia/i82365.c       |   75 +++---------------------------
->  drivers/pcmcia/sa11xx_core.c  |   66 +++++---------------------
->  drivers/pcmcia/sa11xx_core.h  |    3 -
->  drivers/pcmcia/tcic.c         |   48 ++-----------------
->  drivers/pcmcia/yenta_socket.c |   39 +--------------
->  drivers/pcmcia/yenta_socket.h |    5 --
->  include/pcmcia/ss.h           |    3 -
->  10 files changed, 96 insertions(+), 293 deletions(-)
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-1.diff
-> 
-> 	Move ->owner field from socket operations to pcmcia_socket.
-> 	(This change is mainly for the SA11xx drivers, which use
-> 	a core driver for the chip, and a separate module for all
-> 	the machine specific bits.)
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-2.diff
-> 
-> 	Get/Put module when we insert and remove a card.  This avoids
-> 	a potential deadlock when socket drivers are unloaded, and we
-> 	have a cardbus card known to the system.
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-3.diff
-> 
-> 	Remove original module use accounting in register_callback.
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-4.diff
-> 
-> 	Add work-around for i82365-based socket drivers to the core
-> 	PCMCIA code.  Since insert processing is not a time critical
-> 	event, we can afford to delay (by sleeping) these for everyone.
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-5.diff
-> 
-> 	Remove register_callback methods; allow socket drivers to call
-> 	pcmcia_parse_events() directly.
-> 
-> http://patches.arm.linux.org.uk/pcmcia/pcmcia-event-20030623-6.diff
-> 
-> 	Remove now obsolete work queues, spinlocks, and code from
-> 	socket drivers.
-> 
-> 
-> 
+>  		sreq.flags = REQ_SPECIAL;
+>  		nbd_cmd(&sreq) = NBD_CMD_DISC;
 
+;-/
 
+> +		sreq.sector = 0;
+> +		sreq.nr_sectors = 0;
+
+Umm... What for?
+
+>  	if (sizeof(struct nbd_request) != 28) {
+> -		printk(KERN_CRIT "Sizeof nbd_request needs to be 28 in order to work!\n" );
+> +		printk(KERN_CRIT "nbd: Sizeof nbd_request needs to be 28 in order to work!\n" );
+>  		return -EIO;
+>  	}
+
+FWIW, I'm less than sure that struct nbd_request is worth defining.
+We use it in two places - the check above and nbd_send_req() where
+it is filled and then its address is cast to char *.  It might be
+better to use u32[7] directly and forget about all alignment issues.
+Hell knows...  In this situation I would probably just define an
+enum for offsets and be done with that.  Same goes for nbd_reply.

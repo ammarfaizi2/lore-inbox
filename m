@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130446AbRCCKxM>; Sat, 3 Mar 2001 05:53:12 -0500
+	id <S130447AbRCCLCC>; Sat, 3 Mar 2001 06:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130447AbRCCKxD>; Sat, 3 Mar 2001 05:53:03 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:16901 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S130446AbRCCKwq>; Sat, 3 Mar 2001 05:52:46 -0500
-Date: Sat, 3 Mar 2001 10:54:05 GMT
-Message-Id: <200103031054.KAA29868@localhost.localdomain>
-From: Jon Masters <jonathan@jonmasters.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Forwarding broadcast traffic
-Cc: jonathan@jonmasters.org
-Mailer: Jon Masters. Copyleft 1981. All rights and Freedoms reserved.
-X-Motto: Live for Free Software
+	id <S130448AbRCCLBx>; Sat, 3 Mar 2001 06:01:53 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:8136 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S130447AbRCCLBi>;
+	Sat, 3 Mar 2001 06:01:38 -0500
+Message-ID: <3AA0CF0D.CB9D544C@mandrakesoft.com>
+Date: Sat, 03 Mar 2001 06:01:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "David S. Miller" <davem@redhat.com>, linuxppc-dev@lists.linuxppc.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <15008.17278.154154.210086@pizda.ninka.net> <19350125195650.22439@mailhost.mipsys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	I have a brain-dead application here which relies on broadcast
-traffic for client/server discovery and I have a question with regard
-to forwarding broadcast traffic.
+Benjamin Herrenschmidt wrote:
+> 
+> >No, don't do this, it is evil.  Use mappings, specify the device
+> >related info somehow when creating the mapping (in the userspace
+> >variant you do this by openning a specific device to mmap, in the
+> >kernel variant you can encode the bus/dev/etc. info in the device's
+> >resource and decode this at ioremap() time, see?).
+> 
+> Well, except that drivers doing IOs don't ioremap...
+> 
+> Maybe we could define an ioremap-like function for IOs, but the more
 
-A small part of my local LAN looks like this:
+I/O is not supposed to be fast, that's what MMIO is for. :)  Just do
 
-                 REST OF LAN
-                      |
-                      | (router eth1)
-                      |
-                 masquerading
-                router (kernel 2.2.14)
-                      |
-                      | (router eth0)
-                      |
-                   desktop (private IP)
-                    boxen  (kernel 2.4.2)
+void outb (u8 val, u16 addr)
+{
+	void *addr = ioremap (ISA_IO_BASE + addr);
+	if (addr) {
+		writeb (val, addr);
+		iounmap (addr);
+	}
+}
 
-* upgrading the router is not a problem[0].
+You can map and unmap for each call :)  Ugly and slow, but hey, it's
+I/O...
 
-I wish to have the router forward certain broadcast traffic coming
-from either side out to the other (as well as itself).
-
-e.g. on desktop a broadcast udp packet (with a specified port) needs to
-go not only to itself and the router but also the "REST OF LAN" part
-too - and vice versa. Removing the router is not an option.
-
-I know this isn't a *nice* idea and ordinarily I wouldn't be jumping up
-and down suggesting one throws broadcast traffic around however I need
-to do this for various reasons and the solution appears to be
-non-obvious at least to me[1].
-
-I have considered the idea of creating a transparent bridge however I
-would really rather not do that here for various reasons.
-
-I have posted this message to groups elsewhere however I have not yet
-had any useful responses beyond basic instruction of IP forwarding,
-etc. which is not what I need here :P
-
-Any ideas? I think this one has come up before but I could not find a
-helpful answer in my archives.
-
-Appreciate your time,
-			--jcm
-
-P.S. My lkml feed at home is great but here it is not so could you
-     please CC me on replies thanks.
-
-[0] Yeah, yeah, I know 2.2.14 is old but it's an old router and when I
-    move that box over to Debian I'll upgrade the kernel at the same
-    time :P
-[1] either due to general stupidity or tiredness, or both.
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

@@ -1,136 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129871AbQKGXH5>; Tue, 7 Nov 2000 18:07:57 -0500
+	id <S130300AbQKGXJr>; Tue, 7 Nov 2000 18:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130300AbQKGXHr>; Tue, 7 Nov 2000 18:07:47 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:5383 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129871AbQKGXHm>; Tue, 7 Nov 2000 18:07:42 -0500
-Message-ID: <3A088A3D.2CD0BC53@timpanogas.org>
-Date: Tue, 07 Nov 2000 16:03:25 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S130481AbQKGXJh>; Tue, 7 Nov 2000 18:09:37 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:39439 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S130300AbQKGXJa>; Tue, 7 Nov 2000 18:09:30 -0500
+Date: Wed, 8 Nov 2000 00:09:38 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com
+Subject: [PATCH] 
+Message-ID: <Pine.LNX.4.21.0011080005410.1628-200000@tricky>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Dual XEON - >>SLOW<< on SMP
-In-Reply-To: <Pine.LNX.3.95.1001107174352.436A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1578824213-973638578=:1628"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Marc Lehman verified that PII systems will generate tons of AGIs with
-gcc.  Perhaps this is the cause of this problem.  You could run EMON and
-see if there is something obvious in the numbers ...
+--8323328-1578824213-973638578=:1628
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Jeff
 
-"Richard B. Johnson" wrote:
-> 
-> On Wed, 8 Nov 2000, Keith Owens wrote:
-> 
-> > On Tue, 7 Nov 2000 17:31:19 -0500 (EST),
-> > "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> > >Also, I get some CPU watchdog timeout that I didn't ask for Grrr...
-> > >
-> > >Nov  7 17:17:54 chaos nmbd[115]:   Samba server CHAOS is now a domain master browser for workgroup LINUX on subnet 204.178.40.224
-> > >Nov  7 17:17:54 chaos nmbd[115]:
-> > >Nov  7 17:17:54 chaos nmbd[115]:   *****
-> > >Nov  7 17:18:54 chaos kernel: NMI Watchdog detected LOCKUP on CPU0,
->  registers:
-> > >Nov  7 17:18:54 chaos kernel: CPU:    0
-> > >Nov  7 17:19:01 chaos login: ROOT LOGIN ON tty2
-> >
-> > Which means that one of the cpus is spinning for 5 seconds with
-> > interrupts disabled.  CPU watchdogs are *good*.
-> >
-> 
-> Well no. I won't buy that. What it means is that some so-called
-> watchdog timer code is broken.
-> 
-> The following, tight loop user-mode code will trip it off and the
-> interrupts are not disabled from user-mode code:
-> 
-> #include <stdio.h>
-> 
-> int main(void);
-> int main()
-> {
->    for(;;)
->   {
->    __asm__ __volatile__(
->    "\tpushl     %ecx\n"
->    "\txorl      %ecx,%ecx\n"
->    "1:\tloop    1b\n"
->    "\tpopl      %ecx\n"
->         );
->    }
->    return 0;
-> }
-> 
-> When it trips off, this code is seg-faulted without any core-dump.
-> This code must never seg-fault. It doesn't access memory that was
-> not allocated upon startup and, if the kernel wants the CPU, it
-> will take it away. It is, after all , supposed to be premptive.
-> 
-> Somebody has severly broken Linux.
-> 
-> > >
-> > >           CPU0       CPU1
-> > >  0:      10945      11869    IO-APIC-edge  timer
-> > >  1:        419        393    IO-APIC-edge  keyboard
-> > >  2:          0          0          XT-PIC  cascade
-> > >  8:          0          0    IO-APIC-edge  rtc
-> > > 10:       2990       2904   IO-APIC-level  eth0
-> > > 11:       1066       1124   IO-APIC-level  BusLogic BT-958
-> > > 13:          0          0          XT-PIC  fpu
-> > >NMI:      22748      22748
-> > >LOC:      21731      22229
-> > >ERR:          0
-> > >
-> > >
-> > >The NMI and LOC (timers) run faster than timer channel 0. This
-> > >cannot be correct. Anybody know what this is and how to get
-> > >rid of these CPU time stealers?
-> >
-> > The timer is directed both as a normal interrupt 0 and as a broadcast
-> > non maskable interrupt.  The NMI count on each cpu should be roughly
-> > the sum of the interrupt 0 count across all cpus.
-> >
-> 
-> How do I get these things turned OFF? These CPUs and this machine
-> worked fine for two years. It now runs at 1/4 the speed.
-> 
-> > The NMI path is fairly fast so the overhead is small.  When it does
-> > trip you have a problem, a cpu is spinning for far too long.  Extract
-> > the NMI report from the log, run it through ksymoops and mail the
-> > decoded result.
-> >
-> 
-> I sincerely doubt that the overhead is small. The overhead is
-> enormous. It can be felt!
-> 
-> All I got from the log was what was reported. There is a colon
-> after 'registers' and that's that. The system continued to run.
-> It did not panic.
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-> 
-> "Memory is like gasoline. You use it up when you are running. Of
-> course you get it all back when you reboot..."; Actual explanation
-> obtained from the Micro$oft help desk.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+I hitted few items from Dawson Engler's list of potential kmalloc/kfree
+bugs...
+
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
+
+--8323328-1578824213-973638578=:1628
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kmkf-bugs-1.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0011080009380.1628@tricky>
+Content-Description: 
+Content-Disposition: attachment; filename="kmkf-bugs-1.diff"
+
+LS0tIGxpbnV4LTI0MHQxMC9kcml2ZXJzL2lkZS9pZGUtcHJvYmUuYwlUdWUg
+T2N0ICAzIDAwOjE2OjUxIDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2lkZS9p
+ZGUtcHJvYmUuYwlUdWUgTm92ICA3IDAwOjI1OjM1IDIwMDANCkBAIC02NTIs
+NiArNjUzLDEwIEBADQogCQlod2dyb3VwID0gbWF0Y2gtPmh3Z3JvdXA7DQog
+CX0gZWxzZSB7DQogCQlod2dyb3VwID0ga21hbGxvYyhzaXplb2YoaWRlX2h3
+Z3JvdXBfdCksIEdGUF9LRVJORUwpOw0KKwkJaWYoIWh3Z3JvdXApIHsNCisJ
+CQlyZXN0b3JlX2ZsYWdzKGZsYWdzKTsNCisJCQlyZXR1cm4gMTsNCisJCX0N
+CiAJCW1lbXNldChod2dyb3VwLCAwLCBzaXplb2YoaWRlX2h3Z3JvdXBfdCkp
+Ow0KIAkJaHdncm91cC0+aHdpZiAgICAgPSBod2lmLT5uZXh0ID0gaHdpZjsN
+CiAJCWh3Z3JvdXAtPnJxICAgICAgID0gTlVMTDsNCkBAIC03NDYsMTEgKzc1
+MSwyMyBAQA0KIAl9DQogCW1pbm9ycyAgICA9IHVuaXRzICogKDE8PFBBUlRO
+X0JJVFMpOw0KIAlnZCAgICAgICAgPSBrbWFsbG9jIChzaXplb2Yoc3RydWN0
+IGdlbmRpc2spLCBHRlBfS0VSTkVMKTsNCisJaWYoIWdkKQ0KKwkJZ290byBj
+bGVhbnVwX2dkOw0KIAlnZC0+c2l6ZXMgPSBrbWFsbG9jIChtaW5vcnMgKiBz
+aXplb2YoaW50KSwgR0ZQX0tFUk5FTCk7DQorCWlmKCFnZC0+c2l6ZXMpDQor
+CQlnb3RvIGNsZWFudXBfZ2Rfc2l6ZXM7DQogCWdkLT5wYXJ0ICA9IGttYWxs
+b2MgKG1pbm9ycyAqIHNpemVvZihzdHJ1Y3QgaGRfc3RydWN0KSwgR0ZQX0tF
+Uk5FTCk7DQorCWlmKCFnZC0+cGFydCkNCisJCWdvdG8gY2xlYW51cF9nZF9w
+YXJ0Ow0KIAlicyAgICAgICAgPSBrbWFsbG9jIChtaW5vcnMqc2l6ZW9mKGlu
+dCksIEdGUF9LRVJORUwpOw0KKwlpZighYnMpDQorCQlnb3RvIGNsZWFudXBf
+YnM7DQogCW1heF9zZWN0ICA9IGttYWxsb2MgKG1pbm9ycypzaXplb2YoaW50
+KSwgR0ZQX0tFUk5FTCk7DQorCWlmKCFtYXhfc2VjdCkNCisJCWdvdG8gY2xl
+YW51cF9tYXhfc2VjdDsNCiAJbWF4X3JhICAgID0ga21hbGxvYyAobWlub3Jz
+KnNpemVvZihpbnQpLCBHRlBfS0VSTkVMKTsNCisJaWYoIW1heF9yYSkNCisJ
+CWdvdG8gY2xlYW51cF9tYXhfcmE7DQogDQogCW1lbXNldChnZC0+cGFydCwg
+MCwgbWlub3JzICogc2l6ZW9mKHN0cnVjdCBoZF9zdHJ1Y3QpKTsNCiANCkBA
+IC03NzksMTIgKzc5NiwxNiBAQA0KIAlnZC0+cmVhbF9kZXZpY2VzPSBod2lm
+OwkJCS8qIHB0ciB0byBpbnRlcm5hbCBkYXRhICovDQogCWdkLT5uZXh0CT0g
+TlVMTDsJCQkvKiBsaW5rZWQgbGlzdCBvZiBtYWpvciBkZXZzICovDQogCWdk
+LT5mb3BzICAgICAgICA9IGlkZV9mb3BzOyAgICAgICAgICAgICAvKiBmaWxl
+IG9wZXJhdGlvbnMgKi8NCi0JZ2QtPmRlX2Fycgk9IGttYWxsb2MgKHNpemVv
+ZiAqZ2QtPmRlX2FyciAqIHVuaXRzLCBHRlBfS0VSTkVMKTsNCi0JZ2QtPmZs
+YWdzCT0ga21hbGxvYyAoc2l6ZW9mICpnZC0+ZmxhZ3MgKiB1bml0cywgR0ZQ
+X0tFUk5FTCk7DQotCWlmIChnZC0+ZGVfYXJyKQ0KLQkJbWVtc2V0IChnZC0+
+ZGVfYXJyLCAwLCBzaXplb2YgKmdkLT5kZV9hcnIgKiB1bml0cyk7DQotCWlm
+IChnZC0+ZmxhZ3MpDQotCQltZW1zZXQgKGdkLT5mbGFncywgMCwgc2l6ZW9m
+ICpnZC0+ZmxhZ3MgKiB1bml0cyk7DQorCWlmKHVuaXRzKSB7DQorCQlnZC0+
+ZGVfYXJyID0ga21hbGxvYyAoc2l6ZW9mICpnZC0+ZGVfYXJyICogdW5pdHMs
+IEdGUF9LRVJORUwpOw0KKwkJaWYoIWdkLT5kZV9hcnIpDQorCQkJZ290byBj
+bGVhbnVwX2dkX2RlX2FycjsNCisJCWdkLT5mbGFncyAgPSBrbWFsbG9jIChz
+aXplb2YgKmdkLT5mbGFncyAqIHVuaXRzLCBHRlBfS0VSTkVMKTsNCisJCWlm
+KCFnZC0+ZmxhZ3MpDQorCQkJZ290byBjbGVhbnVwX2dkX2ZsYWdzOw0KKwkJ
+bWVtc2V0KGdkLT5kZV9hcnIsIDAsIHNpemVvZiAqZ2QtPmRlX2FyciAqIHVu
+aXRzKTsNCisJCW1lbXNldChnZC0+ZmxhZ3MsIDAsIHNpemVvZiAqZ2QtPmZs
+YWdzICogdW5pdHMpOw0KKwl9DQogDQogCWZvciAoZ2RwID0gJmdlbmRpc2tf
+aGVhZDsgKmdkcDsgZ2RwID0gJigoKmdkcCktPm5leHQpKSA7DQogCWh3aWYt
+PmdkID0gKmdkcCA9IGdkOwkJCS8qIGxpbmsgb250byB0YWlsIG9mIGxpc3Qg
+Ki8NCkBAIC04MDIsNiArODIzLDI2IEBADQogCQkJCWRldmZzX21rX2RpciAo
+aWRlX2RldmZzX2hhbmRsZSwgbmFtZSwgTlVMTCk7DQogCQl9DQogCX0NCisJ
+cmV0dXJuOw0KKw0KK2NsZWFudXBfZ2RfZmxhZ3M6DQorCWtmcmVlKGdkLT5m
+bGFncyk7DQorY2xlYW51cF9nZF9kZV9hcnI6DQorCWtmcmVlKGdkLT5kZV9h
+cnIpOw0KK2NsZWFudXBfbWF4X3JhOg0KKwlrZnJlZShtYXhfcmEpOw0KK2Ns
+ZWFudXBfbWF4X3NlY3Q6DQorCWtmcmVlKG1heF9zZWN0KTsNCitjbGVhbnVw
+X2JzOg0KKwlrZnJlZShicyk7DQorY2xlYW51cF9nZF9wYXJ0Og0KKwlrZnJl
+ZShnZC0+cGFydCk7DQorY2xlYW51cF9nZF9zaXplczoNCisJa2ZyZWUoZ2Qt
+PnNpemVzKTsNCitjbGVhbnVwX2dkOg0KKwlrZnJlZShnZCk7DQorDQorCXBy
+aW50ayhLRVJOX0VSUiAiaWRlLXByb2JlOiBub3QgZW5vdWdoIG1lbW9yeSBm
+b3IgaW5pdF9nZW5kaXNrKClcbiIpOw0KIH0NCiANCiBzdGF0aWMgaW50IGh3
+aWZfaW5pdCAoaWRlX2h3aWZfdCAqaHdpZikNCi0tLSBsaW51eC0yNDB0MTAv
+ZHJpdmVycy9pMm8vaTJvX2NvbmZpZy5jCVR1ZSBPY3QgIDMgMDA6MTU6MzQg
+MjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvaTJvL2kyb19jb25maWcuYwlNb24g
+Tm92ICA2IDIyOjQxOjQxIDIwMDANCkBAIC00OTksNiArNDk5LDggQEANCiAJ
+aWYoIXJlcykNCiAJew0KIAkJaTJvX3VubG9ja19jb250cm9sbGVyKGMpOw0K
+KwkJcHJpbnRrKEtFUk5fSU5GTyAiaTJvX2NvbmZpZzogY291bGQgbm90IGdl
+dCByZXNcbiIpOw0KKwkJaWYoa2NtZC5xbGVuKSBrZnJlZShxdWVyeSk7DQog
+CQlyZXR1cm4gLUVOT01FTTsNCiAJfQ0KIA0KLS0tIGxpbnV4LTI0MHQxMC9k
+cml2ZXJzL2kyby9pMm9fY29yZS5jCVRodSBPY3QgMTkgMjI6MDU6MDEgMjAw
+MA0KKysrIGxpbnV4L2RyaXZlcnMvaTJvL2kyb19jb3JlLmMJTW9uIE5vdiAg
+NiAyMjo0OTo1NSAyMDAwDQpAQCAtMTY2NCw2ICsxNjY0LDcgQEANCiAJCQl7
+DQogCQkJCXByaW50ayhLRVJOX0VSUiAiJXM6IFRpbWVvdXQgd2FpdGluZyBm
+b3IgSU9QIHJlc2V0LlxuIiwgDQogCQkJCQkJYy0+bmFtZSk7IA0KKwkJCQlr
+ZnJlZShzdGF0dXMpOw0KIAkJCQlyZXR1cm4gLUVUSU1FRE9VVDsgDQogCQkJ
+fSANCiAJCQlzY2hlZHVsZSgpOyANCi0tLSBsaW51eC0yNDB0MTAvZHJpdmVy
+cy9zY3NpL2VhdGFfZG1hLmMJVHVlIE9jdCAgMyAxNDoyNzo0NCAyMDAwDQor
+KysgbGludXgvZHJpdmVycy9zY3NpL2VhdGFfZG1hLmMJTW9uIE5vdiAgNiAy
+MzoyMTowNCAyMDAwDQpAQCAtOTA5LDggKzkwOSwxNyBAQA0KIA0KICAgICBj
+cCA9IChzdHJ1Y3QgZWF0YV9jY2IgKikga21hbGxvYyhzaXplb2Yoc3RydWN0
+IGVhdGFfY2NiKSwNCiAJCQkJICAgICBHRlBfQVRPTUlDIHwgR0ZQX0RNQSk7
+DQorICAgIGlmKCFjcCkgew0KKwlwcmludGsoS0VSTl9FUlIgImVhdGFfZG1h
+OiBvdXQgb2YgRE1BIG1lbW9yeVxuIik7DQorCXJldHVybiBOVUxMOw0KKyAg
+ICB9DQogICAgIHNwID0gKHN0cnVjdCBlYXRhX3NwICopIGttYWxsb2Moc2l6
+ZW9mKHN0cnVjdCBlYXRhX3NwKSwgDQogCQkJCQkgICAgIEdGUF9BVE9NSUMg
+fCBHRlBfRE1BKTsNCisgICAgaWYoIXNwKSB7DQorCXByaW50ayhLRVJOX0VS
+UiAiZWF0YV9kbWE6IG91dCBvZiBETUEgbWVtb3J5XG4iKTsNCisJa2ZyZWUo
+Y3ApOw0KKwlyZXR1cm4gTlVMTDsNCisgICAgfQ0KIA0KICAgICBidWZmID0g
+ZG1hX3NjcmF0Y2g7DQogIA0KQEAgLTE0NTksMTEgKzE0NjgsMTUgQEANCiAg
+ICAgdHBudC0+cHJvY19uYW1lID0gImVhdGFfZG1hIjsNCiANCiAgICAgc3Rh
+dHVzID0ga21hbGxvYyg1MTIsIEdGUF9BVE9NSUMgfCBHRlBfRE1BKTsNCisg
+ICAgaWYoIXN0YXR1cykgew0KKwlwcmludGsoS0VSTl9FUlIgImVhdGFfZG1h
+OiBub3QgZW5vdWdoIERNQSBtZW1vcnkgdG8gcHJvYmUgZm9yIGhvc3RzIVxu
+Iik7DQorCXJldHVybiAwOw0KKyAgICB9DQogICAgIGRtYV9zY3JhdGNoID0g
+a21hbGxvYygxMDI0LCBHRlBfQVRPTUlDIHwgR0ZQX0RNQSk7DQotDQotICAg
+IGlmKHN0YXR1cyA9PSBOVUxMIHx8IGRtYV9zY3JhdGNoID09IE5VTEwpIHsN
+Ci0JcHJpbnRrKCJlYXRhX2RtYTogY2FuJ3QgYWxsb2NhdGUgZW5vdWdoIG1l
+bW9yeSB0byBwcm9iZSBmb3IgaG9zdHMgIVxuIik7DQotCXJldHVybigwKTsN
+CisgICAgaWYoIWRtYV9zY3JhdGNoKSB7DQorCXByaW50ayhLRVJOX0VSUiAi
+ZWF0YV9kbWE6IG5vdCBlbm91Z2ggRE1BIG1lbW9yeSB0byBwcm9iZSBmb3Ig
+aG9zdHMhXG4iKTsNCisJa2ZyZWUoc3RhdHVzKTsNCisJcmV0dXJuIDA7DQog
+ICAgIH0NCiANCiAgICAgZG1hX3NjcmF0Y2ggKz0gNDsNCi0tLSBsaW51eC0y
+NDB0MTAvZHJpdmVycy9zY3NpL2hvc3RzLmMJVHVlIE9jdCAzMSAxMToyMDox
+NSAyMDAwDQorKysgbGludXgvZHJpdmVyL3Njc2kvaG9zdHMuYwlNb24gTm92
+ICA2IDIzOjQwOjQ1IDIwMDANCkBAIC0xNjgsNyArMTY4LDE4IEBADQogICAg
+IHJldHZhbC0+bG9hZGVkX2FzX21vZHVsZSA9IDE7DQogICAgIGlmIChmbGFn
+X25ldykgew0KIAlzaG4gPSAoU2NzaV9Ib3N0X05hbWUgKikga21hbGxvYyhz
+aXplb2YoU2NzaV9Ib3N0X05hbWUpLCBHRlBfQVRPTUlDKTsNCisJaWYoIXNo
+bikgew0KKwkJcHJpbnRrKEtFUk5fRVJSICJzY3NpOiBvdXQgb2YgbWVtb3J5
+IGluIHNjc2lfcmVnaXN0ZXJcbiIpOw0KKwkJa2ZyZWUocmV0dmFsKTsNCisJ
+CXJldHVybiBOVUxMOw0KKwl9DQogCXNobi0+bmFtZSA9IGttYWxsb2MoaG5h
+bWVfbGVuICsgMSwgR0ZQX0FUT01JQyk7DQorCWlmKCFzaG4tPm5hbWUpIHsN
+CisJCXByaW50ayhLRVJOX0VSUiAic2NzaTogb3V0IG9mIG1lbW9yeSBpbiBz
+Y3NpX3JlZ2lzdGVyXG4iKTsNCisJCWtmcmVlKHNobik7DQorCQlrZnJlZShy
+ZXR2YWwpOw0KKwkJcmV0dXJuIE5VTEw7DQorCX0NCiAJaWYgKGhuYW1lX2xl
+biA+IDApDQogCSAgICBzdHJuY3B5KHNobi0+bmFtZSwgaG5hbWUsIGhuYW1l
+X2xlbik7DQogCXNobi0+bmFtZVtobmFtZV9sZW5dID0gMDsNCi0tLSBsaW51
+eC0yNDB0MTAvZHJpdmVycy9zY3NpL2lwcy5jCVR1ZSBPY3QgIDMgMTQ6Mjc6
+NDUgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvc2NzaS9pcHMuYwlNb24gTm92
+ICA2IDIzOjQ4OjIyIDIwMDANCkBAIC00NTUyLDYgKzQ1NTIsOCBAQA0KIA0K
+ICAgIC8qIEFsbG9jYXRlIG1lbW9yeSBmb3IgdGhlIENDQnMgKi8NCiAgICBo
+YS0+c2NicyA9IChpcHNfc2NiX3QgKikga21hbGxvYyhoYS0+bWF4X2NtZHMg
+KiBzaXplb2YoaXBzX3NjYl90KSwgR0ZQX0FUT01JQ3xHRlBfRE1BKTsNCisg
+ICBpZighaGEtPnNjYnMpDQorICAgICAgcmV0dXJuIDA7DQogDQogICAgbWVt
+c2V0KGhhLT5zY2JzLCAwLCBoYS0+bWF4X2NtZHMgKiBzaXplb2YoaXBzX3Nj
+Yl90KSk7DQogDQo=
+--8323328-1578824213-973638578=:1628--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

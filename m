@@ -1,117 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261957AbREQEOD>; Thu, 17 May 2001 00:14:03 -0400
+	id <S261356AbREQFhW>; Thu, 17 May 2001 01:37:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbREQENx>; Thu, 17 May 2001 00:13:53 -0400
-Received: from ch-12-44-141-183.lcisp.com ([12.44.141.183]:34826 "EHLO
-	debian-home") by vger.kernel.org with ESMTP id <S261957AbREQENs>;
-	Thu, 17 May 2001 00:13:48 -0400
-Date: Wed, 16 May 2001 23:13:46 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Sound ioctl's
-Message-ID: <20010516231346.A21018@debian-home.lcisp.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: Gordon Sadler <gbsadler1@lcisp.com>
+	id <S261374AbREQFhM>; Thu, 17 May 2001 01:37:12 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:49169 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S261356AbREQFg7>;
+	Thu, 17 May 2001 01:36:59 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105170536.f4H5aZe459258@saturn.cs.uml.edu>
+Subject: Re: ((struct pci_dev*)dev)->resource[...].start
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 17 May 2001 01:36:35 -0400 (EDT)
+Cc: Vassilii.Khachaturov@comverse.com (Khachaturov Vassilii),
+        linux-kernel@vger.kernel.org (LINUX Kernel)
+In-Reply-To: <3B02F30F.5D05C77E@mandrakesoft.com> from "Jeff Garzik" at May 16, 2001 05:37:19 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik writes:
+> "Khachaturov, Vassilii" wrote:
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>> Can someone please confirm if my assumptions below are correct:
+>> 1) Unless someone specifically tampered with my driver's device
+>> since the OS bootup, the mapping of the PCI base address registers
+>> to virtual memory will remain the same (just as seen in /proc/pci,
+>> and as reflected in <subj>)? If not, is there a way to freeze it
+>> for the time I want to access it?
+>
+> This is not a safe assumption, because the OS may reprogram the
+> PCI BARs at certain times.  The rule is:  ALWAYS read from
+> dev->resource[] unless you are a bus driver (PCI bridges, for
+> example, need to assign resources).
 
-Please CC replies as I'm not subscribed.
-I seem to be having some problems with sound ioctl's.
+Well, I have a bus driver. Just how do I get a bus number?
+My hardware comes up as a regular device, then mutates into
+a bridge when I flip a bit in a config register. The header
+even changes from type 1 to type 2. The class code is always
+the same, a bridge device, but not PCI-to-PCI. It's kind of
+like hot-plug PCI over a network, with all sorts of extra
+alignment restrictions on address space allocation.
 
-I've attached a short c file that opens /dev/dsp, prints the fd, tries
-to issue SNDCTL_DSP_NONBLOCK ioctl, then does the same with /dev/audio.
+So maybe this card is on bus 42. I need a secondary bus number,
+plus a few more in case there are more bridges downstream.
+I can't just grab 42..44 because they might be used elsewhere,
+and I can't just grab 253..255 either because that upsets the
+whole system of bus number assignment being done by carving up
+the space granted to upstream bridges.
 
-Both calls to ioctl for NONBLOCK yield Invalid Invalid argument.
-I've searched the kernel source under drivers/sound/ to see if/where
-this ioctl is defined. 
+BTW, is there any reason why the primary bus register of a
+bridge would have to be set correctly? I have to set mine equal
+to the secondary bus register to keep the hardware happy.
 
-grep -rl SNDCTL_DSP_NONBLOCK drivers/sound/*
-drivers/sound/audio.c
-drivers/sound/cmpci.c
-drivers/sound/cs4281/cs4281m.c
-drivers/sound/cs46xx.c
-drivers/sound/emu10k1/audio.c
-drivers/sound/es1370.c
-drivers/sound/es1371.c
-drivers/sound/esssolo1.c
-drivers/sound/i810_audio.c
-drivers/sound/maestro.c
-drivers/sound/maestro3.c
-drivers/sound/msnd_pinnacle.c
-drivers/sound/sonicvibes.c
-drivers/sound/trident.c
-drivers/sound/vwsnd.c
-drivers/sound/ymfpci.c
+> Further, access to PCI BARs -and- dev->resource[] in a driver is
+> wrong until you have called pci_enable_device.  Resource and IRQ
+> assignment potentially occurs at pci_enable_device time, so BAR
+> is [potentially] undefined before then.
 
-Now I'm using a via chipset embedded sound.
-lsmod
-via82cxxx_audio        16496   0 (autoclean)
-soundcore               3472   2 (autoclean) [via82cxxx_audio]
-ac97_codec              8352   0 (autoclean) [via82cxxx_audio]
-
-So none of the files that use SNDCTL_DSP_NONBLOCK were compiled for my
-kernel. I came up with a question and 2 possible solutions.
-
-Question:
-  Are all ioctl's valid for all devices within a major block?
-
-Solutions:
- 1.  Turn on CONFIG_SOUND_OSS so sound.o is produced, however the
- Configure.help says, "...Say Y or M here (the module will be called
- sound.o) if you haven't found a driver for your sound card above, then
- pick your driver from the list below.
-       
- 2.  Determine a way to tell which ioctl's a particular driver supports.
-
-Any ideas here?
-
--- 
-Gordon Sadler
+Hmmm. I can use device-specific config space registers to change
+the size of a BAR. (or limit & base, whatever) Say I want to have
+512 MB, but the bridge upstream only has 128 MB allotted to it.
+How do I fix this?
 
 
---82I3+IH0IqGh5yIs
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="test.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <linux/soundcard.h>
-
-
-
-int main()
-{
-  int fd, fd1, ver;
-  if((fd=open("/dev/dsp",O_WRONLY))<0)
-	  perror("open ");
-  printf (" %d is fd...\n",fd);
-  if (ioctl(fd, OSS_GETVERSION, &ver)<0)
-	  perror("ioctl ");
-  printf (" %x is version...\n",ver);
-  if (ioctl(fd, SNDCTL_DSP_NONBLOCK, NULL)<0)
-	  perror("ioctl ");
-  close(fd);
-  
-  if((fd1=open("/dev/audio",O_WRONLY))<0)
-	  perror("open ");
-  printf (" %d is fd1...\n",fd);
-  if (ioctl(fd1, SNDCTL_DSP_NONBLOCK, NULL)<0)
-	  perror("ioctl ");
-  close(fd1);
-  return 0;
-}
-  
-
---82I3+IH0IqGh5yIs--

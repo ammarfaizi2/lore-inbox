@@ -1,151 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265001AbUFRGnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265007AbUFRGy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265001AbUFRGnI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 02:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbUFRGnI
+	id S265007AbUFRGy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 02:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbUFRGy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 02:43:08 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:42414 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265001AbUFRGm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 02:42:29 -0400
-Subject: [BKPATCH] ACPI for 2.6
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087540933.4487.212.camel@dhcppc4>
+	Fri, 18 Jun 2004 02:54:56 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:1175 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S265007AbUFRGyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 02:54:51 -0400
+Date: Fri, 18 Jun 2004 16:54:36 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus <torvalds@osdl.org>, linuxppc64-dev@lists.linuxppc.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] PPC64 iSeries viodasd proc file
+Message-Id: <20040618165436.193d5d35.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 18 Jun 2004 02:42:14 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__18_Jun_2004_16_54_36_+1000_NPUOMer6.Z/jI2=b"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a 
+--Signature=_Fri__18_Jun_2004_16_54_36_+1000_NPUOMer6.Z/jI2=b
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.7
+Hi Andrew,
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+This patch adds a proc file for viodasd so to make it
+easier to enumerate the available disks.  It is in a
+(somewhat) strange format to try for a simple level of
+compatability with the old viodasd code (that was in a
+couple of vendor's kernels).
 
-thanks,
--Len
+Please apply (and for Linus' tree as well).
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.7/acpi-20040326-2.6.7.diff.gz
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-This will update the following files:
+diff -ruN 2.6.7/drivers/block/viodasd.c 2.6.7.viodasd.1/drivers/block/viodasd.c
+--- 2.6.7/drivers/block/viodasd.c	2004-06-16 22:15:21.000000000 +1000
++++ 2.6.7.viodasd.1/drivers/block/viodasd.c	2004-06-18 16:00:33.000000000 +1000
+@@ -42,6 +42,8 @@
+ #include <linux/completion.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
++#include <linux/proc_fs.h>
++#include <linux/seq_file.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/vio.h>
+@@ -171,6 +173,34 @@
+ } viodasd_devices[MAX_DISKNO];
+ 
+ /*
++ * Proc file so that disks may be identified.  It looks like
++ * this in order to be (somewhat) compatible with the old code
++ * which just dumped statistics for each disk.
++ */
++static int viodasd_proc_show(struct seq_file *m, void *v)
++{
++	int i;
++
++	seq_printf(m, "viod %d possible devices\n", MAX_DISKNO);
++	for (i = 0; i < MAX_DISKNO; i++)
++		if (viodasd_devices[i].disk != NULL)
++			seq_printf(m, "DISK %2.2d:\n", i);
++	return 0;
++}
++
++static int viodasd_proc_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, viodasd_proc_show, NULL);
++}
++
++static struct file_operations viodasd_proc_operations = {
++	.open		= viodasd_proc_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
++
++/*
+  * External open entry point.
+  */
+ static int viodasd_open(struct inode *ino, struct file *fil)
+@@ -755,6 +785,7 @@
+ static int __init viodasd_init(void)
+ {
+ 	int i;
++	struct proc_dir_entry *e;
+ 
+ 	/* Try to open to our host lp */
+ 	if (viopath_hostLp == HvLpIndexInvalid)
+@@ -794,6 +825,12 @@
+ 	vio_register_driver(&viodasd_driver);	/* FIX ME - error checking */
+ 	driver_create_file(&viodasd_driver.driver, &driver_attr_probe);
+ 
++	e = create_proc_entry("iSeries/viodasd", S_IFREG|S_IRUGO, NULL);
++	if (e) {
++		e->owner = THIS_MODULE;
++		e->proc_fops = &viodasd_proc_operations;
++	}
++
+ 	return 0;
+ }
+ module_init(viodasd_init);
+@@ -806,6 +843,7 @@
+ 	driver_remove_file(&viodasd_driver.driver, &driver_attr_probe);
+ 	vio_unregister_driver(&viodasd_driver);
+ 
++	remove_proc_entry("iSeries/viodasd", NULL);
+         for (i = 0; i < MAX_DISKNO; i++) {
+ 		d = &viodasd_devices[i];
+ 		if (d->disk) {
 
- arch/i386/kernel/acpi/boot.c |   33 ++++
- arch/i386/kernel/dmi_scan.c  |   18 +-
- arch/i386/kernel/mpparse.c   |  119 +++++------------
- arch/i386/pci/acpi.c         |   31 +++-
- arch/ia64/kernel/acpi.c      |   23 +--
- arch/ia64/kernel/iosapic.c   |  209 +++++++++++--------------------
- arch/ia64/pci/pci.c          |   16 +-
- arch/x86_64/kernel/mpparse.c |  112 +++++-----------
- drivers/acpi/Kconfig         |    2 
- drivers/acpi/pci_irq.c       |  119 +++++------------
- drivers/acpi/pci_link.c      |   26 ---
- drivers/acpi/pci_root.c      |   49 +++++++
- drivers/acpi/tables.c        |    6 
- drivers/acpi/thermal.c       |    7 +
- drivers/serial/8250_acpi.c   |   22 ---
- drivers/serial/8250_hcdp.c   |   12 -
- include/acpi/acpi_drivers.h  |    2 
- include/asm-i386/mpspec.h    |    2 
- include/asm-ia64/iosapic.h   |    1 
- include/asm-x86_64/mpspec.h  |    2 
- include/linux/acpi.h         |    4 
- 21 files changed, 361 insertions(+), 454 deletions(-)
+--Signature=_Fri__18_Jun_2004_16_54_36_+1000_NPUOMer6.Z/jI2=b
+Content-Type: application/pgp-signature
 
-through these ChangeSets:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-<len.brown@intel.com> (04/06/18 1.1608.11.12)
-   [ACPI] handle SCI override to nth IOAPIC
-   http://bugzilla.kernel.org/show_bug.cgi?id=2835
+iD8DBQFA0pG2FG47PeJeR58RApuUAKCvJ9DHap6Ncdmdb7rIQnJrRKY94ACgxtpD
+yf8oZy7gzJ7LI/nsfOpk2ks=
+=DOgc
+-----END PGP SIGNATURE-----
 
-<len.brown@intel.com> (04/06/17 1.1608.11.11)
-   [ACPI] avoid spurious interrupts on VIA
-   http://bugzilla.kernel.org/show_bug.cgi?id=2243
-
-<len.brown@intel.com> (04/06/17 1.1728.2.1)
-   [ACPI] fix passive cooling mode indicator (Luming Yu)
-   http://bugzilla.kernel.org/show_bug.cgi?id=1770
-
-<len.brown@intel.com> (04/06/17 1.1608.11.10)
-   [ACPI] PCI bus numbering workaround for ServerWorks
-   from David Shaohua Li
-   http://bugzilla.kernel.org/show_bug.cgi?id=1662
-
-<len.brown@intel.com> (04/06/17 1.1722.18.6)
-   [ACPI] Fix a lockup which Sid Boyce <sboyce@blueyonder.co.uk>
-   discovered with IOAPIC disabled.
-   
-   The problem was that drivers/serial/8250_acpi.c found COM1 in the
-ACPI
-   namespace and called acpi_register_gsi() to set up its IRQ.  ACPI
-tells us
-   that the COM1 IRQ is edge triggered, active high, but
-acpi_register_gsi()
-   was ignoring the edge_level argument, so it blindly set the COM1 IRQ
-to be
-   level-triggered.
-   
-   Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-   Signed-off-by: Andrew Morton <akpm@osdl.org
-
-<len.brown@intel.com> (04/06/17 1.1722.18.5)
-   [ACPI] delete "__init" from x86_64 version of mp_find_ioapic() 
-   Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-   Signed-off-by: Andrew Morton <akpm@osdl.or
-
-<len.brown@intel.com> (04/06/17 1.1722.18.4)
-   [ACPI] mp_find_ioapic() oops from mp_register_gsi() on device resume
-   Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-<len.brown@intel.com> (04/06/17 1.1722.18.3)
-   [ACPI] *** Warning: "acpi_register_gsi" [drivers/serial/8250_acpi.ko]
-undefined!
-   
-   Signed-off-by: Andrew Morton <akpm@osdl.org>
-
-<len.brown@intel.com> (04/06/03 1.1608.11.9)
-   [ACPI] acpi=force overrides blacklist pci=noacpi or acpi=noirq (Andi
-Kleen)
-
-<len.brown@intel.com> (04/06/03 1.1722.18.2)
-   [ACPI] fix !CONFIG_PCI build (Bjorn Helgaas)
-
-<len.brown@intel.com> (04/05/25 1.1722.18.1)
-   [ACPI] PCI IRQ update (Bjorn Helgaas)
-   http://bugme.osdl.org/show_bug.cgi?id=2574
-   
-   mp_parse_prt() and iosapic_parse_prt() used to allocate all
-   IRQs, whether devices needed them or not.  Some devices
-   failed because the this method enabled unused PCI Interrupt
-   Link Devices, which disrupted active link devices.
-   
-   Now the PRT knowledge is pulled out of the arch
-   code and the IRQ allocation and IO-APIC programming
-   is done by pci_enable_device().
-   This is also a step toward allowing the addition
-   of new root bridges and PRTs at run-time.
-   
-   The architecture supplies
-   
-    unsigned int
-    acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)
-   
-   which is called by acpi_pci_irq_enable().  ACPI supplies
-   all the information from the PRT, and the arch sets up
-   the routing and returns the IRQ it allocated.
-
-<len.brown@intel.com> (04/05/22 1.1608.11.8)
-   Kconfig typo fix from Jochen Voss
-
-
-
-
+--Signature=_Fri__18_Jun_2004_16_54_36_+1000_NPUOMer6.Z/jI2=b--

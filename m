@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRATTp4>; Sat, 20 Jan 2001 14:45:56 -0500
+	id <S131214AbRATTvU>; Sat, 20 Jan 2001 14:51:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131214AbRATTpp>; Sat, 20 Jan 2001 14:45:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:31498 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130324AbRATTpn>; Sat, 20 Jan 2001 14:45:43 -0500
-Date: Sat, 20 Jan 2001 15:55:33 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Christoph Hellwig <hch@caldera.de>
-cc: Rajagopal Ananthanarayanan <ananth@sgi.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic IO write clustering
-In-Reply-To: <20010120200514.A26170@caldera.de>
-Message-ID: <Pine.LNX.4.21.0101201543520.6670-100000@freak.distro.conectiva>
+	id <S132022AbRATTvK>; Sat, 20 Jan 2001 14:51:10 -0500
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:12535 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S131214AbRATTu5>; Sat, 20 Jan 2001 14:50:57 -0500
+Message-ID: <3A69EBF8.B35A3B80@Home.net>
+Date: Sat, 20 Jan 2001 14:50:16 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.x kernels?
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It it just me or does it seem that 2.4.x has some latency problems?
 
-On Sat, 20 Jan 2001, Christoph Hellwig wrote:
+It just seems that since using 2.4 ive noticed my poor Pentium 200Mhz
+slow down whether being in X or otherwise. It just seems that the system
+is sluggish.
 
-> On Sat, Jan 20, 2001 at 02:00:24PM -0200, Marcelo Tosatti wrote:
-> > > True.  But you have to go through ext2_get_branch (under the big kernel
-> > > lock) - if we can do only one logical->physical block translations,
-> > > why doing it multiple times?
-> > 
-> > You dont. If the metadata is cached and uptodate there is no need to call
-> > get_block().
-> 
-> Ups.  You are right for the stock tree - I was only looking at my kio tree,
-> where it can't be cached due to the lack of buffer-cache usage...
+I am using the new ReiserFS filesystem and I do know its still in heavy
+development perhaps my latency is due to this (?)
 
-Must be fixed.  
+Any suggestions?
 
-We need a higher level abstraction which can hold this (and other)
-information.
+Shawn.
 
-Take a look at SGI's pagebuf page_buf_t. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130965AbRAaAPO>; Tue, 30 Jan 2001 19:15:14 -0500
+	id <S130971AbRAaAbu>; Tue, 30 Jan 2001 19:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130971AbRAaAPE>; Tue, 30 Jan 2001 19:15:04 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:25350 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S130965AbRAaAPA>; Tue, 30 Jan 2001 19:15:00 -0500
-Date: Tue, 30 Jan 2001 19:14:12 -0500
-From: Chris Mason <mason@suse.com>
-To: "Brett G. Person" <bperson@penguincomputing.com>,
-        Rik van Riel <riel@conectiva.com.br>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Reiserfs problem was: Re: Version 2.4.1 cannot be built. 
-Message-ID: <116120000.980900052@tiny>
-In-Reply-To: <Pine.LNX.4.10.10101301538520.22416-100000@mailserver.penguincomputing.com>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
+	id <S130092AbRAaAbk>; Tue, 30 Jan 2001 19:31:40 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:5382 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S130966AbRAaAb0>; Tue, 30 Jan 2001 19:31:26 -0500
+Date: Wed, 31 Jan 2001 13:31:23 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+Message-ID: <20010131133123.A7875@metastasis.f00f.org>
+In-Reply-To: <3A76B72D.2DD3E640@uow.edu.au> <3A728475.34CF841@uow.edu.au> <3A726087.764CC02E@uow.edu.au> <20010126222003.A11994@vitelus.com> <14966.22671.446439.838872@pizda.ninka.net> <14966.47384.971741.939842@pizda.ninka.net> <3A76D6A4.2385185E@uow.edu.au> <20010131064911.B7244@metastasis.f00f.org> <14967.15765.553667.802101@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14967.15765.553667.802101@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 02:17:57PM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 30, 2001 at 02:17:57PM -0800, David S. Miller wrote:
+
+    8.5MB/sec sounds like half-duplex 100baseT.
+
+No; I'm 100% its  FD; HD gives 40k/sec TCP because of collisions and
+such like.
+
+    Positive you are running at full duplex all the way to the
+    netapp, and if so how many switches sit between you and this
+    netapp?
+
+It's FD all the way (we hardwire everything to 100-FD and never trust
+auto-negotiate); I see no errors or such like anywhere.
+
+There are ... <pause> ... 3 switches between four switches in
+between, mostly linked via GE. I'm not sure if latency might be an
+issue here, is it was critical I can imagine 10 km of glass might be
+a problem but it's not _that_ far...
 
 
-On Tuesday, January 30, 2001 03:42:36 PM -0800 "Brett G. Person"
-<bperson@penguincomputing.com> wrote:
-
-> Worked fine here but  i am getting segfaults on my Reiser filesystems. 
-> I've been distracted by a project over the last few days. Is what I'm
-> seeing a symptom of the fs corruption people were talking about last week?
-> 
-
-If reiserfs is the cause you should have some clues in /var/log/messages.
-Does the kernel compile on ext2 on the same box?
-
--chris
-
+  --cw
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

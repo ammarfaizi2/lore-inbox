@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266512AbSLJBqm>; Mon, 9 Dec 2002 20:46:42 -0500
+	id <S266553AbSLJBsQ>; Mon, 9 Dec 2002 20:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266527AbSLJBql>; Mon, 9 Dec 2002 20:46:41 -0500
-Received: from granger.mail.mindspring.net ([207.69.200.148]:14902 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S266512AbSLJBql>; Mon, 9 Dec 2002 20:46:41 -0500
-Date: Mon, 9 Dec 2002 20:54:23 -0500
-From: Daniel Franke <daniel@franke.homeip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Radeon DRI w/ large memory
-Message-ID: <20021210015423.GA469@silmaril>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021209224553.GA469@silmaril>
-Mime-Version: 1.0
+	id <S266555AbSLJBsQ>; Mon, 9 Dec 2002 20:48:16 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:53237 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S266553AbSLJBsN>; Mon, 9 Dec 2002 20:48:13 -0500
+Message-ID: <3DF549A3.5D63B4B0@attbi.com>
+Date: Mon, 09 Dec 2002 20:55:47 -0500
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
+References: <3DF4B5C1.D36D4CCF@attbi.com> <20021209223515.GC20686@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021209224553.GA469@silmaril>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 09, 2002 at 05:45:53PM -0500, I wrote:
-> I recently upgraded my memory to 1GB and compiled 4GB large memory support
-> into the kernel.  Now, my display freezes when I try to use DRI with my
-> ATI Radeon VE (Radeon 7000 chipset IIRC).  The machine is still responsive
-> to the LAN, but even if I kill X, the display remains frozen.  Disabling
-> large memory support makes the problem go away.
+William Lee Irwin III wrote:
 > 
-> I use 2.4.20-ac1
+> On Mon, Dec 09, 2002 at 10:24:49AM -0500, Jim Houston wrote:
+> > I got started on this before Ingo did his magic for hashing
+> > pids.  I prototyped in user space and did a quick hack to
+> > make it work in the kernel.  Yes, it uses a recursive approach
+> > for the allocate and remove path.  The recursion is limited
+> > to only a few levels and the stack frame is tiny.  For example
+> > if there are 1000000 ids it will have 6 levels of recursion.
+> 
+> I'm not Ingo but you'll figure it out.
+> 
+> Recursion is unnecessary; the depths are bounded by BITS_PER_LONG
+> divided by the log of the branch factor and looping over levels
+> directly suffices.
+> 
+> I started somewhat before the first for_each_task-* patches are
+> dated on kernel.org, which puts it sometime before May (obviously
+> I spent time writing & testing before dropping it onto an ftp site).
+> 
+> My original allocator(s) used a radix tree structured bitmap like this
+> in order to provide hard constant time bounds, but statically-allocated
+> them. Static allocation didn't fit in with larger pid space, though.
+> 
+> Bill
 
-Everything seems fine when I use vanilla 2.4.20.  Hightower from #kernelnewbies
-tells me that there is a known bug in -ac with Radeon DRI and 2.4.20-ac1, but
-that as far as he is aware, the bug occurs regardless of the large memory 
-setting.  However, since the bug goes away when I switch to the linus tree, I
-will assume that it is the same bug.  If I see otherwise when the known bug is
-supposedly fixed, I will post further information.
+Hi Bill,
+
+Gee Bill, what can I say?  I'm sorry I misattributed your work to Ingo.
+
+I'm curious about the reaction to recursion.  I use the obvious loop
+for the lookup path, but the allocate and remove cases start getting
+ugly as an iterative solution.
+
+Jim Houston - Concurrent Computer Corp.

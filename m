@@ -1,228 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129238AbRBGBgr>; Tue, 6 Feb 2001 20:36:47 -0500
+	id <S129290AbRBGBl1>; Tue, 6 Feb 2001 20:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129290AbRBGBgg>; Tue, 6 Feb 2001 20:36:36 -0500
-Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:28676 "EHLO
-	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
-	id <S129238AbRBGBg3>; Tue, 6 Feb 2001 20:36:29 -0500
-Date: Tue, 6 Feb 2001 20:36:27 -0500 (EST)
-From: Arthur Pedyczak <arthur-p@home.com>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Oopses in 2.4.1  (lots of them) 
-Message-ID: <Pine.LNX.4.30.0102062018320.1053-100000@cs865114-a.amp.dhs.org>
+	id <S129751AbRBGBlR>; Tue, 6 Feb 2001 20:41:17 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57352 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129290AbRBGBlA>; Tue, 6 Feb 2001 20:41:00 -0500
+Date: Tue, 6 Feb 2001 17:40:41 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <20010207012710.N1167@redhat.com>
+Message-ID: <Pine.LNX.4.10.10102061729470.2193-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
-I have a misfortune of reporting yet another Oops in 2.4.1  (my previous
-report got ignored). After running for 4 days I got many, many oopses.
-They were trigerred by xscreensaver, and some other X-related apps.
-After dopping to runlevel 3, the system seemed O.K. Nothing unusual in
-process table, no zombies etc. I could restart the X server itself, bu any
-attemp to start gdm would generate yet another Oops. Had to reboot.
 
-Ideas/suggestions/Help appreciated
+On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
+> > 
+> > The fact is, if you have problems like the above, then you don't
+> > understand the interfaces. And it sounds like you designed kiobuf support
+> > around the wrong set of interfaces.
+> 
+> They used the only interfaces available at the time...
 
-Arthur
+Ehh.. "generic_make_request()" goes back a _loong_ time. It used to be
+called just "make_request()", but all my points still stand.
 
-==========================================================================================
-My hardware:
-PIII 450
-motherboard: Asus P2B
-384 MB RAM (no swap)
-ide: PIIX4
-ide0  hda: WDC AC313000R, ATA DISK drive
-      hdb: MATSHITA CR-589, ATAPI CDROM drive
-ide1  hdc: WDC WD200BB-00AUA1, ATA DISK drive
-      hdd: MITSBICDRW4420a, ATAPI CDROM drive (ide-scsi)
-graphics: Riva TNT2
-sound: es1370
-eth0  eepro100
-eth1  3c59x
-=======================
-ksymoops output:
-=======================
-ksymoops 2.3.4 on i686 2.4.1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.1/ (default)
-     -m /usr/src/linux/System.map (default)
+It's even exported to modules. As far as I know, the raid code has always
+used this interface exactly because raid needed to feed back the remapped
+stuff and get around the blocksizing in ll_rw_block().
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+This really isn't anything new. I _know_ it's there in 2.2.x, and I
+would not be surprised if it was there even in 2.0.x.
 
-Feb  6 16:41:46 cs865114-a kernel: Unable to handle kernel paging request at virtual address 0909093e
-Feb  6 16:41:46 cs865114-a kernel: c0131ce1
-Feb  6 16:41:46 cs865114-a kernel: *pde = 00000000
-Feb  6 16:41:46 cs865114-a kernel: Oops: 0002
-Feb  6 16:41:46 cs865114-a kernel: CPU:    0
-Feb  6 16:41:46 cs865114-a kernel: EIP:    0010:[file_move+25/44]
-Feb  6 16:41:46 cs865114-a kernel: EFLAGS: 00210282
-Feb  6 16:41:46 cs865114-a kernel: eax: 0909093a   ebx: d7937440   ecx: cb456600   edx: c6c35a20
-Feb  6 16:41:46 cs865114-a kernel: esi: d5d16600   edi: ffffffe9   ebp: d7a1c320   esp: c3a65f48
-Feb  6 16:41:46 cs865114-a kernel: ds: 0018   es: 0018   ss: 0018
-Feb  6 16:41:46 cs865114-a kernel: Process xroger (pid: 1066, stackpage=c3a65000)
-Feb  6 16:41:46 cs865114-a kernel: Stack: cb456600 c0130a6e cb456600 d7937440 400134a0 c3aa4000 00000000 c3aa4000
-Feb  6 16:41:46 cs865114-a kernel:        c01309ba d79d01c0 d7a1c320 00000000 c3a64000 00000003 08048984 d79d01c0
-Feb  6 16:41:46 cs865114-a kernel:        d7a1c320 08048984 c3aa4000 00000003 00000001 00000001 c0130cac c3aa4000
-Feb  6 16:41:46 cs865114-a kernel: Call Trace: [dentry_open+170/328] [filp_open+82/92] [sys_open+56/180] [system_call+51/56]
-Feb  6 16:41:46 cs865114-a kernel: Code: 89 48 04 89 01 89 59 04 89 0b 90 8d 74 26 00 5b c3 89 f6 53
-Using defaults from ksymoops -t elf32-i386 -a i386
+> > If you want to get at the _sector_ level, then you do
+> ...
+> > which doesn't look all that complicated to me. What's the problem?
+> 
+> Doesn't this break nastily as soon as the IO hits an LVM or soft raid
+> device?  I don't think we are safe if we create a larger-sized
+> buffer_head which spans a raid stripe: the raid mapping is only
+> applied once per buffer_head.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   90                        nop
-Code;  0000000b Before first symbol
-   b:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000f Before first symbol
-   f:   5b                        pop    %ebx
-Code;  00000010 Before first symbol
-  10:   c3                        ret
-Code;  00000011 Before first symbol
-  11:   89 f6                     mov    %esi,%esi
-Code;  00000013 Before first symbol
-  13:   53                        push   %ebx
+Absolutely. This is exactly what I mean by saying that low-level drivers
+may not actually be able to handle new cases that they've never been asked
+to do before - they just never saw anything like a 64kB request before or
+something that crossed its own alignment.
 
-Feb  6 16:51:46 cs865114-a kernel: Unable to handle kernel paging request at virtual address 0909093e
-Feb  6 16:51:46 cs865114-a kernel: c0131ce1
-Feb  6 16:51:46 cs865114-a kernel: *pde = 00000000
-Feb  6 16:51:46 cs865114-a kernel: Oops: 0002
-Feb  6 16:51:46 cs865114-a kernel: CPU:    0
-Feb  6 16:51:46 cs865114-a kernel: EIP:    0010:[file_move+25/44]
-Feb  6 16:51:46 cs865114-a kernel: EFLAGS: 00210282
-Feb  6 16:51:46 cs865114-a kernel: eax: 0909093a   ebx: d7937440   ecx: c961a5a0   edx: c6c35d80
-Feb  6 16:51:46 cs865114-a kernel: esi: d5d16600   edi: ffffffe9   ebp: d7a1c320   esp: d1de7f48
-Feb  6 16:51:46 cs865114-a kernel: ds: 0018   es: 0018   ss: 0018
-Feb  6 16:51:46 cs865114-a kernel: Process xroger (pid: 1080, stackpage=d1de7000)
-Feb  6 16:51:46 cs865114-a kernel: Stack: c961a5a0 c0130a6e c961a5a0 d7937440 400134a0 d7140000 00000000 d7140000
-Feb  6 16:51:46 cs865114-a kernel:        c01309ba d79d01c0 d7a1c320 00000000 d1de6000 00000003 08048984 d79d01c0
-Feb  6 16:51:46 cs865114-a kernel:        d7a1c320 08048984 d7140000 00000003 00000001 00000001 c0130cac d7140000
-Feb  6 16:51:46 cs865114-a kernel: Call Trace: [dentry_open+170/328] [filp_open+82/92] [sys_open+56/180] [system_call+51/56]
-Feb  6 16:51:46 cs865114-a kernel: Code: 89 48 04 89 01 89 59 04 89 0b 90 8d 74 26 00 5b c3 89 f6 53
+But the _higher_ levels are there. And there's absolutely nothing in the
+design that is a real problem. But there's no question that you might need
+to fix up more than one or two low-level drivers.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   90                        nop
-Code;  0000000b Before first symbol
-   b:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000f Before first symbol
-   f:   5b                        pop    %ebx
-Code;  00000010 Before first symbol
-  10:   c3                        ret
-Code;  00000011 Before first symbol
-  11:   89 f6                     mov    %esi,%esi
-Code;  00000013 Before first symbol
-  13:   53                        push   %ebx
+(The only drivers I know better are the IDE ones, and as far as I can tell
+they'd have no trouble at all with any of this. Most other normal drivers
+are likely to be in this same situation. But because I've not had a reason
+to test, I certainly won't guarantee even that).
 
-Feb  6 17:01:46 cs865114-a kernel: Unable to handle kernel paging request at virtual address 0909093e
-Feb  6 17:01:46 cs865114-a kernel: c0131ce1
-Feb  6 17:01:46 cs865114-a kernel: *pde = 00000000
-Feb  6 17:01:46 cs865114-a kernel: Oops: 0002
-Feb  6 17:01:46 cs865114-a kernel: CPU:    0
-Feb  6 17:01:46 cs865114-a kernel: EIP:    0010:[file_move+25/44]
-Feb  6 17:01:46 cs865114-a kernel: EFLAGS: 00210282
-Feb  6 17:01:46 cs865114-a kernel: eax: 0909093a   ebx: d7937440   ecx: cf0f8a40   edx: cb0f9680
-Feb  6 17:01:46 cs865114-a kernel: esi: d5d16600   edi: ffffffe9   ebp: d7a1c320   esp: d1de7f48
-Feb  6 17:01:46 cs865114-a kernel: ds: 0018   es: 0018   ss: 0018
-Feb  6 17:01:46 cs865114-a kernel: Process xroger (pid: 1098, stackpage=d1de7000)
-Feb  6 17:01:46 cs865114-a kernel: Stack: cf0f8a40 c0130a6e cf0f8a40 d7937440 400134a0 d4223000 00000000 d4223000
-Feb  6 17:01:46 cs865114-a kernel:        c01309ba d79d01c0 d7a1c320 00000000 d1de6000 00000003 08048984 d79d01c0
-Feb  6 17:01:46 cs865114-a kernel:        d7a1c320 08048984 d4223000 00000003 00000001 00000001 c0130cac d4223000
-Feb  6 17:01:46 cs865114-a kernel: Call Trace: [dentry_open+170/328] [filp_open+82/92] [sys_open+56/180] [system_call+51/56]
-Feb  6 17:01:46 cs865114-a kernel: Code: 89 48 04 89 01 89 59 04 89 0b 90 8d 74 26 00 5b c3 89 f6 53
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   90                        nop
-Code;  0000000b Before first symbol
-   b:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000f Before first symbol
-   f:   5b                        pop    %ebx
-Code;  00000010 Before first symbol
-  10:   c3                        ret
-Code;  00000011 Before first symbol
-  11:   89 f6                     mov    %esi,%esi
-Code;  00000013 Before first symbol
-  13:   53                        push   %ebx
-
-Feb  6 17:11:46 cs865114-a kernel: Unable to handle kernel paging request at virtual address 0909093e
-Feb  6 17:11:46 cs865114-a kernel: c0131ce1
-Feb  6 17:11:46 cs865114-a kernel: *pde = 00000000
-Feb  6 17:11:46 cs865114-a kernel: Oops: 0002
-Feb  6 17:11:46 cs865114-a kernel: CPU:    0
-Feb  6 17:11:46 cs865114-a kernel: EIP:    0010:[file_move+25/44]
-Feb  6 17:11:46 cs865114-a kernel: EFLAGS: 00210282
-Feb  6 17:11:46 cs865114-a kernel: eax: 0909093a   ebx: d7937440   ecx: c3958620   edx: cb0f9680
-Feb  6 17:11:46 cs865114-a kernel: esi: d5d16600   edi: ffffffe9   ebp: d7a1c320   esp: d1de7f48
-Feb  6 17:11:46 cs865114-a kernel: ds: 0018   es: 0018   ss: 0018
-Feb  6 17:11:46 cs865114-a kernel: Process xroger (pid: 1114, stackpage=d1de7000)
-Feb  6 17:11:46 cs865114-a kernel: Stack: c3958620 c0130a6e c3958620 d7937440 400134a0 c8392000 00000000 c8392000
-Feb  6 17:11:46 cs865114-a kernel:        c01309ba d79d01c0 d7a1c320 00000000 d1de6000 00000003 08048984 d79d01c0
-Feb  6 17:11:46 cs865114-a kernel:        d7a1c320 08048984 c8392000 00000003 00000001 00000001 c0130cac c8392000
-Feb  6 17:11:46 cs865114-a kernel: Call Trace: [dentry_open+170/328] [filp_open+82/92] [sys_open+56/180] [system_call+51/56]
-Feb  6 17:11:46 cs865114-a kernel: Code: 89 48 04 89 01 89 59 04 89 0b 90 8d 74 26 00 5b c3 89 f6 53
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   90                        nop
-Code;  0000000b Before first symbol
-   b:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000f Before first symbol
-   f:   5b                        pop    %ebx
-Code;  00000010 Before first symbol
-  10:   c3                        ret
-Code;  00000011 Before first symbol
-  11:   89 f6                     mov    %esi,%esi
-Code;  00000013 Before first symbol
-  13:   53                        push   %ebx
-
-
-1 warning issued.  Results may not be reliable.
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

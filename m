@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268310AbUHZJ5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUHZKCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268310AbUHZJ5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 05:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUHZJxk
+	id S267928AbUHZKCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHZKBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:53:40 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:17643 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268020AbUHZJol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 05:44:41 -0400
-Date: Thu, 26 Aug 2004 02:44:53 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: mikulas@artax.karlin.mff.cuni.cz, torvalds@osdl.org, hch@lst.de,
-       reiser@namesys.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 06:01:12 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:28557 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S267928AbUHZJwO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:52:14 -0400
+Date: Thu, 26 Aug 2004 11:54:53 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1898257286.20040826115453@tnonline.net>
+To: Nicholas Miell <nmiell@gmail.com>
+CC: Matt Mackall <mpm@selenic.com>, Wichert Akkerman <wichert@wiggy.net>,
+       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
+       <torvalds@osdl.org>, <reiser@namesys.com>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040826024453.13c2f1e0.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz>
-	<Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1093496948.2748.69.camel@entropy>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+ <20040825152805.45a1ce64.akpm@osdl.org>
+ <112698263.20040826005146@tnonline.net>
+ <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+ <1453698131.20040826011935@tnonline.net>
+ <20040825163225.4441cfdd.akpm@osdl.org>
+ <20040825233739.GP10907@legion.cup.hp.com>  <20040825234629.GF2612@wiggy.net>
+ <1093480940.2748.35.camel@entropy>  <20040826044425.GL5414@waste.org>
+ <1093496948.2748.69.camel@entropy>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
-> If your backup program reads them as a file and restores
-> them as a file, you might lose your directory-inside-the-file
-> magic.
 
-Encode the magic in the names, by stealing a bit of the existing
-filename space to encode it.
+> cp, grep, cat, and tar will continue to work just fine on files with
+> multiple streams.
 
-Such works pretty well as part of the magic to map long filenames
-into DOS 8.3 names on my FAT partitions.
+> tar and cp will lose the extra streams until somebody fixes them, but
+> they lose ACLs and xattrs right now, and I don't hear anybody suggesting
+> that ACLs and xattrs be removed from the kernel because of this.
 
-Apps linked with the appropriate Windows library see nice fancy
-long names.
+  I  thought  that  the  underlaying  FS/VFS would make sure the extra
+  streams  would  be  preserved. Normal applications that doesn't have
+  support  for  them  should  not  destroy the extra streams (and meta
+  data,attributes etc).
 
-The rest of the world, including DOS apps and my Unix backup
-scripts, see the primitive 8.3 names, including one or a few
-extra files per directory, which are nothing special to them.
+  Of course tar is different, but any probgram that uses the normal OS
+  API to copy, write and read files should not affect the extra info.
 
-So long as these other apps don't presume to know that they can
-keep some of the files in an apps directory, and drop others, then
-it works well enough.  And no self-respecting general purpose
-backup program is going to presume such knowledge anyway.
+  ~S
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> Fixing programs that do recursive filesystem traversals is a matter of a
+> glibc patch to nftw(3) and a modification to their option processing.
+
+> Holding back a useful feature because you don't want to upgrade
+> coreutils is just plain dumb.
+
+> (BTW, for email, multipart/parallel is a start, but a specific multipart
+> content type for multi-stream file attachments would probably be more
+> appropriate.)
+
+
+
+

@@ -1,72 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271102AbRHOIoQ>; Wed, 15 Aug 2001 04:44:16 -0400
+	id <S271098AbRHOI7s>; Wed, 15 Aug 2001 04:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271095AbRHOIoG>; Wed, 15 Aug 2001 04:44:06 -0400
-Received: from pasky.ji.cz ([62.44.12.54]:505 "HELO pasky.ji.cz")
-	by vger.kernel.org with SMTP id <S271102AbRHOIoB>;
-	Wed, 15 Aug 2001 04:44:01 -0400
-Date: Wed, 15 Aug 2001 10:44:13 +0200
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SAK killing daemons
-Message-ID: <20010815104413.B13330@pasky.ji.cz>
-Mail-Followup-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <509636476.20010815112514@port.imtp.ilyichevsk.odessa.ua>
+	id <S271099AbRHOI72>; Wed, 15 Aug 2001 04:59:28 -0400
+Received: from marta.ip.pt ([195.23.132.14]:13836 "HELO marta2.ip.pt")
+	by vger.kernel.org with SMTP id <S271098AbRHOI7U>;
+	Wed, 15 Aug 2001 04:59:20 -0400
+Message-ID: <20010815085929.29725.qmail@webmail.clix.pt>
+X-Originating-IP: [198.62.9.29]
+X-Mailer: Clix Webmail 2.0
+In-Reply-To: <3B7A26F3.8070501@rz.uni-potsdam.de>
+In-Reply-To: <3B7A26F3.8070501@rz.uni-potsdam.de> 
+From: "rui.p.m.sousa@clix.pt" <rui.p.m.sousa@clix.pt>
+To: Juergen Rose <rose@rz.uni-potsdam.de>
+Cc: linux-kernel@vger.kernel.org, emu10k1-devel@opensource.creative.com
+Subject: Re: Can't make module emu10k1.o with linux-2.4.8
+Date: Wed, 15 Aug 2001 08:59:29 GMT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <509636476.20010815112514@port.imtp.ilyichevsk.odessa.ua>; from VDA@port.imtp.ilyichevsk.odessa.ua on Wed, Aug 15, 2001 at 11:25:14AM +0300
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed that when I press SAK on virtual console #1
-> on my Linux box, some daemons die horribly (SIGKILLed)
-> and some are unaffected. This does not happen on other consoles.
-> 
-> I suppose dying daemons did not detach fully from controlling tty. And
-> since they were launched from virtual console #1 upon system startup,
-> SAK killed them.
-> 
-> Daemons dying upon SAK: syslogd mysqld top* logger*
-> Daemons surviving SAK: klogd gpm dhcpcd inetd automount
-> 
-> * these are not daemons, but I intend them to run continuously.
-> logger directs mysqld output to syslog, and I keep top on console #10:
-> su user0 -c "top s </dev/tty10 >/dev/tty10 &"
-> 
-> Also I see '?' in TTY column in 'ps -AH e' output for all these
-> daemons (both dying and surviving), so ps does not provide any hint...
-> 
-> Does anybody knows a way to write a helper script to detach
-> misbehaving daemons (or any normal process like top) from tty on startup?
-> BTW, do syslogd needs fixing to be immune to SAK like klogd?
-> 
-> Please CC me. I'm not on the list.
 
-Try running the dying daemons by setsid utility (man 1 setsid, man 2 setsid),
-it can help maybe. And try to modify that su -c command to:
+Juergen Rose writes:
 
-su user0 -c "top s" </dev/tty/10 >/dev/tty10 2>/dev/tty10 &
+Fixed in 2.4.8pre1. Pre patches are in the
+"testing" directory of ftp.kernel.org/pub/linux
 
-that could help also.
+> Hello,ld -m elf_i386  -r -o emu10k1.o audio.o cardmi.o cardmo.o cardwi.o 
+> cardwo.o ecard.o efxmgr.o emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o 
+> midi.o mixer.o passthrough.o recmgr.o timer.o voicemgr.o
+> main.o(.modinfo+0x40): multiple definition of `__module_author'
+> joystick.o(.modinfo+0x80): first defined here
+> ld: Warning: size of symbol `__module_author' changed from 67 to 81 in 
+> main.o
+> main.o(.modinfo+0xa0): multiple definition of `__module_description'
+> joystick.o(.modinfo+0xe0): first defined here
+> ld: Warning: size of symbol `__module_description' changed from 83 to 96 
+> in main.o
+> main.o: In function `init_module':
+> main.o(.text+0x18d0): multiple definition of `init_module'
+> joystick.o(.text+0x240): first defined here
+> main.o: In function `cleanup_module':
+> main.o(.text+0x1910): multiple definition of `cleanup_module'
+> joystick.o(.text+0x280): first defined here
+> make[3]: *** [emu10k1.o] Error 1
+> 
+> 
+> 
+> I have the following tools installed:
+> 
+> Linux mousehomenet 2.4.3 #1 Sun Apr 1 23:25:51 CEST 2001 i686 unknown
+> 
+> Gnu C                  2.95.3
+> Gnu make               3.79
+> binutils               2.11
+> util-linux             2.11b
+> mount                  2.11b
+> modutils               2.4.5
+> e2fsprogs              1.20-WIP
+> PPP                    2.4.0
+> Linux C Library        2.2.2
+> Dynamic linker (ldd)   2.2.2
+> Procps                 2.0.6
+> Net-tools              1.55
+> Kbd                    0.99
+> Sh-utils               1.16
+> Modules Loaded         ipv6 nfs lockd sunrpc i2c-matroxfb lirc_i2c 
+> lirc_dev tvaudio bttv tuner msp3400 i2c-algo-bit videodev ddcmon w83781d 
+> eeprom adm1021 sensors i2c-isa i2c-viapro i2c-core lvm-mod ipchains mga 
+> agpgart autofs4 epic100 emu10k1 soundcore ppp_deflate ppp_async 
+> ppp_generic lp parport_pc parport nls_iso8859-1 nls_cp437 msdos fat
+> 
+> I hope you fix it.
+> 
+> With best regards.
+>        Juergen
+> 
+> 
+> make modules gives:
+> 
+> 
+> 
+> 
+> _______________________________________________
+> Emu10k1-devel mailing list
+> Emu10k1-devel@opensource.creative.com
+> http://opensource.creative.com/mailman/listinfo/emu10k1-devel
 
--- 
 
-				Petr "Pasky" Baudis
-.                                                                       .
-#define BITCOUNT(x)     (((BX_(x)+(BX_(x)>>4)) & 0x0F0F0F0F) % 255)
-#define  BX_(x)         ((x) - (((x)>>1)&0x77777777)                    \
-                             - (((x)>>2)&0x33333333)                    \
-                             - (((x)>>3)&0x11111111))
-             -- really weird C code to count the number of bits in a word
-.                                                                       .
-My public PGP key is on: http://pasky.ji.cz/~pasky/pubkey.txt
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS d- s++:++ a--- C+++ UL++++$ P+ L+++ E--- W+ N !o K- w-- !O M-
-!V PS+ !PE Y+ PGP+>++ t+ 5 X(+) R++ tv- b+ DI(+) D+ G e-> h! r% y?
-------END GEEK CODE BLOCK------
+
+
+
+
+--
+Crie o seu Email Grátis no Clix em
+http://registo.clix.pt/

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281512AbRK0Qbk>; Tue, 27 Nov 2001 11:31:40 -0500
+	id <S281532AbRK0Qjl>; Tue, 27 Nov 2001 11:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281532AbRK0Qbg>; Tue, 27 Nov 2001 11:31:36 -0500
-Received: from smtp02.web.de ([217.72.192.151]:33029 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S281512AbRK0QbR> convert rfc822-to-8bit;
-	Tue, 27 Nov 2001 11:31:17 -0500
-Date: Tue, 27 Nov 2001 17:32:10 +0100 (CET)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-In-Reply-To: <3C03B890.29FDC654@loewe-komp.de>
-Message-ID: <Pine.LNX.4.33.0111271731390.2378-100000@neptune.sol.net>
+	id <S281478AbRK0Qjb>; Tue, 27 Nov 2001 11:39:31 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:5645 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S280817AbRK0Qj3>; Tue, 27 Nov 2001 11:39:29 -0500
+Date: Tue, 27 Nov 2001 08:49:41 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Robert Love <rml@tech9.net>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] proc-based cpu affinity user interface
+In-Reply-To: <Pine.LNX.4.33.0111271459400.14344-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.40.0111270847300.1576-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, Peter Wächtler wrote:
+On Tue, 27 Nov 2001, Ingo Molnar wrote:
 
-> Athlon with VIA82686_A_. Perhaps it's the Southbridge ?
+>
+> On Mon, 26 Nov 2001, Davide Libenzi wrote:
+>
+> > As I said in reply to Ingo patch, it'd be better to expose "number"
+> > cpu masks not "logical" ( like cpus_allowed ). In this way the users
+> > can use 0..N-1 ( N == number of cpus phisically available ) w/out
+> > having to know the internal mapping between logical and number ids.
+>
+> yep, agreed. I've uploaded a new set-affinity syscall patch with your
+> improvement added:
+>
+> 	http://redhat.com/~mingo/set-affinity-patches/set-affinity-2.4.16-A0
+>
+> i've only tested it on x86 which has a 1:1 mapping between physical and
+> logical CPUs, but it should be fine on other architectures as well.
 
-No, also happens on my ALi only board, no VIA chips involved.
+The snippet I sent yesterday should be corrected by checking if
+cpu_{number,logical}_map(ii) is != -1 to avoid incorrect bit settings,
+expecially from mask coming from user side.
 
--- 
-Ciao, Pascal
 
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+
+- Davide
+
 

@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272656AbRHaKMi>; Fri, 31 Aug 2001 06:12:38 -0400
+	id <S272657AbRHaKO6>; Fri, 31 Aug 2001 06:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272657AbRHaKMS>; Fri, 31 Aug 2001 06:12:18 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:26632 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S272656AbRHaKMM>; Fri, 31 Aug 2001 06:12:12 -0400
-Message-ID: <3B8F62B2.6C8BC613@idb.hist.no>
-Date: Fri, 31 Aug 2001 12:10:58 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10-pre2 i686)
-X-Accept-Language: no, en
+	id <S272658AbRHaKOs>; Fri, 31 Aug 2001 06:14:48 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:55050 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S272657AbRHaKOi>;
+	Fri, 31 Aug 2001 06:14:38 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>, graham@barnowl.demon.co.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com> <20010830165447Z16272-32385+540@humbolt.nl.linux.org> <m266b51c5c.fsf@barnowl.demon.co.uk> <20010830234659.B14715@khan.acc.umu.se>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15247.24917.74550.455485@cargo.ozlabs.ibm.com>
+Date: Fri, 31 Aug 2001 20:05:09 +1000 (EST)
+To: Tsunehiko Baba <tsn@niagara.crl8.crl.hitachi.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: simple patches for Linux 2.4.9-ac5 or Linux 2.4.10-pre2 on PPC
+In-Reply-To: <kt1yls1xrf.wl@niagara.crl8.crl.hitachi.co.jp>
+In-Reply-To: <kt1yls1xrf.wl@niagara.crl8.crl.hitachi.co.jp>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> 
-> On Thu, Aug 30, 2001 at 09:16:47PM +0000, Graham Murray wrote:
-> > Daniel Phillips <phillips@bonn-fries.net> writes:
-> >
-> > > More than anything, it shows that education is needed, not macro patch-ups.
-> > > We have exactly the same issues with < and >, should we introduce
-> > > three-argument macros to replace them?
-> >
-> > Would it not have been much more "obvious" if the rules for
-> > unsigned/signed integer comparisons (irrespective of the widths
-> > involved) were
-> >
-> > 1) If the signed element is negative then it is always less than the
-> >    unsigned element.
-> >
-> > 2) If the unsigned element is greater than then maximum positive value
-> >    expressible by the signed one then it is always greater.
-> >
-> > 3) Only if both values are positive and within the range of the
-> >    smaller element are the actual values compared.
-> 
-> Possibly, but changing the C specification is not really an option here...
+Tsunehiko Baba writes:
 
-Even worse: most microprosessors don't do comparisons that way.
-They compare either two signed or two unsigned 
-items and do that reasonably fast.  This is why C also works this way.
+> I tried to compile 2.4.10-pre2 or 2.4.9-ac5 on ppc but failed.
+> To avoid some errors, I made following patches.
+> Please check and apply these patches. 
 
-A compiler can be made to use the above standard, but it would generate
-slow code for all signed/unsigned compares because now there is
-3 tests instead of one.  This is why language designers don't do that.
+> *** include/linux/vt_kern.h.orig	Thu Aug 30 20:22:52 2001
+> --- include/linux/vt_kern.h	Thu Aug 30 20:28:35 2001
 
-You can of course do this explicitly in code if you need that
-sort of comparison, e.g.
+A simpler and better solution for this is to just remove the
+definition of kbd_rate from include/asm-ppc/keyboard.h and remove the
+lines which reference pckbd_rate from arch/ppc/kernel/chrp_setup.c and
+prep_setup.c.  I have sent Linus a patch to this effect already.
 
-signed a;
-unsigned b;
-if (a<0) case1() 
-   else if (b>MAX_SIGNED) case2()
-   else if (a<b) case1() else case2();
+> *** drivers/ide/ide-pci.c.orig	Mon Aug 13 17:56:19 2001
+> --- drivers/ide/ide-pci.c	Thu Aug 30 20:55:38 2001
+> ***************
+> *** 445,451 ****
+>    * settings of split-mirror pci-config space, place chipset into init-mode,
+>    * and/or preserve an interrupt if the card is not native ide support.
+>    */
+> ! static unsigned int __init ide_special_settings (struct pci_dev *dev, const char *name)
 
+The better fix is to go into drivers/ide/sl82c105.c and change it to
+use the code that is currently inside the #ifdef CONFIG_ARCH_NETWINDER
+block instead of the code that is in the #else branch of that
+conditional.  I have posted that patch to lkml a couple of times and
+sent to Linus as well, but he hasn't taken it yet (Alan has).
+Alternatively, if you don't use the sl82c105 driver, remove it from
+your config.
 
-A nice feature of C is that ugly time-consuming stuff tends to
-look ugly and time-consuming in code too.  So it is easier
-to avoid. :-)
+Paul.
 
-Helge Hafting
+-- 
+Paul Mackerras, PPC/Linux Maintainer		paulus@samba.org

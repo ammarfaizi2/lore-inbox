@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284361AbRLMQ7E>; Thu, 13 Dec 2001 11:59:04 -0500
+	id <S284334AbRLMQzy>; Thu, 13 Dec 2001 11:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284370AbRLMQ6z>; Thu, 13 Dec 2001 11:58:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:22790 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284361AbRLMQ6s>;
-	Thu, 13 Dec 2001 11:58:48 -0500
-Date: Thu, 13 Dec 2001 17:58:47 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: __devexit_p() in linux-2.5.1-preX?
-In-Reply-To: <20011212.192636.133010681.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0112131755110.28164-100000@Appserv.suse.de>
+	id <S284359AbRLMQzo>; Thu, 13 Dec 2001 11:55:44 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:63892 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S284334AbRLMQzg>; Thu, 13 Dec 2001 11:55:36 -0500
+Date: Thu, 13 Dec 2001 08:54:57 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+In-Reply-To: <Pine.LNX.4.33.0112130803260.19406-100000@mf1.private>
+Message-ID: <Pine.LNX.4.33.0112130854170.19629-100000@mf1.private>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Dec 2001, David S. Miller wrote:
+On Thu, 13 Dec 2001, Wayne Whitney wrote:
 
-> This brings up a more generic issue.  It would really be nice to have
-> someone who syncs up 2.5.X with the bug fixes going into the 2.4.x
-> series.  It really is needed, and it really is a boring and thankless
-> job :-)
+> The app per se does not call mmap(), but mmap() is called once when I
+> execute it.
 
-Something tells me I'll regret this later, but here goes..
-I'll keep an eye on 2.4 pre's and resync with 2.5's as and
-when a new one appears in either branch.
+Correction:  strace shows that it is called many times during startup, but
+only once without a corresponding munmap()>
 
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1pre11-dj1.diff.bz2
+Wayne
 
-o	Merge with 2.4.17pre8
-	Drop devfs changes. (Newer version in 2.5)
-o	Make ncr53c8xx bio aware.			(me).
-
-regards,
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

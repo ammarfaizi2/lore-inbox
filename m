@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVBNVqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVBNVrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVBNVqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 16:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVBNVqh
+	id S261567AbVBNVrU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 16:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVBNVrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 16:46:37 -0500
-Received: from gprs214-75.eurotel.cz ([160.218.214.75]:11937 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261565AbVBNVqd (ORCPT
+	Mon, 14 Feb 2005 16:47:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:44219 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261567AbVBNVrO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 16:46:33 -0500
-Date: Mon, 14 Feb 2005 22:46:21 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Bernard Blackham <bernard@blackham.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 14 Feb 2005 16:47:14 -0500
+Date: Mon, 14 Feb 2005 13:46:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: ncunningham@cyclades.com, bernard@blackham.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: PATCH: Address lots of pending pm_message_t changes
-Message-ID: <20050214214620.GG12235@elf.ucw.cz>
+Message-Id: <20050214134658.324076c9.akpm@osdl.org>
+In-Reply-To: <20050214213400.GF12235@elf.ucw.cz>
 References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au>
+	<20050214213400.GF12235@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Andrew, if you get one big patch doing only type-safety (u32 ->
+>  pm_message_t, no code changes), would you still take it this late? I
+>  promise it is not going to break anything... It would help merge after
+>  2.6.11 quite a lot...
 
-> This patch is a conglomeration of about 5 patches that complete (I
-> think!) the work of switching over to pm_message_t. Most of this work
-> was done by Bernard Blackham, some by me, some by Pavel I think (I was
-> out of action for part of the development). I believe it needs to go in
-> before 2.6.11 in order to avoid compilation warnings and errors. The
-> code has been in use by Suspend2 users for around three weeks. Please
-> apply.
-
-I have most of it in my tree already, modulo some usb stuff I done
-wrong. Applied.
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Problem is, such a megapatch causes grief for all those people who maintain
+their own trees.  It would be best, please, to split it into 10-20 bits and
+send the USB parts to Greg and the SCSI bits to James, etc.

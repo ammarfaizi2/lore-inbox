@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269208AbUIHXXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269206AbUIHXZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269208AbUIHXXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 19:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269209AbUIHXXu
+	id S269206AbUIHXZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269200AbUIHXYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 19:23:50 -0400
-Received: from hulk.vianw.pt ([195.22.31.43]:47569 "EHLO hulk.vianw.pt")
-	by vger.kernel.org with ESMTP id S269208AbUIHXWp (ORCPT
+	Wed, 8 Sep 2004 19:24:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12442 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269212AbUIHXXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 19:22:45 -0400
-Message-ID: <413F9304.8090704@esoterica.pt>
-Date: Thu, 09 Sep 2004 00:17:24 +0100
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040821
-X-Accept-Language: pt, pt-br
+	Wed, 8 Sep 2004 19:23:42 -0400
+Date: Wed, 8 Sep 2004 19:22:11 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Diego Calleja <diegocg@teleline.es>, <raybry@sgi.com>,
+       <marcelo.tosatti@cyclades.com>, <kernel@kolivas.org>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+       <piggin@cyberone.com.au>
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+In-Reply-To: <50520000.1094682042@flay>
+Message-ID: <Pine.LNX.4.44.0409081920500.5466-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NETWORK broken at least for 2.6.8.1 and 2.6.9-rc1
-References: <413E4A7D.8010401@esoterica.pt> <20040907170935.7c6ac4ac.davem@davemloft.net>
-In-Reply-To: <20040907170935.7c6ac4ac.davem@davemloft.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Wed, 8 Sep 2004, Martin J. Bligh wrote:
 
->See:
->
->http://lwn.net/Articles/92727/
->  
->
- From the 2 "solutions" presented there, echoeing 0 to the
-proc works. The line to be inserted into /etc/sysctl.conf
-does not seem to work!
+> Oh, I see what you mean. I think we're much better off sticking the
+> mechanism for autotuning stuff in the kernel -
 
-Thank you.
+Agreed.  Autotuning like this appears to work best by having
+a self adjusting algorithm, often negative feedback loops so
+things get balanced out automagically.
+
+Works way better than anything looking at indirect data and
+then tweaking some magic knobs...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

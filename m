@@ -1,47 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265078AbUAPRVT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 12:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUAPRVT
+	id S265500AbUAPRiB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 12:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265506AbUAPRiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 12:21:19 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:53644 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265078AbUAPRVR (ORCPT
+	Fri, 16 Jan 2004 12:38:01 -0500
+Received: from smtp04.web.de ([217.72.192.208]:2318 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S265500AbUAPRh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 12:21:17 -0500
-Date: Fri, 16 Jan 2004 09:21:00 -0800
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       jeremy@sgi.com
-Subject: Re: [PATCH] readX_relaxed interface
-Message-ID: <20040116172100.GA13553@sgi.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	jeremy@sgi.com
-References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com> <Pine.LNX.4.58.0401152057380.2631@evo.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401152057380.2631@evo.osdl.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+	Fri, 16 Jan 2004 12:37:58 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.1-mm4
+Date: Fri, 16 Jan 2004 18:37:49 +0100
+User-Agent: KMail/1.5.4
+References: <20040115225948.6b994a48.akpm@osdl.org>
+In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-03=_tFCCASc+11IE48h";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401161837.49588.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 09:00:10PM -0800, Linus Torvalds wrote:
-> If you care about machine check errors, use a special interface for that. 
-> A _really_ special one. Especially as on many systems you'll likely have 
-> to read status registers etc (and clear them before doing the IO) to see 
-> the errors.
-> 
-> So that way you can get errors working, AND it won't actually make normal 
-> code any uglier.
 
-How about one that allows you to register an error handling function for
-a given address range and/or device?  That would cover both read() and
-write() cases, and would be optional so drivers wouldn't be forced to
-become more complicated.
+--Boundary-03=_tFCCASc+11IE48h
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_tFCCAI4XgdaVBCn"
+Content-Transfer-Encoding: 7bit
+Content-Description: signed data
+Content-Disposition: inline
 
-Jesse
+--Boundary-01=_tFCCAI4XgdaVBCn
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: body text
+Content-Disposition: inline
+
+Hi,
+
+the patch "PP4-bwqcam-RC1" includes a small typo which leads to the undefin=
+ed=20
+symbol 'strcnmp'. The attaches patch corrects this typo.
+
+Best regards
+   Thomas Schlichter
+
+--Boundary-01=_tFCCAI4XgdaVBCn
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="fix-bw-qcam-typo.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="fix-bw-qcam-typo.diff"
+
+=2D-- linux-2.6.1-mm4/drivers/media/video/bw-qcam.c.orig	2004-01-16 16:42:2=
+7.178216712 +0100
++++ linux-2.6.1-mm4/drivers/media/video/bw-qcam.c	2004-01-16 16:42:51.53451=
+3992 +0100
+@@ -963,7 +963,7 @@
+ #ifdef MODULE
+ 	int n;
+=20
+=2D	if (parport[0] && strcnmp(parport[0], "auto", 4) !=3D 0) {
++	if (parport[0] && strncmp(parport[0], "auto", 4) !=3D 0) {
+ 		/* user gave parport parameters */
+ 		for(n=3D0; parport[n] && n<MAX_CAMS; n++){
+ 			char *ep;
+
+--Boundary-01=_tFCCAI4XgdaVBCn--
+
+--Boundary-03=_tFCCASc+11IE48h
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBACCFtYAiN+WRIZzQRAhlMAKDCYVnvjiIUUB+yCZ8fb/8WCLtO+QCfUt/z
+YtH7AzN494z3jyQxA9mbDYM=
+=OdBD
+-----END PGP SIGNATURE-----
+
+--Boundary-03=_tFCCASc+11IE48h--
+

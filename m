@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVDEOI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVDEOL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVDEOI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVDEOI2
+	id S261732AbVDEOL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDEOL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:08:28 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:29314 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261749AbVDEOGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:06:12 -0400
-Subject: Re: iomapping a big endian area
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Matthew Wilcox <matthew@wil.cx>, "David S. Miller" <davem@davemloft.net>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050405084219.A21615@flint.arm.linux.org.uk>
-References: <1112475134.5786.29.camel@mulgrave>
-	 <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
-	 <20050402183805.20a0cf49.davem@davemloft.net>
-	 <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
-	 <1112499639.5786.34.camel@mulgrave>
-	 <20050405084219.A21615@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 09:05:15 -0500
-Message-Id: <1112709915.5764.4.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 10:11:26 -0400
+Received: from alog0440.analogic.com ([208.224.222.216]:38889 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261732AbVDEOLM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:11:12 -0400
+Date: Tue, 5 Apr 2005 10:10:37 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Julien Wajsberg <julien.wajsberg@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+In-Reply-To: <2a0fbc5905040506422fbf6356@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504050957400.15886@chaos.analogic.com>
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+ <2a0fbc5905040506422fbf6356@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 08:42 +0100, Russell King wrote:
-> Not so.  There are two different styles of big endian.  (Lets just face
-> it, BE is fucked in the head anyway...)
-> 
-> physical bus:	31...24	23...16	15...8	7...0
-> 
-> BE version 1 (word invariant)
->   byte access	byte 0	byte 1	byte 2	byte 3
->   word access	31-24	23-16	15-8	7-0
-> 
-> BE version 2 (byte invariant)
->   byte access	byte 3	byte 2	byte 1	byte 0
->   word access	7-0	15-8	23-16	31-24
+On Tue, 5 Apr 2005, Julien Wajsberg wrote:
 
-These are just representations of the same thing.  However, I did
-deliberately elect not to try to solve this problem in the accessors.  I
-know all about the register relayout, because 53c700 has to do that on
-parisc.
+> On Mar 26, 2005 12:59 AM, Julien Wajsberg <julien.wajsberg@gmail.com> wrote:
+>> I own an Asus A8N-Sli motherboard with the Nforce4-Sli chipset, and I
+>> experiment the following problem :
+>>
+>> Mar 25 22:42:55 evenflow kernel: hda: dma_timer_expiry: dma status == 0x60
+>> Mar 25 22:42:55 evenflow kernel: hda: DMA timeout retry
+>> Mar 25 22:42:55 evenflow kernel: hda: timeout waiting for DMA
+>> Mar 25 22:42:55 evenflow kernel: hda: status error: status=0x58 {
+>> DriveReady SeekComplete DataRequest }
+>> Mar 25 22:42:55 evenflow kernel:
+>> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+>> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+>> Mar 25 22:42:55 evenflow kernel: hda: status timeout: status=0xd0 { Busy }
+>> Mar 25 22:42:55 evenflow kernel:
+>> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+>> Mar 25 22:42:55 evenflow kernel: hdb: DMA disabled
+                                      ^^^^^^^^^^^^^^^^^
+>> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+>>
+>> Of course, if I disable DMA with hdparm, this problem disappear.. but
+>> it isn't a long-term solution ;-)
+>>
 
-However, I don't think it's the job of the io accessors to remap the
-register locations (primarily because the remapping depends on the
-documentation:  a chip that's documented as BE on BE has no remapping
-required.  Hoever, the same chip on LE would need this).
+The long-term solution is to replace either the drive, cable, or the
+motherboard that can't do DMA. A bad DMA operation can write data
+anywhere (right into the middle of the kernel). There isn't
+anything software can do about it. Software sets up the
+controller for a DMA operation, then waits for an interrupt
+that tells it has completed or failed. Software can retry failed
+operations until software gets destroyed by the hardware, but
+there isn't anything else that can be done.
 
+The fact that disabling DMA makes the problem(s) go away is
+proof that it isn't a software problem. There are flash-RAM
+devices that emulate IDE drives. Most of these can't do DMA
+and the IDE driver doesn't accept that fact. That is a known
+bug. One needs to use hdparm to tell it to stop trying to
+use DMA. In your case, the driver stopped using DMA when
+it found out that it didn't work. There is no bug.
 
-> And guess which architecture implements *both* of these...  Grumble.
-
-We have this in parisc too ...
-
-James
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

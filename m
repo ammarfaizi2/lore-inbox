@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVBXIjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVBXInN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVBXIjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 03:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVBXIjS
+	id S262127AbVBXInN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 03:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVBXImn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 03:39:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37274 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262036AbVBXIi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 03:38:59 -0500
-Subject: Re: kernel BUG at mm/rmap.c:483!
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Ammar T. Al-Sayegh" <ammar@kunet.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <007d01c519f9$7c9a5f50$7101a8c0@shrugy>
-References: <009d01c519e8$166768b0$7101a8c0@shrugy>
-	 <1109192040.6290.108.camel@laptopd505.fenrus.org>
-	 <003001c519f1$031afc00$7101a8c0@shrugy>
-	 <1109196074.6290.116.camel@laptopd505.fenrus.org>
-	 <007d01c519f9$7c9a5f50$7101a8c0@shrugy>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 09:38:52 +0100
-Message-Id: <1109234333.6530.19.camel@laptopd505.fenrus.org>
+	Thu, 24 Feb 2005 03:42:43 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:43167 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262113AbVBXIlw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 03:41:52 -0500
+Date: Thu, 24 Feb 2005 09:41:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/13] remove aggressive idle balancing
+Message-ID: <20050224084118.GB10023@elte.hu>
+References: <1109229362.5177.67.camel@npiggin-nld.site> <1109229415.5177.68.camel@npiggin-nld.site> <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109230031.5177.87.camel@npiggin-nld.site>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  really; it was supposed to do that already
-> > 
-> >> i2c_dev                13249  0 
-> >> i2c_core               24513  1 i2c_dev
-> > 
-> > try for fun to not use i2c for a while
-> > 
-> >> microcode              11489  0 
-> > same for microcode... try removing that so that the microcode of your
-> > system doesn't get updated at boot
-> 
-> What do these two modules do in particular? and how can I disable
-> them so that they don't get reloaded during boot time? do I need
-> to disable both i2c_dev and i2c_core or just one of them?
 
-i2c is used to directly talk to motherboard hardware such as temperature
-sensors. I've seen cases of certain chipset bugs leading to cacheline
-corruption when stuff talked to the slow i2c bus and did other stuff in
-parallel. 
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-microcode changes the microcode of the cpu (a part of your cpu is
-actually written in "software" that can be updated); however updating
-this behind the back of the bios might not always be a good idea. (but I
-have no hard proof of any failures due to this)
+>  [PATCH 6/13] no aggressive idle balancing
+>
+>  [PATCH 8/13] generalised CPU load averaging
+>  [PATCH 9/13] less affine wakups
+>  [PATCH 10/13] remove aggressive idle balancing
 
-As for how to disable these.. you could just rename the respective .ko
-files to .notko or something....
+they look fine, but these are the really scary ones :-) Maybe we could
+do #8 and #9 first, then #6+#10. But it's probably pointless to look at
+these in isolation.
 
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
+	Ingo

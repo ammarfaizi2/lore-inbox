@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUJVUHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUJVTby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUJVUHM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267338AbUJVUHF
+	id S266867AbUJVTby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUJVTHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:07:05 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:16846 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266905AbUJVUDC convert rfc822-to-8bit
+	Fri, 22 Oct 2004 15:07:53 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267165AbUJVTHC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:03:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=e/QUU/NW4noZztNeZsCSkRE1zDejPqR/lSqVBa5T9W9ehyd60pfhOumhcVd/63a15A1Gv4EVvgv8idKoQ6AEKiOjZP/8brmOSv6fSyDHv4FN9tFgp07oD5Oj1qtNMg/zGFJRGuDAECwUaWGsxiJGkmnlfY1RiQSokUuB5DMYaDo=
-Message-ID: <7aaed09104102213032c0d7415@mail.gmail.com>
-Date: Fri, 22 Oct 2004 22:03:00 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: My thoughts on the "new development model"(A bit late tho)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 22 Oct 2004 15:07:02 -0400
+Date: Fri, 22 Oct 2004 15:07:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: printk() with a spin-lock held.
+Message-ID: <Pine.LNX.4.61.0410221504500.6075@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This may come a bit late now, since the "new development model" was
-put through late this summer.
-But anyway i'm going to come with som thoughts about it.
 
-I think that 2.6 should be frozen from now on, just security related
-stuff should be merged.
-This would strengthen Linux's reputation as a stable and secure
-system, not a unstable and a system just used for fun.
-A 2.7 should be created where all new experimental stuff is merged
-into it, and where people could begin to think new again.
-New thoughts are good in all ways, it is for sure very much code in
-the current kernels that should be revised, rewritten and maybe marked
-as deprecated.
+Linux-2.6.9 will bug-check and halt if my code executes
+a printk() with a spin-lock held.
 
-:)
+Is this the intended behavior? If so, NotGood(tm).
 
--- 
-Mvh / Best regards
-Espen Fjellvær Olsen
-espenfjo@gmail.com
-Norway
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
+                  98.36% of all statistics are fiction.

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314690AbSE0JJF>; Mon, 27 May 2002 05:09:05 -0400
+	id <S314769AbSE0JLF>; Mon, 27 May 2002 05:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314707AbSE0JJE>; Mon, 27 May 2002 05:09:04 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:45050 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314690AbSE0JJD>; Mon, 27 May 2002 05:09:03 -0400
-Subject: Re: [PATCH] 2.5.18 : drivers/pci/pool.c minor printk fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.4.33.0205262058570.18267-100000@localhost.localdomain>
-Content-Type: text/plain
+	id <S314829AbSE0JLE>; Mon, 27 May 2002 05:11:04 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:5138 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S314769AbSE0JLD>;
+	Mon, 27 May 2002 05:11:03 -0400
+Message-ID: <3CF1E945.3090009@evision-ventures.com>
+Date: Mon, 27 May 2002 10:07:33 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Skip Ford <skip.ford@verizon.net>
+CC: Sebastian Droege <sebastian.droege@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 ide-scsi compile fix
+In-Reply-To: <3CEF8815.C7C13D39@wxs.nl> <3CEFAB05.62937A75@wxs.nl> <20020526135058.493da149.sebastian.droege@gmx.de> <20020526222844.HWX25262.pop015.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 11:11:23 +0100
-Message-Id: <1022494283.11859.202.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 02:06, Frank Davis wrote:
-> Hello,
->   The following patch addresses a compile warning. printk saw the "," as 
-> an argument, which it shouldn't.
+Uz.ytkownik Skip Ford napisa?:
+> Sebastian Droege wrote:
+> 
+>>BTW: why do I get an oops (reported 2 or 3 times but no answers)
+>>when mounting cdroms since 2.5.7 or something?
+> 
+> 
+> Because the ide-scsi code hasn't caught up to Martin's IDE cleanup
+> changes yet.
 
-So fix printk or whatever actually got confused not the symptom
-
-
->  	if (page->bitmap [map] & (1UL << block)) {
-> -		printk (KERN_ERR "pci_pool_free %s/%s, dma %x already free\n",
-> +		printk (KERN_ERR "pci_pool_free %s/%s dma %x already free\n",
->  			pool->dev ? pool->dev->slot_name : NULL,
+That's not the case. The problem is simply the SCSI part of the game,
+(80% of certainlity) which seems to don't deal properly with hot pluggable
+drives right now.
 

@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310112AbSCKOLt>; Mon, 11 Mar 2002 09:11:49 -0500
+	id <S310114AbSCKONt>; Mon, 11 Mar 2002 09:13:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310114AbSCKOLk>; Mon, 11 Mar 2002 09:11:40 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:11277 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S310112AbSCKOL0>; Mon, 11 Mar 2002 09:11:26 -0500
-Message-Id: <200203111408.g2BE8pq05486@Port.imtp.ilyichevsk.odessa.ua>
+	id <S310115AbSCKONj>; Mon, 11 Mar 2002 09:13:39 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:18380 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S310114AbSCKON1>; Mon, 11 Mar 2002 09:13:27 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
 To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Trivial compile fix
-Date: Mon, 11 Mar 2002 16:08:01 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Mon, 11 Mar 2002 09:14:17 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0203081802540.5197-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0203081802540.5197-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
+Message-Id: <20020311141315.D7BEE3FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ld -m elf_i386 -T /.share/usr/src/linux-2.5.6-pre2/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	/.share/usr/src/linux-2.5.6-pre2/arch/i386/lib/lib.a /.share/usr/src/linux-2.5.6-pre2/lib/lib.a /.share/usr/src/linux-2.5.6-pre2/arch/i386/lib/lib.a \
-	 drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/md/mddev.o \
-	net/network.o \
-	--end-group \
-	-o vmlinux
-drivers/net/net.o: In function `__cp_set_rx_mode':
-drivers/net/net.o(.text+0x15162): undefined reference to `ether_crc'
-make: *** [vmlinux] Error 1
+On Friday 08 March 2002 09:12 pm, Linus Torvalds wrote:
+> On Fri, 8 Mar 2002, Hubertus Franke wrote:
+> > > The point being that the difference between a "decl" and a "lock ; 
+> > > decl" is about 1:12 or so in performance.
+> >
+> > I am no expert in architecture, but if its done through the cache
+> > coherency mechanism, the overhead shouldn't be 12:1. You simply mark the
+> > cache line as part of you instruction to avoid a cache line transfer. How
+> > can that be 12 times slower.  .. Ready to be educated....
+>
+> A lock in a SMP system also needs to synchronize the instruction stream,
+> and not let stores move "out" from the locked region.
+>
+> On a UP system, this all happens automatically (well, getting it to happen
+> right is obviously one of the big issues in an out-of-order CPU core, but
+> it's a very fundamental part of the core, so it's "free" in the sense that
+> if it isn't done, the CPU simply doesn't work).
+>
+> On SMP, it's a memory barrier. This is why a "lock ; decl" is more
+> expensive than a "decl" - it's the implied memory ordering constraints (on
+> other architectures they are explicit). On an intel CPU, this basically
+> means that the pipeline is drained, so a locked instruction takes roughly
+> 12 cycles on a PPro core (AMD's K7 core seems to be rather more graceful
+> about this one). I haven't timed a P4 lately, I think it's worse.
+>
+> Other architectures do the memory ordering explicitly, and some are
+> better, some are worse. But it always costs you _something_.
+>
+> 		Linus
 
 
---- linux-2.5.6-pre2/drivers/net/8139cp.c.orig	Mon Mar 11 13:17:59 2002
-+++ linux-2.5.6-pre2/drivers/net/8139cp.c	Mon Mar 11 15:44:48 2002
-@@ -47,7 +47,6 @@
- #define DRV_VERSION		"0.0.7"
- #define DRV_RELDATE		"Feb 27, 2002"
- 
--
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/netdevice.h>
-@@ -59,6 +58,7 @@
- #include <linux/mii.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
-+#include <linux/crc32.h>
- 
- /* These identify the driver base version and may not be removed. */
- static char version[] __devinitdata =
+Sure, not contending that. Right now I think our focus should be to get the
+right functionality out and address people's concerns.
+Improvements, as you suggested, are orthogonal and can always be put
+in later.
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbTENMxq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 08:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTENMxq
+	id S262179AbTENM6e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 08:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTENM6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 08:53:46 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:7675 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262112AbTENMxo
+	Wed, 14 May 2003 08:58:25 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:7342 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S262174AbTENM6E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 08:53:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Subject: Re: The disappearing sys_call_table export.
-Date: Wed, 14 May 2003 08:05:25 -0500
-X-Mailer: KMail [version 1.2]
-Cc: 76306.1226@compuserve.com, <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0305140109160.20904-100000@marcellos.corky.net>
-In-Reply-To: <Pine.LNX.4.44.0305140109160.20904-100000@marcellos.corky.net>
-MIME-Version: 1.0
-Message-Id: <03051408052500.22500@tabby>
-Content-Transfer-Encoding: 7BIT
+	Wed, 14 May 2003 08:58:04 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Steven Cole <elenstev@mesatop.com>
+To: "Shaheed R. Haque" <srhaque@iee.org>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1052912961.3ec22d4114bd0@netmail.pipex.net>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <1050177383.3e986f67b7f68@netmail.pipex.net>
+	 <1050177751.2291.468.camel@localhost>
+	 <1050222609.3e992011e4f54@netmail.pipex.net>
+	 <1050244136.733.3.camel@localhost>
+	 <1052826556.3ec0dbbc1d993@netmail.pipex.net>
+	 <20030513130257.78ab1a2e.akpm@digeo.com>
+	 <1052865981.3ec175bd59bc9@netmail.pipex.net>
+	 <1052880133.21270.131.camel@spc>
+	 <1052912961.3ec22d4114bd0@netmail.pipex.net>
+Content-Type: text/plain; charset=iso-8859-7
+Organization: 
+Message-Id: <1052917722.8088.67.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 14 May 2003 07:08:43 -0600
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 May 2003 17:21, Yoav Weiss wrote:
-> On Tue, 13 May 2003, Jesse Pollard wrote:
-> > Though part of it has to do with large systems and crash. What is done
-> > on some of these systems is to periodically checkpoint batch jobs. If the
-> > kernel crashes, the job has a physical memory failure, a cpu dies (one
-> > out of many...) the system resumes processing (after reboot, or removing
-> > the memory page from the valid list ... whatever recovery method) to then
-> > reload/resume the processes.
-> >
-> > If the random key is lost due to a crash, then reload/resume fails.
->
-> I thought checkpointing usually takes the whole virtual memory of the
-> process, regardless of whats in swap and whats in real memory, in which
-> case the encrypted swap key is not an issue.  If this isn't the case, I
-> guess the random key has to be preserved as a part of the checkpointing.
-> Of course, this beats the whole purpose of encrypted swap unless
-> checkpointing is done into an encrypted device too.  This device must be
-> encrypted anyway, regardless of swap, because the whole process image will
-> be stored there.
+On Wed, 2003-05-14 at 05:49, Shaheed R. Haque wrote:
+> Quoting Steven Cole <elenstev@mesatop.com>:
+> 
+> > Is this related or not to processor shielding used by RedHawk Linux?
+> > Here is a link to their page:
+> > 
+> > http://www.ccur.com/realtime/sys_rdhwklnx.html
+> > 
+> > I saw a presentation by these guys over a year ago.  I'm not sure what
+> > they're up to now.
+> 
+> Yes, if I correctly read the description of this feature, it seems to be the 
+> same thing.
+> 
+Thanks, that is what I suspected.
 
-Depends on the system - I believe Cray used to have the option of 
-checkpointing to the swap device since otherwise the system would be 
-oversubscribed and subject to deadlock hangs. Other configurations will
-exactly what you said, and have the same problems that swap does.
+There seemed to be quite a bit of interest in this from the other
+customers, although our facility doesn't presently need this
+functionality.  In the spirit of the "squeaky wheel", I'll squeak softly
+for them.  
+
+>From the above web page, thus quoth the RedHawk:
+
+"In tightly-coupled symmetric multiprocessing systems such as
+Concurrent¢s iHawk real-time systems, RedHawk Linux allows individual
+CPUs to be shielded from interrupt processing, daemons, bottom halves,
+and other Linux tasks. Processor shielding provides a highly
+deterministic execution environment where interrupt response is
+guaranteed. RedHawk implements shielding via the industry-accepted
+shield(1) command."
+
+Steven
+

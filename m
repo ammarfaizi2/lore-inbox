@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131004AbRAZOnz>; Fri, 26 Jan 2001 09:43:55 -0500
+	id <S131305AbRAZOpF>; Fri, 26 Jan 2001 09:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131305AbRAZOnp>; Fri, 26 Jan 2001 09:43:45 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:11021 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S131004AbRAZOnb>;
-	Fri, 26 Jan 2001 09:43:31 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Fri, 26 Jan 2001 15:41:10 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Linux Post codes during runtime, possibly OT
-CC: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+	id <S131559AbRAZOo4>; Fri, 26 Jan 2001 09:44:56 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:28680 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S131305AbRAZOou>;
+	Fri, 26 Jan 2001 09:44:50 -0500
+Date: Fri, 26 Jan 2001 15:44:47 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: James Sutherland <jas88@cam.ac.uk>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
         "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <13AEBF842896@vcnet.vc.cvut.cz>
+Subject: Re:   hotmail not dealing with ECN
+Message-ID: <20010126154447.L3849@marowsky-bree.de>
+In-Reply-To: <20010126124426.O2360@marowsky-bree.de> <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk>; from "James Sutherland" on 2001-01-26T13:44:53
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jan 01 at 8:58, Richard B. Johnson wrote:
-> On Thu, 25 Jan 2001, H. Peter Anvin wrote:
-> > > You could use the DMA scratch register at 0x19. I'm sure Linux doesn't
-> > > "save" stuff there when setting up the DMA controller.
-> > > 
-> I will change the port on my machines and run them for a week. I
-> don't have any DEC Rainbows or other such. Yes, I know Linux will
-> not run on a '286.
-> 
-> Since 0x19 is a hardware register in a DMA controller, specifically
-> called a "scratch" register, it is unlikely to hurt anything. Note
-> that the BIOS saves stuff in CMOS. It never expects hardware registers
-> to survive a "warm boot". It even checks in CMOS to see if it should
-> preserve RAM.
+On 2001-01-26T13:44:53,
+   James Sutherland <jas88@cam.ac.uk> said:
 
-Unless there are chips which need DELAY between accesses to DMA 
-controller ;-) And I'm sure there are such. Also, if DMA controller
-is integrated on board, outb is done in different speed than ISA 
-forwarded cycle to postcode port.
+> > > A delayed retry without ECN might be a good compromise...
+> > _NO!!!!!_
+> Why? As it stands, I have ECN disabled. It's staying disabled until I know
+> it won't degrade my Net access.
 
-Just in case, on my VIA, 1e6 outb(0,0x80) tooks 2.07s, 1e6 outb(0,0x19)
-tooks 2.33s - so there is definitely difference - although in other 
-direction than I expected. (What you can expect from this ....)
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+First, you are ignoring a TCP_RST, which means "stop trying". 
+
+You would have to retry a connection with a new source port. How do you handle
+cases where the application explicitly bound the socket to a specific source
+port / source IP ?
+
+Caching whether the site is able to speak ECN or not is also suboptimal if the
+local site is opening lots of outgoing connections, like a proxy server. (Of
+course, memory has gotten cheap)
+
+_And_ it is solving the problem on the wrong end.
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

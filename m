@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264934AbTLWDXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 22:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTLWDXy
+	id S264935AbTLWDrT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 22:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTLWDrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 22:23:54 -0500
-Received: from dp.samba.org ([66.70.73.150]:16006 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264934AbTLWDXx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 22:23:53 -0500
-Date: Tue, 23 Dec 2003 13:53:26 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christophe Saout <christophe@saout.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clemens@endorphin.org,
-       thornber@sistina.com
-Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
-Message-Id: <20031223135326.216883e5.rusty@rustcorp.com.au>
-In-Reply-To: <20031222215236.GB13103@leto.cs.pocnet.net>
-References: <1072129379.5570.73.camel@leto.cs.pocnet.net>
-	<20031222215236.GB13103@leto.cs.pocnet.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Dec 2003 22:47:18 -0500
+Received: from 12-211-66-152.client.attbi.com ([12.211.66.152]:22925 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S264935AbTLWDrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 22:47:17 -0500
+Message-ID: <3FE7BAC4.2040901@comcast.net>
+Date: Mon, 22 Dec 2003 19:47:16 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nicklas Bondesson <nikomail@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+ (PDC20271)
+References: <BAY8-DAV33OyDc41W2u00002b2b@hotmail.com>
+In-Reply-To: <BAY8-DAV33OyDc41W2u00002b2b@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Dec 2003 22:52:36 +0100
-Christophe Saout <christophe@saout.de> wrote:
+Nicklas Bondesson wrote:
+> The patch did not work for me, in fact there was no change at all (anything
+> affected to me). The Promise ataraid driver never gets loaded.
+> 
+> /Nicke 
 
-> Hi,
+Not sure what else to try. I see that you've already posted to the ata-raid
+list, so I'd hope that somebody else would reply from there. The pdcraid driver
+has not received much attention lately, so it may very well be broken for your
+configuration. Promise has released a binary/source combo driver similar to
+Nvidia's that will still work in 2.4 - you might give that a try. I have a
+PDC20276 based onboard raid setup, however, I use 2.6 with device mapper to use
+it. It's a bit of a pain to setup ATM - especially if you want to boot from it,
+but it can be done. Good luck,
 
-Hi Christophe!
+-Walt
 
-	One anal comment:
-> +/*
-> + * module hooks
-> + */
-> +module_init(dm_crypt_init)
-> +module_exit(dm_crypt_exit)
 
-Please use semicolons here.  It's nicer C-looking, and it means we don't have
-to do silly things in the macros.
-
-Thanks,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy

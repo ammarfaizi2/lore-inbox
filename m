@@ -1,127 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpEXGibRUP+TBRDeuNmRHonsbdw==
+thread-index: AcQVpOXL+KaBmxI8QAqmq9VIx7wOmw==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 00:07:01 +0000
-Message-ID: <016601c415a4$45c62590$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 23:25:50 +0000
+Message-ID: <040101c415a4$e5cdb4e0$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:41:16 +0100
-From: "Suparna Bhattacharya" <suparna@in.ibm.com>
 Content-Class: urn:content-classes:message
-To: <Administrator@osdl.org>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Cc: "Janet Morgan" <janetmor@us.ibm.com>,
-        "Badari Pulavarty" <pbadari@us.ibm.com>, <linux-aio@kvack.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] dio-read-race-fix
-Reply-To: <suparna@in.ibm.com>
-References: <3FCD4B66.8090905@us.ibm.com> <1070674185.1929.9.camel@ibm-c.pdx.osdl.net> <1070907814.707.2.camel@ibm-c.pdx.osdl.net> <1071190292.1937.13.camel@ibm-c.pdx.osdl.net> <20031230045334.GA3484@in.ibm.com> <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+From: "Martin Schlemmer" <azarah@nosferatu.za.org>
+Reply-To: <azarah@nosferatu.za.org>
+To: <Administrator@osdl.org>
+Cc: "Jesse Barnes" <jbarnes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
+        "Linux Kernel Mailing Lists" <linux-kernel@vger.kernel.org>,
+        <mbligh@aracnet.com>
+In-Reply-To: <3FF9E64D.5080107@us.ibm.com>
+References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com> <20040105213736.GA19859@sgi.com>  <3FF9E64D.5080107@us.ibm.com>
+Content-Type: multipart/signed;
+	micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-YkDoCQlgaJq7NRG8nrT5"
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.4i
-X-Loop: owner-majordomo@kvack.org
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Mar 2004 16:45:44 +0100
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:41:16.0468 (UTC) FILETIME=[45E51F40:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:45:45.0578 (UTC) FILETIME=[E64C0CA0:01C415A4]
 
-On Tue, Dec 30, 2003 at 04:29:17PM -0800, Daniel McNeil wrote:
-> On Mon, 2003-12-29 at 20:53, Suparna Bhattacharya wrote:
-> > On Thu, Dec 11, 2003 at 04:51:33PM -0800, Daniel McNeil wrote:
-> > > I've done more testing with added debug code.
-> > > 
-> > > It looks like the filemap_write_and_wait() call is returning
-> > > with data that has not made it disk.
-> > > 
-> > > I added code to filemap_write_and_wait() to check if
-> > > mapping->dirty_pages is not empty after calling filemap_fdatawrite()
-> > > and filemap_fdatawait() and retry.  Even with the retry, the test still
-> > > sees uninitialized data when running tests overnight (I added a printk
-> > > so I know the retry is happening).  There are pages left on the
-> > > dirty_pages list even after the write and wait.   
-> > 
-> > There are two calls to filemap_write_and_wait() for a DIO read
-> > -- do you know in which if these cases you see dirty pages after
-> > the write and wait ? The first is called without i_sem protection,
-> > so it is possible for pages to be dirtied by a parallel buffered
-> > write which is OK because this is just an extra/superfluous call 
-> > when it comes to DIO reads. The second call, however happens with i_sem 
-> > held and is used to guarantee that there are no exposures, so if 
-> > you are seeing remant dirty pages in this case it would be something 
-> > to worry about.
-> > 
-> 
-> Yes there are two calls.  I'm assuming that the retry was caused by the
-> call w/o holding the i_sem, since pages can be dirtied in parallel.
-> 
-> My debug output shows every filemap_write_and_wait() and which pages are
-> on the dirty, io, and locked list and which pages are on the clean list
-> after the wait. (yes, this is lots of output)
-> 
-> I changed the test a little bit -- if the test sees non-zero data, it
-> opens a new file descriptor and re-reads the data without O_DIRECT and
-> also re-reads the 1st page of the non-zero data using O_DIRECT.
-> 
-> What the debug output shows is:
-> 
-> The 1st filemap_write_and_wait() writes out some data.
-> 
-> The 2nd filemap_write_and_wait() sees different dirty pages.  The pages
->   that are seen non-zero by the test (many pages -- 243 in one case) are
->   on the dirty_pages list before the write and on the clean_pages list
->   after the wait.  But some of the pages at the end of the clean list,
->   are seen by the test program as non-zero.
-> 
-> Since I added the DIO re-read, the debug output shows for the 2nd
->   re-read:
-> 
-> the 1st filemap_write_and_wait() with NO dirty pages
-> the 2nd filemap_write_and_wait() with dirty pages AFTER the pages
->   that mis-matched and the original plus these pages on the clean
->   list after the wait.
-> 
-> The 2nd re-read and the read without O_DIRECT both get zeroed data.
-> 
-> Conclusions:
-> ===========
-> 
-> I'm not sure. :(
-> 
-> It appears like the pages are put on the clean list and PG_writeback is
-> cleared while the i/o is in flight and the DIO reads are put on the
-> queue ahead of the writeback.
-> 
-> I am trying to figure out how to add more debug code to prove this
-> or figure out what else is going on.
-> 
-> I'm open to suggestions.
+This is a multi-part message in MIME format.
 
-Since the first filemap_write_and_wait call is redundant and somewhat
-suspect since its called w/o i_sem (I can think of unexpected side effects
-on parallel filemap_write_and_wait calls), have you thought of disabling that
-and then trying to see if you can still recreate the problem ? It may
-not make a difference, but it seems like the right thing to do and could
-at least simplify some of the debugging.
+--=-YkDoCQlgaJq7NRG8nrT5
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Regards
-Suparna
+On Tue, 2004-01-06 at 00:33, Matthew Dobson wrote:
+> Jesse Barnes wrote:
+> > On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
+> >=20
+> >>Jesse had acked the patch in an earlier itteration.  The only thing=20
+> >>that's changed is some line offsets whilst porting the patch forward.
+> >>
+> >>Jesse (or anyone else?), any objections to this patch as a superset of=20
+> >>yours?
+> >=20
+> >=20
+> > No objections here.  Of course, you'll have to rediff against the
+> > current tree since that stuff has been merged for awhile now.  On a
+> > somewhat related note, Martin mentioned that he'd like to get rid of
+> > memblks.  I'm all for that too; they just seem to get in the way.
+> >=20
+> > Jesse
+> >=20
+>=20
+> Yeah... didn't actually attatch the patch to that last email, did I?=20
+> Brain slowly transitioning back into "on" mode after a couple weeks=20
+> solidly in the "off" position.
+>=20
 
-> 
-> Daniel
-> 
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Get this with gcc-3.3.2 cvs:
 
 --
-To unsubscribe, send a message with 'unsubscribe linux-aio' in
-the body to majordomo@kvack.org.  For more info on Linux AIO,
-see: http://www.kvack.org/aio/
-Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+include/linux/mm.h: In function `page_nodenum':
+include/linux/mm.h:337: warning: right shift count >=3D width of type
+include/linux/mm.h:337: warning: suggest parentheses around + or -
+inside shift
+--
+
+Think we could get those () in to make it more clear and the compiler
+happy?
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-YkDoCQlgaJq7NRG8nrT5
+Content-Transfer-Encoding: 7bit
+Content-Type: application/pgp-signature;
+	name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/+fH/qburzKaJYLYRAt+YAKCJmCt7KcI3ttikeBuT9jf/wJCK1QCgg8Ii
+NRAXwbf3JRkoRiQ7FJmJ4LM=
+=ivBO
+-----END PGP SIGNATURE-----
+
+--=-YkDoCQlgaJq7NRG8nrT5--

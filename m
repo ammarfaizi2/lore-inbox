@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271395AbTHDOWY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 10:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271750AbTHDOWX
+	id S271738AbTHDOPH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 10:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271741AbTHDOPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 10:22:23 -0400
-Received: from h24-86-78-151.ed.shawcable.net ([24.86.78.151]:1408 "HELO
-	alpha.home") by vger.kernel.org with SMTP id S271395AbTHDOWW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 10:22:22 -0400
-From: "Gordon Larsen" <glarsen@alpha.homedns.org>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Disk speed differences under 2.6.0
-Date: Mon, 4 Aug 2003 08:12:21 -0600
-Message-ID: <IBEJLCACHGEIBMFJACBEMEBACLAA.glarsen@alpha.homedns.org>
+	Mon, 4 Aug 2003 10:15:07 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:20722 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S271738AbTHDOPE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 10:15:04 -0400
+Message-ID: <3F2E6A86.3060402@softhome.net>
+Date: Mon, 04 Aug 2003 16:15:34 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <yw1x1xw5jul4.fsf@users.sourceforge.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+To: Jesse Pollard <jesse@cats-chateau.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TOE brain dump
+References: <gq0f.8bj.9@gated-at.bofh.it> <gvCD.4mJ.5@gated-at.bofh.it> <gJmp.7Th.33@gated-at.bofh.it> <gNpS.2YJ.9@gated-at.bofh.it>
+In-Reply-To: <gNpS.2YJ.9@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you
+Jesse Pollard wrote:
+>>3k of code.
+>>not 650k of bzip.
+> 
+> And it handles ipfilter?
+> and LSM security hooks?
+> how about IPSec?
+> and IPv6?
+> 
+> I don't think so.
 
-...Gord
+   Answer is "No".
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Måns Rullgård
-Sent: August 1, 2003 8:56 AM
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disk speed differences under 2.6.0
+   I'm running expensive workstation - and I'm _NOT_ using 
+LSM/IPSec/IPv6. I do not care what I _*can*_ do - I care about what I 
+_*need*_ to do.
+   Point is here that 3k of code is all what we need. Not 'what every 
+one does need', not Linux kernel.
 
-
-"Gordon Larsen" <glarsen@alpha.homedns.org> writes:
-
-> My apologies if this has already been discussed - but has anyone noticed
-> disk I/O speed differences under 2.6.0 as compared to 2.4.20?  My system
-has
-
-It has been discussed.  The solution is "hdparm -a 512 /dev/...".
-
---
-Måns Rullgård
-mru@users.sf.net
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+P.S.
+   printk() is absolutely renundant since there is no display at all ;-)
+   And can you imagine Linux without printk, bug_on & panic?-)))
 

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUBWVtH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 16:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUBWVtH
+	id S262052AbUBWVzO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 16:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbUBWVzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 16:49:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36557 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262049AbUBWVtD (ORCPT
+	Mon, 23 Feb 2004 16:55:14 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:48018 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262052AbUBWVzK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 16:49:03 -0500
-Date: Mon, 23 Feb 2004 13:48:53 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: riel@redhat.com, herbert@13thfloor.at, mikpe@csd.uu.se,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel vs AMD x86-64
-Message-Id: <20040223134853.5947a414.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com>
-	<Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 23 Feb 2004 16:55:10 -0500
+Date: Mon, 23 Feb 2004 13:55:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Hansjoerg Lipp <hjlipp@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
+Message-Id: <20040223135510.61bcc893.pj@sgi.com>
+In-Reply-To: <20040223202425.GB13914@hobbes>
+References: <20040216133418.GA4399@hobbes>
+	<20040222214255.0a6488c7.pj@sgi.com>
+	<20040223202425.GB13914@hobbes>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 13:36:43 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+Hansjoerg wrote:
+> But what about
+> #!/usr/bin/awk --posix -f
 
-> On Mon, 23 Feb 2004, Rik van Riel wrote:
-> > On Sat, 21 Feb 2004, Linus Torvalds wrote:
-> > 
-> > > I'm really happy Intel finally got with the program,
-> > 
-> > With the program?  They still don't have an IOMMU ;)
-> 
-> Hmm.. Let's see what their chipsets will look like for this thing. Since
-> they don't have an integrated memory controller, they can't very well do
-> the IOMMU on the CPU, now can they?
+What I would actually code, in this case, and as I just noted a minute
+ago in a parallel rely, would be:
 
-You mean the PCI controller is in the CPU, else how else would you
-accomplish this?
+  #!/bin/sh
+  awk --posix -f '
+    ...
+  '
 
-Or are you suggesting something else?
+I basically never put awk in the shebang line.  Rather I invoke it on
+quoted scripts inside of a shell script.  This habit has served me well
+for some 25 years now, on a variety of systems.
 
-Really, not having an IOMMU on a 64-bit platform these days is basically like
-pulling out one's toenails with an ice pick.
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

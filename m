@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUKTTMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263155AbUKTTQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbUKTTMd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 14:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUKTTLV
+	id S263155AbUKTTQg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263157AbUKTTQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 14:11:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263155AbUKTTLK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 14:11:10 -0500
-Date: Sat, 20 Nov 2004 11:10:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Len Brown <len.brown@intel.com>, Chris Wright <chrisw@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-In-Reply-To: <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411201048470.20993@ppc970.osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe>
- <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe>
- <20041120124001.GA2829@stusta.de> <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+	Sat, 20 Nov 2004 14:16:34 -0500
+Received: from marfik.cc.upv.es ([158.42.249.16]:8135 "EHLO smtpsal.upv.es")
+	by vger.kernel.org with ESMTP id S263155AbUKTTQU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 14:16:20 -0500
+Date: Sat, 20 Nov 2004 20:16:17 +0100 (MET)
+From: Linux Mailing Lists <linux@aiind.upv.es>
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling 2.4.28 [dn_neigh.c]
+Message-ID: <Pine.LNX.4.58.0411201948310.18643@andercheran.aiind.upv.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello,
 
-On Sat, 20 Nov 2004, Linus Torvalds wrote:
-> 
-> In particular, the code will disable irq12 (mouse interrupt), so the mouse
-> has no chance of working.
+While compiling the lastest 2.4 kernel I stumbled on this error:
 
-Btw, looking closer still, this all will most likely vary wildly according
-to southbridge (and BIOS setups). At least some SB's seem to put the
-legacy interrupts totally separately from the PIRQ stuff, in which case
-the PIRQ disable will not matter one whit - the legacy interrupt is
-inserted "after" the PIRQ gating/translation anyway. This seems to be
-especially common for controllers for keyboard/mouse/i2c etc that are
-actually on the southbridge itself.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.28/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i586  -DMODULE  -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=dn_dev  -c -o dn_dev.o dn_dev.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.28/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i586  -DMODULE  -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=dn_neigh  -c -o dn_neigh.o
+dn_neigh.c
+dn_neigh.c:584: `THIS_MODULE' undeclared here (not in a function)
+dn_neigh.c:584: initializer element is not constant
+dn_neigh.c:584: (near initialization for `dn_neigh_seq_fops.owner')
+make[2]: *** [dn_neigh.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.28/net/decnet'
+make[1]: *** [_modsubdir_decnet] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.28/net'
+make: *** [_mod_net] Error 2
 
-But the basic notion remains: disabling a PIRQ line is valid only if you
-know it's only used by PCI devices. There might be other special devices
-on the board that don't show up as PCI devices, eg things like the Sony
-programmable I/O thing that doesn't show up as a PCI device at all, it's
-just "invisibly" connected to the bus (it just hijacks port 0x66 or
-something - the range 0-0x3ff is generally reserved for "motherboard
-devices").
+I followed the same steps as always to do the compilation:
 
-These kinds of things hopefully aren't all that common (there can't be a 
-lot of extra hw required to follow the PCI spec _properly_), but if I were 
-a hw designer, I'd connect such a chip to the PIRQ input, and just make 
-the BIOS enable it automatically.
+- I copied linux-2.4.27/.config to linux-2.4.28/.config
+- I made an "make oldconfig" in the 2.4.28 directory
+- Then I tried to compile the kernel and the modules, as usual, with "make
+dep; make clean; make bzImage; make modules"
 
-			Linus
+I Googled the archives of the list to see if someone had reported this
+error, but I didn't seem to find anything about it. I found a patch for a
+similar error (from quite a while ago) and tried it, and the compilation
+went fine.
+
+The patch is very simple, I just added the line:
+
+#include <linux/module.h>
+
+To dn_neigh.c and ¡voilá! the compilation went without a single warning at
+that point.
+
+I got this error in three different Linux machines.
+
+Greetings.

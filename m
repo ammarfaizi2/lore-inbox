@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUC2REx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 12:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbUC2RE0
+	id S262990AbUC2RHc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbUC2RE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 12:04:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7337 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263014AbUC2Q7s (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Mon, 29 Mar 2004 11:59:48 -0500
-Message-Id: <200403291659.i2TGxQ214736@mail.osdl.org>
-Date: Mon, 29 Mar 2004 08:59:14 -0800 (PST)
-From: markw@osdl.org
-Subject: Re: Reiser4 needs more testers
-To: reiser@namesys.com
-cc: Nikita@namesys.com, Reiserfs-Dev@namesys.com, Reiserfs-List@namesys.com,
-       Linux-Kernel@Vger.Kernel.ORG, cliff@lindows.com, tom.welch@lindows.com,
-       garloff@suse.de, drobbins@gentoo.org, reiserrf@hotmail.com
-In-Reply-To: <406462C1.5020507@namesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	Mon, 29 Mar 2004 12:04:58 -0500
+Received: from integer.pobox.com ([208.58.1.194]:12953 "EHLO integer.pobox.com")
+	by vger.kernel.org with ESMTP id S262915AbUC2RDx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 12:03:53 -0500
+Date: Mon, 29 Mar 2004 09:03:27 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nbd-server?
+Message-ID: <20040329170327.GA5504@ip68-4-98-123.oc.oc.cox.net>
+References: <20040329053939.GO21875@rdlg.net> <m1hdw8gm37.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hdw8gm37.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've run through another test on STP with the latest snapshot against
-reiser4 and reiserfs for comparison.  Reiser4 still seems to be lagging
-behind reiserfs in our DBT-2 workload (the bigger number is better in
-the metric):
+On Mon, Mar 29, 2004 at 12:15:56AM -0700, Eric W. Biederman wrote:
+> nbd is simple and works.  I have managed to at least oops both enbd
+> and drbd.  They have more features but...
 
-          metric  url to test results
-          ------  ---------------------------------
-reiser4   1208    http://khack.osdl.org/stp/290774/
-reiserfs  1819    http://khack.osdl.org/stp/290775/
+I hadn't heard of drbd before, but my experience with enbd has also been
+worse than my experience with nbd.
 
-Mark
-
-On 26 Mar, Hans Reiser wrote:
-> We have one NFS related bug remaining, and one mmap all of memory 
-> related bug (and performance issue) that you can hit using iozone.  We 
-> will fix both of these in next week's snapshot, they were both multi-day 
-> bug fixes.  When they are fixed, unless users/distros find bugs next 
-> week we will submit it for inclusion in the -mm and then the official 
-> kernel.
-> 
-> We hope it is now fairly stable for average users if you avoid those two 
-> issues (we need to get rid of those dire warnings about its 
-> stability...., we will remember that next snapshot....;-) )
-> 
-> We need a lot more real user testers, because we have run out of scripts 
-> that can crash it, and there are distros that would like to ship it 
-> soon.  Please also complain to vitaly@namesys.com and ramon@namesys.com 
-> about poor documentation, etc., ....
-> 
-> The new reiser4 snapshot (against 2.6.5-rc2) is available at
-> 
-> http://www.namesys.com/snapshots/2004.03.26/
-
+-Barry K. Nathan <barryn@pobox.com>

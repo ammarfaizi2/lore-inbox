@@ -1,24 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVBYT4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVBYT6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVBYT4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 14:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVBYT4U
+	id S261268AbVBYT6p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 14:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVBYT6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 14:56:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51690 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261264AbVBYT4Q (ORCPT
+	Fri, 25 Feb 2005 14:58:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1003 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261268AbVBYT60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 14:56:16 -0500
-Date: Fri, 25 Feb 2005 11:57:03 -0800 (PST)
+	Fri, 25 Feb 2005 14:58:26 -0500
+Date: Fri, 25 Feb 2005 11:59:01 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, kwc@citi.umich.edu,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, nfsv4@linux-nfs.org
-Subject: Re: [PATCH] Properly share process and session keyrings with
- CLONE_THREAD
-In-Reply-To: <25723.1109339172@redhat.com>
-Message-ID: <Pine.LNX.4.58.0502251149320.9237@ppc970.osdl.org>
-References: <25723.1109339172@redhat.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Paulo Marques <pmarques@grupopie.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: ARM undefined symbols.  Again.
+In-Reply-To: <20050225194823.A27842@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0502251158280.9237@ppc970.osdl.org>
+References: <20050124154326.A5541@flint.arm.linux.org.uk>
+ <20050131161753.GA15674@mars.ravnborg.org> <20050207114359.A32277@flint.arm.linux.org.uk>
+ <20050208194243.GA8505@mars.ravnborg.org> <20050208200501.B3544@flint.arm.linux.org.uk>
+ <20050209104053.A31869@flint.arm.linux.org.uk> <20050213172940.A12469@flint.arm.linux.org.uk>
+ <4210A345.6030304@grupopie.com> <20050225194823.A27842@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,30 +30,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 25 Feb 2005, David Howells wrote:
+On Fri, 25 Feb 2005, Russell King wrote:
 > 
-> The attached patch causes process and session keyrings to be shared properly
-> when CLONE_THREAD is in force. It does this by moving the keyring pointers
-> into struct signal_struct[*].
+> So, what's happening about this?
 
-I do not see the point of associating keys with signal state. 
+Btw, is there any real reason why the ARM _tools_ can't just be fixed? I 
+don't see why this isn't a tools bug?
 
-And it _is_ signal state, even if some people mistakenly think that it's 
-about "processes". Linux still hasn't fallen into the trap of believing 
-that POSIX threads are somehow magical and the only way to do things.
-
-The kernel very much believes in various shared resources. Signal state
-(tty, resource limits, and actual signals handlers) is one such shared
-thing, but so is VM state, file table state etc etc. Why would keys
-logically be associated with signals, and not with the file table, for
-example? Or the VM? Or just per-thread?
-
-In other words, what does this buy us, if anything? From a logical 
-standpoint, I'd have said that it makes more sense to associate this with 
-the filesystem information, since keys would tend to mostly go together 
-with the notion of permissions on file descriptors.
-
-Making keys be associated with signals just doesn't seem to make any 
-sense.
-
-			Linus
+		Linus

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVCEWtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVCEWs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVCEWtA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVCEWsk
+	id S261309AbVCEWs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCEWs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:48:40 -0500
-Received: from coderock.org ([193.77.147.115]:31909 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261300AbVCEWly (ORCPT
+	Sat, 5 Mar 2005 17:48:26 -0500
+Received: from coderock.org ([193.77.147.115]:50853 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261312AbVCEWnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:41:54 -0500
-Subject: [patch 2/4] acorn/fd1772: replace sleep_on() with wait_event()
-To: spyro@f2s.com
+	Sat, 5 Mar 2005 17:43:14 -0500
+Subject: [patch 06/15] block/xd: replace schedule_timeout() with msleep()
+To: axboe@suse.de
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:41:48 +0100
-Message-Id: <20050305224149.11CE41F1F0@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 23:42:59 +0100
+Message-Id: <20050305224259.E16941F203@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
-Use wait_event() instead of the deprecated sleep_on(). Since
-wait_event() expects the condition upon which the loop should return, pass in
-the negation of the current conditional.
+Use msleep() instead of schedule_timeout() to guarantee the task
+delays as expected. The current code wishes to sleep for 1 jiffy, but I am not
+sure if this is actually intended, as with the change to HZ=1000, the time
+equivalent of 1 jiffy changed from 10ms to 1ms. I have assumed the former in
+this case; however the patch can be easily changed to assume the latter.
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/acorn/block/fd1772.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ kj-domen/drivers/block/xd.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-diff -puN drivers/acorn/block/fd1772.c~wait_event-drivers_acorn_block_fd1772 drivers/acorn/block/fd1772.c
---- kj/drivers/acorn/block/fd1772.c~wait_event-drivers_acorn_block_fd1772	2005-03-05 16:11:23.000000000 +0100
-+++ kj-domen/drivers/acorn/block/fd1772.c	2005-03-05 16:11:23.000000000 +0100
-@@ -139,6 +139,7 @@
- #include <linux/delay.h>
- #include <linux/mm.h>
- #include <linux/bitops.h>
-+#include <linux/wait.h>
+diff -puN drivers/block/xd.c~msleep-drivers_block_xd2 drivers/block/xd.c
+--- kj/drivers/block/xd.c~msleep-drivers_block_xd2	2005-03-05 16:10:47.000000000 +0100
++++ kj-domen/drivers/block/xd.c	2005-03-05 16:10:47.000000000 +0100
+@@ -47,6 +47,7 @@
+ #include <linux/wait.h>
+ #include <linux/blkdev.h>
+ #include <linux/blkpg.h>
++#include <linux/delay.h>
  
- #include <asm/arch/oldlatches.h>
- #include <asm/dma.h>
-@@ -1283,8 +1284,7 @@ static void do_fd_request(request_queue_
- 	if (fdc_busy) return;
- 	save_flags(flags);
- 	cli();
--	while (fdc_busy)
--		sleep_on(&fdc_wait);
-+	wait_event(fdc_wait, !fdc_busy);
- 	fdc_busy = 1;
- 	ENABLE_IRQ();
- 	restore_flags(flags);
+ #include <asm/system.h>
+ #include <asm/io.h>
+@@ -529,10 +530,8 @@ static inline u_char xd_waitport (u_shor
+ 	int success;
+ 
+ 	xdc_busy = 1;
+-	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry)) {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(1);
+-	}
++	while ((success = ((inb(port) & mask) != flags)) && time_before(jiffies, expiry))
++		msleep(10);
+ 	xdc_busy = 0;
+ 	return (success);
+ }
 _

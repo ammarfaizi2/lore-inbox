@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSGLQ10>; Fri, 12 Jul 2002 12:27:26 -0400
+	id <S316662AbSGLQen>; Fri, 12 Jul 2002 12:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316637AbSGLQ1Z>; Fri, 12 Jul 2002 12:27:25 -0400
-Received: from speech.braille.uwo.ca ([129.100.109.30]:9684 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S316632AbSGLQ1Y>; Fri, 12 Jul 2002 12:27:24 -0400
-To: Nicolas Pitre <nico@cam.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Advice saught on math functions
-References: <Pine.LNX.4.44.0207121102230.25178-100000@xanadu.home>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 12 Jul 2002 12:30:09 -0400
-In-Reply-To: <Pine.LNX.4.44.0207121102230.25178-100000@xanadu.home>
-Message-ID: <x7d6tsewoe.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S316659AbSGLQem>; Fri, 12 Jul 2002 12:34:42 -0400
+Received: from mail.storm.ca ([209.87.239.66]:16604 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S316662AbSGLQel>;
+	Fri, 12 Jul 2002 12:34:41 -0400
+Message-ID: <3D2EF8DB.4DB091FF@storm.ca>
+Date: Fri, 12 Jul 2002 11:42:19 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Kirk Reiser <kirk@braille.uwo.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Advice saught on math functions
+References: <E17T15g-0007mP-00@speech.braille.uwo.ca>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre <nico@cam.org> writes:
+Kirk Reiser wrote:
+> 
+> ...  What I am striving to do is build a software based speech
+> synthesizer into a linux driver. ... over 512k.  Obviously this is
+> to large to want built-in to the kernel.
 
-> Of course!  The maintenance cost of a kernel space solution is simply too
-> high for the single benefit of actually having speech output while the
-> kernel is in the process of booting.  And yet with an initial ramdisk
-> (initrd) containing all the user space daemon for speech I'm pretty sure we
-> can have the kernel reach the init process (or the /linuxrc process for that
-> matter) without failing in 99.9% of the cases.  This gives you virtually the
-> same result as a kernel space solution.
+Can you do it in a module instead?
 
-I don't understand this statement.  Why would the maintanance cost of
-providing speech output be any higher than serial or video or disk
-filing or anything else for that matter?
+> The majority of the size is from libm.a.
 
-I like the rest of your observations though and want to look over your
-article in more depth and think about it.  On first glance though,
-modifying vcsa0 to support select is pretty much the same as providing
-an output hook the same as I've done in speakup already.
+Does dietlibc help?
 
-This has somewhat strayed from my original questions though. 'wink'
+> There are five functions I need from the library, log(),
+> log10(), exp() cos() and sin().
 
-  Kirk
+Can you do something useful with integer versions of those functions?
+Forth people have done astronomical calculations with only scaled
+16-bit arithmetic. If it's accurate enough to aim telescopes, why
+not for your job?
 
--- 
+Given that phones work with fine 8-bit samples, I suspect speech can
+be done just fine with 16-bit math.
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+base 2 log is easy; I've seen code for it on the web. Scaling that to
+get natural log and log10 is straightforward.
+
+exp() is trivial, provided you have the scaling right so it doesn't
+overflow into insanity. How hard the scaling is depends on the
+application.
+
+I suspect there's a better way, but a brute force unoptimised shot
+at 16-bit sin() and cos() just uses a 128 K table; 16 bits in, 16
+out.

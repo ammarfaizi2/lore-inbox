@@ -1,167 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319115AbSHTA0H>; Mon, 19 Aug 2002 20:26:07 -0400
+	id <S319121AbSHTAat>; Mon, 19 Aug 2002 20:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319116AbSHTA0H>; Mon, 19 Aug 2002 20:26:07 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:5117 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319115AbSHTA0F>;
-	Mon, 19 Aug 2002 20:26:05 -0400
-Message-ID: <3D618D98.A9163EB1@us.ibm.com>
-Date: Mon, 19 Aug 2002 17:30:16 -0700
-From: mingming cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S319122AbSHTAas>; Mon, 19 Aug 2002 20:30:48 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:12241 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319121AbSHTAao>;
+	Mon, 19 Aug 2002 20:30:44 -0400
+Date: Tue, 20 Aug 2002 02:35:57 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
+ async-io API registration for 2.5.29)]
+In-Reply-To: <Pine.LNX.4.44.0208162134440.2497-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208200223250.7924-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, cmm@us.ibm.com
-Subject: Re: [PATCH] Breaking down the global IPC locks - 2.5.31
-References: <Pine.LNX.4.44.0208061556160.1545-100000@localhost.localdomain>
-Content-Type: multipart/mixed;
- boundary="------------92CD5CD4F47BF99769C9454B"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------92CD5CD4F47BF99769C9454B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-This patch breaks the three global IPC locks into one lock per IPC ID.
-By doing so it could reduce possible lock contention in workloads which
-make heavy use of IPC semaphores, message queues and Shared
-memories...etc.
+On Fri, 16 Aug 2002, Linus Torvalds wrote:
 
-Changes from last version:
-- move the IPC ID lock from the ipc_ids structure to kern_ipc_perm
-structure to avoid cacheline bouncing
-- make the ipc_lockall() and ipc_unlockal() use the global read-write
-locks.  Remove the old global spin locks.
+> But if you have such a mapping, then you _cannot_ make a per-task VM
+> space, because many tasks will share the same VM. You cannot even do a
+> per-cpu mapping change (and rewrite the VM on thread switch), since the
+> VM is _shared_ across CPU's, and absolutely has to be in order to work
+> with CPU's that do TLB fill in hardware (eg x86).
 
-Patch is against 2.5.31 kernel. Please comment.
+i'm just trying to insert the notion here that it *is* possible to do
+'software TLB fill' on x86 as well - it's just too much pain and very
+likely not worth it. The pgd entry of the top 4MB mapping can be filled in
+temporarily, the space accessed (causing a hw TLB fill), and then the pgd
+entry can be zeroed out again - keeping the 'soft filled TLB' still
+intact. This assumes that the intermediate pgd value cannot be observed by
+any other CPU - which can be achieved via either cross-CPU calls (lots of
+overhead to the TLB miss 'handler'), or the hope that freshly accessed &
+rewritten, locked cachelines are not seen by other CPUs, yet. (some CPUs
+do define a certain window of non-observation for locked MESI lines, in
+which the soft TLB handling stuff can be done, theoretically.) This
+necessiates the disabling of interrupts, and worse, NMIs, so it's really
+flaky.
 
-Mingming
---------------92CD5CD4F47BF99769C9454B
-Content-Type: text/plain; charset=us-ascii;
- name="ipclock.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipclock.patch"
+once the TLB gets flushed it causes a fault again - at which point the
+whole 'sw TLB fill' ordeal has to begin again.
 
-diff -urN -X ../dontdiff ../base/linux-2.5.31/include/linux/ipc.h 2.5.31-ipc/include/linux/ipc.h
---- ../base/linux-2.5.31/include/linux/ipc.h	Sat Aug 10 18:41:16 2002
-+++ 2.5.31-ipc/include/linux/ipc.h	Tue Aug 13 10:23:59 2002
-@@ -56,6 +56,7 @@
- /* used by in-kernel data structures */
- struct kern_ipc_perm
- {
-+	spinlock_t	lock;
- 	key_t		key;
- 	uid_t		uid;
- 	gid_t		gid;
-diff -urN -X ../dontdiff ../base/linux-2.5.31/ipc/util.c 2.5.31-ipc/ipc/util.c
---- ../base/linux-2.5.31/ipc/util.c	Sat Aug 10 18:41:27 2002
-+++ 2.5.31-ipc/ipc/util.c	Wed Aug 14 15:59:19 2002
-@@ -74,7 +74,7 @@
- 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
- 		ids->size = 0;
- 	}
--	ids->ary = SPIN_LOCK_UNLOCKED;
-+	ids->ary =RW_LOCK_UNLOCKED;
- 	for(i=0;i<ids->size;i++)
- 		ids->entries[i].p = NULL;
- }
-@@ -120,13 +120,13 @@
- 	for(i=ids->size;i<newsize;i++) {
- 		new[i].p = NULL;
- 	}
--	spin_lock(&ids->ary);
-+	write_lock(&ids->ary);
- 
- 	old = ids->entries;
- 	ids->entries = new;
- 	i = ids->size;
- 	ids->size = newsize;
--	spin_unlock(&ids->ary);
-+	write_unlock(&ids->ary);
- 	ipc_free(old, sizeof(struct ipc_id)*i);
- 	return ids->size;
- }
-@@ -165,7 +165,9 @@
- 	if(ids->seq > ids->seq_max)
- 		ids->seq = 0;
- 
--	spin_lock(&ids->ary);
-+	new->lock = SPIN_LOCK_UNLOCKED;
-+	read_lock(&ids->ary);
-+	spin_lock(&new->lock);
- 	ids->entries[id].p = new;
- 	return id;
- }
-diff -urN -X ../dontdiff ../base/linux-2.5.31/ipc/util.h 2.5.31-ipc/ipc/util.h
---- ../base/linux-2.5.31/ipc/util.h	Sat Aug 10 18:41:40 2002
-+++ 2.5.31-ipc/ipc/util.h	Wed Aug 14 17:05:22 2002
-@@ -19,7 +19,7 @@
- 	unsigned short seq;
- 	unsigned short seq_max;
- 	struct semaphore sem;	
--	spinlock_t ary;
-+	rwlock_t ary;
- 	struct ipc_id* entries;
- };
- 
-@@ -47,7 +47,7 @@
- 
- extern inline void ipc_lockall(struct ipc_ids* ids)
- {
--	spin_lock(&ids->ary);
-+	write_lock(&ids->ary);
- }
- 
- extern inline struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
-@@ -63,7 +63,7 @@
- 
- extern inline void ipc_unlockall(struct ipc_ids* ids)
- {
--	spin_unlock(&ids->ary);
-+	write_unlock(&ids->ary);
- }
- extern inline struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id)
- {
-@@ -72,16 +72,29 @@
- 	if(lid >= ids->size)
- 		return NULL;
- 
--	spin_lock(&ids->ary);
-+	read_lock(&ids->ary);
- 	out = ids->entries[lid].p;
--	if(out==NULL)
--		spin_unlock(&ids->ary);
-+	if(out==NULL) {
-+		read_unlock(&ids->ary);
-+		return NULL;
-+	}
-+	spin_lock($out->lock);
- 	return out;
- }
- 
- extern inline void ipc_unlock(struct ipc_ids* ids, int id)
- {
--	spin_unlock(&ids->ary);
-+	int lid = id % SEQ_MULTIPLIER;
-+	struct kern_ipc_perm* out;
-+
-+        if(lid >= ids->size)
-+		return;
-+	out = ids->entries[lid].p;
-+	if (out == NULL)
-+		return;
-+
-+	spin_unlock(&out->lock);
-+	read_unlock(&ids->ary);
- }
- 
- extern inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
+so this is not practical at all, but perhaps interesting. If eg.  
+kernel-space used 4MB pages only for this purpose then we would not get
+many 'TLB misses', because on most (all?) x86 CPUs the large-page TLBs are
+isolated from the 4K page TLBs. They could even survive TLB flushes via
+the PGE bit set.
 
---------------92CD5CD4F47BF99769C9454B--
+but this is so hw-specific that the use of x86 segmentation looks like a
+highlevel language in comparison :-)
+
+	Ingo
 

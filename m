@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbRCNVf7>; Wed, 14 Mar 2001 16:35:59 -0500
+	id <S131573AbRCNVmJ>; Wed, 14 Mar 2001 16:42:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131569AbRCNVft>; Wed, 14 Mar 2001 16:35:49 -0500
-Received: from waste.org ([209.173.204.2]:37728 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S131564AbRCNVfb>;
-	Wed, 14 Mar 2001 16:35:31 -0500
-Date: Wed, 14 Mar 2001 15:34:19 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: <esr@thyrsus.com>, Peter Samuelson <peter@cadcamlab.org>,
-        <linux-kernel@vger.kernel.org>, <elenstev@mesatop.com>,
-        <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: Rename all derived CONFIG variables 
-In-Reply-To: <24972.984388704@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0103141527370.4691-100000@waste.org>
+	id <S131574AbRCNVmB>; Wed, 14 Mar 2001 16:42:01 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30930 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131573AbRCNVlr>;
+	Wed, 14 Mar 2001 16:41:47 -0500
+Date: Wed, 14 Mar 2001 16:41:05 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] open_namei() braindamage Re: NODEV filesystem, multiple
+ mounts and umount...
+In-Reply-To: <210D2876A88@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.21.0103141624290.4468-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001, Keith Owens wrote:
 
-> On Mon, 12 Mar 2001 03:53:07 -0500,
-> "Eric S. Raymond" <esr@thyrsus.com> wrote:
-> >But if we're going to push Linus and the kernel crew to switch to
-> >CML2, then why invite the political tsuris of trying to get a large
-> >patch into 2.4 now?  Maybe I'm missing something here, but this doesn't
-> >seem necessary to me.
->
-> The derived config variables should be in a separate name space,
-> whether config is CML1 or CML2.  This patch does it for CML1.
 
-I don't think this makes sense at all.  The derivation of the config
-values is the concern of the configuration system, not the code.
-Consider something like CONFIG_CPU_HAS_FEATURE_FOO that might currently be
-derived from CONFIG_CPU_BAR but may in the future be made independent. Or
-vice-versa.  Your proposed name-change means additional maintenance
-headache and gets you nothing that you couldn't get by simply including
-whatever script you wrote to deduce the dependencies. Such a script would
-at least be able to tell you what a variable was derived from.
+On Wed, 14 Mar 2001, Petr Vandrovec wrote:
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> Hey, it is reproducible:
+> 
+> mount -t vfat /dev/hda1 /dos/c
+> mount --bind / /xxx
+> echo "a" > /xxx/dos/c
+> 
+> and it stops here... ^C does not work. umount /dos/c fixes it
+> (creat() returns EISDIR)
+
+Very interesting. <thinks>
+OK, so path_walk() gives us (vfsmnt of /xxx, dentry of /dos).
+Then we do down() on ->i_sem of inode of /dos. OK.
+We find dentry of /dos/c (mountpoint)
+It's positive, so we drop ->i_sem of parent.
+Dentry is a mountpoint.
+We call __follow_down(). Since nothing is mounted under xxx we get
+unchanged... What the fuck?
+
+OK, I'm an idiot. Linus, please apply the following:
+
+--- fs/namei.c.old    Wed Mar 14 16:37:45 2001
++++ fs/namei.c        Wed Mar 14 16:38:23 2001
+@@ -1013,7 +1013,7 @@
+                error = -ELOOP;
+                if (flag & O_NOFOLLOW)
+                        goto exit_dput;
+-               do __follow_down(&nd->mnt,&dentry); while(d_mountpoint(dentry));
++               while (__follow_down(&nd->mnt,&dentry) && d_mountpoint(dentry));
+        }
+        error = -ENOENT;
+        if (!dentry->d_inode)
+
+							Cheers,
+								Al
 

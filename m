@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276190AbRJGH02>; Sun, 7 Oct 2001 03:26:28 -0400
+	id <S276215AbRJGHnL>; Sun, 7 Oct 2001 03:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276208AbRJGH0S>; Sun, 7 Oct 2001 03:26:18 -0400
-Received: from postfix2-2.free.fr ([213.228.0.140]:16140 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S276190AbRJGH0H> convert rfc822-to-8bit; Sun, 7 Oct 2001 03:26:07 -0400
-Date: Sun, 7 Oct 2001 09:21:05 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: <paulus@samba.org>, "David S. Miller" <davem@redhat.com>,
-        <James.Bottomley@HansenPartnership.com>, <linuxopinion@yahoo.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: how to get virtual address from dma address
-In-Reply-To: <d3adz4u1gx.fsf@lxplus014.cern.ch>
-Message-ID: <20011007091404.X953-100000@gerard>
+	id <S276211AbRJGHnC>; Sun, 7 Oct 2001 03:43:02 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:33292 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S276215AbRJGHmo>;
+	Sun, 7 Oct 2001 03:42:44 -0400
+Date: Sun, 7 Oct 2001 09:43:10 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Simon Kirby <sim@netnation.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.11pre4 swapping out all over the place
+In-Reply-To: <Pine.LNX.4.33.0110061457570.1454-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0110070906020.30872-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 6 Oct 2001, Jes Sorensen wrote:
-
-> >>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+On Sat, 6 Oct 2001, Linus Torvalds wrote:
 >
-> Paul> David S. Miller writes:
-> >> I can not even count on one hand how many people I've helped
-> >> converting, who wanted a bus_to_virt() and when I showed them how
-> >> to do it with information the device provided already they said "oh
-> >> wow, I never would have thought of that".  That process won't
-> >> happen as often with the suggested feature.
->
-> Paul> Well, let's see if we can come up with a way to achieve this
-> Paul> goal as well as the other.
->
-> Paul> I look at all the hash-table stuff in the usb-ohci driver and I
-> Paul> think to myself about all the complexity that is there (and I
-> Paul> haven't managed to convince myself yet that it is actually
-> Paul> SMP-safe) and all the time wasted doing that stuff, when on
-> Paul> probably 95% of the machines that use the usb-ohci driver, the
-> Paul> hashing stuff is totally unnecessary.  I am talking about
-> Paul> powermacs, which don't have an iommu, and where the reverse
-> Paul> mapping is as simple as adding a constant.
->
-> I haven't looked at the ohci driver at all, however doesn't it return
-> anything but the dma address? No index, no offset, no nothing? If
-> thats the case, someone really needs to go visit the designers with a
-> large bat ;-(
+> Ok, can you try this slightly more involved patch instead? It basically
+> keeps the old try_to_free_pages() (it _looks_ different, but the logic is
+> the same), but also should honour the OOM-killer.
 
-I would apply the bat to people that wants such a dma to virtual general
-translation. This thing is obviously gross shit.
+Yes, this patch also solves the problem.
 
-I would also apply the bat to people that look into stuff of other people
-and, instead of trying to actually understand the code, just give a look
-and send inappropriate statements to the list.
+I just noticed that when reading from an umounted block device, the pages
+are not cached between runs, i.e. the cache is dropped on close().  If the
+block device contains a mounted filesystem, the pages are not dropped.
+Is this intentional?
 
-  Gérard.
+I was also thinking about Simon's CD-burning case, and the fact that the
+used-once logic really does not work very well for such cases.  You
+usually first run mkisofs to create the image, and then read the image
+when writing the CD.  This is similar to running
+
+	dd if=/dev/zero of=/tmp/cd bs=1M count=300
+	dd if=/tmp/cd of=/dev/null
+
+In this case, the pages are activated.  That is not too bad, since the
+system now seems to be able to free even active cache pages before paging
+out stuff.  (BTW, does it always free all cache before paging out?
+That would most likely be very bad for many scenarios.)
+
+So, for the CD-burning case, a used-twice algorithm would probably perform
+better.  Or perhaps the pages should be activated after having been _read_
+more than once, not counting the writes.  I wish I had the time to try
+this out... :-(
+
+This should only matter if the file is smaller than the amount of
+available RAM, which is not too common for CD images.
+
+/Tobias
 

@@ -1,25 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262884AbVAKVmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbVAKV6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbVAKVmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVAKVlj
+	id S262906AbVAKV6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbVAKV5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:41:39 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:37118 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262889AbVAKVjL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:39:11 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, dhowells@redhat.com, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050111213927.9256.16501.54102@localhost.localdomain>
-Subject: [PATCH 0/2] frv: replace some cli()/sti() in arch/frv/*
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [209.158.220.243] at Tue, 11 Jan 2005 15:39:07 -0600
-Date: Tue, 11 Jan 2005 15:39:08 -0600
+	Tue, 11 Jan 2005 16:57:08 -0500
+Received: from gprs215-193.eurotel.cz ([160.218.215.193]:33155 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262901AbVAKVzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:55:54 -0500
+Date: Tue, 11 Jan 2005 22:55:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: swsusp problem with resuming on batteries (AMD64)
+Message-ID: <20050111215537.GE1802@elf.ucw.cz>
+References: <200501112220.53011.rjw@sisk.pl> <20050111212729.GC1802@elf.ucw.cz> <200501112233.01113.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501112233.01113.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This series of patches will replace all but one of the cli()/sti() pairs in arch/frv.
+Hi!
 
-The one left is a little too tough for me to figure out (in arch/frv/kernel/irq.c).
-I leave that one for someone more skilled ;)
+> > > On 2.6.10-mm2, if swsusp suspends my box on AC power and then it's resumed 
+> on 
+> > > batteries, the box reboots after (or while) suspending devices (ie before 
+> > > restoring the image).  This is 100% reproducible, it appears.
+> > > 
+> > > The box is an Athlon 64 laptop on NForce 3.
+> > 
+> > Forcing machine to 800MHz before suspend may do the trick, too.
+> 
+> How can I do this?
+
+echo "0%44%44%powersave" > /proc/cpufreq if you have that interface
+enabled. Or simply turn off CONFIG_CPUFREQ in config.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

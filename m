@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264787AbSJaJih>; Thu, 31 Oct 2002 04:38:37 -0500
+	id <S264791AbSJaJ4C>; Thu, 31 Oct 2002 04:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264789AbSJaJif>; Thu, 31 Oct 2002 04:38:35 -0500
-Received: from lech.pse.pl ([194.92.3.7]:1499 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id <S264787AbSJaJie>;
-	Thu, 31 Oct 2002 04:38:34 -0500
-Date: Thu, 31 Oct 2002 10:44:51 +0100
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Message-ID: <20021031094451.GA23213@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	id <S264797AbSJaJ4C>; Thu, 31 Oct 2002 04:56:02 -0500
+Received: from 11.67.3.213.dial.bluewin.ch ([213.3.67.11]:42882 "EHLO
+	k3.hellgate.ch") by vger.kernel.org with ESMTP id <S264791AbSJaJ4B>;
+	Thu, 31 Oct 2002 04:56:01 -0500
+Date: Thu, 31 Oct 2002 11:02:45 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, sergeyssv@mail.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: VIA EPIA problem
+Message-ID: <20021031100245.GA5207@k3.hellgate.ch>
+Mail-Followup-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, sergeyssv@mail.ru,
 	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com>
+References: <1036021926.6756.3.camel@irongate.swansea.linux.org.uk> <200210302343.g9UNhxW6012759@wildsau.idv.uni.linz.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com>
-Organization: Polskie Sieci Elektroenergetyczne S.A.
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <200210302343.g9UNhxW6012759@wildsau.idv.uni.linz.at>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.44 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, people use it.  Not quite sure why though, I guess ACLs
-> buy some flexibility over the user/group/other model but if
-> the "unlimited groups" patch goes in (is in?) I'm happy ;)
+On Thu, 31 Oct 2002 00:43:59 +0100, H.Rosmanith (Kernel Mailing List) wrote:
+> okay. please note it's a workaround. but it worked at least for
+> my board (and I have a via epia itx 500Mhz). this board seems to
+> be the only one which had the problems with the vt6103 onboard
+> ethernet-chip.
 
-Correct me if I'm wrong but I believe a process has to be
-restarted to have its group membership list changed? 
+I remember going over some logs you sent me. As I said back then, the
+proper fix will most certainly deal with the error that turned off the Tx
+engine to begin with. Assuming that it's not a major "invisible error" bug
+in some Rhine chips, it must be an error that is currently invisible to the
+_driver_. Stands to reason :-).
 
-That's a huge difference from ACL behavior which allow for changes to
-file access rights without the need to restart the accessing process.
+My favorite suspect is currently byte 84 bit 3 in the configuration
+registers. It does not exist in VT86C100A (which would explain why it's not
+handled in Donald Becker's original code). According to VT6102 specs, it
+indicates an error condition, according to VT6105 specs, it is reserved and
+always reads 0.
 
--- 
-	Leszek.
+The MAC you find on VIA EPIAs integrated into VT8231 is a VT6102, so that
+might actually be the culprit. I haven't been able to reproduce the error
+on a VT6102 based PCI-card, though.
 
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...
+As for the EPIA, my testing environment is somewhat limited since there
+seems some trick involved in getting certain VIA hardware around here. My
+usual contacts couldn't sell me a VIA EPIA, not even the P4PB400 (VT6105M
+based), let alone the mysterious, fascinating Rhine-III based PCI-card [1].
+
+If anybody knows a reliable VIA vendor who does international delivery I'd
+be interested (off-list, of course, I'm not soliciting commercial email to
+the list <g>).
+
+Roger
+
+PS: Seems to be a VIA OEM card with PCI strings 1106:3106 (rev 85)
+    Subsystem: 1106:0105.

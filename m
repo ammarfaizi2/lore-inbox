@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSJCJrr>; Thu, 3 Oct 2002 05:47:47 -0400
+	id <S263224AbSJCJpw>; Thu, 3 Oct 2002 05:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263229AbSJCJrr>; Thu, 3 Oct 2002 05:47:47 -0400
-Received: from unthought.net ([212.97.129.24]:31203 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S263228AbSJCJrq>;
-	Thu, 3 Oct 2002 05:47:46 -0400
-Date: Thu, 3 Oct 2002 11:53:16 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: AARGH! Please help. IDE controller fsckup
-Message-ID: <20021003095316.GC7350@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200210021516.46668.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200210021516.46668.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
+	id <S263225AbSJCJpw>; Thu, 3 Oct 2002 05:45:52 -0400
+Received: from dp.samba.org ([66.70.73.150]:18661 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263224AbSJCJpv>;
+	Thu, 3 Oct 2002 05:45:51 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15772.4878.969143.541225@nanango.paulus.ozlabs.org>
+Date: Thu, 3 Oct 2002 19:51:10 +1000 (EST)
+To: Greg KH <greg@kroah.com>
+Cc: Martin Diehl <lists@mdiehl.de>, linux-kernel@vger.kernel.org
+Subject: Re: calling context when writing to tty_driver
+In-Reply-To: <20021003065209.GA18481@kroah.com>
+References: <20021001183400.GA8959@kroah.com>
+	<Pine.LNX.4.21.0210012150300.485-100000@notebook.diehl.home>
+	<20021003065209.GA18481@kroah.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 03:16:46PM +0200, Roy Sigurd Karlsbakk wrote:
-> hi all
+Greg KH writes:
+
+> On Tue, Oct 01, 2002 at 11:10:34PM +0200, Martin Diehl wrote:
+> > If we agree serial drivers shouldn't sleep in write_room()/write() my
+> > impression is this needs to be addressed somehow, regardless whether
+> > usbserial uses the new serial core or not. Anybody tried this with a
+> > bluetooth dongle over usbserial?
 > 
-> I have this cute little server with some 16 120gig IDE drives, and I've got 
-> some serious problems with it.
-> 
-> Controllers:
-> One onboard IDE controller (2 channels).
-> Two promise ATA100 (2 channels each).
-> One CMD649 (2 channels).
-> 
-> something seriously bad about the CMD649 makes Linux beleive it's the first 
-> controller with hd[abcd]. On these, there are two RAID-1s (/ and /var). Due 
-> to the fact that the box has some 1,6TB disk space, we haven't got any backup 
-> solution (we have an identical box in order to mirror them).
-> 
-> so - now - the CMD649 has suddenly begun to fail - losing contact with one or 
-> two drives, and I _really_ need to get what's on /data (RAID-5 on 
-> hd[efghijklmnop]) out. Problem is - the replacement controller I've got from 
-> the vendor works fine (turns up as controller 3 serving hd[mnop]). How can I 
-> revert this most easily to be able to boot again?
+> I don't know, do we agree that you can't sleep in those functions?  If
+> so, I'll look into fixing the usbserial drivers up.
 
-Hindsight:  had you used persistent superblocks, this would not have
-been a problem.  The kernel would know the correct ordering from the
-superblocks, not the device names.
+I really think that write and write_room shouldn't be allowed to
+sleep.  If they can sleep it will cause much grief for PPP, since the
+PPP start_xmit function does get called in softirq context, and in the
+common case where you are doing PPP over a serial port, that will
+ultimately end up in a call to the serial port's write routine.  If we
+can't call the write routine from softirq context, that will mean we
+will have to have some sort of helper thread (whether that is keventd
+or something else), and that will introduce extra unnecessary latency
+when you are using a serial port where the write routine doesn't ever
+block (which is all of them except usbserial, at the moment).
 
-Solution 1: Write to the RAID mailing list and have one of the mdadm
-gurus give you a one-liner to initialize the array with the proper
-ordering.
+I would have thought that the normal tty line discipline would impose
+the same requirement.  You type a character, it gets put in a flip
+buffer and processed later in softirq context.  That processing says
+"we're supposed to echo this character" so it will call the serial
+port's write routine - in softirq context, if I am not mistaken.
 
-Solution 2: Edit your /etc/raidtab to reflect the new device naming and
-run raidstart.
-
-If you start up the array with a bad ordering, no amount of magic is
-going to bring back you data (after parity has been "reconstructed" on
-various chunks of your existing data).
-
-
-> 
-> I hope this is not too off topic... Please excuse that.
-> 
-
-linux-raid is a better place.
-
-
-Cheers,
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Regards,
+Paul.

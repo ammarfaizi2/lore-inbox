@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287940AbSA3BkO>; Tue, 29 Jan 2002 20:40:14 -0500
+	id <S287895AbSA3Bly>; Tue, 29 Jan 2002 20:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287894AbSA3BkF>; Tue, 29 Jan 2002 20:40:05 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:25865 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S287880AbSA3Bjr>; Tue, 29 Jan 2002 20:39:47 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-From: Miles Lane <miles@megapathdsl.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now!
-	 <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 29 Jan 2002 17:38:11 -0800
-Message-Id: <1012354692.1777.4.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
+	id <S287924AbSA3Blk>; Tue, 29 Jan 2002 20:41:40 -0500
+Received: from 12-249-40-19.client.attbi.com ([12.249.40.19]:1028 "EHLO
+	rekl.dyn.dhs.org") by vger.kernel.org with ESMTP id <S287895AbSA3BlM>;
+	Tue, 29 Jan 2002 20:41:12 -0500
+Date: Tue, 29 Jan 2002 19:41:09 -0600 (CST)
+From: rob2@rekl.dyn.dhs.org
+To: linux-kernel@vger.kernel.org
+Subject: Execssive network errors 2.4.18pre (tx error or tx frame is busy)
+Message-ID: <Pine.LNX.4.40.0201291935200.527-100000@rekl.dyn.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-29 at 16:44, Linus Torvalds wrote:
-> 
-> On Tue, 29 Jan 2002, Chris Ricker wrote:
-> >
-> > That's fine, but there's a major problem with your scheme.  What happens
-> > with all the stuff for which no one is listed in MAINTAINERS?
-> 
-> I have to admit that personally I've always found the MAINTAINERS file
-> more of an irritation than anything else. The first place _I_ tend to look
-> personally is actually in the source files themselves (although that may
-> be a false statistic - the kind of people I tend to have to look up aren't
-> the main maintainers at all, but more single driver people etc).
-> 
-> It might not be a bad idea to just make that "mention maintainer at the
-> top of the file" the common case.
+Hi.  I've seen the following on both 2.4.18pre4 and 2.4.18pre7+preempt:
+Lots & lots of these get warnings/errors get printed to the console and
+syslog, and I don't know why.  i586, eth0 is a natsemi at 10Mbs half
+duplex, eth1 is a natsemi at 100Mbs full duplex, eth2 is an Orinoco silver
+in adhoc mode.  I didn't have this issue before I had 2.4.18pre4.  I
+haven't noticed anything not "working", except my syslog is getting filled
+up.
 
-I do similarly when I am testing Gnome software, but there
-I have the CVS sources to look at, including carefully updated
-ChangeLog files.  I find the ChangeLogs and the output of
-"cvs log ChangeLog" to be highly informative and helpful when
-attempting to track down the appropriate person to contact.
-Is it feasible to set up a read-only anonymous cvs server for
-the kernel tree?  It seems to me that it would be nice to 
-good to have ChangeLogs for the kernel directories as well.
+More output, including .config and dmesg output is available at
+http://rekl.yi.org/lk_help/
 
-	Miles
+Please cc: me on replies, since I'm not subscribed.  Thanks.
+
+
+eth0: tx frame #1359 is busy.
+eth0: tx frame #1359 is busy.
+eth0: tx frame #1360 is busy.
+eth2: Tx error, status 4 (FID=0192)
+eth0: tx frame #1368 is busy.
+eth0: tx frame #1370 is busy.
+eth0: tx frame #1372 is busy.
+eth2: Tx error, status 4 (FID=0156)
+eth1: tx frame #3832 is busy.
+eth2: Tx error, status 4 (FID=0156)
+eth2: Tx error, status 4 (FID=01E2)
+eth2: Tx error, status 4 (FID=0192)
+eth1: tx frame #4105 is busy.
+eth1: tx frame #4108 is busy.
+eth1: tx frame #4115 is busy.
+eth1: tx frame #4119 is busy.
+
+
 

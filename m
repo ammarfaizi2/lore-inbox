@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbSLIR1E>; Mon, 9 Dec 2002 12:27:04 -0500
+	id <S265819AbSLIRbh>; Mon, 9 Dec 2002 12:31:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbSLIR1E>; Mon, 9 Dec 2002 12:27:04 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61072 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265863AbSLIR1B>;
-	Mon, 9 Dec 2002 12:27:01 -0500
-Date: Mon, 9 Dec 2002 17:31:44 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, ronis@onsager.chem.mcgill.ca,
-       David Ronis <ronis@ronispc.chem.mcgill.ca>
-Subject: Re: build failure in 2.4.20
-Message-ID: <20021209173144.GA3751@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel@vger.kernel.org, ronis@onsager.chem.mcgill.ca,
-	David Ronis <ronis@ronispc.chem.mcgill.ca>
-References: <15860.46389.654483.692231@ronispc.chem.mcgill.ca> <200212091809.57622.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212091809.57622.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
+	id <S265828AbSLIRbh>; Mon, 9 Dec 2002 12:31:37 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16548 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S265819AbSLIRbg>; Mon, 9 Dec 2002 12:31:36 -0500
+Date: Mon, 9 Dec 2002 12:40:43 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.20-BK] Needed patch to build ide-scsi with new IDE
+ -ac merge
+In-Reply-To: <1039311122.27923.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.50L.0212091240280.11691-100000@freak.distro.conectiva>
+References: <200212072055.55152.m.c.p@wolk-project.de> <20021207231841.GC3183@werewolf.able.es>
+  <200212080021.31324.m.c.p@wolk-project.de> <1039311122.27923.2.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 09, 2002 at 06:09:57PM +0100, Marc-Christian Petersen wrote:
- > > drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in
- > > discarded section .text.exit' make: *** [vmlinux] Error 1
- > > It sounds like this is a problem with ld or as, but I'm not sure.  Any
- > > suggestions?
- > $editor arch/i386/vmlinux.lds
- > 
- > you'll see starting at line 67 this:
- > 
- >   /* Sections to be discarded */
- >   /DISCARD/ : {
- >         *(.text.exit)
- >         *(.data.exit)
- >         *(.exitcall.exit)
- >         }
- > 
- > remove this:
- > 
- >         *(.text.exit)
 
-This may get rid of the compile error, but this is *not* the correct way
-to fix this problem. The correct fix is to run reference_discarded [1]
-to find out which driver is causing the problem, and add __devexit
-tags where relevant.
 
-		Dave
+On Sat, 8 Dec 2002, Alan Cox wrote:
 
-[1] http://kernelnewbies.org/scripts/reference_discarded.pl
+> On Sat, 2002-12-07 at 23:21, Marc-Christian Petersen wrote:
+> > On Sunday 08 December 2002 00:18, J.A. Magallon wrote:
+> >
+> > Hi J.A.,
+> >
+> > > Ejem, does this mean that Andre's ide is going into 2.4.21-pre1 ?
+> > > ;))))
+> > finally!!!!!!!!!
+>
+> Yes though various bits seem to have vanished in the submission
+> (system.h bits and ide-scsi). Davem has some follow up bits I need to
+> apply (the new IDE broke some weird 64bit bigendian platform that he
+> supports 8))
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+system.h bits ? Dunno about those.
+
+I'm fixing the ide-scsi now.

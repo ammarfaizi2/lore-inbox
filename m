@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275097AbRIYQro>; Tue, 25 Sep 2001 12:47:44 -0400
+	id <S275098AbRIYQtO>; Tue, 25 Sep 2001 12:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275098AbRIYQrh>; Tue, 25 Sep 2001 12:47:37 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64476 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S275097AbRIYQrY>;
-	Tue, 25 Sep 2001 12:47:24 -0400
-Date: Tue, 25 Sep 2001 12:47:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: all files are executable in vfat
-In-Reply-To: <20010925161621.5DB188FBA0@mail.delfi.lt>
-Message-ID: <Pine.GSO.4.21.0109251239250.24321-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275104AbRIYQtF>; Tue, 25 Sep 2001 12:49:05 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:37380 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S275098AbRIYQsv>; Tue, 25 Sep 2001 12:48:51 -0400
+Date: Tue, 25 Sep 2001 18:49:14 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <laughing@shared-source.org>
+Subject: Re: Linux 2.4.9-ac15
+Message-ID: <20010925184914.B27294@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alan Cox <laughing@shared-source.org>
+In-Reply-To: <20010924164143.A11157@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010924164143.A11157@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 24 Sep 2001, Alan Cox wrote:
 
+> 2.4.9-ac15
 
-On Tue, 25 Sep 2001, Nerijus Baliunas wrote:
+Among others, I get these when building modules:
 
-> On Tue, 25 Sep 2001 12:09:30 -0400 (EDT) Alexander Viro <viro@math.psu.edu> wrote:
-> 
-> AV> > All files are executable in vfat (kernel 2.4.10), although I have
-> AV> > /dev/hda1  /mnt/c   vfat   defaults,user,noexec,umask=0,quiet 0 0
-> AV> > in /etc/fstab. They were not in 2.4.7.
-> AV> 
-> AV> Really? Try to execute a binary from there.  cp /bin/ls /mnt/c && /mnt/c/ls
-> 
-> bash: /mnt/c/ls: Permission denied. But:
-> $ ls -l ls
-> -rwxrwxrwx    1 nerijus  nerijus     45724 Rgs 25 18:12 ls
-
-So use the right option for that - umask=111 and there you go.
-
-noexec doesn't (and shouldn't) do anything about mode.  Yes, VFAT (along
-with explicit mechanism for doing what you want to do) used to have a
-bug in noexec handling.  And that's a bug - plain and simple.  Try it
-on any other UNIX _or_ other filesystem on Linux.
-
--o noexec means "execve() fails regardless of file permissions".  If you
-want "give all regular files rw-rw-rw-" - VFAT has option for that:
-umask.
-
+/kernel/l249-ac15/include/linux/smp.h:80: warning: `smp_num_cpus' redefined
+/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:84: warning: this is the location of the previous definition
+/kernel/l249-ac15/include/linux/smp.h:87: warning: `smp_call_function' redefined
+/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:100: warning: this is the location of the previous definition
+/kernel/l249-ac15/include/linux/smp.h:88: warning: `cpu_online_map' redefined
+/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:86: warning: this is the location of the previous definition
+msr.c: In function `msr_open':
+msr.c:230: `cpu_data' undeclared (first use in this function)
+msr.c:230: (Each undeclared identifier is reported only once
+msr.c:230: for each function it appears in.)
+make[1]: *** [msr.o] Error 1
+make[1]: Leaving directory `/kernel/l249-ac15/arch/i386/kernel'

@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263159AbTJKQaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 12:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJKQaY
+	id S263320AbTJKQdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 12:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTJKQdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 12:30:24 -0400
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:42291 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S263159AbTJKQaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 12:30:24 -0400
-Message-ID: <3F883020.1080103@planet.nl>
-Date: Sat, 11 Oct 2003 18:30:24 +0200
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 11 Oct 2003 12:33:15 -0400
+Received: from mail-1.tiscali.it ([195.130.225.147]:64672 "EHLO
+	mail-1.tiscali.it") by vger.kernel.org with ESMTP id S263320AbTJKQdO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 12:33:14 -0400
+Date: Sat, 11 Oct 2003 18:32:44 +0200
+From: Kronos <kronos@kronoz.cjb.net>
 To: linux-kernel@vger.kernel.org
-Subject: Bugzilla for kernel lost
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: frodol@dds.nl, Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Subject: Re: [patch] sensors/w83781d.c creates useless sysfs entries
+Message-ID: <20031011163244.GA2570@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8805A7.6080306@kmlinux.fjfi.cvut.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> ha scritto:
+> Hello,
+> 
+> here is a trivial fix for Winbond sensor driver, which currently creates 
+> useless entries in sys/bus/i2c due to missing braces after if statements 
+> - author probably forgot about the macro expansion.
 
-Hi,
+IMHO it's better to fix the macro:
 
-have I gone mad or is bugzilla.kernel.org gone off the face of the 
-earth. I was very fond that there was a bugzilla for the kernel, but I 
-can't seem to find it anymore. It currently sends me to an  OSDL page.
+--- a/drivers/i2c/chips/w83781d.c	Sun Sep 28 17:47:38 2003
++++ b/drivers/i2c/chips/w83781d.c	Sat Oct 11 18:31:04 2003
+@@ -422,9 +422,11 @@
+ sysfs_in_offsets(8);
+ 
+ #define device_create_file_in(client, offset) \
++do { \
+ device_create_file(&client->dev, &dev_attr_in_input##offset); \
+ device_create_file(&client->dev, &dev_attr_in_min##offset); \
+-device_create_file(&client->dev, &dev_attr_in_max##offset);
++device_create_file(&client->dev, &dev_attr_in_max##offset); \
++} while (0);
+ 
+ #define show_fan_reg(reg) \
+ static ssize_t show_##reg (struct device *dev, char *buf, int nr) \
 
-Cheers
 
-Stef
-
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Windows NT: Designed for the Internet. The Internet: Designed for Unix.

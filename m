@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbTHYPXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 11:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTHYPXa
+	id S261971AbTHYPjz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 11:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTHYPjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 11:23:30 -0400
-Received: from pc1-cmbg5-6-cust223.cmbg.cable.ntl.com ([81.104.201.223]:24572
-	"EHLO flat") by vger.kernel.org with ESMTP id S261897AbTHYPX2 (ORCPT
+	Mon, 25 Aug 2003 11:39:55 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:36030 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261971AbTHYPjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 11:23:28 -0400
-Date: Mon, 25 Aug 2003 16:25:29 +0100
-From: cb-lkml@fish.zetnet.co.uk
-To: Greg KH <greg@kroah.com>, maxk@qualcomm.com
+	Mon, 25 Aug 2003 11:39:54 -0400
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] [USB] [2.6.0-test3] crash after inserting bluetooth dongle
-Message-ID: <20030825152529.GB2132@fish.zetnet.co.uk>
-References: <20030821211409.GA2062@fish.zetnet.co.uk> <20030821225614.GA5287@kroah.com>
-Mime-Version: 1.0
+Subject: Re: linux-2.4.22 released
+References: <200308251148.h7PBmU8B027700@hera.kernel.org>
+	<20030825132358.GC14108@merlin.emma.line.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 25 Aug 2003 17:35:54 +0200
+In-Reply-To: <20030825132358.GC14108@merlin.emma.line.org>
+Message-ID: <m3u185zr51.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030821225614.GA5287@kroah.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 03:56:14PM -0700, Greg KH wrote:
-> On Thu, Aug 21, 2003 at 10:14:10PM +0100, cb-lkml@fish.zetnet.co.uk wrote:
-> > I got this oops. Suspicious /proc/interrupts is below, as well as
-> > /proc/ioports, dmesg output, config, and lspci -vvv.
-> 
-> This has been fixed in the test3-bk tree, I would suggest either waiting
-> for test4, or downloading the latest -bk patch.
-> 
-> If this still happens in 2.6.0-test4, please let the bluetooth driver
-> author know about it.
+Matthias Andree <matthias.andree@gmx.de> writes:
 
-Hi Greg, Maxim,
+> What are the plans for 2.4.23? XFS merge perhaps <hint>?
 
-2.6.0-test3-mm3 works fine until APM suspend when the USB controller stops
-delivering interrupts. (I'll report further when I have USB working again)
-
-However, in 2.6.0-test4, and 2.6.0-test4-mm1, my USB mouse works but the
-bluetooth dongle fails. dmesg logs the following
-
-hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x101
-hub 1-0:0: new USB device on port 1, assigned address 3
-PM: Adding info for usb:1-1
-PM: Adding info for usb:1-1:0
-hci_usb: probe of 1-1:1 failed with error -5
-PM: Adding info for usb:1-1:1
-hci_usb: probe of 1-1:2 failed with error -5
-PM: Adding info for usb:1-1:2
-hci_usb_isoc_rx_submit: hci0 isoc rx submit failed urb c4d6c014 err -22
-
-I've done a bit of printk debugging and found that:
-error -5 is -EIO, which is returned because the following test in hci_usb.c
-triggers:
-        if (intf->altsetting[0].desc.bNumEndpoints < 3)
-		return -EIO;
-
-during the first probe bNumEndpoints is 2, during the second it equals 0.
-
-The bluetooth dongle is a bluetake bt009.
-
-I can test patches if required.
-
-Charlie
+Generic HDLC update?
+http://hq.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21-1.14a.patch
+-- 
+Krzysztof Halasa
+Network Administrator

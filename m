@@ -1,99 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbUC2Tpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUC2Tpq
+	id S263107AbUC2TqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbUC2TqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:45:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29712 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263104AbUC2Tpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:45:36 -0500
-Date: Mon, 29 Mar 2004 20:45:35 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc2-aa vma merging
-In-Reply-To: <Pine.LNX.4.44.0403291957240.19124-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0403292044530.19124-100000@localhost.localdomain>
+	Mon, 29 Mar 2004 14:46:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24204 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263107AbUC2TqK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 14:46:10 -0500
+Message-ID: <40687CF0.3040206@pobox.com>
+Date: Mon, 29 Mar 2004 14:45:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <40679FE3.3080007@pobox.com> <20040329130410.GH3039@dualathlon.random>
+In-Reply-To: <20040329130410.GH3039@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea,
+Andrea Arcangeli wrote:
+> Once you change the API too, then you can set the hardwre limit in your
+> driver and relay on the highlevel blkdev code to find the optimal runtime
+> dma size for bulk I/O, but today it's your driver that is enforcing a
+> runtime bulk dma size, not the maximim limit of the controller, and so
+> you should code your patch accordingly.
 
-Again I beg you to attend to vma merging in your anon_vma tree.
-Still you have #if VMA_MERGING_FIXUP throughout mm/mprotect.c
-(and much less seriously in mremap.c), and that's just masking
-the real problem: that when you do enable vma merging there, your
-anon_vmas will get in the way of merging in significant cases.
+This magic 512k or 1M limit has nothing to do with SATA.  It's a magic 
+number whose definition is "we don't want PATA or SATA or SCSI disks 
+doing larger requests than this for latency, VM, and similar reasons."
 
-Try the example below, on mainline and on anonmm and on anon_vma,
-even when you've done the VMA_MERGING_FIXUP: you're limited by the
-MAX_MAP_COUNT of vmas, one per page.  Now, I know there's a move
-afoot to have /proc/sys/vm/max_map_count tunable, but I don't
-think that's the right answer for you ;)
+That definition belongs outside the low-level SATA driver.
 
-If I remember rightly, Linus tried to do away with a lot of the
-vma merging about three years ago, but some had to be reinstated.
-So I assume that what's there is needed, and the example below
-does looks plausible enough: add page, fill it, protect it, ...
+This 512k/1M value is sure to change over time, which involves 
+needlessly plugging the same value into multiple places.  And when such 
+changes occurs, you must be careful not to exceed hardware- and 
+errata-based limits -- of which there is no distinction in the code.
 
-How to fix this?  Clearly you could walk the pages, reassigning
-their anon_vmas; but if you're reduced to doing that in the
-common mprotect case, you're still worse off than anonmm which
-only has to do it in the unusal mremap move case, while it has
-to walk the pages anyway.
+I think the length of this discussion alone clearly implies that the 
+low-level driver should not be responsible for selecting this value, if 
+nothing else ;-)
 
-Until you can deal with this, I believe that the simpler
-anonmm method in my anobjrmap patches does the job better:
-less change, less overhead, more to the point.
+	Jeff
 
-Your anon_vma is good at connecting pages directly to their
-vma groups in swapout, where my anonmm has to use find_vma (and
-your anon_vma will fit more neatly with Andrew's vision of per-vma
-spinlocks, where mine will probably need to down_read_trylock).
 
-But the cost to vma merging seems too high.  And besides,
-wasn't the point of this objrmap exercise, to move away from
-the memory and processing load of pte_chains on the fast paths,
-to using more cpu to solve it in the swapout paths?
-anonmm does that better.
-
-Hugh
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-
-#define PAGE_SIZE	4096
-
-int main(int argc, char *argv[])
-{
-	unsigned long *ptr;
-	unsigned long pageno = 0;
-
-	while (1) {
-		ptr = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_WRITE,
-				MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-		if (ptr == MAP_FAILED) {
-			fflush(stdout);
-			perror("mmap");
-			printf("Type <Return> to exit ");
-			getchar();
-			exit(1);
-		}
-		*ptr = pageno++;
-		if (mprotect(ptr, PAGE_SIZE, PROT_READ) == -1) {
-			fflush(stdout);
-			perror("mprotect");
-			printf("Type <Return> to exit ");
-			getchar();
-			exit(1);
-		}
-		printf("%7lu kB\n", (PAGE_SIZE/1024) * pageno);
-	}
-}
 

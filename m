@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261490AbREXRYp>; Thu, 24 May 2001 13:24:45 -0400
+	id <S261558AbREXRbp>; Thu, 24 May 2001 13:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261553AbREXRYf>; Thu, 24 May 2001 13:24:35 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:41489 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S261489AbREXRYQ>; Thu, 24 May 2001 13:24:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Edgar Toernig <froese@gmx.de>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
-Date: Thu, 24 May 2001 19:25:23 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105231550390K.06233@starship> <3B0C547F.DE9E9214@gmx.de>
-In-Reply-To: <3B0C547F.DE9E9214@gmx.de>
+	id <S261561AbREXRbf>; Thu, 24 May 2001 13:31:35 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:29174 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261558AbREXRbW>; Thu, 24 May 2001 13:31:22 -0400
+Message-ID: <9678C2B4D848D41187450090276D1FAE0635F05A@FMSMSX32>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Jonathan Lundell'" <jlundell@pobox.com>, Jens Axboe <axboe@suse.de>,
+        Andi Kleen <ak@suse.de>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Dying disk and filesystem choice.
+Date: Thu, 24 May 2001 10:30:43 -0700
 MIME-Version: 1.0
-Message-Id: <0105241925230N.06233@starship>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 May 2001 02:23, Edgar Toernig wrote:
-> Daniel Phillips wrote:
-> > > > It's going to be marked 'd', it's a directory, not a file.
-> > >
-> > > Aha.  So you lose the S_ISCHR/BLK attribute.
-> >
-> > Readdir fills in a directory type, so ls sees it as a directory and
-> > does the right thing.  On the other hand, we know we're on a device
-> > filesystem so we will next open the name as a regular file, and
-> > find ISCHR or ISBLK: good.
->
-> ??? The kernel may know it, but the app?  Or do you really want to
-> give different stat data on stat(2) and fstat(2)?  These flags are
-> currently used by archive/backup prgs.  It's a hint that these files
-> are not regular files and shouldn't be opened for reading.
-> Having a 'd' would mean that they would really try to enter the
-> directory and save it's contents.  Don't know what happens in this
-> case to your "special" files ;-)
+>At 12:19 PM +0200 2001-05-24, Jens Axboe wrote:
+>>In fact you will typically only see an I/O error if the drive _can't_
+>>remap the sector anymore, because it has run out. No point in reporting
+>>a condition that was recovered.
+>>
+>>I'd still say, that if you get bad block errors reported from your disk
+>>it's long overdue for replacement.
 
-I guess that's much like the question 'what happens in proc?'.
+On Thursday, May 24, 2001 11:46 AM, Jonathan Lundell wrote:
+>This can't be right. It implies that the drive is returning bogus 
+>data with no error indication. Remapping a bad sector is not the same 
+>as recovering it.
 
-Recursively entering the device directory is ok as long as everything
-inside it is ok.  I tried zipping /proc/bus -r and what I got is what I'd
-expect if I'd cat'ed every non-directory entry.  This is what I
-expected.  Maybe it's not right - zipping /proc/kcore is kind of
-interesting.  Regardless, we are no worse than proc here.  In fact,
-since we don't anticipate putting an elephant like kcore in as a
-device property, we're a little nicer to get along with.
+The automatic reallocation of bad spots on a drive is safe unless paired
+with the write cache enabled bit in the disk mode pages (configuration).
+WCE, in some cases, can cause the write/read to both take place from cache
+with good status, and if the bad spot is reallocated later, when the cache
+is flushed, the reporting gets very confusing.
 
-Correct me if I'm wrong, but what we learn from the proc example
-is that tarring your whole source tree starting at / is not something
-you want to do.  Just extend that idea to /dev - however, if you do
-it, it will produce pretty reasonable results.
+In general:
+It is a common misconception that if a disk begins to show some bad spots,
+that it should be replaced.  In fact, a disk can have a reliable, useful
+life for years after bad spots begin to show up.  The number of bad spots in
+the Grown Defect List over a specified time as a % of capacity can be an
+predictor of impending failure, however.
 
-What *won't* happen is, you won't get side effects from opening
-your serial ports (you'd have to open them without O_DIRECTORY
-to get that) so that seems like a little step forward.
+Andy Cress
 
-I'm still thinking about some of your other comments.
 
---
-Daniel
-
---
-Daniel

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSE3MBu>; Thu, 30 May 2002 08:01:50 -0400
+	id <S316194AbSE3MC2>; Thu, 30 May 2002 08:02:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316194AbSE3MBt>; Thu, 30 May 2002 08:01:49 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:34493 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S314707AbSE3MBs>; Thu, 30 May 2002 08:01:48 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: me@vger.org
-Date: Thu, 30 May 2002 22:01:24 +1000 (EST)
+	id <S316342AbSE3MC1>; Thu, 30 May 2002 08:02:27 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:35345 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S316194AbSE3MCY>; Thu, 30 May 2002 08:02:24 -0400
+Message-ID: <3CF61542.6000500@loewe-komp.de>
+Date: Thu, 30 May 2002 14:04:18 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.19-pre8 fs/nfs/nfsroot.c - in_ntoa
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15606.5268.471724.793301@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Strange RAID2 behavier...
-In-Reply-To: message from me@vger.org on Thursday May 30
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday May 30, me@vger.org wrote:
-> 
-> # raidstop --all /dev/md3
-> /dev/md3: Device or resource busy
+Somehow a call to in_ntoa went into the kernel.
+With that you can't linke the kernel, when CONFIG_ROOT_NFS=y
+is on.
 
-This just means that /dev/md3 is busy.
-Is it mounted?  Does any process have it open?
 
-There is a bug in one version of raidtools that causes raidstop to
-incorrectly report this error, but I think that bug only affects
-/dev/md0..
-What does
-   strace raidstop /dev/md3
-show?
 
-NeilBrown
+fs/fs.o: In function `root_nfs_getport':
+fs/fs.o(.text.init+0x10e1): undefined reference to `in_ntoa'
+make: *** [vmlinux] Fehler 1
+
+
+
+--- fs/nfs/nfsroot.c.orig       Thu May 30 13:58:30 2002
++++ fs/nfs/nfsroot.c    Thu May 30 13:59:01 2002
+@@ -343,8 +343,8 @@
+  {
+         struct sockaddr_in sin;
+
+-       printk(KERN_NOTICE "Looking up port of RPC %d/%d on %s\n",
+-               program, version, in_ntoa(servaddr));
++       printk(KERN_NOTICE "Looking up port of RPC %d/%d on 0x%X\n",
++               program, version, servaddr);
+         set_sockaddr(&sin, servaddr, 0);
+         return rpc_getport_external(&sin, program, version, proto);
+  }
+

@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUFOUOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUFOUOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUFOUOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 16:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUFOUOc
+	id S265932AbUFOUOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 16:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUFOUOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 16:14:32 -0400
-Received: from wilma.widomaker.com ([204.17.220.5]:8205 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S265923AbUFOUNU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 16:13:20 -0400
-Date: Tue, 15 Jun 2004 10:55:46 -0400
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: why swap at all?
-Message-ID: <20040615145545.GI6218@widomaker.com>
-References: <40BF3250.9040901@tmr.com> <S265663AbUFDHTq/20040604071946Z+537@vger.kernel.org> <40C0AC9D.1020805@tmr.com>
+	Tue, 15 Jun 2004 16:14:07 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:3814 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265928AbUFOUNe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 16:13:34 -0400
+Date: Tue, 15 Jun 2004 22:13:29 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AT Keyboard (was: Helge Hafting vs. make menuconfig help)
+Message-ID: <20040615201329.GR20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040615140206.A6153@beton.cybernet.src> <20040615141039.GF20632@lug-owl.de> <20040615142040.B6241@beton.cybernet.src> <20040615144127.GG20632@lug-owl.de> <20040615172129.F6843@beton.cybernet.src> <20040615173210.GM20632@lug-owl.de> <20040615174651.A6965@beton.cybernet.src> <20040615183700.GA13866@hh.idb.hist.no> <20040615195903.A7813@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="m3jd3pM6f9NTUwsB"
 Content-Disposition: inline
-In-Reply-To: <40C0AC9D.1020805@tmr.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040615195903.A7813@beton.cybernet.src>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fri, 04 Jun 2004 @ 13:08 -0400, Bill Davidsen said:
 
-> But I fail to make my point... I want to limit how much memory is used 
-> for i/o buffers, cache, or anything else which will produce memory 
-> pressure of my programs. 
+--m3jd3pM6f9NTUwsB
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I would love to be able to limit this kind of memory use.
+On Tue, 2004-06-15 19:59:03 +0000, Karel Kulhav=FD <clock@twibright.com>
+wrote in message <20040615195903.A7813@beton.cybernet.src>:
+> > 4. From there, the key is propagated through tty and
+> >    console and ends up in your application.  This application
+> >    might be X, which passes the key onto some program using X.
+>=20
+> I am insterested in the 4. itself.
 
-I've always liked how BSD works in this area, never using over a certain
-amount.
+This is from memory, some details may be wrong:
 
-I find the Linux behavior of using all memory for things like
-buffercache is less than optimal.  While there are situations where it
-helps, there are a great many where it hurts.
+	- The keyboard driver first determines what key the scancodes
+	  belong to. If you press one single key, it may be sent as
+	  multiple scancodes. The keyboard driver first has to assemble
+	  these scancodes and make a decision from it (like "Key 'a'
+	  pressed"). This information ('a' pressed down). is put into
+	  Input API.
+	- Input API then prepares hands this key press to the TTY
+	  driver.
+	- An application on the currently visible VT gets the 'a' (if it
+	  didn't request raw scancodes. In this case, the TTY layer
+	  *emulates* scancodes from the "'a' pressed down" event), and
+	  the 'a' is also displayed on the VT (if echo'ing is switched
+	  on).
 
-I frequently do work which fills memory with data I'll never use again,
-and it makes things slow.
+MfG, JBG
 
-Desktop work tends to do this kind of thing as well.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-> That's what would be nice with tuning, the admin can optimize what is 
-> important on that system. I am usually happy with what the system does 
-> on i/o, but I want my 500MB or so of programs to stay resident in a 2GB 
-> machine, and if that adds a ms or two to i/o I can live with it, so that 
-> when I change windows it happens now, not eventually. And I bet there 
-> are a lot of others who would like better response to focus changes aswell.
+--m3jd3pM6f9NTUwsB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Not only that, but I wish certain bits of code could be locked into
-memory.  Generally any code and data associated with the user interface
-should always be there.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-It's annoying when a menu in X takes ten seconds of swapping to appear.
+iD8DBQFAz1hoHb1edYOZ4bsRAvo1AJ9J1Qt61oNPXdnW9vbLAYSXBZ2PLACfcYeH
+uX5AapOHUvylFDRL8O5OzRs=
+=V0N5
+-----END PGP SIGNATURE-----
 
--- 
-shannon "AT" widomaker.com -- [javalin: an unwieldy programming weapon used
-to stab a software project through the heart until dead]
+--m3jd3pM6f9NTUwsB--

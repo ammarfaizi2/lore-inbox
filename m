@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbSLNTnP>; Sat, 14 Dec 2002 14:43:15 -0500
+	id <S265865AbSLNUEe>; Sat, 14 Dec 2002 15:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbSLNTnP>; Sat, 14 Dec 2002 14:43:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:25095 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265851AbSLNTnN>;
-	Sat, 14 Dec 2002 14:43:13 -0500
-Date: Sat, 14 Dec 2002 11:49:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org, "Eric W.Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] kexec for 2.5.51....
-Message-ID: <20021214194911.GB910@kroah.com>
-References: <200212141215.49449.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265872AbSLNUEe>; Sat, 14 Dec 2002 15:04:34 -0500
+Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:35762 "HELO
+	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S265865AbSLNUEc>; Sat, 14 Dec 2002 15:04:32 -0500
+Message-ID: <20021214201220.31330.qmail@operamail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <200212141215.49449.tomlins@cam.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Matthew Bell" <mwsb@operamail.com>
+To: linux-parport@torque.net, linux-kernel@vger.kernel.org
+Date: Sun, 15 Dec 2002 04:12:20 +0800
+Subject: [PATCH] Obvious(ish): 3c515 should work if ISAPNP is a module.
+X-Originating-Ip: 195.10.122.134
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 14, 2002 at 12:15:49PM -0500, Ed Tomlinson wrote:
-> Eric W. Biederman wrote:
-> 
-> > Linus,
-> > 
-> > My apologies for not resending this earlier I've been terribly
-> > busy with other things..
-> > 
-> > No changes are included since the last time I sent this except
-> > the diff now patches cleanly onto 2.5.51.  If there is some problem
-> > holler and I will see about fixing it.
-> > 
-> > When I bypass the BIOS in booting clients my only current failure
-> > report is on an IBM NUMAQ and that almost worked.
-> 
-> I applied this to a 2.5.51 kernel with usb and fbcon updated via bk pulls.
-> Then after rebooting into the new kernel I tried
-> 
-> kexec -l /vmlinux.25 --append="console=tty0 console=ttyS0,38400 video=matrox:mem:32 idebus=33 profile=1"
-> kexec -ed
-> 
-> This rebooted but hangs at:
-> 
-> drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.0
+This is valid for at least 2.4.20 and earlier; it works for me, and I can't see any exceptional reason why it shouldn't work when ISAPNP is a module.
+--- linux-2.4.19.orig/drivers/net/3c515.c       2002-02-25 19:37:59.000000000 +0000
++++ linux-2.4.19/drivers/net/3c515.c    2002-08-03 18:24:05.000000000 +0100
+@@ -370,7 +370,7 @@
+        { "Default", 0, 0xFF, XCVR_10baseT, 10000},
+ };
 
-Could you enable CONFIG_USB_DEBUG to hopefully see more debugging
-messages from the uhci driver during boot, so we could narrow this down?
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
+ static struct isapnp_device_id corkscrew_isapnp_adapters[] = {
+        {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+                ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5051),
+@@ -462,12 +462,12 @@
+ {
+        int cards_found = 0;
+        static int ioaddr;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
+        short i;
+        static int pnp_cards;
+ #endif
 
-thanks,
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
+        if(nopnp == 1)
+                goto no_pnp;
+        for(i=0; corkscrew_isapnp_adapters[i].vendor != 0; i++) {
+@@ -530,7 +530,7 @@
+        /* Check all locations on the ISA bus -- evil! */
+        for (ioaddr = 0x100; ioaddr < 0x400; ioaddr += 0x20) {
+                int irq;
+-#ifdef CONFIG_ISAPNP
++#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
+                /* Make sure this was not already picked up by isapnp */
+                if(ioaddr == corkscrew_isapnp_phys_addr[0]) continue;
+                if(ioaddr == corkscrew_isapnp_phys_addr[1]) continue;
 
-greg k-h
+-- 
+_______________________________________________
+Get your free email from http://mymail.operamail.com
+
+Powered by Outblaze

@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVBHWdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVBHWcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVBHWdK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVBHWcv
+	id S261598AbVBHWcb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBHWbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:32:51 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:29919 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261593AbVBHWbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Feb 2005 17:31:08 -0500
-Date: Tue, 8 Feb 2005 08:53:16 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Cc: linux-kernel@vger.kernel.org, rufus-kernel@hackish.org
-Subject: Re: [PATCH] hot-swapping support for PSX controllers
-Message-ID: <20050208075316.GA2045@ucw.cz>
-References: <42050EC2.3020402@tremplin-utc.net>
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:15569
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261593AbVBHWa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 17:30:56 -0500
+Date: Tue, 8 Feb 2005 14:24:22 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
+Message-Id: <20050208142422.019e2b01.davem@davemloft.net>
+In-Reply-To: <20050208180445.GB10695@logos.cnet>
+References: <20050208181436.GA29717@bougret.hpl.hp.com>
+	<20050208180445.GB10695@logos.cnet>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42050EC2.3020402@tremplin-utc.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 07:21:54PM +0100, Eric Piel wrote:
-> Hello,
-> 
-> For now, a bug in the PSX controllers support in gamecon prevents 
-> hot-swapping of such controllers. If a controllers is removed then all 
-> the controllers stop working and cpu usage gets high. The attached patch 
-> (against 2.6.11-rc3) corrects this bug by checking the information read 
-> from the controller. If the message length is bigger than the maximum 
-> possible, then it means the controller is not there and therefore this 
-> value should be discarded.
-> 
-> Note that this is a re-send of a previous patch now that the patch of 
-> Peter (which had to be applied before this one) has been intregrated in 
-> the vanilla kernel. It's Peter's version modified to apply cleanly 
-> against 2.6.11-rc3 plus a fix in the comment.
-> 
-> Please apply,
-> Eric
-> 
-> --
-> Fixes hotplug support for PSX controllers and some mis-sized arrays.
-> 
-> Signed-off-by: Eric Piel <eric.piel@tremplin-utc.net>
-> Signed-off-by: Peter Nelson <rufus-kernel@hackish.org>
-> --
+On Tue, 8 Feb 2005 16:04:45 -0200
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 
-Thanks; applied.
+> On Tue, Feb 08, 2005 at 10:14:36AM -0800, Jean Tourrilhes wrote:
+> > 	Hi Marcelo,
+> > 
+> > 	I did not receive any feedback on this e-mail, so I assume it
+> > was lost on the way. Would you mind pushing that in 2.4.x ?
+> > 	Thanks...
+> 
+> As an ignorant person I have no problems with it.
+> 
+> David, what is your opinion?
 
+If networking patches are sent purely to linux-kernel, they will often
+be missed.  Please use netdev@oss.sgi.com, Jean of all people should be
+more than aware of netdev@oss.sgi.com as the place to post and discuss
+networking patches, not linux-kernel and not privately to Marcelo or
+myself.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I only happened to spot this post by accident this time, I'm being
+asked a question and I'm not even CC:'d on the email. :-)

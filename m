@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265984AbSKBTEx>; Sat, 2 Nov 2002 14:04:53 -0500
+	id <S261273AbSKBTTn>; Sat, 2 Nov 2002 14:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265985AbSKBTEx>; Sat, 2 Nov 2002 14:04:53 -0500
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:2861 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S265984AbSKBTEw>; Sat, 2 Nov 2002 14:04:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jos Hulzink <josh@stack.nl>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5.45 build failed with ACPI turned on
-Date: Sat, 2 Nov 2002 21:11:25 +0100
-User-Agent: KMail/1.4.3
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A498@orsmsx119.jf.intel.com> <200211012221.56346.josh@stack.nl> <20021101203121.GB2329@suse.de>
-In-Reply-To: <20021101203121.GB2329@suse.de>
+	id <S261290AbSKBTTn>; Sat, 2 Nov 2002 14:19:43 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58599 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261273AbSKBTTl>; Sat, 2 Nov 2002 14:19:41 -0500
+Date: Sat, 2 Nov 2002 20:26:06 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: [UPATCH,TRIVIAL] generic_fillattr() duplicate line. (fwd)
+Message-ID: <Pine.NEB.4.44.0211022018430.8262-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211022111.25198.josh@stack.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 21:31, Dave Jones wrote:
-> On Fri, Nov 01, 2002 at 10:21:56PM +0100, Jos Hulzink wrote:
->  > Other issue: Are ACPI and APM not mutually exclusive ? If so, I would
->  > propose a selection box: <ACPI> <APM> <none> with related options shown
->  > below. Hmzz.. there the issue of the fact that ACPI is more than power
->  > management shows up again.
->
-> Whilst they can't both run at the same time, it's perfectly possible
-> (and useful) to build a kernel with both included. ACPI will quit
-> if APM is already running, so booting with apm=off turns the same
-> kernel into 'ACPI mode'
+Hi Al,
 
-Hmzz.. in that case I vote for dropping CONFIG_PM in favour of CONFIG_APM || CONFIG_ACPI, even though it requires some more typing for the programmers. (I'm no ACPI programmer, so I don't care ;-)
+while looking through some old linux-kernel mails I found the mail below.
+The duplicate line was introduced by your
+  [PATCH] (1/5) beginning of getattr series.
+patch and is still present in 2.5.45.
 
-Jos
+cu
+Adrian
+
+
+---------- Forwarded message ----------
+Date: Sat, 27 Jul 2002 06:48:11 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [UPATCH,TRIVIAL] generic_fillattr() duplicate line.
+
+Hello.
+
+--- linux-2.5.28/fs/stat.c~	Sat Jul  6 18:33:10 2002
++++ linux-2.5.28/fs/stat.c	Sat Jul 27 06:23:17 2002
+@@ -27,7 +27,6 @@
+ 	stat->atime = inode->i_atime;
+ 	stat->mtime = inode->i_mtime;
+ 	stat->ctime = inode->i_ctime;
+-	stat->ctime = inode->i_ctime;
+ 	stat->size = inode->i_size;
+ 	stat->blocks = inode->i_blocks;
+ 	stat->blksize = inode->i_blksize;
+
+Oleg.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
 

@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266199AbSLJWch>; Tue, 10 Dec 2002 17:32:37 -0500
+	id <S266809AbSLJWfn>; Tue, 10 Dec 2002 17:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbSLJWcg>; Tue, 10 Dec 2002 17:32:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:48296 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266199AbSLJWcg>;
-	Tue, 10 Dec 2002 17:32:36 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S266841AbSLJWfm>; Tue, 10 Dec 2002 17:35:42 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:39373 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S266809AbSLJWfm>;
+	Tue, 10 Dec 2002 17:35:42 -0500
+Date: Wed, 11 Dec 2002 00:43:25 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IBM spamms me with error messages
+Message-ID: <20021210224325.GE32122@mea-ext.zmailer.org>
+References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15862.27978.670448.901111@argo.ozlabs.ibm.com>
-Date: Wed, 11 Dec 2002 09:40:10 +1100
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: xxx_check_var
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Content-Disposition: inline
+In-Reply-To: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I look at atyfb_check_var or aty128fb_check_var, I see that they
-will alter the contents of *info->par.  Isn't this a bad thing?  My
-understanding was that after calling check_var, you don't necessarily
-call set_par next (particularly if check_var returned an error).
-Also I notice that atyfb_set_par and aty128fb_set_par don't look at
-info->var, they simply set the hardware state based on the contents of
-*info->par.
+On Tue, Dec 10, 2002 at 09:56:11PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> I replied to some mail on l-k and IBM spammed me with 20+ error
+> messages. Now it is apparently going to do that again.
 
-Looking at skeletonfb.c, it seems that this is the wrong behaviour.  I
-had fixed the aty128fb.c driver in the linuxppc-2.5 tree.  James, if
-you let me know whether the current behaviour is wrong or not, I'll
-fix them and send you the patch.
+   Still/again ?
 
-Paul.
+> IBM: I asked your postmasters to fix your mail systems, and you
+> apparently don't know how to do that. Can you fix it?!
+> 
+> I don't know what broken mailserver substituted my email address as
+> pavel%internet.vnet@RCHGATE.RCHLAND.IBM.COM, and I do not care much,
+> but STOP SPAMMING ME.
+> 							Pavel
+
+   It is same type of MTA misbehaviour as is exhibited by
+   various M$ email virus scanners.  Visible "From:" header
+   has absolutely nothing to do with what is the correct
+   address to send the message to.  (Or "To:"/"Cc:" headers..)
+
+> RCHGATE.RCHLAND.IBM.COM unable to deliver following mail to
+> recipient(s):
+>     <tinglett@rchmail.rchland.ibm.com>
+> RCHGATE.RCHLAND.IBM.COM received negative reply:
+> 501 5.1.8 <@RCHGATE.RCHLAND.IBM.COM:PAVEL@INTERNET.RSCS>... Domain of
+> sender address PAVEL@INTERNET.RSCS does not exist
+
+   Tinglett isn't subscribed.  Yet the message is quite fresh...
+
+>            ** Text of Mail follows **
+> Received:  by RCHGATE.RCHLAND.IBM.COM (IBM VM SMTP Level 3A0) via
+> spool with SMTP id 6538 ; Tue, 10 Dec 2002 14:45:57 CST
+> Received: by RCHGATE (cvtto822 5.1.7) via <pavel@internet> id 2652
+> (NOTE)
+>           for <tinglett@rchland>; Tue, 10 Dec 2002 14:45:57 -0600
+> Date:  Tue, 10 Dec 2002 21:40:31 +0100
+> From: "Pavel Machek" <pavel%internet.vnet@RCHGATE.RCHLAND.IBM.COM>
+> To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>

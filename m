@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbTIRQV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 12:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTIRQV7
+	id S261585AbTIRQPa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 12:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbTIRQPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 12:21:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63157 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261641AbTIRQV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 12:21:57 -0400
-Date: Thu, 18 Sep 2003 09:15:11 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: rob@landley.net
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Make modules_install doesn't create /lib/modules/$version
-Message-Id: <20030918091511.276309a6.rddunlap@osdl.org>
-In-Reply-To: <200309180321.40307.rob@landley.net>
-References: <200309180321.40307.rob@landley.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 12:15:30 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:1801 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261585AbTIRQP3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 12:15:29 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
+References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60>
+	<20030914122034.C3371@pclin040.win.tue.nl>
+	<206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60>
+	<20030916154305.A1583@pclin040.win.tue.nl>
+	<87vfrr3851.fsf@devron.myhome.or.jp>
+	<20030917192216.A2164@pclin040.win.tue.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 19 Sep 2003 01:15:09 +0900
+In-Reply-To: <20030917192216.A2164@pclin040.win.tue.nl>
+Message-ID: <8765jqt6nm.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Sep 2003 03:21:40 -0400 Rob Landley <rob@landley.net> wrote:
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-| I've installed -test3, -test4, and now -test5, and each time make 
-| modules_install died with the following error:
-| 
-| Kernel: arch/i386/boot/bzImage is ready
-| sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
-| /lib/modules/2.6.0-test5 is not a directory.
-| mkinitrd failed
-| make[1]: *** [install] Error 1
-| make: *** [install] Error 2
-| 
-| I had to create the directory in question by hand, and then run it again, at 
-| which point it worked.
-| 
-| Am I the only person this is happening for?  (Bog standard Red Hat 9 system 
-| otherwise.  With Rusty's modutils...)
+> On Wed, Sep 17, 2003 at 09:35:22PM +0900, OGAWA Hirofumi wrote:
+> > Andries Brouwer <aebr@win.tue.nl> writes:
+> > 
+> > > > > OGAWA Hirofumi posted a patch for the yen-sign pipe key on 2003.07.23
+> > > > > for test1 but his patch still didn't get into test3.
+> 
+> > > until 2.4 the value of NR_KEYS was 128, while 2.6 uses 256
+> 
+> > in input.h
+> > 	#define KEY_MAX		0x1ff
+> > in keyboard.h
+> > 	#define NR_KEYS		(KEY_MAX+1)
+> > 
+> > NR_KEYS is 512...  Or we should use 256, you mean?
+> 
+> Yes, I think so.
+> 
+> Maybe Vojtech can tell us why he wrote 512, but I just see a
+> large amount of wasted space (and, as you already pointed out,
+> the need for new ioctls) if one uses 512.
+> 
+> As far as I can see, everything works with 256.
+> Indeed, everything seems to assume 256.
 
-Yes, I see that also.
-Just running 'depmod -e -F System.map-260t5 -v 2.6.0-test5' prints:
-FATAL: Could not open /lib/modules/2.6.0-test5/modules.dep.temp for writing:
- No such file or directory
-
---
-~Randy
+That sounds good to me. Vojtech, did we need NR_KEYS(KEY_MAX?) greater
+than 256?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274639AbRIYLPb>; Tue, 25 Sep 2001 07:15:31 -0400
+	id <S274642AbRIYLSL>; Tue, 25 Sep 2001 07:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274641AbRIYLPU>; Tue, 25 Sep 2001 07:15:20 -0400
-Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:26040 "EHLO
-	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S274639AbRIYLPJ>; Tue, 25 Sep 2001 07:15:09 -0400
-Message-ID: <012101c145b3$c43a1d50$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: =?ks_c_5601-1987?B?waTC+by6?= <csjung@dreamintek.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.ncuedqv.80oc2g@ifi.uio.no>
-Subject: Re: Hi.... I guess linux-kernel..
-Date: Tue, 25 Sep 2001 07:18:12 -0400
+	id <S274646AbRIYLSB>; Tue, 25 Sep 2001 07:18:01 -0400
+Received: from hal.grips.com ([62.144.214.40]:57216 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S274645AbRIYLRw>;
+	Tue, 25 Sep 2001 07:17:52 -0400
+Message-Id: <200109251117.f8PBHv403687@hal.grips.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Gerold Jury <gjury@hal.grips.com>
+To: "[A]ndy80" <andy80@ptlug.org>
+Subject: Re: Burning a CD image slow down my connection
+Date: Tue, 25 Sep 2001 13:17:56 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E15loh3-0005PD-00@the-village.bc.nu> <1001412802.1316.4.camel@piccoli>
+In-Reply-To: <1001412802.1316.4.camel@piccoli>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ks_c_5601-1987"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I want to know, how use continuous memory over 128k at linux kernel...
-> kmalloc is 128k limit...
-> But, I want continous memory over 128k at linux kernel...
+Since you use the scsi emulation for your writer you need to use hdparm on 
+the original ide device that you passed to the emulation rather than the 
+emulated scsi device.
+eg use        hdparm -whatever /dev/hdc
+     and not hdparm -whatever /dev/scd0 or /dev/cdrom 
 
-kmalloc() returns physically contiguous regions of memory. The 128KB limit
-exists because it is difficult to find a free memory block that large in a
-running system, due to fragmentation.
-
-You have two options - if you can use a virtually (but not physically)
-contiguous region of memory, use vmalloc(). This works fine for kernel data
-structures. If you are using the memory as a DMA buffer however, you need to
-be aware that the pages are not physically contiguous, so you have to DMA
-each page individually (scatter/gather). Also for DMA to 32-bit PCI devices,
-use vmalloc_32() instead of vmalloc() (which might give you high-memory
-pages that are inaccessible to 32-bit devices).
-
-The second option is to grab a large physically-contiguous region of memory
-at boot time. There are a few kernel patches available that provide this
-feature, although I haven't used them. For a really quick hack, you can use
-the "mem=xxxM" boot-time option to tell the kernel to use less physical
-memory than you actually have, and then claim the remaining memory for your
-own use.
-
-Regards,
-Dan
-
+On Tuesday 25 September 2001 12:13, [A]ndy80 wrote:
+> Hi
+> [root@piccoli shady]# hdparm -t /dev/cdrom
+> /dev/cdrom not supported by hdparm
+>
+> What else ahve I to enable?

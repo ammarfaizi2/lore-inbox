@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261751AbSIXRq5>; Tue, 24 Sep 2002 13:46:57 -0400
+	id <S261720AbSIXRl3>; Tue, 24 Sep 2002 13:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbSIXRqB>; Tue, 24 Sep 2002 13:46:01 -0400
-Received: from dsl-213-023-039-208.arcor-ip.net ([213.23.39.208]:8892 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261734AbSIXRpb>;
-	Tue, 24 Sep 2002 13:45:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       Dave Olien <dmo@osdl.org>
-Subject: Re: DAC960 in 2.5.38, with new changes
-Date: Tue, 24 Sep 2002 19:50:46 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, axboe@suse.de, _deepfire@mail.ru,
-       linux-kernel@vger.kernel.org
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <20020924095456.A17658@acpi.pdx.osdl.net> <15760.40126.378814.639307@napali.hpl.hp.com>
-In-Reply-To: <15760.40126.378814.639307@napali.hpl.hp.com>
+	id <S261752AbSIXRkw>; Tue, 24 Sep 2002 13:40:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22912 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261720AbSIXRYd>; Tue, 24 Sep 2002 13:24:33 -0400
+Date: Tue, 24 Sep 2002 14:29:30 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Mark Veltzer <mark@veltzer.org>
+Cc: Peter Svensson <petersv@psv.nu>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
+In-Reply-To: <200209241519.g8OFJcB26734@www.veltzer.org>
+Message-ID: <Pine.LNX.4.44L.0209241427520.15154-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ttpe-0003ii-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 September 2002 19:11, David Mosberger wrote:
-> (and just
-> in case Dave Miller starts asking about this: yes, the hp zx1 chipset
-> for Itanium 2 does have a hardware I/O TLB... ;-).
+On Tue, 24 Sep 2002, Mark Veltzer wrote:
+> On Tuesday 24 September 2002 17:50, Peter Svensson wrote:
+> > Either you need to educate your users and trust them to
+> > behave, or you need per user scheduling.
+>
+> It is obvious that in high end systems you MUST have per user scheduling
+> since users will rob each other of cycles.... If Linux is to be a
+> general purpose operation system it MUST have this feature
 
-Excuse me, could you please elaborate on the significance of this
-for the rest of us? ;-)
+I just posted a patch for this and will upload the patch to
+my home page:
 
+Subject: [PATCH] per user scheduling for 2.4.19
+
+
+My patch also allows you to switch the per user scheduling
+on/off with /proc/sys/kernel/fairsched and has been tested
+on both UP and SMP.
+
+kind regards,
+
+Rik
 -- 
-Daniel
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+

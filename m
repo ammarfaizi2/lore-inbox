@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTLRIbv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 03:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTLRIbv
+	id S263751AbTLRIZs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 03:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTLRIZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 03:31:51 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:1757 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S263891AbTLRIbu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 03:31:50 -0500
-Subject: Re: crypto-loop + highmen -> random crashes in -test11
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031216034059.28db8e91.akpm@osdl.org>
-References: <1071570648.3528.50.camel@localhost>
-	 <20031216034059.28db8e91.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1071736227.18903.7.camel@localhost>
-Mime-Version: 1.0
-Date: Thu, 18 Dec 2003 09:30:28 +0100
+	Thu, 18 Dec 2003 03:25:48 -0500
+Received: from rtv5.czechbone.net ([212.96.160.67]:30648 "EHLO main.rtv5.cz")
+	by vger.kernel.org with ESMTP id S263751AbTLRIZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 03:25:47 -0500
+Message-ID: <3FE16489.9060006@tiscali.cz>
+Date: Thu, 18 Dec 2003 09:25:45 +0100
+From: Milos Prudek <milos.prudek@tiscali.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Mount Rainier in 2.6
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-16 at 12:40, Andrew Morton wrote:
-> Soeren Sonnenburg <kernel@nn7.de> wrote:
-> >
-> > Hi.
-> > 
-> > I get random crashes/corruption/ init kills when I use cryptoloop on
-> > this highmem enabled ppc machine.
-> 
-> People have reported cryptoloop+highmem crashes on ia32 as well.  I'm not
-> sure if that was with -mm though.
-> 
-> > Applying the loop-* patches at
-> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test10/2.6.0-test10-mm1/broken-out
-> > 
-> > seem to fix this problem (at least I did not get any crash due to
-> > cryptoloop in the last 2 days)
-[...]
-> Nice, but I don't know why those patches fixed it. hrm.
-> 
+I noticed that Jens Axboe's patch to allow Mount Rainier support did not 
+make it into 2.6.0-test11.
 
-no idea. all I can say is that it cryptoloop pretends to work reliably since 3 days...
+Current Mount Rainier patch fails on 2.4.22.
 
-Soeren
+Will Jens Axboe's patch be updated for 2.4.x and/or 2.6.x ?
+
+-- 
+Milos Prudek
 

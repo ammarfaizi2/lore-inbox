@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265277AbRGEWkJ>; Thu, 5 Jul 2001 18:40:09 -0400
+	id <S265445AbRGEWn3>; Thu, 5 Jul 2001 18:43:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265290AbRGEWj7>; Thu, 5 Jul 2001 18:39:59 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:9357 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S265277AbRGEWjv>; Thu, 5 Jul 2001 18:39:51 -0400
-Message-ID: <3B44EDB7.ABD9D60A@resilience.com>
-Date: Thu, 05 Jul 2001 15:44:07 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Small compile error with MTD driver
+	id <S265402AbRGEWnT>; Thu, 5 Jul 2001 18:43:19 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1783 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265398AbRGEWnL>; Thu, 5 Jul 2001 18:43:11 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <0107060033180K.03760@starship> 
+In-Reply-To: <0107060033180K.03760@starship>  <XFMail.20010705144521.davidel@xmailserver.org> 
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux/macros.h(new) and linux/list.h(mod) ... 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 05 Jul 2001 23:43:03 +0100
+Message-ID: <9515.994372983@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-I just downloaded the 2.4.6 kernel and got a compile error while
-building the mtd driver as a module.  The following patch addresses the
-issue and I apologize if someone has already sent this in.
+phillips@bonn-fries.net said:
+> This program prints garbage:
+> 	#define min(x,y) ({ typeof((x)) _x = (x); typeof((y)) _y = (y); (_x>_y)?_y:_x; })
+> 	 	int main (void) { 
+> 		int _x = 3, _y = 4; 
+> 		printf("%i\n", min(_x, _y)); 
+> 		return 0; 
+> 	} 
 
--Jeff
+Life's a bitch.
+cf. get_user(__ret_gu, __val_gu); (on i386)
 
---- 2.4.6.clean/include/linux/mtd/cfi.h   Thu Jul  5 15:03:47 2001
-+++ 2.4.6/include/linux/mtd/cfi.h Thu Jul  5 15:30:43 2001
-@@ -10,6 +10,7 @@
- #include <linux/config.h>
- #include <linux/delay.h>
- #include <linux/types.h>
-+#include <linux/interrupt.h>
- #include <linux/mtd/flashchip.h>
- #include
-<linux/mtd/cfi_endian.h>                                                                        
+Time to invent a gcc extension which gives us unique names? :)
 
--- 
-Jeff Golds
-Sr. Software Engineer
-jgolds@resilience.com
+--
+dwmw2
+
+

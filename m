@@ -1,60 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132880AbRDEMd6>; Thu, 5 Apr 2001 08:33:58 -0400
+	id <S132884AbRDEM5t>; Thu, 5 Apr 2001 08:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132878AbRDEMdv>; Thu, 5 Apr 2001 08:33:51 -0400
-Received: from rdu163-40-153.nc.rr.com ([24.163.40.153]:18443 "EHLO
-	kaitan.hacknslash.net") by vger.kernel.org with ESMTP
-	id <S132880AbRDEMdX>; Thu, 5 Apr 2001 08:33:23 -0400
-Date: Thu, 5 Apr 2001 08:32:36 -0400 (EDT)
-From: Jeff Layton <jtlayton@bigfoot.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbols on SPARC with depmod -ae
-In-Reply-To: <15052.25810.619907.25595@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0104050830420.26901-100000@kaitan.hacknslash.net>
+	id <S132885AbRDEM5i>; Thu, 5 Apr 2001 08:57:38 -0400
+Received: from ns2.servicenet.com.ar ([200.41.148.12]:61970 "EHLO
+	servnet.servicenet.com.ar") by vger.kernel.org with ESMTP
+	id <S132884AbRDEM5e>; Thu, 5 Apr 2001 08:57:34 -0400
+Message-ID: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
+From: =?iso-8859-1?Q?Sarda=F1ons=2C_Eliel?= 
+	<Eliel.Sardanons@philips.edu.ar>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: asm/unistd.h
+Date: Thu, 5 Apr 2001 09:58:43 -0300 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.0.1461.28)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yep the module loaded fine. Must be a problem with depmod then. Thanks for
-the info!
+I'm taking a look at the linux code and I don't understand how do you
+programm...mmm (?) may be i'm a stupid why in include/asm/unistd.h in some
+macros you use this:
 
-caladan:~# modprobe ip_conntrack
-caladan:~# lsmod
-Module                  Size  Used by
-ip_conntrack           19840   0  (unused)
+do {
+...
+} while (0)
 
---
-Jeff Layton (jtlayton@bigfoot.com)
+Thanks in advance.
 
-    "In order for you to profit from your mistakes, you have to get out and
-     make some."
-        -- Anonymous
-
-On Thu, 5 Apr 2001, David S. Miller wrote:
-
-> 
-> Jeff Layton writes:
->  > Anyway here's what I get, should I be concerned about this?
-> ...
->  > caladan:~# /sbin/depmod -ae -F /boot/System.map-2.4.2
->  > depmod: *** Unresolved symbols in
->  > /lib/modules/2.4.2/kernel/drivers/block/loop.o
->  > depmod:         .div
->  > depmod:         .urem
->  > depmod:         .umul
->  > depmod:         .udiv
->  > depmod:         .rem
->  > depmod: *** Unresolved symbols in
-> 
-> Try to load one of the modules which show the problem, does
-> it work?  If so, it is a bug in depmod's handling of these
-> ".foo" symbols.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
-> 
-
+Eliel C. Sardanons

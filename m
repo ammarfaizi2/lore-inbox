@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUDCUbB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 15:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUDCUbB
+	id S261951AbUDCUhA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUDCUhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 15:31:01 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52395 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261937AbUDCUa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 15:30:58 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <s5g7jx31int.fsf@patl=users.sf.net>
-	<20040329231635.GA374@elf.ucw.cz>
-	<20040402165440.GB24861@wohnheim.fh-wedel.de>
-	<20040402180128.GA363@elf.ucw.cz>
-	<20040402181707.GA28112@wohnheim.fh-wedel.de>
-	<20040402182357.GB410@elf.ucw.cz>
-	<20040402200921.GC653@mail.shareable.org>
-	<20040402213933.GB246@elf.ucw.cz>
-	<20040403010425.GJ653@mail.shareable.org>
-	<m1n05soqh2.fsf@ebiederm.dsl.xmission.com>
-	<20040403194344.GA5477@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Apr 2004 13:30:24 -0700
-In-Reply-To: <20040403194344.GA5477@mail.shareable.org>
-Message-ID: <m1ekr4olcv.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sat, 3 Apr 2004 15:37:00 -0500
+Received: from opersys.com ([64.40.108.71]:11270 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261951AbUDCUg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 15:36:59 -0500
+Message-ID: <406F21CB.8070908@opersys.com>
+Date: Sat, 03 Apr 2004 15:42:51 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: khandelw@cs.fsu.edu
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.16
+References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>	<406C79E4.1060700@opersys.com> <1081012426.5c22c66499b13@system.cs.fsu.edu>
+In-Reply-To: <1081012426.5c22c66499b13@system.cs.fsu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
 
-> Eric W. Biederman wrote:
-> > > Here's a tricky situation:
-> > > 
-> > >    1. A file is cowlinked.  Then each cowlink is mmap()'d, one per process.
-> > > 
-> > >    2. At this point both mappings share the same pages in RAM.
-> > 
-> > Why they have different inodes?
-> 
-> Did you miss the last 20 or so messages in this thread?
-> 
-> We'd like cowlinks that are an invisible filesystem optimisation.
-> That means you "copy" a file and it behaves the same as if you copy a file.
+khandelw@cs.fsu.edu wrote:
+>    I had few issues related to compiling 2.6.3 on redhat 9.0. I have got that up
+> and running except for the (networking)eth0 support. I see Ltt 0.9.6pre2 and
+> not pre3 on the site am I missing sm thing??
 
-Exactly so they would not share the same pages in RAM.
- 
-> > >    3. Then one of the cowlinks is written to...
-> > 
-> > I would not worry about sharing page cache entries unless this becomes
-> > a common case.  If you want to avoid the hit of rereading the file when
-> > you have a cow copy it should be simple enough to walk through the list
-> > of cow copies and see if anyone else has it open.
-> 
-> It is not a question of performance, it's correctness.  Either you
-> have cowlinks that behave like copied files, or you accept that when
-> cowlinked files are mmapped and written to, they don't behave like
-> regular files (not even the original file prior to cowlinking does).
-> 
-> Btw, I'm not suggesting sharing page cache entries.
+Right, I just didn't have time to put up the tradition HTML pointers on
+the project's site. You'll 0.9.6pre3 here:
+http://www.opersys.com/ftp/pub/LTT/
 
-It sounded like you assumed sharing of page cache entries above.  
-How do you get to step 2 if the cow copies don't share the same page
-cache entries?
-
-Eric
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

@@ -1,26 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131630AbRDCMMA>; Tue, 3 Apr 2001 08:12:00 -0400
+	id <S131638AbRDCMOa>; Tue, 3 Apr 2001 08:14:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDCMLk>; Tue, 3 Apr 2001 08:11:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9733 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131630AbRDCMLi>; Tue, 3 Apr 2001 08:11:38 -0400
-Subject: Re: Linux 2.2.19pre18
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Tue, 3 Apr 2001 13:13:21 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010403110119.A3005@emma1.emma.line.org> from "Matthias Andree" at Apr 03, 2001 11:01:19 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131643AbRDCMOU>; Tue, 3 Apr 2001 08:14:20 -0400
+Received: from hamachi.synopsys.com ([204.176.20.26]:17076 "EHLO
+	hamachi.synopsys.com") by vger.kernel.org with ESMTP
+	id <S131638AbRDCMOI>; Tue, 3 Apr 2001 08:14:08 -0400
+Message-ID: <3AC9BE5A.DE079EE1@Synopsys.COM>
+Date: Tue, 03 Apr 2001 14:13:14 +0200
+From: Harald Dunkel <harri@synopsys.COM>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS? How reliable is it? Is this the future?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14kPgZ-0007vJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Out of curiosity: when is the changelog to appear on www.linux.org.uk?
+Hi folks,
 
-When I have time to do it. 2.4.3ac1 has priority right now
+If I get the DVD stuff working, then I won't need NT anymore, i.e.
+I will have an empty disk.
 
+What is your impression about ReiserFS? Does it work? Is it stable
+enough for my daily work, or is it something to try out and watch
+carefully? Do you use ReiserFS for your boot partition?
+
+Or should I try ext3 instead?
+
+
+Regards
+
+Harri

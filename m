@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVCGBO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVCGBNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVCGBO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 20:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVCGBOT
+	id S261621AbVCGBNt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 20:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCGBMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 20:14:19 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:47265 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S261616AbVCGBNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 20:13:45 -0500
-Message-ID: <422BAAC6.6040705@candelatech.com>
-Date: Sun, 06 Mar 2005 17:13:42 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+	Sun, 6 Mar 2005 20:12:50 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:21011 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261619AbVCGBMd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 20:12:33 -0500
+Message-ID: <422BAA75.9030109@snapgear.com>
+Date: Mon, 07 Mar 2005 11:12:21 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christian Schmid <webmaster@rapidforum.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
-References: <4229E805.3050105@rapidforum.com>
-In-Reply-To: <4229E805.3050105@rapidforum.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>,
+       dwmw2@infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-mm1] mtd: fix INFTL failure handling
+References: <20050306175139.GA6192@mech.kuleuven.ac.be>
+In-Reply-To: <20050306175139.GA6192@mech.kuleuven.ac.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Schmid wrote:
-> Hello.
+Hi Panagiotis,
+
+Panagiotis Issaris wrote:
+> The INFTL mount code contains a kmalloc() followed by a memset() without
+> handling a possible memory allocation failure.
 > 
-> After weeks of work, I can now give a detailed report about the bug and 
-> when it appears:
+> Signed-off-by: <panagiotis.issaris@mech.kuleuven.ac.be>
+
+OK, that looks good.
+Dave do you want to take this, or do you want me to submit it?
+
+Regards
+Greg
+
+
+
+> diff -pruN linux-2.6.11-orig/drivers/mtd/inftlmount.c linux-2.6.11-pi/drivers/mtd/inftlmount.c
+> --- linux-2.6.11-orig/drivers/mtd/inftlmount.c	2005-03-05 03:08:52.000000000 +0100
+> +++ linux-2.6.11-pi/drivers/mtd/inftlmount.c	2005-03-06 18:17:15.000000000 +0100
+> @@ -574,6 +574,12 @@ int INFTL_mount(struct INFTLrecord *s)
+>  
+>  	/* Temporary buffer to store ANAC numbers. */
+>  	ANACtable = kmalloc(s->nb_blocks * sizeof(u8), GFP_KERNEL);
+> +	if (!ANACtable) {
+> +		printk(KERN_WARNING "INFTL: allocation of ANACtable "
+> +				"failed (%zd bytes)\n",
+> +				s->nb_blocks * sizeof(u8));
+> +		return -ENOMEM;
+> +	}
+>  	memset(ANACtable, 0, s->nb_blocks);
+>  
+>  	/*
 > 
-> Attached is another traffic-image. This one is with 2.6.10 and a 3/1 
-> split, preemtive kernel, so all defaults.
-
-What are the units on your graph.  You say "MB" several places, but
-do you mean Mb (ie, Mega-bit) instead?
-
-I have a tool that can also generate TCP traffic on a large number of
-sockets.  If I can understand what you are trying to do, I may be able
-to reproduce the problem.  My biggest machine at present has only
-2GB of RAM, however...not sure if that matters or not.
-
-Are you sending traffic in only one direction, or more of a full-duplex
-configuration?  Is each socket running the same bandwidth?  What is this
-bandwidth?  Are you setting the send & rcv buffers in the socket creation
-code?  (To what values if so?)  How many bytes are you sending with each
-call to write()/sendto() whatever?
-
-Is there any significant latency between your sender and receiver machine?
-If so, how much?
-
-What is the physical transport...GigE?  1500 MTU?
-
-Thanks,
-Ben
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265912AbTGIJxl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbTGIJxl
+	id S265902AbTGIJ5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265904AbTGIJ5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:53:41 -0400
-Received: from mail44-s.fg.online.no ([148.122.161.44]:56739 "EHLO
-	mail44.fg.online.no") by vger.kernel.org with ESMTP id S265912AbTGIJxj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:53:39 -0400
-From: Svein Ove Aas <svein.ove@aas.no>
-To: "Clayton Weaver" <cgweav@email.com>, linux-kernel@vger.kernel.org
-Subject: Re: PTY DOS vulnerability?
-Date: Wed, 9 Jul 2003 12:08:07 +0200
-User-Agent: KMail/1.5.2
-References: <20030708231157.7322.qmail@email.com>
-In-Reply-To: <20030708231157.7322.qmail@email.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+	Wed, 9 Jul 2003 05:57:15 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:33492 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265902AbTGIJ5F (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 05:57:05 -0400
+Date: Wed, 9 Jul 2003 03:12:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Linux-Kernel@vger.kernel.org
+Subject: Re: [PATCH] 1/5 VM changes: zone-pressure.patch
+Message-Id: <20030709031203.3971d9b4.akpm@osdl.org>
+In-Reply-To: <16139.54887.932511.717315@laputa.namesys.com>
+References: <16139.54887.932511.717315@laputa.namesys.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200307091208.08466.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-onsdag 9. juli 2003, 01:11, skrev Clayton Weaver:
-> Seems to me that a pty ulimit and making
-> sure that root can always access an unused
-> pty on demand are separate issues.
+Nikita Danilov <Nikita@Namesys.COM> wrote:
 >
-> The ulimit is the same issue that it is for
-> open files, disk quota, aggregate per-user
-> memory utilization, etc, maintaining the
-> "multi-user" aspect of system usability.
->
-> Making sure that root has the tools to do
-> what is needed in a pty resource exhaustion
-> situation deserves perhaps a different
-> mechanism, like dynamic, on-demand pty device
-> creation for root (which seems to me more
-> robust than a "reserved for root" mechanism,
-> which allows the possibility that root
-> processes have already used up that many
-> ptys when root needs one in an emergency).
+> Add zone->pressure field. It estimates scanning intensity for this zone and
+>  is calculated as exponentially decaying average of the scanning priority
+>  required to free enough pages in this zone (mm/vmscan.c:zone_adj_pressure()).
+> 
+>  zone->pressure is supposed to be used in stead of scanning priority by
+>  vmscan.c. This is used by later patches in a series.
+> 
 
-But if you're going to do that for root, then why not do it for all users?
-That would avoid the problem altogether, after all...
+OK, fixes a bug.
 
-- - Svein Ove Aas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> 
+>  diff -puN include/linux/mmzone.h~zone-pressure include/linux/mmzone.h
+>  --- i386/include/linux/mmzone.h~zone-pressure	Wed Jul  9 12:24:50 2003
+>  +++ i386-god/include/linux/mmzone.h	Wed Jul  9 12:24:50 2003
+>  @@ -84,11 +84,23 @@ struct zone {
+>   	atomic_t		refill_counter;
+>   	unsigned long		nr_active;
+>   	unsigned long		nr_inactive;
+>  -	int			all_unreclaimable; /* All pages pinned */
+>  +	int			all_unreclaimable:1; /* All pages pinned */
 
-iD8DBQE/C+mH9OlFkai3rMARAvlIAKCuBSdCx31kgcMP8hFaEx3qkdWiZwCfUI0A
-YSDkrEFpFnmIkzXUi1E7Tnw=
-=Hmkz
------END PGP SIGNATURE-----
+I'll revert this change.  Once we start adding bitfields in there they all
+need common locking and it gets messy.  integers are simpler.
 

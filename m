@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316629AbSE3OBA>; Thu, 30 May 2002 10:01:00 -0400
+	id <S316644AbSE3OJO>; Thu, 30 May 2002 10:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316650AbSE3OA7>; Thu, 30 May 2002 10:00:59 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:11279 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316629AbSE3OA6>; Thu, 30 May 2002 10:00:58 -0400
-Message-ID: <3CF622F0.4050304@evision-ventures.com>
-Date: Thu, 30 May 2002 15:02:40 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.18 IDE 73
-In-Reply-To: <UTC200205300019.g4U0JtH24034.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	id <S316652AbSE3OJN>; Thu, 30 May 2002 10:09:13 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:38793 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S316644AbSE3OJM>;
+	Thu, 30 May 2002 10:09:12 -0400
+Subject: Re: KBuild 2.5 Impressions
+From: Kenneth Johansson <ken@canit.se>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <3CF62020.2030704@evision-ventures.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 May 2002 16:08:55 +0200
+Message-Id: <1022767735.4032.5.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->     Ahhh... wait a moment you are the one who is responsible for
->     util-linux - wouldn't you care to take a bunch of patches?!
+On Thu, 2002-05-30 at 14:50, Martin Dalecki wrote:
+> Daniel Phillips wrote:
 > 
-> Of course - improvements are always welcome.
-> (But I try to be slightly more careful than you are.
-> Util-linux runs on all libc's and all kernels, from libc4 to glibc2
-> and from 0.99 to 2.5. So, changes must be compatible.)
-
-Having them compatible acroess an insane range of kernels
-is a nice but futile exercise.
-Perhaps this partly explains why:
-
-1. util-linux doesn't cover half of the system utilities needed on
-    a sanely actual Linux system.
-
-2. The Linux vendors have to apply insane number of patches to it
-    util it's moderately usable.
-
->     No need to inevent here. No need to do the book keeping in kernel.
+> > Along the way, old kbuild did the usual wrong things:
+> > 
+> >   - In the incremental build, 6 files rebuilt that should not have been
+> > 
+> >   - Once, when I interrupted the make dep, subsequent make deps would
+> >     no longer work, forcing me to do make mrproper and start again.
+> > 
+> >   - Way too much output to the screen
 > 
-> Some need. Things like mount-by-label want to know what partitions
-> exist in order to look at the labels on each.
-> Yes, we really need a list of disk-like devices.
-> The gendisk chain.
+> Bull shit: make -s helps.
 
-No I don't see that point. Data which has to be persistant across
-reboots is simple data which has to reside on disk. That's the
-way it is in UNIX (PalmOS to name an example).
-And after all it's rather trivial to iterate *all* disks present at boot
-by hand and just going through /dev/sdaxxx chains. SCSI allocates
-them consecutively anyway and there are typically not many ATA diskst around
-there.
-After all kudzu is performing nearly the whole job for anything else
-except disks anyway for example.
+In that case it's way to little. In kbuild2.5 it's actually easy to spot
+if the correct files get compiled after a change.
 

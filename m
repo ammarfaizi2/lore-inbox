@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263023AbTCLIIO>; Wed, 12 Mar 2003 03:08:14 -0500
+	id <S262987AbTCLIG7>; Wed, 12 Mar 2003 03:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbTCLIIO>; Wed, 12 Mar 2003 03:08:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10900 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263023AbTCLIIN>;
-	Wed, 12 Mar 2003 03:08:13 -0500
-Date: Wed, 12 Mar 2003 09:18:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: scott thomason <scott-kernel@thomasons.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bio too big device
-Message-ID: <20030312081853.GF811@suse.de>
-References: <200303112055.31854.scott-kernel@thomasons.org> <200303112117.30926.scott-kernel@thomasons.org>
+	id <S263023AbTCLIG7>; Wed, 12 Mar 2003 03:06:59 -0500
+Received: from are.twiddle.net ([64.81.246.98]:18354 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S262987AbTCLIG6>;
+	Wed, 12 Mar 2003 03:06:58 -0500
+Date: Wed, 12 Mar 2003 00:17:39 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Message-ID: <20030312001739.B30855@twiddle.net>
+Mail-Followup-To: Szakacsits Szabolcs <szaka@sienet.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030311235223.A30856@twiddle.net> <Pine.LNX.4.30.0303120848040.17121-100000@divine.city.tvnet.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303112117.30926.scott-kernel@thomasons.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.30.0303120848040.17121-100000@divine.city.tvnet.hu>; from szaka@sienet.hu on Wed, Mar 12, 2003 at 09:02:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11 2003, scott thomason wrote:
-> After a little more digging in drivers/block/ll_rw_blk.c, it 
-> seems that Jens might be the best person to discuss the 
-> following with.
-> 
-> Apparently I have a system that is making bio requests of a size 
-> that exceeds the max sector size for the device? How is that 
-> possible, and more to the point, how can I help get it fixed? 
-> 
-> Or am I misinterpreting something?
+On Wed, Mar 12, 2003 at 09:02:08AM +0100, Szakacsits Szabolcs wrote:
+> gcc team must have, haven't it? Do you know?
 
-Search the lkml archives, this has been answered before in more detail.
-In short, it's a raid bug.
+I have one test case.  It was never turned into anything
+that you could run.
 
--- 
-Jens Axboe
+> I thought about it, I'm just afraid too much kernel wouldn't build.
 
+Then it won't build.  Use a different compiler.
+
+> This bug is in most 2.95, 2.96 and according to Alan in 3.0 and early
+> 3.1) and people would just start "working around" it by commenting out
+> the check for getting something to work quickly then forgetting about
+> the issue completely.
+
+The bug report I can find, 
+
+   http://gcc.gnu.org/ml/gcc-patches/2001-06/msg00746.html
+
+was fixed before gcc 3.0.0 was released.  So if this is
+a different bug...
+
+
+r~

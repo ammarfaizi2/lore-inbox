@@ -1,96 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278737AbRJaQRi>; Wed, 31 Oct 2001 11:17:38 -0500
+	id <S280289AbRJaQhV>; Wed, 31 Oct 2001 11:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280220AbRJaQR2>; Wed, 31 Oct 2001 11:17:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47624 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278737AbRJaQRQ>; Wed, 31 Oct 2001 11:17:16 -0500
-Date: Wed, 31 Oct 2001 08:15:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.4.14-pre6
-Message-ID: <Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com>
+	id <S280291AbRJaQhB>; Wed, 31 Oct 2001 11:37:01 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:33808 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S280289AbRJaQgy>;
+	Wed, 31 Oct 2001 11:36:54 -0500
+Message-ID: <3BE028CA.2010204@epfl.ch>
+Date: Wed, 31 Oct 2001 17:37:30 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i820 agp support ?
+In-Reply-To: <3BDFF640.4020002@epfl.ch> <1004544209.1209.26.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
 
-In article <3BDFBFF5.9F54B938@zip.com.au>,
-Andrew Morton  <akpm@zip.com.au> wrote:
->
->Appended here is a program which creates 100,000 small files.
->Using ext2 on -pre5.  We see how long it takes to run
->
->	(make-many-files ; sync)
->
->For several values of queue_nr_requests:
->
->queue_nr_requests:	128	8192	32768
->execution time:		4:43	3:25	3:20
->
->Almost all of the execution time is in the `sync'.
 
-Hmm..  I don't consider "sync" to be a benchmark, and one of the things
-that made me limit the queue size was in fact that Linux in the
-timeframe before roughly 2.4.7 or so was _completely_ unresponsive when
-you did a big "untar" followed by a "sync".
+> 
+> I will work on support for the i820 ... I don't believe there is any
+> particular reason we don't support it.  Please give me the output of
+> 
+> 	/sbin/lspci -s 0 -v -n
+> 
+> on your i820 machine.
 
-I'd rather have a machine where I don't even much notice the sync than
-one where a made-up-load and a "sync" that servers no purpose shows
-lower throughput.
 
-Do you actually have any real load that cares?
 
->By restricting the number of requests in flight to 128 we're
->giving new requests only a very small chance of getting merged with
->an existing request.  More seeking.
+Hello
 
-If you can come up with alternatives that do not suck from a latency
-standpoint, I'm open to ideas.
 
-However, having tested the -ac approach, I know from personal experience
-that it's just way too easy to find behaviour with so horrible latency
-on a 2GB machine that it's not in the _least_ funny.
+Here is the output I get :
 
-Making the elevator heavily favour reads over writes might be ok enough
-to make the long queues even an option but:
 
->OK, not an interesting workload.  But I suspect that there are real
->workloads which will be bitten by this.
->
->Why is the queue length so tiny now?  Latency?  If so, couldn't this
->be addressed by giving reads higher priority versus writes?
+00:00.0 Class 0600: 8086:2500 (rev 03)
+         Flags: bus master, fast devsel, latency 0
+         Memory at f8000000 (32-bit, prefetchable) [size=64M]
+         Capabilities: [a0] AGP version 2.0
 
-It's a write-write latency thing too, but that's probably not as strong an
-argument.
+01:00.0 Class 0300: 10de:0028 (rev 11)
+         Subsystem: 1048:0c20
+         Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 10
+         Memory at f4000000 (32-bit, non-prefetchable) [size=16M]
+         Memory at f6000000 (32-bit, prefetchable) [size=32M]
+         Expansion ROM at <unassigned> [disabled] [size=64K]
+         Capabilities: [60] Power Management version 1
+         Capabilities: [44] AGP version 2.0
 
-Trivial example: do the above thing at the same time you have a mail agent
-open that does a "fsync()" on its mail store (and depending on your mail
-agent and your mail folder layout, you may have quite a lot of small
-fsyncs going on).
+I was trying to tweak myself the agp code (well, mostly by copying the 
+intel_generic_setup stuff to a intel_i820_setup stuff, but I guess there 
+is a more clever way !). Maybe I can help with this ?
 
-I don't know about you, but I start up mail agents a _lot_ more often
-than I do "sync". And I'd rather do "sync &" than have bad interactive
-performance from the mail agent.
+I guess that the device id's that must be added into 'agp.h' look like 
+this :
 
-I'm not against making the queues larger, but on the other hand I see so
-many _better_ approaches that I would rather people spent some effort on,
-for example, making the dirty list itself be more ordered.
+#ifndef PCI_DEVICE_ID_INTEL_820_0
+#define PCI_DEVICE_ID_INTEL_820_0       0x2500
+#endif
+/* [...] */
+#ifndef PCI_DEVICE_ID_INTEL_820_1
+#define PCI_DEVICE_ID_INTEL_820_1       0x250f
+#endif
 
-We have actually talked about some higher-level ordering of the dirty list
-for at least five years, but nobody has ever done it. And I bet you $5
-that you'll get (a) better throughput than by making the queues longer and
-(b) you'll have fine latency while you write and (c) that you want to
-order the write-queue anyway for filesystems that care about ordering.
+is it correct ?
 
-So yes, making the queue longer is an "easy" solution, but if it then
-leads to complex problems like how to make an elevator that is guaranteed
-to not have bad latency behaviour, I actually think that doing some (even
-just fairly rudimentary) ordering of the write queue ends up being easier
-_and_ more effective.
 
-		Linus
+Nicolas.
+-- 
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
+
 

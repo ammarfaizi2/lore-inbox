@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbTGFRW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 13:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTGFRW4
+	id S263025AbTGFRcl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 13:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266253AbTGFRcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 13:22:56 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:41621 "HELO
-	develer.com") by vger.kernel.org with SMTP id S262874AbTGFRWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 13:22:55 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer
-To: Philippe Elie <phil.el@wanadoo.fr>
-Subject: Re: SPAM[RBL] Re: C99 types VS Linus types
-Date: Sun, 6 Jul 2003 19:37:26 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>
-References: <200307060703.58533.bernie@develer.com> <3F0814B1.1000401@wanadoo.fr>
-In-Reply-To: <3F0814B1.1000401@wanadoo.fr>
+	Sun, 6 Jul 2003 13:32:41 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:55002 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263025AbTGFRck
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 13:32:40 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: James Morris <jmorris@intercode.com.au>
+Subject: Re: crypto API and IBM z990 hardware support
+Date: Sun, 6 Jul 2003 19:46:41 +0200
+User-Agent: KMail/1.5.1
+Cc: Thomas Spatzier <TSPAT@de.ibm.com>, <linux-kernel@vger.kernel.org>
+References: <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>
+In-Reply-To: <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307061937.26519.bernie@develer.com>
+Content-Disposition: inline
+Message-Id: <200307061946.41991.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 July 2003 14:23, Philippe Elie wrote:
+On Sunday 06 July 2003 16:08, James Morris wrote:
 
- > alpha user space .h define uint64_t as unsigned long,
- > include/asm-alpha/types.h defines it as unsigned long long.
+> While this looks like it will work fine for the z990, it is a special case
+> which does not address other requirements for hardware support (some
+> initial requirements are listed at
+> http://www.intercode.com.au/jamesm/crypto/hardware_notes.txt).
+>
+> I'm not enthusiastic about adding infrastructure which is really just a
+> hack for some quaint hardware, and probably does not work towards
+> addressing more common hardware requirements.
 
- Why is that? Isn't uint64_t supposed to be _always_ a 64bit
-unsigned integer? Either the kernel or the user space might
-be doing the wrong thing...
+Ok, then I guess the module will simply have to declare MODULE_ALIAS("aes")
+and live in arch/s390/crypto/, which means that the common code
+is not touched at all, but building both the z990 assembler as well
+as the C implementation as modules requires editing /etc/modprobe.conf
+to get the right one.
 
- I've Cc'd the Alpha mantainer to make him aware of this
-problem.
+As soon as you have the new API for crypto cards, we can move to that
+for autoprobing the CPU features and reliably using the right 
+implementation.
 
- > Using a different definition (if it's possible) will be
- > confusing. Using the same definition as user space means
- > than code like:
- >
- > uint64 t u;
- > printk("%lu", u);
- >
- > will not compile on alpha. This problem is solved in C99
- > by using PRI_xxx format specifier macro, I'm not a great
- > fan of this idea.
+Maybe you can add to your list something like the following items:
 
- This is ugly, but there is no way around it. No matter what
-typedefs you're using, C99 or not, printf size specifiers are
-always bound to plain C types, whose size varies from
-platform to platform.
+Requirements:
+- Support for CPU specific optimized algorithms:
+  - autodetection of CPU features (e.g. Pentium MMX or z990 crypto)
+  - selection of different implementations. A high priority job
+    probably wants to use the CPU while another job offloads crypto
+    to an asynchronous add-on card.
 
- > surely vim allow to define your own set of type ?
+Hardware Documentation status:
+- IBM zSeries cryptographic instructions:
+  http://publibfp.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/dz9zr002/7.5.25
 
- Yeah, but not if you're lazy ;-)
+GPL Driver status:
+- IBM PCICC and PCICA cards (incompatible API):
+  Robert Burroughs <burrough@us.ibm.com>
+  http://oss.software.ibm.com/developerworks/opensource/linux390/june2003_recommended.shtml	
+- IBM zSeries cryptographic instructions:
+  Thomas Spatzier (work in progress)
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
-
+	Arnd <><

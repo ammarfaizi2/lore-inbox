@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267566AbUHaJRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUHaJRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267566AbUHaJRG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 05:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUHaJRF
+	id S267555AbUHaJRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 05:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHaJRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 05:17:05 -0400
-Received: from open.hands.com ([195.224.53.39]:37814 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S267555AbUHaJQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 05:16:41 -0400
-Date: Tue, 31 Aug 2004 10:27:51 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fireflier firewall userspace program doing userspace packet filtering
-Message-ID: <20040831092751.GK31497@lkcl.net>
-References: <20040830104202.GG3712@lkcl.net> <20040830181519.GE8382@lkcl.net> <1093893366.7064.176.camel@sherbert> <20040830200023.GA31497@lkcl.net>
+	Tue, 31 Aug 2004 05:17:52 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:28330 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S267555AbUHaJRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 05:17:43 -0400
+Date: Tue, 31 Aug 2004 11:06:47 +0200
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Jay Lan <jlan@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Arthur Corliss <corliss@digitalmages.com>,
+       Andrew Morton <akpm@osdl.org>, Jay Lan <jlan@engr.sgi.com>,
+       lkml <linux-kernel@vger.kernel.org>, erikj@dbear.engr.sgi.com,
+       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
+       Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>,
+       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>
+Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
+Message-ID: <20040831090647.GA3441@frec.bull.fr>
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de> <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org> <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de> <20040827054218.GA4142@frec.bull.fr> <412F9197.4030806@sgi.com>
 Mime-Version: 1.0
+In-Reply-To: <412F9197.4030806@sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 31/08/2004 11:12:08,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 31/08/2004 11:21:25,
+	Serialize complete at 31/08/2004 11:21:25
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830200023.GA31497@lkcl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 09:00:23PM +0100, Luke Kenneth Casson Leighton wrote:
-> On Mon, Aug 30, 2004 at 08:16:06PM +0100, Gianni Tedesco wrote:
-> > On Mon, 2004-08-30 at 19:15 +0100, Luke Kenneth Casson Leighton wrote:
-> > > so, my question, therefore, is:
-> > > 
-> > > 	what should i record in a modified version of ipt_owner in
-> > > 	order to "vet" packets on a per-executable basis?
-> > > 
-> > > 	should i consider recording the inode of the program's binary?
-> > 
-> > Bear in mind that that would make sense for an ACCEPT rule, but for a
-> > DROP rule, copying the binary would bypass the check.
->  
->  i understand!
+On Fri, Aug 27, 2004 at 12:55:03PM -0700, Jay Lan wrote:
+> Please visit http://oss.sgi.com/projects/pagg/
+> The page has been updated to provide information on a per job
+> accounting project called 'job' based on PAGG.
 > 
->  i thought that selinux by default would stop me from being
->  able to copy binaries from /usr/bin.... uhn... no such luck.
-> 
->  if it becomes an issue i will investigate removing read access!
- 
- okay.
+> There is one userspace rpm and one kernel  module for job.
+> This may provide what you are looking for. It is a mature product
+> as well. I am sure Limin(job) and Erik(pagg) would appreciate any
+> input you can provide to make 'job' more useful.
 
- first thing:
+  I have a question about job. If I understand how it works, you can not
+add a process in a job. I mean when you start a session, a container is 
+created and it's the only way to create it. If I'm right, I think that it 
+could be interesting to add a process using ioctl and /proc interface. For
+example, if I want to know how resources are used by a compilation, I
+need to add the process gcc in a container. Any comments? 
 
- 1) assuming that the DROP rule issue is one that cannot be avoided,
-    and that a rules design policy of "deny everything and only allow
-	specifics" is required, then checking on the _full_ pathname
-	of the program is required.
-
- second thing:
-
- 2) it _is_ possible to hunt through the selinux policy macros to
-    remove the execute permission on binaries that a user drops into
-	their home directory, or copies into their home directory.
-
- l.
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+Best,
+Guillaume

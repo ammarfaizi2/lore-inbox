@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRKCWxh>; Sat, 3 Nov 2001 17:53:37 -0500
+	id <S275990AbRKCXA2>; Sat, 3 Nov 2001 18:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275693AbRKCWx2>; Sat, 3 Nov 2001 17:53:28 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:45316 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S274862AbRKCWxO>;
-	Sat, 3 Nov 2001 17:53:14 -0500
-Message-Id: <200111032253.XAA20342@webserver.ithnet.com>
-Date: Sat, 03 Nov 2001 23:53:09 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: groudier@club-internet.fr
-Content-Transfer-Encoding: 7BIT
-Subject: Adaptec vs Symbios performance
+	id <S275752AbRKCXAS>; Sat, 3 Nov 2001 18:00:18 -0500
+Received: from [202.44.245.6] ([202.44.245.6]:20150 "EHLO prdr30.prd.go.th")
+	by vger.kernel.org with ESMTP id <S275743AbRKCW77>;
+	Sat, 3 Nov 2001 17:59:59 -0500
+Date: Sat, 3 Nov 2001 23:59:20 +0100
+From: victor <ixnay@infonegocio.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: victor <ixnay@infonegocio.com>
+X-Priority: 3 (Normal)
+Message-ID: <144182173191.20011103235920@infonegocio.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BE3215A.9000302@google.com>
+Subject: problem whit kernel 2.4.X
 MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Justin, hello Gerard                                            
-                                                                      
-I am looking currently for reasons for bad behaviour of aic7xxx driver
-in an shared interrupt setup and general not-nice behaviour of the    
-driver regarding multi-tasking environment.                           
-Here is what I found in the code:                                     
-                                                                      
-/*                                                                    
- * SCSI controller interrupt handler.                                 
- */                                                                   
-void                                                                  
-ahc_linux_isr(int irq, void *dev_id, struct pt_regs * regs)           
-{                                                                     
-        struct ahc_softc *ahc;                                        
-        struct ahc_cmd *acmd;                                         
-        u_long flags;                                                 
-                                                                      
-        ahc = (struct ahc_softc *) dev_id;                            
-        ahc_lock(ahc, &flags);                                        
-        ahc_intr(ahc);                                                
-        /*                                                            
-         * It would be nice to run the device queues from a           
-         * bottom half handler, but as there is no way to             
-         * dynamically register one, we'll have to postpone           
-         * that until we get integrated into the kernel.              
-         */                                                           
-        ahc_linux_run_device_queues(ahc);                             
-        acmd = TAILQ_FIRST(&ahc->platform_data->completeq);           
-        TAILQ_INIT(&ahc->platform_data->completeq);                   
-        ahc_unlock(ahc, &flags);                                      
-        if (acmd != NULL)                                             
-                ahc_linux_run_complete_queue(ahc, acmd);              
-}                                                                     
-                                                                      
-This is nice. I cannot read the complete code around it (it is derived
-from aic7xxx_linux.c) but if I understand the naming and comments     
-correct, some workload is done inside the hardware interrupt (which   
-shouldn't), which would very much match my tests showing bad overall  
-performance behaviour. Obviously this code is old (read the comment)  
-and needs reworking.                                                  
-Comments?                                                             
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
+Hello
+
+i cant boot ok with a kernel 2.4.X (any version)
+
+i compile and boot the 2.2.19  whitout problem (the 2.2.20 problem is in other mail) but when i boot whit 2.4 series the
+scsi subsystem  fails
+
+i have a alcor alphastation 5/266 and this are the loop messages
+
+the scsi controller is a Qlogic isp 1020 and the driver i am using is
+Qlogic PCI
+
+scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0
+scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
+scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
+scsi: aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 0 
+
+what i am doing wrog :?
+
+thaks in advantage
+
+-- 
+Best regards,
+ victor                          mailto:ixnay@infonegocio.com
+

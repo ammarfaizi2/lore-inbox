@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbULIOuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbULIOx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbULIOuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbULIOuU
+	id S261482AbULIOx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULIOx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:50:20 -0500
-Received: from ozlabs.org ([203.10.76.45]:28897 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261477AbULIOuM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:50:12 -0500
-Date: Fri, 10 Dec 2004 01:46:36 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: willschm@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: Correct alignment for lppaca in paca_struct
-Message-ID: <20041209144636.GB24640@krispykreme.ozlabs.ibm.com>
-References: <20041209143428.GA24640@krispykreme.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Dec 2004 09:53:28 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:45549 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261482AbULIOxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:53:15 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Greg Banks <gnb@sgi.com>, John Levon <levon@movementarian.org>
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Date: Thu, 9 Dec 2004 23:53:53 +0900
+User-Agent: KMail/1.5.4
+Cc: Greg Banks <gnb@sgi.com>, Philippe Elie <phil.el@wanadoo.fr>,
+       linux-kernel@vger.kernel.org
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041209015024.GG4239@sgi.com> <200412092322.27096.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200412092322.27096.amgta@yacht.ocn.ne.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041209143428.GA24640@krispykreme.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200412092353.53634.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 09 December 2004 23:22, Akinobu Mita wrote:
 
-Hi Andrew,
+> Since the timer interrupt is the only way of getting sampling for oprofile
+> on such environments. if no module parameters specified (i.e. timer == 0),
+> then oprofile_timer_init() is never called. and I have got this error:
 
-Sorry, last patch was mangled in some way.
+My first patch is not so bad, I think.
 
-I think this is 2.6.10 material, as well as lparcfg it fixes a nasty 
-bug in our shared processor support (some cpus fail to recognise they
-are in shared processor mode).
+Or, It may be better to revert the return type of oprofile_arch_init()
+from "void" to "int"  to get the result of initialization.
+Though I don't know when/why its interface was changed. and some
+architectures (ppc, sh64, m32r) remain to have old interfaces in -mm.
 
-Anton
 
---
 
-From: Will Schmidt <willschm@us.ibm.com>
-
-We found that we were failing register_vpa calls in cases where the lppaca
-structure (part of the PACA) crosses a page boundary.
-
-This was causing us (lparcfg specifically) some grief as the xSharedProc bit 
-was not being set.
-
-The attached patch changes the alignment of the lppaca structure, and a few 
-comments so we understand why.
-
-Signed-off-by: Will Schmidt <willschm@us.ibm.com>
-Signed-off-by: Anton Blanchard <anton@samba.org>
-
-diff -puN include/asm-ppc64/paca.h~vpa_align include/asm-ppc64/paca.h
---- foobar2/include/asm-ppc64/paca.h~vpa_align	2004-12-10 01:40:32.325580252 +1100
-+++ foobar2-anton/include/asm-ppc64/paca.h	2004-12-10 01:41:14.558646921 +1100
-@@ -99,11 +99,13 @@ struct paca_struct {
- 	u64 exdsi[8];		/* used for linear mapping hash table misses */
- 
- 	/*
--	 * iSeries structues which the hypervisor knows about - Not
--	 * sure if these particularly need to be cacheline aligned.
-+	 * iSeries structues which the hypervisor knows about -
-+	 * This structure should not cross a page boundary.
-+	 * The vpa_init/register_vpa call is now known to fail if the lppaca
-+	 * structure crosses a page boundary.
- 	 * The lppaca is also used on POWER5 pSeries boxes.
- 	 */
--	struct ItLpPaca lppaca __attribute__((aligned(0x80)));
-+	struct ItLpPaca lppaca __attribute__((aligned(0x400)));
- #ifdef CONFIG_PPC_ISERIES
- 	struct ItLpRegSave reg_save;
- #endif
-_

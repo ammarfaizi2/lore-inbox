@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbUAEUUg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbUAEUUg
+	id S265368AbUAEU3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUAEU3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:20:36 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:22277 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S265258AbUAEUU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:20:26 -0500
-Date: Mon, 5 Jan 2004 20:52:28 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040105205228.A1092@pclin040.win.tue.nl>
-References: <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>
+	Mon, 5 Jan 2004 15:29:06 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:3597 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S265368AbUAEU3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:29:03 -0500
+Date: Mon, 5 Jan 2004 21:25:41 +0100
+From: DervishD <raul@pleyades.net>
+To: Greg KH <greg@kroah.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird problems with printer using USB
+Message-ID: <20040105202541.GC15884@DervishD>
+References: <20040105192430.GA15884@DervishD> <20040105194537.GJ22177@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>; from torvalds@osdl.org on Mon, Jan 05, 2004 at 08:13:26AM -0800
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040105194537.GJ22177@kroah.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 08:13:26AM -0800, Linus Torvalds wrote:
+    Hi Greg :)
 
-> > You keep repeating that enumerating is impossible, and that therefore
-> > stable device numbers are impossible, and that consequently, since we
-> > cannot have stable device numbers expecting them to be stable is broken.
-> 
-> Right.
+ * Greg KH <greg@kroah.com> dixit:
+> >     I'm using kernel 2.4.21, if this matters...
+> It does.  I'd recommend trying 2.4.23-pre3, as it had a usb printer
+> driver update in it.
+ 
+    I'll give it a try. I can use the printer thru the parallel port
+anyway, so this is a minor problem. Just annoying.
 
-> When I talk about "enumerate", I do not mean "give numbers starting at 1".
-> It boils down to not how many devices there can be, but to whether there 
-> is any way to "walk the space of devices".
+> Or 2.6.0, that also should be better.
 
-Yes, that is what one commonly calls to enumerate.  Let us say,
-an effective way, given some integer, to find the associated device.
+    Not for now, I don't want to upgrade the module utilities yet. I
+have to upgrade my libc first. Long story...
 
-[You can leave the mathematics out - this enumerable is not the same as
-denumerable or countable. The set of devices on earth is finite.]
+    Thanks a lot for your answer, Greg :)
 
-> And there fundamentally isn't. And _that_ is the basic issue: if you
-> _cannot_ number a space, you cannot have a stable device number.
+    Raúl Núñez de Arenas Coronado
 
-If there is no effective way to find a disk given some number,
-there may very well be an effective way to find a number given some disk.
-And indeed, there usually is.
-
-> There are no "serial numbers".
-> Please. Where do you think those numbers would come from?
-
-Most of my devices do have them...
-
-> My point is that for the subset of devices that _do_ have serial numbers 
-
-Ah, wait! You also have heard about devices with serial numbers! Good!
-It is those devices I was talking about. Remember? ["important special case"]
-
-> udev can then use those serial numbers to have a stable pathname
-
-True. Provided that it knows how to get them.
-The kernel driver knew all about the device.
-Must udev also know all about all possible devices? Do I/O to these devices?
-Or must sysfs export all data that could possibly be used?
-
-Andries
-
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

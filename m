@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271216AbUJVLXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271220AbUJVLX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271216AbUJVLXn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbUJVLXm
+	id S271220AbUJVLX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271217AbUJVLXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:23:42 -0400
-Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:63937
-	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
-	id S271216AbUJVLVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:21:22 -0400
-Date: Fri, 22 Oct 2004 12:21:17 +0100
-From: Ben Dooks <ben-linux@fluff.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Interrupts & total mess
-Message-ID: <20041022112117.GB17957@home.fluff.org>
-References: <1098338878.3941.25.camel@gaston>
+	Fri, 22 Oct 2004 07:23:55 -0400
+Received: from holomorphy.com ([207.189.100.168]:16834 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S271220AbUJVLXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:23:20 -0400
+Date: Fri, 22 Oct 2004 04:23:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V1 [3/4]: Overcommit handling
+Message-ID: <20041022112308.GS17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212157280.3524@schroedinger.engr.sgi.com> <20041022110116.GA17699@infradead.org> <20041022111259.GQ17038@holomorphy.com> <20041022111626.GA18037@infradead.org> <20041022112101.GR17038@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098338878.3941.25.camel@gaston>
-X-Disclaimer: I speak for me, myself, and the other one of me.
+In-Reply-To: <20041022112101.GR17038@holomorphy.com>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 04:07:58PM +1000, Benjamin Herrenschmidt wrote:
-> Ok so my simple project of adding NO_IRQ definitions all over the place
-> is turning into a nightmare for various reasons (the probe_irq_* stuff
-> beeing one of them, as it currently prevents using -1, so I'm leaning
-> toward defining NO_IRQ as beeing INT_MIN, nothing against that ?)
-> 
-> However, while trying to do that in a simple way, that is with a
->  #ifndef NO_IRQ
->  #define NO_IRQ		(INT_MIN)
->  #endif
-> 
-> Somewhere in some generic piece of include after we has some asm/* stuff
-> included to let the arch a chance to override it, I figured that, first,
-> there are a number of places where "irq" is defined as beeing unsigned
-> long... So neither INT_MIN nor -1 are appropriate. Then I noticed while
-> looking for the right files to add this stuff that we have, at least:
-> 
-> include/linux/interrupts.h
-> include/linux/irq.h
-> include/linux/hardirq.h
-> include/asm-*/irq.h
-> include/asm-*/hw_irq.h
-> include/asm-*/hardirq.h
+On Fri, Oct 22, 2004 at 12:16:26PM +0100, Christoph Hellwig wrote:
+>> I thought that was the state of the art for hugetlb pages already?
 
-also see the drivers/base/platform.c for the definition of
-platform_get_irq() which also should be considered for this
-(see earlier posting about the return code).
+On Fri, Oct 22, 2004 at 04:21:01AM -0700, William Lee Irwin III wrote:
+> Only vacuously so, for mainline is not handling hugetlb faults.
+> The real impediment to all this is that no one is bothering to dredge
+> up architecture manuals for the architectures they're touching to
+> create plausible equivalents of update_mmu_cache(), clear_dcache_page()
+> (not considered by Lameter's patches at all), et al for hugetlb.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+flush_dcache_page(), sorry.
 
-  'a smiley only costs 4 bytes'
+
+-- wli

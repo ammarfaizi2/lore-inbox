@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270305AbRHHEEC>; Wed, 8 Aug 2001 00:04:02 -0400
+	id <S270309AbRHHEQo>; Wed, 8 Aug 2001 00:16:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270306AbRHHEDw>; Wed, 8 Aug 2001 00:03:52 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:5135 "EHLO neon-gw.transmeta.com")
-	by vger.kernel.org with ESMTP id <S270305AbRHHEDl>;
-	Wed, 8 Aug 2001 00:03:41 -0400
-Date: Tue, 7 Aug 2001 21:00:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
-In-Reply-To: <Pine.LNX.4.21.0108062015430.11216-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0108072053230.1355-100000@penguin.transmeta.com>
+	id <S270310AbRHHEQe>; Wed, 8 Aug 2001 00:16:34 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:3104 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S270309AbRHHEQV>;
+	Wed, 8 Aug 2001 00:16:21 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Ben Ford <ben@kalifornia.com>
+Cc: David Wagner <daw@mozart.cs.berkeley.edu>, linux-kernel@vger.kernel.org
+Date: Tue, 7 Aug 2001 19:59:11 -0700 (PDT)
+Subject: Re: summary Re: encrypted swap
+In-Reply-To: <3B70B241.40908@kalifornia.com>
+Message-ID: <Pine.LNX.4.33.0108071957170.3450-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+only if you can guarenty that there is no way to avoid wiping it even if
+this is the 2nd (or 3rd) hard drive (and what about how swap drives that
+get added to a system after boot)
 
-On Mon, 6 Aug 2001, Marcelo Tosatti wrote:
+also this had better be a configuration option. I don't want to wait for
+2g of swap space to be wiped when I boot by webserver (which defeates my
+previous requirement)
+
+David Lang
+
+ On Tue, 7 Aug 2001, Ben Ford wrote:
+
+> Date: Tue, 07 Aug 2001 20:30:09 -0700
+> From: Ben Ford <ben@kalifornia.com>
+> To: David Wagner <daw@mozart.cs.berkeley.edu>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: summary Re: encrypted swap
 >
-> The following patch changes total_free_shortage() to use
-> zone_free_shortage() to calculate the sum of perzone free shortages.
-
-Marcelo, the patch looks ok per se, but I think the real _problem_ is that
-you did the same mistake in do_page_launder() as you originally did in the
-VM scanning.
-
-The code should NOT use
-
-	if (zone && !zone_free_shortage(page->zone))
-		.. don't touch ..
-
-because that is completely nonsensical anyway.
-
-As with the VM scanning code, it should do
-
-	if (zone_free_plenty(page->zone))
-		.. don't touch ..
-
-and you should make
-
-	zone_free_plenty(zone)
-	{
-		return zone->free_pages + zone->inactive_clean_pages > zone->max_free_pages;
-	}
-
-and
-
-	zone_free_shortage(zone)
-	{
-		return zone->free_pages + zone->inactive_clean_pages < zone->low_free_pages;
-	}
-
-Note the anti-hysteresis by using max_free_pages vs min_free_pages.
-
-This will clean up the code (remove those silly "zone as a boolean"), and
-I bet it will behave better too with less of a spike in behaviour around
-"max_free_pages".
-
-			Linus
-
+> David Wagner wrote:
+>
+> >You missed some scenarios.  Suppose I run a server that uses crypto.
+> >If swap is unencrypted, all the session keys for the past year might
+> >be laying around on swap.  If swap is encrypted, only the session keys
+> >since the last boot are accessible, at most.  Therefore, using encrypted
+> >swap clearly reduces the impact of a compromise of your machine (whether
+> >through theft or through penetration).  This is a good property.
+> >
+> Wiping swap on boot will achieve the same effect.
+>
+> -b
+>
+> --
+> Please note - If you do not have the same beliefs as we do, you are
+> going to burn in Hell forever.
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

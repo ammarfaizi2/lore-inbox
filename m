@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbTJJQm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 12:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTJJQm1
+	id S263113AbTJJQoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 12:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTJJQny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 12:42:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:50561 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263101AbTJJQmW (ORCPT
+	Fri, 10 Oct 2003 12:43:54 -0400
+Received: from wiggis.ethz.ch ([129.132.86.197]:61070 "EHLO wiggis.ethz.ch")
+	by vger.kernel.org with ESMTP id S263108AbTJJQnR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 12:42:22 -0400
-Date: Fri, 10 Oct 2003 09:44:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Mark Mielke <mark@mark.mielke.cc>, G?bor L?n?rt <lgb@lgb.hu>,
-       Stuart Longland <stuartl@longlandclan.hopto.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010164408.GF727@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	Mark Mielke <mark@mark.mielke.cc>, G?bor L?n?rt <lgb@lgb.hu>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-References: <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org> <20031010143529.GT5112@vega.digitel2002.hu> <20031010144723.GC727@holomorphy.com> <20031010144837.GB12134@mark.mielke.cc> <20031010150122.GD727@holomorphy.com> <20031010155007.GA13825@mark.mielke.cc> <3F86DFED.2030507@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Oct 2003 12:43:17 -0400
+From: Thom Borton <borton@phys.ethz.ch>
+To: Dave Jones <davej@redhat.com>, Russell King <rmk@arm.linux.org.uk>
+Subject: Re: PCMCIA CD-ROM does not work
+Date: Fri, 10 Oct 2003 18:43:17 +0200
+User-Agent: KMail/1.5.4
+References: <200310101652.53796.borton@phys.ethz.ch> <200310101744.30827.borton@phys.ethz.ch> <20031010162710.GF25856@redhat.com>
+In-Reply-To: <20031010162710.GF25856@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F86DFED.2030507@nortelnetworks.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310101843.17341.borton@phys.ethz.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
->> Note that I didn't say that the software
->> approach could *guarantee* immediate success. You wouldn't unplug the
->> CPU until your had successfully deregistered the CPU from having anything
->> scheduled for it.
->> Is this not the way things (should) work?
 
-On Fri, Oct 10, 2003 at 12:35:57PM -0400, Chris Friesen wrote:
-> Note that if you're doing this for high availability purposes, you 
-> already need to have some way of handling a cpu that just dies in the 
-> middle of processing.  Once you've done that, you can just re-use that 
-> to handle hot removal--it just gets treated like a fault.  This is not 
-> to say that you can't try and shut it down nicely first, but its not a 
-> hard requirement.
+You were both right. With CONFIG_ISA the system does not hang when I 
+plug in the PCMCIA card, but I cannot mount it later. 
 
-If you've lost the registers in-kernel, you can't even get away with
-shooting the process. I'm not sure what extreme HA wants to do with
-that, but at a such a point it's not really even possible to figure
-out how to extract the thing from whatever critical section it may
-have been in.
+What can I do then?
 
+Thanks for your help, 
 
--- wli
+Thom
+
+On Friday 10 October 2003 18:27, you wrote:
+> On Fri, Oct 10, 2003 at 05:44:30PM +0200, Thom Borton wrote:
+>  > Thanks a lot, I tried the parameters
+>  > 	ide1=0x386,0x180 pci=off
+>  > and it did not work. pci=off seems to have broken quite a lot
+>  > (fb, jogdial, ...). Just leaving it away and just having
+>  > ide1=0x386,0x180 didn't help the CD-ROM drive either.
+>
+> Something else that needs fixing is pcmcia-cs has its exclude list
+> for the RadeonIGP bug set way too wide.
+> /etc/pcmcia/config.opts has..
+>
+> exclude port 0x380-0x3ff
+>
+> Which is bad news, as the Vaio wants port 0x386. The actual ports
+> that cause problems are 0x3b0->0x3bb and 0x3d3
+>
+> After fixing this, it detects the drive, but hangs when you try and
+> mount it.
+>
+> 		Dave
+
+-- 
+Thom Borton
+Switzerland
+

@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbUCRA2p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbUCRA2o
+	id S262240AbUCRAcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbUCRAcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:28:44 -0500
-Received: from ns.suse.de ([195.135.220.2]:10908 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262235AbUCRA2l (ORCPT
+	Wed, 17 Mar 2004 19:32:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17026 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262240AbUCRAcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:28:41 -0500
-Subject: Re: 2.6.4-mm2
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20040317161338.28b21c35.akpm@osdl.org>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	 <1079474312.4186.927.camel@watt.suse.com>
-	 <20040316152106.22053934.akpm@osdl.org>
-	 <20040316152843.667a623d.akpm@osdl.org>
-	 <20040316153900.1e845ba2.akpm@osdl.org>
-	 <1079485055.4181.1115.camel@watt.suse.com>
-	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-	 <1079566076.4186.1959.camel@watt.suse.com>
-	 <20040317155111.49d09a87.akpm@osdl.org>
-	 <1079568387.4186.1964.camel@watt.suse.com>
-	 <20040317161338.28b21c35.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1079569870.4186.1967.camel@watt.suse.com>
+	Wed, 17 Mar 2004 19:32:18 -0500
+Date: Wed, 17 Mar 2004 16:32:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kurt Garloff <garloff@suse.de>
+Cc: kernel@kolivas.org, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: dynamic sched timeslices
+Message-Id: <20040317163214.16c943c5.akpm@osdl.org>
+In-Reply-To: <20040318002027.GO20121@tpkurt.garloff.de>
+References: <20040315224201.GX4452@tpkurt.garloff.de>
+	<200403170013.38140.kernel@kolivas.org>
+	<20040316142957.GX4452@tpkurt.garloff.de>
+	<200403170745.02538.kernel@kolivas.org>
+	<20040318002027.GO20121@tpkurt.garloff.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 19:31:11 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-17 at 19:13, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > On Wed, 2004-03-17 at 18:51, Andrew Morton wrote:
-> > > Chris Mason <mason@suse.com> wrote:
-> > > >
-> > > > Looks good, but I'm still having problems convincing pagevec_lookup_tag
-> > > > to return anything other than 0 when called from
-> > > > wait_on_page_writeback_range (ext2, ext3, reiserfs).  Any ideas?
-> > > 
-> > > This might help.  I'm testing this path now, so there may be more changes..
-> > > 
+Kurt Garloff <garloff@suse.de> wrote:
+>
+> Hi Con,
+> 
+> On Wed, Mar 17, 2004 at 07:45:02AM +1100, Con Kolivas wrote:
+> > > That's why I think we should offer the tunables.
 > > 
-> > Well, that's certainly a lot slower ;-)
+> > If your workload is so dedicated to just number crunching it isn't hard to add 
+> > a zero to maximum timeslice in kernel/sced.c. 
 > 
-> For once, that's good.
-> 
-> > I've got a direct_read_under
-> > round going.  While you're at it, there's one more bug.
-> > 
-> > The wbc struct used by filemap_fdatawrite doesn't initialize
-> > wbc.nonblocking to zero.  stack magic might give us a 1 there, leading
-> > to an early exit from mpage_writepages even when doing a WB_SYNC_ALL.
-> 
-> I hope not.
+> Of course I can compile a custom kernel for myself and tune all sorts of
+> things. But this is not the way most Linux users want to use Linux any
+> more. Actually that's a long time ago.
 > 
 
-Yes, my brain wandered off for a bit.  Seems like it's break time for
-chris...good news is that direct_read_under is still running without
-problems here.
+I don't think we should be averse to offering a couple of nice high-level
+scheduler tunables.  But I do think we should have testing results which
+clearly show that they provide some benefit, and we should agree that the
+scheduler cannot provide the same benefit automagically.
 
--chris
-
-
+Apologies in advance if we've seen those testing results and I missed it.

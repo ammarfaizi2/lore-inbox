@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270545AbTGPOfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270841AbTGPOfS
+	id S270841AbTGPOhH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270954AbTGPOg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:35:18 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:39133 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S270545AbTGPOfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:35:07 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: Peter Osterlund <petero2@telia.com>
-Subject: Re: 2.6.0-test1: Synaptics driver makes touchpad unusable
-Date: Wed, 16 Jul 2003 16:49:55 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200307151244.53276.gallir@uib.es> <200307151753.59165.gallir@uib.es> <m2brvvh3vz.fsf@telia.com>
-In-Reply-To: <m2brvvh3vz.fsf@telia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 10:36:59 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:28358 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S270943AbTGPOgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:36:52 -0400
+Date: Wed, 16 Jul 2003 10:50:50 -0400
+From: Ben Collins <bcollins@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] fix warning in iee1394 nodemgr
+Message-ID: <20030716145050.GK685@phunnypharm.org>
+References: <Pine.LNX.4.53.0307160159330.32541@montezuma.mastecende.com> <20030716141008.GE685@phunnypharm.org> <20030716074637.253ee2fc.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307161649.55783.gallir@uib.es>
+In-Reply-To: <20030716074637.253ee2fc.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 July 2003 23:33, Peter Osterlund shaped the electrons to shout:
-> Does it help to make the timeout even longer? (15 seconds for example)
-> Does it help to disable the reset sequence altogether, like this?
->
-> diff -u -r -N linux-2.6.0-test1/drivers/input/mouse/synaptics.c
-> linux-tmp/drivers/input/mouse/synaptics.c ---
-> linux-2.6.0-test1/drivers/input/mouse/synaptics.c	Sat Jul 12 00:17:19 2003
-> +++ linux-tmp/drivers/input/mouse/synaptics.c	Tue Jul 15 23:31:01 2003 @@
-> -81,6 +81,8 @@
->  {
->  	unsigned char r[2];
->
-> +	return 0;
-> +
->  	if (psmouse_command(psmouse, r, PSMOUSE_CMD_RESET_BAT))
->  		return -1;
->  	if (r[0] == 0xAA && r[1] == 0x00)
+On Wed, Jul 16, 2003 at 07:46:37AM -0700, David S. Miller wrote:
+> On Wed, 16 Jul 2003 10:10:08 -0400
+> Ben Collins <bcollins@debian.org> wrote:
+> 
+> > I'm a little concerned that I've never seen either of the two warnings
+> > you showed. I've been building with -Werror for awhile now.
+> 
+> GCC generates slightly different flow graphs on different
+> platforms, and from version to version gcc's "might be used
+> uninitialized" accuracy varies :-)
 
-
-No, it didn't help. With the above patch, the x server gives the following 
-errors:
-Query no Synaptics: 0000C8
-(EE) TouchPad no synaptics  touchpad detected and no repeater device
-(EE) TouchPad Unable to query/initialize Synaptics hardware.
-
-
+Ok, I knew it wouldn't be too long before something forced me to do
+non-sparc64 compiles again :)
 
 
 -- 
-  ricardo galli       GPG id C8114D34
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/

@@ -1,420 +1,250 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267431AbSLEUxw>; Thu, 5 Dec 2002 15:53:52 -0500
+	id <S267391AbSLEU4q>; Thu, 5 Dec 2002 15:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbSLEUxw>; Thu, 5 Dec 2002 15:53:52 -0500
-Received: from pcls2.std.com ([199.172.62.104]:19364 "EHLO TheWorld.com")
-	by vger.kernel.org with ESMTP id <S267431AbSLEUxm>;
-	Thu, 5 Dec 2002 15:53:42 -0500
-Date: Thu, 5 Dec 2002 16:01:17 -0500 (EST)
-From: Andrew Tannenbaum <trb@TheWorld.com>
-Message-Id: <200212052101.QAA79341843@shell.TheWorld.com>
-To: linux-kernel@vger.kernel.org
-Subject: bug in sysctl
+	id <S267390AbSLEU4q>; Thu, 5 Dec 2002 15:56:46 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:8964 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267434AbSLEU4f>;
+	Thu, 5 Dec 2002 15:56:35 -0500
+Date: Wed, 4 Dec 2002 14:04:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp: 64-bit compatibility
+Message-ID: <20021204130429.GA8226@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a shar attached below that contains a script to reproduce
-this problem.
+Hi!
 
-1. One line summary:
-sysctl is returning bad data with multi-word arrays.
+This makes swsusp 64bit compatible, and makes it work in case of two
+mirrors of physical memory (x86-64 works like that). It also contains
+few accumulated cleanups. Please apply this time, 
 
-2. full description:
-
-The bug is that the /proc/sys interface seems to write data incorrectly.  I
-include a simple tsc (test sysctl) script, that writes a set of values.  Notice
-that the last value, -62345678 gets shown as -6234567.  In some tests, the
-missing digit 8 ends up in the next location.
-
-It could be a read problem, but I don't think so.
-Note that the errant data does print 32 items, not 33 (since it is "splitting"
-one of them).
-
-I think this bug is on the kernel side, because I am getting odd behavior
-whether I use /sbin/sysctl, or whether I write to /proc/sys with my own
-programs.
-
-3. keyword: kernel / sysctl
-
-4. version:
-
-Linux localhost.localdomain 2.4.18-w4l-rtl3.1 #2 Wed Jun 26 17:32:45 EDT 2002 i686 unknown
-
-also:
-Linux trb-rtl.imt 2.2.18-rtl3.0 #1 Tue Jan 30 14:23:47 CET 2001 i686 unknown
-
-I'm running with RTLinux patches on both these machines, they are
-otherwise common.
-
-5. no crash
-
-6. script that triggers problem:
-Also see shar attached below.
-
-scbug.o is an lkm that creates an array in /proc/sys/kernel/scbug/scratch
-(see associated shar file).
-
-tsc: a small test shell script
-
-<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
-
-# insmod scbug.o
-
-# cat tsc
-sysctl -w kernel/scbug/scratch="91 92 93 94 95 96 97 98 99"
-
-sysctl kernel/scbug/scratch
-
-sysctl -w kernel/scbug/scratch="11111111 -22222222 33333333 -44444444 55555555 -62345678"
-
-sysctl kernel/scbug/scratch
-
-# ./tsc
-kernel.scbug.scratch = 91 92 93 94 95 96 97 98 99
-kernel.scbug.scratch = 91       92      93      94      95      96      97     98       99      0       0       0       0       0       0       0       0      0
-        0       0       0       0       0       0       0       0       0      0
-        0       0       0       0
-kernel.scbug.scratch = 11111111 -22222222 33333333 -44444444 55555555 -62345678
-kernel.scbug.scratch = 11111111 -22222222       33333333        -44444444      55555555 -6234567        97      98      99      0       0       0       0      0
-        0       0       0       0       0       0       0       0       0      0
-        0       0       0       0       0       0       0       0
-
--- end of report --
+								Pavel
 
 
+--- clean/kernel/suspend.c	2002-11-19 16:46:15.000000000 +0100
++++ linux-swsusp/kernel/suspend.c	2002-11-19 15:38:28.000000000 +0100
+@@ -80,9 +80,9 @@
+ #endif
+ 
+ #define TIMEOUT	(6 * HZ)			/* Timeout for stopping processes */
+-#define ADDRESS(x) ((unsigned long) phys_to_virt(((x) << PAGE_SHIFT)))
+-
+-extern int C_A_D;
++#define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
++#define ADDRESS(x) __ADDRESS((x) << PAGE_SHIFT)
++#define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
+ 
+ /* References to section boundaries */
+ extern char _text, _etext, _edata, __bss_start, _end;
+@@ -145,10 +145,10 @@
+ /*
+  * Debug
+  */
+-#undef	DEBUG_DEFAULT
++#define	DEBUG_DEFAULT
+ #undef	DEBUG_PROCESS
+ #undef	DEBUG_SLOW
+-#define TEST_SWSUSP 1		/* Set to 1 to reboot instead of halt machine after suspension */
++#define TEST_SWSUSP 0		/* Set to 1 to reboot instead of halt machine after suspension */
+ 
+ #ifdef DEBUG_DEFAULT
+ # define PRINTK(f, a...)       printk(f, ## a)
+@@ -235,6 +235,7 @@
+ 	} while(todo);
+ 	
+ 	printk( "|\n" );
++	BUG_ON(in_atomic());
+ 	return 0;
+ }
+ 
+@@ -322,20 +323,20 @@
+ 	rw_swap_page_sync(READ, entry, page);
+ 
+ 	if (mode == MARK_SWAP_RESUME) {
+-	  	if (!memcmp("SUSP1R",cur->swh.magic.magic,6))
++	  	if (!memcmp("S1",cur->swh.magic.magic,2))
+ 		  	memcpy(cur->swh.magic.magic,"SWAP-SPACE",10);
+-		else if (!memcmp("SUSP2R",cur->swh.magic.magic,6))
++		else if (!memcmp("S2",cur->swh.magic.magic,2))
+ 			memcpy(cur->swh.magic.magic,"SWAPSPACE2",10);
+ 		else printk("%sUnable to find suspended-data signature (%.10s - misspelled?\n", 
+ 		      	name_resume, cur->swh.magic.magic);
+ 	} else {
+ 	  	if ((!memcmp("SWAP-SPACE",cur->swh.magic.magic,10)))
+-		  	memcpy(cur->swh.magic.magic,"SUSP1R....",10);
++		  	memcpy(cur->swh.magic.magic,"S1SUSP....",10);
+ 		else if ((!memcmp("SWAPSPACE2",cur->swh.magic.magic,10)))
+-			memcpy(cur->swh.magic.magic,"SUSP2R....",10);
++			memcpy(cur->swh.magic.magic,"S2SUSP....",10);
+ 		else panic("\nSwapspace is not swapspace (%.10s)\n", cur->swh.magic.magic);
+ 		cur->link.next = prev; /* prev is the first/last swap page of the resume area */
+-		/* link.next lies *no more* in last 4 bytes of magic */
++		/* link.next lies *no more* in last 4/8 bytes of magic */
+ 	}
+ 	rw_swap_page_sync(WRITE, entry, page);
+ 	__free_page(page);
+@@ -489,7 +490,6 @@
+ 			if (PageNosave(page))
+ 				continue;
+ 
+-
+ 			if ((chunk_size=is_head_of_free_region(page))!=0) {
+ 				pfn += chunk_size - 1;
+ 				continue;
+@@ -500,10 +500,9 @@
+ 			/*
+ 			 * Just copy whole code segment. Hopefully it is not that big.
+ 			 */
+-			if (ADDRESS(pfn) >= (unsigned long)
+-				&__nosave_begin && ADDRESS(pfn) < 
+-				(unsigned long)&__nosave_end) {
+-				PRINTK("[nosave %x]", ADDRESS(pfn));
++			if ((ADDRESS(pfn) >= (unsigned long) ADDRESS2(&__nosave_begin)) && 
++			    (ADDRESS(pfn) <  (unsigned long) ADDRESS2(&__nosave_end))) {
++				PRINTK("[nosave %lx]", ADDRESS(pfn));
+ 				continue;
+ 			}
+ 			/* Hmm, perhaps copying all reserved pages is not too healthy as they may contain 
+@@ -513,7 +512,7 @@
+ 		nr_copy_pages++;
+ 		if (pagedir_p) {
+ 			pagedir_p->orig_address = ADDRESS(pfn);
+-			copy_page(pagedir_p->address, pagedir_p->orig_address);
++			copy_page((void *) pagedir_p->address, (void *) pagedir_p->orig_address);
+ 			pagedir_p++;
+ 		}
+ 	}
+@@ -549,7 +548,7 @@
+ 
+ 	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+ 
+-	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
++	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD, pagedir_order);
+ 	if(!pagedir)
+ 		return NULL;
+ 
+@@ -558,11 +557,12 @@
+ 		SetPageNosave(page++);
+ 		
+ 	while(nr_copy_pages--) {
+-		p->address = get_zeroed_page(GFP_ATOMIC);
++		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
+ 		if(!p->address) {
+ 			free_suspend_pagedir((unsigned long) pagedir);
+ 			return NULL;
+ 		}
++		printk(".");
+ 		SetPageNosave(virt_to_page(p->address));
+ 		p->orig_address = 0;
+ 		p++;
+@@ -623,7 +623,7 @@
+ static void free_some_memory(void)
+ {
+ 	printk("Freeing memory: ");
+-	while (try_to_free_pages(&contig_page_data.node_zones[ZONE_HIGHMEM], GFP_KSWAPD, 0))
++	while (shrink_all_memory(10000))
+ 		printk(".");
+ 	printk("|\n");
+ }
+@@ -676,7 +676,7 @@
+ 	}
+ }
+ 
+-static int suspend_save_image(void)
++static int suspend_prepare_image(void)
+ {
+ 	struct sysinfo i;
+ 	unsigned int nr_needed_pages = 0;
+@@ -725,9 +725,15 @@
+ 	 *
+ 	 * Following line enforces not writing to disk until we choose.
+ 	 */
+-	drivers_unsuspend();
+-	spin_unlock_irq(&suspend_pagedir_lock);
++
+ 	printk( "critical section/: done (%d pages copied)\n", nr_copy_pages );
++	spin_unlock_irq(&suspend_pagedir_lock);
++	return 0;
++}
++
++static void suspend_save_image(void)
++{
++	drivers_unsuspend();
+ 
+ 	lock_swapdevices();
+ 	write_suspend_image();
+@@ -738,11 +744,11 @@
+ 	 * filesystem clean: it is not. (And it does not matter, if we resume
+ 	 * correctly, we'll mark system clean, anyway.)
+ 	 */
+-	return 0;
+ }
+ 
+-void suspend_power_down(void)
++static void suspend_power_down(void)
+ {
++	extern int C_A_D;
+ 	C_A_D = 0;
+ 	printk(KERN_EMERG "%s%s Trying to power down.\n", name_suspend, TEST_SWSUSP ? "Disable TEST_SWSUSP. NOT ": "");
+ #ifdef CONFIG_VT
+@@ -788,8 +794,8 @@
+ 
+ 	PRINTK( "Freeing prev allocated pagedir\n" );
+ 	free_suspend_pagedir((unsigned long) pagedir_save);
+-	drivers_resume(RESUME_ALL_PHASES);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
++	drivers_resume(RESUME_ALL_PHASES);
+ 
+ 	PRINTK( "Fixing swap signatures... " );
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+@@ -804,14 +810,17 @@
+ {
+ 	mb();
+ 	barrier();
++	BUG_ON(in_atomic());
+ 	spin_lock_irq(&suspend_pagedir_lock);
+ }
+ 
+ void do_magic_suspend_2(void)
+ {
+ 	read_swapfiles();
+-	if (!suspend_save_image())
++	if (!suspend_prepare_image()) {	/* suspend_save_image realeses suspend_pagedir_lock */
++		suspend_save_image();
+ 		suspend_power_down();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
++	}
+ 
+ 	printk(KERN_EMERG "%sSuspend failed, trying to recover...\n", name_suspend);
+ 	MDELAY(1000); /* So user can wait and report us messages if armageddon comes :-) */
+@@ -827,7 +836,7 @@
+ 	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
+ }
+ 
+-void do_software_suspend(void)
++static void do_software_suspend(void)
+ {
+ 	arch_prepare_suspend();
+ 	if (prepare_suspend_console())
+@@ -1069,9 +1078,9 @@
+ 
+ 	PREPARENEXT; /* We have to read next position before we overwrite it */
+ 
+-	if (!memcmp("SUSP1R",cur->swh.magic.magic,6))
++	if (!memcmp("S1",cur->swh.magic.magic,2))
+ 		memcpy(cur->swh.magic.magic,"SWAP-SPACE",10);
+-	else if (!memcmp("SUSP2R",cur->swh.magic.magic,6))
++	else if (!memcmp("S2",cur->swh.magic.magic,2))
+ 		memcpy(cur->swh.magic.magic,"SWAPSPACE2",10);
+ 	else {
+ 		panic("%sUnable to find suspended-data signature (%.10s - misspelled?\n", 
 
-8<--cut here--
-
-#!/bin/sh
-# This is a shell archive (produced by GNU sharutils 4.2.1).
-# To extract the files from this archive, save it to some FILE, remove
-# everything before the `!/bin/sh' line above, then type `sh FILE'.
-#
-# Made on 2002-12-05 15:30 EST by <trb@trb-rtl.imt>.
-# Source directory was `/home/trb'.
-#
-# Existing files will *not* be overwritten unless `-c' is specified.
-#
-# This shar contains:
-# length mode       name
-# ------ ---------- ------------------------------------------
-#     97 -rw-rw-r-- scbug/Makefile
-#   1134 -rw------- scbug/scbug.c
-#    209 -rwxr-xr-x scbug/tsc
-#   2171 -rw-r--r-- scbug/scbug.rpt
-#    402 -rw-rw-r-- scbug/make.out
-#
-save_IFS="${IFS}"
-IFS="${IFS}:"
-gettext_dir=FAILED
-locale_dir=FAILED
-first_param="$1"
-for dir in $PATH
-do
-  if test "$gettext_dir" = FAILED && test -f $dir/gettext \
-     && ($dir/gettext --version >/dev/null 2>&1)
-  then
-    set `$dir/gettext --version 2>&1`
-    if test "$3" = GNU
-    then
-      gettext_dir=$dir
-    fi
-  fi
-  if test "$locale_dir" = FAILED && test -f $dir/shar \
-     && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
-  then
-    locale_dir=`$dir/shar --print-text-domain-dir`
-  fi
-done
-IFS="$save_IFS"
-if test "$locale_dir" = FAILED || test "$gettext_dir" = FAILED
-then
-  echo=echo
-else
-  TEXTDOMAINDIR=$locale_dir
-  export TEXTDOMAINDIR
-  TEXTDOMAIN=sharutils
-  export TEXTDOMAIN
-  echo="$gettext_dir/gettext -s"
-fi
-if touch -am -t 200112312359.59 $$.touch >/dev/null 2>&1 && test ! -f 200112312359.59 -a -f $$.touch; then
-  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
-elif touch -am 123123592001.59 $$.touch >/dev/null 2>&1 && test ! -f 123123592001.59 -a ! -f 123123592001.5 -a -f $$.touch; then
-  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
-elif touch -am 1231235901 $$.touch >/dev/null 2>&1 && test ! -f 1231235901 -a -f $$.touch; then
-  shar_touch='touch -am $3$4$5$6$2 "$8"'
-else
-  shar_touch=:
-  echo
-  $echo 'WARNING: not restoring timestamps.  Consider getting and'
-  $echo "installing GNU \`touch', distributed in GNU File Utilities..."
-  echo
-fi
-rm -f 200112312359.59 123123592001.59 123123592001.5 1231235901 $$.touch
-#
-if mkdir _sh01217; then
-  $echo 'x -' 'creating lock directory'
-else
-  $echo 'failed to create lock directory'
-  exit 1
-fi
-# ============= scbug/Makefile ==============
-if test ! -d 'scbug'; then
-  $echo 'x -' 'creating directory' 'scbug'
-  mkdir 'scbug'
-fi
-if test -f 'scbug/Makefile' && test "$first_param" != -c; then
-  $echo 'x -' SKIPPING 'scbug/Makefile' '(file already exists)'
-else
-  $echo 'x -' extracting 'scbug/Makefile' '(text)'
-  sed 's/^X//' << 'SHAR_EOF' > 'scbug/Makefile' &&
-bug:	scbug.o
-X	insmod scbug.o
-X	./tsc
-X
-scbug.o:
-X	gcc -c scbug.c -Wall
-X
-clean:
-X	rmmod scbug
-X	rm *.o
-SHAR_EOF
-  (set 20 02 12 04 16 30 03 'scbug/Makefile'; eval "$shar_touch") &&
-  chmod 0664 'scbug/Makefile' ||
-  $echo 'restore of' 'scbug/Makefile' 'failed'
-  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
-  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
-    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
-    || $echo 'scbug/Makefile:' 'MD5 check failed'
-796e34bfe17a6cb88d7bd613aef34ec2  scbug/Makefile
-SHAR_EOF
-  else
-    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'scbug/Makefile'`"
-    test 97 -eq "$shar_count" ||
-    $echo 'scbug/Makefile:' 'original size' '97,' 'current size' "$shar_count!"
-  fi
-fi
-# ============= scbug/scbug.c ==============
-if test -f 'scbug/scbug.c' && test "$first_param" != -c; then
-  $echo 'x -' SKIPPING 'scbug/scbug.c' '(file already exists)'
-else
-  $echo 'x -' extracting 'scbug/scbug.c' '(text)'
-  sed 's/^X//' << 'SHAR_EOF' > 'scbug/scbug.c' &&
-/*
-X * sysctl bug prog
-X */
-X
-#define __KERNEL__
-#define MODULE
-#include <linux/module.h>
-X
-#include <linux/sched.h>
-#include <linux/kernel.h>
-#include <linux/sysctl.h>
-#include <linux/ctype.h>
-X
-#define __KERNEL_SYSCALLS__
-#include <linux/unistd.h>
-#include <asm/unistd.h>
-X
-#ifndef VERSION_CODE
-#  define VERSION_CODE(vers,rel,seq) ( (vers<<16) | (rel<<8) | seq )
-#endif
-X
-int scratch[32];
-X
-#define KERN_SCBUG 434 /* a random number, high enough */
-enum {SCRATCH=1};
-X
-/* the scratch array */
-static ctl_table scbug_table[] = {
-X	{SCRATCH, "scratch", &scratch, 32*sizeof(int), 0644,
-X	NULL, &proc_dointvec, &sysctl_intvec, /* fill with 0's */},
-X	{0}
-X	};
-X
-/* a directory */
-static ctl_table scbug_kern_table[] = {
-X	{KERN_SCBUG, "scbug", NULL, 0, 0555, scbug_table},
-X	{0}
-X	};
-X
-/* the kernel directory */
-static ctl_table scbug_root_table[] = {
-X	{CTL_KERN, "kernel", NULL, 0, 0555, scbug_kern_table},
-X	{0}
-X	};
-X
-static struct ctl_table_header *scbug_table_header;
-X
-int init_module(void) 
-{
-X	scbug_table_header = register_sysctl_table(scbug_root_table, 0);
-X	return 0;
-}
-X
-void cleanup_module(void)
-{
-X	unregister_sysctl_table(scbug_table_header);
-}
-SHAR_EOF
-  (set 20 02 12 04 13 21 59 'scbug/scbug.c'; eval "$shar_touch") &&
-  chmod 0600 'scbug/scbug.c' ||
-  $echo 'restore of' 'scbug/scbug.c' 'failed'
-  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
-  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
-    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
-    || $echo 'scbug/scbug.c:' 'MD5 check failed'
-13c9e91470b69730be09c9718bba008b  scbug/scbug.c
-SHAR_EOF
-  else
-    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'scbug/scbug.c'`"
-    test 1134 -eq "$shar_count" ||
-    $echo 'scbug/scbug.c:' 'original size' '1134,' 'current size' "$shar_count!"
-  fi
-fi
-# ============= scbug/tsc ==============
-if test -f 'scbug/tsc' && test "$first_param" != -c; then
-  $echo 'x -' SKIPPING 'scbug/tsc' '(file already exists)'
-else
-  $echo 'x -' extracting 'scbug/tsc' '(text)'
-  sed 's/^X//' << 'SHAR_EOF' > 'scbug/tsc' &&
-sysctl -w kernel/scbug/scratch="91 92 93 94 95 96 97 98 99"
-X
-sysctl kernel/scbug/scratch
-X
-sysctl -w kernel/scbug/scratch="11111111 -22222222 33333333 -44444444 55555555 -62345678"
-X
-sysctl kernel/scbug/scratch
-SHAR_EOF
-  (set 20 02 12 04 13 16 06 'scbug/tsc'; eval "$shar_touch") &&
-  chmod 0755 'scbug/tsc' ||
-  $echo 'restore of' 'scbug/tsc' 'failed'
-  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
-  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
-    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
-    || $echo 'scbug/tsc:' 'MD5 check failed'
-4078f361f00fc594865b9822b144fb91  scbug/tsc
-SHAR_EOF
-  else
-    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'scbug/tsc'`"
-    test 209 -eq "$shar_count" ||
-    $echo 'scbug/tsc:' 'original size' '209,' 'current size' "$shar_count!"
-  fi
-fi
-# ============= scbug/scbug.rpt ==============
-if test -f 'scbug/scbug.rpt' && test "$first_param" != -c; then
-  $echo 'x -' SKIPPING 'scbug/scbug.rpt' '(file already exists)'
-else
-  $echo 'x -' extracting 'scbug/scbug.rpt' '(text)'
-  sed 's/^X//' << 'SHAR_EOF' > 'scbug/scbug.rpt' &&
-1. One line summary:
-sysctl is returning bad data with multi-word arrays.
-X
-2. full description:
-X
-The bug is that the /proc/sys interface seems to write data incorrectly.  I
-include a simple tsc (test sysctl) script, that writes a set of values.  Notice
-that the last value, -62345678 gets written as -6234567.  (In some tests, the
-missing 8 ends up in the next location.)
-X
-It could be a read problem, but I don't think so.
-Note that the errant data does print 32 items, not 33 (since it is "splitting"
-one of them).
-X
-I think this bug is on the kernel side, because I am getting odd behavior
-whether I use /sbin/sysctl, or whether I write to /proc/sys with my own
-programs.
-X
-3. keyword: kernel / sysctl
-X
-4. version:
-X
-# uname -a
-Linux localhost.localdomain 2.4.18-w4l-rtl3.1 #2 Wed Jun 26 17:32:45 EDT 2002 i686 unknown
-also:
-Linux trb-rtl.imt 2.2.18-rtl3.0 #1 Tue Jan 30 14:23:47 CET 2001 i686 unknown
-X
-5. no crash
-X
-6. script that triggers problem:
-This is shell output, split it up by hand, it's not too long.
-X
-scbug.o is an lkm that creates an array in /proc/sys/kernel/scbug/scratch
-(see associated shar file).
-X
-tsc: a small test shell script
-X
-<<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>>
-X
-# insmod scbug.o
-X
-# cat tsc
-sysctl -w kernel/scbug/scratch="91 92 93 94 95 96 97 98 99"
-X
-sysctl kernel/scbug/scratch
-X
-sysctl -w kernel/scbug/scratch="11111111 -22222222 33333333 -44444444 55555555 -62345678"
-X
-sysctl kernel/scbug/scratch
-X
-# ./tsc
-kernel.scbug.scratch = 91 92 93 94 95 96 97 98 99
-kernel.scbug.scratch = 91       92      93      94      95      96      97     98       99      0       0       0       0       0       0       0       0      0
-X        0       0       0       0       0       0       0       0       0      0
-X        0       0       0       0
-kernel.scbug.scratch = 11111111 -22222222 33333333 -44444444 55555555 -62345678
-kernel.scbug.scratch = 11111111 -22222222       33333333        -44444444      55555555 -6234567        97      98      99      0       0       0       0      0
-X        0       0       0       0       0       0       0       0       0      0
-X        0       0       0       0       0       0       0       0
-X
-#
-SHAR_EOF
-  (set 20 02 12 05 15 30 26 'scbug/scbug.rpt'; eval "$shar_touch") &&
-  chmod 0644 'scbug/scbug.rpt' ||
-  $echo 'restore of' 'scbug/scbug.rpt' 'failed'
-  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
-  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
-    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
-    || $echo 'scbug/scbug.rpt:' 'MD5 check failed'
-5cbb8ce9a2f7a248f131a2617e829618  scbug/scbug.rpt
-SHAR_EOF
-  else
-    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'scbug/scbug.rpt'`"
-    test 2171 -eq "$shar_count" ||
-    $echo 'scbug/scbug.rpt:' 'original size' '2171,' 'current size' "$shar_count!"
-  fi
-fi
-# ============= scbug/make.out ==============
-if test -f 'scbug/make.out' && test "$first_param" != -c; then
-  $echo 'x -' SKIPPING 'scbug/make.out' '(file already exists)'
-else
-  $echo 'x -' extracting 'scbug/make.out' '(text)'
-  sed 's/^X//' << 'SHAR_EOF' > 'scbug/make.out' &&
-gcc -c scbug.c -Wall
-insmod scbug.o
-X./tsc
-kernel.scbug.scratch = 91 92 93 94 95 96 97 98 99
-kernel.scbug.scratch = 91	92	93	94	95	96	97	98	99	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-kernel.scbug.scratch = 11111111 -22222222 33333333 -44444444 55555555 -62345678
-kernel.scbug.scratch = 11111111	-22222222	33333333	-44444444	55555555	-6234567	97	98	99	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
-SHAR_EOF
-  (set 20 02 12 04 15 44 25 'scbug/make.out'; eval "$shar_touch") &&
-  chmod 0664 'scbug/make.out' ||
-  $echo 'restore of' 'scbug/make.out' 'failed'
-  if ( md5sum --help 2>&1 | grep 'sage: md5sum \[' ) >/dev/null 2>&1 \
-  && ( md5sum --version 2>&1 | grep -v 'textutils 1.12' ) >/dev/null; then
-    md5sum -c << SHAR_EOF >/dev/null 2>&1 \
-    || $echo 'scbug/make.out:' 'MD5 check failed'
-2bcd64fa1bc631ec3f1bd07bad71cc16  scbug/make.out
-SHAR_EOF
-  else
-    shar_count="`LC_ALL= LC_CTYPE= LANG= wc -c < 'scbug/make.out'`"
-    test 402 -eq "$shar_count" ||
-    $echo 'scbug/make.out:' 'original size' '402,' 'current size' "$shar_count!"
-  fi
-fi
-rm -fr _sh01217
-exit 0
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

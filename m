@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUEHKS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUEHKYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbUEHKS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 06:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUEHKSz
+	id S264235AbUEHKYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 06:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUEHKYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 06:18:55 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:5893 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264218AbUEHKSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 06:18:54 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: root@chaos.analogic.com, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-Date: Sat, 8 May 2004 13:18:28 +0300
-User-Agent: KMail/1.5.4
-Cc: Jamie Lokier <jamie@shareable.org>, Bill Davidsen <davidsen@tmr.com>,
-       Len Brown <len.brown@intel.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <4069A359.7040908@nortelnetworks.com> <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl> <Pine.LNX.4.53.0404010814420.15020@chaos>
-In-Reply-To: <Pine.LNX.4.53.0404010814420.15020@chaos>
+	Sat, 8 May 2004 06:24:12 -0400
+Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:50653 "EHLO
+	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
+	id S264235AbUEHKYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 06:24:09 -0400
+From: Axel =?utf-8?q?Wei=C3=9F?= <aweiss@informatik.hu-berlin.de>
+Organization: (zu Hause)
+To: linux-kernel@vger.kernel.org
+Subject: Re: module-licences / tainting the kernel
+Date: Sat, 8 May 2004 12:24:49 +0200
+User-Agent: KMail/1.6.2
+References: <200405080957.57286.aweiss@informatik.hu-berlin.de> <1084003417.3843.9.camel@laptop.fenrus.com>
+In-Reply-To: <1084003417.3843.9.camel@laptop.fenrus.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200405081318.28853.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405081224.49890.aweiss@informatik.hu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In Intel machines ALL memory operations are atomic. What
-> the means is that if I make code that does:
+Am Samstag, 8. Mai 2004 10:03 schrieb Arjan van de Ven:
+> > Would it be possible to let e.g. LPGL-licenced kernel-modules be loaded
+> > legally?
 >
-> 	addl	%eax,(memory)
->
-> ... what's in memory will always be the sum of what it was
-> before and the value in the EAX register.
+> there are 2 angles here:
+> 1) there already is "GPL with additional rights" which LGPL is just one
+> form of
 
-Except on SMP.
+Ok, I didn'd see it before - thx.
 
-> A long time ago, somebody invented the 'lock' instruction
-> for Intel machines. It turns out that the first ones locked
-> the whole bus during an operation. Eventually somebody looked
-> at that, and by the time the '486 came out, they no longer
-> locked the whole bus. Then somebody else said; "WTF...
-> Why do we even need this stuff". It was a throw-back to
-> early primitive machines where there were only load and
-> store operations in memory. All arithmetic had to be done
-> in registers. Now, there are only a couple instructions you
-> can use the lock prefix with, or you get an invalid opcode
-> trap, and they are really no-ops because the instruction
-> itself is atomic.
+> and
+> 2) if you mix LGPL with GPL (eg kernel), the LGPL license itself says it
+> autoconverts to GPL, so you can't even have a LGPL module *loaded*.
+> (Not saying that your source can't be LGPL but when you link it into the
+> kernel at runtime it turns GPL)
 
-Not on SMP. On SMP, lock prefix *is needed*.
+What does this actually mean (I'm no lawyer and somehow confused about it)? As 
+I understand, GPL sais: 'every piece of code that relies on me, must be 
+GPL'ed and therefore be available as source code', while LGPL sais: 'you may 
+develop proprietary software that relies on me, but if you change me, your 
+changes must be available as source code'.
 
-If you think I'm wrong, point me to the relevant docs.
---
-vda
+I want to permit proprietary extensions *in user-space* for my 
+open-source-project, that contains some device-drivers for DSP-cards, and 
+partly relies on them. Does your second statement mean that as long as 
+there's only source-code, it may be LGPL (and extendable), but if you *use* 
+it (e.g. load the kernel-modules), everything that relies on the modules must 
+be GPL?
 
+(If this is OT, please tell me, and excuse the noise)
+
+			Axel

@@ -1,36 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262087AbTCVKB2>; Sat, 22 Mar 2003 05:01:28 -0500
+	id <S262080AbTCVJ73>; Sat, 22 Mar 2003 04:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262094AbTCVKB2>; Sat, 22 Mar 2003 05:01:28 -0500
-Received: from smtp2.songnet.fi ([194.100.2.122]:63809 "EHLO smtp2.songnet.fi")
-	by vger.kernel.org with ESMTP id <S262087AbTCVKB1>;
-	Sat, 22 Mar 2003 05:01:27 -0500
-Message-ID: <3E7C3707.4E583F8@clinet.fi>
-Date: Sat, 22 Mar 2003 12:12:23 +0200
-From: Tomi Hakala <tomi.hakala@clinet.fi>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S262082AbTCVJ73>; Sat, 22 Mar 2003 04:59:29 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:30656 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S262080AbTCVJ71>;
+	Sat, 22 Mar 2003 04:59:27 -0500
+From: Dawson Engler <engler@csl.stanford.edu>
+Message-Id: <200303221010.h2MAAS506370@csl.stanford.edu>
+Subject: [CHECKER] deadlock in 2.5.62/fs/lockd/svc*.c?
 To: linux-kernel@vger.kernel.org
-Subject: [2.4.21-pre5] ethernet bonding caused system lockup
+Date: Sat, 22 Mar 2003 02:10:28 -0800 (PST)
+Cc: engler@csl.stanford.edu (Dawson Engler)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi All,
 
-Last night I experienced total system lockup when I added second NIC to
-bond0 group, no OOPS or anything, system stopped to respond immediatiately.
+here's a more interesting potential deadlock in  the 
+	2.5.62/fs/lockd/svc*.c
+code that requires the miscordination of three threads.  It might be
+a false because of 
+        1. infeasible callchain path or 
 
-I had system running about 30 minutes with only one slave for bond0 before
-I did "ifenslave bond0 eth1" which then resulted the lockup. I haven't had
-yet time to test this again but I had bonding running with same config on
-2.4.20.
+        2. the two struct nlm_file.f_sema pointers cannot actually point
+	to the same object.
 
-System is a Dell PowerEdge 2600 with two Intel PRO/1000 NIC's.
+It requires three threads: 
+        thread 1: acquires nlm_file_sema then tries to get file->f_sema
+        thread 2: acquires file->f_sema and tries to get nlm_host_sema
+        thread 3: acquires nlm_host_sema and tries to get nlm_file_sema
 
--- 
-Tomi Hakala
-tomi.hakala@clinet.fi
+Any feedback on this one would be great.
+
+Dawson
+
+
+BUG: ERROR: 3 thread global-global deadlock.
+   <&nlm_file_sema>-><&nlm_host_sema> occurred 4 times
+   <&nlm_host_sema>-><&nlm_file_sema> occurred 5 times
+
+
+Plausible chain
+   thread 1: <&nlm_file_sema,struct nlm_file.f_sema>
+    depth = 3:
+        2.5.62/fs/lockd/svcsubs.c:nlm_traverse_files:218
+
+        down(&nlm_file_sema);
+
+           ->2.5.62/fs/lockd/svcsubs.c:nlm_traverse_files:218
+           	->nlm_traverse_files:224
+           	->nlm_inspect_file:202
+           	->end=fs/lockd/svclock.c:nlmsvc_traverse_blocks:274:down
+
+        	down(&file->f_sema);
+
+Seems like a plausible chain.
+   thread 2: <struct nlm_file.f_sema,&nlm_host_sema>
+    depth = 4:
+        2.5.62/fs/lockd/svclock.c:nlmsvc_lock:309
+
+        /* Lock file against concurrent access */
+        down(&file->f_sema);
+
+
+           ->2.5.62/fs/lockd/svclock.c:nlmsvc_lock:309
+           	->nlmsvc_lock:351
+           	->nlmsvc_create_block:179
+           		->2.5.62/fs/lockd/host.c:nlmclnt_lookup_host:44
+           		    ->end=nlm_lookup_host:74:down
+
+        			/* Lock hash table */
+        			down(&nlm_host_sema);
+
+Seems reasonable.
+  <&nlm_host_sema>-><&nlm_file_sema> =
+    depth = 4:
+        2.5.62/fs/lockd/host.c:nlm_lookup_host:74
+           /* Lock hash table */
+           down(&nlm_host_sema);
+
+           ->2.5.62/fs/lockd/host.c:nlm_lookup_host:74
+           ->nlm_lookup_host:77
+           ->nlm_gc_hosts:319
+           ->/u2/engler/mc/oses/linux/linux-2.5.62/fs/lockd/svcsubs.c:nlmsvc_mark_resources:279
+           ->end=nlm_traverse_files:218:down
+           ->2.5.62/fs/lockd/svcsubs.c:nlm_traverse_files:218
+
+        	down(&nlm_file_sema);
+
+

@@ -1,36 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbTBVKxL>; Sat, 22 Feb 2003 05:53:11 -0500
+	id <S267879AbTBVLGs>; Sat, 22 Feb 2003 06:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266967AbTBVKxK>; Sat, 22 Feb 2003 05:53:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:21719 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266964AbTBVKxK>;
-	Sat, 22 Feb 2003 05:53:10 -0500
-Date: Sat, 22 Feb 2003 02:47:08 -0800 (PST)
-Message-Id: <20030222.024708.125264723.davem@redhat.com>
-To: john@grabjohn.com
-Cc: warp@mercury.d2dc.net, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200302221056.h1MAuv3v000270@81-2-122-30.bradfords.org.uk>
-References: <1045874822.25411.3.camel@rth.ninka.net>
-	<200302221056.h1MAuv3v000270@81-2-122-30.bradfords.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267880AbTBVLGs>; Sat, 22 Feb 2003 06:06:48 -0500
+Received: from mta08bw.bigpond.com ([144.135.24.137]:8945 "EHLO
+	mta08bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267879AbTBVLGr>; Sat, 22 Feb 2003 06:06:47 -0500
+Message-ID: <3E575C38.1020009@bigpond.com>
+Date: Sat, 22 Feb 2003 22:17:12 +1100
+From: Allan Duncan <allan.d@bigpond.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.3a) Gecko/20021212
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre4-ac5
+References: <20030221144008$6a55@gated-at.bofh.it>
+In-Reply-To: <20030221144008$6a55@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Bradford <john@grabjohn.com>
-   Date: Sat, 22 Feb 2003 10:56:57 +0000 (GMT)
-   
-   > That is why we refuse to implement them, and this is why the ECN
-   > RFCs mark the "suggested workarounds" as optional not required to
-   > implement.
-   
-   Errr, so we agree then.  Cool.
+The Makefile needs bumping to -ac5
 
-Awesome :)

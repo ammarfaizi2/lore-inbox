@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316855AbSFDV6t>; Tue, 4 Jun 2002 17:58:49 -0400
+	id <S316854AbSFDWAs>; Tue, 4 Jun 2002 18:00:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316854AbSFDV6s>; Tue, 4 Jun 2002 17:58:48 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:42953 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S316853AbSFDV6q>; Tue, 4 Jun 2002 17:58:46 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7ED8@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Dave Jones'" <davej@suse.de>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        trivial@rustcorp.com.au
-Subject: RE: [patch] i386 "General Options" - begone [take 2]
-Date: Tue, 4 Jun 2002 14:58:35 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S316856AbSFDWAr>; Tue, 4 Jun 2002 18:00:47 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:54011 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316854AbSFDWAr>; Tue, 4 Jun 2002 18:00:47 -0400
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFD36D9.931F6E1D@opersys.com>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Jun 2002 00:06:17 +0100
+Message-Id: <1023231977.11335.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Dave Jones [mailto:davej@suse.de] 
->  > This is a tough one because ACPI *is* power management but 
-> it is also
->  > configuration. It is equivalent to such things as MPS 
-> table parsing, $PIR
->  > parsing, PNPBIOS, as well as APM. The first two don't have 
-> CONFIG_ options
->  > at the moment but they should at some point.
->  > The only thing I can think of is a "Platform interface 
-> options" menu and
->  > just throw all of the above in that. Any other ideas?
-> 
-> You seem to be halfway down the road of splitting ACPI in two already,
-> with the introduction of CONFIG_ACPI_HT_ONLY recently. Why not bundle
-> such options under a CONFIG_ACPI_INITIALISATION or the likes, and
-> put the rest under the power management menu as Brad suggested ?
+On Tue, 2002-06-04 at 22:53, Karim Yaghmour wrote:
+> No one said that you can't have an early domain in the pipeline that
+> specifically deals with this
 
-CONFIG_ACPI_HT_ONLY was a concession to the fact that using ACPI for
-processor discovery only was possible already, but in general an
-all-or-nothing approach to ACPI is IMHO the safest bet.
+Since Linux can run with kernel space controlled by MMU mappings and
+with a few sanity checks in the PCI mapping code it should be possible
+to make it reasonably robust. It would have to corrupt its kernel page
+table mappings and then corrupt itself to scribble through them to fail.
 
-So, let's assume in the very near future it becomes possible to compile a
-kernel without MPS or $PIR support. Where should those config options go?
-These, in addition to pnpbios, are also unneeded with ACPI. That is why I
-was advocating the more general "Platform interface options" menu, so we
-could have *one* place to config these and ACPI in or out, instead of having
-the many different platform interface options in different logical areas.
+Going beyond that is hairy because you then need to virtualise the
+hardware interfaces and also run the kernel in ring 3 with seperate
+guarded page tables
 
-My 2c -- Regards -- Andy

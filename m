@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292981AbSCDXKD>; Mon, 4 Mar 2002 18:10:03 -0500
+	id <S292970AbSCDXKX>; Mon, 4 Mar 2002 18:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292967AbSCDXJy>; Mon, 4 Mar 2002 18:09:54 -0500
-Received: from 64-166-72-137.ayrnetworks.com ([64.166.72.137]:25472 "EHLO 
-	ayrnetworks.com") by vger.kernel.org with ESMTP id <S292970AbSCDXJp>;
-	Mon, 4 Mar 2002 18:09:45 -0500
-Date: Mon, 4 Mar 2002 15:09:38 -0800
-From: William Jhun <wjhun@ayrnetworks.com>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide_free_irq()
-Message-ID: <20020304150938.E1247@ayrnetworks.com>
-In-Reply-To: <20020304141709.C1247@ayrnetworks.com> <Pine.LNX.4.10.10203041456040.13256-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10203041456040.13256-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Mon, Mar 04, 2002 at 02:57:01PM -0800
+	id <S292967AbSCDXKO>; Mon, 4 Mar 2002 18:10:14 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:30625 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292970AbSCDXKB>; Mon, 4 Mar 2002 18:10:01 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: 2.4.19pre1aa1 
+In-Reply-To: Your message of Mon, 04 Mar 2002 23:25:44 +0100.
+             <20020304232544.P20606@dualathlon.random> 
+Date: Mon, 04 Mar 2002 15:09:51 -0800
+Message-Id: <E16i1aZ-0000jQ-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 02:57:01PM -0800, Andre Hedrick wrote:
-> 
-> 
-> Sure but only one arch I see that is effected and they do not use this
-> storage class ...
-> 
-> asm-s390/ide.h:#define ide_free_irq(irq,dev_id)         do {} while (0)
-> asm-s390x/ide.h:#define ide_free_irq(irq,dev_id)        do {} while (0)
-> 
-> Is there another ?
 
-Well, our MIPS-based platform (whose changes haven't been submitted
-yet). We have some broken PCMCIA hardware that requires us to actually
-simulate interrupts with a hi-res timer (by calling ide_intr() directly).
-Yes, it's ugly, but it's our only solution. This change would enable us
-to put our device-specific interrupt "simulation" code into the ide_*
-routines only.
+In message <20020304232544.P20606@dualathlon.random>, > : Andrea Arcangeli writ
+es:
+> it's better to make sure to use all available ram in all nodes instead
+> of doing migrations when the local node is low on mem. But this again
+> depends on the kind of numa system, I'm considering the new numas, not
+> the old ones with the huge penality on the remote memory.
 
-It's not a must right now, but it looked like something that was left
-out, since the rest of the ide code uses the ide_* generic #defines...
+Andrea, don't forget that the "old" NUMAs will soon be the "new" NUMAs
+again.  The internal bus and clock speeds are still quite likely to
+increase faster than the speeds of most interconnects.  And even quite
+a few "big SMP" machines today are really somewhat NUMA-like with a
+2 to 1 - remote to local memory latency (e.g. the Corollary interconnect
+used on a lot of >4-way IA32 boxes is not as fast as the two local
+busses).
 
-Thanks,
-Will Jhun
+So, desiging for the "new" NUMAs is fine if your code goes into
+production this year.  But if it is going into production in two to
+three years, you might want to be thinking about some greater memory
+latency ratios for the upcoming hardware configurations...
+
+gerrit

@@ -1,132 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbSJAQbQ>; Tue, 1 Oct 2002 12:31:16 -0400
+	id <S262135AbSJAQXR>; Tue, 1 Oct 2002 12:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261750AbSJAQbQ>; Tue, 1 Oct 2002 12:31:16 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:64161 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261744AbSJAQbL>; Tue, 1 Oct 2002 12:31:11 -0400
-Date: Tue, 1 Oct 2002 11:34:20 -0500 (CDT)
-From: Kent Yoder <key@austin.ibm.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org, <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH] pcnet32 cable status check
-In-Reply-To: <3D98B25E.2010408@pobox.com>
-Message-ID: <Pine.LNX.4.44.0210011129330.14607-100000@ennui.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262134AbSJAQXR>; Tue, 1 Oct 2002 12:23:17 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27782 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262135AbSJAQXK>;
+	Tue, 1 Oct 2002 12:23:10 -0400
+Date: Tue, 1 Oct 2002 17:31:21 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: "David L. DeGeorge" <dld@degeorge.org>, linux-kernel@vger.kernel.org
+Subject: Re: CPU/cache detection wrong
+Message-ID: <20021001163121.GA5565@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	"David L. DeGeorge" <dld@degeorge.org>,
+	linux-kernel@vger.kernel.org
+References: <20021001151525.GA32467@suse.de> <Pine.GSO.3.96.1021001171405.13606L-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.3.96.1021001171405.13606L-100000@delta.ds2.pg.gda.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 01, 2002 at 06:03:03PM +0200, Maciej W. Rozycki wrote:
 
-  Hi,
+ > > >  Strange -- why not to default to 256K and override it with the value
+ > > > obtained from a cache descriptor if != 0, then?
+ > > Because the cache descriptor IS zero. So we default to 256K.
+ >  You wrote "some of", so I suppose others are OK.
 
-  Here's the updated version, now dependent on Jeff's new mii code.  This is 
-a bit more modular as well and new functionality can be added inside the 
-watchdog function without anything depending on mii.
+Yes, one stepping only afaik. Though the test in the kernel checks
+for 6.11,x with l2==0 just to be sure.
+ 
+ > I meant those others. 
+ > Anyway -- is it a new problem?  I can't see it documented in the current
+ > P3 spec update.  That's weird -- Intel might hesitate documenting
+ > weirdnesses of their chips, however they tend to include such simple and
+ > obvious errata in the update.
+ > 
+ >  The spec actually states the L2 descriptor for the P3 may be as follows:
+ > 
+ > - 0x43 -- 512kB, unified,
+ > - 0x82 -- 256kB, 8-way set associative,
+ > - 0x83 -- 512kB, 8-way set associative.
+ > 
+ > The last descriptor is omitted from the list of known types in cache_table
+ > in 2.4.20-pre8 -- could it be the culprit? 
 
-Thanks,
-Kent
+ Added in last nights patch. IIRC, the errata meant there was no
+ descriptor at all iirc.
+ TBH, I can't recall which document I read about this in, as it was a few
+ months back now. I'll look through old mails when I get chance and see if
+ I can get to the bottom of it.
+ It's possible that this was reported to me, and it is the case you
+ describe (missing descriptor), but the old code should have picked
+ apart the descriptors in a different way to the new table-lookup,
+ so that *should* have worked ok if the descriptor was correct.
 
---- linux-2.5.39.vanilla/drivers/net/pcnet32.c	Sat Sep 21 23:25:05 2002
-+++ linux-2.5.39/drivers/net/pcnet32.c	Tue Oct  1 11:21:13 2002
-@@ -22,8 +22,8 @@
-  *************************************************************************/
- 
- #define DRV_NAME	"pcnet32"
--#define DRV_VERSION	"1.27a"
--#define DRV_RELDATE	"10.02.2002"
-+#define DRV_VERSION	"1.27b"
-+#define DRV_RELDATE	"01.10.2002"
- #define PFX		DRV_NAME ": "
- 
- static const char *version =
-@@ -96,6 +96,8 @@
- 
- #define PCNET32_DMA_MASK 0xffffffff
- 
-+#define PCNET32_WATCHDOG_TIMEOUT (jiffies + (2 * HZ))
-+
- /*
-  * table to translate option values from tulip
-  * to internal options
-@@ -211,6 +213,8 @@
-  *	   fix pci probe not increment cards_found
-  *	   FD auto negotiate error workaround for xSeries250
-  *	   clean up and using new mii module
-+ * v1.27b  Sep 30 2002 Kent Yoder <yoder1@us.ibm.com>
-+ * 	   Added timer for cable connection state changes.
-  */
- 
- 
-@@ -318,6 +322,7 @@
- 	mii:1;				/* mii port available */
-     struct net_device	*next;
-     struct mii_if_info mii_if;
-+    struct timer_list	watchdog_timer;
- };
- 
- static void pcnet32_probe_vlbus(void);
-@@ -333,6 +338,7 @@
- static struct net_device_stats *pcnet32_get_stats(struct net_device *);
- static void pcnet32_set_multicast_list(struct net_device *);
- static int  pcnet32_ioctl(struct net_device *, struct ifreq *, int);
-+static void pcnet32_watchdog(struct net_device *);
- static int mdio_read(struct net_device *dev, int phy_id, int reg_num);
- static void mdio_write(struct net_device *dev, int phy_id, int reg_num, int val);
- 
-@@ -777,6 +783,13 @@
- 	}
-     }
- 
-+    /* Set the mii phy_id so that we can query the link state */
-+    if (lp->mii)
-+	lp->mii_if.phy_id = ((lp->a.read_bcr (ioaddr, 33)) >> 5) & 0x1f;
-+
-+    init_timer (&lp->watchdog_timer);
-+    lp->watchdog_timer.data = (unsigned long) dev;
-+    lp->watchdog_timer.function = (void *) &pcnet32_watchdog;
-     
-     /* The PCNET32-specific entries in the device structure. */
-     dev->open = &pcnet32_open;
-@@ -901,6 +914,12 @@
- 
-     netif_start_queue(dev);
- 
-+    /* If we have mii, print the link status and start the watchdog */
-+    if (lp->mii) {
-+	mii_check_media (&lp->mii_if, 1, 1);
-+	mod_timer (&(lp->watchdog_timer), PCNET32_WATCHDOG_TIMEOUT);
-+    }
-+    
-     i = 0;
-     while (i++ < 100)
- 	if (lp->a.read_csr (ioaddr, 0) & 0x0100)
-@@ -1371,6 +1390,8 @@
-     struct pcnet32_private *lp = dev->priv;
-     int i;
- 
-+    del_timer_sync(&lp->watchdog_timer);
-+
-     netif_stop_queue(dev);
- 
-     lp->stats.rx_missed_errors = lp->a.read_csr (ioaddr, 112);
-@@ -1651,6 +1672,17 @@
-     return -EOPNOTSUPP;
- }
- 
-+static void pcnet32_watchdog(struct net_device *dev)
-+{
-+    struct pcnet32_private *lp = dev->priv;
-+
-+    /* Print the link status if it has changed */
-+    if (lp->mii)
-+	mii_check_media (&lp->mii_if, 1, 0);
-+
-+    mod_timer (&(lp->watchdog_timer), PCNET32_WATCHDOG_TIMEOUT);
-+}
-+
- static struct pci_driver pcnet32_driver = {
-     name:	DRV_NAME,
-     probe:	pcnet32_probe_pci,
+		Dave
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

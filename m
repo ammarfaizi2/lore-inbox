@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131174AbQLFCGE>; Tue, 5 Dec 2000 21:06:04 -0500
+	id <S131123AbQLFCHx>; Tue, 5 Dec 2000 21:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131123AbQLFCFy>; Tue, 5 Dec 2000 21:05:54 -0500
-Received: from anime.net ([63.172.78.150]:15876 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S131081AbQLFCFj>;
-	Tue, 5 Dec 2000 21:05:39 -0500
-Date: Tue, 5 Dec 2000 17:34:50 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <sl@fireplug.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-In-Reply-To: <E143THN-0000A1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0012051733020.11374-100000@anime.net>
+	id <S131249AbQLFCHn>; Tue, 5 Dec 2000 21:07:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1540 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131123AbQLFCHg>; Tue, 5 Dec 2000 21:07:36 -0500
+Subject: Re: That horrible hack from hell called A20
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Wed, 6 Dec 2000 01:26:57 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        kai@thphy.uni-duesseldorf.de, alan@redhat.com (Alan Cox)
+In-Reply-To: <3A2D8509.117F6BD8@transmeta.com> from "H. Peter Anvin" at Dec 05, 2000 04:15:05 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E143TMJ-0000Ad-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, Alan Cox wrote:
-> > Ditto, we have an adsl driver that we setup by overloading various otherwise
-> > unused options in ifconfig (mem_start, io_addr etc) to do this. Cheaper and
-> > faster than writing yet another ioctl using device configuration agent, but
-> > distasteful non the less.
-> Generic is not always good , thats why we have SIOCDEVPRIVATE. One thing Im
-> pondering is if we should make the hardware config ioctl take a hardware type
-> ident with each struct. That would help make all the ethernet agree, all the
-> wan agree, all the ADSL agree without making a nasty mess.
+> Good question.  The whole thing makes me nervous... in fact, perhaps we
+> should really consider using the BIOS INT 15h interrupt to enter
+> protected mode?
 
-Id be up for that, but its hard to standardize on IOCTLs without people
-publishing their drivers, as long as people hide their code we dont know
-what everyone else is doing config interface wise...
+>From my experience with BIOS authors, only if Windows 98 uses the same function
+with the same arguments, the same stuff top of stack and the same segment
+registers loaded ;)
 
-Lets see the code, people...
-
--Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268117AbRG3VSH>; Mon, 30 Jul 2001 17:18:07 -0400
+	id <S268137AbRG3VT1>; Mon, 30 Jul 2001 17:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268118AbRG3VR5>; Mon, 30 Jul 2001 17:17:57 -0400
-Received: from umail.unify.com ([204.163.170.2]:46035 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S268117AbRG3VRr>;
-	Mon, 30 Jul 2001 17:17:47 -0400
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C3ED@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'Dan Hollis'" <goemon@anime.net>, Kurt Garloff <garloff@suse.de>
-Cc: "James A. Treacy" <treacy@home.net>, linux-kernel@vger.kernel.org
-Subject: RE: PROBLEM: Random (hard) lockups
-Date: Mon, 30 Jul 2001 14:17:33 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S268118AbRG3VTR>; Mon, 30 Jul 2001 17:19:17 -0400
+Received: from [209.226.93.226] ([209.226.93.226]:5113 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268156AbRG3VTE>; Mon, 30 Jul 2001 17:19:04 -0400
+Date: Mon, 30 Jul 2001 17:18:29 -0400
+Message-Id: <200107302118.f6ULITu00621@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: devfsd-v1.3.12 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Dan Hollis wrote: 
-> On Mon, 30 Jul 2001, Kurt Garloff wrote:
-> > On Sun, Jul 29, 2001 at 02:34:01PM -0400, James A. Treacy wrote:
-> > > The machine is a 1GHz Athlon (266) on an MSI K7T Turbo 
-> with 256M ram,
-> > A 1.2GHz Athlon with the very same motherboard and the same 
-> amount of RAM
-> > seems to be stable with 2.4.7 and PPro or K6 optimizations 
-> and crashes
-> > during the init procedure if the kernel is optimized for K7.
-> 
-> Perhaps someone can make a test case .c program which uses K7
-> optimizations to smash memory? It would be nice to be able to pin this
-> down. Obviously, the standard memory testers aren't catching it.
-> 
-> Is this only happening on DDR systems?
-> 
-> -Dan
+  Hi, all. I've just released version 1.3.12 of my devfsd (devfs
+daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
+Tarball directly available from:
+ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
 
-I am seeing something very similar on my K7T Turbo/Athlon 900/256M PC133
-SDRAM (note to Dan, the K7T Turbo is an SDRAM mobo, not DDR) - 2.4.6 worked
-fine with no hangs/oopses but 2.4.7 will suddenly hang after an uptime of a
-day or two. Sysrq-b will reboot, but Sysrq-s and Sysrq-u seem to be
-ineffective, and the machine won't respond to pings. Of course, I'm always
-in X when this happens so I don't see any oops information (whatever
-happened to the "write oops to floppy" patches?). Both 2.4.6 and 2.4.7 are
-compiled with K7 optimizations turned on.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
 
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Zathras is used to being beast of burden to other peoples needs. Very sad
-life. Probably have very sad death, but at least there is symmetry.
+This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+(or later).
+
+The main changes are:
+
+- Added compatibility entries for I2C devices. Thanks to Chris Rankin
+
+- Support multiple regular subexpressions. Thanks to Chris Rankin
+
+- Bug fix in MFUNCTION (bogus CFUNCTION could be called)
+
+- Bug fix for when execvp(3) failes (child did not exit)
+
+- Fixed potential buffer overrun problems. Thanks to Sebastian Krahmer
+
+- Added rpm.spec file. Thanks to Willian Stearns
+
+- Added devfsd.conf(5) man page. Thanks to Russell Coker
+
+- Included sample "mysymlink" shared object extension. Thanks to
+  Russell Coker
+
+- Improved modules.devfs configuration file
+
+- Added PREFIX and MANDIR to GNUmakefile
+
+- Documentation updates.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

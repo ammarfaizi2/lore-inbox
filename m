@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbQKPQjm>; Thu, 16 Nov 2000 11:39:42 -0500
+	id <S131060AbQKPQlm>; Thu, 16 Nov 2000 11:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131066AbQKPQjc>; Thu, 16 Nov 2000 11:39:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12088 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131055AbQKPQjM>; Thu, 16 Nov 2000 11:39:12 -0500
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 16 Nov 2000 16:08:43 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), dhinds@valinux.com (David Hinds),
-        torvalds@transmeta.com, tytso@valinux.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A106F81.FB5BE7F1@mandrakesoft.com> from "Jeff Garzik" at Nov 13, 2000 05:47:29 PM
+	id <S130985AbQKPQlc>; Thu, 16 Nov 2000 11:41:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25094 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131136AbQKPQlR>;
+	Thu, 16 Nov 2000 11:41:17 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011161611.QAA02401@raistlin.arm.linux.org.uk>
+Subject: Re: 2.4. continues after Aieee...
+To: dennis@etinc.com (Dennis)
+Date: Thu, 16 Nov 2000 16:11:06 +0000 (GMT)
+Cc: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.0.25.0.20001116103133.02162c80@mail.etinc.com> from "Dennis" at Nov 16, 2000 10:34:30 AM
+X-Location: london.england.earth.mulky-way.universe
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13wRag-0007ym-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's purposefully not on Ted's critical list, the official line is "use
-> pcmcia_cs external package" if you need i82365 or tcic instead of yenta
-> AFAIK.  However... fixing things and being able to support all pcmcia
-> and cardbus adapters would be wonderful.
+Dennis writes:
+> >Not every case causes a panic either.  This week, I had an instance of
+> >an i686 box lock solid with a DFE-530TX net card.  Rebooting/power
+> >cycling it didn't recover it (despite it working for the past month
+> >without any problems).  It only started working again after I moved
+> >it into a different PCI slot.
+> >
+> >I've seen a couple of instances now on totally different hardware where
+> >it is possible to lock a PCI bus solid by improper connections on some
+> >of the PCI bus lines, so a faulty PCI socket seem to be the most likely
+> >cause.
+> 
+> 
+> theres nothing that software can do with a pci bus lockup. You need a 
+> hardware watchdog to reboot the system for this type of failure.
 
->From a practical point of view that currently means 'delete Linus tree pcmcia
-regardless of what you are doing' since the modules from David Hinds and Linus
-pcmcia are not 100% binary compatible for all cases.
-
-It isnt possible for anyone to ship a useful system with Linus pcmcia unless
-the ISA stuff is fixed
-
-Alan
-
-
+If you read on, you'll discover I did in fact say this.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

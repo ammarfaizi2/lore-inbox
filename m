@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270669AbTGNSsC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270660AbTGNSsB
+	id S268557AbTGNSwY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270709AbTGNSwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:48:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33156 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270669AbTGNSr6
+	Mon, 14 Jul 2003 14:52:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39044 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268557AbTGNSwV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:47:58 -0400
-Message-ID: <3F12FE4B.2070004@pobox.com>
-Date: Mon, 14 Jul 2003 15:02:35 -0400
+	Mon, 14 Jul 2003 14:52:21 -0400
+Message-ID: <3F12FF53.7060708@pobox.com>
+Date: Mon, 14 Jul 2003 15:06:59 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: David griego <dagriego@hotmail.com>
-CC: alan@storlinksemi.com, linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-References: <Sea2-F18ekWo76UaiRN00008964@hotmail.com>
-In-Reply-To: <Sea2-F18ekWo76UaiRN00008964@hotmail.com>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all needed rpms
+ installed)
+References: <1058196612.3353.2.camel@aurora.localdomain>
+In-Reply-To: <1058196612.3353.2.camel@aurora.localdomain>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David griego wrote:
-> IMHO, there are several cases for some type of TCP/IP offload.  One is 
-> for embedded systems that are just not capable of doing 1Gbps+.  Another 
-> is with 10GbE, even high end servers will not be able keep up with TCP 
-> processing/data movement at these speeds.  Not being proactive in 
-> adopting TCP/IP offload will force Linux into accepting some scheme that 
-> will not necissarily be best.
+Trever L. Adams wrote:
+> OK, I now get past the initialization of the 3c920.  However, now it
+> hangs (sak enabled, sak doesn't work... completely dead) when eth0 tries
+> to come up.  I have IPv6 enabled (the router does 6to4, this isn't the
+> router), I don't believe I have any firewall stuff on this box, it does
+> dhcp for IPv4 address and ntp time.
 
 
-How does one evaluate a TOE stack to be sure that all the security fixes 
-in Linux are also in that stack?
-
-How does one evaluate a TOE stack to be sure it doesn't add new security 
-holes that Linux never had?
-
-	Jeff
-
-
+hmmm... do you have the latest modutils installed?
 

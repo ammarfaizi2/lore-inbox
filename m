@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTKIP3I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 10:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTKIP3I
+	id S262288AbTKIPZy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 10:25:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbTKIPZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 10:29:08 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:14581 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262291AbTKIP3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 10:29:06 -0500
-Date: Sun, 9 Nov 2003 10:29:00 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marcel Lanz <marcel.lanz@ds9.ch>
-cc: David van Hoose <david.vanhoose@comcast.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: load 2.4.x binary only module on 2.6
-In-Reply-To: <20031106165401.GA7073@ds9.ch>
-Message-ID: <Pine.LNX.4.44.0311091028400.8977-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 9 Nov 2003 10:25:54 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:50326 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S262288AbTKIPZx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 10:25:53 -0500
+Date: Sun, 9 Nov 2003 07:25:34 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031109152534.GA24312@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20031107051048.GA6099@work.bitmover.com> <bollnv$uvt$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bollnv$uvt$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Nov 2003, Marcel Lanz wrote:
+On Sun, Nov 09, 2003 at 07:16:15AM -0800, H. Peter Anvin wrote:
+> That doesn't include anyone who uses the mirrored repository on the
+> main kernel.org machines.  
 
-> ocdemonpp from macraigor for a parallel port JTAG device (RAVEN)
-
-The easiest way to get that running on 2.6 is to ask
-the manufacturer to open source their driver ;)
-
+Last I checked, kernel.org isn't offering pserver access, just ftp.  If you
+want to take over the CVS access just say the word.
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

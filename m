@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129789AbQJaC3p>; Mon, 30 Oct 2000 21:29:45 -0500
+	id <S130007AbQJaCzj>; Mon, 30 Oct 2000 21:55:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129817AbQJaC3Z>; Mon, 30 Oct 2000 21:29:25 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:59403 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S129789AbQJaC3Q>;
-	Mon, 30 Oct 2000 21:29:16 -0500
-Message-Id: <200010310229.e9V2TCF29473@sleipnir.valparaiso.cl>
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.X patch query 
-In-Reply-To: Message from Riley Williams <rhw@MemAlpha.CX> 
-   of "Mon, 30 Oct 2000 20:01:32 -0000." <Pine.LNX.4.10.10010301935480.10495-100000@infradead.org> 
-Date: Mon, 30 Oct 2000 23:29:12 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S130019AbQJaCz2>; Mon, 30 Oct 2000 21:55:28 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:60174 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130007AbQJaCzQ>; Mon, 30 Oct 2000 21:55:16 -0500
+Date: Mon, 30 Oct 2000 18:54:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+Subject: Re: test10-pre7
+In-Reply-To: <20001031020154.A20703@caldera.de>
+Message-ID: <Pine.LNX.4.10.10010301852550.6384-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams <rhw@MemAlpha.CX> said:
 
-[...]
 
-> Before I go any further with this, I would like to ask a few questions
-> relating to it:
+On Tue, 31 Oct 2000, Christoph Hellwig wrote:
+> > newstyle rule to something very simple:
+> > 
+> > 	# Translate to Rules.make lists.
+> > 
+> > 	O_OBJS          := $(obj-y)
+> > 	M_OBJS          := $(obj-m)
 > 
->  1. Is there any likelihood of this making it into the official
->     kernel, or am I just wasting my time?
+> This will destroy one nice feature of list-style makefiles:
+> when you have and object both in obj-y and obj-m it will be removed
+> from obj-m with the old boiler-plates, not with your proposal.
 
-Depends, I'd say... perhaps after a long shakeout and much use.
+Ok. That's fine, the "obj-m" thing doesn't have any ordering constraints,
+so we can do whatever we want to it. Including the $(filter-out ..) thing.
 
->  2. Would I be right in thinking it's too late for either the
->     2.2 or 2.4 kernels ???
-
-No way.
-
-> Assuming it'd be of interest to Linus and yourself...
-
-[...]
-
->  5. I was wondering about providing some means of selecting
->     whether to dump to /dev/fd0 or /dev/fd1 (or others if
->     present). What would be your opinion on this?
-
-Keep it as simple as possible. I'd leave the option open if not hard, but
-not implement it at all at first.
-
->  6. A while back, I developed a high-level floppy formatter
->     that produces a non-standard DOS-compatible format that
->     allows 1436k of data on a 1440k floppy, and produced a
->     bash script that would produce disks formatted in this
->     format.
+> > 	MIX_OBJS        := $(export-objs)
 > 
->     My current plans are for SYSRQ-D to raw write direct to
->     /dev/fd0 and effectively reformat the disks in this
->     format, dropping the log file thereon in the process. I
->     don't plan on doing the low-level format, just the
->     high-level one.
+> The MIX_OBJS change is wrong.  It may not hurt the resulting
+> kernel image but you will build all export-objs, not only the
+> ones you actually have selected.  But we might get around this
+> with some $(filter ...) magic.
 
-KISS, again. What use is a non-standard 1436Kb DOS format when writing at
-most 1Mb? I'd just dump it raw to /dev/fd0, whoever wants to read it later
-will have all kinds of tools at hand.
+Yes. That's fine, again MIX_OBJS does not care about ordering, so
+filtering etc is fine here.
 
-Remember:
+The only thing I really care about is O_OBJS = $(obj-y), and with this
+setup it seems to be a valid thing to do, with some slight hackery on the
+other ones.
 
-- Bloat
-- This will have to work even in a thoroughly hosed system to be of any use
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

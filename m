@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbULFQ3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbULFQdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbULFQ3t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbULFQ3t
+	id S261549AbULFQdm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULFQdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:29:49 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:17057 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S261561AbULFQ2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:28:47 -0500
-Date: Mon, 6 Dec 2004 10:28:18 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ed L Cashin <ecashin@coraid.com>
-cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-In-Reply-To: <87acsrqval.fsf@coraid.com>
-Message-ID: <Pine.LNX.4.58.0412061027510.2173@gradall.private.brainfood.com>
-References: <87acsrqval.fsf@coraid.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Dec 2004 11:33:42 -0500
+Received: from main.gmane.org ([80.91.229.2]:12426 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261549AbULFQdk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:33:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: [BUG] null-pointer deref (perhaps reiserfs3)
+Date: Mon, 06 Dec 2004 17:35:11 +0100
+Message-ID: <cp21l0$mve$1@sea.gmane.org>
+References: <cp02a6$57j$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p5484bc1b.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a4) Gecko/20040927
+X-Accept-Language: de, en
+In-Reply-To: <cp02a6$57j$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Dec 2004, Ed L Cashin wrote:
+> on a machine that i can only reach via SSH at the moment, i got a 
+> null-pointer dereference (see below). The machine runs kernel 2.6.9 
+> without any additional patches.
+> 
+> It happened, while i was doing a "make install". A command within the 
+> "installkernel"-script segfaulted. It seems that only the filesystem 
+> mounted to /boot is affected. Any access to that FS blocks.
 
-> The included patch allows the Linux kernel to use the ATA over
-> Ethernet (AoE) network protocol to communicate with any block device
-> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
-> Blade is the first hardware using AoE.
->
-> AoE devices on the LAN are accessable as block devices and can be used
-> with filesystems, Software RAID, LVM, etc.
->
-> Like IP, AoE is an ethernet-level network protocol, registered with
-> the IEEE.  Unlike IP, AoE is not routable.
->
-> This patch is released under the terms of the GPL.
->
-> (We also have an AoE driver for the 2.4 kernel that we plan to release
-> soon.)
+Here's how to reproduce it:
 
-Is there a free server for this?
+dd if=/dev/zero of=image bs=1M count=40
+mkreiserfs -f image
+mount -o loop image /mnt/test
+cp -r /etc/ /mnt/test
+
+The kernel will Oops, and cp will segfault.
+
+After that, umount -r /mnt/test will fail or block.
+The computer will not reboot or halt.
+

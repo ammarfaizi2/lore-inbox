@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264719AbSJUDg3>; Sun, 20 Oct 2002 23:36:29 -0400
+	id <S264718AbSJUDeh>; Sun, 20 Oct 2002 23:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264720AbSJUDg3>; Sun, 20 Oct 2002 23:36:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:56294 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264719AbSJUDg2>;
-	Sun, 20 Oct 2002 23:36:28 -0400
-Date: Sun, 20 Oct 2002 23:42:33 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <m1znt8v5vt.fsf@frodo.biederman.org>
-Message-ID: <Pine.GSO.4.21.0210202330300.246-100000@weyl.math.psu.edu>
+	id <S264719AbSJUDeh>; Sun, 20 Oct 2002 23:34:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:33791 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264718AbSJUDeh>;
+	Sun, 20 Oct 2002 23:34:37 -0400
+Message-ID: <3DB37734.434F1678@digeo.com>
+Date: Sun, 20 Oct 2002 20:40:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: patch management scripts
+References: <3DB30283.5CEEE032@digeo.com> <20021021023546.GK26443@waste.org> <3DB36C70.DFB52831@digeo.com> <20021021033033.GL26443@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Oct 2002 03:40:36.0570 (UTC) FILETIME=[9E098BA0:01C278B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oliver Xymoron wrote:
+> 
+> ...
+> > - make changes to a not-topmost patch without having to do
+> >   anything special.
+> 
+> Unless of course you're touching that file somewhere else in the
+> stack.
 
-
-On 20 Oct 2002, Eric W. Biederman wrote:
-
-> Using the Linux kernel as a tool to advocate only GPL'd software seems
-> inappropriate as those are not the aims of the kernel maintainers.  If
-> RMS wants that he is free to fork the kernel, or write a kernel that
-> with a license that prohibits people from using software you don't
-> like.
-
-Having seen the software written by RMS, I'd say that you've missed one
-crucial detail: s/write/write (and find suckers who would use)/.
-
-RMS opinion might weight a lot more if he (and FSF programmers in general)
-were capable of writing programs without terminal bloat and without huge
-amount of security holes.  As it is, I'm willing to give them exactly the
-same respect I give to other people writing code of such quality - Microsoft
-employees.  Gates is kooky in one way, Stallman - in another, but both
-can't write decent software, both are utterly devoid of taste and both profess
-"features over fixing bugs" beliefs.
-
+No, that's OK.  I do this fairly regularly.  It tends to be the
+case that the change you make causes the correct patch to throw
+a reject when you try to take it off, so you remember to refresh
+it.

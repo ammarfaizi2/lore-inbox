@@ -1,47 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314614AbSDTNEA>; Sat, 20 Apr 2002 09:04:00 -0400
+	id <S314613AbSDTNBs>; Sat, 20 Apr 2002 09:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314615AbSDTND7>; Sat, 20 Apr 2002 09:03:59 -0400
-Received: from B16b4.pppool.de ([213.7.22.180]:1796 "HELO debian.heim.lan")
-	by vger.kernel.org with SMTP id <S314614AbSDTND6>;
-	Sat, 20 Apr 2002 09:03:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Schoenebeck <christian.schoenebeck@epost.de>
-To: Rob Landley <landley@trommello.org>
-Subject: Re: power off (again)
-Date: Sat, 20 Apr 2002 15:06:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020418201220.C6D6247B1@debian.heim.lan> <20020419123026.A802D47B4@debian.heim.lan> <20020419230335.6454C755@merlin.webofficenow.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020420123802.4676547B4@debian.heim.lan>
+	id <S314614AbSDTNBr>; Sat, 20 Apr 2002 09:01:47 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:24017 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S314613AbSDTNBo>; Sat, 20 Apr 2002 09:01:44 -0400
+From: jordan.breeding@attbi.com
+To: jordan.breeding@attbi.com
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
+Date: Sat, 20 Apr 2002 13:01:39 +0000
+X-Mailer: AT&T Message Center Version 1 (Nov 29 2001)
+Message-Id: <20020420130139.XUZR1901.rwcrmhc52.attbi.com@rwcrwbc55>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> please cc me, I'm offlist <<<
+Hello,
 
-Am Freitag, 19. April 2002 17:52 schrieb Rob Landley:
-> On Friday 19 April 2002 08:58 am, Christian Schoenebeck wrote:
-> > Am Donnerstag, 18. April 2002 23:02 schrieb Trever L. Adams:
-> > > Just out of curiosity, have you changed your power off scripts to
-> > > reflect: "halt -p".
-> >
-> > Yes, this is not the problem
->
-> Just thought I'd give a "me too" response.  The Red Hat 7.2 kernel powers
-> down all three systems I've tried it on (a Dell Inspiron 3500 laptop, a
-> Toshiba Tecra 8000, and an SIS chipset motherboard).  The 2.4.18 and 2.4.17
-> kernels do NOT power down any of those systems (It will spins down the hard
-> drive instead, but the system power stays on.  Yes, I'm compiling in the
-> right APM support.  I've tried it both with and without the "use APM bios
-> to power down" switch.)
->
+  Sorry about any duplicates of the last reply I sent 
+which might have gotten sent out, I am having to use 
+an online emailer right now and it seems to be 
+acting up.
 
-And I already thought I was the only one having that problem.
-
-Meanwhile Wolfgang Loeffler told me the possibility that power off also won't 
-work if you enabled SMP on a uniprocessor machine. It wasn't a solution for 
-my machine as I haven't compiled the kernel with SMP support, but maybe it's 
-one for yours.
+Jordan Breeding
+> Sorry that I did not explain myself better the first time.  
+> The other OSes on this machine _do_ initialize a 
+> cold boot.  Here is how they _all_ reboot:  screen 
+> immediately goes black, hd light comes on as 
+> memory is ECC checked, hd light goes off and BIOS 
+> post screen comes up (monitor is now on again), 
+> Adaptec SCSISelect screen comes up, BIOS issues 
+> single beep and boots into GRUB.  This is the way 
+> that _all_ versions of linux reboot with _all_ reboot 
+> parameters:  screen hangs (but still has text on it, ie. 
+> the reboot messages) for at least 15-30 seconds, 
+> screen then goes blank, hd light comes on but _not_ 
+> for ecc check (during ecc check nothing is accessed 
+> except for memory) instead the system goes straight 
+> into SCSISelect once the screen goes blank and the 
+> hd light comes on (this is evident because during 
+> normal boot SCSISelect is the stage at which the hd 
+> light is on and each SCSI device is accessed in 
+> order), once SCSISelect has polled every id on the 
+> system it tries to hand back off to the BIOS which 
+> was apparently never initialized correctly during a 
+> Linux reboot since it issues a very weird series of 
+> eight or so BIOS beeps and then just sits there, the 
+> ecc memory is never polled, the BIOS post screen 
+> never comes up, the monitor never goes active 
+> again, the system is just hung at a black screen until 
+> I hard reboot it.  Other OSes _do_ perform a reboot 
+> in which ecc memory is polled however, so that 
+> does not seem to be the problem here.  Thanks for 
+> any more help anyone can offer.
+> 
+> Jordan Breeding
+> > On Fri, 2002-04-19 23:15:23 -0000, Jordan Breeding <jordan.breeding@attbi.com>
+> > wrote in message 
+> > 
+> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAjQHXypTRWUeX0Da3WGxUUMKAAAAQAAAA
+> > b2jlXi9TM0a+IKeYbO47lAEAAAAA@attbi.com>:
+> > >   I am having trouble getting a brand new Tyan Thunder K7 S2462UNG (the
+> > > one with onboard SCSI) to reboot successfully using Linux.  This board
+> > 
+> > > FreeBSD do with this board, instead the text stays there for at least
+> > > 15-20 seconds (maybe longer) then when it finally blanks the video and
+> > > the monitor light begins to flash it goes straight into the Adaptec
+> > > SCSISelect scan (I can tell because my HD light comes on and the CDROMs
+> > 
+> > What is so uncommon? The board does use ECC RAM, so maybe the board's
+> > BIOS / firmware needs this time to blank and check all the RAM. Maybe
+> > othe OSes don't initiate a full "cold boot" but something that doesn't
+> > make the board to re-initialize all the RAM...
+> > 
+> > MfG, JBG
+> > 
+> > -- 
+> > Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+> > 	 -- New APT-Proxy written in shell script --
+> > 	   http://lug-owl.de/~jbglaw/software/ap2/
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

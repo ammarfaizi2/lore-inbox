@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264174AbTE0VNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTE0VNo
+	id S264190AbTE0VL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTE0VL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:13:44 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:63210 "EHLO
-	ophelia.hpce.nec.com") by vger.kernel.org with ESMTP
-	id S264181AbTE0VMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:12:42 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [Lse-tech] Node affine NUMA scheduler extension
-Date: Tue, 27 May 2003 23:28:27 +0200
-User-Agent: KMail/1.5.1
-Cc: Andi Kleen <ak@suse.de>, LSE <lse-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305271031.55554.efocht@hpce.nec.com> <200305271154.52608.efocht@hpce.nec.com> <10090000.1054049930@[10.10.2.4]>
-In-Reply-To: <10090000.1054049930@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 27 May 2003 17:11:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1687 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264181AbTE0VKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:10:34 -0400
+Date: Tue, 27 May 2003 14:22:33 -0700 (PDT)
+Message-Id: <20030527.142233.71088632.davem@redhat.com>
+To: zippel@linux-m68k.org
+Cc: mika.penttila@kolumbus.fi, rmk@arm.linux.org.uk, akpm@digeo.com,
+       hugh@veritas.com, LW@karo-electronics.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
+ 2.5.30(at least))
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0305270111370.5042-100000@serv>
+References: <Pine.LNX.4.44.0305261414060.12110-100000@serv>
+	<20030526.153415.41663121.davem@redhat.com>
+	<Pine.LNX.4.44.0305270111370.5042-100000@serv>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305272328.27269.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 17:38, Martin J. Bligh wrote:
-> > Interesting observation, I didn't make it when I tried the lazy
-> > homenode (quite a while ago). But I was focusing on MPI jobs. So what
-> > if we add a condition to CAN_MIGRATE which disables the cache affinity
-> > before the first load balance?
-...
->
-> It'd be nice not to require user intervention here ... is it OK to
-> set CAN_MIGRATE for all clone operations?
+   From: Roman Zippel <zippel@linux-m68k.org>
+   Date: Tue, 27 May 2003 12:53:12 +0200 (CEST)
 
-Do you think of something like:
+   The point I don't like about update_mmu_cache() is that it's called 
+   _after_ set_pte(). Practically it's maybe not a problem right now, but 
+   the cache synchronization should happen before set_pte().
 
-#define CAN_MIGRATE_TASK(p,rq,this_cpu)				\
-	(HOMENODE_UNSET(p) &&					\ //<--
-	 (jiffies - (p)->last_run > cache_decay_ticks) &&	\
-		!task_running(rq, p) &&				\
-		((p)->cpus_allowed & (1UL << (this_cpu))))
+update_mmu_cache() is specifically supposed to always occur before
+anyone could try to use the mapping created.
 
-	curr = curr->prev;
+If this is ever violated, it will be fixed because it is a BUG().
 
-	if (!CAN_MIGRATE_TASK(tmp, busiest, this_cpu) 
-	    || !numa_should_migrate(tmp, busiest, this_cpu)) {
-		if (curr != head)
-			goto skip_queue;
-		idx++;
-		goto skip_bitmap;
-	}
-	if (HOMENODE_UNSET(tmp))				//<--
-		set_task_node(tmp,cpu_to_node(this_cpu));	//<--
-	pull_task(busiest, array, tmp, this_rq, this_cpu);
-	if (!idle && --imbalance) {
-	...
+So I don't see what you're worried about.
 
-?
-Guess this would help a bit for multithreaded jobs. Chosing the
-homenode more carefully here would be pretty expensive.
-
-Regards,
-Erich
-
-
+If the above were not true, sparc64 wouldn't be able to compile
+a kernel successfully. :-)

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbTF3VsR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 17:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265909AbTF3VsR
+	id S265913AbTF3WBX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 18:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbTF3WBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 17:48:17 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:52172 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S265910AbTF3VsQ
+	Mon, 30 Jun 2003 18:01:23 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:49925 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP id S265913AbTF3WBW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 17:48:16 -0400
-Message-ID: <3F00B27D.9060008@rackable.com>
-Date: Mon, 30 Jun 2003 14:58:21 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ICH5-SATA file corruption under 2.4.21-ac1
-References: <200306270956.h5R9uH911387@devserv.devel.redhat.com>
-In-Reply-To: <200306270956.h5R9uH911387@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jun 2003 22:02:37.0462 (UTC) FILETIME=[5141FB60:01C33F53]
+	Mon, 30 Jun 2003 18:01:22 -0400
+Date: Tue, 1 Jul 2003 00:15:42 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+Message-ID: <20030630221542.GA17416@alf.amelek.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi,
 
->>  On an Intel winterpark motherboard I'm seeing file corruption when 
->>using the onboard SATA interface.  The test I'm running is ctcs's new 
->>kdiff test which just copies a kernel, diffs it, deletes the tree, and 
->>starts over.  (Which seems to find file system issues like this pretty 
->>quickly.) 
->>    
->>
->
->Random bit errors. This really doesn't look like an IDE layer problem
->to be honest. 
->  
->
+After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
+the following messages:
 
-  When I switch out the drive for a pata drive everything works.  Same 
-system, and OS config.  This would seem to indicate an issue with the 
-ide driver.
+hda: dma_timer_expiry: dma status == 0x24
+hda: lost interrupt
+hda: dma_intr: bad DMA status (dma_stat=30)
+hda: dma_intr: status=0x50 { DriveReady SeekComplete }
 
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+It happens especially when there is a lot of disk I/O (which stops
+for a few seconds when these messages appear), with three different
+disks (very unlikely they all decided to die at the same time...),
+one old ATA33 (QUANTUM FIREBALL SE8.4A) and two newer ATA100 disks
+(WDC WD300BB-32CCB0, ST340015A).  IDE controller: VIA VT82C686B
+on a MSI MS-6368L motherboard.
 
+I don't remember seeing anything like that in any earlier 2.4.x
+kernels.  Is this a known problem?  Is this anything dangerous -
+should I disable UDMA for now to play it safe?
+
+Thanks,
+Marek
 

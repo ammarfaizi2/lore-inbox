@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291690AbSBALFx>; Fri, 1 Feb 2002 06:05:53 -0500
+	id <S291687AbSBALFX>; Fri, 1 Feb 2002 06:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291692AbSBALFo>; Fri, 1 Feb 2002 06:05:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51588 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291690AbSBALF3>;
-	Fri, 1 Feb 2002 06:05:29 -0500
-Date: Fri, 01 Feb 2002 03:03:45 -0800 (PST)
-Message-Id: <20020201.030345.70220779.davem@redhat.com>
-To: kaos@ocs.com.au
-Cc: brand@jupiter.cs.uni-dortmund.de, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <9496.1012559332@ocs3.intra.ocs.com.au>
-In-Reply-To: <200202011007.g11A7hsc008080@tigger.cs.uni-dortmund.de>
-	<9496.1012559332@ocs3.intra.ocs.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S291690AbSBALFO>; Fri, 1 Feb 2002 06:05:14 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30481 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291687AbSBALFK>;
+	Fri, 1 Feb 2002 06:05:10 -0500
+Date: Fri, 1 Feb 2002 09:04:45 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <E16WReX-0003gt-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0202010903380.17106-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Owens <kaos@ocs.com.au>
-   Date: Fri, 01 Feb 2002 21:28:52 +1100
+On Fri, 1 Feb 2002, Alan Cox wrote:
 
-   On Fri, 01 Feb 2002 11:07:42 +0100, 
-   Horst von Brand <brand@jupiter.cs.uni-dortmund.de> wrote:
-   >libc.a was invented precisely to handle such stuff automatically when
-   >linking... if it doesn't work, it should be fixed. I.e., making .a --> .o
-   >is a step in the wrong direction IMVHO.
-   
-   There are two contradictory requirements.  crc32.o must only be linked
-   if anything in the kernel needs it, linker puts crc32.o after the code
-   that uses it.  crc32.o must be linked before anything that uses it so
-   the crc32 __init code can initialize first.
-   
-Horst isn't even talking about the initcall issues, he's talking about
-how linking with libc works in that it only brings in the routines you
-actually reference.
+> > the prefetch engine will have to restart every 4kB, so we would want to
+> > use 16MB pages if possible.
+> >
+> > How would we allocate large pages? Would there be a boot option to
+> > reserve an area of RAM for large pages only?
+>
+> If you have an rmap all you have to do is to avoid smearing kernel objects
+> around lots of 16Mb page sets. If need be you can then get a 16Mb page
+> back just by shuffling user pages.
+>
+> It does make the performance analysis much more interesting though.
 
-Will you get over the initcall thing already, you must be dreaming
-about it at this point. I mean really, just GET OVER IT. :-)
+Actually, I suspect that for most workloads the amount of
+large pages vs. the amount of small pages should be fairly
+static.
+
+In that case we can just reclaim an old large page from
+the inactive_clean list whenever we want to allocate a new
+one.
+
+As for not putting kernel objects everywhere, this comes
+naturally with HIGHMEM ;)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

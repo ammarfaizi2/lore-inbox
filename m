@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131311AbRCUK6M>; Wed, 21 Mar 2001 05:58:12 -0500
+	id <S131349AbRCULOP>; Wed, 21 Mar 2001 06:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131315AbRCUK6C>; Wed, 21 Mar 2001 05:58:02 -0500
-Received: from x86unx3.comp.nus.edu.sg ([137.132.90.2]:64746 "EHLO
-	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
-	id <S131311AbRCUK5z>; Wed, 21 Mar 2001 05:57:55 -0500
-Date: Wed, 21 Mar 2001 18:56:45 +0800
-From: Zou Min <zoum@comp.nus.edu.sg>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Josh Grebe <squash@primary.net>,
-        Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-Message-ID: <20010321185645.B5559@comp.nus.edu.sg>
-Mail-Followup-To: Zou Min <zoum@comp.nus.edu.sg>,
-	Andreas Dilger <adilger@turbolinux.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Josh Grebe <squash@primary.net>, Jan Harkes <jaharkes@cs.cmu.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010321172800.A11353@comp.nus.edu.sg> <200103210951.f2L9pot18383@webber.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103210951.f2L9pot18383@webber.adilger.int>; from adilger@turbolinux.com on Wed, Mar 21, 2001 at 02:51:49AM -0700
+	id <S131346AbRCULOH>; Wed, 21 Mar 2001 06:14:07 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:61395 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131341AbRCULN4>;
+	Wed, 21 Mar 2001 06:13:56 -0500
+Date: Wed, 21 Mar 2001 22:00:51 +0530 (IST)
+From: Manoj Sontakke <manojs@sasken.com>
+To: linux-kernel@vger.kernel.org
+Subject: initialisation code
+Message-ID: <Pine.LNX.4.21.0103212147400.884-100000@pcc65.sasi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Lastly, which cache can be reclaimed, and which can't?
-> 
-> Slab cache will shrink if there are whole pages which are empty (it may
-> be that they have to be at the end of the cache).  It is hard to tell
-> from the above numbers if any of the caches could shrink, because it
-> depends on the number of objects per page, and if there are any whole
-> pages without allocated objects.
+Hi
+	I am trying to implement some QoS in kernel(in the IP
+layer....similar to TC..... BTW  TC works in the data-link layer). I am
+dequeuing the packets from the IP queue when the function ip_forward is
+called. After processing them, I am reinserting them back to the IP queue.
+	I have a initlisation function (just like pktsched_init in
+TC). Can anyone tell me, where in the kernel boot sequence should I make a
+call to my initialisation function.
 
+Thanks in advance for all the help. 
 
-Btw, how to know the size of each objects in different cache?
+Manoj
 
--- 
-Cheers!
---Zou Min 

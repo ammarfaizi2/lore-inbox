@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbTISU1h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 16:27:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTISU1h
+	id S261733AbTISUgH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 16:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbTISUgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 16:27:37 -0400
-Received: from uni04mr.unity.ncsu.edu ([152.1.1.167]:60586 "EHLO
-	uni04mr.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S261703AbTISU1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 16:27:35 -0400
-Message-ID: <00fe01c37eec$d28be130$8c330e98@nanegrc>
-From: "Lisong Xu" <lxu2@unity.ncsu.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fw: Intel PRO/1000 NIC
-Date: Fri, 19 Sep 2003 16:30:10 -0400
-Organization: NC State University
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 19 Sep 2003 16:36:07 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:30932 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261733AbTISUgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 16:36:05 -0400
+Date: Fri, 19 Sep 2003 22:36:04 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bind Mount Extensions ...
+Message-ID: <20030919203603.GA32092@DUK2.13thfloor.at>
+Mail-Followup-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
+	linux-kernel@vger.kernel.org
+References: <20030919192937.GA31111@DUK2.13thfloor.at> <20030919201634.GF3978@vega.digitel2002.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20030919201634.GF3978@vega.digitel2002.hu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Just in case you have a similar problem.
+On Fri, Sep 19, 2003 at 10:16:34PM +0200, Gábor Lénárt wrote:
+> This would be VERY usefull. Here, we're using chroot'ed apache servers
+> on Solaris and on Linux. For security reasons, the document root
+> is mounted from "outside of chroot" into "inside of chroot" with
+> read-only mode using lofs on Solaris, and it does the job.
 
-The possible reason is that the on-board Inter 1000 chip of Dell PowerEdge
-1600SC is Intel 82540EM, which is running PCI 32/33 or PCI 32/66.
+FYI, it is also available for 2.4 ...
 
-Lisong
+http://vserver.13thfloor.at/Experimental/patch-2.4.22-rc2-bme0.03.diff.bz2
 
------ Original Message ----- 
-From: Lisong Xu
-To: netdev@oss.sgi.com ; linux-kernel@vger.kernel.org
-Sent: Monday, September 15, 2003 10:35 AM
-Subject: Intel PRO/1000 NIC
+best,
+Herbert
 
-
-Hello,
-
-I am sending UDP data from one PC to another PC directly through a cross
-cable. The NIC of sender is Intel® PRO/1000 MT Server Adapter, and the NIC
-of receiver is on-board Intel PRO/1000 (Dell PowerEdge 1600SC).
-
-After tuning the kernel and driver parameters, the sender can send data at
-1Gbps. But the receiver can only receive data at 620Mbps. (see the following
-ifconfig messages, 30 seconds test)
-
-*********** Sender *******************
-eth1      Link encap:Ethernet  HWaddr 00:07:E9:17:84:36
-          inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
-          RX packets:111 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:418072 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:30000
-          RX bytes:26193 (25.5 Kb)  TX bytes:3759596626 (3585.4 Mb)
-          Interrupt:24 Base address:0xccc0 Memory:fcd00000-fcd20000
-**************Receiver***********************
-eth0      Link encap:Ethernet  HWaddr 00:C0:9F:1E:3A:46
-          inet addr:192.168.1.101  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
-          RX packets:261355 errors:156688 dropped:156688 overruns:156688
-frame:0   <---- Look here!!!!!
-          TX packets:97 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:30000
-          RX bytes:2350019728 (2241.1 Mb)  TX bytes:22821 (22.2 Kb)
-          Interrupt:11 Base address:0xecc0 Memory:fe100000-fe120000
-***************************************************
-
-My questions is why so many packets are "errors, dropped, overruns". I have
-adjusted the "TxDescriptors, RxDescriptors, RxIntDelay,
-RxAbsIntDelay, TxIntDelay, TxAbsIntDelay" for different values, but always
-got similar result.
-
-Maybe here is not the right email list to send, but I am really frustrated
-with this problems, and hope to get some suggestions from the experts
-here.Any suggestion is really appreciated!
-
-Lisong
-
+> However we can't do this on Linux, or we must use nfs ro mount from
+> localhost which is quite ugly, and much more slower as well I think ;-)
+> 
+> On Fri, Sep 19, 2003 at 09:29:37PM +0200, Herbert Poetzl wrote:
+> > 
+> > Hi Andrew!
+> > 
+> > just verified that the patch still applies on
+> > linux-2.6.0-test5 and linux-2.6.0-test5-mm3 
+> > without any issues ...
+> > 
+> > FYI, this patch allows RO --bind mounts to
+> > behave like other ro mounted filesystems ...
+> > 
+> > do you see any possibility to get this in
+> > for extensive testing in the near future?
+> > 
+> > TIA,
+> > Herbert
+> 
+> - Gábor (larta'H)

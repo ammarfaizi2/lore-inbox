@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSKHVO1>; Fri, 8 Nov 2002 16:14:27 -0500
+	id <S262418AbSKHVYF>; Fri, 8 Nov 2002 16:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSKHVO1>; Fri, 8 Nov 2002 16:14:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:13974 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262415AbSKHVO0>;
-	Fri, 8 Nov 2002 16:14:26 -0500
-Message-ID: <3DCC2ABE.5DDE9882@digeo.com>
-Date: Fri, 08 Nov 2002 13:21:02 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S262424AbSKHVYF>; Fri, 8 Nov 2002 16:24:05 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:62214 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S262418AbSKHVYF>; Fri, 8 Nov 2002 16:24:05 -0500
+Message-ID: <3DCC2D01.6050309@google.com>
+Date: Fri, 08 Nov 2002 13:30:41 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: alan@cotse.com
+To: Andrew Morton <akpm@digeo.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
-References: <3DCB09C3.1EDB05EC@digeo.com> <YWxhbg==.c9df84d7e2f29ab2ae921b8f68e36b67@1036789710.cotse.net>
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [BUG] Failed writes marked clean?
+References: <3DCC1EB5.4020303@google.com> <3DCC252F.65C0F70B@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2002 21:21:02.0393 (UTC) FILETIME=[BD6B2A90:01C2876C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Willis wrote:
-> 
->   Ok, it just happened again.
+Andrew Morton wrote:
 
-That's good.
+>Also, think about what a write error _means_.  Unless the disk is truly
+>ancient, it means that the device has run out of alternate space for
+>the block, or all writes are failing.  ie: it is a serious failure.
+>  
+>
+I've seen all sorts of interesting drive failure modes, including losing 
+communications with the drive for a short period and then having it come 
+back almost as good as new.  We've had some data corruption on flaky 
+drives and I'm guessing this has something to do with it.
 
-> I'll go upgrade my procps so I have a working vmstat for you next time,
-> sorry about that.  Whose shall I use? (riel/rml or calahan, or both?)
+I'm going to sit down with our application developers and see what they 
+want to see from their end and see what I can do.
 
-Either should do.  The surriel.com/procps one is presumably more
-redhatty, but whatever.  Also, run top and see if something is burning
-CPU.  /proc/meminfo, /proc/slabinfo, all that stuff.  The clues will
-be in there somewhere - it's a matter of hunting around...
+    Ross
+
+

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbTBXOls>; Mon, 24 Feb 2003 09:41:48 -0500
+	id <S267158AbTBXOsQ>; Mon, 24 Feb 2003 09:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267143AbTBXOls>; Mon, 24 Feb 2003 09:41:48 -0500
-Received: from trappist.elis.rug.ac.be ([157.193.67.1]:21198 "EHLO
-	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
-	id <S267135AbTBXOlr>; Mon, 24 Feb 2003 09:41:47 -0500
-Date: Mon, 24 Feb 2003 15:51:22 +0100 (CET)
-From: fcorneli@elis.rug.ac.be
-To: Daniel Jacobowitz <dan@debian.org>
-cc: linux-kernel@vger.kernel.org, <Frank.Cornelis@elis.rug.ac.be>
-Subject: Re: [PATCH] ptrace PTRACE_READDATA/WRITEDATA, kernel 2.5.62
-In-Reply-To: <20030224141608.GA24699@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44.0302241538570.1277-100000@tom.elis.rug.ac.be>
+	id <S267174AbTBXOsQ>; Mon, 24 Feb 2003 09:48:16 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37388 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267158AbTBXOsP>; Mon, 24 Feb 2003 09:48:15 -0500
+Date: Mon, 24 Feb 2003 09:40:25 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Andrew Morton <akpm@digeo.com>, wli@holomorphy.com, lm@work.bitmover.com,
+       mbligh@aracnet.com, greearb@candelatech.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <20030224085617.GA6483@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.3.96.1030224092742.4783D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 24 Feb 2003, Bill Huey wrote:
 
-> FYI Frank, three things.  First of all, I really don't like the
-> interface of adding a second address to ptrace; I believe it interferes
-> with PIC on x86, since IIRC the extra argument would go in %ebx.  
-> The BSDs have a nice interface involving passing a request structure. 
+> On Mon, Feb 24, 2003 at 12:40:05AM -0800, Andrew Morton wrote:
+> > There is no evidence for any such thing.  Nor has any plausible
+> > theory been put forward as to why such an improvement should occur.
+> 
+> I find what you're saying a rather unbelievable given some of the
+> benchmarks I saw when the preempt patch started to floating around.
+> 
+> If you search linuxdevices.com for articles on preempt, you'll see a
+> claim about IO performance improvements with the patch. If somethings
+> changed then I'd like to know.
 
-I don't see the problem since we can pass up to 6 parameters on the i386 
-architecture. The extra argument will be passed on using the stack as the 
-other arguments do because of the asmlinkage directive. Using a structure 
-slows everything down too much; if you can use the stack I think it's 
-better to do so. What about that PIC?
+Clearly you do know... preempt started out when 2.4 was the only game in
+town. It made improvements to some degree because the rest of the kernel
+had some real latency issues.
 
-> Secondly, the implementation should be in kernel/ptrace.c not under
-> i386, we're trying to stop doing that.
+Skip forward through low latency patches, several flavors of elevator
+improvements, faster clock rate, rmap, better VM, object rmap, finer
+grained locking, io scheduling of several types including latency limiting
+and prevention of write blocking, and the O(1) scheduler.
 
-The implementation is already in kernel/ptrace.c, only the usage lives 
-under the arch-dependent directories since there the sys_ptrace entries 
-are located.
+Preempt was a great way to get the right thing running sooner because
+there was a lot of latency in many places. Just doesn't seem to be true
+anymore. Preempt doesn't make as much difference anymore because many
+things have been improved.
 
-> Thirdly, I was going to do this, but I ended up making GDB use pread64
-> on /dev/mem instead.  It works with no kernel modifications, and is
-> just as fast.
+I'm sure that there are applications which benefit greatly from preempt,
+but the days of vast improvement seem to be gone, the low hanging fruit
+has been picked. Context switching latency is still way higher than 2.4,
+that isn't hurting io as much as all the other improvements have helped.
 
-mmm... I thought it would be convenient to use ptrace for all the trace 
-work.
-
-Frank.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

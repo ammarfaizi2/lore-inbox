@@ -1,122 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVCWRVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVCWRY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbVCWRVS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 12:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVCWRU4
+	id S261665AbVCWRY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 12:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVCWRVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 12:20:56 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29256 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262748AbVCWRPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 12:15:35 -0500
-Date: Wed, 23 Mar 2005 17:14:25 +0000 (GMT)
+	Wed, 23 Mar 2005 12:21:55 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:50270 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261966AbVCWRQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 12:16:26 -0500
+Date: Wed, 23 Mar 2005 17:15:19 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Nick Piggin <nickpiggin@yahoo.com.au>
 cc: akpm@osdl.org, davem@davemloft.net, tony.luck@intel.com,
        benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] freepgt: remove arch pgd_addr_end
+Subject: [PATCH 5/6] freepgt: mpnt to vma cleanup
 In-Reply-To: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0503231713280.15274@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0503231714360.15274@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ia64 and sparc64 hurriedly had to introduce their own variants of
-pgd_addr_end, to leapfrog over the holes in their virtual address spaces
-which the final clear_page_range suddenly presented when converted from
-pgd_index to pgd_addr_end.  But now that free_pgtables respects the vma
-list, those holes are never presented, and the arch variants can go.
+While dabbling here in mmap.c, clean up mysterious "mpnt"s to "vma"s.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/asm-generic/pgtable.h |    8 +++-----
- include/asm-ia64/pgtable.h    |   26 --------------------------
- include/asm-sparc64/pgtable.h |   15 ---------------
- 3 files changed, 3 insertions(+), 46 deletions(-)
+ mm/mmap.c |   35 +++++++++++++++++------------------
+ 1 files changed, 17 insertions(+), 18 deletions(-)
 
---- freepgt3/include/asm-generic/pgtable.h	2005-03-18 10:22:40.000000000 +0000
-+++ freepgt4/include/asm-generic/pgtable.h	2005-03-21 19:07:13.000000000 +0000
-@@ -136,17 +136,15 @@ static inline void ptep_set_wrprotect(st
- #endif
- 
- /*
-- * When walking page tables, get the address of the next boundary, or
-- * the end address of the range if that comes earlier.  Although end might
-- * wrap to 0 only in clear_page_range, __boundary may wrap to 0 throughout.
-+ * When walking page tables, get the address of the next boundary,
-+ * or the end address of the range if that comes earlier.  Although no
-+ * vma end wraps to 0, rounded up __boundary may wrap to 0 throughout.
+--- freepgt4/mm/mmap.c	2005-03-21 19:06:48.000000000 +0000
++++ freepgt5/mm/mmap.c	2005-03-21 19:07:25.000000000 +0000
+@@ -1602,14 +1602,13 @@ static void unmap_vma(struct mm_struct *
+  * Ok - we have the memory areas we should free on the 'free' list,
+  * so release them, and do the vma updates.
   */
+-static void unmap_vma_list(struct mm_struct *mm,
+-	struct vm_area_struct *mpnt)
++static void unmap_vma_list(struct mm_struct *mm, struct vm_area_struct *vma)
+ {
+ 	do {
+-		struct vm_area_struct *next = mpnt->vm_next;
+-		unmap_vma(mm, mpnt);
+-		mpnt = next;
+-	} while (mpnt != NULL);
++		struct vm_area_struct *next = vma->vm_next;
++		unmap_vma(mm, vma);
++		vma = next;
++	} while (vma);
+ 	validate_mm(mm);
+ }
  
--#ifndef pgd_addr_end
- #define pgd_addr_end(addr, end)						\
- ({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
- 	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
- })
--#endif
+@@ -1720,7 +1719,7 @@ int split_vma(struct mm_struct * mm, str
+ int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
+ {
+ 	unsigned long end;
+-	struct vm_area_struct *mpnt, *prev, *last;
++	struct vm_area_struct *vma, *prev, *last;
  
- #ifndef pud_addr_end
- #define pud_addr_end(addr, end)						\
---- freepgt3/include/asm-ia64/pgtable.h	2005-03-21 19:07:01.000000000 +0000
-+++ freepgt4/include/asm-ia64/pgtable.h	2005-03-21 19:07:13.000000000 +0000
-@@ -551,32 +551,6 @@ do {											\
- #define __HAVE_ARCH_PTE_SAME
- #define __HAVE_ARCH_PGD_OFFSET_GATE
+ 	if ((start & ~PAGE_MASK) || start > TASK_SIZE || len > TASK_SIZE-start)
+ 		return -EINVAL;
+@@ -1729,14 +1728,14 @@ int do_munmap(struct mm_struct *mm, unsi
+ 		return -EINVAL;
  
--/*
-- * Override for pgd_addr_end() to deal with the virtual address space holes
-- * in each region.  In regions 0..4 virtual address bits are used like this:
-- *      +--------+------+--------+-----+-----+--------+
-- *      | pgdhi3 | rsvd | pgdlow | pmd | pte | offset |
-- *      +--------+------+--------+-----+-----+--------+
-- *  'pgdlow' overflows to pgdhi3 (a.k.a. region bits) leaving rsvd==0
-- */
--#define IA64_PGD_OVERFLOW (PGDIR_SIZE << (PAGE_SHIFT-6))
--
--#define pgd_addr_end(addr, end)						\
--({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
-- 	if (REGION_NUMBER(__boundary) < 5 && 				\
--	    __boundary & IA64_PGD_OVERFLOW)				\
--		__boundary += (RGN_SIZE - 1) & ~(IA64_PGD_OVERFLOW - 1);\
--	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
--})
--
--#define pmd_addr_end(addr, end)						\
--({	unsigned long __boundary = ((addr) + PMD_SIZE) & PMD_MASK;	\
-- 	if (REGION_NUMBER(__boundary) < 5 &&				\
--	    __boundary & IA64_PGD_OVERFLOW)				\
--		__boundary += (RGN_SIZE - 1) & ~(IA64_PGD_OVERFLOW - 1);\
--	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
--})
--
- #include <asm-generic/pgtable-nopud.h>
- #include <asm-generic/pgtable.h>
+ 	/* Find the first overlapping VMA */
+-	mpnt = find_vma_prev(mm, start, &prev);
+-	if (!mpnt)
++	vma = find_vma_prev(mm, start, &prev);
++	if (!vma)
+ 		return 0;
+-	/* we have  start < mpnt->vm_end  */
++	/* we have  start < vma->vm_end  */
  
---- freepgt3/include/asm-sparc64/pgtable.h	2005-03-18 10:22:42.000000000 +0000
-+++ freepgt4/include/asm-sparc64/pgtable.h	2005-03-21 19:07:13.000000000 +0000
-@@ -432,21 +432,6 @@ extern int io_remap_page_range(struct vm
- 			       unsigned long offset,
- 			       unsigned long size, pgprot_t prot, int space);
+ 	/* if it doesn't overlap, we have nothing.. */
+ 	end = start + len;
+-	if (mpnt->vm_start >= end)
++	if (vma->vm_start >= end)
+ 		return 0;
  
--/* Override for {pgd,pmd}_addr_end() to deal with the virtual address
-- * space hole.  We simply sign extend bit 43.
-- */
--#define pgd_addr_end(addr, end)						\
--({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
--	__boundary = ((long) (__boundary << 20)) >> 20;			\
--	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
--})
--
--#define pmd_addr_end(addr, end)						\
--({	unsigned long __boundary = ((addr) + PMD_SIZE) & PMD_MASK;	\
--	__boundary = ((long) (__boundary << 20)) >> 20;			\
--	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
--})
--
- #include <asm-generic/pgtable.h>
+ 	/*
+@@ -1746,11 +1745,11 @@ int do_munmap(struct mm_struct *mm, unsi
+ 	 * unmapped vm_area_struct will remain in use: so lower split_vma
+ 	 * places tmp vma above, and higher split_vma places tmp vma below.
+ 	 */
+-	if (start > mpnt->vm_start) {
+-		int error = split_vma(mm, mpnt, start, 0);
++	if (start > vma->vm_start) {
++		int error = split_vma(mm, vma, start, 0);
+ 		if (error)
+ 			return error;
+-		prev = mpnt;
++		prev = vma;
+ 	}
  
- /* We provide our own get_unmapped_area to cope with VA holes for userland */
+ 	/* Does it split the last one? */
+@@ -1760,16 +1759,16 @@ int do_munmap(struct mm_struct *mm, unsi
+ 		if (error)
+ 			return error;
+ 	}
+-	mpnt = prev? prev->vm_next: mm->mmap;
++	vma = prev? prev->vm_next: mm->mmap;
+ 
+ 	/*
+ 	 * Remove the vma's, and unmap the actual pages
+ 	 */
+-	detach_vmas_to_be_unmapped(mm, mpnt, prev, end);
+-	unmap_region(mm, mpnt, prev, start, end);
++	detach_vmas_to_be_unmapped(mm, vma, prev, end);
++	unmap_region(mm, vma, prev, start, end);
+ 
+ 	/* Fix up all other VM information */
+-	unmap_vma_list(mm, mpnt);
++	unmap_vma_list(mm, vma);
+ 
+ 	return 0;
+ }

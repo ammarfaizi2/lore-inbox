@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTDUJYp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 05:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTDUJYo
+	id S263796AbTDUJ1z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 05:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbTDUJ1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 05:24:44 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:27917 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263792AbTDUJYo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 05:24:44 -0400
-Date: Mon, 21 Apr 2003 11:36:41 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 21 Apr 2003 05:27:55 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3712 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263796AbTDUJ1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 05:27:54 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304210942.h3L9gZ1W000282@81-2-122-30.bradfords.org.uk>
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030421113641.10603ae1.skraw@ithnet.com>
-In-Reply-To: <200304201331_MC3-1-3532-FFDA@compuserve.com>
-References: <200304201331_MC3-1-3532-FFDA@compuserve.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Mon, 21 Apr 2003 10:42:35 +0100 (BST)
+Cc: adilger@clusterfs.com (Andreas Dilger), john@grabjohn.com (John Bradford),
+       skraw@ithnet.com (Stephan von Krawczynski),
+       linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <200304210917.h3L9HIu07472@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Apr 21, 2003 12:25:28 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003 13:28:21 -0400
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > > > > > I wonder whether it would be a good idea to give the linux-fs
+> > > > > > (namely my preferred reiser and ext2 :-) some
+> > > > > > fault-tolerance.
+> >
+> > I'm not against this in principle, but in practise it is almost
+> > useless. Modern disk drives do bad sector remapping at write time, so
+> > unless something is terribly wrong you will never see a write error
+> > (which is exactly the time that the filesystem could do such
+> > remapping).  Normally, you will only see an error like this at read
+> > time, at which point it is too late to fix.
+> 
+> It is *not* useless.
+> 
+> I have at least 4 disks with some bad sectors. Know what?
+> They are still in use in a school lab and as 'big diskettes'
+> (transferring movies etc). I refuse to dump them just because
+> 'todays disks are cheap'. I don't want my fs to die just because
+> these disks develop (ohhhh) a single new bad sector.
 
-> Stephan wrote:
-> 
-> 
-> > Maybe I have something in common with google, I am re-writing large parts
-> > (well over 50%) of the harddrives capacity on a daily basis (in the
-> > discussed setup). how many people really do that?
-> 
-> 
->   I'll bet the people who do are using SCSI disks...
+Read my previous posts.
 
-Guess what, I would do that too, if it were affordable. I have to say I have
-never ever experienced problems like these with SCSI disks. Never.
-Currently there is a _big_ difference in prices between IDE and SCSI drives. On
-the other hand one could argue that there is a good reason for it...
+A layer between device and filesystem can solve this.  It doesn't
+belong in the filesystem.
 
-Regards,
-Stephan
+John.

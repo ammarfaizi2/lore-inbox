@@ -1,81 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUFRUnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUFRUoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUFRUnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUFRUly
+	id S263015AbUFRUoU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUFRUli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:41:54 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:3034 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266810AbUFRUIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:08:55 -0400
-Date: Fri, 18 Jun 2004 22:08:48 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618200848.GL20632@lug-owl.de>
-Mail-Followup-To: Rik van Riel <riel@redhat.com>,
-	Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-	4Front Technologies <dev@opensound.com>
-References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/tCUuHqq+dV/zcM0"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Fri, 18 Jun 2004 16:41:38 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:58414 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S261763AbUFRUZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:25:00 -0400
+Message-ID: <40D34F90.1060907@travellingkiwi.com>
+Date: Fri, 18 Jun 2004 21:24:48 +0100
+From: Hamie <hamish@travellingkiwi.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: acpi S3 never wakes up
+References: <20040618154025.15708106@damned.travellingkiwi.com>
+In-Reply-To: <20040618154025.15708106@damned.travellingkiwi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hamie wrote:
 
---/tCUuHqq+dV/zcM0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>Hi.
+>
+>I have an IBM r50p that I'd really really really like to have ACPI usable on. The battery works fine, the temp shows fine, the processor speeds up & slows down. All great, until I try to suspend (to RAM or to disk).
+>
+>Firstly to RAM.
+>
+>I hit Fn=F4 (Or cat 3 > /proc/acpi/sleep). System says I'm suspending. & goes to sleep. Fine so far. Unlike APM, the Fn key doesn't wake it up any more, so I press the power button. It LOOKS like it's starting up again, fan starts, CD spins, but no display... Doesn't matter whether I'm running X, or from the console. After wakup, nothing seems to work. Fn-F4 will send me to sleep again though... CTRL-ALT-Fx, does nothing...
+>
+>Now should I get the lock icon again (I lock my machine with a poweron pass BIOS + Disk, NOT supervisor) like on APM? Or not? SHould I come up directly back where I was before? Or something else? Anyone know? I've seen reference to people having success, but I've had nothing but bad luck with ACPi & suspending so far.
+>
+>Anyone got any ideas? I really really really hate having to boot my laptop 3x a day...
+>
+>Oh. I've tried all kinds of kernels. Current is 2.6.6 and 2.6.7, both do exactly the same thing.
+>
+>  
+>
 
-On Fri, 2004-06-18 16:05:46 -0400, Rik van Riel <riel@redhat.com>
-wrote in message <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.=
-redhat.com>:
-> On Fri, 18 Jun 2004, Tim Bird wrote:
+Hi all.
 
-> Since the people benefitting from this work are the
-> embedded developers, it would seem logical that they
-> should bear the cost of this effort, too.
+Some logs from kern.log... It's definately coming back from suspend... 
+Just no video... It even suspends a second time... And wakes... No video 
+still..
 
-It's not only all the embedded stuff (where the -tiny tree is a nice
-start!). Remember the bits of the pc98 arch that got ripped these days?
-Remember the CRIS architecture being hopefully out of sync? They're all
-good candidates to profit from such a helper.
+Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.0: remove, state 1
+Jun 18 15:59:05 ballbreaker kernel: usb usb2: USB disconnect, address 1
+Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.0: USB bus 2 
+deregistered
+Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.1: remove, state 1
+Jun 18 15:59:05 ballbreaker kernel: usb usb3: USB disconnect, address 1
+Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.1: USB bus 3 
+deregistered
+Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.2: remove, state 1
+Jun 18 15:59:05 ballbreaker kernel: usb usb4: USB disconnect, address 1
+Jun 18 15:59:06 ballbreaker kernel: uhci_hcd 0000:00:1d.2: USB bus 4 
+deregistered
+Jun 18 15:59:09 ballbreaker kernel: ehci_hcd 0000:00:1d.7: remove, state 1
+Jun 18 15:59:09 ballbreaker kernel: usb usb1: USB disconnect, address 1
+Jun 18 15:59:09 ballbreaker kernel: ehci_hcd 0000:00:1d.7: USB bus 1 
+deregistered
+Jun 18 15:59:33 ballbreaker kernel: PM: Preparing system for suspend
+Jun 18 15:59:33 ballbreaker kernel: Stopping tasks: 
+================================================|
+Jun 18 15:59:33 ballbreaker kernel: PM: Entering state.
+Jun 18 15:59:33 ballbreaker kernel:  hwsleep-0304 [767] 
+acpi_enter_sleep_state: Entering sleep state [S3]
+Jun 18 15:59:33 ballbreaker kernel: Back to C!
+Jun 18 15:59:33 ballbreaker kernel: PM: Finishing up.
+Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.0 to 64
+Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.1 to 64
+Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.2 to 64
+Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.7 to 64
+Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1f.5 to 64
+Jun 18 15:59:33 ballbreaker kernel: Restarting tasks... done
+Jun 18 16:00:07 ballbreaker kernel: PM: Preparing system for suspend
+Jun 18 16:00:29 ballbreaker kernel: Stopping tasks: 
+=================================================|
+Jun 18 16:00:29 ballbreaker kernel: PM: Entering state.
+Jun 18 16:00:29 ballbreaker kernel:  hwsleep-0304 [921] 
+acpi_enter_sleep_state: Entering sleep state [S3]
+Jun 18 16:00:29 ballbreaker kernel: Back to C!
+Jun 18 16:00:29 ballbreaker kernel: PM: Finishing up.
+Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.0 to 64
+Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.1 to 64
+Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.2 to 64
+Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1d.7 to 64
+Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
+0000:00:1f.5 to 64
+Jun 18 16:00:29 ballbreaker kernel: Restarting tasks... done
 
-MfG, JBG
+(Then it's power switch time).
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+Can anyone give me a hint as to where the kernel should be 
+re-initialising the video?
 
---/tCUuHqq+dV/zcM0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+>TIA
+>
+>Hamish., 
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA00vQHb1edYOZ4bsRAiuwAJ9T3k53c8l0M8x8hQIqdjmRZlzbZgCaAv5r
-OnWCU1utf8CB+8bhzzocTXM=
-=gjxa
------END PGP SIGNATURE-----
-
---/tCUuHqq+dV/zcM0--

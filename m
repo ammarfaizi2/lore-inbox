@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264113AbRFFTdf>; Wed, 6 Jun 2001 15:33:35 -0400
+	id <S264111AbRFFTcP>; Wed, 6 Jun 2001 15:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264112AbRFFTdZ>; Wed, 6 Jun 2001 15:33:25 -0400
-Received: from paperboy.noris.net ([62.128.1.27]:11447 "EHLO mail2.noris.net")
-	by vger.kernel.org with ESMTP id <S264110AbRFFTdP>;
-	Wed, 6 Jun 2001 15:33:15 -0400
-Mime-Version: 1.0
-Message-Id: <p0510030eb74434e454bf@[192.109.102.42]>
-In-Reply-To: <B74421C0.F6F7%bootc@worldnet.fr>
-In-Reply-To: <B74421C0.F6F7%bootc@worldnet.fr>
-Date: Wed, 6 Jun 2001 21:32:53 +0200
-To: Chris Boot <bootc@worldnet.fr>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-From: Matthias Urlichs <smurf@noris.de>
-Subject: Re: temperature standard - global config option?
-Cc: "David N. Welton" <davidw@apache.org>, Pavel Machek <pavel@suse.cz>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S264110AbRFFTcF>; Wed, 6 Jun 2001 15:32:05 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10540 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S263804AbRFFTb7>; Wed, 6 Jun 2001 15:31:59 -0400
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106062102060.404-100000@mikeg.weiden.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Jun 2001 13:28:16 -0600
+In-Reply-To: <Pine.LNX.4.33.0106062102060.404-100000@mikeg.weiden.de>
+Message-ID: <m1k82p5rxr.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:06 +0200 2001-06-06, Chris Boot wrote:
->I'm sorry, by I don't feel like adding 273 to every number I get just to
->find the temperature of something.
+Mike Galbraith <mikeg@wen-online.de> writes:
 
-That's much easier than subtracting 32 and multiplying by 5/9.  ;-)
+> On 6 Jun 2001, Eric W. Biederman wrote:
+> 
+> > Derek Glidden <dglidden@illusionary.com> writes:
+> >
+> >
+> > > The problem I reported is not that 2.4 uses huge amounts of swap but
+> > > that trying to recover that swap off of disk under 2.4 can leave the
+> > > machine in an entirely unresponsive state, while 2.2 handles identical
+> > > situations gracefully.
+> > >
+> >
+> > The interesting thing from other reports is that it appears to be kswapd
+> > using up CPU resources.  Not the swapout code at all.  So it appears
+> > to be a fundamental VM issue.  And calling swapoff is just a good way
+> > to trigger it.
+> >
+> > If you could confirm this by calling swapoff sometime other than at
+> > reboot time.  That might help.  Say by running top on the console.
+> 
+> The thing goes comatose here too. SCHED_RR vmstat doesn't run, console
+> switch is nogo...
+> 
+> After running his memory hog, swapoff took 18 seconds.  I hacked a
+> bleeder valve for dead swap pages, and it dropped to 4 seconds.. still
+> utterly comatose for those 4 seconds though.
 
->  What I would do is give configuration
->options to choose the default (Celsius/centigrade, Kelvin, or [shudder]
->Fahrenheit)
+At the top of the while(1) loop in try_to_unuse what happens if you put in.
+if (need_resched) schedule(); 
+It should be outside all of the locks.  It might just be a matter of everything
+serializing on the SMP locks, and the kernel refusing to preempt itself.
 
-The kernel output should not be configurable. You have tools for 
-printing the information; they can do the calculation for you.
+Eric
 
-Personally I'd like to see cK (centi-Kelvin).
--- 
-Matthias Urlichs

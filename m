@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291676AbSBNORW>; Thu, 14 Feb 2002 09:17:22 -0500
+	id <S291684AbSBNOVm>; Thu, 14 Feb 2002 09:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291678AbSBNORI>; Thu, 14 Feb 2002 09:17:08 -0500
-Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:21259 "EHLO
-	mail.communicationsboard.net") by vger.kernel.org with ESMTP
-	id <S291676AbSBNOQx>; Thu, 14 Feb 2002 09:16:53 -0500
-Message-ID: <006101c1b562$23b39a40$0d2b0a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202141021.LAA08331@harpo.it.uu.se> <20020214114856.B13643@stud.ntnu.no>
-Subject: Re: inspiron 8100 freezing
-Date: Thu, 14 Feb 2002 09:16:04 -0500
+	id <S291679AbSBNOV0>; Thu, 14 Feb 2002 09:21:26 -0500
+Received: from elin.scali.no ([62.70.89.10]:26888 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S291684AbSBNOVK>;
+	Thu, 14 Feb 2002 09:21:10 -0500
+Message-ID: <3C6BC796.CC8FB660@scali.com>
+Date: Thu, 14 Feb 2002 15:20:06 +0100
+From: Steffen Persvold <sp@scali.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Rickard Westman <rwestman@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: Using kernel_fpu_begin() in device driver - feasible or not?
+In-Reply-To: <E16bMEO-0008Up-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mikael Pettersson:
-> > I bet you have CONFIG_SMP or CONFIG_X86_UP_APIC enabled. In that
-> > case the hangs on the Inspiron are expected: it's BIOS is buggy.
->
-> Ok, what's wrong?  Just telling them something is wrong with their BIOS
-> doesn't do much good :)
+Alan Cox wrote:
+> 
+> > 1. Would it be sufficient to just bracket all fpu-using code code by
+> > kernel_fpu_begin()/kernel_fpu_end()?  If not, what problems could I
+> > run into?
+> 
+> You can do that providing you dont
+> 
+> > 2. Would it be OK to go to sleep inside such a region, or should I
+> > take care to avoid that?
+> 
+> You can't sleep in such a region - there is nowhere left to store the
+> FPU context
+> 
+> > 3. Perhaps I should call init_fpu() at some point as well?  If so,
+> > should it be done before or after kernel_fpu_begin()?
+> 
+> After
+> 
+> > 4. Is there any difference between doing this in the context of a user
+> > process (implementation of an ioctl) compared to doing it in a
+> > daemonized kernel thread (created by a loadable kernel module)?
+> 
+> The kernel thread is actually easier, you can happily corrupt its user
+> FPU context by sleeping since you are the only FPU user for the thread.
+> Not nice, not portable but should work fine on x86 without any of the
+> above for the moment.
+> 
+> You should probably also test the FPU is present and handle it accordingly
+> with polite messages not an oops 8)
 
-This seems to affect my Latitude C810 with the latest BIOS (A05).  When I
-flashed to that version my linux system started handing at random spots.
-Disabling CONFIG_X86_UP_APIC took care of the hangs, but I also lost all of
-my battery status support (the batter would always say unknown).
+So are kernel_fpu_begin()/kernel_fpu_end() (and also init_fpu()) necessary in a kernel thread at all
+? Does kernel_fpu_begin()/kernel_fpu_end() take care of SSE and MMX registers too (I'm aware of the
+extra "emms" needed in the MMX case) ?
 
-I downgraded the system back to A04 and everything went back to normal.  So
-I agree with this question, what's wrong with Dell's BIOS?  It seems that
-whatever they do to get XP working breaks Linux badly.  I could complain,
-but I'd need to be specific about what they are actually doing wrong.
-
-Later,
-Tom
-
-
+Regards,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+ mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268710AbTGIXMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268711AbTGIXMd
+	id S268689AbTGIXQF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbTGIXQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:12:33 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:51704 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S268710AbTGIXMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:12:31 -0400
-Message-ID: <3F0CA554.5090602@mailbox.tu-dresden.de>
-Date: Thu, 10 Jul 2003 01:29:24 +0200
-From: Stefan Ziegenbalg <stefan.ziegenbalg@mailbox.tu-dresden.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: German, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: raw1394_loop_iterate hangs with 2.4.21
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Jul 2003 19:16:05 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24498
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S268689AbTGIXQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 19:16:02 -0400
+Subject: Re: Fix IDE initialization when we don't probe for interrupts.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <3F0C9251.2010107@pobox.com>
+References: <200307092110.h69LAlgG027527@hera.kernel.org>
+	 <3F0C9251.2010107@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057793279.7137.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Jul 2003 00:28:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mer, 2003-07-09 at 23:08, Jeff Garzik wrote:
+> > +		 * Disable device irq if we don't need to
+> > +		 * probe for it. Otherwise we'll get spurious
+> > +		 * interrupts during the identify-phase that
+> > +		 * the irq handler isn't expecting.
+> > +		 */
+> > +		hwif->OUTB(drive->ctl|2, IDE_CONTROL_REG);
+> 
+> 
+> Yeah, my driver does probing with interrupts disabled, too.
+> I'm curious where interrupts are re-enabled, though?
 
-after installing the 2.4.21 kernel I have the following problem:
+In the command write. BTW note that there are a few devices
+out there that dont honour the nIEN stuff.
 
-My computer hangs, when I press the exit button (of the window 
-decoration) during raw1394_loop_iterate is running (mouse pointer dosn't 
-move, keyboard dons't react, ...)
-
-This happens in a small GTK 1.2 programm for capturing images form a
-dcam. raw1394_loop_iterate is called by an idle function (gtk_idle_add).
-That means the computer does not always hang, only when
-raw1394_loop_iterate is running durning pressing the exit button
-(probability approx. 50%) When it hangs, the function connected with the
-"destroy" signal (gtk_signal_connect ...) is never reached.
-
-Versions:
-Linux: 2.4.31
-libraw: 0.9.0
-gtk: 1.2.10
-X (don't laugh): 3.3.4
-
-Computer: Tyan S2466 with 2 x Athlon 1533 MHz + 2 GB RAM (SMP and
-Highmem support)
-
-Any suggestions? Do you need more info (.config file)?
-
-
-Regards Stefan
-
-
-
-
-
-
-
-
-
-
--- 
-mailto:stefan.ziegenbalg@mailbox.tu-dresden.de
-http://www.sziegenbalg.de
-http://www.simage.org
+IDE is such fun
 

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbTJAWGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 18:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJAWGd
+	id S262387AbTJAWV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTJAWV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 18:06:33 -0400
-Received: from gprs150-56.eurotel.cz ([160.218.150.56]:24705 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262555AbTJAWG3 (ORCPT
+	Wed, 1 Oct 2003 18:21:28 -0400
+Received: from unixbox.com ([154.6.115.65]:65298 "EHLO shell.unixbox.com")
+	by vger.kernel.org with ESMTP id S262387AbTJAWV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 18:06:29 -0400
-Date: Thu, 2 Oct 2003 00:05:34 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Radu Filip <socrate@infoiasi.ro>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Makan Pourzandi <Makan.Pourzandi@ericsson.ca>,
-       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
-       Vincent Roy <vincent.roy@ericsson.ca>,
-       David Gordon <davidgordonca@yahoo.ca>
-Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification for binaries
-Message-ID: <20031001220532.GD5289@elf.ucw.cz>
-References: <20031001182440.GV7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310020043550.16234-100000@shrek.tuiasi.ro>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 1 Oct 2003 18:21:26 -0400
+Date: Wed, 1 Oct 2003 15:20:30 -0700 (PDT)
+From: Ani Joshi <ajoshi@unixbox.com>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Henrik Christian Grove <grove@sslug.dk>, linux-kernel@vger.kernel.org
+Subject: Re: Radeon framebuffer problems i 2.6.0-test6
+In-Reply-To: <16250.4701.976132.141380@wombat.chubb.wattle.id.au>
+Message-ID: <20031001151529.D57653@shell.unixbox.com>
+References: <7gisna11e1.fsf@serena.fsr.ku.dk> <16250.4701.976132.141380@wombat.chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > <shrug> so in a month rootkits get updated and we are back to square 1,
-> > with additional mess from patch...
-> 
-> Viro, I think you have an attitude problem here. "Don't be ridiculous",
-> "Rubbish", "<shrug>" don't sound very constructive or at least
-> encouraging.
-> 
-> Over the years it was proved that Linux kernel can be tailored for a very
-> large number of unexpected and very strange needs. IBM put it into
-> watches, NASA sent it to space, it is exists in oil wells and so on. I
-> think that the possibilities offered by Linux kernel are limited only by
-> the knowledge, imagination and will of every of us. Linux itself was once
-> a very insignificant and unreliable kernel and many other serious Unix and
-> Unix-like alternative were available. Still, it is prevailing today because
-> some peoples believed in what they did.
-> 
-> Especially to your point, should I mention that there are patches that
-> avoid buffer-overflows? Or that there are patches for gcc that add bound
-> check to arrays in C?
 
-I simply wanted to see valid usage of this. It certainly does not
-prevent attacker to get control of your box. Al seems to be right. It
-may temporarily redirect script-kiddies, through...
+My recent experience in patch submission makes me believe that sending
+patches to the kernel maintainers is like sending the patch into a vacuum.
+I don't care to maintain any of the drivers with my name on them anymore
+partly because of such problems.  I imagine if you keep posting the patch
+to the list it will someday reach kernel.org, since apparently being the
+author of a driver doesn't mean your patches will be applied nowdays.
 
-There may be some uses like "prevent tivo users from running their own
-software", but I'm not sure I want to encourage some uses. Maybe "its
-neccessary to get our phones approved by FCC" would be better.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+good luck! :)
+
+ani
+
+On Wed, 1 Oct 2003, Peter Chubb wrote:
+
+>
+>
+> Try this patch that's been floating around for a while.
+>
+> Ani, can you please push this patch to Linus?  It fixes the Radeon
+> problems for a lot of people.
+>
+>
+> ===== drivers/video/radeonfb.c 1.30 vs edited =====
+> --- 1.30/drivers/video/radeonfb.c	Fri Aug  1 01:58:45 2003
+> +++ edited/drivers/video/radeonfb.c	Tue Sep  9 13:18:36 2003
+> @@ -2090,7 +2090,7 @@
+>
+>  	}
+>  	/* Update fix */
+> -        info->fix.line_length = rinfo->pitch*64;
+> +        info->fix.line_length = mode->xres_virtual*(mode->bits_per_pixel/8);
+>          info->fix.visual = rinfo->depth == 8 ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
+>
+>  #ifdef CONFIG_BOOTX_TEXT
+>

@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281833AbRKWAVO>; Thu, 22 Nov 2001 19:21:14 -0500
+	id <S281834AbRKWAcF>; Thu, 22 Nov 2001 19:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281834AbRKWAVE>; Thu, 22 Nov 2001 19:21:04 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:50348 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S281833AbRKWAUs>;
-	Thu, 22 Nov 2001 19:20:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-Date: Thu, 22 Nov 2001 16:20:11 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain> <1006472754.1336.0.camel@icbm>
-In-Reply-To: <1006472754.1336.0.camel@icbm>
-Cc: linux-kernel@vger.kernel.org
+	id <S281839AbRKWAbz>; Thu, 22 Nov 2001 19:31:55 -0500
+Received: from sis.com.tw ([203.67.208.3]:57270 "EHLO maillog.sis.com.tw")
+	by vger.kernel.org with ESMTP id <S281834AbRKWAbq>;
+	Thu, 22 Nov 2001 19:31:46 -0500
+From: "kmliu" <kmliu@sis.com.tw>
+To: "nelson" <nelson@sis.com.tw>, <linux-kernel@vger.kernel.org>,
+        "Krzysztof Oledzki" <ole@ans.pl>
+Cc: "ron" <ronchang@sis.com.tw>, "JasonTsai" <jstsai@sis.com.tw>,
+        "charles" <charles@sis.com.tw>, <andre@suse.com>
+Subject: SiS601?!
+Date: Fri, 23 Nov 2001 08:11:38 +0800
+Message-ID: <NDBBJBFIOLNMNHAELGHFKEGACJAA.kmliu@sis.com.tw>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16744i-0004zQ-00@localhost>
+Content-Type: text/plain;
+	charset="big5"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.33.0111222120440.18864-100000@dark.pcgames.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id LAA04720
 
-On November 22, 2001 15:45, Robert Love wrote:
->
-> Ie, we would have a /proc/<pid>/cpu_affinity which is the same as your
-> `unsigned long * user_mask_ptr'.  Reading and writing of the proc
-> interface would correspond to your get and set syscalls.  Besides the
-> sort of relevancy and useful abstraction of putting the affinity in the
-> procfs, it eliminates any sizeof(cpus_allowed) problem since the read
-> string is the size in characters of cpus_allowed.
->
-> I would use your syscall code, though -- just reimplement it as a procfs
-> file. This would mean adding a proc_write function, since the _actual_
-> procfs (the proc part) only has a read method, but that is simple.
->
-> Thoughts?
+Hi,
 
- Here here, I was just thinking "Well, I like the CPU affinity idea, but I 
-loathe syscall creep... I hope this Robert Love fellow says something about 
-that" as I read your email's header.
+We do not have any product which name is SiS601,
 
- In addition to keeping the syscall table from being filled with very 
-specific, non-standard, and use-once syscalls, a /proc interface would allow 
-me to change the CPU affinity of processes that aren't {get, set}_affinity 
-aware (i.e., all Linux applications written up to this point). This isn't 
-very different from how it's possible to change a processes other scheduling 
-properties (priority, scheduler) from another process. Imagine if renice(8) 
-had to be implemented as attaching to a process and calling nice(2)... ick. 
+The IDE controller is SiS5513, the north bridge is SiS620/530/630/540/550/635/735/730/740/640/645/640.
 
- Also, as an application developer, I try to avoid conditionally compiled, 
-system-specific calls. I would have much less "cleanliness" objections 
-towards testing for the /proc/<pid>/cpu_affinity files existance and 
-conditionally writing to it. Compare this to the hacks some network servers 
-use to try to detect sendfile(2)'s presence at runtime, and you'll see what I 
-mean. Remember, everything is a file ;)
+Please make sure what is the name of the chipset.
 
- And one final thing... what sort of benifit does CPU affinity have if we 
-have the scheduler take in account CPU migration costs correctly? I can think 
-of a lot of corner cases, but in general, it seems to me that it's a lot more 
-sane to have the scheduler decide where processes belong. What if an 
-application with n threads, where n is less than the number of CPUs, has to 
-decide which CPUs to bind its threads to? What if a similar app, or another 
-instance of the same app, already decided to bind against the same set of 
-CPUs? The scheduler is stuck with an unfair scheduling load on those poor 
-CPUs, because the scheduling decision was moved away from where it really 
-should take place: the scheduler. I'm sure I'm missing something, though.
+Nelson:
 
--Ryan 
+Do we have SiS601 in notebook market?
+
+Regards,
+K.M. Liu
+
+-----Original Message-----
+From: Krzysztof Oledzki [mailto:ole@ans.pl]
+Sent: Friday, November 23, 2001 4:53 AM
+To: linux-kernel@vger.kernel.org
+Cc: kmliu@sis.com.tw; andre@suse.com
+Subject: SIS IDE (sis5513.c)
+
+
+Hello :)
+
+I have a notebook with SIS IDE Chipset - SIS601. This week I have
+installed Linux. It seems that this chipset is not supported by sis5513.c
+driver. I tried adding support myself by putting PCI_DEVICE_ID_SI_601 in
+each switch/case in this file (because I found that it sound work for
+PCI_DEVICE_ID_SI_540 and PCI_DEVICE_ID_SI_620 ). Unfortunetly ugly
+"unknown IDE controller" message still appeard. Then I go to the ide-pci.c
+and noticed that int ide_pci_chipsets here is only one line for SIS:
+
+        {DEVID_SIS5513, "SIS5513",      PCI_SIS5513,    ATA66_SIS5513,  INIT_SIS5513,   NULL,        {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},   ON_BOARD,       0 },
+
+and one #define:
+#define DEVID_SIS5513   ((ide_pci_devid_t){PCI_VENDOR_ID_SI,      PCI_DEVICE_ID_SI_5513})
+
+BTW: Am I right, this makes that only PCI_DEVICE_ID_SI_5513 chipset is
+supported and all other chipset listed in sis5513.c will not work?
+
+Ok, I added DEVID_SIS601 (PCI_DEVICE_ID_SI_601) with parameters from
+SIS5513 or all zeros but... now I have "neither IDE port enabled (BIOS)"
+message. So? Is there any way to enable DMA transfers for my HDD? With PIO
+my HDD is verry slow (hdparm shows 3 MB/sek).
+
+Best regards,
+
+				Krzysztof Oledzki
+˝:.ûÀõ± ‚mÁÎ¢kaä…b≤ﬂÏzwmÖÈbùÔÓûÀõ± ‚mÈbûÏˇëÍÁz_‚ûÿ^nár°ˆ¶zÀÅÎhô®Ë≠⁄&£˚‡zø‰zπﬁó˙+Ä +zf£¢∑höàß~Ü≠Ü€iˇˇÔÅÍˇëÍÁz_ËÆÊj:+vâ®˛)ﬂ£¯möSÂy´≠Êù∂Ö≠Ü€iˇˇ√ÌªËÆÂíi

@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315598AbSEIDHs>; Wed, 8 May 2002 23:07:48 -0400
+	id <S315600AbSEIDV1>; Wed, 8 May 2002 23:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315599AbSEIDHr>; Wed, 8 May 2002 23:07:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13063 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315598AbSEIDHq>;
-	Wed, 8 May 2002 23:07:46 -0400
-Message-ID: <3CD9E8A7.D524671D@zip.com.au>
-Date: Wed, 08 May 2002 20:10:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lincoln Dale <ltd@cisco.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <E175QmK-0001V8-00@the-village.bc.nu> <5.1.0.14.2.20020509122919.01645ff0@mira-sjcm-3.cisco.com>
+	id <S315601AbSEIDV0>; Wed, 8 May 2002 23:21:26 -0400
+Received: from asooo.flowerfire.com ([63.254.226.247]:20964 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S315600AbSEIDVZ>; Wed, 8 May 2002 23:21:25 -0400
+Date: Wed, 8 May 2002 22:21:20 -0500
+From: Ken Brownfield <ken@irridia.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: Anton Blanchard <anton@samba.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "yossi@ixiacom.com" <yossi@ixiacom.com>
+Subject: Re: khttpd newbie problem
+Message-ID: <20020508222119.A12672@asooo.flowerfire.com>
+In-Reply-To: <3CD402D2.E3A94CA2@kegel.com> <20020505005439.GA12430@krispykreme> <3CD4C93D.E543B188@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lincoln Dale wrote:
-> 
-> At 01:42 PM 8/05/2002 +0100, Alan Cox wrote:
-> >The SCSI layer is significant overhead even in 2.5.
-> 
-> i did some benchmarking on a high-end dual P3 Xeon (Serverworks chipset )
-> with QLogic 2300 (2gbit/s) 64/66 Fibre Channel controllers.
-> 
-> using the '/dev/sgX' interface to issue scsi reads/writes allowed me to hit
-> the magical limit of 200mbyte/sec throughput.  (basically just about
-> linerate).  (simultaneous "sg_read if=/dev/sgX mmap=1 bs=512 count=35M";
-> sg_read from the sg-tools package)
-> 
-> doing the same test thru the block-layer was basically capped at around
-> 135mbyte/sec.  (simultaneous "dd if=/dev/sdX of=/dev/null bs=512 count=35M").
-> 
-> whether the bottleneck was copy-from-kernel-to-userspace (ie. exhaustion of
-> Front-Side-Bus / memory bandwidth) or related to block-layer overhead and
-> scsi layer overheads, i haven't yet validated, but at a ~35% performance
-> difference is relatively significant nontheless.
-> 
-> cpu utlization on the sg interface was under 10%.  using 'dd' on the sd
-> interface, both gigahertz P3 Xeons had 0% idle time.
-> 
+On Sat, May 04, 2002 at 10:55:09PM -0700, Dan Kegel wrote:
+| Anton Blanchard wrote:
+| > > I'm having an oops with khttpd on an embedded 2.4.17 ppc405
+| > > system, so I thought I'd try it out on my pc.  But I can't
+| > > get khttpd to serve any requests.
+| > 
+| > Any reason for not using tux? Its been tested heavily on ppc64,
+| > the same patches should work on ppc32.
+| 
+| That's an excellent suggestion.  It certainly seems that khttpd
+| is no longer production quality (if it ever was), and tux is.
 
+khttpd is very much production quality on IA32, and has been since
+2.4.0-test1.  TUX2 is not, however, since under load it enters a 99% CPU
+busy loop.  You may not have enough load to cause TUX2 to do this, and
+TUX1 may not have this problem.
 
-You need to be careful with this stuff.  Cache effects dominate.
+| I'm on an embedded system, so if tux is much larger, I'll
+| be annoyed; but the system does have 64 MB, so it's not *that*
+| cramped.  And working is much better than crashing.
 
-I believe the /dev/sgX driver uses a fixed kernel-side buffer for
-the transfer.  So the source of the copy_to_user() will always come
-out of cache if the CPU is snooping the busmastering.  But not if
-the CPU is performing cache invalidates in response to that busmastering.
+khttpd is extremely dependent on alignment and data sizes -- the
+filename extension handling is deeply unfunny* for example.  khttpd most
+likely has a problem with PPC (endian, etc).  Are you applying any other
+patches that could conflict?
+-- 
+Ken.
+ken@irridia.com
 
-But for `dd', which has to copy the data out of pagecache, the
-copy_from_user() will get 100% misses on the source, guaranteed.
+* phrase plagiarized from ac
 
-Also, the `sg_read' command reads everything into the same (small)
-chunk of userspace memory.   So the destination of copy_to_user()
-is always in cache.  Probably, the same is true with `dd bs=512',
-but one would have to go read the dd source to verify.
-
-This is also why the scsi_debug driver runs so much faster than normal
-devices: it copies everything out of a fixed in-kernel buffer.  ie:
-out of L1 cache.  Fast.
-
-Similarly, `sg_dd' against scsi_debug is copying a fixed kernel buffer
-into a fixed userspace buffer  But when `dd' tries to do the same thing
-it incurs an additional copy into the pagecache.  If the pagecache
-readahead window exceeds your L1 cache size (it does) then it will
-appear to be a lot slower.
-
-Summary: the block layer ain't slow - it's memory which is slow ;)
-
--
+| - Dan
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

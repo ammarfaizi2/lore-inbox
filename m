@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUHMGoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUHMG7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbUHMGoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 02:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUHMGoe
+	id S265195AbUHMG7o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 02:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUHMG7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 02:44:34 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:20396 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265152AbUHMGoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 02:44:32 -0400
-Subject: Re: excessive swapping
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1092379250.2597.14.camel@rivendell.home.local>
-References: <1092379250.2597.14.camel@rivendell.home.local>
-Content-Type: text/plain
-Message-Id: <1092379468.2597.16.camel@rivendell.home.local>
+	Fri, 13 Aug 2004 02:59:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10982 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265195AbUHMG7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 02:59:42 -0400
+Date: Fri, 13 Aug 2004 08:59:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@www.pagan.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SG_IO and security
+Message-ID: <20040813065902.GB2321@suse.de>
+References: <1092313030.21978.34.camel@localhost.localdomain> <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org> <1092341803.22458.37.camel@localhost.localdomain> <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 23:44:28 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 23:40, Florin Andrei wrote:
+On Thu, Aug 12 2004, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 12 Aug 2004, Alan Cox wrote:
+> > > > 
+> > > > Hmm.. This still allows the old "junk" commands (SCSI_IOCTL_SEND_COMMAND).
+> > 
+> > That uses sg_io() so gets caught as well unless I screwed up following
+> > the code paths.
+> 
+> No, while the cdrom_ioctl thing does use sg_io, the really old and 
+> horrible sg_scsi_ioctl thing does it's own commands by hand.
+> 
+> I don't know why. I get the feeling that it _should_ use sg_io().
 
-> The system is swapping excessively. There's no way the total size of the
-> applications exceeds the size of RAM. There's plenty of room to spare,
-> yet 16% of the 530MB of swap is used.
-
-Now it's 22% and counting. Way to go. :-(
-
-> With the Fedora 2 kernel, this never happens. I did exactly the same
-> things, and there was no excessive swapping. The system feels very
-> responsive and fast.
-
-In such situations, there is 0% swapping with the FC2 kernel.
+While that does make sense, it would be more code to fold them together
+than what is currently there. SCSI_IOCTL_SEND_COMMAND is really
+horrible, the person inventing that API should be subject to daily
+public ridicule.
 
 -- 
-Florin Andrei
-
-http://florin.myip.org/
+Jens Axboe
 

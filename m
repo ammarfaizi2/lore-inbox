@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJKTyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUJKUDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269210AbUJKTyc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269239AbUJKTyb
+	id S269213AbUJKUDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 16:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269214AbUJKUDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:54:31 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:36305 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S269210AbUJKTyE
+	Mon, 11 Oct 2004 16:03:48 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:35000 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S269213AbUJKUDp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:54:04 -0400
-Message-ID: <416AD644.8010302@ens-lyon.fr>
-Date: Mon, 11 Oct 2004 20:51:48 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 16:03:45 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] softdog.c (was: Kernel panic after rmmod softdog (2.6.8.1))
+Date: Mon, 11 Oct 2004 22:00:30 +0200
+User-Agent: KMail/1.6.2
+Cc: Michael Schierl <schierlm@gmx.de>, Joel Becker <joel.becker@oracle.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Wim Van Sebroeck <wim@iguana.be>
+References: <200410111304_MC3-1-8C02-813F@compuserve.com>
+In-Reply-To: <200410111304_MC3-1-8C02-813F@compuserve.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-References: <20041011032502.299dc88d.akpm@osdl.org>
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_hZuaBdD0dIR7L4k";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410112200.33997.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-The old Gamma DRM driver seems broken.
-(I removed the inter_module_ "deprecated" warnings)
+--Boundary-02=_hZuaBdD0dIR7L4k
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Regards,
-Brice Goglin
+On Maandag 11 Oktober 2004 19:01, Chuck Ebbert wrote:
 
-  In file included from drivers/char/drm/gamma_drv.c:42:
-drivers/char/drm/gamma_context.h: Dans la fonction « 
-gamma_context_switch_complete »:
-drivers/char/drm/gamma_context.h:193: error: structure has no member 
-named `next_buffer'
-drivers/char/drm/gamma_context.h:193: error: structure has no member 
-named `next_buffer'
-In file included from drivers/char/drm/gamma_drv.c:44:
-drivers/char/drm/gamma_old_dma.h: Dans la fonction « 
-gamma_clear_next_buffer »:
-drivers/char/drm/gamma_old_dma.h:40: error: structure has no member 
-named `next_buffer'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:41: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:42: error: structure has no member 
-named `next_queue'
-drivers/char/drm/gamma_old_dma.h:44: error: structure has no member 
-named `next_queue'
-In file included from drivers/char/drm/gamma_drv.c:46:
-drivers/char/drm/drm_drv.h: Dans la fonction « gamma_release »:
-drivers/char/drm/drm_drv.h:808: attention : implicit declaration of 
-function `gamma_ctxbitmap_free'
-make[3]: *** [drivers/char/drm/gamma_drv.o] Erreur 1
-make[2]: *** [drivers/char/drm] Erreur 2
-make[1]: *** [drivers/char] Erreur 2
-make: *** [drivers] Erreur 2
+> --- linux-2.6.8.1/drivers/char/watchdog/softdog.c.orig  Sun Oct 10 23:08:=
+24 2004
+> +++ linux-2.6.8.1/drivers/char/watchdog/softdog.c       Sun Oct 10 23:10:=
+12 2004
+> @@ -135,8 +135,9 @@
+>  {
+>         if(test_and_set_bit(0, &timer_alive))
+>                 return -EBUSY;
+> -       if (nowayout)
+> -               __module_get(THIS_MODULE);
+> +
+> +       __module_get(THIS_MODULE);
+> +
+>         /*
+>          *      Activate timer
+>          */
+> @@ -152,6 +153,7 @@
+>          */
+>         if (expect_close =3D=3D 42) {
+>                 softdog_stop();
+> +               module_put(THIS_MODULE);
+>         } else {
+>                 printk(KERN_CRIT PFX "Unexpected close, not stopping watc=
+hdog!\n");
+>                 softdog_keepalive();
+>=20
+Now if you do open(), close(), open(), write("V"), close(), the module
+becomes unremovable, even without nowayout=3D1. Isn't is possible to
+simply add a softdog_stop() call to watchdog_exit()?
+
+	Arnd <><
+
+--Boundary-02=_hZuaBdD0dIR7L4k
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBauZh5t5GS2LDRf4RAtAMAJ9esbw9awsrhVQS7gdcHV9lZubyAgCfdBwr
+TeCljapph8Xf5PBPm4T/+uI=
+=35uA
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_hZuaBdD0dIR7L4k--

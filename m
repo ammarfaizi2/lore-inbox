@@ -1,57 +1,346 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVCHBQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVCHBMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVCHBQy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 20:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBMm
+	id S261986AbVCHBMY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 20:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 20:12:42 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:28860 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261943AbVCHBKY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 20:10:24 -0500
-Message-ID: <422CFB6E.1020002@drzeus.cx>
-Date: Tue, 08 Mar 2005 02:10:06 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Mark Canter <marcus@vfxcomputing.com>,
-       rlrevell@joe-job.com, nish.aravamudan@gmail.com,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-References: <4227085C.7060104@drzeus.cx>	<29495f1d05030309455a990c5b@mail.gmail.com>	<Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>	<1109875926.2908.26.camel@mindpipe>	<Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>	<1109876978.2908.31.camel@mindpipe>	<Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>	<20050303154929.1abd0a62.akpm@osdl.org>	<4227ADE7.3080100@drzeus.cx>	<4228D013.8010307@drzeus.cx>	<s5hmztfwon1.wl@alsa2.suse.de>	<422CB68A.1050900@drzeus.cx> <s5hekerurz8.wl@alsa2.suse.de>
-In-Reply-To: <s5hekerurz8.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Mar 2005 20:09:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:36517 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261864AbVCHBER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 20:04:17 -0500
+Subject: [PATCH] radeonfb: PLL access workaround
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@linux.ie>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 11:59:57 +1100
+Message-Id: <1110243597.13594.224.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+Hi !
 
->>>Look at /etc/asound.state whether it contains the value of "Headphone
->>>Jack Sense" control true or false.
->>> 
->>>
->>>      
->>>
->>It saves the setting once I've been in 2.6.11. From an earlier kernel
->>there is no such entry.
->>    
->>
->
->Of course, the earlier version didn't have this.
->
->And did you take a look at the latest content?  What stands on it?
->Maybe you once saved a value wrongly corrected by any reason?
->
->  
->
-I'm not sure what you mean. In the 2.6.10 version the last entry is 
-'Stereo Mic'. In 2.6.11 there's 'Headphone Jack Sense' and 'Line Jack 
-Sense' following that.
- From what I can tell every entry seems valid.
+So you remember all those weird lockups at boot that happened in late
+2.6.11-rc with radeonfb. I posted a "workaround" which just moved code
+around a bit and it appeared to work. I finally got some real infos
+about the problem from ATI, and it seems my "workaround" is not very
+safe and there are other potential issues realted to HW bugs when
+accessing the PLL registers.
 
-Rgds
-Pierre
+This patch implements all of these workarounds (and puts back the code
+where it was before my previous fix). 
+
+Please test and let me know if it works. If it's fine, then it should go
+to -mm, and eventually after a while, to a 2.6.11.x update.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+Index: linux-work/drivers/video/aty/radeonfb.h
+===================================================================
+--- linux-work.orig/drivers/video/aty/radeonfb.h	2005-03-08 11:30:37.000000000 +1100
++++ linux-work/drivers/video/aty/radeonfb.h	2005-03-08 11:52:52.000000000 +1100
+@@ -22,11 +22,6 @@
+ 
+ #include <video/radeon.h>
+ 
+-/* Some weird black magic use by Apple driver that we don't use for
+- * now --BenH
+- */
+-#undef HAS_PLL_M9_GPIO_MAGIC
+-
+ /***************************************************************
+  * Most of the definitions here are adapted right from XFree86 *
+  ***************************************************************/
+@@ -312,7 +307,6 @@
+ 	int			is_mobility;
+ 	int			is_IGP;
+ 	int			R300_cg_workaround;
+-	int			m9p_workaround;
+ 	int			reversed_DAC;
+ 	int			reversed_TMDS;
+ 	struct panel_info	panel_info;
+@@ -397,6 +391,11 @@
+ 
+ #define OUTREGP(addr,val,mask)	_OUTREGP(rinfo, addr, val,mask)
+ 
++/* This function is required to workaround a hardware bug in some (all?)
++ * revisions of the R300.  This workaround should be called after every
++ * CLOCK_CNTL_INDEX register access.  If not, register reads afterward
++ * may not be correct.
++ */
+ static inline void R300_cg_workardound(struct radeonfb_info *rinfo)
+ {
+ 	u32 save, tmp;
+@@ -407,35 +406,36 @@
+ 	OUTREG(CLOCK_CNTL_INDEX, save);
+ }
+ 
++/*
++ * PLL accesses suffer from various HW issues on the different chip
++ * families. Some R300's need the above workaround, rv200 & friends
++ * need a couple of dummy reads after any write of CLOCK_CNTL_INDEX,
++ * and some RS100/200 need a dummy read before writing to
++ * CLOCK_CNTL_INDEX as well. Instead of testing every chip revision,
++ * we just unconditionally do  the workarounds at once since PLL
++ * accesses are far from beeing performance critical. Except for R300
++ * one which stays separate for now
++ */
++
++static inline void radeon_pll_workaround_before(struct radeonfb_info *rinfo)
++{
++	(void)INREG(CRTC_GEN_CNTL);	
++}
++
++static inline void radeon_pll_workaround_after(struct radeonfb_info *rinfo)
++{
++	(void)INREG(CLOCK_CNTL_DATA); 
++	(void)INREG(CRTC_GEN_CNTL); 
++}
+ 
+ static inline u32 __INPLL(struct radeonfb_info *rinfo, u32 addr)
+ {
+ 	u32 data;
+-#ifdef HAS_PLL_M9_GPIO_MAGIC
+-	u32 sv[3];
+-
+-	if (rinfo->m9p_workaround) {
+-		sv[0] = INREG(0x19c);
+-		sv[1] = INREG(0x1a0);
+-		sv[2] = INREG(0x198);
+-		OUTREG(0x198, 0);
+-		OUTREG(0x1a0, 0);
+-		OUTREG(0x19c, 0);
+-	}
+-#endif /* HAS_PLL_M9_GPIO_MAGIC */
+ 
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, addr & 0x0000003f);
+-	data = (INREG(CLOCK_CNTL_DATA));
+-
+-#ifdef HAS_PLL_M9_GPIO_MAGIC
+-	if (rinfo->m9p_workaround) {
+-		(void)INREG(CRTC_GEN_CNTL);
+-		data = INREG(CLOCK_CNTL_DATA);
+-		OUTREG(0x19c, sv[0]);
+-		OUTREG(0x1a0, sv[1]);
+-		OUTREG(0x198, sv[2]);
+-	}
+-#endif /* HAS_PLL_M9_GPIO_MAGIC */
++	radeon_pll_workaround_after(rinfo);
++	data = INREG(CLOCK_CNTL_DATA);
+ 	if (rinfo->R300_cg_workaround)
+ 		R300_cg_workardound(rinfo);
+ 	return data;
+@@ -455,32 +455,16 @@
+ #define INPLL(addr)		_INPLL(rinfo, addr)
+ 
+ 
+-static inline void __OUTPLL(struct radeonfb_info *rinfo, unsigned int index, u32 val)
++static inline void __OUTPLL(struct radeonfb_info *rinfo, unsigned int index,
++			    u32 val)
+ {
+-#ifdef HAS_PLL_M9_GPIO_MAGIC
+-	u32 sv[3];
+-
+-	if (rinfo->m9p_workaround) {
+-		sv[0] = INREG(0x19c);
+-		sv[1] = INREG(0x1a0);
+-		sv[2] = INREG(0x198);
+-		OUTREG(0x198, 0);
+-		OUTREG(0x1a0, 0);
+-		OUTREG(0x19c, 0);
+-		mdelay(1);
+-	}
+-#endif /* HAS_PLL_M9_GPIO_MAGIC */
+ 
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, (index & 0x0000003f) | 0x00000080);
++	radeon_pll_workaround_after(rinfo);
+ 	OUTREG(CLOCK_CNTL_DATA, val);
+-
+-#ifdef HAS_PLL_M9_GPIO_MAGIC
+-	if (rinfo->m9p_workaround) {
+-		OUTREG(0x19c, sv[0]);
+-		OUTREG(0x1a0, sv[1]);
+-		OUTREG(0x198, sv[2]);
+-	}
+-#endif /* HAS_PLL_M9_GPIO_MAGIC */
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ }
+ 
+ static inline void _OUTPLL(struct radeonfb_info *rinfo, unsigned int index, u32 val)
+Index: linux-work/drivers/video/aty/radeon_base.c
+===================================================================
+--- linux-work.orig/drivers/video/aty/radeon_base.c	2005-03-08 11:30:37.000000000 +1100
++++ linux-work/drivers/video/aty/radeon_base.c	2005-03-08 11:49:10.000000000 +1100
+@@ -530,7 +530,11 @@
+         break;
+ 	}
+ 
++	radeon_pll_workaround_before(rinfo);
+ 	ppll_div_sel = INREG8(CLOCK_CNTL_INDEX + 1) & 0x3;
++	radeon_pll_workaround_after(rinfo);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	n = (INPLL(PPLL_DIV_0 + ppll_div_sel) & 0x7ff);
+ 	m = (INPLL(PPLL_REF_DIV) & 0x3ff);
+@@ -1168,7 +1172,11 @@
+ 	save->vclk_ecp_cntl = INPLL(VCLK_ECP_CNTL);
+ 
+ 	/* PLL regs */
++	radeon_pll_workaround_before(rinfo);
+ 	save->clk_cntl_index = INREG(CLOCK_CNTL_INDEX) & ~0x3f;
++	radeon_pll_workaround_after(rinfo);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 	save->ppll_div_3 = INPLL(PPLL_DIV_3);
+ 	save->ppll_ref_div = INPLL(PPLL_REF_DIV);
+ }
+@@ -1195,9 +1203,13 @@
+ 			/* We still have to force a switch to selected PPLL div thanks to
+ 			 * an XFree86 driver bug which will switch it away in some cases
+ 			 * even when using UseFDev */
++			radeon_pll_workaround_before(rinfo);
+ 			OUTREGP(CLOCK_CNTL_INDEX,
+ 				mode->clk_cntl_index & PPLL_DIV_SEL_MASK,
+ 				~PPLL_DIV_SEL_MASK);
++			radeon_pll_workaround_after(rinfo);
++			if (rinfo->R300_cg_workaround)
++				R300_cg_workardound(rinfo);
+             		return;
+ 		}
+ 	}
+@@ -1211,9 +1223,13 @@
+ 		~(PPLL_RESET | PPLL_ATOMIC_UPDATE_EN | PPLL_VGA_ATOMIC_UPDATE_EN));
+ 
+ 	/* Switch to selected PPLL divider */
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREGP(CLOCK_CNTL_INDEX,
+ 		mode->clk_cntl_index & PPLL_DIV_SEL_MASK,
+ 		~PPLL_DIV_SEL_MASK);
++	radeon_pll_workaround_after(rinfo);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	/* Set PPLL ref. div */
+ 	if (rinfo->family == CHIP_FAMILY_R300 ||
+@@ -2359,6 +2375,15 @@
+ 	radeon_save_state (rinfo, &rinfo->init_state);
+ 	memcpy(&rinfo->state, &rinfo->init_state, sizeof(struct radeon_regs));
+ 
++	/* Setup Power Management capabilities */
++	if (default_dynclk < -1) {
++		/* -2 is special: means  ON on mobility chips and do not
++		 * change on others
++		 */
++		radeonfb_pm_init(rinfo, rinfo->is_mobility ? 1 : -1);
++	} else
++		radeonfb_pm_init(rinfo, default_dynclk);
++
+ 	pci_set_drvdata(pdev, info);
+ 
+ 	/* Register with fbdev layer */
+@@ -2369,13 +2394,6 @@
+ 		goto err_unmap_fb;
+ 	}
+ 
+-	/* Setup Power Management capabilities */
+-	if (default_dynclk < -1) {
+-		/* -2 is special: means  ON on mobility chips and do not change on others */
+-		radeonfb_pm_init(rinfo, rinfo->is_mobility ? 1 : -1);
+-	} else
+-		radeonfb_pm_init(rinfo, default_dynclk);
+-
+ #ifdef CONFIG_MTRR
+ 	rinfo->mtrr_hdl = nomtrr ? -1 : mtrr_add(rinfo->fb_base_phys,
+ 						 rinfo->video_ram,
+Index: linux-work/drivers/video/aty/radeon_pm.c
+===================================================================
+--- linux-work.orig/drivers/video/aty/radeon_pm.c	2005-03-04 17:22:13.000000000 +1100
++++ linux-work/drivers/video/aty/radeon_pm.c	2005-03-08 11:47:11.000000000 +1100
+@@ -1372,8 +1372,12 @@
+ 
+ 	/* Reconfigure SPLL charge pump, VCO gain, duty cycle */
+ 	tmp = INPLL(pllSPLL_CNTL);
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, pllSPLL_CNTL + PLL_WR_EN);
++	radeon_pll_workaround_after(rinfo);
+ 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	/* Set SPLL feedback divider */
+ 	tmp = INPLL(pllM_SPLL_REF_FB_DIV);
+@@ -1405,8 +1409,12 @@
+ 
+ 	/* Reconfigure MPLL charge pump, VCO gain, duty cycle */
+ 	tmp = INPLL(pllMPLL_CNTL);
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, pllMPLL_CNTL + PLL_WR_EN);
++	radeon_pll_workaround_after(rinfo);
+ 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	/* Set MPLL feedback divider */
+ 	tmp = INPLL(pllM_SPLL_REF_FB_DIV);
+@@ -1524,8 +1532,12 @@
+ {
+ 	u32 tmp;
+ 
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, pllHTOTAL_CNTL + PLL_WR_EN);
++	radeon_pll_workaround_after(rinfo);
+ 	OUTREG8(CLOCK_CNTL_DATA, 0);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	tmp = INPLL(pllVCLK_ECP_CNTL);
+ 	OUTPLL(pllVCLK_ECP_CNTL, tmp | 0x80);
+@@ -1540,12 +1552,12 @@
+ 	 * probably useless since we already did it ...
+ 	 */
+ 	tmp = INPLL(pllPPLL_CNTL);
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX, pllSPLL_CNTL + PLL_WR_EN);
++	radeon_pll_workaround_after(rinfo);
+ 	OUTREG8(CLOCK_CNTL_DATA + 1, (tmp >> 8) & 0xff);
+-
+-	/* Not sure what was intended here ... */
+-	tmp = INREG(CLOCK_CNTL_INDEX);
+-	OUTREG(CLOCK_CNTL_INDEX, tmp);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ 
+ 	/* Restore our "reference" PPLL divider set by firmware
+ 	 * according to proper spread spectrum calculations
+@@ -1569,7 +1581,11 @@
+ 	mdelay(5);
+ 
+ 	/* Switch pixel clock to firmware default div 0 */
++	radeon_pll_workaround_before(rinfo);
+ 	OUTREG8(CLOCK_CNTL_INDEX+1, 0);
++	radeon_pll_workaround_after(rinfo);
++	if (rinfo->R300_cg_workaround)
++		R300_cg_workardound(rinfo);
+ }
+ 
+ static void radeon_pm_m10_reconfigure_mc(struct radeonfb_info *rinfo)
+@@ -2752,8 +2768,6 @@
+ 		if (!strcmp(rinfo->of_node->name, "ATY,ViaParent")) {
+ 			rinfo->reinit_func = radeon_reinitialize_M9P;
+ 			rinfo->pm_mode |= radeon_pm_off;
+-			/* Workaround not used for now */
+-			rinfo->m9p_workaround = 1;
+ 		}
+ 
+ 		/* If any of the above is set, we assume the machine can sleep/resume.
+
 

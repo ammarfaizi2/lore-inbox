@@ -1,39 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265398AbUFCAP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265396AbUFCARr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265398AbUFCAP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 20:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUFCAP7
+	id S265396AbUFCARr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 20:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFCARr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 20:15:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30166 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265398AbUFCAP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 20:15:58 -0400
-Date: Wed, 2 Jun 2004 17:17:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, rusty@rustcorp.com.au,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-Message-Id: <20040602171724.2221f97e.akpm@osdl.org>
-In-Reply-To: <20040602165902.73dfc977.pj@sgi.com>
-References: <20040602161115.1340f698.pj@sgi.com>
-	<20040602162330.0664ec5d.akpm@osdl.org>
-	<20040602165902.73dfc977.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Jun 2004 20:17:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46015 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265407AbUFCARd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 20:17:33 -0400
+Message-ID: <40BE6E0A.9050403@pobox.com>
+Date: Wed, 02 Jun 2004 20:17:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Ingo Molnar <mingo@elte.hu>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,	2.6.7-rc2-bk2
+References: <20040602205025.GA21555@elte.hu> <1086221461.29390.327.camel@bach>
+In-Reply-To: <1086221461.29390.327.camel@bach>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> > Can't we just stick a PAGE_SIZE in here?
+Rusty Russell wrote:
+> On Thu, 2004-06-03 at 06:50, Ingo Molnar wrote:
 > 
-> We could - either way works about as well.  Is there something special
-> about PAGE_SIZE here?  Is that in fact what sysfs is making available?
+>>furthermore, the patch also implements 'NX protection' for kernelspace
+>>code: only the kernel code and modules are executable - so even
+> 
+> 
+> No, actually, it doesn't quite do that:
+> 
+> --- linux/kernel/module.c.orig	
+> +++ linux/kernel/module.c	
+> @@ -1431,7 +1431,7 @@ static struct module *load_module(void _
+>  
+>  	/* Suck in entire file: we'll want most of it. */
+>  	/* vmalloc barfs on "unusual" numbers.  Check here */
+> -	if (len > 64 * 1024 * 1024 || (hdr = vmalloc(len)) == NULL)
+> +	if (len > 64 * 1024 * 1024 || (hdr = vmalloc_exec(len)) == NULL)
+>  		return ERR_PTR(-ENOMEM);
+>  	if (copy_from_user(hdr, umod, len) != 0) {
+>  		err = -EFAULT;
+> 
+> This is where we such the module file into kernel memory to parse it,
+> not where we actually copy the memory.
+> 
+> You want to replace the arch-specific module_alloc() function for this.
+> Or even better, reset the NX bit only on executable sections (in the
+> arch-specific module_finalize(), using mod->core_text_size and
+> mod->init_text_size).  No generic changes necessary.
+> 
+> What surprises me is that this error didn't cause your kernel to explode
+> the moment you inserted a module containing a function...
 
-Think so.  Greg, can you confirm that a SYSDEV_ATTR's handler can safely
-assume that it has a PAGE_SIZE buffer to write to?
+
+bah, modules are for lame people who don't want to squeeze that last 
+%0.00001 of additional performance out of their kernel by reducing TLB 
+and I-cache misses...
+
+	Jeff
+
 

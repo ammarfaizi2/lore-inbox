@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130128AbQLPW00>; Sat, 16 Dec 2000 17:26:26 -0500
+	id <S130205AbQLPWiM>; Sat, 16 Dec 2000 17:38:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130371AbQLPW0Q>; Sat, 16 Dec 2000 17:26:16 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:3332 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130128AbQLPWZh>;
-	Sat, 16 Dec 2000 17:25:37 -0500
-Message-ID: <20001215235738.J9506@bug.ucw.cz>
-Date: Fri, 15 Dec 2000 23:57:38 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <greg@wirex.com>, "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: how to capture long oops w/o having second machine
-In-Reply-To: <3A3623C6.B2499D4D@haque.net> <Pine.LNX.4.30.0012120929270.6172-100000@viper.haque.net> <20001212181339.F2602@storm.local> <20001212135803.A1148@wirex.com>
+	id <S130117AbQLPWiB>; Sat, 16 Dec 2000 17:38:01 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:38742
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S130309AbQLPWho>; Sat, 16 Dec 2000 17:37:44 -0500
+Date: Sat, 16 Dec 2000 23:07:01 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: dwmw2@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] link time error in drivers/mtd (240t13p2)
+Message-ID: <20001216230701.E609@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001212135803.A1148@wirex.com>; from Greg KH on Tue, Dec 12, 2000 at 01:58:03PM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> > > Someone gave me a really awesome idea about possibly using a palm pilot
-> > > to capture the oops. Anyone know if it will be a problem using
-> > > /dev/ttyUSB0 as the serial port?
-> > 
-> > The driver itself has to provide support for serial console.  If the USB
-> > serial driver doesn't (I don't know) it won't work.  Check the config
-> > options for USB serial, if it doesn't offer an option for console on USB
-> > serial port then you're out of luck.
-> > 
-> > Unless the USB serial driver in some strange way hooks into the standard
-> > serial driver, but then someone more knowledgeable should answer that
-> > question.
-> 
-> Nope, it doesn't specifically support the CONFIG_SERIAL_CONSOLE with all
-> of the register_console code, etc., so this will not work, sorry.
-> 
-> But it's something that I would gladly take a patch for :)
+Various files in drivers/mtd references cfi_probe (by way of do_cfi_probe).
+This function is static and thus not shared. The following patch removes
+the static declaration but if it is What Was Intended I do not know. It
+makes the kernel link, however.
 
-Forget it. It is almost impossible, unless you can do usb without
-interrupts. (You can't).
-								Pavel
+
+--- linux-240-t13-pre2-clean/drivers/mtd/cfi_probe.c	Wed Nov 22 22:41:39 2000
++++ linux/drivers/mtd/cfi_probe.c	Sat Dec 16 22:58:57 2000
+@@ -17,7 +17,7 @@
+ #include <linux/mtd/cfi.h>
+ 
+ 
+-static struct mtd_info *cfi_probe(struct map_info *);
++struct mtd_info *cfi_probe(struct map_info *);
+ 
+ static void print_cfi_ident(struct cfi_ident *);
+ static void check_cmd_set(struct map_info *, int, unsigned long);
+@@ -32,7 +32,7 @@
+  * this module is non-zero, i.e. between inter_module_get and
+  * inter_module_put.  Keith Owens <kaos@ocs.com.au> 29 Oct 2000.
+  */
+-static struct mtd_info *cfi_probe(struct map_info *map)
++struct mtd_info *cfi_probe(struct map_info *map)
+ {
+ 	struct mtd_info *mtd = NULL;
+ 	struct cfi_private *cfi;
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+        Rasmus(rasmus@jaquet.dk)
+
+The Holocaust was an obscene period in our nation's history. I mean
+in this century's history. But we all lived in this century. I didn't
+live in this century.
+                -- Senator Dan Quayle, 9/15/88
+                   (reported in Esquire, 8/92, The New Yorker, 10/10/88, p.102)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,93 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbULUMFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbULUMGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbULUMFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 07:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULUMFz
+	id S261744AbULUMGx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 07:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULUMGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 07:05:55 -0500
-Received: from coderock.org ([193.77.147.115]:4806 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261743AbULUMFo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 07:05:44 -0500
-Date: Tue, 21 Dec 2004 13:06:07 +0100
-From: Domen Puncer <domen@coderock.org>
-To: James Nelson <james4765@verizon.net>
-Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: lcd: fix memory leak, code cleanup
-Message-ID: <20041221120607.GA30293@nd47.coderock.org>
-Mail-Followup-To: James Nelson <james4765@verizon.net>,
-	kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <20041221015120.29110.98832.48706@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041221015120.29110.98832.48706@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 21 Dec 2004 07:06:53 -0500
+Received: from mail.gmx.de ([213.165.64.20]:47540 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261744AbULUMGj (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 21 Dec 2004 07:06:39 -0500
+Date: Tue, 21 Dec 2004 13:06:37 +0100 (MET)
+From: "Loic Domaigne" <loic-dev@gmx.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: nptl@bullopensource.org, Linux-Kernel@Vger.Kernel.ORG, mingo@elte.hu
+MIME-Version: 1.0
+References: <41C8047E.1030403@cyberone.com.au>
+Subject: Re: OSDL Bug 3770
+X-Priority: 3 (Normal)
+X-Authenticated: #19395655
+Message-ID: <25289.1103630797@www66.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20/12/04 19:50 -0600, James Nelson wrote:
-> This patch addresses the following issues:
+Hello Nick, 
+
+> >Does Linux tolerate hard CPU binding? By hard CPU binding, I mean 
+> >that the application tells the scheduler "I want to run there", 
+> >and the scheduler schedules the thread(s) "there" regardless if it 
+> >makes sense or not ( The decision is left to the application). 
 > 
-> Fix log-spamming and cryptic error messages, and add KERN_ constants.
-> Convert some ints to unsigned ints.
-> Add checks for CAP_SYS_ADMIN for FLASH_Burn and FLASH_Erase ioctls.
-> Identify use of global variable.
-> Fix memory leak in FLASH_Burn ioctl.
-> Fix error return codes in lcd_ioctl().
-> Move variable "index" in lcd_ioctl() to smaller scope to reduce memory usage.
-> Convert cli()/sti() to spin_lock_irqsave()/spin_unlock_irqrestore().
-> Fix legibility issues in FLASH_Burn ioctl.
->
+> Yes, it does support hard CPU binding - sched_setaffinity
+
+Yes, I believe that /sched_setaffinity()/ offers a practical solution to the
+problem we are faced. 
+
+But I am eager to try the RT-patchset of Ingo. 
 
 
-> -				cli();
-> +				spin_lock_irqsave(&lcd_lock, flags);
->  				for (index = 0; index < (128); index++) {
->  
->  					WRITE_FLASH(kFlash_Addr1,
-> @@ -480,32 +485,30 @@
->  						    kFlash_Data2);
->  					WRITE_FLASH(kFlash_Addr1,
->  						    kFlash_Prog);
-> -					*((volatile unsigned char *)
-> -					  burn_addr) =
-> -		 (volatile unsigned char) rom[index];
-> -
-> -					while ((!dqpoll
-> -						(burn_addr,
-> -						 (volatile unsigned char)
-> -						 rom[index]))
-> -					       && (!timeout(burn_addr))) {
-> -					}
-> +					*((volatile unsigned char *)burn_addr) =
-> +					  (volatile unsigned char) rom[index];
-> +
-> +					while ((!dqpoll (burn_addr,
-> +						(volatile unsigned char)
-> +						rom[index])) &&
-> +						(!timeout(burn_addr))) { }
->  					burn_addr++;
->  				}
-> -				restore_flags(flags);
-> -				if (*
-> -				    ((volatile unsigned char *) (burn_addr
-> -								 - 1)) ==
-> -				    (volatile unsigned char) rom[index -
-> -								 1]) {
-> +				spin_unlock_irqrestore(&lcd_lock, flags);
+> [snip interesting dialogue]
+> 
+> Thanks for your detailed comments, they were interesting.
+
+... Glad to hear. You're welcome!  
 
 
-Although this will work, i think local_irq_{disable,enable} is the right
-solution (we don't protect any data, just make sure timings are right).
 
-For making it SMP safe, easiest/sane solution seems semaphore in
-lcd_dev, which is down_interruptible(), at beginning of read, write
-and ioctl.
+Cheers,  
+Loic. 
 
-Comments?
+-- 
+--
+// Sender address goes to /dev/null (!!) 
+// Use my 32/64 bits, ANSI C89, compliant email-address instead:   
 
+unsigned y[]=
+{0,34432,26811,16721,41866,63119,61007,48155,26147,10986};
+void x(z){putchar(z);}; unsigned t; 
+main(i){if(i<10){t=(y[i]*47560)%65521;x(t>>8);x(t&255);main(++i);}}
 
-	Domen
++++ Sparen Sie mit GMX DSL +++ http://www.gmx.net/de/go/dsl
+AKTION für Wechsler: DSL-Tarife ab 3,99 EUR/Monat + Startguthaben

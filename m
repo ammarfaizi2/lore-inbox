@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVDES4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVDES4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVDES4q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVDESzC
+	id S261930AbVDES4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDESzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:55:02 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:12192 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261893AbVDESvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:51:21 -0400
-Date: Tue, 5 Apr 2005 11:51:13 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405115113.A17809@unix-os.sc.intel.com>
-References: <20050405000524.592fc125.akpm@osdl.org> <42523F5D.7020201@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42523F5D.7020201@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Apr 05, 2005 at 05:33:49PM +1000
+	Tue, 5 Apr 2005 14:55:22 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1208 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261746AbVDESuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:50:39 -0400
+Message-ID: <4252DDE6.5040500@nortel.com>
+Date: Tue, 05 Apr 2005 12:50:14 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Josselin Mouette <joss@debian.org>
+CC: linux-os@analogic.com, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ 	copyright notice.
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com> <1112723637.4878.14.camel@mirchusko.localnet>
+In-Reply-To: <1112723637.4878.14.camel@mirchusko.localnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 05:33:49PM +1000, Nick Piggin wrote:
-> Andrew Morton wrote:
-> 
-> > +sched-remove-unnecessary-sched-domains.patch
-> > +sched-improve-pinned-task-handling-again.patch
-> [snip]
-> > 
-> >  CPU scheduler updates
-> > 
-> 
-> It is no problem that you picked these up for testing. But
-> don't merge them yet, please.
-> 
-> Suresh's underlying problem with the unnecessary sched domains
-> is a failing of sched-balance-exec and sched-balance-fork, which
+Josselin Mouette wrote:
 
-That wasn't the only motivation. For example, on non-HT cpu's we shouldn't
-be setting up SMT sched-domain, same with NUMA domains on non-NUMA systems.
+> The fact is also that mixing them with a GPLed software gives
+> an result you can't redistribute - although it seems many people
+> disagree with that assertion now.
 
-> I am working on now.
-> 
-> Removing unnecessary domains is a nice optimisation, but just
-> needs to account for a few more flags before declaring that a
+This is only true if the result is considered a "derivative work" of the 
+gpl'd code.
 
-Can you elaborate when we require a domain with special flags but has
-no or only one group in it.
+The GPL states "In addition, mere aggregation of another work not based 
+on the Program with the Program (or with a work based on the Program) on 
+a volume of a storage or distribution medium does not bring the other 
+work under the scope of this License."
 
-> domain is unnecessary (not to mention this probably breaks if
-> isolcpus= is used). I have made some modifications to the patch
+Since the main cpu does not actually run the binary firmware, the fact 
+that it lives in main memory with the code that the cpu *does* run is 
+irrelevent.  In this case, the Debian stance is that the kernel proper 
+and the binary firmware are "merely aggregated" in a volume of storage ( 
+ie. system memory).
 
-I have tested my patch with "ioslcpus=" and it works just fine.
+Chris
 
-> to fix these problems.
-> 
-> Lastly, I'd like to be a bit less intrusive with pinned task
-> handling improvements. I think we can do this while still being
-> effective in preventing livelocks.
-
-We want to see this fixed. Please post your patch and I can let you know
-the test results.
-
-> 
-> I will keep you posted with regards to the various scheduler
-> patches.
-
-Nick, Can you post the patches you sent me earlier to this list?
-
-thanks,
-suresh

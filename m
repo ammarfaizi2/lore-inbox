@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289213AbSAGOLU>; Mon, 7 Jan 2002 09:11:20 -0500
+	id <S289201AbSAGOQk>; Mon, 7 Jan 2002 09:16:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289201AbSAGOLL>; Mon, 7 Jan 2002 09:11:11 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:4579 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S287588AbSAGOKu>; Mon, 7 Jan 2002 09:10:50 -0500
-Message-Id: <5.1.0.14.2.20020107134718.025e4d90@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 07 Jan 2002 14:13:05 +0000
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-Cc: torvalds@transmeta.com, viro@math.psu.edu, phillips@bonn-fries.net,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-In-Reply-To: <20020107132121.241311F6A@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289211AbSAGOQV>; Mon, 7 Jan 2002 09:16:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:62594 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S289201AbSAGOQP>; Mon, 7 Jan 2002 09:16:15 -0500
+Date: Mon, 7 Jan 2002 09:18:05 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: lseek() on an iso9660 file
+Message-ID: <Pine.LNX.3.95.1020107091316.18091A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Goodie. Now we need benchmarks for all the approaches... (-;
-
-At 13:21 07/01/02, Jeff Garzik wrote:
-<snip>
->patch7: implement ext2 use of s_op->{alloc,destroy}
->
->         at this point we have what Linus described:
->
->                 struct ext2_inode_info {
->                         ...ext2 stuff...
->                         struct inode inode;
->                 };
-
-If we were to raise compiler requirements to gcc-2.96 or later this could 
-be simplified with an annonymous struct (having elements in struct inode 
-with the same name as elements in ...ext2 stuff... should be a shooting 
-offence IMO):
-
-         struct ext2_inode_info {
-                 ...ext2 stuff...
-                 struct inode;
-         };
-
-Advantage of this would be that as far as the fs is concerned there is only 
-one inode and each element can just be dereferenced straight away without 
-need to think was that the generic inode or the fs inode and without need 
-for keeping two pointers around. This leads to simpler code inside the 
-filesystems once they adapt.
-
-Of course fs which are not adapted would still just work with the fs_i() 
-and fs_sb() macros and/or using two separate pointers.
-
-Best regards,
-
-Anton
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Using Linux 2.4.1 I discovered a problem with lseek on CDROM files
+(iso9660). I just installed 2.4.17 and found the same problem.
+
+The problem:
+
+(1) A portion of the file, existing on a CDROM,  is read and its the
+    contents are written to an output file on writable media.
+
+(2) The current input file-position is obtained using
+    pos = lseek(fd, 0, SEEK_CUR); The value returned is exactly
+    the expected value.
+
+(3) The rest of the CDROM file is read and written to the output file.
+
+(4) The file-position of the CDROM file is then set back to the saved
+    position using lseek(fd, pos, SEEK_SET); The value returned is
+    exactly the expected value.
+
+(5) The CDROM file is then read and its contents are observed to be
+    scrambled in some strange manner in which word-length groups of
+    bytes from near the end of the file are interleaved with the
+    correct bytes. Basically, the file ends up being about twice
+    as long as the original, with every-other two-byte interval
+    being filled with bytes from near the end of the file.
+
+If I mount the CDROM using the loop device, i.e.,
+
+		mount -o loop /dev/cdrom /mnt
+
+... the problem does not exist.
+
+However, the performance is poor when mounting through the loop
+device so this is not a good "fix". It takes about 5 minutes to
+copy a 50 megabyte file from the CDROM through the loop device
+while it normally takes about 50 seconds using the SCSI CDROM
+directly.
+
+If I am not supposed to use lseek() on a file existing on an
+iso9660 file-system, how is an application to "know" that the
+file is not lseek() capable? I need a "quick-fix". One at the
+application-level is fine.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273648AbRJYNGX>; Thu, 25 Oct 2001 09:06:23 -0400
+	id <S273345AbRJYNKP>; Thu, 25 Oct 2001 09:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRJYNGQ>; Thu, 25 Oct 2001 09:06:16 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:15629 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S273305AbRJYNGH>;
-	Thu, 25 Oct 2001 09:06:07 -0400
-Date: Thu, 25 Oct 2001 14:09:55 +0100
-From: Dale Amon <amon@vnl.com>
-To: Gert-Jan Rodenburg <hertog@home.nl>,
-        Jonathan Morton <chromi@cyberspace.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Defaulting new questions in scripts/Configure?
-Message-ID: <20011025140955.A4942@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	Gert-Jan Rodenburg <hertog@home.nl>,
-	Jonathan Morton <chromi@cyberspace.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011025032741.K24348@vnl.com> <20011025105921.GNXL27467.mail2.home.nl@there>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011025105921.GNXL27467.mail2.home.nl@there>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S273565AbRJYNKE>; Thu, 25 Oct 2001 09:10:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:61457 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273345AbRJYNJz>;
+	Thu, 25 Oct 2001 09:09:55 -0400
+Date: Thu, 25 Oct 2001 11:10:25 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Steven Butler <stevenb1@bigpond.net.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Paging and fork copy-on-write semantics
+In-Reply-To: <3BD7AA3A.8040104@bigpond.net.au>
+Message-ID: <Pine.LNX.4.33L.0110251105030.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 12:59:22PM +0200, Gert-Jan Rodenburg wrote:
-> On Thursday 25 October 2001 04:27, Dale Amon wrote:
-> > I've just skimmed through the code in Configure to
-> > see if there is a way to make it shut up and just
-> > default everything new to NO so I can use it inside
-> > a noninteractive script.
-> >
-> > Did I miss it or is it something that isn't there
-> > to be found?
-> >
-> > I think I'd not be the only one to find it useful
-> > to make it be seen and not heard during a
-> > make oldconfig :-)
-> 
-> 
-> no "" | make oldconfig
-> 
-> Not sure if it works, but in the Linux From Scratch manual they do the 
-> oposite ->  yes "" | make config
-> 
+On Thu, 25 Oct 2001, Steven Butler wrote:
 
-Jonathan Morton suggested the yes is the answer
-as well. I tested both out and diffed against one
-done manually. no seems to just die, yes does just
-the right thing.
+> I have been making use of copy-on-write semantics of linux fork to
+> duplicate a process around 100+ times to generate client load against a
+> server.  The copy-on-write allows me to run many more processes without
+> swap thrashing than I'd otherwise be able to.  The client code is in
+> perl, so the process sizes are in the MBs.  Using this technique I only
+> need about 2 MB per user, with around 5.5 MB shared.
 
-Thanks much to all who replied.
+	[snip COW undone on swapout, leading to thrashing]
 
+> Is this expected and reasonable behaviour?
+
+Absolutely not, this is not supposed to happen.
+
+>  Is it possible for pages to remain shared, even when they are swapped
+> to disk?
+
+I think this already happens in the -ac kernels, probably
+in -linus too (though I'm not 100% sure).
+
+> Does that already happen anyway, meaning my analysis of the situation
+> is off base?
+
+Possible, but it's also possible you ran into a real bug,
+it would be interesting to debug this further...
+
+I wouldn't rule out a bug with the remove-from-swapcache
+logic on swapin, either.
+
+regards,
+
+Rik
 -- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

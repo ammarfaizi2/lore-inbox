@@ -1,108 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274669AbRJJEXV>; Wed, 10 Oct 2001 00:23:21 -0400
+	id <S274675AbRJJEZB>; Wed, 10 Oct 2001 00:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274675AbRJJEXM>; Wed, 10 Oct 2001 00:23:12 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:14114 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S274669AbRJJEXH>; Wed, 10 Oct 2001 00:23:07 -0400
-Date: Wed, 10 Oct 2001 06:23:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Robert Love <rml@tech9.net>, Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011010062300.H726@athlon.random>
-In-Reply-To: <20011010035818.A556B1E760@Cantor.suse.de>
+	id <S274681AbRJJEYw>; Wed, 10 Oct 2001 00:24:52 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:27389 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S274675AbRJJEYh>; Wed, 10 Oct 2001 00:24:37 -0400
+Date: Tue, 9 Oct 2001 22:23:59 -0600
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Matt_Domsch@Dell.com
+Cc: rgooch@ras.ucalgary.ca, torvalds@transmeta.com, alan@redhat.com,
+        Martin.Wilck@Fujitsu-Siemens.com, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EFI GUID Partition Tables
+Message-ID: <20011009222359.M6348@turbolinux.com>
+Mail-Followup-To: Matt_Domsch@Dell.com, rgooch@ras.ucalgary.ca,
+	torvalds@transmeta.com, alan@redhat.com,
+	Martin.Wilck@Fujitsu-Siemens.com, viro@math.psu.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <71714C04806CD51193520090272892178BD6DB@ausxmrr502.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011010035818.A556B1E760@Cantor.suse.de>; from Dieter.Nuetzel@hamburg.de on Wed, Oct 10, 2001 at 05:57:46AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <71714C04806CD51193520090272892178BD6DB@ausxmrr502.us.dell.com>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 05:57:46AM +0200, Dieter Nützel wrote:
-> On Tue, Oct 10, 2001 at 03:06, Andrea Arcangeli wrote:
-> > On Tue, Oct 09, 2001 at 10:37:56PM -0400, Robert Love wrote:
-> > > On Tue, 2001-10-09 at 22:30, Andrea Arcangeli wrote:
-> > > > As said it's very very unlikely that preemption points can fix xmms
-> > > > skips anyways, the worst scheduler latency is always of the order of the
-> > > > msecs, to generate skips you need a latency of seconds.
+On Oct 09, 2001  22:01 -0500, Matt_Domsch@Dell.com wrote:
+> > Would it be possible to put this somewhere else and/or rename it?  It
+> > appears that GUIDs are really DCE UUIDs (which are used by 
+> > other things
+> > like ext2, XFS, MD RAID, etc) so if we are "advertising" 
+> > UUIDs from the
+> > kernel, we may as well make it "sensible" for other users.  How about
+> > "/dev/dis[ck]s/uuid", unless there are other users of UUID 
+> > identifiers?
 > 
-> [...]
-> > The point is that to avoid dropouts dbench must take say 40% of the cpu
-> > and xmms another 40% of the cpu. Then the 10msec doesn't matter. If each
-> > one takes 50% of cpu exactly you can run in dropouts anyways because of
-> > scheduler imprecisions.
+> Yes, UUIDs and GUIDs are the same thing, fortunately.
+> I'll have to defer this to the author of this piece of code.  Martin, any
+> reason why it shouldn't be renamed?  Richard, any preferred name?
+
+Well, the "common" usage is in /etc/fstab, where we allow "UUID=" and
+"LABEL=", so it would be nice to stick with "uuid" or "UUID".
+
+> > On a side note, I have a user-space library which locates/identifies
+> > devices by UUID/LABELs as well.  It is likely to become part 
+> > of e2fsprogs
+> > and mount as a way to consolidate all of the fs identification code,
+> > but it could easily to partition identification also (hasn't 
+> > been possible until now).
 > 
-> I get the dropouts (2~3 sec) after dbench 32 is running for 9~10 seconds.
-> I've tried with RT artds and nice -20 mpg123.
+> This would be great!  How can I help?
+
+Hmm.  I was originally thinking it would be a no-brainer to add in GPT
+support for libblkid (add a "magic" field, and then extract the UUID/LABEL
+from each partition).  Some questions pop up:
+
+1) Currently libblkid is only doing identification of "content" (e.g.
+   filesystems, RAID, swap, LVM, etc) and not actual "partition tables".
+   Is it possible to get the GPT data when reading the actual partitioned
+   device (e.g. /dev/hda1) or do you need to read the whole-disk device
+   (e.g. /dev/hda)?
+2) What to do with multiple identifiers for a single partition?  Current
+   partitioning schemes don't have any identifiers, so I've assumed that
+   there will only be one "correct" identifier for each block device.
+   With GPT, you could have a GPT GUID+LABEL and a filesystem UUID+LABEL.
+   It would be nice NOT to introduce new "types" for each possible ID
+   (i.e. I have been calling all "serial number" type things "UUID" and
+   all "name" type things "LABEL" to match current usage).
+
+> > Another question, does GPT support user-defined names/LABELs 
+> > for partitions?
 > 
-> Kernel: 2.4.11-pre6 + 00_vm-1 + preempt
+> Yes.  36 efi_char_t (Unicode, really UCS-2, 72 bytes) per partition name
+> field. :-)  No relying on the file system (e.g. swap doesn't support names).
+
+Hmm, how easy to handle these as regular strings (i.e. just pretend they
+are unsigned chars and never interpret)?  I was actually in the process of
+adding LABEL support to swap and reiserfs, because we will still be stuck
+with DOS partitions a long time.
+
+> Happy to.  I haven't done an extensive grep for other uuid uses in the
+> kernel (besides knowing they're used for ext2).  If lib/ is a better place
+> to combine them, I'll do that.
+
+Well, I've played with uuid_unparse() in the kernel a couple of times for
+other reasons (UUID-root patch for example) so it would still be useful
+to have.
+
 > 
-> Only solution:
-> I have to copy the test MPG3 file into /dev/shm.
+> > Have you looked at the DocBook stuff?  It would be desirable (not that
+> > I'm complaining about ANY documentation, mind you) if the 
+> > comments were
+> > in DocBook format (as some parts of the kernel are moving).
+> 
+> No, I haven't looked at DocBook.  I can do that if it's important.
 
-If copying the mp3 data into /dev/shm fixes the problem it could be also
-an I/O overload. But it could also be still the vm write throttling: to
-read the mp3 from disk you need to allocate some cache, while to read
-from /dev/shm you don't need to allocate anything because it was just
-allocate when you copied the file there. Or it could be both things
-together.
+It's not _important_, but given that your comments are relatively well
+formatted already, it shouldn't be more than a few minutes work to
+convert to DocBook (see Documentation/kernel-doc-nano-HOWTO.txt).
 
-Like the cpu is divided by all the CPU hogs, the disk bandwith is also
-divided by all the applications doing I/O at the same time (modulo the
-fact the gloabl bandwith dramatically decrease when multiple apps do I/O
-at the same time due the seeks, the thing that the elevator tries to
-avoid by introducing some degree of unfairness in the I/O patterns).
+> I prefer to think of it as "partition content type", with a single type for
+> all normal file systems (ext2, ext3, etc), and different types for different
+> content uses (LVM, RAID, SWAP should be grouped in with normal file systems,
+> but for historical reasons isn't).
+> 
+> Each disk and each partition also includes a UniquePartitionGUID which is
+> what /proc/guid points to, separate from the PartitionTypeGUID.
 
-So if this is just an I/O overload (possible too) some possible fixes
-could be:
+Ah, I missed the distinction there.  This makes more sense.
 
-1) buy faster disk
-2) try with elvtune -r 1 -w 2 /dev/hd[abcd] /dev/sd[abcd] that will try
-   to decrease the global I/O disk bandwith of the system, but it will
-   increase fairness
+> > How is this different than a "struct partition" in 
+> > <linux/genhd.h> (aside
+> > from the fact that "struct partition" should use fixed-sized 
+> > types because
+> > it is referring to on-disk data)?
+> 
+> Same thing, but I didn't want to go mucking about with struct partition in
+> exactly that way, as it's used in a variety of places across the kernel, and
+> I didn't want this GPT patch to be so invasive.
 
-> CPU (1 GHz Athlon II) is ~75% idle during the hiccup.
+I think that since the GPT struct definition is the "right" way, you
+may as well fix the genhd.h header.  By "right" I mean - it is on disk
+in fixed sized chunks, so lets not mess with the possibility of breakage
+in the future becase the size of an "int" changes.  DOS partitions were
+defined on x86 hardware so the struct needs to be declared with that
+in mind.
 
-Of course I can imagine. This is totally unrelated to scheduler
-latencies, it's either vm write throttling or I/O congestion so you
-don't have enough bandwith to read the file or both.
+> > Are there not already plenty of crc32 functions in the kernel, or does
+> > this one have different coefficients?
+> 
+> Yes, in fact I grabbed this one out of the CIPE kernel patch and put it in
+> lib/ for that reason.  CIPE had it as a table (it needs to be fast as it's
+> processing network packets at that point), so I wanted to have a single 1KB
+> array that both use.  There are other crc32 functions in the kernel, but
+> this happens to be the one that Intel is using in their firmware (despite
+> what their spec says).
 
-> The dbench processes are mostly in wait_page/wait_cache if I remember right.
-> So I think that you are right it is a file IO wait (latency) problem.
+Oh, I don't disagree it should be a table, but since it can be generated
+on-the-fly you may as well do so at boot time and avoid the extra kernel
+size (assuming the generation code is < 1kB).  This code can be marked
+__init so it will be freed later.
 
-Yes.
+As for the other crc32 functions, presumably they all use different
+coefficients?  There was some discussion about this last week in that
+several of these tables could also be merged between different drivers.
 
-> Please hurry up with your read/write copy-user paths lowlatency patches ;-)
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-In the meantime you can use the preemption points in the copy-user, they
-can add a bit more of overhead but nothing interesting, I believe it's
-more a cleanup than an improvement to move the reschedule points in
-read/write as suggested by Andrew.
-
-BTW, this is the relevant patch:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.11aa1/00_copy-user-lat-5
-
-You're probably more interested in the possible heuristic that I've in
-mind to avoid xmms to wait I/O completion for the work submitted by
-dbench. Of course assuming the vm write throttling was a relevant cause
-of the dropouts, and that the dropouts weren't just due an I/O
-congestion (too low disk bendwith).
-
-BTW, to find out if the reason of the dropouts where the vm write
-throttling or the too low disk bandwith you can run ps l <pid_of_xmms>,
-if it says wait_on_buffer all the time it's the vm write throttling, if
-it says always something else it's the too low disk bandwith, I suspect
-as said above that you'll see both things because it is probably a mixed
-effect. If it's not vm write throttling only a faster disk or elvtune
-tweaking can help you, there's no renice-IO -n -20 that allows to
-prioritize the I/O bandwith to a certain application.
-
-Andrea

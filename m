@@ -1,139 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269646AbRHMBcH>; Sun, 12 Aug 2001 21:32:07 -0400
+	id <S269673AbRHMBaZ>; Sun, 12 Aug 2001 21:30:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269674AbRHMBa0>; Sun, 12 Aug 2001 21:30:26 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18576 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269668AbRHMB3Z>;
-	Sun, 12 Aug 2001 21:29:25 -0400
-Date: Sun, 12 Aug 2001 21:29:37 -0400 (EDT)
+	id <S269651AbRHMBaD>; Sun, 12 Aug 2001 21:30:03 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13966 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269644AbRHMB2B>;
+	Sun, 12 Aug 2001 21:28:01 -0400
+Date: Sun, 12 Aug 2001 21:28:12 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/super.c fixes - second series (10/11)
-In-Reply-To: <Pine.GSO.4.21.0108122129000.7092-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108122129210.7092-100000@weyl.math.psu.edu>
+Subject: [PATCH] fs/super.c fixes - second series (6/11)
+In-Reply-To: <Pine.GSO.4.21.0108122127320.7092-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108122127560.7092-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 10/11
+Part 6/11
 
-Long-promised cleanup: lock_super(sb);unlock_super(sb); is gone from
-get_super(). ->s_umount gives all needed exclusion.
+	* get_sb_single() doesn't rely on kern_mount() being already done.
+It simply checks list_empty(&type->fs_supers) and if we already have a
+superblocks - grabs and returns it. If we don't have one it does the
+right thing - inserts preallocated superblock into the ->fs_supers (and
+super_blocks, indeed) and does ->read_super() on it, etc.
 
-And here comes the rest of ->s_count story: we lump all permanent references
-together, but now we count them as 1+BIGNUM. Now conversion of temporary
-reference to permanent one can recognize dying superblocks by s_count alone.
-We don't have to rely on mount_sem for that. Check grab_super() and the very
-beginning of kill_super() for details - it's quite straightforward. That's
-where we need atomicity of s_active, BTW.
+	It means that get_sb_single() works regardless of the kern_mount() -
+if the latter had been done the thing will pick the superblock as it used
+to do, if not - no problems.
 
-diff -urN S9-pre1-dquot/fs/super.c S9-pre1-s_count/fs/super.c
---- S9-pre1-dquot/fs/super.c	Sun Aug 12 20:45:51 2001
-+++ S9-pre1-s_count/fs/super.c	Sun Aug 12 20:45:52 2001
-@@ -732,10 +732,6 @@
- 	s = find_super(dev);
- 	if (s) {
- 		spin_unlock(&sb_lock);
--		/* Yes, it sucks. As soon as we get refcounting... */
--		/* Almost there - next two lines will go away RSN */
--		lock_super(s);
--		unlock_super(s);
- 		down_read(&s->s_umount);
- 		if (s->s_root)
- 			return s;
-@@ -818,6 +814,7 @@
- 	spin_lock(&sb_lock);
- 	list_add (&s->s_list, super_blocks.prev);
- 	list_add (&s->s_instances, &type->fs_supers);
-+	s->s_count += S_BIAS;
- 	spin_unlock(&sb_lock);
- 	down_write(&s->s_umount);
- 	lock_super(s);
-@@ -839,6 +836,7 @@
- 	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	list_del(&s->s_instances);
-+	s->s_count -= S_BIAS;
- 	spin_unlock(&sb_lock);
- 	put_super(s);
- 	return NULL;
-@@ -879,13 +877,13 @@
- 	spin_unlock(&sb_lock);
- 	down_write(&sb->s_umount);
- 	if (sb->s_root) {
--		/* Still relying on mount_sem */
--		if (atomic_read(&sb->s_active) > 1) {
--			spin_lock(&sb_lock);
-+		spin_lock(&sb_lock);
-+		if (sb->s_count > S_BIAS) {
- 			sb->s_count--;
- 			spin_unlock(&sb_lock);
- 			return 1;
- 		}
+diff -urN S9-pre1-fs_supers/fs/super.c S9-pre1-get_sb_single/fs/super.c
+--- S9-pre1-fs_supers/fs/super.c	Sun Aug 12 20:45:50 2001
++++ S9-pre1-get_sb_single/fs/super.c	Sun Aug 12 20:45:50 2001
+@@ -1031,19 +1031,62 @@
+ static struct super_block *get_sb_single(struct file_system_type *fs_type,
+ 	int flags, void *data)
+ {
+-	struct super_block * sb;
++	struct super_block * s = alloc_super();
++	if (!s)
++		return ERR_PTR(-ENOMEM);
++	down_write(&s->s_umount);
+ 	/*
+ 	 * Get the superblock of kernel-wide instance, but
+ 	 * keep the reference to fs_type.
+ 	 */
+ 	down(&mount_sem);
+-	sb = fs_type->kern_mnt->mnt_sb;
+-	if (!sb)
+-		BUG();
+-	atomic_inc(&sb->s_active);
+-	down_write(&sb->s_umount);
+-	do_remount_sb(sb, flags, data);
+-	return sb;
++retry:
++	spin_lock(&sb_lock);
++	if (!list_empty(&fs_type->fs_supers)) {
++		struct super_block *old;
++		old = list_entry(fs_type->fs_supers.next, struct super_block,
++				s_instances);
++		if (!grab_super(old))
++			goto retry;
++		atomic_dec(&s->s_active);
++		put_super(s);
++		do_remount_sb(old, flags, data);
++		return old;
++	} else {
++		kdev_t dev = get_unnamed_dev();
++		if (!dev) {
++			atomic_dec(&s->s_active);
++			put_super(s);
++			up(&mount_sem);
++			return ERR_PTR(-EMFILE);
++		}
++		s->s_dev = dev;
++		s->s_flags = flags;
++		s->s_type = fs_type;
++		list_add (&s->s_list, super_blocks.prev);
++		list_add (&s->s_instances, &fs_type->fs_supers);
 +		spin_unlock(&sb_lock);
- 	}
- 	atomic_dec(&sb->s_active);
- 	put_super(sb);
-@@ -970,6 +968,7 @@
- 	s->s_type = fs_type;
- 	list_add (&s->s_list, super_blocks.prev);
- 	list_add (&s->s_instances, &fs_type->fs_supers);
-+	s->s_count += S_BIAS;
- 
- 	spin_unlock(&sb_lock);
- 
-@@ -993,6 +992,7 @@
- 	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	list_del(&s->s_instances);
-+	s->s_count -= S_BIAS;
- 	spin_unlock(&sb_lock);
- 	put_super(s);
- out1:
-@@ -1061,6 +1061,7 @@
- 		s->s_type = fs_type;
- 		list_add (&s->s_list, super_blocks.prev);
- 		list_add (&s->s_instances, &fs_type->fs_supers);
-+		s->s_count += S_BIAS;
- 		spin_unlock(&sb_lock);
- 		lock_super(s);
- 		if (!fs_type->read_super(s, data, 0))
-@@ -1078,6 +1079,7 @@
- 		spin_lock(&sb_lock);
- 		list_del(&s->s_list);
- 		list_del(&s->s_instances);
-+		s->s_count -= S_BIAS;
- 		spin_unlock(&sb_lock);
- 		put_super(s);
- 		put_unnamed_dev(dev);
-@@ -1094,8 +1096,12 @@
- 	struct file_system_type *fs = sb->s_type;
- 	struct super_operations *sop = sb->s_op;
- 
--	if (!atomic_dec_and_test(&sb->s_active))
-+	if (!atomic_dec_and_lock(&sb->s_active, &sb_lock))
- 		return;
++		lock_super(s);
++		if (!fs_type->read_super(s, data, 0))
++			goto out_fail;
++		unlock_super(s);
++		return s;
 +
-+	sb->s_count -= S_BIAS;
-+	spin_unlock(&sb_lock);
-+
- 	down_write(&sb->s_umount);
- 	lock_kernel();
- 	sb->s_root = NULL;
-diff -urN S9-pre1-dquot/include/linux/fs.h S9-pre1-s_count/include/linux/fs.h
---- S9-pre1-dquot/include/linux/fs.h	Sun Aug 12 20:45:51 2001
-+++ S9-pre1-s_count/include/linux/fs.h	Sun Aug 12 20:45:52 2001
-@@ -660,6 +660,7 @@
- extern spinlock_t sb_lock;
++	out_fail:
++		s->s_dev = 0;
++		s->s_bdev = 0;
++		s->s_type = NULL;
++		unlock_super(s);
++		atomic_dec(&s->s_active);
++		spin_lock(&sb_lock);
++		list_del(&s->s_list);
++		list_del(&s->s_instances);
++		spin_unlock(&sb_lock);
++		put_super(s);
++		put_unnamed_dev(dev);
++		up(&mount_sem);
++		return ERR_PTR(-EINVAL);
++	}
+ }
  
- #define sb_entry(list)	list_entry((list), struct super_block, s_list)
-+#define S_BIAS (1<<30)
- struct super_block {
- 	struct list_head	s_list;		/* Keep this first */
- 	kdev_t			s_dev;
+ static void kill_super(struct super_block *sb)
 
 

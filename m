@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRBSQOo>; Mon, 19 Feb 2001 11:14:44 -0500
+	id <S130122AbRBSQRE>; Mon, 19 Feb 2001 11:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129947AbRBSQOf>; Mon, 19 Feb 2001 11:14:35 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:55428 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129847AbRBSQOX>;
-	Mon, 19 Feb 2001 11:14:23 -0500
-Date: Mon, 19 Feb 2001 16:13:44 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: Ansari <mike@khi.sdnpk.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Running Bind 9 on Redhat 7
-In-Reply-To: <3A913520.3011C7D6@khi.sdnpk.org>
-Message-ID: <Pine.LNX.4.32.0102191607400.3627-100000@rossi.itg.ie>
+	id <S130269AbRBSQQy>; Mon, 19 Feb 2001 11:16:54 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31761 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130122AbRBSQQk>; Mon, 19 Feb 2001 11:16:40 -0500
+Subject: Re: Proliant hangs with 2.4 but works with 2.2.
+To: lafanga1@hotmail.com (lafanga lafanga)
+Date: Mon, 19 Feb 2001 16:17:06 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <F223BDXmDQOa8NlgXjs0000598e@hotmail.com> from "lafanga lafanga" at Feb 19, 2001 02:39:42 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Uszs-0003nY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Ansari wrote:
+> I'll be happy to test out 2.2.19pre. I'm having a little difficulty locating 
+> it though on kernel.org. Can you or somebody send me a URL for this.
 
-> Hi !!
->
-> I am configuring Bind 9 on Redhat 7 but unable to start the named.
-> Here is my /var/log message log:
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan/...
 
-you have a config problem i think.
+each 2.2.19pre patch is versus the 2.2.18 base
 
-> Feb 20 09:49:58 ns2 named[2005]: loading zones: no ttl
+ie
 
-you need to put:
-
-$TTL <ttl, eg 1D>
-
-at the beginning of each zone file.
-
-oh, you're probably better off asking your questions on a bind
-specific list, rather than linux-kernel.
-
-regards,
-
---paulj
-
-
+	tar xvfz linux-2.2.18.tar.gz
+	cd linux
+	patch -p1 <../patch-2.2.19prefoo
 

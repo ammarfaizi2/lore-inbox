@@ -1,64 +1,244 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284776AbRLRTG4>; Tue, 18 Dec 2001 14:06:56 -0500
+	id <S284553AbRLRSyE>; Tue, 18 Dec 2001 13:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284604AbRLRTFS>; Tue, 18 Dec 2001 14:05:18 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:61173 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284793AbRLRTD2>; Tue, 18 Dec 2001 14:03:28 -0500
-Message-ID: <3C1F92FF.3030701@redhat.com>
-Date: Tue, 18 Dec 2001 14:03:27 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011211
+	id <S284617AbRLRSwy>; Tue, 18 Dec 2001 13:52:54 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:26859 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S284557AbRLRSvh>;
+	Tue, 18 Dec 2001 13:51:37 -0500
+Message-ID: <3C1F901E.6050800@athlon.maya.org>
+Date: Tue, 18 Dec 2001 19:51:10 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin> <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com> <20011218105459.X855@lynx.no> <3C1F8A9E.3050409@redhat.com> <20011218115243.Y855@lynx.no>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17rc1] fatal problem: system time suddenly changes
+In-Reply-To: <Pine.LNX.4.21.0112181509150.4456-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+Hello Marcelo,
+
+thank you for your reply!
 
 
-> Hmm, I _do_ notice a pop when the sound hardware is first initialized at
-> boot time, but not when mpg123 starts/stops (without esd running) so I
-> personally don't get any benefit from "the sound of silence".  That said,
-> asside from the 190 interrupts/sec from esd, it doesn't appear to use any
-> measurable CPU time by itself.
+Marcelo Tosatti wrote:
+
+> Andreas, 
+> 
+> I have no idea why this is happening.
+> 
+> Could you please 2.4.16 ?
+> 
+
+
+It's with all 2.4.x-kernels. The only ones working fine have been the 
+ac-patches.
+
+When running the ac-patches, I often got the following message in 
+/var/log/messages. I put them as example here, that you can see, how 
+often it appears:
+
+Oct  7 10:36:04 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:36:04 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:36:10 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:36:10 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:36:20 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:36:20 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:36:41 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:36:41 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:37:45 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:37:45 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:38:02 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:38:02 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:45:54 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:45:54 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:02 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:02 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:04 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:04 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:05 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:05 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:13 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:13 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:20 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:20 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:27 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:27 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:28 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:28 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:35 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:35 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:41 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:41 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:43 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:43 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:46:59 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:46:59 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:04 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:04 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:10 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:10 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:12 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:12 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:33 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:33 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:34 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:34 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:36 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:36 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:40 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:40 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:41 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:41 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:47:45 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:47:45 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:03 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:03 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:09 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:09 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:10 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:10 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:11 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:11 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:30 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:30 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:32 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:32 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:34 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:34 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:36 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:36 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:38 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:38 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:41 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:41 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:43 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:43 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:48 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:48 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:50 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:50 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 10:48:56 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 10:48:56 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 11:05:45 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 11:05:45 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 11:06:15 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 11:06:15 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 11:06:17 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 11:06:17 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct  7 11:20:42 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct  7 11:20:42 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+Oct 29 10:44:26 athlon kernel: probable hardware bug: clock timer 
+configuration lost - probably a VIA686a motherboard.
+Oct 29 10:44:26 athlon kernel: probable hardware bug: restoring chip 
+configuration.
+
+> On Tue, 18 Dec 2001, Andreas Hartmann wrote:
 > 
 > 
->>Context switches per second not playing any sound: 8300 - 8800
->>Context switches per second playing an MP3: 9200 - 9900
+>>Hello all,
 >>
-> 
-> Hmm, something seems very strange there.  On an idle system, I get about
-> 100 context switches/sec, and about 150/sec when playing sound (up to 400/sec
-> when moving the mouse between windows).  9000 cswitches/sec is _very_ high.
-> This is with a text-only player which has screen output (other than the
-> ID3 info from the currently played song).
+>>I'm running kernel 2.4.17rc1 and I detected suddenly changes of
+>>systemtime. I saw it in KDE and tested it afterwards in a konsole. I
+>>repeated as fast as possible the date program as following:
+>>
 
 
-I haven't taken the time to track down what's causing all the context 
-switches, but on my system they are indeed "normal".  I suspect large 
-numbers of them are a result of interactions between gnome, nautilus, X, 
-xmms, esd, and gnome-xmms.  However, I did just track down one reason for 
-it.  It's not 8300 - 8800, its 830 - 880.  There appears to be a bug in the 
-procinfo -n1 mode that results in an extra digit getting tacked onto the end 
-of the context switch line.  So, take my original numbers and lop off the 
-last digit from the context switch numbers and that's more like what the 
-machine is actually doing.
-
-
-
-
-
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+Regards,
+Andreas
 

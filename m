@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUKVXfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUKVXlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbUKVXfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 18:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUKVXdE
+	id S262453AbUKVXlo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 18:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUKVXjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 18:33:04 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:36285 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262445AbUKVXaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 18:30:04 -0500
-Date: Mon, 22 Nov 2004 23:30:01 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: hirofumi@mail.parknet.co.jp, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-In-Reply-To: <20041122135354.38feab51.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.60.0411222324150.27573@hermes-1.csi.cam.ac.uk>
-References: <877joexjk5.fsf@devron.myhome.or.jp> <20041122024654.37eb5f3d.akpm@osdl.org>
- <1101121403.18623.10.camel@imp.csi.cam.ac.uk> <20041122135354.38feab51.akpm@osdl.org>
+	Mon, 22 Nov 2004 18:39:20 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25555 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262453AbUKVXis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 18:38:48 -0500
+Message-ID: <41A278AB.2050608@sgi.com>
+Date: Mon, 22 Nov 2004 17:39:23 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+To: Rick Lindsley <ricklind@us.ibm.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
+       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
+       John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Subject: Re: [Lse-tech] scalability of signal delivery for Posix Threads
+References: <200411222127.iAMLRtN7020062@owlet.beaverton.ibm.com>
+In-Reply-To: <200411222127.iAMLRtN7020062@owlet.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Nov 2004, Andrew Morton wrote:
-> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> >
-> > Would it be ok to modify i_size from prepare_write?
+Rick Lindsley wrote:
+> So with CLONE_SIGHAND, we share the handler assignments and which signals
+> are blocked, but retain the ability for individual threads to receive
+> a signal.  And when all of them receive signals in quick succession,
+> we see lock contention because they're sharing the same (effectively)
+> global lock to receive all of their (effectively) individual signals
+> .. is that correct?
 > 
-> I think so - I seem to recall seeing that done somewhere else...
 
-Great.
+Yes, I think that's whats happening, except that I think the blocked
+signal list is per thread as well.  The shared sighand structure just
+has the saved arguments from sigaction, as I remember.   (It's confusing:
+the set of signals blocked during execution of the signal handler is
+part of the sigaction structure and hence is global to the entire
+thread group, whilst the set of signals blocked in general is per thread.)
 
-> One thing to watch out for is when to bring the page uptodate.  If the 
-> page is uptodate then the read() code just won't try to lock it at all.  
-> If you increase i_size AND set PG_uptodate too early you could open a 
-> window which allows read() to peek at uninitialised data.
+> Are you contending on tasklist_lock, or on siglock?
+
+Definately: siglock.  All of the profiling ticks occur at
+unlock_irqrestore(&p->sighand->siglock) in the routines I
+mentioned before.  [we don't have NMI profiling on Altix...
+so profiling typically can't look inside
+of code sections with interrupts suspended.]
+
 > 
-> But if you set the page uptodate only when its contents really are sane
-> then things should work OK.
-
-Yes, I would never set PG_Uptodate without having sane page contents 
-first.
-
-In fact all the metadata writing code in NTFS actually clears PG_Uptodate 
-on a locked page because it mangles the page contents, writes them out, 
-and then demangles them again, before finally setting PG_Uptodate again 
-to protect against read_cache_page() getting hold of pages with i/o in 
-flight which for NTFS metadata would cause corruption.
-
-> If you end up doing
+>     It seems to me that scalability would be improved if we moved the
+>     siglock from the sighand structure to the task_struct.
 > 
-> 	memset(page, 0, N);
-> 	SetPageUptodate(page);
+> Only if you want to keep its current semantics of it being a lock for
+> all things signal.  Finer granularity would, it seems at first look,
+> afford you the benefits you're looking for.  (But not without the cost of
+> a fair amount of work to make sure the new locks are utilized correctly.)
+> For the problem you're describing, it sounds like the contention is occuring
+> at delivery, so a new lock for pending, blocked, and real_blocked might be
+> in order.
 > 
-> then I think you'll need an smb_wmb() in between so the read() code sees the
-> above two writes in the correct order.
+> Rick
+> 
 
-Thanks.  I always have a flush_dcache_page(page) between the memset() and 
-the SetPageUptodate() so I don't need the barrier, right?  Or does the 
-flush_dcache_page() not imply ordering?  (I naively thought it did...)
+Yes, I was hoping to keep the current semantics of siglock as the lock for
+all things signal, just make it local per thread, and require that all of the
+siglocks be held to change the sighand structure.  That seemed like a change I
+could manage.  My personal notion was that the slowdown of sigaction()
+processing for multi-threaded POSIX programs was not that big of deal because
+it doesn't happen very often, and for non-CLONE_SIGHAND threads the additional
+cost would be minor.  But if the slowdown in the CLONE_SIGHAND case is not
+acceptable then I'm stuck as to how to do this
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

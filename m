@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317940AbSGPRjc>; Tue, 16 Jul 2002 13:39:32 -0400
+	id <S317908AbSGPRd5>; Tue, 16 Jul 2002 13:33:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317944AbSGPRjb>; Tue, 16 Jul 2002 13:39:31 -0400
-Received: from daimi.au.dk ([130.225.16.1]:35824 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317940AbSGPRj3>;
-	Tue, 16 Jul 2002 13:39:29 -0400
-Message-ID: <3D345AEE.7CCFDC5B@daimi.au.dk>
-Date: Tue, 16 Jul 2002 19:42:06 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: if_exist_pid()
-References: <Pine.LNX.3.95.1020716131206.19310A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317911AbSGPRdz>; Tue, 16 Jul 2002 13:33:55 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:18845 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317908AbSGPRcy>; Tue, 16 Jul 2002 13:32:54 -0400
+Date: Tue, 16 Jul 2002 19:34:12 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207161734.g6GHYCDk027351@burner.fokus.gmd.de>
+To: Richard.Zidlicky@stud.informatik.uni-erlangen.de, schilling@fokus.gmd.de
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> Anybody know the 'correct' way of determining if a pid still
-> exists?  I've been using "kill(pid, 0)" and, if it does not
-> return an error, it is supposed to exist.
+>From: Richard Zidlicky <Richard.Zidlicky@stud.informatik.uni-erlangen.de>
 
-That is correct.
+>> >Solaris vold? Thanks no, floppy access was so easy in SunOS before the 
+>> >days of the volume manager.
+>> 
+>> .... and it is even simpler since vold is present. Call volcheck to tell vold
+>> that the media changed or use a SCSI floppy which supports to tell the kernel
+>> that a media change did happen.
 
-> Sending signal 0 to a pid sometimes returns 0, even if the pid
-> is long-gone
+>when it is properly configured which doesn't seem the common case.
+>More often than not, things like accessing raw floppy images turn
+>out to be a problem.
 
-Really? That would mean there is a bug in kill(). Of course
-you can get return value 0 if the pid has been recycled, but
-otherwise it should not happen.
+Being properly configured _is_ the common case if you don't change things 
+manually. A standard Solaris system install from scratch will always result in 
+a usable floppy drive that is handled as expected by vold.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Try to keep your fingers away from the vold configuration files after you did a 
+clean install from scratch.
+
+Jörg
+
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

@@ -1,190 +1,131 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315866AbSEGPPJ>; Tue, 7 May 2002 11:15:09 -0400
+	id <S315862AbSEGPNc>; Tue, 7 May 2002 11:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315861AbSEGPNn>; Tue, 7 May 2002 11:13:43 -0400
-Received: from [195.68.19.172] ([195.68.19.172]:59147 "EHLO srvnetclub")
-	by vger.kernel.org with ESMTP id <S315859AbSEGPNJ>;
-	Tue, 7 May 2002 11:13:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mickael Bailly <mickael.bailly@trader.com>
-Organization: NetClub
-To: Paul Jakma <paulj@alphyra.ie>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100: wait_for_cmd_done timeout (2.4.19-pre2/8)
-Date: Tue, 7 May 2002 17:12:21 +0200
-X-Mailer: KMail [version 1.4]
-In-Reply-To: <Pine.LNX.4.44.0205071454270.16371-100000@dunlop.admin.ie.alphyra.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200205071712.21699.mickael.bailly@trader.com>
+	id <S315868AbSEGPNM>; Tue, 7 May 2002 11:13:12 -0400
+Received: from backtop.namesys.com ([212.16.7.71]:6273 "EHLO namesys.com")
+	by vger.kernel.org with ESMTP id <S315862AbSEGPLI>;
+	Tue, 7 May 2002 11:11:08 -0400
+Date: Tue, 7 May 2002 19:05:44 +0400
+From: Hans Reiser <reiser@namesys.com>
+Message-Id: <200205071505.g47F5iT04042@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [BK] [2.4] Reiserfs changeset 3 out of 4, please apply.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+Hello!
 
-We got the same problem with PCI eepro NICs (not onboard) on Dell Poweredge.
-We got the same error messages
-We tried the alternative 'e100' driver, but without success.
-We tried on 2.2 kernels (RedHat 6.2), then on 2.4 (RedHat 7.1/7.2): problem 
-still exist.
+  You can get this changeset from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
 
-At last we disabled APIC ( configuration line 'append=noapic' in your 
-lilo.conf configuration file )
+  This changeset  fixes 2 incorrect padding problems and a race with knfsd,
+  where file might be attemted to be deleted twice.
 
-Now it's working fine since 2 days... need a little more time to validate the 
-change...
+Diffstat:
+ inode.c           |   17 ++++++++++++-----
+ namei.c           |    2 +-
+ tail_conversion.c |    2 +-
+ 3 files changed, 14 insertions(+), 7 deletions(-)
 
-See you
-Mickael
-
-On Mardi 7 Mai 2002 16:23, Paul Jakma wrote:
-> hi,
->
-> i have a problem with a Dell poweredge with onboard Intel eepro NICs.
->
-> The network card basically doesnt work. The system logs are filled
-> with:
->
-> 	eepro100: wait_for_cmd_done timeout!
->
-> and of course attendant "last message repeated x times". at less
-> frequent intervals we get NETDEV watchdog messages:
->
-> 	NETDEV WATCHDOG: eth0: transmit timed out
->
-> always followed by an error message which may be descriptive:
->
-> 	eth0: Transmit timed out: status 0090  0cf0 at 13
-> 	70/1430 command 000c0000
->
-> the parameter following command is always 000c0000.
-> the parameter following status varies between:
->
-> 	0050 0c80
-> 	0050 0cf0
-> 	0090 0c80
-> 	0090 0cf0
->
-> distribution of the above is:
->
->      5 	0050 0c80
->     227 0050 0cf0
->      22 0090 0c80
->     120 0090 0cf0
->
-> the xxxxx/yyyyy number is always different.
->
-> lspci of the network interfaces concerned:
->
-> 00:01.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-> (rev 08) Subsystem: Dell Computer Corporation: Unknown device 00da
->         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr-
-> Stepping- SERR+ FastB2B- Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
-> DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- Interrupt: pin A
-> routed to IRQ 16
->         Region 0: Memory at fe2ff000 (32-bit, non-prefetchable) [size=4K]
->         Region 1: I/O ports at ecc0 [size=64]
->         Region 2: Memory at fe100000 (32-bit, non-prefetchable) [size=1M]
->         Capabilities: [dc] Power Management version 2
->                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
-> PME(D0+,D1+,D2+,D3hot+,D3cold+) Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-> 00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-> (rev 08) Subsystem: Dell Computer Corporation: Unknown device 00da
->         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr-
-> Stepping- SERR+ FastB2B- Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
-> DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- Interrupt: pin A
-> routed to IRQ 17
->         Region 0: Memory at fe2fe000 (32-bit, non-prefetchable) [size=4K]
->         Region 1: I/O ports at ec80 [size=64]
->         Region 2: Memory at fe000000 (32-bit, non-prefetchable) [size=1M]
->         Capabilities: [dc] Power Management version 2
->                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
-> PME(D0+,D1+,D2+,D3hot+,D3cold+) Status: D0 PME-Enable- DSel=0 DScale=2 PME-
->
-> kernel version is 2.4.19-pre8, however, exact same thing occurs with
-> 2.4.19-pre2. (its running pre8 cause we hoped it was a problem fixed
-> since pre2)
->
-> mii-tool -v -v eth0 shows no difference (that i see) between the
-> interface on the working machine and this "problem" machine:
->
-> non-working:
->
-> eth0: negotiated 100baseTx-FD flow-control, link ok
->   registers for MII PHY 1:
->     3000 782d 02a8 0154 05e1 45e1 0001 0000
->     0000 0000 0000 0000 0000 0000 0000 0000
->     0a03 0000 0001 0000 0000 0000 0000 0000
->     0000 0000 0000 0000 0000 0000 0000 0000
->   product info: Intel 82555 rev 4
->   basic mode:   autonegotiation enabled
->   basic status: autonegotiation complete, link ok
->   capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
->   advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-> flow-control link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-> flow-control
->
-> working machine:
->
-> eth0: negotiated 100baseTx-FD flow-control, link ok
->   registers for MII PHY 1:
->     3000 782d 02a8 0154 05e1 45e1 0001 0000
->     0000 0000 0000 0000 0000 0000 0000 0000
->     0a03 0000 0001 0000 0000 0000 0000 0000
->     0000 0000 0000 0000 0000 0000 0000 0000
->   product info: Intel 82555 rev 4
->   basic mode:   autonegotiation enabled
->   basic status: autonegotiation complete, link ok
->   capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
->   advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-> flow-control link partner: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
-> flow-control
->
-> The strange thing is this machine has a sister machine, an identical
-> poweredge bought at the same time, hooked up to the same switch,
-> running the same software, (exact same kernel 2.4.19-pre2 as other
-> machine used to run), same link negotiated, which does not have this
-> problem. we have changed the cable obviously, but this made no
-> difference.
->
-> looking at the code concerned:
->
-> static inline void wait_for_cmd_done(long cmd_ioaddr)
-> {
->         int wait = 1000;
->         do  udelay(1) ;
->         while(inb(cmd_ioaddr) && --wait >= 0);
-> #ifndef final_version
->         if (wait < 0)
->                 printk(KERN_ALERT "eepro100: wait_for_cmd_done
-> timeout!\n"); #endif
-> }
->
-> it seems the driver simply wants to read from the NIC and this doesnt
-> succeed (after trying 1000 times).
->
-> this, along with the fact than an identical machine has no problems,
-> would suggest to me i have a hardware problem. Is this a valid
-> assumption or are there "funnies" with the eepro100 driver or hardware
-> that i should be aware of? (eg is it possible the eepro100 has gotten
-> into some weird state?).
->
-> NB: i also tried the intel e100 driver, and curiously it prints a very
-> similar message to the eepro100 driver (wait_for_exec... in the case
-> of the intel e100 driver).
->
-> NB2: this problem may be multicast related. it started happening after
-> we installed and ran zebra ospfd on the machines which uses multicast.
-> however, running without ospfd does not cure it.
->
-> if anyone needs further info, i can provide it.
->
-> regards,
->
-> --paulj
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Plain text patch
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.383.2.39 -> 1.383.2.40
+#	 fs/reiserfs/namei.c	1.20    -> 1.21   
+#	 fs/reiserfs/inode.c	1.33    -> 1.34   
+#	fs/reiserfs/tail_conversion.c	1.11    -> 1.12   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/04/30	green@angband.namesys.com	1.383.2.40
+# inode.c:
+#   implemented reiserfs_make_bad_inode() function that
+#   zeroes inode key therefore avoiding races with knfsd
+#   and other stuff that might access files bypassing directory lookups
+# tail_conversion.c:
+#   old format DIRECT items were incorrectly aligned on new format filesystems
+# namei.c:
+#   old format DIR entries were incorrectly aligned on new format filesystems
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Tue May  7 17:54:21 2002
++++ b/fs/reiserfs/inode.c	Tue May  7 17:54:21 2002
+@@ -1128,8 +1128,15 @@
+     return;
+ }
+ 
++/* We need to clear inode key in private part of inode to avoid races between
++   blocking iput, knfsd and file deletion with creating of safelinks.*/
++static void reiserfs_make_bad_inode(struct inode *inode) {
++    memset(INODE_PKEY(inode), 0, KEY_SIZE);
++    make_bad_inode(inode);
++}
++
+ void reiserfs_read_inode(struct inode *inode) {
+-    make_bad_inode(inode) ;
++    reiserfs_make_bad_inode(inode) ;
+ }
+ 
+ 
+@@ -1144,7 +1151,7 @@
+     int retval;
+ 
+     if (!p) {
+-	make_bad_inode(inode) ;
++	reiserfs_make_bad_inode(inode) ;
+ 	return;
+     }
+ 
+@@ -1164,13 +1171,13 @@
+ 	reiserfs_warning ("vs-13070: reiserfs_read_inode2: "
+                     "i/o failure occurred trying to find stat data of %K\n",
+                     &key);
+-	make_bad_inode(inode) ;
++	reiserfs_make_bad_inode(inode) ;
+ 	return;
+     }
+     if (retval != ITEM_FOUND) {
+ 	/* a stale NFS handle can trigger this without it being an error */
+ 	pathrelse (&path_to_sd);
+-	make_bad_inode(inode) ;
++	reiserfs_make_bad_inode(inode) ;
+ 	inode->i_nlink = 0;
+ 	return;
+     }
+@@ -1197,7 +1204,7 @@
+ 			      "dead inode read from disk %K. "
+ 			      "This is likely to be race with knfsd. Ignore\n", 
+ 			      &key );
+-	    make_bad_inode( inode );
++	    reiserfs_make_bad_inode( inode );
+     }
+ 
+     reiserfs_check_path(&path_to_sd) ; /* init inode should be relsing */
+diff -Nru a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+--- a/fs/reiserfs/namei.c	Tue May  7 17:54:21 2002
++++ b/fs/reiserfs/namei.c	Tue May  7 17:54:21 2002
+@@ -388,7 +388,7 @@
+     } else
+ 	buffer = small_buf;
+ 
+-    paste_size = (old_format_only (dir->i_sb)) ? (DEH_SIZE + namelen) : buflen;
++    paste_size = (get_inode_sd_version (dir) == STAT_DATA_V1) ? (DEH_SIZE + namelen) : buflen;
+ 
+     /* fill buffer : directory entry head, name[, dir objectid | , stat data | ,stat data, dir objectid ] */
+     deh = (struct reiserfs_de_head *)buffer;
+diff -Nru a/fs/reiserfs/tail_conversion.c b/fs/reiserfs/tail_conversion.c
+--- a/fs/reiserfs/tail_conversion.c	Tue May  7 17:54:21 2002
++++ b/fs/reiserfs/tail_conversion.c	Tue May  7 17:54:21 2002
+@@ -213,7 +213,7 @@
+     copy_item_head (&s_ih, PATH_PITEM_HEAD(p_s_path));
+ 
+     tail_len = (n_new_file_size & (n_block_size - 1));
+-    if (!old_format_only (p_s_sb))
++    if (get_inode_sd_version (p_s_inode) == STAT_DATA_V2)
+ 	round_tail_len = ROUND_UP (tail_len);
+     else
+ 	round_tail_len = tail_len;

@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269757AbRHIKvq>; Thu, 9 Aug 2001 06:51:46 -0400
+	id <S269763AbRHILQl>; Thu, 9 Aug 2001 07:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269760AbRHIKvg>; Thu, 9 Aug 2001 06:51:36 -0400
-Received: from atlrel6.hp.com ([192.151.27.8]:32516 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S269757AbRHIKv2>;
-	Thu, 9 Aug 2001 06:51:28 -0400
-Message-ID: <3B726A70.D41EEDED@india.hp.com>
-Date: Thu, 09 Aug 2001 16:18:16 +0530
-From: Milind <dmilind@india.hp.com>
-Organization: HP
-X-Mailer: Mozilla 4.7 [en] (X11; I; HP-UX B.10.20 9000/712)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: blore-linux@yahoogroups.com, gesl@yahoogroups.com
-Subject: Some additions to SIZE field is that OK?
+	id <S269764AbRHILQb>; Thu, 9 Aug 2001 07:16:31 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:57093 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S269763AbRHILQ2>;
+	Thu, 9 Aug 2001 07:16:28 -0400
+Date: Thu, 9 Aug 2001 13:16:22 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andres Salomon <dilinger@mp3revolution.net>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: [patch] Re: OOPS in 2.4.6's drivers/scsi/in2000.c
+Message-ID: <20010809131622.A11250@se1.cogenit.fr>
+In-Reply-To: <20010806000600.A2269@mp3revolution.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010806000600.A2269@mp3revolution.net>; from dilinger@mp3revolution.net on Mon, Aug 06, 2001 at 12:06:00AM -0400
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+The driver does readX instead of isa_readX on isa addresses.
 
-I've found out from one of our (HP) tools, "glance tool" that, the SIZE
-field is also
-constituted of virtual pages used for shared-memory, u-area , mry-mapped
-files,
-I/O device mapping (in addtion to text,data, and stack)  pertaining to
-the particular process.
+Alan, please apply and forward. 
 
-Further , in case  of  LINUX it is  seen that the value for SIZE is a
-single field from
-'proc' file  system(i.e 23rd field in /proc/<pid>/stat file). I couldn't
-get any documentation
-for fields in above(stat) file in LINUX.
-
-So we really don't know what all constitute SIZE in linux.
-
-I wanted some elaboration on this matter.
-
-Thanks
-Milind
-
-
-
-
-
+--- linux-2.4.7-ac9.orig/drivers/scsi/in2000.c	Thu Aug  2 09:50:33 2001
++++ linux-2.4.7-ac9/drivers/scsi/in2000.c	Thu Aug  9 13:06:25 2001
+@@ -1909,10 +1909,10 @@ char *cp;
+  * special macros declared in 'asm/io.h'. We use readb() and readl()
+  * when reading from the card's BIOS area in in2000_detect().
+  */
+-static const unsigned int *bios_tab[] in2000__INITDATA = {
+-   (unsigned int *)0xc8000,
+-   (unsigned int *)0xd0000,
+-   (unsigned int *)0xd8000,
++static u32 bios_tab[] in2000__INITDATA = {
++   0xc8000,
++   0xd0000,
++   0xd8000,
+    0
+    };
+ 
+@@ -1973,13 +1973,13 @@ char buf[32];
+  * for the obvious ID strings. We look for the 2 most common ones and
+  * hope that they cover all the cases...
+  */
+-      else if (readl(bios_tab[bios]+0x04) == 0x41564f4e ||
+-               readl(bios_tab[bios]+0x0c) == 0x61776c41) {
++      else if (isa_readl(bios_tab[bios]+0x10) == 0x41564f4e ||
++               isa_readl(bios_tab[bios]+0x30) == 0x61776c41) {
+          printk("Found IN2000 BIOS at 0x%x ",(unsigned int)bios_tab[bios]);
+ 
+ /* Read the switch image that's mapped into EPROM space */
+ 
+-         switches = ~((readb(bios_tab[bios]+0x08) & 0xff));
++         switches = ~((isa_readb(bios_tab[bios]+0x20) & 0xff));
+ 
+ /* Find out where the IO space is */
+ 
+@@ -2073,7 +2073,7 @@ char buf[32];
+ 
+ /* Older BIOS's had a 'sync on/off' switch - use its setting */
+ 
+-      if (readl(bios_tab[bios]+0x04) == 0x41564f4e && (switches & SW_SYNC_DOS5))
++      if (isa_readl(bios_tab[bios]+0x10) == 0x41564f4e && (switches & SW_SYNC_DOS5))
+          hostdata->sync_off = 0x00;    /* sync defaults to on */
+       else
+          hostdata->sync_off = 0xff;    /* sync defaults to off */
+-- 
+Ueimor

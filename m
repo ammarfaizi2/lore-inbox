@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbTIFNzf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 09:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTIFNzf
+	id S261268AbTIFNxi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 09:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTIFNxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 09:55:35 -0400
-Received: from www.piratehaven.org ([204.253.162.40]:47595 "EHLO
-	skull.piratehaven.org") by vger.kernel.org with ESMTP
-	id S261458AbTIFNze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 09:55:34 -0400
-Date: Sat, 6 Sep 2003 06:55:33 -0700
-From: Dale Harris <rodmur@maybe.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: compile problems on PPC for 2.6.0-test4
-Message-ID: <20030906135533.GN29466@maybe.org>
-Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030906040904.GM29466@maybe.org> <1062835714.824.17.camel@gaston>
+	Sat, 6 Sep 2003 09:53:37 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:38975 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261268AbTIFNxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 09:53:37 -0400
+Date: Sat, 6 Sep 2003 14:52:36 +0100
+From: Dave Jones <davej@redhat.com>
+To: war <war@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_AGP_INTEL Question.
+Message-ID: <20030906135236.GA22545@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, war <war@lucidpixels.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0309060935320.10980@p500>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062835714.824.17.camel@gaston>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.56.0309060935320.10980@p500>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 06, 2003 at 10:08:34AM +0200, Benjamin Herrenschmidt elucidated:
-> 
-> It shoud not be failing on this though:
+On Sat, Sep 06, 2003 at 09:36:42AM -0400, war wrote:
+ > I was wondering when/how often do updates take place to this driver?
 
-No, it didn't fail, it was just a warning from the compiler.
+rarely. The X folks occasionally send me patches for 2.6, I believe
+they send them to Alan/Marcelo for 2.4 too.
 
-> 
-> #define mdelay(n) (\
-> 	(__builtin_constant_p(n) && (n)<=MAX_UDELAY_MS) ? udelay((n)*1000) : \
-> 	({unsigned long __ms=(n); while (__ms--) udelay(1000);}))
-> 
-> The __builtin_constant_p(5000) && (5000)<=5 test should fail thus
-> turning into a loop of udelay(1000). Your gcc seems to be screwing
-> it up. What version are you using ?
+ > I have an Intel i875 chipset and was wondering when it would be possible
+ > to use AGPGART/etc (to use GLX/3D stuff).
 
-2.95.4, but this is from Debian unstable, package version: 2.95.4-17. 
+2.6 supports the 875, even though it isn't listed in Kconfig.
+I'll go fix that up.  Dunno about 2.4
 
-> 
-> The current bk snapshot I have here doesn't have a problem at this line.
-
-BTW, I guess I wasn't compiling a straight vanilla kernel, it was off
-your rsync server, source.mvista.com::linuxppc-2.5.  The vanilla kernel
-bombs drivers/ide/ppc/pmac.c on my laptop.
-
+		Dave
 
 -- 
-Dale Harris   
-rodmur@maybe.org
-/.-)
+ Dave Jones     http://www.codemonkey.org.uk

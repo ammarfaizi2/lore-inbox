@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbTHZSYe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTHZSYe
+	id S261226AbTHZSUp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTHZSUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:24:34 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:15291 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261679AbTHZSYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:24:32 -0400
-Subject: Re: reiser4 snapshot for August 26th.
-From: Steven Cole <elenstev@mesatop.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030826102233.GA14647@namesys.com>
-References: <20030826102233.GA14647@namesys.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061922037.1670.3.camel@spc9.esa.lanl.gov>
+	Tue, 26 Aug 2003 14:20:45 -0400
+Received: from 66-65-113-21.nyc.rr.com ([66.65.113.21]:29390 "EHLO
+	siri.morinfr.org") by vger.kernel.org with ESMTP id S261226AbTHZSUo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:20:44 -0400
+Date: Tue, 26 Aug 2003 14:21:02 -0400
+From: Guillaume Morin <guillaume@morinfr.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH resend #1] fix cu3088 group write
+Message-ID: <20030826182101.GF1111@siri.morinfr.org>
+Mail-Followup-To: Arnd Bergmann <arnd@arndb.de>,
+	linux-kernel@vger.kernel.org
+References: <mi9I.54n.13@gated-at.bofh.it> <oqcQ.6L8.11@gated-at.bofh.it> <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 26 Aug 2003 12:20:38 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200308261804.h7QI4OxB057826@d12relay02.megacenter.de.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-26 at 04:22, Oleg Drokin wrote:
-> Hello!
-> 
->    I have just released another reiser4 snapshot that I hope all interested
->    parties will try. It is released against 2.6.0-test4.
->    You can find it at http://namesys.com/snapshots/2003.08.26
->    I include release notes below.
-> 
-> Reiser4 snapshot for 2003.08.26
-> 
+Dans un message du 25 aoû à 12:47, Arnd Bergmann écrivait :
+> Your fix doesn't look right either. The input string should not be
+> longer than BUS_ID_SIZE, including the trailing zero.  AFAICS, the
+> correct way to solve this is the patch below, but I did not test it.
 
-I got this error while attempting to compile with reiser4.
-Snippet from .config follows.
+Well, I did not know that BUS_ID_SIZE was including the trailing zero.
+The name does not appear to suggest that. BUS_ID_LEN would have been a
+better chose for that imho. 
 
-Steven
+I don't know what you call "not right". My fix was the safest bet. It is
+right but yours is cleaner.
 
-  CC      fs/reiser4/plugin/file/tail_conversion.o
-  CC      fs/reiser4/sys_reiser4.o
-fs/reiser4/sys_reiser4.c:54:32: parser/parser.code.c: No such file or directory
-fs/reiser4/sys_reiser4.c: In function `sys_reiser4':
-fs/reiser4/sys_reiser4.c:75: warning: implicit declaration of function `reiser4_pars_init'
-fs/reiser4/sys_reiser4.c:75: warning: assignment makes pointer from integer without a cast
-fs/reiser4/sys_reiser4.c:80: error: dereferencing pointer to incomplete type
-fs/reiser4/sys_reiser4.c:82: warning: implicit declaration of function `yyparse'
-fs/reiser4/sys_reiser4.c:83: warning: implicit declaration of function `reiser4_pars_free'
-fs/reiser4/sys_reiser4.c:66: warning: unused variable `Gencode'
-fs/reiser4/sys_reiser4.c: At top level:
-fs/reiser4/parser/parser.h:333: warning: `Fistmsg' defined but not used
-fs/reiser4/parser/parser.h:342: warning: `typesOfCommand' defined but not used
-fs/reiser4/parser/parser.h:354: warning: `Code' defined but not used
-make[2]: *** [fs/reiser4/sys_reiser4.o] Error 1
-make[1]: *** [fs/reiser4] Error 2
-make: *** [fs] Error 2
-[steven@spc1 linux-2.6.0-test4-r4]$ grep REISER4 .config
-CONFIG_REISER4_FS=y
-CONFIG_REISER4_FS_SYSCALL=y
-CONFIG_REISER4_LARGE_KEY=y
-# CONFIG_REISER4_CHECK is not set
-CONFIG_REISER4_USE_EFLUSH=y
-# CONFIG_REISER4_BADBLOCKS is not set
+-- 
+Guillaume Morin <guillaume@morinfr.org>
 
-
+              Marry me girl, be my only fairy to the world (RHCP)

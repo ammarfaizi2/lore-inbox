@@ -1,53 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318062AbSHHUn1>; Thu, 8 Aug 2002 16:43:27 -0400
+	id <S317999AbSHHUrr>; Thu, 8 Aug 2002 16:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318064AbSHHUn1>; Thu, 8 Aug 2002 16:43:27 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:13307 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S318062AbSHHUn0>;
-	Thu, 8 Aug 2002 16:43:26 -0400
-Date: Thu, 8 Aug 2002 22:47:03 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@zip.com.au>, Paul Larson <plars@austin.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>, davej@suse.de, frankeh@us.ibm.com,
-       andrea@suse.de
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-Message-ID: <20020808204703.GA700@win.tue.nl>
-References: <1028757835.22405.300.camel@plars.austin.ibm.com> <3D51A7DD.A4F7C5E4@zip.com.au> <20020808002419.GA528@win.tue.nl> <20020808194238.GG15685@holomorphy.com>
+	id <S318007AbSHHUrr>; Thu, 8 Aug 2002 16:47:47 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:55478 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S317999AbSHHUrq>; Thu, 8 Aug 2002 16:47:46 -0400
+Date: Thu, 8 Aug 2002 13:51:20 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: kernel@street-vision.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.20-pre1] Watchdog Stuff (1/4)
+Message-ID: <20020808205119.GG1038@nic1-pc.us.oracle.com>
+References: <20020808001238.GB1038@nic1-pc.us.oracle.com> <200208081206.g78C6j402355@tench.street-vision.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020808194238.GG15685@holomorphy.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <200208081206.g78C6j402355@tench.street-vision.com>
+User-Agent: Mutt/1.3.28i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 12:42:38PM -0700, William Lee Irwin III wrote:
+On Thu, Aug 08, 2002 at 12:06:44PM +0000, kernel@street-vision.com wrote:
+> You might cc the driver author...
 
-> The goal of the work that produced this was to remove the global
-> tasklist. Changing ABI's and/or breaking userspace was not "within the
-> rules" of that.
+	Sorry, with so many drivers to patch, I went with a recommended
+list of "interested parties".  I'll add you to that list.  It is posted
+to linux-kernel in the hopes that interested persons do get a chance to
+look at it.  I got no responses outside of my "interested parties" when
+I posted this patch originally.  It's good to hear from you.
 
-It feels wrong to add such complexity and simultaneously keep
-such a small pid_t.
+> > +
+> > +	case WDIOC_SETTIMEOUT:
+> > +		if (get_user(new_margin, (int *)arg))
+> > +			return -EFAULT;
+> > +		if ((new_margin < 1) || (new_margin > 255))
+> > +			return -EINVAL;
+> > +		wd_margin = new_margin;
+> > +		wafwdt_stop();
+> > +		wafwdt_start();
+> > +		/* Fall */
+> > +	case WDIOC_GETTIMEOUT:
+> > +		return put_user(wd_margin, (int *)arg);
+> 
+> I really wouldnt do wafwdt_stop(); wafwdt_start(); here. The new timeout
+> will be set on the next watchdog ping anyway, and you need to spin_lock
+> and unlock round this too. Much cleaner just to drop it.
 
-Very soon 30000 processes will not be enough.
+	Um, am I missreading: 
 
-Using a 32-bit pid_t does not break userspace. Indeed, user space uses
-a 32-bit pid_t today. The only complaint I have heard was from
-Albert Cahalan who maintains ps and was afraid that the ps output
-would become uglier if pids would get more digits.
+     59 static void wafwdt_ping(void)
+     60 {
+     61         /* pat watchdog */
+     62         spin_lock(&wafwdt_lock);
+     63         inb_p(WDT_STOP);
+     64         inb_p(WDT_START);
+     65         spin_unlock(&wafwdt_lock);
+     66 }
 
-It is a real pity that going to a 64-bit pid is impossible (on x64).
+I don't see it writing the new timeout.  Also, the semantic of
+WDIOC_SETTIMEOUT (at least as I've implemented it in all the drivers
+I've touched) is to ping the device to verify the new timeout is active.
+	I also note that the calls to wafwdt_stop()/start() in the
+open()/close() functions doesn't take the spinlock.  Granted, open() and
+close() should be protected by wafwdt_is_open.
+	If I add the locking, are you comfortable with the changes?
 
-Many algorithms can be really efficient if you have a large space
-to work in. For example, I do not know what your motivation was
-for wanting to remove the global tasklist. It is certainly needed
-for sending signals. But if you want to avoid access to global stuff
-in a MP situation, then it is easy to partition the pid space
-so that each processor only gives out pids in its own region.
-(So that simultaneous forks do not interfere.)
+Joel
 
-Andries
+-- 
+
+"To fall in love is to create a religion that has a fallible god."
+        -Jorge Luis Borges
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

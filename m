@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289764AbSAOXsh>; Tue, 15 Jan 2002 18:48:37 -0500
+	id <S289766AbSAOXsr>; Tue, 15 Jan 2002 18:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289768AbSAOXs2>; Tue, 15 Jan 2002 18:48:28 -0500
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:65228 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S289764AbSAOXsP>; Tue, 15 Jan 2002 18:48:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [patch] O(1) scheduler-H6/H7/I0 and nice +19
-Date: Tue, 15 Jan 2002 18:48:13 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-        Dave Jones <davej@suse.de>
-In-Reply-To: <Pine.LNX.4.40.0201141927090.934-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.40.0201141927090.934-100000@blue1.dev.mcafeelabs.com>
+	id <S289768AbSAOXsi>; Tue, 15 Jan 2002 18:48:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37138 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289766AbSAOXs1>; Tue, 15 Jan 2002 18:48:27 -0500
+Message-ID: <3C44BFC0.3090709@zytor.com>
+Date: Tue, 15 Jan 2002 15:48:16 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020115234814.DB1E729905@oscar.casa.dyndns.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andreas Dilger <adilger@turbolabs.com>, Alexander Viro <viro@math.psu.edu>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: initramfs buffer spec -- second draft
+In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16Qa0W-0001kH-00@starship.berlin> <20020115140436.L11251@lynx.adilger.int> <E16Qcha-0001lF-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.4.17-I0 patch makes things much better here.  Does this one
-suffer from the same bugs that the 2.5.2 version has?  
+Daniel Phillips wrote:
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-  790 ed        44  19 14320  13M   640 R N  69.4  2.7 166:18 setiathome
- 7676 ed         0   0 14908  14M 11036 R    16.7  2.8   0:13 kmail
- 5703 root       0 -10 82596  23M  1808 R <  11.2  4.6   2:23 XFree86
- 7725 ed         0   0  1016 1016   776 R     1.3  0.1   0:00 top
- 5803 ed         0   0  3764 3764  2904 R     0.5  0.7   0:15 gkrellm
- 7720 ed         0   0  9752 9752  7856 R     0.3  1.8   0:04 kdeinit
- 5725 ed         0   0  7524 7520  6888 S     0.1  1.4   0:01 kdeinit
-    1 root       0   0   520  472   452 S     0.0  0.0   0:07 init
-    2 root       0   0     0    0     0 SW    0.0  0.0   0:00 keventd
-    3 root      17  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
-    4 root       0   0     0    0     0 SW    0.0  0.0   0:00 kswapd
-    5 root      25   0     0    0     0 SW    0.0  0.0   0:00 bdflush
-    6 root       0   0     0    0     0 SW    0.0  0.0   0:02 kupdated
-    7 root      12   0     0    0     0 SW    0.0  0.0   0:00 khubd
-   18 root       0   0     0    0     0 SW    0.0  0.0   0:00 kreiserfsd
-   60 root       0   0     0    0     0 SW    0.0  0.0   0:00 mdrecoveryd
-  219 root       0   0     0    0     0 SW    0.0  0.0   0:00 usb-storage-0
-  220 root       0   0     0    0     0 SW    0.0  0.0   0:00 scsi_eh_0
-  234 root       0   0   648  644   528 S     0.0  0.1   0:00 syslogd
-  238 root      -2   0  1344 1344  1264 S     0.0  0.2   0:00 watchdog
-  243 root       0   0  1184 1176   456 S     0.0  0.2   0:00 klogd
-  249 daemon     0   0   472  460   380 S     0.0  0.0   0:00 portmap
+> 
+> If we go with little-endian then only big-endian architectures will need
+> the patch, and they tend to need patches for lots of things anyway.  Or
+> if you like I'll write a little utility that goes through the file and
+> byteswaps all the int fields.
+> 
 
-Major difference from older version of the patch is that top shows many 
-processes with PRI 0.   I am not sure this is intended?
 
-Thanks
-Ed Tomlinson
+HUH?????????????????
 
-On January 14, 2002 10:27 pm, Davide Libenzi wrote:
-> On Mon, 14 Jan 2002, Ed Tomlinson wrote:
-> > On January 14, 2002 09:33 pm, Davide Libenzi wrote:
-> > > try to replace :
-> > >
-> > > PRIO_TO_TIMESLICE() and RT_PRIO_TO_TIMESLICE() with :
-> > >
-> > > #define NICE_TO_TIMESLICE(n)    (MIN_TIMESLICE + ((MAX_TIMESLICE - \
-> > > 	MIN_TIMESLICE) * ((n) + 20)) / 39)
-> > >
-> > >
-> > > NICE_TO_TIMESLICE(p->__nice)
-> >
-> > Not sure about this change.  gkrellm shows the compile getting about 40%
-> > cpu.  Best result here seems to be with a larger range of timeslices.  ie
-> > 1-15 ((10*HZ)/1000...) instead lets the compile get 80% of the cpu. 
-> > wonder if this might be the way to go?
+	-hpa
+

@@ -1,111 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUDBW3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 17:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUDBW3I
+	id S261234AbUDBWgs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 17:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUDBWgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 17:29:08 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59378 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261231AbUDBW3A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 17:29:00 -0500
-Date: Fri, 2 Apr 2004 14:28:38 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-To: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Device suspend/resume fixes
-Message-ID: <20040402222838.GB2423@dhcp193.mvista.com>
+	Fri, 2 Apr 2004 17:36:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33706 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261244AbUDBWgm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 17:36:42 -0500
+Date: Fri, 2 Apr 2004 14:36:39 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: chrisw@osdl.org, andrea@suse.de, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040402143639.G21045@build.pdx.osdl.net>
+References: <20040401135920.GF18585@dualathlon.random> <20040401170705.Y22989@build.pdx.osdl.net> <20040401173034.16e79fee.akpm@osdl.org> <20040402133540.1dfa0256.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040402133540.1dfa0256.akpm@osdl.org>; from akpm@osdl.org on Fri, Apr 02, 2004 at 01:35:40PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In case some changes to device handling during suspend/resume are
-welcome:
+* Andrew Morton (akpm@osdl.org) wrote:
+> So I spent a few hours getting pam_cap to work, and indeed it is now doing the
+> right thing.  But the kernel is not.
 
-(1) Set device power state at runtime resume (as is done for runtime
-suspend) so that a later suspend does not think the device is still
-suspended.
+Do you have a patch?  Seems it could be useful to get this and libcap back
+up-to-date .
 
-(2) Move devices from active to off list only when suspending all
-devices, not for runtime suspend, to match resume handling, and to
-avoid reordering the device list (which is in order of registration
-and suspend/resume works best that way).
+> It turns out that the whole "drop capabilities and then run something"
+> thing does not work in either 2.4 or 2.6.  And hasn't done since forever. 
+> What we have in there is no more useful than suser().
 
-(3) Flush signals between resume handlers in case a resume function
-causes, for example, an ECHILD from modprobe or hotplug, so
-interruptible APIs for the next handler aren't affected.
+Indeed.  This is often how I refer to it.  There's one exception.
+Without the use of execve(), a resident daemon can drop it's privs as
+needed.
 
+> You can do prctl(PR_SET_KEEPCAPS, 1) so that permitted caps are retained
+> across setuid().  And after the setuid() you can raise effective caps
+> again.  So that's workable, although pretty sad - it requires that su and
+> login be patched to run the prctl and to re-raise effective caps.
+> 
+> But the two showstoppers are:
+> 
+> 1) capabilities are unconditionally nuked across execve() unless you're
+>    root (cap_bprm_set_security())
 
---- linux-2.6.4-orig/drivers/base/power/suspend.c	2004-03-11 14:57:55.000000000 -0800
-+++ linux-2.6.4-pm/drivers/base/power/suspend.c	2004-04-02 14:07:31.188415120 -0800
-@@ -42,13 +42,6 @@
- 	if (dev->bus && dev->bus->suspend)
- 		error = dev->bus->suspend(dev,state);
- 
--	if (!error) {
--		list_del(&dev->power.entry);
--		list_add(&dev->power.entry,&dpm_off);
--	} else if (error == -EAGAIN) {
--		list_del(&dev->power.entry);
--		list_add(&dev->power.entry,&dpm_off_irq);
--	}
- 	return error;
- }
- 
-@@ -81,12 +74,16 @@
- 	while(!list_empty(&dpm_active)) {
- 		struct list_head * entry = dpm_active.prev;
- 		struct device * dev = to_device(entry);
--		if ((error = suspend_device(dev,state))) {
--			if (error != -EAGAIN)
--				goto Error;
--			else
--				error = 0;
--		}
-+		error = suspend_device(dev,state);
-+
-+		if (!error) {
-+			list_del(&dev->power.entry);
-+			list_add(&dev->power.entry,&dpm_off);
-+		} else if (error == -EAGAIN) {
-+			list_del(&dev->power.entry);
-+			list_add(&dev->power.entry,&dpm_off_irq);
-+		} else
-+			goto Error;
- 	}
-  Done:
- 	up(&dpm_sem);
---- linux-2.6.4-orig/drivers/base/power/resume.c	2004-03-11 14:57:55.000000000 -0800
-+++ linux-2.6.4-pm/drivers/base/power/resume.c	2004-04-02 14:07:29.425683096 -0800
-@@ -37,6 +37,7 @@
- 		list_del_init(entry);
- 		resume_device(dev);
- 		list_add_tail(entry,&dpm_active);
-+		flush_signals(current);
- 	}
- }
- 
---- linux-2.6.4-orig/drivers/base/power/runtime.c	2004-03-11 15:02:22.000000000 -0800
-+++ linux-2.6.4-pm/drivers/base/power/runtime.c	2004-04-02 14:23:31.400440704 -0800
-@@ -12,9 +12,14 @@
- 
- static void runtime_resume(struct device * dev)
- {
-+	int error;
-+
- 	if (!dev->power.power_state)
- 		return;
--	resume_device(dev);
-+	if (!(error = resume_device(dev)))
-+		dev->power.power_state = 0;
-+
-+	return error;
- }
+Or exec'ing a setuid root program.  And in either of those cases they
+get raised to full sets, which may not be nice.
 
+> 2) the kernel unconditionally removes CAP_SETPCAP in dummy_capget() so
+>    it is not possible for even a root-owned, otherwise-fully-capable task
+>    to raise capabilities on another task.  Period.
 
+This is how the kernel was before the security stuff went in.  
+
+> I must say that I'm fairly disappointed that we developed and merged all
+> that fancy security stuff but nobody ever bothered to fix up the existing
+> simple capability code.
+
+Our goal was actually to keep is compatible.  All of it's limitations
+predate the security stuff.
+
+> Particularly as, apparently, the new security stuff STILL cannot solve the
+> extremely simple Oracle-wants-CAP_IPC_LOCK requirement.
+> 
+> Chris has proposed a little patch which will enable the retention of caps
+> across execve.  I'd be interested in knowing why we _ever_ dropped caps
+> across execve?  I thing we should run with Chris's patch - but the new
+> functionality should of course only be enabled by some admin-settable knob.
+
+I'm not sure, but it likely has to do with anticipating having the fs
+bits of capabilities to do proper setting at execve().  I think basically
+nobody really uses capabilites except in either simple root drops a
+few privs ways (no exec), or within larger security models running as
+kernel modules.
+
+> I'm looking at securebits.h and wondering why that exists - there's no code
+> in-kernel to set the thing, although it is exported to modules.  Perhaps
+> securebits should be exposed in /proc and used to enable
+> retain-caps-across-execve.
+
+IIRC, changing those (existing) securebits settings creates an unusable
+machine.  Again, I think there was some anticipation of the fs bits
+going in later.  Perhaps those securebits pieces could just be removed?
+
+thanks,
+-chris
 -- 
-Todd Poynor
-MontaVista Software
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

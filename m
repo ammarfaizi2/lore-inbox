@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267693AbSLSX6i>; Thu, 19 Dec 2002 18:58:38 -0500
+	id <S267651AbSLTAHC>; Thu, 19 Dec 2002 19:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267695AbSLSX6i>; Thu, 19 Dec 2002 18:58:38 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:25728 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S267693AbSLSX6g>; Thu, 19 Dec 2002 18:58:36 -0500
-Date: Fri, 20 Dec 2002 01:06:38 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Colin Slater <hoho@tacomeat.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.5.52-bk4
-Message-ID: <20021220000637.GA804@mail.muni.cz>
-References: <20021219.181921.41185800.hoho@tacomeat.net>
+	id <S267664AbSLTAHC>; Thu, 19 Dec 2002 19:07:02 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48146
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267651AbSLTAHB>; Thu, 19 Dec 2002 19:07:01 -0500
+Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E025E1A.EA32918A@digeo.com>
+References: <200212200850.32886.conman@kolivas.net>
+	 <1040337982.2519.45.camel@phantasy>  <3E0253D9.94961FB@digeo.com>
+	 <1040341293.2521.71.camel@phantasy>  <3E025E1A.EA32918A@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040343306.2519.85.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021219.181921.41185800.hoho@tacomeat.net>
-User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 19 Dec 2002 19:15:06 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 06:19:21PM -0500, Colin Slater wrote:
-> ===== af_inet.c 1.36 vs edited =====
-> --- 1.36/net/ipv4/af_inet.c	Sun Nov 24 20:15:49 2002
-> +++ edited/af_inet.c	Thu Dec 19 18:09:38 2002
+On Thu, 2002-12-19 at 19:02, Andrew Morton wrote:
 
-+ #include <linux/proc_fs.h>
+> What Con said.  When the scheduler makes an inappropriate decision,
+> shortening the timeslice minimises its impact.
 
-solved that problem. Now it works ok for me.
+OK, I tried it.  It does suck.
 
-...
+I wonder why, though, because with the estimator off the scheduler
+should not be making "bad" decisions.
 
--- 
-Luká¹ Hejtmánek
+> > But that in no way precludes not fixing what we have, because good
+> > algorithms should not require tuning for common cases.  Period.
+> 
+> hm.  Good luck ;)
+> 
+> This is a situation in which one is prepares to throw away some cycles
+> to achieve a desired effect.
+
+Well one option would be no algorithm at all :)
+
+But if you can find good values that make things run nice, then perhaps
+we just need to change the defaults.
+
+I think we should merge sched-tune..
+
+	Robert Love
+

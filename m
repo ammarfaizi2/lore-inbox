@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTFTOdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 10:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTFTOdh
+	id S262331AbTFTOjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 10:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbTFTOjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 10:33:37 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:59154 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S262328AbTFTOdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 10:33:36 -0400
-Message-ID: <3EF31E87.6050804@xss.co.at>
-Date: Fri, 20 Jun 2003 16:47:35 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Fri, 20 Jun 2003 10:39:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1921 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262331AbTFTOjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 10:39:43 -0400
+Date: Fri, 20 Jun 2003 10:55:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Thomas Frase <thomas.frase@ist-einmalig.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: root shell exploit still working in kernel 2.4.21
+In-Reply-To: <004d01c33738$7031e440$0200a8c0@brainbug>
+Message-ID: <Pine.LNX.4.53.0306201054300.6559@chaos>
+References: <004d01c33738$7031e440$0200a8c0@brainbug>
 MIME-Version: 1.0
-To: Tobias Reinhard <T.Reinhard@losekann.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem unmounting initrd-romfs in 2.4.21
-References: <BDB86409B697CB4DBB8A5BF487B9D61A3933@srv01.losekann.local>
-In-Reply-To: <BDB86409B697CB4DBB8A5BF487B9D61A3933@srv01.losekann.local>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 20 Jun 2003, Thomas Frase wrote:
 
-Hi!
-
-Tobias Reinhard wrote:
-> Hi all!
+> hello!
 >
-> I'm booting up with a initrd in a romfs. After loading all needed
-> modules and pivoting root I unmount the initrd and flush the used
-> buffers.
+> the problem:
+> i tried an exploit (url given below) with debian woody kernel 2.4.18
+> and self compiled kernel 2.4.21 resulting in a root shell.
 >
-> Since I updated to 2.4.21 I can't unmount the initrd - it says it's
-> busy, but it's no (or at least lsof does say so).
+> exploit code url: (found via google)
+> http://isec.pl/cliph/isec-ptrace-kmod-exploit.c
 >
-> I use kernel 2.4.21 with /drivers/Makefile , /drivers/ide and
-> /include/linux/ide.h from ac1 to reenable ide-modules.
+> as described in the source the exploit uses the well known ptrace bug
+> which i thought was fixed in kernel 2.4.21.
 >
-> Anyone know the problem?
->
-Hm, just a guess: do you have devfs mounted to /dev
-on the initial ramdisk (probably automounted by the
-kernel, with config option CONFIG_DEVFS_MOUNT=y)?
+> i don't know why it still works or how to fix it. i told someone people
+> in #debian.de (quakenet) about the results of the exploit and they
+> asked me to post a bug report here.
 
-Check the output of "mount", it'll show you if there's
-still something mounted under the "old" root.
+The binary is 4755 (SUID!) What do you expect. Delete it and
+recompile from a non-root account.
 
-We use initrd + devfs for ages now (we even use romfs for
-initrd like you do), and it works fine with 2.4.21 too.
 
-HTH
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+8x6CxJmyeGcXPhERAs7RAKCWiPn2qnLvI9v6GdVj3djPeBcPvQCeP1X2
-Fd/GfnFm7tWiCGpp6A6zO6c=
-=V9df
------END PGP SIGNATURE-----
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

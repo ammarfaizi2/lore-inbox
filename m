@@ -1,78 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267536AbTAXLXH>; Fri, 24 Jan 2003 06:23:07 -0500
+	id <S267597AbTAXLku>; Fri, 24 Jan 2003 06:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267575AbTAXLXG>; Fri, 24 Jan 2003 06:23:06 -0500
-Received: from mail.bmlv.gv.at ([193.171.152.37]:54676 "HELO mail.bmlv.gv.at")
-	by vger.kernel.org with SMTP id <S267536AbTAXLXF> convert rfc822-to-8bit;
-	Fri, 24 Jan 2003 06:23:05 -0500
+	id <S267637AbTAXLku>; Fri, 24 Jan 2003 06:40:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:27591 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267597AbTAXLkr>;
+	Fri, 24 Jan 2003 06:40:47 -0500
+Date: Fri, 24 Jan 2003 03:50:17 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@alex.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.59-mm5
+Message-Id: <20030124035017.6276002f.akpm@digeo.com>
+In-Reply-To: <m3d6mmvlip.fsf@lexa.home.net>
+References: <20030123195044.47c51d39.akpm@digeo.com>
+	<946253340.1043406208@[192.168.100.5]>
+	<20030124031632.7e28055f.akpm@digeo.com>
+	<m3d6mmvlip.fsf@lexa.home.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
-To: Keith Owens <kaos@ocs.com.au>
-Subject: [PATCH available] Re: printk() without KERN_ prefixes? (in 2.5.59)
-Date: Fri, 24 Jan 2003 12:32:28 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <12940.1043141000@ocs3.intra.ocs.com.au>
-In-Reply-To: <12940.1043141000@ocs3.intra.ocs.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301241232.28151.philipp.marek@bmlv.gv.at>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 11:49:51.0858 (UTC) FILETIME=[B4654520:01C2C39E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Should they be fixed to KERN_INFO or some such? I'm willing to contribute
-> > a patch (which will be done by script, of course). Or am I missing
-> > something and they shall stay as they are?
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
 >
-> Do not blindly add KERN_*.  Some prints are done with multiple calls to
-> printk(), only the first call should have KERN_*, otherwise you get
-> lines like this, with embedded '<n>' strings.
+> >>>>> Andrew Morton (AM) writes:
+> 
+>  AM> But writes are completely different.  There is no dependency
+>  AM> between them and at any point in time we know where on-disk a lot
+>  AM> of writes will be placed.  We don't know that for reads, which is
+>  AM> why we need to twiddle thumbs until the application or filesystem
+>  AM> makes up its mind.
+> 
+> 
+> it's significant that application doesn't want to wait read completion
+> long and doesn't wait for write completion in most cases.
 
-Well, I wrote a perl-script (available on request) which searches for missing 
-KERN_ values.
-It does this by reading filenames from STDIN, reading the files, extracting 
-every function from there and checking if after \n is a KERN_-value (assuming 
-that every function starts from a fresh line). If there is one missing, 
-KERN_DEBUG is inserted.
+That's correct.  Reads are usually synchronous and writes are rarely
+synchronous.
 
-my simple script was unable to do some files in the arch/ia64 tree and some 
-others because using #if with mis-aligned { and }. example from 
-sound/isa/opti9xx/opti92x-ad1848.c
-	#ifdef __ISAPNP__
-	        if (isapnp && (hw = snd_card_opti9xx_isapnp(chip)) > 0) {
-	 ...
-	        } else {
-	#endif  /* __ISAPNP__ */
-	...
-	#ifdef __ISAPNP__
-	        }
-	#endif  /* __ISAPNP__ */
-and it just doesn't check such constructs.
+The most common place where the kernel forces a user process to wait on
+completion of a write is actually in unlink (truncate, really).  Because
+truncate must wait for in-progress I/O to complete before allowing the
+filesystem to free (and potentially reuse) the affected blocks.
 
-Furthermore it destroys some files (don't know why atm), but these are 
-manually excluded from the patch, which is 3933078 bytes (bzipped2 699170).
-
-This patch has NOT all occurances fixed!
-
-from diffstat:
-  1908 files changed, 13568 insertions(+), 13567 deletions(-)
-
-So I think it not really useful to just post this patch to the list.
-
-
-I think I'll cut it at subdirectory levels in pieces (ie arch/ia64, arch/i386, 
-drivers/net, drivers/scsi ...).
-I should have them available some time monday for the interested.
-
-
-Comments?
+If there's a lot of writeout happening then truncate can take _ages_.  Hence
+this patch:
 
 
 
-Regards,
-
-Phil
 
 
+Truncates can take a very long time.  Especially if there is a lot of
+writeout happening, because truncate must wait on in-progress I/O.
+
+And sys_unlink() is performing that truncate while holding the parent
+directory's i_sem.  This basically shuts down new accesses to the entire
+directory until the synchronous I/O completes.
+
+In the testing I've been doing, that directory is /tmp, and this hurts.
+
+So change sys_unlink() to perform the actual truncate outside i_sem.
+
+When there is a continuous streaming write to the same disk, this patch
+reduces the time for `make -j4 bzImage' from 370 seconds to 220.
+
+
+
+ namei.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
+
+diff -puN fs/namei.c~unlink-latency-fix fs/namei.c
+--- 25/fs/namei.c~unlink-latency-fix	2003-01-24 02:41:04.000000000 -0800
++++ 25-akpm/fs/namei.c	2003-01-24 02:47:36.000000000 -0800
+@@ -1659,12 +1659,19 @@ int vfs_unlink(struct inode *dir, struct
+ 	return error;
+ }
+ 
++/*
++ * Make sure that the actual truncation of the file will occur outside its
++ * diretory's i_sem.  truncate can take a long time if there is a lot of
++ * writeout happening, and we don't want to prevent access to the directory
++ * while waiting on the I/O.
++ */
+ asmlinkage long sys_unlink(const char * pathname)
+ {
+ 	int error = 0;
+ 	char * name;
+ 	struct dentry *dentry;
+ 	struct nameidata nd;
++	struct inode *inode = NULL;
+ 
+ 	name = getname(pathname);
+ 	if(IS_ERR(name))
+@@ -1683,6 +1690,9 @@ asmlinkage long sys_unlink(const char * 
+ 		/* Why not before? Because we want correct error value */
+ 		if (nd.last.name[nd.last.len])
+ 			goto slashes;
++		inode = dentry->d_inode;
++		if (inode)
++			inode = igrab(inode);
+ 		error = vfs_unlink(nd.dentry->d_inode, dentry);
+ 	exit2:
+ 		dput(dentry);
+@@ -1693,6 +1703,8 @@ exit1:
+ exit:
+ 	putname(name);
+ 
++	if (inode)
++		iput(inode);	/* truncate the inode here */
+ 	return error;
+ 
+ slashes:
+
+_
 

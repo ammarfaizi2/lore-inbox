@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317462AbSHLHb0>; Mon, 12 Aug 2002 03:31:26 -0400
+	id <S317517AbSHLHiC>; Mon, 12 Aug 2002 03:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317469AbSHLHbZ>; Mon, 12 Aug 2002 03:31:25 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:20167 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S317462AbSHLHbZ>;
-	Mon, 12 Aug 2002 03:31:25 -0400
-Date: Mon, 12 Aug 2002 17:34:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, julliard@winehq.com,
-       ldb@ldb.ods.org
-Subject: Re: [patch] tls-2.5.31-C3
-Message-Id: <20020812173404.39d3abab.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.44.0208112326580.29560-200000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
-	<Pine.LNX.4.44.0208112326580.29560-200000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S317525AbSHLHiC>; Mon, 12 Aug 2002 03:38:02 -0400
+Received: from DHCP-144-56.resnet.ua.edu ([130.160.144.56]:31880 "EHLO
+	monket.dyndns.org") by vger.kernel.org with ESMTP
+	id <S317517AbSHLHiB>; Mon, 12 Aug 2002 03:38:01 -0400
+Date: Mon, 12 Aug 2002 02:40:28 -0500
+From: Crutcher Dunnavant <crutcher@eng.ua.edu>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [rusty@rustcorp.com.au: [TRIVIAL] Fix for magic sysrq when CONFIG_VT=n]
+Message-ID: <20020812024028.A5420@monket.dyndns.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Trivial patch for SysRQ.
 
-On Sun, 11 Aug 2002 23:46:01 +0200 (CEST) Ingo Molnar <mingo@elte.hu> wrote:
->
->  	/*
->  	 * The APM segments have byte granularity and their bases
->  	 * and limits are set at run time.
->  	 */
-> -	.quad 0x0040920000000000	/* 0x40 APM set up for bad BIOS's */
-> -	.quad 0x00409a0000000000	/* 0x48 APM CS    code */
-> -	.quad 0x00009a0000000000	/* 0x50 APM CS 16 code (16 bit) */
-> -	.quad 0x0040920000000000	/* 0x58 APM DS    data */
-> +	.quad 0x0040920000000000	/* 0x80 APM set up for bad BIOS's */
-> +	.quad 0x00409a0000000000	/* 0x88 APM CS    code */
-> +	.quad 0x00009a0000000000	/* 0x90 APM CS 16 code (16 bit) */
-> +	.quad 0x0040920000000000	/* 0x98 APM DS    data */
+----- Forwarded message from Rusty Trivial Russell <rusty@rustcorp.com.au> -----
 
-I just lost 0x40 which needs to be exactly 0x40 if it is do its job (i.e.
-cope with brain dead BIOS writers using 0x40 as a segment offset in
-protected mode ...
+Date: Mon, 12 Aug 2002 16:26:27 +1000
+To: mj@atrey.karlin.mff.cuni.cz, crutcher+kernel@datastacks.com
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+Subject: [TRIVIAL] Fix for magic sysrq when CONFIG_VT=n
 
-The idea is that segment 0x40 maps from physical address 0x400 to the end
-of the first physical page.  As a real mode program would (more or less)
-expect it to.
+From:  David Gibson <david@gibson.dropbear.id.au>
 
-The other three segments don't matter as longs as they are in that order
-and contiguous.
+  The "unRaw" option for the magic sysrq key fails to compile if
+  CONFIG_VT is false.  This patch fixes that:
+  
+
+--- trivial-2.5.31/drivers/char/sysrq.c.orig	2002-08-12 16:14:29.000000000 +1000
++++ trivial-2.5.31/drivers/char/sysrq.c	2002-08-12 16:14:29.000000000 +1000
+@@ -76,7 +76,7 @@
+ };
+ #endif
+ 
+-
++#ifdef CONFIG_VT
+ /* unraw sysrq handler */
+ static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
+ 			       struct tty_struct *tty) 
+@@ -91,7 +91,7 @@
+ 	help_msg:	"unRaw",
+ 	action_msg:	"Keyboard mode set to XLATE",
+ };
+-
++#endif /* CONFIG_VT */
+ 
+ /* reboot sysrq handler */
+ static void sysrq_handle_reboot(int key, struct pt_regs *pt_regs,
+@@ -371,7 +371,11 @@
+ 		 as 'Off' at init time */
+ /* p */	&sysrq_showregs_op,
+ /* q */	NULL,
++#ifdef CONFIG_VT
+ /* r */	&sysrq_unraw_op,
++#else
++/* r */ NULL,
++#endif
+ /* s */	&sysrq_sync_op,
+ /* t */	&sysrq_showstate_op,
+ /* u */	&sysrq_mountro_op,
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+  Don't blame me: the Monkey is driving
+  File: David Gibson <david@gibson.dropbear.id.au>: [TRIVIAL] Fix for magic sysrq when CONFIG_VT=n
+
+----- End forwarded message -----
+
+-- 
+Crutcher Dunnavant <crutcher+spam@eng.ua.edu>
+ECSS System Hacker / UA COE CS Senior

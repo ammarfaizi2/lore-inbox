@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262085AbREPUmW>; Wed, 16 May 2001 16:42:22 -0400
+	id <S262087AbREPUpc>; Wed, 16 May 2001 16:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262086AbREPUmM>; Wed, 16 May 2001 16:42:12 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46601 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262085AbREPUmC>; Wed, 16 May 2001 16:42:02 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: chip@valinux.com (Chip Salzenberg)
-Date: Wed, 16 May 2001 21:37:50 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+	id <S262089AbREPUpM>; Wed, 16 May 2001 16:45:12 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:928 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262087AbREPUpF>; Wed, 16 May 2001 16:45:05 -0400
+Date: Wed, 16 May 2001 14:44:56 -0600
+Message-Id: <200105162044.f4GKium10720@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
-In-Reply-To: <20010515163923.P3098@valinux.com> from "Chip Salzenberg" at May 15, 2001 04:39:23 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15083L-0004Bj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.21.0105161316310.7695-100000@penguin.transmeta.com>
+In-Reply-To: <200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.21.0105161316310.7695-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't mean to suggest that ioctls be used to deduce device types
-> (except in the case of overlapping ioctl numbers, which shouldn't be
-> all *that* common (I hope)).  I mean to suggest that the question
-> "What device type are you?" usually shouldn't even be asked!
+Linus Torvalds writes:
+> 
+> On Wed, 16 May 2001, Richard Gooch wrote:
+> > > 
+> > > This is still a really bad idea.  You don't want to tie this kind of
+> > > things to the name.
+> > 
+> > Why do you think it's a bad idea?
+> 
+> Well, one reason names are bad is that they don't always exist.
+> 
+> If you only have the fd (remember that unix notion of using <stdin>
+> and <stdout>), you'd have no clue where the thing came from. So
+> something else than the name is certainly a good idea for some of
+> these issues.
 
-But people need to ask it. Sometimes it really matters. It doesnt have to be
-in your face as /dev/hda1 versus /dev/sda1 is but it has to be possible
+But, as I described in my original message, you use /proc/self/fd to
+find where the fd came from. Or are you saying that you can't rely on
+having /proc available?
 
+Or do you have other reasons not to like the scheme I described? One
+of the reasons I like it is because it requires no new kernel code.
+
+> That said, I still think the real problem is rampant use of ioctl's,
+> which are a bad idea in the first place. Magic numbers are always
+> bad, and are a sign of bad design.
+
+No argument from me.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

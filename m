@@ -1,105 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291727AbSBNPwX>; Thu, 14 Feb 2002 10:52:23 -0500
+	id <S291729AbSBNP6n>; Thu, 14 Feb 2002 10:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291720AbSBNPwG>; Thu, 14 Feb 2002 10:52:06 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:45459 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S291727AbSBNPvt>; Thu, 14 Feb 2002 10:51:49 -0500
-Date: Thu, 14 Feb 2002 16:51:43 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Cc: drepper@redhat.com, torvalds@transmeta.com, dmccr@us.ibm.com
-Subject: setuid/pthread interaction broken? 'clone_with_uid()?'
-Message-ID: <20020214165143.A16601@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org, drepper@redhat.com,
-	torvalds@transmeta.com, dmccr@us.ibm.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="KsGdsel6WgEHnImy"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S291720AbSBNP6e>; Thu, 14 Feb 2002 10:58:34 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:37877 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S291729AbSBNP6T>; Thu, 14 Feb 2002 10:58:19 -0500
+Message-ID: <3C6BDE9A.4070906@linuxhq.com>
+Date: Thu, 14 Feb 2002 10:58:18 -0500
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.4 OSS YMFPCI
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a patch (against 2.5.4) that makes a little change to 
+sound/Config.in that makes my kernel link (and my YMF sound work :).
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-When a process first issues setuid() and then goes on to create threads,
-those threads run under the setuid() uid - all is well. 
-
-However,  once the first thread is created, only the thread calling setuid()
-gets setuid in fact. All new threads continue to be created as root.
-
-This behaviour exists under 2.2.18 with glibc 2.1.3 and under 2.4.17 with
-glibc 2.2.5, and is shown using the brief program attached.
-
-Is this by design? It appears that all threads created get the uid of the
-thread manager process.
-
->From our standpoint as an application developer, this is nasty. It means
-that we have to do everything that needs root before creating the first
-thread. This behaviour is also highly non obvious. 
-
-A fix would appear to need a 'clone with uid' syscall, other solutions will
-probably cause race condition. 
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
-
---KsGdsel6WgEHnImy
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="testcase.c"
-
-#include <stdio.h>
-#include <pthread.h>
-#include <errno.h>
-
-void die(const char *what)
-{
-	fprintf(stderr,"Exiting because of a fatal error %s: %s\n",
-		what, strerror(errno));
-	exit(1);
-}
+(o- j o h n   e   w e b e r
+//\  http://www.linuxhq.com/people/weber/
+v_/_ john.weber@linuxhq.com
 
 
-void *child(void *p)
-{
-	printf("This is child %d, pid: %d, uid: %d\n", 
-	       (int) p, getpid(), getuid());
-	return 0;
-}
+diff -Nru linux-2.5.4/drivers/sound/Config.in 
+linux-2.5.5/drivers/sound/Config.in > sound-2.5.4.patch
+--- linux-2.5.4/drivers/sound/Config.in	Sun Feb 10 20:50:10 2002
++++ linux-2.5.5/drivers/sound/Config.in	Thu Feb 14 10:48:28 2002
+@@ -103,6 +103,9 @@
+  dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
+  dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX 
+$CONFIG_SOUND_VIA82CXXX
 
++dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' 
+CONFIG_SOUND_YMFPCI $CONFIG_PCI
++dep_mbool '      Yamaha PCI legacy ports support' 
+CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
++
+  dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
 
-int main(int argc, char **argv)
-{
-	pthread_t tid1,tid2,tid3;
-	void* ret;
+  if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
+@@ -164,8 +167,6 @@
+     dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' 
+CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
+     dep_tristate '    Yamaha OPL3-SA1 audio controller' 
+CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
+     dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' 
+CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
+-   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' 
+CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
+-   dep_mbool '      Yamaha PCI legacy ports support' 
+CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
+     dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 
+$CONFIG_SOUND_OSS
 
-	pthread_create(&tid1, 0, child, (void *)1); /* stevens did this too */
+     dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' 
+CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
 
-	printf("Current pid: %d, current uid: %d\n", getpid(), getuid());
-	if(setuid(2000)<0)
-		die("setting uid");
-	printf("uid now: %d\n",getuid());
-
-
-
-	pthread_create(&tid2, 0, child, (void *)2);
-	pthread_create(&tid3, 0, child, (void *)3);
-	pthread_join(tid1, &ret);
-	pthread_join(tid2, &ret);
-	pthread_join(tid3, &ret);
-	printf("Exiting.\n");
-}
-
---KsGdsel6WgEHnImy--

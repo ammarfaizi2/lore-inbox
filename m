@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279029AbRJVWxv>; Mon, 22 Oct 2001 18:53:51 -0400
+	id <S279040AbRJVWux>; Mon, 22 Oct 2001 18:50:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279050AbRJVWw4>; Mon, 22 Oct 2001 18:52:56 -0400
-Received: from dspnet.claranet.fr ([212.43.196.92]:16914 "HELO
-	dspnet.fr.eu.org") by vger.kernel.org with SMTP id <S279029AbRJVWvD>;
-	Mon, 22 Oct 2001 18:51:03 -0400
-Date: Tue, 23 Oct 2001 00:51:36 +0200
-From: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: preparsing mispellings in DRM and ATM header
-Message-ID: <20011023005136.H3529@dspnet.fr.eu.org>
+	id <S279043AbRJVWuF>; Mon, 22 Oct 2001 18:50:05 -0400
+Received: from ohiper1-39.apex.net ([209.250.47.54]:63749 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S279034AbRJVWsq>; Mon, 22 Oct 2001 18:48:46 -0400
+Date: Mon, 22 Oct 2001 17:45:02 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022174502.B29445@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011022122722.A369@top.worldcontrol.com> <E15vlmG-0003Ff-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15vlmG-0003Ff-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 22, 2001 at 09:34:28PM +0100
+X-Uptime: 5:12pm  up 6 days, 22:21,  1 user,  load average: 1.77, 1.18, 0.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 22, 2001 at 09:34:28PM +0100, Alan Cox wrote:
+> > On Mon, Oct 22, 2001 at 01:29:14PM +0100, Alan Cox wrote:
+> > >    "Until they become conscious they will never rebel, and until after
+> > >     they have rebelled they cannot become conscious."
+> > 
+> > While I've been generally saddened by Alan Cox's and others
+> > anti-America attitude,  I am somewhat surprised to find that
+> > Alan believes the US bombing of Afghanistan is justified and so
+> > is the collateral damage as they call it.
+> 
+> That quote is rather older than the US bombing of Afghanistan. You read 
+> totally inappropriate things into it. 
 
-Here are some little bugs in preparsing code :
-(Line numbers are all from 2.4.12-ac5 but seems to be the same for plain 2.4.12)
-
------------------------------------------------------------------- 
-I tried to send this one to Rik Faith (faith@valinux.com)
-but it seems he doesn't work there anymore ..
-Maybe MAINTAINERS should be updated ^^;
- 
-The bug :
-Line 39 of drivers/char/drm/ati_pcigart.h
--> Should be #else (and not #elif with nothing else on the line)
- 
-------------------------------------------------------------------- 
-And an another one. Is there a maintainer for drivers/atm directory ?
- 
-The bug : 
-Line 628 of drivers/atm/nicstar.h
-#eliif (NS_LGBUFSIZE == 8192)
--> should be #elif
- 
--------------------------------------------------------------------
-And finaly, just for the purity of the code :
-
-Line 2473 of drivers/sbus/char/aurora.c
-#endif;
--> ';' seems useless
-
-------------------------------------------------------------------
-And one question : to whom should I send a patch for arch/ia64/sn 
-subdir ? 
-
-	JL Leger
-
+Certainly, it is not.  This statement applies to Afghanistan, in that
+the fact that they have not rebelled means they imply consent to
+everything their government does, and therefore are just as guilty as
+the Taliban.  Therefore, killing civilians (collateral damage) is no
+worse than killing terrorists or Taliban officials.  This is a stance I
+can easily subscribe to, not just with Afghanistan but with any people,
+nation, state, or country.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+Freedom is slavery. Ignorance is strength. War is peace.
+			-- George Orwell
+Those that would give up a necessary freedom for temporary safety
+deserver neither freedom nor safety.
+			-- Ben Franklin

@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311600AbSCaFdS>; Sun, 31 Mar 2002 00:33:18 -0500
+	id <S311618AbSCaGCh>; Sun, 31 Mar 2002 01:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311618AbSCaFdJ>; Sun, 31 Mar 2002 00:33:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58640 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311600AbSCaFcz>;
-	Sun, 31 Mar 2002 00:32:55 -0500
-Message-ID: <3CA69F33.90B37E83@zip.com.au>
-Date: Sat, 30 Mar 2002 21:31:31 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S311650AbSCaGC2>; Sun, 31 Mar 2002 01:02:28 -0500
+Received: from www.wen-online.de ([212.223.88.39]:8714 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S311618AbSCaGCQ>;
+	Sun, 31 Mar 2002 01:02:16 -0500
+Date: Sun, 31 Mar 2002 07:04:12 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [NFS] Re: vfs_unlink() >=2.5.5-pre1 question
+In-Reply-To: <Pine.GSO.4.21.0203301321090.2590-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10203310627310.9320-100000@mikeg.wen-online.de>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] fix loop deadlock
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5 is missing a chunk from 2.4
+On Sat, 30 Mar 2002, Alexander Viro wrote:
 
---- 2.5.7/fs/buffer.c~loop-deadlock	Sat Mar 30 21:18:13 2002
-+++ 2.5.7-akpm/fs/buffer.c	Sat Mar 30 21:18:22 2002
-@@ -992,7 +992,7 @@ static int balance_dirty_state(void)
+> 	a) d_delete() being called too early in vfs_unlink().  Not a big
+> deal, it's easy to move outside of dget()/dput().
+
+Indeed, that worked just fine.  I ran Bill Hawes' fs-test scripts in
+ext2, ext3 and tmpfs after doing so, and nothing interesting happened.
+
+When I ran them in a knfsd loopback mounted ext2 fs however, a couple
+of gripes popped out.
+
+nfs_safe_remove: dir1/.nfs00009d5000000b6e busy, d_count=2
+nfs_safe_remove: dir2/.nfs00009d5d00000c40 busy, d_count=2
+
+	-Mike
+
+For reference:
+
+--- linux-2.5.7/fs/namei.c.org	Sat Mar 30 12:54:29 2002
++++ linux-2.5.7/fs/namei.c	Sun Mar 31 05:59:24 2002
+@@ -1466,16 +1466,15 @@
+ 	down(&dentry->d_inode->i_sem);
+ 	if (d_mountpoint(dentry))
+ 		error = -EBUSY;
+-	else {
++	else
+ 		error = dir->i_op->unlink(dir, dentry);
+-		if (!error)
+-			d_delete(dentry);
+-	}
+ 	up(&dentry->d_inode->i_sem);
+ 	dput(dentry);
  
- 	/* First, check for the "real" dirty limit. */
- 	if (dirty > soft_dirty_limit) {
--		if (dirty > hard_dirty_limit)
-+		if (dirty > hard_dirty_limit && !(current->flags & PF_NOIO))
- 			return 1;
- 		return 0;
- 	}
+-	if (!error)
++	if (!error) {
++		d_delete(dentry);
+ 		inode_dir_notify(dir, DN_DELETE);
++	}
+ 
+ 	return error;
+ }
 
-
->From an efficiency POV loop is looking rather hilarious:
-
-c013da84 kmem_cache_alloc                             30   0.0355
-c0239bc0 __make_request                               41   0.0321
-c02457e0 transfer_none                                90   1.2500
-c0148480 create_bounce                               171   0.2007
-c0138a00 generic_file_write                          305   0.1540
-c014d558 write_some_buffers                        10028  28.4886
-c0151db5 .text.lock.buffer                         29229  47.2197
-00000000 total                                     40308   0.0195
-
-Probably we can fix this using the BH_Launder bit from
-Andrea's kit.
-
--

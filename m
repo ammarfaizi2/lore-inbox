@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbUKKXKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbUKKXRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbUKKXKk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 18:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKKXIp
+	id S262446AbUKKXRO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 18:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbUKKXQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 18:08:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58522 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262405AbUKKXHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 18:07:18 -0500
-Date: Thu, 11 Nov 2004 15:07:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] VM accounting change
-Message-Id: <20041111150710.6855398a.akpm@osdl.org>
-In-Reply-To: <20041111223245.GA15759@hygelac>
-References: <20041111223245.GA15759@hygelac>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Nov 2004 18:16:58 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:33234 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262428AbUKKXLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 18:11:25 -0500
+Date: Thu, 11 Nov 2004 17:10:48 -0600
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
+       "Adam J. Richter" <adam@yggdrasil.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+In-Reply-To: <Pine.LNX.4.44.0411111929370.2939-300000@localhost.localdomain>
+Message-ID: <Pine.SGI.4.58.0411111645000.106380@kzerza.americas.sgi.com>
+References: <Pine.LNX.4.44.0411111929370.2939-300000@localhost.localdomain>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda <tripperda@nvidia.com> wrote:
->
-> I've been told that recent changes in vm accounting in mmap have
->  caused some problems with our driver during mmap.
-> 
->  the problem seems to stem from us oring vma->vm_flags w/ (VM_LOCKED 
->  | VM_IO). we do this for agp and pci pages that are mapped to push
->  buffers. VM_LOCKED since we don't want the pages to move and VM_IO so
->  they are not dumped during a core dump.
+On Thu, 11 Nov 2004, Hugh Dickins wrote:
 
-VM_LOCKED|VM_IO doesn't seem to be a sane combination.  VM_LOCKED means
-"don't page it out" and VM_IO means "an IO region".  The kernel never even
-attempts to page out IO regions because they don't have reverse mappings. 
-Heck, they don't even have pageframes.
+> The first (against 2.6.10-rc1-mm5) being my reversion of NULL sbinfo
+> in shmem.c, to make it easier for others to add things into sbinfo
+> without having to worry about NULL cases.  So that goes back to
+> allocating an sbinfo even for the internal mount: I've rounded up to
+> L1_CACHE_BYTES to avoid false sharing, but even so, please test it out
+> on your 512-way to make sure I haven't screwed up the scalability we
+> got before - thanks.  If you find it okay, I'll send to akpm soonish.
 
-How about you drop the VM_LOCKED?
+I won't be able to get a 512 run in until Monday, due to test machine
+availability.  However runs at 32P and 64P indicate nothing disastrous.
+Results seem to be in line with the numbers we were getting when doing
+the NULL sbinfo work.
 
->  diff -ru linux-2.6.10-rc1-bk8/mm/mmap.c linux-2.6.10-rc1-bk8-2/mm/mmap.c
->  --- linux-2.6.10-rc1-bk8/mm/mmap.c	2004-11-06 15:04:28.000000000 +0100
->  +++ linux-2.6.10-rc1-bk8-2/mm/mmap.c	2004-11-06 15:39:47.000000000 +0100
->  @@ -1011,7 +1011,8 @@
->   	__vm_stat_account(mm, vm_flags, file, len >> PAGE_SHIFT);
->   	if (vm_flags & VM_LOCKED) {
->   		mm->locked_vm += len >> PAGE_SHIFT;
->  -		make_pages_present(addr, addr + len);
->  +		if (!(vm_flags & VM_IO))
->  +			make_pages_present(addr, addr + len);
+So, thus far a preliminary "Looks good".
 
-Spose we could do that on the basis of "don't break existing drivers which
-are doing peculiar things".
+> The second (against the first) being my take on your patch, with
+> mpol=interleave, and minor alterations which may irritate you so much
+> you'll revert them immediately! (mainly, using MPOL_INTERLEAVE and
+> MPOL_DEFAULT within shmem.c rather than defining separate flags).
+> Only slightly tested at this end.
 
+Seems to work just fine, and I rather like how this was made a bit more
+general.  Thumbs up!
+
+Brent
+
+-- 
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

@@ -1,332 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262945AbRE1Dkq>; Sun, 27 May 2001 23:40:46 -0400
+	id <S262943AbRE1Di0>; Sun, 27 May 2001 23:38:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262947AbRE1Dkg>; Sun, 27 May 2001 23:40:36 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:52749 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S262945AbRE1Dkb>; Sun, 27 May 2001 23:40:31 -0400
-Message-ID: <3B11C9AB.72075EC6@chromium.com>
-Date: Sun, 27 May 2001 20:44:43 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
-        Ben Twijnstra <bentw@chello.nl>
+	id <S262945AbRE1DiQ>; Sun, 27 May 2001 23:38:16 -0400
+Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:21213 "EHLO
+	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S262943AbRE1DiJ>; Sun, 27 May 2001 23:38:09 -0400
+Date: Sun, 27 May 2001 23:38:01 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.5-ac2
+Message-ID: <20010527233801.A643@zero>
 In-Reply-To: <20010528013342.A9840@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010528013342.A9840@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Mon, May 28, 2001 at 01:33:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, things are fast again now! :))
+i haven't had any reiserfs crashes on my alpha, but restoring a backup of a
+debian installation to a reiserfs partition doesn't quite work. untarring a
+linux kernel tarball to the fs works, does work though. i get these kernel
+messages:
 
-Performance is back to that of 2.4.2-ac26, and stability is a lot better. Under
-heavy FS pressure 2.4.5-ac2 is about 5-10% faster than vanilla 2.4.5, the aa1,2
-kernels have the same performance of vanilla 2.4.5.
+May 27 23:28:47 zero kernel: is_leaf: free space seems wrong: level=1, nr_items=17, free_space=132 rdkey 
+May 27 23:28:47 zero kernel: vs-5150: search_by_key: invalid format found in block 11693. Fsck?
+May 27 23:28:47 zero kernel: vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat data of [1361 1362 0x0 SD]
+May 27 23:28:47 zero kernel: vs-13048: reiserfs_iget: bad_inode. Stat data of (1361 1362) not found
+May 27 23:28:47 zero last message repeated 2 times
+May 27 23:28:48 zero kernel: is_leaf: free space seems wrong: level=1, nr_items=18, free_space=568 rdkey 
+May 27 23:28:48 zero kernel: vs-5150: search_by_key: invalid format found in block 14392. Fsck?
+May 27 23:28:48 zero kernel: vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat data of [3215 3216 0x0 SD]
+May 27 23:28:48 zero kernel: vs-13048: reiserfs_iget: bad_inode. Stat data of (3215 3216) not found
+May 27 23:28:48 zero last message repeated 2 times
+May 27 23:28:49 zero kernel: is_leaf: free space seems wrong: level=1, nr_items=18, free_space=568 rdkey 
+May 27 23:28:49 zero kernel: vs-5150: search_by_key: invalid format found in block 14392. Fsck?
+May 27 23:28:49 zero kernel: vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat data of [3208 3210 0x0 SD]
+May 27 23:28:49 zero kernel: vs-13048: reiserfs_iget: bad_inode. Stat data of (3208 3210) not found
+May 27 23:28:49 zero last message repeated 2 times
+May 27 23:28:49 zero kernel: is_leaf: free space seems wrong: level=1, nr_items=18, free_space=568 rdkey 
+May 27 23:28:49 zero kernel: vs-5150: search_by_key: invalid format found in block 14392. Fsck?
+May 27 23:28:49 zero kernel: vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat data of [3208 3211 0x0 SD]
+May 27 23:28:49 zero kernel: vs-13048: reiserfs_iget: bad_inode. Stat data of (3208 3211) not found
+May 27 23:28:49 zero last message repeated 8 times
 
-Which one of your changes affected performance so much?
-
-BTW: the hangs that you are talking about in the 2.4.4 series, are they total
-freezes? I've sporadically observed in a few 2.4.4-acX kernels strange hung-ups
-where the system is still running, but very slowly, ps and other similar
-commands (top) hang and you cannot kill them anymore. I think that this is some
-sort of (memory?) resource deadlock.
-
-The only miraculous way to resurrect such a locked system is to start Mozilla...
-everything goes back to normal!
-
-For the curious, the latest Ximian Gnone has the terminal and the mozilla icons
-next to each other and I clicked on the wrong icon by mistake...
-
- - Fabio
-
-Alan Cox wrote:
-
->         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
->
->                  Intermediate diffs are available from
->                         http://www.bzimage.org
->
-> In terms of going through the code audit almost all the sound drivers still
-> need fixing to lock against format changes during a read/write. Poll creating
-> and starting a buffer as write does and also mmap during write, write during
-> an mmap.
->
+On Mon, May 28, 2001 at 01:33:42AM +0100, Alan Cox wrote:
 > 2.4.5-ac2
-> o       Restore lock_kernel on umount                   (Al Viro)
->         | Should cure Reiserfs crash in 2.4.5
-> o       Fix additional scsi_ioctl leak                  (John Martin)
-> o       Clean up scsi_ioctl error handling              (me)
-> o       Configure.help typo fixes                       (Nerijus Baliunas)
-> o       Fix hgafb problems with logos                   (Ferenc Bakonyi)
-> o       Fix lock problems in the rio driver             (Rasmus Andersen)
-> o       Make new cmpci SMP safe                         (Carlos E Gorges)
-> o       Fix missing restore flags in soundmodem         (Rasmus Andersen)
-> o       Set max sectors in ps2esdi                      (Paul Gortmaker)
-> o       Fix interrupt restore problems in mixcom        (Rasmus Andersen)
-> o       Fix alpha compile on dp264/generic              (Andrea Arcangeli)
-> o       Fix irda irport locking restores                (Rasmus Andersen)
-> o       Fix failed kmalloc handling in hisax            (Kai Germaschewski)
-> o       Add missing memory barrier in qlogicisp         (?)
-> o       Fix missing restore_flags in eata_dma           (Rasmus Andersen)
-> o       Fix procfs locking in irttp                     (Rasmus Andersen)
-> o       Winbond updates                                 (Manfred Spraul)
-> o       Stop network eating PF_MEMALLOC ram             (Manfred Spraul)
-> o       Drop fs/buffer.c low mem flush changes          (me)
-> o       Drop changes to mm/highmem.c                    (me)
->         | I don't think the Linus one is quite right but its easier
->         | for everyone to be working off one base
-> o       Revert GFP_FAIL and some other alloc bits       (me)
-> o       Hopefully fix initrd problem                    (me)
-> o       Fix kmalloc check in ide-tape                   (Rasmus Andersen)
-> o       Fix irda irtty locking                          (Rasmus Andersen)
-> o       Fix missing irq restore in qla1280              (Rasmus Andersen)
-> o       Fix proc/pid/mem cross exec behaviour           (Arjan van de Ven)
-> o       Fix direct user space derefs in eicon           (me)
->         | From Stanford checker
-> o       Fix direct user space derefs in ipddp           (me)
->         | From Stanford checker
-> o       Fix direct user space derefs in ixj             (me)
->         | From Stanford checker
-> o       Fix direct user space derefs in decnet          (me)
->         | From Stanford checker
->
-> 2.4.5-ac1
-> o       Merge Linus 2.4.5 tree
->
-> Summary of changes for Linux 2.4.5-ac versus Linus 2.4.5
->
-> o       Fix memory leak in wanrouter
-> o       Fix memory leak in wanmain
-> o       Use non atomic memory for linearising NFS buffers as they are
->         done in task context
-> o       Fix dereference of freed memory in NetROM drivers
-> o       Fix writing to freed memory in ax25_ip
-> o       Support debugging of slab pools
-> o       NinjaSCSI pcmcia scsi driver
-> o       Raw HID device for USB peripheral buttons/controllers
-> o       Updated NTFS
-> o       RAMfs with resource limits
-> o       NMI watchdog available on uniprocessor x86
-> o       Update CMPCI drivers (not yet SMP safe)
-> o       Configurable max_map_count
-> o       Dynamic sysctl key registration
-> o       SE401 USB camera driver
-> o       Updated Zoran ZR3606x driver (replaces buz)
-> o       w9966 parallel port camera driver (partially merged with Linus)
-> o       Include headers in etags
-> o       Don't delete empty directories on make distclean
-> o       Fix halt/reboot handling on Alcor Alpha
-> o       IDE driver support for Etrax E100
-> o       IDE infrastructure support for IDE using non standard data transfers
-> o       Run ~/bin/installkernel if present
-> o       Support for out of order stores on x86 with this mode (IDT Winchip)
->         - worth 20% performance on them
-> o       Configure level debugging menu
-> o       Make BUG() default to an oops only - saves 70K
-> o       Power management help for UP-APIC
-> o       Work around 440BX APIC hang (eg the ne2000 SMP hang)
-> o       Run time configurable APM behaviour (interrupts, psr etc)
-> o       Smarter DMI parser - handles multiple use of names
-> o       DMI layer has blacklist tables fixing Dell Inspiron 5000e crashes,
->         PowerEdge reboot problems , and IBM laptop APM problems
-> o       PNPBios support
-> o       Fix atomicity of IRQ error count
-> o       Handle PCI/ISA boxes that don't list edge levels but have an ELCR
-> o       Don't erroneously mangle settings on all VIA bridges - cures the
->         horrible performance problem in 2.4.5 vanilla with VIA
-> o       Fix bootmem corruption on x86 boot
-> o       Scan and retrieve multipliers for processors (not yet used to handle
->         the SMP cases where we need to disable tsc use)
-> o       Support machine check on Athlon and Pentium
-> o       Fix SUS violation with signal stacks
-> o       Handle boxes where firmware resets the timer to 18Hz (this should
->         now not show false positives)
-> o       Better OOPS formatting on x86
-> o       Fix nasty problems with interrupts being disabled for long periods
->         in frame buffer drivers
-> o       PAE mode alignment assumption fixes
-> o       32bit UID clean quota
-> o       Fix quota deadlocks
-> o       Fix TLB shootdown races
-> o       Experimental merge of usermode Linux
-> o       Fix memory leaks and othe rproblems with the iphase driver
-> o       IBM AS/400 iSeries virtual drivers
-> o       DAC960 null pointer checks
-> o       CCISS driver leak fixes
-> o       MPT fusion drivers for scsi and networking
-> o       Handle out of memory allocating request queue entries and avoid oops
-> o       Free the initial ramdisk correctly
-> o       Small CD-ROM layer updates
-> o       AGP power management hooks
-> o       First basic applicom driver fixes
-> o       Fix copy_from_user with interrupts off in cyclades driver
-> o       Fix out of memory handling in DRM
-> o       Clean up dsp56K driver
-> o       Update generic serial driver with break support
-> o       Clean up h8 driver namespace
-> o       Fix keymap changing problems in console drivers
-> o       Fix locking in machzwd
-> o       Updated rio serial driver
-> o       A2232 driver
-> o       Fix serial driver mangling of some clone uarts
-> o       Handle xircom serial port setup delay bug
-> o       Updated sx driver for newer generic_serial
-> o       W83877F watchdog driver
-> o       ITE8172 IDE driver support
-> o       Q40/Q60 IDE support
-> o       Fix nodma handling bug in alim15x3
-> o       hpt366 DMA blacklist
-> o       IDE-CD updates
-> o       Updated IDE DMA blacklist
-> o       OOPS catch for sg reuse in IDE driver
-> o       Support formatting of IDE floppies
-> o       Support PIIX4U4 (851EM)
-> o       Enable second port on promise pseudo raid
-> o       Support nodma on pmac
-> o       Support more PCI irq sharing on IDE
-> o       IDE tape updates - DI-50 support,
-> o       Much updated VIA IDE support
-> o       video1394 updated to newer module API
-> o       Support write on the input event driver
-> o       Quieten mouse and keyboard input drivers
-> o       Fix compile problem with pc110pad
-> o       Fix memory leak in isdnppp
-> o       LVM updates
-> o       Fix plan b locking
-> o       Fix saa5249 locking
-> o       Fix stradis locking
-> o       Acenic driver updates
-> o       aironet4500 cleanups, probe tables
-> o       Ariadne updated to newer API
-> o       Don't limit mtu to 68+ in arlan drivers
-> o       Updated eepro100 driver
-> o       Fix potential crash on downing a bpqether port
-> o       Updated nsc-ircc driver
-> o       Updated toshoboe driver
-> o       Intel Panther LP486e ethernet driver
-> o       Remove erroneous check in eth_change_mtu
-> o       Alternative xircom_cb driver
-> o       Avoid ibm tr being rebuilt each make
-> o       Updated ibm token ring drivers
-> o       Add 'static' to bits of ppp code
-> o       Add pci probe table to roadrunner
-> o       Fix memory leak in sk_ge
-> o       sk_g16 updates
-> o       sk_mca updates
-> o       Add tools to generate starfire firmware
-> o       Synclink driver can be compiled in
-> o       Fix possible oops in lapbether
-> o       Fix memory leak in lanmedia driver
-> o       Fix SDLA_X25 warnings
-> o       Fix syncppp negotiation loop bug
-> o       GSC parallel port support
-> o       PCMCIA parallel port support
-> o       Support PnPBIOS probing for PC parallel ports
-> o       Fix leak in PCMCIA bulkmem driver
-> o       Fix leak in PCMCIA ds driver
-> o       Add more cards to the ti list for the yenta pcmcia
-> o       Updated 3ware scsi driver
-> o       NCR 53c700 and 53c700/66 driver core
-> o       Fix pci_enable/resource read order on buslogic
-> o       Updated NCR53c8xx driver
-> o       Updated SYM53c8xx driver
-> o       Fix NCR53c406 warnings
-> o       NCR dual MCA driver
-> o       AIC7xxx pci probe table for hotplug
-> o       Updated aic7xxx_old
-> o       Fix resource leaks in dec esp driver
-> o       Fix printk levels in dmx3191 driver
-> o       Allow per device max sector counts. (2.4 workaround until 2.5 does
->         this in the block layer per device)
-> o       Support SCSI2/SCSI3 extended LUN numbering
-> o       Limit qlogicisp and qlogicpti to 64 sectors/write
-> o       Fix missing EFAULT return in scsi proc
-> o       Fix locking of scsi_unregister_host
-> o       Fix leaks in scsi_ioctl
-> o       Fix potential lost requests in scsi merges
-> o       Fix leak on write when scsi driver has no proc write op
-> o       Extend the scsi black/whitelist
-> o       Fix locking/eject/rescan on removable scsi disk media
-> o       Updated scsi generic driver
-> o       Updated scsi cdrom driver
-> o       Correct ac97 handling on sparc
-> o       Fix use after kfree in cs4281
-> o       Update ess solo to new PCI style and PM
-> o       Update maestro to new PCI style and PM
-> o       Add docking station support to maestro
-> o       Update sonicvies to new PCI api
-> o       Fix trident locking problems
-> o       Fix buzzing on ymfpci
-> o       Power management for ymfpci
-> o       Fix leak/missized copy on xjack driver
-> o       CDCEther driver
-> o       ACM driver with fixed CLOCAL
-> o       Updated USB audio drivers
-> o       Fix locking/reporting in USB device list
-> o       Allow dsbr100 to take a radio_nr option
-> o       HP5300 series USB scanner driver
-> o       Updated IBM cam driver
-> o       Fix USB inode locking
-> o       Driver for Kawasaki based USB ethernet
-> o       Small ov511 fixes
-> o       Updated USB storage drivers
-> o       Entries for Sony MSC-U01N memory stick, Fujifilm FinePix 1400Zoom,
->         Casio QV Digial Camera
-> o       USB Ultracam driver
-> o       Fix derefence of freed memory in the USB code
-> o       Generic USB host->host drivers for anchorchip 2270, ipaq, netchip
->         1080, and Prolific PL-2301/2
-> o       Updated ATI frame buffer drivers
-> o       Updated clgen and control frame buffer drivers
-> o       Updated cyber2000 driver
-> o       Documentation for fbcon driver
-> o       Additional modes for titanium powerbook (1152x768)
-> o       Updated matrxofb drivers
-> o       Support __setup in mdacon
-> o       Radeon console driver
-> o       Handle out of memory on sun3 fb
-> o       Updated tga/vesa fb
-> o       CMS file system (basic R/O)
-> o       JFFS journalling flash file system with compression
-> o       Updated AFFS file system
-> o       Threaded core dumps
-> o       Fix security holes in binfmt_misc
-> o       Allow flushing of low buffers only when we need bounce buffers
-> o       Use brelse in cramfs
-> o       Fix memory leaks in freevxfs
-> o       Updated isofs
-> o       Small lockd updates (experimental)
-> o       Fix nfs alignment funnies
-> o       Report correct SuS errors on some opens
-> o       Add generic_file_open to get 64bit stuff right
-> o       Locking on make_inode_number for procfs
-> o       Report shmem size in shared memory proc field
-> o       Fail lseek outside of allowed range for filesystem
-> o       Fix select race with fdset growth
-> o       Kernel message levels and handle oom on superblock/mount ops
-> o       Updated frame buffer logos
-> o       Prefetch support for AMD Athlon
-> o       Support out of order stores in spinlocks on x86
-> o       m68k bitop compile fixes
-> o       Add truncatepage op to address operations
-> o       shmem filesystem cleanups and updates
-> o       Fix off by one on real time pre-emption in scheduler
-> o       Use prefetches in scheduler and wakeups
-> o       Support GFP_FAIL to avoid highmem deadlocks
->
-> ---
-> Alan Cox <alan@lxorguk.ukuu.org.uk>
-> Red Hat Kernel Hacker
-> & Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
-> http://www.linux.org.uk/diary                 http://www.brainbench.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> o	Restore lock_kernel on umount			(Al Viro)
+> 	| Should cure Reiserfs crash in 2.4.5
 
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVAXC62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVAXDBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVAXC62 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 21:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVAXC62
+	id S261423AbVAXDBq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 22:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVAXDBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 21:58:28 -0500
-Received: from waste.org ([216.27.176.166]:36035 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261426AbVAXC6U (ORCPT
+	Sun, 23 Jan 2005 22:01:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19160 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261423AbVAXDBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 21:58:20 -0500
-Date: Sun, 23 Jan 2005 18:57:38 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, Andi Kleen <ak@muc.de>,
-       Felipe Alfaro Solana <lkml@mac.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
-Subject: Re: [patch 1/13] Qsort
-Message-ID: <20050124025738.GX12076@waste.org>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net> <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com> <m1r7kc27ix.fsf@muc.de> <20050123042930.GI3867@waste.org> <20050124112129.C1545508@wobbly.melbourne.sgi.com>
+	Sun, 23 Jan 2005 22:01:15 -0500
+Date: Sun, 23 Jan 2005 19:01:09 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Touchpad problems with 2.6.11-rc2
+Message-ID: <20050123190109.3d082021@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124112129.C1545508@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 11:21:29AM +1100, Nathan Scott wrote:
-> On Sat, Jan 22, 2005 at 08:29:30PM -0800, Matt Mackall wrote:
-> > On Sun, Jan 23, 2005 at 03:39:34AM +0100, Andi Kleen wrote:
-> > 
-> > c) the three-way median selection does help avoid worst-case O(n^2)
-> > behavior, which might potentially be triggerable by users in places
-> > like XFS where this is used
-> 
-> XFS's needs are simple - we're just sorting dirents within a
-> single directory block or smaller, and sorting EA lists/ACLs -
-> all of which are small arrays, so a qsort optimised for small
-> arrays suits XFS well. 
+Hi, Vojtech:
 
-Ok, I've worked up a much smaller, cleaner version that wins on lists
-of 10000 entries or less and is still within 5% at 1M entries (ie well
-past what any kernel code has any business doing). More after I've
-fiddled around a bit more with the benchmarks.
+Since the 2.6.11-rc2, I encounter problems with touchpad and keyboard 
+on my laptop, Dell Lattitude D600. The following patch appears to be
+the culprit:
 
-> Take care not to put any arrays on the
-> stack though, else the CONFIG_4KSTACKS punters won't be happy.
+diff -urp -X dontdiff linux-2.6.11-rc1/drivers/input/mouse/psmouse-base.c linux-2.6.11-rc2/drivers/input/mouse/psmouse-base.c
+--- linux-2.6.11-rc1/drivers/input/mouse/psmouse-base.c	2005-01-12 16:20:42.000000000 -0800
++++ linux-2.6.11-rc2/drivers/input/mouse/psmouse-base.c	2005-01-22 14:54:14.000000000 -0800
+@@ -451,14 +451,16 @@ static int psmouse_extensions(struct psm
+ /*
+  * Try ALPS TouchPad
+  */
+-	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
+-		if (!set_properties || alps_init(psmouse) == 0)
+-			return PSMOUSE_ALPS;
+-
++	if (max_proto > PSMOUSE_IMEX) {
++		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
++		if (alps_detect(psmouse, set_properties) == 0) {
++			if (!set_properties || alps_init(psmouse) == 0)
++				return PSMOUSE_ALPS;
+ /*
+  * Init failed, try basic relative protocols
+  */
+-		max_proto = PSMOUSE_IMEX;
++			max_proto = PSMOUSE_IMEX;
++		}
+ 	}
+ 
+ 	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse, set_properties) == 0)
 
-I'm afraid I'm one of those punters - 4k stacks were getting cleaned up and
-tested in my -tiny tree long before mainline.
+Without the patch, touchpad is not detected as such. Instead, dmesg shows:
 
--- 
-Mathematics is the supreme nostalgia of our time.
+input: PS/2 Generic Mouse on isa0060/serio1
+
+With this patch, I see this:
+
+ALPS Touchpad (Dualpoint) detected
+  Disabling hardware tapping
+input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+
+Looks like detection is correct, however either ALPS specific code doesn't work
+right, or it sets wrong parameters, I cannot tell. Here's the list of problems,
+from worst to least annoying:
+
+- Very often, keyboard stops working after a click. Typing anything has no effect.
+  However, any smallest pointer movement will restore keyboard, and then an
+  application receives all buffered characters. This is very bad.
+
+- Double-click sometimes fails to work. I have to wait a second and retry it.
+  Retrying right away is likely not to work again.
+
+- Slow motion of finger produces no motion, then a jump. So, it's very hard to
+  target smaller UI elements and some web links.
+
+I do not use the nipple, so I cannot tell if that one works or worked before.
+
+Not everything is bad. For example, old input code (in 2.6.10) sometimes "warped"
+mouse to the bottom of the screen, or confused motion with clicks. This problem
+appears to be gone now. It would be just great if you could look into keyboard
+stoppages, too.
+
+Have a great day,
+-- Pete
+
+P.S. I hate the tap, so keep it disabled by default, please :-)

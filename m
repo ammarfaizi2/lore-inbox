@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVAXXg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVAXX2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVAXXg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:36:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXgR
+	id S261670AbVAXX2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:36:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8939 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261731AbVAXXfi (ORCPT
+	Mon, 24 Jan 2005 18:25:09 -0500
+Received: from mta03.pge.com ([131.89.129.73]:33730 "EHLO mta03.pge.com")
+	by vger.kernel.org with ESMTP id S261670AbVAXXYf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:35:38 -0500
-Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <m3brbebh43.fsf@bzzz.home.net>
-References: <m3wtu9v3il.fsf@bzzz.home.net>
-	 <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3brbebh43.fsf@bzzz.home.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 24 Jan 2005 18:24:35 -0500
+Date: Mon, 24 Jan 2005 15:16:36 -0800
+From: Edward Peschko <esp5@pge.com>
+To: Richard Henderson <rth@redhat.com>
+Cc: gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
+       binutils@sources.redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
+Message-ID: <20050124231636.GC19422@venus>
+References: <20050124222449.GB16078@venus> <20050124231047.GC29545@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 24 Jan 2005 23:35:26 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124231047.GC29545@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2005-01-24 at 22:24, Alex Tomas wrote:
-> hmmm. that's a good catch. so, with this patch A increments h_buffer_credits
-> and this one will go to the t_outstanding_credits while the buffer is still
-> part of the transaction. indeed, an imbalance.
+On Mon, Jan 24, 2005 at 03:10:47PM -0800, Richard Henderson wrote:
+> On Mon, Jan 24, 2005 at 02:24:49PM -0800, Edward Peschko wrote:
+> > What I'd like to do is be able to set up my LD_LIBRARY_PATH 
+> > so that I can reference it from the point of view of the 
+> > *executable*:
+> > 
+> > 	setenv LD_LIBRARY_PATH   "*/../lib:....."
+> > 
+> > Here, read "* == full path of dirname of executable".
 > 
-> probably something like the following would be enough?
+> See -Wl,-rpath,'$ORIGIN/../lib/'
 > 
->  +	/* return credit back to the handle if it was really spent */
->  +	if (credits) {
->  +		handle->h_buffer_credits++; 
->  +              spin_lock(&handle->h_transaction->t_handle_lock);
->  +              handle->h_transaction->t_outstanding_credits++;
->  +              spin_lock(&handle->h_transaction->t_handle_lock);
->  +      }
+> 
+> r~
 
-That returns the credit to A (satisfying ext3), but you just grew
-t_outstanding_credits, thus growing the journal commitments without
-checking if it's safe to do so or being able to handle failure.  So it
-just reintroduces the original bug.
+cool.. any chance for some syntactic sugar so me (and other 
+users/vendors) wouldn't need to change any of their build scripts 
+and compilation processes?
 
---Stephen
+The only thing I would see as a drawback would be backwards compatibility,
+but how often do people have directories named '*'?
 
+Ed

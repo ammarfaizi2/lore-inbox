@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUAFIqx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 03:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUAFIqx
+	id S261552AbUAFIrj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 03:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUAFIri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 03:46:53 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:24960 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261500AbUAFIqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 03:46:52 -0500
-Subject: Re: PCI resource allocation problem in Enterprise Linux 3.0
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: sundarapandian durairaj <sundar_draj@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040106064732.34104.qmail@web10303.mail.yahoo.com>
-References: <20040106064732.34104.qmail@web10303.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LsTkJGC4CgybcmrPT/m5"
-Organization: Red Hat, Inc.
-Message-Id: <1073378805.4430.0.camel@laptop.fenrus.com>
+	Tue, 6 Jan 2004 03:47:38 -0500
+Received: from debian4.unizh.ch ([130.60.73.144]:59531 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S261552AbUAFIrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 03:47:35 -0500
+Date: Tue, 6 Jan 2004 09:47:28 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: problem booting aic7xxx-old with reiserfs
+Message-ID: <20040106084728.GA3094@piper.madduck.net>
+Mail-Followup-To: martin f krafft <madduck@madduck.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1aMb6-3Fs-37@gated-at.bofh.it> <20040106084152.7B47D52003@chello062178157104.9.14.vie.surfer.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 06 Jan 2004 09:46:45 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <20040106084152.7B47D52003@chello062178157104.9.14.vie.surfer.at>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-LsTkJGC4CgybcmrPT/m5
-Content-Type: text/plain
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-01-06 at 07:47, sundarapandian durairaj wrote:
-> Hi All,
->=20
-> I am having some PCI resource allocation problem in RH
-> Enterprise Linux 3.0 (linux-2.4.21-4.EL kernel).
+also sprach Andreas Theofilu <noreply@TheosSoft.net> [2004.01.06.0941 +0100=
+]:
+> The old aic7xxx driver seems to be broken. Whenever possible use
+> the new AIC7xxx driver. It works perfect here.
 
-sounds like something you want to report in RH bugzilla instead
-(http://bugzilla.redhat.com), preferably with information about your
-hardware, boot dmesg and a pointer to the driver source...
+I tried that, but at first, the driver spat out thousands of lines
+of errors before the kernel failed to mount the root filesystem, and
+then upon reboot, I still got various errors related to SCSI. When
+I looked in the description of the aic7xxx drivers, I only found the
+294x covered by the old driver.
 
---=-LsTkJGC4CgybcmrPT/m5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I'll try again, I guess...
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+microsoft windoze - the best solitaire game you can buy.
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/+nX1xULwo51rQBIRAlolAKCGiiFY/hymWwPXXY7W8R8Qxi2MnwCfZrP1
-5M1vgdqvG5Q9tI++AB0uX38=
-=zuhq
+iD8DBQE/+nYgIgvIgzMMSnURAr0GAKDFdD0zx2CWaPc11Dc1S024hJBDUQCfQxQw
+XnI4kTUkqLP6ynEKXGyRV9I=
+=7oIA
 -----END PGP SIGNATURE-----
 
---=-LsTkJGC4CgybcmrPT/m5--
+--XsQoSWH+UP9D9v3l--

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280343AbRKXW2b>; Sat, 24 Nov 2001 17:28:31 -0500
+	id <S280387AbRKXW3w>; Sat, 24 Nov 2001 17:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280387AbRKXW2V>; Sat, 24 Nov 2001 17:28:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47369 "EHLO
+	id <S280402AbRKXW3d>; Sat, 24 Nov 2001 17:29:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49673 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280343AbRKXW2P>; Sat, 24 Nov 2001 17:28:15 -0500
+	id <S280387AbRKXW3P>; Sat, 24 Nov 2001 17:29:15 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Journaling pointless with today's hard disks?
-Date: 24 Nov 2001 14:28:00 -0800
+Subject: Re: 2.4.15 - syslinux no longer works (File system problem?)
+Date: 24 Nov 2001 14:28:44 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tp6tg$mge$1@cesium.transmeta.com>
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
+Message-ID: <9tp6us$mh7$1@cesium.transmeta.com>
+In-Reply-To: <20011124111956.55298.qmail@web10402.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,28 +21,20 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
-By author:    Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Followup to:  <20011124111956.55298.qmail@web10402.mail.yahoo.com>
+By author:    =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
 In newsgroup: linux.dev.kernel
 > 
-> > However, if it's really true that DTLA drives and their successor
-> > corrupt blocks (generate bad blocks) on power loss during block writes,
-> > these drives are crap.
+> Yes, syslinux no longer works, every files will have a
+> length of zero and the floppy can not boot. However if
+> run df it still report that the floppy is occupied
+> some bytes exactly equal to the size of the file I
+> copied onto floppy. ls shows every file has zero.
 > 
-> They do, even IBM admits that (on
-> 
->         http://www.cooling-solutions.de/dtla-faq
-> 
-> you find a quote from IBM confirming this).  IBM says it's okay, you
-> have to expect this to happen.  So much for their expertise in making
-> hard disks.  This makes me feel rather dizzy (lots of IBM drives in
-> use).
+> What can I do ?
 > 
 
-No sh*t.  I have always been favouring IBM drives, and I had a RAID
-system with these drives bought.  It will be a LONG time before I buy
-another IBM drive, that's for sure.  I can't believe they don't even
-have the decency of saying "we fucked".
+2.4.15 eats files.  DON'T USE IT.
 
 	-hpa
 -- 

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132278AbRBNOWq>; Wed, 14 Feb 2001 09:22:46 -0500
+	id <S129051AbRBNOcT>; Wed, 14 Feb 2001 09:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132247AbRBNOW0>; Wed, 14 Feb 2001 09:22:26 -0500
-Received: from srv01s4.cas.org ([134.243.50.9]:25011 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S132277AbRBNOVz>;
-	Wed, 14 Feb 2001 09:21:55 -0500
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200102141421.JAA11930@mah21awu.cas.org>
-Subject: Re: *grin* Windows 2000 & HPC: Scalable, Inexpensive
-To: chromi@cyberspace.org (Jonathan Morton)
-Date: Wed, 14 Feb 2001 09:21:24 -0500 (EST)
-Cc: dhowells@cambridge.redhat.com (David Howells),
-        linux-kernel@vger.kernel.org, jjb@nexor.co.uk
-In-Reply-To: <l03130328b6b03a746ec4@[192.168.239.101]> from "Jonathan Morton" at Feb 14, 2001 01:38:26 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129057AbRBNOb6>; Wed, 14 Feb 2001 09:31:58 -0500
+Received: from expanse.dds.nl ([194.109.10.118]:48903 "EHLO expanse.dds.nl")
+	by vger.kernel.org with ESMTP id <S129051AbRBNObr>;
+	Wed, 14 Feb 2001 09:31:47 -0500
+Date: Wed, 14 Feb 2001 15:31:19 +0100
+From: Ookhoi <ookhoi@dds.nl>
+To: Daniel Quinlan <quinlan@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: setting cpu speed on crusoe
+Message-ID: <20010214153119.K30236@ookhoi.dds.nl>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <20010210224855.D7877@bug.ucw.cz> <Pine.LNX.4.10.10102130928490.29787-100000@penguin.transmeta.com> <6y66idbiai.fsf@magnesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.1.14i
+In-Reply-To: <6y66idbiai.fsf@magnesium.transmeta.com>; from quinlan@transmeta.com on Wed, Feb 14, 2001 at 03:44:37AM -0800
+X-Uptime: 12:48pm  up 15 days, 23:52, 21 users,  load average: 0.12, 0.08, 0.30
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Daniel,
+
+> > We're going through our docs and we have internal programs that
+> > we'll release for this so that you'll not just have docs but
+> > actually working code too. It just needs to be cleaned up a bit, and
+> > go through the proper channels (ever wonder why open source gets
+> > deveoped faster?). It really should be "any day now".
 > 
-> At 9:10 am +0000 14/2/2001, David Howells wrote:
-> >How this for a laugh:
-> >
-> >http://www.microsoft.com/WINDOWS2000/hpc/indstand.asp
-> >
+> Working code is better anyway (and in this case, it's first).  Go to
+> your favorite kernel.org mirror and check out
 > 
-> Can anybody say "Beowulf cluster"?  I bet you need a W2K license for every
-> box you hook up, too.
+>   /pub/linux/utils/cpu/crusoe/longrun-0.9.tar.gz
+> 
+> It does everything you could ever want and more, as long as you
+> include the CPUID and MSR devices in your kernel, set up the devices
+> correctly, etc.
 
-The sad thing is, 3/4 of the page is an outright lie. It isn't
-a first, W2k is not the de facto standard OS, and the TCO is
-significantly higher than any cluster running Linux.
+Very cool. :-)  Will we also be able to do a software upgrade of the cpu
+code morphing software in the future?
 
-It's a sad day when companies can get away with blatant lies
-all in the name of "marketing."
-
-/Mike
-
+	Ookhoi

@@ -1,103 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277782AbRJIPht>; Tue, 9 Oct 2001 11:37:49 -0400
+	id <S277781AbRJIPkJ>; Tue, 9 Oct 2001 11:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277780AbRJIPha>; Tue, 9 Oct 2001 11:37:30 -0400
-Received: from law2-oe70.hotmail.com ([216.32.180.163]:51473 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S277778AbRJIPhY>;
-	Tue, 9 Oct 2001 11:37:24 -0400
-X-Originating-IP: [213.82.66.51]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200110091151.f99BpC520171@koala.ichpw.zabrze.pl>
-Subject: Re: Athlon kernel crash (i686 works)
-Date: Tue, 9 Oct 2001 17:38:07 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <LAW2-OE701qfT7eEmP9000079f4@hotmail.com>
-X-OriginalArrivalTime: 09 Oct 2001 15:37:49.0360 (UTC) FILETIME=[59D87300:01C150D8]
+	id <S277784AbRJIPkA>; Tue, 9 Oct 2001 11:40:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:7739 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277781AbRJIPjs>; Tue, 9 Oct 2001 11:39:48 -0400
+Date: Tue, 9 Oct 2001 17:39:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+Message-ID: <20011009173937.M15943@athlon.random>
+In-Reply-To: <20011009165002.H15943@athlon.random> <Pine.LNX.4.21.0110091129260.5604-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0110091129260.5604-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Oct 09, 2001 at 11:34:47AM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks everybody for the response.
+On Tue, Oct 09, 2001 at 11:34:47AM -0200, Marcelo Tosatti wrote:
+> The problem may well be in the memory balancing Andrea, but I'm not trying
+> to hide it with the infinite loop.
 
-Last: my abit is KT7A series v1.3. Does anybody if it is safe to patch
-bios with revision ZT?
+I assumed fixing the oom faliures with highmem was the main reason of
+the infinite loop.
 
------ Original Message -----
-From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-To: "Marco Berizzi" <pupilla@hotmail.com>
-Sent: Tuesday, October 09, 2001 7:38 PM
-Subject: Re: Athlon kernel crash (i686 works)
+> The infinite loop is just a guarantee that we'll have a reliable way of
+> throttling the allocators which can block. Not doing the infinite loop is
 
+Throttling have nothing to do with the infinite loop.
 
-> On Tue, 9 Oct 2001 11:32:24 +0200, Marco Berizzi wrote:
->
-> >
-> >I also search the mailing list. My mother board is KT7A series v1.3
-with
-> >bios revision 4T (I also try with 3N, same results). K7 at 1333MHz.
-BIOS
-> >settings are default (except I have disabled all BIOS/video shadow).
-> >After flash I also reset CMOS via hardware jumper.
-> >
-> >Is there any solution to this (except compiling kernel for 6x86)?
-> >
->
->  Try  ZT  bios - it works ok with my ABIT KT7E - with Athlon
-> optimised kernels.
->   Using 686 optimised kernels  is not full solution -   user-space
-> programs
->   compiled with Atlhon optimisation can  not only crash but  kill
-> sytem
->   too ( as far as I remember from  previous linux-kernel posts. )
->
->  Not being kernel developer I must ask you to read   archive messages
->
->  on this topics -   groups.google.com could be helpful .
->
->
-> ----------------------------------------------------------------------
-> --------------------------------
-> Official BIOS release ZT for KT7/KT7-RAID/KT7A/KT7A-RAID/KT7E
->
->
-> ftp://ftp.abit.com.tw/pub/bios/kt7
->
-> Release information:
->
-> 1. Adds three new options to enhance the system compatibility
->
->      .Delay transaction
->      .PCI master read caching
->      .PCI master time-out
->
->    Set above options to Disabled/Disabled/0 may help SB Live 5.1
-> sound
->    issue. If the system experiences low performance after these
-> settings,
->    enable the "PCI master read caching" please.
-> 2. Fixes the issue Athlon 1.3G(100) wrongfully recognized as
-> 104x12.5.
-> 3. Adds an option "State after power failure".
-> 4. Set all four IDE devices to "AUTO".
-> 5. Set the default year to 2001.
-> 6. BIOS compile date: 05/11/2001
->
->
->
-> --------------------------------------------------------
->  Marek Mentel  mmark@koala.ichpw.zabrze.pl  2:484/3.8
->  INSTITUTE FOR CHEMICAL PROCESSING OF COAL , Zabrze , POLAND
->  NOTE: my opinions are strictly my own and not those of my employer
->
->
->
->
+> just way too fragile IMO and it is _prone_ to fail in intensive
+> loads. 
+
+It is too fragile if the vm is doing the wrong actions and so we must
+loop over and over again before it finally does the right thing.
+
+If allocation fails that's a nice feedback that tell us "the memory
+balancing is at least inefficient in doing the right thing, looping
+would only waste more cache and more time for the allocation".
+
+Think a list where pages can be only freeable or unfreeable.  Now scan
+_all_ the pages and free all the freeable ones. Finished. If it failed
+and it couldn't free anything it means there was nothing to free so
+we're oom. How can that be "fragile"?
+
+In real life it isn't as simple as that, there's some "race" effect
+caming from the schedules in between, there are multiple lists, there's
+swapout etc... so it's a little more complex than just "freeable" and
+"unfreeable" and a single list, but it can be done, 2.2 does that too,
+if we loop over and over again and we do no progress in the right
+direction I prefer to know about that via an allocation faliure rather
+than by just getting sucking performance. Also an allocation faliure is
+a minor problem compared to a deadlock that the infinite loop cannot
+prevent.
+
+> If the problem is the highmem balancing, I'll love to get your fixes and
+> integrate with the infinite loop logic, which is a separated (related,
+> yes, but separate) thing.
+
+The infinite loop shouldn't do anything except introducing the deadlock
+after that (otherwise it means I failed :), but you're free to go in
+your direction if you think it's the right one of course (like I'm free
+to go in my direction since I think it's the right one).
+
+Andrea

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUG3SXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267782AbUG3Seb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267772AbUG3SXN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 14:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbUG3SXN
+	id S267782AbUG3Seb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 14:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbUG3Sea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 14:23:13 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:62854 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S267772AbUG3SUw (ORCPT
+	Fri, 30 Jul 2004 14:34:30 -0400
+Received: from zero.aec.at ([193.170.194.10]:41740 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267781AbUG3Se3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 14:20:52 -0400
-Date: Fri, 30 Jul 2004 20:20:54 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Matthew Wilcox <willy@debian.org>, Christoph Hellwig <hch@infradead.org>,
-       Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730182054.GA3678@ucw.cz>
-References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301057.12445.jbarnes@engr.sgi.com> <20040730181205.GW10025@parcelfarce.linux.theplanet.co.uk> <200407301112.10361.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
+	Fri, 30 Jul 2004 14:34:29 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive
+ kernels
+References: <2nJ3t-34a-39@gated-at.bofh.it> <2nJmP-3eq-9@gated-at.bofh.it>
+	<2nJG8-3p6-21@gated-at.bofh.it> <2nK9b-3PM-17@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 30 Jul 2004 20:34:15 +0200
+In-Reply-To: <2nK9b-3PM-17@gated-at.bofh.it> (Jeff Garzik's message of "Fri,
+ 30 Jul 2004 20:20:09 +0200")
+Message-ID: <m3brhx9wew.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407301112.10361.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Jeff Garzik <jgarzik@pobox.com> writes:
+>
+> Certainly.  Therefore, changing from GFP_ATOMIC will increase
+> likelihood of breakage, no?
 
-> That might be a good solution, actually.  Then it would be cached for devices 
-> that don't want you to look at it after they've been POSTed too.
+No, the atomic checks prevents that. When the code wasn't broken
+before on preemptive kernels it won't be broken now.
 
-There already exists a "pci=rom" switch which tells the PCI core to assign
-addresses to the ROM BAR's as well. Either we can offer the files in the sysfs
-only if this switch is enabled, or we can create another switch for making
-copies of the ROM's during system boot.
+-Andi
 
-Anyway, the devices sharing ROM decoder with another BAR seem to be pretty
-rare.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Anti-trust laws should be approached with exactly that attitude.

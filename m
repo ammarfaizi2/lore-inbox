@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290216AbSBKTYT>; Mon, 11 Feb 2002 14:24:19 -0500
+	id <S290218AbSBKT2J>; Mon, 11 Feb 2002 14:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290218AbSBKTWZ>; Mon, 11 Feb 2002 14:22:25 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:1975 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290216AbSBKTV5>; Mon, 11 Feb 2002 14:21:57 -0500
-Date: Mon, 11 Feb 2002 14:21:56 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: John Weber <weber@nyc.rr.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.4 Sound Driver Problem
-Message-ID: <20020211142156.A2665@devserv.devel.redhat.com>
-In-Reply-To: <E16aKwN-0007Ro-00@the-village.bc.nu> <3C6809C2.1030808@nyc.rr.com> <20020211132725.A18726@devserv.devel.redhat.com> <3C6816EC.2040406@nyc.rr.com>
-Mime-Version: 1.0
+	id <S290259AbSBKT1w>; Mon, 11 Feb 2002 14:27:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37132 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290223AbSBKT1e>;
+	Mon, 11 Feb 2002 14:27:34 -0500
+Message-ID: <3C681AF4.689A28E4@zip.com.au>
+Date: Mon, 11 Feb 2002 11:26:44 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: suparna@in.ibm.com
+CC: Rik van Riel <riel@conectiva.com.br>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] get_request starvation fix
+In-Reply-To: <3C639060.A68A42CA@zip.com.au> <3C6791C0.63CA2677@zip.com.au>,
+		<3C6791C0.63CA2677@zip.com.au>; from akpm@zip.com.au on Mon, Feb 11, 2002 at 01:41:20AM -0800 <20020211230537.A8661@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C6816EC.2040406@nyc.rr.com>; from weber@nyc.rr.com on Mon, Feb 11, 2002 at 02:09:32PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Mon, 11 Feb 2002 14:09:32 -0500
-> From: John Weber <weber@nyc.rr.com>
+Suparna Bhattacharya wrote:
+> 
+> ...
+> > *  When a process wants a new request:
+> > *
+> > *    b) If free_requests == 0, the requester sleeps in FIFO manner.
+> > *
+> > *    b) If 0 <  free_requests < batch_requests and there are waiters,
+> > *       we still take a request non-blockingly.  This provides batching.
+> 
+> For a caller who just got an exclusive wakeup on the request queue,
+> this enables the woken up task to do batching and not sleep again on the
+> next request it needs. However since we use the same logic for new callers,
+> don't we still have those starvation issues ?
 
-> I enable ymfpci, and I have to compile and link dmabuf.c which leads to 
-> the problem (the only other sound options enabled are 
-> CONFIG_SOUND_GAMEPORT and CONFIG_SOUND_OSS).
+Let's think of `incoming' tasks and `outgoing' ones.  The incoming
+tasks are running tasks which are making new requests, and the
+outgoing ones are tasks which were on the waitqueue, and which are
+in the process of being woken and granted a request.
 
-> By the way, I don't use modules so this problem results in a link error. 
->    I guess I could use modules if this would rectify the problem.
+Your concern is that incoming tasks can still steal all the requests
+away from the sleepers.   And sure, they can, until all requests are
+gone.  At which time the incoming tasks get to wait their turn on
+the waitqueue.  And generally, the problem is with writes, where we tend
+to have a few threads performing a large number of requests.
 
-Try to do this. Open drivers/sound/Config.in, and find YMFPCI
-tristate, then delete $CONFIG_SOUND_OSS from that line.
-Edit .config, and remove CONFIG_SOUND_OSS. Rerun make oldconfig,
-when prompted for CONFIG_SOUND_OSS, say N. This should work.
+Another scenario is where incoming tasks just take a handful of requests,
+and their rate of taking equals the rate of request freeing, and the
+free_request threshold remains greater than zero, less than batch_nr_requests.
+This steady state could conceivably happen with the correct number of
+threads performing O_SYNC/fsync writes, for example.  I'll see if I can
+find a way to make this happen.
 
-I use monolithic kernels on 2.4, but on 2.5 it is officially
-discouraged, so I gave up on it.
+The final scenario is where there are many outgoing tasks, so they
+compete, and each gets an insufficiently large number of requests.
+I suspect this is indeed happening with the current kernel's wake-all
+code.  But the wake-one change makes this unlikely.
 
-I do not see ANYTHING in 2.5.4 Makefiles that depended on
-CONFIG_SOUND_GAMEPORT. This option only works to restric
-some configurations choices, but it does not control any
-compilations. Seems like a deadwood to me. Just kill it too.
+When an outgoing task is woken, we know there are 32 free requests on the
+queue.  There's an assumption (or design) here that the outgoing task
+will be able to get a decent number of those requests.  This works.  It
+may fail if there are a massive number of CPUs.  But we need to increase
+the overall request queue size anyway - 128 is too small.
 
--- Pete
+Under heavy load, the general operating mode for this code is that 
+damn near every task is asleep.  So most work is done by outgoing threads.
+
+BTW, I suspect the request batching isn't super-important.  It'll
+certainly decrease the context switch rate very much.  But from a
+request-merging point of view it's unlikely to make much difference.
+
+-

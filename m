@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265651AbUABVbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 16:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUABVbq
+	id S265648AbUABV3b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 16:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265651AbUABV3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 16:31:46 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:38928 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265651AbUABVbo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 16:31:44 -0500
+	Fri, 2 Jan 2004 16:29:31 -0500
+Received: from pengo.systems.pipex.net ([62.241.160.193]:58542 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S265648AbUABV33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 16:29:29 -0500
+From: Shaheed <srhaque@iee.org>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-Date: Fri, 02 Jan 2004 16:15:05 -0500
-Organization: TMR Associates, Inc
-Message-ID: <3FF5DF59.3090905@tmr.com>
-References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org> <3FE594D0.8000807@colorfullife.com> <20031221141456.GI3438@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: How to structure a driver for a IDE controller with hardware RAID support?
+Date: Fri, 2 Jan 2004 21:31:21 +0000
+User-Agent: KMail/1.5.94
+References: <200401011659.35973.srhaque@iee.org>
+In-Reply-To: <200401011659.35973.srhaque@iee.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1073078388 7080 192.168.12.10 (2 Jan 2004 21:19:48 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Manfred Spraul <manfred@colorfullife.com>, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-To: Jamie Lokier <jamie@shareable.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20031221141456.GI3438@mail.shareable.org>
+Message-Id: <200401022131.22257.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+Hi,
 
-> We have found the performance impact of the extra ->poll calls
-> negligable with epoll.  They're simply not slow calls.  It's
-> only when you're doing select() or poll() of many descriptors
-> repeatedly that you notice, and that's already poor usage in other
-> ways.
+I have a device called an IT8212 IDE RAID controller. It comes with a Linux 
+2.4 driver which emulates a SCSI interface and supports both JBOD and 
+hardware RAID (0 and 1) modes of operation.
 
-I do agree with you, but there is a lot of old software, and software 
-written on/for BSD, which does do this. I'm not prepared to say that BSD 
-does it better, but it's easier to fix in one place, the kernel, than 
-many other places.
+I don't quite understand the relationship between drivers/ide/... and RAID 
+support. Why for example, would the existing driver be written as a SCSI 
+driver and not an IDE driver?
 
-Your point about the complexity is also correct, but perhaps someone 
-will offer a better solution to speeding up select(). I think anything 
-as major as this might be better off in a development series, and that's 
-a clear prod for someone to find a simpler way to do it ;-)
-
-Old programs grow; INN uses select and worked fine with 10-20 peers, 
-with 200 peers sharing 2m articles and 1 TB of data it seems to work 
-less well on Linux than BSD or Solaris. I'd love to see faster, there 
-are lots of other servers out there as well.
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Thanks, Shaheed

@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbTJHDxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 23:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTJHDxR
+	id S261614AbTJHEJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 00:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTJHEJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 23:53:17 -0400
-Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:30169 "EHLO
-	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261263AbTJHDxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 23:53:15 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Wed, 8 Oct 2003 00:09:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33462 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261614AbTJHEJJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 00:09:09 -0400
+Date: Tue, 7 Oct 2003 21:08:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Robert White <rwhite@casabyte.com>
+cc: "'Albert Cahalan'" <albert@users.sourceforge.net>,
+       "'Ulrich Drepper'" <drepper@redhat.com>,
+       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Who changed /proc/<pid>/ in 2.6.0-test5-bk9? (SIGPIPE?)
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAmH7Q7NFXTUi83xFeuIJyvQEAAAAA@casabyte.com>
+Message-ID: <Pine.LNX.4.44.0310072104570.32358-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16259.35252.163910.512212@wombat.chubb.wattle.id.au>
-Date: Wed, 8 Oct 2003 13:51:16 +1000
-To: sam@mars.ravnborg.org
-cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Cross compiling using separate output directory problems
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Sam,
-   Thanks for doing the work to make comnpilation work with a separate
-output directory.
+On Tue, 7 Oct 2003, Robert White wrote:
+>
+> So I have two threads that are doing IO on a file descriptors with the
+> number 5, I get an unexpected EPIPE on "5", now what?  I kept track.  Who is
+> it for?
 
-I found the following changes necessary to get it to work properly
-when crosscompiling for IA64.  Otherwise include/asm-ia64 hasn't been
-created when setting up offsets.h.
+Robert. We get it. You don't like having separate file descriptors.
 
-There's also a minor change to tell make where to find the
-toolchain-flags and check-gas scripts.
+Fine. Don't use them. What's your point?
 
-===== Makefile 1.36 vs edited =====
---- 1.36/arch/ia64/Makefile	Wed Sep 10 14:17:40 2003
-+++ edited/Makefile	Wed Oct  8 13:48:53 2003
-@@ -25,9 +25,9 @@
- GCC_VERSION=$(shell $(CC) -v 2>&1 | fgrep 'gcc version' | cut -f3 -d' ' | cut -f1 -d'.')
- GCC_MINOR_VERSION=$(shell $(CC) -v 2>&1 | fgrep 'gcc version' | cut -f3 -d' ' | cut -f2 -d'.')
- 
--GAS_STATUS=$(shell arch/ia64/scripts/check-gas $(CC) $(OBJDUMP))
-+GAS_STATUS=$(shell $(src)/arch/ia64/scripts/check-gas $(CC) $(OBJDUMP))
- 
--CPPFLAGS	+= $(shell arch/ia64/scripts/toolchain-flags $(CC) $(OBJDUMP))
-+CPPFLAGS	+= $(shell $(src)/arch/ia64/scripts/toolchain-flags $(CC) $(OBJDUMP))
- 
- ifeq ($(GAS_STATUS),buggy)
- $(error Sorry, you need a newer version of the assember, one that is built from	\
-@@ -84,18 +84,21 @@
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 
--CLEAN_FILES += include/asm-ia64/.offsets.h.stamp include/asm-ia64/offsets.h vmlinux.gz bootloader
-+CLEAN_FILES += include/asm-$(ARCH)/.offsets.h.stamp include/asm-$(ARCH)/offsets.h vmlinux.gz bootloader
- 
--prepare: include/asm-ia64/offsets.h
-+prepare: include/asm-$(ARCH)/offsets.h
-+
-+arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h
- 
- include/asm-$(ARCH)/offsets.h: arch/$(ARCH)/kernel/asm-offsets.s
- 	$(call filechk,gen-asm-offsets)
- 
--arch/ia64/kernel/asm-offsets.s: include/asm-ia64/.offsets.h.stamp
-+arch/ia64/kernel/asm-offsets.s: include/asm-$(ARCH)/.offsets.h.stamp
- 
--include/asm-ia64/.offsets.h.stamp:
--	[ -s include/asm-ia64/offsets.h ] \
--	 || echo "#define IA64_TASK_SIZE 0" > include/asm-ia64/offsets.h
-+include/asm-$(ARCH)/.offsets.h.stamp:
-+	mkdir -p include/asm-$(ARCH)
-+	[ -s include/asm-$(ARCH)/offsets.h ] \
-+	 || echo "#define IA64_TASK_SIZE 0" > include/asm-$(ARCH)/offsets.h
- 	touch $@
- 
- boot:	lib/lib.a vmlinux
+Why the hell do you think you have the right to say that others can't use
+them? Just because you don't like them? Or just because you made a
+contrieved example of SIGPIPE (which kills the process if not caught, and
+is usually ignored if actually expected, since the EPIPE error return is a
+lot more convenient and is thread-safe, btw)?
+
+Feel free to continue arguing with yourself or on the mailing list, but 
+please don't cc me. I'm not interested. I'm definitely "pro-choice" when 
+it comes to people writing their user level applications, and I just can't 
+get interested in the fact that you don't like them.
+
+		Linus
+

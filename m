@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276914AbRJVPyL>; Mon, 22 Oct 2001 11:54:11 -0400
+	id <S276532AbRJVP4V>; Mon, 22 Oct 2001 11:56:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276532AbRJVPyB>; Mon, 22 Oct 2001 11:54:01 -0400
-Received: from ns1.jasper.com ([64.19.21.34]:9868 "EHLO ersfirep1")
-	by vger.kernel.org with ESMTP id <S276914AbRJVPxt>;
-	Mon, 22 Oct 2001 11:53:49 -0400
-From: "Radivoje Todorovic" <radivojet@jaspur.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: NETFILTER Hook Hack: Interesting Issue
-Date: Mon, 22 Oct 2001 10:52:00 -0500
-Message-ID: <BOEOJGNGENIJJMAOLHHCCEPICDAA.radivojet@jaspur.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.33.0110221720260.10673-100000@server>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S276917AbRJVP4L>; Mon, 22 Oct 2001 11:56:11 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:55082 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276532AbRJVPz5>; Mon, 22 Oct 2001 11:55:57 -0400
+Date: Mon, 22 Oct 2001 11:56:32 -0400
+Message-Id: <200110221556.f9MFuWH15850@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <24947.1003742395@ocs3.intra.ocs.com.au>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <24947.1003742395@ocs3.intra.ocs.com.au> kaos@ocs.com.au wrote:
 
+| Historically the mapping of device majors to module or binary format
+| type to module was coded into modutils, via util/alias.h.  That was a
+| mistake, it should have used the same technique as pci, isapnp, parport
+| etc., each module has a table that defines what it handles and modutils
+| extracts the data directly from the modules.  Developers have changed
+| the names of their modules and now we have hard coded module names in
+| modutils that do not match the names used by some kernels.  Hindsight
+| is wonderful!
 
-Assume "int bla(struct sk_buff *skb)" is called from one of the five
-netfilter hooks. And say,once you have the packet in your callback, you want
-to create some dummy packet and send it along with original skb. How would
-you do this?
+  Not to mention the recent surge of renaming the parameters of modules
+for no obvious reason... The number of conditionals in modules.conf is
+getting pretty large for people who need to run multiple kernels until
+the release of one which fixes all the bugs.
 
-Actually one solution would be to export symbol "ip_finish_output2" and then
-use it for extra packet in the module. Then the return NF_ACCEPT would send
-original skb out.
+| In modutils 2.5 I will get rid of all the hard coded entries in
+| util/alias.h.  Instead each module will define what it supports,
+| including any special commands to be run when the module is loaded or
+| unloaded.  Much easier for everyone and far more flexible.
 
-But how to do this without patching the kernel???
+  I'm not sure about flexible, does it matter where the parameters or
+commands are built-in as long as the admin has to change source code
+instead of config files to change it? It just seems like a really poor
+approach to what has been very flexible.
 
-
-Rade
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

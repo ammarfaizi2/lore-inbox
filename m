@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbULNWdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbULNWfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbULNWdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:33:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWco
+	id S261695AbULNWfV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:32:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11218 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261732AbULNW1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:27:51 -0500
-Message-ID: <41BF6879.3090900@redhat.com>
-Date: Tue, 14 Dec 2004 14:26:01 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Roland McGrath <roland@redhat.com>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
- clock_* syscalls
-References: <200412142150.iBELoJc0011582@magilla.sf.frob.com> <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC818FD6CC6B01DD11220807F"
-Content-Transfer-Encoding: 8bit
+	Tue, 14 Dec 2004 17:33:17 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30906 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261717AbULNW2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:28:38 -0500
+Subject: Re: dynamic-hz
+From: Lee Revell <rlrevell@joe-job.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <41BCD5F3.80401@kolivas.org>
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random>  <41BCD5F3.80401@kolivas.org>
+Content-Type: text/plain
+Date: Tue, 14 Dec 2004 17:28:32 -0500
+Message-Id: <1103063312.14699.54.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC818FD6CC6B01DD11220807F
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+On Mon, 2004-12-13 at 10:36 +1100, Con Kolivas wrote:
+> The performance benefit, if any, is often lost in noise during 
+> benchmarks and when there, is less than 1%.
 
-Linus Torvalds wrote:
-> I'd vote for
-> not exposing them any more than necessary (ie the current incidental "ps"  
-> interface is quite enough), at least until somebody can come up with a
-> very powerful example of why exposing them is a good idea.
+I have measured 2.1-2.3% residency for the timer ISR on my 600Mhz VIA
+C3.  And this is a desktop - you have many many embedded systems that
+are slower.  For these systems the difference is very real.
 
-Indeed.  It's so much easier to grant additional rights at a later time 
-than to take something away for whatever reasons.
+I would certainly expect it to be lost in the noise on a 2Ghz machine.
 
-Globally accessible clocks would need to have the semantic carefully 
-defined, SELinux hooks would have to be added etc.
+Lee
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
-
---------------enigC818FD6CC6B01DD11220807F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBv2h62ijCOnn/RHQRAn4UAJ9TpHpEnEY1HYa9umF5uVM3e96hngCfXXXZ
-5C+jr8chehvIj5x60D0DLhg=
-=Y0Xp
------END PGP SIGNATURE-----
-
---------------enigC818FD6CC6B01DD11220807F--

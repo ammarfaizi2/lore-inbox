@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269188AbUJUADA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270596AbUJTX5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269188AbUJUADA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269175AbUJUACs
+	id S270596AbUJTX5q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270499AbUJTXzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:02:48 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:22941 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S270560AbUJUAA6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:00:58 -0400
-Date: Thu, 21 Oct 2004 02:01:00 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: kernel-janitors@lists.osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, perex@suse.cz, sailer@ife.ee.ethz.ch
-Subject: Re: [KJ]  [PATCH 2.6.9-rc2-mm4 cmipci.c] [8/8]	Replace pci_find_device with pci_dev_present
-Message-ID: <20041021000100.GE1953@stro.at>
-References: <28440000.1096502897@w-hlinder.beaverton.ibm.com> <20041020230128.GB1953@stro.at> <32220000.1098313960@w-hlinder.beaverton.ibm.com>
+	Wed, 20 Oct 2004 19:55:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51624 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270464AbUJTXxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:53:35 -0400
+Date: Wed, 20 Oct 2004 16:50:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] USB: remove (unneeded proto) that causes a warning w/o CONFIG_PM
+Message-ID: <20041020235056.GA16606@kroah.com>
+References: <20041020023803.GF8597@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32220000.1098313960@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041020023803.GF8597@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello hanna,
-
-On Wed, 20 Oct 2004, Hanna Linder wrote:
-
-> --On Thursday, October 21, 2004 01:01:28 AM +0200 maximilian attems <janitor@sternwelten.at> wrote:
+On Tue, Oct 19, 2004 at 07:38:03PM -0700, Chris Wedgwood wrote:
+> remove (unneeded proto) that causes a warning w/o CONFIG_PM
 > 
-> >> +		if (!pci_dev_present(intel_82437vx)) 
-> >                                                     ^
-> >>  			snd_cmipci_set_bit(cm, CM_REG_MISC_CTRL, CM_TXVX);
-> >>  		break;
-> >>  	default:
-> >> 
-> >> 
-> > 
-> > a second one with small whitespace damage.
-> > fixed for next kjt.
+> Signed-off-by: cw@f00f.org
 > 
-> Hi Max,
-> 
-> According to the CodingStyle I should not put a white space
-> after the function name and before the parenthesis. 
-> 
-> I do not believe that should be added.
-> 
-> Thanks.
-> 
-> Hanna
+> diff -Nru a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
+> --- a/drivers/usb/host/ohci-hcd.c	2004-10-19 17:48:05 -07:00
+> +++ b/drivers/usb/host/ohci-hcd.c	2004-10-19 17:48:05 -07:00
+> @@ -140,7 +140,6 @@
+>  
+>  static void ohci_dump (struct ohci_hcd *ohci, int verbose);
+>  static int ohci_init (struct ohci_hcd *ohci);
+> -static int ohci_restart (struct ohci_hcd *ohci);
+>  static void ohci_stop (struct usb_hcd *hcd);
+>  
+>  #include "ohci-hub.c"
 
-agreed.
+Wait, this patch causes problems if CONFIG_PM is enabled.  Not applied.
 
-sorry for being unclear,
-i meant newly introduced trailing whitespace in both cases.
+thanks,
 
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
-
+greg k-h

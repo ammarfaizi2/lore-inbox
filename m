@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUHJKCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUHJKEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUHJKCl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUHJKCl
+	id S263820AbUHJKEm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUHJKEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:02:41 -0400
-Received: from holomorphy.com ([207.189.100.168]:47335 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263818AbUHJKCk (ORCPT
+	Tue, 10 Aug 2004 06:04:42 -0400
+Received: from imap.gmx.net ([213.165.64.20]:28909 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263820AbUHJKD3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:02:40 -0400
-Date: Tue, 10 Aug 2004 03:02:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810100234.GN11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu> <20040810090051.GK11200@holomorphy.com> <20040810093831.GM11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810093831.GM11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 06:03:29 -0400
+X-Authenticated: #4512188
+Message-ID: <41189D67.2090104@gmx.de>
+Date: Tue, 10 Aug 2004 12:03:19 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: David Woodhouse <dwmw2@infradead.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <1092082920.5761.266.camel@cube> <1092124796.1438.3695.camel@imladris.demon.co.uk> <20040810095223.GJ10361@merlin.emma.line.org>
+In-Reply-To: <20040810095223.GJ10361@merlin.emma.line.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 02:00:51AM -0700, William Lee Irwin III wrote:
->> It deadlocks with or without the fork_idle() call being via keventd;
->> the printk change is what makes the difference. =(
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, Aug 10, 2004 at 02:38:31AM -0700, William Lee Irwin III wrote:
-> Okay, it deadlocks with both mdelay(1000) and yield() in place of the
-> printk(). Trying manual calls to schedule() and local_irq_enable() next.
+Matthias Andree wrote:
+|>That seems reasonable, but _only_ if burnfree is not enabled. If the
+|>hardware _supports_ burnfree but it's disabled, the warning should also
+|>recommend turning it on.
+|
+|
+| burnfree causes a few broken pits/lands on the CD-R so it is best
+| avoided if the hardware can do it. That you don't see these is a matter
+| of the reading drive not exporting such information and EFM and CIRC
+| usually correcting them, but it's still lower quality than a burn
+| process that hadn't needed burnfree at all.
+|
 
-Replacing the printk() with either of the following two things didn't work:
+Well shouldn't that broken pits just happen, wehn the buffer gets empty
+and the laser continues where it stopped after having data in buffer
+again? I guess this is better then a coaster.
 
-(a) yield();
-(b) local_irq_enable(); set_current_state(TASK_RUNNING); schedule();
+BTW, I don't have problems burning as a user while doing other things...
 
+Prakash
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- wli
+iD8DBQFBGJ1nxU2n/+9+t5gRAjljAKCbjbxNX47d7//QDkQNP/e8OMB5aACfXFDa
+Z3CorT523TXskw4YEBMRaDk=
+=cpq7
+-----END PGP SIGNATURE-----

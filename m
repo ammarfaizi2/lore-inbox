@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289619AbSAOTqE>; Tue, 15 Jan 2002 14:46:04 -0500
+	id <S289620AbSAOTtb>; Tue, 15 Jan 2002 14:49:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289610AbSAOTp1>; Tue, 15 Jan 2002 14:45:27 -0500
-Received: from zero.tech9.net ([209.61.188.187]:18439 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289612AbSAOTpN>;
-	Tue, 15 Jan 2002 14:45:13 -0500
-Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020113173222.D934@holomorphy.com>
-In-Reply-To: <200201132325.g0DNPrm05503@zero.tech9.net>
-	<1010965697.813.25.camel@phantasy>  <20020113173222.D934@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 15 Jan 2002 14:48:36 -0500
-Message-Id: <1011124116.8756.4.camel@phantasy>
-Mime-Version: 1.0
+	id <S289617AbSAOTsg>; Tue, 15 Jan 2002 14:48:36 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:45469 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S289612AbSAOTsP>; Tue, 15 Jan 2002 14:48:15 -0500
+Date: Tue, 15 Jan 2002 19:48:12 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Martin Eriksson <nitrax@giron.wox.org>
+cc: Kent Borg <kentborg@borg.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why not "attach" patches?
+In-Reply-To: <00a301c19dfc$26928320$0201a8c0@HOMER>
+Message-ID: <Pine.SOL.3.96.1020115194458.26402B-100000@libra.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-preempt-kernel for 2.5.2:
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.5
+Slightly off topic to lkml so replies off list please...
 
-Note, again, this patch is not compatible with later O(1) patches due to
-the load_balance changes.  I'll make the changes as they are merged into
-2.5 proper.
+On Tue, 15 Jan 2002, Martin Eriksson wrote:
+> PS. I really hate OE. Anyone care to recommend THE Windoze Mail+News reader
+> program, with EXTREME filtering capabilities AND not looking like crap?
 
-No other changes in this release.
+I use two:
 
-	Robert Love
+Eudora 5 for mail
+Forte Free Agent for news
+
+IMO the best GUI clients full stop.
+
+For sending inlined patches I use elm (on Solaris) which while basic gets
+the job done guaranteed without messing up the precious white space...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

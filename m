@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbTEONqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTEONqg
+	id S264025AbTEONt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbTEONt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:46:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25350 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264021AbTEONqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:46:34 -0400
-Date: Thu, 15 May 2003 14:59:20 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Patrick Mochel <mochel@osdl.org>
-Subject: [PATCH] IRQ and resource for platform_device
-Message-ID: <20030515145920.B31491@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>
+	Thu, 15 May 2003 09:49:29 -0400
+Received: from ppp-62-245-209-2.mnet-online.de ([62.245.209.2]:50050 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S264025AbTEONt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:49:28 -0400
+Date: Thu, 15 May 2003 16:02:17 +0200
+From: Julien Oster <lkml@frodoid.org>
+To: linux-kernel@vger.kernel.org
+Subject: "[BROKEN]" tag in config descriptions
+Message-ID: <20030515140217.GA22774@frodo.midearth.frodoid.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The location and interrupt of some platform devices are only known by
-platform specific code.  In order to avoid putting platform specific
-parameters into drivers, place resource and irq members into struct
-platform_device.
+Hello,
 
-Discussion point: is one resource and one irq enough?
+what about adding a "[BROKEN]" tag to the short line descriptions of
+config options, like "(NEW)" and "[EXEPERIMENTAL]" or "[DANGEROUS]"?
 
---- orig/include/linux/device.h	Mon May  5 17:40:10 2003
-+++ linux/include/linux/device.h	Wed May 14 15:35:40 2003
-@@ -29,6 +29,7 @@
- #include <linux/list.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
-+#include <linux/ioport.h>
- #include <asm/semaphore.h>
- #include <asm/atomic.h>
- 
-@@ -388,6 +389,8 @@
- 	char		* name;
- 	u32		id;
- 	struct device	dev;
-+	struct resource	res;
-+	unsigned int	irq;
- };
- 
- extern int platform_device_register(struct platform_device *);
+It should be used for config options that are known to currently not
+compile at all.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+That way, you could play with development kernels without the need to
+recompile it three or four times, just because you realize: "Oh, yes, I
+forgot, matrox_fb currently doesn't compile..."
+
+(matrox_fb is actually a quite good example presently)
+
+Don't misunderstand, the option should not be mandatory for everything
+that doesn't compile (or just compiles under certain circumstances),
+just for things that are really known to not compile at all, i.e. we
+know that matrox_fb simply isn't ready yet in the current development
+kernels and this even has been discussed in this mailing list.
+
+Of course, this only makes really sense for development kernels, on
+stable kernels everything should compile or else it's a bug (and nobody
+knows that it won't compile)
+
+To distinguish things better, this tag should only be for things that
+don't COMPILE, wether they actually work or not. One might think about
+introducing another tag for things that do compile but actually don't
+work properly - meaning everything from "simply does nothing" to
+"completely burn out your workstation case and shoot it into space" -
+but I don't know if that really makes sense since in that situation it's
+hard to say wether something will provide the desired functionality. (If
+it always did, we wouldn't need development kernels :) )
+
+Regards,
+Julien
 

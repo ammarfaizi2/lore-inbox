@@ -1,85 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVB0AKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVB0AVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVB0AKc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVB0AJw
+	id S261308AbVB0AVm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVB0ATY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:09:52 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:2216
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261310AbVB0AA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:00:26 -0500
-Message-ID: <20050227010023.7.patchmail@tglx>
-References: <20050227005956.1.patchmail@tglx>
+	Sat, 26 Feb 2005 19:19:24 -0500
+Received: from resin.csoft.net ([63.111.22.86]:20787 "HELO mail231.csoft.net")
+	by vger.kernel.org with SMTP id S261308AbVB0ASJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:18:09 -0500
+Subject: 2.4.29-lck1
+From: Eric Hustvedt <lkml@plumlocosoft.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-z2gQ+C2cLuwyUkK/RHa6"
+Date: Sat, 26 Feb 2005 19:18:04 -0500
+Message-Id: <1109463485.21552.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/10] I386:  C99 initializers for hw_interrupt_type structures
-Date: Sun, 27 Feb 2005 00:56:37 +0100 (CET)
-From: tglx@linutronix.de
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert the initializers of hw_interrupt_type structures to C99 initializers.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+--=-z2gQ+C2cLuwyUkK/RHa6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
----
- kernel/i8259.c             |   15 +++++++--------
- mach-voyager/voyager_smp.c |   16 ++++++++--------
- 2 files changed, 15 insertions(+), 16 deletions(-)
----
-diff -urN 2.6.11-rc5.orig/arch/i386/kernel/i8259.c 2.6.11-rc5/arch/i386/kernel/i8259.c
---- 2.6.11-rc5.orig/arch/i386/kernel/i8259.c	2005-01-24 12:25:33.000000000 +0100
-+++ 2.6.11-rc5/arch/i386/kernel/i8259.c	2005-02-26 21:51:58.000000000 +0100
-@@ -58,14 +58,13 @@
- }
- 
- static struct hw_interrupt_type i8259A_irq_type = {
--	"XT-PIC",
--	startup_8259A_irq,
--	shutdown_8259A_irq,
--	enable_8259A_irq,
--	disable_8259A_irq,
--	mask_and_ack_8259A,
--	end_8259A_irq,
--	NULL
-+	.typename = "XT-PIC",
-+	.startup = startup_8259A_irq,
-+	.shutdown = shutdown_8259A_irq,
-+	.enable = enable_8259A_irq,
-+	.disable = disable_8259A_irq,
-+	.ack = mask_and_ack_8259A,
-+	.end = end_8259A_irq,
- };
- 
- /*
-diff -urN 2.6.11-rc5.orig/arch/i386/mach-voyager/voyager_smp.c 2.6.11-rc5/arch/i386/mach-voyager/voyager_smp.c
---- 2.6.11-rc5.orig/arch/i386/mach-voyager/voyager_smp.c	2005-02-14 11:01:03.000000000 +0100
-+++ 2.6.11-rc5/arch/i386/mach-voyager/voyager_smp.c	2005-02-26 20:54:19.000000000 +0100
-@@ -210,14 +210,14 @@
-  * 8259 IRQs except that masks and things must be kept per processor
-  */
- static struct hw_interrupt_type vic_irq_type = {
--	"VIC-level",
--	startup_vic_irq,	/* startup */
--	disable_vic_irq,	/* shutdown */
--	enable_vic_irq,		/* enable */
--	disable_vic_irq,	/* disable */
--	before_handle_vic_irq,	/* ack */
--	after_handle_vic_irq,	/* end */
--	set_vic_irq_affinity,	/* affinity */
-+	.typename = "VIC-level",
-+	.startup = startup_vic_irq,
-+	.shutdown = disable_vic_irq,
-+	.enable = enable_vic_irq,
-+	.disable = disable_vic_irq,
-+	.ack = before_handle_vic_irq,
-+	.end = after_handle_vic_irq,
-+	.set_affinity = set_vic_irq_affinity,
- };
- 
- /* used to count up as CPUs are brought on line (starts at 0) */
+Updated the lck patchset. This is the patchset formerly known as the
+2.4-ck patchset.
+
+http://www.plumlocosoft.com/kernel/
+
+Includes:
+O(1) scheduler with batch scheduling, interactivity
+Preemptible kernel
+Low Latency
+Read Latency2
+Variable Hz
+64-bit jiffies
+Supermount-NG v1.2.11a
+Bootsplash v3.0.7
+POSIX ACL/xattr v0.8.71
+POSIX extended security attributes v0.8.71
+NTFS file system v2.1.6b
+
+Updated:
+- GCC 3.4 compile fixes. Thanks to Daniel Drake and Benigno Junior
+
+Pending:
+- GRsec update to version 2.1.1.
+
+--=20
+Eric Hustvedt <lkml@plumlocosoft.com>
+
+--=-z2gQ+C2cLuwyUkK/RHa6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCIRG88O0ZDXGTPEIRAqZ/AJ915nAt0WTrzp11sDmtp6utunLZsQCfd24f
+LAnajG7yKqsD99NV74W0RC0=
+=eN69
+-----END PGP SIGNATURE-----
+
+--=-z2gQ+C2cLuwyUkK/RHa6--
+

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264025AbTFPPsm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 11:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbTFPPsm
+	id S263990AbTFPP5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 11:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTFPP5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 11:48:42 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:38311 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S264025AbTFPPsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 11:48:40 -0400
-Date: Mon, 16 Jun 2003 17:02:32 +0100
-From: Ian Molton <spyro@f2s.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FRAMEBUFFER policy
-Message-Id: <20030616170232.5214424c.spyro@f2s.com>
-In-Reply-To: <Pine.GSO.4.21.0306161411410.15789-100000@vervain.sonytel.be>
-References: <20030616020012.3f2d27dd.spyro@f2s.com>
-	<Pine.GSO.4.21.0306161411410.15789-100000@vervain.sonytel.be>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Jun 2003 11:57:06 -0400
+Received: from nycsmtp4out-eri0.rdc-nyc.rr.com ([24.29.99.227]:18058 "EHLO
+	nycsmtp4out-eri0.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id S263990AbTFPP5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 11:57:05 -0400
+Message-ID: <3EEDEC56.8090802@sixbit.org>
+Date: Mon, 16 Jun 2003 12:12:06 -0400
+From: John Weber <weber@sixbit.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michael Frank <mflt1@micrologica.com.hk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.71-mm1 PCMCIA Yenta socket nonfunctional
+References: <20030616061004$261e@gated-at.bofh.it> <20030616073013$5824@gated-at.bofh.it> <20030616110017$7e46@gated-at.bofh.it>
+In-Reply-To: <20030616110017$7e46@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003 14:12:45 +0200 (MEST)
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-
+Michael Frank wrote:
+>
+>>Could you check whether plain 2.5.71 (or 2.5.71-bkcurr) works?
 > 
-> If you pass a mode that cannot be handled, the driver must try to
-> round up some values to make it work. If that's not possible, an error
-> is returned.
+> 
+> 2.5.71 had a compile problem - posted seperately
+> see 2.5.71 net/built-in.o : undefined reference to `register_cpu_notifier'
 
-Great, thanks.
+This has been fixed in the bk snapshots, so use 2.5.71-bkX.
 
--- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
 
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.

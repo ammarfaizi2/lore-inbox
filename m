@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVANLbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbVANLh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVANLbY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 06:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVANLbY
+	id S261957AbVANLh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 06:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVANLh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 06:31:24 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:56508 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261956AbVANLbU
+	Fri, 14 Jan 2005 06:37:27 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:45573 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261957AbVANLhX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 06:31:20 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Help interpreting Machine Check Exception
-Date: Fri, 14 Jan 2005 11:31:13 +0000
-User-Agent: KMail/1.7.2
+	Fri, 14 Jan 2005 06:37:23 -0500
+To: Diego Calleja <diegocg@gmail.com>
+Cc: fuse-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [fuse-devel] Merging?
+References: <loom.20041231T155940-548@post.gmane.org>
+	<E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu>
+	<E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
+	<20050112153131.1f778264.diegocg@gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: anything free is worth what you paid for it.
+Date: Fri, 14 Jan 2005 11:37:11 +0000
+In-Reply-To: <20050112153131.1f778264.diegocg@gmail.com> (Diego Calleja's
+ message of "12 Jan 2005 14:32:41 -0000")
+Message-ID: <87ekgo1btk.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501141131.13053.andrew@walrond.org>
-X-Spam-Score: 4.3 (++++)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a dual opteron numa machine and I am seeing messages like this during 
-boot:
+On 12 Jan 2005, Diego Calleja said:
+> -Since you can use other programming languages, I suposse it'd be easier for
+>  people to write support for weird filesystems.
 
-CPU 0: Machine Check Exception:               4 Bank 4: b200000000070f0f
-TSC b961d94950
-kernel panic - not syncing: Machine check
+Very weird, since the FUSE C library layer is small enough that if needs
+be you can rewrite *that* in other languages as well.
 
-Which when run through Dave Jones tool says
+I have plans for a Guile version of the userspace part of FUSE, for
+instance, and some filesystems written in Guile: you certainly couldn't
+do *that* in the kernel.
 
-andrew@orac test $ ./a.out -b 4 -s b200000000070f0f -e 4 -a 0
-Status: (4) Machine Check in progress.
-Restart IP invalid.
-parsebank(4): b200000000070f0f @ 0
-        External tag parity error
-        CPU state corrupt. Restart not possible
-        Error enabled in control register
-        Error not corrected.
-        Bus and interconnect error
-        Participation: Generic
-        Timeout:
-        Request: Generic error
-        Transaction type : Invalid
-        Memory/IO : Other
-
-
-Any clues on what might be broken? does "Bus and interconnect error" suggest 
-the MB?
-
-I have reseating all memory and cpus, and run memtest overnight without error.
-
-Andrew Walrond
+-- 
+`Blish is clearly in love with language. Unfortunately,
+ language dislikes him intensely.' --- Russ Allbery

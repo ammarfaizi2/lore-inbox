@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261977AbTDAByp>; Mon, 31 Mar 2003 20:54:45 -0500
+	id <S261997AbTDACPn>; Mon, 31 Mar 2003 21:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261978AbTDAByo>; Mon, 31 Mar 2003 20:54:44 -0500
-Received: from dp.samba.org ([66.70.73.150]:59776 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261977AbTDAByo>;
-	Mon, 31 Mar 2003 20:54:44 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Put all functions in kallsyms 
-In-reply-to: Your message of "Tue, 01 Apr 2003 10:46:54 +1000."
-             <6572.1049158014@ocs3.intra.ocs.com.au> 
-Date: Tue, 01 Apr 2003 11:59:27 +1000
-Message-Id: <20030401020607.BA6F32C092@lists.samba.org>
+	id <S261999AbTDACPn>; Mon, 31 Mar 2003 21:15:43 -0500
+Received: from magic-mail.adaptec.com ([208.236.45.100]:16575 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S261997AbTDACPm>; Mon, 31 Mar 2003 21:15:42 -0500
+Date: Mon, 31 Mar 2003 19:26:27 +0000
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+cc: gibbs@scsiguy.com
+Subject: Re: File system corruption under 2.4.21-pre5-ac1
+Message-ID: <112820000.1049138786@caspian.scsiguy.com>
+In-Reply-To: <3E88EA79.2060301@rackable.com>
+References: <3E88EA79.2060301@rackable.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <6572.1049158014@ocs3.intra.ocs.com.au> you write:
-> On Mon, 31 Mar 2003 18:14:03 +1000, 
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >D: TODO: Allow multiple kallsym tables, discard init one after init.
-> 
-> Don't.  Almost all kernel threads have a backtrace that goes through
-> __init code, even though that code no longer exists.  The symbols are
-> still needed to get a decent backtrace and the overhead is minimal.
+>    I'm seeing filesystem corruption on a number of intel SE7501wv2's under
+> 2.4.21-pre5-ac1.  The systems are running Cerberus (ctcs).  They fail the
+> kcompile, and memtst tests.
 
-Hi Keith,
+Are you running the aic79xx driver version embedded in that kernel version
+or the latest from my site?
 
-	Excellent point.  Thanks!
+http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-Rusty.
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Justin
+

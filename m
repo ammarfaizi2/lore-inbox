@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267509AbRGRRZU>; Wed, 18 Jul 2001 13:25:20 -0400
+	id <S267506AbRGRRWu>; Wed, 18 Jul 2001 13:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbRGRRZA>; Wed, 18 Jul 2001 13:25:00 -0400
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:63212 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267509AbRGRRYt>; Wed, 18 Jul 2001 13:24:49 -0400
-Message-ID: <3B55C5C2.47A5AA5B@yahoo.co.uk>
-Date: Wed, 18 Jul 2001 13:22:10 -0400
-From: Thomas Hood <jdthood@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en
+	id <S267509AbRGRRWj>; Wed, 18 Jul 2001 13:22:39 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10511 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267506AbRGRRW2>; Wed, 18 Jul 2001 13:22:28 -0400
+Date: Wed, 18 Jul 2001 10:21:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Julian Anastasov <ja@ssi.bg>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cpuid_eax damages registers (2.4.7pre7)
+In-Reply-To: <Pine.LNX.4.10.10107181910510.23130-100000@l>
+Message-ID: <Pine.LNX.4.33.0107181014590.883-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ACP Modem (Mwave)
-In-Reply-To: <OF67CA15A0.AE538F3E-ON85256A8D.00580180@raleigh.ibm.com> <Pine.LNX.4.33.0107181129430.18913-100000@screwy.haywired.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI here's a data point.
 
-I just tried this latest driver and it builds properly; it
-correctly induces the serial driver to create /dev/tts/1
-when mwave.o loads and to delete it when mwave.o unloads;
-and it allows me to establish a connection.  No problems
-encountered so far on:
-   ThinkPad 600 51U (266 MHz Pentium II processor)
-   linux-2.4.6-ac2 + Mwave driver patch 20010718
+On Wed, 18 Jul 2001, Julian Anastasov wrote:
+>
+> gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
 
-MWAVE DRIVER USERS!  Please note that the name of the module
-has changed from mwavedd.o to mwave.o .  You may have to 
-change your /etc/modules.conf.  E.g., I had to change the
-line 
-   alias char-major-10-219 mwavedd
-to
-   alias char-major-10-219 mwave
+Ok. That has been considered a "stable" gcc for a long time.
 
-Although the driver is called "mwave", it does not support
-all functions of all Mwave DSPs.  Currently it only supports
-the 3780i Mwave DSP and only for the purpose of Hayes-
-compatible modem implementation.  The 3780i DSP is found on
-certain IBM ThinkPad laptop models, including the ThinkPad 600.
+We should try to find a work-around.
 
-I would like to take this opportunity to thank Paul Schroeder
-Mike Sullivan, and IBM for contributing this GPLed driver to
-Linux.
+> >  - do a "make arch/i386/kernel/setup.s" both ways, and show what
+> >    squash_the_stupid_serial_number() looks like.
+>
+> 	Both with "a" and "0" (zero) gcc shows same output in setup.s
+> (using cpuid_eax):
 
---
-Thomas Hood
+Ok.
 
-paulsch@haywired.net wrote:
-> 
-> Oh yeah...
-> 
-> It can be gotten here:
-> 
-> http://oss.software.ibm.com/acpmodem/
-> 
-> Directly:
-> http://oss.software.ibm.com/pub/acpmodem/mwave_linux-2.4.6.patch-20010718
-> 
-> On Wed, 18 Jul 2001, Paul Schroeder wrote:
-> 
-> > Okay..  I cleaned things up...  I was more careful about the globals this
-> > time...
-> >
-> > Also...  The driver now builds as mwave.o instead of mwavedd.o...  The
-> > driver now registers it's UART as a serial device (Thomas Hood)..  So there
-> > is no need to run setserial anymore...
-> >
-> > Cheers...Paul...
+Can you try to do the following in the cpuid_xxx() functions:
+ - remove the dummy reads (ie leave just the one register in the asm that
+   we're actually interested in)
+ - add explicit clobbers for the other registers
+
+So, for example, cpuid_eax() would be roughly
+
+	unsigned int eax;
+	asm("cpuid"
+		:"=a" (eax)
+		:"0" (level)
+		:"bx","cx","dx");
+	return eax;
+
+(and for the others, you can't really clobber "ax" because it's an input,
+so you'd have to leave that as just a "=a" (eax) and hope that gcc gets
+that output right.
+
+> 	lock ; btrl $18,12(%ebx)
+> #NO_APP
+> 	xorl %eax,%eax
+> #APP
+> 	cpuid					<<<-- cpuid_eax
+> #NO_APP
+> 	movl %eax,8(%ebx)			<<<-- oops
+
+Yes, the above is very definitely a bug in gcc. Oh, well..
+
+> 	Even by using cpuid(...) replacement the registers are not
+> preserved but instead of ebx, the arg "c" is in ebp and the oops does not
+> occur:
+
+They don't have ot be preserved per se - gcc just knows that they are
+modified, and because gcc doesn't care about the value it just won't use
+it.
+
+> 	After fixing this with cpuid() I can work perfectly with this
+> kernel on network activity (45K packets/sec), SMP. So, only cpuid_xxx are
+> suspected for now.
+
+The current asms for cpuid_xxx() are correct. The fact that gcc generates
+bad code for this case implies that it might happen somewhere else too,
+but as egcs-2.91.66 is fairly well tested it may indeed be that this is
+the only case where that actually happens.
+
+> I don't preserve the oopses but I can do it if ..
+
+No, your generated assembly is clear enough evidence of what is going on.
+Thanks. If you could try the clobber approach, that would be good.
+
+		Linus
+

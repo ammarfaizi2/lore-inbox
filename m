@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313165AbSDOSru>; Mon, 15 Apr 2002 14:47:50 -0400
+	id <S313167AbSDOS5Y>; Mon, 15 Apr 2002 14:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313166AbSDOSrt>; Mon, 15 Apr 2002 14:47:49 -0400
-Received: from zero.tech9.net ([209.61.188.187]:27920 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313165AbSDOSrt>;
-	Mon, 15 Apr 2002 14:47:49 -0400
-Subject: [PATCH] Re: Kernel 2.5.8 on Alpha
+	id <S313168AbSDOS5Y>; Mon, 15 Apr 2002 14:57:24 -0400
+Received: from zero.tech9.net ([209.61.188.187]:35088 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313167AbSDOS5X>;
+	Mon, 15 Apr 2002 14:57:23 -0400
+Subject: [PATCH] migration_thread preempt fix
 From: Robert Love <rml@tech9.net>
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-Cc: axp-kernel-list@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <000001c1e3f7$86214880$1201a8c0@pitzeier.priv.at>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 
-Date: 15 Apr 2002 14:47:42 -0400
-Message-Id: <1018896466.857.12.camel@phantasy>
+Date: 15 Apr 2002 14:57:26 -0400
+Message-Id: <1018897046.857.20.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-04-14 at 17:01, Oliver Pitzeier wrote:
-> I tried to compile kernel 2.5.8 on an Alpha. I just wanted to try it...
-> This happens:
-> <snip>
-> sched.c: In function `schedule':
-> sched.c:771: `PREEMPT_ACTIVE' undeclared (first use in this function)
+Linus,
 
-2.5.8-pre2 uses PREEMPT_ACTIVE directly in entry.S and thus moved the
-definition of PREEMPT_ACTIVE into include/asm/thread_info.h from
-include/linux/sched.h, presumably because including sched.h in entry.S
-would not be pretty.
+Attached is a resend of a patch to fix a race in migration_thread which
+results in a deadlock on boot for some SMP systems.  The fix is to to
+disable preemption inside of set_cpus_allowed.
 
-Each arch thus needs to define PREEMPT_ACTIVE ... patch applied.
+Andrew Morton first noticed the problem and provided the following patch
+a few weeks back.  I was not affected until the recent migration_init
+fix, for some odd reason.  Neither Andrew nor I think this is actually
+kernel preemption's fault but perhaps a race in the tricky behavior of
+the migration code.
+
+Patch is against 2.5.8, please apply.
 
 	Robert Love
 
-diff -urN linux-2.5.8/include/asm-alpha/thread_info.h linux/include/asm-alpha/thread_info.h
---- linux-2.5.8/include/asm-alpha/thread_info.h	Sun Apr 14 15:18:56 2002
-+++ linux/include/asm-alpha/thread_info.h	Mon Apr 15 14:32:50 2002
-@@ -53,6 +53,8 @@
+diff -urN linux-2.5.8/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.8/kernel/sched.c	Sun Apr 14 15:18:47 2002
++++ linux/kernel/sched.c	Mon Apr 15 14:47:18 2002
+@@ -1649,6 +1649,7 @@
+ 	if (!new_mask)
+ 		BUG();
  
- #endif /* __ASSEMBLY__ */
++	preempt_disable();
+ 	rq = task_rq_lock(p, &flags);
+ 	p->cpus_allowed = new_mask;
+ 	/*
+@@ -1657,7 +1658,7 @@
+ 	 */
+ 	if (new_mask & (1UL << p->thread_info->cpu)) {
+ 		task_rq_unlock(rq, &flags);
+-		return;
++		goto out;
+ 	}
  
-+#define PREEMPT_ACTIVE		0x4000000
-+
- /*
-  * Thread information flags:
-  * - these are process state flags and used from assembly
+ 	init_MUTEX_LOCKED(&req.sem);
+@@ -1667,6 +1668,8 @@
+ 	wake_up_process(rq->migration_thread);
+ 
+ 	down(&req.sem);
++out:
++	preempt_enable();
+ }
+ 
+ static volatile unsigned long migration_mask;
+
 
 

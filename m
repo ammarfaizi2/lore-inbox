@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVBKNSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVBKNVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVBKNSk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 08:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVBKNSk
+	id S262124AbVBKNVb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 08:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVBKNVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 08:18:40 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:15672 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262112AbVBKNRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 08:17:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Bk42nqOxQLj7m5HdIirWNTL1t6ACeiCYcCVpJ8KDFQid4Y+71Pg5j5NE1HYA2uzp+qXIgM3q80bW51RdMtghNcpvXL1z4nmaazntx1l///2hyLpUr7+rZM9oEgg7xnb0Kgnl64N229nsAhM6+sAtJxRRb/TXOqgynIZpO+9jqCs=
-Message-ID: <58cb370e050211051752d0342c@mail.gmail.com>
-Date: Fri, 11 Feb 2005 14:17:49 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Subject: Re: [CHECKER] Does sys_sync (ext2, 2.6.x) flush metadata?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mc@cs.stanford.edu
-In-Reply-To: <Pine.GSO.4.44.0502102345540.8091-100000@elaine24.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.GSO.4.44.0502102345540.8091-100000@elaine24.Stanford.EDU>
+	Fri, 11 Feb 2005 08:21:31 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:40621 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262124AbVBKNVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 08:21:22 -0500
+Date: Fri, 11 Feb 2005 13:20:41 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+In-Reply-To: <20050211085239.GD18573@opteron.random>
+Message-ID: <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com>
+References: <20050203035605.C981A7046E@sv1.valinux.co.jp> 
+    <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> 
+    <20050210190521.GN18573@opteron.random> 
+    <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> 
+    <20050210204025.GS18573@opteron.random> 
+    <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com> 
+    <20050211085239.GD18573@opteron.random>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 10 Feb 2005 23:59:53 -0800 (PST), Junfeng Yang <yjf@stanford.edu> wrote:
+On Fri, 11 Feb 2005, Andrea Arcangeli wrote:
 > 
-> Hi,
-> 
-> We're working on a file system checker and have a question regarding what
-> sys_sync actually does.  It appears to us that sys_sync should sync both
-> data and metadata, and wait until both data and metadata hit the disk
-> before it returns.  Is this true for all the file systems (especially
-> ext2) for kernel 2.6.x?  I've gotten many "error" traces for ext2, where
-> directory entries are not flushed to disk after sys_sync.  In other words,
-> even if users do call sys_sync, a crash after sys_sync call can still
-> cause file losses.  Is this intended?
+> Ok, I'm quite convinced it's correct now. The only thing that can make
+> mapcount go up without the lock on the page without userspace
+> intervention (and userspace intervention would make it an undefined
+> behaviour like in my example with fork), was the swapin, and you covered
+> it by moving the unlock after page_add_anon_rmap (so mapcount changes
+> atomically with the page_swapcount there too). Swapoff was already doing
+> it under the page lock.
 
-I don't know what exactly you are doing but do you remember
-about disabling write caching on your disks in case of doing
-real hard crashes?
+Thanks a lot for thinking it through, yes, that's how it is.
 
-Regards,
-Bartlomiej
+(For a while I felt nervous about moving that unlock_page below
+the arch-defined flush_icache_page; but then realized that since it's
+already done with page_table spinlock, PG_locked cannot be an issue.)
+
+> Then we should use the mapcount/swapcount in remove_exclusive_swap_page
+> too.
+
+Originally I thought so, but later wasn't so sure.  There might be
+somewhere which stabilizes PageSwapCache by incrementing page_count,
+rechecks it, waits to get lock_page, then assumes still PageSwapCache?
+(Though it's hard to see why it would need to make such an assumption,
+and in the equivalent file case would have to allow for truncation.)
+
+It just needs a wider audit than the simpler can_share_swap_page case,
+and can be done independently later on.
+
+By the way, while we're talking of remove_exclusive_swap_page:
+a more functional issue I sometimes wonder about, why don't we
+remove_exclusive_swap_page on write fault?  Keeping the swap slot
+is valuable if read fault, but once the page is dirtied, wouldn't
+it usually be better to free that slot and allocate another later?
+
+But I'm always scared of making such changes to swapping, because
+I cannot imagine a good enough range of swap performance tests.
+
+Hugh

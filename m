@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310464AbSCGTNm>; Thu, 7 Mar 2002 14:13:42 -0500
+	id <S310470AbSCGTNc>; Thu, 7 Mar 2002 14:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310467AbSCGTNd>; Thu, 7 Mar 2002 14:13:33 -0500
-Received: from age.cs.columbia.edu ([128.59.22.100]:27908 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S310464AbSCGTNS>; Thu, 7 Mar 2002 14:13:18 -0500
-Date: Thu, 7 Mar 2002 14:13:06 -0500 (EST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: jgarzik@mandrakesoft.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire net driver update for 2.4.19pre2
-In-Reply-To: <20020306.141809.112819805.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0203071400080.3930-100000@age.cs.columbia.edu>
+	id <S310467AbSCGTNX>; Thu, 7 Mar 2002 14:13:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22034 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310462AbSCGTNP>; Thu, 7 Mar 2002 14:13:15 -0500
+Subject: Re: FPU precision & signal handlers (bug?)
+To: paubert@iram.es (Gabriel Paubert)
+Date: Thu, 7 Mar 2002 19:25:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203071820450.17751-100000@gra-lx1.iram.es> from "Gabriel Paubert" at Mar 07, 2002 06:31:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16j3Vx-0003K5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, David S. Miller wrote:
+> I agree with the second part, but actually what you want is to start with
+> an empty stack. Whether the contents are FP or MMX is irrelevant.
+> Actually the support of applications using MMX did not require any change
+> to the kernel (Intel carefully designed it that way).
 
-> On sparc64 you should set the burst settings to 64-byte read/write
-> bursts because the PCI chipset is going to disconnect you on 64-byte
-> boundaries anyways.  If the chip is bursting more than this, you
-> are wasting lots of PCI cycles with the retries done after the
-> disconnect.
+Not the case. If you drop into a signal or exception handler and it uses
+FPU while MMX is on it'll get a nasty shock. As it happens Linux already
+did the right thing.
 
-Ahh.. indeed, changing the burst size to 64 bytes (from the default 128)  
-makes a big difference on my ultra5, thanks for the hint. Does it make any
-sense to differentiate between platforms, or is 64 a good all-around
-value?
-
-> Also make sure to use PCI READ MULTIPLE commands for DMA if the chip
-> provides such an option, this helps performance on many PCI
-> controllers to no end.
-
-MRM (and MRL) seem to be enabled by default, although the chip docs are a 
-bit unclear about it.
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Intel minimised it and did pretty much the best job that could be done for
+it

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAJDf0>; Tue, 9 Jan 2001 22:35:26 -0500
+	id <S129764AbRAJDtR>; Tue, 9 Jan 2001 22:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbRAJDfR>; Tue, 9 Jan 2001 22:35:17 -0500
-Received: from [210.73.88.150] ([210.73.88.150]:24580 "HELO
-	herald.sinocluster.com") by vger.kernel.org with SMTP
-	id <S129431AbRAJDfC>; Tue, 9 Jan 2001 22:35:02 -0500
-Date: Wed, 10 Jan 2001 11:38:20 +0800 (CST)
-From: Huagang Xie <xie@gnuchina.org>
+	id <S129826AbRAJDtH>; Tue, 9 Jan 2001 22:49:07 -0500
+Received: from colorfullife.com ([216.156.138.34]:19723 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129764AbRAJDs5>;
+	Tue, 9 Jan 2001 22:48:57 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [Security] LIDS 1.0.4 for 2.4.0 release.
-Message-ID: <Pine.LNX.4.21.0101101136030.5364-100000@localhost.localdomain>
+Subject: 2.4.0: ieee1394: got invalid ack 3 from node 65473 (tcode 4)
+Message-ID: <979098522.3a5bdb9aa7a72@ssl.local>
+Date: Wed, 10 Jan 2001 04:48:42 +0100 (CET)
+From: Wolfgang Spraul <wspraul@q-ag.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 131.99.21.40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Incompatibility with "Sarotech FHD-352F/U Rev 1.0"
 
-the new version ,
+Using an external IDE drive in the Sarotech FireWire enclosure fails, even
+though the Sarotech unit works with Win2K and other SBP2 drives work for me
+(with Linux).
 
-1. add inherit option when config file acls
-2. add exec_domain from lids 0.9.11
-3. add configuration support to multi-platform
-4. bugfixed from 0.9.11
+I'm using 2.4.0 together with sbp2_1394_122300.tar.gz.
+ACK code 3 is not even mentioned in ieee1394.h.
 
-LIDS is a kernel patch and admin tools to enhance the current linux kernel
-security.  
-
-For more information, pls visit www.lids.org.
-
-Thanks,
-XIE
-
--- 
-Happy Hacking
-
-Linux Intrusion Detection System  
-http://www.lids.org/
-
+I understand that the SBP2 driver is not (yet) included, but it will be shortly.
+Also, I guess the same problem applies to raw1394.o together with the Sarotech
+enclosure.
+Wolfgang
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130867AbRCFC0V>; Mon, 5 Mar 2001 21:26:21 -0500
+	id <S130869AbRCFCfL>; Mon, 5 Mar 2001 21:35:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRCFC0M>; Mon, 5 Mar 2001 21:26:12 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4875 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130867AbRCFC0F>; Mon, 5 Mar 2001 21:26:05 -0500
-Date: Mon, 5 Mar 2001 18:25:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeremy Hansen <jeremy@xxedgexx.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <Pine.LNX.4.33L2.0103052108590.32449-100000@srv2.ecropolis.com>
-Message-ID: <Pine.LNX.4.10.10103051819530.8391-100000@penguin.transmeta.com>
+	id <S130873AbRCFCfF>; Mon, 5 Mar 2001 21:35:05 -0500
+Received: from groveland.analogic.com ([204.178.47.17]:260 "EHLO
+	groveland.analogic.com") by vger.kernel.org with ESMTP
+	id <S130869AbRCFCep>; Mon, 5 Mar 2001 21:34:45 -0500
+Date: Mon, 5 Mar 2001 21:35:30 -0500 (EST)
+From: "Richard B. Johnson" <johnson@groveland.analogic.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.3
+Message-ID: <Pine.LNX.4.21.0103052124250.1132-100000@groveland.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Attempts to run linux-2.4.3-pre2 on chaos.analogic.com results
+in **MASSIVE** file-system destruction. I have (had) all SCSI
+disks, using the BusLogic controller.
 
-On Mon, 5 Mar 2001, Jeremy Hansen wrote:
-> 
-> Right now I'm running 2.4.2-ac11 on both machines and getting the same
-> results:
-> 
-> SCSI:
-> 
-> [root@orville /root]# time /root/xlog file.out fsync
-> 
-> real    0m21.266s
-> user    0m0.000s
-> sys     0m0.310s
-> 
-> IDE:
-> 
-> [root@kahlbi /root]# time /root/xlog file.out fsync
-> 
-> real    0m8.928s
-> user    0m0.000s
-> sys     0m6.700s
-> 
-> This behavior has been noticed by others, so I'm hoping I'm not just crazy
-> or that my test is somehow flawed.
-> 
-> We're using MySQL with Berkeley DB for transaction log support.  It was
-> really confusing when a simple ide workstation was out performing our
-> Ultra160 raid array.
+There is something **MAJOR** going on BAD, BAD, BAD, even disks
+that were not mounted got trashed.
 
-Well, it's entirely possible that the mid-level SCSI layer is doing
-something horribly stupid.
+This is (was) a 400MHz SMP machine with 256 Mb of RAM. I don't
+know what else to say, since I have nothing to mount. I can
+"get back" but it will take several days. I have to install a
+minimum system then restore everything from tapes.
 
-On the other hand, it's also entirely possible that IDE is just a lot
-better than what the SCSI-bigots tend to claim. It's not all that
-surprising, considering that the PC industry has pushed untold billions of
-dollars into improving IDE, with SCSI as nary a consideration. The above
-may just simply be the Truth, with a capital T.
+I   -- S T R O N G L Y -- suggest that nobody use this kernel with
+a BusLogic SCSI controller until this problem is fixed.
 
-(And "bonnie" is not a very good benchmark. It's not exactly mirroring any
-real life access patterns. I would not be surprised if the SCSI driver
-performance has been tuned by bonnie alone, and maybe it just sucks at
-everything else)
+This is being sent from another machine, not on the list (actually
+from home where I am trying to see what happened -- I brought all
+4 of my disks home). It looks like some kind of a loop. I have
+a pattern written throughout one of the disks.
 
-Maybe we should ask whether somebody like lnz is interested in seeing what
-SCSI does wrong here?
+Cheers,
 
-		Linus
+Dick Johnson
+
+
 

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTKKWEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 17:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKKWEY
+	id S263747AbTKKWQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 17:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTKKWQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 17:04:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55198 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263452AbTKKWEW (ORCPT
+	Tue, 11 Nov 2003 17:16:22 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:26363 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263747AbTKKWQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 17:04:22 -0500
-Date: Tue, 11 Nov 2003 14:04:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pascal Schmidt <der.eremit@email.de>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.4.44.0311112227100.1011-100000@neptune.local>
-Message-ID: <Pine.LNX.4.44.0311111348190.1960-100000@home.osdl.org>
+	Tue, 11 Nov 2003 17:16:20 -0500
+Date: Tue, 11 Nov 2003 14:41:31 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@osdl.org>
+cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6 /proc/interrupts fails on systems with many CPUs
+Message-ID: <31250000.1068590491@flay>
+In-Reply-To: <20031111201458.GS930@krispykreme>
+References: <9710000.1068573723@flay> <Pine.LNX.4.44.0311111019210.30657-100000@home.osdl.org> <20031111201458.GS930@krispykreme>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 11 Nov 2003, Pascal Schmidt wrote:
+>> There are basically no valid new uses of it. There's a few valid legacy
+>> users (I think the file descriptor array), and there are some drivers that
+>> use it (which is crap, but drivers are drivers), and it's _really_ valid
+>> only for modules. Nothing else.
 > 
-> dd behaves strangly on the MO drive. I've tried with 2.6.0-test9 and
-> the patch appended to the end of this mail.
+> The IPC code is doing ugly things too:
 > 
-> # dd if=testfile of=/dev/hde bs=4096 count=1
-> dd: writing `/dev/hde': no space left on device
-> 1+0 records in
-> 0+0 records out
-> 
-> # dd if=/dev/hde of=mofile bs=4096 count=1
-> 0+0 records in
-> 0+0 records out
-> 
-> Mounting the disc read-only works, however, and I can read all the data
-> on it without problems.
+> void* ipc_alloc(int size)
+> {
+>         void* out;
+>         if(size > PAGE_SIZE)
+>                 out = vmalloc(size);
+>         else
+>                 out = kmalloc(size, GFP_KERNEL);
+>         return out;
+> }
 
-Ok, that's just strange. You can't even _read_ from the raw device, but 
-the mount works ok?
+That seems particularly .... odd ... as PAGE_SIZE isn't anywhere near the
+breakpoint. Worst case (and I know I'll get yelled at for this, but I'll
+get another amusing analogy out of Linus ;-)) we should just call kmalloc
+and if it fails, then try vmalloc ...
 
-And you got no IO errors anywhere? I don't see why the write would fail 
-silently.
-
-I wonder whether the disk capacity is set to zero. See 
-drivers/ide/ide-cd.c, and in particular the 
-
-        /* Now try to get the total cdrom capacity. */
-        stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
-        if (stat || !toc->capacity)
-                stat = cdrom_read_capacity(drive, &toc->capacity, sense);
-        if (stat)
-                toc->capacity = 0x1fffff;
-
-and see what that says.. I really think you should start sprinkling 
-printk's around the thing to determine what goes on..
-
-
-		Linus
+M.
 

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVAKOPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVAKOU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVAKOPx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 09:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVAKOPw
+	id S262767AbVAKOU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 09:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbVAKOU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 09:15:52 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:15311 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262766AbVAKOPr (ORCPT
+	Tue, 11 Jan 2005 09:20:59 -0500
+Received: from mail.tmr.com ([216.238.38.203]:15365 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262767AbVAKOUx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 09:15:47 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jan 2005 09:20:53 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Bad disks or bug ?
+Date: Tue, 11 Jan 2005 09:23:31 -0500
+Organization: TMR Associates, Inc
+Message-ID: <41E3E163.9030804@tmr.com>
+References: <41E3D2A7.3000002@sgi.com><41E3D2A7.3000002@sgi.com> <41E3D37A.2030303@abinetworks.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16867.57217.358323.945559@alkaid.it.uu.se>
-Date: Tue, 11 Jan 2005 15:15:29 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Bernard Blackham <bernard@blackham.com.au>, Shaw <shawv@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Screwy clock after apm suspend
-In-Reply-To: <20050111131019.GA1324@openzaurus.ucw.cz>
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com>
-	<20050109224711.GF1353@elf.ucw.cz>
-	<200501092328.54092.shawv@comcast.net>
-	<20050110074422.GA17710@mussel>
-	<20050110105759.GM1353@elf.ucw.cz>
-	<20050110174804.GC4641@blackham.com.au>
-	<20050111001426.GF1444@elf.ucw.cz>
-	<20050111011611.GE4641@blackham.com.au>
-	<16867.51258.916944.195917@alkaid.it.uu.se>
-	<20050111131019.GA1324@openzaurus.ucw.cz>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+X-Trace: gatekeeper.tmr.com 1105452643 17602 192.168.12.100 (11 Jan 2005 14:10:43 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: Prarit Bhargava <prarit@sgi.com>, linux-kernel@vger.kernel.org
+To: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+In-Reply-To: <41E3D37A.2030303@abinetworks.biz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
- > Hia
- > 
- > >  > Looking harder, in arch/i386/kernel/apm.c the system time is also
- > >  > saved and restored in a very similar way to timer_suspend/resume.
- > >  > Would this account for the time drift in APM mode? (sleep time being
- > >  > accounted for twice?)
- > > 
- > > No, apm.c's update to xtime is absolute, just like time.c's.
- > > Doing both is pointless but not harmful. (I've already tried
- > > with apm.c's xtime update commented out, but the time-warp
- > > bug remained.)
- > > 
- > > My 0.02 SEK says it's the jiffies update that's broken.
- > 
- > Okay, can you
- > 
- > * kill jiffie update (x86-64, too)
- > * remove apm.c variant
- > * test it (or make someone test it) with apm?
- > 
- > I now see the drift with acpi, too :-(. I can do the acpi testing...
+Ing. Gianluca Alberici wrote:
+> Prarit,
+> 
+> I run 2.4.27 on all my machines.
+> 
+> Never had problems but this (if we want to say its not a disk problem)
+> 
+> I have seen on mailing lists many people having this very problem, 
+> always on hdb, with a lot of different kernel and machines.
+> 
+> I have basically two kind of cabinets:
+> 
+> - The 'Antec style' tower
+> - Racmount cases
+> 
+> Everything well cooled...i am sure bout that.
+> 
+> Always ASUS A7V, Athlon XP 2xxx+, NEVER OVERCLOCKED, of course...
+> 
+> Disks are mainly Maxtor, or IBM
+> 
+> Basically i was wondering whether to swap disks on a server just to try....
+> 
+> ....These are the things that rave me mad !
 
-I'm away from my APM laptop until Friday, but I'll do this test then.
+You might see if you can swap positions in the case first, then I guess 
+you would have nothing to try but actually flipping master with slave 
+(and contents as well, good fun).
 
-/Mikael
+Just wondering, where is your swap? Your Journal? Do you have a small 
+fast drive you could use for swap and external journal? I checked all 
+the machines which have a similar configuration, and I don't see any 
+pattern, although all the machines with really high i/o load are using SCSI.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

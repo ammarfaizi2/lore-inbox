@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUF2Dzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265387AbUF2DzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUF2Dzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 23:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUF2Dzq
+	id S265387AbUF2DzO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 23:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUF2DzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 23:55:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19139 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265390AbUF2Dzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 23:55:42 -0400
-Date: Mon, 28 Jun 2004 20:55:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Andrew Cagney <cagney@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
-In-Reply-To: <200406290346.i5T3keo1022764@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0406282049350.28764@ppc970.osdl.org>
-References: <200406290346.i5T3keo1022764@magilla.sf.frob.com>
+	Mon, 28 Jun 2004 23:55:14 -0400
+Received: from host61.200-117-131.telecom.net.ar ([200.117.131.61]:30167 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S265387AbUF2DzK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 23:55:10 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Just built 2.6.7-mm2, mouse dbl-click needs superfast clicks
+Date: Tue, 29 Jun 2004 00:55:04 -0300
+User-Agent: KMail/1.6.2
+References: <200406282329.08570.gene.heskett@verizon.net>
+In-Reply-To: <200406282329.08570.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406290055.04250.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 28 Jun 2004, Roland McGrath wrote:
+Gene Heskett wrote:
+> Greetings;
 >
-> > And I refuse to make the fast-path slower just because of this. 
-> 
-> You are talking about the int $0x80 system call path here?
-> That is the only non-exception path touched by my changes.
+> Running 2.6.7-mm1 elevator=cfq on an athlon 1600-DX
 
-That's still the fast path on any machine where this matters.
+mm1 or mm2?
 
-If the system uses sysenter, it won't matter because we reload TF by hand. 
-And if it uses "int 0x80" through the trampoline, it won't matter, because 
-the "lost" instruction is part of the trampoline, and not "important" for 
-the debuggee. I think it's a "ret" instruction that gets lost, so the only 
-thing that happens is that the person "magically" returns to the caller. 
+mm1 had a time-goes-too-fast bug.
+mm2 had an acpi thingy that broke usb.
+mm3 broke nfs (a one line fix)
 
-If that's a problem (for "finish" or other logic), I'd be ok with adding a 
-"nop" to the vsyscall thing. That would have less of an impact than adding 
-the test to the kernel path..
+... perhaps mm4 will break ide and mm5 will do something to kill ipv{4,6} ... 
 
-So the _only_ case your patch matters is for old-style binaries that use 
-"int 0x80" inline, and there that path is indeed the hot-path.
- 
-> > Not only has Linux always worked like this, as far as I know all other
-> > x86 OS's also tend to just do the Intel behaviour thing.
-> 
-> The only other one I have at hand to test is NetBSD 1.6.1, which does
-> indeed behave the same way for its int $0x80 system calls.
+Just kiding ;-)
 
-I bet that if you really search, you cna probably find _some_ OS out there
-that considered the Intel behaviour a bug, and fixed it with something
-like your patch. But I bet it's not just Linux and BSD that use the Intel
-behaviour, just because it's such a pain _not_ to.
-
-			Linus
+Best regards,
+Norberto

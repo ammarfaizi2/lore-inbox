@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263401AbTDCOkf>; Thu, 3 Apr 2003 09:40:35 -0500
+	id <S263407AbTDCOhg>; Thu, 3 Apr 2003 09:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263402AbTDCOkf>; Thu, 3 Apr 2003 09:40:35 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:23940 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263401AbTDCOkd>;
-	Thu, 3 Apr 2003 09:40:33 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263408AbTDCOhf>; Thu, 3 Apr 2003 09:37:35 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:54252 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S263407AbTDCOhe>;
+	Thu, 3 Apr 2003 09:37:34 -0500
+Message-ID: <6811369.1049381341811.JavaMail.leimy2k@mac.com>
+Date: Thu, 03 Apr 2003 08:49:01 -0600
+From: David Leimbach <leimy2k@mac.com>
+To: linux-kernel@vger.kernel.org
+Subject: Interesting Logitech Keyboard problem and workaround [hardware based]
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <16012.19083.730422.148040@enequist.it.uu.se>
-Date: Thu, 3 Apr 2003 16:51:55 +0200
-From: mikpe@csd.uu.se
-To: ak@suse.de
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5.66] ioctl32 breakage on x86_64
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IA32 emulation on x86_64 doesn't compile in 2.5.66 due to
-conflicting declarations of sys_ioctl(). The patch below
-is a quick fix to make both the generic ioctl32 one and
-x86_64's private one agree with reality.
+Hi,
 
-/Mikael
+I am running debian PPC linux on a PowerMac G4 Quicksilver box.
 
---- linux-2.5.66/arch/x86_64/ia32/ia32_ioctl.c.~1~	2003-03-08 17:22:31.000000000 +0100
-+++ linux-2.5.66/arch/x86_64/ia32/ia32_ioctl.c	2003-04-03 15:24:12.000000000 +0200
-@@ -121,7 +121,7 @@
- #define EXT2_IOC32_GETVERSION             _IOR('v', 1, int)
- #define EXT2_IOC32_SETVERSION             _IOW('v', 2, int)
- 
--extern asmlinkage int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
-+extern asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
- 
- static int w_long(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
---- linux-2.5.66/include/linux/ioctl32.h.~1~	2003-03-25 22:17:40.000000000 +0100
-+++ linux-2.5.66/include/linux/ioctl32.h	2003-04-03 15:22:49.000000000 +0200
-@@ -3,7 +3,7 @@
- 
- struct file;
- 
--extern long sys_ioctl(unsigned int, unsigned int, unsigned long);
-+extern asmlinkage long sys_ioctl(unsigned int, unsigned int, unsigned long);
- 
- /* 
-  * Register an 32bit ioctl translation handler for ioctl cmd.
+I have a problem involving a Logitech Wireless Elite Duo keyboard mouse 
+combo setup.  
+
+Basically the keyboard works fine but the mouse pointer moves only up and
+down with any of the PS/2 based protocols in X as well as GPM.  I narrowed
+the problem down to the way linux is dealing with the wireless receiver for
+both devices.  
+
+I made the problem "go away" by hooking the wireless receiver up to a Belkin
+PS/2 -> USB converter box and plugging that into the Mac.  Now both mouse
+and keyboard work great under X.  
+
+The only problem is when I boot to Mac OS X now I have to move cables around
+to get the proper keymap labelled on the keyboard to work as well as the extra
+"multimedia" buttons etc.
+
+Another solution was to ignore the mouse part of the duo and use another older
+logitech cordless mouse on a different receiver... This works fine too but I don't
+have enough mice to go to all my machines and I don't care for KVM :).
+
+The problem is now for me only a minor annoyance but I am more than willing
+to work with anyone who has the time to work this problem out.
+
+I noticed a very recent patch was submitted to this list:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104864596805230&w=2
+
+I hope this involves dealing with this problem.... If not, let me know.  I am available
+for testing ideas to figure this one out :)
+
+Thanks guys... Keep up the good work!
+
+Dave Leimbach

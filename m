@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314649AbSEFSMH>; Mon, 6 May 2002 14:12:07 -0400
+	id <S314653AbSEFSPJ>; Mon, 6 May 2002 14:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314650AbSEFSMG>; Mon, 6 May 2002 14:12:06 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:33462 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314649AbSEFSME>; Mon, 6 May 2002 14:12:04 -0400
-Date: Mon, 06 May 2002 12:09:14 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <244530000.1020712153@flay>
-In-Reply-To: <E174mTn-0004Kr-00@starship>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S314654AbSEFSPI>; Mon, 6 May 2002 14:15:08 -0400
+Received: from mailhost2.teleline.es ([195.235.113.141]:64352 "EHLO
+	tsmtp6.mail.isp") by vger.kernel.org with ESMTP id <S314653AbSEFSPH>;
+	Mon, 6 May 2002 14:15:07 -0400
+Date: Mon, 6 May 2002 20:18:01 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: Chris Rankin <cj.rankin@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org, paul@paulbristow.net,
+        chaffee@cs.berkeley.edu
+Subject: Re: Linux 2.4.18 floppy driver EATS floppies
+Message-Id: <20020506201801.27cd7c69.DiegoCG@teleline.es>
+In-Reply-To: <200205051317.g45DHIU0000750@twopit.underworld>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Note that for NUMA-Q, the ->lmem_map arrays are currently off-node for
-> all but node zero, so the per-node ->lmem_map is doing nothing for
-> NUMA-Q at the moment.  In order for this to make sense for NUMA-Q, I
-> really do have to provide a local mapping of a portion of zone_numa,
-> otherwise we might as well just use config_nonlinear in its current
-> form.
+On Sun, 5 May 2002 14:17:18 +0100 (BST)
+Chris Rankin <cj.rankin@ntlworld.com> escribió:
 
-To split hairs, they're not currently off node - as they have to reside in
-ZONE_NORMAL, I can't make them so until I have the nonlinear stuff
-(or equivalent). But they ought to be on their home node, so your point
-is pretty much the same ;-) AFAIK, all other NUMA arches use the local
-lmem_map already.
-
-Is zone_numa a typo for zone_normal, or did I lose track of the conversation 
-at some point? I'm not sure I grok the last sentence of yours ....
-
-M.
-
-
+Well, in some stable kernels I've hanged my box several times using the floppy driver.....I will test
+and paste some oops (it's very hard to write down all the oops, because syncing doesn't work)

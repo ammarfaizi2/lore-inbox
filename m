@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTIYLIG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTIYLIG
+	id S261875AbTIYLDN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTIYLDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:08:06 -0400
-Received: from main.gmane.org ([80.91.224.249]:30636 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261879AbTIYLIE (ORCPT
+	Thu, 25 Sep 2003 07:03:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35308 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261875AbTIYLDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:08:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: linux/time.h annoyance
-Date: Thu, 25 Sep 2003 13:07:25 +0200
-Message-ID: <yw1xisnhyvma.fsf@users.sourceforge.net>
-References: <1064483200.6405.442.camel@shrek.bitfreak.net> <20030925105436.A8809@infradead.org>
- <1064485031.2220.468.camel@shrek.bitfreak.net>
- <20030925112326.A9412@infradead.org>
+	Thu, 25 Sep 2003 07:03:12 -0400
+Date: Thu, 25 Sep 2003 03:49:56 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: joe@perches.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] 2.6.0-test5-bk11 PKT_CAN_SHARE_SKB [1/3]
+ include/linux/netdevice.h
+Message-Id: <20030925034956.01ebcb77.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309241536340.9506-100000@home.osdl.org>
+References: <1064442780.15437.25.camel@localhost.localdomain>
+	<Pine.LNX.4.44.0309241536340.9506-100000@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:xP/meUuoIS82UGZj7ebhcYd+cxs=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Wed, 24 Sep 2003 15:36:45 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
->> linux/videodev2.h includes linux/time.h. And I need linux/videodev2.h in
->> my application, there is no sys/ equivalent. I expect there's more of
->> such cases.
->> 
->> I also explained this in my first email. ;).
->
-> So fix your copy of linux/videdev2.h to not include linux/time.h.
->
-> If you ask Gerd nicely he might even include that change in the kernel
-> version so don't have to keep a delta.
+> David, will you pick these up?
 
-I've been wondering for some time if I was the only one to see these
-types of errors.  There are other headers having the same problems,
-but I can't remember which ones right now.
-
--- 
-Måns Rullgård
-mru@users.sf.net
-
+Yes, I will.

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266750AbRGHH2y>; Sun, 8 Jul 2001 03:28:54 -0400
+	id <S266795AbRGHHrQ>; Sun, 8 Jul 2001 03:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbRGHH2o>; Sun, 8 Jul 2001 03:28:44 -0400
-Received: from metastasis.f00f.org ([203.167.249.89]:7042 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266750AbRGHH2h>;
-	Sun, 8 Jul 2001 03:28:37 -0400
-Date: Sun, 8 Jul 2001 19:28:05 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
-Message-ID: <20010708192805.C26213@weta.f00f.org>
-In-Reply-To: <E15IzpL-0006Hq-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15IzpL-0006Hq-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S266797AbRGHHrG>; Sun, 8 Jul 2001 03:47:06 -0400
+Received: from outmail1.pacificnet.net ([207.171.0.246]:7848 "EHLO
+	outmail1.pacificnet.net") by vger.kernel.org with ESMTP
+	id <S266795AbRGHHqu>; Sun, 8 Jul 2001 03:46:50 -0400
+Message-ID: <004e01c10782$250c71c0$66b93604@molybdenum>
+From: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Unresolved symbols in 2.4.6
+Date: Sun, 8 Jul 2001 02:46:46 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 07, 2001 at 10:41:23PM +0100, Alan Cox wrote:
+I apologize in advance for bringing up a recently discussed problem and
+being slightly off-topic, but I've been having problems similar to those in
+"Unresolved symbols since 2.4.5 ?" from July 5.
 
-    It means your processor flagged a fault. The b2....115 number
-    decodes to info about the fault cause if you grab the PIII manual.
+I'm also running a Debian 2.2r3 box with kernel 2.2.17 and I've been having
+trouble running 2.4.6 due to unresolved symbols in my modules brought up by
+make modules_install. I had the latest version of modutils installed from
+Adrian Bunk's Debian packages, which was the recommended fix in "Unresolved
+symbols since 2.4.5 ?", but that didn't fix anything.
 
-    Stupid things like overheating. wrong voltages can also trigger it
+I tried compiling the kernel with gcc 2.95.2 and egcs-1.1.2 and I still get
+the unresolved symbols. I used the Debian make-kpkg tool to make a kernel
+image and I went through the process manually, but still I get the errors.
 
-Is there any reason why, with proper MCE checking for both K7 and PIII
-we can't automatically off-line processors when they start doing bad
-things?
+The output of depmod -e -a 2.4.6 can be found at
+http://galaxy42.com/data/moderr.txt. I also have the recommended versions of
+all software in linux/Documentation/Changes. To make things even more
+puzzling, I have an almost identical box set up and it compiles just fine.
 
-Sure, its a pretty lousy thing to do, but if you buys you a few
-minutes and allows userland to initiate some kind of remedy
-(pager("HELP"); system("shutdown"); sort of thing)...
+Does anyone know of anything that could possibly be causing this? Any help
+is appreciated. If you have anything, please Cc: V64@Galaxy42.com. Thanks in
+advance.
 
-Also, I'm pretty sure I was seeing overheating problems or something
-on a K7 at one point, but never saw MCE; I take it this code only
-exists fully in -ac kernels? I looked in Linus' tree and couldn't see
-anything.
+------
+Jahn Veach - Veachian64 <V64@Galaxy42.com>
+http://Galaxy42.com/
+
+Well, let's just say, if your VCR is still blinking 12:00, you don't want
+Linux.
+--Bruce Perens
 
 
-
-
-  --cw

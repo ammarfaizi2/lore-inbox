@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314516AbSDXEkd>; Wed, 24 Apr 2002 00:40:33 -0400
+	id <S314523AbSDXFAn>; Wed, 24 Apr 2002 01:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314523AbSDXEkc>; Wed, 24 Apr 2002 00:40:32 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:47371 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314516AbSDXEkc>; Wed, 24 Apr 2002 00:40:32 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: in_interrupt race 
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: Your message of "Tue, 23 Apr 2002 09:31:51 +0100."
-             <20020423093151.A17302@flint.arm.linux.org.uk> 
-Date: Wed, 24 Apr 2002 14:43:04 +1000
-Message-Id: <E170EcT-0003bW-00@wagner.rustcorp.com.au>
+	id <S311650AbSDXFAm>; Wed, 24 Apr 2002 01:00:42 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25353 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314523AbSDXFAl>; Wed, 24 Apr 2002 01:00:41 -0400
+Subject: Re: Kernel oops and drive failure
+To: carville@cpl.net (Stephen Carville)
+Date: Wed, 24 Apr 2002 06:19:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <Pine.LNX.4.33.0204212029200.2467-100000@warlock.heronforge.net> from "Stephen Carville" at Apr 21, 2002 08:31:24 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E170FBH-0001rI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020423093151.A17302@flint.arm.linux.org.uk> you write:
-> On Tue, Apr 23, 2002 at 01:25:24PM +1000, Rusty Russell wrote:
-> > Yes: the old CPU happens to be processing an interrupt now.
-> > The neat solution is to follow Linus' original instinct and make
-> > PREEMPT an option only for UP: I only like preempt because it brings
-> > UP into line with SMP, effectively enlarging the SMP userbase to reasonable
-> > size.
+> Apr 21 18:09:54 jordan kernel:  I/O error: dev 08:41, sector 98566248
+> Apr 21 18:09:54 jordan kernel: raid5: Disk failure on sde1, disabling
+> device. Operation continuing on 3 devices
 > 
-> > -bool 'Preemptible kernel' CONFIG_PREEMPT
-> > +dep_bool 'Preemptible kernel' CONFIG_PREEMPT $CONFIG_SMP
-> > -bool 'Preemptible Kernel' CONFIG_PREEMPT
-> > +dep_bool 'Preemptible Kernel' CONFIG_PREEMPT $CONFIG_SMP
-> 
-> Do you really mean that CONFIG_PREEMPT is only available if CONFIG_SMP is
-> 'y' or undefined?
 
-<sigh>... Of course that should be reversed.
-if [ "$CONFIG_SMP" != y ]; then
-   bool 'Preemptible Kernel' CONFIG_PREEMPT
-fi
+The raid array took a drive failure and started recovery
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> Apr 21 18:09:54 jordan kernel: md: recovery thread got woken up ...
+> Apr 21 18:09:54 jordan kernel: Unable to handle ke<1lUaULLblepto
+> tandde kfeeencernel NULL pointer dereference<6>md: recovery thread
+> finished ...
+
+Things then went a bit pear shaped - the rest is an oops and wants 
+decoding (see REPORTING-BUGS)

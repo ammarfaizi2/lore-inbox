@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271559AbRHQUmt>; Fri, 17 Aug 2001 16:42:49 -0400
+	id <S271618AbRHQUxA>; Fri, 17 Aug 2001 16:53:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271594AbRHQUmj>; Fri, 17 Aug 2001 16:42:39 -0400
-Received: from dsl-216-227-46-73.telocity.com ([216.227.46.73]:1542 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S271559AbRHQUm2>; Fri, 17 Aug 2001 16:42:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: tristan <fattymikefx@yahoo.com>
-Reply-To: fattymikefx@yahoo.com
-To: linux-kernel@vger.kernel.org
-Subject: more kernel .01
-Date: Fri, 17 Aug 2001 16:43:57 -0400
-X-Mailer: KMail [version 1.3]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010817204358.38BAB501D7@localhost.localdomain>
+	id <S271658AbRHQUwu>; Fri, 17 Aug 2001 16:52:50 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:50314 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S271618AbRHQUwo>; Fri, 17 Aug 2001 16:52:44 -0400
+Message-Id: <5.1.0.14.2.20010817215031.00a84d90@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 Aug 2001 21:52:59 +0100
+To: Peter Klotz <peter.klotz@aon.at>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Error on fs unmount
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01081722422601.01143@localhost.localdomain>
+In-Reply-To: <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
+ <01081718390800.01143@localhost.localdomain>
+ <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The reason i was hoping to run an old version of the kernel,
-.01 or .02(as someone proposed), is so i can use it as a basis
-for learning to add on to, compile, and change an os's kernel.
-I know i can do this with all kernels, but the .01 kernel is very small
-and the very beginning of the kernel so i can build on it. i am 
-open to installing say red hat 5.2 and then running .01 on a 
-VM, but i only have it on a cd, and the 386 has no cdrom drive.
-Does anyone know of a place i can get an old version of red hat
-ive been searching for awhile, or a way to copy the cd to 
-multiple floppies that are able to be install. 
-Id really rather have away of just installing it over the DOS partition
-but it seems everyone thinks it would be best to install minix of red
-hat first, and im fine with that. 
-So if anyone has information on old red hat version i would
-be very greatful
+At 21:42 17/08/2001, Peter Klotz wrote:
+> >Could you tell me whether on startup (or whenever you mount the NTFS
+> >volume) it doesn't give a message but saying: "Trying to open system file
+> >9!" or "Opening system file 9!".
+>
+>You were right. I found the message you mentioned several times in
+>/var/log/messages:
+>Aug 17 08:16:50 localhost kernel: Trying to open system file 9!
 
-Tristan Sloughter
+Excellent. That is exactly what I expected to see, so all is fine. Just 
+ignore for now.
+
+>Thanks a lot for your quick and helpful response.
+
+You are welcome.
+
+Cheers,
+
+         Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

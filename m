@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbUJYGh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbUJYGiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbUJYGh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 02:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbUJYG3r
+	id S261698AbUJYGiR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 02:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbUJYGiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 02:29:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32449 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261572AbUJYG0z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 02:26:55 -0400
-Date: Sun, 24 Oct 2004 23:24:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: hugh@veritas.com, andrea@novell.com, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] statm: shared = rss - anon_rss
-Message-Id: <20041024232443.1a18eb44.akpm@osdl.org>
-In-Reply-To: <20041024160814.GT17038@holomorphy.com>
-References: <Pine.LNX.4.44.0410241644000.12023-100000@localhost.localdomain>
-	<Pine.LNX.4.44.0410241647080.12023-100000@localhost.localdomain>
-	<20041024160814.GT17038@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 25 Oct 2004 02:38:16 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:45498 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261688AbUJYGhp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 02:37:45 -0400
+Date: Mon, 25 Oct 2004 08:37:37 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: linux-kernel@vger.kernel.org
+Cc: linux-net@vger.kernel.org
+Subject: Small bug in e100?
+Message-Id: <Pine.OSF.4.05.10410250836490.22917-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Sun, Oct 24, 2004 at 04:49:48PM +0100, Hugh Dickins wrote:
->  > Signed-off-by: Hugh Dickins <hugh@veritas.com>
-> 
->  Signed-off-by: William Irwin <wli@holomorphy.com>
+Hi,
+ I am getting a warning - with a stack trace - from the e100
+ethernet device when I do ifup eth0 when I use it on  Igno's real-time
+branch. I do think, however, it is a general bug but I am not sure.
+The problem is the call to enable_irq() just after request_irq() (see
+below). As far as I can read from request_irq()/setup_irq()
+in manage.c the irq is already being enabled in setup_irq()? If so the
+enable_irq() line below ought to go.
 
-I'll change these three to "Acked-by:".  Unless you actually had a hand in
-developing these patches, in which case I'll unchange things.
+Esben
+
+>From drivers/net/e100.c:
+...
+        if((err = request_irq(nic->pdev->irq, e100_intr, SA_SHIRQ,
+                nic->netdev->name, nic->netdev)))
+                goto err_no_irq;
+        e100_enable_irq(nic);
+->      enable_irq(nic->pdev->irq);
+        netif_wake_queue(nic->netdev);
+...
+
+

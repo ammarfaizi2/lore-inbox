@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132192AbRCVVPT>; Thu, 22 Mar 2001 16:15:19 -0500
+	id <S132195AbRCVVJt>; Thu, 22 Mar 2001 16:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132187AbRCVVPJ>; Thu, 22 Mar 2001 16:15:09 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:32004 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131891AbRCVVOw>;
-	Thu, 22 Mar 2001 16:14:52 -0500
-Date: Thu, 22 Mar 2001 13:32:35 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: Jens Axboe <axboe@suse.de>, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, andre@linux-ide.org,
-        linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: Re: [PATCH] off-by-1 error in ide-probe (2.4.x)
-Message-ID: <20010322133235.C31@(none)>
-In-Reply-To: <3AB47DA4.795B609B@yahoo.com> <20010318223558.L29105@suse.de> <3AB9C53E.75D7D965@yahoo.com>
-Mime-Version: 1.0
+	id <S132194AbRCVVJk>; Thu, 22 Mar 2001 16:09:40 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12535 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S132191AbRCVVJV>; Thu, 22 Mar 2001 16:09:21 -0500
+Message-ID: <3ABA68EC.89B2DE99@mvista.com>
+Date: Thu, 22 Mar 2001 13:04:45 -0800
+From: Jun Sun <jsun@mvista.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: eepro100 question: why SCBCmd byte is 0x80?
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3AB9C53E.75D7D965@yahoo.com>; from p_gortmaker@yahoo.com on Thu, Mar 22, 2001 at 04:26:22AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
->   hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
->   ide1: unexpected interrupt, status=0x58, count=1
->   hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
->   hdc: drive not ready for command
-> 
-> all with the same timestamp in the syslog.  (IRQ timeout followed by
-> unexpected IRQ ... ???  Hrrm.)
+I am trying to get netgear card working on a new (read as potentially buggy
+hardware) MIPS board.
 
-Not *so* strange.
+The eepro100 driver basically works fine.  It is just after a little while
+(usually 2 sec to 15 sec) network communication suddenly stops and I start see
+error message like "eepro100: wait_for_cmd_done timeout!".
 
-I'm waiting for interrupt. It does not come, so I start interrupt routine,
-anyway.It finds something strange in registers, and says "unexpected interrupt".
+I looked into this, and it appears that the SCBCmd byte in the command word
+has value 0x80 instead of the expected 0.  I looked at the Intel manual, and
+it says nothing about the value being 0x80.
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Does anybody have a clue here?  I suspect some timing is wrong or a buggy PCI
+controller.
 
+Please cc your reply to my email address.  Thanks.
+
+Jun

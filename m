@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUJTMWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270183AbUJTMVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267648AbUJTMWW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270125AbUJTMV5
+	id S270183AbUJTMVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270125AbUJTMVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:21:57 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:45703 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S270122AbUJTMVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:21:11 -0400
-Subject: Re: iproute2 and 2.6.9 kernel headers (was Re: [ANNOUNCE] iproute2
-	2.6.9-041019)
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Harald Welte <laforge@gnumonks.org>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
-In-Reply-To: <4176517C.4090504@arcom.com>
-References: <41758014.4080502@osdl.org>
-	 <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
-	 <20041020070017.GA19899@sunbeam.de.gnumonks.org>
-	 <20041020094123.GF19899@sunbeam.de.gnumonks.org>
-	 <1098268885.3872.81.camel@baythorne.infradead.org>
-	 <4176517C.4090504@arcom.com>
-Content-Type: text/plain
-Message-Id: <1098274788.3872.90.camel@baythorne.infradead.org>
+	Wed, 20 Oct 2004 08:21:41 -0400
+Received: from relay.snowman.net ([66.92.160.56]:31760 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S269880AbUJTMUk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 08:20:40 -0400
+Date: Wed, 20 Oct 2004 08:21:08 -0400
+From: Stephen Frost <sfrost@snowman.net>
+To: LKML <linux-kernel@vger.kernel.org>,
+       Vserver <vserver@list.linux-vserver.org>
+Subject: Re: [Vserver] PROBLEM: Oops in log_do_checkpoint, using vserver
+Message-ID: <20041020122108.GC12780@ns.snowman.net>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	Vserver <vserver@list.linux-vserver.org>
+References: <20041018032511.GY21419@ns.snowman.net> <20041018115523.GA2352@mail.13thfloor.at> <20041018122025.GA28813@ns.snowman.net> <20041019220100.GB12780@ns.snowman.net> <20041020024342.GA9260@mail.13thfloor.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 20 Oct 2004 13:19:48 +0100
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
+Content-Disposition: inline
+In-Reply-To: <20041020024342.GA9260@mail.13thfloor.at>
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.4.24ns.3.0 (i686)
+X-Uptime: 08:16:42 up 263 days,  7:15, 12 users,  load average: 0.06, 0.27, 0.26
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 12:52 +0100, David Vrabel wrote:
-> David Woodhouse wrote:
-> > 
-> > The time has come to fix it properly instead. Anything which these tools
-> > actually need from the kernel headers should be moved into a separate
-> > header file (still in the kernel source) which is usable from _both_
-> > kernel and userspace.
-> 
-> Isn't this what linux-libc-headers is for?
 
-The separate linux-libc-headers is a hack, which will be able to die
-once we properly clean up the kernel headers into those which are
-'exported' and those which are private.
+--qjNfmADvan18RZcF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > It should use standard types (like uint16_t etc)
-> 
-> Why doesn't the kernel use these standard types also?
+* Herbert Poetzl (herbert@13thfloor.at) wrote:
+> On Tue, Oct 19, 2004 at 06:01:00PM -0400, Stephen Frost wrote:
+> > Assertion failure in log_do_checkpoint() at fs/jbd/checkpoint.c:361:=20
+> > "drop_count !=3D 0 || cleanup_ret !=3D 0"
+>=20
+> you can split up this assertion into
+>=20
+>  - drop_count !=3D 0
+>  - cleanup_ret !=3D 0
+>=20
+> and fail on that (or just output those values
+> before you panic) ... this might give some
+> deeper insight into the issue ...
 
-Archaic personal preference. Inside the kernel that's fair enough.
+Hmm, that's a good thought, though I have to say I'd really like to get
+a comment from the ext3 folks.  This is also a production server, so I'd
+kind of like to minimize the downtime. :)
 
--- 
-dwmw2
+> > If there's anything else I can do to help get this resolved, please let
+> > me know..  This is the only problem I'm having with this server now,
+> > other than this it's behaving pretty nicely. :)
+>=20
+> maybe until it gets fixed, mounting the ext3
+> without journal might help here?
 
+Yeah, I've mounted it as ext2 for now.  It's been working fine so far.
 
+	Stephen
+
+--qjNfmADvan18RZcF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBdlgzrzgMPqB3kigRApfOAKCPv6q4ds/sCLBw4B1UI4X8tsGnOwCffJWO
+nnqQRQeA6+ZO02mNz4DI1PE=
+=muVl
+-----END PGP SIGNATURE-----
+
+--qjNfmADvan18RZcF--

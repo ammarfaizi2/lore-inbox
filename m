@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265309AbSJRRtp>; Fri, 18 Oct 2002 13:49:45 -0400
+	id <S265344AbSJRSba>; Fri, 18 Oct 2002 14:31:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265223AbSJRRse>; Fri, 18 Oct 2002 13:48:34 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:65294 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265336AbSJRR1K>; Fri, 18 Oct 2002 13:27:10 -0400
-Message-ID: <3DB0459E.8070609@zytor.com>
-Date: Fri, 18 Oct 2002 10:32:14 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Hiroshi Miura <miura@da-cha.org>, linux-kernel@vger.kernel.org,
-       alan@redhat.com
-Subject: Re: NatSemi Geode improvement
-References: <20021017171217.4749211782A@triton2> <20021017192041.B17285@suse.de> <20021018022901.CA2D811782A@triton2> <20021018141009.A26652@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265345AbSJRSba>; Fri, 18 Oct 2002 14:31:30 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59782 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265344AbSJRSb3>;
+	Fri, 18 Oct 2002 14:31:29 -0400
+Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       george anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       Michael Hohnbaum <hbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021018172121.GO23930@dualathlon.random>
+References: <20021018171139.GM23930@dualathlon.random>
+	<Pine.LNX.4.44.0210181018070.21302-100000@home.transmeta.com> 
+	<20021018172121.GO23930@dualathlon.random>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Oct 2002 11:37:19 -0700
+Message-Id: <1034966240.5851.20.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, Oct 18, 2002 at 11:29:01AM +0900, Hiroshi Miura wrote:
->  > I try now using set6x86 to set these registers, then can do most of these 
->  > except for set_cx86_memwb().
->  > 
->  > To set the memory write-back, I need to set the CR0  which needs special previlleges.
->  > set6x86 cannot set CR0.
->  > 
->  > the set_cx86_memwb() need to be done in the kernel
->  > the others has no reason to do that.
->  > it is ok?
-> 
-> It's all __init anyway, so it's ok I guess.
-> The added bloat for non-cyrix users is in the region of a few bytes...
-> 
-> My initial idea for this sort of thing was going to be to dump it
-> all in the early-userspace thing that Al Viro was hacking up.
-> Al, anything appearing in a last minute merge over the next
-> few days ?
-> 
 
-Al has passed off the initramfs patch, and I will start integration of 
-klibc into the kernel build tree next week.
+> agreed. Hear my idea:
+> 
+> 	actually my idea on 64bit was to use the high 8 bit of each 64bit word to
+> 	give you the cpuid, to get out the coherent data, including the sequence
+> 	number that are read and written inversely with mb() like now (the
+> 	sequence number as well will become per-cpu), so it is definitely doable
+> 	without any single problem and in a very performant way, just not as
+> 	easy as without the per-cpu info. Even if segmentation per-cpu tricks
+> 	would be possible or available (remeber long mode is pure paging, no
+> 	segmentation) it would be not worthwhile IMHO, the cpuid encoded
+> 	atomically in each 64bit data provided by the vsyscall seems a much
+> 	simpler and possibly more performant solution. You set a different
+> 	per-cpu data-mapping with different pte settings in each cpu. The
+> 	vsyscall bytecode remains the same, aware about this cpuid encoded in
+> 	each 64bit word. Doing it in 32bit is ugly (or at least much slower)
+> 	since most data is natively at least 32bit, it would need some slow
+> 	demultiplexing.
 
-(Quite a lot of work has been done on klibc in isolation; it just hasn't 
-been part of the kernel build tree.  If that means it ends up being 
-built separately it would be unfortunate but no disaster.)
-
-	-hpa
+At least on IA32 you could still use XCHG64 to atomically access the
+values, but that always forces a write so it isn't cache friendly. Still
+it probably is better than encoding the data in 32bit.  It all depends
+on how much data is needed.
 
 

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbSLXXma>; Tue, 24 Dec 2002 18:42:30 -0500
+	id <S265995AbSLXXmn>; Tue, 24 Dec 2002 18:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265995AbSLXXma>; Tue, 24 Dec 2002 18:42:30 -0500
-Received: from gandalf.tausq.org ([64.81.244.94]:7554 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id <S265987AbSLXXm3>;
-	Tue, 24 Dec 2002 18:42:29 -0500
-Date: Tue, 24 Dec 2002 15:51:47 -0800
-From: Randolph Chung <randolph@tausq.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: parisc-linux@parisc-linux.org,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [parisc-linux] Generic RTC driver in 2.4.x?
-Message-ID: <20021224235147.GT19331@tausq.org>
-Reply-To: Randolph Chung <randolph@tausq.org>
-References: <Pine.GSO.4.21.0212241451450.1821-100000@vervain.sonytel.be>
+	id <S265998AbSLXXmn>; Tue, 24 Dec 2002 18:42:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9989 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265995AbSLXXmm>;
+	Tue, 24 Dec 2002 18:42:42 -0500
+Date: Tue, 24 Dec 2002 23:50:54 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Nico Schottelius <schottelius@wdt.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4 series: IDE driver
+Message-ID: <20021224235054.GA721@gallifrey>
+References: <20021223135846.GA1988@schottelius.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0212241451450.1821-100000@vervain.sonytel.be>
+In-Reply-To: <20021223135846.GA1988@schottelius.org>
 User-Agent: Mutt/1.4i
-X-PGP: for PGP key, see http://www.tausq.org/pgp.txt
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 23:49:18 up  6:16,  1 user,  load average: 0.00, 0.01, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AFAIK the generic RTC driver is used on PA-RISC, PPC, and m68k.
-> 
-> Are you interested in a backport to 2.4.x?
+* Nico Schottelius (schottelius@wdt.de) wrote:
 
-On parisc we already have a version of the generic RTC driver in our
-2.4 tree. If there's something more "official" or common we can adopt
-that version. 
+> If I change the notebook it runs fine.
+> If I change the harddisks it works fine.
+> If I use 2.5 series kernels it works fine.
 
-randolph
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/
+> ALI15X3: IDE controller at PCI slot 00:10.0
+> ALI15X3: chipset revision 195
+> ALI15X3: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0x6050-0x6057, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0x6058-0x605f, BIOS settings: hdc:DMA, hdd:pio
+
+I have heard it said that DMA on the ALI chipset is a bit touchy (not
+sure if driver or hardware) - it is worth trying with the DMA off.
+
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

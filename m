@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTDUUpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 16:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTDUUpI
+	id S262502AbTDUUuv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 16:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbTDUUuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 16:45:08 -0400
-Received: from verein.lst.de ([212.34.181.86]:1809 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S262174AbTDUUpC (ORCPT
+	Mon, 21 Apr 2003 16:50:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:40919 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262502AbTDUUuu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 16:45:02 -0400
-Date: Mon, 21 Apr 2003 22:57:04 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
-Message-ID: <20030421225704.A30489@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com> <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de> <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com> <20030421210020.A29421@lst.de> <Pine.LNX.4.55.0304211539350.2462@marabou.research.att.com> <20030421215637.A30019@lst.de> <Pine.LNX.4.55.0304211630230.2599@marabou.research.att.com>
+	Mon, 21 Apr 2003 16:50:50 -0400
+Date: Mon, 21 Apr 2003 14:05:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanno =?iso-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
+Message-ID: <20030421210502.GA30225@kroah.com>
+References: <20030421214805.7de5e4f3.hanno@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.55.0304211630230.2599@marabou.research.att.com>; from proski@gnu.org on Mon, Apr 21, 2003 at 04:35:21PM -0400
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030421214805.7de5e4f3.hanno@gmx.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 04:35:21PM -0400, Pavel Roskin wrote:
-> > Oh, I see now.  There's a longstanding bug in the handling of
-> > TTY_DRIVER_NO_DEVFS that got exposed by this.
-> >
-> > Please try this patch additionally:
-> 
-> Applied.  Now I can log in by ssh and there are no problems with
-> pseudoterminals.  However, all local terminals are gone:
+On Mon, Apr 21, 2003 at 09:48:05PM +0200, Hanno Böck wrote:
+> This patch against 2.5.68 adds support for some digital cameras.
+> Same patch is already applied to the 2.4-ac-series.
+> It is taken from the lycoris kernel-source.
 
-The devfs <-> tty interaction are going to drive me nuts.
+Any reason you are not sending these to the usb-storage author and
+maintainer?  Or at the least, the usb maintainer and linux-usb-devel
+list would like to see these.
 
-TTY_DRIVER_NO_DEVFS actually means don't call tty_register_device
-in tty_register_driver, not don't register with devfs.
+Also, I think I've commented on these patches before, and never got a
+response back from the last person who posted them...
 
-Updated patch (replaces the last one):
+thanks,
 
-
---- 1.78/drivers/char/tty_io.c	Sat Apr 19 19:24:04 2003
-+++ edited/drivers/char/tty_io.c	Mon Apr 21 21:28:01 2003
-@@ -2173,9 +2173,9 @@
- 	
- 	list_add(&driver->tty_drivers, &tty_drivers);
- 	
--	if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
--		for(i = 0; i < driver->num; i++)
--		    tty_register_device(driver, driver->minor_start + i);
-+	if (!(driver->flags & TTY_DRIVER_NO_DEVFS)) {
-+		for (i = 0; i < driver->num; i++)
-+			tty_register_device(driver, driver->minor_start + i);
- 	}
- 	proc_tty_register_driver(driver);
- 	return error;
-@@ -2215,7 +2215,8 @@
- 			driver->termios_locked[i] = NULL;
- 			kfree(tp);
- 		}
--		tty_unregister_device(driver, driver->minor_start + i);
-+		if (!(driver->flags & TTY_DRIVER_NO_DEVFS))
-+			tty_unregister_device(driver, driver->minor_start + i);
- 	}
- 	proc_tty_unregister_driver(driver);
- 	return 0;
+greg k-h

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbUCIN0a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 08:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUCIN0a
+	id S261921AbUCIN2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 08:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUCIN2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 08:26:30 -0500
-Received: from hoemail1.lucent.com ([192.11.226.161]:43506 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S261912AbUCIN03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 08:26:29 -0500
-Message-ID: <6733C768256DEC42A72BAFEFA9CF06D208FF28BB@II0015EXCH002U>
-From: "Karpurapu, Suresh (Suresh)** CTR **" <sureshk@lucent.com>
-To: "'rml@tech9.net'" <rml@tech9.net>
-Subject: preempt-kernel-rml +  low-latency patches  Query
-Date: Tue, 9 Mar 2004 18:56:17 +0530 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 9 Mar 2004 08:28:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3241 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261921AbUCIN23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 08:28:29 -0500
+Subject: Re: [BUG][2.6.4-rc2-mm1] kernel BUG at fs/proc/generic.c:664!
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1078836492.23461.7.camel@debian>
+References: <1078836492.23461.7.camel@debian>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YZuYMwd6iBSHkrSyoIdi"
+Organization: Red Hat, Inc.
+Message-Id: <1078838902.4452.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 09 Mar 2004 14:28:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
 
- is it advisable to apply both preempt-kernel-rml and low-latency patches
-for 2.4.18 kernel.
-for 2.4.18 kernel I applied the following patches .
-1. 2.4.18-pre9-low-latency.patch
-2. preempt-kernel-rml-2.4.18-5.patch
+--=-YZuYMwd6iBSHkrSyoIdi
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-After booting Linux with the above patches if I load ATM driver the kernel
-is panic
-and it is showing in sched.c line 580 . Is there any other patch I have to
-apply  or any 
-sequence  i.e. first low latency and then preempt kernel or vise versa ..
+On Tue, 2004-03-09 at 13:48, Ram=C3=B3n Rey Vicente wrote:
+> Hi.
+>=20
+> I get this with latest -mm kernel.
+Mar  9 02:43:05 debian kernel:=20
+[__crc_nf_unregister_hook+351987/1212996] snd_audiopci_remove+0x10/0x40
+[snd_ens1371]
 
-Thanks and Regards
-Suresh K
+
+Hi,
+
+It looks like the snd_ens1371 kernel module is removing a proc directory
+that isn't yet empty; that always was illegal (and could cause memory
+corruption) so now it's trapped on....
+
+--=-YZuYMwd6iBSHkrSyoIdi
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBATcZ2xULwo51rQBIRAvnhAJ9Ho8ZIXl+zqW3nKfIJLrkQ+asEnACfcXDM
+tbOfesMFhi/CsK9cEK8x8ms=
+=OfD3
+-----END PGP SIGNATURE-----
+
+--=-YZuYMwd6iBSHkrSyoIdi--
 

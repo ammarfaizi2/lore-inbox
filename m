@@ -1,74 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284180AbRLRQT0>; Tue, 18 Dec 2001 11:19:26 -0500
+	id <S284182AbRLRQZ0>; Tue, 18 Dec 2001 11:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284177AbRLRQTQ>; Tue, 18 Dec 2001 11:19:16 -0500
-Received: from copper.ftech.net ([212.32.16.118]:50188 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S284176AbRLRQTA>;
-	Tue, 18 Dec 2001 11:19:00 -0500
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E41A4@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: pci_enable_device reports IRQ routing conflict
-Date: Tue, 18 Dec 2001 16:16:16 -0000
+	id <S284177AbRLRQZQ>; Tue, 18 Dec 2001 11:25:16 -0500
+Received: from manson.clss.net ([65.211.158.2]:48552 "HELO manson.clss.net")
+	by vger.kernel.org with SMTP id <S284176AbRLRQZK>;
+	Tue, 18 Dec 2001 11:25:10 -0500
+Message-ID: <20011218162509.6476.qmail@manson.clss.net>
+From: pacman@manson.clss.net
+Subject: swapping problem 2.4.16
+To: linux-kernel@vger.kernel.org
+Date: Tue, 18 Dec 2001 11:25:09 -0500 (EST)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	thanks for your advice.  Adding debug produced one other message in
-the Kernel log:
+My machine (8 MB RAM, please hold the applause) hangs with 2.4.16 whenever it
+needs to swap (which usually coincides with the launching of gettys).
 
-IRQ for 00:0a.0:0 -> PIRQ 03, mask deb8, excl 0e20 -> newirq=9 -> got IRQ 10
-IRQ routing conflict for 00:0a.0, have irq 9, want irq 10
+AltGr+ScrollLock during the freeze shows a call trace like this:
+sys_newstat->getname->kmalloc->try_to_free_pages->shrink_caches->shrink_cache
+(some entries omitted; all this data is from pencil-and-paper notes, there
+may be some transcription errors)
 
-I think my testing shows that actual irq's assigned are as indicated by the
-"have irq" field.  And that as far as I can tell at the moment everything
-seems to work OK.
+Shift+ScrollLock says this:
 
-Regards
+Mem-info:
+Free pages: 84 kB (0kB HighMem)
+Zone:DMA freepages: 84kB min: 80kB low: 160kB high: 240kB
+Zone:Normal freepages: 0kB min: 0kB low: 0kB high: 0kB
+Zone:HighMem freepages: 0kB min: 0kB low: 0kB high: 0kB
+( Active: 84, inactive: 1360, free: 21 )
+1*4kB 0*8kB 1*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB = 84 kB)
+= 0 kB)
+= 0 kB)
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap: 31076 kB
+2048 pages of RAM
+0 pages of HIGHMEM
+394 reserved pages
+877 pages shared
+0 pages swap cached
+8 pages in page table cache
+Buffer memory: 92kB
 
-Kevin
+Loading up shrink_cache with printks was very revealing. shrink_cache is
+called repeatedly, with nr_pages=32 with priority looping from 6 down to 1,
+and it returns 32 every time. I don't understand exactly how shrink_cache is
+supposed to work, but I assume that what I need it to do is call swap_out().
+That call is never being reached, because of these formulae:
 
------Original Message-----
-From: Kai Germaschewski [mailto:kai@tp1.ruhr-uni-bochum.de]
-Sent: 17 December 2001 22:13
-To: Kevin Curtis
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci_enable_device reports IRQ routing conflict
+int max_scan = nr_inactive_pages / priority;
+int max_mapped = nr_pages << (9 - priority);
 
+max_scan is the number of iterations of the big loop that surrounds most of
+the function. max_mapped is decremented at most once per iteration of that
+outer loop, and swap_out will never be called until max_mapped reaches 0.
+Therefore if the initial value of max_mapped is greater than the initial
+value of max_scan, there is no chance of reaching the swap_out() call. And
+using my numbers:
 
-On Mon, 17 Dec 2001, Kevin Curtis wrote:
+                   max_scan =                  max_mapped =
+priority | nr_inactive_pages / priority | nr_pages << (9 - priority)
+       6 |       1360 / 6 = 226         | 32 << 3 = 256
+       5 |       1360 / 5 = 272         | 32 << 4 = 512
+       4 |       1360 / 4 = 340         | 32 << 5 = 1024
+       3 |       1360 / 3 = 453         | 32 << 6 = 2048
+       2 |       1360 / 2 = 680         | 32 << 7 = 4096
+       1 |       1360 / 1 = 1360        | 32 << 8 = 8192
 
-> However when I call pci_enable_device for the second card I get the
-> following kernel log message:
-> 
-> Dec 17 15:06:37 minion kernel: IRQ routing conflict for 00:0b.0, have irq
-9,
-> want irq 5
+Not only is max_mapped larger than max_scan, the gap between them widens as
+the priority approaches 1. That seems to go against my understanding of what
+the priority is supposed to mean - that as you get close to 1 you should get
+*more* likely to swap something out.
 
-This means that config space (supposedly set up by the BIOS) reports IRQ 9 
-for the device, but the IRQ router really routes it to IRQ 5.
+As an experiment I changed this statement:
 
-> The call didn't return an error, so I assume this was a non-fatal.  
+                        if (--max_mapped >= 0)
+                                continue;
 
-Well, the kernel currently ignores its knowledge about the router and 
-trusts the BIOS. Which most likely means that the IRQ won't work.
+to this:
 
-(Note that in general you should access dev->irq only after calling 
-pci_enable_device())
+                        if (--max_mapped >= 0 && priority!=1)
+                                continue;
 
-> Has anyone got any ideas where to look to debug this?
-
-#define DEBUG
-
-in arch/i386/kernel/pci-i386.h will give some debugging output on the next 
-boot, which should help.
-
---Kai
-
+and now it boots, swaps, and survives.
 

@@ -1,81 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVDAUDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVDAUFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVDAUDo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 15:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbVDAUDo
+	id S262865AbVDAUFO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 15:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVDAUFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:03:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16323 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261455AbVDAUDl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:03:41 -0500
-Date: Fri, 1 Apr 2005 12:03:24 -0800
-From: Greg KH <gregkh@suse.de>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] More I2C patches for 2.6.12-rc1
-Message-ID: <20050401200324.GA12854@kroah.com>
+	Fri, 1 Apr 2005 15:05:13 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34760 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262865AbVDAUEZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 15:04:25 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Move functionality handling from i2c-core to i2c.h
+In-Reply-To: <11123858541382@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 1 Apr 2005 12:04:15 -0800
+Message-Id: <11123858552208@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2340, 2005/04/01 11:49:04-08:00, khali@linux-fr.org
 
-I messed up on the last batch of i2c patches, and forgot 3 of them that
-I had accepted, and were in my trees, but didn't get copied into the
-tree that I sent for you to pull from.  All 3 of them are bugfixes.
+[PATCH] I2C: Move functionality handling from i2c-core to i2c.h
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
+So far, the functionality handling of i2c adapters was done in i2c-core
+by two exported functions: i2c_get_functionality and
+i2c_check_functionality. I found that both functions could be reduced to
+one line each, and propose that we turn them into inline function in the
+i2c.h header file, much like other i2c helper functions (e.g.
+i2c_get_clientdata, i2c_set_clientdata and i2c_clientname).
 
-Patches will be posted to linux-kernel and sensors as a follow-up thread
-for those who want to see them.
+The conversion of i2c_get_functionality suppresses a legacy check which
+shouldn't be needed anymore. Only one driver (s3c2410) was still relying
+on it, and was fixed some days ago.
 
-thanks,
+The conversion lets us get rid of two exports. Not only i2c-core gets
+smaller (by 458 bytes), but the client drivers using these functions get
+smaller too (typically by 48 bytes). And of course the new way is likely
+to be faster too, even if it wasn't my primary objective.
 
-greg k-h
-
- drivers/i2c/chips/adm1021.c  |    2 +
- drivers/i2c/chips/adm1025.c  |   12 +++++++++
- drivers/i2c/chips/adm1026.c  |   55 ++++++++++++++-----------------------------
- drivers/i2c/chips/adm1031.c  |   23 +++++++----------
- drivers/i2c/chips/asb100.c   |   25 +++++++++++++++++--
- drivers/i2c/chips/ds1621.c   |    6 +++-
- drivers/i2c/chips/fscher.c   |   34 ++++++++++++++++++++------
- drivers/i2c/chips/fscpos.c   |   18 ++++++++++----
- drivers/i2c/chips/gl518sm.c  |   25 +++++++++++++++----
- drivers/i2c/chips/gl520sm.c  |   43 ++++++++++++++++++++++-----------
- drivers/i2c/chips/it87.c     |   44 +++++++++++++++++++++++++++++-----
- drivers/i2c/chips/lm63.c     |   19 +++++++++++++-
- drivers/i2c/chips/lm75.c     |    3 ++
- drivers/i2c/chips/lm77.c     |   21 +++++++++++++---
- drivers/i2c/chips/lm78.c     |   30 +++++++++++++++++++++--
- drivers/i2c/chips/lm80.c     |   16 ++++++++++--
- drivers/i2c/chips/lm83.c     |    3 ++
- drivers/i2c/chips/lm85.c     |   44 ++++++++++++----------------------
- drivers/i2c/chips/lm87.c     |   31 +++++++++++++++++++++---
- drivers/i2c/chips/lm90.c     |   14 +++++++++-
- drivers/i2c/chips/lm92.c     |   10 ++++++-
- drivers/i2c/chips/max1619.c  |    3 ++
- drivers/i2c/chips/pc87360.c  |   29 ++++++++++++++++++++++
- drivers/i2c/chips/pcf8574.c  |   27 +++++++--------------
- drivers/i2c/chips/pcf8591.c  |    6 +++-
- drivers/i2c/chips/sis5595.c  |   28 +++++++++++++++++++--
- drivers/i2c/chips/smsc47m1.c |   24 ++++++++++++++----
- drivers/i2c/chips/via686a.c  |   21 +++++++++++++++-
- drivers/i2c/chips/w83627hf.c |   32 ++++++++++++++++++++++++-
- drivers/i2c/chips/w83781d.c  |   29 ++++++++++++++++++++--
- drivers/i2c/i2c-core.c       |   19 --------------
- include/linux/i2c.h          |   10 ++++++-
- 32 files changed, 516 insertions(+), 190 deletions(-)
------
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
-Jean Delvare:
-  o I2C: Fix a common race condition in hardware monitoring
-  o I2C: Move functionality handling from i2c-core to i2c.h
-  o I2C: pcf8574 doesn't need a lock
+ drivers/i2c/i2c-core.c |   19 -------------------
+ include/linux/i2c.h    |   10 ++++++++--
+ 2 files changed, 8 insertions(+), 21 deletions(-)
+
+
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	2005-04-01 11:53:08 -08:00
++++ b/drivers/i2c/i2c-core.c	2005-04-01 11:53:08 -08:00
+@@ -1236,22 +1236,6 @@
+ }
+ 
+ 
+-/* You should always define `functionality'; the 'else' is just for
+-   backward compatibility. */ 
+-u32 i2c_get_functionality (struct i2c_adapter *adap)
+-{
+-	if (adap->algo->functionality)
+-		return adap->algo->functionality(adap);
+-	else
+-		return 0xffffffff;
+-}
+-
+-int i2c_check_functionality (struct i2c_adapter *adap, u32 func)
+-{
+-	u32 adap_func = i2c_get_functionality (adap);
+-	return (func & adap_func) == func;
+-}
+-
+ EXPORT_SYMBOL(i2c_add_adapter);
+ EXPORT_SYMBOL(i2c_del_adapter);
+ EXPORT_SYMBOL(i2c_add_driver);
+@@ -1282,9 +1266,6 @@
+ EXPORT_SYMBOL(i2c_smbus_write_word_data);
+ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+ EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
+-
+-EXPORT_SYMBOL(i2c_get_functionality);
+-EXPORT_SYMBOL(i2c_check_functionality);
+ 
+ MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
+diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
+--- a/include/linux/i2c.h	2005-04-01 11:53:08 -08:00
++++ b/include/linux/i2c.h	2005-04-01 11:53:08 -08:00
+@@ -368,10 +368,16 @@
+ 
+ 
+ /* Return the functionality mask */
+-extern u32 i2c_get_functionality (struct i2c_adapter *adap);
++static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
++{
++	return adap->algo->functionality(adap);
++}
+ 
+ /* Return 1 if adapter supports everything we need, 0 if not. */
+-extern int i2c_check_functionality (struct i2c_adapter *adap, u32 func);
++static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
++{
++	return (func & i2c_get_functionality(adap)) == func;
++}
+ 
+ /*
+  * I2C Message - used for pure i2c transaction, also from /dev interface
 

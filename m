@@ -1,35 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293410AbSCAWkx>; Fri, 1 Mar 2002 17:40:53 -0500
+	id <S310143AbSCAWnd>; Fri, 1 Mar 2002 17:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310142AbSCAWkp>; Fri, 1 Mar 2002 17:40:45 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20874 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293410AbSCAWkc>;
-	Fri, 1 Mar 2002 17:40:32 -0500
-Date: Fri, 01 Mar 2002 14:38:09 -0800 (PST)
-Message-Id: <20020301.143809.91757055.davem@redhat.com>
-To: rml@tech9.net
-Cc: maxk@qualcomm.com, fisaksen@bewan.com, mitch@sfgoth.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] spinlock not locked when unlocking in atm_dev_register
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1015022109.11499.47.camel@phantasy>
-In-Reply-To: <20020301163936.7FA725F963@postfix2-2.free.fr>
-	<5.1.0.14.2.20020301143010.0d552be8@mail1.qualcomm.com>
-	<1015022109.11499.47.camel@phantasy>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S310142AbSCAWnX>; Fri, 1 Mar 2002 17:43:23 -0500
+Received: from ns0.petreley.net ([64.170.109.178]:57230 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S310141AbSCAWnH>;
+	Fri, 1 Mar 2002 17:43:07 -0500
+Date: Fri, 1 Mar 2002 14:43:04 -0800
+From: Nicholas Petreley <nicholas@petreley.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre1-ac2 and 2.5.5-dj2 USB issues
+Message-ID: <20020301224304.GA5399@petreley.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Robert Love <rml@tech9.net>
-   Date: 01 Mar 2002 17:35:08 -0500
-    
-   > btw ATM locking seems to be messed up. Is anybody working on that ?
-   
-   Not that I know of.  Volunteer? :)
+As of 2.5.5-dj2 and 2.4.19-pre1-ac2, my USB mouse is no longer detected at
+boot.  If, after boot, I pull the plug on the mouse and then put it back in,
+the system detects it.  This only started with the kernel versions mentioned
+above.  It still works fine with 2.4.19-pre1-ac1, for example, and I believe
+it worked fine with 2.5.5-dj1 (but I deleted that kernel so I can't test it
+again).
 
-I consider it pretty much unmaintained.  Feel free to take it
-up :)
+I'm using Debian unstable branch, with hotplug installed, and a MiniView USB
+KVM which is reported as a USB hub. 
+
+Here are the messages at boot with 2.5.5-dj2.
+
+usb-uhci.c: USB UHCI at I/O 0xd000, IRQ 7
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found at /
+hub.c: 2 ports detected
+usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+usb.c: registered new driver hid
+hid-core.c: v1.31:USB HID core driver
+hub.c: new USB device on bus 1 path /2, assigned address 2
+hub.c: USB hub found at /2
+hub.c: 4 ports detected
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+hub.c: connect-debounce failed, port 1 disabled
+usb-uhci.c: ENXIO 80000200, flags 0, urb db922d40, burb db922cc0
+hub.c: cannot disable port 1 of hub /2 (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: get_hub_status /2 failed
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: usb_hub_port_status(/2) failed (err = -6)
+usb-uhci.c: ENXIO 80000280, flags 0, urb db922d40, burb db922cc0
+hub.c: get_hub_status /2 failed
+hub.c: new USB device on bus 1 path /2/2, assigned address 3
+usb-uhci.c: ENXIO 80000300, flags 0, urb db7e20c0, burb db922f40
+
+-Nick
+
+-- 
+***********************************************************
+Nicholas Petreley        http://www.VarLinux.org
+nicholas@petreley.com    http://www.computerworld.com
+http://www.petreley.org  http://www.linuxworld.com Eph 6:12
+***********************************************************

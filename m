@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262052AbTCHPqR>; Sat, 8 Mar 2003 10:46:17 -0500
+	id <S262051AbTCHPpe>; Sat, 8 Mar 2003 10:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262053AbTCHPqQ>; Sat, 8 Mar 2003 10:46:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29201 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262052AbTCHPqM>; Sat, 8 Mar 2003 10:46:12 -0500
-Date: Sat, 8 Mar 2003 07:54:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       David Lang <david.lang@digitalinsight.com>,
-       "H. Peter Anvin" <hpa@zytor.com>, Russell King <rmk@arm.linux.org.uk>,
-       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-In-Reply-To: <1047106664.22024.0.camel@rth.ninka.net>
-Message-ID: <Pine.LNX.4.44.0303080749320.2954-100000@home.transmeta.com>
+	id <S262052AbTCHPpe>; Sat, 8 Mar 2003 10:45:34 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:17200 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S262051AbTCHPpc>; Sat, 8 Mar 2003 10:45:32 -0500
+Date: Sat, 8 Mar 2003 16:47:24 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>,
+       <linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
+In-Reply-To: <Pine.LNX.4.30.0303081100420.2790-100000@divine.city.tvnet.hu>
+Message-ID: <Pine.LNX.4.30.0303081613070.2790-100000@divine.city.tvnet.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 7 Mar 2003, David S. Miller wrote:
-> On Fri, 2003-03-07 at 18:26, Roman Zippel wrote:
-> 
-> > This is simply not true, if the usage terms are clearly defined in 
-> > advance, we can easily easily ignore the trolls. Did anyone ever complain 
-> > about the libgcc license? I don't think your fear is justified.
-> 
-> I agree with Roman, I see no reason why the libgcc
-> license could not be used.
+On Sat, 8 Mar 2003, Szakacsits Szabolcs wrote:
+>
+>  EFLAGS: 00010282
+>  eax: f6c0f080   ebx: 0000416d   ecx: 00010282 edx: f6c0f0f8
+>  esi: c040b078   edi: f6c0f0f8   ebp: f6dd1dbc esp: f6dd1db4
+>  ds: 007b   es: 007b   ss: 0068
+>
+>  3c0:       b9 06 00 00 00          mov    $0x6,%ecx
+>  ... not important ...
+>  3cc:       89 d7                   mov    %edx,%edi
+>  3ce:       89 55 f4                mov    %edx,0xfffffff4(%ebp)
+>  3d1:       f3 a5                   repz movsl %ds:(%esi),%es:(%edi)
+>  3d3:       8d 50 78                lea    0x78(%eax),%edx
+>  3d6:       8b 4d f4                mov    0xfffffff4(%ebp),%ecx
+>  3d9:       89 51 18                mov    %edx,0x18(%ecx)  ## OOPS ##
+>
+> So %ecx should be %edi-24 = f6c0f0e0, instead it's EFLAGS. Oops [indeed].
+> %ebp value is correct, I checked. So it seems a hardware, strong
+> radiation or an interrupt that didn't restore ecx.
 
-Guys, which part of "he who writes the code gets to choose the license" 
-do you not _get_?
+Actually the "interrupt" did a pushfl and overwrote 0xfffffff4(%ebp).
+esp = 0xfffffff4(%ebp). For kernel code the compiler shouldn't have
+generated the above code.
 
-I find few things more morally offensive than whiners who whine about 
-other peoples choice of license.
-
-I found it totally inappropriate when some of the crazier BSD guys were 
-whining about the use of the GPL in Linux for _years_. They seem to 
-finally have shut up lately, or maybe I've just gotten sufficiently good 
-at ignoring them.
-
-But I find it _equally_ offensive when somebody whines the other way. I 
-can understand it from rms, if only because I _expect_ it. But why the 
-hell people who didn't actually DO anything whine about Peter's choice of 
-license FOR THE CODE HE WROTE, I don't see.
-
-This is the "shut up and put up" philosophy of software licensing. Either 
-you do the work, or you sit quietly and watch others do it. If you do the 
-work, you get to impact the license. If you don't, you had better SHUT THE 
-F*CK UP!
-
-Btw, the same goes for every single BK whiner out there.
-
-		Linus "hotbutton" Torvalds
+	Szaka
 

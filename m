@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129455AbQKNVOH>; Tue, 14 Nov 2000 16:14:07 -0500
+	id <S129507AbQKNVT2>; Tue, 14 Nov 2000 16:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130201AbQKNVN5>; Tue, 14 Nov 2000 16:13:57 -0500
-Received: from [209.143.110.29] ([209.143.110.29]:35592 "HELO
-	mail.the-rileys.net") by vger.kernel.org with SMTP
-	id <S129455AbQKNVNs>; Tue, 14 Nov 2000 16:13:48 -0500
-Message-ID: <3A11A3FC.201F26D0@the-rileys.net>
-Date: Tue, 14 Nov 2000 15:43:45 -0500
-From: David Riley <oscar@the-rileys.net>
-X-Mailer: Mozilla 4.74 (Macintosh; U; PPC)
-X-Accept-Language: en,pdf
+	id <S131469AbQKNVTS>; Tue, 14 Nov 2000 16:19:18 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:28171 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S129507AbQKNVTC>; Tue, 14 Nov 2000 16:19:02 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Tue, 14 Nov 2000 13:48:59 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_EISA note in Documentation/Configure.help
 MIME-Version: 1.0
-To: "Stephen Gutknecht (linux-kernel)" <linux-kernel@i405.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: newbie, 2.4.0 on Asus CUSL2 (Intel 815E chipset with onboard video)
-In-Reply-To: <0066CB04D783714B88D83397CCBCA0CD4963@spike2.i405.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00111413485901.03227@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen Gutknecht (linux-kernel)" wrote:
-> 
-> Thanks for the prior help on getting the kernel to compile; real newbie
-> mistake of not finding the right options in the "make menuconfig" screens.
-> 
-> I can now compile 2.4.0-test, but it hangs on the first line of loading.
-> 
->  -- I have tried 2.4.0-test10 and 2.4.0-test11-pre4
->  -- If I only do my network adapter, it compiles and boots fine.  It is when
-> I add my desired settings (via "make menuconfig") for video support that the
-> compiled kernel hangs at system boot.
-> 
-> I have documented the exact procedure I use to compile the kernel at:
-> 
->   http://www.roundsparrow.com/Linux/240oni815/
+Jeff Garzik wrote:
+>
+>Agreed, for the most part.  If you know for sure you don't have an EISA
+>machine, you can now disable CONFIG_EISA.  IMHO ideally one should be
+>able to eliminate code that is useless on all but a small subset of
+>working machines.
 
-In your document, you don't mention any setting of CPU type.  That would
-be right above the SMP setting.  You say you have a celeron... the
-default processor setting is P3, and there's a different setting for
-PPro/P2/Celerons.  Improper processor selection has caused a bundle of
-rather abrupt and unexplained hangs for me...
+Well, the CONFIG_EISA option is there.  My little patch was just intended to 
+slightly enlighten those prone to "lets see what this option does".  I 
+compiled test11-pre4 both with and without CONFIG_EISA and the difference is
+very slight.  Of course, if you had more items with EISA code, this difference
+would be bigger.
 
-BTW, you could compile the RTL8139 driver into the kernel... It works
-fine for me.  For what it's worth.  Nothing wrong with modules anyway...
+ 848 -rw-r--r--    1 root     root       868179 Nov 14 13:32 bzImage
+ 848 -rw-r--r--    1 root     root       867973 Nov 14 13:28 bzImage.no_eisa
 
-	David
+The difference probably comes from my 3c59x driver.
+
+I also uglied up the 3c59x.c code with #ifdef CONFIG_EISA around the
+six sections relavant to EISA to see if that would save anything, and the
+object file was only 318 bytes smaller, probably not worth the uglyness of
+the six ifdefs.  That modified code was not used in the above comparison.
+
+I am running that modified code right now, BTW.
+
+Jeff, I can send you the patch for the hacked up 3c59x.c if you're at all 
+interested.
+
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

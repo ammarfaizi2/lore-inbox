@@ -1,83 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbUBTVpd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUBTVpd
+	id S261421AbUBTVza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUBTVza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:45:33 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:42473 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261365AbUBTVpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:45:30 -0500
-Message-ID: <40367FC8.2020802@us.ibm.com>
-Date: Fri, 20 Feb 2004 15:44:40 -0600
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	Fri, 20 Feb 2004 16:55:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3968 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261421AbUBTVz0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 16:55:26 -0500
+Date: Fri, 20 Feb 2004 16:55:27 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][3/4] poll()/select() timeout behavior
+In-Reply-To: <20040220210324.GD1912@ti19.telemetry-investments.com>
+Message-ID: <Pine.LNX.4.53.0402201648470.713@chaos>
+References: <20040220210324.GD1912@ti19.telemetry-investments.com>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Greg KH <greg@kroah.com>, Mike Anderson <andmike@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       kai@germaschewski.name, sam@ravnborg.org, akpm@osdl.org
-Subject: Re: Question on MODULE_VERSION macro
-References: <20040120082232.C9AFE2C290@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any update on the MODULE_VERSION macro getting into mainline?
+On Fri, 20 Feb 2004, Bill Rugolsky Jr. wrote:
 
--Brian
+> This patch changes select() and poll() to not wait forever when a valid,
+> but large timeout value is supplied.  The SUSv3 manual page for select(2)
+> states:
+>
+>   "If the timeout argument specifies a timeout interval greater than the
+>   implementation-defined maximum value, the maximum value shall be used as
+>   the actual timeout value."
+>
+> Both select() and poll() have a well-defined mechanism to wait forever,
+> so there is no need for the existing behavior.
+>
+> Please apply.
+>
+>     Bill Rugolsky
 
+The "well-defined mechanism" to wait forever for poll() is to
+use ANY negative value as the timeout value. If you chose -1,
+that, currently is MAX_SCHEDULE_TIMEOUT on Linux 2.4.24.
+Don't your changes muck this up or is "<0" checked somewhere
+else?
 
-Rusty Russell wrote:
-> In message <20040120011734.GB6309@kroah.com> you write:
-> 
->>On Tue, Jan 20, 2004 at 11:57:38AM +1100, Rusty Russell wrote:
->>
->>>In message <20040119214233.GF967@beaverton.ibm.com> you write:
->>>
->>>>Rusty,
->>>>	Christoph mentioned that a MODULE_VERSION macro may be pending.
->>>
->>>Hey, thanks Christoph for the reminder.  I stopped when we were
->>>frozen.
->>>
->>>This still seems to apply.  Do people think this is huge overkill, or
->>>a work of obvious beauty and genius?
->>
->>Looks sane.  I'm guessing that modinfo can show this?
-> 
-> 
-> Yes.  Looks like so:
-> 
-> --- working-2.6.1-bk5-module_version/arch/i386/kernel/apm.c.~1~	2003-09-29 10:25:15.000000000 +1000
-> +++ working-2.6.1-bk5-module_version/arch/i386/kernel/apm.c	2004-01-20 18:22:46.000000000 +1100
-> @@ -2081,3 +2081,4 @@
->  MODULE_PARM_DESC(smp,
->  	"Set this to enable APM use on an SMP platform. Use with caution on older systems");
->  MODULE_ALIAS_MISCDEV(APM_MINOR_DEV);
-> +MODULE_VERSION("1.16ac-rustytest");
-> 
-> $ modinfo arch/i386/kernel/apm.ko
-> author:         Stephen Rothwell
-> description:    Advanced Power Management
-> license:        GPL
-> ....
-> version:        1.16ac-rustytest B13E9451C4CA3B89577DEFF
-> vermagic:       2.6.1-bk5 SMP PENTIUMII gcc-3.2
-> depends:        
-> 
-> Thanks,
-> Rusty.
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-> 
+>
+> --- linux/fs/select.c	2004-02-20 14:27:24.784616879 -0500
+> +++ linux/fs/select.c	2004-02-20 14:27:28.264660774 -0500
+> @@ -316,6 +316,8 @@
+>  		if ((unsigned long) sec < (MAX_SCHEDULE_TIMEOUT-1) / HZ - 1) {
+>  			timeout = ROUND_UP(usec, 1000000/HZ);
+>  			timeout += sec * (unsigned long) HZ;
+> +		} else {
+> +			timeout = MAX_SCHEDULE_TIMEOUT-1;
+>  		}
+>  	}
+>
+> @@ -476,7 +478,7 @@
+>  			if (seconds <= (MAX_SCHEDULE_TIMEOUT-2) / HZ - 1)
+>  				timeout += seconds*HZ;
+>  			else
+> -				timeout = MAX_SCHEDULE_TIMEOUT;
+> +				timeout = MAX_SCHEDULE_TIMEOUT-1;
+>  		}
+>  	}
+>
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
 

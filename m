@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312020AbSCQNJE>; Sun, 17 Mar 2002 08:09:04 -0500
+	id <S312022AbSCQNQG>; Sun, 17 Mar 2002 08:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312021AbSCQNIx>; Sun, 17 Mar 2002 08:08:53 -0500
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:43788 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S312020AbSCQNIk>;
-	Sun, 17 Mar 2002 08:08:40 -0500
-Message-ID: <3C948C97.719B9FF0@yahoo.com>
-Date: Sun, 17 Mar 2002 07:51:19 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] no verify_write when CONFIG_WP_WORKS_OK=y
+	id <S311184AbSCQNPz>; Sun, 17 Mar 2002 08:15:55 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:10000 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S311177AbSCQNPh>;
+	Sun, 17 Mar 2002 08:15:37 -0500
+Date: Mon, 18 Mar 2002 00:12:40 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: some RCU dcache and ratcache results
+Message-ID: <20020317131240.GH22387@krispykreme>
+In-Reply-To: <20020313085217.GA11658@krispykreme> <460695164.1016001894@[10.10.2.3]> <20020314112725.GA2008@krispykreme> <20020314184609.D15394@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020314184609.D15394@in.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
- 
-> Note that the i386 has _long_ been a "stepchild", though: because of the
-> lack of WP, the kernel simply doesn't do threaded MM correctly on a 386.
 
-That reminds me of a patch to gut verify_write when CONFIG_X86_WP_WORKS_OK=y.
-Saves a few bytes.  Patch is against 2.5.7pre2.
+> > Not for this, I did do some benchmarking of the RCU dcache patches a
+> > while ago which I should post.
+> 
+> Please do ;-) This shows why we need to ease the pressure on dcache_lock.
 
-We could bin the whole thing and stop exporting it, but there may be users 
-who try to load binary only modules that were built for 386 and hence expect 
-verify_write to be exported regardless of CPU type the kernel was built for.
+OK :) Here is a graph I made a while ago. It is on a 32 way ppc64 box
+running dbench.
 
-Paul.
+http://samba.org/~anton/linux/dcache/summary.png
 
+rat - radix-tree pagecache patch
+dcache - RCU dcache patch
+ext2 - rusty's BKL removal from ext2 patch
 
---- ../linux/arch/i386/mm/fault.c	Sun Mar 17 07:14:09 2002
-+++ arch/i386/mm/fault.c	Sun Mar 17 07:02:21 2002
-@@ -4,6 +4,7 @@
-  *  Copyright (C) 1995  Linus Torvalds
-  */
- 
-+#include <linux/config.h>
- #include <linux/signal.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -29,6 +30,9 @@
- 
- extern int console_loglevel;
- 
-+#ifdef CONFIG_X86_WP_WORKS_OK
-+int __verify_write(const void * addr, unsigned long size) {return 1;}
-+#else
- /*
-  * Ugly, ugly, but the goto's result in better assembly..
-  */
-@@ -93,6 +97,7 @@
- 	}
- 	goto bad_area;
- }
-+#endif
- 
- extern spinlock_t timerlist_lock;
- 
+Not surprisingly the RCU dcache patch gave a large improvement in
+dbench. While dbench may not be the greatest of benchmarks I am also
+seeing a lot of dcache_lock contention on large zero copy workloads (eg 8
+way specweb).
 
+> > I didnt get a chance to run lockmeter, I tend to use the kernel profiler
+> > and use a hacked readprofile (originally from tridge) that displays
+> > profile hits vs assembly instruction. Thats usually good enough to work
+> > out which spinlocks are a problem.
+> 
+> Is this a PPC only hack ? Also, where can I get it ?
+
+I thought tridge put it into cvs somewhere, I'll find out the details
+from him.
+
+Anton

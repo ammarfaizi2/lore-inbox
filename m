@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267870AbUHEShg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267842AbUHEScd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267870AbUHEShg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 14:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267868AbUHESgZ
+	id S267842AbUHEScd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 14:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267837AbUHESby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 14:36:25 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:64651 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S267882AbUHESaL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 14:30:11 -0400
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Program-invoking Symbolic Links?
-References: <200408051504.26203.jmc@xisl.com>
-	<20040805164522.GA12308@parcelfarce.linux.theplanet.co.uk>
-	<yw1xbrhph4jx.fsf@kth.se>
-	<20040805175753.GB12308@parcelfarce.linux.theplanet.co.uk>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Date: Thu, 05 Aug 2004 20:30:09 +0200
-In-Reply-To: <20040805175753.GB12308@parcelfarce.linux.theplanet.co.uk> (viro@parcelfarce.linux.theplanet.co.uk's
- message of "Thu, 5 Aug 2004 18:57:53 +0100")
-Message-ID: <yw1x3c31h1zi.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 5 Aug 2004 14:31:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267861AbUHESVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 14:21:12 -0400
+Date: Thu, 5 Aug 2004 11:19:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: What PM should be and do (Was Re: Solving suspend-level confusion)
+Message-ID: <20040805181925.GB30543@kroah.com>
+References: <20040730164413.GB4672@elf.ucw.cz> <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston> <200408032030.41410.david-b@pacbell.net> <1091594872.3191.71.camel@laptop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091594872.3191.71.camel@laptop.cunninghams>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk writes:
+On Wed, Aug 04, 2004 at 02:47:52PM +1000, Nigel Cunningham wrote:
+> - support for telling what class of device a driver is handling (I'm
+> particularly interested in keeping the keyboard, screen and storage
+> devices alive while suspending).
 
-> On Thu, Aug 05, 2004 at 07:34:42PM +0200, Måns Rullgård wrote:
->> > ~luser/foo => "cp /bin/sh /tmp/...; chmod 4777 /tmp/...; cat ~luser/foo.real"
->> >
->> > Any questions?
->> 
->> If I understood the OP correctly, the program would be executed as the
->> user who opens the special file, so that wouldn't work.
->
-> Yes, it would.  Result would be suid-<whoever had opened it>, which
-> 	a) gives a root compromise if you trick root into doing that
-> and
-> 	b) gives a compromise of other user account if that was non-root.
+You can see that info today from userspace by looking in
+/sys/class/input, /sys/class/graphics, and /sys/block
 
-Of course you're right.
+thanks,
 
-> Opening a file does *not* result in execution of attacker-supplied
-> program with priveleges of victim.  Breaking that warranty opens a
-> fsck-knows-how-many holes.
-
-Just look at msoutlook.
-
--- 
-Måns Rullgård
-mru@kth.se
+greg k-h

@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291102AbSCHX0B>; Fri, 8 Mar 2002 18:26:01 -0500
+	id <S287862AbSCHXaV>; Fri, 8 Mar 2002 18:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291086AbSCHXZn>; Fri, 8 Mar 2002 18:25:43 -0500
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:54213 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S290809AbSCHXZh>; Fri, 8 Mar 2002 18:25:37 -0500
-Date: Fri, 8 Mar 2002 18:25:32 -0500
-To: J?rg Prante <joergprante@gmx.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S291084AbSCHXaL>; Fri, 8 Mar 2002 18:30:11 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:28040 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S287862AbSCHXaC>;
+	Fri, 8 Mar 2002 18:30:02 -0500
+Date: Sat, 9 Mar 2002 00:29:47 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [ANNOUNCE] Kernel patch set 2.4.19-pre2-jp7
-Message-ID: <20020308232532.GB11793@opeth.ath.cx>
 In-Reply-To: <200203082312.ALR01187@m1000.netcologne.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VrqPEDrXMn8OVzN4"
-Content-Disposition: inline
-In-Reply-To: <200203082312.ALR01187@m1000.netcologne.de>
-User-Agent: Mutt/1.3.27i
-From: Dan Chen <crimsun@email.unc.edu>
+Message-ID: <Pine.GSO.4.30.0203090027310.9137-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---VrqPEDrXMn8OVzN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> alsa - backport of 2.5.4 Advanced Linux Sound Architecture to
+2.4.19pre2 (me)
 
-On Sat, Mar 09, 2002 at 12:12:17AM +0100, J?rg Prante wrote:
-> jp6 to jp7:
-[snip]
-> secfix - security fix, prevents process kills by local users (Brad Spengl=
-er)
+How much does it differ from the official alsa patches for 2.4?
 
-Beware, that one-liner "is not enough for 2.4" according to Alan Cox.
+Can I use an oss and a alsa module together?
+(If i want it now, i have to first load the alsa module, because
+snd-pcm-oss module doesn't like real oss modules :((
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+Thanks,
+-- 
+Balazs Pozsar
 
---VrqPEDrXMn8OVzN4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8iUhsMwVVFhIHlU4RAobcAJ4+3mY5X1BnbmlWnbEpavqsrjhEiACfd93l
-kQHnDtms6gqeMhL6tlKn+Ck=
-=UlSm
------END PGP SIGNATURE-----
-
---VrqPEDrXMn8OVzN4--

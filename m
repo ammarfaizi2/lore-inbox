@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbTDDV6s (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbTDDV6s (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:58:48 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:8714
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id S261362AbTDDV6r (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 16:58:47 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33E26@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Matti Aarnio'" <matti.aarnio@zmailer.org>
-Cc: William Scott Lockwood III <vlad@geekizoid.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: your mail
-Date: Fri, 4 Apr 2003 14:10:16 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id S261369AbTDDWSc (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 17:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbTDDWSc (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 17:18:32 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:32179 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261369AbTDDWSa (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 17:18:30 -0500
+Date: Sat, 5 Apr 2003 00:29:39 +0200 (MEST)
+Message-Id: <200304042229.h34MTdTp008601@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: rddunlap@osdl.org
+Subject: Re: [Bug 538] New: Rebooting of pentium-I during initial booting phase.
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, robins.t@kutumb.org.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 12:38 PM, Matti Aarnio wrote:
-> [snip]
-> A somewhat better anti-spam filter method, than what we use presently
-> is to use strictly CLOSED list -- e.g. must be a member to post.
-> I have seen what kind of pains closed lists are, I even moderate
-> couple small ones.
-> 
-> However we are deliberately running "open for posting, subject to
-> filters" policy, which lets questions and reports to come from
-> non-subscribers.
-> 
+On Fri, 4 Apr 2003 13:25:47 +0000, Randy.Dunlap wrote:
+>On Fri, 4 Apr 2003 22:52:35 +0200 (MEST) mikpe@csd.uu.se wrote:
+>
+>| On Thu, 3 Apr 2003 09:55:34 -0800, mbligh@aracnet.com wrote:
+>| >http://bugme.osdl.org/show_bug.cgi?id=538
+>| >
+>| >           Summary: Rebooting of pentium-I during initial booting phase.
+>| >    Kernel Version: 2.5.65 (probably most versions of 2.5.x)
+>| >            Status: NEW
+>| >          Severity: normal
+>| >             Owner: mbligh@aracnet.com
+>| >         Submitter: robins.t@kutumb.org.in
+>| >
+>| >
+>| >Distribution: linus kernel 2.5.65 (probably 2.5.x)
+>| >
+>| >Hardware Environment: 
+>| >Pentium - I (120 MHz) with FO-OF Bug
+>| >Motherboard Via - With DMA Problem ("nodma" option required in 2.4.x kernels)
+>| >16mb RAM (EDO)
+>| >
+>| >Software Environment:
+>| >Linus kernel 2.5.65
+>| >
+>| >Problem Description:
+>| >The new kernel 2.5.65 reboots while booting process (in the very initial phase) making even noting the progress very difficult.
+>| >The system is running fine with 2.4.21-pre5, with the option "nodma".
+>| 
+>| Most probably a configuration error, viz. choosing a CPU type
+>| higher than generic 586. My Socket7 ASUS T2P4 with a Pentium
+>| Classic (pre-MMX) 133MHz boots 2.5.66 just fine.
+>
+>Yes, I agree with that suggestion, but I don't see a problem.
+>Did you look at his .config file?  It's here:
+>  http://bugme.osdl.org/attachment.cgi?id=261&action=view
+>
+>I'm comparing it to the .config on my Pentium-with-f00f-bug, which does
+>boot 2.5.65 successfully, and I don't see CPU option differences.
+>I see lots that don't matter and I see PIIX vs. VIA option differences.
 
-Perhaps there is a middle ground. Leave the list open, but require a
-confirmation reply prior to passing along posts from addresses that:
+I've re-tested with the exakt same .config and gcc (RH8 stock)
+that Robins used, and I still can't reproduce the problem.
+According to his 2.4.21-pre5 dmesg output, his CPU is even the
+same stepping as mine (CPUID 52C).
 
-1. are not members of the list, AND
-2. have not previously done a proper confirmation reply.
-
-The unconfirmed posts would time out and disappear after a decent interval,
-to prevent constipation.
-
-So, anybody could still post, the members would not be inconvenienced, and
-non-members would be inconvenienced only on their first post from each
-address they post from. This would preserve the "real time" nature of the
-list, while gaining the assurance that all who post are life-forms, even if
-they live in front of a keyboard and have no real life.  ;-)
-
-Of course, this would require storage for the list of confirmed addresses
-and pending unconfirmed posts, and the bandwidth and other overhead of the
-infrequent confirmation messages.
-
-Just a thought. 
-
-Cheers,
-Ed
-
----------------------------------------------------------------- 
-Ed Vance              edv (at) macrolink (dot) com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+/Mikael

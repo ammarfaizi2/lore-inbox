@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130904AbRCGO5F>; Wed, 7 Mar 2001 09:57:05 -0500
+	id <S129854AbRCGPa4>; Wed, 7 Mar 2001 10:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130941AbRCGO4p>; Wed, 7 Mar 2001 09:56:45 -0500
-Received: from [202.158.36.82] ([202.158.36.82]:39414 "EHLO
-	asmuni.trustix.co.id") by vger.kernel.org with ESMTP
-	id <S130904AbRCGO4l>; Wed, 7 Mar 2001 09:56:41 -0500
-Date: Wed, 7 Mar 2001 21:55:07 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] linux class diagrams
-In-Reply-To: <20010301012354.V25658@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.30.0103072135490.13375-100000@asmuni.trustix.co.id>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131076AbRCGPaq>; Wed, 7 Mar 2001 10:30:46 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:58887 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129854AbRCGPam>; Wed, 7 Mar 2001 10:30:42 -0500
+Message-Id: <200103071529.f27FTjO26978@aslan.scsiguy.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Christoph Hellwig <hch@caldera.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: yacc dependency of aic7xxx driver 
+In-Reply-To: Your message of "Wed, 07 Mar 2001 15:42:19 +0100."
+             <200103071442.PAA14348@ns.caldera.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 07 Mar 2001 08:29:45 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>What about simply removing the firmware source and assembler from the
+>kernel tree?  We have lots of firmware in the kernel tree for which
+>there isn't even firmware  avaible...
 
+What, and not allow others to fix my bugs for me? :-)
 
-sure, the gifs. i have to clean up the argouml files,
-there're some duplicate classes. i added tty_struct.
+Lots of people have embedded this driver just because it is completely
+open source.  I'd like to have all distributions be "complete"
+distributions.
 
-if only i had the original c++ preprocessor. it'll
-be interesting to c++ code which compiles with
-a c compiler.
-
-
-
-		imel
-
-On Thu, 1 Mar 2001, Erik Mouw wrote:
-
-> On Wed, Feb 28, 2001 at 05:47:55PM +0700, imel96@trustix.co.id wrote:
-> > hah, i forgot the url.
-> > it's at http://www.trustix.co.id/~imel96/linux/
->
-> Nice. Can we copy them on www.kernelnewbies.org? They might be useful
-> for others as well.
-
+--
+Justin
 

@@ -1,122 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264035AbTDJMpG (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 08:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTDJMpF (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 08:45:05 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:62950 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264035AbTDJMpD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 08:45:03 -0400
-Date: Thu, 10 Apr 2003 14:56:28 +0200 (MEST)
-Message-Id: <200304101256.h3ACuSw3022796@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: linuxppc-dev@lists.linuxppc.org
-Subject: gcc-2.95 broken on PPC?
-Cc: linux-kernel@vger.kernel.org
+	id S264036AbTDJMnJ (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 08:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTDJMnJ (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 08:43:09 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:20929 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP id S264036AbTDJMnI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 08:43:08 -0400
+Message-ID: <7A5D4FEED80CD61192F2001083FC1CF9065167@CHARLY>
+From: "Filipau, Ihar" <ifilipau@sussdd.de>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: gdb on 2.2/2.4
+Date: Thu, 10 Apr 2003 14:52:35 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="koi8-r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems gcc-2.95, specifically 2.95.4 as included in YDL2.3,
-generates incorrect code for recent 2.4 standard kernels on PPC.
+Hello!
 
-Background: Boot floppies made with 2.2 kernels work on my PM4400,
-but ones made from recent standard 2.4 kernels fail with a CLAIM error
-just after OF has loaded vmlinux.coff. To debug this, I've been slowly
-moving forwards from older to newer kernels, making patches at each
-point a new kernel version broke vmlinux.coff.
+  [ CC me please - I'm not subscribed ]
 
-For the latest standard kernel, 2.4.21-pre7, I need three distinct
-patches to make vmlinux.coff boot correctly. They are:
+  Couple of issues. I hope RH8 kernels not much /patched/ 
+  comparing to vanilla in this respect.
 
-1. 2.4.19-pre4 changed arch/ppc/boot/zlib.c in what appears to be a
-   reversal to an older version, causing a CLAIM error at the boot
-   "clearing .bss" line; my patch reverts that change (but see below)
-2. starting with 2.4.20, I get a CLAIM error at the "loading .data"
-   line; a well-known patch posted to linuxppc-dev fixed that
-   (change arch/ppc/boot/ld.script .data ALIGN(8) to ALIGN(4096))
-3. 2.4.21-pre6 changed include/asm-ppc/div64.h to use long long
-   arithmetic, again causing a CLAIM error at the "clearing .bss" line;
-   my patch reverts that change (but see below)
+  1. gdb doesn't work on 2.4 - if app got SIGSEGV - I cannot see
+     backtrace of random thread. I have mutli-threaded app - but 
+     gdb cannot access any other thread - only main thread.
 
-However, bugs #1 (zlib.c) and #3 (div64.h) disappear if I compile
-my kernels with gcc-3.2.2 instead of 2.95.4, which is a strong
-indication that 2.95.4 is broken on PPC. Is this something that's
-well-known to PPC people?
+  2. on 2.4 + ptrace() security fix, gdb on signal prints error 
+     message: "Couldn't access registers: permission denied".
+     and sure only 'quit' works correctly after this.
 
-The patches are included below for reference.
+  In both cases it is run from user account.
 
-/Mikael
+  Does any-one has any clue how to make gdb working on rh8?
+  I have tried to use vanilla kernel - but have no succes to 
+  date...
 
---- linux-2.4.21-pre7/arch/ppc/boot/lib/zlib.c.~1~	Wed Apr  9 10:32:51 2003
-+++ linux-2.4.21-pre7/arch/ppc/boot/lib/zlib.c	Wed Apr  9 10:39:41 2003
-@@ -925,10 +925,7 @@
-       {
-         r = t;
-         if (r == Z_DATA_ERROR)
--	{
--          ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-           s->mode = BADB;
--	}
-         LEAVE
-       }
-       s->sub.trees.index = 0;
-@@ -964,7 +961,6 @@
-           if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) ||
-               (c == 16 && i < 1))
-           {
--            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-             s->mode = BADB;
-             z->msg = "invalid bit length repeat";
-             r = Z_DATA_ERROR;
-@@ -992,10 +988,7 @@
-         if (t != Z_OK)
-         {
-           if (t == (uInt)Z_DATA_ERROR)
--	  {
--            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
-             s->mode = BADB;
--	  }
-           r = t;
-           LEAVE
-         }
---- linux-2.4.21-pre7/arch/ppc/boot/ld.script.~1~	Sat Nov 30 17:12:23 2002
-+++ linux-2.4.21-pre7/arch/ppc/boot/ld.script	Wed Apr  9 10:38:43 2003
-@@ -39,7 +39,7 @@
-   PROVIDE (etext = .);
- 
-   /* Read-write section, merged into data segment: */
--  . = ALIGN(8);
-+  . = ALIGN(4096);
-   .data    :
-   {
-     *(.data)
---- linux-2.4.21-pre7/include/asm-ppc/div64.h.~1~	Wed Apr  9 10:34:58 2003
-+++ linux-2.4.21-pre7/include/asm-ppc/div64.h	Wed Apr  9 10:38:11 2003
-@@ -1,23 +1,10 @@
- #ifndef __PPC_DIV64
- #define __PPC_DIV64
- 
--#include <linux/types.h>
--
--extern u32 __div64_32(u64 *dividend, u32 div);
--
--#define do_div(n, div)	({			\
--	u64 __n = (n);				\
--	u32 __d = (div);			\
--	u32 __q, __r;				\
--	if ((__n >> 32) == 0) {			\
--		__q = (u32)__n / __d;		\
--		__r = (u32)__n - __q * __d;	\
--		(n) = __q;			\
--	} else {				\
--		__r = __div64_32(&__n, __d);	\
--		(n) = __n;			\
--	}					\
--	__r;					\
--})
-+#define do_div(n,base) ({ \
-+int __res; \
-+__res = ((unsigned long) n) % (unsigned) base; \
-+n = ((unsigned long) n) / (unsigned) base; \
-+__res; })
- 
- #endif
+  I'm not much about debugging - but finding a 
+  SIGSEGV/SIGILL source is much more faster with gdb.
+
+P.S. System: SMP/PIII (Tried in both smp/nosmp), RH8 std kernel, 
+     RH8 updated kernel, 2.4.20. gcc 3.2/3.2.2, gdb 5.3.
+
+--- Regards&Wishes! With respect  Ihar "Philips" Filipau, and Phil for
+friends
+
+- - - - - - - - - - - - - - - - - - - - - - - - -
+MCS/Mathematician - System Programmer
+Ihar Filipau 
+Software entwickler @ SUSS MicroTec Test Systems GmbH, 
+Suss-Strasse 1, D-01561 Sacka (bei Dresden)
+e-mail: ifilipau@sussdd.de  tel: +49-(0)-352-4073-327
+fax: +49-(0)-352-4073-700   web: http://www.suss.com/

@@ -1,114 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274985AbTHQAQS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 20:16:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274986AbTHQAQS
+	id S274987AbTHQANP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 20:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274995AbTHQANP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 20:16:18 -0400
-Received: from dsl-bow-205-233-15-i232-cgy.nucleus.com ([205.233.15.232]:23045
-	"HELO thepurplebuffalo.net") by vger.kernel.org with SMTP
-	id S274985AbTHQAQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 20:16:15 -0400
-Date: Sat, 16 Aug 2003 18:16:14 -0600 (MDT)
-From: lkml@superfrink.net
-X-X-Sender: frink@thepurplebuffalo.net
-To: linux-kernel@vger.kernel.org
-Subject: vfat dentry cache issues on 2.4.20
-Message-ID: <Pine.LNX.4.44.0308161803150.305-100000@thepurplebuffalo.net>
+	Sat, 16 Aug 2003 20:13:15 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:35816 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S274987AbTHQANN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 20:13:13 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Date: Sun, 17 Aug 2003 10:12:27 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16190.51307.990399.306100@gargle.gargle.HOWL>
+Cc: Joe Thornber <thornber@sistina.com>, Andrew Morton <akpm@osdl.org>,
+       Tupshin Harper <tupshin@tupshin.com>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: data corruption using raid0+lvm2+jfs with 2.6.0-test3
+In-Reply-To: message from Mike Fedyk on Saturday August 16
+References: <3F3951F1.9040605@tupshin.com>
+	<20030812142846.46eacc48.akpm@osdl.org>
+	<16185.29398.80225.875488@gargle.gargle.HOWL>
+	<20030815212707.GR1027@matchmail.com>
+	<16189.58517.211393.526998@gargle.gargle.HOWL>
+	<20030816235245.GU1027@matchmail.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm still running 2.4.20 (for an nForce chipset) so changes between then
-and the current kernel may have fixed this.
+On Saturday August 16, mfedyk@matchmail.com wrote:
+> On Sat, Aug 16, 2003 at 06:00:21PM +1000, Neil Brown wrote:
+> > On Friday August 15, mfedyk@matchmail.com wrote:
+> > > On Wed, Aug 13, 2003 at 09:05:58AM +1000, Neil Brown wrote:
+> > > > On Tuesday August 12, akpm@osdl.org wrote:
+> > > > > Tupshin Harper <tupshin@tupshin.com> wrote:
+> > > > > >
+> > > > > > raid0_make_request bug: can't convert block across chunks or bigger than 
+> > > > > > 8k 12436792 8
+> > 
+> > > > 
+> > > > Probably the simplest solution to this is to put in calls to
+> > > > bio_split, which will need to be strengthed to handle multi-page bios.
+> > > > 
+> > > > The policy would be:
+> > > >   "a client of a block device *should* honour the various bio size 
+> > > >    restrictions, and may suffer performance loss if it doesn't;
+> > > >    a block device driver *must* handle any bio it is passed, and may
+> > > >    call bio_split to help out".
+> > > > 
+> > > 
+> > > Any progress on this?
+> > 
+> > No, and I doubt there will be in a big hurry, unless I come up with an
+> > easy way to make lvm-over-raid0 break instantly instead of eventually.
+> > 
+> > I think that for now you should assume tat lvm over raid0 (or raid0
+> > over lvm) simply isn't supported.  As lvm (aka dm) supports striping,
+> > it shouldn't be needed.
+> 
+> I have a raid5 with "4" 18gb drives, and one of the "drives" is two 9gb
+> drives in a linear md "array".
+> 
+> I'm guessing this will hit this bug too?
 
-I was getting errors from ls sometimes.  strace shows open() is failing
-with "-1 ESTALE (Stale NFS file handle)" on the file ".".  After adding
-some printk()s to fs/namei.c and fs/vfat/namei.c I think the ESTALE is
-coming from the return_err: in fs/namei.c .
+This should be safe.  raid5 only ever submits 1-page (4K) requests
+that are page aligned, and linear arrays will have the boundary
+between drives 4k aligned (actually "chunksize" aligned, and chunksize
+is atleast 4k). 
 
-In particular dentry->d_op->d_revalidate(dentry,0) is returning 1 causing
-d_invalidate(dentry) to be called but this may not clear the cache because
-the only way I've found to get rid of the error message is to unmount and
-re-mount the partition again.
+So raid5 should be safe over everything (unless dm allows striping
+with a chunk size less than pagesize).
 
-Here is how I reproduce the error message:
-( /dev/hdc2 on /data type vfat (rw,gid=102,umask=002) )
+Thinks: as an interim solution of other raid levels - if the
+underlying device has a merge_bvec_function which is being ignored, we
+could set max_sectors to PAGE_SIZE/512.  This should be safe, though
+possibly not optimal (but "safe" is trumps "optimal" any day).
 
-[frink@truth /data/foo]$\rm -rf *
-[frink@truth /data/foo]$touch file    <--\__ this order is important
-[frink@truth /data/foo]$mkdir dir     <--/
-[frink@truth /data/foo]$cd dir
-[frink@truth /data/foo/dir]$ls
-[frink@truth /data/foo/dir]$mv ../file .
-[frink@truth /data/foo/dir]$ls
-/bin/ls: .: Stale NFS file handle
-[frink@truth /data/foo/dir]$
-
-A thread found on google seems to indicate that this problem has been seen
-before (January 1999).  Has this been discussed recently?  Was it fixed and
-is appearing again after some other change?  For that mater is it present in
-the current development kernel?
-
-http://groups.google.com/groups?hl=en&lr=lang_en&ie=UTF-8&oe=utf-8&safe=off&frame=right&th=3aea305227e98f93&seekm=fa.ivvetlv.4iinqo%40ifi.uio.no#link1
-
-Thanks,
-Chad
-
-
-Patches used:
-
-[frink@truth /usr/src/linux/fs]$diff -u namei.c.orig namei.c
---- namei.c.orig        2002-11-28 16:53:15.000000000 -0700
-+++ namei.c     2003-08-16 17:58:01.000000000 -0600
-@@ -634,8 +634,17 @@
-                 */
-                dentry = nd->dentry;
-                if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-+
-+                       printk(KERN_DEBUG "vfat_NFS_error: (link_path_walk): ");
-+
-+                       if(name)
-+                               printk("name: '%x' '%s'\n", name, name);
-+                       else
-+                               printk("name: NULL\n");
-+
-                        err = -ESTALE;
-                        if (!dentry->d_op->d_revalidate(dentry, 0)) {
-+                               printk(KERN_DEBUG "vfat_NFS_error: calling d_invalidate()\n");
-                                d_invalidate(dentry);
-                                break;
-                        }
-@@ -648,6 +657,10 @@
-        }
-        path_release(nd);
- return_err:
-+       if(err == -ESTALE) {
-+
-+               printk(KERN_DEBUG "vfat_NFS_error: link_path_walk() returning ESTALE\n");
-+       }
-        return err;
- }
-
-
-[frink@truth /usr/src/linux/fs]$diff -u vfat/namei.c.orig vfat/namei.c
---- vfat/namei.c.orig   2002-08-02 18:39:45.000000000 -0600
-+++ vfat/namei.c        2003-08-12 20:27:55.000000000 -0600
-@@ -75,12 +75,15 @@
- static int vfat_revalidate(struct dentry *dentry, int flags)
- {
-        PRINTK1(("vfat_revalidate: %s\n", dentry->d_name.name));
-+       printk(KERN_DEBUG "vfat_revalidate: %s\n", dentry->d_name.name);
-        spin_lock(&dcache_lock);
-        if (dentry->d_time == dentry->d_parent->d_inode->i_version) {
-                spin_unlock(&dcache_lock);
-+               printk(KERN_DEBUG "vfat_revalidate: return 1\n");
-                return 1;
-        }
-        spin_unlock(&dcache_lock);
-+       printk(KERN_DEBUG "vfat_revalidate: return ZERO!\n");
-        return 0;
- }
-
-
+NeilBrown
+> 
+> I have a couple systems that use software raid5 that I'll avoid putting
+> 2.6-test on until I know the raid is more reliable (or is this only with
+> md+lvm?)

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbTAANiy>; Wed, 1 Jan 2003 08:38:54 -0500
+	id <S267223AbTAANfy>; Wed, 1 Jan 2003 08:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267229AbTAANiy>; Wed, 1 Jan 2003 08:38:54 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:59582 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267228AbTAANix>; Wed, 1 Jan 2003 08:38:53 -0500
-Date: Wed, 1 Jan 2003 14:47:17 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] only show arcnet submenu if arcnet is selected
-Message-ID: <20030101134717.GE14184@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S267227AbTAANfy>; Wed, 1 Jan 2003 08:35:54 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:48838 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267223AbTAANfx>; Wed, 1 Jan 2003 08:35:53 -0500
+Date: Wed, 1 Jan 2003 08:43:24 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: make gigabit ethernet into a real submenu
+In-Reply-To: <20030101131925.GA14184@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0301010829270.11858-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial: This is a follow-up to your "Gigabit Ethernet submenu" precedent.
+On Wed, 1 Jan 2003, Tomas Szepe wrote:
 
-Only show the arcnet submenu if the arcnet entry is selected.
+> Oh yes, definitely, I just wanted to be consistent with 10/100.
+> So here comes gigabit the way you suggested (tested, seems to work
+> fine), next I'll be sending a fix for 10/100, then see if there are
+> any more menus like that left in the current config setup.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+the other oddities(?) i noticed were (some admittedly trivial):
 
-diff -urN a/drivers/net/arcnet/Kconfig b/drivers/net/arcnet/Kconfig
---- a/drivers/net/arcnet/Kconfig	2002-10-31 02:33:49.000000000 +0100
-+++ b/drivers/net/arcnet/Kconfig	2003-01-01 14:43:32.000000000 +0100
-@@ -2,10 +2,8 @@
- # Arcnet configuration
- #
- 
--menu "ARCnet devices"
--	depends on NETDEVICES
--
- config ARCNET
-+	depends on NETDEVICES
- 	tristate "ARCnet support"
- 	---help---
- 	  If you have a network card of this type, say Y and check out the
-@@ -27,6 +25,9 @@
- 	  module, say M here and read <file:Documentation/modules.txt> as well
- 	  as <file:Documentation/networking/net-modules.txt>.
- 
-+menu "ARCnet devices"
-+	depends on ARCNET
-+
- config ARCNET_1201
- 	tristate "Enable standard ARCNet packet format (RFC 1201)"
- 	depends on ARCNET
+1) Under General setup, turning off Power Management support
+   deactivated all of ACPI support, but had a weird effect on
+   its sibling, Advanced Power Management BIOS support.
+   not sure if this is supposed to happen, it just looks
+   weird.
+
+2) under Input core support, if you deselect Joystick support,
+   there are still a number of selectable joystick-related
+   features available under Character devices -> Joysticks
+   (although these appear to be more than just basic joystick
+   options -- is that the reason?)
+
+3) Radio adapters is currently subsumed under Video for Linux,
+   under Multimedia devices, which seems inappropiate.
+
+i'm sure there were a couple of other oddities i noticed, if anyone
+was interested.
+
+rday
+

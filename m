@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUFBTBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263823AbUFBTJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUFBTBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 15:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbUFBTBc
+	id S263823AbUFBTJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 15:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbUFBTJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 15:01:32 -0400
-Received: from vogsphere.datenknoten.de ([212.12.48.49]:34971 "EHLO
-	vogsphere.datenknoten.de") by vger.kernel.org with ESMTP
-	id S263818AbUFBTAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 15:00:31 -0400
-Subject: Re: Strange DMA-errors and system hang with SMART (was: ...and
-	system hang with Promise 20268)
-From: Sebastian <sebastian@expires0604.datenknoten.de>
-To: Bruce Allen <ballen@gravity.phys.uwm.edu>
-Cc: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0405230737040.9783-100000@dirac.phys.uwm.edu>
-References: <Pine.GSO.4.21.0405230737040.9783-100000@dirac.phys.uwm.edu>
-Content-Type: text/plain
-Message-Id: <1086202839.4439.11.camel@coruscant.datenknoten.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 02 Jun 2004 21:00:39 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Jun 2004 15:09:29 -0400
+Received: from web81306.mail.yahoo.com ([206.190.37.81]:35717 "HELO
+	web81306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263823AbUFBTJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 15:09:27 -0400
+Message-ID: <20040602190927.79289.qmail@web81306.mail.yahoo.com>
+Date: Wed, 2 Jun 2004 12:09:27 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: RE: [PATCH] serio.c: dynamically control serio ports bindings via procfs (Was: [RFC/RFT] Raw access to serio ports)
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Cc: linux-kernel@vger.kernel.org, Tuukka Toivonen <tuukkat@ee.oulu.fi>,
+       Andries Brouwer <aeb@cwi.nl>, Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am So, den 23.05.2004 schrieb Bruce Allen um 14:46:
-> Hi Sebastian,
+Sau Dan Lee wrote:
 > 
-> Sorry it's taken me so long to reply.  My usual googling of smartmontools
-> didn't turn this up because you changed the subject line and started a new
-> thread.
+> I've  added procfs  support to  serio.c, so  that we  can  now control
+> dynamically which serio ports connect  to which serio devices.  I call
+> it "serio_switch", because it conceptually works like a patch panel or
+> a switch with which you can rewire the connections.
 
-Sorry for my late reply, too. I had been out of country and away from
-Internet.
+Let me start with saying that this is a very good patch and that is
+exactly what I have in mind with regard to serio port/device binding.
+The only problem with the patch is that it uses wrong foundation, namely
+procfs, because:
+ 
+- procfs hierarchy is disconnected from the rest of the system. You
+  cannot trace device ownership starting with root PCI bus down to your
+  AUX port.
+- there is no automatic hotplug notification to the userspace
+- it is not flexible with regard to adding custom attributes to the
+  drivers. I can see you adding rate and resolution to psmouse driver
+  and repeat rate to atkbd. With sysfs drivers can themselves create
+  attributes and they will be cleaned up once device disappears. With
+  procfs you will have to export it form serio to be available to
+  drivers and cleanup can be a nightmare.
 
-> I hadn't realized until now that the drive is an IBM GXP60.
-> 
-> smartctl is *supposed* to print a warning message for these drives, to
-> tell users to look at http://www.geocities.com/dtla_update/index.html#rel
-> for pointers to updated firmware for this drive!  What firmware version do
-> you have?
+Of course sysfs has its "problems" - it requires users to follow certain
+lifetime rules which are different from what serio uses at the moment.
 
-Yes, the warning is there. However, there never had been a problem with
-it for years until I upgraded the kernel. I probably should have paid
-more attention to that warning... The problem is that most of the links
-are broken on the page that you refer to.
+So we have several options - if we adopt procfs based solution now we
+will have to maintain it for very long time, along with competing sysfs
+implementation. Dropping one kernel parameter which will never be widely
+used is much easier, IMO.
 
-I am pretty sure now that the DMA-error is related to smart as the
-server run without problems for a couple of weeks until someone started
-smartd again by mistake. Three days later the box froze again just after
-1 am. 
+So I propose we all join our ranks and tame that sysfs together ;) I had
+some patches that were converting drivers to the sysfs adding them to
+serio bus, I probably should just send what I have as is for review
+(I was going to rediff them as they are somewhat stale, I'll see what
+shape they are later tonight).
 
-> Meanwhile, what firmware version do you have?  I suggest you upgrade it --
-> this may fix the problem.  The final firmware with the SMART fixes seems
-> to be A46A.
-
-ER4OA44A
-
-Thanks for the infos,
-
-Sebastian
+--
+Dmitry
 

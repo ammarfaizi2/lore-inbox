@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264533AbTH2MBs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 08:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264549AbTH2MBs
+	id S264549AbTH2MDr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 08:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbTH2MDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 08:01:48 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31238 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264533AbTH2MB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 08:01:28 -0400
-Subject: Re: [PATCH]O19int
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308291550.28159.kernel@kolivas.org>
-References: <200308291550.28159.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1062158484.671.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 29 Aug 2003 14:01:24 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Aug 2003 08:03:47 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:57100 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S264549AbTH2MDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 08:03:46 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Stable mainboard for Athlon/IDE
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Aug 2003 14:03:45 +0200
+Message-ID: <87r834isbi.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-29 at 07:50, Con Kolivas wrote:
+Which chipset/mainboard should I buy if I need a stable Athlon-based
+server (with two IDE disks)?
 
-> Small error in the just interactive logic has been corrected.
-> 
-> Idle tasks get one higher priority than just interactive so they don't get 
-> swamped under heavy load.
-> 
-> Cosmetic cleanup.
-> 
-> Patch against 2.6.0-test4-mm2
+AMD 761 based boards (which were recommended to me) don't seem to be
+available anymore, at least from our local suppliers.
 
-Spectacular!
-Smooth as silk and, when combined with CFQ scheduler, it's impossible to
-make sound skip, even under heavy CPU and I/O load.
-
+Or should I ditch AMD and buy Intel instead?

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbUJZQJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUJZQQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbUJZQJM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbUJZQIx
+	id S261325AbUJZQQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUJZQQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:08:53 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:8372 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261322AbUJZQI0
+	Tue, 26 Oct 2004 12:16:13 -0400
+Received: from mxin.widomaker.com ([204.17.220.7]:25872 "EHLO
+	mxin.widomaker.com") by vger.kernel.org with ESMTP id S261325AbUJZQQK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:08:26 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.10-rc1 OHCI usb error messages
-Date: Tue, 26 Oct 2004 09:05:14 -0700
-User-Agent: KMail/1.6.2
-Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <20041026172843.6ac07c1a.colin@colino.net>
-In-Reply-To: <20041026172843.6ac07c1a.colin@colino.net>
-MIME-Version: 1.0
+	Tue, 26 Oct 2004 12:16:10 -0400
+Date: Tue, 26 Oct 2004 12:12:49 -0400
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041026161247.GB28427@widomaker.com>
+References: <20041023000956.GI17038@holomorphy.com> <417D6CD9.2090702@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410260905.14869.david-b@pacbell.net>
+In-Reply-To: <417D6CD9.2090702@tmr.com>
+User-Agent: Mutt/1.5.4i
+X-Spam-Score: -4.9 (----)
+X-Spam-Report: This message has been scanned & scored by widomaker.com's mail servers.
+	The information added to this message is to allow you to chose whether
+	or not you accept this message.  For more information, contact
+	helpdesk@widomaker.com or see http://www.widomaker.com/filterspam.html
+	Content analysis details:   (-4.9 points, 9.0 required)
+	BAYES_00=-4.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 08:28, Colin Leroy wrote:
-> Hi,
-> 
-> 2.6.10-rc1 gives the following error messages on my iBook G4, which uses
-> the ohci-hcd driver:
-> 
-> usb usb2: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb2: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb2: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb3: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb3: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb3: usbfs: USBDEVFS_CONTROL failed cmd usbmodules rqt 128 rq 6 len 18 
-ret -113
-> usb usb3: string descriptor 0 read error: -113
-> usb usb3: string descriptor 0 read error: -113
-> usb usb3: string descriptor 0 read error: -113
-> usb usb2: string descriptor 0 read error: -113
-> usb usb2: string descriptor 0 read error: -113
-> ...
-> usb usb2: string descriptor 0 read error: -113
-> usb usb2: string descriptor 0 read error: -113
+Mon, 25 Oct 2004 @ 17:15 -0400, Bill Davidsen said:
 
-What's wrong there is emitting voluminous diagnostics for
-something that's not an error ... the root hub is suspended,
-and as with any suspended device, you can't talk to it.
+> I note that BSD has another serious fork 
 
-The descriptor read logic can skip retries in that case, and
-usbfs should refuse up front to talk to suspended devices.
-(Silently!)
+Which one is that?
 
-- Dave
+> and that people are actually moving to Linux after installing SP2 and 
+> finding it disfunctional with non-MS software.                        
+
+SP2?
 
 
+-- 
+shannon "AT" widomaker.com -- ["Meddle not in the affairs of Wizards, for
+thou art crunchy, and taste good with ketchup." -- unknown]

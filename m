@@ -1,83 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265463AbUAJVEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUAJVEw
+	id S265437AbUAJVdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265441AbUAJVdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:04:52 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:26251 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265463AbUAJVEu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:04:50 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 10 Jan 2004 13:04:47 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Bart Samwel <bart@samwel.tk>
-cc: Tim Cambrant <tim@cambrant.com>, Mario Vanoni <vanonim@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
- 0x37ffffff" warning.
-In-Reply-To: <40005EA5.6070406@samwel.tk>
-Message-ID: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
+	Sat, 10 Jan 2004 16:33:41 -0500
+Received: from smtp7.hy.skanova.net ([195.67.199.140]:18128 "EHLO
+	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S265437AbUAJVdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 16:33:37 -0500
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Do not use synaptics extensions by default
+References: <20040110175930.GA1749@elf.ucw.cz> <20040110193039.GA22654@ucw.cz>
+	<20040110194420.GA1212@elf.ucw.cz> <20040110195531.GD22654@ucw.cz>
+	<6u1xq77e29.fsf@zork.zork.net> <20040110202348.GA23318@ucw.cz>
+	<6uwu7z5y1y.fsf@zork.zork.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 10 Jan 2004 22:33:32 +0100
+In-Reply-To: <6uwu7z5y1y.fsf@zork.zork.net>
+Message-ID: <m2u133qyj7.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jan 2004, Bart Samwel wrote:
+Sean Neakums <sneakums@zork.net> writes:
 
-> >>--- page.h.orig	2004-01-10 18:15:17.000000000 +0100
-> >>+++ page.h	2004-01-10 18:15:47.000000000 +0100
-> >>@@ -123,7 +123,7 @@
-> >>
-> >>  #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
-> >>  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
-> >>-#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> >>+#define MAXMEM			(0xFFFFFFFF-__PAGE_OFFSET-__VMALLOC_RESERVE+1)
-> > 
-> > 
-> > Try:
-> > 
-> > #define MAXMEM                       (~__PAGE_OFFSET + 1 - __VMALLOC_RESERVE)
+> Vojtech Pavlik <vojtech@suse.cz> writes:
 > 
-> I tried that first, before I came up with the solution in the patch, 
-> because I didn't like the dependency of 0xFFFFFFFF being 32-bit. It was 
-> a nice idea, but it didn't work. Apparently, gas interprets ~ as a one's 
-> complement negation operator, not a bitwise or. Therefore, 
-> ~__PAGE_OFFSET is just as negative as -__PAGE_OFFSET as far as gas is 
-> concerned. It gives me the same warning.
+> > On Sat, Jan 10, 2004 at 08:18:22PM +0000, Sean Neakums wrote:
+> >
+> >> Will this also result in the passthough port not being enabled?
+> >> (I'd like to disable it.)
+> >
+> > It depends on the touchpad firmware. Most leave it enabled.
+> > In this mode we don't have any control over the passthrough port.
+> 
+> I notice that the passthrough appears as an extra device (mouse1 on my
+> system).  Is there a way to disable devices from userspace?
 
-That would mean a bug in as. __PAGE_OFFSET is unsigned and ~ is documented 
-(not a surprise) as "bitwise not". The bitwise not of __PAGE_OFFSET 
-(unsigned) is still unsigned. BTW 2.14 does not give warnings with both 
-the original statement and the ~ one. This:
+You can write a program that grabs the event device for exclusive
+access and then just ignores all events, like this:
 
-                                                                                                                        
-        PG=0xC0000000                                                                                                   
-        VM=(128 << 20)                                                                                                  
-                                                                                                                        
-        mov (~PG + 1 - VM), %eax                                                                                        
-        mov (-PG - VM), %eax                                                                                            
-                                                                                                                        
-generate this:
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
-zzzzzzzz:     file format elf32-i386
+/* From linux/include/linux/input.h */
+struct input_event {
+    struct timeval time;
+    unsigned short type;
+    unsigned short code;
+    unsigned int value;
+};
 
-Disassembly of section .text:
+#define EVDEV "/dev/input/event0"
 
-00000000 <.text>:
-   0:   a1 00 00 00 38          mov    0x38000000,%eax
-   5:   a1 00 00 00 38          mov    0x38000000,%eax
+#define EVIOCGRAB _IOW('E', 0x90, int)	    /* Grab/Release device */
 
+int main(int argc, char* argv[])
+{
+    const char* devName = EVDEV;
+    int fd;
+    int ret;
 
-w/out any warnings. And the result is obviously 0x38000000 and 
-not 0x37ffffff.
+    if (argc > 1)
+	devName = argv[1];
 
+    fd = open(devName, O_RDONLY);
+    if (fd < 0) {
+	fprintf(stderr, "Can't open file %s, errno:%d (%s)\n",
+		devName, errno, strerror(errno));
+	exit(1);
+    }
 
+    ret = ioctl(fd, EVIOCGRAB, 1);
+    if (ret < 0) {
+	printf("Can't grab event device, errno:%d (%s)\n",
+	       errno, strerror(errno));
+	exit(1);
+    }
 
-- Davide
+    for (;;) {
+	struct input_event ev;
+	read(fd, &ev, sizeof(ev));
+    }
 
+    close(fd);
+    return 0;
+}
 
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

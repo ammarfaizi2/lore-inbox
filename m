@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285473AbRL2UbE>; Sat, 29 Dec 2001 15:31:04 -0500
+	id <S285482AbRL2UiE>; Sat, 29 Dec 2001 15:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285449AbRL2Uay>; Sat, 29 Dec 2001 15:30:54 -0500
-Received: from waste.org ([209.173.204.2]:45010 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S285475AbRL2Uaj>;
-	Sat, 29 Dec 2001 15:30:39 -0500
-Date: Sat, 29 Dec 2001 14:30:36 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011229120451.E19306@work.bitmover.com>
-Message-ID: <Pine.LNX.4.43.0112291410080.18183-100000@waste.org>
+	id <S285475AbRL2Uhy>; Sat, 29 Dec 2001 15:37:54 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:56845 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S285449AbRL2Uhl>;
+	Sat, 29 Dec 2001 15:37:41 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112292037.XAA12592@ms2.inr.ac.ru>
+Subject: Re: AX25/socket kernel PATCHes
+To: alan@lxorguk.UKuu.ORG.UK (Alan Cox)
+Date: Sat, 29 Dec 2001 23:37:18 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16KNor-00059i-00@the-village.bc.nu> from "Alan Cox" at Dec 29, 1 09:15:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Larry McVoy wrote:
+Hello!
 
-> On Sat, Dec 29, 2001 at 01:58:21PM -0600, Oliver Xymoron wrote:
-> > On Sat, 29 Dec 2001, Larry McVoy wrote:
-> >
-> > > [patchbot stuff]
-> >
-> > > If you have N people trying to patch the same file, you'll require N
-> > > releases and some poor shlep is going to have to resubmit their patch
-> > > N-1 times before it gets in.
-> >
-> > The point is to have N patches queued against rev x that apply cleanly
->
-> And my point is that your N is likely to be quite small out of a possible
-> set that is quite large.
+> So that it checks
+> 			< skb2->data || nh.raw > ..
+> 
+> Let me know if that fixes it. It shouldn't but it would be good to know if
+> we are picking up header only frames somewhere, or nh.raw has accidentally
+> been pushed on one header too far.
 
-Nonsense. X is a release. At a minimum, a submitted patch should apply to
-the current globally visible kernel release. If you want your patch to
-go in, it has to be current, otherwise no use bothering the
-maintainer. And it ought to compile. Anything else should be bounced
-without further consideration. If the release gets bumped in a way that
-breaks everything in the queue, then everything in the queue goes back to
-the drawing board.
+Indeed... This fix would be right in any case.
 
-> If I'm right, then the patchbot idea is pointless because all the
-> interesting work is happening in the part of the set that the patchbot
-> can't handle.
 
-The purpose of the patchbot is to bounce patches that don't
-apply/compile/meet whatever baseline before Maintainer ever has to look at
-them, thus reducing the 'black hole effect' of the overloaded maintainer.
+I want to remind why this check is made: this pointer must not show
+to heavens and it must not be NULL. This property was not held in the past,
+hence this bug trap was inserted. It can be relaxed, provided it preserves
+its sanitizing function.
 
-The patchbot doesn't try to do any merging, it simply says "here are the
-qualifying candidates for merging with the current release".
+Also, note that real value of nh.raw is private to protocol.
+Particularly, it can be equal to mac.raw. The best thing to do is
+to set it to the same position as it would have if the same packet
+appeared on input. But it is not an absolute requirement,
+as soon as raw packet socket cannot hold it.
 
-In answer to your (still orthogonal) question about how parallel
-development is, my impression at least is that the answer is 'very'.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Alexey

@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263990AbTHLJwI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 05:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbTHLJwI
+	id S267317AbTHLJ5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 05:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbTHLJ5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 05:52:08 -0400
-Received: from smtp.preferred.com ([206.228.243.21]:7658 "EHLO
-	smtp.preferred.com") by vger.kernel.org with ESMTP id S263990AbTHLJwF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 05:52:05 -0400
-Message-ID: <3F38B8CE.7090007@xtn.net>
-Date: Tue, 12 Aug 2003 05:52:14 -0400
-From: Ed Cogburn <ecogburn@xtn.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Tue, 12 Aug 2003 05:57:23 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:45733
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S267317AbTHLJ5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 05:57:17 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Jeff Garzik <jgarzik@pobox.com>, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [RFC] file extents for EXT3
+Date: Tue, 12 Aug 2003 05:33:58 -0400
+User-Agent: KMail/1.5
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+References: <m3ptjcabey.fsf@bzzz.home.net> <20030811095518.T7752@schatzie.adilger.int> <3F37C2EB.5050503@pobox.com>
+In-Reply-To: <3F37C2EB.5050503@pobox.com>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-References: <jnSd.6CM.1@gated-at.bofh.it> <jo20.6MB.31@gated-at.bofh.it> <jouY.7jw.9@gated-at.bofh.it> <jov3.7jw.37@gated-at.bofh.it> <joEI.7s9.9@gated-at.bofh.it> <joOj.7Aj.11@gated-at.bofh.it> <jphi.85s.1@gated-at.bofh.it> <jphn.85s.17@gated-at.bofh.it>
-In-Reply-To: <jphn.85s.17@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308120533.58020.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> On Mon, Aug 11, 2003 at 01:53:17PM -0400, Jeff Garzik wrote:
-> 
->>Larry McVoy wrote:
->>are function calls at a 10-nanosecond glance.  Also, having two styles 
->>of 'if' formatting in your example just screams "inconsistent" to me :)
-> 
-> 
-> It is inconsistent, on purpose.  It's essentially like perl's
-> 
-> 	return unless pointer;
-> 
-> which is a oneliner, almost like an assert().
-> 
-> Maybe this will help: I insist on braces on anything with indentation so
-> that I can scan them more quickly.  If I gave you a choice between
-> 
-> 	if (!pointer) {
-> 		return (whatever);
-> 	}
-> 
-> 	if (!pointer) return (whatever);
-> 
-> which one will you type more often?  I actually don't care which you use,
-> I prefer the shorter one because I don't measure my self worth in lines 
-> of code generated, I tend to favor lines of code deleted :)  But either
-> one is fine, I tend to use the first one if it has been a problem area
-> and I'm likely to come back and shove in some debugging.
+On Monday 11 August 2003 12:23, Jeff Garzik wrote:
 
+> Of course, the other alternative is to rename ext3 to "linuxfs", add a
+> "no journal at all" mode, and remove ext2.  But I prefer my "ext4"
+> solution :)
 
-I prefer keeping the conditional statement separate from the condition, but 
-either way works.  One thing I've noticed though is that one line if statements 
-are difficult to debug in a debugger because there is no way to tell by watching 
-the current debug line whether the conditional statement was executed or not. 
-For that reason I use a two line if.  Of course, rumor has it that real 
-programmers don't use debuggers....  :)
+Well, embedded developers probably like the smaller driver.  Of course they 
+can always use minixfs. :)
 
-I would rather use the extra lines for two line if statements, then make up for 
-that used space by avoiding unnecessary braces.
+Something I've wondered about for a while:
+
+With the ability to place a journal on another block device, you could 
+theoretically throw the journal on a 1 megabyte ramdisk, and more or less 
+degrade ext3 to ext2 that way (as long as you made sure to fsck the heck out 
+of it on the way back up each time).
+
+Beyond that, why is the minimum journal size 1 megabyte?  (Having to waste a 
+megabyte of ram on a 4 megabyte filesystem is kind of annoying.  And yes, 
+buildroot on uclibc with busybox can give you quite a lot of functionality in 
+4 megabytes)  In theory, if the journal could be crushed down small enough, 
+then the ramdisk solution isn't so bad, although needing to compile in the 
+ramdisk and set it up is a bit clumsy, better still if the journal code could 
+just bounce the blocks off of a small internal ram buffer.  (Personally, I'll 
+live with the redundant in-memory copies; still faster than the disk by a 
+long shot.)
+
+Beyond THAT, ext2 could be considered ext3 with a "no journal" flag 
+(automatically supplied when the mount is read only, for example).  Last time 
+I did an embedded device, I had to stick both ext3 in (for the runtime data 
+partition) and ext2 in (for the initrd that loopback mounted the firmware 
+image, which was a zisofs containing the root partition).  Initramfs 
+addresses this particular annoyance, but still leaves a problem creating a 
+bootable CD that's going to install to ext3...
+
+Having to compile two filesystems into the kernel with basically the same 
+on-disk layout is kind of annoying, but ext3 simply isn't a good fit for a 
+small ramdisk or for read-only media.
+
+I realise that ext3 was kept separate from ext2 because ext2 should be 
+uber-stable, but the argument there is that people who care about keeping 
+their writeable data safe are intentionally not using journaling.  (Meanwhile 
+we're completely redoing the block layer underneath them, and both the SCSI 
+and IDE subsystems, and raid, but all those are obviously FAR less likely to 
+do strange things to their data behind their back than the filesystem is... 
+:)
+
+Oh well.  Too late to worry about it for 2.6 anyway... :)
+
+Rob
+
 

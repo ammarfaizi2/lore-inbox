@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSENMGn>; Tue, 14 May 2002 08:06:43 -0400
+	id <S315631AbSENMOV>; Tue, 14 May 2002 08:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315631AbSENMGm>; Tue, 14 May 2002 08:06:42 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:12812 "EHLO
+	id <S315634AbSENMOU>; Tue, 14 May 2002 08:14:20 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:33292 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315630AbSENMGl>; Tue, 14 May 2002 08:06:41 -0400
-Message-ID: <3CE0EF02.9070802@evision-ventures.com>
-Date: Tue, 14 May 2002 13:03:30 +0200
+	id <S315631AbSENMOU>; Tue, 14 May 2002 08:14:20 -0400
+Message-ID: <3CE0F0D0.7050404@evision-ventures.com>
+Date: Tue, 14 May 2002 13:11:12 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Russell King <rmk@arm.linux.org.uk>,
         Neil Conway <nconway.list@ukaea.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.15 IDE 61
-In-Reply-To: <20020514123830.A18118@flint.arm.linux.org.uk> <E177b8s-0007lm-00@the-village.bc.nu> <20020514130018.C18118@flint.arm.linux.org.uk>
+In-Reply-To: <E177b8s-0007lm-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Russell King napisa?:
-> On Tue, May 14, 2002 at 01:10:58PM +0100, Alan Cox wrote:
+Uz.ytkownik Alan Cox napisa?:
+>>Something here smells fishy here - you shouldn't hold a spinlock for a long
+>>time (a long time === spinlocking, setting up the drive, possibly scheduling,
 > 
->>I don't even Martin here, the ide locking is currently utterly vile
+> 
+> You can't hold it while scheduling or you may deadlock
 > 
 > 
-> Agreed.
+>>transferring data, getting status, then unlocking).  Also, remember,
+>>spinlocks are no-ops on uniprocessor systems.
 > 
-> I'm adding BUG_ON()s to the IDE drivers I maintain where we must ensure
-> only one channel is DMAing to catch possible data corruption before it
-> happens.
+> 
+> Its possible it can be done with a semaphore but the whole business is
+> pretty tricky. IDE command processing occurs a fair bit at interrupt level
+> and you definitely don't want to block interrupts for long periods.
 
-That is indeed a good idea!
+... Becouse the chances are fscking high - that you will miss command
+completion interrupts for the "other drive" on the same channel.
+The dready heritage of "dangling ISA bus" with *idiotic* edge triggered
+interrupts bite us here. Someone just please shoot this enginer
+who saved the few pullup resistors in the head or send him alternatively
+for "hunting white bears" in Siberia... about 15 years would be fine in my
+opinnion.
+
+> If the queue abstraction is right then the block layer should do all the
+> synchronization work that is required. It may cost a few cycles on the odd
+> case you can do overlapped command setup but that versus a nasty locking
+> mess its got to be better to lose those few cycles.
+> 
+> I don't even Martin here, the ide locking is currently utterly vile
+
+Don't worry - I got your point.
 

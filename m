@@ -1,107 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbTIUTvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 15:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIUTvQ
+	id S262546AbTIUTsc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 15:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTIUTsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 15:51:16 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:13029 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S262550AbTIUTvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 15:51:08 -0400
-Date: Sun, 21 Sep 2003 16:40:13 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: David Miller <davem@redhat.com>
-Cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4] fix ipt_REJECT when used in OUTPUT
-Message-ID: <20030921144013.GA22223@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	David Miller <davem@redhat.com>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	linux-kernel@vger.kernel.org
+	Sun, 21 Sep 2003 15:48:32 -0400
+Received: from tolkor.SGI.COM ([198.149.18.6]:40911 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S262546AbTIUTsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 15:48:30 -0400
+Subject: Re: 2.6.0-test5-mm3 & XFS FS Corruption (or not?)
+From: Steve Lord <lord@sgi.com>
+To: Walt H <waltabbyh@comcast.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux XFS Mailing List <linux-xfs@oss.sgi.com>
+In-Reply-To: <3F6DE929.4040904@comcast.net>
+References: <3F6DC819.8060003@comcast.net>  <3F6DE929.4040904@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 21 Sep 2003 14:48:15 -0500
+Message-Id: <1064173697.2285.4.camel@laptop.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
-Content-Disposition: inline
-X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
-X-Date: Today is Prickle-Prickle, the 45th day of Bureaucracy in the YOLD 3169
-User-Agent: Mutt/1.5.4i
-X-Spam-Score: -4.7 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-09-21 at 13:08, Walt H wrote:
+> Just a follow-up to my earlier post:
+> 
+> I've put in the xfs code from mm2 into the mm3 tree and all files get
+> copied and I can manually copy the fstab.backup file afterward. I
+> realized that the "rebuilding directory inode 256" was the lost+found
+> directory, which contained 4 old zero length files. That was the key.
+> XFS under -mm2 doesn't care about old lost+found directories, while -mm3
+> does. If I removed the source lost+found/ and retried rsync's with -mm3,
+> it finishes fine and I can copy fstab files. Adding a bogus lost+found
+> dir with any file in it at the source, and retrying the rsync will lead
+> to a state where I can't overwrite the existing /etc/fstab file at the
+> end. So it doesn't look like there's actually any filesystem corruption,
+> just a strange bug. Hope that helps,
+> 
+> -Walt
+> 
 
---GRPZ8SYKNexpdSJ7
-Content-Type: multipart/mixed; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
+If I am correct, test5-mm3 contains a bad version of the xfs code, there
+was a bug where the i_flags field was setup from an uninitialized stack
+variable. mm3 came out during the two days this was in Linus's tree.
+I had some very odd behavior with this code base, rm -r -f would try and
+cd into files and other bizzare things, files could appear to be
+immutable or append only or things they were not. This sounds like
+similar behavior you that you saw. It is fixed in the latest code Linus
+has.
+
+Steve
 
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Dave!
 
-Some people use REJECT in the OUTPUT chain (rejecting locally generated
-packets).  This didn't work anymore starting with some fixes we did in 2.4.=
-22.=20
-A dst_entry for a local source doesn't contain pmtu information - and
-thus the newly-created packet would instantly be dropped again.
-
-I'll send you a 2.6.x merge for this later.
-
-Please apply the following fix, thanks
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="75_REJECT_localpmtu-fix.patch"
-Content-Transfer-Encoding: quoted-printable
-
-diff -Nru --exclude .depend --exclude '*.o' --exclude '*.ko' --exclude '*.v=
-er' --exclude '.*.flags' --exclude '*.orig' --exclude '*.rej' --exclude '*.=
-cmd' --exclude '*.mod.c' --exclude '*~' linux-2.4.22/net/ipv4/netfilter/ipt=
-_REJECT.c linux-2.4.22-rejectfix/net/ipv4/netfilter/ipt_REJECT.c
---- linux-2.4.22/net/ipv4/netfilter/ipt_REJECT.c	2003-08-25 13:44:44.000000=
-000 +0200
-+++ linux-2.4.22-rejectfix/net/ipv4/netfilter/ipt_REJECT.c	2003-09-21 16:39=
-:25.000000000 +0200
-@@ -186,8 +186,8 @@
- 	nskb->nh.iph->check =3D ip_fast_csum((unsigned char *)nskb->nh.iph,=20
- 					   nskb->nh.iph->ihl);
-=20
--	/* "Never happens" */
--	if (nskb->len > nskb->dst->pmtu)
-+	/* dst->pmtu can be zero because it is not set for local dst's */
-+	if (nskb->dst->pmtu && nskb->len > nskb->dst->pmtu)
- 		goto free_nskb;
-=20
- 	connection_attach(nskb, oldskb->nfct);
-
---Qxx1br4bt0+wmkIi--
-
---GRPZ8SYKNexpdSJ7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/bbhNXaXGVTD0i/8RAuPuAJsGfP+lOdTF+9ICL/PwrcmDrigkOgCfZ29b
-WfgGMCdz+seLGbiCJngkcfY=
-=pHjS
------END PGP SIGNATURE-----
-
---GRPZ8SYKNexpdSJ7--

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291771AbSBTLaE>; Wed, 20 Feb 2002 06:30:04 -0500
+	id <S291776AbSBTLb5>; Wed, 20 Feb 2002 06:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291775AbSBTL35>; Wed, 20 Feb 2002 06:29:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60688 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291771AbSBTL3p>;
-	Wed, 20 Feb 2002 06:29:45 -0500
-Message-ID: <3C7388A1.D5778A96@mandrakesoft.com>
-Date: Wed, 20 Feb 2002 06:29:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joakim =?iso-8859-1?Q?B=E4cklund?= <jeck@Jeck.To>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Something is wrong.
-In-Reply-To: <Pine.LNX.4.20.0202201206230.11398-100000@burken.nu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S291775AbSBTLbt>; Wed, 20 Feb 2002 06:31:49 -0500
+Received: from flaxian.hitnet.RWTH-Aachen.DE ([137.226.181.79]:57865 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S291776AbSBTLb3>;
+	Wed, 20 Feb 2002 06:31:29 -0500
+Date: Wed, 20 Feb 2002 12:31:10 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Joao Guimaraes da Costa <guima@huhepl.harvard.edu>
+Cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: e2fsck compatibility problem with 2.4.17?
+Message-ID: <20020220113109.GA2876@gondor.com>
+In-Reply-To: <3C725D1C.3060001@huhepl.harvard.edu> <20020219141538.G25713@lynx.adilger.int> <3C731460.3060607@huhepl.harvard.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C731460.3060607@huhepl.harvard.edu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joakim Bäcklund wrote:
-> 
-> Hello.
-> 
-> In the recent kernel 2.4 I can't find the module rtl8139.o.
-> And I chose <M> on the realtek part in menuconfig.
-> I need that driver for my networkcard that is a little old and there
-> isn't any other drives for it I think.
-> In 2.2.* it could be found but not in 2.4.* so maybe you've change name on
-> that module or sth?
+On Tue, Feb 19, 2002 at 09:13:37PM -0600, Joao Guimaraes da Costa wrote:
+> It is also interesting that with kernel 2.4.3, I only get one error from 
+> using the "dd" command. The drive makes some noise and then it stops 
+> with the error above.
+> Under 2.4.17, it seems that it tries harder and I get more errors. The 
+> drive stays there making noise. (BTW, the noise is a set of 4 x runck 
+> plus 4 x ham! It seems each set corresponds to an error on dmesg.)
 
-yep, "rtl8139" was removed from the kernel.
+Just a guess: 2.4.17 may use a different read-ahead algorithmn than
+2.4.3, so while dd is reading only one block (and stops if there is a
+failure), 2.4.17 tries to read several blocks at once and writes more
+than one error message to the log file.
 
-"8139too" driver is what you want.
+Note that e2fsck reports an error in the range 32783 - 32791, while dd
+on 2.4.3 has problems with 32792. So the (first) bad block may be 32792,
+but e2fsck gets an error for a block <=32791.
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+Question is, why does e2fsck get an error from the kernel when it tries
+to read (for example) 32791, the kernel can read 32791 without problems,
+but gets a hard drive error for 32792? 
+
+Note that this may be all wrong, I currently do not have the time to
+read the kernel source and try to verify it.
+
+Jan
+

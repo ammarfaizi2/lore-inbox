@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVCYTOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVCYTT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVCYTOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 14:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVCYTOy
+	id S261755AbVCYTT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 14:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVCYTT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 14:14:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3991 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261748AbVCYTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 14:14:44 -0500
-Subject: Re: 2.6.12-rc1 breaks dosemu
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       linux-msdos@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200503251952.33558.arnd@arndb.de>
-References: <20050320021141.GA4449@stusta.de>
-	 <200503251952.33558.arnd@arndb.de>
+	Fri, 25 Mar 2005 14:19:57 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:46502 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261749AbVCYTTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 14:19:53 -0500
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050325053842.GA24499@htj.dyndns.org>
+References: <20050323021335.960F95F8@htj.dyndns.org>
+	 <20050323021335.4682C732@htj.dyndns.org>
+	 <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com>
+	 <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave>
+	 <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave>
+	 <20050325031511.GA22114@htj.dyndns.org> <1111726965.5612.62.camel@mulgrave>
+	 <20050325053842.GA24499@htj.dyndns.org>
 Content-Type: text/plain
-Date: Fri, 25 Mar 2005 20:14:34 +0100
-Message-Id: <1111778074.6312.87.camel@laptopd505.fenrus.org>
+Date: Fri, 25 Mar 2005 13:19:48 -0600
+Message-Id: <1111778388.5692.38.camel@mulgrave>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 19:52 +0100, Arnd Bergmann wrote:
+On Fri, 2005-03-25 at 14:38 +0900, Tejun Heo wrote:
+>  We have users of scsi_do_req() other than scsi_wait_req() and they
+> use different done() functions to do different things.  I've checked
+> other done functions and none uses contents inside the passed
+> scsi_cmnd, so using a dummy command should be okay with them.  Am I
+> missing something here?
 
-> I guess the randomization patches changed the mapping
-> in a way that dosemu did not expect.
+Well ... the other users are supposed to be going away.  They're
+actually all coded wrongly in some way or other ... perhaps I should
+speed up the process.
 
-the randomisation patches came in a series of 8 patches (where several
-were general infrastructure); could you try to disable the individual
-randomisations one at a time to see which one causes this effect?
+>  Oh, and I would really appreciate if you can fill me in / give a
+> pointer about the scsi_request/scsi_cmnd distinction.
+
+The block layer speaks in terms of requests and the scsi layers in terms
+of commands.  The scsi_request_fn() actually associates a request with a
+command.  However, since SCSI uses the block layer for queueing, all the
+internal scsi command submit paths have to use requests.  This is what a
+scsi_request is.  The reason for the special casing is that we can't use
+the normal REQ_CMD or REQ_BLOCK_PC paths because they need ULD
+initialisation and back end processing.
+
+James
+
 

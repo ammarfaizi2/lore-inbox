@@ -1,45 +1,186 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289377AbSAJKW7>; Thu, 10 Jan 2002 05:22:59 -0500
+	id <S289376AbSAJKX2>; Thu, 10 Jan 2002 05:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289376AbSAJKWs>; Thu, 10 Jan 2002 05:22:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:64272 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289375AbSAJKWj>;
-	Thu, 10 Jan 2002 05:22:39 -0500
-Date: Thu, 10 Jan 2002 11:22:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-Message-ID: <20020110112225.S19814@suse.de>
-In-Reply-To: <20020109132148.C12609@redhat.com> <200201091928.g09JSdH23535@eng2.beaverton.ibm.com> <20020110111825.C3357@inspiron.school.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020110111825.C3357@inspiron.school.suse.de>
+	id <S289375AbSAJKXU>; Thu, 10 Jan 2002 05:23:20 -0500
+Received: from lsanca1-ar27-4-63-187-072.vz.dsl.gtei.net ([4.63.187.72]:27520
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S289376AbSAJKXG>; Thu, 10 Jan 2002 05:23:06 -0500
+Date: Thu, 10 Jan 2002 02:23:02 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] adjustable loadavg decay rates
+Message-ID: <Pine.LNX.4.33.0201100121520.2363-200000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-743646087-1010658182=:2363"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10 2002, Andrea Arcangeli wrote:
-> On Wed, Jan 09, 2002 at 11:28:39AM -0800, Badari Pulavarty wrote:
-> > Ben,
-> > 
-> > By any chance do you have a list of drivers that assume this ? 
-> > What does it take to fix them ? 
-> > 
-> > I think Jens BIO changes for 2.5 will fix this problem. But 
-> > 2.4 needs a solution in this area too. This patch showed 
-> > significant improvement for database workloads. 
-> 
-> I didn't checked the implementation but as far as the blkdev is
-> concerned the b_size changes without notification as soon as you 'mkfs
-> -b somethingelse' and then mount the fs. So it cannot break as far I can
-> tell. The only important thing is that b_size stays between 512 and 4k.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The concern is/was differently sized buffer_heads in the same request,
-ie b_size changing as you iterate through the chunks of one request.
+--8323328-743646087-1010658182=:2363
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+I've made changes to the kernel to allow the decay constants for load
+average computation to be modified via /proc/sys/kernel/load-exp.
+
+What this allows you to do is make the three loadavgs more or less
+responsive to changes in system load.
+
+There is an accompanying utility, loadavgcalc, that will help calculate
+the values to feed into /proc/sys/kernel/load-exp.
+
+This patch is against 2.5.2-pre9.
+
+It probably isn't of interest to most people, but some might like to have
+a play.
+
+The loadavgcalc program is at:
+http://barbarella.hawaga.org.uk/~benc/loadavgcalc-0.1.tar.gz
+
+The patch is attached to this message.
+
+Ben
+
 
 -- 
-Jens Axboe
+Ben Clifford     benc@hawaga.org.uk
+http://www.hawaga.org.uk/ben/ GPG: 30F06950 - signed/encrypted mail encouraged
 
+=WARNING= Do not ever send e-mail to philip@hawaga.org.uk =WARNING=
+
+
+
+
+--8323328-743646087-1010658182=:2363
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="loadavg-0.1.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201100223020.2363@barbarella.hawaga.org.uk>
+Content-Description: 
+Content-Disposition: attachment; filename="loadavg-0.1.patch"
+
+SW5kZXg6IGxpbnV4L0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQN
+Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvbW50L3doaXRl
+L2N2c3Jvb3QvbGludXgvRG9jdW1lbnRhdGlvbi9zeXNjdGwva2VybmVsLnR4
+dCx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjENCnJldHJpZXZpbmcg
+cmV2aXNpb24gMS4xLjEuMS4yLjENCmRpZmYgLXUgLXIxLjEuMS4xIC1yMS4x
+LjEuMS4yLjENCi0tLSBsaW51eC9Eb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJu
+ZWwudHh0CTIwMDIvMDEvMDcgMDg6MDM6NTAJMS4xLjEuMQ0KKysrIGxpbnV4
+L0RvY3VtZW50YXRpb24vc3lzY3RsL2tlcm5lbC50eHQJMjAwMi8wMS8xMCAw
+OToxMjo1MQkxLjEuMS4xLjIuMQ0KQEAgLTI0MCwzICsyNDAsMzggQEANCiB0
+aGUgaWRsZSBsb29wLCBwb3NzaWJseSBzcGVlZGluZyB1cCBnZXRfZnJlZV9w
+YWdlcy4gU2luY2UNCiB0aGlzIG9ubHkgYWZmZWN0cyB3aGF0IHRoZSBpZGxl
+IGxvb3AgaXMgZG9pbmcsIHlvdSBzaG91bGQNCiBlbmFibGUgdGhpcyBhbmQg
+c2VlIGlmIGFueXRoaW5nIGNoYW5nZXMuDQorDQorPT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0NCisNCitsb2FkLWV4cDoNCisNCisxbWluIDVtaW4gMTVtaW4NCisNCitD
+aGFuZ2luZyB0aGVzZSB2YWx1ZXMgYWxsb3dzIGFkanVzdG1lbnQgb2YgdGhl
+IHNwZWVkIGF0IHdoaWNoIA0KK3RoZSBzeXN0ZW0gbG9hZGF2ZyBjaGFuZ2Vz
+Lg0KKw0KK1RyYWRpdGlvbmFsbHksIHRoZSBmaXJzdCB2YWx1ZSBoYXMgYSBk
+ZWNheSBjb25zdGFudCBvZiANCisxIG1pbnV0ZSwgdGhlIHNlY29uZCBoYXMg
+YSBkZWNheSBjb25zdGFudCBvZiA1IG1pbnV0ZXMgYW5kIA0KK3RoZSB0aGly
+ZCBoYXMgYSBkZWNheSBjb25zdGFudCBvZiAxNSBtaW51dGVzLCBhbmQgdGhl
+IA0KK2RlZmF1bHQgdmFsdWVzIGluIHRoaXMgc3lzY3RsIHJlZmxlY3QgdGhp
+cy4NCisNCitVc2UgdGhlIGxvYWRhdmdjYWxjIHV0aWxpdHkgdG8gY29tcHV0
+ZSBuZXcgdmFsdWVzIHRvIGZlZWQgDQoraW50byBoZXJlLg0KKw0KKz09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09DQorDQorbG9hZC1wYXJtDQorDQorZnNoaWZ0IGZyZXEg
+aHoNCisNCitJbmZvcm1hdGlvbiByZXF1aXJlZCBmb3IgdGhlIGxvYWRhdmdj
+YWxjIHV0aWxpdHkgdG8NCitjYWxjdWxhdGUgdmFsdWVzIHRvIGZlZWQgaW50
+byBsb2FkLWV4cC4NCisNCitmc2hpZnQgaXMgdGhlIG51bWJlciBvZiBiaXRz
+IGluIHRoZSBmcmFjdGlvbmFsIHBhcnQgb2YgDQorbnVtYmVycyBmZWQgaW50
+byBsb2FkLWV4cC4NCisNCitmcmVxIGlzIHRoZSBudW1iZXIgb2YgdGlja3Mg
+YmV0d2VlbiBzdWNjZXNzaXZlIGxvYWRhdmcNCitjb21wdXRhdGlvbnMuDQor
+DQoraHogaXMgdGhlIG51bWJlciBvZiB0aWNrcyBpbiBvbmUgc2Vjb25kLg0K
+Kw0KSW5kZXg6IGxpbnV4L2luY2x1ZGUvbGludXgvc3lzY3RsLmgNCj09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvbW50L3doaXRlL2N2c3Jv
+b3QvbGludXgvaW5jbHVkZS9saW51eC9zeXNjdGwuaCx2DQpyZXRyaWV2aW5n
+IHJldmlzaW9uIDEuMS4xLjENCnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEu
+MS4yLjINCmRpZmYgLXUgLXIxLjEuMS4xIC1yMS4xLjEuMS4yLjINCi0tLSBs
+aW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCTIwMDIvMDEvMDcgMDg6MDI6
+NDkJMS4xLjEuMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvc3lzY3RsLmgJ
+MjAwMi8wMS8xMCAwOToxOTo0NQkxLjEuMS4xLjIuMg0KQEAgLTEyNCw2ICsx
+MjQsOCBAQA0KIAlLRVJOX0NPUkVfVVNFU19QSUQ9NTIsCQkvKiBpbnQ6IHVz
+ZSBjb3JlIG9yIGNvcmUuJXBpZCAqLw0KIAlLRVJOX1RBSU5URUQ9NTMsCS8q
+IGludDogdmFyaW91cyBrZXJuZWwgdGFpbnRlZCBmbGFncyAqLw0KIAlLRVJO
+X0NBRFBJRD01NCwJCS8qIGludDogUElEIG9mIHRoZSBwcm9jZXNzIHRvIG5v
+dGlmeSBvbiBDQUQgKi8NCisgICAgICAgIEtFUk5fTE9BRF9FWFA9NTUsICAg
+ICAgIC8qIGludDogZXhwb25lbnRzIGZvciBsb2FkYXZnICovDQorICAgICAg
+ICBLRVJOX0xPQURfUEFSTT01NiwgICAgICAgLyogaW50OiBvdGhlciBwYXJh
+bWV0ZXJzIGZvciBsb2FkYXZnICovDQogfTsNCiANCiANCkluZGV4OiBsaW51
+eC9rZXJuZWwvc3lzY3RsLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJD
+UyBmaWxlOiAvbW50L3doaXRlL2N2c3Jvb3QvbGludXgva2VybmVsL3N5c2N0
+bC5jLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuMQ0KcmV0cmlldmlu
+ZyByZXZpc2lvbiAxLjEuMS4xLjIuMg0KZGlmZiAtdSAtcjEuMS4xLjEgLXIx
+LjEuMS4xLjIuMg0KLS0tIGxpbnV4L2tlcm5lbC9zeXNjdGwuYwkyMDAyLzAx
+LzA3IDA4OjAyOjQ4CTEuMS4xLjENCisrKyBsaW51eC9rZXJuZWwvc3lzY3Rs
+LmMJMjAwMi8wMS8xMCAwOToxOTo0NgkxLjEuMS4xLjIuMg0KQEAgLTUxLDYg
+KzUxLDggQEANCiBleHRlcm4gaW50IHN5c3JxX2VuYWJsZWQ7DQogZXh0ZXJu
+IGludCBjb3JlX3VzZXNfcGlkOw0KIGV4dGVybiBpbnQgY2FkX3BpZDsNCitl
+eHRlcm4gaW50IGxvYWRfZXhwc1tdOw0KK2V4dGVybiBpbnQgbG9hZF9wYXJt
+c1tdOw0KIA0KIC8qIHRoaXMgaXMgbmVlZGVkIGZvciB0aGUgcHJvY19kb2lu
+dHZlY19taW5tYXggZm9yIFtmc19db3ZlcmZsb3cgVUlEIGFuZCBHSUQgKi8N
+CiBzdGF0aWMgaW50IG1heG9sZHVpZCA9IDY1NTM1Ow0KQEAgLTI1Nyw2ICsy
+NTksMTAgQEANCiAJe0tFUk5fUzM5MF9VU0VSX0RFQlVHX0xPR0dJTkcsInVz
+ZXJwcm9jZXNzX2RlYnVnIiwNCiAJICZzeXNjdGxfdXNlcnByb2Nlc3NfZGVi
+dWcsc2l6ZW9mKGludCksMDY0NCxOVUxMLCZwcm9jX2RvaW50dmVjfSwNCiAj
+ZW5kaWYNCisJe0tFUk5fTE9BRF9FWFAsICJsb2FkLWV4cCIsICZsb2FkX2V4
+cHMsIDMqc2l6ZW9mKGludCksDQorCSAwNjQ0LCBOVUxMLCAmcHJvY19kb2lu
+dHZlY30sDQorCXtLRVJOX0xPQURfUEFSTSwgImxvYWQtcGFyYW1ldGVycyIs
+ICZsb2FkX3Bhcm1zLCAzKnNpemVvZihpbnQpLA0KKwkgMDQ0NCwgTlVMTCwg
+JnByb2NfZG9pbnR2ZWN9LA0KIAl7MH0NCiB9Ow0KIA0KSW5kZXg6IGxpbnV4
+L2tlcm5lbC90aW1lci5jDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1Mg
+ZmlsZTogL21udC93aGl0ZS9jdnNyb290L2xpbnV4L2tlcm5lbC90aW1lci5j
+LHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuMQ0KcmV0cmlldmluZyBy
+ZXZpc2lvbiAxLjEuMS4xLjIuMw0KZGlmZiAtdSAtcjEuMS4xLjEgLXIxLjEu
+MS4xLjIuMw0KLS0tIGxpbnV4L2tlcm5lbC90aW1lci5jCTIwMDIvMDEvMDcg
+MDg6MDI6NDgJMS4xLjEuMQ0KKysrIGxpbnV4L2tlcm5lbC90aW1lci5jCTIw
+MDIvMDEvMTAgMDk6MTk6NDYJMS4xLjEuMS4yLjMNCkBAIC0xMyw2ICsxMyw3
+IEBADQogICogICAgICAgICAgICAgIHNlcmlhbGl6ZSBhY2Nlc3NlcyB0byB4
+dGltZS9sb3N0X3RpY2tzKS4NCiAgKiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIENvcHlyaWdodCAoQykgMTk5OCAgQW5kcmVhIEFyY2FuZ2VsaQ0K
+ICAqICAxOTk5LTAzLTEwICBJbXByb3ZlZCBOVFAgY29tcGF0aWJpbGl0eSBi
+eSBVbHJpY2ggV2luZGwNCisgKiAgMjAwMi0wMS0wOSAgVXNlcmxhbmQgYWRq
+dXN0YWJsZSBsb2FkYXZnLiBDb3B5cmlnaHQgKEMpIDIwMDEgQmVuIENsaWZm
+b3JkLg0KICAqLw0KIA0KICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4NCkBA
+IC02MTksNiArNjIwLDI4IEBADQogICovDQogdW5zaWduZWQgbG9uZyBhdmVu
+cnVuWzNdOw0KIA0KKy8qDQorICogU3RvcmVzIHRoZSBkZWNheSBjb25zdGFu
+dHMgZm9yIHRoZSBleHBvbmVudGlhbCBhdmVyYWdlcy4NCisgKg0KKyAqIHRv
+ZG86IHB1dCBpbiBzeXNjdGwgYWRqdXN0bWVudCBvZiB0aGUgb3RoZXIgdmFs
+dWVzLg0KKyAqIHRvZG86IGFkanVzdGFibGUgc2lnbmlmaWNhbnQgZmlndXJl
+cyBhbmQgZnJlcXVlbmN5DQorICogdG9kbzogZnMvcHJvYy9wcm9jX21pc2Mu
+YzogYXZlbnJ1bltdIHJlZmVyZW5jZXMNCisgKiB0b2RvOiBMT0FEX0lOVCBh
+bmQgTE9BRF9GUkFDIG1hY3JvcyAoaW4gYXQgbGVhc3QgZnMvcHJvYy9wcm9j
+X21pc2MpDQorICogdG9kbzogZmluZC9ncmVwIG9mIGFsbCB0aGUgY29uc3Rh
+bnQgcmV2ZWFscyB2YXJpb3VzIHBsYWNlcyB0aGF0IHNob3VsZA0KKyAqICAg
+ICAgIGJlIGNoZWNrZWQgLyBjaGFuZ2VkLg0KKyAqIHRvZG8/OnVzZXIgY2Fu
+IHNldCBsb2FkYXZnIHZhbHVlLCBmb3IgZXhhbXBsZSwgaW5pdGlhbCB2YWx1
+ZSBhZnRlciByZWJvb3QNCisgKiAgICAgICBpZiB3ZSBhcmUgcnVubmluZyBh
+IG1hbnktd2VlayBkZWNheSBhbmQgZXhwZWN0IHRvIHJlYm9vdCBzZXZlcmFs
+DQorICogICAgICAgdGltZXM/DQorICovDQordW5zaWduZWQgaW50IGxvYWRf
+ZXhwc1szXSA9IHsgRVhQXzEsIEVYUF81LCBFWFBfMTV9Ow0KKw0KKy8qIA0K
+KyAqIFJlYWQgb25seSB2YXJpYWJsZXMgKGF0IGxlYXN0IGZvciB0aGUgbW9t
+ZW50KS4gDQorICogVGhleSBhcmUgaGVyZSBpbiBvcmRlciB0byBleHBvc2Ug
+dGhlIGtlcm5lbCBjb25zdGFudHMgdmlhIC9wcm9jL3N5cw0KKyAqIGZvciB0
+aGUgdXNlcmxhbmQgZXhwb25lbnQgY2FsY3VsYXRvci4NCisgKi8NCit1bnNp
+Z25lZCBpbnQgbG9hZF9wYXJtc1szXSA9IHtGU0hJRlQsIExPQURfRlJFUSwg
+SFp9Ow0KKw0KIHN0YXRpYyBpbmxpbmUgdm9pZCBjYWxjX2xvYWQodW5zaWdu
+ZWQgbG9uZyB0aWNrcykNCiB7DQogCXVuc2lnbmVkIGxvbmcgYWN0aXZlX3Rh
+c2tzOyAvKiBmaXhlZC1wb2ludCAqLw0KQEAgLTYyOCw5ICs2NTEsOSBAQA0K
+IAlpZiAoY291bnQgPCAwKSB7DQogCQljb3VudCArPSBMT0FEX0ZSRVE7DQog
+CQlhY3RpdmVfdGFza3MgPSBjb3VudF9hY3RpdmVfdGFza3MoKTsNCi0JCUNB
+TENfTE9BRChhdmVucnVuWzBdLCBFWFBfMSwgYWN0aXZlX3Rhc2tzKTsNCi0J
+CUNBTENfTE9BRChhdmVucnVuWzFdLCBFWFBfNSwgYWN0aXZlX3Rhc2tzKTsN
+Ci0JCUNBTENfTE9BRChhdmVucnVuWzJdLCBFWFBfMTUsIGFjdGl2ZV90YXNr
+cyk7DQorCQlDQUxDX0xPQUQoYXZlbnJ1blswXSwgbG9hZF9leHBzWzBdLCBh
+Y3RpdmVfdGFza3MpOw0KKwkJQ0FMQ19MT0FEKGF2ZW5ydW5bMV0sIGxvYWRf
+ZXhwc1sxXSwgYWN0aXZlX3Rhc2tzKTsNCisJCUNBTENfTE9BRChhdmVucnVu
+WzJdLCBsb2FkX2V4cHNbMl0sIGFjdGl2ZV90YXNrcyk7DQogCX0NCiB9DQog
+DQo=
+--8323328-743646087-1010658182=:2363--

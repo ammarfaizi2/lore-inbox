@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316465AbSFEV44>; Wed, 5 Jun 2002 17:56:56 -0400
+	id <S316477AbSFEWUD>; Wed, 5 Jun 2002 18:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316477AbSFEV4y>; Wed, 5 Jun 2002 17:56:54 -0400
-Received: from p50887156.dip.t-dialin.net ([80.136.113.86]:17309 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316465AbSFEV4t>; Wed, 5 Jun 2002 17:56:49 -0400
-Date: Wed, 5 Jun 2002 15:56:34 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Lightweight patch manager <patch@luckynet.dynu.com>,
-        Keith Owens <kaos@ocs.com.au>
-Subject: Re: [PATCH] kbuild-2.5: quote Menuconfig quotemarks
-In-Reply-To: <E17Eot5-0000sM-00@starship>
-Message-ID: <Pine.LNX.4.44.0206051553290.3833-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316484AbSFEWUD>; Wed, 5 Jun 2002 18:20:03 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:7143 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S316477AbSFEWUC>;
+	Wed, 5 Jun 2002 18:20:02 -0400
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+From: Steve Lord <lord@sgi.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020604225539.F9111@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 05 Jun 2002 17:15:23 -0500
+Message-Id: <1023315323.17160.522.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 3 Jun 2002, Daniel Phillips wrote:
-> > >  are you willing to integrate the kbuild patches (or whatever subset of
-> > > them you find appropriate)? The split-up looks reasonable, but I'd rather
-> > > have somebody else (and neutral) do the final integration..
+On Tue, 2002-06-04 at 21:55, Benjamin LaHaise wrote:
+> Hey folks,
+> 
 >
-> Just to be clear, this should be directed at "Lightweight patch manager
-> <patch@luckynet.dynu.com>", aka Thunder.  Thanks, Kai.
+> 
+> I had been playing with 2.5KB stacks (4KB page minus 1.5K for task_struct), 
+> and it is possible given a few fixes for massive (>1KB) stack allocation 
+> in the pci layer and a few others.  So far 4KB hasn't overflowed on any 
+> of the tasks I normally run (checked using a stack overflow checker that 
+> follows).
+> 
 
-Jesus! I think I shouldn't take it because, as Linus mentioned, I might 
-not be 100% neutral. Well, I actually made it in any case to be neutral, 
-but this time it's different in many ways, especially because I'd have to 
-show a neutral attitude towards my own patches, and it would only be one 
-person to find it appropriate.
+Ben,
 
-I try to avoid any prejudices concerning anyone, which includes Kai, so 
-we'll give it a try.
+Just what are the tasks you normally run - and how many code
+paths do you think there are out there which you do not run. XFS
+might get a bit stack hungry in places, we try to keep it down,
+but when you get into file system land things can stack up quickly:
 
-Regards,
-Thunder
+	NFS server -> file system -> block layer -> device driver
+
+With possibly some form of volume management out there too.
+
+I am pounding away on xfs with your code in there including the
+checker, and so far it is surviving. But I only have a plain old
+scsi drive underneath, and no NFS on top.
+
+Steve
+
 -- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
 
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

@@ -1,41 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263018AbREWJK5>; Wed, 23 May 2001 05:10:57 -0400
+	id <S263021AbREWJLH>; Wed, 23 May 2001 05:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263022AbREWJKr>; Wed, 23 May 2001 05:10:47 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2830 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263018AbREWJKc>; Wed, 23 May 2001 05:10:32 -0400
-Date: Wed, 23 May 2001 04:33:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: write drop behind effect on active scanning 
-Message-ID: <Pine.LNX.4.21.0105221910361.864-100000@freak.distro.conectiva>
+	id <S263022AbREWJK5>; Wed, 23 May 2001 05:10:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29960 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263021AbREWJKi>; Wed, 23 May 2001 05:10:38 -0400
+Subject: Re: Linux 2.4.4-ac14
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 23 May 2001 10:07:28 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <7185.990583519@kao2.melbourne.sgi.com> from "Keith Owens" at May 23, 2001 12:05:19 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152Uc4-00039B-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is drivers/char/ser_a2232fw.ax supposed to be included?  Nothing uses it.
 
-
-Hi, 
-
-I just noticed a "bad" effect of write drop behind yesterday during some
-tests.
-
-The problem is that we deactivate written pages, thus making the inactive
-list become pretty big (full of unfreeable pages) under write intensive IO
-workloads.
-
-So what happens is that we don't do _any_ aging on the active list, and in
-the meantime the inactive list (which should have "easily" freeable
-pages) is full of locked pages. 
-
-I'm going to fix this one by replacing "deactivate_page(page)" to
-"ClearPageReferenced(page)" in generic_file_write(). This way the written
-pages are aged faster but we avoid the bad effect just described.
-
-Any comments on the fix ?  
-
+Yes. Its the 6502 source to the 2232 firmware we load

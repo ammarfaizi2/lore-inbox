@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVCNGNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVCNGSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVCNGNq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 01:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVCNGNq
+	id S261813AbVCNGSo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 01:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVCNGSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 01:13:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:37699 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261783AbVCNGNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 01:13:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=ULBNeYVLGCdaAIN3IRc7kmgbwtEs4aud8pt4oUFBFi7PEp4EkdJtD9H3oZe5ospW+CRm2vtp3kTFF3Qs19UsNonsj9XfXuscmxkjZV1ZjOOCHvi5EcaK1SxuTgrEFJvRSFgM9x4DlWg3RXC5S6FbzsAYtojTG335/844oLpjb4I=
-Message-ID: <5a3ed56505031322134b9bef94@mail.gmail.com>
-Date: Mon, 14 Mar 2005 09:13:21 +0300
-From: regatta <regatta@gmail.com>
-Reply-To: regatta <regatta@gmail.com>
+	Mon, 14 Mar 2005 01:18:43 -0500
+Received: from dialpool1-164.dial.tijd.com ([62.112.10.164]:7569 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S261813AbVCNGSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 01:18:42 -0500
+From: Jan De Luyck <lkml@kcore.org>
 To: linux-kernel@vger.kernel.org
-Subject: LUN size limit
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Call for help: list of machines with working S3
+Date: Mon, 14 Mar 2005 07:19:00 +0100
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
+       rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz>
+In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503140719.01536.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Monday 14 February 2005 22:11, Pavel Machek wrote:
+> Hi!
+>
+> Stefan provided me initial list of machines where S3 works (including
+> video). If you have machine that is not on the list, please send me a
+> diff. If you have eMachines... I'd like you to try playing with
+> vbetool (it worked for me), and if it works for you supplying right
+> model numbers.
 
-What is the maximum size of a LUN in 2.4 and in 2.6?
+Acer Travelmate 803LCi, working Suspend to ram:
+- Have to use the soft-boot method for the radeon
+- Have to shutdown the following parts: 
+  * hotplug (actually the USB subsystem, but hotplug does that nicely)
+  * ALSA (modem won't work otherwise without reloading the modules)
+    (snd_intel8x0m module)
+  * MySQL (hinders the actual suspension process and kicks the pc back to 
+    where it was)
 
-Also, is there a limit of the number of LUN's we can mount in a filesystem?
+Other than these little things it works like a charm :)
 
-
+Jan
 -- 
-Best Regards,
---------------------
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+Bumper sticker:
+ All the parts falling off this car are of the very finest
+ British manufacture.

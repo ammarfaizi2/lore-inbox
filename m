@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271767AbRH1Wur>; Tue, 28 Aug 2001 18:50:47 -0400
+	id <S270905AbRH1Xfb>; Tue, 28 Aug 2001 19:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271742AbRH1Wuh>; Tue, 28 Aug 2001 18:50:37 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:7111 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S271738AbRH1WuU>; Tue, 28 Aug 2001 18:50:20 -0400
-Date: Wed, 29 Aug 2001 00:57:40 +0200 (CEST)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Can't compile HiSaX into 2.2.20pre9 kernel
-Message-ID: <Pine.LNX.4.33.0108290052010.8607-100000@neptune.sol.net>
+	id <S271019AbRH1XfW>; Tue, 28 Aug 2001 19:35:22 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:24999 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S270905AbRH1XfP>;
+	Tue, 28 Aug 2001 19:35:15 -0400
+Message-ID: <3B8C2C4E.33EAB59E@randomlogic.com>
+Date: Tue, 28 Aug 2001 16:42:06 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Spam with vger.kernel.org return address
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've received at least two unsolicited e-mails (possibly more, but I get so much crap, I generally send it straight to /dev/null), both relating to sex, with
+vger.kernel.org return addresses. Who is the best person to contact about it?
 
-Hello all!
+It's really bad to click on an e-mail I think is from this list, find an image of a naked woman, and hope to God my boss doesn't come by before I can delete it.
 
-I get an error message during 'make bzImage' when I try to compile
-2.2.20pre9 with the HiSax ISDN driver included (it works with HiSax as
-module):
-
-ld -m elf_i386 -T /usr/src/linux-2.2.20pre9/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-        fs/filesystems.a \
-        net/network.a \
-        drivers/block/block.a drivers/char/char.o drivers/misc/misc.a
-drivers/isdn/isdn.a drivers/net/net.a drivers/scsi/scsi.a
-drivers/cdrom/cdrom.a drivers/sound/sounddrivers.o drivers/pci/pci.a
-drivers/video/video.a \
-        /usr/src/linux-2.2.20pre9/arch/i386/lib/lib.a
-/usr/src/linux-2.2.20pre9/lib/lib.a
-/usr/src/linux-2.2.20pre9/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-init/main.o(.data.init+0x39c): undefined reference to `HiSax_setup'
-init/main.o(.data.init+0x3a4): undefined reference to `HiSax_setup'
-make: *** [vmlinux] Error 1
-
-The strange thing is, the drivers/isdn/isdn.a included above defines
-the symbol:
-
-/usr/src/linux-2.2.20pre9 # nm -a drivers/isdn/isdn.a | grep HiSax_setup
-0000043c t HiSax_setup
-
-I have no idea what goes wrong here. It works as expected with 2.2.19.
-
-I did:
-bzcat ../pre-patch-2.2.0-9.bz2 | patch -p1
-make clean
-make mrproper
-cp ../linux-2.2.19/.config .
-make oldconfig
-make dep
-make bzImage
+PGA
 
 -- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
-
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

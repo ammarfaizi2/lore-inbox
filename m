@@ -1,87 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275872AbSIUDqQ>; Fri, 20 Sep 2002 23:46:16 -0400
+	id <S275874AbSIUDw3>; Fri, 20 Sep 2002 23:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275873AbSIUDqQ>; Fri, 20 Sep 2002 23:46:16 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:521 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S275872AbSIUDqP>; Fri, 20 Sep 2002 23:46:15 -0400
-Date: Fri, 20 Sep 2002 20:47:59 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Rhoads, Rob" <rob.rhoads@intel.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [ANNOUNCE] Linux Hardened Device Drivers Project 
+	id <S275875AbSIUDw2>; Fri, 20 Sep 2002 23:52:28 -0400
+Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:40342 "EHLO
+	www.veltzer.org") by vger.kernel.org with ESMTP id <S275874AbSIUDw1>;
+	Fri, 20 Sep 2002 23:52:27 -0400
+Message-Id: <200209210409.g8L49FC04271@www.veltzer.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Veltzer <mark@veltzer.org>
+Organization: Meta Ltd.
+To: "Rhoads, Rob" <rob.rhoads@intel.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
+Date: Sat, 21 Sep 2002 07:09:13 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <D9223EB959A5D511A98F00508B68C20C0A5389A5@orsmsx108.jf.intel.com>
 In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0A5389A5@orsmsx108.jf.intel.com>
-Message-ID: <Pine.LNX.4.10.10209202033500.25090-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Rhoads, Rob wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Obvious this is a way for the telecom folks to get something 
-> > for free that
-> > really should be paid for by funding the project with CASH.  
-> > Or funding (a) startup(s) related to generating such support.
-> >
-> > Regardless, it takes (fill in the blank) to boldly ask people 
-> > to add APIs
-> > for an industry who is only interested in using and not contributing.
-> > Prove that all the stuff which is going to be plugged into these
-> > security-hole^Wbug-generators^Wfeatures will be scheduled for 
-> > open source.
-> 
 > This project is open to anyone who wants to participate and is
-> being paid for by Intel and a host of other companies. The 
-
-Explain how it is paid and to whom?
-
+> being paid for by Intel and a host of other companies. The
 > idea is to enable Linux to play in the Carrier space with all
 > the work given away under the GPL.
 
-Re-Phase, "Carrier space" needs Linux to succeed.
+Enable Linux to play in the Carrier space. That IS interesting. This is, I 
+expect, as opposed to all the other operating systems which run on Intel 
+platforms which are already robust and already play in the "Carrier space" ?
+The patronization of commercial companies never ceases to amaze me...
 
+Let me reverse this: Intel wants to play in the Carrier space and needs Linux 
+to do it... Ok. Now we've got it right. I think this is what other posters 
+thought of as "taking". Intel has everything to gain here since it was never 
+a player in the "Carrier space".
 
-> > Or this another attempt to try and take over the license and shove BSD
-> > down the piles?
-> 
-> The project is open and released under the terms of the GPL. 
+Don't get me wrong, I'm not saying NO to free code but if we really have to 
+come face to face with the truth then it's quite obvious from history that 
+commercial companies aren't that hot when it comes to coding (it's my general 
+experience that code that comes out of commercial companies needs to be more 
+heavily reviewed bacause marketing/featurism and deadlines produce bad 
+code...).
 
-Okay, is there not a cause for loading "closed source modules" via the new
-API's and management tools?
+Regarding marketing slogans. Even a bad mouse driver can screw up your 
+system. This means that you just have to write good driver code. I certainly 
+wouldn't want all of this commercial bla bla to turn into a big fat API where 
+old and new semantics are mixed and are not clear like in the "other" carrier 
+grade operating system which is well known and runs on Intel. APIs have to be 
+as lean as possible with robust semantics. This should not change and this is 
+actually the chief strength of Linux (because all driver code is available 
+the API is quite mature and robust). All that is left to do is improve driver 
+code. So why don't you call the project "Driver improvement project" or 
+something like that and drop the commercial bla bla. Under this title the 
+project has probably been going on (under some form or another) since 1991.
 
-> > PS: I see a lot of "wants", are there any "gives" ?
-> 
-> What paying professional developers to work on an Open Source project 
+> What paying professional developers to work on an Open Source project
 > and giving their work away under the terms of the GPL isn't enough?
 
-I am sorry, I do not understand the context.
+You mean when Intel finally gets a real operating system to run on it's 
+machines for PRACTICALLY NOTHING ?!? I think Intel is getting a real sweet 
+deal here. I would love to be a chip maker and get a full operating system 
+(with thousands of applications and a full desktops) for the price of a few 
+developers. Also the big commercial noise that such a project would generate 
+would probably win a few fat accounts away from SUN eh ?!?
 
-I give away lots of work which is paid for by various companies who desire
-broarder support for their product.  If I recall correctly, Intel is a
-promoter of Serial ATA, yet it took another vendor whose interest in
-working with the open source community funded the "free release" of a
-generic IOPS driver layer change, and the crossover support for various
-archs.  Just so you know, they are totally aware the release of the
-project would also enable their competion.  They are betting their product
-is superior and put the money down to prove it!
+BTW: would you be paying developers to work on other architecture drivers too 
+? ! ? That would be interesting but I guess the answer is no... This is a 
+major problem since the arsenal of tools at the disposal of a driver coder in 
+Linux is quite generic (with regard to platform). When you aim to produce a 
+driver just for i386 you tend to hardcode x86 details into your driver which 
+makes for a bad driver since using the platform agnostic Linux arsenal would 
+probably produce a better driver. You do code for x86 but if you are 
+developing a mixed set of drivers (for different archs) then you tend to 
+understand the generic tools semantics better and use them better which in 
+turn produces better drivers. It may sound strange but when coding in Linux 
+you're better off being familiar with several archs and working on details of 
+several archs because you tend to produce better drivers that way (even if 
+the drivers are arch specific). The generic tools that you mentioned 
+(regarding more robust error handling etc..) which seem to me like 
+improvements in API would certainly need to be approved for ALL architectures 
+which in turn will need a big janitor type project which means that it's out 
+of this development cycle.
 
-So why not have the "Carrier" people post a list of tasks to be completed
-and the monetary value and let the opensource community play in the
-bidding process to earn the contract?
+Mark.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-You specify it to be totally open source and IP generated shall be demeed
-public and not open for patents.
-
-Will the carrier folks step up to the BAR and do the right thing by the
-many individuals in the community or shield themselves in wordy
-specifications and compliance terms?
-
-Please point out why this is wrong?
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+iD8DBQE9i/DpxlxDIcceXTgRAkWxAJ9vUND+LnzCg3c0dQepZ6sYFwBkEwCgvVpb
+YA6gC8XeeM4Ct/w44SHXLhA=
+=HP4A
+-----END PGP SIGNATURE-----

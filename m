@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317063AbSHAUtS>; Thu, 1 Aug 2002 16:49:18 -0400
+	id <S315529AbSHAUry>; Thu, 1 Aug 2002 16:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSHAUtR>; Thu, 1 Aug 2002 16:49:17 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57824 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317063AbSHAUtQ>;
-	Thu, 1 Aug 2002 16:49:16 -0400
-Date: Thu, 1 Aug 2002 16:52:43 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Schwartz <davids@webmaster.com>
-cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-In-Reply-To: <20020801202412.AAA21031@shell.webmaster.com@whenever>
-Message-ID: <Pine.GSO.4.21.0208011641410.12627-100000@weyl.math.psu.edu>
+	id <S317023AbSHAUry>; Thu, 1 Aug 2002 16:47:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315529AbSHAUrx>; Thu, 1 Aug 2002 16:47:53 -0400
+Date: Thu, 1 Aug 2002 13:51:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: manipulating sigmask from filesystems and drivers 
+In-Reply-To: <Pine.LNX.4.44.0208012241390.8911-100000@serv>
+Message-ID: <Pine.LNX.4.33.0208011348430.12015-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Thu, 1 Aug 2002, David Schwartz wrote:
-
+On Thu, 1 Aug 2002, Roman Zippel wrote:
+> >
+> > In short, this is not something that can be discussed. It's a cold fact, a
+> > law of UNIX if you will.
 > 
-> >First, we were talking about written for free vs. written to make money.
-> >Second, the quality of the output depends on the quality of the process,
-> >not how much you pay for it. Equally likely isn't what I said, either.
-> 
-> 	I give one person $2,000 and one person $50,000 to buy a car. Would you 
-> argue that they are equally likely to come back with quality cars?
+> Any program setting up signal handlers should expext interrupted i/o,
+> otherwise it's buggy.
 
-If you send both to area famous for seedy dealers?  Yeah - both will
-come back with painted pieces of shit, unless they'll have uncommon
-luck to find something better.  And that's a *BIG* luck.
+Roman, THAT IS JUST NOT TRUE!
 
-	Face it - in a lot of categories the market of software is market
-of snake oil.  When all alternatives on the market are utter crap and that
-situation hadn't been changed in decades...  And I mean all - be they
-commercial, free, for Linux, Solaris, Windows, VMS, HP-UX, yaddda, yadda;
-it doesn't matter.
+Go read the standards. Some IO is not interruptible. This is not something 
+I'm making up, and this is not something that can be discussed about. The 
+speed of light in vacuum is 'c', regardless of your own relative speed. 
+And file reads are not interruptible.
 
-	It's nice to pretend that this is not the case.  Just don't forget
-to pray when you view a PDF or PostScript document from some site.  Or
-listen to mp3.  Or view a picture in one of $BIGNUM formats.
-
-	And don't give me that crap about Sturgeon's Law - for many categories
-we are talking about 100%, not 90%.  Sheesh...
+			Linus
 

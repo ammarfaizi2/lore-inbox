@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292231AbSBYU1y>; Mon, 25 Feb 2002 15:27:54 -0500
+	id <S292238AbSBYU2O>; Mon, 25 Feb 2002 15:28:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292217AbSBYU1o>; Mon, 25 Feb 2002 15:27:44 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:37126 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292169AbSBYU1g>; Mon, 25 Feb 2002 15:27:36 -0500
-Date: Mon, 25 Feb 2002 16:18:46 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.18
+	id <S292217AbSBYU2F>; Mon, 25 Feb 2002 15:28:05 -0500
+Received: from ns.caldera.de ([212.34.180.1]:23689 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S292169AbSBYU1x>;
+	Mon, 25 Feb 2002 15:27:53 -0500
+Date: Mon, 25 Feb 2002 21:27:43 +0100
+Message-Id: <200202252027.g1PKRhq07430@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: bruce.holzrichter@monster.com ("Holzrichter, Bruce")
+Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18
+X-Newsgroups: caldera.lists.linux.kernel
 In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101FE2@nocmail.ma.tmpw.net>
-Message-ID: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3AB544CBBBE7BF428DA7DBEA1B85C79C01101FE2@nocmail.ma.tmpw.net> you wrote:
+> Should 2.4.18 final get a -dontuse tag or something?  Some people may get
+> confused grabbing 2.4.18 and not getting the fixes that went into rc-4?
+> Just a thought...
 
+90 percent or more of the Linux users couldn't care less for the missing
+hunk (as it doesn't affect i386).
 
-On Mon, 25 Feb 2002, Holzrichter, Bruce wrote:
+	Christoph
 
-> 
-> 
-> > Ok, DAMN. I missed the -rc4 patch in 2.4.18. Real sorry about that.
-> > 
-> > 2.4.19-pre1 will contain it. 
-> 
-> Should 2.4.18 final get a -dontuse tag or something?  
-
-No. A "-dontuse" tag should be only used when the kernel can cause damage
-in some way.
-
-The patch which I missed only breaks static apps on _some_ architectures
-(not including x86).
-
-> Some people may get confused grabbing 2.4.18 and not getting the fixes
-> that went into rc-4? Just a thought...
-
-I already changed ftp.kernel.org's changelog adding:
-
-"Update: The SET_PERSONALITY fix in rc4 has _not_ 
-been included in the final 2.4.18 by mistake."
-
-I guess thats enough.
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

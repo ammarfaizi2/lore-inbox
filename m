@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUHYDIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268359AbUHYDRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268372AbUHYDIW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 23:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUHYDIW
+	id S268359AbUHYDRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 23:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUHYDRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 23:08:22 -0400
-Received: from dsl081-100-231.den1.dsl.speakeasy.net ([64.81.100.231]:15744
-	"EHLO hal9000.jaa.iki.fi") by vger.kernel.org with ESMTP
-	id S268372AbUHYDIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 23:08:19 -0400
-Date: Tue, 24 Aug 2004 21:08:17 -0600
-From: Jani Averbach <jaa@jaa.iki.fi>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x: Kernel Oops with netconsole + serial console
-Message-ID: <20040825030817.GA4571@jaa.iki.fi>
-References: <20040819171918.GC5050@jaa.iki.fi> <20040824191853.GF5414@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040824191853.GF5414@waste.org>
-X-PGP-Key: http://www.cc.jyu.fi/~jaa/averbach_jani_pub_asc.txt
-User-Agent: Mutt/1.5.4i
+	Tue, 24 Aug 2004 23:17:50 -0400
+Received: from relay.pair.com ([209.68.1.20]:40969 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S268359AbUHYDRs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 23:17:48 -0400
+X-pair-Authenticated: 66.190.51.173
+Message-ID: <412C04DB.9000508@cybsft.com>
+Date: Tue, 24 Aug 2004 22:17:47 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
+References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu>
+In-Reply-To: <20040824061459.GA29630@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-08-24 14:18-0500, Matt Mackall wrote:
-> On Thu, Aug 19, 2004 at 11:19:18AM -0600, Jani Averbach wrote:
-> > [please Cc: me]
-> > 
-> > I have tried to setup both netconsole and serial console for
-> > unattended server (I need a serial console for booting and a netconsole for
-> > logging).
-> > 
-> > However, 2.6.6 and 2.6.8.1 both will oops if both consoles are
-> > configured and in use. Disabling one of them will help, and system
-> > boots up normally.
+Ingo Molnar wrote:
+> * Scott Wood <scott@timesys.com> wrote:
 > 
-> Does it work with netconsole and no serial then? Hmm.
-
-Yes, kernel with compiled in netconsole and serial console will work
-iff the netconsole or the serial console alone is configured at
-boot time by boot-parameters. If you try to use both of them,
-kernel will oops.
-
-> > This is dual amd64, with two BCM5704 NIC.
 > 
-> Can you send your boot dmesg?
+>>I have attached a port of the voluntary preempt patch to PPC and
+>>PPC64.  The patch is against P7, but it applies against P8 as well.
+> 
+> 
+> thanks Scott, i've applied your patch to my tree - all the changes and
+> improvements look good (except for a small compilation problem on x86,
+> asm/time.h doesnt exist there - asm/rtc.h does). The resulting code
+> booted fine on an SMP and on a UP x86 system. I've uploaded -P9:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+> 
+> (there are no other changes in -P9.)
+> 
+> 	Ingo
 
-I will send to you my system information (it is 18K tar.bz2)
-out-of-list, if someone else likes to take look of it, please ask, and
-I will send it also to you.
+latency trace of ~148 usec in scsi_request? I don't know if this is real 
+or not. Note the 79 usec here:
 
-Thanks for looking this,
-Jani
+00000001 0.107ms (+0.079ms): sd_init_command (scsi_prep_fn)
 
--- 
-Jani Averbach
+Entire trace is here:
+
+http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace7.txt
+
+
+Is this possible? This is not the first time I have seen this. There is 
+another one here:
+
+http://www.cybsft.com/testresults/2.6.8.1-P9/latency_trace5.txt
+
+kr

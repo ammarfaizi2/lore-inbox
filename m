@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268277AbUH2TRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268276AbUH2TWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268277AbUH2TRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUH2TRR
+	id S268276AbUH2TWf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 15:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUH2TWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:17:17 -0400
-Received: from holomorphy.com ([207.189.100.168]:41391 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268277AbUH2TRP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:17:15 -0400
-Date: Sun, 29 Aug 2004 12:17:07 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org, albert@users.sourceforge.net
-Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
-Message-ID: <20040829191707.GU5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, rl@hellgate.ch,
-	linux-kernel@vger.kernel.org, albert@users.sourceforge.net
-References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch> <20040829172022.GL5492@holomorphy.com> <20040829120733.455f0c82.pj@sgi.com>
+	Sun, 29 Aug 2004 15:22:34 -0400
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:2060 "EHLO
+	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
+	id S268276AbUH2TWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 15:22:32 -0400
+Subject: [PATCH] 1/3: 2.6.8 zr36067 driver - correct i2c-algo-bit
+	dependency in Kconfig
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
+       mjpeg-developer@lists.sourceforge.net
+Content-Type: multipart/mixed; boundary="=-2nn9nnF5XxVQrBrahEwz"
+Message-Id: <1093807411.2493.91.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829120733.455f0c82.pj@sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 29 Aug 2004 21:23:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> get_tgid_list() is a sad story I don't have time to go into in depth.
->> The short version is that larger systems are extremely sensitive to
 
-On Sun, Aug 29, 2004 at 12:07:33PM -0700, Paul Jackson wrote:
-> Thanks, Roger and William, for your good work here.  I'm sure that SGI's
-> big bertha's will benefit.
-> In glancing at the get_tgid_list() I see it is careful to only pick off
-> 20 (PROC_MAXPIDS) slots at a time.  But elsewhere in the kernel, I see
-> several uses of "do_each_thread()" which rip through the entire task
-> list in a single shot.
-> Is there a simple explanation for why it is ok in one place to take on
-> the entire task list in a single sweep, but in another it is important
-> to drop the lock every 20 slots?
+--=-2nn9nnF5XxVQrBrahEwz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-PROC_MAXPIDS is the size of the buffer used to temporarily store the
-pid's while doing user copies, so that potentially blocking operations
-may be done to transmit the pid's to userspace.
+Hi,
 
-Introducing another whole-tasklist scan, even if feasible, is probably
-not a good idea.
+attached patch correctly makes the zr36067 driver depend on i2c-ago-bit
+in the kernel config. Bug reported and patch sent to me by Adrian Bunk
+<bunk@fs.tum.de> (6/21). It wasn't signed off.
 
+Ronald
 
-On Sun, Aug 29, 2004 at 12:07:33PM -0700, Paul Jackson wrote:
-> From the code and nice comments, I see that:
->   (1) the work that had to be done by proc_pid_readdir(), the caller of
->       get_tgid_list(), required dropping the task list lock, and
->   (2) so the harvested tgid's had to be stashed in a temp buffer.
-> So perhaps the reason for not doing this in a single pass is:
->   (3) it was not doable or not desirable (which one?) to size that temp
->       buffer large enough to hold all the harvested tgid's in one pass.
-> But my understanding is losing the scent of the trail at this point.
+Signed-off-by: Ronald Bultje <rbultje@ronald.bitfreak.net>
 
-Using a larger, dynamically-allocated buffer may be better. e.g.
-allocating a page to buffer pid's with.
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
 
-A solution to the problem of the quadratic algorithm I wrote long ago
-restructured the tasklist as an rbtree so that the position in the
-tasklist could be recovered in O(lg(n)) time. Unfortunately, this
-increases the write hold time of tasklist_lock.
+--=-2nn9nnF5XxVQrBrahEwz
+Content-Disposition: attachment; filename=zoran-i2c-dep.diff
+Content-Type: text/x-patch; name=zoran-i2c-dep.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Index: linux/drivers/media/video/Kconfig
+--- linux~zoran-i2c-dep/drivers/media/video/Kconfig	2004-08-14 12:56:22.000000000 +0200
++++ linux/drivers/media/video/Kconfig	2004-08-29 18:26:46.243334816 +0200
+@@ -155,7 +155,7 @@
+ 
+ config VIDEO_ZORAN
+ 	tristate "Zoran ZR36057/36067 Video For Linux"
+-	depends on VIDEO_DEV && PCI && I2C
++	depends on VIDEO_DEV && PCI && I2C_ALGOBIT
+ 	help
+ 	  Say Y for support for MJPEG capture cards based on the Zoran
+ 	  36057/36067 PCI controller chipset. This includes the Iomega
 
--- wli
+--=-2nn9nnF5XxVQrBrahEwz--
+

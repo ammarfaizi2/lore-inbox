@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272773AbRJBPnD>; Tue, 2 Oct 2001 11:43:03 -0400
+	id <S275387AbRJBPqD>; Tue, 2 Oct 2001 11:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273709AbRJBPmy>; Tue, 2 Oct 2001 11:42:54 -0400
-Received: from kehcheng.Stanford.EDU ([171.64.103.40]:53485 "EHLO
-	kehcheng.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S272773AbRJBPms>; Tue, 2 Oct 2001 11:42:48 -0400
-Date: Tue, 2 Oct 2001 08:43:16 -0700
-From: Keh-Cheng Chu <kehcheng@quake.Stanford.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: NFS atime problem in ac kernels
-Message-ID: <20011002084316.A12571@kehcheng.Stanford.EDU>
-Mime-Version: 1.0
+	id <S273709AbRJBPpy>; Tue, 2 Oct 2001 11:45:54 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:5825 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S275389AbRJBPpj>; Tue, 2 Oct 2001 11:45:39 -0400
+Subject: Re: your mail
+To: dinesh_gandhewar@rediffmail.com
+Date: Tue, 2 Oct 2001 16:30:05 +0100 (BST)
+Cc: mlist-linux-kernel@nntp-server.caltech.edu
+In-Reply-To: <20011002152945.15180.qmail@mailweb16.rediffmail.com> from "Dinesh  Gandhewar" at Oct 02, 2001 03:29:45 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15oRUj-000512-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have written a linux kernel module. The linux version is 2.2.14. 
+> In this module I have declared an array of size 2048. If I use this array, the execution of this module function causes kernel to reboot. If I kmalloc() this array then execution of this module function doesnot cause any problem.
+> Can you explain this behaviour?
 
-In fs/nfs/inode.c, the function __nfs_refresh_inode() has a
-line removed (see below) from all recent ac kernels.  This
-may be the reason why, in ac kernels but not in Linus kernels,
-the atime of a file in an NFS mounted directory does not get
-updated after file access.  Putting the line back has solved
-the problem for me.
+Yes
+--
+Alan
 
-Keh-Cheng Chu
+[Oh wait you want to know why...]
 
---- linux-2.4.10/fs/nfs/inode.c Fri Sep  7 09:40:04 2001
-+++ linux-2.4.10-ac3/fs/nfs/inode.c     Tue Oct  2 08:07:02 2001
+Either
 
-@@ -1006,8 +1029,6 @@
-         NFS_CACHE_CTIME(inode) = fattr->ctime;
-         inode->i_ctime = nfs_time_to_secs(fattr->ctime);
+1.	You are using it for DMA
+2.	You are putting it on the stack and causing a stack overflow
 
--       inode->i_atime = nfs_time_to_secs(fattr->atime);
--
-         NFS_CACHE_MTIME(inode) = new_mtime;
-         inode->i_mtime = nfs_time_to_secs(new_mtim

@@ -1,74 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbUKMWOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUKMWT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbUKMWOa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 17:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUKMWOa
+	id S261186AbUKMWT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 17:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUKMWT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 17:14:30 -0500
-Received: from fsmlabs.com ([168.103.115.128]:65409 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261185AbUKMWOL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 17:14:11 -0500
-Date: Sat, 13 Nov 2004 15:13:57 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-mm5
-In-Reply-To: <41967669.3070707@aknet.ru>
-Message-ID: <Pine.LNX.4.61.0411131504360.4183@musoma.fsmlabs.com>
-References: <41967669.3070707@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Nov 2004 17:19:28 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:19210 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261186AbUKMWT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 17:19:26 -0500
+Date: Sat, 13 Nov 2004 23:19:03 +0100
+From: Jedi/Sector One <lkml@pureftpd.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5 [u]
+Message-ID: <20041113221925.GA2196@c9x.org>
+References: <20041111012333.1b529478.akpm@osdl.org> <1100368553.12239.3.camel@nosferatu.lan> <1100380593.12663.1.camel@nosferatu.lan> <20041113132232.5c201000.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041113132232.5c201000.akpm@osdl.org>
+X-Operating-System: OpenBSD - http://www.openbsd.org/
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004, Stas Sergeev wrote:
-
-> Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/
-> Here are the few new problems that
-> I've got:
+On Sat, Nov 13, 2004 at 01:22:32PM -0800, Andrew Morton wrote:
+> Could you please try:
 > 
-> 1. Local APIC stopped working. I know
-> I have to add "lapic" to the command-line,
-> but now this doesn't help (in -mm4 either
-> I think). dmesg says:
-> ---
-> Kernel command line: ro root=/dev/hdc2 apm=power-off lapic nmi_watchdog=1
-> ...
-> Local APIC not detected. Using dummy APIC emulation.
-> ---
-> Is this known? Any other command-line option
-> to enable it again?
+> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/broken-out/futex_wait-fix.patch
+> patch -R -p1 < futex_wait-fix.patch
 
-Could you please apply the following patch and supply full dmesg?
+  It seems that reverting this patch indeed fixes the Apache + NPTL issue.
 
-Thanks.
-
-Index: linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 apic.c
---- linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c	11 Nov 2004 17:24:27 -0000	1.1.1.1
-+++ linux-2.6.10-rc1-mm5/arch/i386/kernel/apic.c	13 Nov 2004 22:12:39 -0000
-@@ -733,8 +733,10 @@ static int __init detect_init_APIC (void
- 	extern void get_cpu_vendor(struct cpuinfo_x86*);
- 
- 	/* Disabled by kernel option? */
--	if (enable_local_apic < 0)
-+	if (enable_local_apic < 0) {
-+		printk("%s:%d\n", __FILE__, __LINE__);
- 		return -1;
-+	}
- 
- 	/* Workaround for us being called before identify_cpu(). */
- 	get_cpu_vendor(&boot_cpu_data);
-@@ -760,6 +762,7 @@ static int __init detect_init_APIC (void
- 		 * APIC only if "lapic" specified.
- 		 */
- 		if (enable_local_apic <= 0) {
-+	                printk("%s:%d\n", __FILE__, __LINE__);
- 			apic_printk(APIC_VERBOSE,
- 				    "Local APIC disabled by BIOS -- "
- 				    "you can enable it with \"lapic\"\n");

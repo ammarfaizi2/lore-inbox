@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272048AbRIDSP2>; Tue, 4 Sep 2001 14:15:28 -0400
+	id <S272068AbRIDSYL>; Tue, 4 Sep 2001 14:24:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272072AbRIDSPT>; Tue, 4 Sep 2001 14:15:19 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:45478 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S272048AbRIDSPJ>; Tue, 4 Sep 2001 14:15:09 -0400
-Message-ID: <3B951AA1.648DBB44@kegel.com>
-Date: Tue, 04 Sep 2001 11:17:05 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S272065AbRIDSYB>; Tue, 4 Sep 2001 14:24:01 -0400
+Received: from maild.telia.com ([194.22.190.101]:2794 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S272068AbRIDSXt>;
+	Tue, 4 Sep 2001 14:23:49 -0400
+Message-Id: <200109041823.f84INqE13918@maild.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
+        Fred <fred@arkansaswebs.com>
+Subject: Re: Should I use Linux to develop driver for specialized ISA card?
+Date: Tue, 4 Sep 2001 20:19:17 +0200
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball> <3B950034.17909E5D@nortelnetworks.com>
+In-Reply-To: <3B950034.17909E5D@nortelnetworks.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: new solaris syscall: sendfilev
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Solaris 8 update 7/01 documents a new system call, sendfilev,
-which is like a cross between sendfile and writev.  A copy of
-the man page is at http://www.kegel.com/sendfilev.txt
+On Tuesday den 4 September 2001 18:24, Christopher Friesen wrote:
+> Fred wrote:
+> > I'm  curious, Alan, Why? I'm a hardware developer, and I would have
+> > assumed that linux would have been ideal for real time / embedded
+> > projects? (routers / controllers / etc.) Is there, for instance, a reason
+> > to suspect that linux would not be able to respond to interrupts at say
+> > 8Khz?
+> > of course I know nothing of rtlinux so I'll read.
+>
+> I'm involved in a project where we are using linux in an embedded
+> application. We've got a gig of ram, no hard drives, no video, and the only
+> I/O is serial, ethernet and fiberchannel.
+>
+> We have a realtime process that tries to run every 50ms.  We're seeing
+> actual worst-case scheduling latencies upwards of 300-400ms.
+>
+> So while interrupts can be handled pretty quickly, you'll want to make sure
+> that your buffers are big enough that your userspace app only needs to run
+> every half second or so.
+>
+> You may be better off with rtlinux if you need better response. (Or if
+> you're on x86 hardware you could look at the low-latency patches.)
 
-The question immediately comes up - is there an aio version?
-I haven't seen one.
+1) Why shouldn't the low-latency patches work for another architecture?
+Andrew Morton might be interested to fix other architectures too.
+(but most patches are not in architecture specific code)
 
-Come to think of it, has anyone thought what an aio version of 
-plain old writev would look like?  lio_listio() is *unordered*,
-but writev is ordered.  I wonder if something like
-lio_ordered_listio() would be useful, or if that's just so complicated
-it should be done in userland anyway.
+2) Montavistas reschedulable kernel is a very interesting approach, newly
+released an update by Robert Love
+  http://kpreempt.sourceforge.net/
+  http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-preempt-kernel-1
+(there are still some spikes, but the floor is smooth)
 
-- Dan
+But note you with both approaches you want to run the latency critical process
+with a higher priority, and probably with the memory locked down.
+
+See example code (latencytest) at:
+ http://www.gardena.net/benno/linux/audio/
+(but there is no need to run at the maximum possible priority since your
+ process will be alone anyway...)
+
+/RogerL
 
 -- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt
+Roger Larsson
+Skellefteå
+Sweden

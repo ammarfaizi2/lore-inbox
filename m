@@ -1,54 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpIJ3B1wXeR95RUO7SOc4DcAF3g==
+thread-index: AcQVpHx/oF/gbX1nRE27T3QPkTPrmA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 16:52:43 +0000
-Message-ID: <020e01c415a4$8277ddd0$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 14:45:41 +0000
+Message-ID: <020b01c415a4$7c7fb2e0$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:42:58 +0100
+Date: Mon, 29 Mar 2004 16:42:48 +0100
 Content-Class: urn:content-classes:message
-From: "Dave Jones" <davej@redhat.com>
+From: "Tomas Szepe" <szepe@pinerecords.com>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <szepe@pinerecords.com>,
-        <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: Pentium M config option for 2.6
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rob Love <rml@ximian.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-	szepe@pinerecords.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur>
+References: <200401041410.i04EA61e007769@harpo.it.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <1073233988.5225.9.camel@fur>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200401041410.i04EA61e007769@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:58.0140 (UTC) FILETIME=[827F09C0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:53.0140 (UTC) FILETIME=[7F841940:01C415A4]
 
-On Sun, Jan 04, 2004 at 11:33:08AM -0500, Rob Love wrote:
+On Jan-04 2004, Sun, 15:10 +0100
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 
- > Yah.  I was just answering in the abstract to the "does cache line
- > matter on non-SMP" question.
- > 
- > I actually like this patch (perhaps since I have a P-M :) and think it
- > ought to go in, although I agree with others that the P-M is more of a
- > super-P3 than a scaled down P4.
+> On Date: Sun, 4 Jan 2004 13:33:58 +0100, Tomas Szepe wrote:
+> > > IOW, don't lie to the compiler and pretend P-M == P4
+> > > with that -march=pentium4.
+> > 
+> > What do you recommend to use as march then?  There is
+> > no pentiumm subarch support in gcc yet;  I was convinced
+> > p4 was the closest match.
+> 
+> march=pentium3 is the closest safe choice, at least
+> until gcc implements P-M specific support.
 
-FWIW, I agree with it too on the grounds that its non obvious the optimal
-setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
-helptext to read...
-
- "Pentium II"
- "Pentium III / Pentium 4M"
- "Pentium 4"
-
-My other mail may have sounded like I objected to the patch per se, I don't.
-
-		Dave
+Thanks, here's the updated patch.
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+Tomas Szepe <szepe@pinerecords.com>
+
+
+diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2004-01-04 03:10:01.000000000 +0100
++++ b/arch/i386/Kconfig	2004-01-04 03:06:09.000000000 +0100
+@@ -231,6 +231,13 @@
+ 	  correct cache shift, and applies any applicable Pentium III
+ 	  optimizations.
+ 
++config MPENTIUMM
++	bool "Pentium M (Banias/Centrino)"
++	help
++	  Select this for Intel Pentium M chips.  This option enables
++	  compile flags optimized for the chip, uses the correct cache
++	  shift, and applies any applicable Pentium III/IV optimizations.
++
+ config MK6
+ 	bool "K6/K6-II/K6-III"
+ 	help
+@@ -330,7 +337,7 @@
+ 	default "7" if MPENTIUM4 || X86_GENERIC
+ 	default "4" if MELAN || M486 || M386
+ 	default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || M586 || MVIAC3_2
+-	default "6" if MK7 || MK8
++	default "6" if MPENTIUMM || MK7 || MK8
+ 
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+@@ -379,17 +386,17 @@
+ 
+ config X86_GOOD_APIC
+ 	bool
+-	depends on MK7 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
++	depends on MK7 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
+ 	default y
+ 
+ config X86_INTEL_USERCOPY
+ 	bool
+-	depends on MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M586MMX || X86_GENERIC || MK8 || MK7
++	depends on MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M586MMX || X86_GENERIC || MK8 || MK7
+ 	default y
+ 
+ config X86_USE_PPRO_CHECKSUM
+ 	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || MK8 || MVIAC3_2
++	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || MK8 || MVIAC3_2
+ 	default y
+ 
+ config X86_USE_3DNOW
+@@ -512,7 +519,7 @@
+ 
+ config X86_TSC
+ 	bool
+-	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
++	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
+ 	default y
+ 
+ config X86_MCE
+diff -urN a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile	2003-09-28 11:38:05.000000000 +0200
++++ b/arch/i386/Makefile	2004-01-04 03:02:52.000000000 +0100
+@@ -35,6 +35,7 @@
+ cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
+ cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
+ cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
++cflags-$(CONFIG_MPENTIUMM)	+= $(call check_gcc,-march=pentium3,-march=i686)
+ cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
+ # Please note, that patches that add -march=athlon-xp and friends are pointless.
+ # They make zero difference whatsosever to performance at this time.
+diff -urN a/include/asm-i386/module.h b/include/asm-i386/module.h
+--- a/include/asm-i386/module.h	2003-08-23 01:52:22.000000000 +0200
++++ b/include/asm-i386/module.h	2004-01-04 03:08:17.000000000 +0100
+@@ -28,6 +28,8 @@
+ #define MODULE_PROC_FAMILY "PENTIUMIII "
+ #elif defined CONFIG_MPENTIUM4
+ #define MODULE_PROC_FAMILY "PENTIUM4 "
++#elif defined CONFIG_MPENTIUMM
++#define MODULE_PROC_FAMILY "PENTIUMM "
+ #elif defined CONFIG_MK6
+ #define MODULE_PROC_FAMILY "K6 "
+ #elif defined CONFIG_MK7

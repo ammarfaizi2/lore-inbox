@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268497AbTBWPwJ>; Sun, 23 Feb 2003 10:52:09 -0500
+	id <S268504AbTBWPz7>; Sun, 23 Feb 2003 10:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268502AbTBWPwJ>; Sun, 23 Feb 2003 10:52:09 -0500
-Received: from imo-d06.mx.aol.com ([205.188.157.38]:40428 "EHLO
-	imo-d06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S268497AbTBWPwI>; Sun, 23 Feb 2003 10:52:08 -0500
-Message-ID: <3E58F07B.3030801@netscape.net>
-Date: Sun, 23 Feb 2003 08:02:03 -0800
-From: Sheng Long Gradilla <skamoelf@netscape.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	id <S268505AbTBWPz7>; Sun, 23 Feb 2003 10:55:59 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:47115 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S268504AbTBWPz6>;
+	Sun, 23 Feb 2003 10:55:58 -0500
+Date: Sun, 23 Feb 2003 11:06:09 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: linux-kernel@vger.kernel.org, Rik van Riel <riel@imladris.surriel.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: oom killer and its superior braindamage in 2.4
+Message-ID: <Pine.LNX.4.44.0302231058070.23778-100000@admin>
 MIME-Version: 1.0
-To: =?UTF-8?B?VG9wbGljYSBUYW5hc2tvdmnEhw==?= <toptan@EUnet.yu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
-References: <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu> <200302231450.47506.toptan@EUnet.yu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tested on an Asus A7V8X motherboard (KT400) with a GeForce4 Ti 4200 
-AGP8X. The module loads correctly, at last! It sets the apperture size 
-correctly and all, but when I start XFree, I get do not get any 
-graphical screen, but text mode garbage. Characters of all colors, with 
-no sense at all. I had exactly the same problem in other kernels.
 
-I played a bit with the NvAGP option on XF86Config file. According to 
-the documentation, 0 is PCI mode, 1 is NvAGP or fallback to PCI if 
-failed, 2 is AGPGART mode or fallback to PCI if failed, 3 is autodetect. 
-If I set it to 2, 3 or comment it, I got the same problem with the 
-garbage and had to reset the PC. Setting it to 0 would make it run in 
-PCI mode, and it always works. I tried setting it to 1, thinking that 
-maybe the documentation is wrong. X started successfully, but the card 
-was in PCI mode. I read the logs to confirm it, and indeed, the NvAGP 
-module fails to identify the AGP chipset and falls back to PCI.
+Marc, Rik,
 
-I tried setting NvAGP to 2 again, to read the logs and see if there is 
-something I could find out, but unfortunately the log had nothing but 
-garbage. I tried several times with no success. The log is always garbage.
+> - Feb 21 10:04:57 codeman kernel: Out of Memory: Killed process 2657 
+> (apache).
+>
+> The above log entry (apache) appeared for about 4 hours every some 
+> seconds (same PID) until I thought about sysrq-b to get out of this 
+> braindead behaviour. The machine was somewhat dead for me because I was 
+> not able to do anything but sysrq. The system itself was _not_ dead, 
+> there was massive disk i/o. This is 2.4.20 vanilla.
 
-- Sheng Long Gradilla
+This exact thing happened to me as well, on a 2.4.20-pre that hasn't been 
+upgraded to 2.4.20 yet.  The thing that concerns me most is:
+
+Why won't the system kill the process it claims to be killing?
+
+If, in Marc's case, the system wants to kill PID 2657, a lowly sleeping 
+apache process, why can't it?  This is a bug for sure.
+
+For me, there was some python process chosen as the one for killing and it 
+repeated the 'Out of Memory: Killed process xxxxx (python)' for hours 
+while making no progress.  The machine was still routing packets but I 
+couldn't log in.  Sys-rq was disabled, so I was forced to use the big red 
+button.
+
+Rik, any ideas?
+
+David
+
+-- 
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
 

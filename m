@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130569AbQKOWIt>; Wed, 15 Nov 2000 17:08:49 -0500
+	id <S129597AbQKOWKJ>; Wed, 15 Nov 2000 17:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130453AbQKOWIj>; Wed, 15 Nov 2000 17:08:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:50701 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130606AbQKOWIa>; Wed, 15 Nov 2000 17:08:30 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: New bluesmoke patch available, implements MCE-without-MCA support
-Date: 15 Nov 2000 13:37:56 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8uuvnk$1v8$1@cesium.transmeta.com>
+	id <S130789AbQKOWJ7>; Wed, 15 Nov 2000 17:09:59 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:40197 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129597AbQKOWJt>;
+	Wed, 15 Nov 2000 17:09:49 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Wed, 15 Nov 2000 22:39:23 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: test11-pre5 breaks vmware
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <CF5004B75B8@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On 15 Nov 00 at 12:12, H. Peter Anvin wrote:
+> Also, if a piece of software needs raw CPUID information (unlike the
+> "cooked" one provided by recent kernels) it should use
+> /dev/cpu/*/cpuid.
 
-I have just released a second bluesmoke patch:
+There are two problems, first breaking procfs field name for no good reason 
+(you can name x86 features as 'flags' and amd/cyrix/...
+as you named... There is certainly fewer apps which search 'flags'
+for AMD feature than apps which search 'flags' for x86 feature;
+you can also emulate old flags field by merging all features together,
+but I'm not asking for this).
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/bluesmoke-2.4.0-test11-pre5-2.diff
+Second problem is that I know no system which has /dev/cpu/*/* file.
+Maybe it is just my problem...
 
-This implements support for MCE on chips which don't support MCA (in
-addition to enabling MCA for non-Intel chips, like Athlon, which
-supports MCA.)
-
-I would appreciate it if people who have chips with MCE but no MCA --
-this includes older AMD chips and some Cyrix chips at the very least
--- would please be so kind and try this out.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+But if you could modify cpuid/msr registration interface so that they'll
+appear on my /devfs, it would be much nicer. Currently there is only 
+'microcode' and 'mtrr' in /devfs/cpu, and no 0,1 subdirectories...
+                                                Thanks,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbUBVUPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 15:15:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbUBVUPJ
+	id S261744AbUBVUbI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 15:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUBVUbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 15:15:09 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:51564 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261742AbUBVUPF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 15:15:05 -0500
-Date: Sun, 22 Feb 2004 22:15:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "Amit S. Kale" <akale@users.sourceforge.net>
-Subject: Re: [1/3] kgdb-lite for 2.6.3
-Message-ID: <20040222211542.GB14932@mars.ravnborg.org>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@zip.com.au>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	"Amit S. Kale" <akale@users.sourceforge.net>
-References: <20040222160417.GA9535@elf.ucw.cz> <20040222202211.GA2063@mars.ravnborg.org> <20040222195444.GB10857@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040222195444.GB10857@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sun, 22 Feb 2004 15:31:07 -0500
+Received: from fep04.swip.net ([130.244.199.132]:503 "EHLO fep04-svc.swip.net")
+	by vger.kernel.org with ESMTP id S261744AbUBVUbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 15:31:05 -0500
+Message-ID: <403911B3.10601@laposte.net>
+Date: Sun, 22 Feb 2004 21:31:47 +0100
+From: mjl <malet.jean-luc@laposte.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040215
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [linux 2.6.3] [gcc 3.3.3] compile errors
+X-Priority: 1 (highest)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > +	static char tmpstr[256];
-> > 
-> > Too? large varriable on the stack.
-> 
-> Whi one?
-> 
-> tmpstr is static....
-Yup tmpstr, missed the static.
+hello please cc me since I'm not a member
+all my builds fails with this error
 
-	Sam
+In file included from ../include/swab.h:20,
+                 from ../include/misc.h:12,
+                 from io.c:21:
+/usr/include/linux/byteorder/swab.h:133: error: syntax error before "__u16"
+/usr/include/linux/byteorder/swab.h:146: error: syntax error before "__u32"
+make[1]: *** [io.o] Error 1
+make[1]: Leaving directory `/usr/src/sorcery/reiserfsprogs-3.6.13/lib'
+make: *** [all-recursive] Error 1
+
+
+I looked into the source and  the line is
+
+
+static __inline__ __attribute_const__ __u16 __fswab16(__u16 x)
+{
+
+
+which don't looks bad ......
+thanks

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264158AbRFFWpD>; Wed, 6 Jun 2001 18:45:03 -0400
+	id <S264228AbRFFWrD>; Wed, 6 Jun 2001 18:47:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264220AbRFFWox>; Wed, 6 Jun 2001 18:44:53 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:41889 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S264158AbRFFWoi>;
-	Wed, 6 Jun 2001 18:44:38 -0400
-Message-Id: <m157m2Q-000OmvC@amadeus.home.nl>
-Date: Wed, 6 Jun 2001 23:44:30 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: ttsig@tuxyturvy.com (Tom Sightler)
-Subject: Re: Linux 2.4.5-ac9
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <002e01c0eead$03c6d890$26040a0a@zeusinc.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S264225AbRFFWqx>; Wed, 6 Jun 2001 18:46:53 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:48375 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S264224AbRFFWqr>; Wed, 6 Jun 2001 18:46:47 -0400
+Message-Id: <l03130315b74461906cf8@[192.168.239.105]>
+In-Reply-To: <5.1.0.14.2.20010606152347.028e21d0@ansa.hostings.com>
+In-Reply-To: <l03130314b74459ae92f1@[192.168.239.105]>
+ <5.1.0.14.2.20010606143453.028ed400@ansa.hostings.com>
+ <9fm4t7$412$1@penguin.transmeta.com> <3B1D5ADE.7FA50CD0@illusionary.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Wed, 6 Jun 2001 23:40:15 +0100
+To: android <linux@ansa.hostings.com>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Break 2.4 VM in five easy steps
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <002e01c0eead$03c6d890$26040a0a@zeusinc.com> you wrote:
->> 2.4.5-ac9
+At 11:27 pm +0100 6/6/2001, android wrote:
+>> >I'd be happy to write a new routine in assembly
+>>
+>>I sincerely hope you're joking.
+>>
+>>It's the algorithm that needs fixing, not the implementation of that
+>>algorithm.  Writing in assembler?  Hope you're proficient at writing in
+>>x86, PPC, 68k, MIPS (several varieties), ARM, SPARC, and whatever other
+>>architectures we support these days.  And you darn well better hope every
+>>other kernel hacker is as proficient as that, to be able to read it.
 
->> o Fix xircom_cb problems with some cisco kit (Ion Badulescu)
+>As for the algorithm, I'm sure that
+>whatever method is used to handle page swapping, it has to comply with
+>the kernel's memory management scheme already in place. That's why I would
+>need the details so that I wouldn't create more problems than already present.
 
-> One other note, the version in 2.4.4-ac11 is listed as 1.33 while the
-> version in 2.4.5-ac9 is 1.11, why did we go backwards?  Were there
-> significant problems with the newer version?  The 1.33 sure seems to work
-> better for me.
+Have you actually been following this thread?  The algorithm has been
+discussed and at least one alternative brought forward.
 
-It went backwards because I switched from my local CVS repository to the
-tulip driver one.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
 
-I appologize for the driver not working as well as expected, and will try to
-find a way to make it work for everyone .
+The key to knowledge is not to rely on people to teach you it.
 
-Greetings,
-   Arjan van de Ven
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+
+

@@ -1,47 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbTLVBXR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTLVBVf
+	id S264267AbTLVBS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 20:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTLVBS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:21:35 -0500
-Received: from zero.aec.at ([193.170.194.10]:32523 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264286AbTLVBV0 (ORCPT
+	Sun, 21 Dec 2003 20:18:57 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:19131 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264267AbTLVBSy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:21:26 -0500
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] loop.c patches, take two
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 22 Dec 2003 02:21:11 +0100
-In-Reply-To: <15kfk-vj-1@gated-at.bofh.it> (Christophe Saout's message of
- "Sun, 21 Dec 2003 23:30:07 +0100")
-Message-ID: <m31xqx7im0.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <MllE.6qa.7@gated-at.bofh.it> <MpyW.3Ub.9@gated-at.bofh.it>
-	<MsGq.8cN.1@gated-at.bofh.it> <MvO6.47g.7@gated-at.bofh.it>
-	<MEf3.8oB.13@gated-at.bofh.it> <MROA.319.5@gated-at.bofh.it>
-	<NxkP.4kY.17@gated-at.bofh.it> <15hUp-58e-21@gated-at.bofh.it>
-	<15iGH-6hd-17@gated-at.bofh.it> <15kfk-vj-1@gated-at.bofh.it>
+	Sun, 21 Dec 2003 20:18:54 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Mon_Dec_22_01_18_51_UTC_2003_0@merlin.emma.line.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20031222011851.88A5A97558@merlin.emma.line.org>
+Date: Mon, 22 Dec 2003 02:18:51 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> writes:
+Hello Linus,
 
-> Am So, den 21.12.2003 schrieb Mika Penttilä um 21:49:
->
->> Yet another Big Loop Patch... :)
->> 
->> It's not obvious which parts are bug fixes, and which performance 
->> improvements. What exactly breaks loops on journalling filesystems, and 
->> how do you solve it?
->
-> What about dropping block device backed support for the loop driver
-> altogether? We now have a nice device mapper in the 2.6 kernel. I don't
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-Device Mapper doesn't support cryptographic transformations.
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
--Andi
+Patch description:
+ChangeSet@1.108, 2003-12-22 02:17:46+01:00, matthias.andree@gmx.de
+  Only print ignoremerge warning if ignoremerge is really enabled.
+
+Matthias
+
+------------------------------------------------------------------------
+
+##### DIFFSTAT #####
+# shortlog |   13 +++++++++----
+# 1 files changed, 9 insertions(+), 4 deletions(-)
+
+##### GNUPATCH #####
+# This is a BitKeeper generated patch for the following project:
+# Project Name: BK kernel tools
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.107   -> 1.108  
+#	            shortlog	1.80    -> 1.81   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/12/22	matthias.andree@gmx.de	1.108
+# Only print ignoremerge warning if ignoremerge is really enabled.
+# --------------------------------------------
+#
+diff -Nru a/shortlog b/shortlog
+--- a/shortlog	Mon Dec 22 02:18:51 2003
++++ b/shortlog	Mon Dec 22 02:18:51 2003
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.207 2003/12/21 03:10:50 emma Exp $
++# $Id: lk-changelog.pl,v 0.208 2003/12/22 01:17:09 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -2062,9 +2062,11 @@
+ if ($opt{count}) { $opt{compress} = 1; }
+ 
+ # --ignoremerge is deprecated
+-print STDERR "--ignoremerge is deprecated and will be removed. Replacement:\n"
+-   . 'bk changes -d\'$unless(:MERGE:){<:P:@:HOST:>\n $each(:C:){\t(:C:)\n}\n\''
+-   . "\n";
++if ($opt{ignoremerge}) {
++    print STDERR "--ignoremerge is deprecated. Replacement:\n"
++    . 'bk changes -d\'$unless(:MERGE:){<:P:@:HOST:>\n $each(:C:){\t(:C:)\n}\n\''
++    . "\n";
++}
+ 
+ # Set the sort function
+ $namesortfunc = \&caseicmp;
+@@ -2154,6 +2156,9 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.208  2003/12/22 01:17:09  emma
++# Only print ignoremerge warning if ignoremerge is really enabled.
++#
+ # Revision 0.207  2003/12/21 03:10:50  emma
+ # Mark --ignoremerge deprecated, point towards bk changes -d'$unless(:MERGE:)' instead.
+ #
+
+##### BKPATCH #####
+This BitKeeper patch contains the following changesets:
+1.108
+## Wrapped with gzip_uu ##
+
+
+M'XL( 'M&YC\  \V474_;,!2&K^M?<40K 6));2=I6F]%#%H!8A,HP%UOW.2T
+MC9HX49R6(L)_G]ORL7:@:6,7<RQ;MH^/_+Q^XSK<:BQ$+95E.8FEMJ6*"D12
+MA[-,EZ(V3A=VM!P&66:&33W3V)QBH3!I'E^8:JT'5IEEB28F\$J6X03F6&A1
+M8[;S,E/>YRAJ0?_T]MO7@)!N%TXF4HWQ&DOH=DF9%7.91/HH1S6>Q<HN"ZET
+MBJ6TPRRM7F(K3BDW'^,.;7F=BG=:GE<A1\\+72:'?MO'D),MGJ,UQV8:AW'.
+MEJWG5R8?9:0'S&:T#=1I,M[D'"@7S!=NZX R02F\G14.&%B4',,_9C@A(5RJ
+MY![R(E8EQ&.5%9AB,4:XDX6*U1CBT<9TK*% F9@MJ.0PP<@F%\ XX^3J56UB
+M_6$AA$I*#E_Q)EF*6VQZDA5EDHW7:!YK4]_U6;MRF-_QJA%VY"CT:4=2C.0P
+M>D?(C2S+VS$2,=_U*L]Q_?;*,\\1&Y;Y\'G>L\OV>=9N:56NXU-WY98V^\4L
+MWF_,T@'+_6_-LE;Z$JSB;K&LUL)8YUF&OW!.CS%@Y'S5UJ%Q'@E(IE:X@C,9
+M[3SY- =J<_/3+35^5I(ME:0=P#25T%_DT" ];O#!(>>F]\$CAF:OD>7EPT],
+MC_OP0,"4M0C7-[U^$,".96UQ1Y@7&,K2,$. >2)#LZ9*,5 [J^TV[ ZGL#ZE
+M!BL:[#9F*D&M]\3W?G#:%_L/7\25.!)GE]<WXG"@H($RG.R)$[,R*%?]0#T.
+MU&!W]RGACLG]F3R:XS.O!<MG,<!YK.-,/>&_R;\2P,1^^&;KKT]S.,%PJF=I
+0=]0><4-.R0_^=4\9!08     
+ 
+

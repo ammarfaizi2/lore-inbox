@@ -1,34 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266839AbSKHReR>; Fri, 8 Nov 2002 12:34:17 -0500
+	id <S266842AbSKHRgB>; Fri, 8 Nov 2002 12:36:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbSKHReR>; Fri, 8 Nov 2002 12:34:17 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:60660 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S266839AbSKHReQ>; Fri, 8 Nov 2002 12:34:16 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A4D7@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: RE: 2.4.20-rc1: oops in drivers/acpi/namespace/nswalk.c (with pat
-	ch)
-Date: Fri, 8 Nov 2002 09:40:50 -0800 
+	id <S266844AbSKHRgA>; Fri, 8 Nov 2002 12:36:00 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:54671 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S266842AbSKHRf4>; Fri, 8 Nov 2002 12:35:56 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C0101F4EB@usslc-exch-4.slc.unisys.com>
+From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+To: "'Linus Torvalds '" <torvalds@transmeta.com>,
+       "'Jeremy Fitzhardinge '" <jeremy@goop.org>
+Cc: "'William Lee Irwin III '" <wli@holomorphy.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+       "'linux-ia64@linuxia64.org '" <linux-ia64@linuxia64.org>,
+       "'Linux Kernel List '" <linux-kernel@vger.kernel.org>,
+       "'rusty@rustcorp.com.au '" <rusty@rustcorp.com.au>,
+       "'dhowells@redhat.com '" <dhowells@redhat.com>,
+       "'mingo@elte.hu '" <mingo@elte.hu>
+Subject: RE: [Linux-ia64] reader-writer livelock problem
+Date: Fri, 8 Nov 2002 11:41:57 -0600 
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: H. Peter Anvin [mailto:hpa@zytor.com] 
+Yes, that was one of the options I suggested in the original post
+to the IA64 list.  I'll bounce it to LKML for reference, now that
+the discussion has moved there.
 
-> I have one machine which has been reliably oopsing in 
-> drivers/acpi/namespace/nswalk.c -- this patch makes it work, 
-> but I have 
-> no idea why.  Either way, I thought someone would probably 
-> want to look 
-> at it.
+In my proposal, however, I proposed making (the current) reader
+locks recursive spinlocks (to eliminate the starvation problem,
+at the expense of eliminating reader parallelism), which would
+have the added benefit of "encouraging" people to move to the
+fair locks.  But your proposal is probably at least as good.
 
-Is this reproducible in 2.5.latest? If not, then it's fixed in the 2.4 ACPI
-patch and is just awaiting merge.
+Of course, normal spinlocks do not scale either, since they
+currently require N cache-cache transfers for a processor to
+drop the lock, which results in N^2 cache transfers for each
+processor to acquire/release the lock once.  So with 32 processors
+contending for the lock, at 1us per cache-cache transfer (picked
+for easy math, but that is reasonable for large systems), it
+takes 1ms for each processor to acquire the spinlock and hold it
+for 10 cpu cycles.
 
-Regards -- Andy
+So I'd _also_ like to see an MCS lock implementation replace the current
+spinlock code (IBM "NMCS" lock patch can be trivially used to replace
+all spinlocks).
+
+Kevin
+
+-----Original Message-----
+From: Linus Torvalds
+To: Jeremy Fitzhardinge
+Cc: William Lee Irwin III; Van Maren, Kevin; linux-ia64@linuxia64.org; Linux
+Kernel List; rusty@rustcorp.com.au; dhowells@redhat.com; mingo@elte.hu
+Sent: 11/8/02 12:28 PM
+Subject: Re: [Linux-ia64] reader-writer livelock problem
+
+
+On Fri, 8 Nov 2002, Linus Torvalds wrote:
+> 
+> NOTE! I'm not saying the existing practice is necessarily a good
+tradeoff,
+> and maybe we should just make sure to find all such cases and turn the
+> read_lock() calls into read_lock_irqsave() and then make the rw-locks
+> block readers on pending writers. But it's certainly more work and
+cause
+> for subtler problems than just naively changing the rw implementation.
+
+Actually, giving this som emore thought, I really suspect that the
+simplest solution is to alloc a separate "fair_read_lock()", and paths
+that need to care about fairness (and know they don't have the irq
+issue)  
+can use that, slowly porting users over one by one...
+
+  Linus

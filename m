@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129805AbQK0XGW>; Mon, 27 Nov 2000 18:06:22 -0500
+        id <S129465AbQK0XTw>; Mon, 27 Nov 2000 18:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129821AbQK0XGM>; Mon, 27 Nov 2000 18:06:12 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:14184 "EHLO
-        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-        id <S129805AbQK0XGA>; Mon, 27 Nov 2000 18:06:00 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: Russell King <rmk@arm.linux.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: silly [< >] and other excess 
-In-Reply-To: Your message of "Mon, 27 Nov 2000 16:02:13 MDT."
-             <20001127160213.F8881@wire.cadcamlab.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Nov 2000 09:35:37 +1100
-Message-ID: <1368.975364537@kao2.melbourne.sgi.com>
+        id <S129480AbQK0XTm>; Mon, 27 Nov 2000 18:19:42 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:9296 "EHLO iq.rulez.org")
+        by vger.kernel.org with ESMTP id <S129465AbQK0XTd>;
+        Mon, 27 Nov 2000 18:19:33 -0500
+Date: Mon, 27 Nov 2000 23:51:30 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Jens Axboe <axboe@suse.de>, Andre Hedrick <andre@linux-ide.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ATA-4, ATA-5 TCQ status
+In-Reply-To: <Pine.LNX.4.10.10011261721420.12346-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0011272349270.27635-100000@iq.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000 16:02:13 -0600, 
-Peter Samuelson <peter@cadcamlab.org> wrote:
->
->  [Albert D. Cahalan]
->> > Somebody else posted a reasonable hack for the [<>] problem.  His
->> > proposal involved letting multiple values share the same markers,
->> > something like this:
->Me too. (:  Keith posed two objections:
->
->1. The >] could get word-wrapped so that it doesn't appear on the same
->   line as the [<.  I *do not* see what makes this hard to parse
->   reliably.
+On Mon, 27 Nov 2000, Jens Axboe wrote:
 
-People seem to have forgotten that reading an oops from the screen is
-not the only source of data.  Many oops are read from syslog which
-contains lots of different lines, most of which have no identification.
-ksymoops has to pick out oops text from a syslog and ignore all the
-non-oops lines.
+> On Mon, Nov 27 2000, Sasi Peter wrote:
+> > > implementation listed in the specs Linux might as well not support it :)
+> > > It's simply not worth it.
+> > But seriously, how come?
+> > I thought they just somewhat like copied the SCSI implementation...
+> I wish they would have, and based it on atapi. But they didn't...
+> Basically it requires you to poll for completion of tags with a
+> service command.
 
-If the oops text is just a hex number with no identifying characters
-then it is very difficult to pick out oops text from all the other
-noise in syslog.  ksymoops already gets false positives and prints some
-non-oops text, this confuses users who think that these lines are
-related to the oops.
+On Sun, 26 Nov 2000, Andre Hedrick wrote:
+> On Mon, 27 Nov 2000, Jens Axboe wrote:
+> > On Mon, Nov 27 2000, Sasi Peter wrote:
+> > > I would like to ask if the tagged command queueing capability in the
+> > > decent ATA standards is utilized in the linux IDE driver (2.2 2.2ide
+> >   ^^^^^^
+> > > patches, or 2.4 maybe...)?
 
-Removing [< >] increases the already high level of ambiguity and false
-positives in oops reporting from syslog.  The presence of the marker
-characters makes the output more robust when line wrapped, without the
-markers a line wrapped trace is just a hex number.
+Ok, so anybody knows a multichannel adapter? At least 4 channels?
+Andre? Where do I get one? Where does the ATA revolution start?
+
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

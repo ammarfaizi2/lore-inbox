@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271944AbTGYHME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 03:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271943AbTGYHME
+	id S271963AbTGYHd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 03:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271964AbTGYHd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 03:12:04 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:59660 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S271945AbTGYHMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 03:12:02 -0400
-Message-Id: <200307250716.h6P7G8j05338@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: filia@softhome.net, linux-kernel@vger.kernel.org
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
-Date: Fri, 25 Jul 2003 10:25:31 +0300
-X-Mailer: KMail [version 1.3.2]
-References: <cwQJ.3BO.29@gated-at.bofh.it> <cArg.74D.11@gated-at.bofh.it> <3F1F9531.2050204@softhome.net>
-In-Reply-To: <3F1F9531.2050204@softhome.net>
+	Fri, 25 Jul 2003 03:33:56 -0400
+Received: from smtp1.cwidc.net ([154.33.63.111]:27281 "EHLO smtp1.cwidc.net")
+	by vger.kernel.org with ESMTP id S271963AbTGYHdz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 03:33:55 -0400
+Message-ID: <3F20E0ED.6010800@tequila.co.jp>
+Date: Fri, 25 Jul 2003 16:49:01 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Japanese keyboards broken in 2.6
+References: <018401c35059$2bb8f940$4fee4ca5@DIAMONDLX60>
+In-Reply-To: <018401c35059$2bb8f940$4fee4ca5@DIAMONDLX60>
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 July 2003 11:13, Ihar \"Philips\" Filipau wrote:
->     I mean 'inline' which means 'this has to be inlined or it will 
-> break' and 'inline' which means 'inline this please - it adds only 10k 
-> of code bloat and improve performance in my suppa-puppa-bench by 0.000001%!'
-> 
->     Strictly speaking - separate 'inline' to 'require_inline' and 
-> 'better_inline'.
->     So people who really care about image size - can turn 
-> 'better_inline' into void, without harm to functionality.
->     Actually I saw real performance improvements on my Pentium MMX 133 
-> (it has $i16k+$d16k of caches I beleive) when I was cutting some of 
-> inlines out. and I'm not talking about (cache poor) embedded systems...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Which inlines? Let the list know
---
-vda
+Norman Diamond wrote:
+
+cheap, but working and I think it will stay so until 2.6 goes into final
+of distris:
+
+setkeycodes 0x6a 124 1>&2 in your rc.local, local.start or whatever.
+works fine for me for alle 2.5x kernels
+
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/IODtjBz/yQjBxz8RApisAKCG28H8qJQgvpOmOsEmm9+SiPx61ACcDlo2
+OuF4YVp0i2KhdTRnZD6fzvY=
+=xEBX
+-----END PGP SIGNATURE-----
+

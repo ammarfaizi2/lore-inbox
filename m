@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276911AbRJHOzd>; Mon, 8 Oct 2001 10:55:33 -0400
+	id <S276907AbRJHOyx>; Mon, 8 Oct 2001 10:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276912AbRJHOzX>; Mon, 8 Oct 2001 10:55:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22285 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276911AbRJHOzH>; Mon, 8 Oct 2001 10:55:07 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Mon, 8 Oct 2001 16:00:36 +0100 (BST)
-Cc: mingo@elte.hu (Ingo Molnar), hadi@cyberus.ca (jamal),
-        linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru (Alexey Kuznetsov),
-        Robert.Olsson@data.slu.se (Robert Olsson),
-        bcrl@redhat.com (Benjamin LaHaise), netdev@oss.sgi.com,
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20011008023118.L726@athlon.random> from "Andrea Arcangeli" at Oct 08, 2001 02:31:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276912AbRJHOyn>; Mon, 8 Oct 2001 10:54:43 -0400
+Received: from hq2.fsmlabs.com ([209.155.42.199]:32783 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S276911AbRJHOyg>;
+	Mon, 8 Oct 2001 10:54:36 -0400
+Date: Mon, 8 Oct 2001 08:49:50 -0600
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] I still see people using cli()
+Message-ID: <20011008084950.B16204@hq2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qbtV-0000hd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3BC1B831.1060601@wipro.com>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course we agree that such a "polling router/firewall" behaviour must
-> not be the default but it must be enabled on demand by the admin via
-> sysctl or whatever else userspace API. And I don't see any problem with
-> that.
+On Mon, Oct 08, 2001 at 07:59:05PM +0530, BALBIR SINGH wrote:
+> BTW, that brings me to another issue, once the kernel becomes preemptibel, what
+> are the locking issues? how are semaphores and spin-locks affected? Has anybody
+> defined or come up with the rules/document yet?
 
-No I don't agree. "Stop random end users crashing my machine at will" is not
-a magic sysctl option - its a default. 
+IF the kernel becomes preemptible it will be so slow, so buggy, and so painful
+to maintain, that those issues won't matter.
 
-
-Alan

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265865AbRFYDjL>; Sun, 24 Jun 2001 23:39:11 -0400
+	id <S265866AbRFYDiv>; Sun, 24 Jun 2001 23:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265867AbRFYDjC>; Sun, 24 Jun 2001 23:39:02 -0400
-Received: from [202.108.8.204] ([202.108.8.204]:53257 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S265865AbRFYDi6>;
-	Sun, 24 Jun 2001 23:38:58 -0400
-Date: Mon, 25 Jun 2001 11:30:57 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: Wan Hing Wah <50191914@uxmail.cityu.edu.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPIB support
-Message-Id: <20010625113057.7b96f8a0.linuxbest@soul.com.cn>
-In-Reply-To: <Pine.GSO.4.33.0106231213430.19291-100000@moscow>
-In-Reply-To: <Pine.GSO.4.33.0106231213430.19291-100000@moscow>
-Organization: soul
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S265867AbRFYDil>; Sun, 24 Jun 2001 23:38:41 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:56841 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S265866AbRFYDi1>; Sun, 24 Jun 2001 23:38:27 -0400
+Date: Sun, 24 Jun 2001 21:38:23 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Re: Microsoft and Xenix.
+Message-ID: <20010624213823.A7205@mail.harddata.com>
+In-Reply-To: <E15DZbq-0008D8-00@roo.home> <m1ofrebnkx.fsf@frodo.biederman.org> <01062406364601.01519@localhost.localdomain> <0106250020400D.00430@starship>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <0106250020400D.00430@starship>; from phillips@bonn-fries.net on Mon, Jun 25, 2001 at 12:20:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001 12:34:37 +0800 (HKT)
-Wan Hing Wah <50191914@uxmail.cityu.edu.hk> wrote:
+On Mon, Jun 25, 2001 at 12:20:40AM +0200, Daniel Phillips wrote:
+> On Sunday 24 June 2001 12:36, Rob Landley wrote:
+> > On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
+> > > GEM was a gui from Digital Research I believe.
+> > > Geoworks/Geos was a seperate entity.
+> >
+> > Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt
+> > never tried its gui.)
+> 
+> GEM had its moment of glory when Xerox used it for the gui of Ventura 
+> Publisher.
 
-> I'm doing a project which port a component testing program in DOS which
-> use GPIB to linux
-> Does the Linux kernel support GPIB?
-> 
-> 
-> I find a linux gpib driver in the  linux lab project
-> http://www.llp.fu-berlin.de/
-> 
-> but the newest version is release at 1999 and i wonder if it still under
-> development..
-> Moreover,it is for kernel 1.2.x or 2.0.x and i wonder it will still work
-> on linux 2.4.x or not
+GEM (a slight variation) was also providing GUI on Atari ST.  At that
+time it was heavily beating pants off from anything M$ was able to
+cobble together on nominally much faster machines.
 
-What is GPIB.
+   Michal

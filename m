@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbRCHWGT>; Thu, 8 Mar 2001 17:06:19 -0500
+	id <S130073AbRCHWQu>; Thu, 8 Mar 2001 17:16:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129855AbRCHWGJ>; Thu, 8 Mar 2001 17:06:09 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17935 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129733AbRCHWF7>; Thu, 8 Mar 2001 17:05:59 -0500
-Subject: Re: Kernel stress testing coverage
-To: plars@us.ibm.com (Paul Larson)
-Date: Thu, 8 Mar 2001 22:08:54 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com> from "Paul Larson" at Mar 08, 2001 02:57:35 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130079AbRCHWQk>; Thu, 8 Mar 2001 17:16:40 -0500
+Received: from mnh-1-02.mv.com ([207.22.10.34]:48392 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S130073AbRCHWQb>;
+	Thu, 8 Mar 2001 17:16:31 -0500
+Message-Id: <200103082326.SAA04080@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: timw@splhi.com
+cc: Jonathan Lahr <lahr@sequent.com>, Anton Blanchard <anton@linuxcare.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel lock contention and scalability 
+In-Reply-To: Your message of "Wed, 07 Mar 2001 14:13:21 PST."
+             <20010307141321.B1254@kochanski.internal.splhi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14b8ag-0003o3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 08 Mar 2001 18:26:20 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. How much of the kernel is getting hit on a run of any given test?  Even
-> an approximate percentage is fine as long as I can prove it.
+timw@splhi.com said:
+> On a uniprocessor system, a simple fallback is to just use a semaphore
+> instead of a spinlock, since you can guarantee that there's no point
+> in scheduling the current task until the holder of the "lock" releases
+> it. 
 
-I've not measured it by percentage. You could use the profiling code in
-the kernel to generate a profile and from that measure coverage at least
-for non interrupt blocking code
+Yeah, that works.  But I'm not all that interested in compiling UML 
+differently for UP and SMP hosts.
 
-> piece of the kernel that they modified.  These type of things would be
-> FYI this project will be going on sourceforge very soon.  I want to have a
-> little more to start out with though and finish putting together a good
-> project description, testplans, etc. to post as soon as we put it on there.
-> I hate it when people start projects and you don't see any good information
-> about it for weeks.
+> Otherwise, the spin calling sched_yield() each iteration isn't too
+> horrible. 
 
-VA Cerberus has mahy of these
+This looks a lot better.  For UML, if there's a thread spinning on a lock, 
+there has to be a runnable thread holding it, and that thread will get a 
+timeslice before the spinning one (assuming that the thread holding the lock 
+hasn't called a blocking system call, which is something that I intend to make 
+sure can't happen).
+
+> > That sounds like a pretty fundamental (and abusable) mechanism.
+> 
+> It would be if it were generally available. The implementation on
+> DYNIX/ptx requires a privilege (PRIV_SCHED IIRC), to be able to use
+> it.
+
+OK, that makes sense.
+
+				Jeff
+
 

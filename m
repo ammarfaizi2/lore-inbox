@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311647AbSDSGmi>; Fri, 19 Apr 2002 02:42:38 -0400
+	id <S311273AbSDSGo4>; Fri, 19 Apr 2002 02:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311618AbSDSGmf>; Fri, 19 Apr 2002 02:42:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31207 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S311587AbSDSGmd>;
-	Fri, 19 Apr 2002 02:42:33 -0400
-Date: Fri, 19 Apr 2002 06:38:40 +0200 (CEST)
+	id <S311587AbSDSGoz>; Fri, 19 Apr 2002 02:44:55 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:35815 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S311273AbSDSGoy>;
+	Fri, 19 Apr 2002 02:44:54 -0400
+Date: Fri, 19 Apr 2002 06:41:04 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: mingo@elte.hu
-To: Dave Olien <oliendm@us.ibm.com>
-Cc: davidsen@tmr.com, <jbourne@MtRoyal.AB.CA>, <linux-kernel@vger.kernel.org>,
-        <Molnar@tmr.com>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <200204181748.g3IHm4K08649@eng2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0204190635060.3975-100000@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Erich Focht <efocht@ess.nec.de>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] migration thread fix
+In-Reply-To: <20020419064052.GB21206@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0204190639140.3975-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 18 Apr 2002, Dave Olien wrote:
+On Thu, 18 Apr 2002, William Lee Irwin III wrote:
 
-> Cache warmth in handling interrupts is good.  In fact, this is one of
-> the reasons to use interrupt affinity.
-
-and in fact this is why IRQ handlers in the irqbalance patch stay affine
-to a single CPU for at least 10 msecs. So for most practical purposes when
-there is no direct affinity between tasks and IRQs, this brings us very
-close the highest possible affinity that can be achieved.
-
-/proc/irq/*/smp_affinity is still preserved for those workloads when some
-direct relationship can be established between process activity and IRQ
-load. (such as perfectly partitioned server workloads.)
-
-> But, directing all interrupts to single processor penalizes unfairly any
-> tasks that are scheduled to run on that processor.  Under heavy
-> interrupt load, a tasks can become effectively "pinned" onto that
-> processor, unable to get cpu time to make progress, and unable to be
-> scheduled somewhere else.
+> > looks perfectly good to me. Even with wli's patch i saw some migration
+> > thread initialization weirdnesses.
 > 
-> Under really heavy interrupt load, it's good to have many processors
-> handling interrupts.  It increases rate the system can handle
-> interrupts, and it reduces the latency of individual interrupts.
+> It's a bit of a moot point, but I'd be interested in knowing what sort
+> of weirdnesses those might be for my own edification.
 
-yes, this is why the irqbalance patch goes to great lengths to assure that
-distribution of IRQs is as random as possible, with the following
-variation: idle CPUs are more likely to be used by the IRQ balancing
-mechanism than busy CPUs.
+a HT box wouldnt boot without an artificial mdelay(1000) in
+migration_init() - while i havent fully debugged it (given Erich's patch),
+it appeared to be some sort of race between idle thread startup and
+migration init.
 
 	Ingo
 

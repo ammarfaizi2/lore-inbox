@@ -1,113 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271329AbRINVyK>; Fri, 14 Sep 2001 17:54:10 -0400
+	id <S271336AbRINWKC>; Fri, 14 Sep 2001 18:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271309AbRINVyA>; Fri, 14 Sep 2001 17:54:00 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:56984 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S271329AbRINVxr>; Fri, 14 Sep 2001 17:53:47 -0400
-Date: Fri, 14 Sep 2001 22:55:35 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
-In-Reply-To: <Pine.LNX.4.21.0109141456410.4708-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0109142125120.2124-100000@localhost.localdomain>
+	id <S271108AbRINWJx>; Fri, 14 Sep 2001 18:09:53 -0400
+Received: from forge.redmondlinux.org ([209.81.49.42]:22996 "EHLO
+	forge.redmondlinux.org") by vger.kernel.org with ESMTP
+	id <S271336AbRINWJc>; Fri, 14 Sep 2001 18:09:32 -0400
+Message-ID: <3BA27FAD.60007@cheek.com>
+Date: Fri, 14 Sep 2001 15:07:41 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2 IDE cd-roms + ide-scsi = 4 scsi cdroms ???
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
-> On Fri, 14 Sep 2001, Hugh Dickins wrote:
-> > 
-> > It won't stop the race with "bare" read_swap_cache_async (which can
-> > happen with swapoff, or with vm_swap_full deletion if multithreaded),
-> 
-> Could you please make a diagram of such a race ? 
+hi,
 
-I first tried the swapoff one, but that doesn't work out (without a
-further degree of improbability): we're rescued from the race there
-because swapoff disallows get_swap_page from that swap area, so
-although the entry read_swap_cache_async is trying for may have been
-freed while it waited, it won't get reallocated in try_to_swap_out.
+i added a second ide cdrom to this system and now notice that i have 
+four scsi cdroms show up.  really weird.  this was on 2.4.7-ac10 and 
+repros on 2.4.9-ac10.
 
-Unless you imagine swapon immediately after the swapoff, making
-the same entry available again; or, I suppose rather more likely,
-swapoff failing with -ENOMEM, so it all becomes reavailable.
-Anyway, let's try the multithreaded vm_swap_full deletion instead:
+when i had one cdrom (/dev/hdc) i had just one scsi cdrom after loading 
+ide-scsi (/dev/sr0).
 
-CPU0					CPU1
+relevant /var/log/messages portion:
 
-do_swap_page's lookup of entry
-doesn't find it in the cache, so
-drops page_table lock, waits for BKL.
-					Another thread faults on the same
-					page, suppose this is the one which
-					wins BKL, proceeds without delay
-					to replace entry by pte, notices
-					exclusive swap page and vm_swap_full,
-					deletes entry from swap cache and
-					swap_frees it completely.
-Gets BKL, tries swapin_readahead,
-but for simplicity let's suppose
-that does nothing at all (e.g.
-entry is for page 1 of swap -
-which valid_swaphandles adjusts
-to 0, but 0 always SWAP_MAP_BAD
-so it breaks immediately).  So
-"bare" read_swap_cache_async.
-					Due to some shortage, enters try_to_
-					free_pages, down to try_to_swap_out,
-					get_swap_page gives entry just freed.
-swap_duplicate
-					add_to_swap_cache
-add_to_swap_cache
+Sep 14 08:58:07 sanfrancisco kernel: SCSI subsystem driver Revision: 1.00
+Sep 14 08:58:07 sanfrancisco kernel: scsi0 : SCSI host adapter emulation 
+for IDE ATAPI | LST System Analysis            Friddevices
+Sep 14 08:58:07 sanfrancisco kernel:   Vendor: LITE-ON   Model: LTR-12101B
+  Rev: LS3G
+Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
+  ANSI SCSI revision: 02
+Sep 14 08:58:07 sanfrancisco kernel:   Vendor: LITE-ON   Model: LTR-12101B
+  Rev: LS3G
+Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
+  ANSI SCSI revision: 02
+Sep 14 08:58:07 sanfrancisco kernel:   Vendor: COMPAQ    Model: CRD-8322B
+  Rev: 1.06
+Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
+  ANSI SCSI revision: 02
+Sep 14 08:58:07 sanfrancisco kernel:   Vendor: COMPAQ    Model: CRD-8322B
+  Rev: 1.06
+Sep 14 08:58:07 sanfrancisco kernel:   Type:   CD-ROM
+  ANSI SCSI revision: 02
+Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr0 at scsi0, 
+channel 0, id 0, lun 0
+Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr1 at scsi0, 
+channel 0, id 0, lun 1
+Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr2 at scsi0, 
+channel 0, id 1, lun 0
+Sep 14 08:58:07 sanfrancisco kernel: Attached scsi CD-ROM sr3 at scsi0, 
+channel 0, id 1, lun 1
+Sep 14 08:58:07 sanfrancisco kernel: sr0: scsi3-mmc drive: 20x/20x 
+writer cd/rw xa/form2 cdda tray
+Sep 14 08:58:07 sanfrancisco kernel: Uniform CD-ROM driver Revision: 3.12
+Sep 14 08:58:07 sanfrancisco kernel: sr1: scsi3-mmc drive: 20x/20x 
+writer cd/rw xa/form2 cdda tray
+Sep 14 08:58:07 sanfrancisco kernel: sr2: scsi3-mmc drive: 32x/32x cd/rw 
+xa/form2 cdda tray
+Sep 14 08:58:07 sanfrancisco kernel: sr3: scsi3-mmc drive: 32x/32x cd/rw 
+xa/form2 cdda tray
 
-> > and won't stop the race when valid_swaphandles->swap_duplicate comes
-> > all between try_to_swap_out's get_swap_page and add_to_swap_cache.
-> 
-> Oh I see:
-> 
-> CPU0			CPU1
-> 
-> try_to_swap_out()	swapin readahead
-> 
-> get_swap_page()
-> 			valid_swaphandles()
-> 			swapduplicate()
-> add_to_swap_cache()
-> 			add_to_swap_cache()
-> 
-> BOOM.
-> 
-> Is that what you mean ?
 
-Yes, that's that one.
+# cat /proc/sys/dev/cdrom/info
+CD-ROM information, Id: cdrom.c 3.12 2000/10/18
 
-> Right. Now I see that the diagram I just wrote (thanks for making me
-> understand it :)) has been there forever. Ugh. 
+drive name:             sr3     sr2     sr1     sr0
+drive speed:            32      32      20      20
+drive # of slots:       1       1       1       1
+Can close tray:         1       1       1       1
+Can open tray:          1       1       1       1
+Can lock tray:          1       1       1       1
+Can change speed:       1       1       1       1
+Can select disk:        0       0       0       0
+Can read multisession:  1       1       1       1
+Can read MCN:           1       1       1       1
+Reports media changed:  1       1       1       1
+Can play audio:         1       1       1       1
+Can write CD-R:         0       0       1       1
+Can write CD-RW:        0       0       1       1
+Can read DVD:           0       0       0       0
+Can write DVD-R:        0       0       0       0
+Can write DVD-RAM:      0       0       0       0
 
-Glad to be of service!  But it was you who made me see the danger of
-these two contrary uses of add_to_swap_cache can be: one adding a
-newly allocated page for an old swap entry, the other adding an
-old page for a newly allocated swap entry.
 
-It's fairly clear that the read_swap_cache_async instance should be
-doing its check for whether the page is already in the cache, within
-the necessary locking instead of before it.  Then, with appropriate
-locking in swapfile.c, we can get rid of BKL bracketing around
-swapin_readahead and read_swap_cache_async too.
+# cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: LITE-ON  Model: LTR-12101B       Rev: LS3G
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 00 Lun: 01
+  Vendor: LITE-ON  Model: LTR-12101B       Rev: LS3G
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: COMPAQ   Model: CRD-8322B        Rev: 1.06
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 01
+  Vendor: COMPAQ   Model: CRD-8322B        Rev: 1.06
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
-The same check may be added into add_to_swap_cache for try_to_swap_out,
-but would be additional overhead.  At present I'm giving get_swap_page
-a *page argument, and letting it add_to_swap_cache inside its locking
-(lock ordering then prohibits __delete_from_swap_cache from doing its
-swap_free itself), so read_swap_cache_async cannot squeeze in between
-the two stages.  But when I've pulled it together and looked it over,
-it may seem preferable just to go with the additional check instead.
 
-Hugh
+
+# lsmod
+Module                  Size  Used by
+nfs                    73120   1  (autoclean)
+lockd                  48352   1  (autoclean) [nfs]
+sunrpc                 64416   1  (autoclean) [nfs lockd]
+ospm_system             2192   0  (unused)
+ospm_busmgr            11392   0  [ospm_system]
+af_packet               9200   1  (autoclean)
+nls_iso8859-1           2832   1  (autoclean)
+nls_cp437               4352   1  (autoclean)
+vfat                    9264   1  (autoclean)
+fat                    29760   0  (autoclean) [vfat]
+mga                    97952   0  (unused)
+agpgart                25920   1
+parport_pc             23504   0
+parport                24512   0  [parport_pc]
+es1371                 29952   0
+gameport                1520   0  [es1371]
+ac97_codec              9072   0  [es1371]
+3c59x                  25184   1
+usb-uhci               21376   0  (unused)
+usbcore                49440   1  [usb-uhci]
+sound                  54912   0  (unused)
+soundcore               3856   6  [es1371 sound]
+ide-scsi                7376   0
+sr_mod                 12416   0
+scsi_mod               50208   2  [ide-scsi sr_mod]
+cdrom                  27392   0  [sr_mod]
+ide-floppy             10992   0
+
+
+thanks!
+
+joe
 

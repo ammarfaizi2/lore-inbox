@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263730AbUDTXbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264332AbUDTXfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263730AbUDTXbt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUDTXas
+	id S264332AbUDTXfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUDTXet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:30:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21897 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264534AbUDTXZq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 19:25:46 -0400
-Date: Wed, 21 Apr 2004 00:25:45 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: ken@coverity.com
-Cc: linux-kernel@vger.kernel.org, linux@coverity.com
-Subject: Re: [CHECKER] Security reports involving isspace()
-Message-ID: <20040420232545.GF17014@parcelfarce.linux.theplanet.co.uk>
-References: <12837.24.6.86.122.1082499261.spork@webmail.coverity.com>
+	Tue, 20 Apr 2004 19:34:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4746 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263789AbUDTXcu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 19:32:50 -0400
+Date: Tue, 20 Apr 2004 16:34:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: manfred@colorfullife.com, drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-user signal pending and message queue limits
+Message-Id: <20040420163443.7347da48.akpm@osdl.org>
+In-Reply-To: <20040420231351.GB13826@logos.cnet>
+References: <20040419212810.GB10956@logos.cnet>
+	<20040419224940.GY31589@devserv.devel.redhat.com>
+	<20040420141319.GB13259@logos.cnet>
+	<20040420130439.23fae566.akpm@osdl.org>
+	<20040420231351.GB13826@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12837.24.6.86.122.1082499261.spork@webmail.coverity.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 20, 2004 at 03:14:21PM -0700, ken@coverity.com wrote:
-> Here are some more static analysis reports from Coverity.  These are
-> places where the kernel gets a scalar from the user and then uses it as an
-> array index with out bounds checking it.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> > The major advantage of your work is that we can now remove those limits. 
+> > You'll be needing a 2.4 backport ;)
 > 
-> All of the reports below deal with the isspace macro.  It expands to an
-> access to a static array with 256 entries.  If we use an unsigned char to
-> index into the array, there are no problems.  However, when that char is
-> signed, we can index off the left of the array.
+> Yeap. :) 
 > 
-> It seems like this isn't a big deal, but if the isspace array is located
-> after some important data structure, we could leak information.
+> And we also need to do the userspace part. ulimit is part of bash, so 
+> probably all shell's should be awared of this? I never looked
+> how "ulimit" utility works.
 
-#define __ismask(x) (_ctype[(int)(unsigned char)(x)])
-#define isspace(c)      ((__ismask(c)&(_S)) != 0)
+yup, the shells need to be changed, which is really awkward.  I was wrong
+about how bash and zsh handle `ulimit 4 1024'.
 
-Figuring out why the reports mentioned in the quoted text are bullshit
-is left as an exercise for readers.
+Really the shells _should_ permit ulimit-by-number for this very reason.
+
+Adding new ulimits is nice - it's a shame that the shells make it hard to
+use.

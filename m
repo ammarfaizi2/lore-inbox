@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSJVOoa>; Tue, 22 Oct 2002 10:44:30 -0400
+	id <S262783AbSJVOoF>; Tue, 22 Oct 2002 10:44:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262802AbSJVOoa>; Tue, 22 Oct 2002 10:44:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52270 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262796AbSJVOo2>; Tue, 22 Oct 2002 10:44:28 -0400
-To: landley@trommello.org
-Cc: Andy Pfiffer <andyp@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
-References: <m1k7kfzffk.fsf@frodo.biederman.org>
-	<m1ptu3t3ec.fsf@frodo.biederman.org>
-	<m1fzuyub3z.fsf@frodo.biederman.org>
-	<200210212257.40050.landley@trommello.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Oct 2002 08:48:43 -0600
-In-Reply-To: <200210212257.40050.landley@trommello.org>
-Message-ID: <m17kgattpw.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262796AbSJVOoF>; Tue, 22 Oct 2002 10:44:05 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:23481 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262783AbSJVOoE>; Tue, 22 Oct 2002 10:44:04 -0400
+Subject: Re: [PATCH] i386 __verify_write fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DA9D3EF.9030000@quark.didntduck.org>
+References: <3DA9D3EF.9030000@quark.didntduck.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 16:06:18 +0100
+Message-Id: <1035299178.329.70.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org> writes:
+On Sun, 2002-10-13 at 21:13, Brian Gerst wrote:
+> mark the page read-only.  A 386 would continue to write to the page when 
+> the first thread woke up again.  We need to prevent anyone from changing 
+> the page permissions until we are done writing to userspace.  My 
+> suggestion is to replace access_ok() with begin_user_{read,write}(), and 
+> add end_user_{read,write}().  Thoughs?
 
-> On Tuesday 22 October 2002 03:33, Eric W. Biederman wrote:
-> 
-> > j < Printed from the second callback in setup.S, just before the
-> > kernel decompresser is run >
-> >
-> >
-> > I have a very strange node that makes it all of the way to 'j' before
-> > rebooting. The concept that something is dying in protected mode will all
-> > of the interrupts disabled is so novel that I really don't know what to
-> > make of it, yet.
-> 
-> It would almost have to be the MMU.  Any way to dump the page tables?
+For 2.6 with the time scale as it is I think we just block pre-emption
+on 386. Its not a big deal since almost nobody uses 386 any more
 
-I don't know yet.  I need to find a way to install some additional hooks
-at run time so I can narrow down where the failure is occuring.  I
-will have to look, but I should be able to set up an interrupt
-descriptor table and single step through the code.  
-
-What has me very puzzled is that I can boot that same kernel if I run
-a substitute for setup.S that makes a similar set of BIOS calls.
-
-The kernel I am having problems with is an old 2.4.17 kernel.  But
-more than anything my goal is to make the boot process debuggable
-without requiring a recompile.  So I can ask users to throw a switch
-and I can find out where things are failing.
-
-I may be able to recompile that 2.4.17 kernel and then edit the build
-so I can get more debug information.  But if it is my preference to
-attempt to track down what is happening without doing that.
-Especially as it is more useful if that does not happen.
-
-The compressor in misc.c runs without a page table enabled, so it may
-be something before the page tables are enabled. 
-
-Eric

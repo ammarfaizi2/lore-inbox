@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSGDRmB>; Thu, 4 Jul 2002 13:42:01 -0400
+	id <S313181AbSGDRq6>; Thu, 4 Jul 2002 13:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSGDRmA>; Thu, 4 Jul 2002 13:42:00 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20892 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S313181AbSGDRl7>; Thu, 4 Jul 2002 13:41:59 -0400
-Date: Thu, 4 Jul 2002 19:44:09 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Martin Dalecki <dalecki@evision-ventures.com>,
-       <linux-kernel@vger.kernel.org>
+	id <S313190AbSGDRq5>; Thu, 4 Jul 2002 13:46:57 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:25567 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S313181AbSGDRq5>;
+	Thu, 4 Jul 2002 13:46:57 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.24 IDE 97
-In-Reply-To: <20020704153313.F11601@flint.arm.linux.org.uk>
-Message-ID: <Pine.SOL.4.30.0207041940310.28459-100000@mion.elka.pw.edu.pl>
+Date: Thu, 4 Jul 2002 19:51:25 +0200
+Message-Id: <20020704175126.29120@192.168.4.1>
+In-Reply-To: <Pine.SOL.4.30.0207041940310.28459-100000@mion.elka.pw.edu.pl>
+References: <Pine.SOL.4.30.0207041940310.28459-100000@mion.elka.pw.edu.pl>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>My tuning scheme satisfies your both demands, by ch->dma_base,
+>ch->autodma and ch->modes_map host informs generic code about its
+>capabilities.
 
-On Thu, 4 Jul 2002, Russell King wrote:
+Just keep in mind that some chipsets don't use dma_base
+but still can do DMA (typically ide-pmac, and some embedded
+controllers). They do DMA their own way, not using the PRD
+tables. Actually, I would love beeing able to use that same
+dma_base (and others) fields for my own stuffs, but the common
+layer, last I looked at it, still does assumptions that when
+those are filled, they match a legacy controller.
 
-> On Thu, Jul 04, 2002 at 04:18:09PM +0200, Vojtech Pavlik wrote:
-> > I think the best solution (for now) probably would be to supply the mode
-> > map to the core IDE driver so that it can choose which modes (and
-> > whether DMA) are available.
->
-> I'm not really following your proposal, so I'll only say that as long as
-> the chipset driver can tell the core what its capabilities are _after_
-> running some chipset specific code, I'll be happy.
+Ben.
 
-My tuning scheme satisfies your both demands, by ch->dma_base,
-ch->autodma and ch->modes_map host informs generic code about its
-capabilities.
-
->
-> --
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
->
 

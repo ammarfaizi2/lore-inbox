@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272290AbTG3WxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 18:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272300AbTG3WxJ
+	id S272324AbTG3XDF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTG3XDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 18:53:09 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:63431 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S272290AbTG3WxF (ORCPT
+	Wed, 30 Jul 2003 19:03:05 -0400
+Received: from mail.ccur.com ([208.248.32.212]:30225 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S272324AbTG3XDB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 18:53:05 -0400
-Date: Thu, 31 Jul 2003 00:53:00 +0200 (MEST)
-Message-Id: <200307302253.h6UMr0XW024175@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: vherva@niksula.hut.fi
-Subject: Re: [PATCH] NMI watchdog documentation
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
+	Wed, 30 Jul 2003 19:03:01 -0400
+Date: Wed, 30 Jul 2003 19:02:54 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] nonbug: PF_LESS_THROTTLE
+Message-ID: <20030730230253.GA15044@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003 22:40:52 +0300, Ville Herva wrote:
->Ok, you got me confused (thankfully I didn't submit anything for inclusion
->yet. :)
-...
->So... Should it be something like:
->
->+For x86-64, the needed APIC is always compiled in, and the NMI watchdog is
->+always enabled with perctr mode. Currently, mode=2 (local APIC) does not
+Although the value that PF_LESS_THROTTLE has does work, it may not be
+the value that was intended for it.
 
-always enabled with I/O-APIC mode.
+Joe
 
->+work on x86-64. IO APIC mode (mode=1) is the default. Using NMI watchdog
 
-Using local APIC
 
->+(mode=1) needs the first performance register, so you can't use it for
-
-(mode=2)
-
->+other purposes (such as high precision performance profiling.)
-
->(Is the last sentence only valid for x86-64?)
-
-No, it's true for both x86 and x86-64. However, both oprofile
-and the perfctr driver disable the local APIC NMI watchdog, so
-the statement is only true for other drivers that don't do this.
-
-/Mikael
+--- linux-2.6.0-test2/include/linux/sched.h.orig	2003-07-27 12:57:39.000000000 -0400
++++ linux-2.6.0-test2/include/linux/sched.h	2003-07-30 18:52:42.000000000 -0400
+@@ -485,7 +485,7 @@
+ #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
+ #define PF_KSWAPD	0x00040000	/* I am kswapd */
+ #define PF_SWAPOFF	0x00080000	/* I am in swapoff */
+-#define PF_LESS_THROTTLE 0x01000000	/* Throttle me less: I clena memory */
++#define PF_LESS_THROTTLE 0x00100000	/* Throttle me less: I clena memory */
+ #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
+ #define PF_READAHEAD	0x00400000	/* I am doing read-ahead */
+ 

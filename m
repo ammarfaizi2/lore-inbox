@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263984AbTLFUv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 15:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbTLFUv1
+	id S265258AbTLFVDM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 16:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265259AbTLFVDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 15:51:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13044 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263984AbTLFUv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 15:51:26 -0500
-Date: Sat, 6 Dec 2003 21:51:18 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jens Benecke <jens-usenet@spamfreemail.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which optimization for different CPUs?
-Message-ID: <20031206205118.GT20739@fs.tum.de>
-References: <bqs8iq$2c3$1@sea.gmane.org>
+	Sat, 6 Dec 2003 16:03:11 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:22982 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S265258AbTLFVDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 16:03:08 -0500
+Date: Sat, 6 Dec 2003 22:03:05 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23: aic7xxx/aicasm fails to build
+Message-ID: <20031206210305.GY22460@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031205093800.GV754@charite.de> <3FD215F9.8070506@stinkfoot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <bqs8iq$2c3$1@sea.gmane.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3FD215F9.8070506@stinkfoot.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 10:47:10AM +0100, Jens Benecke wrote:
+* Ethan Weinstein <lists@stinkfoot.org>:
 
-> Hi,
+> I believe if you turn off
+> CONFIG_AIC7XXX_BUILD_FIRMWARE in your config, it should build.
 
-Hi Jens,
-
-> I have several servers and workstations. What optimization level in the
-> kernel configuration is the maximum possible if I want to use the same
-> kernel 
-> 
-> - on a Duron-650, a Celeron-1000, and a Celeron-2600?  (servers)
-> - additionally on a K6-3D 400 and a K6-2 350?
->   (do I *have* to go down to CONFIG_M586 or does P2 or P-MMX work?)
-> 
-> - on a P3-700, an Athon XP 2400, and a P4-1800+? (workstations)
-
-you must go down to M586TSC .
-
-> Thank you!
-> Jens Benecke
-
-cu
-Adrian
+Yes, of course. But that was not really the question :)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix

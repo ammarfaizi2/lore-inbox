@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267255AbTBDLI4>; Tue, 4 Feb 2003 06:08:56 -0500
+	id <S267222AbTBDLDc>; Tue, 4 Feb 2003 06:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267256AbTBDLIz>; Tue, 4 Feb 2003 06:08:55 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16787
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267255AbTBDLIz>; Tue, 4 Feb 2003 06:08:55 -0500
-Subject: Re: Help with promise sx6000 card
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Cuenta de la lista de linux <user_linux@citma.cu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030203221923.M79151@webmail.citma.cu>
-References: <20030203221923.M79151@webmail.citma.cu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044360902.23312.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 04 Feb 2003 12:15:03 +0000
+	id <S267224AbTBDLDc>; Tue, 4 Feb 2003 06:03:32 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:14486 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267222AbTBDLDa>;
+	Tue, 4 Feb 2003 06:03:30 -0500
+Date: Tue, 4 Feb 2003 12:12:56 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200302041112.MAA02028@harpo.it.uu.se>
+To: hpa@zytor.com
+Subject: Re: [UPDATED PATCH] Removal of boot sector code
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-03 at 22:19, Cuenta de la lista de linux wrote:
-> Hi all:
-> 
-> I have installed Red Hat 8 with 2.4.18-14 ,i2o support as module, but i can
-> not find my card anywhere.
+On 29 Jan 2003 19:12:31 -0800, H. Peter Anvin wrote:
+>I have updated the boot sector removal code so that it now:
+>
+>a) Supports "make zdisk", "make bzdisk" and "make fdimage"
+>   (Requires mtools and syslinux, but will work as a non-root user
+>   as long as you have your floppy in /etc/fstab or syslinux setuid
+>   root.)
+>
+>   There is also "make fdimage288" to create a 2.88 MB floppy image.
 
-You need to load i2o_pci, then i2o_core then i2o_block. 
+This works reasonably well for me, but it does require
+MS-DOS fs support in the kernel, and having a /dev/fd0 entry
+in /etc/fstab with "user" permissions (for some reason, "owner"
+doesn't work).
 
+I'd like to use my own recipe for "make bzdisk", to avoid these
+restrictions. What about having "make bzdisk" optionally invoke
+and external script, similarly to how "make install" works?
 
-> I2O Core - (C) Copyright 1999 Red Hat Software
-> I2O: Event thread created as pid 17
-> I2O Block Storage OSM v0.9
->   (c) Copyright 1999-2001 Red Hat Software.
-> i2o_block: registered device at major 80
-> i2o_block: Checking for Boot device...
-> i2o_block: Checking for I2O Block devices...
+>The boot sector was very cool in 1992, but in 2003 it has outlived its
+>usefulness, and it no longer supports what Linux boot loaders need,
+>especially not with the 1 MB limit and the lack of support for
+>non-legacy floppy devices (the geometry detection hack fails on
+>those.)  Even a relatively simple 2.5 build exceeds that size for me,
+>and with this patch "make bzdisk" actually works, whereas the original
+>boot sector doesn't.
 
-i2o_pci is not loaded
+Indeed. Another reason is that gcc-3.2 generates (for me anyway)
+much larger kernel images than gcc-2.95.3.
 
-
+/Mikael

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318861AbSHEUMq>; Mon, 5 Aug 2002 16:12:46 -0400
+	id <S318873AbSHEUQR>; Mon, 5 Aug 2002 16:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318864AbSHEUMq>; Mon, 5 Aug 2002 16:12:46 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:49157
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318861AbSHEUMk>; Mon, 5 Aug 2002 16:12:40 -0400
-Date: Mon, 5 Aug 2002 13:08:53 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
+	id <S318872AbSHEUQP>; Mon, 5 Aug 2002 16:16:15 -0400
+Received: from smtp01.web.de ([194.45.170.210]:23069 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S318875AbSHEUPj>;
+	Mon, 5 Aug 2002 16:15:39 -0400
+Date: Mon, 5 Aug 2002 22:16:52 +0200
+From: Lars Ellenberg <l.g.e@web.de>
 To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org
-Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
-In-Reply-To: <20020804222542.GH13053@ppc.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.10.10208051249520.11932-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Subject: stacked bdev driver, howto? locking of lower level block device
+Message-ID: <20020805221652.A4250@johann>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there, I'm new on this list.
 
-This has now become an utter JOKE!
+I do some happy hacking with drbd, which is "distributed replicated
+block device", a stacked block device driver by Phillipp Reisner,
+aiming towards network raid, GFS, this stuff.
 
-If we examine Table 2-3 of the Retired SFF-8038i rev 1.0 the only document
-to describe the behaviors of Bus Master IDE Status Register.
-It is a R/W field.
+I'd like to implement some kind of locking of the lower level
+block device, so nobody can mount it/modify it underneath the drbd
+driver.
 
-Bit 7: Simplex RO
-Bit 6: Device 1 DMA Capable RW
-Bit 5: Device 0 DMA Capable RW
-Bit 4: Reserved "MUST RETURN ZERO ON READS" !!!		Vendor Write
-Bit 3: Reserved "MUST RETURN ZERO ON READS" !!!		Vendor Write
-Bit 2: Bus Master Interrupt	STATUS R Clear W
-Bit 1: Bus Master Error		STATUS R Clear W
-Bit 0: Bus Master Active	STATUS
+I know drivers/md/md.c does this somehow. I tried to understand
+and adapt, but it does not work.
 
-Vendor Write, is not a published or listed techincal term.
-It is me trying to present this clearly enough so that the masses will see
-how poorly the general understanding of the basics in 2.5.
+Hopefully my questions are trivial to some of you. Please put me
+on the right track.
 
-Not to worry, I am sure UnderDog will come an save the day soon enough.
+- How does block device locking work?
+- In which mode do I have to open it?
+- Which flags have to be set?
+- What else am I missing?
 
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+TIA
+	Lars-Gunnar

@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270031AbRIBWgW>; Sun, 2 Sep 2001 18:36:22 -0400
+	id <S270101AbRIBWiw>; Sun, 2 Sep 2001 18:38:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270101AbRIBWgM>; Sun, 2 Sep 2001 18:36:12 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:21925 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270031AbRIBWf7>;
-	Sun, 2 Sep 2001 18:35:59 -0400
-Date: Sun, 02 Sep 2001 23:36:07 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: High order memory allocations (was Re: Memory Problem in
- 2.4.10-pre2 / __alloc_pages failed)
-Message-ID: <1045146040.999473767@[169.254.198.40]>
-In-Reply-To: <1041110124.999469713@[169.254.198.40]>
-In-Reply-To: <1041110124.999469713@[169.254.198.40]>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S270121AbRIBWim>; Sun, 2 Sep 2001 18:38:42 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:221 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S270101AbRIBWii>; Sun, 2 Sep 2001 18:38:38 -0400
+Date: Mon, 3 Sep 2001 00:34:37 +0200
+From: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+To: thunder7@xs4all.nl
+Cc: parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010903003437.A385@linux-m68k.org>
+In-Reply-To: <20010902105538.A15344@middle.of.nowhere> <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk> <20010902195717.A21209@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010902195717.A21209@middle.of.nowhere>; from thunder7@xs4all.nl on Sun, Sep 02, 2001 at 07:57:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next problem / idea:
+On Sun, Sep 02, 2001 at 07:57:17PM +0200, thunder7@xs4all.nl wrote:
+> 
+> --- linux/include/linux/reiserfs_fs.h   Sun Sep  2 21:54:25 2001
+> +++ linux-new/include/linux/reiserfs_fs.h       Sun Sep  2 20:47:27 2001
+> @@ -924,7 +924,7 @@
+>  #define DEH_Visible 2
+> 
+>  /* 64 bit systems (and the S/390) need to be aligned explicitly -jdm */
+> -#if BITS_PER_LONG == 64 || defined(__s390__)
+> +#if BITS_PER_LONG == 64 || defined(__s390__) || defined(__hppa__)
+>  #   define ADDR_UNALIGNED_BITS  (3)
+>  #endif
 
-memory_pressure sets the target for inactive_target (hence
-free_target etc.)
+couldn't reiserfs use asm/unaligned.h like anyone else?
+Seems at least sparc and mips may need the same treatment.
 
-However, if you do (say) and order 5 allocation, memory
-pressure is only incremented by 1. This seems illogical,
-especially given __alloc_pages does not loop via
-try_again, on order>0 allocations (except
-when freeshortage() is true) even if __GFP_WAIT
-is set (I suspect because it just sits there for
-ever). In practice, this means page_launder only
-has one shot at freeing sufficient pages, and this
-with a wrong inactive target. I propose something
-like (whitespace broken - sorry):
-
---- mm/page_alloc.c.keep   Sun Sep  2 23:32:56 2001
-+++ mm/page_alloc.c        Sun Sep  2 23:34:03 2001
-@@ -141,8 +141,8 @@
-         * since it's nothing important, but we do want to make sure
-         * it never gets negative.
-         */
--       if (memory_pressure > NR_CPUS)
--               memory_pressure--;
-+       if (memory_pressure > (NR_CPUS << order))
-+               memory_pressure-= 1<<order;
- }
-
- #define MARK_USED(index, order, area) \
-@@ -288,7 +288,7 @@
-        /*
-         * Allocations put pressure on the VM subsystem.
-         */
--       memory_pressure++;
-+       memory_pressure+= 1<<order;
-
-        /*
-         * (If anyone calls gfp from interrupts nonatomically then it
-
-
-
-
---
-Alex Bligh
+Bye
+Richard

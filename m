@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTEZNmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 09:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTEZNmg
+	id S264379AbTEZNmo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 09:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTEZNmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 09:42:36 -0400
-Received: from [213.229.38.66] ([213.229.38.66]:30443 "HELO mail.falke.at")
-	by vger.kernel.org with SMTP id S264377AbTEZNmf (ORCPT
+	Mon, 26 May 2003 09:42:44 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:40712 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S264379AbTEZNml (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 09:42:35 -0400
-Message-ID: <3ED21CE3.9060400@winischhofer.net>
-Date: Mon, 26 May 2003 15:55:47 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
-MIME-Version: 1.0
+	Mon, 26 May 2003 09:42:41 -0400
+Subject: [PATCH] 2.5.69-bk19 drm_memory.h compilation error
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
 To: lkml <linux-kernel@vger.kernel.org>
-CC: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x 
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Cc: Linus <torvalds@transmeta.com>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1053956681.1852.7.camel@nalesnik.localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 May 2003 14:44:44 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In file included from drivers/char/drm/i810_drv.c:52:
+drivers/char/drm/drm_memory.h: In function `drm_ioremapfree':
+drivers/char/drm/drm_memory.h:170: error: `PKMAP_BASE' undeclared (first
+use in this function)
+drivers/char/drm/drm_memory.h:170: error: (Each undeclared identifier is
+reported only once
+drivers/char/drm/drm_memory.h:170: error: for each function it appears
+in.)
+make[3]: *** [drivers/char/drm/i810_drv.o] Error 1
+make[2]: *** [drivers/char/drm] Error 2
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-How many samples of the SiS650 did you have for testing?
 
-I have
+looks like include/asm/highmem.h is not included.
 
--) a 650 (host bridge ID 1039:0650, rev 01),
-    with ISA bridge (1039:0008) revision 0x00,
--) a M650 (host bridge ID 1039:0650, rev 11),
-    with ISA bridge (1039:0008) revision 0x04, and
--) a 651 (host bridge ID 1039:0651, rev 02),
-    with ISA bridge (1039:0008) revision 0x25
+patch below against 2.5.69-bk19
+this helps
 
-and I had (and have) no problems with irqs or USB (or anything) on any 
-of these machines.
+----------------------------------------------------------
+diff -ur 1/drivers/char/drm/drm_memory.h 2/drivers/char/drm/drm_memory.h
+--- 1/drivers/char/drm/drm_memory.h     2003-05-26 14:40:31.000000000
++0100
++++ 2/drivers/char/drm/drm_memory.h     2003-05-26 14:42:29.000000000
++0100
+@@ -32,6 +32,14 @@
+ #include <linux/config.h>
+ #include "drmP.h"
 
-Are you sure that checking the revision number of the device is enough?
-
-Are you aware of the fact that SiS only produces the chips but never the 
-mainboards, and that SiS chips are in a 1000 ways "customizible" which 
-not in a single case I came accross so far was detectable by the device 
-revision number?
-
-Thomas
++/*
++ * we need PKMAP_BASE definition
++*/
++
++#ifdef CONFIG_HIGHMEM
++#include <asm/highmem.h>
++#endif
++
+ /* Cut down version of drm_memory_debug.h, which used to be called
+  * drm_memory.h.  If you want the debug functionality, change 0 to 1
+  * below.
+------------------------------------------------------------------
 
 -- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
-
-
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 labs
 

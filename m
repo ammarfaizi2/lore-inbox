@@ -1,184 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275530AbTHNUgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 16:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275535AbTHNUgL
+	id S275489AbTHNUuh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275514AbTHNUuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 16:36:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8576 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S275530AbTHNUgB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 16:36:01 -0400
-Date: Thu, 14 Aug 2003 16:36:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: vladimir.kondratiev@intel.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel threads resource leakage
-Message-ID: <Pine.LNX.4.53.0308141626440.11823@chaos>
+	Thu, 14 Aug 2003 16:50:37 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:30219 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S275489AbTHNUub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 16:50:31 -0400
+Date: Thu, 14 Aug 2003 21:50:30 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jakub Bogusz <qboosh@pld-linux.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tdfxfb in 2.6: fix for background used in fbcon_clear
+In-Reply-To: <20030814201325.GB27236@satan.blackhosts>
+Message-ID: <Pine.LNX.4.44.0308142150220.15200-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1036104176-1060893385=:11823"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---1678434306-1036104176-1060893385=:11823
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Applied. I will test it tonight.
 
 
-I am using a 2.4.20 kernel. I tried your program.
-First, it didn't compile. So I would guess that you
-never tested your test program. I fixed it and I
-made a more readily useful Makefile, etc., so others
-can try it, too. It is attached.
+On Thu, 14 Aug 2003, Jakub Bogusz wrote:
 
-It works. It doesn't eat any resources. I guess that
-the stuff that actually does 'work' in your actual
-driver module is what is consuming resources.
+> It was already posted to linux-fbdev-devel, but I haven't got any
+> comments...
+> Attached patch is rather simple and obvious.
+> 
+> ----- Forwarded message from Jakub Bogusz <qboosh at pld.org.pl> -----
+> 
+> Date: Thu, 31 Jul 2003 01:43:27 +0200
+> From: Jakub Bogusz <qboosh at pld.org.pl>
+> To: linux-fbdev-devel at lists.sourceforge.net
+> Subject: [PATCH] tdfxfb: fix for background used in fbcon_clear
+> 
+> Hello,
+> 
+> This time I checked recent linux-fbdev-devel archives - and didn't see
+> any patch for this issue. So here is my fix.
+> 
+> There was wrong color used in fillrect in 16/24/32bpp (pseudo_palette
+> mapping was omitted), which resulted in ugly black (well, almost black)
+> rectangles painted when some "clear" terminal command was sent (like
+> "^[[J", "^[[K") with background colour different than black.
+> It was visible e.g. in mc's View.
+> 
+> [...]
+> 
+> 
 
-Although making and deleting a number of kernel threads
-is an interesting exercise, I sure hope that you don't
-really do this in a real application. It is very expensive
-to do this. If you need a kernel thread, you should have
-one (or several) that do the work and never exit.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
---1678434306-1036104176-1060893385=:11823
-Content-Type: APPLICATION/octet-stream; name="kth.tar.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0308141636250.11823@chaos>
-Content-Description: 
-Content-Disposition: attachment; filename="kth.tar.gz"
-
-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
-AAAAAADAIMXyIV0AeAAA
-
---1678434306-1036104176-1060893385=:11823--

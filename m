@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUFHVRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUFHVZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265359AbUFHVRq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbUFHVRq
+	id S264305AbUFHVZB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUFHVZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:17:46 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:11689 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265325AbUFHVRc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:17:32 -0400
-Date: Tue, 8 Jun 2004 23:08:09 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ethtool semantics
-Message-ID: <20040608210809.GA10542@k3.hellgate.ch>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20040607212804.GA17012@k3.hellgate.ch> <20040607145723.41da5783.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040607145723.41da5783.davem@redhat.com>
-X-Operating-System: Linux 2.6.7-rc1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 8 Jun 2004 17:25:01 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:51938 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S264305AbUFHVY4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 17:24:56 -0400
+Date: Wed, 9 Jun 2004 00:24:56 +0300
+From: Pekka J Enberg <penberg@cs.helsinki.fi>
+Message-Id: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi>
+Subject: [PATCH] ALSA: Remove subsystem-specific malloc (1/8)
+To: linux-kernel@vger.kernel.org, tiwai@suse.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Jun 2004 14:57:23 -0700, David S. Miller wrote:
-> On Mon, 7 Jun 2004 23:28:04 +0200
-> Roger Luethi <rl@hellgate.ch> wrote:
-> 
-> > What is the correct response if a user passes ethtool speed or duplex
-> > arguments while autoneg is on? Some possible answers are:
-> > 
-[...]
-> speed and duplex fields should be silently ignored in this case
+Introduce kcalloc() in linux/slab.h that is used to replace snd_calloc() and
+snd_magic_calloc().
 
-It may not matter much because few people care about forced media these
-days. And it is debatable whether trying to guess the users intention
-is a good idea (we lack means for users to manipulate autoneg results
-via advertisted values but that's no big deal).
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-However, "silently ignoring" strikes me as a very poor choice, in
-stark contrast to Unix/Linux tradition. A user issues a command which
-cannot be executed and gets the same response that is used to indicate
-success!? What school of user interface design is that? How is that
-not confusing users? </rant>
+ include/linux/slab.h |    1 +
+ mm/slab.c            |   15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
 
-Roger
+--- linux-2.6.6/include/linux/slab.h	2004-06-08 23:54:41.382519192 +0300
++++ alsa-2.6.6/include/linux/slab.h	2004-06-08 21:36:12.951592680 +0300
+@@ -95,6 +95,7 @@ found:
+ 	return __kmalloc(size, flags);
+ }
+ 
++extern void *kcalloc(size_t, int);
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
+ 
+--- linux-2.6.6/mm/slab.c	2004-06-08 23:57:30.713776928 +0300
++++ alsa-2.6.6/mm/slab.c	2004-06-08 21:42:18.000000000 +0300
+@@ -2332,6 +2332,21 @@ void kmem_cache_free (kmem_cache_t *cach
+ EXPORT_SYMBOL(kmem_cache_free);
+ 
+ /**
++ * kcalloc - allocate memory. The memory is set to zero.
++ * @size: how many bytes of memory are required.
++ * @flags: the type of memory to allocate.
++ */
++void *kcalloc(size_t size, int flags)
++{
++	void *ret = kmalloc(size, flags);
++	if (ret)
++		memset(ret, 0, size);
++	return ret;
++}
++
++EXPORT_SYMBOL(kcalloc);
++
++/**
+  * kfree - free previously allocated memory
+  * @objp: pointer returned by kmalloc.
+  *

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbTJTHWX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 03:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTJTHWX
+	id S262407AbTJTHVM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 03:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTJTHVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 03:22:23 -0400
-Received: from line103-242.adsl.actcom.co.il ([192.117.103.242]:63882 "EHLO
-	beyondmobile1.beyondsecurity.com") by vger.kernel.org with ESMTP
-	id S262412AbTJTHWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 03:22:19 -0400
-From: Aviram Jenik <aviram@beyondsecurity.com>
-Organization: Beyond Security Ltd.
-To: "Brown, Len" <len.brown@intel.com>, "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test8 compilation issue
-Date: Mon, 20 Oct 2003 09:22:59 +0200
-User-Agent: KMail/1.5.4
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC87B8@hdsmsx402.hd.intel.com>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC87B8@hdsmsx402.hd.intel.com>
+	Mon, 20 Oct 2003 03:21:12 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:37823 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262407AbTJTHVK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 03:21:10 -0400
+Message-ID: <3F938CE4.3050705@namesys.com>
+Date: Mon, 20 Oct 2003 11:21:08 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Erik Andersen <andersen@codepoet.org>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond '" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>,
+       "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>,
+       "'nikita@namesys.com '" <nikita@namesys.com>,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results are in
+References: <Pine.LNX.4.10.10310191230340.15306-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10310191230340.15306-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310200922.59544.aviram@beyondsecurity.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 October 2003 05:57, Brown, Len wrote:
-> > drivers/built-in.o(.init.text+0x8cc): In function `acpi_bus_init':
-> > : undefined reference to `eisa_set_level_irq'
-> >
-> > make: *** [.tmp_vmlinux1] Error 1
->
-> If adding CONFIG_PCI isn't a viable workaround for you let me know,
-> and I'll send you the fix I've got staged.
->
+Thanks for the explanation.
 
-That workaround it quite ok for me.
-However, if you need testers for your fix, I'd be glad to help.
+-- 
+Hans
 
-- Aviram
+

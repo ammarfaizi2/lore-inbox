@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbTIOJXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTIOJXP
+	id S261705AbTIOJc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 05:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbTIOJc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:23:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52496 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261686AbTIOJXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:23:14 -0400
-Date: Mon, 15 Sep 2003 10:23:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Felipe W Damasio <felipewd@terra.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier
-Message-ID: <20030915102306.A22451@flint.arm.linux.org.uk>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Jamie Lokier <jamie@shareable.org>,
-	Felipe W Damasio <felipewd@terra.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030914140839.GC16525@mail.jlokier.co.uk> <20030915054300.947EB2C290@lists.samba.org>
+	Mon, 15 Sep 2003 05:32:27 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:35847 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S261705AbTIOJc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 05:32:26 -0400
+Date: Mon, 15 Sep 2003 11:32:22 +0200
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: laptop mode for 2.4.23-pre4 and up
+Message-ID: <20030915093221.GE2268@gamma.logic.tuwien.ac.at>
+References: <20030913103014.GA7535@gamma.logic.tuwien.ac.at> <20030914152755.GA27105@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030915054300.947EB2C290@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Sep 15, 2003 at 01:41:30PM +1000
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030914152755.GA27105@suse.de>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 01:41:30PM +1000, Rusty Russell wrote:
-> ....hiding the subtlety in wrapper functions is the wrong approach.  We
-> have excellent wait_event, wait_event_interruptible and
-> wait_event_interruptible_timeout macros in wait.h which these drivers
-> should be using, which would make them simpler, less buggy and
-> smaller.
+On Son, 14 Sep 2003, Jens Axboe wrote:
+> > Will there be a new incantation of the laptop-mode patch for 2.4.23-pre4
+> 
+> Sure, I'll done a new patch in the next few days. I don't know what aa
+> patches you mean though? Are you trying to say that it conflicts with
 
-"smaller and simpler" hmm.  And _more_ buggy.  Let's take this case:
+The ones included into kernel 2.4.23-pre4 (stuff from -aa kernels).
 
-	add_wait_queue(&wq, &wait);
-	for (;;) {
-		set_current_state(TASK_INTERRUPTIBLE);
-		if (condition)
-			break;
-		if (file->f_flags & O_NONBLOCK) {
-			ret = -EAGAIN;
-			break;
-		}
-		if (signal_pending(current)) {
-			ret = -ERESTARTSYS;
-			break;
-		}
-		schedule();
-	}
-	__set_current_state(TASK_RUNNING);
-	remove_wait_queue(&wq, &wait);
+> the -aa series? It should be trivial to fix up, just renumber the
+> laptop-mode sysctls.
 
-There are cases like the above which make the wait_event*() macros
-inappropriate:
+Ok, this was what I wanted to know. The rest I can do myself, thanks.
 
-- needing to test for extra conditions to set "ret" accordingly (eg,
-  non-blocking IO)
-- needing to atomically dequeue some data
+> I'll send it to Marcelo too for 2.4.23.
 
-I've yet to see anyone using wait_event*() in these circumstances -
-they're great for your simple "did something happen" case which the
-majority of drivers use, but there are use cases where wait_event*()
-is not appropriate.
+Good idea!
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+DORRIDGE (n.)
+Technical term for one of the lame excuses written in very small print
+on the side of packets of food or washing powder to explain why
+there's hardly anything inside. Examples include 'Contents may have
+settled in transit' and 'To keep each biscuit fresh they have been
+individually wrapped in silver paper and cellophane and separated with
+corrugated lining, a cardboard flap, and heavy industrial tyres'.
+			--- Douglas Adams, The Meaning of Liff

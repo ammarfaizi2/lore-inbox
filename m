@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbUJZIdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUJZIlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbUJZIdY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 04:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUJZIdX
+	id S262190AbUJZIlH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 04:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUJZIlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 04:33:23 -0400
-Received: from host-ip82-243.crowley.pl ([62.111.243.82]:3336 "HELO
-	software.com.pl") by vger.kernel.org with SMTP id S262186AbUJZIdK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 04:33:10 -0400
-From: Karol Kozimor <kkozimor@aurox.org>
-Organization: Aurox Sp. z o.o.
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Date: Tue, 26 Oct 2004 10:32:47 +0200
-User-Agent: KMail/1.7
-Cc: Stelian Pop <stelian@popies.net>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025135036.GA3161@crusoe.alcove-fr> <20041025221238.GB5207@elf.ucw.cz>
-In-Reply-To: <20041025221238.GB5207@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Oct 2004 04:41:07 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:7954 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262190AbUJZIlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 04:41:05 -0400
+Subject: Re: [PATCH] remove dead tcp exports
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Werner Almesberger <wa@almesberger.net>, hch@lst.de, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1098765665.9404.5.camel@krustophenia.net>
+References: <20041024134309.GB20267@lst.de>
+	 <20041026000710.D3841@almesberger.net>
+	 <20041025204147.667ee2b1.davem@davemloft.net>
+	 <1098765665.9404.5.camel@krustophenia.net>
+Content-Type: text/plain
+Message-Id: <1098780051.2789.17.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 26 Oct 2004 10:40:51 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410261032.47467.kkozimor@aurox.org>
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 of October 2004 00:12, Pavel Machek wrote:
-> > * allocate a FN key event and let FN be a modifier.
-> >
-> >   This is much nicer (less events allocated in input.h), but I haven't
-> >   found a way (and I'm not sure there is one) to say to X that Fn is
->
-> I think this is *bad* idea. In such case, userland would see
-> Fn-F3. My notebook has "sleep" key on Fn-F3, but your notebook
-> probably has something else there. You'd need another mapping in
-> userspace...
->
-> I believe Fn-F3 on my machine is meant to be replacement for hardware
-> sleep button (and it has sleep label on it!), and we really should
-> generate sleep event for Fn-F3...
+On Tue, 2004-10-26 at 00:41 -0400, Lee Revell wrote:
 
-Then map the button to invoke the suspend script in userspace. First we're 
-mapping ACPI events to input events, then the other way around? Sounds 
-fishy to me.
-Best regards,
+> Is this really a compelling reason to remove them?  For example ALSA
+> provides an API for driver writers, just because a certain function
+> happens not to be used by any does not mean is never will be or that it
+> should not.
 
+sometimes such "spurious" exports still make sense. Most of the time
+they don't, and during these cleanups we've found several functions for
+which the only "user" was the export, eg entirely dead code. 
+Also nobody in the entire tree using a part of the API is a pretty good
+sign that the API isn't good or even supposed to be used. (again,
+exceptions possible, which is why cleaning this stuff is manual work and
+not a script to just nuke it all)
 -- 
-Karol Kozimor
-kkozimor@aurox.org
+

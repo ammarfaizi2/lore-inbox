@@ -1,151 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265140AbUAHPRU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 10:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbUAHPRS
+	id S264506AbUAHPMB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 10:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUAHPMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 10:17:18 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:14599 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S265140AbUAHPPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 10:15:31 -0500
-Date: Thu, 8 Jan 2004 18:15:02 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Relocation overflow with modules on Alpha
-Message-ID: <20040108181502.B9562@jurassic.park.msu.ru>
-References: <yw1xy8sn2nry.fsf@ford.guide> <20040106004435.A3228@Marvin.DL8BCU.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040106004435.A3228@Marvin.DL8BCU.ampr.org>; from dl8bcu@dl8bcu.de on Tue, Jan 06, 2004 at 12:44:35AM +0000
+	Thu, 8 Jan 2004 10:12:01 -0500
+Received: from [200.49.101.40] ([200.49.101.40]:49163 "EHLO mail.skycop.net")
+	by vger.kernel.org with ESMTP id S264506AbUAHPLz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 10:11:55 -0500
+From: "Nicolas Nilles" <nnilles@skycop.net>
+To: <linux-kernel@vger.kernel.org>, <sensors@stimpy.netroedge.com>
+Cc: <greg@kroah.com>
+Subject: RE: Kernel 2.6.0 and i2c-viapro posible Bug
+Date: Thu, 8 Jan 2004 12:11:45 -0300
+Message-ID: <OLEKJGKIEPMKIGIPLDBNCELKCDAA.nnilles@skycop.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20040107223046.093ea670.khali@linux-fr.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+X-Spam-Processed: skycop.net, Thu, 08 Jan 2004 12:12:39 -0300
+	(not processed: message from valid local sender)
+X-Return-Path: nnilles@skycop.net
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 12:44:35AM +0000, Thorsten Kranzkowski wrote:
-> : relocation truncated to fit: BRADDR .init.text
-> init/built-in.o(.text+0xf10): In function `inflate_codes':
+	Well with 2.6.1-rc2 Kernel works great, i dont have any kind of problem,
+with 2.4.24 i dont try, i gonna try.. today or tomorrow... then i post the
+results, but i use it with 2.4.20-gentoo-r9  (gentoo sources) +
+i2c+lm-sensors, and it work with no problem at all...
+	This is whenni try loading first i2c-viapro and then w82781d and the when i
+unload the modules..  the problem persist..
+	Without ACPI support in the kernel it happen the same thing...  no mother
+whitch module i load first, when i load the 2nd module, stuck... if you want
+i send you the dmesg, and code of this test.
+	Now i going to download the 2.4.24 Kernel, and then i try with it and send
+the results.
 
-Looks like it's a GCC-3.3 bug.
-lib/inflate.c is directly included in init/initramfs.c and
-init/do_mounts_rd.c, so the compiler assumes that all subroutines in these
-files as "local" and uses branches (bsr instead of jsr) for function calls.
-Even though some of those functions are in different sections
-(.text vs .init.text)...
-GCC-3.4 seems to be OK.
 
-> It seems my kernel crossed the 4 MB barrier in consumed RAM and possibly
-> some relocation type(s) can't cope with that. Time to use -fpic or 
-> some such?
+root@schoolgirl rem # hdparm -tT /dev/hda
 
-I'm thinking about some __init tricks in lib/inflate.c.
-What about this patch? It has a nice side effect - the "inflate"
-code gets freed after init is done.
+/dev/hda:
+ Timing buffer-cache reads:   668 MB in  2.01 seconds = 332.72 MB/sec
+ Timing buffered disk reads:   66 MB in  3.05 seconds =  21.64 MB/sec
+root@schoolgirl rem # lsmod
+Module                  Size  Used by
+root@schoolgirl rem # modprobe i2c-viapro
+root@schoolgirl rem # lsmod
+Module                  Size  Used by
+i2c_viapro              4908  0
+i2c_core               20836  1 i2c_viapro
+root@schoolgirl rem # hdparm -tT /dev/hda
 
-Ivan.
+/dev/hda:
+ Timing buffer-cache reads:   668 MB in  2.00 seconds = 333.38 MB/sec
+ Timing buffered disk reads:   66 MB in  3.05 seconds =  21.62 MB/sec
+root@schoolgirl rem # modprobe w83781d
+root@schoolgirl rem # lsmod
+Module                  Size  Used by
+w83781d                33920  0
+i2c_sensor              2272  1 w83781d
+i2c_viapro              4908  0
+i2c_core               20836  3 w83781d,i2c_sensor,i2c_viapro
+root@schoolgirl rem # hdparm -tT /dev/hda
 
---- rc3/lib/inflate.c	Thu Jan  8 16:52:19 2004
-+++ linux/lib/inflate.c	Thu Jan  8 17:55:14 2004
-@@ -120,6 +120,10 @@ static char rcsid[] = "#Id: inflate.c,v 
- 	
- #define slide window
- 
-+#ifndef __init
-+#define __init		/* included from bootloader */
-+#endif
-+
- /* Huffman code lookup table entry--this entry is four bytes for machines
-    that have 16-bit pointers (e.g. PC's in the small or medium model).
-    Valid extra bits are 0..13.  e == 15 is EOB (end of block), e == 16
-@@ -271,7 +275,7 @@ STATIC const int dbits = 6;          /* 
- STATIC unsigned hufts;         /* track memory usage */
- 
- 
--STATIC int huft_build(
-+STATIC int __init huft_build(
- 	unsigned *b,            /* code lengths in bits (all assumed <= BMAX) */
- 	unsigned n,             /* number of codes (assumed <= N_MAX) */
- 	unsigned s,             /* number of simple-valued codes (0..s-1) */
-@@ -490,7 +494,7 @@ DEBG("huft7 ");
- 
- 
- 
--STATIC int huft_free(
-+STATIC int __init huft_free(
- 	struct huft *t         /* table to free */
- 	)
- /* Free the malloc'ed tables built by huft_build(), which makes a linked
-@@ -512,7 +516,7 @@ STATIC int huft_free(
- }
- 
- 
--STATIC int inflate_codes(
-+STATIC int __init inflate_codes(
- 	struct huft *tl,    /* literal/length decoder tables */
- 	struct huft *td,    /* distance decoder tables */
- 	int bl,             /* number of bits decoded by tl[] */
-@@ -627,7 +631,7 @@ STATIC int inflate_codes(
- 
- 
- 
--STATIC int inflate_stored(void)
-+STATIC int __init inflate_stored(void)
- /* "decompress" an inflated type 0 (stored) block. */
- {
-   unsigned n;           /* number of bytes in block */
-@@ -686,7 +690,7 @@ DEBG("<stor");
- 
- 
- 
--STATIC int inflate_fixed(void)
-+STATIC int __init inflate_fixed(void)
- /* decompress an inflated type 1 (fixed Huffman codes) block.  We should
-    either replace this with a custom decoder, or at least precompute the
-    Huffman tables. */
-@@ -740,7 +744,7 @@ DEBG("<fix");
- 
- 
- 
--STATIC int inflate_dynamic(void)
-+STATIC int __init inflate_dynamic(void)
- /* decompress an inflated type 2 (dynamic Huffman codes) block. */
- {
-   int i;                /* temporary variables */
-@@ -921,7 +925,7 @@ DEBG("dyn7 ");
- 
- 
- 
--STATIC int inflate_block(
-+STATIC int __init inflate_block(
- 	int *e                  /* last block flag */
- 	)
- /* decompress an inflated block */
-@@ -972,7 +976,7 @@ STATIC int inflate_block(
- 
- 
- 
--STATIC int inflate(void)
-+STATIC int __init inflate(void)
- /* decompress an inflated entry */
- {
-   int e;                /* last block flag */
-@@ -1034,7 +1038,7 @@ static ulg crc;		/* initialized in makec
-  * gzip-1.0.3/makecrc.c.
-  */
- 
--static void
-+static void __init 
- makecrc(void)
- {
- /* Not copyrighted 1990 Mark Adler	*/
-@@ -1082,7 +1086,7 @@ makecrc(void)
- /*
-  * Do the uncompression!
-  */
--static int gunzip(void)
-+static int __init gunzip(void)
- {
-     uch flags;
-     unsigned char magic[2]; /* magic header */
+/dev/hda:
+ Timing buffer-cache reads:   160 MB in  2.03 seconds =  78.64 MB/sec
+ Timing buffered disk reads:   56 MB in  3.10 seconds =  18.08 MB/sec
+root@schoolgirl rem # modprobe -r w83781d
+root@schoolgirl rem # hdparm -tT /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   160 MB in  2.01 seconds =  79.46 MB/sec
+ Timing buffered disk reads:   56 MB in  3.04 seconds =  18.42 MB/sec
+root@schoolgirl rem # modprobe -r i2c_viapro
+root@schoolgirl rem # hdparm -tT /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   160 MB in  2.03 seconds =  78.95 MB/sec
+ Timing buffered disk reads:   56 MB in  3.02 seconds =  18.56 MB/sec
+root@schoolgirl rem # lsmod
+Module                  Size  Used by
+root@schoolgirl rem # hdparm -tT /dev/hda
+
+/dev/hda:
+ Timing buffer-cache reads:   164 MB in  2.03 seconds =  80.96 MB/sec
+ Timing buffered disk reads:   56 MB in  3.02 seconds =  18.56 MB/sec
+
+
+root@schoolgirl rem # lspci -n
+00:00.0 Class 0600: 1106:0691 (rev c4)
+00:01.0 Class 0604: 1106:8598
+00:04.0 Class 0601: 1106:0686 (rev 40)
+00:04.1 Class 0101: 1106:0571 (rev 06)
+00:04.2 Class 0c03: 1106:3038 (rev 16)
+00:04.3 Class 0c03: 1106:3038 (rev 16)
+00:04.4 Class 0600: 1106:3057 (rev 40)
+00:09.0 Class 0200: 10ec:8139 (rev 10)
+00:0a.0 Class 0401: 1102:0002 (rev 05)
+00:0a.1 Class 0980: 1102:7002 (rev 05)
+01:00.0 Class 0300: 10de:0181 (rev a2)
+
+
+
+
+Thanks
+Rem
+
+------------
+Nicolas Nilles (Rem)
+
+http://schoolgirl.homeunix.net
+
+
+-----Mensaje original-----
+De: Jean Delvare [mailto:khali@linux-fr.org]
+Enviado el: miercoles, 07 de enero de 2004 18:31
+Para: Nicolas Nilles
+CC: linux-kernel@vger.kernel.org; greg@kroah.com;
+sensors@stimpy.netroedge.com
+Asunto: Re: Kernel 2.6.0 and i2c-viapro posible Bug
+
+
+> I thinks that thgere is  probably a bug in I2c-viapro module,
+> cuz when i load i2c-viapro after loading w82781d, my computer  just
+> put very slow..., i try loading as modules in the kernel or built in,
+> in both cases i have the same problem.
+>
+> I use 2.6.0 Vanilla Kernel sources.
+> Please i will really apreciate if some one responde to this
+> mail, put my adress in the CC field please cuz i not in the LKML.
+> If someone need another information about my computer, config..
+> or somehting more, just ask for it.
+>
+> Thanks.
+
+Tested this on my own system with similar hardware (as far as i2c is
+concerned) under 2.6.1-rc2. I did not experience any slowdown.
+
+Could you please provide the following information:
+
+* Output of "lspci -n".
+
+* Can you reproduce the problem with a 2.4.24 kernel and i2c+lm_sensors
+  2.8.2?
+
+* Can you reproduce the problem with a 2.6.1-rc2 kernel?
+
+* Can you reproduce the problem without ACPI support enabled into your
+  kernel?
+
+* Does the slowdown affect only the hard-disk drive?
+
+* Does the speed come back to normal if you remove i2c-viapro?
+
+* Does the slowdown occur if you load i2c-viapro before w83781d?
+
+Yeah, I know, this is much work, but we need a hint to start digging.
+
+Thanks.
+
+--
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/
+

@@ -1,100 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbULCUc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbULCUio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbULCUc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 15:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbULCUcj
+	id S262221AbULCUio (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 15:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbULCUio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 15:32:39 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:24588 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262498AbULCUcG (ORCPT
+	Fri, 3 Dec 2004 15:38:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31401 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262221AbULCUik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 15:32:06 -0500
-Message-ID: <41B0CD41.1050105@domdv.de>
-Date: Fri, 03 Dec 2004 21:32:01 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
+	Fri, 3 Dec 2004 15:38:40 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] correct copyright in arch/ia64/kernel/domain.c
+Date: Fri, 3 Dec 2004 12:38:29 -0800
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+References: <200410190533.i9J5XA922671@mail.osdl.org> <Pine.LNX.4.58.0410191507290.2317@ppc970.osdl.org> <4175AB46.7010003@yahoo.com.au>
+In-Reply-To: <4175AB46.7010003@yahoo.com.au>
 MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: 2.4.27  network related Oops
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_F7MsBkbikeqIcwq"
+Message-Id: <200412031238.29741.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do get an oops once about every one to two months (this time it took 
-even 10 weeks), always during a nightly automated backup that is network 
-load intensive via nfs and rmt as well as distributed data compression 
-(memory intensive too due to a large streaming buffer). I never managed 
-to catch the oops during several kernel versions until I took the time 
-and installed netconsole. Now here's what I got from netconsole:
+--Boundary-00=_F7MsBkbikeqIcwq
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c013ddc1>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010013
-eax: 000ff0c4   ebx: ffffffff   ecx: f7d22140   edx: 00000000
-esi: c1c0f6a8   edi: 00000286   ebp: cc98d020   esp: ed541bac
-ds: 0018   es: 0018   ss: 0018
-Process cut (pid: 25393, stackpage=ed541000)
-Stack:  cc31f3c0 0025ca70 0000c98d e1b55a40 00000003 e1b55aa0 cc98d020 
-c02f1ea3
-         cc98d000 00000358 e1b55a40 c02f1ff9 e1b55a40 00000202 fffffff4 
-c0332733
-         e1b55a40 c05f6290 cc98d020 e1b55a40 00000006 e1b55a40 cc98d020 
-c0332849
-Call Trace:
-  [<c02f1ea3>]
-  [<c02f1ff9>]
-  [<c0332733>]
-  [<c0332849>]
-  [<c0313831>]
-  [<c02fe903>]
-  [<c0313760>]
-  [<c03132e4>]
-  [<c0313760>]
-  [<c0313ab9>]
-  [<c03138d0>]
-  [<c02fe903>]
-  [<c03138d0>]
-  [<c03136cb>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+On Tuesday, October 19, 2004 5:03 pm, Nick Piggin wrote:
+> Linus Torvalds wrote:
+> > On Tue, 19 Oct 2004, Jesse Barnes wrote:
+> >>On Monday, October 18, 2004 10:31 pm, akpm@osdl.org wrote:
+> >>>+ * arch/ia64/kernel/domain.c
+> >>>+ * Architecture specific sched-domains builder.
+> >>>+ *
+> >>>+ * Copyright (C) 2004  Linus Torvalds
+> >>
+> >>Does Linus really have the copyright on this file?
+> >
+> > Probably not. I've had nothing to do with the scheduler domains. I
+> > suspect my name just got copied from whatever source file was used as a
+> > template.
+> >
+> > And I don't even know which one that was ;)
+> >
+> > Likely kernel/sched.c. I think it's all from Nick's patches.
+>
+> Yep that's right :P
+>
+> >>  Copyright (C) 2004 Jesse Barnes <jbarnes@virtuousgeek.org>
+> >>  Copyright (C) 2004 Silicon Graphics, Inc.
+> >>    Jesse Barnes <jbarnes@sgi.com>
+> >
+> > Agreed.
+>
+> No problem.
 
+Ok, here you go (finally).  A patch to correct the copyright in 
+arch/ia64/kernel/domain.c.  Both Silicon Graphics, Inc. and myself (yes 
+personally) hold the copyright on this file.
 
- >>EIP; c013ddc1 <kfree+51/d0>   <=====
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
- >>ecx; f7d22140 <_end+376713c8/38275308>
- >>esi; c1c0f6a8 <_end+155e930/38275308>
- >>ebp; cc98d020 <_end+c2dc2a8/38275308>
- >>esp; ed541bac <_end+2ce90e34/38275308>
+Thanks,
+Jesse
 
-Trace; c02f1ea3 <kfree_skbmem+13/70>
-Trace; c02f1ff9 <__kfree_skb+f9/150>
-Trace; c0332733 <raw_rcv_skb+93/170>
-Trace; c0332849 <raw_rcv+39/60>
-Trace; c0313831 <ip_local_deliver_finish+d1/170>
-Trace; c02fe903 <nf_hook_slow+b3/180>
-Trace; c0313760 <ip_local_deliver_finish+0/170>
-Trace; c03132e4 <ip_local_deliver+1a4/1d0>
-Trace; c0313760 <ip_local_deliver_finish+0/170>
-Trace; c0313ab9 <ip_rcv_finish+1e9/270>
-Trace; c03138d0 <ip_rcv_finish+0/270>
-Trace; c02fe903 <nf_hook_slow+b3/180>
-Trace; c03138d0 <ip_rcv_finish+0/270>
-Trace; c03136cb <ip_rcv+3bb/450>
+--Boundary-00=_F7MsBkbikeqIcwq
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="domain-copyright-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="domain-copyright-fix.patch"
 
-The system seems to properly panic as it does properly auto-reboot. No 
-hardware problem, this oops did occur on other hardware, too. And I do 
-get the oops (if I remember right) since at least 2.4.20 if not earlier. 
-The problem is just that it occurs very rarely, so it seems to be hard 
-to trigger.
-Oh, the problem is not NIC specific, it happened with epic100 on 100MBit 
-as well as it happens now with e1000 on GBit ethernet.
-The system the Oops (now) happens on is a Opteron 144 based server with 
-ecc memory, currently running completely in 32bit mode. The system 
-doesn't run X.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+===== arch/ia64/kernel/domain.c 1.4 vs edited =====
+--- 1.4/arch/ia64/kernel/domain.c	2004-10-20 11:20:36 -07:00
++++ edited/arch/ia64/kernel/domain.c	2004-12-03 12:36:37 -08:00
+@@ -2,7 +2,8 @@
+  * arch/ia64/kernel/domain.c
+  * Architecture specific sched-domains builder.
+  *
+- * Copyright (C) 2004  Linus Torvalds
++ * Copyright (C) 2004 Jesse Barnes
++ * Copyright (C) 2004 Silicon Graphics, Inc.
+  */
+ 
+ #include <linux/sched.h>
+
+--Boundary-00=_F7MsBkbikeqIcwq--

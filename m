@@ -1,28 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269862AbUJSRKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269842AbUJSRFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269862AbUJSRKr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 13:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269874AbUJSRGY
+	id S269842AbUJSRFp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 13:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269818AbUJSRDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:06:24 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:43446 "EHLO
+	Tue, 19 Oct 2004 13:03:48 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:28086 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S269857AbUJSRBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:01:21 -0400
-Date: Tue, 19 Oct 2004 19:01:11 +0200
+	id S269688AbUJSQ6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:58:24 -0400
+Date: Tue, 19 Oct 2004 18:57:20 +0200
 From: Martin Waitz <tali@admingilde.org>
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041019170111.GG3618@admingilde.org>
-Mail-Followup-To: Kendall Bennett <KendallB@scitechsoft.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <416FB29A.11731.1C46848@localhost> <4173BA7D.32320.11833A1D@localhost>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Gerd Knorr <kraxel@bytesex.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       penguinppc-team@lists.penguinppc.org
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041019165720.GF3618@admingilde.org>
+Mail-Followup-To: Oliver Neukum <oliver@neukum.org>,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	Gerd Knorr <kraxel@bytesex.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	penguinppc-team@lists.penguinppc.org
+References: <416E6ADC.3007.294DF20D@localhost> <20041018121033.GB5106@bytesex> <20041018202147.GA28720@hh.idb.hist.no> <200410182242.04749.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fnm8lRGFTVS/3GuM"
+	protocol="application/pgp-signature"; boundary="FeAIMMcddNRN4P4/"
 Content-Disposition: inline
-In-Reply-To: <4173BA7D.32320.11833A1D@localhost>
+In-Reply-To: <200410182242.04749.oliver@neukum.org>
 User-Agent: Mutt/1.3.28i
 X-Habeas-SWE-1: winter into spring
 X-Habeas-SWE-2: brightly anticipated
@@ -38,43 +45,46 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Fnm8lRGFTVS/3GuM
+--FeAIMMcddNRN4P4/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-hoi :)
+On Mon, Oct 18, 2004 at 10:42:04PM +0200, Oliver Neukum wrote:
+> Am Montag, 18. Oktober 2004 22:21 schrieb Helge Hafting:
+> > > On first access only, and even that only if the driver doesn't map the
+> > > pages at mmap() time already. ?Not a single fb driver seems to map the
+> > > pages lazy today, grepping in drivers/video for nopage handles shows
+> > > nothing. ?I'm not sure you can actually do that for iomem mappings.
+> > >=20
+> > Isn't it possible for the driver to unmap the mapping when
+> > suspending? ?Then you're guaranteed to get that first access.
+>=20
+> But what would you do then? Block everything that is using a terminal?
 
-On Mon, Oct 18, 2004 at 12:43:41PM -0700, Kendall Bennett wrote:
-> I am not sure what you mean by basic text output? If you mean to a=20
-> display, then yes, embedded boxes using U-Boot and OpenBIOS usually do=20
-> not have any text output. But if you mean serial output that is usually=
-=20
-> the method of choice for the embedded machines that don't have support=20
-> for a physical display in the firmware.
+yes
 
-I mean: text output on the preferred console.
+but that wouldn't last long if you run the userspace helper as soon
+as you are finished resuming.
 
-Embedded devices have a serial console anyway and all other machines
-have firmware support for drawing text.
-
-That is: switching into graphics mode can be done by the firmware, bootload=
-er,
-or by userspace and doesn't have to be in the kernel.
+One 'only' needs a method to give feedback while loading the image...
+I guess we have to rely on the firmware here.
+(Eighter it already sets an useable mode or provides a function that
+can display test)
 
 --=20
 Martin Waitz
 
---Fnm8lRGFTVS/3GuM
+--FeAIMMcddNRN4P4/
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFBdUhWj/Eaxd/oD7IRAkOeAJ98hh+cbbgohdQxYa6Gts/IxqwU0gCeKyNq
-RnrxQCnBjqGjXt1Q58A8Ess=
-=1+PR
+iD8DBQFBdUdvj/Eaxd/oD7IRAqujAJoDEg5BLRKM51a58fZPgqcOdZZu2QCfRCoI
+rVob2PU1RxE+a6bZQzT29CE=
+=SVtM
 -----END PGP SIGNATURE-----
 
---Fnm8lRGFTVS/3GuM--
+--FeAIMMcddNRN4P4/--

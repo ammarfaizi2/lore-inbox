@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129853AbRCAUDO>; Thu, 1 Mar 2001 15:03:14 -0500
+	id <S129861AbRCAUDO>; Thu, 1 Mar 2001 15:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129856AbRCAUDA>; Thu, 1 Mar 2001 15:03:00 -0500
-Received: from m114-mp1-cvx1c.col.ntl.com ([213.104.76.114]:12804 "EHLO
-	[213.104.76.114]") by vger.kernel.org with ESMTP id <S129848AbRCAUBb>;
-	Thu, 1 Mar 2001 15:01:31 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: bradley mclain <bradley_kernel@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
-In-Reply-To: <E14Wi5n-0000AV-00@the-village.bc.nu>
-From: John Fremlin <chief@bandits.org>
-Date: 01 Mar 2001 20:00:47 +0000
-In-Reply-To: Alan Cox's message of "Sat, 24 Feb 2001 17:02:45 +0000 (GMT)"
-Message-ID: <m21yshtg28.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+	id <S129854AbRCAUDG>; Thu, 1 Mar 2001 15:03:06 -0500
+Received: from 216-064-003-018.inaddr.vitts.com ([216.64.3.18]:33806 "EHLO
+	mail.netx4.com") by vger.kernel.org with ESMTP id <S129853AbRCAUC5>;
+	Thu, 1 Mar 2001 15:02:57 -0500
+Message-ID: <3A9EAA2F.7C89C88@mvista.com>
+Date: Thu, 01 Mar 2001 14:59:43 -0500
+From: Dan Malek <dan@mvista.com>
+Organization: MontaVista Software, Inc.
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.15-2.9.d ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <19350124090521.18330@mailhost.mipsys.com>
+		<15006.40524.929644.25622@pizda.ninka.net>
+		<3A9EA3FA.1A86893B@mvista.com> <15006.42475.79484.578530@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+"David S. Miller" wrote:
 
-> > the sound card is a yamaha YMF-744B.  i hadn't been
-> > compiling with sound support (i dont care about sound
-> > on my laptop), but when i got 2.4.2 i decided to try,
-> > and now i'm pretty sure that was the problem.
-> 
-> The Yamaha sound driver doesnt handle the case where the bios fails
-> to restore the chip status and expects a windows driver to do its
-> dirty work. That requires on resume that the device is completely
-> reloaded.
-> 
-> A workaround is to make it a module, unload it before suspend and
-> reload it after resume but thats pretty umm uggly.
+> There is only one sticking point, and that is how to convey to the
+> mmap() call whether you want I/O or Memory space.
 
-Why not use kernel/pm.c:pm_register? Then you can either refuse
-suspend or have a proper workaround.
+Isn't I/O space obsolete by now :-)?  It actually caused me to think
+of something else....I have cards with multiple memory and I/O
+spaces (rare, but I have them).  What if we did:
 
--- 
+	/proc/bus/pci/${BUS}/${DEVICE}/mem
+	/proc/bus/pci/${BUS}/${DEVICE}/io
+	/proc/bus/pci/${BUS}/${DEVICE}/BARn
 
-	http://www.penguinpowered.com/~vii
+The 'mem' or 'io' would map the first instance of these spaces
+on the device, and would probably be suitable for nearly all devices.
+If you really knew what you were doing (or wanted to make a big mess),
+you could use the 'BARn' to specify the area.
+
+You could even do something like map in as much virtually contiguous
+space as indicated in the mmap().  For example, if the card has 2M I/O
+and 8 M memory (in this order), the first 2M of the mmap()'ed space
+would the the I/O and the next 8M would be the memory.  I know, some
+cards lie about the actual amount of space they have or need, but it
+was just another idea that popped in.......
+
+Thanks.
+
+	-- Dan

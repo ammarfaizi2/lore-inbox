@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbUK0GXD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUK0G1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUK0GXD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 01:23:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUKZTMf
+	id S261897AbUK0G1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 01:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUK0G1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:12:35 -0500
-Received: from pop.gmx.net ([213.165.64.20]:30693 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261891AbUKZTLx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:11:53 -0500
-X-Authenticated: #24160434
-Message-ID: <41A8C673.7050007@gmx.ch>
-Date: Sat, 27 Nov 2004 18:24:51 +0000
-From: simon schuler <simon.schuler@gmx.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040115
-X-Accept-Language: de-at, de, en-us, en
+	Sat, 27 Nov 2004 01:27:09 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:49599 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261962AbUKZTMk (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:12:40 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Colin Leroy <colin.lkml@colino.net>
+Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second take)
+Date: Fri, 26 Nov 2004 09:57:52 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net, Colin Leroy <colin@colino.net>,
+       Linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+References: <20041126113021.135e79df@pirandello> <200411260928.18135.david-b@pacbell.net> <20041126183749.1a230af9@jack.colino.net>
+In-Reply-To: <20041126183749.1a230af9@jack.colino.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [PATCH] Fix linux/types.h for compiling with -ansi
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411260957.52971.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a symple little patch to apply:
-when including <linux/types.h> in a program and compiling with 'gcc 
--ansi' gcc complains:
-`In file included from test.c:1:
-/usr/include/linux/types.h:162: error: parse error before "__le64"
-/usr/include/linux/types.h:163: error: parse error before "__be64"`
+On Friday 26 November 2004 09:37, Colin Leroy wrote:
+> On 26 Nov 2004 at 09h11, David Brownell wrote:
+> > This isn't a good patch either... maybe your best
+> > bet would be to find out why the IRQs stopped getting
+> > delivered.
+> 
+> It's probably a linux-wlan-ng issue... 
 
-These lines are:
-typedef __u64 __bitwise __le64;
-typedef __u64 __bitwise __be64;
+I suspect PPC resume issues myself.
 
-__u64 isn't defined in include/asm-386/types.h when __STRICT_ANSI__ is 
-defined (as always when calling gcc -ansi):
-#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-typedef __signed__ long long __s64;
-typedef unsigned long long __u64;
-#endif
 
-The following patch for linux-2.6.10-rc2 solves the problem:
-(The patch wouldn't be needed for some 64Bit architectures, but i didn't 
-find an easy way of sorting these out)
+> What do you think  
+> of these logs ?
+> 
+> #resume logs... 
+> #disconnecting the stick:
+> usb 4-1: USB disconnect, address 2
+> ohci_hcd 0001:10:1b.1: IRQ INTR_SF lossage
 
-diff -up include/linux/types.h include/linux/newtypes.h
---- include/linux/types.h        2004-11-27 17:19:25.509948024 +0000
-+++ include/linux/types.h_new     2004-11-27 17:24:18.630386944 +0000
-@@ -157,8 +157,10 @@ typedef __u16 __bitwise __le16;
- typedef __u16 __bitwise __be16;
- typedef __u32 __bitwise __le32;
- typedef __u32 __bitwise __be32;
-+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
- typedef __u64 __bitwise __le64;
- typedef __u64 __bitwise __be64;
-+#endif
+That does seem to be the first problem; fixing
+it (that is, making sure IRQs arrive again!)
+should make the rest go away.
 
- struct ustat {
-        __kernel_daddr_t        f_tfree;
+
+> hfa384x_usbin_callback: Fatal, failed to resubmit rx_urb. error=-19
+> hfa384x_dorrid: ctlx failure=REQ_TIMEOUT
+> prism2sta_mlmerequest: Failed to read eth1 statistics: error=-5
+
+Those look like plausible ways for that driver to
+behave.  "-19" == "-ENODEV" for device-gone (you
+unplugged it!), though the rest (timeout, EIO)
+suggest that WLAN code fault recovery is wierd.
+
+
+> #reconnecting the stick:
+> usb 4-1: new full speed USB device using address 3
+> usb 4-1: control timeout on ep0out
+
+As expected, if IRQs aren't arriving.  Though you
+may not be using the latest kernel; it's supposed
+to give warnings about IRQ delivery problems after
+resume too, not just on initial startup.
+
+
+> maybe the lwlan driver should catch these and kill the urbs or
+> something? 
+
+The only obvious "looks wrong" thing from that WLAN
+code is discarding the non-recoverable ENODEV status
+in favor of reporting a usually-recoverable (timeout)
+then maybe-recoverable (EIO) error.  But that's not
+necessarily troublesome here.
+
+
+> Thanks for your help, I'm not an expert at all in the usb world...
+
+Most people aren't... :)
+
+I'm not expert in PPC IRQ delivery, which is where the
+root cause of this problem seems to live.  We all have
+places where we need help!
+
+- Dave
 

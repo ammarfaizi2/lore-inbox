@@ -1,50 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264031AbRFSKTj>; Tue, 19 Jun 2001 06:19:39 -0400
+	id <S264108AbRFSKU7>; Tue, 19 Jun 2001 06:20:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264108AbRFSKT3>; Tue, 19 Jun 2001 06:19:29 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:63241 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S264031AbRFSKTU>; Tue, 19 Jun 2001 06:19:20 -0400
-Date: Tue, 19 Jun 2001 22:19:16 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: serial console -- busted under 2.4.6 and thereabouts?
-Message-ID: <20010619221915.A17447@metastasis.f00f.org>
-Mime-Version: 1.0
+	id <S264117AbRFSKUt>; Tue, 19 Jun 2001 06:20:49 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:56490 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S264108AbRFSKUi>; Tue, 19 Jun 2001 06:20:38 -0400
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@i.am>
+Subject: Oops 2.4.5-pre5 - problem with threads and hdd 
+Message-ID: <3B2F2770.38D26AE@i.am>
+Date: Tue, 19 Jun 2001 10:20:32 GMT
+X-Nntp-Posting-Host: dual.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: cs, en
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-No-Archive: Yes
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5-RTL3.0 i686)
+Organization: unknown
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get serial console working under 2.4.6-pre3; I see
-previous messages about the CREAD 'bug' but I'm pretty sure I am
-seeing something else.
+Hello
 
-Basically, the serial port works with lilo, and with getty once the
-system is booted, but I don't get any kernel messages on the console
-and serial-SysRq doesn't work.
+System: SMP BP6 2x480 Celeron 192MB  IMB30GB  G400
 
-If I go back to a 2.4.3 (or maybe 2.4.2-pre? kernel) I build some
-months ago (hence why I am unsure of the exact version) it works as
-expected.
+Oops occured while I'm tunning multithreaded application 
+while recreating new thread.
 
-Diffing I see no kernel/printk.c changes, and the only
-drivers/char/serial.c changes I see don't explain my problem.
+Lately I'm having a lot of complete deadlocks also
+(this lock has been the lucky one as I could actually report it)
 
-At first, I thouht it might be divider problem or failing to set the
-bit-rate, as I use 38400, but if I change to 9600 when I
-_should_ get kernel messages (after lilo says booting kernel), I can
-actually see them... but as to why to why this is the case I'm lost.
+Usual symptoms - doing heavy disk transfers with caching thread
+Before my application was not that fast - but as the speed goes up,
+hard-locking in kernel seems to be appearing more and more offten.
+I'm using around 7 threads and continuously adding new broadcast,
+cond_wait
+communication. But during last few days I've got up-to 7 deadlocks in a
+day -
+this is really becoming borring - I've also tested 2.4.5-ac9 &
+2.4.5-ac13
+both these kernel also lock with similiar conditions.
+For more details just ask me (and it's the hardware fault,
+nor the problem of RTL3.0 as -ac9 & -ac13 were both used without this
+patch and were locking similary)
 
-I have tried drivers/char/serial.c from 2.4.3 in 2.4.6-pre3 and that
-doesn't work either.
-
-Suggestion anyone?
+Here is an Oops
 
 
+ksymoops 2.3.7 on i686 2.4.5-pre5-RTL3.0.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.5-pre5-RTL3.0/ (default)
+     -m /usr/src/linux/System.map (default)
 
+Warning (compare_maps): ksyms_base symbol
+__VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring
+c014c9ae
+Oops: 0002
+CPU:    1
+EIP:    0010:[<c014c9ae>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000002   ebx: c9705400   ecx: c0248afc   edx: c9df4000
+esi: c0248c60   edi: 00000002   ebp: ca9283a0   esp: c56fbe84
+ds: 0018   es: 0018   ss: 0018
+Process top (pid: 27600, stackpage=c56fb000)
+Stack: c01473be c9705400 c9df4000 c133e000 c014dbbd c9705400 00007fdd
+c9df4000 
+       c133c040 c014e1ae c133e000 c9df4000 00000002 c133c040 ca9283a0
+c133c040 
+       ca9283a0 ffffffff ca928405 c014cd19 c133c040 ca9283a0 fffffff4
+c56fa000 
+Call Trace: [<c01473be>] [<c014dbbd>] [<c014e1ae>] [<c014cd19>]
+[<c013c78a>] [<c013cc29>] [<c013d92e>] 
+       [<c0144ab9>] [<c0131513>] [<c0131844>] [<c0106d2f>] [<c010002b>] 
+Code: f0 ff 48 10 8b 42 24 80 48 14 08 52 e8 e1 fe ff ff 83 c4 04 
 
-    --cw
+>>EIP; c014c9ae <proc_delete_inode+32/48>   <=====
+Trace; c01473be <iput+ba/16c>
+Trace; c014dbbd <proc_pid_make_inode+ad/b8>
+Trace; c014e1ae <proc_pid_lookup+17a/1e0>
+Trace; c014cd19 <proc_root_lookup+39/48>
+Trace; c013c78a <real_lookup+7a/120>
+Trace; c013cc29 <path_walk+28d/8a4>
+Trace; c013d92e <open_namei+86/608>
+Trace; c0144ab9 <dput+19/154>
+Trace; c0131513 <filp_open+3b/5c>
+Trace; c0131844 <sys_open+3c/f0>
+Trace; c0106d2f <system_call+37/3c>
+Trace; c010002b <startup_32+2b/cb>
+Code;  c014c9ae <proc_delete_inode+32/48>
+00000000 <_EIP>:
+Code;  c014c9ae <proc_delete_inode+32/48>   <=====
+   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
+Code;  c014c9b2 <proc_delete_inode+36/48>
+   4:   8b 42 24                  mov    0x24(%edx),%eax
+Code;  c014c9b5 <proc_delete_inode+39/48>
+   7:   80 48 14 08               orb    $0x8,0x14(%eax)
+Code;  c014c9b9 <proc_delete_inode+3d/48>
+   b:   52                        push   %edx
+Code;  c014c9ba <proc_delete_inode+3e/48>
+   c:   e8 e1 fe ff ff            call   fffffef2 <_EIP+0xfffffef2>
+c014c8a0 <de_put+0/dc>
+Code;  c014c9bf <proc_delete_inode+43/48>
+  11:   83 c4 04                  add    $0x4,%esp
+

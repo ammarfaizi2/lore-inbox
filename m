@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbTHTQ5C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 12:57:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTHTQ5C
+	id S262077AbTHTRKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTHTRKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 12:57:02 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:48000 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262062AbTHTQ5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 12:57:00 -0400
-Date: Wed, 20 Aug 2003 18:08:45 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200308201708.h7KH8jb8000739@81-2-122-30.bradfords.org.uk>
-To: greg@kroah.com, tmolina@cablespeed.com
-Subject: Re: Console on USB
-Cc: linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+	Wed, 20 Aug 2003 13:10:39 -0400
+Received: from buggy.furb.br ([200.135.24.5]:55821 "EHLO mx.al.furb.br")
+	by vger.kernel.org with ESMTP id S262077AbTHTRKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:10:37 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: WARNING! Blocked mail [Re: Approved] 
+Message-Id: <E19pWBh-0006FP-00@mx.al.furb.br>
+From: root <root@furb.br>
+Date: Wed, 20 Aug 2003 13:51:57 -0300
+X-Scanner: exiscan *19pWBh-0006FP-00*x.RX1mn9UQw* (FURB)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is there any advice I might be able to use to get this going?  I really 
-> > want to be able to catch some oops output.
->
-> Buy a machine with a serial port.  That's my recommendation :)
+Your EMail with subject 'Re: Approved', sent to the recipient(s)
 
-That could be difficult in a few years time.  What are we going to do
-when we start getting bugs that are only reproducable on laptops with
-no legacy ports? 
+codecom@furb.br
 
-John.
+contains a file attachment of type '[pif]'. Our organization does not accept files of this type by email. The message has NOT been delivered to the recipients.
+If you have further questions, please contact the postmaster (mailto:anti-virus@furb.br).
+
+
+-- 
+Mensagem gerada pelo sistema de anti-virus da FURB.

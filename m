@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUFRX2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265781AbUFRX2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUFRX2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUFRX2R
+	id S265781AbUFRX2c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUFRX2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:28:17 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:48477 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265781AbUFRX1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:27:07 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-Date: Fri, 18 Jun 2004 19:26:39 -0400
-User-Agent: KMail/1.6.2
-Cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com> <20040619000326.067c3ff6.ak@suse.de>
-In-Reply-To: <20040619000326.067c3ff6.ak@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 18 Jun 2004 19:28:31 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:59279 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S265773AbUFRX0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 19:26:11 -0400
+Date: Sat, 19 Jun 2004 00:25:22 +0100
+From: Ian Molton <spyro@f2s.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-Id: <20040619002522.0c0d8e51.spyro@f2s.com>
+In-Reply-To: <1087588627.2134.155.camel@mulgrave>
+References: <1087582845.1752.107.camel@mulgrave>
+	<20040618193544.48b88771.spyro@f2s.com>
+	<1087584769.2134.119.camel@mulgrave>
+	<20040618195721.0cf43ec2.spyro@f2s.com>
+	<40D34078.5060909@pacbell.net>
+	<20040618204438.35278560.spyro@f2s.com>
+	<1087588627.2134.155.camel@mulgrave>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406181926.39294.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, June 18, 2004 6:03 pm, Andi Kleen wrote:
-> On Fri, 18 Jun 2004 15:03:00 -0500
->
-> Brent Casavant <bcasavan@sgi.com> wrote:
-> > On 2.6 based systems, the top command utilizes /proc/[pid]/wchan to
-> > determine WCHAN symbol name information.  This information is provided
-> > by the kernel function kallsyms_lookup(), which expands a stem-compressed
->
-> That sounds more like a bug in your top to me. /proc/*/wchan itself
-> does not access kallsyms, it just outputs a number.undisclosed-recipients:;
+On 18 Jun 2004 14:57:01 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-No, it outputs a string:
-jbarnes@mill:~$ cat /proc/1/wchan
-do_select
+> 
+> There are complications to this: not all platforms can access PCI memory
+> directly.  That's why ioremap and memcpy_toio and friends exist.  What
+> should happen on these platforms?
 
-I haven't looked, but it's probably dependent on CONFIG_KALLSYMS.
-
-> Doing the cache in the kernel is the wrong place. This should be fixed
-> in user space.
-
-Sure, but that would be a change in behavior.  It's arguably the right thing 
-to do though.
-
-Jesse
+I wasnt talking about a PCI system here.

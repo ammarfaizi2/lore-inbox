@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269333AbRHCHKR>; Fri, 3 Aug 2001 03:10:17 -0400
+	id <S269340AbRHCH67>; Fri, 3 Aug 2001 03:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269335AbRHCHJ6>; Fri, 3 Aug 2001 03:09:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45122 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S269333AbRHCHJu>; Fri, 3 Aug 2001 03:09:50 -0400
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-In-Reply-To: <20010802193750.B12425@emma1.emma.line.org>
-	<Pine.LNX.4.33.0108030051070.1703-100000@fogarty.jakma.org>
-	<20010803021642.B9845@emma1.emma.line.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Aug 2001 01:03:26 -0600
-In-Reply-To: <20010803021642.B9845@emma1.emma.line.org>
-Message-ID: <m1puady69t.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S269342AbRHCH6t>; Fri, 3 Aug 2001 03:58:49 -0400
+Received: from ns.caldera.de ([212.34.180.1]:8156 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S269340AbRHCH6h>;
+	Fri, 3 Aug 2001 03:58:37 -0400
+Date: Fri, 3 Aug 2001 09:56:40 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Andries.Brouwer@cwi.nl
+Cc: alan@lxorguk.ukuu.org.uk, hch@caldera.de, torvalds@transmeta.com,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [semiPATCH] another vxfs fix
+Message-ID: <20010803095640.A9328@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
+	torvalds@transmeta.com, viro@math.psu.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200108030043.AAA103538@vlet.cwi.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108030043.AAA103538@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Aug 03, 2001 at 12:43:48AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
-
-> On Fri, 03 Aug 2001, Paul Jakma wrote:
+On Fri, Aug 03, 2001 at 12:43:48AM +0000, Andries.Brouwer@cwi.nl wrote:
 > 
-> > if the prime directive of MTAs is data integrity paranoia, then
-> > surely the best assumption for an MTA to make is that
-> > rename/link/unlink/symlink /are/ asynchronous in the general case?
+> With the brelse() fix, a failed vxfs mount is OK.
+> But after a successful vxfs mount the umount still yields
+>   VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day
+> (And today's [yesterday's] patch by Christoph makes no difference.)
 > 
-> They do on Linux, use chattr +S, and are much slower than e. g. on
-> FreeBSD. Well. Not that I'd written THAT for the first time...
+> The reason is that the routine vxfs_fake_inode() does
+> new_inode(), but this inode is never returned.
+> I fixed this but am not sure against which base source
+> the patch should be described.
+> A minimal version would be to change the six [1] calls of
+> 	vxfs_put_inode()
+> in vxfs_super.c into calls of
+> 	iput()
+> 
+> (In my source I turned vxfs_fake_inode() into vxfs_get_fake_inode()
+> and added vxfs_put_fake_inode() that just does iput().)
 
-Actually given that this thread keeps coming up, but no one does anything
-about it.  I'm tempted to suggest we remove chatrr +S support from ext2.
-Then there will be enough pain that someone will fix the MTA instead of
-moaning that kernel is slow...
+Sounds fine - just submit me any version and I'll rebase it against
+the latest Linus and Alan trees.
 
-That should be an easy patch to make...
+	Christoph
 
-Eric
+-- 
+Of course it doesn't work. We've performed a software upgrade.

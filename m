@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289186AbSAIHYT>; Wed, 9 Jan 2002 02:24:19 -0500
+	id <S289191AbSAIHZj>; Wed, 9 Jan 2002 02:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289187AbSAIHYK>; Wed, 9 Jan 2002 02:24:10 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50954 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289186AbSAIHX4>; Wed, 9 Jan 2002 02:23:56 -0500
+	id <S289187AbSAIHZ3>; Wed, 9 Jan 2002 02:25:29 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:17679 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288802AbSAIHZ1>;
+	Wed, 9 Jan 2002 02:25:27 -0500
+Date: Tue, 8 Jan 2002 23:23:13 -0800
+From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Date: 8 Jan 2002 23:23:48 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1gr64$n4g$1@cesium.transmeta.com>
-In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de> <20020109043446.GB17655@kroah.com> <20020109061037.GB18024@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Subject: Re: __FUNCTION__
+Message-ID: <20020109072313.GA18359@kroah.com>
+In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com> <20020108181202.A986@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020108181202.A986@twiddle.net>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 12 Dec 2001 05:15:42 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020109061037.GB18024@kroah.com>
-By author:    Greg KH <greg@kroah.com>
-In newsgroup: linux.dev.kernel
->
-> On Tue, Jan 08, 2002 at 08:34:47PM -0800, Greg KH wrote:
-> > 
-> > Here's what I want to have in my initramfs:
-> > 	- /sbin/hotplug
-> > 	- /sbin/modprobe
-> > 	- modules.dep (needed for modprobe, but is a text file)
+On Tue, Jan 08, 2002 at 06:12:02PM -0800, Richard Henderson wrote:
 > 
-> Forgot the modules themselves.  That would be helpful...
+> __FUNCTION__ was never a string literal in g++ because you can't decide
+> what the name of a template is until you instantiate it.
+
+According to the info page it was:
+	   The compiler automagically replaces the identifiers with a
+	   string literal containing the appropriate name. 
+
+This is written right after a lovely C++ example of using __FUNCTION__
+and __PRETTY_FUNCTION__.  But I can understand the difficulties of
+determining this for some C++ cases.
+
+> Having __FUNCTION__ be a magic cpp thingy means there is a translation
+> phase violation.  Preprocessor macros are expanded in phase 4, string
+> concatenation happens in phase 6, syntactic and symantic analysis
+> doesn't happen until phase 7.
 > 
+> So changing this allows us to change two things: (1) the integrated
+> preprocessor can concatenate adjacent string literals and do lexical
+> analysis exactly as described in the standard, and (2) removes an
+> irrelevant difference between c and c++ so that at some point we can
+> support both with a single front-end.
 
-Sure, but those are data files as far as the (k)libc is concerned.
+So, if you are going to change this (well, sounds like it is already
+done), what is the timeline from taking a well documented feature and
+breaking it (based on the example in the info page)?  First a warning,
+and then an error, right?  What version of the compiler emits a warning,
+and what future version will emit an error?  I didn't see anything about
+these kinds of changes in the gcc development plan, or am I missing some
+documentation somewhere?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+thanks,
+
+greg k-h

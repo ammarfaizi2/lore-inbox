@@ -1,111 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288744AbSATPkT>; Sun, 20 Jan 2002 10:40:19 -0500
+	id <S288756AbSATPlu>; Sun, 20 Jan 2002 10:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288756AbSATPkK>; Sun, 20 Jan 2002 10:40:10 -0500
-Received: from cervnet.com ([216.58.141.4]:19464 "EHLO CervNet.COM")
-	by vger.kernel.org with ESMTP id <S288744AbSATPkE>;
-	Sun, 20 Jan 2002 10:40:04 -0500
-From: "jeev" <naptime@cervnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: memory.c:98: bad pmd 00800000.
-Date: Sun, 20 Jan 2002 07:40:03 -0800
-MIME-Version: 1.0
-Message-ID: <000b01c1a1c8$bb9c2c30$0200a8c0@mainframe>
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	boundary="----=_NextPart_000_0006_01C1A185.AC474A00";
-	micalg=SHA1
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S288759AbSATPlk>; Sun, 20 Jan 2002 10:41:40 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:44954 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S288756AbSATPl0>; Sun, 20 Jan 2002 10:41:26 -0500
+Date: Sun, 20 Jan 2002 10:41:19 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= <christophe.barbe@ufies.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: usb-ohci, ov511, video4linux
+Message-ID: <20020120154119.GB2873@online.fr>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: debian SID Gnu/Linux 2.4.17 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C1A185.AC474A00
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Left the box idling overnight and I got this output.
-Running linux 2.4.17
 
-memory.c:98: bad pmd 00800000.
-memory.c:98: bad pmd 00800000.
-memory.c:98: bad pmd 00800000.
+I've two problems with the 2.4 series that seems to be related.
+The common point is the usb-ohci module.
 
-That's the output of dmesg, could this be a bug?
+Since 2.4.0, sometimes X loose the usb mouse. X show nothing special in
+its log and the kernel nothing (I have compiled the usb debug code).
+This seems to appear when the CPU is mostly used for another application
+(most of the time the CPU is 100% used when I loose the mouse).
+If I switch to the console (Ctrl-Alt-F1) and switch back to X, the usb
+mouse is back. My first thought was that it was a X bug. But the other
+problem I have seems to indicate this is a kernel problem.
 
-j
+I bought a usb webcam (D-Link DCS100) which uses the ov511 chipset
+familly. I use the last driver (not the one shipped with the kernel) but
+I think this is not an issue.
+Now It works for a few seconds (minutes) and the application using it
+freeze. If I kill the app and retsart it, I works for a few seconds (it
+looks like X and the mouse).
+Here also it seems to appear when another app use most of the CPU.
 
-------=_NextPart_000_0006_01C1A185.AC474A00
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
+The Xawtv outputs are interesting :
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII8TCCAoAw
-ggHpoAMCAQICAwZBjzANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
-FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
-MC44LjMwMB4XDTAxMTIwNjA2MDYzM1oXDTAyMTIwNjA2MDYzM1owRTEfMB0GA1UEAxMWVGhhd3Rl
-IEZyZWVtYWlsIE1lbWJlcjEiMCAGCSqGSIb3DQEJARYTbmFwdGltZUBjZXJ2bmV0LmNvbTCBnzAN
-BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAz0mQ8rzcTgacUdJdwyW6PzGeYHxOaslWWCUrFmvuaO8q
-2NcC8hTieOkuOknDzNz7uUR0ab8n+pXOFYThs1muaMK11VRp4BIkiRJe/41diCSjFWb8X1XhqGpU
-pB5DtTHGTT+G6XOa0cCUobIehi8zuP9wRKgkaycNQb8owCQVc8UCAwEAAaMwMC4wHgYDVR0RBBcw
-FYETbmFwdGltZUBjZXJ2bmV0LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBAgUAA4GBAFW+
-KAHeKTLKrga03WUsMHpsk9NW77W1nzafKDqyHYnBXp1yJkXYHXfSpBXt1teCJAptPDJ9NKmq54X2
-tOCrrkt2tv45La8yPuY17EEeKawK/g2d9hNvuPMh9qfSNoz8XUbviDMpWmrPVuINlFLN1g55kCWq
-H13QE06B+sk4AUFzMIIDLTCCApagAwIBAgIBADANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMC
-WkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFU
-aGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lv
-bjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxw
-ZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4XDTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1
-OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0B
-AQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG26nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL
-734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDimAKOHePb5lIZererAXnbr2RSjXW56fAylS1V/
-Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkCAwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zAN
-BgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JC
-I4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBHH7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AU
-G95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRzneigTCCAzgwggKhoAMCAQICEGZFcrfMdPXPY3ZF
-hNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENh
-cGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNV
-BAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJz
-b25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3Rl
-LmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMG
-A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEd
-MBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWls
-IFJTQSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7Sbngn
-Z4HF2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWa
-NRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFp
-AgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNV
-HRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1
-U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXrokef
-bKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6ln+eE2Mli
-Yq0FxjGCA2kwggNlAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBl
-MRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
-dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZB
-jzAJBgUrDgMCGgUAoIICJDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEP
-Fw0wMjAxMjAxNTQwMDNaMCMGCSqGSIb3DQEJBDEWBBRWhErWYaK9QEtzj5p94gLQ+Wt55zBnBgkq
-hkiG9w0BCQ8xWjBYMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAH
-BgUrDgMCBzANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjAKBggqhkiG9w0CBTCBqwYJKwYBBAGCNxAE
-MYGdMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlD
-YXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
-KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZBjzCBrQYLKoZIhvcN
-AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNV
-BAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBTZXJ2
-aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAIDBkGPMA0GCSqG
-SIb3DQEBAQUABIGAzGckFCpFGVLa0JS5DDCOw7/sHQs07r/4iijfQSB0akQs0aSff6p8+Zrnv3jy
-Gn3WAAyuNF4nHcafZ8fSSzLhGd08CIT3uMQLg4PxVAagF3zsPTLBIVnNk/OAyYwR692OCCH7791Z
-rfnfjv0iC+DbHOm5wJwB8kK8GR5Ps6uZrwwAAAAAAAA=
+# xawtv
+This is xawtv-3.68, running on Linux/i586 (2.4.17)
+/dev/video0 [v4l]: no overlay support
+v4l-conf had some trouble, trying to continue anyway
+v4l: timeout (got SIGALRM), hardware/driver problems?
+ioctl: VIDIOCSYNC(0): Appel syst=E8me interrompu
+v4l: timeout (got SIGALRM), hardware/driver problems?
+ioctl: VIDIOCSYNC(1): Appel syst=E8me interrompu
 
-------=_NextPart_000_0006_01C1A185.AC474A00--
+What do you think about it ?
 
+I've enabled 'Allow IRQ during APM bios calls'. It seems slighly better
+for the mouse but not significantly enough to be sure.
+
+I've tried to boot without apm (apm=3Doff) but problems are still there.
+
+Should I try a preemt or low-latency kernel ?
+
+Christophe
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+Dogs believe they are human. Cats believe they are God.
+
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8SuUfj0UvHtcstB4RArnTAJ9AZUJwalTr8hA+31/OtPVNc+cP8ACghU7h
+GKUsE7LfiLO4xdWEZ56gL04=
+=teCk
+-----END PGP SIGNATURE-----
+
+--0eh6TmSyL6TZE2Uz--

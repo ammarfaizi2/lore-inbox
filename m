@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbTETGZi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 02:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTETGZi
+	id S263597AbTETG3S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 02:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTETG3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 02:25:38 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51334 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263580AbTETGZg (ORCPT
+	Tue, 20 May 2003 02:29:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15818 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263597AbTETG3Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 02:25:36 -0400
+	Tue, 20 May 2003 02:29:16 -0400
+Date: Mon, 19 May 2003 23:40:55 -0700 (PDT)
+Message-Id: <20030519.234055.35511478.davem@redhat.com>
+To: haveblue@us.ibm.com
+Cc: mbligh@aracnet.com, wli@holomorphy.com, arjanv@redhat.com,
+       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
+       johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
+       mannthey@us.ibm.com
 Subject: Re: userspace irq balancer
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>, arjanv@redhat.com,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       John Stultz <johnstul@us.ibm.com>,
-       James Cleverdon <jamesclv@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Keith Mannthey <mannthey@us.ibm.com>
-In-Reply-To: <20030519.231319.91314647.davem@redhat.com>
-References: <20030520034622.GK8978@holomorphy.com>
-	 <1053407030.13207.253.camel@nighthawk> <88560000.1053409990@[10.10.2.4]>
-	 <20030519.231319.91314647.davem@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053412583.13289.322.camel@nighthawk>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1053412583.13289.322.camel@nighthawk>
+References: <88560000.1053409990@[10.10.2.4]>
+	<20030519.231319.91314647.davem@redhat.com>
+	<1053412583.13289.322.camel@nighthawk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 May 2003 23:36:23 -0700
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-19 at 23:13, David S. Miller wrote:
->    From: "Martin J. Bligh" <mbligh@aracnet.com>
->    Date: Mon, 19 May 2003 22:53:11 -0700
-> 
->    I have no frigging idea why you'd want to tear something out that
->    works well already, and has a shitload of work put into it. 
->    
-> It's pretty fundamentally broken for having had so much work
-> put into it.  Show me something other than "SpecWEB run for IBM
-> ran faster" as a reason for keeping this code in there.  Can you
-> even do this?
+   From: Dave Hansen <haveblue@us.ibm.com>
+   Date: 19 May 2003 23:36:23 -0700
+   
+   I don't even think we can do that.  That code was being integrated
+   around the same time that our Specweb setup decided to go south on us
+   and start physically frying itself.
 
-I don't even think we can do that.  That code was being integrated
-around the same time that our Specweb setup decided to go south on us
-and start physically frying itself.  We never got a chance to run it. 
-BTW, I don't think there are any other kernel developers running Specweb
-on 2.5 kernels.  If there are, please speak up!
-
-Andrew Theurer posted some positive results here, which were quite
-marginal in the case with 1 nic.  4.7% with two.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104212930819212&w=2
-
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+This gets more amusing by the second.  Let's kill this code
+already.  People who like the current algorithms can push
+them into the userspace solution.

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313595AbSDZHzF>; Fri, 26 Apr 2002 03:55:05 -0400
+	id <S313707AbSDZITc>; Fri, 26 Apr 2002 04:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313635AbSDZHzF>; Fri, 26 Apr 2002 03:55:05 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:51980 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S313595AbSDZHzE>; Fri, 26 Apr 2002 03:55:04 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: kernel 2.5.10 problems
-Date: 26 Apr 2002 06:54:56 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnachue0.a20.kraxel@bytesex.org>
-In-Reply-To: <courier.3CC89816.00006EFA@softhome.net> <20020426022139.N14343@suse.de>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1019804096 10305 127.0.0.1 (26 Apr 2002 06:54:56 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S313711AbSDZITb>; Fri, 26 Apr 2002 04:19:31 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:12814 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S313707AbSDZITb>; Fri, 26 Apr 2002 04:19:31 -0400
+Message-ID: <3CC90DC6.7030909@loewe-komp.de>
+Date: Fri, 26 Apr 2002 10:20:22 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Michael De Nil <linux@aerythmic.be>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: USB Mass Storage -> Asus Stick
+In-Reply-To: <Pine.LNX.4.44.0204252135440.16629-100000@LiSa>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
->  On Thu, Apr 25, 2002 at 05:58:14PM -0600, dmacbanay@softhome.net wrote:
->  
->  > 4.  Starting with kernel 2.5.6 (kernels 2.5.5 through 2.5.6-pre3 work)  the 
->  > KDE program krecord closes right after it starts. 
->  
->  Interesting. last few lines of strace output may show up what's going on.
->  Can you do a before/after strace on a working & non-working kernel?
+Michael De Nil wrote:
+> Heyz
+> 
+> I have an Asus USB Mass Storage Stick here, but when connecting it to my
+> laptop running GNU/Linux 2.4.17, my system freezes... (It takes a couple
+> of seconds between connection & freez)
+> 
+> I don't get any oops or something like that, ...
+> 
 
-That one likely is a known bug in the ALSA OSS emulation, Takashi
-recently fixed it.
+It seems there are deadlock situations in usb-storage and the filesystem.
+I get lockups on SMP boxes, hanging insmod usb-storage on UP with
+Datafab (special transport) but also lockups with Transcend/ScanLogic.
 
-  Gerd
+Until now, I don't have a clue
 
-===== sound/core/oss/pcm_oss.c 1.4 vs edited =====
---- 1.4/sound/core/oss/pcm_oss.c	Mon Mar 18 16:21:13 2002
-+++ edited/sound/core/oss/pcm_oss.c	Wed Apr 17 12:00:55 2002
-@@ -557,7 +557,7 @@
- 			if (ret < 0)
- 				break;
- 		}
--		ret = snd_pcm_lib_read(substream, ptr, frames);
-+//		ret = snd_pcm_lib_read(substream, ptr, frames);
- 		if (in_kernel) {
- 			mm_segment_t fs;
- 			fs = snd_enter_user();

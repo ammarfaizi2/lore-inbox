@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268110AbTBSA3a>; Tue, 18 Feb 2003 19:29:30 -0500
+	id <S268107AbTBSAeF>; Tue, 18 Feb 2003 19:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268107AbTBSA3a>; Tue, 18 Feb 2003 19:29:30 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64138
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268110AbTBSA33>; Tue, 18 Feb 2003 19:29:29 -0500
-Subject: Re: What language has Alan's portaloo changed to?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030218171832.GC351@lug-owl.de>
-References: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
-	 <001f01c2d761$1fdea640$0201a8c0@pluto>  <20030218171832.GC351@lug-owl.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045618881.25795.1.camel@irongate.swansea.linux.org.uk>
+	id <S268112AbTBSAeF>; Tue, 18 Feb 2003 19:34:05 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4736 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S268107AbTBSAeE>;
+	Tue, 18 Feb 2003 19:34:04 -0500
+Date: Tue, 18 Feb 2003 16:43:31 -0800
+From: Bob Miller <rem@osdl.org>
+To: Oleg Drokin <green@namesys.com>
+Cc: John Cherry <cherry@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.61
+Message-ID: <20030219004331.GA1458@doc.pdx.osdl.net>
+References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com> <1045510507.3406.12.camel@cherrypit.pdx.osdl.net> <20030218151407.A14679@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Feb 2003 01:41:22 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030218151407.A14679@namesys.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 17:18, Jan-Benedict Glaw wrote:
-> On Tue, 2003-02-18 09:19:24 -0600, Steve Lee <steve@tuxsoft.com>
-> wrote in message <001f01c2d761$1fdea640$0201a8c0@pluto>:
-> > There is nothing wrong with Welsh.  Can't a person just be disappointed?
-> > I guess I will have to learn Welsh so that I can continue to read his
-> > posted on the web for everyone to see diary.
+On Tue, Feb 18, 2003 at 03:14:07PM +0300, Oleg Drokin wrote:
+> Hello!
 > 
-> Better - you're freely allowed to learn Welsh!
+> On Mon, Feb 17, 2003 at 11:35:07AM -0800, John Cherry wrote:
+> 
+> > Warning summary
+> [...]
+> >    fs/reiserfs: 1 warnings, 0 errors
+> 
+> Note that this warning comes from asm/string.h, when compiling
+> fs/reiserfs/prints.c
+> Warning itself is "strchr is defined but not used". It have nothing
+> to do with reiserfs at all. And I do not see why it is produced at all, since
+> strchr is declared "static inline".
+> (BTW, gcc 2.95 does not produces the warning).
+> Can somebody look at it please?
+> 
+> Bye,
+>     Oleg
+I spent a little time looking at this weeks ago.  I compiled the file
+-E to see what the pre-processor was doing.  I then tried to compile
+the pre-processed file and the warning went away.  So, it looks to me
+like some kind of compiler error with the way it pre-processes files
+(at that point the problem got a lot less interesting ;-).
 
-Dear me, bitkeeper isnt causing problems except on the odd occasion someone
-sends a file bk only, and Larry has a sane answer brewing even for that. 
-You can grab 2 hourly snapshot diffs of linus bk head v 2.5.latest from
-ftp.nl.linux.org, and specific patches he submitted.
-
-As to the diary. I put it on the net because it seemed a sane place for it,
-however asking me to change it for the benefit of passers by is rather like
-complaing to a neighbour that you don't like the colour of their wallpaper
-when you peer into through their windows
-
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

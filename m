@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266492AbUGPIsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266495AbUGPJL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266492AbUGPIsF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 04:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUGPIsF
+	id S266495AbUGPJL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 05:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUGPJL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 04:48:05 -0400
-Received: from mail.eris.qinetiq.com ([128.98.1.1]:63600 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S266492AbUGPIsC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 04:48:02 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: kernel oops' over serial console
-Date: Fri, 16 Jul 2004 09:43:18 +0100
-User-Agent: KMail/1.6.1
+	Fri, 16 Jul 2004 05:11:58 -0400
+Received: from tor.morecom.no ([64.28.24.90]:35818 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S266495AbUGPJL4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 05:11:56 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200407160943.18851.m.watts@eris.qinetiq.com>
+Subject: Question on Linux and SCHED_FIFO scheduling for POSIX threads
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Fri, 16 Jul 2004 11:11:54 +0200
+Message-ID: <40FB8221D224C44393B0549DDB7A5CE8378C37@tor.lokal.lan>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question on Linux and SCHED_FIFO scheduling for POSIX threads
+Thread-Index: AcRrFPAZBF9N+NJiQJ2hRg2fqu3Ciw==
+From: =?iso-8859-1?Q?Eirik_Nordbr=F8den?= <eirik.nordbroden@morecom.no>
+To: <linux-kernel@vger.kernel.org>
+Cc: =?iso-8859-1?Q?B=E5rd_Laukvik?= <bard.laukvik@morecom.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello
 
+Can anybody clarify how SCHED_FIFO scheduling and thread priorities works on Linux? We are novices in this field in the Linux environment and needs help to understand how it works. To verify the behaviour we made up a small test program consisting of four threads and a mutex. We have run the program on both the 2.6.5 and 2.6.7 kernels with same behaviour.
 
-Whenever I shut my laptop down (running 2.6.8rc1) I see a kernel oops go by.
-How do I hook the laptop up to another box using a serial cable in order to 
-capture that oops?
+Program:
 
-Cheers,
+T-MAIN: scheduling policy=SCHED_FIFO, priority=1
+T-LP:   scheduling policy=SCHED_FIFO, priority=10
+T-MP:   scheduling policy=SCHED_FIFO, priority=20
+T-HP:   scheduling policy=SCHED_FIFO, priority=30
 
-Mark.
+The program runs like this:
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
+T-MAIN locks mutex => T-MAIN runs.
+T-MAIN creates T-LP => T-LP runs.
+T-LP waits for mutex => T-MAIN runs.
+T-MAIN creates T-MP => T-MP runs.
+T-MP waits for mutex => T-MAIN runs.
+T-MAIN creates T-HP => T-HP runs.
+T-HP waits for mutex => T-MAIN runs.
+T-MAIN waits 3 seconds and unlocks mutex => T-LP runs.
+T-LP waits 3 seconds and unlocks mutex => T-MP runs.
+T-MP waits 3 seconds and unlocks mutex => T-HP runs.
+:
+:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+For us this is unexpected behaviour. We would expect that the thread with the highest priority would be scheduled to run when a number of threads is waiting for a mutex and the mutex is unlocked. Can anyone clarify this? Have we missed something?
 
-iD8DBQFA95UmBn4EFUVUIO0RAjKUAJ49Ls3nFze0lfGVpNYcsvCppfyErQCfUgSY
-cA29PGjYAeGVNujjodzI38w=
-=sDUF
------END PGP SIGNATURE-----
+PS We have also tested this with POSIX and System V semaphores in stead of the mutex with same behaviour.
+
+Eirik Nordbrøden 
+moreCom A/S  http://www.moreCom.no/
+ 

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbTGBIYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 04:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTGBIYF
+	id S264832AbTGBI0z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 04:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264825AbTGBI0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 04:24:05 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23948
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264692AbTGBIYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 04:24:03 -0400
-Date: Wed, 2 Jul 2003 10:38:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Bernardo Innocenti <bernie@develer.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-Message-ID: <20030702083801.GU3040@dualathlon.random>
-References: <200307020232.20726.bernie@develer.com> <200307020852.17782.bernie@develer.com> <20030702071919.GP3040@dualathlon.random> <200307020928.38830.bernie@develer.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307020928.38830.bernie@develer.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 2 Jul 2003 04:26:55 -0400
+Received: from a089197.adsl.hansenet.de ([213.191.89.197]:12976 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S264832AbTGBI0y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 04:26:54 -0400
+Message-ID: <3F029AAA.7090807@tu-harburg.de>
+Date: Wed, 02 Jul 2003 10:41:14 +0200
+From: Jan Dittmer <jan.dittmer@tu-harburg.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] include pci.h in sbp2.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 09:28:38AM +0200, Bernardo Innocenti wrote:
-> On Wednesday 02 July 2003 09:19, you wrote:
->  > On Wed, Jul 02, 2003 at 08:52:17AM +0200, Bernardo Innocenti wrote:
->  > > + *	static inline uint32_t do_div(uint64_t &n, uint32_t base)
->  >
->  > c++ ;)
-> 
->  Oops! Shall I send a new patch? ;-)
+new bug in -mm3.
+include pci.h in sbp2.c to fix compilation.
 
-I guess no ;).
+Thanks,
 
-> 
->  > > +# error do_div() does not yet support the C64
->  >
->  > ;)
->  >
->  > this new version looks good to me since it will fix bugs and it's not
->  > only a cleanup avoiding code duplication. thanks.
-> 
->  The previous patch was not just a cleanup: it actually added parenthes
-> that were missing around parameters in many do_div() variants. Guess
-> what happened when shrink_slab() did this (pages = 0):
-> 
->    do_div(delta, pages + 1); /* Ouch! */
+Jan
 
-I see.
+--- linux-mm/drivers/ieee1394/sbp2.c	Wed Jul  2 07:57:13 2003
++++ 2.5.73-mm3/drivers/ieee1394/sbp2.c	Wed Jul  2 09:14:23 2003
+@@ -56,6 +56,7 @@
+  #include <linux/smp_lock.h>
+  #include <linux/init.h>
+  #include <linux/version.h>
++#include <linux/pci.h>
+  #include <asm/current.h>
+  #include <asm/uaccess.h>
+  #include <asm/io.h>
 
-Andrea

@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUEPSWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUEPS1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264774AbUEPSWm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 14:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUEPSWl
+	id S264775AbUEPS1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 14:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUEPS1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 14:22:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28846 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264774AbUEPSWk (ORCPT
+	Sun, 16 May 2004 14:27:42 -0400
+Received: from av13-1-sn4.m-sp.skanova.net ([81.228.10.104]:63463 "EHLO
+	av13-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S264775AbUEPS1k convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 14:22:40 -0400
-Date: Sun, 16 May 2004 11:22:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-cc: Greg KH <greg@kroah.com>, akpm@osdl.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [BK PATCH] USB changes for 2.6.6
-In-Reply-To: <40A7AF6D.6060304@pacbell.net>
-Message-ID: <Pine.LNX.4.58.0405161120420.25502@ppc970.osdl.org>
-References: <20040514224516.GA16814@kroah.com> <20040515113251.GA27011@suse.de>
- <Pine.LNX.4.58.0405151034500.10718@ppc970.osdl.org> <40A7AA0B.5000200@pacbell.net>
- <Pine.LNX.4.58.0405161101160.25502@ppc970.osdl.org> <40A7AF6D.6060304@pacbell.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 May 2004 14:27:40 -0400
+X-Mailer: exmh version 2.6.3 04/02/2003 (gentoo 2.6.3) with nmh-1.1
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy' 
+In-Reply-To: Message from aeriksson@fastmail.fm 
+   of "Sun, 16 May 2004 19:55:38 +0200." <20040516175539.075544137@latitude.mynet.no-ip.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Sun, 16 May 2004 20:27:09 +0200
+From: aeriksson@fastmail.fm
+Message-Id: <20040516182709.BBBE34137@latitude.mynet.no-ip.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 16 May 2004, David Brownell wrote:
 > 
-> More like this then?  I'm not sure whether you'd prefer
-> to apply that logic to the "struct pm_info" innards too.
-> That file has multiple CONFIG_PM sections, too.
 
-I was thinking just putting it in the existing wrapper sections.
+fwiw, I have the same observation moving from 2.6.5-mm4 -> 2.6.6 on a
+gentoo machine... On the observations side, i can add that it not
+only fails to smoothly follow the track it should, but it seems it's
+back to its old bad behavior of randomly jumping to the top-right
+corner of the screen... :-(
 
-We already have wrappers for pm_register, pm_unregister, 
-pm_unregister_all, pm_send, pm_send_all, etc etc, and this would seem to 
-be just one more case like that.
 
-The alternative is to just always have "power_state" in the "dev_pm_info", 
-especially as some versions of gcc have had bugs with empty structures 
-anyway.
+Oh, and this is on a Dell L400 with synaptics touchpad, but using the
+external ps/2 port to a "normal" mouse... No USB involved...
 
-		Linus
+

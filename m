@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVCZDcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVCZDjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVCZDcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVCZDcP
+	id S261927AbVCZDjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVCZDjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:32:15 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:8108 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261921AbVCZDcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:32:12 -0500
-Subject: Re: [PATCH 1/7] - MPT FUSION - SPLITTING SCSI HOST DRIVERS
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <91888D455306F94EBD4D168954A9457C01B70560@nacos172.co.lsil.com>
-References: <91888D455306F94EBD4D168954A9457C01B70560@nacos172.co.lsil.com>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 21:32:03 -0600
-Message-Id: <1111807923.5541.3.camel@mulgrave>
+	Fri, 25 Mar 2005 22:39:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5257 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261927AbVCZDjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:39:42 -0500
+Date: Fri, 25 Mar 2005 19:39:39 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org
+Subject: Linux 2.6.11.6
+Message-ID: <20050326033939.GV30522@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 16:56 -0700, Moore, Eric Dean wrote:
-> +
->  config FUSION_FC
-> -       tristate "Fusion MPT (base + ScsiHost) drivers for FC"
-> -       depends on PCI && SCSI
-> +       tristate "Fusion MPT (ScsiHost) drivers for FC"
+With some pending security fixes it's time to for a -stable update.  So,
+here's 2.6.11.6, in the normal kernel.org places.  This includes some
+security fixes, esp. one which closes a local root exploit in bluetooth.
 
-This rejects completely in Kconfig.  Could you check your base for the
-diffs ... there's no FUSION_FC parameter in the vanilla kernel.
+The diffstat and short summary of the fixes are below.
 
-Thanks,
-
-James
+I'll also be replying to this message with a copy of the patch between
+2.6.11.5 and 2.6.11.6, as it is small enough to do so.
 
 
+thanks,
+-chris
+--
+
+ Makefile                     |    2 +-
+ fs/binfmt_elf.c              |   30 +++++++++++++++++-------------
+ fs/ext2/dir.c                |    1 +
+ fs/isofs/inode.c             |    5 +++++
+ fs/isofs/rock.c              |   25 ++++++++++++++++++-------
+ net/bluetooth/af_bluetooth.c |    6 +++---
+ 6 files changed, 45 insertions(+), 24 deletions(-)
+
+Summary of changes from v2.6.11.5 to v2.6.11.6
+==============================================
+
+Chris Wright:
+  o isofs: more defensive checks against corrupt isofs images
+  o Linux 2.6.11.6
+
+Herbert Xu:
+  o Potential DOS in load_elf_library
+
+Linus Torvalds:
+  o isofs: Handle corupted rock-ridge info slightly better
+  o isofs: more "corrupted iso image" error cases
+
+Marcel Holtmann:
+  o Fix signedness problem at socket creation
+
+Mathieu Lafon:
+  o Suspected information leak (mem pages) in ext2

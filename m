@@ -1,48 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265863AbUFITYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUFITYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265863AbUFITYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 15:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbUFITYL
+	id S265823AbUFITYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 15:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbUFITYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 15:24:11 -0400
-Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:13215 "EHLO
-	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S265863AbUFITYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 15:24:01 -0400
-Date: Wed, 09 Jun 2004 14:23:58 -0500
-From: cbjohns@mn.rr.com
-Subject: Re: kswapd excessive CPU time
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: cbjohns@mn.rr.com
-Message-id: <6feb8721a0.721a06feb8@rdc-kc.rr.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.21 (built Sep  8 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Wed, 9 Jun 2004 15:24:07 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14730 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265823AbUFITX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 15:23:58 -0400
+Message-ID: <40C763DD.7090003@tmr.com>
+Date: Wed, 09 Jun 2004 15:24:13 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ray Bryant <raybry@sgi.com>
+CC: Buddy Lumpkin <b.lumpkin@comcast.net>,
+       "'Con Kolivas'" <kernel@kolivas.org>,
+       "'FabF'" <fabian.frederick@skynet.be>,
+       "'Bernd Eckenfels'" <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       linux-mm@kvack.org
+Subject: Re: why swap at all?
+References: <fa.amhil9e.o5kt1u@ifi.uio.no> <fa.kfm8lru.1l2mdp4@ifi.uio.no> <40C5D7FB.7020402@sgi.com>
+In-Reply-To: <40C5D7FB.7020402@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Recent 2.4 VM should fix this, but you better of use 2.6.
+Ray Bryant wrote:
 > 
-
-Thanks Marcelo. Do you know of specific patches that have
-gone into 2.4 that might fix this? I may be able to just apply them
-rather than try a whole new kernel release.
-
-Thanks,
-
-Chris
-
-> > 
-> > My question boils down to this: given the (simple) scenario below,
-> > am I missing critical VM/kswapd patches, or is this behavior
-> > expected and OK, or is it wrong and possibly fixed in the 2.6 
-> kernel?> Or is the kswapd behavior somehow tunable to avoid the 
-> apparent> thrashing that I saw? 
+> Buddy Lumpkin wrote:
 > 
+>>  <snip> One method would be to keep the
+>> pagecache on it's own list, and move pages to the head of the list any 
+>> time
+>> they are modified or referenced, and reclaim from the tail.
+>> All pages on this list can be considered as "free memory", because any 
+>> new
+>> memory requests would just cause pages to be evicted from the tail of the
+>> list.
+>>
+> 
+> We have code running on Altix that does exactly this.  (Please note,
+> however, that this is for our version of Linux 2.4.21 -- Yeah, its
+> old, but that is what the product runs at the moment -- we are in
+> the process of switching over to Linux 2.6 when all of this will
+> have to be re-evaluated.)  The changes are in three parts:
+> 
+> (1)  We added a new page list, the reclaim list.  Pages are put
+> onto the reclaim list when they are inserted into the page cache.
+> They are removed from the list when they are marked dirty (buffers
+> from the page go on to the LRU dirty list) or when the pages are
+> mmap'd into an address space, since in either of these situations,
+> the pages are not reclaimable.  (This list is per node in our
+> NUMA system.)
+> 
+> (2)  We added code in __alloc_pages() so that if the local node
+> allocation is going to fail (remember that Altix is a NUMA machine),
+> we call out to a routine to scan the reclaim list on that node and
+> to release enough clean buffer cache pages to make the local
+> allocation succeed (plus a few pages, for efficiency).  If this
+> doesn't work, we most likely end up spilling the allocation over
+> to another node.
+> 
+> (3)  We added code in generic_file_write() to limit the size of
+> the page cache on buffered file I/O write operations.  If the
+> current size of the page cache is larger than the limit, we
+> call the same routine as above to release some page cache pages.
+> If we can't free enough pages to get below the limit, we throttle
+> the write process by delaying it for a bit.  This was all to
+> avoid the problem of a large buffered file I/O request causing
+> the page cache to grow to the point where the system would start
+> to swap.  (On our large memory systems, dropping into the
+> swapping code can cause the system to freeze for 10's of seconds,
+> and that is something we would like to avoid).
+> 
+> (We actually don't enforce the page cache limit unless the amount
+> of free memory has dropped below a certain threshold.  This is to
+> keep the page cache from being limited if there is lots of free
+> memory -- even though we only limit the page cache on writes,
+> it turns out that the kernel is constantly writing to the disk,
+> so this also effectively causes the page cache to be limited
+> for reads as well.)
+> 
+> This code was also written in response to customer demand.  They
+> don't like the fact that the buffer cache grows and grows on our
+> Altix systems, and they want old buffer cache pages to be cleared
+> out when they are no longer needed.  Since we almost never suffer
+> memory pressure on our systems (and if we do, we are likely in
+> trouble), kswapd almost never does this.  Buffer cache pages can
+> sit around for days with no one removing them.  The above was one
+> approach to solve that problem.
+> 
+> Pleaes note: YMMV.  An Altix is not a desktop system and I make
+> no claims that the above approach is appropriate for everyone.
+> For us, it turns out to work better to bias storage allocation
+> against unbridled growth of the page cache.  Indeed, we have
+> spent a lot of time trying to solve problems related to page
+> cache on Altix systems.  Assuming we get our OLS paper done
+> in time, you can read more about this in our paper at OLS.
+> (If not, we intend to post our experiences paper on the
+> oss.sgi.com website.)
+> 
+> Finally, let me reiterate that we are beginning the process of
+> evaluating the 2.6 memory manager wrt the same problem as above.
+> Before we will propose a change such as above for 2.6, we have
+> to convince ourselves that (1) setting vm_swappiness appropriately
+> doesn't solve the problem, and (2) that patches such as the ones
+> that Nick Piggin has been proposing don't solve the problem
+> either, and that (3) there isn't some other mechanism to deal
+> with this in 2.6.
+
+I have to admit that the definition of "desktop machine" has changed a 
+lot in the last few years, in terms of hardware, but I have been running 
+since 486 days with "what can I build/buy for <$2k which best fits my 
+overall computing?" With the onset of cheap memory and Opteron, NUMA 
+will be a factor in the next few years in all probability, and SMP has 
+been since the dual pentium systems were new.
+
+That said, I think that your work will be useful, even if it is used 
+piecemeal or as inspiration to Nick, Andrea, and other who have been 
+working in the area. I find Nick's work as of 2.6.7-rc1-mm1 so good I 
+haven't moved any of my desktop machines beyond it, but it sounds as if 
+your work addresses the issue I mentioned about limiting buffer usage, 
+and Rik's comment that the code lacks check and balances. You seem to 
+have a balance, I'd love to see it.
 
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

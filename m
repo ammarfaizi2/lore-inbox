@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbUBVR5X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 12:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbUBVR5W
+	id S261716AbUBVR4V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 12:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUBVR4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 12:57:22 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:6411 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261715AbUBVR5N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 12:57:13 -0500
-Date: Sun, 22 Feb 2004 18:57:11 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Incorrect SCx200 dependency
-Message-Id: <20040222185711.76e72e65.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 22 Feb 2004 12:56:21 -0500
+Received: from mail.shareable.org ([81.29.64.88]:5762 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261716AbUBVR4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 12:56:19 -0500
+Date: Sun, 22 Feb 2004 17:55:54 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       cw@f00f.org, mfedyk@matchmail.com, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>, Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: Large slab cache in 2.6.1
+Message-ID: <20040222175554.GD25664@mail.shareable.org>
+References: <20040221221553.01b1b71c.akpm@osdl.org> <38800000.1077466122@[10.10.2.4]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <38800000.1077466122@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Martin J. Bligh wrote:
+> So it still seems likely to me that we'll blow away at least half of
+> the dcache entries before we free any significant number of pages at
+> all. That seems insane to me.
 
-It looks like there is a dependency problem for CONFIG_SCx200_I2C in
-Linux 2.4.25. It should depend on CONFIG_SCx200_GPIO, not just on
-CONFIG_SCx200. One of my previous patches was supposed to fix that
-already, but it looks like I forgot about it then.
+It's not totally insane to free dcache entries from pages that won't
+be freed.  It encourages new entries to be allocated in those pages.
 
-Patch follows, please apply.
-Thanks
+Ideally you'd simply mark those dcache entries as prime candidates for
+recycling when new entries are needed, without actually freeing them
+until new entries are needed - or until their whole pages can be
+released.
 
+Also, biasing new allocations to recycle those old dcache entries, but
+also biasing them to recently used pages, so that recently used
+entries tend to cluster in the same pages.
 
---- linux-2.4.25/drivers/i2c/Config.in.orig	Sun Feb 22 10:11:14 2004
-+++ linux-2.4.25/drivers/i2c/Config.in	Sun Feb 22 18:46:19 2004
-@@ -12,7 +12,7 @@
-       dep_tristate '  Philips style parallel port adapter' CONFIG_I2C_PHILIPSPAR $CONFIG_I2C_ALGOBIT $CONFIG_PARPORT
-       dep_tristate '  ELV adapter' CONFIG_I2C_ELV $CONFIG_I2C_ALGOBIT
-       dep_tristate '  Velleman K8000 adapter' CONFIG_I2C_VELLEMAN $CONFIG_I2C_ALGOBIT
--      dep_tristate '  NatSemi SCx200 I2C using GPIO pins' CONFIG_SCx200_I2C $CONFIG_SCx200 $CONFIG_I2C_ALGOBIT
-+      dep_tristate '  NatSemi SCx200 I2C using GPIO pins' CONFIG_SCx200_I2C $CONFIG_SCx200_GPIO $CONFIG_I2C_ALGOBIT
-       if [ "$CONFIG_SCx200_I2C" != "n" ]; then
-          int  '    GPIO pin used for SCL' CONFIG_SCx200_I2C_SCL 12
-          int  '    GPIO pin used for SDA' CONFIG_SCx200_I2C_SDA 13
+(I'm not sure how those ideas would work out in practice; they're just
+hand-waving).
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+-- Jamie

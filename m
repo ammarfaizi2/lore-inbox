@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbUDNFHG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 01:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUDNFHG
+	id S263890AbUDNFUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 01:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbUDNFUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 01:07:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:16820 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263887AbUDNFGh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 01:06:37 -0400
-Date: Wed, 14 Apr 2004 00:06:27 -0500 (CDT)
-From: Olof Johansson <olof@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Nathan Lynch <nathanl@austin.ibm.com>, <linux-kernel@vger.kernel.org>
+	Wed, 14 Apr 2004 01:20:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47761 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263883AbUDNFUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 01:20:23 -0400
+Date: Tue, 13 Apr 2004 22:19:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: nathanl@austin.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Increase number of dynamic inodes in procfs (2.6.5)
+Message-Id: <20040413221956.448f7d67.akpm@osdl.org>
 In-Reply-To: <Pine.A41.4.44.0404132332170.80688-100000@forte.austin.ibm.com>
-Message-ID: <Pine.A41.4.44.0404140005090.27336-100000@forte.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20040413170642.22894ebc.akpm@osdl.org>
+	<Pine.A41.4.44.0404132332170.80688-100000@forte.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004, Olof Johansson wrote:
+Olof Johansson <olof@austin.ibm.com> wrote:
+>
+> On Tue, 13 Apr 2004, Andrew Morton wrote:
+> 
+>  > > and changes the inode number
+>  > >  allocator to use a growable linked list of bitmaps.
+>  >
+>  > This open-codes a simple version of lib/idr.c.  Please use lib/idr.c
+>  > instead.  There's an example in fs/super.c
+> 
+>  The drawback of using lib/idr.c is the increased memory consumption for
+>  keeping track of the pointers that are not used. For 100k entries that's
+>  800KB lost (64-bit arch).
 
-> I've abstracted out Martin Bligh's and Ingo Molnar's scalable bitmap
+Which is less that 2% of the space which is used by the 100k inodes.
 
-Ooops, of course I mean Bill Irwin's and Ingo Molnar's scalable bitmap.
-Sorry about that.
+We've previously discussed allocating the idr pointer array separately, but
+the extra cache miss for the users who need it, plus the 2% argument keep
+on trumping that.  (We could avoid the cache miss with zero-length-array
+tricks, actually).
 
+>  I've abstracted out Martin Bligh's and Ingo Molnar's scalable bitmap
+>  allocator that is used by the PID allocator.
 
-Olof Johansson                                        Office: 4F005/905
-Linux on Power Development                            IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
-
+Your current requirement does not appear to justify this additional
+infrastructure.

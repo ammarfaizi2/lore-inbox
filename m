@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbTAVPSd>; Wed, 22 Jan 2003 10:18:33 -0500
+	id <S261599AbTAVPXi>; Wed, 22 Jan 2003 10:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbTAVPSc>; Wed, 22 Jan 2003 10:18:32 -0500
-Received: from sprocket.loran.com ([209.167.240.9]:30453 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id <S261337AbTAVPSc>; Wed, 22 Jan 2003 10:18:32 -0500
-Subject: Re: Is the BitKeeper network protocol documented?
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030122151826.GA23656@work.bitmover.com>
-References: <CDEDIMAGFBEBKHDJPCLDCEEKCFAA.huaz@sbcglobal.net>
-	<20030122071028.GA3466@bjl1.asuk.net> 
-	<20030122151826.GA23656@work.bitmover.com>
-Content-Type: text/plain
+	id <S261600AbTAVPXh>; Wed, 22 Jan 2003 10:23:37 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:9920 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261599AbTAVPXS>; Wed, 22 Jan 2003 10:23:18 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Kernel panic with Red Hat 2-4-18 kernel
+Date: Wed, 22 Jan 2003 07:32:25 -0800
+Message-ID: <DEEBJHMCKLIHOCFBLNCCGEMOCDAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Jan 2003 10:27:40 -0500
-Message-Id: <1043249260.1397.200.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-22 at 10:18, Larry McVoy wrote:
+Is there a fix available for the following, generated on a 6 GB SMP P4 Xeon
+system with the Red Hat 2.4.18 kernel?
 
-> A boundary is a boundary.  It doesn't matter how much you want or need
-> what is on the other side of that boundary, you don't get to make your
-> license cross that boundary, the law doesn't work that way.
+Kernel panic: Fix pte_chain allocation, you lazy bastard!
 
-Thus the concept of "derivative work."
+I searched the web and found copious references in the context of 2.5, but
+nothing in 2.4, Red Hat or otherwise.
+-- 
+M. Edward (Ed) Borasky, MS, MNLP, NST, FBG, PGS & PTA
+mailto:znmeb@borasky-research.net
+http://www.borasky-research.net
 
-The single most vague section of the GPL IMHO.
-
-Can we move on now?  We're not going to resolve anything here,
-and i think we're all argued out :)
-
-Dana Lacoste
-Ottawa, Canada
+Have You Hugged Your Saguaro Today?
 

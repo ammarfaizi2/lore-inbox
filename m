@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265972AbRF1Oss>; Thu, 28 Jun 2001 10:48:48 -0400
+	id <S265976AbRF1Ox6>; Thu, 28 Jun 2001 10:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265976AbRF1Osj>; Thu, 28 Jun 2001 10:48:39 -0400
-Received: from mailout4-0.nyroc.rr.com ([24.92.226.120]:23696 "EHLO
-	mailout4-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S265972AbRF1Os2>; Thu, 28 Jun 2001 10:48:28 -0400
-Message-ID: <00b101c0ffe2$fb77ad30$0701a8c0@morph>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "John Fremlin" <vii@users.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.d69j5vv.ej8irj@ifi.uio.no> <fa.h2rpibv.87m5bp@ifi.uio.no>
-Subject: Re: A signal fairy tale
-Date: Thu, 28 Jun 2001 10:59:50 -0400
+	id <S265980AbRF1Oxs>; Thu, 28 Jun 2001 10:53:48 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55937 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265976AbRF1Oxd>; Thu, 28 Jun 2001 10:53:33 -0400
+Date: Thu, 28 Jun 2001 10:53:26 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: sebastien person <sebastien.person@sycomore.fr>
+cc: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Re: maybe silly question ?
+In-Reply-To: <20010628164351.6e4ef674.sebastien.person@sycomore.fr>
+Message-ID: <Pine.LNX.3.95.1010628104748.28106A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Signals are a pretty dopey API anyway - so instead of trying to patch
-> them up, why not think of something better for AIO?
+On Thu, 28 Jun 2001, sebastien person wrote:
 
-I have to agree, in a way... At some point we need to swallow our pride,
-admit that UNIX has a crappy event model, and implement something like Win32
-GetMessage =)...
+> Hi,
+> 
+> I have compiled a 2.4 kernel (I was on 2.2) and it seems that everything
+> went well.
 
-I've been having trouble finding situations where asynchronous signals are
-really the most appropriate technique, aside from delivering
-life-threatening things like SIGTERM, SIGKILL, and SIGSEGV. The mutation
-into queued, information-carrying siginfo signals just shows how badly we
-need a more robust event model... (what would truly kick butt is a unified
-interface that could deliver everything from fd events to AIO completions to
-semaphore/msgqueue events, etc, with explicit binding between event queues
-and threads).
+Did you install the new kernel?
 
-Regards,
-Dan
+> But when I tried uname -rs I found a 2.2 kernel ? Is it possible
+> that the 2.4 kernel run and that uname -rs result is wrong ? what
+> really does uname -rs , does it use proc system or maybe anything else ?
+> 
+> Thanks
+
+It displays the information that is in the top 4 lines of the Makefile
+used to build the kernel. If `uname` doesn't display information of
+this type, you did not boot your newly-made kernel.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.5 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

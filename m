@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUHCWB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266898AbUHCWEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266897AbUHCWB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 18:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUHCWB0
+	id S266898AbUHCWEN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 18:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUHCWEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 18:01:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3730 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266897AbUHCWBT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 18:01:19 -0400
-Date: Tue, 3 Aug 2004 15:01:18 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Rik van Riel <riel@redhat.com>,
-       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040803150118.Q1924@build.pdx.osdl.net>
-References: <20040729185215.Q1973@build.pdx.osdl.net> <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com> <20040803210737.GI2241@dualathlon.random> <20040803211339.GB26620@devserv.devel.redhat.com> <20040803213634.GK2241@dualathlon.random> <20040803213856.GB10978@devserv.devel.redhat.com> <20040803215150.GM2241@dualathlon.random>
+	Tue, 3 Aug 2004 18:04:12 -0400
+Received: from adsl-68-95-0-242.dsl.rcsntx.swbell.net ([68.95.0.242]:29572
+	"EHLO arion.soze.net") by vger.kernel.org with ESMTP
+	id S266898AbUHCWDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 18:03:51 -0400
+Date: Tue, 3 Aug 2004 22:03:41 +0000
+From: Justin Guyett <justin@soze.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Hibbard.Smith@nasdaq.com
+Subject: Re: mainline i2o issues with adaptec raid (was: i2o and adaptec raid)
+Message-ID: <20040803220341.GA6010@arion.soze.net>
+References: <20040803050223.GB2295@arion.soze.net> <20040802230931.04c0769d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040803215150.GM2241@dualathlon.random>; from andrea@suse.de on Tue, Aug 03, 2004 at 11:51:50PM +0200
+In-Reply-To: <20040802230931.04c0769d.akpm@osdl.org>
+X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
+X-Hashcash: 0:040803:akpm@osdl.org:b791745e5091adb4af51fa75
+X-Hashcash: 0:040803:linux-kernel@vger.kernel.org:b4ed16d2ac8ae5d65f95f1ad
+X-Hashcash: 0:040803:hibbard.smith@nasdaq.com:e19da3119c73211eec300535
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@suse.de) wrote:
-> On Tue, Aug 03, 2004 at 11:38:57PM +0200, Arjan van de Ven wrote:
-> > not if you keep track of who locked in the first place and give the credit
-> > back to *that* user (struct).
+On 2004-08-02T23:09:31-0700, Andrew Morton wrote:
+> By reading your .config I was able to divine that you're running some 2.6
+> kernel ;)
 > 
-> I wasn't talking about chown above. I mean, where's the truncate that
-> releases the user-struct-bind? 
+> There's an i2o rewrite in
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm2/2.6.8-rc2-mm2.gz
+> - testing of that would be appreciated.
 
-I'm not sure what you mean.  Truncate should only update the accounting,
-not break the binding, right?
+Build 103 (2.6.8-rc2-mm2) succeeds where mainline 2.6.8-rc2-bk12 i2o
+(adaptec 2110s) failed.
 
-> You just can't release the user-struct-bind from
-> munlock/exit/whatever-task-opeartion-different-from-truncate-or-chown.
+8 concurrent 6-GB bonnie++ runs also succeed.
 
-It's meant to be done at object destruction.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+"When in our age we hear these words: It will be judged by the result--then we
+know at once with whom we have the honor of speaking.  Those who talk this way
+are a numerous type whom I shall designate under the common name of assistant
+professors."  -- Kierkegaard, Fear and Trembling (Wong tr.), III, 112
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292188AbSBTS5g>; Wed, 20 Feb 2002 13:57:36 -0500
+	id <S292194AbSBTS7G>; Wed, 20 Feb 2002 13:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292182AbSBTS5W>; Wed, 20 Feb 2002 13:57:22 -0500
-Received: from [212.159.14.225] ([212.159.14.225]:39929 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S292185AbSBTS5A>; Wed, 20 Feb 2002 13:57:00 -0500
-Date: Wed, 20 Feb 2002 18:58:55 +0000
-From: "J.P. Morris" <jpm@it-he.org>
+	id <S292211AbSBTS67>; Wed, 20 Feb 2002 13:58:59 -0500
+Received: from [62.47.19.142] ([62.47.19.142]:7297 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S292194AbSBTS6q>;
+	Wed, 20 Feb 2002 13:58:46 -0500
+Message-ID: <3C73EEC8.EF99F953@webit.com>
+Date: Wed, 20 Feb 2002 19:45:28 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-rc2 problem..
-Message-Id: <20020220185855.2bcecc24.jpm@it-he.org>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: walt <wsheets@sbcglobal.net>
+Subject: Re: [2.2.18-rc1] sis.o missing symbol errors (still)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm getting a problem in usb-storage (it's loaded as a module towards the end
-of the boot sequence).  The module locks during initialisation, which doesn't
-happen in 2.4.17.
-(is it possible to unload a crashed module without rebooting?
- This happens so often with SCSI... )
+walt wrote:
+> In order to avoid missing-symbol errors for drm/sis.o
+> *all* of the following options must be set, even though
+> the specified SiS chips are not being used: 
+>
+> CONFIG_FB=y
+> CONFIG_FB_SIS=y/m
+> CONFIG_FB_SIS_300=y
+> CONFIG_FB_SIS_315=y
 
-The culprit seems to be my new usb CF reader.  Unfortunately it's unbranded
-and I can't identify the underlying hardware.  None of the specific drivers
-(e.g. sandisk, lexar, microtech, freecom) need to be loaded for it to work,
-so I guess there's some generic protocol for usb->scsi?
+I have a 630 and sisfb and sis (drm) compile well *without* 315... Just
+remember to insmod sisfb.o BEFORE sis.o.
 
-Regardless, unless someone else has an idea, I'm going to try manually
-merging the usb-storage changes in from 2.4.17 to 2.4.18-rc2 until it
-breaks to try and isolate the problem..
+Thomas
 
 -- 
-JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
-Fun things to do with the Ultima games            http://www.it-he.com
-Developing a U6/U7 clone                          http://ire.it-he.org
-d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
-uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com                  *** http://www.webit.com/tw

@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUD1Jwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264716AbUD1Jva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUD1Jwz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 05:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbUD1Jwz
+	id S264716AbUD1Jva (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 05:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264715AbUD1Jva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 05:52:55 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:11225 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264717AbUD1Jww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 05:52:52 -0400
-Date: Wed, 28 Apr 2004 11:52:45 +0200 (MEST)
-From: Armin Schindler <armin@melware.de>
-To: Florian Schirmer <jolt@tuxbox.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <i4ldeveloper@listserv.isdn4linux.de>
-Subject: Re: Linux 2.6.6-rc3
-In-Reply-To: <015701c42d01$70886260$9602010a@jingle>
-Message-ID: <Pine.LNX.4.31.0404281151580.23611-100000@phoenix.one.melware.de>
-Organization: Cytronics & Melware
+	Wed, 28 Apr 2004 05:51:30 -0400
+Received: from mail.jambit.com ([62.245.207.83]:40715 "EHLO mail.jambit.com")
+	by vger.kernel.org with ESMTP id S264713AbUD1Jv2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 05:51:28 -0400
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+Illegal-Object: Syntax error in To: address found on vger.kernel.org:
+	To:	linux-kernel@vger.kernel.org<linux-kernel@vger.kernel.org>
+						    ^-missing end of address
+Date: Wed, 28 Apr 2004 11:51:14 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+Subject: MS_INVALIDATE broken, what alternative?
+Cc: Jamie Lokier <jamie@shareable.org>
+Message-ID: <408F9AB2.26880.AE166D@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Apr 2004, Florian Schirmer wrote:
-> Hi,
->
-> > Armin Schindler:
-> >   o ISDN CAPI: add ncci list semaphore
->
-> This looks broken for !CONFIG_ISDN_CAPI_MIDDLEWARE configs. Note the up()
-> inside the #ifdef.
->
-> @@ -904,13 +917,17 @@
->  			if (copy_from_user((void *)&ncci, (void *)arg,
->  					   sizeof(ncci)))
->  				return -EFAULT;
-> -			nccip = capincci_find(cdev, (u32) ncci);
-> -			if (!nccip)
-> +
-> +			down(&cdev->ncci_list_sem);
-> +			if ((nccip = capincci_find(cdev, (u32) ncci)) == 0) {
-> +				up(&cdev->ncci_list_sem);
->  				return 0;
-> +			}
->  #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
->  			if ((mp = nccip->minorp) != 0) {
->  				count += atomic_read(&mp->ttyopencount);
->  			}
-> +			up(&cdev->ncci_list_sem);
->  #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
->  			return count;
->  		}
+Gidday,
 
-Yes, you are right !
-Patch is on its way...
+The msync() MS_INVALIDATE operation should produce behavior something like 
+the following:
+
+Invalidate cached copies of mapped data: the mapped region is synchronized 
+with the contents of the file.  All pages of the mapped region that are 
+inconsistent with the underlying file data are marked as invalid, and when 
+next referenced, the contents of the page will be copied from the 
+corresponding location in the file.  As a result, any changes that have 
+been made directly to the file by another process using write() are made 
+visible in the mapped region.
+
+(To be precise, SUSv3 says:
+
+    When MS_INVALIDATE is specified, msync( ) shall invalidate 
+    all cached copies of mapped data that are inconsistent with 
+    the permanent storage locations such that subsequent 
+    references shall obtain data that was consistent with the 
+    permanent storage locations sometime between the call to 
+    msync( ) and the first subsequent memory reference to the data.
+)
+
+However as noted in a recent thread 
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=108083668427418&w=2), 
+the current Linux implementation of this flag is broken: it provides 
+behavior equivalent to flags==0.
+
+Is there any way of achieving this functionality with current kernels?  
+(Or might MS_INVALIDATE actually get correctly implemented?)
 
 Thanks,
-Armin
+
+Michael
+--
+Michael Kerrisk
+michael.kerrisk@gmx.net
+
+
+
+
 

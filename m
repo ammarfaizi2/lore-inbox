@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUJHJVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268216AbUJHJZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268179AbUJHJVG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 05:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268185AbUJHJVG
+	id S268216AbUJHJZy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 05:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUJHJZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 05:21:06 -0400
-Received: from open.hands.com ([195.224.53.39]:24515 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S268179AbUJHJUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 05:20:50 -0400
-Date: Fri, 8 Oct 2004 10:31:54 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-       lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
-       Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
-Message-ID: <20041008093154.GA5089@lkcl.net>
-Mail-Followup-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-	Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-	lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
-	Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
-	linux-net@vger.kernel.org
-References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu> <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Oct 2004 05:25:54 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:37516 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268216AbUJHJZv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 05:25:51 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Fri, 8 Oct 2004 11:23:44 +0200
+User-Agent: KMail/1.6.2
+Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041007105425.02e26dd8.pj@sgi.com> <1344740000.1097172805@[10.10.2.4]>
+In-Reply-To: <1344740000.1097172805@[10.10.2.4]>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410081123.45762.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 09:56:07AM -0400, Stephen Smalley wrote:
+On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
+> It all just seems like a lot of complexity for a fairly obscure set of
+> requirements for a very limited group of users, to be honest. Some bits
+> (eg partitioning system resources hard in exclusive sets) would seem likely
+> to be used by a much broader audience, and thus are rather more attractive.
 
-> On Thu, 2004-10-07 at 01:42, Valdis.Kletnieks@vt.edu wrote:
+May I translate the first sentence to: the requirements and usage
+models described by Paul (SGI), Simon (Bull) and myself (NEC) are
+"fairly obscure" and the group of users addressed (those mainly
+running high performance computing (AKA HPC) applications) is "very
+limited"? If this is what you want to say then it's you whose view is
+very limited. Maybe I'm wrong with what you really wanted to say but I
+remember similar arguing from your side when discussing benchmark
+results in the context of the node affine scheduler.
 
-> > audit(1097111349.727:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
-> > audit(1097111349.754:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
-> > audit(1097111349.782:0): avc:  denied  { recv_msg } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
-> > 
-> > At least for the recv_msg error, I *think* the message is generated because
-> > when we get into net/socket.c, we call security_socket_recvmsg() in
-> > __recv_msg() - and (possibly only when we have the VP patch applied?) at that
-> > point we're in a softirqd context rather than the context of the process that
-> > will finally receive the packet, so the SELinux code ends up checking the wrong
+This "very limited group of users" (small part of them listed in
+www.top500.org) is who drives computer technology, processor design,
+network interconnect technology forward since the 1950s. Their
+requirements on the operating system are rather limited and that might
+be the reason why kernel developers tend to ignore them. All that
+counts for HPC is measured in GigaFLOPS or TeraFLOPS, not in elapsed
+seconds for a kernel compile, AIM-7, Spec-SDET or Javabench. The way
+of using these machines IS different from what YOU experience in day
+by day work and Linux is not yet where it should be (though getting
+close). Paul's endurance in this thread is certainly influenced by the
+perspective of having to support soon a 20x512 CPU NUMA cluster at
+NASA...
 
-> Valdis,
-> 
-> These permission checks are based on the receiving socket security
-> context, not any process security context, and are performed by the
-> sock_rcv_skb hook when mediating packet receipt on a socket.  The
-> auxiliary pid and comm or exe information is meaningless for such
-> checks.  avc_audit could possibly be modified to check whether we are in
-> softirq and omit them in those cases from the audit messages.  
+As a side note: put in the right context your statement on fairly
+obscure requirements for a very limited group of users is a marketing
+argument ... against IBM.
 
-> This has
-> been discussed previously on the selinux mailing list, please see the
-> archives.
+Thanks ;-)
+Erich
 
- an alternative possible solution is to get the packet _out_ from
- the interrupt context and have the aux pid comm exe information added.
-
- as i understand it "a" possible way to do that would be to have a
- userspace ip_queue which simply marks the packet as "seen it" and then
- does "now please reprocess it".
-
- by the time that packets get to ip_queue in userspace, they will have
- had their aix pid comm exe info added (and the file sock stuff).
-
- alternatively, someone could spend a lot of their time doing exactly
- the same thing in kernel-space.
-
- l.
+--
+Core Technology Group
+NEC High Performance Computing Europe GmbH, EHPCTC
 

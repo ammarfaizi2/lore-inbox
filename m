@@ -1,181 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263376AbTC2CNt>; Fri, 28 Mar 2003 21:13:49 -0500
+	id <S263377AbTC2C0R>; Fri, 28 Mar 2003 21:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263377AbTC2CNt>; Fri, 28 Mar 2003 21:13:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52356 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263376AbTC2CNq>;
-	Fri, 28 Mar 2003 21:13:46 -0500
-Message-ID: <3E85040F.4080506@pobox.com>
-Date: Fri, 28 Mar 2003 21:25:19 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>
-Subject: [BK/GNU] misc merges
-Content-Type: multipart/mixed;
- boundary="------------040804020004030405010304"
+	id <S263378AbTC2C0R>; Fri, 28 Mar 2003 21:26:17 -0500
+Received: from [12.47.58.223] ([12.47.58.223]:18082 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S263377AbTC2C0Q>; Fri, 28 Mar 2003 21:26:16 -0500
+Date: Fri, 28 Mar 2003 18:38:36 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, vortex@scyld.com
+Subject: Re: Bad PCI IDs-Names table in 3c59x.c
+Message-Id: <20030328183836.36ccd14b.akpm@digeo.com>
+In-Reply-To: <20030329013022.GA2711@werewolf.able.es>
+References: <20030329013022.GA2711@werewolf.able.es>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Mar 2003 02:37:28.0301 (UTC) FILETIME=[23BBD1D0:01C2F59C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040804020004030405010304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> +	{ 0x10B7, 0x1201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982A },
+> +	{ 0x10B7, 0x1202, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982B },
 
-Marcelo,
+OK.  I'm a bit mystified as to how these ID's got lost.  They do not appear
+in Donald's latest driver, so I assume the catchall PCI ID match picked them
+up.  
 
-Two small, misc patches.  The first helps battle stack overflow 
-situations, and the second backports an akpm patch which greatly helps 
-in remote debugging.
+The mainstream PCI code does not have the catchall capability.
 
-Both patches have been backported from 2.5, and tested in 2.4 also.
-Please apply.
+Keeping that big device table in sync is a real pain, which is why it has
+been kept grouped into batches of five entries.  
 
-	Jeff
-
-
---------------040804020004030405010304
-Content-Type: text/plain;
- name="misc-2.4.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="misc-2.4.txt"
-
-Linus, please do a
-
-	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.4
-
-This will update the following files:
-
- Documentation/sysrq.txt |    4 ++++
- drivers/char/random.c   |    6 ++----
- fs/proc/proc_misc.c     |   28 ++++++++++++++++++++++++++++
- 3 files changed, 34 insertions(+), 4 deletions(-)
-
-through these ChangeSets:
-
-<willy@debian.org> (03/03/28 1.1058)
-   Reduce random.c stack usage
-
-<akpm@digeo.com> (03/03/28 1.1057)
-   /proc/sysrq-trigger: trigger sysrq functions via
-   
-   This makes sysrq facilities available to remote users.
-   
-   Writing a 'C' to /proc/sysrq-trigger receives the same treatment as typing
-   sysrq-C on the local keyboard.
+Donald's driver describes 0x9805 as a "3c982 Server Tornado".  What makes you
+think it is a "3c980 Python-T"?
 
 
---------------040804020004030405010304
-Content-Type: text/plain;
- name="patch1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch1"
+Can you please retest with this (against 2.4.20-pre5).  I didn't change
+0x9805.  Probably Donald's driver is right, but I'd like some confirmation.
 
-diff -Nru a/Documentation/sysrq.txt b/Documentation/sysrq.txt
---- a/Documentation/sysrq.txt	Fri Mar 28 21:15:18 2003
-+++ b/Documentation/sysrq.txt	Fri Mar 28 21:15:18 2003
-@@ -36,6 +36,10 @@
- On other - If you know of the key combos for other architectures, please
-            let me know so I can add them to this section.
- 
-+On all -  write a character to /proc/sysrq-trigger.  eg:
-+
-+		echo t > /proc/sysrq-trigger
-+
- *  What are the 'command' keys?
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 'r'     - Turns off keyboard raw mode and sets it to XLATE.
-diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
---- a/fs/proc/proc_misc.c	Fri Mar 28 21:15:18 2003
-+++ b/fs/proc/proc_misc.c	Fri Mar 28 21:15:18 2003
-@@ -36,6 +36,7 @@
- #include <linux/init.h>
- #include <linux/smp_lock.h>
- #include <linux/seq_file.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -532,6 +533,28 @@
- 	write:		write_profile,
+
+diff -puN drivers/net/3c59x.c~3c59x-980-support drivers/net/3c59x.c
+--- 24/drivers/net/3c59x.c~3c59x-980-support	2003-03-28 18:19:01.000000000 -0800
++++ 24-akpm/drivers/net/3c59x.c	2003-03-28 18:19:01.000000000 -0800
+@@ -442,6 +442,8 @@ enum vortex_chips {
+ 	CH_3CCFEM656_1,
+ 	CH_3C450,
+ 	CH_3C920,
++	CH_3C982A,
++	CH_3C982B,
  };
  
-+#ifdef CONFIG_MAGIC_SYSRQ
-+/*
-+ * writing 'C' to /proc/sysrq-trigger is like sysrq-C
-+ */
-+static ssize_t write_sysrq_trigger(struct file *file, const char *buf,
-+				     size_t count, loff_t *ppos)
-+{
-+	if (count) {
-+		char c;
-+
-+		if (get_user(c, buf))
-+			return -EFAULT;
-+		handle_sysrq(c, NULL, NULL, NULL);
-+	}
-+	return count;
-+}
-+
-+static struct file_operations proc_sysrq_trigger_operations = {
-+	.write		= write_sysrq_trigger,
-+};
-+#endif
-+
- struct proc_dir_entry *proc_root_kcore;
  
- static void create_seq_entry(char *name, mode_t mode, struct file_operations *f)
-@@ -608,6 +631,11 @@
- 			entry->size = (1+prof_len) * sizeof(unsigned int);
- 		}
- 	}
-+#ifdef CONFIG_MAGIC_SYSRQ
-+	entry = create_proc_entry("sysrq-trigger", S_IWUSR, NULL);
-+	if (entry)
-+		entry->proc_fops = &proc_sysrq_trigger_operations;
-+#endif
- #ifdef CONFIG_PPC32
- 	{
- 		extern struct file_operations ppc_htab_operations;
-
---------------040804020004030405010304
-Content-Type: text/plain;
- name="patch2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch2"
-
-diff -Nru a/drivers/char/random.c b/drivers/char/random.c
---- a/drivers/char/random.c	Fri Mar 28 21:15:26 2003
-+++ b/drivers/char/random.c	Fri Mar 28 21:15:26 2003
-@@ -1235,10 +1235,8 @@
-  * at which point we do a "catastrophic reseeding".
-  */
- static inline void xfer_secondary_pool(struct entropy_store *r,
--				       size_t nbytes)
-+				       size_t nbytes, __u32 *tmp)
- {
--	__u32	tmp[TMP_BUF_SIZE];
--
- 	if (r->entropy_count < nbytes * 8 &&
- 	    r->entropy_count < r->poolinfo.POOLBITS) {
- 		int nwords = min_t(int,
-@@ -1291,7 +1289,7 @@
- 		r->entropy_count = r->poolinfo.POOLBITS;
+@@ -535,6 +537,11 @@ static struct vortex_chip_info {
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_TORNADO|HAS_NWAY|HAS_HWCKSM, 128, },
+ 	{"3c920 Tornado",
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_TORNADO|HAS_NWAY|HAS_HWCKSM, 128, },
++	{"3c982 Hydra Dual Port A",
++	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
++	{"3c982 Hydra Dual Port B",
++	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
++
+ 	{0,}, /* 0 terminated list. */
+ };
  
- 	if (flags & EXTRACT_ENTROPY_SECONDARY)
--		xfer_secondary_pool(r, nbytes);
-+		xfer_secondary_pool(r, nbytes, tmp);
- 
- 	DEBUG_ENT("%s has %d bits, want %d bits\n",
- 		  r == sec_random_state ? "secondary" :
+@@ -579,6 +586,8 @@ static struct pci_device_id vortex_pci_t
+ 	{ 0x10B7, 0x6564, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3CCFEM656_1 },
+ 	{ 0x10B7, 0x4500, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C450 },
+ 	{ 0x10B7, 0x9201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C920 },
++	{ 0x10B7, 0x1201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982A },
++	{ 0x10B7, 0x1202, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982B },
+ 	{0,}						/* 0 terminated list. */
+ };
+ MODULE_DEVICE_TABLE(pci, vortex_pci_tbl);
 
---------------040804020004030405010304--
+_
 

@@ -1,151 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131328AbRCHLdd>; Thu, 8 Mar 2001 06:33:33 -0500
+	id <S131321AbRCHLkW>; Thu, 8 Mar 2001 06:40:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131330AbRCHLdX>; Thu, 8 Mar 2001 06:33:23 -0500
-Received: from relay.dera.gov.uk ([192.5.29.49]:49496 "HELO relay.dera.gov.uk")
-	by vger.kernel.org with SMTP id <S131328AbRCHLdL>;
-	Thu, 8 Mar 2001 06:33:11 -0500
-Message-ID: <XFMail.20010308113248.gale@syntax.dera.gov.uk>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-In-Reply-To: <F112MQtFu9NHFto4pxw0000224a@hotmail.com>
-Date: Thu, 08 Mar 2001 11:32:48 -0000 (GMT)
-From: Tony Gale <gale@syntax.dera.gov.uk>
-To: Ying Chen <yingchenb@hotmail.com>
-Subject: RE: pthreads related issues
-Cc: linux-kernel@vger.kernel.org
+	id <S131332AbRCHLkM>; Thu, 8 Mar 2001 06:40:12 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:63366 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131321AbRCHLkG>; Thu, 8 Mar 2001 06:40:06 -0500
+Message-Id: <5.0.2.1.2.20010308110922.00a41a60@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 08 Mar 2001 11:39:27 +0000
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Questions - Re: [PATCH] documentation for mm.h
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <andrewm@uow.edu.au>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010308115137.M27675@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <5.0.2.1.2.20010308095213.00a59040@pop.cus.cam.ac.uk>
+ <Pine.LNX.4.33.0103071931400.1409-100000@duckman.distro.con ectiva>
+ <5.0.2.1.2.20010308095213.00a59040@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10:51 08/03/01, Ingo Oeser wrote:
+>On Thu, Mar 08, 2001 at 10:11:50AM +0000, Anton Altaparmakov wrote:
+> > At 22:33 07/03/2001, Rik van Riel wrote:
+> > [snip]
+> > >  typedef struct page {
+> > >+       struct list_head list;          /* ->mapping has some page 
+> lists. */
+> > >+       struct address_space *mapping;  /* The inode (or ...) we 
+> belong to. */
+> > >+       unsigned long index;            /* Our offset within mapping. */
+> >
+> > Assuming index is in bytes (it looks like it is):
+>
+>isn't. To get the byte offset, you have to multiply it by PAGE_{CACHE_,}SIZE.
 
-I think the following should explain the performance issue you are
-seeing.
+Hi, first of all, thanks for the reply!
 
-Quote from Kaz Kylheku <kaz@ashi.footprints.net>:
+How do you reconcile that statement with the following comment from mm.h?
 
--------------------------------------------------------------------
+ > * A page may belong to an inode's memory mapping. In this case,
+ > * page->mapping is the pointer to the inode, and page->offset is the
+ > * file offset of the page (not necessarily a multiple of PAGE_SIZE).
 
-When things run slower on SMP, there are usually these possible
-explanations. 
+Surely, if you have to multiply index by PAGE_{CACHE_}SIZE, page->offset 
+would be a multiple of PAGE_{CACHE_}SIZE?
 
-Firstly, there may be cache thrashing: in order for threads to have a
-consistent view of shared data across multiple processors, data has to
-travel thorugh the interconnecting backplane, switch or what have you,
-regardless of how small the footprint of the data is. On a single
-processor, no such communication has to take place; the program can
-work off the processor's on-chip cache.
+And even if it really is PAGE_{CACHE_}SIZE units, this still doesn't solve 
+the problem, it just defers it to 16Tib (on ia32 arch with 4kib 
+PAGE_{CACHE_}SIZE). With NTFS 3.0's use of sparse files, for the usn 
+journal for example, even this will be overflowed at some point on a 
+busy/large server. The only proper solution AFAICS is to allow the full 
+64-bits.
 
-Secondly, it may be the case that the threads are strictly alternating
-in their acquisition of the mutex, which imposes a severe scheduling
-penalty into the execution of the program. Imagine that each time the
-producer creates an item, a context switch takes place to the consumer
-to remove the item. Such a scenario runs much slower than if the
-producer can append a large batch of items which the consumer removes
-in one fell swoop when it gets a timeslice.
+> > [snip]
+> > >+ * During disk I/O, PG_locked is used. This bit is set before I/O
+> > >+ * and reset when I/O completes. page->wait is a wait queue of all
+> > >+ * tasks waiting for the I/O on this page to complete.
+> >
+> > Is this physical I/O only or does it include a driver writing/reading 
+> the page?
+>
+>Depends on the method of the driver, that is getting called.
 
-On Linux, the default mutexes implement a strict fairness policy; when
-a mutex is unlocked, ownership is transferred to one of the threads
-waiting for it, according to priority---even if some currently running
-thread is prime and ready to seize the lock, it must wait its turn.
-This behavior can readily lead to strict alternation under SMP,
-because
-as thread is busy inside the mutex, the other thread can execute on
-another processor and independently reach the pthread_mutex_lock()
-statement, at which point it is guaranteed that it is eligible to get
-that mutex as soon as it is unlocked.
+Sorry, I should have been more detailed in my question, so let me try 
+again: When the NTFS file system driver needs to modify the meta data, 
+which will be in the page cache (meta data is stored in normal files on 
+NTFS, hence the page cache is very well suited to storing it with it's 
+page->mapping and page->offset fields), does the NTFS driver need to set 
+PG_locked while writing to the page?
 
-Ulrich Drepper, Xavier Leroy and I have discussed this matter at
-length
-some months since and decided to leave the mutexes as they are, with
-the fairness behavior. You can gain access to alternate behaviors by
-using one of the non-portable mutex types.  In glibc2.2 you have the
-following:
+And what about reading for that matter? What is the access serialization here?
 
-    enum
-    {
-      PTHREAD_MUTEX_TIMED_NP,
-      PTHREAD_MUTEX_RECURSIVE_NP,
-      PTHREAD_MUTEX_ERRORCHECK_NP,
-      PTHREAD_MUTEX_ADAPTIVE_NP
-    #ifdef __USE_UNIX98
-      ,
-      PTHREAD_MUTEX_NORMAL = PTHREAD_MUTEX_TIMED_NP,
-      PTHREAD_MUTEX_RECURSIVE = PTHREAD_MUTEX_RECURSIVE_NP,
-      PTHREAD_MUTEX_ERRORCHECK = PTHREAD_MUTEX_ERRORCHECK_NP,
-      PTHREAD_MUTEX_DEFAULT = PTHREAD_MUTEX_NORMAL
-    #endif
-    #ifdef __USE_GNU
-      /* For compatibility.  */
-      , PTHREAD_MUTEX_FAST_NP = PTHREAD_MUTEX_ADAPTIVE_NP
-    #endif
-    };
+Obviously I can have several readers on the same metadata at the same time, 
+and that's fine, but if someone is writing, then allowing anyone to read 
+the data at the same time would result in corrupt meta data being read 
+(this is because I am only going to use the page cache, i.e. there will be 
+no copying of the data at all, except for: user space <-> page cache <-> 
+disk). I am thinking that a read/write semaphore would be the perfect 
+solution for this here, but it would be nice, if this could be handled on a 
+per page basis rather than a per file basis, at the very least so for meta 
+data files.
 
-As you can see, the normal mutex now is PTHREAD_MUTEX_TIMED_NP, in
-order to support the pthread_mutex_timedlock operation (which only
-works with this mutex type). This mutex also has the fair scheduling
-behavior that is so detrimental in some SMP scenarios.   It's
-essentially your deluxe model with all the fixin's.
+Thanks,
 
-The PTHRED_MUTEX_ADAPTIVE_NP is a new mutex that is intended for high
-throughput at the sacrifice of fairness and even CPU cycles.  This
-mutex does not transfer ownership to a waiting thread, but rather
-allows for competition. Also, over an SMP kernel, the lock operation
-uses spinning to retry the lock to avoid the cost of immediate
-descheduling. 
-
-Try experimenting with this lock type to see how it affects the
-behavior of your program. (To keep the program portable, you can use
-#ifdef PTHREAD_ADAPTIVE_INITIALIZER_NP to test for the presence of
-this
-lock type).
-
---------------------------------------------------------------------
-
--tony
+         Anton
 
 
-On 07-Mar-2001 Ying Chen wrote:
-> Hi,
-> 
-> I think I forgot to include the subject on the email I sent last
-> time.
-> Not sure how many people saw it. I'm trying to send this message
-> again...
-> 
-> I have two questions on Linux pthread related issues. Would anyone
-> be able 
-> to help?
-> 
-> 1. Does any one have some suggestions (pointers) on good kernel
-> Linux thread 
-> libraries?
-> 2. We ran multi-threaded application using Linux pthread library on
-> 2-way 
-> SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
-> significant increase in context switching when moving from UP to
-> SMP, and 
-> high CPU usage with no performance gain in turns of actual work
-> being done 
-> when moving to SMP, despite the fact the benchmark we are running
-> is 
-> CPU-bound. The kernel profiler indicates that the a lot of kernel
-> CPU ticks 
-> went to scheduling and signaling overheads. Has anyone seen
-> something like 
-> this before with pthread applications running on SMP platforms? Any
-> suggestions or pointers on this subject?
-> 
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
----
-E-Mail: Tony Gale <gale@syntax.dera.gov.uk>
-When you jump for joy, beware that no-one moves the ground from beneath
-your feet.
-		-- Stanislaw Lem, "Unkempt Thoughts"
-
-The views expressed above are entirely those of the writer
-and do not represent the views, policy or understanding of
-any other person or official body.

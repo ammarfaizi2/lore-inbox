@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbTBRBJL>; Mon, 17 Feb 2003 20:09:11 -0500
+	id <S267412AbTBRBXv>; Mon, 17 Feb 2003 20:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267524AbTBRBJL>; Mon, 17 Feb 2003 20:09:11 -0500
-Received: from almesberger.net ([63.105.73.239]:27911 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267494AbTBRBJK>; Mon, 17 Feb 2003 20:09:10 -0500
-Date: Mon, 17 Feb 2003 22:18:37 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
-       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-Message-ID: <20030217221837.Q2092@almesberger.net>
-References: <20030214105338.E2092@almesberger.net> <Pine.LNX.4.44.0302141500540.1336-100000@serv> <20030214153039.G2092@almesberger.net> <Pine.LNX.4.44.0302142106140.1336-100000@serv> <20030214211226.I2092@almesberger.net> <Pine.LNX.4.44.0302150148010.1336-100000@serv> <20030214232818.J2092@almesberger.net> <Pine.LNX.4.44.0302151816550.1336-100000@serv> <20030217140423.N2092@almesberger.net> <Pine.LNX.4.44.0302172019220.1336-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302172019220.1336-100000@serv>; from zippel@linux-m68k.org on Tue, Feb 18, 2003 at 12:09:04AM +0100
+	id <S267438AbTBRBXv>; Mon, 17 Feb 2003 20:23:51 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:28426 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S267412AbTBRBXu>; Mon, 17 Feb 2003 20:23:50 -0500
+Message-ID: <3E518D31.6010703@snapgear.com>
+Date: Tue, 18 Feb 2003 11:32:33 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.62-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> If it was perfectly good, we hadn't a problem. :)
+Hi All,
 
-I said we he have the method. Now we need to use it properly :-)
+An update of the uClinux (MMU-less) fixups against 2.5.62.
+A big bunch of little patches in here...
 
-> You're skipping ahead. You haven't solved the problem yet, but you're 
-> already jumping to conclusions. :-)
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.62-uc0.patch.gz
 
-The solution is another issue. I simply stated that the problem
-happens with or without modules.
 
-> module count: by design this only works for entries, which are removed 
-> during module exit, but not for dynamic entries.
+Also updated:
 
-Works only for modules, not good.
+. Motorola 68328 framebuffer driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.62-uc0-68328fb.patch.gz
 
-> failure: if the object is still busy, we just return -EBUSY. This is 
-> simple, but this doesn't work for modules, since during module exit you 
-> can't fail anymore.
+. Hitachi H8300 achitecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.62-uc0-h8300.patch.gz
 
-That's a modules API problem. And yes, I think modules should
-eventually be able to say that they're busy.
+Regards
+Greg
 
-> callbacks: the callback function itself had to be protected somehow, so 
-> just to unregister a proc entry, you have to register a callback. To 
-> unregister that callback, it would be silly to use another callback and 
 
-If all you want to do is to decrement the module count, you could
-have a global handler for this that is guaranteed not to reside
-in a module.
 
-By the way, a loong time ago, in the modules thread, I suggested
-a "decrement_module_count_and_return" function [1]. Such a
-construct would be useful in this specific case.
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 
-[1] http://www.uwsg.iu.edu/hypermail/linux/kernel/0207.0/0147.html
 
-> failure doesn't work with modules, so that only leaves the module count.
 
-And how would you ensure correct access to static data in the
-absence of modules ? Any solution that _requires_ a module count
-looks highly suspicious to me.
 
-Likewise, possibly dynamically allocated data that is synchronized
-by the caller, e.g. "user" in "struct proc_dir_entry".
 
-> The last solution sounds complicated, but exactly this is done for 
-> filesystems and we didn't really get rid of the second reference count, we 
-> just moved it somewhere else, where it hurts least.
-
-Hmm, I'm confused. With "filesystem", do you mean the file system
-driver per se (e.g. "ext3"), or a specific instance of such a file
-system (e.g. /dev/hda1 mounted on /) ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269601AbTGOTlf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269602AbTGOTlf
+	id S269249AbTGOToI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269569AbTGOToI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:41:35 -0400
-Received: from main.gmane.org ([80.91.224.249]:59332 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269601AbTGOTle (ORCPT
+	Tue, 15 Jul 2003 15:44:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:24259 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269249AbTGOToF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:41:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: nick black <dank@suburbanjihad.net>
-Subject: Re: Matrox Millenium and framebuffer
-Date: Tue, 15 Jul 2003 19:55:25 +0000 (UTC)
-Message-ID: <bf1m7d$ol7$1@main.gmane.org>
-References: <20030715193545.GA1024@tangerine>
-Reply-To: dank@reflexsecurity.com
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Tue, 15 Jul 2003 15:44:05 -0400
+Date: Tue, 15 Jul 2003 12:51:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jim Keniston <jkenisto@us.ibm.com>
+Cc: jmorris@intercode.com.au, davem@redhat.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk,
+       rddunlap@osdl.org, kuznet@ms2.inr.ac.ru, jkenisto@us.ibm.com
+Subject: Re: [PATCH] [1/2] kernel error reporting (revised)
+Message-Id: <20030715125121.315920a2.akpm@osdl.org>
+In-Reply-To: <3F143D0A.A052F0B6@us.ibm.com>
+References: <Mutt.LNX.4.44.0307131052420.2146-100000@excalibur.intercode.com.au>
+	<3F143D0A.A052F0B6@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030715193545.GA1024@tangerine>, Jean-Luc Coulon (f5ibh) wrote:
-> And I pass the parameter video=matrox to the kernel.
-> I tried video=matrox:vesa=<something> without any success.
+Jim Keniston <jkenisto@us.ibm.com> wrote:
+>
+> +int kernel_error_event_iov(const struct iovec *iov, unsigned int nseg,
+> +	u32 groups)
+> +{
+> ...
+> +
+> +	return netlink_broadcast(kerror_nl, skb, 0, ~0, GFP_ATOMIC);
 
-at a minimum, you'll need to provide "matroxfb" rather than "matrox".
+This appears to be deadlocky when called from interrupt handlers.
 
--- 
-nick black <dank@reflexsecurity.com>
-"np:  nondeterministic polynomial-time
-the class of dashed hopes and idle dreams." - the complexity zoo
+netlink_broadcast() does read_lock(&nl_table_lock).  But nl_table_lock is
+not an irq-safe lock.
+
+Possibly netlink_broadcast() can be made callable from hardirq context, but
+it looks to be non trivial.  The various error and delivery handlers need
+to be reviewed, the kfree_skb() calls should be thought about, etc.
 

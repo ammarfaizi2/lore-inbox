@@ -1,57 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135553AbRDXLok>; Tue, 24 Apr 2001 07:44:40 -0400
+	id <S135548AbRDXLna>; Tue, 24 Apr 2001 07:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135555AbRDXLob>; Tue, 24 Apr 2001 07:44:31 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:14324 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S135553AbRDXLoR>; Tue, 24 Apr 2001 07:44:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Subject: Re: Device Registry (DevReg) Patch 0.2.0
-Date: Tue, 24 Apr 2001 13:44:26 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01042403082000.05529@cookie> <3AE54A24.C90067F6@evision-ventures.com>
-In-Reply-To: <3AE54A24.C90067F6@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S135553AbRDXLnK>; Tue, 24 Apr 2001 07:43:10 -0400
+Received: from corp1.cbn.net.id ([202.158.3.24]:19466 "HELO corp1.cbn.net.id")
+	by vger.kernel.org with SMTP id <S135548AbRDXLnA>;
+	Tue, 24 Apr 2001 07:43:00 -0400
+Date: Tue, 24 Apr 2001 18:44:58 +0700 (JAVT)
+From: <imel96@trustix.co.id>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Single user linux
+In-Reply-To: <992trn$lk1$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
 MIME-Version: 1.0
-Message-Id: <01042413442601.00792@cookie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 April 2001 11:40, Martin Dalecki wrote:
-> Tim Jansen wrote:
-> > The Linux Device Registry (devreg) is a kernel patch that adds a device
-> > database in XML format to the /proc filesystem. It collects all
-> OH SHIT!!      ^^^
-> Why don't you just add postscript output to /proc?
 
-XML wasn't my first choice. The 0.1.x versions used simple name/value pairs, 
-I gave this up after trying to fit the complex USB 
-configuration/interface/endpoint data into name/value pairs. Thinking about 
-text file formats that allow me to display hierarchical information,  XML was 
-the obvious choice for me. Are there alternatives to get complex and 
-extendable information out to user space? (see 
-http://www.tjansen.de/devreg/devreg.output.txt for a example /proc/devreg 
-output)
-My other ideas were:
-- using a simple binary format, just dump structs. This would break all 
-applications every time somebody changes the format, and this should happen 
-very often because of the nature of the format
-- using a complicated, extendable binary format, for example chunk-based like 
-(a|r)iff file formats. This would add more code in the kernel than XML 
-output, is difficult to understand and requires more work in user space 
-(because XML parsers are already available)
-- making up a new text-based format with properties similar to XML because I 
-knew that many people dont like the idea of XML output in the kernel.. I 
-really thought about it, but it does not make much sense.
+hi,
 
-The actual code overhead of XML output compared to a format like 
-/proc/bus/usb/devices is almost zero, XML is only a little bit more verbose. 
-I agree that XML is not perfect for this kind of data, but it is simple to 
-generate, well known and I dont see a better alternative. 
+a friend of my asked me on how to make linux easier to use
+for personal/casual win user.
 
-bye..
- 
+i found out that one of the big problem with linux and most
+other operating system is the multi-user thing.
+
+i think, no personal computer user should know about what's
+an operating system idea of a user. they just want to use
+the computer, that's it.
+
+by a personal computer i mean home pc, notebook, tablet,
+pda, and communicator. only one user will use those devices,
+or maybe his/her friend/family. do you think that user want
+to know about user account?
+
+from that, i also found out that it is very awkward to type
+username and password every time i use my computer.
+so here's a patch. i also have removed the user_struct from
+my kernel, but i don't think you'd like #ifdef's.
+may be it'll be good for midori too.
+
+
+	imel
+
+
+
+--- sched.h	Mon Apr  2 18:57:06 2001
++++ sched.h~	Tue Apr 24 17:32:33 2001
+@@ -655,6 +655,12 @@
+ 		       unsigned long, const char *, void *);
+ extern void free_irq(unsigned int, void *);
+
++#ifdef CONFIG_NOUSER
++#define capable(x)	1
++#define suser()		1
++#define fsuser()	1
++#else
++
+ /*
+  * This has now become a routine instead of a macro, it sets a flag if
+  * it returns true (to do BSD-style accounting where the process is flagged
+@@ -706,6 +712,8 @@
+ 	}
+ 	return 0;
+ }
++
++#endif /* CONFIG_NOUSER */
+
+ /*
+  * Routines for handling mm_structs
+
+diff -ur linux/Documentation/Configure.help nouser/Documentation/Configure.help
+--- linux/Documentation/Configure.help	Mon Apr  2 18:53:29 2001
++++ nouser/Documentation/Configure.help	Tue Apr 24 18:08:49 2001
+@@ -13626,6 +13626,14 @@
+   a work-around for a number of buggy BIOSes. Switch this option on if
+   your computer crashes instead of powering off properly.
+
++Disable Multi-user (DANGEROUS)
++CONFIG_NOUSER
++  Disable kernel multi-user support. Normally, we treat each user
++  differently, depending on his/her permissions. If you _really_
++  think that you're not going to use your computer in a hostile
++  environment and would like to cut a few bytes, say Y.
++  Most people should say N.
++
+ Watchdog Timer Support
+ CONFIG_WATCHDOG
+   If you say Y here (and to one of the following options) and create a
+diff -ur linux/arch/i386/config.in nouser/arch/i386/config.in
+--- linux/arch/i386/config.in	Mon Feb  5 18:50:27 2001
++++ nouser/arch/i386/config.in	Tue Apr 24 17:53:42 2001
+@@ -244,6 +244,8 @@
+    bool '    Use real mode APM BIOS call to power off' CONFIG_APM_REAL_MODE_POWER_OFF
+ fi
+
++bool 'Disable Multi-user (DANGEROUS)' CONFIG_NOUSER
++
+ endmenu
+
+ source drivers/mtd/Config.in
+

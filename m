@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUDFFBi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 01:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUDFFBi
+	id S263623AbUDFFL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 01:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUDFFL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 01:01:38 -0400
-Received: from adelaide.maptek.com.au ([202.174.40.42]:11964 "EHLO
-	mail.adelaide.maptek.com.au") by vger.kernel.org with ESMTP
-	id S263620AbUDFFBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 01:01:34 -0400
-Message-ID: <407239DB.1010600@maptek.com.au>
-Date: Tue, 06 Apr 2004 14:32:19 +0930
-From: Malcolm Blaney <malcolm.blaney@maptek.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Tue, 6 Apr 2004 01:11:58 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:22554 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S263621AbUDFFLz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 01:11:55 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200404060511.i365Bpie022092@green.mif.pg.gda.pl>
+Subject: Re: PTS alocation problem with 2.6.4/2.6.5
+To: akpm@osdl.org (Andrew Morton)
+Date: Tue, 6 Apr 2004 07:11:51 +0200 (CEST)
+Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040405165957.5f8ab8dc.akpm@osdl.org> from "Andrew Morton" at Apr 05, 2004 04:59:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: mark_offset_tsc() hangs usb
-References: <406BA62A.2090503@maptek.com.au>
-In-Reply-To: <406BA62A.2090503@maptek.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-6.1, required 5,
-	BAYES_01 -5.40, IN_REP_TO -0.37, QUOTED_EMAIL_TEXT -0.38,
-	REFERENCES -0.00, REPLY_WITH_QUOTES 0.00, TW_UH 0.08,
-	USER_AGENT_MOZILLA_UA 0.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-I wrote:
-
-> I have been trying to fix a problem related to usb, with the help of the 
-> usb-dev list. Plugging in a usb device hangs my computer when bandwidth 
-> reclamation (fsbr) is turned on in the uhci-hcd driver.
+Andrew Morton wrote:
 > 
-> I have found though, that when an interrupt is triggered by plugging in 
-> a usb device, the timer_interrupt() function in arch/i386/kernel/time.c 
-> is reached, and the computer hangs in mark_offset_tsc() in 
-> timers/timer_tsc.c. I removed the call to this function in 
-> timer_interrupt() and then usb worked as normal. I'm hoping there's a 
-> better way to get usb working than this though! This doesn't happen when 
-> fsbr is switched off.
+> Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl> wrote:
+> >
+> > I noticed serious problem with PTS alocation on kernels 2.6.4 and 2.6.5:
+> > It seems that once alocated /dev/pts entries are never reused, leading to
+> > pty alocation errors. The testing system is fully compiled with kernel 2.2.x
+> > headers (including glibc), but informations from my coleagues using systems
+> > compiled on 2.4/2.6 headers seems to behave similarily.
+> > The testcase and used kernel configuration are shown below.
+> > Kernel 2.6.3 does not have this problem.
+> > Is it bug or feature (and I am doing sth wrong) ?
 > 
-> The computer has a Crusoe TM5400 cpu and a VIA VT82C686A controller.
+> You need a glibc upgrade - we broke things for really old glibc's.  We're
+> (slowly) working on fixing it up.
 
-I've been trying to work out what goes wrong in mark_offset_tsc() and 
-found that it's just the outb_p() & inb_p() calls that are causing the 
-problem. I found a thread relating to this, 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0309.2/1039.html, and 
-tried the line:
-#define __SLOW_DOWN_IO__ ""
-which also allowed usb to work normally. Since this is just avoiding the 
-read or write to port 0x80, is this a sign of having dodgy hardware? The 
-thread doesn't talk about writing to the port as being fatal, even if it 
-does cause problems for some people.
+Hmmm, which version is enough ?
 
-Anybody got a better fix?
+I use glibc-2.2.5, but people using glibc-2.3.3 snapshot, dated 20040101
+also have the same problem...
 
-Malcolm.
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Gdansk University of Technology

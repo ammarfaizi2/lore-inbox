@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUEUX6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265067AbUEVAXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUEUX6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUEUXva
+	id S265067AbUEVAXU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 20:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUEVAEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:51:30 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:39613 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264375AbUEUXdB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:33:01 -0400
-Date: Thu, 20 May 2004 11:43:39 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Jinu M." <jinum@esntechnologies.co.in>
-cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       "Surendra I." <surendrai@esntechnologies.co.in>
-Subject: Re: protecting source code in 2.6
-In-Reply-To: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
-Message-ID: <Pine.LNX.4.53.0405201128460.3465@chaos>
-References: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 May 2004 20:04:40 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:64525 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265211AbUEUXqm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 19:46:42 -0400
+Date: Sat, 22 May 2004 09:46:33 +1000
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PCMCIA] Check return status of register calls in i82365
+Message-ID: <20040521234633.GA25889@gondor.apana.org.au>
+References: <20040521115529.GA1408@gondor.apana.org.au> <20040521164111.26e90aa6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521164111.26e90aa6.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 May 2004, Jinu M. wrote:
+On Fri, May 21, 2004 at 04:41:11PM -0700, Andrew Morton wrote:
+> Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> >
+> > i82365 calls driver_register and platform_device_register without
+> > checking their return values.  This patch fixes that.
+> 
+> It does more than that - you've also changed it to run platform_device_register()
+> prior to isa_probe().  How come?
 
-> Hi All,
->
-> We are developing a block device driver on linux-2.6.x kernel. We want
-> to distribute our driver as sum of source code and librabry/object code.
->
-[SNIPPED...]
-
-If it executes INSIDE the kernel, i.e., becomes part of a module,
-it executes with no protection whatsoever. It is, therefore,
-capable of destroying anything in the kernel including anything
-the kernel can touch. Therefore, such a secret blob of code
-can destroy all the user's work. It can even propagate to other
-machines over the network and infect them. In short, it can
-be a worm, Trojan Horse, or other dangerous, even "Microsoft-like"
-infection. If it's not, it will be blamed anyway.
-
-There are no secret methods of interfacing to proprietary
-hardware. One can only use the methods provided by the target
-CPU and its associated hardware components. Anybody who thinks
-that their hardware interface code represents protected intellectual
-property doesn't have a clue what intellectual property is.
-
-If you have some magic unpublished algorithms in your driver,
-they shouldn't be there. They should be in a user-mode library
-that interfaces with the driver. In this manner, you keep your
-secret algorithms to yourselves, protecting your intellectual
-property, while publishing your interface code that executes,
-unprotected, in the kernel.
-
-So, either provide the source-code for your driver or go away.
-There are very few persons who will allow you to insert secret
-code into their kernels where it could destroy everything of
-value to them.
+1. The platform device being registered is a place-holder that does not
+   rely on the probing at all.
+2. If it was done after the probe then should the registration fail, we'll
+   have to roll back all the changes done by isa_probe().
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269130AbRGaAoU>; Mon, 30 Jul 2001 20:44:20 -0400
+	id <S269127AbRGaAuU>; Mon, 30 Jul 2001 20:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269128AbRGaAoL>; Mon, 30 Jul 2001 20:44:11 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:52664 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S269129AbRGaAn4>; Mon, 30 Jul 2001 20:43:56 -0400
-Date: Mon, 30 Jul 2001 20:44:01 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200107310044.f6V0i1s04417@devserv.devel.redhat.com>
-To: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-Subject: Re: LANCE ethernet chip - ~24 drivers
-In-Reply-To: <mailman.996536700.4319.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.996536700.4319.linux-kernel2news@redhat.com>
+	id <S269129AbRGaAuK>; Mon, 30 Jul 2001 20:50:10 -0400
+Received: from h24-66-216-63.cg.shawcable.net ([24.66.216.63]:2688 "EHLO
+	ogah.cg.shawcable.net") by vger.kernel.org with ESMTP
+	id <S269127AbRGaAt7>; Mon, 30 Jul 2001 20:49:59 -0400
+Date: Mon, 30 Jul 2001 18:37:10 -0600
+From: Harold Oga <ogah@shaw.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Random (hard) lockups
+Message-ID: <20010730183710.A680@ogah.cg.shawcable.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C3ED@pcmailsrv1.sac.unify.com> <Pine.LNX.4.30.0107301424580.21409-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0107301424580.21409-100000@anime.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> ./drivers/net/sunlance.c                        NCR92c990
->         `-> Father of declance.c as I think
+On Mon, Jul 30, 2001 at 02:31:49PM -0700, Dan Hollis wrote:
+>On Mon, 30 Jul 2001, Manuel A. McLure wrote:
+>> I am seeing something very similar on my K7T Turbo/Athlon 900/256M PC133
+>> SDRAM (note to Dan, the K7T Turbo is an SDRAM mobo, not DDR)
+>
+>Hmm. I have an MSI pro2-A which works fine with K7 optimizations...
+>tbird900, 256mb sdram...
+>
+>May very well be a hardware design flaw. The pro2-a appears very carefully
+>engineered to keep most traces short and they went through a lot of effort
+>to keep traces the same length.
+>
+>The only stability problems I've had were overloading the 300W PS with a
+>geforce2, all 6 PCI slots filled, 3 HD, 1 CDRW, and one DVDrom. Removing
+>one of the drives (CDRW or DVDrom) lowers the power consumption back into
+>the realm of 100% stability.
+>
+>Next on my shopping list is a 450W PS :-)
+>
+>Has anyone tried swapping buffered/unbuffered DIMMs to see if it made a
+>difference?
+>
+>-Dan
+Hi,
+   I also have a pro2a with no problems.  However, the pro2a has a KT133,
+and all the problems I've seen reported on the list seem to be with the
+KT133A or KT266.  Maybe its only a problem with chipsets that support
+266FSB.  Just tossing out ideas here.
 
-It handles 79c90, but also includes support for ledma,
-lebuffer, and Lance-fixed-with-PAL. Hardly a target for merge.
-
-> ./drivers/net/sunhme.c                          none mentioned
->         `-> *some* cards seem to be compatible?!
-
-Nope, not even close. Make it 23 Lance drivers.
-
-> ./drivers/net/sunqu.c                           "looks like LANCE"
-
-QE is a quad of some Lance derivatives, plus a bus interface
-for DMA which is not compatible with ledma. It is sufficiently
-unusual for Solaris to have separate drivers for le and qe.
-
-> ./drivers/net/sun3lance.c                       none mentioned,
->					 but adopted from sunlance.c
-
-Yes, they are basically the same. Dunno why sun3 people split it.
-
->  However - having
-> more than 20 drivers for one kind of device sucks a lot.
-
-Not really, as long as they are maintained.
-
-> I think, it will be a 2.5.x thing to
-> re-unify them again (at lease, write a central implementation
-> for the chip and let bus specific drivers use it). Just the
-> same words are to be said for the Zilog8530 serial chip.
-
-Large number of them is going to die fromm bitrot naturally,
-so I do not see a major problem. For instance, sunle is going
-to disappear in 5..10 years, as old machines break down.
-
--- Pete
+-Harold
+-- 
+"Life sucks, deal with it!"

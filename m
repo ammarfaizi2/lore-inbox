@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRJ0SqE>; Sat, 27 Oct 2001 14:46:04 -0400
+	id <S274684AbRJ0Sqy>; Sat, 27 Oct 2001 14:46:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274684AbRJ0Spy>; Sat, 27 Oct 2001 14:45:54 -0400
-Received: from mtiwmhc25.worldnet.att.net ([204.127.131.50]:54705 "EHLO
-	mtiwmhc25.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S274681AbRJ0Spv>; Sat, 27 Oct 2001 14:45:51 -0400
-Date: Sat, 27 Oct 2001 14:46:24 -0400
-From: khromy <khromy@lnuxlab.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: [oops] linux-2.4.14-pre2 - __remove_from_queues+14/28
-Message-ID: <20011027144624.A11364@lnuxlab.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S274749AbRJ0Sqp>; Sat, 27 Oct 2001 14:46:45 -0400
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:40296 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S274684AbRJ0Sqf>; Sat, 27 Oct 2001 14:46:35 -0400
+Posted-Date: Sat, 27 Oct 2001 17:52:23 GMT
+Date: Sat, 27 Oct 2001 18:52:23 +0100 (BST)
+From: Riley Williams <root@MemAlpha.CX>
+Reply-To: Riley H Williams <rhw@MemAlpha.CX>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.13 default config
+Message-ID: <Pine.LNX.4.21.0110271847240.12381-200000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463746820-440807272-1004204939=:12381"
+Content-ID: <Pine.LNX.4.21.0110271851040.17902@Consulate.UFP.CX>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you need more info, let me know.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---
+---1463746820-440807272-1004204939=:12381
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.21.0110271851041.17902@Consulate.UFP.CX>
 
-Linux version 2.4.14-pre2 (khromy@vingeren.girl) (gcc version 2.95.4 20011006
-(Debian prerelease)) #1 Fri Oct 26 15:28:10 EDT 2001
+Hi Alan, Linus.
 
---
+The enclosed patch (against the raw 2.4.13 tree) adds a `make defconfig`
+option that configures Linux with the default options obtained by simply
+pressing ENTER to every prompt that comes up.
 
-ksymoops 2.4.3 on i686 2.4.14-pre2.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.14-pre2/ (default)
-     -m /boot/System.map-2.4.14-pre2 (default)
+On my ix86 system and against this kernel, it produces a config that is
+identical to that in arch/i386/defconfig but this is NOT true of some of
+the other kernel releases.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+Please apply.
 
-Unable to handle kernel paging request at virtual address 00100000
-c012e694
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c012e694>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: c3135920   ecx: c3135920   edx: 00100000
-esi: c3135a40   edi: c3135a40   ebp: c10c4bc0   esp: c1311f2c
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 4, stackpage=c1311000)
-Stack: c0130889 c3135920 c3135a40 c10c4bc0 00000001 00000000 c0127fa6 c10c4bc0 
-       000001d0 00000020 000001d0 00000020 00000006 00000020 c1310000 00000310 
-       00000c81 000001d0 c01e3ac8 c01282b6 00000006 00000009 00000006 000001d0 
-Call Trace: [<c0130889>] [<c0127fa6>] [<c01282b6>] [<c012830c>] [<c01283a3>] 
-   [<c01283fe>] [<c012851d>] [<c0105478>] 
-Code: 89 02 c7 41 30 00 00 00 00 51 e8 89 ff ff ff 83 c4 04 c3 90 
+Best wishes from Riley.
 
->>EIP; c012e694 <__remove_from_queues+14/28>   <=====
-Trace; c0130888 <try_to_free_buffers+5c/10c>
-Trace; c0127fa6 <shrink_cache+1aa/390>
-Trace; c01282b6 <shrink_caches+56/88>
-Trace; c012830c <try_to_free_pages+24/44>
-Trace; c01283a2 <kswapd_balance_pgdat+42/8c>
-Trace; c01283fe <kswapd_balance+12/38>
-Trace; c012851c <kswapd+98/bc>
-Trace; c0105478 <kernel_thread+28/38>
-Code;  c012e694 <__remove_from_queues+14/28>
-00000000 <_EIP>:
-Code;  c012e694 <__remove_from_queues+14/28>   <=====
-   0:   89 02                     mov    %eax,(%edx)   <=====
-Code;  c012e696 <__remove_from_queues+16/28>
-   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
-Code;  c012e69c <__remove_from_queues+1c/28>
-   9:   51                        push   %ecx
-Code;  c012e69e <__remove_from_queues+1e/28>
-   a:   e8 89 ff ff ff            call   ffffff98 <_EIP+0xffffff98> c012e62c <__remove_from_lru_list+0/54>
-Code;  c012e6a2 <__remove_from_queues+22/28>
-   f:   83 c4 04                  add    $0x4,%esp
-Code;  c012e6a6 <__remove_from_queues+26/28>
-  12:   c3                        ret    
-Code;  c012e6a6 <__remove_from_queues+26/28>
-  13:   90                        nop    
+---1463746820-440807272-1004204939=:12381
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="defconfig.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0110271848590.12381@Consulate.UFP.CX>
+Content-Description: make defconfig
+Content-Disposition: ATTACHMENT; FILENAME="defconfig.diff"
 
-
-1 warning issued.  Results may not be reliable.
+LS0tIGxpbnV4LTIuNC4xMy9NYWtlZmlsZX4JV2VkIE9jdCAyNCAwNjoyMToy
+MCAyMDAxDQorKysgbGludXgtMi40LjEzL01ha2VmaWxlCVNhdCBPY3QgMjcg
+MTg6NDY6NDcgMjAwMQ0KQEAgLTI3NCw2ICsyNzQsMTAgQEANCiAJCW1rZGly
+IGluY2x1ZGUvbGludXgvbW9kdWxlczsgXA0KIAlmaQ0KIA0KK2RlZmNvbmZp
+ZzoNCisJcm0gLWYgLmNvbmZpZw0KKwl5ZXMgJycgfCBtYWtlIGNvbmZpZw0K
+Kw0KIG9sZGNvbmZpZzogc3ltbGlua3MNCiAJJChDT05GSUdfU0hFTEwpIHNj
+cmlwdHMvQ29uZmlndXJlIC1kIGFyY2gvJChBUkNIKS9jb25maWcuaW4NCiAN
+Cg==
+---1463746820-440807272-1004204939=:12381--

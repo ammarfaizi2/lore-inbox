@@ -1,36 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263066AbUK0AXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbUKZX5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263066AbUK0AXc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUK0AUd
+	id S262598AbUKZX5q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbUKZX5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 19:20:33 -0500
-Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:31392
-	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
-	id S262732AbUKZX6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 18:58:50 -0500
-Date: Fri, 26 Nov 2004 15:53:01 -0800
-From: Zack Brown <zbrown@tumblerings.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: lost lkml mbox
-Message-ID: <20041126235301.GC20600@tumblerings.org>
+	Fri, 26 Nov 2004 18:57:13 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:35233 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263081AbUKZTmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:42:09 -0500
+Subject: Re: Suspend 2 merge: 9/51: init/* changes.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125214524.GE2488@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101293918.5805.221.camel@desktop.cunninghams>
+	 <20041125170718.GA1417@openzaurus.ucw.cz>
+	 <1101418614.27250.21.camel@desktop.cunninghams>
+	 <20041125214524.GE2488@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101419500.27250.41.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 08:51:41 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Hi.
 
-If someone has all the lkml traffic from Message_ID:
-<20041124001328.GE2927@stusta.de>
-to
-<20041125062649.GB29278@vagabond> please let me know. My mail system broke for a
-couple days, and my backup MX decided to bounce mail instead of save it for me.
+On Fri, 2004-11-26 at 08:45, Pavel Machek wrote:
+> Hi!
+> 
+> > > And if you really want to make it changeable, pass major:minor from userland; once
+> > > userland is running getting them is easy.
+> > 
+> > Yes, but that's also far uglier, and who thinks in terms of major and
+> > minor numbers anyway? I think of my harddrive as /dev/sda, not 08:xx.
+> > The parsing accepts majors and minors, of course, but shouldn't we make
+> > these things easier to do, not harder? (Would we insist on using majors
+> > and minors for root=?).
+> 
+> Kernel interface is not supposed to be "easy". root= has exception,
+> that's init code, and you can't easily ls -al /dev at that point. If
+> you want easy interface, create userland program that looks up
+> minor/major in /dev/ and uses them.
 
-Many thanks,
-Zack
+That's a fair possibility, but is it really worth it when all we need to
+do is make two routines not be init? We would still have to duplicate
+some of this code elsewhere anyway, because we need to parse the major
+and minor numbers.
 
+Nigel
 -- 
-Zack Brown
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

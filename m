@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUGFNnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUGFNxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUGFNnS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 09:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUGFNnS
+	id S263895AbUGFNxG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 09:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUGFNxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 09:43:18 -0400
-Received: from web81304.mail.yahoo.com ([206.190.37.79]:55668 "HELO
-	web81304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263881AbUGFNm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 09:42:57 -0400
-Message-ID: <20040706134256.28900.qmail@web81304.mail.yahoo.com>
-Date: Tue, 6 Jul 2004 06:42:56 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.7-mm6
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Tue, 6 Jul 2004 09:53:06 -0400
+Received: from users.linvision.com ([62.58.92.114]:53682 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263895AbUGFNxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 09:53:04 -0400
+Date: Tue, 6 Jul 2004 15:53:03 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Redeeman <lkml@metanurb.dk>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: quite big breakthrough in the BAD network performance, which mm6 did not fix
+Message-ID: <20040706135303.GG20237@harddisk-recovery.com>
+References: <1089070720.14870.6.camel@localhost> <200407051754.38690.lkml@lpbproductions.com> <1089120330.10626.8.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089120330.10626.8.camel@localhost>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Mon, Jul 05, 2004 at 02:31:20AM -0700, Andrew Morton wrote:
-> >
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-
-> mm6/
-> > - Added the DVD-RW/CD-RW packet writing patches.  These need more work.
-> > - The USB update seems deadlocky.  I fixed one bug but it still causes
-> my
-> >   ia64 test box to lock up on boot.  If it goes bad, please revert
-> >   usb-locking-fix.patch and then revert bk-usb.patch.  Retest and send a
-> report
-> >   to linux-kernel and linux-usb-devel@lists.sourceforge.net.
-> 
-> Uneventful on alpha, needed a make rpm compilefix Andi's got queued for
-> the next merge on x86-64 and otherwise uneventful there.
-> 
-> OTOH, various things made sparc64 a living Hell that took about 9
-> hours of solid compile/boot/crash drudgery to carry out bisection
-> search on to find the offending patches.
-> 
-> First, I had to back out bk-input because it has a sysfsification patch
-> that deadlocks sunzilog.c at boot.
+On Tue, Jul 06, 2004 at 03:25:30PM +0200, Redeeman wrote:
+> i am aware of this, however, what i use to benchmark is kernel.org, as i
+> can see they have alot bandwith free.
+> if i use kernel.org http i get 50kb/s, if i use ftp, i can easily fetch
+> with 200kb/s
 
-Do you know where exactly it was deadlocked? As fas as sunzilog goes
-the only change was that instead of embedding serio structure inside
-uart_sunzilog_port it is now accessed through a pointer. The rest of
-the changes are in serio core and should not depend on type of serio
-port involved, locking rules have not been changed either...
+That could be easily explained by the fact that the www.kernel.org ftp
+and http services are handled by different programs (vsftpd vs.
+Apache).
 
-Any additional info will be appreciated...
 
---
-Dmitry
- 
+Erik
 
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,101 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264257AbTCUXh3>; Fri, 21 Mar 2003 18:37:29 -0500
+	id <S264326AbTCUXsr>; Fri, 21 Mar 2003 18:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264267AbTCUXh3>; Fri, 21 Mar 2003 18:37:29 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:19253
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264257AbTCUXh1>; Fri, 21 Mar 2003 18:37:27 -0500
-Date: Fri, 21 Mar 2003 18:44:55 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic7(censored) dying horribly in 2.5.65-mm2
-In-Reply-To: <411800000.1048276482@aslan.btc.adaptec.com>
-Message-ID: <Pine.LNX.4.50.0303211842370.28519-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
- <411800000.1048276482@aslan.btc.adaptec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264322AbTCUXsq>; Fri, 21 Mar 2003 18:48:46 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:61081 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S264320AbTCUXso>;
+	Fri, 21 Mar 2003 18:48:44 -0500
+Subject: Re: An oops while running 2.5.65-mm2
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Andrew Morton <akpm@digeo.com>
+Cc: jjs <jjs@tmsusa.com>, linux-kernel@vger.kernel.org,
+       Netfilter-devel <netfilter-devel@lists.netfilter.org>
+In-Reply-To: <1048209554.1103.21.camel@tux.rsn.bth.se>
+References: <3E7A1ABF.7050402@tmsusa.com>
+	 <20030320122931.0d2f208f.akpm@digeo.com>
+	 <1048209554.1103.21.camel@tux.rsn.bth.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048291181.1105.38.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 22 Mar 2003 00:59:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Mar 2003, Justin T. Gibbs wrote:
+On Fri, 2003-03-21 at 02:19, Martin Josefsson wrote:
 
-> > Hi Justin i got this booting 2.5.65-mm2, 2.5.65 was fine there is an oops 
-> > right at the end. Is there anything specific you want?
+> You are correct. It was a list_del() that caused it (at least I think
+> so, it's 2am right now).
 > 
-> It would be nice to know the devices that are attached to the controller.
-> Could you also use the latest driver from here:
+> 1. conntrack helper adds an expectation and adds that to a list hanging
+> of off a connection.
+> 
+> 2. the expected connection arrives. the expectation is still on the
+> list.
+> 
+> 3. the original connection that caused the expectation terminates but
+> the expectation still thinks it's added to the list.
+> 
+> 4. the expected connection terminates and list_del() is called to remove
+> it from the list which doesn't exist anymore. boom!
 
-This is from a 2.4.18-RH kernel
+Ok, the previous patch was a little bit incorrect. It did fix the use
+after free bug (which can cause corruption if the slabmemory is
+reallocated before we write to it) but lost some internal information.
+I can't see that we use this anywhere after this point but here's the
+proper patch.
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.5
-        <Adaptec aic7870 SCSI adapter>
-        aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
-
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.5
-        <Adaptec aic7870 SCSI adapter>
-        aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
-
-  Vendor: DEC       Model: DLT2000           Rev: 830A
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-  Vendor: TOSHIBA   Model: CD-ROM XM-5401TA  Rev: 3605
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi1:A:0:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:1:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:2:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:3:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:4:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:5:0: Tagged Queuing enabled.  Depth 253
-Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
-Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
-Attached scsi disk sdc at scsi1, channel 0, id 2, lun 0
-Attached scsi disk sdd at scsi1, channel 0, id 3, lun 0
-Attached scsi disk sde at scsi1, channel 0, id 4, lun 0
-Attached scsi disk sdf at scsi1, channel 0, id 5, lun 0
-(scsi1:A:0): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sda: 8388315 512-byte hdwr sectors (4295 MB)
-Partition check:
- sda: sda1
-(scsi1:A:1): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sdb: 8388315 512-byte hdwr sectors (4295 MB)
- sdb: sdb1 sdb2
-(scsi1:A:2): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sdc: 8388315 512-byte hdwr sectors (4295 MB)
- sdc: sdc1
-(scsi1:A:3): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sdd: 8388315 512-byte hdwr sectors (4295 MB)
- sdd: sdd1
-(scsi1:A:4): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sde: 8388315 512-byte hdwr sectors (4295 MB)
- sde: sde1
-(scsi1:A:5): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
-SCSI device sdf: 8388315 512-byte hdwr sectors (4295 MB)
- sdf: sdf1
+Sorry about that.
 
 
-> http://people.FreeBSD.org/~gibbs/linux/SRC/
-
-I'll try that driver this evening.
-
-> the driver and send me the output you get.
-
-Thanks,
-	Zwane
-
+--- linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c.orig	2003-03-21 01:42:57.000000000 +0100
++++ linux-2.5.64-bk10/net/ipv4/netfilter/ip_conntrack_core.c	2003-03-22 00:43:28.000000000 +0100
+@@ -274,6 +274,7 @@
+ 		 * the un-established ones only */
+ 		if (exp->sibling) {
+ 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sibling, ct);
++			exp->expectant = NULL;
+ 			continue;
+ 		}
+ 
+@@ -327,9 +328,11 @@
+ 	WRITE_LOCK(&ip_conntrack_lock);
+ 	/* Delete our master expectation */
+ 	if (ct->master) {
+-		/* can't call __unexpect_related here,
+-		 * since it would screw up expect_list */
+-		list_del(&ct->master->expected_list);
++		if (ct->master->expectant) {
++			/* can't call __unexpect_related here,
++			 * since it would screw up expect_list */
++			list_del(&ct->master->expected_list);
++		}
+ 		kfree(ct->master);
+ 	}
+ 	WRITE_UNLOCK(&ip_conntrack_lock);
 -- 
-function.linuxpower.ca
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

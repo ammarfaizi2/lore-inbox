@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281475AbRKPSp2>; Fri, 16 Nov 2001 13:45:28 -0500
+	id <S281483AbRKPSsH>; Fri, 16 Nov 2001 13:48:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281480AbRKPSpR>; Fri, 16 Nov 2001 13:45:17 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:46585 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281479AbRKPSo6>; Fri, 16 Nov 2001 13:44:58 -0500
-Date: Fri, 16 Nov 2001 18:44:52 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ben Collins <bcollins@debian.org>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Cc: Stephen Tweedie <sct@redhat.com>
-Subject: Re: Bug in ext3
-Message-ID: <20011116184452.E6626@redhat.com>
-In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>, <3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net> <3BF42A1A.5AE96A78@zip.com.au> <20011115160232.H329@visi.net> <20011115145803.R5739@lynx.no> <20011115170628.J329@visi.net> <20011115162149.U5739@lynx.no> <20011116183837.D6626@redhat.com>
+	id <S281478AbRKPSr5>; Fri, 16 Nov 2001 13:47:57 -0500
+Received: from [208.232.58.25] ([208.232.58.25]:27317 "EHLO kronos.usol.com")
+	by vger.kernel.org with ESMTP id <S281483AbRKPSrs>;
+	Fri, 16 Nov 2001 13:47:48 -0500
+Subject: Via686b audio
+From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 16 Nov 2001 13:47:07 -0500
+Message-Id: <1005936427.3321.2.camel@smiddle>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011116183837.D6626@redhat.com>; from sct@redhat.com on Fri, Nov 16, 2001 at 06:38:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Fri, Nov 16, 2001 at 06:38:37PM +0000, Stephen C. Tweedie wrote:
-> Looks OK.  I've done a slightly better version which catches a couple
-> of extra cases but it's basically the same solution.  I've also added
-> a tiny patch to prevent a failed journal_wipe() from being followed by
-> a journal_load() attempt, so we don't get the same error twice.
+I brought up recently an issue with the onboard audio of a laptop with a
+Via686b motherboard.  One person said it may be the IRQ routing tables
+not being handled by Linux quite right for the motherboard.  I had
+thought I sent in the dmesg output of the kernel (with PCI debugging)
+but I've had no response and can't find the message in my sent box, so I
+thought perhaps I didn't send it.  That is attached here (2.4.13 kernel,
+I haven't tried this with the newer 2.4.15-pre5 that I now run).
 
-This definitely fixes that error path: I just get one, clean error
-now, and no corruption of the file that was masquerading as the
-journal.  It doesn't properly release the journal inode, though, so we
-oops on a later ext2 mount as we think we already have the (ext3)
-inode in cache.  Fix to follow.
+I also noticed that the audio driver (via82cxxx_audio) gives a message
+that it is for 82C686a (not 686b, which is what my motherboard is), and
+then errors about timeouts on the AC97 codec - is it possible the 686b
+is a little different than 686a in how the AC97 stuff is handled?  I'm
+more than willing to apply patches or make small kernel tweaks, if
+anyone can tell me what I need to do to debug this and get it working.
 
-Ben, thanks for this --- this level of corrupt journal is something
-that hasn't been tested in this way before.
+I've spoken with another person attempting to get Linux running on the
+same laptop series (Compaq Presario 700), and it seems we have similar
+issues.  If that makes any difference to anyone.  ^,^
 
---Stephen
+Thanks guys!
+Sean Etc.
+
+
+

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261540AbSJMQTs>; Sun, 13 Oct 2002 12:19:48 -0400
+	id <S261528AbSJMQZ5>; Sun, 13 Oct 2002 12:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261542AbSJMQTs>; Sun, 13 Oct 2002 12:19:48 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:23534 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261540AbSJMQTr>; Sun, 13 Oct 2002 12:19:47 -0400
-Subject: Re: Linux v2.5.42
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Brian Jackson <brian-kernel-list@mdrx.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-In-Reply-To: <20021013161151.29293.qmail@escalade.vistahp.com>
-References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
-	<3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org>
-	<3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org> 
-	<20021013161151.29293.qmail@escalade.vistahp.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-bqx0koyHj/jLrKdlJtBp"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Oct 2002 18:26:02 +0200
-Message-Id: <1034526363.2989.6.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261529AbSJMQZ4>; Sun, 13 Oct 2002 12:25:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40822 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261528AbSJMQZ4>; Sun, 13 Oct 2002 12:25:56 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Kellett <lypanov@kde.org>, jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+References: <3DA1CF36.19659.13D4209@localhost>
+	<3DA2BD70.14919.2C6951@localhost> <20021008112719.GC6537@pegasys.ws>
+	<20021009073725.GA22778@groucho.verza.com>
+	<1034164188.1253.5.camel@irongate.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Oct 2002 10:30:16 -0600
+In-Reply-To: <1034164188.1253.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m1vg46mhd3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
---=-bqx0koyHj/jLrKdlJtBp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Wed, 2002-10-09 at 08:37, Alexander Kellett wrote: 
+> > This talk of adeos reminds me of something that i'd
+> > "dreamed" of a while back. Whats the feasability of
+> > having a 70kb kernel that barely even provides support 
+> > for user space apps and is basically just an hardware 
+> > abstraction layer for "applications" that can be 
+> > written as kernel modules?
+> 
+> Its called FreeDOS,
 
-On Sun, 2002-10-13 at 18:11, Brian Jackson wrote:
+A 70KB kernel without device drivers, or anything much compiled
+in is a reasonable target.   The whole "applications as modules"
+thing is an entirely different animal.
 
-> p.s. Maybe you could keep your replies to constructive criticism, instead=
- of=20
-> just dogging EVMS. Some people actually do want linux to improve.=20
+The initial complaint about the size growth of the 
+Anything is better that 200+KB compressed as a minimal size.
 
-In case you missed is: EVMS is not the only way you can do volume
-management in 2.5... and Christoph is pointing out valid design flaws
-(and serious code bugs) in EVMS. Code bugs you can fix after merge;
-design flaws should at least be discussed before merging in my opinion.
-
-
---=-bqx0koyHj/jLrKdlJtBp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9qZ6axULwo51rQBIRAtqsAKCo1h2wfj14WRLyfagb1zraVjOkKwCeMHE/
-gVve+8IpwsHid00TxsFbWpo=
-=Pz+5
------END PGP SIGNATURE-----
-
---=-bqx0koyHj/jLrKdlJtBp--
-
+Eric

@@ -1,60 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263033AbRFNOxf>; Thu, 14 Jun 2001 10:53:35 -0400
+	id <S263034AbRFNPNd>; Thu, 14 Jun 2001 11:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263034AbRFNOxZ>; Thu, 14 Jun 2001 10:53:25 -0400
-Received: from draco.macsch.com ([192.73.8.1]:3247 "EHLO draco.macsch.com")
-	by vger.kernel.org with ESMTP id <S263033AbRFNOxR>;
-	Thu, 14 Jun 2001 10:53:17 -0400
-Message-ID: <3B28CFBF.4B7639D2@mscsoftware.com>
-Date: Thu, 14 Jun 2001 07:52:47 -0700
-From: "David N. Lombard" <david.lombard@mscsoftware.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-8.msc-up i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Juri Haberland <juri@koschikode.com>
-CC: georgn@somanetworks.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5-ac13, APM, and Dell Inspiron 8000
-In-Reply-To: <20010614090738.30539.qmail@babel.spoiled.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263043AbRFNPNX>; Thu, 14 Jun 2001 11:13:23 -0400
+Received: from geos.coastside.net ([207.213.212.4]:5585 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S263034AbRFNPNR>; Thu, 14 Jun 2001 11:13:17 -0400
+Mime-Version: 1.0
+Message-Id: <p05100306b74e83f6860f@[207.213.214.37]>
+In-Reply-To: <3B28C6C1.3477493F@mandrakesoft.com>
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
+ <3B28C6C1.3477493F@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 08:13:03 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Going beyond 256 PCI buses
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juri Haberland wrote:
-> 
-> You wrote:
-> >
-> > I've been running 2.4.5 on my new Dell I8000 without too many
-> > problems.  Last night I built -ac13 (on my porch) and booted it
-> > without incident.  Later, going inside and re-connecting the AC I
-> > notice that the thing's hung.  I play around a bit and discover that
-> > the act of plugging or unplugging the power cord will hang the box.
-> >
-> > This lead me to disable all power manglement in the BIOS.  No joy.
-> >
-> > This problem does not exist using straight 2.4.5.
-> >
-> > Has anybody else seen this?  Any debugging suggestions?  Or stated
-> > differently, has anybody with this machine arrived at a configuration
-> > that avoids weirdness in the power management framework?
-> 
-> Ok, I just tried that and my i8000 locked up as well. No problems with
-> 2.4.5 as well. I have also another problem:
-> Running with -ac13 it doesn't poweroff properly - but it did running
-> 2.4.5. Sometimes it just stops where it should poweroff and locks hard,
-> sometimes it blanks the display before locking up hard.
+At 10:14 AM -0400 2001-06-14, Jeff Garzik wrote:
+>According to the PCI spec it is -impossible- to have more than 256 buses
+>on a single "hose", so you simply have to implement multiple hoses, just
+>like Alpha (and Sparc64?) already do.  That's how the hardware is forced
+>to implement it...
 
-The Dell i5000e crashes when switching between mains and battery when
-the disk is active, so you might try to plug/unplug with the system
-quiet.
-
-If this works, you'll be in a *little* better spot.
-
-As for hanging, you might try suspending it (i.e., close the display)
-and opening it back up.  This works for the i5000e; it also clears the
-display that sometimes goes *nuts* when switching video modes.  This
-last behavior has only surfaced with the latest A06 BIOS.
-
+That's right, of course. A small problem is that dev->slot_name 
+becomes ambiguous, since it doesn't have any hose identification. Nor 
+does it have any room for the hose id; it's fixed at 8 chars, and 
+fully used (bb:dd.f\0).
 -- 
-David N. Lombard
+/Jonathan Lundell.

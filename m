@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265014AbUD2WmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265015AbUD2Wra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265014AbUD2WmK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbUD2WmK
+	id S265015AbUD2Wra (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbUD2Wra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:42:10 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:27660 "HELO
+	Thu, 29 Apr 2004 18:47:30 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28684 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265014AbUD2WlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:41:22 -0400
+	id S265015AbUD2Wr3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:47:29 -0400
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Marc Boucher <marc@linuxant.com>, Helge Hafting <helgehaf@aitel.hist.no>
+To: Kenneth =?iso-8859-1?q?Aafl=F8y?= <keaafloy@online.no>,
+       Ian Stirling <ian.stirling@mauve.plus.com>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 01:41:09 +0300
+Date: Fri, 30 Apr 2004 01:47:13 +0300
 User-Agent: KMail/1.5.4
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040427165819.GA23961@valve.mbsi.ca> <408F99D5.1010900@aitel.hist.no> <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com>
-In-Reply-To: <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com>
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40906A35.3090004@mauve.plus.com> <200404290447.30154.keaafloy@online.no>
+In-Reply-To: <200404290447.30154.keaafloy@online.no>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200404300141.09497.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200404300147.13816.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 April 2004 19:15, Marc Boucher wrote:
-
-> > I believe you have to remove the \0 to operate legally (or release the
-> > full source under the GPL for real.)
-> > Your customer's problem is fixable though.  Either by also changing
-> > the logging level
-> > so the message doesn't go out on the console, or by patching the line
-> > with that printk() out of your customer's kernel.
-> > You can do this as a part of your install program.  If it gets too
-> > hard, consider
-> > supplying the customer with your own precompiled kernel.
+On Thursday 29 April 2004 05:47, Kenneth Aafløy wrote:
+> On Thursday 29 April 2004 04:36, you wrote:
+> > Marc Boucher wrote:
+> > > Hi Rik,
+> > >
+> > > Your new proposed message sounds much clearer to the ordinary mortal
+> > > and would imho be a significant improvement. Perhaps printing
+> > > repetitive warnings for identical $MODULE_VENDOR strings could also be
+> > > avoided, taking care of the redundancy/volume problem as well..
+> >
+> > Is this worth 100 or 200 bytes of code though?
+> > I'd have to say no.
 >
-> Thank you for the advice. However, if you knew our customers and
-> understood their needs better you would realize that these are not
-> feasible options.
+> 1000-2000(?) instructions to display the message and some x(?) instructions
 
-I think you have to live with multiple warning messages,
-at least until Rusty's patch propagate to mainline.
-It's not fatal.
+No. ~20 bytes or less on x86 (push,call printk() isns).
+Plus text of the message (~150 bytes?).
+If you're talking about *time* to execute 2000 insns, that
+too does not make much sense.
 --
 vda
 

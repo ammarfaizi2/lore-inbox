@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313743AbSGILFe>; Tue, 9 Jul 2002 07:05:34 -0400
+	id <S313711AbSGILJN>; Tue, 9 Jul 2002 07:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSGILFd>; Tue, 9 Jul 2002 07:05:33 -0400
-Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:4574 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S313743AbSGILFc>; Tue, 9 Jul 2002 07:05:32 -0400
-Date: Tue, 9 Jul 2002 05:08:06 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Oliver Neukum <oliver@neukum.name>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Keith Owens <kaos@ocs.com.au>, Patrick Mochel <mochel@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Driverfs updates
-In-Reply-To: <200207091030.17096.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.44.0207090502510.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314080AbSGILJM>; Tue, 9 Jul 2002 07:09:12 -0400
+Received: from codepoet.org ([166.70.99.138]:8642 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S313711AbSGILJK>;
+	Tue, 9 Jul 2002 07:09:10 -0400
+Date: Tue, 9 Jul 2002 05:11:53 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] 2.4 IDE core for 2.5
+Message-ID: <20020709111153.GA18133@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jens Axboe <axboe@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux-ide@vger.kernel.org
+References: <20020709102249.GA20870@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020709102249.GA20870@suse.de>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue Jul 09, 2002 at 12:22:49PM +0200, Jens Axboe wrote:
+> Hi,
+> 
+> I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
+> to 2.5.25. It consists of 7 separate patches:
 
-On Tue, 9 Jul 2002, Oliver Neukum wrote:
-> -It is slow.
+Wonderful!  Thus far, 2.5.x has been far too scary to try.
+This patch is a sufficient safety blanket that I'm now willing
+to give it a try, and I'm sure thats also the case for many
+others.  2.5.x just became far more accessible.  Thanks!
 
-I wouldn't call it any fast when I think about the idea that 31 of my CPUs 
-on Hawkeye shall be stopped because I unload a module. Sometimes at high 
-noon my server (Hawkeye) can hardly keep up all the traffic. Just imagine 
-a module would be unloaded then! That's the problem I'm having with it.
+ -Erik
 
-What should make a lock for parts of the kernel slower than a lock for 
-the _whole_ kernel?
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

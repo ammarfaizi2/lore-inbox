@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUGDWw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUGDX1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUGDWw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 18:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUGDWw3
+	id S265837AbUGDX1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 19:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUGDX1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 18:52:29 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:56007 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S265833AbUGDWw2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 18:52:28 -0400
-Subject: Re: [PATCH] kernel/power/swsusp.c
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Erik Rigtorp <erik@rigtorp.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040704114920.GA7820@linux.nu>
-References: <20040703172843.GA7274@linux.nu>
-	 <20040703204647.GE31892@elf.ucw.cz>  <20040704114920.GA7820@linux.nu>
-Content-Type: text/plain
-Message-Id: <1088981417.2647.1.camel@nigel-laptop.wpcb.org.au>
+	Sun, 4 Jul 2004 19:27:24 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:51986 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S265837AbUGDX1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 19:27:23 -0400
+Date: Mon, 5 Jul 2004 01:27:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, David Balazic <david.balazic@hermes.si>
+Subject: Re: Weird:  30 sec delay during early boot
+Message-ID: <20040704232716.GA18403@pclin040.win.tue.nl>
+References: <40E83F53.3050006@pobox.com> <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 05 Jul 2004 08:50:18 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407041536040.19105-100000@humbolt.us.dell.com>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, Jul 04, 2004 at 03:52:51PM -0500, Matt Domsch wrote:
 
-On Sun, 2004-07-04 at 21:49, Erik Rigtorp wrote:
-> That is infact my intention. I've looked some at the swsusp2 code but it
-> looks ugly. My plan is to create a general kernel level interface to
-> bootsplash, then add hooks in swsusp. This code should probably live in the
-> bootsplash patch.
+> Only that it's now probing more than just the first disk, but the
+> first 16 possible BIOS disks.  If the BIOS behaves badly to an int13
+> READ_SECTORS command, that'd be good to know...
 
-Yes. I'd love a better in kernel interface. Could you make it so that
-for an arbitrary vt, we easily detect if bootsplash is on, switch
-between silent and verbose and set the progress bar value?
+I recall text fragments like
 
-Regards,
+ "Any device claiming compliance to ATA-3 or later as indicated in
+  IDENTIFY DEVICE or IDENTIFY PACKET DEVICE data should properly
+  release PDIAG- after a power-on or hardware reset upon receiving
+  the first command or after 31 seconds have elapsed since the reset,
+  whichever comes first."
 
-Nigel
+that seem to imply that probing a nonexistent device may take 31 sec
+before one is allowed to conclude that there is nothing there.
+
+Andries
+
+
+(ide_wait_hwif_ready() used to wait 35 seconds)
 

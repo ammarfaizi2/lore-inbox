@@ -1,73 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbUCOXbk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 18:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbUCOXbk
+	id S262701AbUCOXek (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 18:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUCOXe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 18:31:40 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30990
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263413AbUCOXbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 18:31:21 -0500
-Date: Tue, 16 Mar 2004 00:32:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, j-nomura@ce.jp.nec.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-Message-ID: <20040315233205.GO30940@dualathlon.random>
-References: <20040315222419.GM30940@dualathlon.random> <Pine.LNX.4.44.0403151737380.12895-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403151737380.12895-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 15 Mar 2004 18:34:28 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:53172 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263413AbUCOXc3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 18:32:29 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
+Date: Mon, 15 Mar 2004 15:31:23 -0800
+Message-ID: <01EF044AAEE12F4BAAD955CB750649430121EFE3@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
+Thread-Index: AcQKWJLMRVCaw8YtQQKQzE/XlexQgwAig3LQ
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "Ray Bryant" <raybry@sgi.com>, "Andrew Morton" <akpm@osdl.org>
+Cc: <ak@suse.de>, <lse-tech@lists.sourceforge.net>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Mar 2004 23:31:24.0248 (UTC) FILETIME=[A1424580:01C40AE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15, 2004 at 05:41:54PM -0500, Rik van Riel wrote:
-> On Mon, 15 Mar 2004, Andrea Arcangeli wrote:
-> 
-> > As I told Andrew, you've also to make sure not to start always from the
-> > highmemzone, and from the code this seems not the case, so my 2G
-> > scenario still applies.
-> 
-> Agreed, the scenario applies.  However, I don't see how a
-> global LRU would fix it in eg. the case of an AMD64 NUMA
-> system...
 
-I think I mentioned the per-node lru would be enough for numa, I'm only
-talking here about per-zone lru, per-node numa needs are another matter.
-For 64bit per-node or per-zone is basically the same in practice.
 
-however after 2.6.4 will be fixed even the per-zone should not generate
-loss of caching info, so with that part fixed I'm not against per-zone
-even if it's more difficult to be fair.
+>-----Original Message-----
+>From: Ray Bryant
+>Andrew Morton wrote:
+><unrelated text snipped>
+>>
+>> As for holding mmap_sem for too long, well, that can presumably be
+worked
+>> around by not mmapping the whole lot in one hit?
+>>
+>
+>There are a number of places that one could do this (explicitly in user
+code,
+>hidden in library level, or in do_mmap2() where the mm->map_sem is
+taken).
+>I'm not happy with requiring the user to make a modification to solve
+this
+>kernel problem.  Hiding the split has the problem of making sure that
+if any
+>of the sub mmap() operations fail then the rest of the mmap()
+operations have
+>to be undone, and this all has to happen in a way that makes the mmap()
+look
+>like a single system call.
+>
+>An alternative would be put some info in the mm_struct indicating that
+a
+>hugetlb_prefault() is in progress, then drop the mm->mmap_sem while
+>hugetlb_prefault() is running.  Once it is done, regrab the
+mm->mmap_sem,
+>clear the "in progress flag" and finish up processing.  Any other
+mmap()
+>that got the mmap_sem and found the "in progress flag" set would have
+to
+>fail, perhaps with -EAGAIN (again, an mmap() extension).  One can also
+>implement more elaborate schemes where there is a list of pending
+hugetlb
+>mmaps() with the associated address space ranges being listed; one
+could
+>check this list in get_unmapped_area() and return -EAGAIN if there is
+>a conflict.
+>
 
-> And once we fix it right for those NUMA systems, we can
-> use the same code to take care of balancing between zones
-> on normal PCs, giving us the scalability benefits of the
-> per-zone lists and locks.
+I think both of above options are bit of stretch.
 
-I argue those scalability benefits of the locks, on a 32G machine or on
-a 1G machine those locks benefits are near zero. The only significant
-benefit is in terms of computational complexity of the normal-zone
-allocations, where we'll only walk on the zone-normal and zone-dma
-pages.
+>I'd still rather see us do the "allocate on fault" approach with
+prereservation
+>to maintain the current ENOMEM return code from mmap() for hugepages.
+Let me
+>work on that and get back to y'all with a patch and see where we can go
+from
+>there.  
 
-> How about AMD64 NUMA systems ?
-> What evens out the LRU pressure there in 2.4 ?
+I think this allocation on fault behavior will become essential when
+Andi's mbind becomes part of the base kernel. And this scheme has an
+added advantage of following normal semantics of page allocation (if a
+user wants preallocation then MAP_LOCKED can be used).  As Andrew said
+earlier in the thread that this though runs the risk of different
+behavior with applications that currently assume pre-faulting behavior
+in terms of performance (even if you decrement count upfront but do lazy
+allocation).  As they will get penalized at fault time.  But this is the
+kind of optimization that apps can do when porting to 2.6 based
+distributions....
 
-by the time you say 64bit you can forget the per-zone per-node
-differences.  sure there will be still a difference but it's cosmetical
-so I don't care about those per-zone lru issues for 64bit hardware,
-infact on 64bit hardware per-zone (even if totally unfair) is the most
-optimal just in case somebody asks for ZONE_DMA more than once per day.
-But the difference is so small in practice that even global would be ok.
+> I'll start by taking a look at all of the arch dependent
+hugetlbpage.c's and
+>see how common they all are and move the common code up to
+mm/hugetlbpage.c.
+>(or did WLI's note imply that this is impossible?)
+>
 
-the per-node on numa (not necessairly on amd64, infact in amd64 the
-penality is so small that I doubt things like that will payoff big)
-still remains but that's not the thing I was discussing here.
+You should be able to move prefault code to common tree.
+
+>However, is this set of changes something that would still be accepted
+in 2.6,
+>or is this now a 2.7 discussion?
+>
+>--
+>Best Regards,
+>Ray
+>-----------------------------------------------
+>                   Ray Bryant
+>512-453-9679 (work)         512-507-7807 (cell)
+>raybry@sgi.com             raybry@austin.rr.com
+>The box said: "Requires Windows 98 or better",
+>            so I installed Linux.
+>-----------------------------------------------
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-ia64"
+in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html

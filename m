@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317265AbSFRBAm>; Mon, 17 Jun 2002 21:00:42 -0400
+	id <S317211AbSFRBL3>; Mon, 17 Jun 2002 21:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSFRBAN>; Mon, 17 Jun 2002 21:00:13 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:52681 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317265AbSFRA7o>;
-	Mon, 17 Jun 2002 20:59:44 -0400
-Date: Tue, 18 Jun 2002 02:55:58 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200206180055.CAA11524@harpo.it.uu.se>
-To: kai@tp1.ruhr-uni-bochum.de, torvalds@transmeta.com
-Subject: [PATCH][2.5.22] fix x86 initrd breakage
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
+	id <S317212AbSFRBL2>; Mon, 17 Jun 2002 21:11:28 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:63730 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317211AbSFRBL2>;
+	Mon, 17 Jun 2002 21:11:28 -0400
+Date: Mon, 17 Jun 2002 18:11:28 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] : ir250_cache_wait_data-2.diff
+Message-ID: <20020617181128.F6338@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020610175300.E21783@bougret.hpl.hp.com> <3D0A7219.6000303@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D0A7219.6000303@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Jun 14, 2002 at 06:45:45PM -0400
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus & Kai,
+On Fri, Jun 14, 2002 at 06:45:45PM -0400, Jeff Garzik wrote:
+> Patch did not apply...  I think you're a victim of __FUNCTION__ 
+> cleanups, possibly.  Whoever did those in recent 2.5.x kernels didn't 
+> bother notifying any maintainers :(
 
-Summary: 2.5.17 broke initrd on x86. Fix below.
+	By the way, is there any more cleanups in the pipeline ? I
+mean, the whitespace cleanups missed 50% of the code and the
+__FUNCTION__ cleanups missed 90% of the occurences, so should I expect
+more or can I redo my patches this week ?
+	Thanks...
 
-arch/i386/boot/Makefile sets RAMDISK := -DRAMDISK=512, so
-bootsect.S puts 512 in the ram_size word.
-At boot, arch/i386/kernel/setup.c reads ram_size (RAMDISK_FLAGS)
-and extracts the low 11 bits (== 512) into rd_image_start.
-init/do_mounts.c tries to find a gzip or FS image in /dev/ram
-starting at block rd_image_start (512). It fails because
-the image normally starts at block 0, and prints:
-
-"RAMDISK: Couldn't find valid RAM disk image starting at 512."
-
-Why: Kai's patch in 2.5.17 to move x86-specific options from
-Makefile to arch/i386/boot/Makefile unfortunately lost the fact
-that the orginal "#export RAMDISK = -DRAMDISK=512" statement
-was commented out. (I suspect a typo.) RAMDISK is obsolete since
-1.3.something, and uncommenting it has "interesting" effects
-since the ram_size field has a very different meaning now.
-
-The patch below reverts the statement to its pre-2.5.17 state.
-Perhaps it should be removed altogether?
-
-Cc: to Andi Kleen since it seems x86_64 also is affected by
-this bug.
-
-/Mikael
-
---- linux-2.5.22/arch/i386/boot/Makefile.~1~	Tue Jun 11 14:18:07 2002
-+++ linux-2.5.22/arch/i386/boot/Makefile	Tue Jun 18 00:43:12 2002
-@@ -23,7 +23,7 @@
- 
- # If you want the RAM disk device, define this to be the size in blocks.
- 
--RAMDISK := -DRAMDISK=512
-+#RAMDISK := -DRAMDISK=512
- 
- # ---------------------------------------------------------------------------
- 
+	Jean

@@ -1,28 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbSJaFXB>; Thu, 31 Oct 2002 00:23:01 -0500
+	id <S264961AbSJaF0e>; Thu, 31 Oct 2002 00:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbSJaFXB>; Thu, 31 Oct 2002 00:23:01 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:21518 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S264938AbSJaFXB>; Thu, 31 Oct 2002 00:23:01 -0500
-Message-ID: <3DC0BE77.6060505@lougher.demon.co.uk>
-Date: Thu, 31 Oct 2002 05:24:07 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.9) Gecko/20020604
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Squashfs in the kernel?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264962AbSJaF0d>; Thu, 31 Oct 2002 00:26:33 -0500
+Received: from netrealtor.ca ([216.209.85.42]:4370 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S264961AbSJaF0d>;
+	Thu, 31 Oct 2002 00:26:33 -0500
+Date: Thu, 31 Oct 2002 00:33:10 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Rasmus Andersen <rasmus@jaquet.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021031053310.GB4780@mark.mielke.cc>
+References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021031011002.GB28191@opus.bloom.county>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 30, 2002 at 06:10:02PM -0700, Tom Rini wrote:
+> On Thu, Oct 31, 2002 at 01:53:14AM +0100, Adrian Bunk wrote:
+> > could you try to use "-Os" instead of "-O2" as gcc optimization option
+> > when CONFIG_TINY is enabled? Something like the following (completely
+> > untested) patch:
+> -Os can produce larger binaries, keep in mind.  If we're going to go
+> this route, how about something generally useful, and allow for general
+> optimization level / additional CFLAGS to be added.
 
-I'm a complete newbie here... What steps do I need to do to
-get something included in the kernel?
+Sure CFLAGS should be configurable, but CONFIG_TINY should always prefer
+-Os over -O2. From 'man gcc':
 
-Phillip
+       -Os Optimize for size.  -Os enables all -O2 optimizations that do not
+           typically increase code size.  It also performs further optimiza-
+           tions designed to reduce code size.
+
+If gcc regularly generates larger code with -Os the answer is to talk to
+the gcc people, not to avoid using -Os...
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

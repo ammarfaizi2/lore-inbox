@@ -1,298 +1,351 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTEAQyP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 12:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTEAQyP
+	id S261446AbTEAQ4d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 12:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTEAQ4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 12:54:15 -0400
-Received: from verein.lst.de ([212.34.181.86]:24327 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S261182AbTEAQyJ (ORCPT
+	Thu, 1 May 2003 12:56:33 -0400
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:32207
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261446AbTEAQ40 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 12:54:09 -0400
-Date: Thu, 1 May 2003 19:06:27 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove partition_name()
-Message-ID: <20030501190627.A15907@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Thu, 1 May 2003 12:56:26 -0400
+Message-ID: <3EB1549F.9060202@rogers.com>
+Date: Thu, 01 May 2003 13:08:47 -0400
+From: Jeff Muizelaar <muizelaar@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Muizelaar <muizelaar@rogers.com>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/4] NE2000 driver updates
+References: <3EB15127.2060409@rogers.com> <3EB1528C.8090503@rogers.com>
+In-Reply-To: <3EB1528C.8090503@rogers.com>
+Content-Type: multipart/mixed;
+ boundary="------------050208090603060107040704"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Thu, 1 May 2003 13:08:47 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-partition_name() is a variant of __bdevname() with a slightly more
-fancy find-the-name algorithm but with the disadvantage that it returns
-a buffer to static allocated data and barfs up when devices are remove
-and other reuse the same dev_t.  It's only used by the raid code and
-most calls are through a wrapper, bdev_partition_name() that takes
-a struct block_device * that maybe be NULL.
+This is a multi-part message in MIME format.
+--------------050208090603060107040704
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The patch below changes the bdev_partition_name() to call bdevname()
-if possible and the other calls where we really have nothing more than
-a dev_t to __bdevname.
+Here is the correct patch, the previous one wasn't...
 
-Btw, it would be nice if someone who knows the md code a bit better
-than me could remove bdev_partition_name() in favour of direct calls
-to bdevname() where possible - that would also get rid of the returns
-pointer to string on stack issue that this patch can't fix yet.
+-Jeff
 
+--------------050208090603060107040704
+Content-Type: text/plain;
+ name="ne-legacy.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ne-legacy.patch"
 
---- 1.166/drivers/md/md.c	Fri Apr 25 18:16:28 2003
-+++ edited/drivers/md/md.c	Thu May  1 17:15:57 2003
-@@ -1111,8 +1111,10 @@
+diff -u linux-2.5.66-nepnpid/drivers/net/ne.c linux-2.5.66-nelist/drivers/net/ne.c
+--- linux-2.5.66-nepnpid/drivers/net/ne.c	2003-03-29 21:39:29.000000000 -0500
++++ linux-2.5.66-nelist/drivers/net/ne.c	2003-05-01 11:05:56.000000000 -0400
+@@ -30,13 +30,14 @@
+     Richard Guenther    : Added support for ISAPnP cards
+     Paul Gortmaker	: Discontinued PCI support - use ne2k-pci.c instead.
+     Jeff Muizelaar	: moved over to generic PnP api
++    Jeff Muizelaar	: changed init code to act more probe like 
  
- static void print_desc(mdp_disk_t *desc)
- {
-+	char b[BDEVNAME_SIZE];
-+
- 	printk(" DISK<N:%d,%s(%d,%d),R:%d,S:%d>\n", desc->number,
--		partition_name(MKDEV(desc->major,desc->minor)),
-+		__bdevname(MKDEV(desc->major, desc->minor), b),
- 		desc->major,desc->minor,desc->raid_disk,desc->state);
- }
+ */
  
-@@ -1294,6 +1296,7 @@
-  */
- static mdk_rdev_t *md_import_device(dev_t newdev, int super_format, int super_minor)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err;
- 	mdk_rdev_t *rdev;
- 	sector_t size;
-@@ -1301,7 +1304,7 @@
- 	rdev = (mdk_rdev_t *) kmalloc(sizeof(*rdev), GFP_KERNEL);
- 	if (!rdev) {
- 		printk(KERN_ERR "md: could not alloc mem for %s!\n", 
--			partition_name(newdev));
-+			__bdevname(newdev, b));
- 		return ERR_PTR(-ENOMEM);
- 	}
- 	memset(rdev, 0, sizeof(*rdev));
-@@ -1312,7 +1315,7 @@
- 	err = lock_rdev(rdev, newdev);
- 	if (err) {
- 		printk(KERN_ERR "md: could not lock %s.\n",
--			partition_name(newdev));
-+			__bdevname(newdev, b));
- 		goto abort_free;
- 	}
- 	rdev->desc_nr = -1;
-@@ -1840,6 +1843,7 @@
+ /* Routines for the NatSemi-based designs (NE[12]000). */
  
- static int autostart_array(dev_t startdev)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err = -EINVAL, i;
- 	mdp_super_t *sb = NULL;
- 	mdk_rdev_t *start_rdev = NULL, *rdev;
-@@ -1847,7 +1851,7 @@
- 	start_rdev = md_import_device(startdev, 0, 0);
- 	if (IS_ERR(start_rdev)) {
- 		printk(KERN_WARNING "md: could not import %s!\n",
--			partition_name(startdev));
-+			__bdevname(startdev, b));
- 		return err;
- 	}
+ static const char version[] =
+-"ne.c:v1.10a 1/26/03 Donald Becker (becker@scyld.com)\n";
++"ne.c:v1.10b 4/1/03 Donald Becker (becker@scyld.com)\n";
  
-@@ -1884,7 +1888,7 @@
- 		if (IS_ERR(rdev)) {
- 			printk(KERN_WARNING "md: could not import %s,"
- 				" trying to run array nevertheless.\n",
--				partition_name(dev));
-+				__bdevname(dev, b));
- 			continue;
- 		}
- 		list_add(&rdev->same_set, &pending_raid_disks);
-@@ -2116,6 +2120,7 @@
  
- static int hot_generate_error(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	struct request_queue *q;
- 	mdk_rdev_t *rdev;
- 
-@@ -2123,7 +2128,7 @@
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to generate %s error in md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	rdev = find_rdev(mddev, dev);
- 	if (!rdev) {
-@@ -2151,13 +2156,14 @@
- 
- static int hot_remove_disk(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	mdk_rdev_t *rdev;
- 
- 	if (!mddev->pers)
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to remove %s from md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	rdev = find_rdev(mddev, dev);
- 	if (!rdev)
-@@ -2178,6 +2184,7 @@
- 
- static int hot_add_disk(mddev_t * mddev, dev_t dev)
- {
-+	char b[BDEVNAME_SIZE];
- 	int err;
- 	unsigned int size;
- 	mdk_rdev_t *rdev;
-@@ -2186,7 +2193,7 @@
- 		return -ENODEV;
- 
- 	printk(KERN_INFO "md: trying to hot-add %s to md%d ... \n",
--		partition_name(dev), mdidx(mddev));
-+		__bdevname(dev, b), mdidx(mddev));
- 
- 	if (mddev->major_version != 0) {
- 		printk(KERN_WARNING "md%d: HOT_ADD may only be used with"
-@@ -2344,6 +2351,7 @@
- static int md_ioctl(struct inode *inode, struct file *file,
- 			unsigned int cmd, unsigned long arg)
- {
-+	char b[BDEVNAME_SIZE];
- 	unsigned int minor;
- 	int err = 0;
- 	struct hd_geometry *loc = (struct hd_geometry *) arg;
-@@ -2403,7 +2411,7 @@
- 		err = autostart_array(arg);
- 		if (err) {
- 			printk(KERN_WARNING "md: autostart %s failed!\n",
--				partition_name(arg));
-+				__bdevname(arg, b));
- 			goto abort;
- 		}
- 		goto done;
-@@ -3516,6 +3524,7 @@
- 
- static void autostart_arrays(void)
- {
-+	char b[BDEVNAME_SIZE];
- 	mdk_rdev_t *rdev;
- 	int i;
- 
-@@ -3527,7 +3536,7 @@
- 		rdev = md_import_device(dev,0, 0);
- 		if (IS_ERR(rdev)) {
- 			printk(KERN_ALERT "md: could not import %s!\n",
--				partition_name(dev));
-+				__bdevname(dev, b));
- 			continue;
- 		}
- 		if (rdev->faulty) {
---- 1.108/fs/partitions/check.c	Tue Apr 29 17:42:50 2003
-+++ edited/fs/partitions/check.c	Thu May  1 17:05:27 2003
-@@ -420,53 +420,3 @@
- 	}
- 	kobject_del(&disk->kobj);
- }
+ #include <linux/module.h>
+@@ -134,7 +135,6 @@
+ #ifdef CONFIG_PNP
+ static int ne_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id);
+ static void ne_pnp_remove(struct pnp_dev *dev);
 -
--struct dev_name {
--	struct list_head list;
--	dev_t dev;
--	char namebuf[BDEVNAME_SIZE];
--	char *name;
--};
--
--static LIST_HEAD(device_names);
--
--char *partition_name(dev_t dev)
--{
--	struct gendisk *hd;
--	static char nomem [] = "<nomem>";
--	char b[BDEVNAME_SIZE];
--	struct dev_name *dname;
--	struct list_head *tmp;
--	int part;
--
--	list_for_each(tmp, &device_names) {
--		dname = list_entry(tmp, struct dev_name, list);
--		if (dname->dev == dev)
--			return dname->name;
--	}
--
--	dname = kmalloc(sizeof(*dname), GFP_KERNEL);
--
--	if (!dname)
--		return nomem;
--	/*
--	 * ok, add this new device name to the list
--	 */
--	hd = get_gendisk(dev, &part);
--	dname->name = NULL;
--	if (hd) {
--		dname->name = disk_name(hd, part, dname->namebuf);
--		module_put(hd->fops->owner);
--		put_disk(hd);
--	}
--	if (!dname->name) {
--		sprintf(dname->namebuf, "[dev %s]", __bdevname(dev, b));
--		dname->name = dname->namebuf;
--	}
--
--	dname->dev = dev;
--	list_add(&dname->list, &device_names);
--
--	return dname->name;
--}
--
---- 1.4/include/linux/blkpg.h	Tue Oct 15 16:49:02 2002
-+++ edited/include/linux/blkpg.h	Thu May  1 17:04:48 2003
-@@ -54,10 +54,4 @@
- 	char volname[BLKPG_VOLNAMELTH];	/* volume label */
+ static struct pnp_driver ne_pnp_driver = {
+ 	.name		= "ne",
+ 	.id_table 	= ne_pnp_table,
+@@ -143,9 +143,14 @@
  };
+ #endif
  
--#ifdef __KERNEL__
--
--extern char * partition_name(dev_t dev);
--
--#endif /* __KERNEL__ */
--
- #endif /* _LINUX_BLKPG_H */
---- 1.26/include/linux/raid/md.h	Thu Apr  3 20:21:33 2003
-+++ edited/include/linux/raid/md.h	Thu May  1 17:12:35 2003
-@@ -61,9 +61,20 @@
- #define MD_MINOR_VERSION                90
- #define MD_PATCHLEVEL_VERSION           0
- 
--extern inline char * bdev_partition_name (struct block_device *bdev)
-+/*
-+ * XXX(hch): This function is broken.  Someone who understands the md
-+ * code needs to go through all callers, check whether bdev could
-+ * be NULL and replace it with direct calls to bdevmame.
-+ *
-+ * This would also fix the returns buffer on stack issue nicely :)
-+ */
-+static inline const char *bdev_partition_name (struct block_device *bdev)
- {
--	return partition_name(bdev ? bdev->bd_dev : 0);
-+	char b[BDEVNAME_SIZE];
+-int ne_probe(struct net_device *dev);
++static int ne_legacy_probe(unsigned long base_addr, unsigned long irq, unsigned long bad);
 +
-+	if (!bdev)
-+		return __bdevname(0, b);
-+	return bdevname(bdev, b);
- }
- extern int register_md_personality (int p_num, mdk_personality_t *p);
- extern int unregister_md_personality (int p_num);
---- 1.195/kernel/ksyms.c	Tue Apr 29 17:42:50 2003
-+++ edited/kernel/ksyms.c	Thu May  1 17:05:10 2003
-@@ -579,8 +579,6 @@
- EXPORT_SYMBOL(fasync_helper);
- EXPORT_SYMBOL(kill_fasync);
+ static int ne_probe1(struct net_device *dev, int ioaddr);
  
--EXPORT_SYMBOL(partition_name);
++static int ne_create(struct net_device **ndev, unsigned long base_addr, 
++		unsigned long irq, unsigned long bad);
++static void ne_remove(struct net_device *dev);
++
+ static int ne_open(struct net_device *dev);
+ static int ne_close(struct net_device *dev);
+ 
+@@ -179,73 +184,81 @@
+ 	E2010	 starts at 0x100 and ends at 0x4000.
+ 	E2010-x starts at 0x100 and ends at 0xffff.  */
+ 
+-int __init ne_probe(struct net_device *dev)
++#ifdef CONFIG_PNP
++static int ne_pnp_probe(struct pnp_dev *idev, const struct pnp_device_id *dev_id)
+ {
+-	unsigned int base_addr = dev->base_addr;
 -
- /* binfmt_aout */
- EXPORT_SYMBOL(get_write_access);
+-	SET_MODULE_OWNER(dev);
+-
+-	/* First check any supplied i/o locations. User knows best. <cough> */
+-	if (base_addr > 0x1ff)	/* Check a single specified location. */
+-		return ne_probe1(dev, base_addr);
+-	else if (base_addr != 0)	/* Don't probe at all. */
+-		return -ENXIO;
++	struct net_device *dev;
++	int err;
++	printk(KERN_INFO "ne.c: PnP reports %s at i/o %#lx, irq %ld\n",
++			idev->dev.name, pnp_port_start(idev, 0), pnp_irq(idev, 0));
++	err = ne_create(&dev, pnp_port_start(idev, 0), pnp_irq(idev, 0), 0);
++	if(dev)
++		pnp_set_drvdata(idev, dev);
++	return err;
++}
  
+-#ifndef MODULE
+-	/* Last resort. The semi-risky ISA auto-probe. */
+-	for (base_addr = 0; netcard_portlist[base_addr] != 0; base_addr++) {
+-		int ioaddr = netcard_portlist[base_addr];
+-		if (ne_probe1(dev, ioaddr) == 0)
+-			return 0;
+-	}
++static void ne_pnp_remove(struct pnp_dev *idev)
++{
++	struct net_device *dev = pnp_get_drvdata(idev);	
++	ne_remove(dev);
++}
+ #endif
++struct list_head ne_legacy_devs = LIST_HEAD_INIT(ne_legacy_devs);
+ 
+-	return -ENODEV;
++struct ne_legacy{
++	struct net_device *dev;
++	struct list_head list;
++};
++
++static int ne_legacy_probe(unsigned long base_addr, unsigned long irq, unsigned long bad)
++{
++	struct ne_legacy *ne_card;
++	int err;
++	ne_card = kmalloc(sizeof(struct ne_legacy), GFP_KERNEL);
++	err = ne_create(&ne_card->dev, base_addr, irq,  bad);
++	if (!err) 
++		list_add(&ne_card->list, &ne_legacy_devs);
++	else
++		kfree(ne_card);
++	return err;
+ }
+ 
+-#ifdef CONFIG_PNP
+-static int ne_pnp_probe(struct pnp_dev *idev, const struct pnp_device_id *dev_id)
++static int ne_create(struct net_device **ndev, unsigned long base_addr, unsigned long irq, unsigned long bad)
+ {
+-	struct net_device *dev;
+ 	int err;
+ 	
+-	if ( !(dev = alloc_etherdev(0)) ){
++	if (!(*ndev = alloc_etherdev(0)) ){
+ 		err = -ENOMEM;
+ 		goto alloc_fail;
+ 	}
+ 	
+-	dev->base_addr = pnp_port_start(idev, 0);
+-	dev->irq = pnp_irq(idev, 0);
+-	printk(KERN_INFO "ne.c: PnP reports %s at i/o %#lx, irq %d\n",
+-			idev->dev.name, dev->base_addr, dev->irq);
+-	
+-	SET_MODULE_OWNER(dev);
++	(*ndev)->base_addr = base_addr;
++	(*ndev)->irq = irq;
++	(*ndev)->mem_end = bad;
++	SET_MODULE_OWNER(*ndev);
+ 	
+-	if (ne_probe1(dev, dev->base_addr) != 0) {	/* Shouldn't happen. */
+-		printk(KERN_ERR "ne.c: Probe of PnP card at %#lx failed\n", dev->base_addr);
++	if (ne_probe1(*ndev, (*ndev)->base_addr) != 0) {	/* Shouldn't happen. */
++		printk(KERN_ERR "ne.c: Probe at %#lx failed\n", (*ndev)->base_addr);
+ 		err = -ENXIO;
+ 		goto probe_fail;
+ 	}
+ 	
+-	if ( (err = register_netdev(dev)) != 0)
++	if ( (err = register_netdev(*ndev)) != 0)
+ 		goto register_fail;
+-
+-	pnp_set_drvdata(idev, dev);
+ 	
+ 	return 0;
+ 	
+ register_fail:
+-		kfree(dev->priv);
+-		release_region(dev->base_addr, NE_IO_EXTENT);
++	kfree((*ndev)->priv);
++	release_region((*ndev)->base_addr, NE_IO_EXTENT);
+ probe_fail:
+-		kfree(dev);
++	kfree(*ndev);
+ alloc_fail:
+-		return err;
++	return err;
+ }
+ 
+-static void ne_pnp_remove(struct pnp_dev *idev)
++static void ne_remove(struct net_device *dev)
+ {
+-	struct net_device *dev = pnp_get_drvdata(idev);	
+ 	if (dev) {
+ 		unregister_netdev(dev);
+ 		free_irq(dev->irq, dev);
+@@ -254,7 +267,6 @@
+ 		kfree(dev);
+ 	}
+ }
+-#endif
+ 
+ static int __init ne_probe1(struct net_device *dev, int ioaddr)
+ {
+@@ -751,10 +763,7 @@
+ 	return;
+ }
+ 
+-
+-#ifdef MODULE
+ #define MAX_NE_CARDS	4	/* Max number of NE cards per module */
+-static struct net_device dev_ne[MAX_NE_CARDS];
+ static int io[MAX_NE_CARDS];
+ static int irq[MAX_NE_CARDS];
+ static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
+@@ -773,60 +782,70 @@
+ is at boot) and so the probe will get confused by any other 8390 cards.
+ ISA device autoprobes on a running machine are not recommended anyway. */
+ 
+-int init_module(void)
+-{
+-	int this_dev, found = 0;
+ 
++static int __init ne_init(void)
++{
++	int i, found = 0;
++	int err;
+ #ifdef CONFIG_PNP	
+ 	found = pnp_register_driver(&ne_pnp_driver);
+ 	if (found < 0) {
+-		return found;
++		err = found;
++		goto pnp_fail;
+ 	}
+ #endif
++	/* First check any supplied i/o locations. User knows best. <cough> */
++	for (i = 0; i < MAX_NE_CARDS; i++) {
++		if (io[i] > 0x1ff) {
++			err = ne_legacy_probe(io[i], irq[i], bad[i]);
++			if (!err)
++				found++;
++			else
++				printk(KERN_WARNING "ne.c: No NE*000 card found at i/o = %#x\n", io[i]);
++		}
++	}
+ 
+-	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
+-		struct net_device *dev = &dev_ne[this_dev];
+-		dev->irq = irq[this_dev];
+-		dev->mem_end = bad[this_dev];
+-		dev->base_addr = io[this_dev];
+-		dev->init = ne_probe;
+-		if (register_netdev(dev) == 0) {
++#ifndef MODULE
++	/* Last resort. The semi-risky ISA auto-probe. */
++	printk(KERN_INFO "ne.c: auto-probing...\m");
++	for (i = 0; netcard_portlist[i] != 0; i++) {
++		err = ne_legacy_probe(netcard_portlist[i], 0,  0);
++		if (!err) {
+ 			found++;
+-			continue;
+-		}
+-		if (found != 0) { 	/* Got at least one. */
+-			return 0;
+-		}
+-		if (io[this_dev] != 0)
+-			printk(KERN_WARNING "ne.c: No NE*000 card found at i/o = %#x\n", io[this_dev]);
+-		else
+-			printk(KERN_NOTICE "ne.c: You must supply \"io=0xNNN\" value(s) for ISA cards.\n");
++		} 
++	}
++#endif
++	if (found > 0) 	/* Got at least one. */
++		return 0;
++	else
++		printk(KERN_NOTICE "ne.c: You must supply \"io=0xNNN\" value(s) for ISA cards.\n");
++
+ #ifdef CONFIG_PNP
+-		pnp_unregister_driver(&ne_pnp_driver);
++	pnp_unregister_driver(&ne_pnp_driver);
++pnp_fail:
+ #endif
+-		return -ENXIO;
+-	}
+-	return 0;
++	return -ENODEV;
+ }
+ 
+-void cleanup_module(void)
++static void __exit ne_cleanup(void)
+ {
+-	int this_dev;
+-
++	struct list_head *entry;
++	struct list_head *tmp;
+ #ifdef CONFIG_PNP	
+ 	pnp_unregister_driver(&ne_pnp_driver);
+ #endif
+-	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
+-		struct net_device *dev = &dev_ne[this_dev];
+-		if (dev->priv != NULL) {
+-			unregister_netdev(dev);
+-			free_irq(dev->irq, dev);
+-			release_region(dev->base_addr, NE_IO_EXTENT);
+-			kfree(dev->priv);
+-		}
++	/* Cleanup legacy devices */
++	list_for_each_safe(entry, tmp, &ne_legacy_devs) {
++		struct ne_legacy *card;
++		card = list_entry(entry, struct ne_legacy, list);
++		ne_remove(card->dev);
++		list_del(entry);
++		kfree(card);
+ 	}
+ }
+-#endif /* MODULE */
++
++module_init(ne_init);
++module_exit(ne_cleanup);
+ 
+ 
+ /*
+diff -u linux-2.5.66-nepnpid/drivers/net/Space.c linux-2.5.66-nelist/drivers/net/Space.c
+--- linux-2.5.66-nepnpid/drivers/net/Space.c	2003-04-01 12:56:08.000000000 -0500
++++ linux-2.5.66-nelist/drivers/net/Space.c	2003-04-01 12:54:53.000000000 -0500
+@@ -233,7 +233,7 @@
+ #ifdef CONFIG_E2100		/* Cabletron E21xx series. */
+ 	{e2100_probe, 0},
+ #endif
+-#if defined(CONFIG_NE2000) || defined(CONFIG_NE2K_CBUS)	/* ISA & PC-9800 CBUS (use ne2k-pci for PCI cards) */
++#ifdef CONFIG_NE2K_CBUS	/* ISA & PC-9800 CBUS (use ne2k-pci for PCI cards) */
+ 	{ne_probe, 0},
+ #endif
+ #ifdef CONFIG_LANCE		/* ISA/VLB (use pcnet32 for PCI cards) */
+
+--------------050208090603060107040704--
+

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTFZOm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 10:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTFZOm5
+	id S261843AbTFZOt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 10:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbTFZOt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 10:42:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65029 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261808AbTFZOm4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 10:42:56 -0400
-Date: Thu, 26 Jun 2003 10:50:26 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler & interactivity improvements
-In-Reply-To: <3EFAC408.4020106@aitel.hist.no>
-Message-ID: <Pine.LNX.3.96.1030626104733.17562D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Jun 2003 10:49:28 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:59995 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S261843AbTFZOt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 10:49:26 -0400
+Subject: Re: Is their an explanation of various kernel
+	versions/brances/patches/? (-mm, -ck, ..)
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306251857.48341.brian@brianandsara.net>
+References: <bdd64m$3dr$1@main.gmane.org>
+	 <200306251857.48341.brian@brianandsara.net>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1056639815.1056.65.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 26 Jun 2003 11:03:35 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jun 2003, Helge Hafting wrote:
-
-> This can be fine-tuned a bit: We may want the pipe-waiter
-> to get a _little_ bonus at times, but that has to be
-> subtracted from whatever bonus the process at the
-> other end of the pipe has.  I.e. no new bonus
-> created, just shift some the existing bonus around.
-> The "other end" may, after all, have gained legitimate
-> bonus from waiting on the disk/network/paging/os, and passing
-> some of that on to "clients" might make sense.
+On Wed, 2003-06-25 at 19:57, Brian Jackson wrote:
+> I don't know of a website that tracks that stuff, but here goes my knowledge 
+> of the different patchsets:
 > 
-> So irman and similar pipe chains wouldn't be able to build
-> artifical priority, but if it get some priority
-> in an "acceptable" way then it is passed
-> along until it expires.
+> for the most part all of them are testing grounds for patches that someday 
+> hope to be in the vanilla kernel
 > 
-> I.e. "bzcat file.bz2 | grep something | sort | less" could
-> pass priority down the chain when bzcat suffers
-> a long nfs wait...
+> mm - Andrew Morton - vm related testing ground for dev tree
+> ck - Con Kolivas - desktop/interactivity patches
+> kj - Kernel Janitors - testing ground for kernel cleanups on development trees
+> mjb - Martin J Bligh - scalability stuff
+> wli - William Lee Irwin - other vm related stuff for dev tree that Andrew
+> 	Morton may not have time for
+> ac - Alan Cox - lately it's been a testing ground for new ide
+> lsm - Chris Wright - Linux Security Modules, provides a lightweight, general
+> 	purpose framework for access control
+> osdl - Stephen Hemminger, ? maybe enterprise stuff
+> laptop - Hanno Böck - unproven laptop type patches
+> aa - Andrea Arcangeli - stable series vm stuff
+> dj - Dave Jones - cleanups/AGP
+> rmap - Rik van Riel - reverse mapping vm for 2.4
+> pgcl - William Lee Irwin - ?
 
-This is the case which worries me, passing back the priority of the
-process which is waiting for user input. It's desirable, but hard to do
-and subject to unintended boosts.
+To add a couple:
+ dis - Laptop-related (ACPI, swsusp, cpufreq, etc) patches
+ jp - Security/performance?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Disconnect <lkml@sigkill.net>
 

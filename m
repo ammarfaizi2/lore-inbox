@@ -1,79 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGMKXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUGMK1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUGMKXp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGMKXp
+	id S264782AbUGMK1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUGMK1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:23:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23250 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264767AbUGMKXm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:23:42 -0400
-Date: Tue, 13 Jul 2004 03:22:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: paul@linuxaudiosystems.com, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, florin@sgi.com,
-       linux-audio-dev@music.columbia.edu
-Subject: Re: desktop and multimedia as an afterthought?
-Message-Id: <20040713032201.010f3e0f.akpm@osdl.org>
-In-Reply-To: <1089683379.5773.62.camel@localhost>
-References: <1089665153.1231.88.camel@cube>
-	<200407122354.i6CNsNqS003382@localhost.localdomain>
-	<20040712172458.2659db52.akpm@osdl.org>
-	<1089683379.5773.62.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 06:27:38 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:14539 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264782AbUGMK1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 06:27:35 -0400
+Message-ID: <40F3B8EC.4000301@kolivas.org>
+Date: Tue, 13 Jul 2004 20:26:52 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: Preempt Threshold Measurements
+References: <200407121943.25196.devenyga@mcmaster.ca>	<20040713024051.GQ21066@holomorphy.com>	<200407122248.50377.devenyga@mcmaster.ca>	<cone.1089687290.911943.12958.502@pc.kolivas.org>	<20040712210107.1945ac34.akpm@osdl.org>	<cone.1089697919.186986.12958.502@pc.kolivas.org> <20040712231406.427caa2a.akpm@osdl.org>
+In-Reply-To: <20040712231406.427caa2a.akpm@osdl.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig51762AEFAC43F1AB3DEF9BDF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Charbonnel <thomas@undata.org> wrote:
->
-> On my system xruns seem related to the keyboard. I get xruns on ~8.079
->  seconds boundaries when the keyboard is in use, regardless of the load.
->  My usual test is running jack with 2 periods of 64 samples and no
->  client, and keep a key pressed. Those latencytest graphs give an idea of
->  the problem : http://www.undata.org/~thomas/latencytest/index.html
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig51762AEFAC43F1AB3DEF9BDF
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
 > 
->  Here are the xrun_debug reports :
+>>4ms at blkdev_put+0x48
+> 
+> 
+> This can run under one of two depths of lock_kernel.  filemap_fdatawrite()
+> and filemap_fdatawait() both do cond_resched(), so this is odd.
+> 
+> Try this:
+> 
 
-OK, thanks.
+Thanks! I'll certainly give that a shot.
 
-Stack tracing seems a bit broken with 4k stacks.  Can you disable
-CONFIG_4KSTACKS for future testing?
+> Need to see the whole trace.
 
->  For the intel8x0 :
->  XRUN: pcmC1D0p
->  Stack pointer is garbage, not printing trace
->  Unexpected hw_pointer value [1] (stream = 1, delta: -16, max jitter =
->  64): wrong interrupt acknowledge?
->   [<c0105f3e>] dump_stack+0x1e/0x30
->   [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
->   [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
->   [<c010739b>] handle_IRQ_event+0x3b/0x70
->   [<c0107824>] do_IRQ+0x194/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c0107754>] do_IRQ+0xc4/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c0108126>] do_softirq+0x46/0x60
->   [<c01077d9>] do_IRQ+0x149/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c01030f4>] cpu_idle+0x34/0x40
->   [<c053c809>] start_kernel+0x169/0x190
->   [<c010019f>] 0xc010019f
->   =======================
->   [<c0105f3e>] dump_stack+0x1e/0x30
->   [<c033240d>] snd_pcm_period_elapsed+0x1cd/0x420
->   [<c03578cc>] snd_intel8x0_interrupt+0x1fc/0x260
->   [<c010739b>] handle_IRQ_event+0x3b/0x70
->   [<c0107824>] do_IRQ+0x194/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c0107754>] do_IRQ+0xc4/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c0108126>] do_softirq+0x46/0x60
->   [<c01077d9>] do_IRQ+0x149/0x1b0
->   [<c0105ac4>] common_interrupt+0x18/0x20
->   [<c01030f4>] cpu_idle+0x34/0x40
->   [<c053c809>] start_kernel+0x169/0x190
+Do you mean the traces from your patch or the ones that come from this 
+preempt test like this?
+
+Jul 13 07:22:18 pc kernel: 4ms non-preemptible critical section violated 
+1 ms preempt threshold starting at exit_mmap+0x1c/0x188 and ending at 
+exit_mmap+0x
+118/0x188
+Jul 13 07:22:18 pc kernel:  [<c011d769>] dec_preempt_count+0x14f/0x151
+Jul 13 07:22:18 pc kernel:  [<c014d0d4>] exit_mmap+0x118/0x188
+Jul 13 07:22:18 pc kernel:  [<c014d0d4>] exit_mmap+0x118/0x188
+Jul 13 07:22:18 pc kernel:  [<c011df0a>] mmput+0x61/0x7b
+Jul 13 07:22:18 pc kernel:  [<c01634dc>] exec_mmap+0x11d/0x248
+Jul 13 07:22:18 pc kernel:  [<c016364c>] flush_old_exec+0x45/0x284
+Jul 13 07:22:18 pc kernel:  [<c018119f>] load_elf_binary+0x3e8/0xd00
+Jul 13 07:22:18 pc kernel:  [<c013a9b1>] do_generic_mapping_read+0x295/0x4f2
+Jul 13 07:22:18 pc kernel:  [<c0164312>] search_binary_handler+0xd0/0x34c
+Jul 13 07:22:18 pc kernel:  [<c0180db7>] load_elf_binary+0x0/0xd00
+Jul 13 07:22:18 pc kernel:  [<c0164329>] search_binary_handler+0xe7/0x34c
+Jul 13 07:22:18 pc kernel:  [<c0164759>] do_execve+0x1cb/0x23c
+Jul 13 07:22:18 pc kernel:  [<c0165f39>] getname+0x55/0xb8
+Jul 13 07:22:18 pc kernel:  [<c0104bcf>] sys_execve+0x35/0x68
+Jul 13 07:22:18 pc kernel:  [<c0105fd5>] sysenter_past_esp+0x52/0x71
+
+
+I can try and extract the exact points from the disassembly after some 
+guidance I've received (most of them seem to be buried deep in inlined 
+functions.) The exit_mmap one seemed to work out (as you probably saw in 
+my previous email) to be set off here:
+
+          profile_exit_mmap(mm);
+          lru_add_drain();
+c014cfce:       e8 18 72 ff ff          call   c01441eb <lru_add_drain>
+          spin_lock(&mm->page_table_lock);
+c014cfd3:       e8 16 06 fd ff          call   c011d5ee <inc_preempt_count>
+
+
+Cheers,
+Con
+
+--------------enig51762AEFAC43F1AB3DEF9BDF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA87jvZUg7+tp6mRURArIfAJ0fib0m7bs5y+TRTq1VB9caNps26wCbBY69
+Xur8mgyc+csHobtwPI80Slo=
+=8Pa+
+-----END PGP SIGNATURE-----
+
+--------------enig51762AEFAC43F1AB3DEF9BDF--

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVBFR6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVBFSDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVBFR6y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 12:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVBFR6y
+	id S261261AbVBFSDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 13:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVBFSDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 12:58:54 -0500
-Received: from ns.suse.de ([195.135.220.2]:57827 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261262AbVBFR6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 12:58:32 -0500
-Date: Sun, 6 Feb 2005 18:58:28 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206175828.GB18245@wotan.suse.de>
-References: <20050206113635.GA30109@wotan.suse.de> <20050206114758.GA8437@infradead.org> <20050206123355.GB30109@wotan.suse.de> <Pine.LNX.4.58.0502060904140.2165@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Feb 2005 13:03:21 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51842
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261261AbVBFSDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 13:03:14 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: [uml-devel] [patch] Make User Mode Linux compile in 2.6.11-rc3
+Date: Sun, 6 Feb 2005 12:00:33 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>
+References: <200502051051.46242.rob@landley.net> <420509D1.2080401@tuxrocks.com>
+In-Reply-To: <420509D1.2080401@tuxrocks.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502060904140.2165@ppc970.osdl.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502061200.33755.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 09:05:05AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 6 Feb 2005, Andi Kleen wrote:
-> > 
-> > There are probably more.
-> 
-> So? Do you expect to never fix them, or what?
+On Saturday 05 February 2005 01:00 pm, Frank Sorenson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Rob Landley wrote:
+> | As of yesterday afternoon, the UML build still breaks in
+> | sys_call_table.c,
+...
+> This patch for sys_call_table.c was merged into the main tree in this
+> changeset:
+> http://linux.bkbits.net:8080/linux-2.5/cset@1.2080?nav=index.html|ChangeSet
+>@-2d
+>
+> The patch fixes both the sys_call_table and the pud_alloc breakage, and
+> as of 2.6.11-rc3-bk2, the main tree compiles again for UML.
 
-Someone will fix them, but it's not the job of the 32bit emulation
-of x86-64 to break compatibility. It's whole point is to be compatible,
-not expose bugs.
+Verified.  2.6.11-rc3-bk2 does indeed build, and the result is chugging 
+through my big compile script.  It seems to be working fine, although ye olde 
+display glitch is still there:
 
-If someone else wants to break existing programs they can 
-do that if they think they have the capability to deal
-with (rightfully) annoyed user space people. 
+binutils-2.14/ld/testsuite/ld-sparc/tlssunbin64.rd
+binutils-2.14/ld/testsuite/lde/ld-/ld-sld-spd-spa-sparsparcparc/arc/trc/tlc/tls/tlsstlssulssunssunbsunbiunbinnbin6bin64in64.n64.s64.s4.s.ss
+binubinutinutinutilutilstils-ils-2ls-2.s-2.1-2.142.14/.14/l14/ld4/ld//ld/tld/ted/tes/testtestsestsustsuitsuitsuiteuite/ite/lte/lde/ld-/ld-sld-spd-spa-sparsparcparc/tlssunbin64.sd
+binutils-2.14/ld/testsuite/ld-sparc/tlssunbin64.td
 
-But not with x86-64 compat mode leading the front here.
+But that's a purely cosmetic bug.
 
--Andi
+Thanks,
+
+Rob

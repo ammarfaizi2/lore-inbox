@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVADUbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVADUfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVADUbt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVADUb2
+	id S261854AbVADUfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVADUf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:31:28 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:59828 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262158AbVADUaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:30:20 -0500
-Subject: Re: the umount() saga for regular linux desktop users
-From: Lee Revell <rlrevell@joe-job.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: 7eggert@gmx.de, Andy Lutomirski <luto@myrealbox.com>,
+	Tue, 4 Jan 2005 15:35:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62985 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261854AbVADUet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 15:34:49 -0500
+Date: Tue, 4 Jan 2005 21:34:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
        linux-kernel@vger.kernel.org
-In-Reply-To: <200501022243.j02MhANg004075@turing-police.cc.vt.edu>
-References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no>
-	 <E1Cl509-0000TI-00@be1.7eggert.dyndns.org>
-	 <200501022243.j02MhANg004075@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 04 Jan 2005 15:28:44 -0500
-Message-Id: <1104870524.8346.27.camel@krustophenia.net>
+Subject: Re: starting with 2.7
+Message-ID: <20050104203444.GL3097@stusta.de>
+References: <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de> <20050104195725.GQ2708@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104195725.GQ2708@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-02 at 17:43 -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 02 Jan 2005 13:38:29 +0100, Bodo Eggert said:
+On Tue, Jan 04, 2005 at 11:57:25AM -0800, William Lee Irwin III wrote:
+>...
+> On Tue, Jan 04, 2005 at 05:53:01PM +0100, Adrian Bunk wrote:
+> > And then there are issues that are not bugs in the code, but user errors 
+> > that have to be avoided. An example is CONFIG_BLK_DEV_UB in 2.6.9, which 
+> > even the Debian kernel maintainers got wrong in the first kernel 
+> > packages they did put into Debian unstable.
 > 
-> > Maybe it's possible to extend the semantics of umount -l to change all
-> > cwds under that mountpoint to be deleted directories which will no
-> > longer cause the mountpoint to be busy (e.g. by redirecting them to a
-> > special inode on initramfs). Most applications can cope with that (if
-> > not, they're buggy),
-> 
-> You mean that a program is *buggy* if it does:
-> 
-> 	cwd("/home/user");
-> 	/* do some stuff while we get our cwd ripped out from under us */
-> 	file = open("./.mycconfrc");
-> 
-> and expects the file to be opened in /home/user???
+> PEBKAC is entirely out of the scope of any program not making direct
+> efforts at HCI. CONFIG_BLK_DEV_UB was documented for what it was, and
+> users configuring kernels are not assumed to be naive.
 
-Yes, of course.  Any program that doesn't check the return value of a
-system call is buggy.  Unless it really, really doesn't care - clearly
-not the case here.
 
-Lee
+<--  snip  -->
+
+config BLK_DEV_UB
+        tristate "Low Performance USB Block driver"
+        depends on USB
+        help
+          This driver supports certain USB attached storage devices
+          such as flash keys.
+
+          If unsure, say N.
+
+<--  snip  -->
+
+
+Call me naive, but at least for me it wouldn't have been obvious that 
+this option cripples the usb-storage driver.
+
+
+The warning that this option cripples the usb-storage driver was added 
+after people who accidentially enabled this option ("it can't harm") 
+in 2.6.9 swamped the USB maintainers with bug reports about problems 
+with their storage devices.
+
+
+> -- wli
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131216AbQL1CNh>; Wed, 27 Dec 2000 21:13:37 -0500
+	id <S129352AbQL1CPH>; Wed, 27 Dec 2000 21:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132266AbQL1CN1>; Wed, 27 Dec 2000 21:13:27 -0500
-Received: from box-26.rosh.inter.net.il ([213.8.204.26]:9220 "EHLO
-	callisto.yi.org") by vger.kernel.org with ESMTP id <S132260AbQL1CNV>;
-	Wed, 27 Dec 2000 21:13:21 -0500
-Date: Thu, 28 Dec 2000 03:41:05 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, Zlatko Calusic <zlatko@iskon.hr>,
-        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012280235240.5692-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.21.0012280339210.998-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129736AbQL1CO5>; Wed, 27 Dec 2000 21:14:57 -0500
+Received: from confucius.usc.edu ([128.125.20.153]:50442 "EHLO
+	confucius.usc.edu") by vger.kernel.org with ESMTP
+	id <S129352AbQL1COr>; Wed, 27 Dec 2000 21:14:47 -0500
+Date: Wed, 27 Dec 2000 17:38:10 -0800
+From: Joaquin Rapela <rapela@sipi.usc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [rapela@sipi.usc.edu: SYN_SENT block]
+Message-ID: <20001227173810.A27194@confucius.usc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Dan Aloni wrote:
+I forgot to mention. I am running RedHat 6.2 and the kernel release is
+2.2.14-5smp.
 
-> On Wed, 27 Dec 2000, Philipp Rumpf wrote:
-> 
-> > On Wed, Dec 27, 2000 at 03:41:04PM -0800, Linus Torvalds wrote:
-> > > It must be wrong.
-> > > 
-> > > If we have a dirty page on the LRU lists, that page _must_ have a mapping.
-> > 
-> > What about pages with a mapping but without a writepage function ? or pages
-> > whose writepage function fails ?  The current code seems to simply put the
-> > page onto the active list in that case, which seems just as wrong to me.
-> 
-> I noticed the offset of 'mapping' in struct page doesn't match the offset
-> which get resolved at obsolute address 0x0000000c according to the Oops,
-> but it does matches the offset of a_ops in struct address_space, which
-> makes me wonder if it's possible that a_ops == NULL. Suggestions?
+Joaquin
 
-I was confused, or maybe temporal insanity, ignore that ;-)
+----- Forwarded message from Joaquin Rapela <rapela@sipi.usc.edu> -----
+
+Date: Wed, 27 Dec 2000 16:25:18 -0800
+From: Joaquin Rapela <rapela@sipi.usc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: SYN_SENT block
+User-Agent: Mutt/1.2.5i
+
+Hello,
+
+I am not a linux kernel guy. I am running a spider that sometimes gets blocked
+for long periods of time.  I run a "netstat -nto" and I observe a socket in 
+state SYS_SENT that seems to be blocked. Its timer keeps on incrementing. 
+
+Is there any way to avoid this blocking? Is this a bug in the kernel or
+something wrong in my TCP/IP configuration/settings.
+
+Thanks in advance, Joaquin
+
+
+----- End forwarded message -----
 
 -- 
-Dan Aloni 
-dax@karrde.org
-
+Joaquin Rapela
+PhD Student, Signal and Image Processing Institute
+University of Southern California
+3740 McClintock Ave, EEB 424
+Los Angeles, CA 90089-2564
+email: rapela@sipi.usc.edu
+tel:   (213) 740-6430
+fax:   (213) 740-4651
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

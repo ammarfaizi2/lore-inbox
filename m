@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUAMA0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 19:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUAMA0t
+	id S263787AbUAMAkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 19:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUAMAkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 19:26:49 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36818 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262033AbUAMAZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 19:25:45 -0500
-Date: Tue, 13 Jan 2004 01:25:42 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andreas Haumer <andreas@xss.co.at>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [2.4 patch] disallow modular CONFIG_COMX
-Message-ID: <20040113002541.GX9677@fs.tum.de>
-References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at> <20040111013043.GY25089@fs.tum.de> <40031EB1.5030705@pobox.com>
+	Mon, 12 Jan 2004 19:40:04 -0500
+Received: from gprs214-71.eurotel.cz ([160.218.214.71]:4224 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263787AbUAMAkA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 19:40:00 -0500
+Date: Tue, 13 Jan 2004 01:39:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+Message-ID: <20040113003908.GB4752@elf.ucw.cz>
+References: <20040108214240.GD467@openzaurus.ucw.cz> <Pine.LNX.4.44.0401130012100.12912-100000@poirot.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40031EB1.5030705@pobox.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0401130012100.12912-100000@poirot.grange>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 05:24:49PM -0500, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> >
-> >CONFIG_COMX=m always gave an unresolved symbol in kernel 2.4, and it
-> >seems noone is interested in properly fixing it.
-> >
-> >The patch below disallows a modular CONFIG_COMX.
+Hi!
+
+> > I've seen slow machine (386sx with ne1000) that could not receive 7 full-sized packets
+> > back-to-back. You are sending 22 full packets back-to-back.
+> > I'd expect some of them to be (almost deterministicaly) lost,
+> > and no progress ever made.
 > 
-> I agree with the intent...
+> As you, probably, have already seen from further emails on this thread, we
+> did find out that packets were indeed lost due to various performance
+> reasons. And the best solution does seem to be switching to TCP-NFS, and
+> making it the default choice for mount (where available) seems to be a
+> very good idea.
 > 
-> At this point, I am tempted to simply comment it out of the Config.in, 
-> and let interested parties backport bug fixes and crap from 2.6 if they 
-> would like.  The driver has had obvious bugs for a while...
+> Thanks for replying anyway.
+> 
+> > In same scenario, TCP detects "congestion" and works mostly okay.
+> 
+> Hm, as long as we are already on this - can you give me a hint / pointer
+> how does TCP _detect_ a congestion? Does it adjust packet sizes, some
+> other parameters? Just for the curiousity sake.
 
-In 2.6 the driver is marked BROKEN...
-
-I only checked the compilation, if the driver compiled statically works 
-I don't think it's a good idea to completely disable it.
-
-> 	Jeff
-
-cu
-Adrian
-
+If TCP sees packets are lost, it says "oh, congestion", and starts
+sending packets   more   slowly   ie       introduces          delays
+between          packets.     When    they   no longer  get lost, it
+speeds up to full speed.
+								Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUDITBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 15:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUDITBZ
+	id S261661AbUDITFw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 15:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUDITFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 15:01:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4031 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261631AbUDITBY (ORCPT
+	Fri, 9 Apr 2004 15:05:52 -0400
+Received: from mail.kroah.org ([65.200.24.183]:44737 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261661AbUDITFt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 15:01:24 -0400
-Date: Fri, 9 Apr 2004 12:01:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [patch] Trying to get DRM up to date in 2.6
-Message-Id: <20040409120106.69e78838.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0404090838000.30863@skynet>
-References: <Pine.LNX.4.58.0404090838000.30863@skynet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 9 Apr 2004 15:05:49 -0400
+Date: Fri, 9 Apr 2004 11:53:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       braam@cs.cmu.edu, coda@cs.cmu.edu
+Subject: Re: [PATCH 2.6.5] Add sysfs class support to fs/coda/psdev.c
+Message-ID: <20040409185356.GC17187@kroah.com>
+References: <7290000.1081457670@dyn318071bld.beaverton.ibm.com> <7970000.1081458781@dyn318071bld.beaverton.ibm.com> <1081461739.5880.13.camel@pegasus> <9260000.1081464415@w-hlinder.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9260000.1081464415@w-hlinder.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie <airlied@linux.ie> wrote:
->
-> In a first attempt to bring the DRM in 2.6 in line with the latest
->  developments in DRM CVS, I'm going to try and split the latest DRM stuff
->  up into patches and submit them,
+On Thu, Apr 08, 2004 at 03:46:55PM -0700, Hanna Linder wrote:
+> --On Friday, April 09, 2004 12:02:19 AM +0200 Marcel Holtmann <marcel@holtmann.org> wrote:
+> 
+> >> +static struct class_simple coda_psdev_class;
+> > 
+> > I think coda_psdev_class must be a pointer.
+> > 
+> > Regards
+> > 
+> > Marcel
+> 
+> 
+> Doh! I tested on one system and fixed this there. Then accidentally mailed out the
+> original. Sorry about that. Here is a patch to fix it:
 
-Thanks.
+Applied, thanks.
 
->  I've setup a temporary BK repo at http://freedesktop.org:1234/drm-2.6/
-
-Yes, that works.  Anything which you put into that bk tree will
-automagically appear in my test kernels.  When we're happy with it you can
-ask Linus to merge it into the top-level tree.
+greg k-h

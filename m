@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131738AbQLMUzV>; Wed, 13 Dec 2000 15:55:21 -0500
+	id <S131568AbQLMU5w>; Wed, 13 Dec 2000 15:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131568AbQLMUzL>; Wed, 13 Dec 2000 15:55:11 -0500
-Received: from [212.32.186.211] ([212.32.186.211]:46046 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S131785AbQLMUzB>; Wed, 13 Dec 2000 15:55:01 -0500
-Date: Wed, 13 Dec 2000 21:23:52 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
-cc: linux-kernel@vger.kernel.org, Alan.Cox@linux.org
-Subject: Re: [PATCH] Bug in date converting functions DOS<=>UNIX in FAT,
- NCPFS and SMBFS drivers [second attempt]
-In-Reply-To: <Pine.GSO.3.96.SK.1001213154121.6051A-100000@univ.uniyar.ac.ru>
-Message-ID: <Pine.LNX.4.21.0012132051570.20073-100000@cola.svenskatest.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131791AbQLMU5m>; Wed, 13 Dec 2000 15:57:42 -0500
+Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:6159 "EHLO
+	draco.foogod.com") by vger.kernel.org with ESMTP id <S131568AbQLMU50>;
+	Wed, 13 Dec 2000 15:57:26 -0500
+Date: Wed, 13 Dec 2000 12:26:46 -0800
+From: alex@foogod.com
+To: Tim Riker <Tim@Rikers.org>
+Cc: alex@foogod.com, Andre Hedrick <andre@linux-ide.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] I-Opener fix (again)
+Message-ID: <20001213122646.D19902@draco.foogod.com>
+In-Reply-To: <20001211152331.M10618@draco.foogod.com> <Pine.LNX.4.10.10012122217440.4894-100000@master.linux-ide.org> <20001213114046.B19902@draco.foogod.com> <3A37D9F2.6FB11D82@Rikers.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A37D9F2.6FB11D82@Rikers.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2000, Igor Yu. Zhbanov wrote:
+On Wed, Dec 13, 2000 at 01:20:02PM -0700, Tim Riker wrote:
+> Andre,
+> 
+> What are the "laptops that have CFA devices that do not come on channels
+> in a pair" systems you refer to?
 
-> I think your testprogram is broken (or else my testprogram is broken :).
+I assume he's referring to flash devices which show up as an IDE bus with only
+a master and no slave, and don't handle slave accesses well (right?).  It
+should be noted that my patch does _not_ break these cases at all.
 
-Yes, you were right. Mine must have been broken (possibly caused by
-trying to make it readable :). Thanks.
-
-Alan, if you still have the patch please apply it to smbfs in 2.2
-(and possibly fat too, I assume it is the same). If you don't I'll send it
-again for 2.2.19pre2 or so.
-
-/Urban
-
+-alex
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

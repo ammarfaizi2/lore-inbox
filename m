@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUFHPoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUFHPt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUFHPoz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 11:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUFHPoz
+	id S265232AbUFHPt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 11:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUFHPt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 11:44:55 -0400
-Received: from thumper2.emsphone.com ([199.67.51.102]:40675 "EHLO
-	thumper2.allantgroup.com") by vger.kernel.org with ESMTP
-	id S265230AbUFHPow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 11:44:52 -0400
-Date: Tue, 8 Jun 2004 10:44:22 -0500
-From: Andy <genanr@emsphone.com>
-To: linux-kernel@vger.kernel.org
-Subject: NFS corruption (duplicated data)
-Message-ID: <20040608154422.GA3946@thumper2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 8 Jun 2004 11:49:58 -0400
+Received: from winds.org ([68.75.195.9]:58277 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id S265232AbUFHPt4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 11:49:56 -0400
+Date: Tue, 8 Jun 2004 11:49:51 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Behavior of serial usb driver when unplugged
+Message-ID: <Pine.LNX.4.60.0406081137030.9168@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I really don't understand what could be causing this, but it happens on
-several machine and at least on kernels 2.4.22, 2.4.25, 2.4.26.
-NFS v3 : hard, udp, rsize=8192,wsize=8192
-local filesystems are XFS
+Hi all,
 
-Trond, this is data corruption not dropped packets so the protocol
-being UDP is not the problem.
+I'm currently using Linux (2.6.7-rc3) in an embedded system with a 8-port
+Sealevel SeaLink 2802 USB device. This is a 8-port RS-232/422 device that
+allocates /dev/ttyUSB0 through /dev/ttyUSB7 when plugged in.
 
-Here is what is happening :
+If I have a process talking to one of the ports, e.g. 'cat < /dev/ttyUSB0', and
+I unplug the USB hub, all ports except ttyUSB0 unregister properly.
 
-Copying a file of offsets from machine A to machine B over NFS and then
-comparing the file on B with the file on A over NFS, the file on machine B
-is corrupted in the following ways. 
+Without killing the 'cat' process, plugging the hub back in will make it
+allocate /dev/ttyUSB1 through /dev/ttyUSB8, thereby offsetting each USB port#
+by 1.
 
-Usually, data earlier in the file will show up again later.
-For example :
+When killing the 'cat' process at this point, the kernel reports:
 
-57344 bytes of data from 672190464-672247807 is also in positions
-1449664512-1449721855
+drivers/usb/serial/ftdi_sio.c: error from flowcontrol urb
+drivers/usb/serial/ftdi_sio.c: Error from DTR LOW urb
+drivers/usb/serial/ftdi_sio.c: Error from RTS LOW urb
 
-sometimes, data later in the file is dupped to a position before it
-should be
+and then unregisters /dev/ttyUSB0.
 
-53248 bytes of data from 1197158400-1197211647 is also in positions
-1036660736-1036713983
 
-Any ideas
+Is there a way to allow "hotplug" of a USB device to reuse /dev/ttyUSB0
+regardless if an application still has that particular tty open?
 
-Andy
+If not, is there a way I could make the serial subsystem can send an EIO errno
+or some other notification when the serial device is disconnected?
+
+Thanks for your help,
+  -Byron
+
+--
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com

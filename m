@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135382AbRDLXWO>; Thu, 12 Apr 2001 19:22:14 -0400
+	id <S132553AbRDLXkC>; Thu, 12 Apr 2001 19:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135383AbRDLXWE>; Thu, 12 Apr 2001 19:22:04 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:14854
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135382AbRDLXVx>; Thu, 12 Apr 2001 19:21:53 -0400
-Date: Thu, 12 Apr 2001 16:21:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
-In-Reply-To: <E14nqGQ-0001i5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10104121616070.4564-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S132612AbRDLXjw>; Thu, 12 Apr 2001 19:39:52 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:27950 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132553AbRDLXjb>; Thu, 12 Apr 2001 19:39:31 -0400
+Date: Fri, 13 Apr 2001 01:47:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: glouis@dynamicro.on.ca
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac5
+Message-ID: <20010413014711.D930@athlon.random>
+In-Reply-To: <E14njvB-0000xu-00@the-village.bc.nu> <20010412191726.A719@athame.dynamicro.on.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010412191726.A719@athame.dynamicro.on.ca>; from glouis@dynamicro.on.ca on Thu, Apr 12, 2001 at 07:17:26PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Apr 2001, Alan Cox wrote:
-
-> > Okay but what will be used for a base for hardware that has critical
-> > timing issues due to the rules of the hardware?
-> 
-> > #define WAIT_MIN_SLEEP  (2*HZ/100)      /* 20msec - minimum sleep time */
+On Thu, Apr 12, 2001 at 07:17:26PM -0400, Greg Louis wrote:
+> On 20010412 (Thu) at 1726:11 +0100, Alan Cox wrote:
 > > 
-> > Give me something for HZ or a rule for getting a known base so I can have
-> > your storage work and not corrupt.
+> > 2.4.3-ac5
 > 
+> > o	Fix rwsem compile problem			(me)
 > 
-> The same values would be valid with add_timer and friends regardless. Its just
-> that people who do
-> 
-> 	while(time_before(jiffies, started+DELAY))
-> 	{
-> 		if(poll_foo())
-> 			break;
-> 	}
-> 
-> would need to either use add_timer or we could implement get_jiffies()
+> No such luck, I fear, at least not with egcs-2.91.66:
+> /usr/src/linux-2.4.3ac5/include/asm/rwsem.h:26: badly punctuated
+> parameter list in #define'
+> /usr/src/linux-2.4.3ac5/include/asm/rwsem.h: In function 'down_read':
+> /usr/src/linux-2.4.3ac5/include/asm/rwsem.h:52: warning: implicit
+> declaration of function 'rwsemdebug'
 
-Okay regardless of the call what is it going to be or do we just random
-and go oh-crap data!?!?
+I didn't checked ac5 but this is how I fixed the UP compile problem of 4pre2:
 
-Since HZ!==100 of all archs that have ATA/ATAPI support, it is a mircale
-that FS corruption and system death is not more rampant, except for the
-fact that hardware is quick by a factor of 10+ so that 1000 does not quite
-do as much harm but the associated mean of HZ changes and that is a
-problem with slower hardware.
+--- 2.4.4pre2aa/include/asm-i386/rwsem.h.~1~	Thu Apr 12 17:25:24 2001
++++ 2.4.4pre2aa/include/asm-i386/rwsem.h	Thu Apr 12 17:38:10 2001
+@@ -17,7 +17,7 @@
+ 
+ #include <asm/system.h>
+ #include <asm/atomic.h>
+-#include <asm/spinlock.h>
++#include <linux/spinlock.h>
+ #include <linux/wait.h>
+ 
+ #if RWSEM_DEBUG
 
-Nevermind just going nuts over the issues...
-Just trying to keep the flamage down and stuff like that....
-
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+Andrea

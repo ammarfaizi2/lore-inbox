@@ -1,62 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267047AbTAGMAm>; Tue, 7 Jan 2003 07:00:42 -0500
+	id <S267303AbTAGMEZ>; Tue, 7 Jan 2003 07:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbTAGMAm>; Tue, 7 Jan 2003 07:00:42 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:17298 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP
-	id <S267047AbTAGMAk>; Tue, 7 Jan 2003 07:00:40 -0500
-Subject: unix_getname buglet - > 2.5.4(?)
-From: Michael Meeks <michael@ximian.com>
-To: linux-kernel@vger.kernel.org
-Cc: evolution <evolution-hackers@ximian.com>, orbit <orbit-list@gnome.org>
-Content-Type: text/plain
-Organization: Ximian.
-Message-Id: <1041941192.25619.293.camel@michael.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 07 Jan 2003 12:06:32 +0000
+	id <S267322AbTAGMEY>; Tue, 7 Jan 2003 07:04:24 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:1733 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267303AbTAGMEW>; Tue, 7 Jan 2003 07:04:22 -0500
+Date: Wed, 08 Jan 2003 01:12:12 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Werner Almesberger <wa@almesberger.net>, Valdis.Kletnieks@vt.edu
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+Message-ID: <18030000.1041941532@localhost.localdomain>
+In-Reply-To: <20030107040829.E1406@almesberger.net>
+References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
+ <3E19B401.7A9E47D5@linux-m68k.org>
+ <17360000.1041899978@localhost.localdomain>
+ <20030107042045.GA10045@waste.org>
+ <200301070538.h075cICR004033@turing-police.cc.vt.edu>
+ <20030107031638.D1406@almesberger.net>
+ <200301070643.h076hWCR004411@turing-police.cc.vt.edu>
+ <20030107040829.E1406@almesberger.net>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+No, he really meant without.  I don't know if Valdis saw the presentation 
+that went with that draft, but I did (last IETF in Yokohama).  The example 
+was a 10Gbps link with a 250ms RTT (plausibly, a trans-pacific cable 
+lambda).  There are tens of thousands of 9k packets in the window (yep, 100 
+*megabytes* in flight in the cable!), and it does take several hours with 
+exactly zero drops to get the connection to fill the 10Gbps.  After one 
+dropped packet, it can take an hour to get back to full utilisation.  The 
+graphs are really startling to look at :-)
 
-	Evolution is non-functioning on recent 2.5.X kernels, due to
-mal-performance in getpeername => net/unix/af_unix.c (unix_getname),
-where it seems we switch 'sk' on 'peer', but not the (previously)
-typecast pointer to it; this fixes it.
+That quirk just meant the numbers were off by a few orders of magnitude.
 
---- af_unix.c.old       Tue Jan  7 11:59:09 2003
-+++ af_unix.c   Tue Jan  7 12:00:45 2003
-@@ -1097,7 +1097,7 @@
- static int unix_getname(struct socket *sock, struct sockaddr *uaddr,
-int *uaddr_len, int peer)
- {
-        struct sock *sk = sock->sk;
--       struct unix_sock *u = unix_sk(sk);
-+       struct unix_sock *u;
-        struct sockaddr_un *sunaddr=(struct sockaddr_un *)uaddr;
-        int err = 0;
-  
-@@ -1112,6 +1112,7 @@
-                sock_hold(sk);
-        }
-  
-+       u = unix_sk(sk);
-        unix_state_rlock(sk);
-        if (!u->addr) {
-                sunaddr->sun_family = AF_UNIX;
+If anyone wants to look at that further, I think there are URLs in the 
+draft.  If not, I can dig them out of the proceedings.
 
-	Thanks Joaquim Fellmann (AFAIR) who chased this down to bitkeeper
-changeset 1.262.2.2. Sadly I didn't have time to read the rest of that
-changeset to see if the mistake pops up elsewhere as well. Please CC me
-with replies, not on linux-kernel.
+Andrew
 
-	HTH,
+--On Tuesday, January 07, 2003 04:08:29 -0300 Werner Almesberger 
+<wa@almesberger.net> wrote:
 
-		Michael Meeks.
+> Valdis.Kletnieks@vt.edu wrote:
+>> That's not the problem. The problem is that TCP slow-start itself (and
+>> some of the related congestion control stuff) has some issues scaling to
+>> the very high end.
+>
+> I'm very well aware of that ;-) But what you wrote was:
+>
+>> it takes *hours* without a
+>> packet drop to get the window open *all* the way
+>
+> Or did you mean "after" instead of "without" ? Or maybe "into
+> equilibrium" instead of "the window open ..." ? (After all, the
+> window isn't only open, but it's been blown off its hinges.)
+>
+> In any case, your statement accurately describes a somewhat
+> surprising quirk in Linux TCP performance as of only a bit more
+> than six years ago :)
+>
+> - Werner
+>
+> --
+>
+> _________________________________________________________________________
+>  / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net
+> /
+> /_http://www.almesberger.net/____________________________________________/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
--- 
- mmeeks@gnu.org  <><, Pseudo Engineer, itinerant idiot
 

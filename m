@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317215AbSEXR4j>; Fri, 24 May 2002 13:56:39 -0400
+	id <S317216AbSEXR4M>; Fri, 24 May 2002 13:56:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317224AbSEXR4i>; Fri, 24 May 2002 13:56:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:49792 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317215AbSEXR4g>;
-	Fri, 24 May 2002 13:56:36 -0400
-Date: Fri, 24 May 2002 10:42:09 -0700 (PDT)
-Message-Id: <20020524.104209.31440798.davem@redhat.com>
-To: wjhun@ayrnetworks.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible discrepancy regarding streaming DMA mappings in
- DMA-mapping.txt?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020524104345.J7205@ayrnetworks.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317228AbSEXR4J>; Fri, 24 May 2002 13:56:09 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12864 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317215AbSEXR4A>; Fri, 24 May 2002 13:56:00 -0400
+Date: Fri, 24 May 2002 19:55:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524175522.GD15703@dualathlon.random>
+In-Reply-To: <20020524163942.GB15703@dualathlon.random> <Pine.GSO.4.21.0205241300480.9792-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: William Jhun <wjhun@ayrnetworks.com>
-   Date: Fri, 24 May 2002 10:43:46 -0700
-   
-   So, if I'm not mistaken, you are saying that I need to call
-   pci_dma_sync_single() *after* the DMA so that the CPU reclaims ownership
-   to the buffer? That's fine and probably serves a good purpose on other
-   architectures, but wouldn't I also need to do one before the DMA (after
-   the CPU write) operation to flush write buffers/writeback any cachelines
-   I've modified for non-cache-coherent architectures?
+On Fri, May 24, 2002 at 01:04:33PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Fri, 24 May 2002, Andrea Arcangeli wrote:
+> 
+> > > Note that this will have to touch the FS anyway, since the O_CREAT thing
+> > > forces a call down to the FS to actually create the file.
+> > 
+> > yep. the only case where it could provide some in-core "caching"
+> > positive effect is:
+> > 
+> > 	unlink
+> > 	open(w/o creat)
+> > 
+> > but I don't see it as a common case.
+> 
+> 	Guys, how about tracing the damn thing and checking what actually
+> happens?  Or, at least, checking the prototypes and noticing that ->create()
+> takes (hashed) dentry as an argument, so if unlinked on had been freed we _must_
+> call ->lookup().
 
-I see what your problem is, the interfaces were designed such
-that the CPU could read the data.  It did not consider writes.
+so why don't you also left a negative directory floating around, so you
+know if you creat a file with such name you don't need to ->loopup the
+lowlevel fs but you only need to destroy the negative directory and all
+its leafs in-core-dcache? If you did the negative effect would become
+more obvious, the d_unhash hides it except for the spooling workloads.
 
-It was designed to handle a case like a networking driver where
-a receive packet is inspected before we decide whether we accept the
-packet or just give it back to the card.
+Avoiding a lowlevel lookup operation for an unlink/open cycle, looks a
+minor optimization compared to a massive dcache ""leak"" under certain
+common spooling workloads IMHO.
 
-Feel free to design the "cpu writes, back to device ownership"
-interfaces and submit a patch :-)
+Anyways in 2.5 we could still take advantage of the negative dentries as
+much as possible (also after unlink) by moving the negative dentries
+into a separate list and by putting the shrinkage of this list in front
+of kmem_cache_reap, so we are as efficient as possible, but we don't
+risk throwing away very useful cache, for more dubious caching effects
+after an unlink/create-failure that currently have the side effect of
+throwing away tons of worthwhile positive pagecache (and even triggering
+swap false positives) in some workloads.
+
+Andrea

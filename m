@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUFJUih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUFJUr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbUFJUih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 16:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUFJUih
+	id S263015AbUFJUr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 16:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUFJUrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 16:38:37 -0400
-Received: from mail.stdbev.com ([63.161.72.3]:15799 "EHLO
-	mail.standardbeverage.com") by vger.kernel.org with ESMTP
-	id S263001AbUFJUie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 16:38:34 -0400
-Message-ID: <efc4b1ba19898906eb0aec7ac9c22fcd@stdbev.com>
-Date: Thu, 10 Jun 2004 15:46:24 -0500
-From: "Jason Munro" <jason@stdbev.com>
-Subject: Re: Toshiba keyboard lockups
-To: "Oleg Drokin" <green@linuxhacker.ru>
-Reply-to: <jason@stdbev.com>
-Cc: Fernando.Paredes@sun.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200406101915.i5AJFCBu197611@car.linuxhacker.ru>
-References: <40A162BA.90407@sun.com>
-            <200405121149.37334.rjwysocki@sisk.pl>
-            <40C7880C.4000401@sun.com>
-            <200406101915.i5AJFCBu197611@car.linuxhacker.ru>
-X-Mailer: Hastymail 1.1-CVS
+	Thu, 10 Jun 2004 16:47:55 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:5331 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263015AbUFJUry (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 16:47:54 -0400
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16584.51435.861827.302250@alkaid.it.uu.se>
+Date: Thu, 10 Jun 2004 22:47:39 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc3-mm1 problems (ACPI and others)
+In-Reply-To: <Pine.LNX.4.58.0406102131360.18039@alpha.polcom.net>
+References: <200406102045.i5AKjDJo017156@snoqualmie.dp.intel.com>
+	<Pine.LNX.4.58.0406102131360.18039@alpha.polcom.net>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2:15:12 pm 06/10/04 Oleg Drokin <green@linuxhacker.ru> wrote:
-> Hello!
->
-> Fernando Paredes <Fernando.Paredes@sun.com> wrote:
->
-> FP> Applied these patches. Nothing while tail'ing /var/log/messages.
-> Nothing FP> in the root console that I can see either.
-> FP> Patched the source to 2.6.6. Still get the same lockups, totally
-> random. FP> Any more ideas?
->
-> Not sure if I have exact problem like you do, but at least I have
-> something similar. Once in a while keyboard suddenly stopps working,
-> touchpad still work though (I have Toshiba Satellite Pro (centrino
-> based) laptop here). I figured out that if I leave the keyboard for
-> some time (up to 2 minutes), it starts to work again, at least this
-> was the case with XFree 4.4, during those no-keyboard times, mouse
-> cursor was moving with small jumps (when keyboard works it moves
-> smoothly). I upgraded to FC2 (and hence to xorg X server) today, and
-> lockup happened once already, the "wait for some time" strategy did
-> not work, so I remembered initially I thought this was something bad
-> pressed on keyboard 
+Grzegorz Kulewski writes:
+ > Hi,
+ > 
+ > I have the following problems with 2.6.7-rc3-mm1:
+...
+ > 3. PERFCTR gives me compile time errors (see compiler messages). Do I need 
+ > any special patches?
+...
+ >   CC      drivers/perfctr/x86.o
+ > /usr/src/linux-2.6.7-rc3-mm1/drivers/perfctr/x86.c: In function 
+ > `finalise_backpatching':
+ > /usr/src/linux-2.6.7-rc3-mm1/drivers/perfctr/x86.c:1137: error: syntax 
+ > error before '{' token
 
-I have had similar issues with a toshiba laptop keyboard with 2.6+ kernels
-for awhile. I have found that repeating the last key combination pressed
-will "unlock" it. No logs or dmesg entries are produced when the lockup
-occurs.
+Perfctr is the victim of broken cpumask patches.
+Apply the patch below.
 
-Its a Toshiba Satellite 1410-S173, currently running 2.6.7-rc2-mm2
-
-\__ Jason Munro
- \__ jason@stdbev.com
-  \__ http://hastymail.sourceforge.net/
-
-
+diff -ruN linux-2.6.7-rc3-mm1/include/linux/cpumask.h linux-2.6.7-rc3-mm1.cpu_mask_none-fix/include/linux/cpumask.h
+--- linux-2.6.7-rc3-mm1/include/linux/cpumask.h	2004-06-09 19:38:39.000000000 +0200
++++ linux-2.6.7-rc3-mm1.cpu_mask_none-fix/include/linux/cpumask.h	2004-06-09 22:01:28.470416000 +0200
+@@ -248,9 +248,9 @@
+ #endif
+ 
+ #define CPU_MASK_NONE							\
+-{ {									\
++((cpumask_t) { {							\
+ 	[0 ... BITS_TO_LONGS(NR_CPUS)-1] =  0UL				\
+-} }
++} })
+ 
+ #define cpus_addr(src) ((src).bits)
+ 

@@ -1,127 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130993AbQLNRyR>; Thu, 14 Dec 2000 12:54:17 -0500
+	id <S131370AbQLNRzh>; Thu, 14 Dec 2000 12:55:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131091AbQLNRyI>; Thu, 14 Dec 2000 12:54:08 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:62214 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S130993AbQLNRyD>;
-	Thu, 14 Dec 2000 12:54:03 -0500
-Date: Thu, 14 Dec 2000 11:24:12 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: David_Feuer@brown.edu
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+	id <S131363AbQLNRz1>; Thu, 14 Dec 2000 12:55:27 -0500
+Received: from kazoo.cs.uiuc.edu ([128.174.237.133]:21945 "EHLO
+	kazoo.cs.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S131091AbQLNRzO>; Thu, 14 Dec 2000 12:55:14 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Chris Lattner <sabre@nondot.org>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
         linux-kernel@vger.kernel.org, orbit-list@gnome.org,
         korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-Message-ID: <Pine.LNX.4.21.0012141121360.26708-100000@www.nondot.org>
+Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.4.21.0012141442390.1437-100000@duckman.distro.conectiva>
+From: Fredrik Vraalsen <vraalsen@cs.uiuc.edu>
+Date: 14 Dec 2000 11:23:59 -0600
+In-Reply-To: <Pine.LNX.4.21.0012141442390.1437-100000@duckman.distro.conectiva>
+Message-ID: <sz2g0jq9as0.fsf@kazoo.cs.uiuc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Rik van Riel
+|
+| On Wed, 13 Dec 2000, Chris Lattner wrote:
+| 
+| > 1. kORBit adds about 150k of code to the 2.4t10 kernel.
+| > 2. kNFS adds about 100k of code to the 2.4t10 kernel.
+| > 3. kORBit can do everything kNFS does, plus a WHOLE lot more: For example
+| >    implement an NFS like server that uses SSL to send files and
+| >    requests... so it is really actually "secure".
+| 
+| So can you implement a kNFS server in kORBit that takes
+| less than 50kB of RAM?  Otherwise it's still a contributor
+| to bloat and this argument won't work ;)
 
-> >that is not transparently hidden to the user.  Why can't I just open
-> >/dev/net0 and get the first network device?  Because we have so many
-> >inconsistent, poorly design, inextensible interfaces laying around, thats
-> >why.
+Well, kORBit itself is bigger than kNFS, but like Chris said, it can
+do much more. :)
 
-> This is a bad example, but a (perhaps?) good point.  It seems it should be 
-> possible to implement an unlimited number of TCP/IP devices, each 
+For testing kORBit we wrote a new filesystem CorbaFS.  The CorbaFS
+client is a kernel module that basically forwards the Linux VFS calls
+to the userspace CorbaFS server.
 
-Part of my argument is that although every kernel interface boils down to
-something as simple as ioctl (where you have lots of api's multiplexed
-onto one data sink, int 0x80 is another example, kORBit is another), some
-ways of doing this multiplexing are better than others.  I look at it as a
-hierarchy:
+According to lsmod, the CorbaFS module takes up only 11KB of RAM.
+Keep in mind that CorbaFS is currently only a proof-of-concept of the
+kernel calling into userspace through kORBit (it is a read-only
+filesystem at the moment, for example).  But it should give you some
+idea.
 
-1. CORBA/kORBit
-2. int 80/lcall
-3. ioctl
+The cool thing is that the CorbaFS userspace server can implement any
+kind of filesystem you want, as long as it follows the CorbaFS
+interface!  The current implementation exports the filesystem on the
+host machine that it is running on, similar to NFS.  But we also have
+ideas for FTP or web filesystems, for example.  Imagine being able to
+mount the web CorbaFS onto /mnt/www and do a
+ 
+  cat /mnt/www/www.kernel.org/index.html
 
-Each level is more structured than those below it.  Each interface is also
-"cleaner" than those below it.  I don't think that anyone would argue that
-we should replace int 80 and friends with an interface in the spirit of
-ioctl (even though it would be functionally identical).
+and the CorbaFS userspace server takes care of loading the webpage and
+returning it to the kernel client.  And these new filesystems don't
+take up any extra space in the kernel, since they all talk to the same
+CorbaFS kernel module!  Not to mention being able to implement the
+filesystem in any language you like, debug the implementation in
+userspace, etc.
 
-> representing a connection, and each connected, disconnected, etc. by 
-> ioctls...  Of course, I could be way wrong about this....
-
-ioctl's... they come up again.  Everytime that I look at the beautiful,
-clean, abstract interface that Unix exposes... it makes me happy.  But
-unfortunately, if you look closer, you realize that the Unix API isn't
-really clean or nice at all... there is this dumping ground for odds and
-ends that don't fit into the standard model.  So when you show someone the
-standard model, it looks clean and pretty... but someone always forgets to
-mention ioctl.
-
-I would claim that ioctl is one of the biggest reasons that kORBit needs
-to exist.  See below.
-
-> >I can't do ls /dev/*net* and get all the network
-> >devices either.  Actually, one of the very cool things about CORBA is that
-
-> Different network devices are _very_ different...  You can't broadcast on a 
-> modem, for instance, nor can you use promiscuous mode on a modem... You 
-> also can't do byte-by-byte raw mode on an ethernet...
-
-Precisely.  But they do all have very common interfaces.  For example, the
-standard network interface would probably have "transmit/receive
-block" and "getstatus" commands.  This does not mean that they cannot
-implement other interfaces, however.
-
-Imagine this situation for writing your packet sniffer:
-
-1. You open up /dev/net0 and get the Network interface
-2. You query the network interface to see if it has an implementation
-   of the promiscuous interface.
-3. If not, you bail, because it doesn't support it.
-4. If, you go ahead and use it.
-
-Contrast that to:
-
-1. Survey all the different interfaces that are known (at development time
-   of course) to have promiscuous interfaces.
-2. Find out which ones are active.
-3. Depending on what kind of interface it is, load a library that can
-   understand the byte format comming off the device.
-4. Use that library.
-
-The problems with the second (currently used) approach is that the
-APPLICATION writer has to keep up with new hardware developments and new
-interfaces.  They have to understand and code parsers for the bytestreams
-coming from each device, which (as you mentioned) are all different,
-because they all support different (although overlapping) extensions.
-
-All of these calls that currently get dumped into ioctl (because they are
-not important enough to warrant an API function at the top level) suddenly
-become well structure and well designed interfaces.  For example, if your
-device doesn't support the terminal handling ioctls the system has to
-basically figure that out and report errors on it.  With CORBA/kORBit, you
-would just not implement that interface... so if someone asked for it,
-they would get a null pointer to the interface, which they check for and
-realize that it's impossible to do terminal stuff on.
-
-isatty (an example of an IOCTL wrapper) suddenly becomes implicit and the
-API is cleaner...
-
-I have no problem with the "unix way", but I do think that it can be
-augmented in some ways...
-
--Chris
-
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
-
-
-
-
-
-
-
-
-
-
+-- 
+Fredrik Vraalsen  -  Research Assistant, Pablo research group
+Department of Computer Science, University of Illinois at U-C
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

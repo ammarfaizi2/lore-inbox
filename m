@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269481AbUHZTnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269453AbUHZTnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269481AbUHZTnU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUHZTjA
+	id S269453AbUHZTnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269481AbUHZTkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:39:00 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:15621 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S269482AbUHZTgR
+	Thu, 26 Aug 2004 15:40:23 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:39943 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S269472AbUHZTil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:36:17 -0400
-Date: Thu, 26 Aug 2004 21:37:15 +0200
+	Thu, 26 Aug 2004 15:38:41 -0400
+Date: Thu, 26 Aug 2004 21:39:26 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: kbuild: fix make O= build
-Message-ID: <20040826193715.GC9539@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040826193614.GB9539@mars.ravnborg.org>
+To: Ian Campbell <icampbell@arcom.com>
+Cc: sam@ravnborg.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Build error with recent BK and O=
+Message-ID: <20040826193926.GF9539@mars.ravnborg.org>
+Mail-Followup-To: Ian Campbell <icampbell@arcom.com>,
+	sam@ravnborg.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1093524839.12997.11.camel@icampbell-debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040826193614.GB9539@mars.ravnborg.org>
+In-Reply-To: <1093524839.12997.11.camel@icampbell-debian>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/26 21:13:39+02:00 sam@mars.ravnborg.org 
-#   kbuild: Fix make O=
-#   
-#   A bug that slipped through when introducing Makefile.host.
-#   A good way to check if people actually uses make O= ;-)
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# scripts/Makefile.host
-#   2004/08/26 21:13:23+02:00 sam@mars.ravnborg.org +1 -0
-#   Fix make O= build.
-#   
-#   When we put correct prefix on obj-dris the output directory is created if needed
-# 
-diff -Nru a/scripts/Makefile.host b/scripts/Makefile.host
---- a/scripts/Makefile.host	2004-08-26 21:22:06 +02:00
-+++ b/scripts/Makefile.host	2004-08-26 21:22:06 +02:00
-@@ -73,6 +73,7 @@
- host-cxxobjs	:= $(addprefix $(obj)/,$(host-cxxobjs))
- host-cshlib	:= $(addprefix $(obj)/,$(host-cshlib))
- host-cshobjs	:= $(addprefix $(obj)/,$(host-cshobjs))
-+obj-dirs        := $(addprefix $(obj)/,$(obj-dirs))
- 
- #####
- # Handle options to gcc. Support building with separate output directory
+On Thu, Aug 26, 2004 at 01:53:59PM +0100, Ian Campbell wrote:
+> Hi Sam,
+> 
+> When building an x86 kernel from a BK tree from a few hours ago with
+> O=../build-2.6-gx1 I got the following error:
+
+Thanks.
+
+Fixet - see mail sent to lkml with subject "kbuild fixes"
+
+	Sam

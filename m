@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSKZKFK>; Tue, 26 Nov 2002 05:05:10 -0500
+	id <S261907AbSKZKS3>; Tue, 26 Nov 2002 05:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSKZKFK>; Tue, 26 Nov 2002 05:05:10 -0500
-Received: from mons.uio.no ([129.240.130.14]:5521 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S261701AbSKZKFJ>;
-	Tue, 26 Nov 2002 05:05:09 -0500
-From: Terje Malmedal <terje.malmedal@usit.uio.no>
-To: Nikita@Namesys.COM
-CC: linux-kernel@vger.kernel.org, Reiserfs-List@Namesys.COM
-In-reply-to: <15842.28332.47095.407177@laputa.namesys.com> (message from
-	Nikita Danilov on Mon, 25 Nov 2002 21:40:44 +0300)
-Subject: Re: reiserfs and nfs.
+	id <S262373AbSKZKS3>; Tue, 26 Nov 2002 05:18:29 -0500
+Received: from www.qskills.net ([212.204.70.2]:9146 "EHLO mail.qskills.net")
+	by vger.kernel.org with ESMTP id <S261907AbSKZKS2>;
+	Tue, 26 Nov 2002 05:18:28 -0500
+Date: Tue, 26 Nov 2002 12:26:43 +0100
+From: Richard Mueller <mueller@teamix.net>
+X-Mailer: The Bat! (v1.61) Business
+Reply-To: Richard Mueller <mueller@teamix.net>
+Organization: Teamix GmbH
+X-Priority: 3 (Normal)
+Message-ID: <75355206580.20021126122643@teamix.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re[2]: [PROBLEM] D-Link DFE-580TX: Only 3 Ports working
+In-Reply-To: <20021125201803.A830@jurassic.park.msu.ru>
+References: <140282249663.20021125161149@teamix.net>
+ <20021125201803.A830@jurassic.park.msu.ru>
 MIME-Version: 1.0
-Message-Id: <E18Gchd-0005jx-00@aqualene.uio.no>
-Date: Tue, 26 Nov 2002 11:12:25 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Ivan,
 
-[Nikita Danilov]
-> Terje Malmedal writes:
->> 
->> [Nikita Danilov]
->> > Terje Malmedal writes:
->> >> 
+Monday, November 25, 2002, 6:18:03 PM, you wrote:
+IK> It's clear BIOS bug. All four controllers are sitting behind PCI-to-PCI
+IK> bridge which blocks IO access to the ranges 0xb100-0xb3ff, 0xb500-0xb7ff,
+IK> 0xb900-0xbbff and 0xbd00-0xbfff due to PCI_BRIDGE_CTL_NO_ISA mode.
 
-> [...]
+IK> Does this patch help?
+Yes. It works fine. Thanks for your help.
+At the moment I am stress-testing the NIC and it seems to be very
+fine. If not I will repost.
 
->> 
->> To reproduce do something like: 
->> $ ls -li RMAIL
->> 387607 -rw-------    1 tm       4050     36635726 Nov 20 16:15 RMAIL
-
-> Is RMAIL inode number constant on the server?
-
-No, it is always the same as the number seen over NFS, but I've not
-seen this problem when I've tried running emacs on the nfs-server
-itself.
+IK> --- linux/arch/i386/kernel/pci-i386.c~  Thu Nov 21 20:34:54 2002
+IK> [PATCH]
+Thanks a lot!
+This kind of Tech-support can only be realized with open-source.
 
 -- 
- - Terje
-malmedal@usit.uio.no
+Best regards,
+ Richard                            mailto:mueller@teamix.net
+

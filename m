@@ -1,96 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSG2Hga>; Mon, 29 Jul 2002 03:36:30 -0400
+	id <S313087AbSG2HtI>; Mon, 29 Jul 2002 03:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSG2Hga>; Mon, 29 Jul 2002 03:36:30 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:14097 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S312560AbSG2Hg3>; Mon, 29 Jul 2002 03:36:29 -0400
-Message-ID: <3D44F136.8060202@namesys.com>
-Date: Mon, 29 Jul 2002 11:39:34 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Federico Ferreres <fferreres@ojf.com>, Daniel Mose <imcol@unicyclist.com>,
-       Larry McVoy <lm@work.bitmover.com>,
-       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, openpatentfunds@home.se
-Subject: Re: Funding GPL projects or funding the GPL?
-References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313070AbSG2HtI>; Mon, 29 Jul 2002 03:49:08 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:38939 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S312973AbSG2HtF>; Mon, 29 Jul 2002 03:49:05 -0400
+Date: Mon, 29 Jul 2002 09:52:14 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Aron Zeh <ARZEH@de.ibm.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>, devices@lanana.org
+Subject: Re: [PATCH] sd_many done right (3/5)
+Message-ID: <20020729075214.GC14531@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Aron Zeh <ARZEH@de.ibm.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Jens Axboe <axboe@suse.de>, devices@lanana.org
+References: <OFF035F90D.9958CFF6-ONC1256C05.0027A0C5@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+Content-Disposition: inline
+In-Reply-To: <OFF035F90D.9958CFF6-ONC1256C05.0027A0C5@de.ibm.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
 
->On 28 Jul 2002, Federico Ferreres wrote:
->
->  
->
->>I stated a simple idea aimed at solving a real world issue. And you
->>haven't proved it wrong. It may not be what you or the kernel hackers
->>need/want (which is FINE). But it would solve ALL the funding problems
->>at least.
->>    
->>
->
->You don't get it.  So far the only guy who had been charitable was Larry, who
->felt that problem was real but had serious doubts about viability of your
->idea.  I don't feel charitable and I've no reason to hesitate telling that
->you guys _are_ waste of time.  No maybes about it.  It's that simple...
->
->
->  
->
-Viro is abusive to everyone (by email, he is likable in person oddly 
-enough), usually without understanding what he is talking about at a 
-level of depth any deeper than it is new therefor wrong (see devfs 
-thread where he rejects devfs on the basis of endless details without 
-understanding that the basic idea had any merit).
+--+nBD6E3TurpgldQp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Your idea has some merit in my opinion. I think that my version of it 
-that I presented at linuxworld some years ago, which is called an "Open 
-Sale", has some advantages.
+Hi Aron,
 
-     "Open Sales" are the best method for reducing the economic
-    distortion caused by non-zero marginal pricing of
-     products with zero marginal cost without losing the incentive to
-    produce.  An open sale is when a user group agrees to
-     pay X% of their hardware expenditures to all of those who provide
-    them with the right to use their software, with the
-     users performing the allocation to the providers based on the
-    users' usage and perception of quality. The users
-     determine the value of X, setting it in accordance with their
-    interest in attracting providers.  It is open in the
-     sense that any software producer may add their software to the list
-    whose usage and quality will be
-     evaluated. Automation of usage monitoring and sampling techniques
-    are expected refinements of the basic idea. It is
-     based on a belief that economic distortion is proportional to the
-    ratio between marginal price and marginal cost, not
-     just the dollar total of the gap, and that increasing the price of
-    hardware by X% is less of a distortion than
-     increasing the cost of software by an infinite ratio over its
-    production cost. An open sale retains the consumer/user
-     driven decentralized economic allocation of traditional sales, and
-    in the case of government agencies and other large
-     purchasers, it enhances it.  Payment of the X% is required to
-    legally use the software.
+On Mon, Jul 29, 2002 at 09:22:40AM +0200, Aron Zeh wrote:
+> one little thing:
+> In the third "if" statement in scsiname_to_kdev_t you search for "scd" but
+> set tp to "sr".
+> That should also be "scd" I'd guess.
 
+No, it's intended. Internally, I use the name 'sr' for a SCSI CDrom as
+that's the name the driver advertises. Some strange distributions out there
+seem to prefer the name 'scd' for unknown reasons[*], that's why I map scd =
+to
+sr in order not to confuse users.
 
-My approach has the advantage that the fee scales with hardware costs, 
-and that it is set by users.
+[*] The file name of the driver is sr.c, the module is name sr_mod, it fills
+in  the tag 'sr' as driver name (which is reported in /proc/devices).
+But for some reason somebody thinks that 'scd' would be more user friendly.
+It may seem more intuitive at first sight, but it makes things completely
+inconsistent. Unless, of course, we rename everything to 'scd' to make it
+consistent again.
+It nowadays is even reported as 'scd' (and 'sr' deprecated) in devices.txt,
+sigh!=20
+Somebody should take an authorative decision and do the renames if necessar=
+y!
+Or make sure devices.txt is fixed. Jens?
 
-However, you should understand that an idea is not enough, you must have 
-sufficient sociological mass to pull it off.  Neither you nor I are in 
-that position at this time.   Most people will be hostile to you if you 
-propose an idea that you lack the sociological position to effectuate.....
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations    <K.Garloff@TUE.NL>     [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
 
--- 
-Hans
+--+nBD6E3TurpgldQp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQE9RPQuxmLh6hyYd04RAsNGAJ4mFguek7nj+Mb/34bpL+4xEh1rUgCfVPbh
+Cy50oJSmSFWL7Sz4TIGxLhc=
+=pNf7
+-----END PGP SIGNATURE-----
 
+--+nBD6E3TurpgldQp--

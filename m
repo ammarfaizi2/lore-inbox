@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129506AbRCZWV7>; Mon, 26 Mar 2001 17:21:59 -0500
+	id <S129511AbRCZWV7>; Mon, 26 Mar 2001 17:21:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRCZWVt>; Mon, 26 Mar 2001 17:21:49 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:16145 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129509AbRCZWVj>;
-	Mon, 26 Mar 2001 17:21:39 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: David Hinds <dhinds@sonic.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 aic7xxx breaks pcmcia 
-In-Reply-To: Your message of "Mon, 26 Mar 2001 08:48:09 PST."
-             <20010326084809.A11493@sonic.net> 
-Mime-Version: 1.0
+	id <S129509AbRCZWVu>; Mon, 26 Mar 2001 17:21:50 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60033 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129506AbRCZWVh>;
+	Mon, 26 Mar 2001 17:21:37 -0500
+Message-ID: <3ABFC0C6.44A3B7EA@mandrakesoft.com>
+Date: Mon, 26 Mar 2001 17:20:54 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+Subject: Re: [CHECKER] Questions about  *_do_scsi & create_proc_entry
+In-Reply-To: <Pine.GSO.4.31.0103261400360.2886-100000@elaine24.Stanford.EDU>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Mar 2001 08:20:53 +1000
-Message-ID: <6041.985645253@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Mar 2001 08:48:09 -0800, 
-David Hinds <dhinds@sonic.net> wrote:
->On Mon, Mar 26, 2001 at 05:14:13PM +1000, Keith Owens wrote:
->What are the things you're planning that will cause trouble?
+>   Another question is that by inspecting the NULL checker's result, I
+> found that *_do_scsi is always used in the following way "SRpnt =
+> *_do_scsi(SRPnt, ...)" no matther SRPnt is NULL or not. If SRpnt is not
+> NULL, why don't just use
+>      *_do_scsi(SRPnt, ...);
+> The same thing happens to init_etherdev.
 
-Support for building third party drivers and patch sets as separate
-source trees.  Base kernel in in one source tree, external patch or
-driver set is in another source tree, kbuild reads from multiple source
-trees and writes to a separate object directory.  The multiple source
-trees break the assumption that all source is in one tree, lines like
-  #include <../drivers/scsi/aic7xxx.h>
-do not work with multiple sources.
+WRT init_etherdev, that's the intended effect, because it's 'dev' arg
+might indeed by NULL.
 
-You are right about the long compile lines though, example with three
-source trees, reflowed for readability.
-
-/usr/bin/kgcc -I /build/kaos/2.4.1-object-kdb/arch/i386/kernel/
-  -I /build/kaos/kdb/arch/i386/kernel/
-  -I /build/kaos/common/arch/i386/kernel/
-  -I /build/kaos/2.4.1-makefile-2.5/arch/i386/kernel/ -I-
-  -D__ASSEMBLY__  -D__KERNEL__ -I include -I .tmp_include/src_002
-  -I .tmp_include/src_001 -I .tmp_include/src_000 -traditional -c
-  -o arch/i386/kernel/trampoline.o
-  /build/kaos/2.4.1-makefile-2.5/arch/i386/kernel/trampoline.S
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

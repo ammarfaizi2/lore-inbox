@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVCVARx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVCVAVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbVCVARx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 19:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVCVARc
+	id S262212AbVCVAVU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVCVATQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:17:32 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:28788 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261975AbVCVAOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 19:14:36 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: [PATCH 0/5] I8K driver facelift
-Date: Mon, 21 Mar 2005 18:55:43 -0500
-User-Agent: KMail/1.7.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Valdis.Kletnieks@vt.edu
-References: <200502240110.16521.dtor_core@ameritech.net> <200503210012.29477.dtor_core@ameritech.net> <423F507B.1090009@tuxrocks.com>
-In-Reply-To: <423F507B.1090009@tuxrocks.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503211855.43537.dtor_core@ameritech.net>
+	Mon, 21 Mar 2005 19:19:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:45293 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262211AbVCVARM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 19:17:12 -0500
+Date: Mon, 21 Mar 2005 16:13:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: airlied@gmail.com, linux-kernel@vger.kernel.org, keenanpepper@gmail.com
+Subject: Re: i830 DRM problems
+Message-Id: <20050321161356.5e1002dd.akpm@osdl.org>
+In-Reply-To: <423F5A0A.7060307@ens-lyon.org>
+References: <422C5A25.3000701@ens-lyon.org>
+	<21d7e99705031115075e4378ed@mail.gmail.com>
+	<20050321151453.695c73e2.akpm@osdl.org>
+	<423F5A0A.7060307@ens-lyon.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 March 2005 17:53, Frank Sorenson wrote:
-> Dmitry Torokhov wrote:
-> > I have implemented arrays of groups of attributes:
-> 
-> Works great here.  The i8k-cumulative patch claimed to be malformed, but
-> I merged it in just fine by hand.  In arch/i386/kernel/dmi_scan.c, I had
-> to EXPORT dmi_get_system_info in order to get the i8k module to load.
-> That may have been a mistake on my end (lots of odd patches in my tree
-> right now). 
-
-No, I bet I forgot to export it - I have i8k compiled in and would not
-notice missing export.
- 
-> I'm a little curious to see how many people are going to 
-> find they need the ignore_dmi flag versus working without it.
-
-I want this driver to be first of all safe for loading on a random box
-so it can be enabled by default.
-
-> 
-> Everything works great, and it is a big step up from the existing code.
->  I say lets go with it.
+Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
 >
+> Andrew Morton a écrit :
+> > Dave Airlie <airlied@gmail.com> wrote:
+> > 
+> >>>I am experiencing problems with DRM on my Dell Optiplex GX260.
+> >>>I am running a Debian Sarge with Vanilla Linux 2.6.11 and XFree 4.3.0.
+> >>>This one appeared while playing crack-attack and lead to a crash
+> >>>of the X server.
+> >>>
+> >>
+> >>a) does it work with 2.6.10?
+> >>b) does it work if you turn off intelfb?
+> >>
+> > 
+> > afacit we're still waiting for an answer from Brice on this one?
+> 
+> Sorry about that, we start to talk about it in private with Dave.
+> But, I did not really it since Keenan Pepper told me it was due
+> to a bug in the XFree 4.3 driver.
+> I am now using Xorg and didn't see any DRM problem since.
+> However, I can't confirm that my bug was surely due to the XFree driver 
+> and not to the kernel driver since Xorg uses i915 instead of i830.
+> Keenan, do you have details ?
 
-Yep, I will add missing export and forward it to Andrew - it could use
-some time in -mm.
+OK, that sounds promising.  Would you view this as a regression?  Was XFree
+4.3 working OK on earlier 2.6 kernels?
 
-Thank you very much for testing it.
 
--- 
-Dmitry
+> I was also talking about a problem in intelfb on this box (i845G).
+> Basically, it works great during startup. But from what I remember, it
+> always crashes when switching from X to a text console.
+> I'll try to debug this one soon.
+
+Great.  Please cc linux-fbdev-devel@lists.sourceforge.net and myself when
+you have more.
+

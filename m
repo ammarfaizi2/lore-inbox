@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272593AbRJPFyV>; Tue, 16 Oct 2001 01:54:21 -0400
+	id <S272818AbRJPGHe>; Tue, 16 Oct 2001 02:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272818AbRJPFyL>; Tue, 16 Oct 2001 01:54:11 -0400
-Received: from chelly.eurotel.sk ([194.154.224.26]:28683 "EHLO
-	chelly.eurotel.sk") by vger.kernel.org with ESMTP
-	id <S272593AbRJPFyA> convert rfc822-to-8bit; Tue, 16 Oct 2001 01:54:00 -0400
-Subject: how to compile old kernel
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF6767106E.A15BB9B6-ONC1256AE7.001F1FD3@eurotel.sk>
-From: "Juraj Buliscak" <buliscakj@eurotel.sk>
-Date: Tue, 16 Oct 2001 07:49:49 +0200
-X-MIMETrack: Serialize by Router on ba-comm-nt/ba/eurotel bratislava/sk(Release 5.0.5 |September
- 22, 2000) at 16.10.2001 07:55:03
+	id <S272737AbRJPGHZ>; Tue, 16 Oct 2001 02:07:25 -0400
+Received: from [67.104.35.198] ([67.104.35.198]:36482 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S272636AbRJPGHK>; Tue, 16 Oct 2001 02:07:10 -0400
+Date: Tue, 16 Oct 2001 02:06:26 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: <wstearns@sparrow.websense.net>
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Juraj Buliscak <buliscakj@eurotel.sk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: how to compile old kernel
+In-Reply-To: <OF6767106E.A15BB9B6-ONC1256AE7.001F1FD3@eurotel.sk>
+Message-ID: <Pine.LNX.4.33.0110160203370.2929-100000@sparrow.websense.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello friends.
+Good day, Juraj,
 
+On Tue, 16 Oct 2001, Juraj Buliscak wrote:
 
-I have RH 70 with original kernel 2.2.16-19.  Later I have compiled newer
-kernel 2.4.10 but it contains bugs in AX25 support, and therefore I decided
-to use old version of kernel 2.2.19, but it didn´t have been compiled it
-with AX25 support, so I need to do it.  If I try to compile kernel 2.2.19
-with kernel 2.4.10 actually running, it's not possible. MAKE gives me some
-errors.
+> I have RH 70 with original kernel 2.2.16-19.  Later I have compiled newer
+> kernel 2.4.10 but it contains bugs in AX25 support, and therefore I decided
+> to use old version of kernel 2.2.19, but it didn´t have been compiled it
+> with AX25 support, so I need to do it.  If I try to compile kernel 2.2.19
+> with kernel 2.4.10 actually running, it's not possible. MAKE gives me some
+> errors.
 
-Please let me know how to compile old kernel.
+	What errors?
 
+> Please let me know how to compile old kernel.
 
-thank you.
+rpm -Uvh ftp://ftp.stearns.org/pub/wstearns/buildkernel/buildkernel-1.05-1.noarch.rpm<Enter>
+buildkernel 2.2.19 --BKOPENFRESH=YES<Enter>
 
-Duro.
+	Buildkernel will lead you through the process.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	Backscatter on net
+	Spoofed IP could decoy
+	From the DMZ
+	-- Andrew MacPherson and Dan Burroughs
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
 

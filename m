@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbTHZP0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTHZP0M
+	id S261158AbTHZPXS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbTHZPXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:26:12 -0400
-Received: from smtp.urbanet.ch ([195.202.193.135]:2021 "HELO
-	anniviers.urbanet.ch") by vger.kernel.org with SMTP id S261509AbTHZP0H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:26:07 -0400
-Subject: oops is when suspending ide-default driver
-From: Sylvain Pasche <sylvain_pasche@yahoo.fr>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061911572.1128.8.camel@highscreen>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 26 Aug 2003 17:26:12 +0200
+	Tue, 26 Aug 2003 11:23:18 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.30]:52675 "EHLO
+	mwinf0102.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261158AbTHZPXR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:23:17 -0400
+From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
+To: "Stuart MacDonald" <stuartm@connecttech.com>,
+       "'Russell King'" <rmk@arm.linux.org.uk>
+Subject: Re: Reading accurate size of recepts from serial port
+Date: Tue, 26 Aug 2003 17:23:04 +0200
+User-Agent: KMail/1.5.2
+Cc: <linux-kernel@vger.kernel.org>
+References: <005c01c36bdd$8ae58d30$294b82ce@stuartm>
+In-Reply-To: <005c01c36bdd$8ae58d30$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308261723.04683.laurent.huge@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Le Mardi 26 Août 2003 16:22, Stuart MacDonald a écrit :
+> I may be mistaken, but I believe that Windows serial drivers work the
+> same way; so whatever you meant by your previous comment that you can
+> get what you want under windows, either you can get the same thing
+> under linux, or windows doesn't behave like you think it does.
+I actually don't know how it works, because I didn't contrive it (I can only 
+rely on what has been told to me by the people whom has done it). I'm only in 
+charge of porting it to Linux.
+Anyway, I'm on the way to another solution (by using some property of CCSDS 
+segments, and see what happens).
+-- 
+Laurent Hugé.
 
-I've got an ide cdrom on my system, which uses the ide-cd module. If I
-try to suspend the system when the ide-cd module is not loaded, kernel
-oopses:
-
-[<c01f4e26>] start_request+0x11c/0x25e
-[<c01f51b1>] ide_do_request+0x226/0x3f7
-[<c01f59d3>] ide_do_drive_cmd+0xd1/0x126
-[<c01fdd18>] generic_ide_suspend+0x82/0x8f
-[<c01e7b23>] suspend_device+0x77/0xbd
-[<c01e7bc4>] device_suspend+0x5b/0x76
-[<c012e58c>] suspend_prepare+0x44/0x91
-[<c012e654>] enter_state+0x42/0x77
-[<c0124c66>] sys_reboot+0x2e0/0x33d
-[<c013f7d4>] handle_mm_fault+0xd8/0x169
-[<c0113f22>] do_page_fault+0x25e/0x4a4
-[<c01d09d7>] write_chan+0x0/0x224
-[<c01cb44f>] tty_write+0x0/0x2f2
-[<c014c3cb>] vfs_write+0xba/0x10c
-[<c014c4b9>] sys_write+0x3f/0x5d
-[<c0113cc4>] do_page_fault+0x0/0x4a4
-[<c0109117>] syscall_call+0x7/0xb
-
-If found out with some printk that it is because the
-DRIVER(drive)->start_power_step pointer is NULL is start_request when
-called with the ide-default subdriver.
-
-As soon as I load ide-cd, there's no oops anymore. I guess the fix might
-be not to run the suspend stuff if the driver has no start_power_step
-defined.
-
-Regards,
-Sylvain Pasche

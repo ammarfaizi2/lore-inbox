@@ -1,108 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDEG4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDEG7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVDEG4F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 02:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDEG4F
+	id S261585AbVDEG7l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 02:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVDEG7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 02:56:05 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:41449 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261584AbVDEGzv (ORCPT
+	Tue, 5 Apr 2005 02:59:41 -0400
+Received: from ns2.vocord.com ([194.220.215.56]:63170 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261585AbVDEG7a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 02:55:51 -0400
-Date: Tue, 5 Apr 2005 08:55:45 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, stsp@aknet.ru,
-       Andrew Morton <akpm@osdl.org>
-Subject: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-ID: <20050405065544.GA21360@elte.hu>
+	Tue, 5 Apr 2005 02:59:30 -0400
+Subject: Re: Netlink Connector / CBUS
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, rml@novell.com,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0504050030230.9273-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0504050030230.9273-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p5aA2EfudVVDZNSzIBGU"
+Organization: MIPT
+Date: Tue, 05 Apr 2005 11:03:16 +0400
+Message-Id: <1112684596.28858.4.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 05 Apr 2005 10:57:35 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-the crashes below happen when PAGEALLOC is enabled. It's this 
-instruction:
+--=-p5aA2EfudVVDZNSzIBGU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-        movb OLDSS(%esp), %ah
+On Tue, 2005-04-05 at 01:05 -0400, James Morris wrote:=20
+> Evgeniy,
+>=20
+> Please send networking patches to netdev@oss.sgi.com.
 
-OLDSS is 0x38, esp is f4f83fc8, OLDSS(%esp) is thus f4f84000, which 
-correctly creates the PAGEALLOC pagefault. esp is off by 4 bytes?
+It was sent there two times.
 
-it could be the ESP-16-bit-corruption patch causing this, or it could be 
-an already existing latent bug getting triggered now: normally only iret 
-accesses the OLDSS, and we fix any iret faults up, but now that we 
-explicitly access %esp the esp bug shows up.
+> Your connector code (under drivers/connector) is now in the -mm tree and=20
+> as far as I can tell, has not received any review from the network=20
+> developers.
 
-so it would be nice to understand why this triggers. It seems to be a 
-sporadic event - first it hit hotplug, then input.agent. If i disable 
-PAGEALLOC the system boots up fine. In any case, the ESP-corruption 
-patch is not safe until this bug is understood, as it right now may read 
-a random byte off the next page, and possibly doing bogus calls to the 
-16-bit-fixup code.
+I received comments and feature requests from Herbert Xu and Jamal Hadi
+Salim,
+almost all were successfully resolved.
 
-	Ingo
+> Looking at it briefly, it seems quite unfinished.
 
--------------
+Hmmm...
+I think it is fully functional and ready for inclusion.
 
-BUG: Unable to handle kernel paging request at virtual address f4f84000
- printing eip:
-c010287c
-*pde = 00527067
-*pte = 34f84000
-Oops: 0000 [#1]
-PREEMPT DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c010287c>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.12-rc2-RT-V0.7.43-09) 
-EIP is at restore_all+0x4/0x18
-eax: 00000206   ebx: 00000000   ecx: 00000000   edx: 00000001
-esi: 00000000   edi: 009b63f9   ebp: f4f82000   esp: f4f83fc8
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process 10-udev.hotplug (pid: 1264, threadinfo=f4f82000 task=f5034a10)
-Stack: 00000000 bfa71dd0 009c0ffc 00000000 009b63f9 bfa71d44 000000c5 0000007b 
-       0000007b ffffffef c01027ba 00000060 00000206 0000007b 
-Call Trace:
- [<c01036ac>] show_stack+0x7a/0x90 (32)
- [<c0103835>] show_registers+0x15a/0x1d2 (56)
- [<c0103a30>] die+0xf4/0x17e (68)
- [<c010f444>] do_page_fault+0x3de/0x60a (212)
- [<c01032eb>] error_code+0x4f/0x54 (-8076)
+> I'm not entirely sure what it's purpose is.
 
----------------------
+1. Provide very flexible userspace control over netlink.
+2. Provide very flexible notification mechanism.
 
-BUG: Unable to handle kernel paging request at virtual address f57bc000
- printing eip:
-c010287c
-*pde = 00529067
-*pte = 357bc000
-Oops: 0000 [#1]
-PREEMPT DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c010287c>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.12-rc2-RT-V0.7.43-09) 
-EIP is at restore_all+0x4/0x18
-eax: 00000206   ebx: b7f11000   ecx: 00000000   edx: 00000000
-esi: 080e4f28   edi: 00000000   ebp: f57ba000   esp: f57bbfc8
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process input.agent (pid: 1131, threadinfo=f57ba000 task=f57b9a10)
-Stack: b7f11000 00001000 009c0ffc 080e4f28 00000000 bfc112c0 0000005b 0000007b 
-       0000007b ffffff00 c01027ba 00000060 00000206 0000007b 
-Call Trace:
- [<c01036ac>] show_stack+0x7a/0x90 (32)
- [<c0103835>] show_registers+0x15a/0x1d2 (56)
- [<c0103a30>] die+0xf4/0x17e (68)
- [<c010f474>] do_page_fault+0x3de/0x60a (212)
- [<c01032eb>] error_code+0x4f/0x54 (-8076)
+> A clear explanation of its purpose would be helpful (to me, at least), as=
+=20
+> well as documentation of the API and majore data structures (which akpm=20
+> has also asked for, IIRC).
+
+Documentation exists in Documentation/connector/connector.txt.
+Patch with brief source documentation was already created,
+so I will post it with other minor updates soon.
+
+> I can see one example of where it's being used with kobject_uevent, and i=
+t=20
+> seems to have arrived via Greg-KH's I2C tree...
+
+It also is used in SuperIO and acrypto subsystems.
+
+> If you're trying to add a generic, psuedo-reliable Netlink communication=20
+> system, perhaps this should be built into Netlink itself as an extension=20
+> of the existing Netlink API.
+
+So, you recommend to create for each driver, that wants to be controlled
+over netlink, new netlink socket, register it's unit and learn
+how SKB is allocated, processed and so on?
+This is wrong.
+Much easier to just register a callback.
+
+> I don't think this should be done as a separate "driver" off somewhere=20
+> else with a new API.
+
+It is much easier to use connector instead of direct netlink sockets.
+One should only register callback and identifier. When driver receives
+special netlink message with appropriate identifier, appropriate
+callback will be called.
+
+=46rom the userspace point of view it's quite straightforward:
+socket();
+bind();
+send();
+recv();
+
+But if kernelspace want to use full power of such connections, driver
+writer must create special sockets, must know about struct sk_buff
+handling...
+Connector allows any kernelspace agents to use netlink based
+networking for inter-process communication in a significantly easier
+way:
+
+int cn_add_callback(struct cb_id *id, char *name, void (*callback) (void
+*));
+void cn_netlink_send(struct cn_msg *msg, u32 __groups);
+
+
+>=20
+> A few questions:
+>=20
+> - Why does it by default use NETLINK_NFLOG a kernel socket, and also allo=
+w=20
+> this to be overriden by a module parameter?
+
+Because while this driver lived outside kernel tree there were no empty=20
+registered socket.
+It can be changed if driver will go upstream.
+
+> - Why does the cn.o module (poor namespace choice) add a callback itself
+> on initialization?
+
+Because that callback is used for notification requests.
+
+> - Where is the userspace code which uses this?  I checked out dbus from=20
+> cvs and couldn't see anything obvious.
+
+I posted it with SuperIO, kobject_uevent, acrypto and fork changes.
+It is quite straightforward:
+
+        s =3D socket(PF_NETLINK, SOCK_DGRAM, NETLINK_NFLOG);
+        if (s =3D=3D -1) {
+                perror("socket");
+                return -1;
+        }
+
+        l_local.nl_family =3D AF_NETLINK;
+        l_local.nl_groups =3D CN_ACRYPTO_IDX;
+        l_local.nl_pid =3D getpid();
+
+        if (bind(s, (struct sockaddr *)&l_local, sizeof(struct
+sockaddr_nl)) =3D=3D -1) {
+                perror("bind");
+                close(s);
+                return -1;
+        }
+
+
+                case NLMSG_DONE:
+                        data =3D (struct cn_msg *)NLMSG_DATA(reply);
+                        m =3D (struct crypto_conn_data *)(data + 1);
+                        stat =3D (struct crypto_device_stat *)(m+1);
+
+                        time(&tm);
+                        fprintf(out,
+                                "%.24s : [%x.%x] [seq=3D%u, ack=3D%u], name=
+=3D
+%s, cmd=3D%#02x, "
+                                "sesions: completed=3D%llu, started=3D%llu,
+finished=3D%llu, cache_failed=3D%llu.\n",
+                                ctime(&tm), data->id.idx, data->id.val,
+                                data->seq, data->ack, m->name, m->cmd,
+                                stat->scompleted, stat->sstarted, stat-
+>sfinished, stat->cache_failed);
+                        fflush(out);
+                        break;
+
+
+>=20
+> Thanks,
+
+Thank you for your comments.
+
+>=20
+> - James
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-p5aA2EfudVVDZNSzIBGU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCUjg0IKTPhE+8wY0RAtW9AJ0a0EjP0tCQ+mf28pplSyNYxtY5DgCfQq0x
+oMdIKfBX1VrHHWNtXPzhMAc=
+=C9qk
+-----END PGP SIGNATURE-----
+
+--=-p5aA2EfudVVDZNSzIBGU--
+

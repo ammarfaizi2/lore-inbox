@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVBQXIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVBQXLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVBQXIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVBQXHs
+	id S261222AbVBQXLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBQXJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:07:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:32425 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261208AbVBQXF3 (ORCPT
+	Thu, 17 Feb 2005 18:09:13 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:24720 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261226AbVBQXDr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:05:29 -0500
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339105021714593115dacf@mail.gmail.com>
-References: <200502151557.06049.jbarnes@sgi.com>
-	 <200502170929.54100.jbarnes@sgi.com>
-	 <9e47339105021709321dc72ab2@mail.gmail.com>
-	 <200502170945.30536.jbarnes@sgi.com> <1108680436.5665.9.camel@gaston>
-	 <9e47339105021714593115dacf@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 10:04:10 +1100
-Message-Id: <1108681450.5666.19.camel@gaston>
+	Thu, 17 Feb 2005 18:03:47 -0500
+Date: Fri, 18 Feb 2005 00:03:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] page table iterators
+Message-ID: <20050217230342.GA3115@wotan.suse.de>
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108680578.5665.14.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 17:59 -0500, Jon Smirl wrote:
-> On Fri, 18 Feb 2005 09:47:15 +1100, Benjamin Herrenschmidt
-> <benh@kernel.crashing.org> wrote:
-> > We could provide additional helpers, like pci_find_rom_partition(),
-> > which takes the architecture code as an argument. It would check the
-> > signature, and iterate all "partitions" til it finds the proper
-> > architecture (or none).
-> 
-> The spec allows for it but has anyone actually seen a ROM with
-> multiple images in it? I haven't but I only work on x86.
+> I though about both ways yesterday, and in the end, I prefer Nick stuff,
+> at least for now. It gives us also more flexibility to change gory
+> implementation details in the future. I still have to run it through a
+> bit of torture testing though.
 
-Yes, I pretty sure some video cards did that in the past at least, and
-maybe some scsi cards. It was a while ago, I don't know if this is still
-true, but it's relatively easy to do, let's just hide all of this logic,
-along with size & signature checking in a single place, that way, we
-don't have to duplicate all that logic in drivers...
+They're really solving different problems. My code is just aimed
+at getting x86-64 fork/exec/etc. as fast as before 4level again
+(currently they are significantly slower because they have to walk
+a lot more page tables) 
 
-Ben.
+The problem is that the index based approach (I think you have to use
+indexes for this, pointers get very messy) probably does not 
+fit very well into Nick's complex macros.  
 
+Nick's macros are essentially just code transformations with
+some micro optimizations. 
 
+That's not bad, but it won't give you the big speedups 
+the lazy walking approach will give.
+
+And to be honest we only have about 6 or 7 of these walkers
+in the whole kernel. And 90% of them are in memory.c
+While doing 4level I think I changed all of them around several
+times and it wasn't that big an issue.  So it's not that we
+have a big pressing problem here... 
+
+-Andi

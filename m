@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbUKDCOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbUKDCgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbUKDCOY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 21:14:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUKDCJQ
+	id S261364AbUKDCgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 21:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUKDCgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:09:16 -0500
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:61587
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S262046AbUKDBzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:55:24 -0500
-Subject: [patch 06/20] uml: remove useless inclusion
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
-       blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 04 Nov 2004 00:17:28 +0100
-Message-Id: <20041103231728.550C64F6D2@zion.localdomain>
+	Wed, 3 Nov 2004 21:36:52 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:12682 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261364AbUKDCgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 21:36:20 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu, marcelo.tosatti@cyclades.com
+Subject: [patch 2.4.28-rc1] Avoid oops in proc_delete_inode
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 04 Nov 2004 13:35:33 +1100
+Message-ID: <9663.1099535733@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Under heavy load, vmstat, top and other programs that access /proc can
+oops.  PROC_INODE_PROPER(inode) is sometimes false for pid entries
+(usually zombies), but inode->u.generic_ip is not NULL.
 
-Avoid including some unused headers.
+Backport a fix by AL Viro from 2.5.7-pre2 to 2.4.28-rc1.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Signed-off-by: Keith Owens <kaos@sgi.com>
 
- vanilla-linux-2.6.9-paolo/arch/um/kernel/main.c                  |    2 ++
- vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/include/mmu-skas.h |    3 ---
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-diff -puN arch/um/kernel/skas/include/mmu-skas.h~uml-remove-useless-inclusion arch/um/kernel/skas/include/mmu-skas.h
---- vanilla-linux-2.6.9/arch/um/kernel/skas/include/mmu-skas.h~uml-remove-useless-inclusion	2004-11-03 23:44:58.287699040 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/include/mmu-skas.h	2004-11-03 23:44:58.291698432 +0100
-@@ -6,9 +6,6 @@
- #ifndef __SKAS_MMU_H
- #define __SKAS_MMU_H
+Index: 2.4.28-rc1/fs/proc/base.c
+===================================================================
+--- 2.4.28-rc1.orig/fs/proc/base.c	2004-08-08 10:10:49.000000000 +1000
++++ 2.4.28-rc1/fs/proc/base.c	2004-11-04 13:25:16.402602459 +1100
+@@ -780,6 +780,7 @@ out:
+ 	return inode;
  
--#include "linux/list.h"
--#include "linux/spinlock.h"
--
- struct mmu_context_skas {
- 	int mm_fd;
- };
-diff -puN arch/um/kernel/main.c~uml-remove-useless-inclusion arch/um/kernel/main.c
---- vanilla-linux-2.6.9/arch/um/kernel/main.c~uml-remove-useless-inclusion	2004-11-03 23:44:58.288698888 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/main.c	2004-11-03 23:44:58.291698432 +0100
-@@ -17,6 +17,8 @@
- #include "kern_util.h"
- #include "mem_user.h"
- #include "signal_user.h"
-+#include "time_user.h"
-+#include "irq_user.h"
- #include "user.h"
- #include "init.h"
- #include "mode.h"
-_
+ out_unlock:
++	node->u.generic_ip = NULL;
+ 	iput(inode);
+ 	return NULL;
+ }
+

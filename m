@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276759AbRJHCM4>; Sun, 7 Oct 2001 22:12:56 -0400
+	id <S276761AbRJHCSz>; Sun, 7 Oct 2001 22:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276760AbRJHCMp>; Sun, 7 Oct 2001 22:12:45 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:63985 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276759AbRJHCMc>;
-	Sun, 7 Oct 2001 22:12:32 -0400
-Date: Mon, 8 Oct 2001 04:12:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.11-pre4 remove spurious kernel recompiles
-Message-ID: <20011008041215.O726@athlon.random>
-In-Reply-To: <20011008032022.M726@athlon.random> <32255.1002504844@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
+	id <S276764AbRJHCSp>; Sun, 7 Oct 2001 22:18:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57401 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S276761AbRJHCSi>; Sun, 7 Oct 2001 22:18:38 -0400
+To: Pavel Machek <pavel@Elf.ucw.cz>
+Cc: Jeremy Elson <jelson@circlemud.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+In-Reply-To: <20011002204836.B3026@bug.ucw.cz>
+	<200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+	<20011005205136.A1272@elf.ucw.cz>
+From: ebiederman@uswest.net (Eric W. Biederman)
+Date: 07 Oct 2001 20:09:11 -0600
+In-Reply-To: <20011005205136.A1272@elf.ucw.cz>
+Message-ID: <m1n132x4qg.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32255.1002504844@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Oct 08, 2001 at 11:34:04AM +1000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 11:34:04AM +1000, Keith Owens wrote:
-> On Mon, 8 Oct 2001 03:20:23 +0200, 
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >On Mon, Oct 08, 2001 at 10:42:56AM +1000, Keith Owens wrote:
-> >> IOW a check for Makefile timestamp is both overkill (it recompiles too
-> >> much) and incomplete (it does not detect command line overrides).  BTW,
-> >> kbuild 2.5 gets this right.
-> >
-> >That sounds fine. Of course the only regression could be the build time.
-> >Do you have a benchmark on the build time with kbuild 2.5 applied to
-> >2.4.10 compared to the build time of 2.4.10?
+Pavel Machek <pavel@Elf.ucw.cz> writes:
+
+> Hi!
 > 
-> kbuild 2.5 build times vary from 10% faster to 100% slower, depending
-> on the number of objects being compiled.  There are some O(n^2)
-
-I meant for a stright compile, which is going to be its worst case and
-my common case.
-
-The main thing I like is to be able to compile out of the tree and
-avoiding touching the header files during compilation (that's really
-annoying).
-
-> algorithms in kbuild 2.5, I know where they are and how to fix them, it
-> just takes time that I don't have right now.  At the moment I am
-> concentrating on correctness for kbuild 2.5.  MEC mantra:
+> > >> Sorry to follow-up to my own post.  A few people pointed out that
+> > >> v1.00 had some Makefile problems that prevented it from building.
+> > >> I've released v1.02, which should be fixed.
+> > >
+> > >This should be forwared to linmodem list... Killing all those
+> > >binary-only modem drivers from kernel modules would be good
+> > >thing... Hmm, and maybe we can just hack telephony API over ltmodem
+> > >and be done with that. That would be good.
+> [snip]
+> > Perhaps I don't understand how linmodems work to understand well
+> > enough how FUSD would apply - do you talk to linmodems through the
+> > serial driver?  If so, sounds like a good application - but we might
 > 
->   Correctness comes first. 
->   Then maintainability. 
->   Then speed.
+> Yep. And linmodem driver does signal processing, so it is big and
+> ugly. And up till now, it had to be in kernel. With your patches, such
+> drivers could be userspace (where they belong!). Of course, it would be 
+> very good if your interface did not change...
 
-I personally don't care about correctness in the sense of getting "make"
-doing everything for you regardless of what you changed, I'm fine with
-some "make distclean" forced checkpoint after PATCHLEVEL changed etc...,
-you said infact full compile is needed sometime, not to tell about
-kernel configuration.
+I don't see how linmodem drivers apply.  At least not at the low-level
+because you actually have to driver the hardware, respond to interrupts
+etc.  On some of this I can see a driver split like there is for the video
+card drivers, so the long running portitions don't have to be in the kernel.
 
-One good example is the mkdep hack, it's far from correct: the header
-dependences is nearly random.  We cannot trust it unless we remeber
-every user included us (one more reason I'm used to full recompiles),
-but it's much faster than the correct full dependences generated by gcc
-so I'm fine with it. When I compile other projects like kde2 I'm amazed
-how slow the compilation is, ok it's not stright C but I bet the
-correctness of its dependences hits a lot too on the compilation time
-(but it's rebuilt in background so I don't care if it's slow while for
-the kernel I'm sometime more synchronous waiting for the compilation to
-finish :).
+I actually don't see what devices could be done in user space with
+this context except possibly forwarding device calls across the
+network.
 
-> BTW, how can you apply a -ac patch that sets SUBLEVEL backwards?  -ac
-
-First backout Linus's pre patch, then apply AC's -ac. The end result is
-a backwards SUBLEVEL.
-
-Andrea
+Eric

@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUGEI7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265736AbUGEJYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUGEI7w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 04:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUGEI7w
+	id S265736AbUGEJYb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 05:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUGEJYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 04:59:52 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:46340 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S265668AbUGEI7v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 04:59:51 -0400
-Message-ID: <40E91885.1000707@arcom.com>
-Date: Mon, 05 Jul 2004 09:59:49 +0100
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-References: <40E6AC41.4050804@tiscali.be> <20040703205621.GA1640@ucw.cz> <20040705051010.GA24583@nevyn.them.org>
-In-Reply-To: <20040705051010.GA24583@nevyn.them.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jul 2004 09:00:51.0312 (UTC) FILETIME=[9244BF00:01C4626E]
+	Mon, 5 Jul 2004 05:24:31 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:46809 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265736AbUGEJYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 05:24:30 -0400
+Date: Mon, 5 Jul 2004 10:24:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+Subject: Re: [PATCH 0/22] fsaio, pipe aio and aio poll upgraded to 2.6.7
+Message-ID: <20040705092426.GA14404@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>, linux-aio@kvack.org,
+	linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+References: <20040702130030.GA4256@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702130030.GA4256@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
+On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
+> Its been a while since I last posted the retry based AIO patches
+> that I've been accumulating. Janet Morgan recently brought
+> the whole patchset up-to to 2.6.7.
 > 
-> Except C does not actually allow incrementing a void pointer, since
-> void does not have a size.  You can't do arithmetic on one either.  GNU
-> C allows this as an extension.
+> The patchset contains modifications and fixes to the AIO core
+> to support the full retry model, an implementation of AIO
+> support for buffered filesystem AIO reads and O_SYNC writes
+> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
+> an implementation of AIO reads and writes to pipes (from
+> Chris Mason) and AIO poll (again from Chris Mason).
 
-GCC seems to have a whole bunch of ill thought out extensions like this.
+Any chance you could re-arrange the patchkit into logical patches instead
+of just adding incremental fixes, aka merge all the fixes into their respective
+base-patches?
 
-David Vrabel
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263106AbRFLTQ1>; Tue, 12 Jun 2001 15:16:27 -0400
+	id <S263127AbRFLTRI>; Tue, 12 Jun 2001 15:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263122AbRFLTQR>; Tue, 12 Jun 2001 15:16:17 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:50828 "EHLO
-	mx01-a.netapp.com") by vger.kernel.org with ESMTP
-	id <S263106AbRFLTP7>; Tue, 12 Jun 2001 15:15:59 -0400
-Date: Tue, 12 Jun 2001 12:15:01 -0700 (PDT)
-From: Kip Macy <kmacy@netapp.com>
+	id <S263139AbRFLTQ5>; Tue, 12 Jun 2001 15:16:57 -0400
+Received: from ns.caldera.de ([212.34.180.1]:30091 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S263127AbRFLTQm>;
+	Tue, 12 Jun 2001 15:16:42 -0400
+Date: Tue, 12 Jun 2001 21:15:44 +0200
+From: Christoph Hellwig <hch@caldera.de>
 To: ognen@gene.pbi.nrc.ca
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: threading question
-In-Reply-To: <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca>
-Message-ID: <Pine.GSO.4.10.10106121214380.20809-100000@orbit-fe.eng.netapp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010612211544.A6594@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>, ognen@gene.pbi.nrc.ca,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200106121858.f5CIwmX05650@ns.caldera.de> <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca>; from ognen@gene.pbi.nrc.ca on Tue, Jun 12, 2001 at 01:07:11PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For heavy threading, try a user-level threads package.
-
-		-Kip
-
-
-On Tue, 12 Jun 2001 ognen@gene.pbi.nrc.ca wrote:
-
+On Tue, Jun 12, 2001 at 01:07:11PM -0600, ognen@gene.pbi.nrc.ca wrote:
 > Hello,
 > 
 > due to the nature of the problem (a pairwise mutual alignment of n
@@ -34,43 +33,18 @@ On Tue, 12 Jun 2001 ognen@gene.pbi.nrc.ca wrote:
 > I am not really comfortable with 1.4 - 1.5 speedups since the solution was
 > intended as a Linux one primarily and it just happenned that it works (and
 > now even better) on Solaris/SGI/OSF...
-> 
-> Best regards,
-> Ognen
-> 
-> On Tue, 12 Jun 2001, Christoph Hellwig wrote:
-> 
-> > In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you wrote:
-> > > On dual-CPU machines the speedups are as follows: my version
-> > > is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
-> > > 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
-> > > kernel. Why are the numbers on Linux machines so much lower?
-> >
-> > Does your measurement include the time needed to actually create the
-> > threads or do you even frequently create and destroy threads?
-> >
-> > The code for creating threads is _horribly_ slow in Linuxthreads due
-> > to the way it is implemented.
-> >
-> > > It is the
-> > > same multi-threaded code, I am not using any tricks, the code basically
-> > > uses PTHREAD_CREATE_DETACHED and PTHREAD_SCOPE_SYSTEM and the thread stack
-> > > size is set to 8K (but the numbers are the same with larger/smaller stack
-> > > sizes).
-> > >
-> > > Is there anything I am missing? Is this to be expected due to Linux way of
-> > > handling threads (clone call)? I am just trying to explain the numbers and
-> > > nothing else comes to mind....
-> >
-> > Linuxthreads is a rather bad pthreads implementation performance-wise,
-> > mostly due to the rather different linux-native threading model.
-> >
-> > 	Christoph
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+If you havily create threads under load you're rather srewed.  If you want
+to stay with the (IMHO rather suboptimal) posix threads API you might want
+to take a look at the stuff IBM has produced:
+
+	http://oss.software.ibm.com/developerworks/projects/pthreads/
+
+Otherwise a simple wrapper for clone might be a _lot_ faster, but has it's
+own disadvantages: no ready-to-use lcoking primitives, no cross-platform
+support (ok, it should be portable to the FreeBSD rfork easily).
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

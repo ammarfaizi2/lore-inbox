@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJGNgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269564AbUJGNiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUJGNgs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJGNgs
+	id S269564AbUJGNiC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:38:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269508AbUJGNiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 09:36:48 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:14487 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265909AbUJGNgq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 09:36:46 -0400
-Date: Thu, 7 Oct 2004 14:36:26 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@hibernia.jakma.org
-To: Martijn Sipkema <msipkema@sipkema-digital.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <001c01c4ac76$fb9fd190$161b14ac@boromir>
-Message-ID: <Pine.LNX.4.61.0410071432070.304@hibernia.jakma.org>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
- <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
- <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
- <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com>
- <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir>
- <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 7 Oct 2004 09:38:02 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:43181 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269356AbUJGNho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 09:37:44 -0400
+Message-Id: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org, SELinux@tycho.nsa.gov,
+       Ingo Molnar <mingo@redhat.com>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org
+Subject: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1477279884P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 07 Oct 2004 01:42:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Martijn Sipkema wrote:
+--==_Exmh_1477279884P
+Content-Type: text/plain; charset=us-ascii
 
-> Any sane application would be written for the POSIX API as 
-> described in the standard, and a sane kernel should IMHO implement 
-> that standard whenever possible.
+(linux-net and netdev please cc: on replies - am only on lkml and selinux lists)
 
-NB: I dont disagree with you.
+Found this in the kernel msgs during system startup.
 
-Just the impression I get is that there is no way to avoid this 
-situation without a serious performance impact, and that the 
-optimisation shouldnt really any affect any healthy app. (any which 
-are really should be setting O_NONBLOCK).
+Behavior has been there at least since rc2-mm3-VP-S6.  Am running with
+SELinx enabled in permissive mode.  I haven't built a rc3-mm2 kernel that I can
+test on - rc3-mm2-VP-T1 dies for me with the already-known USB issues, and I haven't
+backed that patch out yet (maybe will try that later tonight).
 
-If you could follow the spec without significantly harming 
-performance, then I'd agree spec should be followed.
+audit(1097111349.727:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
+audit(1097111349.754:0): avc:  denied  { tcp_recv } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
+audit(1097111349.782:0): avc:  denied  { recv_msg } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
 
-I dont really have anything useful to say other than that, IMHO, a 
-sane app should be using O_NONBLOCK if it really does not want to 
-block, so I shall now quietly back away from this thread.
+At least for the recv_msg error, I *think* the message is generated because
+when we get into net/socket.c, we call security_socket_recvmsg() in
+__recv_msg() - and (possibly only when we have the VP patch applied?) at that
+point we're in a softirqd context rather than the context of the process that
+will finally receive the packet, so the SELinux code ends up checking the wrong
+credentials.  I've not waded through the code enough to figure out exactly
+where the two tcp_recv messages are generated, but I suspect the root cause is
+the same for all three messages.
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-What this country needs is a good five cent microcomputer.
+The messages are happening when smartd is generating an e-mail alert (the
+source of the fsdaemon_t).  I'm not sure yet whether it's because sendmail
+hasn't started yet, and we're seeing ksoftirqd trying to drive the TCP stack
+sending an RST back to the SYN, or if there's something else strange going on.
+
+
+--==_Exmh_1477279884P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBZNdWcC3lWbTT17ARAsn/AJ0Waq3x671FYyFgLjQIt6Rqq3wh+ACeMNHE
+tKOke6la/wQKZu+x3dFwViI=
+=Egwh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1477279884P--

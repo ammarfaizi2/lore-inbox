@@ -1,291 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267891AbUIJVZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUIJV07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267891AbUIJVZi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 17:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUIJVZi
+	id S267893AbUIJV07 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 17:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUIJV07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 17:25:38 -0400
-Received: from border.scrd.bc.ca ([24.207.24.31]:24068 "EHLO border.scrd.bc.ca")
-	by vger.kernel.org with ESMTP id S267891AbUIJVYT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 17:24:19 -0400
-Message-ID: <1174450A1968D111AAAF00805FC162AE012070AC@deep_thought.secure.scrd.bc.ca>
-From: Kris Boutilier <Kris.Boutilier@scrd.bc.ca>
-To: linux-kernel@vger.kernel.org
-Subject: libata/sata_sil doesn't detect drives on second SiL3112A based ad
-	apter w/kernel 2.4.27?
-Date: Fri, 10 Sep 2004 14:23:44 -0700
+	Fri, 10 Sep 2004 17:26:59 -0400
+Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:559
+	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S267893AbUIJV0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 17:26:43 -0400
+Date: Fri, 10 Sep 2004 22:57:35 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
+       uClinux list <uclinux-dev@uclinux.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: `new' syscalls for m68k
+Message-ID: <Pine.LNX.4.58.0409102250300.24607@anakin>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running a custom compile of kernel 2.4.27, patched with uml skas3 on a
-very basic Debian Woody install. The host is a Compaq DL760 with 8 CPUs/8gb
-RAM (Corollary Profusion Chipset). The host includes a a variety of SCSI
-storage controllers, one IDE controller and now two SiL-3112a based SATA
-adapters (lspci -v attached). Both sata adapters have two ports and each
-port has a Seagate ST3200822AS drive attached. One drive (sda) has been
-partitioned, tested and works fine - the others have been left blank.
 
-The problem is that sata_sil appears to detect both controllers, but doesn't
-initialize drives 3 and 4 on the second card. Consider the output from dmesg
-after loading sata_sil:
+I'm updating the syscall table for m68k...
 
-libata version 1.02 loaded.
-sata_sil version 0.54
-ata1: SATA max UDMA/100 cmd 0xF8898080 ctl 0xF889808A bmdma 0xF8898000 irq
-21
-ata2: SATA max UDMA/100 cmd 0xF88980C0 ctl 0xF88980CA bmdma 0xF8898008 irq
-21
-ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003
-88:207f
-ata1: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
-ata1: dev 0 configured for UDMA/100
-ata2: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003
-88:207f
-ata2: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
-ata2: dev 0 configured for UDMA/100
-scsi0 : sata_sil
-scsi1 : sata_sil
-  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi disk sdb at scsi1, channel 0, id 0, lun 0
-SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
- sda: sda1
-SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
- sdb: unknown partition table
+Below is a patch that adds all syscalls that m68k is currently lacking
+(compared to ia32). However, I'm wondering whether we need all of them:
+  - Are sys_sched_[gs]etaffinity() needed for non-SMP?
+  - I disabled [sg]et_thread_area() since sys_[gs]et_thread_area() are
+    missing. Do we have to implement them, or should we use some other
+    method for Thread Local Storage?
+  - What about sys_vserver()?
+  - What about sys_kexec_load()?
+  - Any others we can/should drop?
 
-The only possible contributing factor would be that I had to 'disable'
-interrupt assignment for the SATA cards in the bios to prevent them
-incorrectly grabbing the boot sequence from the integrated Compaq array
-controller. However the fact that scsi1 inits and functions implies that the
-kernel is happily handling such a configuration.
+I'm CCing uclinux-dev since I'd like to bring the syscalls for m68knommu in
+sync with m68k afterwards.
 
-Any suggestions/tips/pointers?
+NOTE: This patch is _not_ to be applied yet!
 
-Kris Boutilier
-Information Systems Coordinator
-Sunshine Coast Regional District
+Thanks for your comments!
 
-----------
+--- linux-2.6.9-rc1/arch/m68k/kernel/entry.S	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.9-rc1/arch/m68k/kernel/entry.S	2004-09-10 21:07:03.000000000 +0200
+@@ -663,3 +663,51 @@ sys_call_table:
+ 	.long sys_lremovexattr
+ 	.long sys_fremovexattr
+ 	.long sys_futex		/* 235 */
++	.long sys_sendfile64
++	.long sys_mincore
++	.long sys_madvise
++	.long sys_fcntl64
++	.long sys_readahead	/* 240 */
++	.long sys_sched_setaffinity
++	.long sys_sched_getaffinity
++	.long sys_ni_syscall	/* sys_set_thread_area */
++	.long sys_ni_syscall	/* sys_get_thread_area */
++	.long sys_io_setup	/* 245 */
++	.long sys_io_destroy
++	.long sys_io_getevents
++	.long sys_io_submit
++	.long sys_io_cancel
++	.long sys_fadvise64	/* 250 */
++	.long sys_exit_group
++	.long sys_lookup_dcookie
++	.long sys_epoll_create
++	.long sys_epoll_ctl
++	.long sys_epoll_wait	/* 255 */
++	.long sys_remap_file_pages
++	.long sys_set_tid_address
++	.long sys_timer_create
++	.long sys_timer_settime
++	.long sys_timer_gettime	/* 260 */
++	.long sys_timer_getoverrun
++	.long sys_timer_delete
++	.long sys_clock_settime
++	.long sys_clock_gettime
++	.long sys_clock_getres	/* 265 */
++	.long sys_clock_nanosleep
++	.long sys_statfs64
++	.long sys_fstatfs64
++	.long sys_tgkill
++	.long sys_utimes	/* 270 */
++	.long sys_fadvise64_64
++	.long sys_ni_syscall	/* sys_vserver */
++	.long sys_mbind
++	.long sys_get_mempolicy
++	.long sys_set_mempolicy	/* 275 */
++	.long sys_mq_open
++	.long sys_mq_unlink
++	.long sys_mq_timedsend
++	.long sys_mq_timedreceive
++	.long sys_mq_notify	/* 280 */
++	.long sys_mq_getsetattr
++	.long sys_ni_syscall	/* reserved for kexec */
++
+--- linux-2.6.9-rc1/include/asm-m68k/unistd.h	2004-06-16 12:50:43.000000000 +0200
++++ linux-m68k-2.6.9-rc1/include/asm-m68k/unistd.h	2004-09-10 21:05:06.000000000 +0200
+@@ -238,8 +238,55 @@
+ #define __NR_lremovexattr	233
+ #define __NR_fremovexattr	234
+ #define __NR_futex		235
++#define __NR_sendfile64		236
++#define __NR_mincore		237
++#define __NR_madvise		238
++#define __NR_fcntl64		239
++#define __NR_readahead		240
++#define __NR_sched_setaffinity	241 // Do we need this?
++#define __NR_sched_getaffinity	242 // Do we need this?
++#define __NR_set_thread_area	243 // We don't have sys_set_thread_area yet
++#define __NR_get_thread_area	244 // We don't have sys_get_thread_area yet
++#define __NR_io_setup		245
++#define __NR_io_destroy		246
++#define __NR_io_getevents	247
++#define __NR_io_submit		248
++#define __NR_io_cancel		249
++#define __NR_fadvise64		250
++#define __NR_exit_group		251
++#define __NR_lookup_dcookie	252
++#define __NR_epoll_create	253
++#define __NR_epoll_ctl		254
++#define __NR_epoll_wait		255
++#define __NR_remap_file_pages	256
++#define __NR_set_tid_address	257
++#define __NR_timer_create	258
++#define __NR_timer_settime	(__NR_timer_create+1)
++#define __NR_timer_gettime	(__NR_timer_create+2)
++#define __NR_timer_getoverrun	(__NR_timer_create+3)
++#define __NR_timer_delete	(__NR_timer_create+4)
++#define __NR_clock_settime	(__NR_timer_create+5)
++#define __NR_clock_gettime	(__NR_timer_create+6)
++#define __NR_clock_getres	(__NR_timer_create+7)
++#define __NR_clock_nanosleep	(__NR_timer_create+8)
++#define __NR_statfs64		267
++#define __NR_fstatfs64		268
++#define __NR_tgkill		269
++#define __NR_utimes		270
++#define __NR_fadvise64_64	271
++#define __NR_vserver		272
++#define __NR_mbind		273
++#define __NR_get_mempolicy	274
++#define __NR_set_mempolicy	275
++#define __NR_mq_open		276
++#define __NR_mq_unlink		(__NR_mq_open+1)
++#define __NR_mq_timedsend	(__NR_mq_open+2)
++#define __NR_mq_timedreceive	(__NR_mq_open+3)
++#define __NR_mq_notify		(__NR_mq_open+4)
++#define __NR_mq_getsetattr	(__NR_mq_open+5)
++#define __NR_sys_kexec_load	282 // Do we need this?
 
-# lspci -v
+-#define NR_syscalls		236
++#define NR_syscalls		283
 
-00:03.0 Unknown mass storage controller: CMD Technology Inc: Unknown device
-3112 (rev 02)
-        Subsystem: CMD Technology Inc: Unknown device 3112
-        Flags: 66Mhz, medium devsel, IRQ 21
-        I/O ports at 1000 [size=8]
-        I/O ports at 1008 [size=4]
-        I/O ports at 1010 [size=8]
-        I/O ports at 100c [size=4]
-        I/O ports at 1020 [size=16]
-        Memory at f0000000 (32-bit, non-prefetchable) [size=512]
-        Expansion ROM at <unassigned> [disabled] [size=512K]
-        Capabilities: [60] Power Management version 2
+ /* user-visible error numbers are in the range -1 - -124: see
+    <asm-m68k/errno.h> */
 
-00:0b.0 PCI Hot-plug controller: Compaq Computer Corporation PCI Hotplug
-Controller (rev 12)
-        Subsystem: Compaq Computer Corporation: Unknown device a2f8
-        Flags: 66Mhz, medium devsel, IRQ 26
-        Memory at f79f0000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/0
-Enable-
-        Capabilities: [68] #07 [0000]
+Gr{oetje,eeting}s,
 
-00:0c.0 System peripheral: Compaq Computer Corporation Advanced System
-Management Controller
-        Subsystem: Compaq Computer Corporation: Unknown device b0f3
-        Flags: medium devsel, IRQ 34
-        I/O ports at 1800 [size=256]
-        Memory at f79e0000 (32-bit, non-prefetchable) [size=256]
+						Geert
 
-00:0d.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC
-[Mach64 GT IIC] (rev 7a) (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc 3D Rage IIC 215IIC [Mach64 GT IIC]
-        Flags: bus master, stepping, medium devsel, latency 64
-        Memory at f4000000 (32-bit, prefetchable) [size=16M]
-        I/O ports at 2000 [size=256]
-        Memory at f79d0000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [5c] Power Management version 1
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-00:0e.0 RAID bus controller: LSI Logic / Symbios Logic (formerly NCR):
-Unknown device 0010 (rev 02)
-        Subsystem: Compaq Computer Corporation: Unknown device 4040
-        Flags: bus master, medium devsel, latency 192, IRQ 24
-        I/O ports at 2400 [size=256]
-        Memory at f6000000 (32-bit, non-prefetchable) [size=16M]
-        Memory at f5000000 (32-bit, non-prefetchable) [size=16M]
-        Expansion ROM at <unassigned> [disabled] [size=512K]
-        Capabilities: [40] Power Management version 2
-
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 4d)
-        Subsystem: ServerWorks OSB4 South Bridge
-        Flags: bus master, medium devsel, latency 0
-
-00:0f.1 IDE interface: ServerWorks: Unknown device 0210 (rev 4a) (prog-if
-ea)
-        Subsystem: ServerWorks: Unknown device 0210
-        Flags: bus master, medium devsel, latency 0, IRQ 25
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at 2820 [size=16]
-
-00:14.0 RAM memory: Corollary, Inc Intel 8-way XEON Profusion Chipset [Cache
-Coherency Filter] (rev 05)
-        Flags: fast devsel
-
-00:14.1 RAM memory: Corollary, Inc Intel 8-way XEON Profusion Chipset [Cache
-Coherency Filter] (rev 05)
-        Flags: fast devsel
-
-00:19.0 Host bridge: Compaq Computer Corporation: Unknown device 6011
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Capabilities: [70] #07 [0030]
-
-00:1a.0 Host bridge: Compaq Computer Corporation: Unknown device 6011
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Capabilities: [70] #07 [0030]
-
-00:1b.0 Host bridge: Compaq Computer Corporation: Unknown device 6011
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Capabilities: [70] #07 [0030]
-
-05:01.0 PCI bridge: Digital Equipment Corporation DECchip 21154 (rev 05)
-(prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 64
-        Bus: primary=05, secondary=06, subordinate=06, sec-latency=64
-        I/O behind bridge: 00004000-00004fff
-        Memory behind bridge: f7b00000-f7efffff
-        Capabilities: [dc] Power Management version 1
-
-05:02.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
-53c896 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Flags: bus master, medium devsel, latency 255, IRQ 19
-        I/O ports at 3000 [size=256]
-        Memory at f7af0000 (64-bit, non-prefetchable) [size=1K]
-        Memory at f7ae0000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-
-05:02.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
-53c896 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Flags: bus master, medium devsel, latency 255, IRQ 19
-        I/O ports at 3400 [size=256]
-        Memory at f7ad0000 (64-bit, non-prefetchable) [size=1K]
-        Memory at f7ac0000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-
-05:03.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
-53c896 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Flags: bus master, medium devsel, latency 255, IRQ 18
-        I/O ports at 3800 [size=256]
-        Memory at f7ab0000 (64-bit, non-prefetchable) [size=1K]
-        Memory at f7aa0000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-
-05:03.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
-53c896 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Flags: bus master, medium devsel, latency 255, IRQ 18
-        I/O ports at 3c00 [size=256]
-        Memory at f7a90000 (64-bit, non-prefetchable) [size=1K]
-        Memory at f7a80000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-
-05:0b.0 PCI Hot-plug controller: Compaq Computer Corporation PCI Hotplug
-Controller (rev 12)
-        Subsystem: Compaq Computer Corporation: Unknown device a2fc
-        Flags: 66Mhz, medium devsel, IRQ 26
-        Memory at f7a70000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/0
-Enable-
-        Capabilities: [68] #07 [0000]
-
-06:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-        Subsystem: Compaq Computer Corporation: Unknown device b163
-        Flags: bus master, medium devsel, latency 64, IRQ 20
-        Memory at f7ef0000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at 4000 [size=64]
-        Memory at f7d00000 (32-bit, non-prefetchable) [size=1M]
-        Expansion ROM at <unassigned> [disabled] [size=1M]
-        Capabilities: [dc] Power Management version 2
-
-06:05.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-        Subsystem: Compaq Computer Corporation: Unknown device b163
-        Flags: bus master, medium devsel, latency 64, IRQ 20
-        Memory at f7cf0000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at 4040 [size=64]
-        Memory at f7b00000 (32-bit, non-prefetchable) [size=1M]
-        Expansion ROM at <unassigned> [disabled] [size=1M]
-        Capabilities: [dc] Power Management version 2
-
-0d:0b.0 PCI Hot-plug controller: Compaq Computer Corporation PCI Hotplug
-Controller (rev 12)
-        Subsystem: Compaq Computer Corporation: Unknown device a2fd
-        Flags: 66Mhz, medium devsel, IRQ 26
-        Memory at f7ff0000 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/0
-Enable-
-        Capabilities: [68] #07 [0000]
-
-# cat /proc/devices
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 ttyS
-  5 cua
-  7 vcs
- 10 misc
- 36 netlink
-128 ptm
-136 pts
-162 raw
-202 cpu/msr
-203 cpu/cpuid
-
-Block devices:
-  1 ramdisk
-  2 fd
-  3 ide0
-  8 sd
- 65 sd
- 66 sd
- 72 ida0
-
-asterix:~# cat /proc/interrupts
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5
-CPU6       CPU7
-  0:   13012540          0          0          0          0          0
-0          0  local-APIC-edge  timer
-  1:        152        331        321        206        319        288
-323        295    IO-APIC-edge  keyboard
-  9:          0          0          0          0          0          0
-0          0   IO-APIC-level  acpi
- 14:          1          0          0          0          0          0
-3          1    IO-APIC-edge  ide0
- 20:       2700      10337       9977      10331      10306      10443
-10383      10365   IO-APIC-level  eth0
- 21:       5282       5575       5521       5494       5486       5388
-5384       5444   IO-APIC-level  libata
- 24:        890       8830       1345       8930       8815       9008
-8818       8660   IO-APIC-level  ida0
-NMI:          0          0          0          0          0          0
-0          0
-LOC:   13011692   13011691   13011690   13011690   13011690   13011690
-13011690   13011684
-ERR:          0
-MIS:          0
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

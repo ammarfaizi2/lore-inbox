@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311701AbSD3KpU>; Tue, 30 Apr 2002 06:45:20 -0400
+	id <S313201AbSD3LEu>; Tue, 30 Apr 2002 07:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313014AbSD3KpT>; Tue, 30 Apr 2002 06:45:19 -0400
-Received: from krynn.axis.se ([193.13.178.10]:51865 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S311701AbSD3KpS>;
-	Tue, 30 Apr 2002 06:45:18 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <00e901c1f02f$1a783820$bdb270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: <quinlan@transmeta.com>, "Johan Adolfsson" <johan.adolfsson@axis.com>
-Cc: <quinlan@transmeta.com>, <marcelo@conectiva.com.br>,
-        <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204291326230.25892-100000@ado-2.axis.se> <15565.55114.422518.394576@transmeta.com>
-Subject: Re: [PATCH] cramfs 1/6 - timestamp in includes
-Date: Tue, 30 Apr 2002 12:09:23 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S313206AbSD3LEt>; Tue, 30 Apr 2002 07:04:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:3601 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313201AbSD3LEt>;
+	Tue, 30 Apr 2002 07:04:49 -0400
+Date: Tue, 30 Apr 2002 13:04:46 +0200
+From: Dave Jones <davej@suse.de>
+To: Lawrence Walton <lawrence@the-penguin.otak.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.9 and 1.5.10 don't boot
+Message-ID: <20020430130445.B22842@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Lawrence Walton <lawrence@the-penguin.otak.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020429190248.GA3325@the-penguin.otak.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 29, 2002 at 12:02:48PM -0700, Lawrence Walton wrote:
+ > unable to handle kernel null pointer deference at address 00000016
+ > printing EIP:
+ > c0198147
+ > Oops:0000
+ > CPU: 0
+ > EIP: 0010:[<c0198147>] not tainted
+ > EFLAGS: 00010213
+ > EAX: 00000000 EBX: c17p4ac0 ECX: c17fec00 EDX: 00000088
+ > ESI: 00000004 EDI: 00000008 EBX: c17f4ac0 ESP: c16e7dcc
 
------ Original Message ----- 
-From: "Daniel Quinlan" <quinlan@transmeta.com>
-> These first three look good.  
+This dump is useless to anyone, as the addresses need to be converted
+to symbol names. The EIP being the more important one, followed by the
+call trace.
 
-Any particular doughts about the metafile stuff or do you just need
-some more time to look at it?
-Unless I screwed something subtle up in the merge, it has been 
-working fine for us in production use for more then a year or so, 
-we have the same thing in our mkfs.jffs, genromfs and a patch for 
-mkfs.jffs2 as well I think.
+If you don't want to have to type out a whole oops to feed to ksymoops,
+you can look up the addresses in the System.map from that kernel.
+Note, there are likely to be addresses that don't resolve. For example,
+you may not find c0198147, but you will see c0198140 and c0198190. In
+this circumstance, take the lower symbol.
 
-> I made a few minor changes and merged it
-> with the big-endian patch, so I'll send you my current version before
-> sending it onwards to Marcelo and Linus.
->
-> The big-endian patch was waiting for 2.4.19 to be released, but maybe I
-> should just submit it if 2.4.19 is going to be a while.  Also, all of
-> the big-endian changes are checked into the CVS tree now.
+Numeric only oopses are entirely useless.
 
-Great, I say: "go for it!" and try to get it in before 2.4.19,
-it's rather small and clean.
+    Dave
 
-> Dan
-
-/Johan
- 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

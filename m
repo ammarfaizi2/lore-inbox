@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUEQHrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264932AbUEQINN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbUEQHrH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 03:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbUEQHrH
+	id S264932AbUEQINN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 04:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUEQINM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 03:47:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44939 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264929AbUEQHrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 03:47:01 -0400
-Date: Mon, 17 May 2004 00:46:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: torvalds@osdl.org, elenstev@mesatop.com, lm@bitmover.com,
-       wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com, scole@lanl.gov,
+	Mon, 17 May 2004 04:13:12 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10906 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S264932AbUEQINL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 04:13:11 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Steven Cole <elenstev@mesatop.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Mon, 17 May 2004 10:21:05 +0200
+User-Agent: KMail/1.5
+Cc: andrea@suse.de, torvalds@osdl.org, adi@bitmover.com, scole@lanl.gov,
        support@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
- s->tree' failed: The saga continues.)
-Message-Id: <20040517004626.4377a496.akpm@osdl.org>
-In-Reply-To: <20040517002506.34022cb8.akpm@osdl.org>
-References: <200405132232.01484.elenstev@mesatop.com>
-	<20040517022816.GA14939@work.bitmover.com>
-	<Pine.LNX.4.58.0405161936490.25502@ppc970.osdl.org>
-	<200405162136.24441.elenstev@mesatop.com>
-	<Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
-	<20040517002506.34022cb8.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <200405132232.01484.elenstev@mesatop.com> <20040516142916.7d07c9f3.akpm@osdl.org> <200405161611.17688.elenstev@mesatop.com>
+In-Reply-To: <200405161611.17688.elenstev@mesatop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405171021.05314.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Monday 17 of May 2004 00:11, Steven Cole wrote:
+> On Sunday 16 May 2004 03:29 pm, Andrew Morton wrote:
+> > Steven Cole <elenstev@mesatop.com> wrote:
+> > > Anyway, although the regression for my particular machine for this
+> > >  particular load may be interesting, the good news is that I've seen
+> > >  none of the failures which started this whole thread, which are
+> > > relatively easily reproduceable with PREEMPT set.
+> >
+> > So...  would it be correct to say that with CONFIG_PREEMPT, ppp or its
+> > underlying driver stack
+> >
+> > a) screws up the connection and hangs and
+> >
+> > b) scribbles on pagecache?
+> >
+> > Because if so, the same will probably happen on SMP.
 >
->  If an application does mmap(MAP_SHARED) of, say, a 2048 byte file and then
->  extends it:
-> 
->  	p = mmap(..., fd, ...);
->  	ftructate(fd, 4096);
->  	p[3000] = 1;
-> 
->  A racing block_write_full_page() could fail to notice the extended i_size
->  and would decide to zap those 2048 bytes anyway.
+> Perhaps someone has the hardware to test this.
 
-This should plug it.
+Well, this may be OT (I'm sorry, if so), but I ran pppd yesterday on 2.6.6-mm2 
+with no major problems on an SMP box (AMD64).  The only problem I had with it 
+is that the pppd died unexpectedly 6-7 minutes after the connection had been 
+established, but this might happen for many reasons.  My kernel had been 
+built without CONFIG_PREEMPT, though.
 
-diff -puN mm/memory.c~ftruncate-vs-block_write_full_page mm/memory.c
---- 25/mm/memory.c~ftruncate-vs-block_write_full_page	2004-05-17 00:33:07.060231368 -0700
-+++ 25-akpm/mm/memory.c	2004-05-17 00:41:00.924193096 -0700
-@@ -1208,6 +1208,8 @@ int vmtruncate(struct inode * inode, lof
- {
- 	struct address_space *mapping = inode->i_mapping;
- 	unsigned long limit;
-+	loff_t i_size;
-+	struct page *page;
- 
- 	if (inode->i_size < offset)
- 		goto do_expand;
-@@ -1222,8 +1224,22 @@ do_expand:
- 		goto out_sig;
- 	if (offset > inode->i_sb->s_maxbytes)
- 		goto out;
--	i_size_write(inode, offset);
- 
-+	/*
-+	 * If there is a pagecache page at the current i_size we need to lock
-+	 * it while modifying i_size to synchronise against
-+	 * block_write_full_page()'s sampling of i_size.  Otherwise
-+	 * block_write_full_page may decide to memset part of this page after
-+	 * the application extended the file size.
-+	 */
-+	i_size = inode->i_size;	/* don't need i_size_read() due to i_sem */
-+	page = NULL;
-+	if (i_size & (PAGE_CACHE_SIZE - 1))
-+		page = find_lock_page(inode->i_mapping,
-+				i_size >> PAGE_CACHE_SHIFT);
-+	i_size_write(inode, offset);
-+	if (page)
-+		unlock_page(page);
- out_truncate:
- 	if (inode->i_op && inode->i_op->truncate)
- 		inode->i_op->truncate(inode);
-
-_
-
-The same could happen with a pwrite() in place of ftruncate:
-
-	fd = open("2048-byte-file");
-	p = mmap(..., MAP_SHARED, fd, ...);
-	pwrite(fd, buf, 1, 4096);
-	p[3000] = 1;
-
-But I doubt that bk does extending writes() against a file which is
-concurrently being modified via MAP_SHARED.

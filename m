@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261498AbSJ1XZW>; Mon, 28 Oct 2002 18:25:22 -0500
+	id <S261857AbSJ1XWo>; Mon, 28 Oct 2002 18:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbSJ1XZW>; Mon, 28 Oct 2002 18:25:22 -0500
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:38598 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S261498AbSJ1XZV>; Mon, 28 Oct 2002 18:25:21 -0500
-Date: Mon, 28 Oct 2002 16:24:58 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [BK console updates]
-Message-ID: <Pine.LNX.4.33.0210281622010.1970-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261859AbSJ1XWo>; Mon, 28 Oct 2002 18:22:44 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:20194 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261857AbSJ1XWn>; Mon, 28 Oct 2002 18:22:43 -0500
+Date: Mon, 28 Oct 2002 15:28:57 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Hell.Surfers@cwctv.net
+Cc: corryk@us.ibm.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Rusty's Remarkably Unreliable 2.6 List
+Message-ID: <20021028152857.A7803@eng2.beaverton.ibm.com>
+Mail-Followup-To: Hell.Surfers@cwctv.net, corryk@us.ibm.com,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+References: <096654513141ca2DTVMAIL7@smtp.cwctv.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <096654513141ca2DTVMAIL7@smtp.cwctv.net>; from Hell.Surfers@cwctv.net on Mon, Oct 28, 2002 at 03:15:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 28, 2002 at 03:15:46PM +0100, Hell.Surfers@cwctv.net wrote:
+> wasnt it said that *@us.ibm.com sent in patchs that broke every scsi device 'cept ibms...
+> 
+> Cheers, Dean.
 
-Hi folks!!!
+The scsi multi-path patch is not in Rusty's list.
 
-   After several lonng days of syncing up my new console code I'm nearly
-done. Unfortunely I have let the code code rot while it sat in Dave Jones
-tree. So I have updates it but now it has several bugs. Tonight I'm going
-to track them done but if people like to try this new code out and help me
-track the new bugs I would be very happy. You can grab the latest code via
-bitkeeper at
+It includes modifications for the aic, qlogic, ips and 53c700 scsi host
+adapter drivers, but not for all the other host adapter drivers.
 
-bk://linuxconsole.bkbits.net/stable.
+The patch is not hardware specific, but it does require changes in list
+traversal that are used by all (or nearly all) the scsi adapter drivers.
 
-I will make a diff in the next few hours. Thank you.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
+-- Patrick Mansfield

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272672AbTHEL4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 07:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272676AbTHEL4J
+	id S272690AbTHEMAu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272691AbTHEMAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 07:56:09 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:52747 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S272672AbTHEL4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 07:56:08 -0400
-Message-Id: <200308051145.h75BjEj19042@Port.imtp.ilyichevsk.odessa.ua>
+	Tue, 5 Aug 2003 08:00:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30737 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S272690AbTHEMAt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 08:00:49 -0400
+Date: Tue, 5 Aug 2003 07:00:40 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: rafael@thinkfreak.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Module Programming
+Message-Id: <20030805070040.7d66b652.reynolds@redhat.com>
+In-Reply-To: <200308050838.49544.rafael@thinkfreak.com.br>
+References: <200308050838.49544.rafael@thinkfreak.com.br>
+Organization: Red Hat GLS
+X-Mailer: Sylpheed version 0.9.4cvs1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
+ of all files and data!
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: .config in bzImage ?
-Date: Tue, 5 Aug 2003 14:54:45 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-References: <20030802192957.GC32488@holomorphy.com> <200308050632.h756W5j17568@Port.imtp.ilyichevsk.odessa.ua> <20030805064528.GR32488@holomorphy.com>
-In-Reply-To: <20030805064528.GR32488@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 August 2003 09:45, William Lee Irwin III wrote:
-> >> Which requires having some way to associate the running kernel to those
-> >> files.
-> 
-> > bash-2.03# ls -l /boot
-> > drwxr-xr-x    2 root     root         1024 Jan 28  2003 2.4.20
-> > drwxr-xr-x    2 root     root         1024 Nov  2  2002 2.4.20-pre11csum_t
-> > drwxr-xr-x    2 root     root         1024 Oct 30  2002 2.4.20-pre11csumtest
-> > drwxr-xr-x    2 root     root         1024 Jul 17 08:10 2.4.21
-> > drwxr-xr-x    2 root     root         1024 Jul 17 15:15 2.4.21-ep
-> 
-> Insufficient. That's what I do most of the time anyway; when I got
-> burned it was with a batch of kernels I'd built simultaneously.
+Uttered Rafael Costa dos Santos <rafael@thinkfreak.com.br>, spoke thus:
 
-I never build kernels with same names.
-Whenever I change .config, I change extraversion too.
---
-vda
+> Where can I follow the modifications under the main functions of linux kernel 
+> programming between versions of kernerl?
+> 
+> I am asking that because I have some work on that area and I want it to be 
+> portable to every kernel versions.
+
+The authoritative reference for Linux device drivers is Rubini and
+Corbet's book "Linux Device Drivers".  You should buy your own copy
+but there is an online copy available:
+
+	http://www.xml.com/search/index.ncsp?sp-q=rubini&search=search
+
+Linux device drivers are not guaranteed to be portable between kernel
+versions, however they are usually platform-independent.
+
+Cheers!

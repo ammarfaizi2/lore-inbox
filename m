@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133018AbREERLj>; Sat, 5 May 2001 13:11:39 -0400
+	id <S133022AbREERMT>; Sat, 5 May 2001 13:12:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133022AbREERL3>; Sat, 5 May 2001 13:11:29 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:26892 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S133018AbREERLT>; Sat, 5 May 2001 13:11:19 -0400
-Date: 05 May 2001 14:38:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <80IsAobmw-B@khms.westfalen.de>
-In-Reply-To: <3af2a78b.1662663@news.bright.net>
-Subject: Re: need good linux *athlon* (tbird) motherboard..
-X-Mailer: CrossPoint v3.12d.kh6 R/C435
+	id <S133023AbREERMA>; Sat, 5 May 2001 13:12:00 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49334 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S133022AbREERLw>;
+	Sat, 5 May 2001 13:11:52 -0400
+Date: Sat, 5 May 2001 13:11:51 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <200105051120.f45BKic207817@saturn.cs.uml.edu>
+Message-ID: <Pine.GSO.4.21.0105051257390.23716-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <xB5D6.111364$BB5.907111@typhoon.columbus.rr.com> <3adcfeab$0$14444$1dc6e903@news.corecomm.net> <3af1654c.9104872@news.bright.net> <3af1fa1d$0$18894$1dc6e903@news.corecomm.net> <3af2a78b.1662663@news.bright.net>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jonadab@bright.net (Jonadab the Unsightly One)  wrote on 04.05.01 in <3af2a78b.1662663@news.bright.net>:
 
-> mhgraham@umich.edu (Dances With Crows) wrote:
->
-> > Hmm.  For "Athlon", the thl consonant combination occurs in such a way
-> > that the speaker can split the word into two syllables, "ath" and "lon",
->
-> Yes, you can do that, but people typically don't.  Not sure why.
 
-Strange. I wouldn't dream of doing it any other way. The "A-thlon" version  
-seems extremely unlikely to me.
+On Sat, 5 May 2001, Albert D. Cahalan wrote:
 
-MfG Kai
+>   case P_SWAP:
+>     sprintf(tmp, "%4.4s ",
+> 	scale_k(((task->size - task->resident) << CL_pg_shift), 4, 1));
+>     break;
+
+Albert, you can't be serious. The system had demand-loading for almost
+ten years. ->size - ->resident can be huge with no swap at all. As in,
+"box had never been subjected to swapon(8)".
+
+	That value is a  mix of amount of stuff we hadn't paged in,
+amount of stuff we had paged in but then dropped (e.g. code that
+had never been touched for two weeks, since application only uses
+it on startup) and amount of stuff that had been swapped out _and_
+wasn't swapped in (it may very well stay in swap).
+
+	BTW, "shared" is also bogus - page_count(page) can be raised
+by any number of things.
+
+> > 	* makes stuff like top(1) _walk_ _whole_ _page_ _tables_ _of_ _all_
+> > 	  _processes_ each 5 seconds. No wonder it's slow like hell and eats
+> > 	  tons of CPU time.
+> 
+> On my system, "statm" takes 50% longer than "stat" or "status".
+> Maybe there is a significant difference with Oracle on a 32 GB box?
+
+Depends on that applications mix.
+

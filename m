@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261258AbTC0S2M>; Thu, 27 Mar 2003 13:28:12 -0500
+	id <S261271AbTC0SbH>; Thu, 27 Mar 2003 13:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbTC0S2M>; Thu, 27 Mar 2003 13:28:12 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:40968 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261258AbTC0S2L>;
-	Thu, 27 Mar 2003 13:28:11 -0500
-Date: Thu, 27 Mar 2003 10:38:21 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Jochen Hein <jochen@jochen.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.66] slab corruption
-Message-ID: <20030327183820.GH32667@kroah.com>
-References: <871y0uhriz.fsf@echidna.jochen.org> <20030326133021.43f75e1c.akpm@digeo.com>
+	id <S261273AbTC0SbH>; Thu, 27 Mar 2003 13:31:07 -0500
+Received: from zachery.phunnypharm.org ([65.207.35.141]:58250 "EHLO
+	zachery.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261271AbTC0SbG>; Thu, 27 Mar 2003 13:31:06 -0500
+Date: Tue, 25 Mar 2003 18:35:34 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] increase BUS_ID_SIZE to 20
+Message-ID: <20030325233534.GW29859@phunnypharm.org>
+References: <20030318030045.GA367@phunnypharm.org> <Pine.LNX.4.33.0303251529140.999-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030326133021.43f75e1c.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.33.0303251529140.999-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 01:30:21PM -0800, Andrew Morton wrote:
-> Jochen Hein <jochen@jochen.org> wrote:
-> >
-> > 
-> > This is when shutting down.  I have the two patches from Jack Simmons
-> > for the illegal context and the broken cursor applied and nothing
-> > else.
-> > 
-> > uhci-hcd 00:07.2: remove, state 3
-> > usb usb1: USB disconnect, address 1
+On Tue, Mar 25, 2003 at 03:31:24PM -0600, Patrick Mochel wrote:
 > 
-> There's some nastiness in the USB disconnect code.  Does David Brownell's
-> patch help?
+> On Mon, 17 Mar 2003, Ben Collins wrote:
+> 
+> > I've tried to figure a way around this without adding back a lot of
+> > overhead, but I can't.
+> > 
+> > The reasoning, is the ieee1394 node's onyl way of a real unique
+> > identifier is the EUI (the 64bit GUID). It's represented as a 16 digit
+> > hex. However, each node additionally ca have unit directories.
+> 
+> > Please consider applying this patch.
+> 
+> Alright, you win. I'll add it to my tree.
 
-Sad thing is, this patch breaks other things :(
-I'm still trying to track this one down...
+Much appreciated.
 
-thanks,
-
-greg k-h
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266598AbRGEBiv>; Wed, 4 Jul 2001 21:38:51 -0400
+	id <S266600AbRGEBoL>; Wed, 4 Jul 2001 21:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266599AbRGEBim>; Wed, 4 Jul 2001 21:38:42 -0400
-Received: from mailout3-1.nyroc.rr.com ([24.92.226.168]:31599 "EHLO
-	mailout3.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S266598AbRGEBib>; Wed, 4 Jul 2001 21:38:31 -0400
-Message-ID: <002501c104f4$c40619b0$0701a8c0@morph>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Daniel Phillips" <phillips@bonn-fries.net>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <fa.e66agbv.hn0u1v@ifi.uio.no>
-Subject: Re: VM Requirement Document - v0.0
-Date: Wed, 4 Jul 2001 21:49:43 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S266601AbRGEBoB>; Wed, 4 Jul 2001 21:44:01 -0400
+Received: from hal.qcc.sk.ca ([198.169.27.4]:48908 "HELO hal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S266600AbRGEBnq>;
+	Wed, 4 Jul 2001 21:43:46 -0400
+Date: Wed, 4 Jul 2001 19:43:44 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: >128 MB RAM stability problems (again)
+Message-ID: <20010704194344.B1453@hal.qcc.sk.ca>
+In-Reply-To: <Pine.LNX.4.33.0107050137500.4183-100000@eduard.t-online.de> <3B43C13C.16BA4709@linisoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B43C13C.16BA4709@linisoft.com>; from reza@linisoft.com on Wed, Jul 04, 2001 at 06:22:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Getting the user's "interactive" programs loaded back
-> in afterwards is a separate, much more difficult problem
-> IMHO, but no doubt still has a reasonable solution.
+Reza Roboubi <reza@linisoft.com> wrote:
+> Nobody has answered a basic concern:
+> Why does Win2k work while Linux does not?
 
-Possibly stupid suggestion... Maybe the interactive/GUI programs should wake
-up once in a while and touch a couple of their pages? Go too far with this
-and you'll just get in the way of performance, but I don't think it would
-hurt to have processes waking up every couple of minutes and touching glibc,
-libqt, libgtk, etc so they stay hot in memory... A very slow incremental
-"caress" of the address space could eliminate the
-"I-just-logged-in-this-morning-and-dammit-everything-has-been-paged-out"
-problem.
+I did post a possible answer for this:  different OSes excercise the memory
+subsystem very differently.  This is why a box might run (say) Win95
+apparently stably, but not be able to run Linux.  The same reasoning applies
+to other OSes.  I've seen this many times myself.
 
-Regards,
-Dan
-
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

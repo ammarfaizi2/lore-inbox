@@ -1,48 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbRC0EUY>; Mon, 26 Mar 2001 23:20:24 -0500
+	id <S130515AbRC0ETE>; Mon, 26 Mar 2001 23:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130493AbRC0EUP>; Mon, 26 Mar 2001 23:20:15 -0500
-Received: from ns0.petreley.net ([64.170.109.178]:3975 "EHLO petreley.com")
-	by vger.kernel.org with ESMTP id <S130487AbRC0EUF>;
-	Mon, 26 Mar 2001 23:20:05 -0500
-Date: Mon, 26 Mar 2001 20:19:23 -0800
-From: Nicholas Petreley <nicholas@petreley.com>
+	id <S130519AbRC0ESy>; Mon, 26 Mar 2001 23:18:54 -0500
+Received: from cr355197-a.poco1.bc.wave.home.com ([24.112.113.88]:52220 "EHLO
+	whiskey.enposte.net") by vger.kernel.org with ESMTP
+	id <S130515AbRC0ESs>; Mon, 26 Mar 2001 23:18:48 -0500
 To: linux-kernel@vger.kernel.org
-Cc: Andre Hedrick <andre@linux-ide.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: VIA686b chipset and dma_intr errors, and 3c905B errors
-Message-ID: <20010326201923.C609@petreley.com>
-In-Reply-To: <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org> <3AB93A75.D18A78EE@student.luth.se> <20010326142858.A664@petreley.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20010326142858.A664@petreley.com>; from nicholas@petreley.com on Mon, Mar 26, 2001 at 02:28:58PM -0800
+Path: whiskey.fireplug.net!not-for-mail
+From: sl@whiskey.fireplug.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
+Subject: Re: question \ information request on init \ boot sequence when using initrd
+Date: 26 Mar 2001 20:17:11 -0800
+Organization: fireplug
+Distribution: local
+Message-ID: <99p487$18m$1@whiskey.enposte.net>
+In-Reply-To: <985660830.32357@whiskey.enposte.net>
+Reply-To: sl@fireplug.net
+X-Newsreader: trn 4.0-test67 (15 July 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update: 
+In article <985660830.32357@whiskey.enposte.net>,
+Amit D Chaudhary <amit@muppetlabs.com> wrote:
+>Hi,
+>
+>We(my team) had some questions regarding booting from initrd and using 
+>/linuxrc. It will help someone(David, Werner,...) can give their 
+>thoughts on this.
+>
+>To put it in brief, since running sbin/init from /linuxrc as resulting 
+>in init not having PID 1 and thereby not doing some initialization as 
+>expected.
+>
+>Thereby instead of loading running /sbin/init, we just set 
+>/proc/sys/kernel/real-root-dev to /dev/ram0's value which then does the 
+>following
+>runs 2 statements in init/main.c to unlock_kernel and free init memory 
+>and then run sbin/init.
+>This results in /sbin/init running fine.
+>
+>Is this ok or should be modify /sbin/init to run properly inspite of PID 
+><> 1 or is there a 3rd way of doing this?
+>
+>
+>mkdir initrd
+>../bin/pivot_root . initrd
+>
+>exec sbin/chroot . sbin/init.new 3 <dev/console >dev/console 2>&1
+>
+>
+>The above results in init running with PID != 1 and thereby skipping 
+>some relevant processing my default. see ps output below:
+>
+>Instead of the "chroot" above is changed to following
+>exec sbin/chroot . sh -c 'bin/mount proc proc -t proc; echo 0x01000000 > 
+>proc/sys/kernel/real-root-dev'
+>And linuxrc exits
+>
+>
+>
+>(none):root> ps -e
+>   PID TTY          TIME CMD
+>     1 ?        00:00:04 swapper
+>     2 ?        00:00:00 keventd
+>     3 ?        00:00:00 kswapd
+>     4 ?        00:00:00 kreclaimd
+>     5 ?        00:00:00 bdflush
+>     6 ?        00:00:00 kupdate
+>     7 ?        00:00:00 mtdblockd
+>     8 ?        00:00:00 init
+>    26 ?        00:00:00 sh
+>    39 ?        00:00:00 portmap
+>    50 ?        00:00:00 ypbind
+>    51 ?        00:00:00 ypbind
+>    84 ?        00:00:00 inetd
+>    93 ?        00:00:00 syslogd
+>   100 ?        00:00:00 klogd
+>   119 ?        00:00:00 ps
 
-Thanks to some advice and help from Mark Hahn, I downloaded
-the DFT utility from IBM that checks and fixes their
-drives.  A low-level format fixed the problems (the utility
-calls it "erase disk".  That seems odd to me, since I
-thought that IDE drives automatically took care of bad
-blocks, but apparently this needed the low-level format. 
-I'll keep an eye on that drive, though...
 
-As for the 3C905B, I've already replaced it with an
-eepro100, but as Mark suggested in an email, I will turn
-off the "optimal" performance setting in the BIOS and see
-if that gets rid of all the bizarre behavior.  Apparently
-that's not a kernel problem but a bios problem.  
+You can run your linuxrc with:
 
--Nick
+	init=/linuxrc
+
+and then end your /linuxrc with:
+
+	exec /sbin/init
 
 -- 
-**********************************************************
-Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
-nicholas@petreley.com - http://www.petreley.com - Eph 6:12
-**********************************************************
-.
+                                            __O 
+Lineo - For Embedded Linux Solutions      _-\<,_ 
+PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

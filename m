@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbRFYT75>; Mon, 25 Jun 2001 15:59:57 -0400
+	id <S265908AbRFYUC5>; Mon, 25 Jun 2001 16:02:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265904AbRFYT7r>; Mon, 25 Jun 2001 15:59:47 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:40208 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S265909AbRFYT7k>; Mon, 25 Jun 2001 15:59:40 -0400
-Date: Mon, 25 Jun 2001 21:57:46 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Rob Landley <landley@webofficenow.com>
-Cc: linux-kernel@vger.kernel.org, penguicon-comphist@lists.sourceforge.net
-Subject: Re: Microsoft and Xenix.
-Message-ID: <20010625215746.B21659@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.33.0106250806150.21085-100000@twin.uoregon.edu> <01062510170903.04704@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01062510170903.04704@localhost.localdomain>; from landley@webofficenow.com on Mon, Jun 25, 2001 at 10:17:09AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S265907AbRFYUCr>; Mon, 25 Jun 2001 16:02:47 -0400
+Received: from adsl-65-68-16-200.dsl.ltrkar.swbell.net ([65.68.16.200]:32603
+	"EHLO etmain.edafio.com") by vger.kernel.org with ESMTP
+	id <S265908AbRFYUCa> convert rfc822-to-8bit; Mon, 25 Jun 2001 16:02:30 -0400
+Subject: RE: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+Date: Mon, 25 Jun 2001 14:57:39 -0500
+Message-ID: <3BDF3E4668AD0D49A7B0E3003B294282BC96@etmain.edafio.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Thread-Topic: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+content-class: urn:content-classes:message
+Thread-Index: AcD9QCGJYswK5O41R2OKPs0tzeAQXgAcLgrw
+From: "Andy Ward" <andyw@edafio.com>
+To: "Steven Walter" <srwalter@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 10:17:09AM -0400, Rob Landley wrote:
-> On Monday 25 June 2001 11:13, you wrote:
-> > 1937 claude shannon A Symbolic Analysis of Relay and Switching Circuits,"
-> >
-> > 1948 claude shannon A mathematical theory of information.
-> >
-> > without those you're kind in trouble on the computing front...
+I'd love to help out with testing (alas, my kernel coding skills aren't
+up to fixing this kind of problem).  Heck, if it trashes my linux
+install, no biggie... I've got it ghosted to an image elsewhere...
 
-[snip]
+Anyone wanting to work on this just drop me an email.
 
-> This was the dude who decided to apply a binary and boolean approach to 
-> electronic computation, right?  I KNOW I've read some stuff about him... late 
-> last year?
+-- andyw
 
-Yes, but the latter paper was the real milestone. This was the guy who
-actually defined what information *is*, and found out the upper limits
-of communication rates on a given channel. This was the guy who laid
-the fundaments of the information theory. Without information theory no
-compression, reliable transmission, reliable storage, crypthography,
-etc.
+-----Original Message-----
+From: Steven Walter [mailto:srwalter@yahoo.com]
+Sent: Monday, June 25, 2001 1:33 AM
+To: Andy Ward
+Cc: linux-kernel@vger.kernel.org
+Subject: VIA Southbridge bug (Was: Crash on boot (2.4.5))
 
 
-Erik
-[who works in an information theory group]
+Great, glad to here it.  Who (if anyone) is still attempting to unravel
+the puzzle of the Via southbridge bug?  You, Andy, should try and get in
+touch with them and help debug this thing, if you're up to it.
 
+On Mon, Jun 25, 2001 at 01:17:57AM -0500, Andy Ward wrote:
+> Well, I have tried your suggestion, and it works beautifully...  The
+> only change I made was to the cpu type (to 686), and everything *just*
+> works now...  Thanks, all!!!
+> 
+> > From the look of things, you're being bitten by the VIA southbridge
+> > problem.  As I've gathered, its some sort of interaction with that
+chip
+> > and the 3DNow! fast copy routines the kernel uses.
+> > 
+> > If you compile the kernel for a 686, does the problem go away?  What
+> > about 586 or lower?  If so, I believe there are some people working
+on
+> > finding common aspects of the hardware that experience this problem,
+> > though I don't remember who.  You should get in contact with them,
+or
+> > they might get into contact with you.
+> > 
+> > Good luck on working this out.
+> > -- 
+> > -Steven
+> > In a time of universal deceit, telling the truth is a revolutionary
+act.
+> > 			-- George Orwell
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

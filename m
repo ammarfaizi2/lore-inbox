@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbTCMQqJ>; Thu, 13 Mar 2003 11:46:09 -0500
+	id <S262474AbTCMQiV>; Thu, 13 Mar 2003 11:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262508AbTCMQqJ>; Thu, 13 Mar 2003 11:46:09 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:47532 "EHLO
+	id <S262478AbTCMQiU>; Thu, 13 Mar 2003 11:38:20 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:53924 "EHLO
 	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S262506AbTCMQqH>; Thu, 13 Mar 2003 11:46:07 -0500
+	id <S262474AbTCMQiT>; Thu, 13 Mar 2003 11:38:19 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
 To: Horst von Brand <vonbrand@inf.utfsm.cl>
 Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Date: Thu, 13 Mar 2003 18:00:48 +0100
+Date: Thu, 13 Mar 2003 17:53:01 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-References: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl>
-In-Reply-To: <200303130052.h2D0qFFT001062@eeyore.valparaiso.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200303130103.h2D13ESc001101@eeyore.valparaiso.cl>
+In-Reply-To: <200303130103.h2D13ESc001101@eeyore.valparaiso.cl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20030313165652.7CF10109CC9@mx12.arcor-online.net>
+Message-Id: <20030313164905.9E1A6107776@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 13 Mar 03 01:52, Horst von Brand wrote:
+On Thu 13 Mar 03 02:03, Horst von Brand wrote:
 > Daniel Phillips <phillips@arcor.de> said:
-> > On Wed 12 Mar 03 04:47, Horst von Brand wrote:
-> > > ...You need to focus on changes to files,
-> > > not files. I.e., file appeared/dissapeared/changed name/was edited by
-> > > altering lines so and so.
-> >
-> > It's useful to make the distinction that "file
-> > appeared/dissapeared/changed name" are changes to a directory object,
-> > while "was edited by altering lines so and so" is a change to a file
-> > object...
 >
-> I don't think so. As the user sees it, a directory is mostly a convenient
-> labeled container for files. You think in terms of moving files around, not
-> destroying one and magically creating an exact copy elsewhere (even if
-> mv(1) does exactly this in some cases). Also, this breaks up the operation
-> "mv foo bar/baz" into _two_ changes, and this is wrong as the file loses
-> its revision history.
-
-No, that's a single change to one directory object.
-
-> > ...then this part gets much easier.
+> [...]
 >
-> ... by screwing it up. This is exactly one of the problems noted for CVS.
+> > For dependencies between changes, rather than any fixed ordering, it's
+> > better to record the actual precedence information, i.e., "a before b",
+> > where a and b are id numbers of changes (I think everybody agrees changes
+> > are first class objects).  These precedence relations can be determined
+> > automatically: if two changes do not occur in the same file, there is no
+> > certainly no precedence relation.
+>
+> Wrong. Edit a header adding a new type T. Later change an existing file
+> that already includes said header to use T. Change a function, fix most
+> uses. Find a wrong usage later and fix it separately. Change something, fix
+> its Documentation/ later. Note how you can come up with dependent changes
+> that _can't_ be detected automatically.
 
-CVS doesn't have directory objects.
-
-Does anybody have a convenient mailing list for this design discussion?
+You confused semantic dependencies with structural dependencies that
+govern whether or not deltas conflict in the reject sense.  Detailed reply is 
+off-list.
 
 Regards,
 

@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUIXEsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUIXE6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267739AbUIXEsm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 00:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267749AbUIXEsm
+	id S267772AbUIXE6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 00:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUIXE6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 00:48:42 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32161 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S267720AbUIXEsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 00:48:37 -0400
-Date: Fri, 24 Sep 2004 13:44:49 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [PATCH][4/4] Add NUMA node handling to the container driver
-In-reply-to: <41534989.3070001@kolumbus.fi>
-To: Mika Penttil_ <mika.penttila@kolumbus.fi>
-Cc: tokunaga.keiich@jp.fujitsu.com, anil.s.keshavamurthy@intel.com,
-       len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Message-id: <20040924134449.7d4041f3.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040920092520.A14208@unix-os.sc.intel.com>
- <20040920094719.H14208@unix-os.sc.intel.com>
- <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
- <20040924013642.00003b08.tokunaga.keiich@jp.fujitsu.com>
- <41534989.3070001@kolumbus.fi>
+	Fri, 24 Sep 2004 00:58:21 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:17031 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267772AbUIXE6U convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 00:58:20 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2 ohci_hcd doesn't work
+Date: Thu, 23 Sep 2004 23:58:16 -0500
+User-Agent: KMail/1.6.2
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andre Eisenbach <int2str@gmail.com>,
+       Roman Weissgaerber <weissg@vienna.at>,
+       linux-usb-devel@lists.sourceforge.net,
+       David Brownell <dbrownell@users.sourceforge.net>
+References: <200409231457.16979.bjorn.helgaas@hp.com> <7f800d9f040923142648104784@mail.gmail.com> <200409231547.21875.bjorn.helgaas@hp.com>
+In-Reply-To: <200409231547.21875.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409232358.16671.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Keiichiro Tokunaga wrote:
+On Thursday 23 September 2004 04:47 pm, Bjorn Helgaas wrote:
+> On Thursday 23 September 2004 3:26 pm, Andre Eisenbach wrote:
+> > Does the DL360 have a BIOS option to allow "legacy usb devices"?
+> > My notebook does, and if set to yes, it fails with that error with or
+> > without pci=routeirq.
 > 
-> >Name: container_for_numa.patch
-> >Status: Tested on 2.6.9-rc2
-> >Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-> >Description:
-> >Add NUMA node handling to the container driver.
-> >
-> >Thanks,
-> >Keiichiro Tokunaga
-> >---
-> >@@ -198,6 +208,7 @@ container_device_add(struct acpi_device 
-> > 	if (acpi_bus_add(device, pdev, handle, ACPI_BUS_TYPE_DEVICE)) {
-> > 		return_VALUE(-ENODEV);
-> > 	}
-> >+	container_numa_add((*device)->handle);
-> >  
-> >
-> Maybe that should be :
-> 
-> container_numa_add(phandle);
->  
-> instead? Device is the child at this point.
+> No such DL360 option that I can find.  Any idea what
+> "allow legacy usb devices" means?
 
-Thanks for looking!
+It is probably the same as "USB Legacy emulation" when BIOS pretends that USB
+mouse and keyboard are PS/2 ones and legacy OSes (like DOS) can work without
+special drivers. Avoid like plague.
 
-A container's handle needs to be passed to the function here.
-The (*device)->handle is the handle.  So there is no problem.
-The phandle is just used for acpi_bus_add().
-
-Thanks,
-Keiichiro Tokunaga
+-- 
+Dmitry

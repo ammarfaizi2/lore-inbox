@@ -1,98 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbUKPNGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbUKPNJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbUKPNGt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 08:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUKPNGs
+	id S261979AbUKPNJP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 08:09:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUKPNHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 08:06:48 -0500
-Received: from gprs214-224.eurotel.cz ([160.218.214.224]:25728 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261973AbUKPNFB (ORCPT
+	Tue, 16 Nov 2004 08:07:17 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:52381 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261979AbUKPNEC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 08:05:01 -0500
-Date: Tue, 16 Nov 2004 14:04:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Greg KH <greg@kroah.com>
-Subject: Cleanup PCI power states
-Message-ID: <20041116130445.GA10085@elf.ucw.cz>
+	Tue, 16 Nov 2004 08:04:02 -0500
+Date: Tue, 16 Nov 2004 13:54:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-0
+Message-ID: <20041116125402.GA9258@elte.hu>
+References: <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041111215122.GA5885@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-This is step 0 before adding type-safety to PCI layer... It introduces
-constants and uses them to clean driver up. I'd like this to go in
-now, so that I can convert drivers during 2.6.10... Please apply,
+i have released the -V0.7.27-0 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-								Pavel
+	http://redhat.com/~mingo/realtime-preempt/
 
-[amd8111e.c piece below shows exactly why this is needed; feel free to
-apply it or not...]
+this is a pure merge of -V0.7.26-5 to 2.6.10-rc2-mm1, there are no other
+changes.
 
---- clean/include/linux/pci.h	2004-10-01 00:30:30.000000000 +0200
-+++ linux/include/linux/pci.h	2004-11-14 23:36:46.000000000 +0100
-@@ -480,6 +480,14 @@
- #define DEVICE_COUNT_COMPATIBLE	4
- #define DEVICE_COUNT_RESOURCE	12
- 
-+typedef int __bitwise pci_power_t;
-+
-+#define PCI_D0	((pci_power_t __force) 0)
-+#define PCI_D1	((pci_power_t __force) 1)
-+#define PCI_D2	((pci_power_t __force) 2)
-+#define PCI_D3hot	((pci_power_t __force) 3)
-+#define PCI_D3cold	((pci_power_t __force) 4)
-+
- /*
-  * The pci_dev structure is used to describe PCI devices.
-  */
---- clean/drivers/net/amd8111e.c	2004-10-01 00:30:15.000000000 +0200
-+++ linux/drivers/net/amd8111e.c	2004-11-14 23:48:04.000000000 +0100
-@@ -1865,17 +1865,17 @@
- 		if(lp->options & OPTION_WAKE_PHY_ENABLE)
- 			amd8111e_enable_link_change(lp);	
- 		
--		pci_enable_wake(pci_dev, 3, 1);
--		pci_enable_wake(pci_dev, 4, 1); /* D3 cold */
-+		pci_enable_wake(pci_dev, PCI_D3hot, 1);
-+		pci_enable_wake(pci_dev, PCI_D3cold, 1);
- 
- 	}
- 	else{		
--		pci_enable_wake(pci_dev, 3, 0);
--		pci_enable_wake(pci_dev, 4, 0); /* 4 == D3 cold */
-+		pci_enable_wake(pci_dev, PCI_D3hot, 0);
-+		pci_enable_wake(pci_dev, PCI_D3cold, 0);
- 	}
- 	
- 	pci_save_state(pci_dev, lp->pm_state);
--	pci_set_power_state(pci_dev, 3);
-+	pci_set_power_state(pci_dev, PCI_D3hot);
- 
- 	return 0;
- }
-@@ -1887,11 +1887,11 @@
- 	if (!netif_running(dev))
- 		return 0;
- 
--	pci_set_power_state(pci_dev, 0);
-+	pci_set_power_state(pci_dev, PCI_D0);
- 	pci_restore_state(pci_dev, lp->pm_state);
- 
--	pci_enable_wake(pci_dev, 3, 0);
--	pci_enable_wake(pci_dev, 4, 0); /* D3 cold */
-+	pci_enable_wake(pci_dev, PCI_D3hot, 0);
-+	pci_enable_wake(pci_dev, PCI_D3cold, 0);
- 
- 	netif_device_attach(dev);
- 
+to create a -V0.7.27-0 tree from scratch, the patching order is:
 
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/2.6.10-rc2-mm1.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm1-V0.7.27-0
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	Ingo

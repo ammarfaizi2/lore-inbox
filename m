@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
+	id <S315200AbSIDTRc>; Wed, 4 Sep 2002 15:17:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:54192 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S314396AbSIDS7G>; Wed, 4 Sep 2002 14:59:06 -0400
-Date: Wed, 4 Sep 2002 15:02:52 -0400 (EDT)
-X-Sybari-Space: 00000000 00000000 00000000
-From: Craig Arsenault <penguin@wombat.ca>
-X-X-Sender: craig@tabmow.ca.nortel.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: consequences of lowering "MAX_LOW_MEM"?
-In-Reply-To: <20020903202823.7152@192.168.4.1>
-Message-ID: <Pine.LNX.4.44L.0209041453060.8359-100000@tabmow.ca.nortel.com>
-References: <137715274.1031128333@[10.10.2.3]> <20020903202823.7152@192.168.4.1>
+	id <S315214AbSIDTRc>; Wed, 4 Sep 2002 15:17:32 -0400
+Received: from [64.6.248.2] ([64.6.248.2]:7304 "EHLO greenie.frogspace.net")
+	by vger.kernel.org with ESMTP id <S315200AbSIDTRc>;
+	Wed, 4 Sep 2002 15:17:32 -0400
+Date: Wed, 4 Sep 2002 12:21:59 -0700 (PDT)
+From: Peter <cogweb@cogweb.net>
+X-X-Sender: cogweb@greenie.frogspace.net
+To: linux-kernel@vger.kernel.org, <cpia@risc.uni-linz.ac.at>
+cc: Peter.Pregler@risc.uni-linz.ac.at
+Subject: 2.4.19-ac cpia AWOL error
+Message-ID: <Pine.LNX.4.44.0209041054350.21967-100000@greenie.frogspace.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Benjamin Herrenschmidt wrote:
 
-> >I think you'll find yourself with no virtual address space left to
-> >do vmalloc / fixmap / kmap type stuff. Or at least you would on i386,
-> >I presume it's the same for ppc. Sounds like you may have left
-> >yourself enough space for fixmap & kmap, but any calls to vmalloc
-> >will probably fail ?
->
-> Yes, same problem on PPC, you'll run out of virtual space quite
-> quickly for vmalloc and ioremap. Stuff a video board with lots
-> of VRAM or any PCI card exposing large MMIO regions into your
-> machines and it will probably not even boot.
->
-> Ben.
->
+I just installed CPiA with the 2.4.19-ac4 kernel, and it's working great. 
+However, when I run xawtv, I get these errors every few seconds:
 
-Ben,
-  But doesn't using Matt's suggestion and moving both MAX_LOW_MEM and
-changing KERNELBASE take care of this?  It's an embedded board with no
-video, but it does have one PCI Mezzanine Card (PMC) on it.
+kernel: usb-uhci.c: interrupt, status 2, frame# 1575
+kernel: *_comp parameters have gone AWOL (2/0/0/0) - reseting them
 
-Thanks.
+The same errors were posted to the cpia list in May of last year,
+http://mailman.risc.uni-linz.ac.at/pipermail/cpia/2001-May/001056.html 
+and wrt other topics occasionally on lkml.
 
---
-Craig.
-+------------------------------------------------------+
-http://www.wombat.ca/rpmon.html    RP Music Monitor
-http://www.washington.edu/pine/    Pine @ the U of Wash.
-+-------------=*sent via Pine4.44*=--------------------+
+The origin of this error message is a patch for a color balance problem:
+http://mailman.risc.uni-linz.ac.at/pipermail/cpia/2000-March/000559.html
+
+This is the patch:
+http://mailman.risc.uni-linz.ac.at/pipermail/cpia/2000-March/000570.html
+
+The patch introduced the error message -- "By the way - I left a warning
+in place in the patch. If the patch is working correctly, then the warning
+should *never* be printed out."
+
+This warning is the one I'm seeing:
+
++    printk (KERN_WARNING "*_comp parameters have gone AWOL (%d/%d/%d/%d) 
+- reseting them\n",
+
+It looks like this color balancing patch, introduced into the driver in
+March 2000 (cf. http://webcam.sourceforge.net), is not working and is
+generating an otherwise irrelevant error message to that effect.
+
+I'll leave it to Peter Pregler and the other cpia developers to determine
+whether the color balancing really is a problem or not -- I can't say I
+see one. But the error message is clearly unnecessary and should be
+removed.
+
+Cheers,
+Peter
 
 
+I compiled usb-uhci into the kernel, and run these modules:
 
+Module                  Size  Used by
+cpia_usb                4800   0 (autoclean) (unused)
+cpia                   50832   1 [cpia_usb]
+videodev                6176   2 [cpia]
+
+The device is an Ezonics EZCam and the picture looks great.
 
 

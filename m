@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267527AbRGMVBt>; Fri, 13 Jul 2001 17:01:49 -0400
+	id <S267541AbRGMVGJ>; Fri, 13 Jul 2001 17:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbRGMVBj>; Fri, 13 Jul 2001 17:01:39 -0400
-Received: from weta.f00f.org ([203.167.249.89]:12675 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267537AbRGMVBa>;
-	Fri, 13 Jul 2001 17:01:30 -0400
-Date: Sat, 14 Jul 2001 09:01:30 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: lyons@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl bug?
-Message-ID: <20010714090130.A5737@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.33.0107131139450.12456-100000@gruel.uchicago.edu>
-Mime-Version: 1.0
+	id <S267540AbRGMVF7>; Fri, 13 Jul 2001 17:05:59 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:45318 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S267539AbRGMVFk>; Fri, 13 Jul 2001 17:05:40 -0400
+Date: 13 Jul 2001 22:22:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: viro@math.psu.edu
+cc: linux-kernel@vger.kernel.org
+Message-ID: <84l4sXb1w-B@khms.westfalen.de>
+In-Reply-To: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
+Subject: Re: Question about ext2
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107131139450.12456-100000@gruel.uchicago.edu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 13, 2001 at 03:43:15PM -0500, Gary Lyons wrote:
+viro@math.psu.edu (Alexander Viro)  wrote on 13.07.01 in <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>:
 
-    starting with 2.4.5ac23 and continuing through both 2.4.6 and
-    2.v.6-ac2 Whenever I try to do a lsattr or chattr on a directory
-    I get:
-    
-    	"Inappropriate ioctl for device While reading flags"
-    
-    on 2.4.5-ac19 I have no problem.
-    
-    My computer is a pentium 3 with an asus motherboard, i810E
-    chipset,and ide drives.  running redhat 7.1 and the hard drive
-    is WDC WD600AB
-    
-    I am more then happy to supply any more information if necessary
-    and
+> The only really obscure part is dropping an extra reference if victim is
+> a directory - then we know that we are cannibalizing the last external
+> link to it and the only link that remains is victim's ".". We don't want
+> it to prevent victim's removal, so we drive i_nlink of victim to zero.
 
-what filesystem? ext2 I assume?
+Does this stuff work right with those cases which do linkcount=1 either  
+because the fs doesn't have a link count, or because the real link count  
+has grown too large?
 
-
-
-  --cw
+MfG Kai

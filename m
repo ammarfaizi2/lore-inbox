@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270613AbTGNPds (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270638AbTGNPds
+	id S270062AbTGNP1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268476AbTGNP0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:33:48 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:39312 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S270613AbTGNPdi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:33:38 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16146.53424.388683.213654@napali.hpl.hp.com>
-Date: Mon, 14 Jul 2003 08:48:00 -0700
-To: Jakub Jelinek <jakub@redhat.com>
+	Mon, 14 Jul 2003 11:26:34 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:62700
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270062AbTGNPZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 11:25:18 -0400
+Date: Mon, 14 Jul 2003 11:40:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Lars Duesing <ld@stud.fh-muenchen.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: sizeof (siginfo_t) problem
-In-Reply-To: <20030714084000.J15481@devserv.devel.redhat.com>
-References: <20030714084000.J15481@devserv.devel.redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
+Message-ID: <20030714154006.GA20850@gtf.org>
+References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 14 Jul 2003 08:40:00 -0400, Jakub Jelinek <jakub@redhat.com> said:
+On Mon, Jul 14, 2003 at 05:06:06PM +0200, Lars Duesing wrote:
+> btw: this driver_data is used by the networking part of the
+> nforce2-driver. If anybody knows a hint, tell me. 
 
-  Jakub> # if __WORDSIZE == 64
-  Jakub> #  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 4)
-  Jakub> # else
-  Jakub> #  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
-  Jakub> # endif
+If nVidia had a clue, they would have used the portability wrappers
+created specifically for this purpose:  pci_{get,dev}_drvdata.  This
+works in 2.4, 2.5, and with the kcompat[1] toolkit, 2.2 also.
 
-  Jakub> typedef struct siginfo
-  Jakub> {
-  Jakub> int si_signo;               /* Signal number.  */
-  Jakub> int si_errno;               /* If non-zero, an errno value associated with
-  Jakub> this signal, as defined in <errno.h>.  */
-  Jakub> int si_code;                /* Signal code.  */
 
-  Jakub> union
-  Jakub> {
-  Jakub> int _pad[__SI_PAD_SIZE];
-  Jakub> ...
-  Jakub> struct
-  Jakub> {
-  Jakub> void *si_addr;      /* Faulting insn/memory ref.  */
-  Jakub> } _sigfault;
-  Jakub> ...
-  Jakub> } _sifields;
-  Jakub> } siginfo_t;
+> Else I will try to wake up someone at nvidia.
 
-  Jakub> The kernel unfortunately does this right on sparc64 and alpha
-  Jakub> from 64-bit arches only; ia64, s390x, ppc64 etc. got it
-  Jakub> wrong.
+Wake up someone at nVidia and get them to work with open source
+net drivers.
 
-The ia64 kernel defines in asm-ia64/siginfo.h:
+I bet it works with amd8111e.c with a little modification, for example.
 
-#define SI_PAD_SIZE	((SI_MAX_SIZE/sizeof(int)) - 4)
+	Jeff
 
-typedef struct siginfo {
-	int si_signo;
-	int si_errno;
-	int si_code;
-	int __pad0;
 
-What's wrong with that?
 
-	--david
+[1] http://sf.net/projects/gkernel/
+

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRJVPej>; Mon, 22 Oct 2001 11:34:39 -0400
+	id <S276894AbRJVPnv>; Mon, 22 Oct 2001 11:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277029AbRJVPea>; Mon, 22 Oct 2001 11:34:30 -0400
-Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:31236 "HELO
-	dragon.taral.net") by vger.kernel.org with SMTP id <S276708AbRJVPeQ>;
-	Mon, 22 Oct 2001 11:34:16 -0400
-Date: Mon, 22 Oct 2001 10:36:57 -0500
-From: Taral <taral@taral.net>
-To: Robert Love <rml@tech9.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Colin Phipps <cph@cph.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] updated preempt-kernel
-Message-ID: <20011022103657.B24814@taral.net>
-In-Reply-To: <1003562833.862.65.camel@phantasy>, <1003562833.862.65.camel@phantasy> <20011021120539.A1197@cph.demon.co.uk> <3BD2E89C.78D757A2@zip.com.au> <1003688179.1085.17.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S276877AbRJVPnl>; Mon, 22 Oct 2001 11:43:41 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:12818 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S276532AbRJVPnb>; Mon, 22 Oct 2001 11:43:31 -0400
+Message-ID: <00b401c15b10$3360f0c0$2a040a0a@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <Wayne.Brown@altec.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256AED.0053D3A6.00@smtpnotes.altec.com>
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 11:42:44 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 02:16:18PM -0400, Robert Love wrote:
-> Colin, can you try Andrew's patch and report back?  This problem has
-> been reported before -- its a tty bug that preempt (and SMP I wager)
-> just aggravate.  I have a patch that I know fixes it, but Andrew's is
-> _much_ simpler.  I will send you that if this fails.  Please let me
-> know.
+> Speaking as a US citizen, I hope that someone outside the US will grab
+that info
+> as soon as it's available and make it accessible to everyone.  (Not that I
+need
+> it myself -- I have no interest in 2.2.20 -- but I like to see crap
+legislation
+> like the DMCA subverted wherever possible.)
 
-This also looks a bit wrong:
-> > +	if (vt) {
-> > +		/*
-> > +		 * If we raced with con_close(), `vt' may be null.
-> > +		 * Hence this bandaid.   - akpm
-> > +		 */
-> > +		acquire_console_sem();
-> > +		set_cursor(vt->vc_num);
-> > +		release_console_sem();
-> > +	}
+Agreed, and it's exactly what we need to do.  Laws like these are much
+easier to overturn when they start making criminals out of everyday,
+ordinary people for just doing their normal jobs.  Suddenly even dumb judges
+and, especially, elected officials, get the idea because the pressure gets
+put on by everyone.
 
-Maybe should be:
+Of course, I still think this is an extremeist view of the DMCA.  I don't
+see were it keeps you from posting information about security fixes to your
+own code, just not other peoples products.
 
-acquire_console_sem();
-if (vt) set_cursor(vt->vc_num);
-release_console_sem();
+Later,
+Tom
 
-??
 
--- 
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
+
+

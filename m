@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130079AbRCLNLr>; Mon, 12 Mar 2001 08:11:47 -0500
+	id <S130129AbRCLNSs>; Mon, 12 Mar 2001 08:18:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130094AbRCLNL1>; Mon, 12 Mar 2001 08:11:27 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:15098 "HELO
-	burns.conectiva") by vger.kernel.org with SMTP id <S130090AbRCLNLJ>;
-	Mon, 12 Mar 2001 08:11:09 -0500
-Date: Mon, 12 Mar 2001 09:47:26 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: XingFei <xing.fei@fujixerox.co.jp>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux localization
-In-Reply-To: <E14cHxf-000178-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103120946220.2102-100000@imladris.rielhome.conectiva>
+	id <S130211AbRCLNSj>; Mon, 12 Mar 2001 08:18:39 -0500
+Received: from roma.axis.se ([193.13.178.2]:4616 "EHLO roma.axis.se")
+	by vger.kernel.org with ESMTP id <S130129AbRCLNSX>;
+	Mon, 12 Mar 2001 08:18:23 -0500
+Message-ID: <051e01c0aaf5$e5b5a4d0$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Johan Adolfsson" <johan.adolfsson@axis.com>
+Subject: select()/accept() problem in 2.0.38
+Date: Mon, 12 Mar 2001 14:11:06 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001, Alan Cox wrote:
+In short:
+My listener socket _sometimes_ gets confused when a client 
+connect and closes very fast when the server has outstanding data.
 
-> > My work will concern with the internationalization of Linux
-> > So, could anybody tell me what kinds of features should be in the
-> > consideration when linux be localized from english to Japanese or chinese,
-> > say using 2 bytes character set.
-> 
-> Most of the Linux userspace libraries are set up for handling UTF8 and
-> other internationalisations. Fonts are more of an issue and lack of
-> application translations. Filenames are defined to be UTF8.
+The read fd_set with the listener socket is not set
+by the select() call for new connections, 
+but if I do accept() on it anyway I will get the new socket!
 
-An appropriate mailing list for i18n would be
+I know this could happen anyway but if I don't do the accept()
+the fd_set will not be set and the application will not handle
+any new connections.
+New clients will think they are connected depending on the
+backlog parameter to listen(), and then they will timeout.
 
-	linux-utf8@nl.linux.org
+More details:
+I use non-blocking sockets.
 
-To subscribe to this list, send an email with the text
-"subscribe linux-utf8" to
+The select() has a timeout of 20ms since I need to
+poll the serial port status pins.
 
-	majordomo@nl.linux.org
+I don't get this on 2.4.
 
-cheers,
+When it happens I get a EPIPE from write(),
+(sometimes it works but then I usually get ECONNRESET instead 
+of EPIPE but not always)
+It seems to be timing dependent.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Any ideas?
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+/Johan
+
 

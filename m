@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbTJPRIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 13:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbTJPRIo
+	id S262709AbTJPQ7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 12:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbTJPQ7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 13:08:44 -0400
-Received: from tolkor.SGI.COM ([198.149.18.6]:36584 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S262757AbTJPRIn (ORCPT
+	Thu, 16 Oct 2003 12:59:15 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:14062 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S262709AbTJPQ7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 13:08:43 -0400
-Message-ID: <3F8ECA11.C4281A8C@sgi.com>
-Date: Thu, 16 Oct 2003 11:40:49 -0500
-From: Colin Ngam <cngam@sgi.com>
-Organization: SGI
-X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: en
+	Thu, 16 Oct 2003 12:59:01 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] serial console registration bugfix (2.6)
+Date: Thu, 16 Oct 2003 10:58:56 -0600
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
 MIME-Version: 1.0
-To: Jes Sorensen <jes@trained-monkey.org>
-CC: Christoph Hellwig <hch@infradead.org>, Patrick Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com, jbarnes@sgi.com
-Subject: Re: [PATCH] Altix I/O code cleanup
-References: <3F872984.7877D382@sgi.com> <20031013095652.A25495@infradead.org>
-		<yq0llrmncus.fsf@trained-monkey.org>
-		<20031015135558.A8963@infradead.org> <yq0brshwcrx.fsf@trained-monkey.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310161058.56455.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
+uart_set_options() can dereference a null pointer.  This happens
+if you specify a console that hasn't previously been setup by
+early_serial_setup().
 
-> >>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
->
-> >>  ASSERT_ALWAYS checks it, it may not be pretty but it does check
-> >> it.
->
-> Christoph> No, it's useless.  It's not different at all from just
-> Christoph> derefencing a NULL pointer - both get you an oops.
+For example, on ia64, the HCDP typically tells us about line 0,
+so we calls early_serial_setup() for it.  If the user specifies
+"console=ttyS3", we machine-check when trying to follow the
+uninitialized port->ops pointer.
 
-Hi Christoph,
+It's not entirely clear to me whether we should return 0 or -ENODEV
+or something.  The advantage of returning zero is that if the user
+specifies "console=ttyS0" and we just lack the HCDP, the console
+doesn't work as early as usual, but it does start working after the
+serial driver detects the port (though the baud/parity/etc from the
+command line are lost).  Returning -ENODEV seems to prevent it from
+ever working.
 
-In the pointer case yes.
+Bjorn
 
->
->
-> I haven't looked at the place right there, however if the intention is
-> to panic() on a failed kmalloc because the data structure is required
-> for a core service, then doing ASSERT_ALWAYS isn't that unreasonable.
-
-ASSERT_ALWAYS is used for many other cases other than just for
-testing NULL Pointers.  Whether you call ASSERT_ALWAYS or
-call panic with a message or just allow it to oops, a descriptive panic
-message can save some time.
-
-Thanks.
-
-colin
-
->
->
-> Jes
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+===== drivers/serial/serial_core.c 1.72 vs edited =====
+--- 1.72/drivers/serial/serial_core.c	Mon Sep 29 18:35:33 2003
++++ edited/drivers/serial/serial_core.c	Thu Oct 16 09:56:55 2003
+@@ -1859,6 +1859,9 @@
+ 	if (flow == 'r')
+ 		termios.c_cflag |= CRTSCTS;
+ 
++	if (!port->ops)
++		return 0;
++
+ 	port->ops->set_termios(port, &termios, NULL);
+ 	co->cflag = termios.c_cflag;
+ 
 

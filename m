@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135399AbRDMEqF>; Fri, 13 Apr 2001 00:46:05 -0400
+	id <S135401AbRDMErZ>; Fri, 13 Apr 2001 00:47:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135401AbRDMEp4>; Fri, 13 Apr 2001 00:45:56 -0400
-Received: from tomts14.bellnexxia.net ([209.226.175.35]:41694 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S135399AbRDMEpp>; Fri, 13 Apr 2001 00:45:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Alexander Viro <viro@math.psu.edu>, Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
-Date: Fri, 13 Apr 2001 00:45:41 -0400
-X-Mailer: KMail [version 1.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Message-Id: <01041300454100.06447@oscar>
-Content-Transfer-Encoding: 7BIT
+	id <S135403AbRDMErF>; Fri, 13 Apr 2001 00:47:05 -0400
+Received: from altus.drgw.net ([209.234.73.40]:3088 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S135401AbRDMEq5>;
+	Fri, 13 Apr 2001 00:46:57 -0400
+Date: Thu, 12 Apr 2001 23:46:26 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Sebastian Klemke <packet@convergence.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in natsemi driver 1.07 for linux 2.4.2
+Message-ID: <20010412234626.A13920@altus.drgw.net>
+In-Reply-To: <20010330070429.A20125@teenix.convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <20010330070429.A20125@teenix.convergence.de>; from packet@convergence.de on Fri, Mar 30, 2001 at 07:04:29AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 April 2001 22:03, Alexander Viro wrote:
-> On Thu, 12 Apr 2001, Ed Tomlinson wrote:
-> > On Thursday 12 April 2001 11:12, Alexander Viro wrote:
-> > What prompted my patch was observing situations where the icache (and
-> > dcache too) got so big that they were applying artifical pressure to the
-> > page and buffer caches. I say artifical since checking the stats these
-> > caches showed over 95% of the entries unused.  At this point there is
-> > usually another 10% or so of objects allocated by the slab caches but not
-> > accounted for in the stats (not a problem they are accounted if the cache
-> > starts using them).
->
-> "Unused" as in "->d_count==0"? That _is_ OK. Basically, you will have
-> positive ->d_count only on directories and currently opened files.
-> E.g. during compile in /usr/include/* you will have 3-5 file dentries
-> with ->d_count > 0 - ones that are opened _now_. It doesn't mean that
-> everything else rest is unused in any meaningful sense. Can be freed - yes,
-> but that's a different story.
->
-> If you are talking about "unused" from the slab POV - _ouch_. Looks like
-> extremely bad fragmentation ;-/ It's surprising, and if that's thte case
-> I'd like to see more details.
+On Fri, Mar 30, 2001 at 07:04:29AM +0200, Sebastian Klemke wrote:
+> Hi!
+> 
+> The driver for the natsemi NIC does not properly filter out requested
+> multicast groups when in multicast mode.  Multicast groups I joined
+> are simply dropped by the MAC address filter of the card, the kernel
+> filters them correctly in allmulti or promiscuous mode. I've tested
+> driver versions 1.05 which comes with linux 2.4.2, an older version
+> that came with linux-2.4.0test12 and 1.07 which came with 2.4.2-ac20.
+> 
+> I contacted Donald Becker and he told me to post it here.
 
->From the POV of dentry_stat.nr_unused.  From the slab POV, dentry_stat.nr_dentry
-always equals the number of objects used as reported in /proc/slabinfo.  If I
-could remember my stats from ages back I could take a stab at estimating the
-fragmentation...  From experience if you look at memory_pressure before and 
-after a shrink of the dcache you will usually see it decrease if there if
-there is more that 75% or so free reported by dentry_stat.nr_unused.  
+Have you tried Donald Becker's version of the driver under linux 2.2.x?
 
-The inode cache is not as good.  With fewer inodes per page (slab) I 
-would expect that percentage to be lower.  Instead it usually has to be
-above 80% to get pages free...
+The only natsemi driver I've ever had come close to working is in
+2.4.4pre1, and even then it's got some problems that cause poor
+perfomance, nfs timeouts, and dropped connections with the squid http
+proxy.
 
-I am trying your change now.
-
-Ed Tomlinson
-
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

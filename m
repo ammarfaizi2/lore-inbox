@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313598AbSDHJcR>; Mon, 8 Apr 2002 05:32:17 -0400
+	id <S313601AbSDHJlk>; Mon, 8 Apr 2002 05:41:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313599AbSDHJcQ>; Mon, 8 Apr 2002 05:32:16 -0400
-Received: from dialin-145-254-148-091.arcor-ip.net ([145.254.148.91]:55814
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S313598AbSDHJcQ>; Mon, 8 Apr 2002 05:32:16 -0400
-Message-ID: <3CB16335.C4BF320C@loewe-komp.de>
-Date: Mon, 08 Apr 2002 11:30:29 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.18-ul i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Pierre Ficheux <pierre.ficheux@openwide.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 AND Geode GX1/200Mhz problem
-In-Reply-To: <3CB0D419.F785C6D0@openwide.fr> <E16uMHW-0006vK-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313599AbSDHJlj>; Mon, 8 Apr 2002 05:41:39 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:42510 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S313597AbSDHJlj>; Mon, 8 Apr 2002 05:41:39 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Extraversion in System.map?
+Date: Mon, 8 Apr 2002 09:41:38 +0000 (UTC)
+Organization: Cistron
+Message-ID: <a8roki$v7t$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.44.0204081502180.548-100000@holly.crl.go.jp> <1018246521.1534.145.camel@phantasy>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1018258898 31997 195.64.65.67 (8 Apr 2002 09:41:38 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> >       I have a strange problem with a Geode/GX1 200Mhz based system. My
-> > kernel is compiled  with 586 as processor type but the system stops just
-> > after the 'Uncompressing Linux...Ok, booting the kernel' message. It's
-> > strange as GX1 is claimed to work fine with 2.4.18. The same system
-> > works fine with 2.2.18 kernel.
-> 
-> With 586 and no TSC set it should work fine yes. You might want to plug a
-> serial port in and compile with serial console enabled, see if it gives any
-> clues
+In article <1018246521.1534.145.camel@phantasy>,
+Robert Love  <rml@tech9.net> wrote:
+>Do what everyone else does and name your System.map appropriately, i.e.
+>System.map-2.5.8-pre2 and then on boot symlink System.map to
+>System.map-`uname -r`.  Most (all?) distributions do this for you
+>already.
 
-I want to translate this to:
+Not even that is needed. Most if not all utilities that need a
+system.map file check for System.map-`uname -r` _first_ and only
+if that is not found fall back to plain System.map. So the symlink
+is superfluous.
 
-Processor -> 586/K5/5x86/6x86/6x86MX
+Mike.
 
-right?

@@ -1,81 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265775AbUBFTRd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUBFTOw
+	id S265785AbUBFTQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUBFTPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:14:52 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:18306 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S265775AbUBFTLn (ORCPT
+	Fri, 6 Feb 2004 14:15:21 -0500
+Received: from devil.servak.biz ([209.124.81.2]:8428 "EHLO devil.servak.biz")
+	by vger.kernel.org with ESMTP id S265785AbUBFTMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:11:43 -0500
-Date: Fri, 6 Feb 2004 20:11:08 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Valdis.Kletnieks@vt.edu, Roland Dreier <roland@topspin.com>,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       Troy Benjegerdes <hozer@hozed.org>,
-       infiniband-general@lists.sourceforge.net,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Message-ID: <20040206191107.GA6340@vana.vc.cvut.cz>
-References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com> <Pine.LNX.4.53.0402061150100.3862@chaos> <52smhounpn.fsf@topspin.com> <Pine.LNX.4.53.0402061258110.4045@chaos> <200402061822.i16IMdHJ013686@turing-police.cc.vt.edu> <Pine.LNX.4.53.0402061336120.4238@chaos>
+	Fri, 6 Feb 2004 14:12:07 -0500
+Subject: 2.6.2-mm1 - errors during boot
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux-Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1076094927.6331.5.camel@moria.arnor.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0402061336120.4238@chaos>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 06 Feb 2004 11:15:27 -0800
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - devil.servak.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 01:50:42PM -0500, Richard B. Johnson wrote:
-> On Fri, 6 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
-> 
-> > On Fri, 06 Feb 2004 13:00:38 EST, "Richard B. Johnson" said:
-> >
-> > > Yes you can. You just don't use an ';' if you are going
-> > > to use 'else'.
-> >
-> > You did realize we've changed things from macros to inline functions
-> > (and vice versa) on occasion?
-> >
-> > Yes, you *can* hack around the "problem".  Is there any actual
-> > evidence that any real performance issues arise from the null
-> > do/while?  Does said issue outweigh the increased fragility of
-> > the code?
-> >
-> 
-> Well the 'problem' is a demonstration. The last time I answered
-> a query about the "do {} while(0)", stuff (as an advocate), there
-> were tons of 'experts' that jumped on me for helping to propagate
-> this "atrocious" (as I recall) abuse of the 'C' language. I
-> was severely tongue-lashed into believing that there was no
-> actual reason for doing it that way.
+I didn't have these with 2.6.2-rc3-mm1.
 
-> running off to the head. I have spent a bunch of time looking
-> at C/C++ headers for Sun and W$ and the only place I've
-> ever seen the "do {} while(0)" stuff is in Linux. I think
-> it started with Linux (was a Linux Invention!), as some
-> kind of work-around, then it became a "Linux Signature".
+(snipped from dmesg log:)
+...
+found reiserfs format "3.6" with standard journal
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00508d0000f42af5]
+Badness in kobject_get at lib/kobject.c:431
+Call Trace:
+ [<c02078dc>] kobject_get+0x3c/0x50
+ [<c0272fd1>] get_device+0x11/0x20
+ [<c0273c68>] bus_for_each_dev+0x78/0xd0
+ [<fc876185>] nodemgr_node_probe+0x45/0x100 [ieee1394]
+ [<fc876030>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
+ [<fc87654b>] nodemgr_host_thread+0x14b/0x180 [ieee1394]
+ [<fc876400>] nodemgr_host_thread+0x0/0x180 [ieee1394]
+ [<c010b285>] kernel_thread_helper+0x5/0x10
+ 
+Unable to handle kernel paging request at virtual address 57e58955
+ printing eip:
+57e58955
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP
+CPU:    0
+EIP:    0060:[<57e58955>]    Not tainted VLI
+EFLAGS: 00010206
+EIP is at 0x57e58955
+eax: fc87f5a8   ebx: fc87f5a8   ecx: fc87f584   edx: 57e58955
+esi: fc875af0   edi: 00000000   ebp: f7265f6c   esp: f7265f58
+ds: 007b   es: 007b   ss: 0068
+Process knodemgrd_0 (pid: 28, threadinfo=f7264000 task=f7267780)
+Stack: c0207974 fc874940 fc87f584 fc87f58c fc87f4e0 f7265f90 c0273c7a
+fc87f52c
+       00000000 f7350244 f7265fa4 f735023c f7265fa4 f7c46398 f7265fc8
+fc876185
+       fc876030 f7fa8000 00000001 f7c46398 f7350200 0000ffff f7265fb8
+00000004
+Call Trace:
+ [<c0207974>] kobject_cleanup+0x84/0x90
+ [<fc874940>] nodemgr_bus_match+0x0/0xb0 [ieee1394]
+ [<c0273c7a>] bus_for_each_dev+0x8a/0xd0
+ [<fc876185>] nodemgr_node_probe+0x45/0x100 [ieee1394]
+ [<fc876030>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
+ [<fc87654b>] nodemgr_host_thread+0x14b/0x180 [ieee1394]
+ [<fc876400>] nodemgr_host_thread+0x0/0x180 [ieee1394]
+ [<c010b285>] kernel_thread_helper+0x5/0x10
+ 
+Code:  Bad EIP value.
+ Reiserfs journal params: device md1, size 8192, journal first block 18,
+max trans len 1024, max batch 900, max commit age 30, max trans age 30
+...
 
-Yes, because Linux programmers are only one who care about quality. 
-Microsoft happilly offers (W2k DDK,inc/ddk/ntddk.h)
-
-/* PLIST_ENTRY RemoveHeadList(PLIST_ENTRY ListHead) */
-
-#define RemoveHeadList(ListHead) \
-	(ListHead)->Flink;\
-	{RemoveEntryList((ListHead)->Flink)}
-
-and they do not care that you cannot use it in an expression, or
-after if () statement, or anywhere else, except directly in an
-assignment which is not in if/while body. So you must know that
-RemoveHeadList() is macro, even that it is macro built from two
-statements, and that you cannot use it as a function at all, as
-it has a value only from left side - from right side it is
-void :-( And of course it evaluates ListHead two times.
-
-Please do not add such traps into Linux kernel code.
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
+-- 
+Torrey Hoffman <thoffman@arnor.net>
 

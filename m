@@ -1,82 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263588AbUESByq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUESCMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263588AbUESByq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 21:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUESByq
+	id S263766AbUESCMC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 22:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUESCMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 21:54:46 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:22730 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S263588AbUESByn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 21:54:43 -0400
-Message-ID: <40AABE49.1050401@myrealbox.com>
-Date: Tue, 18 May 2004 18:54:17 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
+	Tue, 18 May 2004 22:12:01 -0400
+Received: from ns2.undead.cc ([216.126.84.18]:13697 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S263766AbUESCL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 22:11:57 -0400
+Message-ID: <40AAC26C.2080803@undead.cc>
+Date: Tue, 18 May 2004 22:11:56 -0400
+From: John Zielinski <grim@undead.cc>
 User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: Andy Lutomirski <luto@myrealbox.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       olaf+list.linux-kernel@olafdietsche.de, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] scaled-back caps, take 4
-References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40A4F163.6090802@stanford.edu> <20040514110752.U21045@build.pdx.osdl.net> <200405141548.05106.luto@myrealbox.com> <20040517231912.H21045@build.pdx.osdl.net> <40A9D356.6060807@stanford.edu> <20040518182751.J21045@build.pdx.osdl.net>
-In-Reply-To: <20040518182751.J21045@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] sysfs kobject that doesn't trigger hotplug events
+Content-Type: multipart/mixed;
+ boundary="------------090206080906030701040608"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
+This is a multi-part message in MIME format.
+--------------090206080906030701040608
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> * Andy Lutomirski (luto@stanford.edu) wrote:
-> 
->>Chris Wright wrote:
->>
->>>
->>>
->>>Thus far we've kept all this stuff out of core.  I believe we should
->>>keep it that way.  This could easily be left in bprm_set().
->>
->>True.  But as long as linux_binprm has fields for this stuff, intuitively 
->>it should always be filled in (i.e. not just in commoncap).  That way we 
->>can say that commoncap doesn't get special treatment :)
->>
->>Also, this seems like the right place to check for VFS caps.  This way we can.
-> 
-> 
-> This does change the current notion of layering.  I see your point though, 
-> likening it to say reading inode and finding S_ISUID bit.
+I'm adding some data structures to a device and want them to appear 
+under that device in sysfs in subdirectories.  These data structures are 
+linked together in a tree like layout so it would make sense to have 
+them have a subdirectory tree representing them.  These data structures 
+have a kobject for reference counting and I can use kobject_add and 
+kobject_del to add them to the sysfs tree.
 
-On the other hand, no one would put reading of a SELinux security label 
-here.  But we already have fields in binprm specifically for commoncap.  I 
-have no strong preference.
+Looking through the kobject.c code I noticed that this would create a 
+lot of hotplug events which would burn up a bit of processor time.  
+These events are not necessary as these are not device kobjects.  I've 
+enclosed a patch to my solution for this.  I'd like to know if there are 
+any side effects with this method.
+
+John
 
 
->>The reason I killed the old algorithm is because it's scary (in the sense 
->>of being complicated and subtle for no good reason) and because I don't see 
->>the point of inheritable caps.  I doubt anything uses them currently on a 
->>vanilla kernel because they don't _do_ anything.  So I killed them.
-> 
-> 
-> This does break all those caps aware apps (yeah, tongue-in-cheek ;-)
-> that actually have the idea to widen the effective set, yet limit the
-> inheriable set.  Seriously, I don't know how much this matters.
 
-Yah, they're broken anyway right now if that's what they're doing.
+--------------090206080906030701040608
+Content-Type: text/plain;
+ name="kobject_no_hotplug"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kobject_no_hotplug"
 
-The reason I didn't go for something like your approach (other than not 
-thinking of it) was that, as long as we're changing the semantics, we might 
-as well make them as clean as possible.  I also didn't mind ripping out 
-lots of old code :).  If the inheritable mask stays, then programs need to 
-be audited for what happens if they are run with different inheritable 
-masks.  I'd rather just eliminate that complication and the corresponding 
-blob of commoncap code.  Obviously my patch fails a lot of your tests as a 
-result.
+diff -urNX dontdiff linux-2.6.6/include/linux/kobject.h linux/include/linux/kobject.h
+--- linux-2.6.6/include/linux/kobject.h	2004-05-09 22:31:59.000000000 -0400
++++ linux/include/linux/kobject.h	2004-05-18 20:29:43.000000000 -0400
+@@ -62,6 +62,7 @@
+ 	void (*release)(struct kobject *);
+ 	struct sysfs_ops	* sysfs_ops;
+ 	struct attribute	** default_attrs;
++	int			no_hotplug;
+ };
+ 
+ 
+diff -urNX dontdiff linux-2.6.6/lib/kobject.c linux/lib/kobject.c
+--- linux-2.6.6/lib/kobject.c	2004-05-09 22:33:19.000000000 -0400
++++ linux/lib/kobject.c	2004-05-18 20:50:42.000000000 -0400
+@@ -203,6 +203,9 @@
+ {
+ 	struct kobject * top_kobj = kobj;
+ 
++	if (kobj->ktype && kobj->ktype->no_hotplug)
++		return;
++
+ 	/* If this kobj does not belong to a kset,
+ 	   try to find a parent that does. */
+ 	if (!top_kobj->kset && top_kobj->parent) {
 
-So do we arm-wrestle over whose implementation wins? :)  I'd say mine wins 
-on readability (not your fault -- the old code was pretty bad to begin 
-with) and some simplicity, but yours has the benefit of being less intrusive.
+--------------090206080906030701040608--
 
---Andy

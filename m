@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288167AbSACD1B>; Wed, 2 Jan 2002 22:27:01 -0500
+	id <S288156AbSACDZb>; Wed, 2 Jan 2002 22:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288165AbSACD0w>; Wed, 2 Jan 2002 22:26:52 -0500
-Received: from ns.suse.de ([213.95.15.193]:59921 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288163AbSACD0l>;
-	Wed, 2 Jan 2002 22:26:41 -0500
-Date: Thu, 3 Jan 2002 04:26:40 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020102220333.A26713@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201030420160.6449-100000@Appserv.suse.de>
+	id <S288163AbSACDZL>; Wed, 2 Jan 2002 22:25:11 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:17356 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S288156AbSACDZH>; Wed, 2 Jan 2002 22:25:07 -0500
+Message-Id: <200201030324.g033Ovj13057@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Jeff <piercejhsd009@earthlink.net>, nknight@pocketinet.com
+Subject: Re: Who fixed via82cxxx_audio.c ?
+Date: Thu, 3 Jan 2002 05:24:53 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <WHITExvWvqzAoa2JB1n000005b3@white.pocketinet.com> <3C28A640.9C9B8462@loewe-komp.de> <3C2B43FD.6E2961E0@earthlink.net>
+In-Reply-To: <3C2B43FD.6E2961E0@earthlink.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Eric S. Raymond wrote:
-
-> One of my background assumptions is that the older a machine is, the
-> more likely it is that the person doing the config will have a clue about
-> what they're doing.
-
-Bzzzzt. See Greg Hennessy's post.
-(Not that I'm implying he hasn't a clue, but he makes a good point)
-
-> These days hardware is so cheap that only geeks try to cram Linux onto
-> old systems
-
-Bzzzzzt.
-Linux is getting deployed in lots of small businesses running
-mailservers/firewalls etc on old P90's and the likes. Not because
-they're run by geeks, but because they're running on a low budget.
-
-> Thus I'm not very worried about DMI read failing on older hardware.
-
-It fails on newer hardware too. The Vaio I quoted is less than a year old.
-The CyrixIII BIOS is less than 6 months old.
-
-> My main objective is to make configuration painless on modern PCI-only
-> hardware -- which is why I want to be able to tell when there are no
-> ISA slots, so I can deep-six questions about ISA drivers.
-
-Go down the DMI path, and get it right _sometimes_, or take a zero.
-Getting it right sometimes is likely to do more harm than good.
-
-> > o  The geek next door who wants to tinker and learn about the kernel.
-> >    Said geek is going to learn a damn sight more currently than he will
-> >    with a dumbed down pointy clicky "build me a kernel" button.
+On Thursday 27 December 2001 05:53 pm, Jeff wrote:
+> Nicholas,
 >
-> Your "they must show willingness to suffer pain, otherwise they're not worthy"
-> attitude is really showing here.
+> Does the record work on your via82c686 sound?
+...
+>
+> Using 2.4.16 kernel and via82cxxx_audio ver. 1.9.1
+>
 
-Crap. I'm implying that there should be a learning curve to everything
-no matter how small it may be. You're trying to remove the curve
-altogether.
+I just compiler and installed kernel-2.4.16-0.13 frpm redhat
+rawhide. I'm using ASUS cuv4x with on-board sound (via 686).
 
-> Yes. But *I* want Aunt Tilley to be able to download the latest kernel
-> sources and build/install them herself, without ever feeling that the task
-> is beyond her capabilities.
+Well, this fixed the mixer problems. I'm experimenting
+with recordeing - with some success. 
 
-*shakes head*, ok I'm all done trying to argue this one.
+Things don't work exactly as I expect but I have not
+pinned any specific problem yet.
 
-> I believe we need to learn the discipline of useability and take it seriously.
-> Because talk plus code is much more convincing than just talk, I'm trying
-> to demonstrate this by coding.  But I'll talk about it too :-).
-
-And write a book perchance ? SCNR  8-)
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+-- Itai

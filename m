@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbUCGSTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 13:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUCGSTO
+	id S262288AbUCGSY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 13:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUCGSYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 13:19:14 -0500
-Received: from [193.138.115.101] ([193.138.115.101]:30483 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262287AbUCGSTN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 13:19:13 -0500
-Date: Sun, 7 Mar 2004 19:15:09 +0100 (CET)
-From: Jesper Juhl <juhl@dif.dk>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI CDROM/DVD trouble with 2.6.3 (2.6.2 is fine)
-In-Reply-To: <20040307115031.GK23525@suse.de>
-Message-ID: <Pine.LNX.4.56.0403071914180.26369@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.56.0403051745430.21208@jju_lnx.backbone.dif.dk>
- <20040307115031.GK23525@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 7 Mar 2004 13:24:25 -0500
+Received: from [12.177.129.25] ([12.177.129.25]:37315 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262288AbUCGSYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 13:24:25 -0500
+Date: Sun, 7 Mar 2004 13:55:33 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: John Bradford <john@grabjohn.com>, Timothy Miller <miller@techsource.com>,
+       root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 'simulator' and wave-form analysis tool?
+Message-ID: <20040307185533.GA18772@ccure.user-mode-linux.org>
+References: <4048B36E.8000605@techsource.com> <Pine.LNX.4.53.0403051253220.32349@chaos> <4048CC7F.4070009@techsource.com> <200403061113.i26BDHrs000517@81-2-122-30.bradfords.org.uk> <404A900B.4020105@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404A900B.4020105@matchmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Mar 2004, Jens Axboe wrote:
+On Sat, Mar 06, 2004 at 06:59:23PM -0800, Mike Fedyk wrote:
+> Can you valgrind a UML process?
 
-> On Fri, Mar 05 2004, Jesper Juhl wrote:
-> >
-> > Hi,
-> >
-> > I'm currently running 2.6.2 on a system with an Adaptec 29160N SCSI
-> > controller, an IBM UltraStar Ultra160 SCSI disk, A Plextor SCSI CD writer
-> > and a Pioneer SCSI DVD-ROM drive.
-> > With 2.6.2 everything functions perfectly (did so with 2.4.x as well) and
-> > I have no trouble what-so-ever.  With 2.6.3 it's a completely different
-> > matter.
->
-> Try 2.6.4-rc, this problem was reported and fixed weeks ago.
->
-Just installed 2.6.4-rc2 and it works nicely. Thank you.
+Sorta.  I think that valgrind should be able to handle UML.  It just
+needs to be told how the kernel memory allocators work before it will
+provide any useful debugging information about the kernel.
 
-
---
-Jesper Juhl <juhl@dif.dk>
-Sysadmin,  Danmarks Idræts-Forbund / Sports Conederation of Denmark
-Don't top-post http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please     http://www.expita.com/nomime.html
+				Jeff

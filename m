@@ -1,99 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129620AbRBVPew>; Thu, 22 Feb 2001 10:34:52 -0500
+	id <S129300AbRBVPfm>; Thu, 22 Feb 2001 10:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129300AbRBVPeo>; Thu, 22 Feb 2001 10:34:44 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:13027 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130046AbRBVPe1>;
-	Thu, 22 Feb 2001 10:34:27 -0500
-Date: Thu, 22 Feb 2001 16:34:25 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102221534.QAA243062.aeb@vlet.cwi.nl>
+	id <S130133AbRBVPfc>; Thu, 22 Feb 2001 10:35:32 -0500
+Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:62915 "EHLO
+	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
+	id <S129300AbRBVPfW>; Thu, 22 Feb 2001 10:35:22 -0500
+Posted-Date: Thu, 22 Feb 2001 16:35:11 +0100 (MET)
+Date: Thu, 22 Feb 2001 16:34:43 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200102221534.QAA00658@db0bm.ampr.org>
 To: linux-kernel@vger.kernel.org
-Subject: filesystem statistics
+Subject: [Oops] 2.4.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that people are discussing the right hash function to use,
-and the amount of space taken by filenames in various schemes,
-I wondered how these things are on a random machine.
-Here some statistics.
+Hi!
 
-Andries
+2.4.2 oopsed after several seconds. Just after launching ax25 related stuff.
 
---------------------------------------------------------------
+Here is the raw Oops :
+----------------------
+Unable to handle kernel paging request at virtual address fffffffc
+ printing eip:
+c0113cf3
+*pde = 00001063
+*pde = 00000000
+OOps = 0
+EIP: 0010:[<c0113cf3>]
+EFLAGS: 00010017
+eax: c67c15a0 abx: 00000000 acx: 00000001 edx: c67c15a4
+esi: c6a15680 edi: fffffff8 ebp: c123bedc esp: c123bec0
+ds: 0018 es: 0018 sss: 0018
+Process kapm-idled (pid:3, stackpage = c123b000)
+Stack: c67c1(a0 c6a15680 c02376fc c67c15a4 00000001 00000286 00000001 c123bf44
+       c0191bcf c6a15680 c63ee3c0 c01914cf c6A15680 00000000 c0192042 c63ee3c0
+       00000000 c02376fc c0193b73 c63ee3c0 00000001 c02375c8 0000000d c0119540
+Call Trace: [<c0191bcf>] [<c01914cf>] [<c0192042>] [<c0193b73>] [<c0119540>] [<c010a1d2>] [<c0108e00>]
+            [<c0110bba>] [<c0110018>] [<c0110c88>] [<c011138b>] [<c0111cc5>] [<c010740f>] [<c0107418>]
 
-Statistics on a filesystem with 63 GB worth of files.
+Code: 8b 4f 04 8b 1b 01 85 45 fc 74 51 31 c0 9c 5e fa c7 01 00
 
-2797212 files
+Kernel panic. Aiie, killing the interrupt handler!
+In interrupt handler - not syscing
 
-average file size: 22600 bytes
-average depth: 8
-average pathname length: 59 bytes
-average filename length: 10 bytes
+Here is the ksymoops processed Oops :
+-------------------------------------
 
-max file size: 678035456 bytes
-max depth: 17
-max pathname length: 159 bytes
-max filename length: 99 bytes
+ksymoops 2.3.7 on i586 2.4.2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.2/ (default)
+     -m /boot/System.map-2.4.2 (specified)
 
-longest path name (also with largest depth):
-159 bytes: /b2/g1a/linux/nist/NIST-PCTS/STD/DIF/data/dif.d/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/ln_gt_100_test/tar_19
+Unable to handle kernel paging request at virtual address fffffffc
+c0113cf3
+*pde = 00001063
+*pde = 00000000
+EIP: 0010:[<c0113cf3>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010017
+eax: c67c15a0 abx: 00000000 acx: 00000001 edx: c67c15a4
+esi: c6a15680 edi: fffffff8 ebp: c123bedc esp: c123bec0
+ds: 0018 es: 0018 sss: 0018
+Stack: c67c1(a0 c6a15680 c02376fc c67c15a4 00000001 00000286 00000001 c123bf44
+       c0191bcf c6a15680 c63ee3c0 c01914cf c6A15680 00000000 c0192042 c63ee3c0
+       00000000 c02376fc c0193b73 c63ee3c0 00000001 c02375c8 0000000d c0119540
+Call Trace: [<c0191bcf>] [<c01914cf>] [<c0192042>] [<c0193b73>] [<c0119540>] [<c010a1d2>] [<c0108e00>]
+            [<c0110bba>] [<c0110018>] [<c0110c88>] [<c011138b>] [<c0111cc5>] [<c010740f>] [<c0107418>]
+Code: 8b 4f 04 8b 1b 01 85 45 fc 74 51 31 c0 9c 5e fa c7 01 00
 
-longest file name:
-99 bytes: CL_Streamed_RawSample_Session_CL_Streamed_RawSample_Session_CL_InputSource_SoundFormatintbool_.html
+>>EIP; c0113cf3 <__wake_up+33/a8>   <=====
+Trace; c0191bcf <sock_def_write_space+33/78>
+Trace; c01914cf <sock_wfree+17/30>
+Trace; c0192042 <__kfree_skb+7e/f4>
+Trace; c0193b73 <net_tx_action+4f/a8>
+Trace; c0119540 <do_softirq+40/64>
+Trace; c010a1d2 <do_IRQ+a2/b0>
+Trace; c0108e00 <ret_from_intr+0/20>
+Trace; c0110bba <apm_bios_call_simple+4e/58>
+Trace; c0110018 <mtrr_read+24/7c>
+Trace; c0110c88 <apm_do_idle+14/30>
+Trace; c011138b <apm_mainloop+97/100>
+Trace; c0111cc5 <apm+275/290>
+Trace; c010740f <kernel_thread+1f/38>
+Trace; c0107418 <kernel_thread+28/38>
+Code;  c0113cf3 <__wake_up+33/a8>
+00000000 <_EIP>:
+Code;  c0113cf3 <__wake_up+33/a8>   <=====
+   0:   8b 4f 04                  mov    0x4(%edi),%ecx   <=====
+Code;  c0113cf6 <__wake_up+36/a8>
+   3:   8b 1b                     mov    (%ebx),%ebx
+Code;  c0113cf8 <__wake_up+38/a8>
+   5:   01 85 45 fc 74 51         add    %eax,0x5174fc45(%ebp)
+Code;  c0113cfe <__wake_up+3e/a8>
+   b:   31 c0                     xor    %eax,%eax
+Code;  c0113d00 <__wake_up+40/a8>
+   d:   9c                        pushf  
+Code;  c0113d01 <__wake_up+41/a8>
+   e:   5e                        pop    %esi
+Code;  c0113d02 <__wake_up+42/a8>
+   f:   fa                        cli    
+Code;  c0113d03 <__wake_up+43/a8>
+  10:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
 
-distribution of depths:
- 0: 1
- 1: 50
- 2: 3212
- 3: 19951
- 4: 57534
- 5: 159917
- 6: 347124
- 7: 705958
- 8: 569661
- 9: 657689
-10: 176777
-11: 63221
-12: 24646
-13: 9765
-14: 1364
-15: 259
-16: 80
-17: 3
+Kernel panic. Aiie, killing the interrupt handler!
 
-distribution of pathname lengths:
-        0       1       2       3       4       5       6       7       8       9
-0:      0       1       0       14      14      10      13      66      203     646
-10:     1133    649     1521    3367    2664    2398    2969    3657    4822    3010
-20:     3360    3951    3824    4182    5702    5043    6352    7660    9027    11948
-30:     11877   25050   17943   26597   24599   23174   25292   31789   31897   31319
-40:     33225   36892   36911   42668   42106   46898   46666   49673   54825   61980
-50:     64753   62859   72410   75021   79526   73447   75175   72326   70532   70574
-60:     71446   71227   68235   67907   62067   56403   54213   49642   44474   39715
-70:     35215   31877   31270   22486   20232   16859   14218   12767   13826   12855
-80:     8269    139474  13866   13182   5858    5158    268605  4077    3633    3152
-90:     2627    2201    1691    1680    1486    1538    1327    1163    1025    1390
-100:    818     891     775     935     1503    1450    438     368     296     1198
-110:    1102    169     174     139     101     963     925     74      51      44
-120:    31      22      20      20      20      6       12      17      12      18
-130:    13      7       10      8       9       7       3       6       1       0
-140:    2       0       0       0       0       0       0       0       1       0
-150:    0       1       2       0       0       1       0       0       1       2
-160:    0       0       0       0       0       0       0       0       0       0
+My configuration :
+------------------
 
-distribution of filename lengths:
-        0       1       2       3       4       5       6       7       8       9
-0:      1       2341    16946   36630   66883   115118  189020  224596  289985  682943
-10:     237134  213677  199863  114987  81873   60902   52485   38200   29354   24779
-20:     21153   15792   13279   14638   11973   9366    7586    4674    3832    2975
-30:     2645    1938    1643    1244    1076    909     660     642     544     508
-40:     379     222     186     217     229     126     124     107     103     71
-50:     52      52      48      54      56      41      38      40      11      18
-60:     19      11      8       20      21      8       9       8       21      13
-70:     10      9       10      8       9       11      4       9       5       4
-80:     3       3       3       1       1       0       1       3       2       2
-90:     1       0       1       1       1       1       2       0       0       1
-100:    0       0       0       0       0       0       0       0       0       0
+ASUS P5A motherboard, K6-2 500 processor, 128Mb SDRAM
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux debian-f5ibh 2.2.19pre13 #1 mar fév 20 20:41:12 CET 2001 i586 unknown
+Kernel modules         2.4.2
+Gnu C                  2.95.2
+Binutils               2.9.5.0.37
+Linux C Library        2.1.3
+Dynamic linker         ldd: version 1.9.11
+Procps                 2.0.6
+Mount                  2.10q
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         af_packet scc ax25 parport_probe parport_pc lp parport mousedev usb-ohci hid input autofs lockd sunrpc usbcore serial unix
 
+
+--------------
+Regard
+	Jean-Luc

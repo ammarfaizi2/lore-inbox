@@ -1,34 +1,241 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264847AbSKJLwW>; Sun, 10 Nov 2002 06:52:22 -0500
+	id <S264848AbSKJMML>; Sun, 10 Nov 2002 07:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264848AbSKJLwW>; Sun, 10 Nov 2002 06:52:22 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:19727 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S264847AbSKJLwV>; Sun, 10 Nov 2002 06:52:21 -0500
-Date: Sun, 10 Nov 2002 12:58:00 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.enlightnet.local
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: !(smbfs && O_LARGEFILE)
-In-Reply-To: <Pine.LNX.4.44.0211071832180.484-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.44.0211101255050.8114-100000@cola.enlightnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264850AbSKJMML>; Sun, 10 Nov 2002 07:12:11 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:41940 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S264848AbSKJMMH>; Sun, 10 Nov 2002 07:12:07 -0500
+Date: Sun, 10 Nov 2002 12:19:06 +0000
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.46 / Asus A7M266 - spontaneous reboots
+Message-ID: <20021110121906.GA457@berserk.demon.co.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, Mr. James W. Laferriere wrote:
+I've just started testing 2.5.46 and am not getting very far. After
+about five minutes of use the system spontaneously reboots.
 
-> 
-> 	Hello Urban ,  Have your 0[0-2]-smbfs-2.4.18-* &
-> 	smbfs-2.4.18-uid32.patch been put into 2.4.20-rc1 or
-> 	some simular version of them ?  My main concern it the
-> 	lfs(Large file support ???) .  Tia , JimL
+Asus A7M266, Athlon XP2000, 512MB RAM, all partitions mounted as EXT2.
 
-No. It's in 2.5 but I don't think it has been tested by enough people to 
-get into 2.4 yet.
+Kernel config follows (ACPI is included but disabled from the kernel
+command line). The only modules loaded are the sound and network
+modules.
 
-/Urban
+2.4.19 works fine on this box.
 
+P.
+
+--x--x--x--x--x--x--
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+
+
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=8192
+
+CONFIG_IDE=y
+
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
+
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+CONFIG_SCSI=m
+
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+
+CONFIG_IPV6_SCTP__=y
+
+CONFIG_NETDEVICES=y
+
+CONFIG_NET_ETHERNET=y
+
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=m
+CONFIG_NE2K_PCI=m
+CONFIG_8139TOO=m
+CONFIG_VIA_RHINE=m
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=y
+
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+
+CONFIG_AGP=m
+CONFIG_AGP_AMD=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=m
+
+CONFIG_AUTOFS4_FS=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_UDF_RW=y
+
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+
+CONFIG_NLS_DEFAULT="iso8859-1"
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+
+CONFIG_SOUND=m
+
+CONFIG_SND=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+
+CONFIG_SND_ENS1371=m
+
+CONFIG_USB=m
+
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_FTDI_SIO=m
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_KALLSYMS=y
+
+CONFIG_SECURITY_CAPABILITIES=y
+
+CONFIG_X86_BIOS_REBOOT=y

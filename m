@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316600AbSEUVLK>; Tue, 21 May 2002 17:11:10 -0400
+	id <S316603AbSEUVOP>; Tue, 21 May 2002 17:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316603AbSEUVLJ>; Tue, 21 May 2002 17:11:09 -0400
-Received: from ool-182d4c76.dyn.optonline.net ([24.45.76.118]:52228 "EHLO
-	physics.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316600AbSEUVLI>; Tue, 21 May 2002 17:11:08 -0400
-Date: Tue, 21 May 2002 18:10:16 -0400 (EDT)
-From: "Nicholas L. D'Imperio" <dimperio@physics.dyndns.org>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Asus a7m266d stability issues
-In-Reply-To: <200205212044.g4LKi1i21931@buggy.badula.org>
-Message-ID: <Pine.LNX.4.33.0205211807030.1087-100000@physics.dyndns.org>
+	id <S316606AbSEUVOO>; Tue, 21 May 2002 17:14:14 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:46322 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S316603AbSEUVON>;
+	Tue, 21 May 2002 17:14:13 -0400
+Message-ID: <3CEAB85D.1532F5A2@mvista.com>
+Date: Tue, 21 May 2002 14:13:01 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave McCracken <dmccr@us.ibm.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] POSIX personality
+In-Reply-To: <64270000.1022012868@baldur.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Ion Badulescu wrote:
-
-> On Tue, 21 May 2002 16:07:24 -0400 (EDT), Nicholas L. D'Imperio <dimperio@physics.dyndns.org> wrote:
+Dave McCracken wrote:
 > 
-> >> > I'm getting kernel panics using the A7m266d smp motherboard and kernel 
-> >> > 2.4.18 as soon as the system is put under load.
-> > 
-> > I have 1800+MP processors and my PSU is 400W.  Of course I also have the 
-> > little four prong connector plugged in as well.
+> As part of improving support for POSIX multithreading I've been putting
+> together some patches to allow more things to be shared between tasks.
+> Right now this is accomplished via flags to clone() with one flag per
+> resource to be shared.  This usually translates to a data structure pointed
+> to out of task_struct, complete with reference count and lock.
 > 
-> This points very strongly towards an overheating problem. The 1800+ and 
-> higher CPU's run very hot. Any imperfection in the cooling setup, be 
-> it lack of thermal paste, undersized heatsink/fan combination, 
-> improperly seated heatsink, and even insufficient airflow around the
-> CPU's and inside the chassis, can and will cause crashes under load.
+> In a discussion today an alternate idea was proposed by Ben LaHaise.  He
+> suggested creating a POSIX personality, or execution domain.  This would
+> take some pressure off the clone flag space as well as allowing some
+> optimizations in the code. It could also be used in situations where
+> POSIX-compatible behavior entails more than just sharing extra resources
+> between tasks.
 > 
-> I had this exact problem a few weeks ago with a dual Athlon 1U setup. It
-> turned out that the aluminum heatsinks I had previously used for the
-> 1.2GHz Athlons weren't good enough for the 1900+, and also that the
-> chassis fans were circulating enough air. Switching to copper heatsinks
-> got rid of 95% of the crashes, and adding a chassis fan got rid of the
-> remaining 5%.
+> This would assume that the resources I'm sharing would only be useful for
+> POSIX compatibility, but at this point it seems unlikely that anyone would
+> want to share a subset of them.  The resources I'm currently working on
+> include credentials, signals,  and timers, and there's a patch available
+> for semaphore undo that could also be part of this mechanism.
 > 
-> Ion
+> Since you've made it this far my question to you all is this:  assuming
+> that we do want improved POSIX compatibility does this sound like a
+> reasonable way to add it?
 > 
+What you are proposing seem a bit vague.  I think that
+CLONE_THREAD should group all the thread related stuff under
+the one flag.  IMHO POSIX compatibility should not be off in
+the corner as a step child, but rather should be the norm. 
+The CLONE_THREAD flag would indicate to fork that it should
+create a POSIX thread and set up the needed shared stuff.  I
+rather image this to be a structure that each task_struct
+points to, possibly with a usage count (but that is a
+detail).  Each thread_struct would point to such a
+structure, but processes that are not threaded would not be
+sharing this area with other threads.
+
+Is this close to what you had in mind?
+
+-g
 > 
+> ======================================================================
+> Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+> dmccr@us.ibm.com                                        T/L   678-3059
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Overheating is certainly a concern but is not the problem here I think.  
-
-1 processor is rock solid.
-
-I also switched it with a dual TigerMP board and that runs fine.
-
-
-Nick
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293159AbSCXNeD>; Sun, 24 Mar 2002 08:34:03 -0500
+	id <S293089AbSCXNbX>; Sun, 24 Mar 2002 08:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293167AbSCXNdx>; Sun, 24 Mar 2002 08:33:53 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:47338 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S293159AbSCXNdp> convert rfc822-to-8bit;
-	Sun, 24 Mar 2002 08:33:45 -0500
-Message-ID: <3C9DD646.4070003@athlon.maya.org>
-Date: Sun, 24 Mar 2002 14:36:06 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020323
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
-CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+	id <S293109AbSCXNbO>; Sun, 24 Mar 2002 08:31:14 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:775 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293089AbSCXNbD>;
+	Sun, 24 Mar 2002 08:31:03 -0500
+Date: Sun, 24 Mar 2002 10:30:32 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: andreas <andihartmann@freenet.de>
+Cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
 Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-In-Reply-To: <3C9DC1F5.6010508@athlon.maya.org> <3C9DC6D0.3080606@wanadoo.fr> <3C9DD374.2080406@athlon.maya.org> <3C9DD653.8090701@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by susi.maya.org id g2ODa7Ug004979
+In-Reply-To: <3C9DC1F5.6010508@athlon.maya.org>
+Message-ID: <Pine.LNX.4.44L.0203241029000.18660-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-François Cami wrote:
-> Andreas Hartmann wrote:
-> 
->> François Cami wrote:
->>
->>>
->>> just wondering : what version of rsync are you using ?
->>>
->>
->> Version 2.5.2 and 2.5.4 (I don't know 2.5.3)
->>
->> Regards,
->> Andreas Hartmann
->>
->>
-> 
-> okay... on my server (openbsd) 2.5.4 behaves a lot better than 2.5.2
+On Sun, 24 Mar 2002, andreas wrote:
 
-I can't see any difference.
+> I've got a basic question:
+> Would it be possible to kill only the process which consumes the most
+> memory in the last delta t?
 
-> 
-> 2.4 hadn't that kind of problem
-> I'm wondering if they'll fix it before I go back to 2.4 :-)
+> rsync is an actual example for the problem, I wrote. This could be any
+> other process, eating up the memory. Then, the kernel kills wildly some
+> processes until the right process is killed - and the machine is
+> probably unavailable meanwhile.
 
+The problem is that 'rsync' might as well have been 'scientific
+calculation that ran for 3 days'.
 
-That's right - but there is a security-issue why you shouldn't use 
-earlier versions.
+One 'solution' could be to let the OOM killer ignore CPU usage
+of less than say 1 hour, but it'll always be heuristics that
+can go wrong in some scenario.
 
-Regards,
-Andreas Hartmann
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262248AbSKHTUq>; Fri, 8 Nov 2002 14:20:46 -0500
+	id <S262250AbSKHTVo>; Fri, 8 Nov 2002 14:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262250AbSKHTUq>; Fri, 8 Nov 2002 14:20:46 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:23721 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262248AbSKHTUp>;
-	Fri, 8 Nov 2002 14:20:45 -0500
-Date: Fri, 8 Nov 2002 11:22:38 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Douglas Gilbert <dougg@torque.net>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-In-Reply-To: <3DCBBCDA.3050203@torque.net>
-Message-ID: <Pine.LNX.4.33L2.0211081118250.32726-100000@dragon.pdx.osdl.net>
+	id <S262255AbSKHTVo>; Fri, 8 Nov 2002 14:21:44 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:29691 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262250AbSKHTVl>;
+	Fri, 8 Nov 2002 14:21:41 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15820.4071.102881.673519@napali.hpl.hp.com>
+Date: Fri, 8 Nov 2002 11:26:31 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+       "''Linus Torvalds ' '" <torvalds@transmeta.com>,
+       "''Jeremy Fitzhardinge ' '" <jeremy@goop.org>,
+       "''William Lee Irwin III ' '" <wli@holomorphy.com>,
+       "''linux-ia64@linuxia64.org ' '" <linux-ia64@linuxia64.org>,
+       "''Linux Kernel List ' '" <linux-kernel@vger.kernel.org>,
+       "''rusty@rustcorp.com.au ' '" <rusty@rustcorp.com.au>,
+       "''dhowells@redhat.com ' '" <dhowells@redhat.com>,
+       "''mingo@elte.hu ' '" <mingo@elte.hu>
+Subject: Re: [Linux-ia64] reader-writer livelock problem
+In-Reply-To: <20021108191907.N12011@parcelfarce.linux.theplanet.co.uk>
+References: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>
+	<20021108191907.N12011@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Nov 2002, Douglas Gilbert wrote:
+>>>>> On Fri, 8 Nov 2002 19:19:07 +0000, Matthew Wilcox <willy@debian.org> said:
 
-| In lk 2.5.46-bk3 the expression in the subject line
-| fails to write into "i" and returns 0. Drop the minus
-| sign and it works.
+  Matthew> On Fri, Nov 08, 2002 at 12:05:30PM -0600, Van Maren, Kevin
+  Matthew> wrote:
+  >> Absolutely you should minimize the locking contention.  However,
+  >> that isn't always possible, such as when you have 64 processors
+  >> contending on the same resource.
 
-Here's an unobstrusive patch to correct that.
-Please apply.
+  Matthew> if you've got 64 processors contending on the same
+  Matthew> resource, maybe you need to split that resource up so they
+  Matthew> can have a copy each.  all that cacheline bouncing can't do
+  Matthew> your numa boxes any good.
 
--- 
-~Randy
+Matthew, please understand that this is NOT a performance problem.
+It's a correctness problem.  If livelock can resolut from read-write locks,
+it's a huge security problem.  Period.
 
-
-
---- ./lib/vsprintf.c%signed	Mon Nov  4 14:30:49 2002
-+++ ./lib/vsprintf.c	Fri Nov  8 11:20:03 2002
-@@ -517,6 +517,7 @@
- {
- 	const char *str = buf;
- 	char *next;
-+	char *dig;
- 	int num = 0;
- 	int qualifier;
- 	int base;
-@@ -638,12 +639,13 @@
- 		while (isspace(*str))
- 			str++;
-
--		if (!*str
--                    || (base == 16 && !isxdigit(*str))
--                    || (base == 10 && !isdigit(*str))
--                    || (base == 8 && (!isdigit(*str) || *str > '7'))
--                    || (base == 0 && !isdigit(*str)))
--			break;
-+		dig = (*str == '-') ? (str + 1) : str;
-+		if (!*dig
-+                    || (base == 16 && !isxdigit(*dig))
-+                    || (base == 10 && !isdigit(*dig))
-+                    || (base == 8 && (!isdigit(*dig) || *dig > '7'))
-+                    || (base == 0 && !isdigit(*dig)))
-+				break;
-
- 		switch(qualifier) {
- 		case 'h':
-
+	--david

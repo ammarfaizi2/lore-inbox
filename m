@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317650AbSGOTir>; Mon, 15 Jul 2002 15:38:47 -0400
+	id <S317660AbSGOTkR>; Mon, 15 Jul 2002 15:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSGOTiq>; Mon, 15 Jul 2002 15:38:46 -0400
-Received: from dhcp51.ISTS.dartmouth.edu ([129.170.249.151]:22657 "EHLO
-	karaya.com") by vger.kernel.org with ESMTP id <S317650AbSGOTiq>;
-	Mon, 15 Jul 2002 15:38:46 -0400
-Message-Id: <200207151942.g6FJgRc03367@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Bill Davidsen <davidsen@tmr.com>
-To: David Weinehall <tao@acc.umu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Future of Kernel tree 2.0 ............ 
-In-Reply-To: Your message of "Mon, 15 Jul 2002 15:22:54 EDT."
-             <Pine.LNX.3.96.1020715151754.25239B-100000@gatekeeper.tmr.com> 
-Mime-Version: 1.0
+	id <S317659AbSGOTkQ>; Mon, 15 Jul 2002 15:40:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48644 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317658AbSGOTkP>;
+	Mon, 15 Jul 2002 15:40:15 -0400
+Message-ID: <3D332543.96C7E589@zip.com.au>
+Date: Mon, 15 Jul 2002 12:40:51 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Sam Vilain <sam@vilain.net>,
+       dax@gurulabs.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+References: <1026739383.13885.114.camel@irongate.swansea.linux.org.uk> <1026740450.21656.355.camel@tiny>
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Jul 2002 15:42:26 -0400
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davidsen@tmr.com said:
-> Out of curiousity, just what will UML run? Can you run 2.0 kernels
-> under UML? Older than that?
+Chris Mason wrote:
+> 
+> ...
+> If ext3 would promise to make fsync(file) sufficient forever, it might
+> help the mta authors tune.
 
-UML itself is 2.3/2.4 only.  The host can be anything later than 2.2.14,
-although if you're determined, and willing to patch, you can probably get UML 
-to run on kernels back to 2.1.x.  Don't know about 2.0.
+ext3 promises.  This side-effect is bolted firmly into the design
+of ext3 and it's hard to see any way in which it will go away.
 
-				Jeff
-
+-

@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUA3TlA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 14:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbUA3TlA
+	id S263946AbUA3Ttx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 14:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUA3Ttw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 14:41:00 -0500
-Received: from web60506.mail.yahoo.com ([216.109.116.127]:36992 "HELO
-	web60506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263310AbUA3Tk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 14:40:58 -0500
-Message-ID: <20040130194057.358.qmail@web60506.mail.yahoo.com>
-Date: Fri, 30 Jan 2004 11:40:57 -0800 (PST)
-From: ioana alexandrescu <ioanamitu@yahoo.com>
-Subject: Redundant uses of might_sleep_if()
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 30 Jan 2004 14:49:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15317 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263946AbUA3Ttv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 14:49:51 -0500
+Date: Fri, 30 Jan 2004 14:49:22 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+Message-ID: <20040130194921.GO31589@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20040130152835.GN31589@devserv.devel.redhat.com> <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com> <20040130171407.GA18320@hexapodia.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040130171407.GA18320@hexapodia.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.6.1 it appears that the only necessary
-uses of might_sleep_if()are in __alloc_pages(), and
-perhaps, in cache_alloc_debugcheck_before() (see
-notes).
+On Fri, Jan 30, 2004 at 11:14:07AM -0600, Andy Isaacson wrote:
+> On Fri, Jan 30, 2004 at 11:35:20AM -0500, James Morris wrote:
+> > -	const u8 padding[64] = { 0x80, };
+> > +	static u8 padding[64] = { 0x80, };
+> 
+> The RedHat bug suggests 'static const' as the appropriate replacement.
+> 
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114610#c4
+> 
+> Unfortunately that probably means an extra 64 bytes of text, rather than
+> the 10 or so bytes of instructions to do the memset and store.  Ideally
+> padding[] would be allocated in BSS rather than text or the stack (and
+> initialized with { 0x80, } at runtime), but I guess you can't have
+> everything.
 
-Other uses of might_sleep_if() appear to be redundant:
+Or you can use
+	u8 padding[64] = { 0x80 };
+if you really want to initialize it at runtime and want to work around the
+compiler bug.  It shouldn't be any less efficient than
+	const u8 padding[64] = { 0x80 };
+since it is used just once, passed to non-inlined function.
 
-Pte_chain_alloc()-->might_sleep_if(), but also
-Pte_chain_alloc-->kmem_cache_alloc
-  -->__cache_alloc  -->__cache_alloc()
-  -->cache_alloc_debugcheck_before()
-  -->might_sleep_if()
-
-skb_share_check()-->might_sleep_if(), but also
-skb_share_check()-->skb_clone()
-  -->kmem_cache_alloc()[as above]
-
-skb_unshare()-->might_sleep_if(), but also
-skb_unshare()-->skb_copy()
-  -->kmem_cache_alloc()[as above]
-
-Other paths through skb_unshare, same result.
-
-
-QUERY: Should these redundant uses be patched out?
-
-
-Note 1: all present uses of might_sleep_if(cond)
-resolve to the equivalent of might_sleep_if(gfp_mask
- & __GFP_WAIT) - which suggests an encapsulating
-macro:
-
-#define might_sleep_if_wait(flags) might_sleep_if\
-(flags & __GFP_WAIT)
-
-Note 2: preliminary analysis suggests that even
-  cache_alloc_debugcheck_before()-->might_sleep_if()
-is, strictly speaking, unnecessary since the same
-check in performed in __alloc_pages().  Of course the
-duplicated check doesn't cost much.
-
-Carl Spalletta
---
-See New Jersey and die!
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free web site building tool. Try it!
-http://webhosting.yahoo.com/ps/sb/
+	Jakub

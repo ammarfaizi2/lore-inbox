@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S320251AbUKBFNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S771618AbUKBFO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S320251AbUKBFNw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 00:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S317689AbUKBFNv
+	id S771618AbUKBFO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 00:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S324078AbUKAWdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 00:13:51 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:20406 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S286148AbUKAWee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:34:34 -0500
-Date: Mon, 1 Nov 2004 23:34:19 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-ID: <20041101223419.GG3571@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay>
+	Mon, 1 Nov 2004 17:33:43 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:10398 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S278093AbUKAUMg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 15:12:36 -0500
+Subject: [patch] inotify: fix dnotify compile
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1099330316.12182.2.camel@vertex>
+References: <1099330316.12182.2.camel@vertex>
+Content-Type: text/plain
+Date: Mon, 01 Nov 2004 15:10:10 -0500
+Message-Id: <1099339810.31022.39.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <161650000.1099332236@flay>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 10:03:56AM -0800, Martin J. Bligh wrote:
-> [..] it was to stop cold
-> allocations from eating into hot pages [..]
+Hi, John.
 
-exactly, and I believe that hurts. bouncing on the global lock is going to
-hurt more than preserving an hot page (at least on a 512-way). Plus the
-cold page may very soon become hot too.
+Looks like the dnotify patch was only half removed.  The declaration of
+dir_notify_enable in include/linux/fs.h is still removed by the patch.
+So e.g. sysctl.c does not compile.
 
-Plus you should at least allow an hot allocation to eat into the cold
-pages (which didn't happen IIRC).
+You can remove that hunk from the patch or commit the following.
 
-I simply believe using the lru ordering is a more efficient way to
-implement hot/cold behaviour and it will save some minor ram too (with
-big lists the reservation might even confuse the oom conditions, if the
-allocation is hot, but the VM frees in the cold "stopped" list). I know
-the cold list was a lot smaller so this is probably only a theoretical
-issue.
+Thanks,
 
-> Yeah, we got bugger-all benefit out of it. The only think it might do
-> is lower the latency on inital load-spikes, but basically you end up
-> paying the cache fetch cost twice. But ... numbers rule - if you can come
-> up with something that helps a real macro benchmark, I'll eat my non-existant
-> hat ;-)
+	Robert Love
 
-I've no idea if it will help... I only knows it helps the micro ;), but I
-don't measure any slowdown.
 
-Note that my PG_zero will boost 200% the micro benchmark even without
-the idle zeroing enabled, if a big app quits all ptes will go in PG_zero
-quicklist and the next 2M allocation of anonymous memory won't require
-clearing. That has no downside at all. That's not something that can be
-achieved with slab, plus slab wastes ram as well and it has more
-overhead than PG_zero.
+fix CONFIG_DNOTIFY compile
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ include/linux/fs.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -u linux-poop/include/linux/fs.h linux/include/linux/fs.h
+--- linux-poop/include/linux/fs.h	2004-10-26 22:13:06.000000000 -0400
++++ linux/include/linux/fs.h	2004-11-01 14:52:58.630121656 -0500
+@@ -62,7 +62,7 @@
+ };
+ extern struct inodes_stat_t inodes_stat;
+ 
+-extern int leases_enable, lease_break_time;
++extern int leases_enable, dir_notify_enable, lease_break_time;
+ 
+ #define NR_FILE  8192	/* this can well be larger on a larger system */
+ #define NR_RESERVED_FILES 10 /* reserved for root */
+
+

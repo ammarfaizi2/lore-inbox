@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUAHX41 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 18:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUAHX41
+	id S265592AbUAHX76 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 18:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUAHX6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 18:56:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16064 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264371AbUAHX4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 18:56:21 -0500
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] dio-read-race-fix
-From: Daniel McNeil <daniel@osdl.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Janet Morgan <janetmor@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20031231060956.GB3285@in.ibm.com>
-References: <3FCD4B66.8090905@us.ibm.com>
-	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
-	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <20031230045334.GA3484@in.ibm.com>
-	 <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-	 <20031231060956.GB3285@in.ibm.com>
+	Thu, 8 Jan 2004 18:58:55 -0500
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:33158 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265117AbUAHX6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 18:58:42 -0500
+Subject: Re: [Dri-devel] 2.6.1-rc2-mm1: drm/sis_mm.c compile error
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040108153656.GF13867@fs.tum.de>
+References: <20040107232831.13261f76.akpm@osdl.org>
+	 <20040108153656.GF13867@fs.tum.de>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Jan 2004 15:55:44 -0800
 Content-Transfer-Encoding: 7bit
+Message-Id: <1073606068.13007.72.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 08 Jan 2004 23:54:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-30 at 22:09, Suparna Bhattacharya wrote:
-
-> Since the first filemap_write_and_wait call is redundant and somewhat
-> suspect since its called w/o i_sem (I can think of unexpected side effects
-> on parallel filemap_write_and_wait calls), have you thought of disabling that
-> and then trying to see if you can still recreate the problem ? It may
-> not make a difference, but it seems like the right thing to do and could
-> at least simplify some of the debugging.
+On Iau, 2004-01-08 at 15:36, Adrian Bunk wrote:
+> On Wed, Jan 07, 2004 at 11:28:31PM -0800, Andrew Morton wrote:
+> >...
+> > - Added the latest code drop from DRM CVS.  People who use DRM, please test
+> >   it.
+> >...
 > 
-> Regards
-> Suparna
-> 
+> I got the following compile error:
 
+I got it to crash the kernel. Build with no sis_fb compiled in, hack the
+dri userspace (client non priviledged code) to pass random numbers to
+FB_ALLOC/FREE and it oopses.
 
-Ok, I retried my test without the filemap_write_and_wait() that is not
-protected by i_sem and the test still sees uninitialized data.  I'm
-still running with test10-mm1 + all the patches I sent out before.
-I'm haven't tried 2.6.0-rc*-mm1 yet.  I need to move all my debug code
-over to the latest mm kernel.  I also did not want to change too much
-at same time.
+The checks in the sis_drm for which memory allocator to use also come
+out with bogus answers for some module/non-module combinations. Probably
+the sis_mm one should be a seperate module since the alternate mm in the
+4.3.99x DRM seems exploitable and insufficiently sanity checked.
 
-Daniel
-
-
+Alan
 

@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279739AbRK0OFA>; Tue, 27 Nov 2001 09:05:00 -0500
+	id <S279788AbRK0OIU>; Tue, 27 Nov 2001 09:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279788AbRK0OEu>; Tue, 27 Nov 2001 09:04:50 -0500
-Received: from vega.ipal.net ([206.97.148.120]:53990 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S279739AbRK0OEm>;
-	Tue, 27 Nov 2001 09:04:42 -0500
-Date: Tue, 27 Nov 2001 08:04:41 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: Joe Korty <l-k@mindspring.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: procfs bloat, syscall bloat [in reference to cpu affinity]
-Message-ID: <20011127080441.A12419@vega.ipal.net>
-In-Reply-To: <1006832357.1385.3.camel@icbm> <5.0.2.1.2.20011127022738.009f14b0@pop.mindspring.com>
+	id <S279790AbRK0OIK>; Tue, 27 Nov 2001 09:08:10 -0500
+Received: from c842c.nat.may.ka0.zugschlus.de ([212.126.200.66]:26130 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S279788AbRK0OIC>; Tue, 27 Nov 2001 09:08:02 -0500
+Date: Tue, 27 Nov 2001 15:08:01 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16, 8139too not loadable as a module - unresolved symbols
+Message-ID: <20011127150800.A25438@torres.ka0.zugschlus.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.0.2.1.2.20011127022738.009f14b0@pop.mindspring.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 03:04:27AM -0500, Joe Korty wrote:
 
-| I am not against a proc interface per se, I would like a proc interface, 
-| especially for the
-| reading of affinity values.  But in my view the system call interface 
-| should also exist
-| and it should be the dominate way of communicating affinity to processes.
+Hi,
 
-IWSTM that the way you would justify this being a system call would also
-suggest working with non-linux kernel developers (both open source as well
-as commercial) to determine a mutually agreed syntax/semantic for this
-call to further ensure the basis of the universality that ensure it will
-be one of those "forever" facilities, and maybe even make it into a future
-standard.
+on my only 2.4.16 system, modprobe 8139too gives the following errors:
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol flush_signals
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol eth_type_trans
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol __kfree_skb
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol alloc_skb
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_register_driver
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_free_consistent
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_enable_device
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_read_config_byte
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol alloc_etherdev
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol reparent_to_init
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol cpu_raise_softirq
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol free_irq
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol unregister_netdev
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol kill_proc
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol iounmap
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_alloc_consistent
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol interruptible_sleep_on_timeout
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol __ioremap
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_read_config_word
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol skb_copy_and_csum_dev
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol register_netdev
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol kfree
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_release_regions
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol wait_for_completion
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol request_irq
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol netif_rx
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_unregister_driver
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol skb_over_panic
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_set_master
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol rtnl_unlock
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_write_config_word
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol daemonize
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol jiffies
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol softnet_data
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol rtnl_lock
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol printk
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol complete_and_exit
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol kernel_thread
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol __const_udelay
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: unresolved symbol pci_request_regions
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: insmod /lib/modules/2.4.16/kernel/drivers/net/8139too.o failed
+/lib/modules/2.4.16/kernel/drivers/net/8139too.o: insmod 8139too failed
 
-You opened the camel's mouth; do you want to check the teeth?
+The same kernel, with the only config change being "y" instead of "m"
+for 8139too, works fine, and the network interface is useable.
+
+Did I do something wrong?
+
+Greetings
+Marc
 
 -- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

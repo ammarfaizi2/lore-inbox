@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265112AbSJWSG3>; Wed, 23 Oct 2002 14:06:29 -0400
+	id <S265111AbSJWR7s>; Wed, 23 Oct 2002 13:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSJWSG3>; Wed, 23 Oct 2002 14:06:29 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:10412 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265112AbSJWSG2>; Wed, 23 Oct 2002 14:06:28 -0400
-Message-ID: <3DB6E56D.8D930A1D@us.ibm.com>
-Date: Wed, 23 Oct 2002 11:07:41 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S265113AbSJWR7r>; Wed, 23 Oct 2002 13:59:47 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:663 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265111AbSJWR7a>; Wed, 23 Oct 2002 13:59:30 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 23 Oct 2002 11:14:35 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Charles 'Buck' Krasic" <krasic@acm.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-Reply-To: <xu4y98pjba8.fsf@brittany.cse.ogi.edu>
+Message-ID: <Pine.LNX.4.44.0210231102480.1581-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: bert hubert <ahu@ds9a.nl>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       "David S. Miller" <davem@rth.ninka.net>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RESEND] tuning linux for high network performance?
-References: <Pine.LNX.3.95.1021023133435.14975B-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+On 23 Oct 2002, Charles 'Buck' Krasic wrote:
 
-> No. It's done over each word (short int) and the actual summation
-> takes place during the address calculation of the next word. This
-> gets you a checksum that is practically free.
+>
+> Dan Kegel <dank@kegel.com> writes:
+>
+> > Davide Libenzi <davidel@xmailserver.org> wrote:
+>
+> > I may be confused, but I suspect the async poll being proposed by
+> > Ben only delivers absolute readiness, not changes in readiness.
+>
+> > I think epoll is worth having, even if Ben's AIO already handled
+> > networking properly.
+>
+> > - Dan
+>
+> Can someone remind me why poll is needed in the AIO api at all?
+>
+> How would it be used?
 
-Yep, sorry, word, not byte. My bad. The cost is in the fact 
-that this whole process involves loading each word of the data
-stream into a register. Which is why I also used to consider
-the checksum cost as negligible. 
+Maybe my understanding of AIO on Linux is limited but how would you do
+async accept/connect ? Will you be using std poll/select for that, and
+then you'll switch to AIO for read/write requests ?
 
-> A 400 MHz ix86 CPU will checksum/copy at 685 megabytes per second.
-> It will copy at 1,549 megabytes per second. Those are megaBYTES!
 
-But then why the difference in the checksum/copy and copy?
-Are you saying the checksum is not costing you 864 megabytes
-a second??
 
-thanks,
-Nivedita
+- Davide
+
+
+
+
+
+

@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269361AbUJLADP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269366AbUJLAEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269361AbUJLADP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269364AbUJLADP
+	id S269366AbUJLAEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJLAEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:03:15 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:41621 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269361AbUJLADL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:03:11 -0400
-Subject: Re: 2.6.9-rc4-mm1 OOPs on AMD64
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
+	Mon, 11 Oct 2004 20:04:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:18310 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269364AbUJLAEg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:04:36 -0400
+Message-ID: <35fb2e590410111704508ac41e@mail.gmail.com>
+Date: Tue, 12 Oct 2004 01:04:35 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IT8212 IDE driver on ASUS P5GD-VM (IT8211)
+Cc: Ampoulin <ampoulin@altern.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041011234625.GA17340@wotan.suse.de>
-References: <1097527401.12861.383.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011214304.GD31731@wotan.suse.de>
-	 <1097532118.12861.395.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011221519.GA11702@wotan.suse.de>
-	 <20041011153830.495b7c2d.akpm@osdl.org>
-	 <1097536210.12861.402.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011234625.GA17340@wotan.suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097538827.12861.414.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1097502881.31259.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Oct 2004 16:53:47 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200410110409.56544.ampoulin@altern.org>
+	 <1097502881.31259.21.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Mon, 11 Oct 2004 14:54:43 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Llu, 2004-10-11 at 03:09, Ampoulin wrote:
+> > Hello,
+> >
+> > Is the patch provided by Alan Cox for IT8212 on linux 2.6.9-rc3 supposed to
+> > work on IT8211 ? I tried it and it wasn't working.
 > 
-> rc3-mm3/4 should work when you revert the optimize-profi... patch or boot
-> with profile=2 - i normally don't test -mm* myself, but some users
-> reported that.
-> 
-> But I'm not sure anybody tested it on a 4way. 
+> I think it will with some slight persuasion. I don't have an IT8211 so
+> I've not had a chance to dig into this. Once the driver is all nicely
+> merged I'll do the needed comparisons.
 
-Well. Here is what I know, so far ..
+However I might do. I'll check later on - copy me on any discussion please.
 
-2.6.9-rc4-mm1 doesn't boot (Bad Page flags)
-2.6.9-rc3-mm3 doesn't boot (same issue)
-2.6.9-rc3-mm2 works fine.
-
-I don't run anything other than -mm tree for 2.6 :)
-I will dig some more tomorrow on whats breaking it.
-
-I am having a bad day today - AMD64 doesn't boot. PPC64 doesn't boot.
-I can't test Manfred's alloc_node patch :(
-
-Thanks,
-Badari
-
+Jon.

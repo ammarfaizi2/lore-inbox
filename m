@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbTK3J4I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 04:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTK3J4I
+	id S263667AbTK3KXx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 05:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTK3KXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 04:56:08 -0500
-Received: from pop.gmx.net ([213.165.64.20]:2447 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263448AbTK3J4F (ORCPT
+	Sun, 30 Nov 2003 05:23:53 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:15510 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S263667AbTK3KXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 04:56:05 -0500
-X-Authenticated: #125400
-Message-ID: <3FC9BF12.70209@gmx.de>
-Date: Sun, 30 Nov 2003 10:57:38 +0100
-From: Andreas Fester <Andreas.Fester@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Onboard sound support for EPoX mainboard
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Nov 2003 05:23:52 -0500
+Date: Sun, 30 Nov 2003 11:23:51 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
+Message-ID: <20031130102351.GB10380@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
+References: <20031130071757.GA9835@node1.opengeometry.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031130071757.GA9835@node1.opengeometry.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jaroslav, Hi list,
+On Sun, Nov 30, 2003 at 02:17:57AM -0500, William Park wrote:
+> Does anyone have modem working in 2.6.0-test11?
+> 
+> I have external modem connected to /dev/ttyS0 (COM1).  Kernel
+> 2.6.0-test11 give me
 
-I am using linux on an EPoX EP-8K9A mainboard with onboard sound,
-using the via82xx driver. Starting with 2.6.0-test6 the driver
-only produces loud noise...
-The problem seems to be the checking of the DXS capabilities.
-The driver recognises the chip as an VIA8233 (not "A"), but
-the EPoX vendor id is missing in the dxs white list.
-After adding the appropriate vendor id, sound works again as
-it did with 2.6.0-test5 :-)
-Find below the patch against -test11 which adds the vendor id
-and the device id to the dxs list.
+Double check your .config and attach it if in doubt.
 
-Best Regards,
+Something like grep SERIAL .config might be enlightning.
 
-     Andreas
-
-------------------------------------------------------------------------------------------------------
-diff -u linux-2.6.0-test11/sound/pci/via82xx.c linux-2.6.0-test11-af1/sound/pci/via82xx.c
---- linux-2.6.0-test11/sound/pci/via82xx.c      2003-11-29 19:18:22.000000000 +0100
-+++ linux-2.6.0-test11-af1/sound/pci/via82xx.c  2003-11-29 19:38:41.000000000 +0100
-@@ -1969,6 +1969,7 @@
-         static struct dxs_whitelist whitelist[] = {
-                 { .vendor = 0x1019, .device = 0x0996, .action = VIA_DXS_48K },
-                 { .vendor = 0x1297, .device = 0xc160, .action = VIA_DXS_ENABLE }, /* Shuttle SK41G */
-+                { .vendor = 0x1695, .device = 0x3005, .action = VIA_DXS_ENABLE }, /* EPoX EP-8K9A  */
-                 { } /* terminator */
-         };
-         struct dxs_whitelist *w;
-------------------------------------------------------------------------------------------------------
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

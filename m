@@ -1,112 +1,159 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315030AbSDWCma>; Mon, 22 Apr 2002 22:42:30 -0400
+	id <S315024AbSDWCoe>; Mon, 22 Apr 2002 22:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315032AbSDWCm3>; Mon, 22 Apr 2002 22:42:29 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:21520 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S315030AbSDWCm0>; Mon, 22 Apr 2002 22:42:26 -0400
-Date: Mon, 22 Apr 2002 19:42:15 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] race in request_module()
-Message-ID: <20020422194214.D24927@one-eyed-alien.net>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020422175858.C24927@one-eyed-alien.net> <Pine.GSO.4.21.0204222101370.5686-100000@weyl.math.psu.edu>
+	id <S315032AbSDWCod>; Mon, 22 Apr 2002 22:44:33 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:5135 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315024AbSDWCoa>; Mon, 22 Apr 2002 22:44:30 -0400
+Subject: 2.5.9 -- Build error -- scsidrv.o: In function `ahc_linux_halt':
+	undefined reference to `ahc_tailq'
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 22 Apr 2002 19:43:04 -0700
+Message-Id: <1019529784.24480.14.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="1sNVjLsmu1MXqwQ/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I searched on http://marc.theaimsgroup.com/?l=linux-kernel
+and didn't find this mentioned.
 
---1sNVjLsmu1MXqwQ/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/scsi/scsidrv.o: In function `ahc_linux_halt':
+drivers/scsi/scsidrv.o(.text+0x78cd): undefined reference to `ahc_tailq'
+drivers/scsi/scsidrv.o(.text+0x78e2): undefined reference to
+`ahc_shutdown'
+drivers/scsi/scsidrv.o: In function `ahc_linux_detect':
+drivers/scsi/scsidrv.o(.text+0x7fb7): undefined reference to `ahc_tailq'
+drivers/scsi/scsidrv.o: In function `ahc_linux_register_host':
+drivers/scsi/scsidrv.o(.text+0x80c6): undefined reference to
+`ahc_set_unit'
+drivers/scsi/scsidrv.o(.text+0x8109): undefined reference to
+`ahc_set_name'
 
-The question then becomes one of how do I distinguish a race condition from
-a legitimate load/unload cycle?
+and so on.
 
-I'm not certain that I see a way.  Unless we mark modules as "not used
-yet", until the first piece of code in them is used.  But that feels like
-an ugly hack, and seems likely to be problematic for some unusual
-scenarios.
+Excerpts from my .config file info:
 
-It looks like we might need another state for modules to be in.  Or simply
-discourage people from auto-unloading "unused" modules.
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
 
-I've seen this on usb-storage also, where the module count is maintained by
-the SCSI layers -- it's only non-zero when someone/something is actively
-using a device, which means that it will tend to get unloaded by an rmmod
--a if we're between CD burns, for example.  And, when the module is
-unloaded, all sorts of state information is lost.  rmmod -a is my enemy in
-this case.
+CONFIG_MODULES=y
+CONFIG_KMOD=y
 
-Isn't the problem here just the misuse of rmmod -a?  Perhaps we should
-attach a warning to the documentation to indicate the possible badness that
-can happen.
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_HAVE_DEC_LOCK=y
 
-Matt
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_DEBUG=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
 
-On Mon, Apr 22, 2002 at 09:05:56PM -0400, Alexander Viro wrote:
->=20
->=20
-> On Mon, 22 Apr 2002, Matthew Dharm wrote:
->=20
-> > Isn't the real problem here that we've got a "rogue" running around
-> > removing things that we might be about to use?
-> >=20
-> > Yes, I think that request_module() should indicate to the caller if
-> > something "suitable" was found.  But I think having rmmod -a running ar=
-ound
-> > sweeping things randomly is bad.
-> >=20
-> > Perhaps what we need is a way to tell _how_long_ago_ the count on a mod=
-ule
-> > last changed.  Thus, rmmod -a could decide to only remove modules that =
-were
-> > last used more than an hour ago, or somesuch.  Push the policy question=
- into
-> > userspace.
->=20
-> Still doesn't solve the problem.  And BTW, there are userland races of
-> similar kind - foo.o depends on bar.o, modprobe loads bar.o, goes to look
-> for foo.o and gets bar.o removed from under it.
->=20
-> The thing being, relying on time doesn't help - e.g. we might have modules
-> on automounted volume and delays may be really long if the thing happens
-> at time when load is high.
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=y
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+CONFIG_IDE=y
 
-I'm just trying to think of a way to say "up yours" without getting fired.
-					-- Stef
-User Friendly, 10/8/1998
+#
+# ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
 
---1sNVjLsmu1MXqwQ/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_IDEDMA_AUTO=y
 
-iD8DBQE8xMoGz64nssGU+ykRAsCtAKCL+k5puWaSte5BBdnOwC/lTVKOxQCgiMNs
-rQlHIkhbPJ0pdHIWdSx/vuc=
-=5+E4
------END PGP SIGNATURE-----
+CONFIG_SCSI=y
 
---1sNVjLsmu1MXqwQ/--
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+
+#
+# SCSI low-level drivers
+#
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+
+Gnu C                  3.0.4
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11g
+modutils               2.4.14
+e2fsprogs              1.26
+reiserfsprogs          3.x.0j
+pcmcia-cs              3.1.22
+PPP                    2.4.1
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+
+

@@ -1,39 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSBIJfs>; Sat, 9 Feb 2002 04:35:48 -0500
+	id <S288800AbSBIJr6>; Sat, 9 Feb 2002 04:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSBIJf3>; Sat, 9 Feb 2002 04:35:29 -0500
-Received: from femail47.sdc1.sfba.home.com ([24.254.60.41]:25303 "EHLO
-	femail47.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S288788AbSBIJfV>; Sat, 9 Feb 2002 04:35:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-Date: Sat, 9 Feb 2002 04:36:14 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208211257.F25595@work.bitmover.com> <3C64B451.3BC4B0CE@zip.com.au>
-In-Reply-To: <3C64B451.3BC4B0CE@zip.com.au>
+	id <S288804AbSBIJrt>; Sat, 9 Feb 2002 04:47:49 -0500
+Received: from pop.gmx.net ([213.165.64.20]:55604 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288800AbSBIJrl>;
+	Sat, 9 Feb 2002 04:47:41 -0500
+From: Sebastian Roth <xsebbi@gmx.de>
+Reply-To: xsebbi@gmx.de
+Message-Id: <200202091029.30256@xsebbi.de>
+To: davej@suse.de
+Subject: [PATCH][2.5.3-dj4] Compile Error at 8139too.c
+Date: Sat, 9 Feb 2002 10:48:44 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020209093520.XVXR9607.femail47.sdc1.sfba.home.com@there>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_89F9JTIRFV2Z5HUS4OSM"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 February 2002 12:32 am, Andrew Morton wrote:
-> Larry McVoy wrote:
-> > For one, he seems to like that model,
->
-> Well I don't.  I'd like to see as many kernel changes as possible
-> sent to this mailing list, as unified diffs, with an explanation.
 
-I personally hope one of the patchbot projects (patches-only lists, 
-filtered/moderated) gets mature enough to use soon.
+--------------Boundary-00=_89F9JTIRFV2Z5HUS4OSM
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Optimizing the bandwidth of Linus and optimizing for the rest of the 
-developer community are two seperate problems which may require two seperate 
-toolchains.  Posting a patch to the list already isn't enough to get it to 
-Linus.  Hasn't been for a while...
+Hi there,
 
-Rob
+just a compile error:
+
+gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
+-DKBUILD_BASENAME=8139too  -c -o 8139too.o 8139too.c
+8139too.c:167: redefinition of `debug'
+8139too.c:164: `debug' previously defined here
+make[3]: *** [8139too.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5/drivers/net'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5/drivers/net'
+make[1]: *** [_subdir_net] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
+make: *** [_dir_drivers] Error 2
+
+This patch solves the problem:
+
+--- linux-2.5/drivers/net/8139too.c     Sat Feb  9 10:44:11 2002
++++ linux-beta/drivers/net/8139too.c    Sat Feb  9 10:44:50 2002
+@@ -163,9 +163,6 @@
+ /* bitmapped message enable number */
+ static int debug = -1;
+ 
+-/* bitmapped message enable number */
+-static int debug = -1;
+-
+ /* Size of the in-memory receive ring. */
+ #define RX_BUF_LEN_IDX 2       /* 0==8K, 1==16K, 2==32K, 3==64K */
+ #define RX_BUF_LEN     (8192 << RX_BUF_LEN_IDX)
+
+patch is against 2.5.3-dj4
+
+Bye,
+Sebastian
+
+
+
+
+--------------Boundary-00=_89F9JTIRFV2Z5HUS4OSM
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="8139patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="8139patch"
+
+LS0tIGxpbnV4LTIuNS9kcml2ZXJzL25ldC84MTM5dG9vLmMJU2F0IEZlYiAgOSAxMDo0NDoxMSAy
+MDAyCisrKyBsaW51eC1iZXRhL2RyaXZlcnMvbmV0LzgxMzl0b28uYwlTYXQgRmViICA5IDEwOjQ0
+OjUwIDIwMDIKQEAgLTE2Myw5ICsxNjMsNiBAQAogLyogYml0bWFwcGVkIG1lc3NhZ2UgZW5hYmxl
+IG51bWJlciAqLwogc3RhdGljIGludCBkZWJ1ZyA9IC0xOwogCi0vKiBiaXRtYXBwZWQgbWVzc2Fn
+ZSBlbmFibGUgbnVtYmVyICovCi1zdGF0aWMgaW50IGRlYnVnID0gLTE7Ci0KIC8qIFNpemUgb2Yg
+dGhlIGluLW1lbW9yeSByZWNlaXZlIHJpbmcuICovCiAjZGVmaW5lIFJYX0JVRl9MRU5fSURYCTIJ
+LyogMD09OEssIDE9PTE2SywgMj09MzJLLCAzPT02NEsgKi8KICNkZWZpbmUgUlhfQlVGX0xFTgko
+ODE5MiA8PCBSWF9CVUZfTEVOX0lEWCkK
+
+--------------Boundary-00=_89F9JTIRFV2Z5HUS4OSM--

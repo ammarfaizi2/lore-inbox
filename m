@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTHSHNk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 03:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbTHSHN0
+	id S262116AbTHSHWw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 03:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTHSHWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 03:13:26 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:42678 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262116AbTHSHMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 03:12:54 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 19 Aug 2003 09:12:43 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: andrea@suse.de, green@namesys.com, marcelo@conectiva.com.br, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030819091243.007acac0.skraw@ithnet.com>
-In-Reply-To: <20030819011208.GK10320@matchmail.com>
-References: <20030813125509.360c58fb.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
-	<20030813145940.GC26998@namesys.com>
-	<20030813171224.2a13b97f.skraw@ithnet.com>
-	<20030813153009.GA27209@namesys.com>
-	<20030819011208.GK10320@matchmail.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Aug 2003 03:22:52 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:42675 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S262116AbTHSHWv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 03:22:51 -0400
+Subject: RE: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
+From: Stian Jordet <liste@jordet.nu>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Message-Id: <1061277778.3952.2.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 09:22:58 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 18:12:08 -0700
-Mike Fedyk <mfedyk@matchmail.com> wrote:
+tir, 19.08.2003 kl. 03.15 skrev Brown, Len:
+> CONFIG_ACPI_HT is mostly just an alias for CONFIG_ACPI_BOOT -- the early
+> boot part of ACPI without the run-time events included in the full ACPI
+> implementation.  Unless I screwed up the config dependencies, it should
+> be impossible to enable the full CONFIG_ACPI without including
+> CONFIG_ACPI_HT.
 
-> > > It is unlikely for bad ram to survive memtest for several hours.
-> > 
-> > memtest is single threaded, UP kernel works fine too.
-> 
-> Are you saying that one CPU can't saturate the memory bus?  Or maybe we're
-> hitting something on the CPU bus, or just that SMP will change the timings
-> and stress things differently?  Or that if memtest doesn't test from the
-> second CPU then it could be a faulty cpu/L2?
+Hmm. I just ran "make oldconfig" and when I got the question about
+"CONFIG_ACPI_HT" I just chose no, since I don't have HT. When I _now_
+look at it with "make menuconfig" I ofcourse see that without the first,
+I never get the latter one, but that was really non-obvious. But thanks
+:)
 
-Well, if memtest does not use a second available CPU then probably we should
-ask the author about this...
- 
-> Grr, has anything been done to verify the hardware is running withing specs
-> and isn't too hot?
+Best regards,
+Stian
 
-In fact we are talking about datacenter environment with air conditioning and
-the like.
-Besides the favourite test box I have others (already mentioned in this thread)
-- SMP with completely different hw - where I can make 2.4.21 and above crash,
-too.
-
-Regards,
-Stephan

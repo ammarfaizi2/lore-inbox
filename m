@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSHQOxr>; Sat, 17 Aug 2002 10:53:47 -0400
+	id <S318014AbSHQPPh>; Sat, 17 Aug 2002 11:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318013AbSHQOxr>; Sat, 17 Aug 2002 10:53:47 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:22543 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S316322AbSHQOxr>; Sat, 17 Aug 2002 10:53:47 -0400
-Date: Sat, 17 Aug 2002 15:57:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: Linux 2.4.20-pre3
-Message-ID: <20020817155733.A13576@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Rusty Trivial Russell <trivial@rustcorp.com.au>
-References: <Pine.LNX.4.44.0208162231060.8044-100000@freak.distro.conectiva> <Pine.GSO.4.21.0208171603260.12155-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0208171603260.12155-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Sat, Aug 17, 2002 at 04:12:03PM +0200
+	id <S318015AbSHQPPg>; Sat, 17 Aug 2002 11:15:36 -0400
+Received: from cambot.suite224.net ([209.176.64.2]:3597 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S318014AbSHQPPg>;
+	Sat, 17 Aug 2002 11:15:36 -0400
+Message-ID: <001301c24602$16a842c0$d942b0d1@pcs686>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: "Skip Ford" <skip.ford@verizon.net>, "Andre Hedrick" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20020817115243.GA13771@merlin.emma.line.org> <Pine.LNX.4.10.10208170455050.23171-100000@master.linux-ide.org> <200208171356.g7HDut8I000305@pool-141-150-241-241.delv.east.verizon.net>
+Subject: Re: IDE?  IDE-TNG driver
+Date: Sat, 17 Aug 2002 11:23:48 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 04:12:03PM +0200, Geert Uytterhoeven wrote:
-> On Fri, 16 Aug 2002, Marcelo Tosatti wrote:
-> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> >   o files_init - set file limit based on ram
-> 
-> Add missing prototype (cfr. 2.5.x).
-> BTW, the one is 2.5.x is wrong because it lacks the __init
+I agree. Send a patch and I will test it, too.
 
-The prototype doesn't need the __init, and consensus is to not add it.
+----- Original Message -----
+From: "Skip Ford" <skip.ford@verizon.net>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, August 17, 2002 9:56 AM
+Subject: Re: IDE? IDE-TNG driver
+
+
+> Andre Hedrick wrote:
+> >
+> > I will hand it to you guys on a silver platter IDE-TNG.
+> >
+> [snip]
+> >
+> > If this is what you want, this is what I have to put on the table.
+> > If you do not I will delete the code.
+>
+> Can't you just create a patch and send it to the list?  I for one would
+> like to try out your code.  Just diff it and send it without the song
+> and dance please.
+>
+> --
+> Skip
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,200 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbTEKTvb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 15:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbTEKTvb
+	id S261230AbTEKUDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 16:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTEKUDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 15:51:31 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27763 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261178AbTEKTv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 15:51:28 -0400
-Subject: Re: [PATCH] Fix for vma merging refcounting bug
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       Andrew Morton <akpm@digeo.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20030510163336.GB15010@dualathlon.random>
-References: <1052483661.3642.16.camel@sisko.scot.redhat.com>
-	 <20030510163336.GB15010@dualathlon.random>
-Content-Type: multipart/mixed; boundary="=-ioKWzMS7mRPSZYpBHhrX"
-Organization: 
-Message-Id: <1052683446.4609.29.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 May 2003 21:04:06 +0100
+	Sun, 11 May 2003 16:03:25 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:44548 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S261230AbTEKUDY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 16:03:24 -0400
+To: Christer Weinigel <christer@weinigel.se>
+Cc: ebiederm@xmission.com (Eric W. Biederman),
+       Davide Libenzi <davidel@xmailserver.org>,
+       Jamie Lokier <jamie@shareable.org>, Jos Hulzink <josh@stack.nl>,
+       Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+References: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
+	<200305111137.29743.josh@stack.nl>
+	<20030511140144.GA5602@mail.jlokier.co.uk>
+	<Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
+	<m1fznl74f9.fsf@frodo.biederman.org> <m3wugxz5m9.fsf@zoo.weinigel.se>
+From: wingel@zoo.weinigel.se
+Date: 11 May 2003 22:22:57 +0200
+In-Reply-To: <m3wugxz5m9.fsf@zoo.weinigel.se>
+Message-ID: <m3r875z10e.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[following up to myself]
 
---=-ioKWzMS7mRPSZYpBHhrX
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Christer Weinigel <christer@weinigel.se> writes:
 
-Hi,
+> Well, it should be possible to use a trick similar to the BIG REAL or
+> UNREAL mode.  Just load CS with a segment that has a base of
+> 0xffff0000 in protected mode and then jump back to real mode.
+> Something like this, completely untested of course, should do it:
+> 
+>         .align  4
+> reset_gdt:
+>         .word   reset_gdt_end - reset_gdt -1
+>         .long   reset_gdt
+>         .word   0
+> 
+> /* 16 bit code segment starting at 0xffff0000 */
+>         .word   0xffff, 0x0000
+>         .byte   0xff, 0x9b, 0x00, 0xff
 
-On Sat, 2003-05-10 at 17:33, Andrea Arcangeli wrote:
-> On Fri, May 09, 2003 at 01:34:21PM +0100, Stephen C. Tweedie wrote:
-> > When a new vma can be merged simultaneously with its two immediate
-> > neighbours in both directions, vma_merge() extends the predecessor vma
-> > and deletes the successor.  However, if the vma maps a file, it fails to
-> > fput() when doing the delete, leaving the file's refcount inconsistent.
+better add the following too:
 
-> great catch! nobody could notice it in practice
+        move.l   %cr0, %eax
+        and.l    $~1, %eax
+        move.l   %eax, %cr0
 
-Yep --- I only noticed it because I was running a quick-and-dirty vma
-merging test and wanted to test on a shmfs file, and noticed that the
-temporary shmfs filesystem became unmountable afterwards.  Test
-attached, in case anybody is interested (it's the third test, mapping a
-file page by page in two interleaved passes, which triggers this case.)
+> reset_gdt_end:
+> 
+>         lgdt    %cs:reset_gdt
+>         ljmp    $ROM_CODE_SEG, 0xfff0
 
-> I'm attaching for review what I'm applying to my -aa tree, to fix the
-> above and the other issue with the non-ram vma merging fixed in 2.5.
+BTW, what does Windows do here?  Whatever Windows is using should work
+with Linux too.
 
-Looks OK.
+  /Christer
 
-Cheers,
- Stephen
+-- 
+"Just how much can I get away with and still go to heaven?"
 
-
---=-ioKWzMS7mRPSZYpBHhrX
-Content-Disposition: inline; filename=vma-merge.c
-Content-Type: text/x-c; name=vma-merge.c; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
-static char *testfile =3D "/tmp/vma-test.dat";
-
-#define TEST_PAGES 1024
-int pagesize;
-int filesize;
-
-char *map_addr;
-
-void DIE(char *) __attribute__ ((noreturn));
-
-void DIE(char *why)
-{
-	perror(why);
-	exit(1);
-}
-
-#define plural(n) (((n) =3D=3D 1) ? "" : "s")
-=09
-void test_maps(char *which)
-{
-	int fd;
-	int rc;
-	int count =3D 0;
-	char buffer[256];
-	char filename[128];
-	FILE *mapfile;
-
-	fd =3D open("/proc/self/maps", O_RDONLY);
-	if (fd < 0)
-		DIE("open(/proc/self/maps");
-
-
-	mapfile =3D fopen("/proc/self/maps", "r");
-
-	while (1) {
-		if (!fgets(buffer, 256, mapfile))
-			break;
-	=09
-		rc =3D sscanf(buffer,=20
-			    "%*x-%*x %*4s %*x %*5s %*d %127s\n",=20
-			    filename);
-		if (!rc)
-			continue;
-		if (!strcmp(testfile, filename))
-			count++;
-	}
-=09
-	printf("Testing %s: found %d map%s\n", which, count, plural(count));
-}
-
-#define clear_maps() \
-	err =3D munmap(map_addr, filesize); 	\
-	if (err)			\
-		DIE("munmap");		\
-
-static void map_page(int fd, int i)
-{=09
-	char *ptr;
-
-	ptr =3D mmap(map_addr + i * pagesize,
-		   pagesize,
-		   PROT_READ,
-		   MAP_SHARED | MAP_FIXED,
-		   fd,
-		   i * pagesize);
-	if (ptr =3D=3D MAP_FAILED)
-		DIE("mmap");
-	if (ptr !=3D map_addr + i * pagesize) {
-		fprintf(stderr, "mmap returned unexpected address\n");
-		exit(1);
-	}
-}
-
-int main(int argc, char *argv[])
-{
-	int fd;
-	int err;
-	int i;
-
-	if (argc > 1)
-		testfile =3D argv[1];
-=09
-	pagesize =3D getpagesize();
-	filesize =3D TEST_PAGES * pagesize;
-
-	fd =3D open(testfile, O_CREAT|O_TRUNC|O_RDWR, 0666);
-	if (fd < 0)
-		DIE("open");
-
-	err =3D ftruncate(fd, filesize);
-	if (err)
-		DIE("ftuncate");
-
-	/* Find a suitable mmap address for the entire file */
-	map_addr =3D mmap(0, filesize, PROT_READ, MAP_SHARED, fd, 0);
-	if (map_addr =3D=3D MAP_FAILED)
-		DIE("mmap");
-	clear_maps();
-
-	/* Now map it in piece by piece */
-	for (i =3D 0; i < TEST_PAGES; i++)
-		map_page(fd, i);
-	test_maps("backwards merging");
-	clear_maps();
-
-	/* Next, map it in backwards */
-	for (i =3D TEST_PAGES; i-- > 0; )
-		map_page(fd, i);
-	test_maps("forwards merging");
-	clear_maps();
-
-	/* Finally, map it in in two interleaved passes */
-	for (i =3D 0; i < TEST_PAGES; i+=3D2)
-		map_page(fd, i);
-	for (i =3D 1; i < TEST_PAGES; i+=3D2)
-		map_page(fd, i);
-	test_maps("interleaved merging");
-
-	close(fd);
-	unlink(testfile);
-=09
-	return 0;
-}
-
---=-ioKWzMS7mRPSZYpBHhrX--
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275031AbRJNJsn>; Sun, 14 Oct 2001 05:48:43 -0400
+	id <S275012AbRJNJwD>; Sun, 14 Oct 2001 05:52:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275042AbRJNJsX>; Sun, 14 Oct 2001 05:48:23 -0400
-Received: from max.tat.physik.uni-tuebingen.de ([134.2.170.93]:32148 "HELO
-	master.kde.org") by vger.kernel.org with SMTP id <S275012AbRJNJsN>;
-	Sun, 14 Oct 2001 05:48:13 -0400
-Date: Sun, 14 Oct 2001 11:48:44 +0200
-To: linux-kernel@vger.kernel.org
-Subject: vfat permissions (umask, noexec) brokeness (once more ...)
-Message-ID: <20011014114844.A8807@ugly.wh8.tu-dresden.de>
+	id <S275042AbRJNJvx>; Sun, 14 Oct 2001 05:51:53 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:56584 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S275012AbRJNJvp>; Sun, 14 Oct 2001 05:51:45 -0400
+Date: Sun, 14 Oct 2001 19:51:55 +1000
+From: john slee <indigoid@higherplane.net>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Making diff(1) of linux kernels faster
+Message-ID: <20011014195154.A5511@higherplane.net>
+In-Reply-To: <3BC953B5.18870B14@yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-From: Oswald Buddenhagen <ossi@kde.org>
-X-Spam-Rating: max.tat.physik.uni-tuebingen.de 300/1000/N
+In-Reply-To: <3BC953B5.18870B14@yahoo.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Sun, Oct 14, 2001 at 04:58:29AM -0400, Paul Gortmaker wrote:
+> So, with the cold cache, my patch cut the time by a factor of 5(!!)
+> and the amount of audible death growls from the disk is also reduced.  
+> In the warm case, you pay a slight penalty since the simple hack
+> doesn't try to keep the file data around while priming the cache.
 
-as we all know, the noexec handling was changed in 2.4.10.  now some
-people claim, that using umask=111 is the right way to get the old
-behaviour - but that's _wrong_. as opposed to their statements, vfat's
-umask= does _not_ apply only to regular files, but also to directories
-(you just don't notice it when you run as root) - and it's right that
-way, as otherwise you could not specify umask=77 to lock out all users
-but the owner specified by uid= & gid=.
-i see two possible solutions: a new flag "noexecbits" which works like
-the old (=broken) "noexec" or two different umasks (like samba does):
-one for directories and one for regular files.
-btw, the "showexec" flag is a big improvement to the situation, but i
-still don't like it, as the files just are not executable without major
-magic ...
+excellent.  how does it go on other kernels?  (solaris? irix? win32?)
 
-greetings
-
-ps: cc me, i'm not on the list.
+j.
 
 -- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
---
-Nothing is fool-proof to a sufficiently talented fool.
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

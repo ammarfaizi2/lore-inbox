@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUEDNw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264370AbUEDN7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbUEDNw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 09:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUEDNw3
+	id S264370AbUEDN7N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 09:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUEDN7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 09:52:29 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:31879 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264368AbUEDNw1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 09:52:27 -0400
-Subject: Re: Possible permissions bug on NFSv3 kernel client
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Colin Paton <colin.paton@etvinteractive.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1083664520.4538.42.camel@colinp>
-References: <1QqNJ-4QH-37@gated-at.bofh.it> <1QqNJ-4QH-39@gated-at.bofh.it>
-	 <1QqNJ-4QH-35@gated-at.bofh.it> <1Qrhg-5hH-29@gated-at.bofh.it>
-	 <E1BJeSB-0000Gk-V2@localhost>
-	 <1083357597.13656.37.camel@lade.trondhjem.org>
-	 <1083664520.4538.42.camel@colinp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1083678737.3529.85.camel@lade.trondhjem.org>
+	Tue, 4 May 2004 09:59:13 -0400
+Received: from mail2.soliscom.uu.nl ([131.211.4.74]:43936 "EHLO
+	solis202.soliscom.uu.nl") by vger.kernel.org with ESMTP
+	id S264370AbUEDN7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 09:59:11 -0400
+Subject: [PATCH - 1/2] new i2c video decoder calls
+From: "Ronald S. Bultje" <R.S.Bultje@students.uu.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Michael Hunold <hunold@convergence.de>,
+       Gerd Knorr <kraxel@bytesex.org>
+Content-Type: multipart/mixed; boundary="=-Nv4u8mFCRM6Wq+tsAzmM"
+Message-Id: <1083657613.26831.0.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 04 May 2004 09:52:17 -0400
+Date: Tue, 04 May 2004 10:00:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-04 at 05:55, Colin Paton wrote:
-> As writing to a char/block device does not perform a write
-> operation *on the server* then the client should not be asking the
-> server for modify/extend permission in the case of char/block devices.
 
-Sure it should: you are asking it for write permission! If you didn't
-check the for modify/extend, then you be allowing world write permission
-by default.
+--=-Nv4u8mFCRM6Wq+tsAzmM
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I just checked that Sun's NFS client indeed checks both "extend" and
-"modify" when attempting to write to a character device.
+Hi Andrew,
 
-> > The read-only mount option does *not apply* to char/block devices such
-> > as /dev/hd[a-z]*, /dev/tty*. Permission checks on open() for those
-> > devices are done on the server *only* via the ACCESS rpc call.
-> 
-> Should vfs_permission() (as called from nfs_permission) be sufficient to
-> perform this check?
+attached patch adds three new calls to the i2c video decoder API. The
+changes were requested by Michael (CC'ed) and approved by Gerd Knorr
+(v4l maintainer, CC'ed).
 
-No! I repeat: vfs_permission() knows nothing about any uid/gid
-mapping/squashing. You cannot rely exclusively on the mode bits in NFS.
+Short explanation:
+* INIT is a general initialization call with optional initialization
+data. Reason for this is that several i2c decoders (or general: clients)
+are being used by several adapters (main drivers), and in some cases,
+one adapter simply needs different settings than the other, either
+because the adapter is completely different or because the card was
+reverse engineered in a way that doesn't allow multiple adapters to run
+using the same original initialization data. Michael faces such a
+problem right now. Both he and me lack time to properly sit together and
+work out the exact details or a proper way to merge.
 
-> I don't believe that it is... it is possible to write to a block device
-> on a filesystem that is mounted read-only, but not to write to a block
-> device on an NFS filesystem that is *exported* read-only. 
+* VBI_BYPASS and GPIO set specific pins on the decoder. This will be
+used in the saa7111 driver. My driver (zr36067, original user of the
+saa7111 driver) doesn't use any of this, but Michael's does.
 
-That sounds like a server bug, then.
+Patch should apply against any recent 2.6.x kernel.
 
-Cheers,
-  Trond
+Thanks,
+
+Ronald
+
+--=-Nv4u8mFCRM6Wq+tsAzmM
+Content-Disposition: attachment; filename=linux-i2c-video-decoder.diff
+Content-Type: text/x-patch; name=linux-i2c-video-decoder.diff; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXJhIHh4LWxpbnV4LTIuNi4zL2luY2x1ZGUvbGludXgvdmlkZW9fZGVjb2Rlci5oIGxp
+bnV4LTIuNi4zL2luY2x1ZGUvbGludXgvdmlkZW9fZGVjb2Rlci5oDQotLS0geHgtbGludXgtMi42
+LjMvaW5jbHVkZS9saW51eC92aWRlb19kZWNvZGVyLmgJMjAwMy0xMi0xOCAwMzo1ODowNC4wMDAw
+MDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYuMy9pbmNsdWRlL2xpbnV4L3ZpZGVvX2RlY29kZXIu
+aAkyMDA0LTAyLTIyIDE2OjIwOjA3LjAwMDAwMDAwMCArMDEwMA0KQEAgLTIyLDYgKzIyLDEwIEBA
+DQogI2RlZmluZQlERUNPREVSX1NUQVRVU19OVFNDCTgJLyogYXV0byBkZXRlY3RlZCAqLw0KICNk
+ZWZpbmUJREVDT0RFUl9TVEFUVVNfU0VDQU0JMTYJLyogYXV0byBkZXRlY3RlZCAqLw0KIA0KK3N0
+cnVjdCB2aWRlb19kZWNvZGVyX2luaXQgew0KKwl1bnNpZ25lZCBjaGFyIGxlbjsNCisJY29uc3Qg
+dW5zaWduZWQgY2hhciAqZGF0YTsNCit9Ow0KIA0KICNkZWZpbmUJREVDT0RFUl9HRVRfQ0FQQUJJ
+TElUSUVTIF9JT1IoJ2QnLCAxLCBzdHJ1Y3QgdmlkZW9fZGVjb2Rlcl9jYXBhYmlsaXR5KQ0KICNk
+ZWZpbmUJREVDT0RFUl9HRVRfU1RBVFVTICAgIAlfSU9SKCdkJywgMiwgaW50KQ0KQEAgLTMwLDYg
+KzM0LDkgQEANCiAjZGVmaW5lCURFQ09ERVJfU0VUX09VVFBVVAlfSU9XKCdkJywgNSwgaW50KQkv
+KiAwIDw9IG91dHB1dCA8ICNvdXRwdXRzICovDQogI2RlZmluZQlERUNPREVSX0VOQUJMRV9PVVRQ
+VVQJX0lPVygnZCcsIDYsIGludCkJLyogYm9vbGVhbiBvdXRwdXQgZW5hYmxlIGNvbnRyb2wgKi8N
+CiAjZGVmaW5lCURFQ09ERVJfU0VUX1BJQ1RVUkUgICAJX0lPVygnZCcsIDcsIHN0cnVjdCB2aWRl
+b19waWN0dXJlKQ0KKyNkZWZpbmUJREVDT0RFUl9TRVRfR1BJTwlfSU9XKCdkJywgOCwgaW50KQkv
+KiBzd2l0Y2ggZ2VuZXJhbCBwdXJwb3NlIHBpbiAqLw0KKyNkZWZpbmUJREVDT0RFUl9JTklUCQlf
+SU9XKCdkJywgOSwgc3RydWN0IHZpZGVvX2RlY29kZXJfaW5pdCkJLyogaW5pdCBpbnRlcm5hbCBy
+ZWdpc3RlcnMgYXQgb25jZSAqLw0KKyNkZWZpbmUJREVDT0RFUl9TRVRfVkJJX0JZUEFTUwlfSU9X
+KCdkJywgMTAsIGludCkJLyogc3dpdGNoIHZiaSBieXBhc3MgKi8NCiANCiAjZGVmaW5lCURFQ09E
+RVJfRFVNUAkJX0lPKCdkJywgMTkyKQkJLyogZGVidWcgaG9vayAqLw0KIA0K
+
+--=-Nv4u8mFCRM6Wq+tsAzmM--

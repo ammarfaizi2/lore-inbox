@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbTAOOW6>; Wed, 15 Jan 2003 09:22:58 -0500
+	id <S266443AbTAOOMf>; Wed, 15 Jan 2003 09:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbTAOOW6>; Wed, 15 Jan 2003 09:22:58 -0500
-Received: from cnxt10002.conexant.com ([198.62.10.2]:65008 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S266638AbTAOOW4>; Wed, 15 Jan 2003 09:22:56 -0500
-Date: Wed, 15 Jan 2003 15:31:44 +0100 (CET)
-From: Rui Sousa <rui.sousa@laposte.net>
-X-X-Sender: rsousa@sophia-sousar2.nice.mindspeed.com
-To: Alistair Strachan <alistair@devzero.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] emu10k1 forward port (2.4.20 to 2.5.56)
-In-Reply-To: <200301151340.39264.alistair@devzero.co.uk>
-Message-ID: <Pine.LNX.4.44.0301151524510.1380-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S266456AbTAOOMf>; Wed, 15 Jan 2003 09:12:35 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:5771 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S266443AbTAOOM3>;
+	Wed, 15 Jan 2003 09:12:29 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Rusty Russell <rusty@rustcorp.com.au>
+Date: Wed, 15 Jan 2003 15:21:22 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] Proposed module init race fix. 
+Cc: linux-kernel@vger.kernel.org, adam@yggdrasil.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <D4E37953801@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jan 2003, Alistair Strachan wrote:
-
-I'm still not sure if I agree with this change... Couldn't be possible
-that even if one __copy_from_user() fails the next one could succeed?
-Is it really necessary to return at the first error?
-
-Rui
-
-> Hi,
+On 15 Jan 03 at 20:06, Rusty Russell wrote:
+> In message <200301150846.AAA01104@adam.yggdrasil.com> you write:
+> > On 2003-01-15, Rusty Russell wrote:
+> > >It's possible to start using a module, and then have it fail
+> > >initialization.  In 2.4, this resulted in random behaviour.  One
+> > >solution to this is to make all interfaces two-stage: reserve
+> > >everything you need (which might fail), the activate them.  This
+> > >means changing about 1600 modules, and deprecating every interface
+> > >they use.
+> > 
+> >   Could you explain this "random behavior" of 2.4 a bit more?
+> > As far as I know, if a module's init function fails, it must
+> > unregister everything that it has registered up to that point.
 > 
-> This diff applies over the top of Rui's diff to provide the 
-> __copy_{to,from}_user fixes present in -dj. The merging of both these diffs 
-> would remove all the remaining important emu10k1 changes from -dj.
-> 
-> Cheers,
-> Alistair Strachan.
-> 
+> And if someone's using it, the module gets unloaded underneath them.
 
+No. Unregister will go to sleep until it is safe to unregister
+driver. See unregister_netdevice for perfect example, but I'm sure
+that there are other unregister functions which make sure that after
+unregister it is OK to destroy everything.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

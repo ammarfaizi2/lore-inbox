@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVAEWYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVAEWYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVAEWYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 17:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAEWY3
+	id S262614AbVAEWYu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 17:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVAEWYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 17:24:29 -0500
-Received: from animx.eu.org ([216.98.75.249]:11668 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262587AbVAEWYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 17:24:25 -0500
-Date: Wed, 5 Jan 2005 17:33:20 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] Re: Oops on megaraid.
-Message-ID: <20050105223320.GA7622@animx.eu.org>
-Mail-Followup-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <20050105174752.GA6859@animx.eu.org> <20050105180457.GK26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050105180457.GK26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 5 Jan 2005 17:24:50 -0500
+Received: from host-83-146-9-72.bulldogdsl.com ([83.146.9.72]:11600 "EHLO
+	host-83-146-9-72.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S262614AbVAEWYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 17:24:34 -0500
+Message-ID: <41DC691F.3010800@unsolicited.net>
+Date: Wed, 05 Jan 2005 22:24:31 +0000
+From: David R <spam.david.trap@unsolicited.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fw: [Bugme-new] [Bug 3993] New: sata_sx4 causes file corruption
+ during simultaneous writes
+References: <20050105133548.13ac80d3.akpm@osdl.org>
+In-Reply-To: <20050105133548.13ac80d3.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> Someone's removing non-empty directory in procfs.  Let's see...
-> Indeed.
-> #ifdef CONFIG_PROC_FS
->         remove_proc_entry("megaraid", &proc_root);
-> #endif
-> 
->         pci_unregister_driver(&megaraid_pci_driver);
-> so we remove /proc/megaraid and then procees to remove controllers found
-> by driver.  Each of those has a subdirectory in /proc/megaraid...
-> 
-> Fix is trivial:
+Andrew Morton wrote:
 
-Cool, thanks.
+>controller, using the libata sata_sx4 driver.  Individual writes to the drives
+>are fine.  When the drives are written to simultaneously, either by multiple cp
+>threads or assembling them in a raid 5, corruption occurs as evidenced by fsck
+>errors and inconsistent md5 sums.
+>
+>  
+>
+FWIW at <$dayjob> we have had exactly the same issues using Win2k (ugh) 
+and Promise's own drivers on a Dual Opteron system (Rioworks HDAMA) with 
+an integrated Fastrak S150TX4 controller. Relatively stable using a 
+single drive as a separate volume (our application prefers a RAID 0 
+stripe), but random subtle corruptions when using an array (striped or 
+mirrored). This is both using the controller's embedded RAID and W2K's 
+software RAID (with the Promise configured to present separate disks). 
+Firmware upgrades/downgrades were tried with no luck. We have two 
+identically configured machines that both exhibit the same problem.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Interestingly, the errors were always single flipped bit(s) at random 
+offset(s) within the file. Different on each run. Sounds like a RAM 
+issue but both machines memtest fine and run without issues when using a 
+single drive.
+
+We never found a solution (we simply use single (large) SATA drives 
+instead) :-(
+
+David
+
+
+
+

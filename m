@@ -1,115 +1,342 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVBAPiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVBAPmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVBAPiC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 10:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVBAPhl
+	id S262044AbVBAPmM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 10:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVBAPmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 10:37:41 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:47570 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262047AbVBAPhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 10:37:25 -0500
-Message-ID: <41FFA21C.8060203@nortelnetworks.com>
-Date: Tue, 01 Feb 2005 09:37:00 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+	Tue, 1 Feb 2005 10:42:12 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:59826 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262044AbVBAPkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 10:40:11 -0500
+Message-ID: <41FFA2AD.9020006@grupopie.com>
+Date: Tue, 01 Feb 2005 15:39:25 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linuxppc-dev@ozlabs.org, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on symbol exports
-References: <41FECA18.50609@nortelnetworks.com> <1107243398.4208.47.camel@laptopd505.fenrus.org>
-In-Reply-To: <1107243398.4208.47.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org
+Subject: Re: [PATCH 2.6] 7/7 replace snd_kmalloc_strdup by kstrdup
+References: <1107228526.41fef76e4c9be@webmail.grupopie.com>	<s5h651ch6lc.wl@alsa2.suse.de>	<41FF75C0.6040602@grupopie.com>	<s5hy8e8fol6.wl@alsa2.suse.de>	<41FF7F0D.5080800@grupopie.com> <s5hvf9cfmj9.wl@alsa2.suse.de>
+In-Reply-To: <s5hvf9cfmj9.wl@alsa2.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------050407020301030508050104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2005-01-31 at 18:15 -0600, Chris Friesen wrote:
+This is a multi-part message in MIME format.
+--------------050407020301030508050104
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->>Is there any particular reason why modules should not be allowed to 
->>flush the tlb, or is this an oversight?
+Takashi Iwai wrote:
+> At Tue, 01 Feb 2005 13:07:25 +0000,
+> Paulo Marques wrote:
 > 
-> can you point at the url to your module source? I suspect modules doing
-> tlb flushes is the wrong thing, but without seeing the source it's hard
-> to tell.
+>>I thought of going all the way and changing the callers of kstrdup in 
+>>sound to use kfree, so that it would work without debugging memory 
+>>allocated for strdup'ed strings.
+>>
+>>However the code there already uses kfree, just not the standard kfree 
+>>because it might have been defined to something else in core.h if 
+>>CONFIG_SND_DEBUG_MEMORY is set.
+>>
+>>We could still go all the way and carry on with this approach: use the 
+>>standard kstrdup / kfree when not CONFIG_SND_DEBUG_MEMORY, and define 
+>>kstrdup to be an internal sound function in sound/core/memory.c when 
+>>CONFIG_SND_DEBUG_MEMORY is set.
+> 
+> 
+> This sounds good.  We can do just like normal kmalloc:
+> 
+> #ifdef CONFIG_SND_DEBUG_MEMORY
+> ...
+> #define kstrdup(s) my_kstrdup_wrapper(s)
+> #endif
+> 
+> 
+>>Do you prefer that I do another patch to do this, or that I just drop 
+>>the patch and leave snd_kmalloc_strdup alone?
+> 
+> 
+> Heh, it's up to you ;)  Using kstrdup() in normal cases would be
+> better, of course.
 
-I've included the relevent code at the bottom.  The module will be 
-released under the GPL.
+Ok, how about this patch, then?
 
-I've got a module that I'm porting forward from 2.4.  The basic idea is 
-that we want to be able to track pages dirtied by an application.  The 
-system has no swap, so we use the dirty bit to get this information.  On 
-demand we walk the page tables belonging to the process, store the 
-addresses of any dirty ones, flush the tlb, and mark them clean.
+This was just compile-tested (with and without CONFIG_SND_DEBUG_MEMORY), 
+but it seems correct...
 
-I (obviously) don't have a good understanding of how the tlb interacts 
-with the software page tables.  If we don't need to flush the tlb I'd 
-love to hear it.  If there's an easier way than walking the tables 
-manually please let me know.
+-- 
+Paulo Marques - www.grupopie.com
 
-If it matters, some of the dirty pages may be code (it's used by an 
-emulator for a system that can handle on-the-fly binary patching).
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)
 
-Thanks,
+--------------050407020301030508050104
+Content-Type: text/plain;
+ name="patch7"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch7"
 
-Chris
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/include/sound/core.h linux-2.6.11-rc2-bk9/include/sound/core.h
+--- vanilla-2.6.11-rc2-bk9/include/sound/core.h	2005-01-31 20:05:33.000000000 +0000
++++ linux-2.6.11-rc2-bk9/include/sound/core.h	2005-02-01 15:02:04.000000000 +0000
+@@ -291,6 +291,7 @@ void *snd_hidden_kcalloc(size_t n, size_
+ void snd_hidden_kfree(const void *obj);
+ void *snd_hidden_vmalloc(unsigned long size);
+ void snd_hidden_vfree(void *obj);
++char *snd_hidden_kstrdup(const char *s, int flags);
+ #define kmalloc(size, flags) snd_hidden_kmalloc(size, flags)
+ #define kcalloc(n, size, flags) snd_hidden_kcalloc(n, size, flags)
+ #define kfree(obj) snd_hidden_kfree(obj)
+@@ -300,6 +301,7 @@ void snd_hidden_vfree(void *obj);
+ #define vmalloc_nocheck(size) snd_wrapper_vmalloc(size)
+ #define kfree_nocheck(obj) snd_wrapper_kfree(obj)
+ #define vfree_nocheck(obj) snd_wrapper_vfree(obj)
++#define kstrdup(s, flags)  snd_hidden_kstrdup(s, flags)
+ #else
+ #define snd_memory_init() /*NOP*/
+ #define snd_memory_done() /*NOP*/
+@@ -310,7 +312,6 @@ void snd_hidden_vfree(void *obj);
+ #define kfree_nocheck(obj) kfree(obj)
+ #define vfree_nocheck(obj) vfree(obj)
+ #endif
+-char *snd_kmalloc_strdup(const char *string, int flags);
+ int copy_to_user_fromio(void __user *dst, const volatile void __iomem *src, size_t count);
+ int copy_from_user_toio(volatile void __iomem *dst, const void __user *src, size_t count);
+ 
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/info.c linux-2.6.11-rc2-bk9/sound/core/info.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/info.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/info.c	2005-02-01 15:02:04.000000000 +0000
+@@ -24,6 +24,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/time.h>
+ #include <linux/smp_lock.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/minors.h>
+ #include <sound/info.h>
+@@ -755,7 +756,7 @@ static snd_info_entry_t *snd_info_create
+ 	entry = kcalloc(1, sizeof(*entry), GFP_KERNEL);
+ 	if (entry == NULL)
+ 		return NULL;
+-	entry->name = snd_kmalloc_strdup(name, GFP_KERNEL);
++	entry->name = kstrdup(name, GFP_KERNEL);
+ 	if (entry->name == NULL) {
+ 		kfree(entry);
+ 		return NULL;
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/info_oss.c linux-2.6.11-rc2-bk9/sound/core/info_oss.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/info_oss.c	2004-12-24 21:34:01.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/info_oss.c	2005-02-01 15:27:43.000000000 +0000
+@@ -22,6 +22,7 @@
+ #include <sound/driver.h>
+ #include <linux/slab.h>
+ #include <linux/time.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/minors.h>
+ #include <sound/info.h>
+@@ -51,7 +52,7 @@ int snd_oss_info_register(int dev, int n
+ 			x = NULL;
+ 		}
+ 	} else {
+-		x = snd_kmalloc_strdup(string, GFP_KERNEL);
++		x = kstrdup(string, GFP_KERNEL);
+ 		if (x == NULL) {
+ 			up(&strings);
+ 			return -ENOMEM;
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/memory.c linux-2.6.11-rc2-bk9/sound/core/memory.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/memory.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/memory.c	2005-02-01 15:02:04.000000000 +0000
+@@ -184,6 +184,20 @@ void snd_hidden_vfree(void *obj)
+ 	snd_wrapper_vfree(obj);
+ }
+ 
++char *snd_hidden_kstrdup(const char *s, int flags)
++{
++	int len;
++	char *buf;
++	
++	if (!s) return NULL;
++	
++	len = strlen(s) + 1;
++	buf = _snd_kmalloc(len, flags);
++	if (buf)
++		memcpy(buf, s, len);
++	return buf;
++}
++
+ static void snd_memory_info_read(snd_info_entry_t *entry, snd_info_buffer_t * buffer)
+ {
+ 	snd_iprintf(buffer, "kmalloc: %li bytes\n", snd_alloc_kmalloc);
+@@ -214,36 +228,9 @@ int __exit snd_memory_info_done(void)
+ 	return 0;
+ }
+ 
+-#else
+-
+-#define _snd_kmalloc kmalloc
+-
+ #endif /* CONFIG_SND_DEBUG_MEMORY */
+ 
+ /**
+- * snd_kmalloc_strdup - copy the string
+- * @string: the original string
+- * @flags: allocation conditions, GFP_XXX
+- *
+- * Allocates a memory chunk via kmalloc() and copies the string to it.
+- *
+- * Returns the pointer, or NULL if no enoguh memory.
+- */
+-char *snd_kmalloc_strdup(const char *string, int flags)
+-{
+-	size_t len;
+-	char *ptr;
+-
+-	if (!string)
+-		return NULL;
+-	len = strlen(string) + 1;
+-	ptr = _snd_kmalloc(len, flags);
+-	if (ptr)
+-		memcpy(ptr, string, len);
+-	return ptr;
+-}
+-
+-/**
+  * copy_to_user_fromio - copy data from mmio-space to user-space
+  * @dst: the destination pointer on user-space
+  * @src: the source pointer on mmio
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c linux-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/oss/mixer_oss.c	2005-02-01 15:02:04.000000000 +0000
+@@ -24,6 +24,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/slab.h>
+ #include <linux/time.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/minors.h>
+ #include <sound/control.h>
+@@ -1122,7 +1123,7 @@ static void snd_mixer_oss_proc_write(snd
+ 			goto __unlock;
+ 		}
+ 		tbl->oss_id = ch;
+-		tbl->name = snd_kmalloc_strdup(str, GFP_KERNEL);
++		tbl->name = kstrdup(str, GFP_KERNEL);
+ 		if (! tbl->name) {
+ 			kfree(tbl);
+ 			goto __unlock;
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c linux-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/oss/pcm_oss.c	2005-02-01 15:02:04.000000000 +0000
+@@ -33,6 +33,7 @@
+ #include <linux/time.h>
+ #include <linux/vmalloc.h>
+ #include <linux/moduleparam.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/minors.h>
+ #include <sound/pcm.h>
+@@ -2349,7 +2350,7 @@ static void snd_pcm_oss_proc_write(snd_i
+ 					for (setup1 = pstr->oss.setup_list; setup1->next; setup1 = setup1->next);
+ 					setup1->next = setup;
+ 				}
+-				template.task_name = snd_kmalloc_strdup(task_name, GFP_KERNEL);
++				template.task_name = kstrdup(task_name, GFP_KERNEL);
+ 			} else {
+ 				buffer->error = -ENOMEM;
+ 			}
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/sound.c linux-2.6.11-rc2-bk9/sound/core/sound.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/sound.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/sound.c	2005-02-01 15:02:04.000000000 +0000
+@@ -401,7 +401,6 @@ EXPORT_SYMBOL(snd_hidden_kfree);
+ EXPORT_SYMBOL(snd_hidden_vmalloc);
+ EXPORT_SYMBOL(snd_hidden_vfree);
+ #endif
+-EXPORT_SYMBOL(snd_kmalloc_strdup);
+ EXPORT_SYMBOL(copy_to_user_fromio);
+ EXPORT_SYMBOL(copy_from_user_toio);
+   /* init.c */
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/core/timer.c linux-2.6.11-rc2-bk9/sound/core/timer.c
+--- vanilla-2.6.11-rc2-bk9/sound/core/timer.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/core/timer.c	2005-02-01 15:02:04.000000000 +0000
+@@ -26,6 +26,7 @@
+ #include <linux/slab.h>
+ #include <linux/time.h>
+ #include <linux/moduleparam.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/timer.h>
+ #include <sound/control.h>
+@@ -97,7 +98,7 @@ static snd_timer_instance_t *snd_timer_i
+ 	timeri = kcalloc(1, sizeof(*timeri), GFP_KERNEL);
+ 	if (timeri == NULL)
+ 		return NULL;
+-	timeri->owner = snd_kmalloc_strdup(owner, GFP_KERNEL);
++	timeri->owner = kstrdup(owner, GFP_KERNEL);
+ 	if (! timeri->owner) {
+ 		kfree(timeri);
+ 		return NULL;
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c linux-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c
+--- vanilla-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c	2005-01-31 20:05:34.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/isa/gus/gus_mem.c	2005-02-01 15:02:04.000000000 +0000
+@@ -21,6 +21,7 @@
+ 
+ #include <sound/driver.h>
+ #include <linux/slab.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/gus.h>
+ #include <sound/info.h>
+@@ -213,7 +214,7 @@ snd_gf1_mem_block_t *snd_gf1_mem_alloc(s
+ 	if (share_id != NULL)
+ 		memcpy(&block.share_id, share_id, sizeof(block.share_id));
+ 	block.owner = owner;
+-	block.name = snd_kmalloc_strdup(name, GFP_KERNEL);
++	block.name = kstrdup(name, GFP_KERNEL);
+ 	nblock = snd_gf1_mem_xalloc(alloc, &block);
+ 	snd_gf1_mem_lock(alloc, 1);
+ 	return nblock;
+@@ -253,13 +254,13 @@ int snd_gf1_mem_init(snd_gus_card_t * gu
+ 	if (gus->gf1.enh_mode) {
+ 		block.ptr = 0;
+ 		block.size = 1024;
+-		block.name = snd_kmalloc_strdup("InterWave LFOs", GFP_KERNEL);
++		block.name = kstrdup("InterWave LFOs", GFP_KERNEL);
+ 		if (snd_gf1_mem_xalloc(alloc, &block) == NULL)
+ 			return -ENOMEM;
+ 	}
+ 	block.ptr = gus->gf1.default_voice_address;
+ 	block.size = 4;
+-	block.name = snd_kmalloc_strdup("Voice default (NULL's)", GFP_KERNEL);
++	block.name = kstrdup("Voice default (NULL's)", GFP_KERNEL);
+ 	if (snd_gf1_mem_xalloc(alloc, &block) == NULL)
+ 		return -ENOMEM;
+ #ifdef CONFIG_SND_DEBUG
+diff -uprN -X dontdiff vanilla-2.6.11-rc2-bk9/sound/synth/emux/emux.c linux-2.6.11-rc2-bk9/sound/synth/emux/emux.c
+--- vanilla-2.6.11-rc2-bk9/sound/synth/emux/emux.c	2005-01-31 20:05:35.000000000 +0000
++++ linux-2.6.11-rc2-bk9/sound/synth/emux/emux.c	2005-02-01 15:28:15.000000000 +0000
+@@ -22,6 +22,7 @@
+ #include <linux/wait.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
++#include <linux/string.h>
+ #include <sound/core.h>
+ #include <sound/emux_synth.h>
+ #include <linux/init.h>
+@@ -76,7 +77,7 @@ int snd_emux_register(snd_emux_t *emu, s
+ 	snd_assert(name != NULL, return -EINVAL);
+ 
+ 	emu->card = card;
+-	emu->name = snd_kmalloc_strdup(name, GFP_KERNEL);
++	emu->name = kstrdup(name, GFP_KERNEL);
+ 	emu->voices = kcalloc(emu->max_voices, sizeof(snd_emux_voice_t), GFP_KERNEL);
+ 	if (emu->voices == NULL)
+ 		return -ENOMEM;
 
-
-
-
-
-
-
-Note: this code is run while holding &mm->mmap_sem and &mm->page_table_lock.
-
-	/* scan through the entire address space given */
-	dirty_count = 0;
-	for(addr=start&PAGE_MASK; addr<=end; addr+=PAGE_SIZE) {
-		pgd_t *pgd;
-		pmd_t *pmd;
-		pte_t *ptep, pte;
-		
-		/* Page table walking code stolen from follow_page() except
-		 * that this version does not support huge tlbs.
-		 */
-		pgd = pgd_offset(mm, addr);
-		if (pgd_none(*pgd) || unlikely(pgd_bad(*pgd)))
-			continue;
-
-		pmd = pmd_offset(pgd, addr);
-		if (pmd_none(*pmd))
-			continue;
-		if (unlikely(pmd_bad(*pmd)))
-			continue;
-
-		ptep = pte_offset_map(pmd, addr);
-		if (!ptep)
-			continue;
-
-		pte = *ptep;
-		pte_unmap(ptep);
-		if (!pte_present(pte))
-			continue;
-
-		if (!pte_dirty(pte))
-			continue;
-
-		if (!pte_read(pte))
-			continue;
-
-		/* We have a user readable dirty page.  Count it.*/
-		dirty_count++;
-
-		if (dirty_count > entries) {
-			continue;
-		} else {
-			__put_user(addr, buf);
-			buf++;
-		}
-
-		flush_tlb_page(find_vma(mm,addr), addr);
-		pte = pte_mkclean(pte);
-	}
+--------------050407020301030508050104--

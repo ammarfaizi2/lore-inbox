@@ -1,48 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVCDMmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262988AbVCDMvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVCDMmC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:42:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVCDMgR
+	id S262988AbVCDMvO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbVCDMq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:36:17 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10119 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262942AbVCDMaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 07:30:52 -0500
-Date: Fri, 4 Mar 2005 13:30:37 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       hugang@soulinfo.com
-Subject: Re: swsusp: use non-contiguous memory on resume
-Message-ID: <20050304123037.GC2203@elf.ucw.cz>
-References: <20050304095934.GA1731@elf.ucw.cz> <20050304032952.4b2e456b.akpm@osdl.org> <20050304115214.GA2168@elf.ucw.cz> <200503041300.20535.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503041300.20535.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 4 Mar 2005 07:46:59 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:39339 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262964AbVCDMjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 07:39:08 -0500
+Message-ID: <4228575A.8070708@jp.fujitsu.com>
+Date: Fri, 04 Mar 2005 21:40:58 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+References: <422428EC.3090905@jp.fujitsu.com>
+In-Reply-To: <422428EC.3090905@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thanks for all comments!
 
-> > > > Yes, I did diff between -mm and -pavel, sorry.
-> > > > 
-> > > > But I can't easily generate diff against -linus because that one is
-> > > > dependend on fixing order-8 allocations during suspend. So I guess
-> > > > I'll just wait until that one propagates into -linus?
-> > > 
-> > > Just generate a patch series?
-> > 
-> > When #1 of the series is already in -mm? Okay, I guess we can do that.
-> 
-> Can I?
+OK, I'd like to sort our situation:
 
-Yes, please go ahead.
-									Pavel
+################
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+$ Here are 2 features:
+   - iochk_clear/read() interface for error "detection"
+       by Seto ... me :-)
+   - callback, thread, and event notification for error "recovery"
+       by Linas ... expert in PPC64
+
+$ What will "detection" interface provides?
+   - allow drivers to get error information
+      - device/bus was isolated/going-reset/re-enabled/etc.
+      - error status which hardware and PCI subsystem provides
+   - allow drivers to do "simple retry" easily
+      - major soft errors(*1) would be recovered by a simple retry
+      - in cases that device/bus was re-enabled but a retry is required
+
+$ What will "recovery" infrastructure provides?
+   - allow drivers to help OS's recovery
+      - usually OS cannot re-enable affected devices by itself
+   - allow drivers to respond asynchronous error event
+      - allow drivers to implement "device specific recovery"
+
+$ Difference of stance
+   - "detection"
+      - Assume that the number of soft error is far more than that of
+        hard error. (PCI-Express has ECC, but traditional PCI does not.)
+      - Assume that it isn't too late that attempt of device isolation
+        and/or recovery comes after a simple retry(*2), and that a retry
+        would be required even if the recovery had go well.
+      - It isn't matter whether device isolation is actually possible or
+        not for the arch. The fundamental intention of this interface is
+        prevent user applications from data pollution.
+      - Currently DMA and asynchronous I/O is not target.
+   - "recovery"
+      - (I'd appreciate it if Linas could fill here by his suitable words.)
+      - (Maybe,) it is based on assuming that erroneous device should be
+        isolated immediately irrespective of type of the error.
+      - (I guess that) once a device was isolated, it become harder to
+        re-enable it. It seems like a kind of hotplug feature.
+      - Currently there are few platform which can isolate devices and
+        attempt to recover from the I/O error.
+
+$ How to use
+   - "detection" ... easy.
+      - clip I/Os by iochk_clear() and iochk_read()
+      - if iochk_read() returns non-0, retry once and/or notify the error
+        to user application.
+   - "recovery" ... rather hard.
+      - (I'd appreciate it if Linas could fill here by his suitable words.)
+      - write callback function for each event(*3)
+
+-----
+
+*1:
+   Traditionally, there are 2 types of error:
+    - soft error:
+        data was broken (ex. due to low voltage, natural radiation etc.)
+        temporary error
+    - hard error:
+        device or bus was physically broken (i.e. uncorrectable)
+        permanent error
+
+*2:
+   it's difficult to distinguish hard errors from soft errors, without
+   any retry.
+
+*3:
+   Linas, how many stages/events would you prefer to be there? is 3 enough?
+
+   ex. IMHO:
+
+   IOERR_DETECTED
+     - An error was detected, so error logging or device isolation would be
+       major request. On PPC64, isolation would be already done by hardware.
+   IOERR_PREPARE_RECOVERY
+     - Require preparation before attempting error recovery by OS.
+   IOERR_DO_RECOVERY
+     - Require device specific recovery and result of the recovery.
+       OS will gather all results and will decide recovered or not.
+   IOERR_RECOVERED
+     - OS recovery was succeeded.
+   IOERR_DEAD
+     - OS recovery was failed.
+
+   And as Ben said and as you already proposed, I also think only one callback
+   is enough and better, like:
+     int pci_emergency_callback(pci_dev *dev, err_event event, void *extra)
+
+   It allows us to add new event if desired.
+
+################
+
+Thanks,
+H.Seto
+

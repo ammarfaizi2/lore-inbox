@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUFVWRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUFVWSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUFVWRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 18:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUFVWO3
+	id S265114AbUFVWSd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 18:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUFVWRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 18:14:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62101 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266052AbUFVWOF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 18:14:05 -0400
-Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Steven Dake <sdake@mvista.com>, Stian Jordet <liste@jordet.nu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sct@redhat.logos.cnet, Andrew Morton <akpm@osdl.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20040621155313.GA12559@logos.cnet>
-References: <1075832813.5421.53.camel@chevrolet.hybel>
-	 <Pine.LNX.4.58L.0402052139420.16422@logos.cnet>
-	 <1078225389.931.3.camel@buick.jordet>
-	 <1087232825.28043.4.camel@persist.az.mvista.com>
-	 <20040615131650.GA13697@logos.cnet>
-	 <1087322198.8117.10.camel@persist.az.mvista.com>
-	 <20040617131600.GB3029@logos.cnet>
-	 <1087830410.2719.53.camel@sisko.scot.redhat.com>
-	 <20040621155313.GA12559@logos.cnet>
-Content-Type: text/plain
+	Tue, 22 Jun 2004 18:17:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5537 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266022AbUFVWMy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 18:12:54 -0400
+Message-ID: <40D8AED6.8050503@pobox.com>
+Date: Tue, 22 Jun 2004 18:12:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ricky Beam <jfbeam@bluetronic.net>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix sata_sil quirk
+References: <Pine.GSO.4.33.0406221620300.25702-200000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0406221620300.25702-200000@sweetums.bluetronic.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1087942408.2012.31.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Jun 2004 23:13:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2004-06-21 at 16:53, Marcelo Tosatti wrote:
-
-> > The buffer-ring debug patch that you posted looks like the obvious way
-> > to dig further into this.  If that doesn't get anyway, we can also trap
-> > the case where following bh->b_this_page gives us a buffer whose b_page
-> > is on a different page.
+Ricky Beam wrote:
+> On Tue, 22 Jun 2004, Jeff Garzik wrote:
 > 
-> Fine.  Just printing out bh->b_page at debug_page() will allow us to verify that, yes?
+>> Here's my suggested fix...  good catch Ricky.
+> 
+> 
+> And I don't even know why I looked at max_sectors :-) (I need more Dew.)
+> 
+>> Yes, unfortunately performance will be dog slow.
+> 
+> 
+> Well, at least puppy slow...
+> Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+> sda            1811.65         0.00      9629.85          0     577887
+> sdb            1807.15         0.00      9629.60          0     577872
+> sdc            1807.25         0.00      9629.86          0     577888
+> sdd            1807.05         0.00      9629.86          0     577888
+> md_d0         14444.64         0.00     48148.84          0    2889412
+> md_d0p2        9629.78         0.00     38519.11          0    2311532
+> (over 60sec,  8M O_DIRECT accesses, 128 stripes * 16k RAID0)
+> 
+> Without the MOD15 hack, the numbers are 2x higher, but they stop after
+> a few minutes :-)
 
-For most cases, yes.  There are basically three corruption cases ---
-b_this_page leads us to an oops, an infinite loop, or a loop including a
-bogus page.  Trapping the b_this_page ring walks to trap on any bad
-b_page would help in the latter two cases, but if we're always getting
-the first case, just extending the existing debug patch would be fine.
+Is this with my patch?
 
---Stephen
+If so, I'll go ahead and forward it upstream, since I would certainly 
+like a stabilization fix applied ASAP.
+
+
+>> I've got contacts at Silicon Image, and have been meaning to bug them
+>> for a "real fix" for a while.  It is rumored that there is a much better
+>> fix, which allows full performance while at the same time not killing
+>> your SATA drive due to odd-sized SATA frames on the wire.
+> 
+> 
+> Ask them what they do in their driver? (the linux one and the windows one)
+> Looking at the linux driver, the mod15 quirk is there, but there doesn't
+> appear to be any associated device list. (I've already post the single
+> Maxtor device listed.)  FreeBSD detects the stall, resets the chip and
+> hopes that clears the problem. (People are not happy about that.)
+
+The full-speed fix requires splitting affected DMA writes into two 
+separate commands, when the sector count matches "sectors % 15 == 1".
+
+	Jeff
+
 

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267659AbUJGSZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUJHDlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267659AbUJGSZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 14:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUJGSW4
+	id S266116AbUJHDlD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 23:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUJHDlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:22:56 -0400
-Received: from science.horizon.com ([192.35.100.1]:44844 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S267474AbUJGSQ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:16:59 -0400
-Date: 7 Oct 2004 18:16:58 -0000
-Message-ID: <20041007181658.2469.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, mark@mark.mielke.cc
+	Thu, 7 Oct 2004 23:41:03 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:43690
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S266116AbUJHDk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 23:40:59 -0400
+Date: Thu, 7 Oct 2004 20:39:43 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: cfriesen@nortelnetworks.com, martijn@entmoot.nl, hzhong@cisco.com,
+       jst1@email.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com
 Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-Id: <20041007203943.24560c33.davem@davemloft.net>
+In-Reply-To: <20041008025148.GA724@mark.mielke.cc>
+References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>
+	<41658C03.6000503@nortelnetworks.com>
+	<015f01c4acbe$cf70dae0$161b14ac@boromir>
+	<4165B9DD.7010603@nortelnetworks.com>
+	<20041007150035.6e9f0e09.davem@davemloft.net>
+	<4165C20D.8020808@nortelnetworks.com>
+	<20041007152634.5374a774.davem@davemloft.net>
+	<4165C58A.9030803@nortelnetworks.com>
+	<20041007154204.44e71da6.davem@davemloft.net>
+	<20041008025148.GA724@mark.mielke.cc>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is one claim I'd like to question - the claim that select()
-> would be slowed down unnecessarily, even if the behaviour was changed
-> for both O_NONBLOCK enabled. Isn't it more expensive to allow the
-> application to be woken up, and poll using read(), than to just do a
-> quick check in the kernel and not tell the application there is data,
-> when there really isn't?
+On Thu, 7 Oct 2004 22:51:48 -0400
+Mark Mielke <mark@mark.mielke.cc> wrote:
 
-It depends on how often the second check fails.
+> Your position, I believe has been that the use of select() on a blocking
+> file descriptor is invalid.
 
-The 99.9+% case is that the checksum is good, and in that case, you have
-to pay the wakeup cost anyway.  (So sending bad-checksum packets isn't
-even a useful DoS; good-checksum packets still steal more cycles.)
+Incorrect.
 
-You only get the benefit of saving the wakeup if the check fails.
-But every time it passes, you get the benefit of making the check cheaper.
-You have to multiply by the relative probabilities to see the net effect.
-
-For something like UDP checksums on packets which have already passed the
-ethernet checksum, that's a pretty overwhelming ratio.
+My position is that expecting a blocking file descriptor not to
+block is invalid.

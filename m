@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130320AbRBMMKS>; Tue, 13 Feb 2001 07:10:18 -0500
+	id <S129242AbRBMMJ7>; Tue, 13 Feb 2001 07:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129463AbRBMMKJ>; Tue, 13 Feb 2001 07:10:09 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:22776 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130320AbRBMMJ7>; Tue, 13 Feb 2001 07:09:59 -0500
-Date: Tue, 13 Feb 2001 13:09:49 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: ketil@froyn.com
-Cc: mas9483@ksu.edu, linux-kernel@vger.kernel.org
-Subject: Re: gzipped executables
-Message-ID: <20010213130949.A472@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010213084031.8598.qmail@www1.nameplanet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010213084031.8598.qmail@www1.nameplanet.com>; from ketil@froyn.com on Tue, Feb 13, 2001 at 08:40:31AM -0000
+	id <S129463AbRBMMJs>; Tue, 13 Feb 2001 07:09:48 -0500
+Received: from web3502.mail.yahoo.com ([204.71.203.69]:10257 "HELO
+	web3502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129242AbRBMMJk>; Tue, 13 Feb 2001 07:09:40 -0500
+Message-ID: <20010213120932.8110.qmail@web3502.mail.yahoo.com>
+Date: Tue, 13 Feb 2001 12:09:32 +0000 (GMT)
+From: Michèl Alexandre Salim 
+	<salimma1@yahoo.co.uk>
+Subject: PCI GART (?)
+To: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 13, 2001 at 08:40:31AM -0000, ketil@froyn.com wrote:
-> On Mon, 12 Feb 2001 23:09:39 -0600 (CST) Matt Stegman <mas9483@ksu.edu> wrote:
-> >Is there any kernel patch that would allow Linux to properly recognize,
-> >and execute gzipped executables?
-> 
-> Perhaps you could put it in the filesystem. Look at the
-> "chattr" manpage, which shows how this is meant to work with
-> ext2. It seems not to have been implemented yet. This way you
-> could also compress any files, not just executables.
+Hello,
 
-A nice way already implemented in 2.4.x is cramfs. Many embedded
-people (like me) use it to fill up their flash disks.
+This might not be the proper place to ask - my
+apologies - but since it pertains to the Sony
+Picturebook (C1VE - Crusoe) that people have been
+discussing on this list anyway, I hope people don't
+mind too much :)
 
-Look at linux/Documentation/filesystems/cramfs.txt for more info.
+I have RTFM but on the matter of enabling DRI for the
+ATI Mobility video chipset, which on that notebook is
+a PCI model, there is practically nil information. The
+DRI website mentions using PCI GART, but there is no
+option for that in the kernel. How do I enable this?
 
-Regards
+Currently running the XFree 4.0.2 from RH 7.0.90 (7.1
+beta, Fisher) on top of my RH 7 + Ximian system and
+when using aviplay it doesn't use any acceleration
+features at all, consequently choppy display. The same
+file plays much better in Windows.
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+Xdpyinfo shows that Xvideo and Xrender are both
+loaded, so I presume they *should* work.
+
+Thanks in advance,
+
+Michel Salim
+
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+or your free @yahoo.ie address at http://mail.yahoo.ie

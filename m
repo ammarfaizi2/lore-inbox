@@ -1,182 +1,163 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbQKPP5o>; Thu, 16 Nov 2000 10:57:44 -0500
+	id <S130386AbQKPP7n>; Thu, 16 Nov 2000 10:59:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130386AbQKPP5d>; Thu, 16 Nov 2000 10:57:33 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:36620 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129245AbQKPP5V>; Thu, 16 Nov 2000 10:57:21 -0500
-Date: Thu, 16 Nov 2000 09:25:39 -0600
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PCI configuration changes
-Message-ID: <20001116092539.A2453@wire.cadcamlab.org>
-In-Reply-To: <200011151005.LAA20027@green.mif.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011151005.LAA20027@green.mif.pg.gda.pl>; from ankry@green.mif.pg.gda.pl on Wed, Nov 15, 2000 at 11:05:07AM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130833AbQKPP7d>; Thu, 16 Nov 2000 10:59:33 -0500
+Received: from h00059aa0e40d.ne.mediaone.net ([24.91.9.69]:8178 "EHLO
+	flowers.house.larsshack.org") by vger.kernel.org with ESMTP
+	id <S130386AbQKPP7V>; Thu, 16 Nov 2000 10:59:21 -0500
+Date: Thu, 16 Nov 2000 10:29:20 -0500 (EST)
+From: Lars Kellogg-Stedman <lars@larsshack.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: BUG: sparc/2.2.17 kernel oops on javastation
+Message-ID: <Pine.LNX.4.21.0011161027480.10662-200000@flowers>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463806719-425992160-974388560=:10662"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[Andrzej Krzysztofowicz]
-> Note, that as CONFIG_MCA is defined only for i386 the dependencies on
-> $CONFIG_MCA are no-op for other architectures (in
-> Configure/Menuconfig).  Either CONFIG_MCA should be defined for all
-> architectures or there should be if ... fi around these lines.
+---1463806719-425992160-974388560=:10662
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-The former, I think.  Less confusing in the long run.
+Kernel 2.2.17 on a Sun Javastation detects a floppy drive on the
+system.  The javastation does not, in fact, have a floppy drive.  An
+attempt to mount this nonexistent device causes a kernel oops.
 
-> BTW, is there any reason for not replacing 
->    bool '  Other ISA cards' CONFIG_NET_ISA
-> by
->   dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
-> to eliminate more drivers from non-ISA arch configs ?
+I have attached the oops report.
 
-Looks good to me.  Anything to remove clutter from config menus....
+-- Lars
 
-Peter
+-- 
+Lars Kellogg-Stedman <lars@larsshack.org> --> http://www.larsshack.org/
 
+---1463806719-425992160-974388560=:10662
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.report"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0011161029200.10662@flowers>
+Content-Description: oops report
+Content-Disposition: attachment; filename="oops.report"
 
-diff -urk.orig 2.4.0test11pre4/arch/alpha/config.in.orig 2.4.0test11pre4/arch/alpha/config.in
---- 2.4.0test11pre4/arch/alpha/config.in.orig	Mon Nov 13 01:44:55 2000
-+++ 2.4.0test11pre4/arch/alpha/config.in	Thu Nov 16 09:11:23 2000
-@@ -69,6 +69,7 @@
- define_bool CONFIG_ISA y
- define_bool CONFIG_EISA y
- define_bool CONFIG_SBUS n
-+define_bool CONFIG_MCA n
- 
- if [ "$CONFIG_ALPHA_JENSEN" = "y" ]
- then
-diff -urk.orig 2.4.0test11pre4/arch/arm/config.in.orig 2.4.0test11pre4/arch/arm/config.in
---- 2.4.0test11pre4/arch/arm/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/arm/config.in	Thu Nov 16 09:11:48 2000
-@@ -7,6 +7,7 @@
- define_bool CONFIG_ARM y
- define_bool CONFIG_EISA n
- define_bool CONFIG_SBUS n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_UID16 y
- 
- 
-diff -urk.orig 2.4.0test11pre4/arch/ia64/config.in.orig 2.4.0test11pre4/arch/ia64/config.in
---- 2.4.0test11pre4/arch/ia64/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/ia64/config.in	Thu Nov 16 09:17:26 2000
-@@ -22,6 +22,7 @@
- 
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_SBUS n
- 
- choice 'IA-64 system type'					\
-diff -urk.orig 2.4.0test11pre4/arch/m68k/config.in.orig 2.4.0test11pre4/arch/m68k/config.in
---- 2.4.0test11pre4/arch/m68k/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/m68k/config.in	Thu Nov 16 09:17:10 2000
-@@ -26,6 +26,7 @@
- 
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_PCMCIA n
- 
- bool 'Amiga support' CONFIG_AMIGA
-diff -urk.orig 2.4.0test11pre4/arch/mips/config.in.orig 2.4.0test11pre4/arch/mips/config.in
---- 2.4.0test11pre4/arch/mips/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/mips/config.in	Thu Nov 16 09:16:45 2000
-@@ -39,6 +39,7 @@
- unset CONFIG_VIDEO_G364
- unset CONFIG_PC_KEYB
- 
-+define_bool CONFIG_MCA n
- define_bool CONFIG_SBUS n
- 
- if [ "$CONFIG_ALGOR_P4032" = "y" ]; then
-diff -urk.orig 2.4.0test11pre4/arch/mips64/config.in.orig 2.4.0test11pre4/arch/mips64/config.in
---- 2.4.0test11pre4/arch/mips64/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/mips64/config.in	Thu Nov 16 09:16:33 2000
-@@ -66,6 +66,7 @@
-    define_bool CONFIG_PCI n
- fi
- 
-+define_bool CONFIG_MCA n
- define_bool CONFIG_SBUS n
- 
- mainmenu_option next_comment
-diff -urk.orig 2.4.0test11pre4/arch/ppc/config.in.orig 2.4.0test11pre4/arch/ppc/config.in
---- 2.4.0test11pre4/arch/ppc/config.in.orig	Mon Nov 13 01:44:02 2000
-+++ 2.4.0test11pre4/arch/ppc/config.in	Thu Nov 16 09:15:21 2000
-@@ -101,6 +101,9 @@
- define_bool CONFIG_EISA n
- define_bool CONFIG_SBUS n
- 
-+# Yes MCA RS/6000s exist but Linux-PPC does not currently support any
-+define_bool CONFIG_MCA n
-+
- if [ "$CONFIG_APUS" = "y" -o "$CONFIG_4xx" = "y" -o \
-      "$CONFIG_8260" = "y" ]; then
-    define_bool CONFIG_PCI n
-diff -urk.orig 2.4.0test11pre4/arch/s390/config.in.orig 2.4.0test11pre4/arch/s390/config.in
---- 2.4.0test11pre4/arch/s390/config.in.orig	Mon Nov 13 01:44:03 2000
-+++ 2.4.0test11pre4/arch/s390/config.in	Thu Nov 16 09:13:39 2000
-@@ -5,6 +5,7 @@
- 
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_UID16 y
- 
- mainmenu_name "Linux Kernel Configuration"
-diff -urk.orig 2.4.0test11pre4/arch/sh/config.in.orig 2.4.0test11pre4/arch/sh/config.in
---- 2.4.0test11pre4/arch/sh/config.in.orig	Mon Nov 13 01:44:03 2000
-+++ 2.4.0test11pre4/arch/sh/config.in	Thu Nov 16 09:13:26 2000
-@@ -67,6 +67,7 @@
- 
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_SBUS n
- 
- bool 'Networking support' CONFIG_NET
-diff -urk.orig 2.4.0test11pre4/arch/sparc/config.in.orig 2.4.0test11pre4/arch/sparc/config.in
---- 2.4.0test11pre4/arch/sparc/config.in.orig	Mon Nov 13 01:44:03 2000
-+++ 2.4.0test11pre4/arch/sparc/config.in	Thu Nov 16 09:12:31 2000
-@@ -32,6 +32,7 @@
- # Global things across all Sun machines.
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_PCMCIA n
- define_bool CONFIG_SBUS y
- define_bool CONFIG_SBUSCHAR y
-diff -urk.orig 2.4.0test11pre4/arch/sparc64/config.in.orig 2.4.0test11pre4/arch/sparc64/config.in
---- 2.4.0test11pre4/arch/sparc64/config.in.orig	Mon Nov 13 01:44:03 2000
-+++ 2.4.0test11pre4/arch/sparc64/config.in	Thu Nov 16 09:12:45 2000
-@@ -30,6 +30,7 @@
- define_bool CONFIG_HAVE_DEC_LOCK y
- define_bool CONFIG_ISA n
- define_bool CONFIG_EISA n
-+define_bool CONFIG_MCA n
- define_bool CONFIG_PCMCIA n
- define_bool CONFIG_SBUS y
- define_bool CONFIG_SBUSCHAR y
-diff -urk.orig 2.4.0test11pre4/drivers/net/Config.in.orig 2.4.0test11pre4/drivers/net/Config.in
---- 2.4.0test11pre4/drivers/net/Config.in.orig	Mon Nov 13 01:44:09 2000
-+++ 2.4.0test11pre4/drivers/net/Config.in	Thu Nov 16 09:20:13 2000
-@@ -100,7 +100,7 @@
-    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
-       tristate '  HP 10/100VG PCLAN (ISA, EISA, PCI) support' CONFIG_HP100
-    fi
--   bool '  Other ISA cards' CONFIG_NET_ISA
-+   dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
-    if [ "$CONFIG_NET_ISA" = "y" ]; then
-       tristate '    Cabletron E21xx support' CONFIG_E2100
-       if [ "$CONFIG_OBSOLETE" = "y" ]; then
+a3N5bW9vcHMgMC43YyBvbiBzcGFyYyAyLjIuMTctc2xycC03LiAgT3B0aW9u
+cyB1c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3lt
+cyAoZGVmYXVsdCkNCiAgICAgLWwgL3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkN
+CiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuMi4xNy1zbHJwLTcvIChkZWZhdWx0
+KQ0KICAgICAtbSAvYm9vdC9TeXN0ZW0ubWFwIChzcGVjaWZpZWQpDQoNCldh
+cm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJvbCBfX19m
+X19fX3hjaGczMiAgLCBrc3ltc19iYXNlIHNheXMgZjAwZjIwM2MsIFN5c3Rl
+bS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50
+cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJv
+bCBfX19mX19faXJxX2l0b2EgICwga3N5bXNfYmFzZSBzYXlzIGYwMDEzNTY0
+LCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmluZyBrc3ltc19i
+YXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBv
+biBzeW1ib2wgX19fZl9kaXNhYmxlX2lycSAgLCBrc3ltc19iYXNlIHNheXMg
+ZjAwMTMyZjQsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5n
+IGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1p
+c21hdGNoIG9uIHN5bWJvbCBfX19mX2VuYWJsZV9pcnEgICwga3N5bXNfYmFz
+ZSBzYXlzIGYwMDEzM2I0LCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJ
+Z25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21h
+cHMpOiBtaXNtYXRjaCBvbiBzeW1ib2wgX19fZl9tbXVfZ2V0X3Njc2lfb25l
+ICAsIGtzeW1zX2Jhc2Ugc2F5cyBmMDAyMjEzOCwgU3lzdGVtLm1hcCBzYXlz
+IGYwMTQwNGFjLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2Fybmlu
+ZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9sIF9fX2ZfbW11
+X2dldF9zY3NpX3NnbCAgLCBrc3ltc19iYXNlIHNheXMgZjAwMjIxYjAsIFN5
+c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtzeW1zX2Jhc2Ug
+ZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5
+bWJvbCBfX19mX21tdV9sb2NrYXJlYSAgLCBrc3ltc19iYXNlIHNheXMgZjAw
+MjI0YjgsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtz
+eW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21h
+dGNoIG9uIHN5bWJvbCBfX19mX21tdV9yZWxlYXNlX3Njc2lfb25lICAsIGtz
+eW1zX2Jhc2Ugc2F5cyBmMDAyMjI3OCwgU3lzdGVtLm1hcCBzYXlzIGYwMTQw
+NGFjLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29t
+cGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9sIF9fX2ZfbW11X3JlbGVh
+c2Vfc2NzaV9zZ2wgICwga3N5bXNfYmFzZSBzYXlzIGYwMDIyMjgwLCBTeXN0
+ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmluZyBrc3ltc19iYXNlIGVu
+dHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBvbiBzeW1i
+b2wgX19fZl9tbXVfdW5sb2NrYXJlYSAgLCBrc3ltc19iYXNlIHNheXMgZjAw
+MjI0YzAsIFN5c3RlbS5tYXAgc2F5cyBmMDE0MDRhYy4gIElnbm9yaW5nIGtz
+eW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21h
+dGNoIG9uIHN5bWJvbCBfX19mX21tdV92MnAgICwga3N5bXNfYmFzZSBzYXlz
+IGYwMDIxZDZjLCBTeXN0ZW0ubWFwIHNheXMgZjAxNDA0YWMuICBJZ25vcmlu
+ZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBr
+c3ltc19iYXNlIHN5bWJvbCBtb2R1bGVfbGlzdF9SX192ZXJfbW9kdWxlX2xp
+c3Qgbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJZ25vcmluZyBrc3ltc19i
+YXNlIGVudHJ5DQo4MDQyKGtiZCk6IGlvYmFzZVtmZDAxNTA2MF0gaXJxWzJk
+XQ0KODA0Mihtb3VzZSkgYXQgZmQwMTUwNjAgKGlycSA0NSkNCjgwNDI6IFBT
+LzIgYXV4aWxpYXJ5IHBvaW50aW5nIGRldmljZSBkZXRlY3RlZC4NClVuYWJs
+ZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZTwx
+PnRzay0+bW0tPmNvbnRleHQgPSAwMDAwMDAxYg0KdHNrLT5tbS0+cGdkID0g
+ZjM3MWM0MDANCiAgICAgICAgICAgICAgXHwvIF9fX18gXHwvDQogICAgICAg
+ICAgICAgICJAJy8gLC4gXGBAIg0KICAgICAgICAgICAgICAvX3wgXF9fLyB8
+X1wNCiAgICAgICAgICAgICAgICAgXF9fVV8vDQptb3VudCgzMyk6IE9vcHMN
+ClBTUjogMDQ5MDAwYzQgUEM6IDAwMDAwMDAwIE5QQzogMDAwMDAwMDQgWTog
+MDUwMDAwMDANClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQgZWxm
+MzItc3BhcmMgLWEgc3BhcmMNCmcwOiA3ZjQ1NGM0NiBnMTogMDQ5MDBmZTQg
+ZzI6IDAwMDAwMDAwIGczOiAwMDAwMDAwMCBnNDogZjAxMGU0MDAgZzU6IDAw
+MDAwMDAwIGc2OiBmMzYzYTAwMCBnNzogMDAwMDAwMDQNCm8wOiAwMDAwMDAw
+MyBvMTogMDAwMDAwMDAgbzI6IGYwMTUwNDAwIG8zOiBmMDE1MTAzYyBvNDog
+ZjAxMTU0MDAgbzU6IDAwMDBmMDAwIHNwOiBmMzYzYmM5MCBvNzogZjAwYjJj
+ZGMNCmwwOiBmMDE1MTAwMCBsMTogZjAxMTU3MDggbDI6IGYwMDUyNWI4IGwz
+OiAwMDAwMDAyMCBsNDogMDAwMDAwMDAgbDU6IDAwMDAwMDAwIGw2OiBmMzYz
+YTAwMCBsNzogNTAwMjkzODQNCmkwOiBmMDE1MTAyYyBpMTogZjAxMDAyMTAg
+aTI6IDAwMDAwMDAwIGkzOiBmMDExNTQwMCBpNDogYTc1MDAwMDAgaTU6IDAw
+MDAwMDAwIGZwOiBmMzYzYmNmOCBpNzogZjAwYjJlMDQNCkNhbGxlcltmMDBi
+MmUwNF0NCkNhbGxlcltmMDBiYTFmNF0NCkNhbGxlcltmMDA0NGMyY10NCkNh
+bGxlcltmMDBiYTBjY10NCkNhbGxlcltmMDA0OTZjY10NCkNhbGxlcltmMDAx
+MTM3Y10NCkNhbGxlcltmMDAxMTAzMF0NCg0KPj5QQzsgIDAwMDAwMDAwIEJl
+Zm9yZSBmaXJzdCBzeW1ib2wNCj4+Tzc7ICBmMDBiMmNkYyA8c2V0X2ZkYys5
+NC9jYz4NCj4+STc7ICBmMDBiMmUwNCA8bG9ja19mZGMrZjAvMTFjPg0KVHJh
+Y2U7IGYwMGIyZTA0IDxsb2NrX2ZkYytmMC8xMWM+DQpUcmFjZTsgZjAwYmEx
+ZjQgPGNoZWNrX2Zsb3BweV9jaGFuZ2UrYjAvMTM0Pg0KVHJhY2U7IGYwMDQ0
+YzJjIDxjaGVja19kaXNrX2NoYW5nZSs4Yy8xMjQ+DQpUcmFjZTsgZjAwYmEw
+Y2MgPGZsb3BweV9vcGVuKzQ4MC80Zjg+DQpUcmFjZTsgZjAwNDk2Y2MgPHN5
+c19tb3VudCsxZTAvMzU0Pg0KVHJhY2U7IGYwMDExMzdjIDxzeXNjYWxsX2lz
+X3Rvb19oYXJkKzM0LzQwPg0KVHJhY2U7IGYwMDExMDMwIDxzcm1tdV9mYXVs
+dCs1OC82OD4NCg0KSW5zdHJ1Y3Rpb24gRFVNUDo8MT5VbmFibGUgdG8gaGFu
+ZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3Mg
+ZmZmZmYwMDANCnRzay0+bW0tPmNvbnRleHQgPSAwMDAwMDAxYg0KdHNrLT5t
+bS0+cGdkID0gZjM3MWM0MDANCiAgICAgICAgICAgICAgXHwvIF9fX18gXHwv
+DQogICAgICAgICAgICAgICJAJy8gLC4gXGBAIg0KICAgICAgICAgICAgICAv
+X3wgXF9fLyB8X1wNCiAgICAgICAgICAgICAgICAgXF9fVV8vDQptb3VudCgz
+Myk6IE9vcHMNClBTUjogMDQ4MDAwYzcgUEM6IGYwMDEyNGU0IE5QQzogZjAw
+MTI0ZTggWTogMDAwMDAwMDANCmcwOiBmMzYzYmE1OCBnMTogZjAxMTY0YmMg
+ZzI6IDAwMDAwMDAxIGczOiAwNDAwMGZlNyBnNDogZjAwYzYyMWMgZzU6IDAw
+MDAwMDAwIGc2OiBmMzYzYTAwMCBnNzogMDAwMDAwMDENCm8wOiBmZmZmZmZm
+NCBvMTogMDAwMDAwMjAgbzI6IGZmZmZmZmZmIG8zOiBmMDExNjQwMCBvNDog
+ZjAxMGQ4MDAgbzU6IGYwMTBkODAwIHNwOiBmMzYzYmE1OCBvNzogZjAwMmNh
+ZTgNCmwwOiBmZmZmZmZmZCBsMTogZjAwZjI4YzggbDI6IDA0NDAwMGUwIGwz
+OiAwMDAwMDAwNCBsNDogMDAwMDAwMDggbDU6IDAwMDAwMDAwIGw2OiAwMDAw
+MDAwMCBsNzogMDAwMDAwMGENCmkwOiAwMDAwMDAwMCBpMTogMDAwMDAwMDAg
+aTI6IGYwMTQ2ODQzIGkzOiBmMDE0Njg1NSBpNDogZjAxNDY4NTQgaTU6IDAw
+MDAwMDAwIGZwOiBmMzYzYmFjMCBpNzogZjAwMTI1ZWMNCkNhbGxlcltmMDAx
+MjVlY10NCkNhbGxlcltmMDAxZDA4OF0NCkNhbGxlcltmMDAxZDQxNF0NCkNh
+bGxlcltmMDAxMTAzMF0NCkNhbGxlcltmMDBiMmNkY10NCkNhbGxlcltmMDBi
+MmUwNF0NCkNhbGxlcltmMDBiYTFmNF0NCkNhbGxlcltmMDA0NGMyY10NCkNh
+bGxlcltmMDBiYTBjY10NCkNhbGxlcltmMDA0OTZjY10NCkNhbGxlcltmMDAx
+MTM3Y10NCkNhbGxlcltmMDAxMTAzMF0NCkluc3RydWN0aW9uIERVTVA6IDky
+MTAyMDNjICA5MjEwMjAyMCAgOTEyYzIwMDIgPGQ0MDYwMDA4PiA4MGE0MjAw
+MCAgMDI4MDAwMDMgIDk2MTAyMDNlICA5NjEwMjAyMCAgNDAwMDY4ZjggDQpF
+cnJvciAocGNsb3NlX2xvY2FsKTogT29wc19kZWNvZGUgcGNsb3NlIGZhaWxl
+ZCAweDIwMA0KRXJyb3IgKE9vcHNfZGVjb2RlKTogbm8gb2JqZHVtcCBsaW5l
+cyByZWFkIGZvciAvdG1wL2ZpbGVHbFVmQ0QNCg0KPj5QQzsgIGYwMDEyNGU0
+IDxpbnN0cnVjdGlvbl9kdW1wKzJjLzZjPiAgIDw9PT09PQ0KPj5PNzsgIGYw
+MDJjYWU4IDxwcmludGsrMjEwLzIyMD4NCj4+STc7ICBmMDAxMjVlYyA8ZGll
+X2lmX2tlcm5lbCtjOC9mMD4NClRyYWNlOyBmMDAxMjVlYyA8ZGllX2lmX2tl
+cm5lbCtjOC9mMD4NClRyYWNlOyBmMDAxZDA4OCA8dW5oYW5kbGVkX2ZhdWx0
+KzYwLzY4Pg0KVHJhY2U7IGYwMDFkNDE0IDxkb19zcGFyY19mYXVsdCsyYzQv
+MzcwPg0KVHJhY2U7IGYwMDExMDMwIDxzcm1tdV9mYXVsdCs1OC82OD4NClRy
+YWNlOyBmMDBiMmNkYyA8c2V0X2ZkYys5NC9jYz4NClRyYWNlOyBmMDBiMmUw
+NCA8bG9ja19mZGMrZjAvMTFjPg0KVHJhY2U7IGYwMGJhMWY0IDxjaGVja19m
+bG9wcHlfY2hhbmdlK2IwLzEzND4NClRyYWNlOyBmMDA0NGMyYyA8Y2hlY2tf
+ZGlza19jaGFuZ2UrOGMvMTI0Pg0KVHJhY2U7IGYwMGJhMGNjIDxmbG9wcHlf
+b3Blbis0ODAvNGY4Pg0KVHJhY2U7IGYwMDQ5NmNjIDxzeXNfbW91bnQrMWUw
+LzM1ND4NClRyYWNlOyBmMDAxMTM3YyA8c3lzY2FsbF9pc190b29faGFyZCsz
+NC80MD4NClRyYWNlOyBmMDAxMTAzMCA8c3JtbXVfZmF1bHQrNTgvNjg+DQoN
+Cg0KMTIgd2FybmluZ3MgYW5kIDIgZXJyb3JzIGlzc3VlZC4gIFJlc3VsdHMg
+bWF5IG5vdCBiZSByZWxpYWJsZS4NCg==
+---1463806719-425992160-974388560=:10662--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

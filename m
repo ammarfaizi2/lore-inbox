@@ -1,79 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbTJWW7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 18:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJWW7L
+	id S261842AbTJWXGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJWXGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 18:59:11 -0400
-Received: from thunk.org ([140.239.227.29]:13549 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261862AbTJWW7I (ORCPT
+	Thu, 23 Oct 2003 19:06:00 -0400
+Received: from [212.97.163.22] ([212.97.163.22]:48354 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S261842AbTJWXFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 18:59:08 -0400
-Date: Thu, 23 Oct 2003 18:59:03 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Michael Glasgow <glasgow@beer.net>
+	Thu, 23 Oct 2003 19:05:55 -0400
+Date: Fri, 24 Oct 2003 01:05:42 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Joseph D. Wagner" <theman@josephdwagner.info>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: posix capabilities inheritance
-Message-ID: <20031023225903.GB3719@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Michael Glasgow <glasgow@beer.net>, linux-kernel@vger.kernel.org
-References: <fa.f4bs2b4.fhub0m@ifi.uio.no> <200310232205.h9NM5eOc004400@dark.beer.net>
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
+Message-ID: <20031023230542.GC2084@werewolf.able.es>
+References: <200310221855.15925.theman@josephdwagner.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-In-Reply-To: <200310232205.h9NM5eOc004400@dark.beer.net>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200310221855.15925.theman@josephdwagner.info> (from theman@josephdwagner.info on Wed, Oct 22, 2003 at 14:55:15 +0200)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 23, 2003 at 05:05:40PM -0500, Michael Glasgow wrote:
-> Even with selective capability inheritance enabled in this fashion,
-> it is still possible to avoid using it and modify programs directly,
-> if you think that's more secure.  Personally, I think that in some
-> cases it's slightly more secure to have a very small (statically
-> linked) setuid wrapper program which sets up capabilities properly
-> than to make a very large program setuid-root (when it was not
-> designed to run as root), only to add one capability.
+
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+
+On 10.22, Joseph D. Wagner wrote:
+> Yes, I know you can select Pentium III, Pentium 4, Athlon, etc, under 
+> processor type when doing a 'make xconfig', but those selections do not 
+> translate into the appropriate -mcpu and -march flags.
 > 
-> Yes, you can do the capability-setup first thing in main()... but
-> this is occasionally insufficient.  Also, it makes it a pain to
-> have, for instance, a backup user with CAP_DAC_READ_SEARCH who is
-> able to run several apps, e.g. dump, tar, cpio, rsync, etc.  from
-> a restricted shell.
+> While the kernel on x86 architecture can be optimized in terms of generic 
+> processor specifications (i.e. i386, i486, i586, i686), the kernel can't be 
+> optimized beyond a i686.
 > 
-> The code to drop privs is not hard, but it's also not trivial.
-> Those without a clue are just as likely to screw it up as they are
-> a wrapper; and anyway since when did it become a design goal for
-> the kernel to cater to the ineptitude of the clueless?  That sounds
-> more like a Redmond, Washington philosophy than one fit for Linux. :-)
+> If you select Pentium III, the -march flag is set to i686.
+> If you select Pentium 4, the -march flag is set to i686.
+> If you select Athlon 4, the -march flag is set to i686.
+> If you select Athlon XP, the -march flag is set to i686.
+> 
+> It should be that...
+> 
+> If you select Pentium III, the -march flag is set to pentium3.
+> If you select Pentium 4, the -march flag is set to pentium4.
+> If you select Athlon 4, the -march flag is set to athlon-4.
+> If you select Athlon XP, the -march flag is set to athlon-xp.
+> 
+> I don't want to have to hand edit the makefiles just to optimize my kernel.  
+> I think this change is simple enough to do, and would allow kernel 
+> developers the option of processor-specific optimizations in the future.
+> 
+> TIA.
+> 
+> Joseph D. Wagner
 
-Modifying source code requires programming capabilities, which means
-that the most clueless won't do it at all.  It's something that needs
-to be done by the upstream authors, or perhaps by the distributions,
-at which point the clueless will get it when they upgrade.
+I have sent the attached patches sometimes to the list/Marcelo, and they
+have been rejected to the moment because:
+- gcc can spit some new instructions, reorganize code and other things when
+  you jump from i686 to pentium3, for example.
+- There can be bugs both in gcc and in the kernel that can be triggered by
+  >i686 optimizations/code.
+- This is not safe for a stable kernel, it was done in 2.5, bugs appeared,
+  were corrected, and so on, 'cause this was a development kernel.
 
-It's not matter of catering to the ineptitude of the clueless but
-pursueing a design which doesn't leave an open manhole cover where a
-clueless system administrator can screw up and put their entire system
-at risk.  Consider that even if the distributions ship a package using
-your system, there will be a config file which will be an opportunity
-for a system administrator to screw up.  In general, for any
-particular system program, there is only one acceptable setting in
-terms of what capabilities it will need.  So why make it be something
-which can be screwed up in a config file?  
+BTW, I use this regularly, and have not found any bugs, but I admit it is
+unsafe. I also advocate for a pII split (I use a dual PII ;).
+There are some other specific code that could be used in the kernel,
+for example mb() and so on can be implemented with {m,s,l}fence in p3/p4
+processors, instead of the old 'lock; insn' (attached also).
 
-Fix it once, by a programmer who knows what he/she is doing, and the
-problem is fixed for everyone.  Furthermore, it will be more efficient
-since it avoids an exec and requirement for a program to parse a
-config file.
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre7-jam2 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))
 
-						- Ted
+--VbJkn9YxBvnuCH5J
+Content-Type: application/x-bzip
+Content-Disposition: attachment; filename="22-x86-mb.bz2"
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWUlUb/EAAOVfgEIwXn//+mvv38q//9/gUAN+O1gAAlhqaKaDIaNGJkA0NANN
+A0AGgA0HNMjIZMENGEwRpo0YgaZMjAAEEpqNQ1R6mmnqZMj1MgGg0AADQBkAHNMjIZMENGEw
+Rpo0YgaZMjAAECqJGgTTRNT0k9Tym1GZR6maI0DaRtTNJjRPSaWjgOv3T69FUm/1/RzJYKd7
+1cXsfrPj1M7MnYztsMMuy/GMYYcjHc218VnPNRa4vtmwJGBJ/qw/t0rYPe7EVvTMzsp4Dxxx
+xu2nqeYjxLPN03aNSkEkhVwDGaZHDehOUloZ+MwSt62S/m2Q0ifB8ebjv87KzhEieFyJwmD+
+4wSJU6KC4QhI13gFQbeLUDQ0UgcGaq0tCZtkZE5cSTJISZJISROROgiNhMjMORWEzJyqvNMR
+yoYpIlKkRvxOqZ6q8pLoF76E/i85ecPC8lnTr4jQxeN0fv0NMmbwKrFGoeV6Wx3tlS8k5jad
+b6y04jYSd9YyvJ3lhW+Z0+7B7GK4/k1mizHPULWWr0Fp0YlWzvlC9h+HqhC7ErvzO2BZhwPv
+RgRham87nyVdSJjnjsdT3RCXted4V6D4XxHuSe9zRD29qxqcvNamlJlTQh1uFgoQyLlMWRCm
+v2T2s8GxpFZ+MTSWqd0QwITReQnH5K4slTRkrFGpatmFvhLNHBpGy9MxBUkjkYPKOFepG5JK
+yjJSBzo6UeRGpGpFpHooiz/JeSe4l6X9YUXo7EevOIXrUPRFPmqwzW1YrqVn5UlY98O4dzBK
+UmWB8Gp7S3r4Lm2UfOLrsEm5FSK8MqwR8dD/qMojNtipzrL8dfFnSva2VO/CW6Ya+DDeyXkK
+FyyXW7zdDc4nraNxk3wsXL0YsFhDXfxpjYXplnmSzcCG26iNiOrE5E0YXkp5GtRcUR9N2FKb
+OVZbOdNURjEYZ0VUpEslChCyJuUoWJRt0jNdchyI5qLtFRG+MPLQZUl0vVsz2KiKg9zRDPcS
+Vog0wSe05EpJ5nk8GadyxUEJSt1QAi7YyBQqyBmZcLJNFk4I3zVZVRPGu1s1u/ZeW8aMTMlD
+HalGSY/i7kinChIJKo3+IA==
+
+--VbJkn9YxBvnuCH5J--

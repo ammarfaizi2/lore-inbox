@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbTICEUH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 00:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTICEUH
+	id S261609AbTICEMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 00:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTICEMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 00:20:07 -0400
-Received: from dp.samba.org ([66.70.73.150]:47336 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261277AbTICEUE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 00:20:04 -0400
-Date: Wed, 3 Sep 2003 14:18:51 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+	Wed, 3 Sep 2003 00:12:41 -0400
+Received: from mail.netapps.org ([12.162.17.40]:2976 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261609AbTICEMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 00:12:40 -0400
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Scaling noise
-Message-ID: <20030903041850.GA2978@krispykreme>
 References: <20030903040327.GA10257@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 02 Sep 2003 21:12:36 -0700
 In-Reply-To: <20030903040327.GA10257@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+Message-ID: <52wucqeci3.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 03 Sep 2003 04:12:37.0301 (UTC) FILETIME=[9BD49650:01C371D1]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I've frequently tried to make the point that all the scaling for lots of
-> processors is nonsense.  Mr Dell says it better:
-> 
->     "Eight-way (servers) are less than 1 percent of the market and shrinking
->     pretty dramatically," Dell said. "If our competitors want to claim
->     they're No. 1 in eight-ways, that's fine. We want to lead the market
->     with two-way and four-way (processor machines)."
-> 
-> Tell me again that it is a good idea to screw up uniprocessor performance
-> for 64 way machines.  Great idea, that.  Go Dinosaurs!
-
-And does your 4 way have hyperthreading?
-
-Anton
++--------------+
+|  Don't feed  |
+|  the trolls  |
+|              |
+|  thank you   |
++--------------+
+      | |
+      | |
+      | |
+      | |
+  ....\ /....

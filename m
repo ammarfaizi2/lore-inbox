@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135180AbRD3KuQ>; Mon, 30 Apr 2001 06:50:16 -0400
+	id <S135181AbRD3K65>; Mon, 30 Apr 2001 06:58:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135181AbRD3KuH>; Mon, 30 Apr 2001 06:50:07 -0400
-Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:16364 "EHLO
-	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S135180AbRD3Ktx>; Mon, 30 Apr 2001 06:49:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Olaf Stetzer <ostetzer@mail.uni-mainz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Severe problems when mounting vfat partitions
-Date: Mon, 30 Apr 2001 12:08:01 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <200104281818.UAA02498@kufel.dom>
-In-Reply-To: <200104281818.UAA02498@kufel.dom>
+	id <S135198AbRD3K6s>; Mon, 30 Apr 2001 06:58:48 -0400
+Received: from mercury.ccil.org ([192.190.237.100]:28430 "EHLO
+	mercury.ccil.org") by vger.kernel.org with ESMTP id <S135181AbRD3K6j>;
+	Mon, 30 Apr 2001 06:58:39 -0400
+Subject: Re: [kbuild-devel] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+In-Reply-To: <20010430025335.A5189@thyrsus.com> from "Eric S. Raymond" at "Apr
+ 30, 2001 02:53:36 am"
+To: esr@thyrsus.com
+Date: Mon, 30 Apr 2001 06:57:59 -0400 (EDT)
+CC: David Emory Watson <demoryw@pacbell.net>,
+        Alexander Viro <viro@math.psu.edu>, aia21@cam.ac.uk, stoffel@casc.com,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Message-Id: <01043012080300.00851@Seaborg>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uBNP-0006zm-00@mercury.ccil.org>
+From: John Cowan <cowan@mercury.ccil.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 28. April 2001 20:18 schrieb Andrzej Krzysztofowicz:
-> > Dweezil:~# mount -t msdos /dev/hda5 /mnt
-> > Unable to handle kernel NULL pointer dereference at virtual address
-> > 00000004
->
-> One-bit-from-zero address suggests hardware memory problem.
-> Did you try to change memory chips ?
->
-No, but I solved the problem yesterday at 3:00 in the night! A recompiled
-kernel (this time: 2.2.19) did the trick. However, the previous kernels I
-compiled with different options were not installed correctly. To be 
-precise: I have a small /boot partition where I store the kernels to
-boot, but unfortunately make bzlilo was not aware of that fact and so
-running lilo always installed the old broken 2.2.17! 
+Eric S. Raymond scripsit:
 
-Maybe the error had something to do with other problems mentioned
-about a VIA KT133 bug (data corruption...something) but I am quite
-happy that I can work again!
+> I don't think I've heard anyone invoke the 4-line rule since about
+> 1992, though.  I didn't start generating short random quotes into my sig
+> until about 1996, well after the "standard" was effectively dead.
 
-Bye,
+I have always obeyed it.
 
-Olaf
+-- 
+John Cowan                                   cowan@ccil.org
+One art/there is/no less/no more/All things/to do/with sparks/galore
+	--Douglas Hofstadter

@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263235AbREWT5M>; Wed, 23 May 2001 15:57:12 -0400
+	id <S263241AbREWUCm>; Wed, 23 May 2001 16:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263236AbREWT5C>; Wed, 23 May 2001 15:57:02 -0400
-Received: from imr1.ericy.com ([208.237.135.240]:1687 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id <S263235AbREWT4z>;
-	Wed, 23 May 2001 15:56:55 -0400
-From: "David Gordon (LMC)" <David.Gordon@ericsson.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: "David Gordon (LMC)" <David.Gordon@lmc.ericsson.se>,
-        linux-kernel@vger.kernel.org,
-        "Ibrahim Haddad (LMC)" <Ibrahim.Haddad@lmc.ericsson.se>
-Message-ID: <3B0C15F3.1070408@lmc.ericsson.se>
-Date: Wed, 23 May 2001 15:56:35 -0400
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S263242AbREWUCd>; Wed, 23 May 2001 16:02:33 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26892 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263241AbREWUCZ>; Wed, 23 May 2001 16:02:25 -0400
+Date: Wed, 23 May 2001 13:01:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: DVD blockdevice buffers
+In-Reply-To: <20010523205748.L8080@redhat.com>
+Message-ID: <Pine.LNX.4.31.0105231258420.6642-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Subject: Re: IPv6 implementation in kernel 2.4.4 oopses
-In-Reply-To: <3B0C0D0B.2010101@lmc.ericsson.se> <20010523214654.A779@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >>EIP; c0237bc4 <ipv6_addr_type+4/e0> <=====
 
-What exactly was the problem that was fixed in the latest pre kernel ?
 
-David
+On Wed, 23 May 2001, Stephen C. Tweedie wrote:
+> > that the filesystems already do. And you can do it a lot _better_ than the
+> > current buffer-cache-based approach. Done right, you can actually do all
+> > IO in page-sized chunks, BUT fall down on sector-sized things for the
+> > cases where you want to.
+>
+> Right, but you still lose the caching in that case.  The write works,
+> but the "cache" becomes nothing more than a buffer.
+
+No. It is still cached. You find the buffer with "page->buffer", and when
+all of them are up-to-date (whether from read-in or from having written
+to them all), you just mark the whole page up-to-date.
+
+This _works_. Try it on ext2 or NFS today.
+
+Now, it may be that the preliminary patches from Andrea do not work this
+way. I didn't look at them too closely, and I assume that Andrea basically
+made the block-size be the same as the page size. That's how I would have
+done it (and then waited for people to find real life cases where we want
+to allow sector writes).
+
+So in short: the page cache supports _today_ all the optimizations. In
+fact, you can, on NFS, do 4096 one-byte writes, and they will be (a)
+coalesced into one write over the wire, and (b) will be cached in the page
+and the page marked up-to-date.
+
+		Linus
 

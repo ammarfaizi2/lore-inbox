@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270467AbRHWVSR>; Thu, 23 Aug 2001 17:18:17 -0400
+	id <S270466AbRHWVVr>; Thu, 23 Aug 2001 17:21:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270460AbRHWVSB>; Thu, 23 Aug 2001 17:18:01 -0400
-Received: from mx6.port.ru ([194.67.57.16]:24592 "EHLO mx6.port.ru")
-	by vger.kernel.org with ESMTP id <S270467AbRHWVRr>;
-	Thu, 23 Aug 2001 17:17:47 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.173]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15a1rW-000MM9-00@f10.mail.ru>
-Date: Fri, 24 Aug 2001 01:18:02 +0400
+	id <S270469AbRHWVVh>; Thu, 23 Aug 2001 17:21:37 -0400
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:23317 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S270466AbRHWVVV>; Thu, 23 Aug 2001 17:21:21 -0400
+Message-ID: <3B8573D0.1000904@humboldt.co.uk>
+Date: Thu, 23 Aug 2001 22:21:20 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Filling holes in ext2
+In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk> <3B83FB3F.A0BDC056@zip.com.au> <3B853BE6.3010703@humboldt.co.uk> <3B854186.F0C00E3C@zip.com.au> <3B8556B6.7040700@humboldt.co.uk> <3B855C62.85BC16E7@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And if you're trying to do this on the machine you're trying to make
-> supported, you're going to have lots of fun.
-  so you like python. okay.
+Andrew Morton wrote:
+> Ah.  Now I'm with you.  Yes, we need a better cleanup facility
+> to handle this.
+> 
+> We can sort-of fudge it with commit_write():
+[snip]
+> Which is OK for mid-file blocks, but will cause i_size to be extended
+> at eof, which probably isn't too bad.  Needs more thought.
 
-  but imagine the X arch hacker does not like python,
-and nevertheless needs to port it on arch X.
-  still fun? 
-  hardly... 
+That certainly stops it happening. Does anybody think that extending 
+i_size in this particular corner case is harmful?
 
+As Alan said, the bug is the file system committing metadata too early, 
+and I suspect that ext2 is not the only culprit.
 
-:)
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 
-----
-
-
-cheers,
-
-
-   Samium Gromoff

@@ -1,81 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267974AbUHXPRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268001AbUHXPWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267974AbUHXPRf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 11:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267987AbUHXPRf
+	id S268001AbUHXPWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 11:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267993AbUHXPWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 11:17:35 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:41131 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S267974AbUHXPRW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 11:17:22 -0400
-Date: Tue, 24 Aug 2004 17:17:21 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Wakko Warner <wakko@animx.eu.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Incompatibility List
-Message-ID: <20040824151721.GQ18334@lug-owl.de>
-Mail-Followup-To: Tonnerre <tonnerre@thundrix.ch>,
-	Wakko Warner <wakko@animx.eu.org>, Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <1093120274.854.145.camel@krustophenia.net> <20040821205157.GA9300@animx.eu.org> <20040821210606.GA18334@lug-owl.de> <20040822143009.GD19768@thundrix.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WTbgq2twYBxfsYA6"
+	Tue, 24 Aug 2004 11:22:48 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:12265 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S267987AbUHXPWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 11:22:09 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [util-linux] readprofile ignores the last element in /proc/profile
+Date: Wed, 25 Aug 2004 00:22:09 +0900
+User-Agent: KMail/1.5.4
+Cc: Andries Brouwer <aeb@cwi.nl>, Alessandro Rubini <rubini@ipvvis.unipv.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040822143009.GD19768@thundrix.ch>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Message-Id: <200408250022.09878.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---WTbgq2twYBxfsYA6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The readprofile command does not print the number of clock ticks about
+the last element in profiling buffer.
 
-On Sun, 2004-08-22 16:30:09 +0200, Tonnerre <tonnerre@thundrix.ch>
-wrote in message <20040822143009.GD19768@thundrix.ch>:
-> On Sat, Aug 21, 2004 at 11:06:06PM +0200, Jan-Benedict Glaw wrote:
-> > Right, binary-only drivers and/or GPLed/OSS drivers should be counted
-> > separately. Think about AVM's ISDN cards (very popular over here in
-> > Germany, but the newer products require a CAPI-only binary-only
-> > driver:-(
->=20
-> Actually I  bought a  Fritz!Card PCI some  days ago in  the Mediamarkt
-> Basel and  both the mISDN  driver and the  old i4l driver  are working
-> perfectly well. So what?
+Since the number of clock ticks which occur on the module functions is
+as same as the value of the last element of prof_buffer[]. when many
+ticks occur on there, some users who browsing the output of readprofile
+may overlook the fact that the bottle-neck may exist in the modules.
 
-So you bought one of the old version. The new cards are "Version 2.0"
-IIRC.
+I create the patch which enable to print clock ticks of the last
+element as "*unknown*".
 
-MfG, JBG
+# readprofile
+ 77843 poll_idle                                1526.3333
+     1 cpu_idle                                   0.0043
+ [...]
+     4 schedule_timeout                           0.0209
+     2 *unknown*
+108494 total                                      0.0385
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+If the clock ticks of '*unknown*' is large, it is highly recommended
+to use OProfile, or to retry readprofile after compiling suspicious
+modules into the kernel.
 
---WTbgq2twYBxfsYA6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Mr.Brouwer, Could you apply this patch against util-linux-2.12a?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBK1wBHb1edYOZ4bsRAos5AKCMKcidcmDeGKYYaP/jwGog4rQI4QCeM03y
-vfoiqQOmqMTTRATJ8mxNkcI=
-=lpUZ
------END PGP SIGNATURE-----
+--- util-linux-2.12a/sys-utils/readprofile.c.orig	2004-08-24 23:11:16.383760112 +0900
++++ util-linux-2.12a/sys-utils/readprofile.c	2004-08-24 23:15:03.780190600 +0900
+@@ -145,6 +145,7 @@ main(int argc, char **argv) {
+ 	int maplineno=1;
+ 	int popenMap;   /* flag to tell if popen() has been used */
+ 	int header_printed;
++	int end_of_text=0;
+ 
+ #define next (current^1)
+ 
+@@ -314,7 +315,7 @@ main(int argc, char **argv) {
+ 	/*
+ 	 * Main loop.
+ 	 */
+-	while (fgets(mapline,S_LEN,map)) {
++	while (!end_of_text && fgets(mapline,S_LEN,map)) {
+ 		unsigned int this=0;
+ 
+ 		if (sscanf(mapline,"%llx %s %s",&next_add,mode,next_name)!=3) {
+@@ -327,9 +328,8 @@ main(int argc, char **argv) {
+ 		/* ignore any LEADING (before a '[tT]' symbol is found)
+ 		   Absolute symbols */
+ 		if ((*mode == 'A' || *mode == '?') && total == 0) continue;
+-		if (*mode != 'T' && *mode != 't' &&
+-		    *mode != 'W' && *mode != 'w')
+-			break;	/* only text is profiled */
++		if (!strcmp(next_name, "_etext"))
++			end_of_text = 1;
+ 
+ 		if (indx >= len / sizeof(*buf)) {
+ 			fprintf(stderr, _("%s: profile address out of range. "
+@@ -367,6 +367,9 @@ main(int argc, char **argv) {
+ 
+ 		maplineno++;
+ 	}
++	/* clock ticks, out of kernel text */
++	printf("%6i %s\n", buf[len/sizeof(*buf)-1], "*unknown*");
++
+ 	/* trailer */
+ 	if (optVerbose)
+ 		printf("%016x %-40s %6i %8.4f\n",
 
---WTbgq2twYBxfsYA6--
+

@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287439AbSBDTvw>; Mon, 4 Feb 2002 14:51:52 -0500
+	id <S287488AbSBDTyc>; Mon, 4 Feb 2002 14:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287488AbSBDTvm>; Mon, 4 Feb 2002 14:51:42 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:65514 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S287439AbSBDTv1>;
-	Mon, 4 Feb 2002 14:51:27 -0500
-Date: Mon, 4 Feb 2002 20:51:19 +0100
-From: Jose Luis Domingo Lopez <jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Cc: Fabrice Eudes <fabrice.eudes@free.fr>
-Subject: Re: Can't boot 2.4.17 or 2.5.1 kernel
-Message-ID: <20020204195119.GB2386@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Fabrice Eudes <fabrice.eudes@free.fr>
-In-Reply-To: <20020204113949.A1695@corwin.ambre.fr>
+	id <S287545AbSBDTyW>; Mon, 4 Feb 2002 14:54:22 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:39648 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S287488AbSBDTyT>;
+	Mon, 4 Feb 2002 14:54:19 -0500
+Date: Mon, 4 Feb 2002 11:54:17 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Patches to review (IrDA + Wireless)
+Message-ID: <20020204115417.A6654@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020204113949.A1695@corwin.ambre.fr>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 04 February 2002, at 11:39:49 +0100,
-Fabrice Eudes wrote:
+	Hi,
 
-> Hello,
-> [...]
-> Uncompressing Linux... Ok, booting the kernel.
-> [end grub output]
-> and the machine is stucked there...
-> It seems to me that grub loads the kernel ok but when grub gives it the
-> hand, the problem occurs...
->
-I have been suffering similar problems for some time, with a box quite
-older than yours, and with different kernels which wouldn't boot.
+	I've uplaoded my latest IrDA patches on my web page. Review
+welcome :
+http://www.hpl.hp.com/personal/Jean_Tourrilhes/IrDA/IrDA.html#links
 
-For example, old Debian Potato 2.2.17 always booted fine, but 2.2.18
-sometimes failed at the same place as in your machine. 2.2.19 was a real
-pain to make it boot, as well as some 2.4.x kernels. Sometimes the
-machine hangs, sometimes it reboots. From some specific 2.4.x kernel
-version (exact version number is lost somewhere in my mind, but maybe
-2.4.13+, maybe earlier) any kernel booted fine.
+	And by the way, last chance to comment about second phase of
+Wireless Extensions :
+http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/iw_handlers.w14-4.diff
+http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#newapi
 
-One day I tried again to boot those "problematic" kernels from the same
-PC, now upgraded to Woody, and the problems appeared in the same places.
-One thing that I noticed is that Alan's 2.4.x-acY kernels had no
-problems booting where plain 2.4.x kernels failed.
+	Have fun...
 
-Hope thos helps.
-
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+	Jean

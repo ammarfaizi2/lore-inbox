@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbULYVXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbULYVa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbULYVXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 16:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULYVXS
+	id S261571AbULYVa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 16:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbULYVaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 16:23:18 -0500
-Received: from gprs212-19.eurotel.cz ([160.218.212.19]:27266 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261570AbULYVWt (ORCPT
+	Sat, 25 Dec 2004 16:30:25 -0500
+Received: from gprs212-19.eurotel.cz ([160.218.212.19]:28546 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261571AbULYVaM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 16:22:49 -0500
-Date: Sat, 25 Dec 2004 22:22:35 +0100
+	Sat, 25 Dec 2004 16:30:12 -0500
+Date: Sat, 25 Dec 2004 22:29:57 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: docs: add sparse howto
-Message-ID: <20041225212235.GA20147@elf.ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: swsusp: try_to_freeze to make freezing hooks nicer
+Message-ID: <20041225212957.GA20169@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,88 +26,87 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Installing / using sparse is not exactly trivial, this should make
-setting it up easier. Please apply, 
+This moves refrigerator changes to sched.h, so that every file
+user of refrigerator does not have to include suspend.h, and makes
+refrigerator support easier by introducing try_to_freeze. Please
+apply,
+
 								Pavel
 
-Adapted From: Linus Torvalds <torvalds@osdl.org>
+Adapted from patch by Nigel Cunningham
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 
---- clean/Documentation/sparse.txt	2004-10-16 23:48:08.000000000 +0200
-+++ linux/Documentation/sparse.txt	2004-10-24 22:44:47.000000000 +0200
-@@ -0,0 +1,72 @@
-+Copyright 2004 Linus Torvalds
-+Copyright 2004 Pavel Machek <pavel@suse.cz>
+--- linux-cvs/include/linux/sched.h	2004-12-03 16:47:45.000000000 +0100
++++ linux/include/linux/sched.h	2004-12-25 15:51:46.000000000 +0100
+@@ -1124,6 +1124,34 @@
+ 
+ #endif
+ 
++/* try_to_freeze
++ *
++ * Checks whether we need to enter the refrigerator
++ * and returns 1 if we did so.
++ */
++#ifdef CONFIG_PM
++extern void refrigerator(unsigned long);
++extern int freeze_processes(void);
++extern void thaw_processes(void);
 +
-+Using sparse for typechecking
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++static inline int try_to_freeze(unsigned long refrigerator_flags)
++{
++	if (unlikely(current->flags & PF_FREEZE)) {
++		refrigerator(refrigerator_flags);
++		return 1;
++	} else
++		return 0;
++}
++#else
++static inline void refrigerator(unsigned long flag) {}
++static inline int freeze_processes(void) { BUG(); }
++static inline void thaw_processes(void) {}
 +
-+"__bitwise" is a type attribute, so you have to do something like this:
++static inline int try_to_freeze(unsigned long refrigerator_flags)
++{
++	return 0;
++}
++#endif /* CONFIG_PM */
+ #endif /* __KERNEL__ */
+ 
+ #endif
+--- linux-cvs/include/linux/suspend.h	2004-12-10 22:35:58.000000000 +0100
++++ linux/include/linux/suspend.h	2004-12-01 13:52:10.000000000 +0100
+@@ -36,26 +36,16 @@
+ /* kernel/power/swsusp.c */
+ extern int software_suspend(void);
+ 
+-#else	/* CONFIG_SOFTWARE_SUSPEND */
++extern int pm_prepare_console(void);
++extern void pm_restore_console(void);
 +
-+        typedef int __bitwise pm_request_t;
-+
-+        enum pm_request {
-+                PM_SUSPEND = (__force pm_request_t) 1,
-+                PM_RESUME = (__force pm_request_t) 2
-+        };
-+
-+which makes PM_SUSPEND and PM_RESUME "bitwise" integers (the "__force" is
-+there because sparse will complain about casting to/from a bitwise type,
-+but in this case we really _do_ want to force the conversion). And because
-+the enum values are all the same type, now "enum pm_request" will be that
-+type too.
-+
-+And with gcc, all the __bitwise/__force stuff goes away, and it all ends
-+up looking just like integers to gcc.
-+
-+Quite frankly, you don't need the enum there. The above all really just
-+boils down to one special "int __bitwise" type.
-+
-+So the simpler way is to just do
-+
-+        typedef int __bitwise pm_request_t;
-+
-+        #define PM_SUSPEND ((__force pm_request_t) 1)
-+        #define PM_RESUME ((__force pm_request_t) 2)
-+
-+and you now have all the infrastructure needed for strict typechecking.
-+
-+One small note: the constant integer "0" is special. You can use a
-+constant zero as a bitwise integer type without sparse ever complaining.
-+This is because "bitwise" (as the name implies) was designed for making
-+sure that bitwise types don't get mixed up (little-endian vs big-endian
-+vs cpu-endian vs whatever), and there the constant "0" really _is_
-+special.
-+
-+Modify top-level Makefile to say
-+
-+CHECK           = sparse -Wbitwise
-+
-+or you don't get any checking at all.
-+
-+
-+Where to get sparse
-+~~~~~~~~~~~~~~~~~~~
-+
-+With BK, you can just get it from
-+
-+        bk://sparse.bkbits.net/sparse
-+
-+and DaveJ has tar-balls at
-+
-+	http://www.codemonkey.org.uk/projects/bitkeeper/sparse/
-+
-+
-+Once you have it, just do
-+
-+        make
-+        make install
-+
-+as your regular user, and it will install sparse in your ~/bin directory.
-+After that, doing a kernel make with "make C=1" will run sparse on all the
-+C files that get recompiled, or with "make C=2" will run sparse on the
-+files whether they need to be recompiled or not (ie the latter is fast way
-+to check the whole tree if you have already built it).
++#else
+ static inline int software_suspend(void)
+ {
+ 	printk("Warning: fake suspend called\n");
+ 	return -EPERM;
+ }
+-#endif	/* CONFIG_SOFTWARE_SUSPEND */
+-
+-
+-#ifdef CONFIG_PM
+-extern void refrigerator(unsigned long);
+-extern int freeze_processes(void);
+-extern void thaw_processes(void);
+-
+-extern int pm_prepare_console(void);
+-extern void pm_restore_console(void);
+-
+-#else
+-static inline void refrigerator(unsigned long flag) {}
+-#endif	/* CONFIG_PM */
++#endif
+ 
+ #ifdef CONFIG_SMP
+ extern void disable_nonboot_cpus(void);
 
 -- 
 People were complaining that M$ turns users into beta-testers...

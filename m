@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290290AbSAOVru>; Tue, 15 Jan 2002 16:47:50 -0500
+	id <S289689AbSAOWCe>; Tue, 15 Jan 2002 17:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290295AbSAOVra>; Tue, 15 Jan 2002 16:47:30 -0500
-Received: from mail.spylog.com ([194.67.35.220]:25837 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S290293AbSAOVrZ>;
-	Tue, 15 Jan 2002 16:47:25 -0500
-Date: Wed, 16 Jan 2002 00:49:10 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: http://www.spylog.ru
-X-Priority: 3 (Normal)
-Message-ID: <12051384657.20020116004910@spylog.ru>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re[2]: 3.5G user space speed
-In-Reply-To: <3C44A224.120712C1@didntduck.org>
-In-Reply-To: <16247691406.20020115234737@spylog.ru>
- <3C4499A3.781E5A85@didntduck.org> <15850171252.20020116002857@spylog.ru>
- <3C44A224.120712C1@didntduck.org>
-MIME-Version: 1.0
+	id <S289692AbSAOWCY>; Tue, 15 Jan 2002 17:02:24 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:12294 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289689AbSAOWCP>; Tue, 15 Jan 2002 17:02:15 -0500
+Date: Tue, 15 Jan 2002 22:02:08 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: New CRC32 fails to build (with JFFS2 builtin)
+Message-ID: <20020115220208.A7897@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Brian,
+It appears that crc32.o is not built when JFFS2 is built into the kernel.
+The following patch fixes this problem.
 
-Wednesday, January 16, 2002, 12:41:56 AM, you wrote:
->>
->> Well. May be you can tell about the numbers a bit ? I can chose 3.0G
->> for user instead of 3.5G for user with not really huge loss, but I'd
->> like to know how much it will increase speed and in which cases, also
->> about standard 2/2 mode.
+Please apply.
 
-BG> I don't have quantifiable numbers available, but the speed issue will be
-BG> a result of the kernel running out of direct-mapped memory and having to
-BG> start swapping even though there is free memory in the system (in the
-BG> highmem zone).  The best thing you can do is try both and find what
-BG> works best for you.
-
-So how this should appear ? Like real swapping or like increased
-system CPU usage because of moving pages to/from zone.
-
+--- orig/fs/Makefile.lib	Tue Jan 15 14:16:23 2002
++++ linux/fs/Makefile.lib	Tue Jan 15 21:56:40 2002
+@@ -1,2 +1,2 @@
+-obj-$(CONFIG_FS_JFFS2)		+= crc32.o
++obj-$(CONFIG_JFFS2_FS)		+= crc32.o
+ obj-$(CONFIG_EFI_PARTITION)	+= crc32.o
 
 -- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

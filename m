@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbULWBmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbULWBna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbULWBmH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 20:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbULWBmG
+	id S262087AbULWBna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 20:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbULWBmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 20:42:06 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56515 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262033AbULWBku (ORCPT
+	Wed, 22 Dec 2004 20:42:46 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56771 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262039AbULWBku (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 22 Dec 2004 20:40:50 -0500
 From: Mike Werner <werner@sgi.com>
 Reply-To: werner@sgi.com
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        dri-devel@lists.sourceforge.net
-Subject: [resend patch 2.6.10-rc3 3/3] agpgart: allow multiple backends to be initialized
-Date: Wed, 22 Dec 2004 17:42:44 -0800
+Subject: [resend patch 2.6.10-rc3 2/3] agpgart: allow multiple backends to be initialized
+Date: Wed, 22 Dec 2004 17:42:37 -0800
 User-Agent: KMail/1.6.2
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412221742.44312.werner@sgi.com>
+Message-Id: <200412221742.37842.werner@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,170 +34,189 @@ Signed-off-by: Mike Werner <werner@sgi.com>
 
 # This is a BitKeeper generated diff -Nru style patch.
 #
-# Add fb support for new multiple agp bridge agpgart api
+# Add drm support for new multiple agp bridge agpgart api
 #
-diff -Nru a/drivers/video/aty/radeon_pm.c b/drivers/video/aty/radeon_pm.c
---- a/drivers/video/aty/radeon_pm.c	2004-12-17 12:53:56 -08:00
-+++ b/drivers/video/aty/radeon_pm.c	2004-12-17 12:53:56 -08:00
-@@ -870,7 +870,8 @@
- 	 * not for a module.
- 	 */
- #ifdef CONFIG_AGP
--	agp_enable(0);
-+	/* The bridge can be determined from agp_backend_acquire */
-+	agp_enable(agp_bridge, 0);
- #endif
+diff -Nru a/drivers/char/drm/drmP.h b/drivers/char/drm/drmP.h
+--- a/drivers/char/drm/drmP.h	2004-12-17 12:12:56 -08:00
++++ b/drivers/char/drm/drmP.h	2004-12-17 12:12:56 -08:00
+@@ -481,6 +481,7 @@
+ 	DRM_AGP_KERN       agp_info;	/**< AGP device information */
+ 	drm_agp_mem_t      *memory;	/**< memory entries */
+ 	unsigned long      mode;	/**< AGP mode */
++	struct agp_bridge_data  *bridge;
+ 	int                enabled;	/**< whether the AGP bus as been enabled */
+ 	int                acquired;	/**< whether the AGP device has been acquired */
+ 	unsigned long      base;
+@@ -778,7 +779,7 @@
+ 					   drm_device_t *dev);
+ extern void	     DRM(ioremapfree)(void *pt, unsigned long size, drm_device_t *dev);
  
- 	fb_set_suspend(info, 1);
-diff -Nru a/drivers/video/i810/i810_main.c b/drivers/video/i810/i810_main.c
---- a/drivers/video/i810/i810_main.c	2004-12-17 12:53:56 -08:00
-+++ b/drivers/video/i810/i810_main.c	2004-12-17 12:53:56 -08:00
-@@ -1591,40 +1591,41 @@
+-extern DRM_AGP_MEM   *DRM(alloc_agp)(int pages, u32 type);
++extern DRM_AGP_MEM   *DRM(alloc_agp)(struct agp_bridge_data *bridge, int pages, u32 type);
+ extern int           DRM(free_agp)(DRM_AGP_MEM *handle, int pages);
+ extern int           DRM(bind_agp)(DRM_AGP_MEM *handle, unsigned int start);
+ extern int           DRM(unbind_agp)(DRM_AGP_MEM *handle);
+@@ -896,11 +897,11 @@
+ extern void          DRM(vbl_send_signals)( drm_device_t *dev );
+ 
+ 				/* AGP/GART support (drm_agpsupport.h) */
+-extern drm_agp_head_t *DRM(agp_init)(void);
++extern drm_agp_head_t *DRM(agp_init)(drm_device_t *dev);
+ extern void           DRM(agp_uninit)(void);
+ extern int            DRM(agp_acquire)(struct inode *inode, struct file *filp,
+ 				       unsigned int cmd, unsigned long arg);
+-extern void           DRM(agp_do_release)(void);
++extern void           DRM(agp_do_release)(drm_device_t *dev);
+ extern int            DRM(agp_release)(struct inode *inode, struct file *filp,
+ 				       unsigned int cmd, unsigned long arg);
+ extern int            DRM(agp_enable)(struct inode *inode, struct file *filp,
+@@ -915,7 +916,7 @@
+ 				      unsigned int cmd, unsigned long arg);
+ extern int            DRM(agp_bind)(struct inode *inode, struct file *filp,
+ 				    unsigned int cmd, unsigned long arg);
+-extern DRM_AGP_MEM    *DRM(agp_allocate_memory)(size_t pages, u32 type);
++extern DRM_AGP_MEM    *DRM(agp_allocate_memory)(struct agp_bridge_data *bridge, size_t pages, u32 type);
+ extern int            DRM(agp_free_memory)(DRM_AGP_MEM *handle);
+ extern int            DRM(agp_bind_memory)(DRM_AGP_MEM *handle, off_t start);
+ extern int            DRM(agp_unbind_memory)(DRM_AGP_MEM *handle);
+diff -Nru a/drivers/char/drm/drm_agpsupport.h b/drivers/char/drm/drm_agpsupport.h
+--- a/drivers/char/drm/drm_agpsupport.h	2004-12-17 12:12:56 -08:00
++++ b/drivers/char/drm/drm_agpsupport.h	2004-12-17 12:12:56 -08:00
+@@ -100,7 +100,7 @@
  {
- 	struct i810fb_par *par = (struct i810fb_par *) info->par;
- 	int size;
-+	struct agp_bridge_data *bridge;
- 	
- 	i810_fix_offsets(par);
- 	size = par->fb.size + par->iring.size;
+ 	drm_file_t	 *priv	 = filp->private_data;
+ 	drm_device_t	 *dev	 = priv->dev;
+-	int              retcode;
++	
  
--	if (agp_backend_acquire()) {
-+	if (!(bridge = agp_backend_acquire(par->dev))) {
- 		printk("i810fb_alloc_fbmem: cannot acquire agpgart\n");
+ 	if (!dev->agp)
  		return -ENODEV;
- 	}
- 	if (!(par->i810_gtt.i810_fb_memory = 
--	      agp_allocate_memory(size >> 12, AGP_NORMAL_MEMORY))) {
-+	      agp_allocate_memory(bridge, size >> 12, AGP_NORMAL_MEMORY))) {
- 		printk("i810fb_alloc_fbmem: can't allocate framebuffer "
- 		       "memory\n");
--		agp_backend_release();
-+		agp_backend_release(bridge);
- 		return -ENOMEM;
- 	}
- 	if (agp_bind_memory(par->i810_gtt.i810_fb_memory,
- 			    par->fb.offset)) {
- 		printk("i810fb_alloc_fbmem: can't bind framebuffer memory\n");
--		agp_backend_release();
-+		agp_backend_release(bridge);
+@@ -108,8 +108,8 @@
  		return -EBUSY;
- 	}	
- 	
- 	if (!(par->i810_gtt.i810_cursor_memory = 
--	      agp_allocate_memory(par->cursor_heap.size >> 12,
-+	      agp_allocate_memory(bridge, par->cursor_heap.size >> 12,
- 				  AGP_PHYSICAL_MEMORY))) {
- 		printk("i810fb_alloc_cursormem:  can't allocate" 
- 		       "cursor memory\n");
--		agp_backend_release();
-+		agp_backend_release(bridge);
- 		return -ENOMEM;
- 	}
- 	if (agp_bind_memory(par->i810_gtt.i810_cursor_memory,
- 			    par->cursor_heap.offset)) {
- 		printk("i810fb_alloc_cursormem: cannot bind cursor memory\n");
--		agp_backend_release();
-+		agp_backend_release(bridge);
- 		return -EBUSY;
- 	}	
- 
-@@ -1632,7 +1633,7 @@
- 
- 	i810_fix_pointers(par);
- 
--	agp_backend_release();
-+	agp_backend_release(bridge);
- 
+ 	if (!drm_agp->acquire)
+ 		return -EINVAL;
+-	if ((retcode = drm_agp->acquire()))
+-		return retcode;
++	if (!(dev->agp->bridge = drm_agp->acquire(dev->pdev)))
++		return -ENODEV;
+ 	dev->agp->acquired = 1;
  	return 0;
  }
-diff -Nru a/drivers/video/intelfb/intelfbdrv.c b/drivers/video/intelfb/intelfbdrv.c
---- a/drivers/video/intelfb/intelfbdrv.c	2004-12-17 12:53:56 -08:00
-+++ b/drivers/video/intelfb/intelfbdrv.c	2004-12-17 12:53:56 -08:00
-@@ -470,6 +470,7 @@
- 	struct agp_kern_info gtt_info;
- 	int agp_memtype;
- 	const char *s;
-+	struct agp_bridge_data *bridge;
+@@ -133,7 +133,7 @@
  
- 	DBG_MSG("intelfb_pci_register\n");
+ 	if (!dev->agp || !dev->agp->acquired || !drm_agp->release)
+ 		return -EINVAL;
+-	drm_agp->release();
++	drm_agp->release(dev->agp->bridge);
+ 	dev->agp->acquired = 0;
+ 	return 0;
  
-@@ -605,16 +606,16 @@
+@@ -144,10 +144,10 @@
+  *
+  * Calls drm_agp->release().
+  */
+-void DRM(agp_do_release)(void)
++void DRM(agp_do_release)(drm_device_t *dev)
+ {
+ 	if (drm_agp->release)
+-		drm_agp->release();
++		drm_agp->release(dev->agp->bridge);
+ }
+ 
+ /**
+@@ -176,7 +176,7 @@
+ 		return -EFAULT;
+ 
+ 	dev->agp->mode    = mode.mode;
+-	drm_agp->enable(mode.mode);
++	drm_agp->enable(dev->agp->bridge, mode.mode);
+ 	dev->agp->base    = dev->agp->agp_info.aper_base;
+ 	dev->agp->enabled = 1;
+ 	return 0;
+@@ -218,7 +218,7 @@
+ 	pages = (request.size + PAGE_SIZE - 1) / PAGE_SIZE;
+ 	type = (u32) request.type;
+ 
+-	if (!(memory = DRM(alloc_agp)(pages, type))) {
++	if (!(memory = DRM(alloc_agp)(dev->agp->bridge, pages, type))) {
+ 		DRM(free)(entry, sizeof(*entry), DRM_MEM_AGPLISTS);
+ 		return -ENOMEM;
  	}
+@@ -395,16 +395,24 @@
+  * via the inter_module_* functions. Creates and initializes a drm_agp_head
+  * structure.
+  */
+-drm_agp_head_t *DRM(agp_init)(void)
++drm_agp_head_t *DRM(agp_init)(drm_device_t *dev)
+ {
+ 	drm_agp_head_t *head         = NULL;
  
- 	/* Use agpgart to manage the GATT */
--	if (agp_backend_acquire()) {
-+	if (!(bridge = agp_backend_acquire(pdev))) {
- 		ERR_MSG("cannot acquire agp\n");
- 		cleanup(dinfo);
- 		return -ENODEV;
- 	}
+ 	drm_agp = DRM_AGP_GET;
+-	if (drm_agp) {
++	if (!drm_agp)
++		DRM_ERROR("DRM_AGP_GET returned NULL\n");
++	else
++		{
+ 		if (!(head = DRM(alloc)(sizeof(*head), DRM_MEM_AGPLISTS)))
+ 			return NULL;
+ 		memset((void *)head, 0, sizeof(*head));
+-		drm_agp->copy_info(&head->agp_info);
++		if (!(head->bridge = drm_agp->acquire(dev->pdev))) {
++			DRM(free)(head, sizeof(*head), DRM_MEM_AGPLISTS);
++			return NULL;
++		}	
++		drm_agp->copy_info(head->bridge, &head->agp_info);
++		drm_agp->release(head->bridge);
+ 		if (head->agp_info.chipset == NOT_SUPPORTED) {
+ 			DRM(free)(head, sizeof(*head), DRM_MEM_AGPLISTS);
+ 			return NULL;
+@@ -433,11 +441,11 @@
+ }
  
- 	/* get the current gatt info */
--	if (agp_copy_info(&gtt_info)) {
-+	if (agp_copy_info(bridge, &gtt_info)) {
- 		ERR_MSG("cannot get agp info\n");
--		agp_backend_release();
-+		agp_backend_release(bridge);
- 		cleanup(dinfo);
- 		return -ENODEV;
- 	}
-@@ -637,17 +638,17 @@
- 	/* Allocate memories (which aren't stolen) */
- 	if (dinfo->accel) {
- 		if (!(dinfo->gtt_ring_mem =
--		      agp_allocate_memory(dinfo->ring.size >> 12,
-+		      agp_allocate_memory(bridge, dinfo->ring.size >> 12,
- 					  AGP_NORMAL_MEMORY))) {
- 			ERR_MSG("cannot allocate ring buffer memory\n");
--			agp_backend_release();
-+			agp_backend_release(bridge);
- 			cleanup(dinfo);
- 			return -ENOMEM;
- 		}
- 		if (agp_bind_memory(dinfo->gtt_ring_mem,
- 				    dinfo->ring.offset)) {
- 			ERR_MSG("cannot bind ring buffer memory\n");
--			agp_backend_release();
-+			agp_backend_release(bridge);
- 			cleanup(dinfo);
- 			return -EBUSY;
- 		}
-@@ -661,17 +662,17 @@
- 		agp_memtype = dinfo->mobile ? AGP_PHYSICAL_MEMORY
- 			: AGP_NORMAL_MEMORY;
- 		if (!(dinfo->gtt_cursor_mem =
--		      agp_allocate_memory(dinfo->cursor.size >> 12,
-+		      agp_allocate_memory(bridge, dinfo->cursor.size >> 12,
- 					  agp_memtype))) {
- 			ERR_MSG("cannot allocate cursor memory\n");
--			agp_backend_release();
-+			agp_backend_release(bridge);
- 			cleanup(dinfo);
- 			return -ENOMEM;
- 		}
- 		if (agp_bind_memory(dinfo->gtt_cursor_mem,
- 				    dinfo->cursor.offset)) {
- 			ERR_MSG("cannot bind cursor memory\n");
--			agp_backend_release();
-+			agp_backend_release(bridge);
- 			cleanup(dinfo);
- 			return -EBUSY;
- 		}
-@@ -686,7 +687,7 @@
- 	}
- 	if (dinfo->fbmem_gart) {
- 		if (!(dinfo->gtt_fb_mem =
--		      agp_allocate_memory(dinfo->fb.size >> 12,
-+		      agp_allocate_memory(bridge, dinfo->fb.size >> 12,
- 					  AGP_NORMAL_MEMORY))) {
- 			WRN_MSG("cannot allocate framebuffer memory - use "
- 				"the stolen one\n");
-@@ -709,7 +710,7 @@
- 	dinfo->fb_start = dinfo->fb.offset << 12;
+ /** Calls drm_agp->allocate_memory() */
+-DRM_AGP_MEM *DRM(agp_allocate_memory)(size_t pages, u32 type)
++DRM_AGP_MEM *DRM(agp_allocate_memory)(struct agp_bridge_data *bridge, size_t pages, u32 type)
+ {
+ 	if (!drm_agp->allocate_memory)
+ 		return NULL;
+-	return drm_agp->allocate_memory(pages, type);
++	return drm_agp->allocate_memory(bridge, pages, type);
+ }
  
- 	/* release agpgart */
--	agp_backend_release();
-+	agp_backend_release(bridge);
+ /** Calls drm_agp->free_memory() */
+diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
+--- a/drivers/char/drm/drm_drv.h	2004-12-17 12:12:56 -08:00
++++ b/drivers/char/drm/drm_drv.h	2004-12-17 12:12:56 -08:00
+@@ -318,7 +318,7 @@
+ 		}
+ 		dev->agp->memory = NULL;
  
- 	if (mtrr)
- 		set_mtrr(dinfo);
+-		if ( dev->agp->acquired ) DRM(agp_do_release)();
++		if ( dev->agp->acquired ) DRM(agp_do_release)( dev);
+ 
+ 		dev->agp->acquired = 0;
+ 		dev->agp->enabled  = 0;
+@@ -490,7 +490,7 @@
+ 
+ 	if (drm_core_has_AGP(dev))
+ 	{
+-		dev->agp = DRM(agp_init)();
++		dev->agp = DRM(agp_init)(dev);
+ 		if (drm_core_check_feature(dev, DRIVER_REQUIRE_AGP) && (dev->agp == NULL)) {
+ 			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
+ 			DRM(stub_unregister)(dev->minor);
+diff -Nru a/drivers/char/drm/drm_memory.h b/drivers/char/drm/drm_memory.h
+--- a/drivers/char/drm/drm_memory.h	2004-12-17 12:12:56 -08:00
++++ b/drivers/char/drm/drm_memory.h	2004-12-17 12:12:56 -08:00
+@@ -343,9 +343,9 @@
+ 
+ #if __OS_HAS_AGP
+ /** Wrapper around agp_allocate_memory() */
+-DRM_AGP_MEM *DRM(alloc_agp)(int pages, u32 type)
++DRM_AGP_MEM *DRM(alloc_agp)(struct agp_bridge_data *bridge, int pages, u32 type)
+ {
+-	return DRM(agp_allocate_memory)(pages, type);
++	return DRM(agp_allocate_memory)(bridge, pages, type);
+ }
+ 
+ /** Wrapper around agp_free_memory() */

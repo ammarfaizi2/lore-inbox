@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUGDVqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265802AbUGDV5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265798AbUGDVqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 17:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUGDVqz
+	id S265802AbUGDV5G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 17:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUGDV5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 17:46:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50684 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265798AbUGDVqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 17:46:53 -0400
-Date: Sun, 4 Jul 2004 23:46:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Cc: Adam Belay <ambx1@neo.rr.com>, perex@suse.cz
-Subject: [2.6 patch] remove allowdma0 documentation (fwd)
-Message-ID: <20040704214645.GY28324@fs.tum.de>
+	Sun, 4 Jul 2004 17:57:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58537 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265802AbUGDV5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 17:57:03 -0400
+Date: Sun, 4 Jul 2004 14:55:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
+       olaf+list.linux-kernel@olafdietsche.de
+Subject: Re: procfs permissions on 2.6.x
+Message-Id: <20040704145542.4d1723f5.akpm@osdl.org>
+In-Reply-To: <20040704213527.GV12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040703202242.GA31656@MAIL.13thfloor.at>
+	<20040703202541.GA11398@infradead.org>
+	<20040703133556.44b70d60.akpm@osdl.org>
+	<20040703210407.GA11773@infradead.org>
+	<20040703143558.5f2c06d6.akpm@osdl.org>
+	<20040704213527.GV12308@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The trivial patch forwarded below (already ACK'ed by Adam Belay) still 
-applies against 2.6.7-mm5.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+>
+> On Sat, Jul 03, 2004 at 02:35:58PM -0700, Andrew Morton wrote:
+> > > Because it turns the question what permissions a procfs file has into
+> > > a lottery game.  He only changes the incore inode owner and as soon as
+> > > the inode is reclaimed the old ones return.
+> > 
+> > procfs inodes aren't reclaimable.
+> 
+> WTF do you mean "not reclaimable"?
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Got confused.
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+>  They do get freed under memory pressure
+> and recreated on later lookups.
 
-Date:	Mon, 22 Sep 2003 14:34:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove allowdma0 documentation
+Some do.  On my test box 1000-odd /proc inodes get allocated and fully
+freed on each `ls -R /proc'.  65 /proc inodes are freed during `ls -lR
+/proc/net'.  So maybe it isn't working completely.
 
-allowdma0 is gone in 2.6, the patch below removes the mentionings of 
-this option in the documentation.
-
-cu
-Adrian
-
---- linux-2.6.0-test5-mm4-no-smp-2.95/Documentation/kernel-parameters.txt.old	2003-09-22 14:31:50.000000000 +0200
-+++ linux-2.6.0-test5-mm4-no-smp-2.95/Documentation/kernel-parameters.txt	2003-09-22 14:32:06.000000000 +0200
-@@ -123,8 +123,6 @@
- 	aic79xx=	[HW,SCSI]
- 			See Documentation/scsi/aic79xx.txt.
- 
--	allowdma0	[ISAPNP]
--
- 	AM53C974=	[HW,SCSI]
- 			Format: <host-scsi-id>,<target-scsi-id>,<max-rate>,<max-offset>
- 			See also header of drivers/scsi/AM53C974.c.
---- linux-2.6.0-test5-mm4-no-smp-2.95/Documentation/pnp.txt.old	2003-09-22 14:32:39.000000000 +0200
-+++ linux-2.6.0-test5-mm4-no-smp-2.95/Documentation/pnp.txt	2003-09-22 14:32:51.000000000 +0200
-@@ -83,7 +83,6 @@
- dma 2
- 
- also there are a series of kernel parameters:
--allowdma0
- pnp_reserve_irq=irq1[,irq2] ....
- pnp_reserve_dma=dma1[,dma2] ....
- pnp_reserve_io=io1,size1[,io2,size2] ....
-
------ End forwarded message -----
+But proc_notify_change() copies the inode's uid, gid and mode into the
+proc_dir_entry, so they get correctly initialised when the inode is
+reinstantiated, so afaict we have no bug here.

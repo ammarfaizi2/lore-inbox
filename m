@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262785AbSJGUq7>; Mon, 7 Oct 2002 16:46:59 -0400
+	id <S262700AbSJGT7u>; Mon, 7 Oct 2002 15:59:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263190AbSJGUq6>; Mon, 7 Oct 2002 16:46:58 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29196 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262785AbSJGUqs>; Mon, 7 Oct 2002 16:46:48 -0400
-Date: Mon, 7 Oct 2002 13:51:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-cc: <linux-kernel@vger.kernel.org>, <maxk@qualcomm.com>
-Subject: Re: [PATCH] Make it possible to compile in the Bluetooth subsystem
-In-Reply-To: <Pine.LNX.4.33.0210071347470.10749-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0210071350420.10749-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262693AbSJGT7m>; Mon, 7 Oct 2002 15:59:42 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34204 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262699AbSJGT6u>;
+	Mon, 7 Oct 2002 15:58:50 -0400
+Date: Mon, 07 Oct 2002 12:57:40 -0700 (PDT)
+Message-Id: <20021007.125740.65911392.davem@redhat.com>
+To: zaitcev@redhat.com
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Linux v2.5.41
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200210072001.g97K1p726546@devserv.devel.redhat.com>
+References: <mailman.1034018941.1657.linux-kernel2news@redhat.com>
+	<200210072001.g97K1p726546@devserv.devel.redhat.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Pete Zaitcev <zaitcev@redhat.com>
+   Date: Mon, 7 Oct 2002 16:01:51 -0400
 
-On Mon, 7 Oct 2002, Linus Torvalds wrote:
-> 
-> Looks good, but you should _not_ remove the "static". Please keep the init
-> functions static, they will be explicitly exported to the stuff that cares
-> (and nobody else) by the "module_init()" thing anyway.
+   > David S. Miller <davem@redhat.com>:
+   >   o USB: usbkbd fix
+   
+   Dave, why do you even bother with usbkbd? It MUST DIE and get
+   removed. Please, do me a favour: kill CONFIG_USB_KBD from your
+   configuration and let me and Vojtech know if something
+   actually fails. The hid must support all devices which were
+   supported bye usbkbd.
 
-In other words, I think the patch should be just this instead..
+Peter, first relax. :-)
 
-		Linus
+Second, I was merely fixing a build error reported by a user.
 
-diff -Nru a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
---- a/net/bluetooth/af_bluetooth.c	Mon Oct  7 22:16:14 2002
-+++ b/net/bluetooth/af_bluetooth.c	Mon Oct  7 22:16:14 2002
-@@ -356,11 +356,9 @@
- 	remove_proc_entry("bluetooth", NULL);
- }
- 
--#ifdef MODULE
- module_init(bluez_init);
- module_exit(bluez_cleanup);
- 
- MODULE_AUTHOR("Maxim Krasnyansky <maxk@qualcomm.com>");
- MODULE_DESCRIPTION("BlueZ Core ver " VERSION);
- MODULE_LICENSE("GPL");
--#endif
-diff -Nru a/net/bluetooth/rfcomm/tty.c b/net/bluetooth/rfcomm/tty.c
---- a/net/bluetooth/rfcomm/tty.c	Mon Oct  7 22:16:14 2002
-+++ b/net/bluetooth/rfcomm/tty.c	Mon Oct  7 22:16:14 2002
-@@ -501,12 +501,6 @@
- #endif
- }
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
--#define __minor MINOR
--#else
--#define __minor minor
--#endif
--
- static int rfcomm_tty_open(struct tty_struct *tty, struct file *filp)
- {
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -514,7 +508,7 @@
- 	struct rfcomm_dlc *dlc;
- 	int err, id;
- 
--        id = __minor(tty->device) - tty->driver.minor_start;
-+        id = minor(tty->device) - tty->driver.minor_start;
- 
- 	BT_DBG("tty %p id %d", tty, id);
- 
-
-
+I personally use USB HID, but as long as USBKBD sits in the tree, it
+should at least build.

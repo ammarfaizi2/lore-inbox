@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTI2TZO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264555AbTI2TZN
+	id S264570AbTI2T3D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 15:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264574AbTI2T3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:25:13 -0400
-Received: from gprs144-48.eurotel.cz ([160.218.144.48]:31619 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264553AbTI2TZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:25:09 -0400
-Date: Mon, 29 Sep 2003 21:24:58 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: pm: Revert swsusp to 2.6.0-test3
-Message-ID: <20030929192458.GA1825@elf.ucw.cz>
-References: <20030928175853.GF359@elf.ucw.cz> <Pine.LNX.4.44.0309290902150.968-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309290902150.968-100000@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Sep 2003 15:29:03 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24337 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264570AbTI2T25
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 15:28:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux 2.6.0-test6
+Date: 29 Sep 2003 19:19:30 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bla0k2$3bc$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org>
+X-Trace: gatekeeper.tmr.com 1064863170 3436 192.168.12.62 (29 Sep 2003 19:19:30 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org>,
+Linus Torvalds  <torvalds@osdl.org> wrote:
 
-> > > Ok. In that case, can we remove the '#if 0' blocks entirely, or at least 
-> > > add a big comment on why they are there but disabled?
-> > 
-> > Like this?
-> 
-> Pavel, I don't even know where to begin, but I will suggest that you check 
-> your sources better. I did apply the patch to revert swsusp to the state 
-> it was in -test3. According to bitkeeper, it's ChangeSet 1.1217.3.31, 
-> which can be viewed here: 
+| Interesting. I'm pretty sure I did a "make allyesconfig" just before the
+| test6 release, so apparently x86 includes it indirectly through some path, 
+| and so it only shows up on m68k and arm?
+| 
+| This, btw, is a pretty common thing. I wonder what we could do to make 
+| sure that different architectures wouldn't have so different include file 
+| structures. It's happened _way_ too often.
+| 
+| Any ideas?
 
-I'm sorry, I did update on bkcvs and could not find patch. Probably I
-screwed up when dealing with bkcvs.
+If CPU cycles are no object the include names and order can be picked
+out of the preprocessor output, add "-E" to the gcc call, pick only the
+lines starting with "1" and a header name, save in a text file. The
+problem is that config option (including arch) change the output, so
+it's only useful as a rough check.
 
-								Pavel
+It does run fast enough so that allyes, allno, and allmod configs take a
+very short time, so it can be used for "find some of the problems."
+
+Don't know if this is what you wanted, it does allow the comparison
+between arch's. Oh, it also shows that some headers are used a lot more
+than they need be, a few more ifdef's in the low level header files
+could reduce filesystem thrashing during a build. Some folks have
+machines which don't keep everything in memory :-(
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

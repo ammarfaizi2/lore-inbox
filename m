@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVAPCPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVAPCTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVAPCPt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:15:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVAPCMe
+	id S262390AbVAPCTh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVAPCEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:12:34 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:7299 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262400AbVAPCEb (ORCPT
+	Sat, 15 Jan 2005 21:04:25 -0500
+Received: from news.cistron.nl ([62.216.30.38]:46788 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262387AbVAPCCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:04:31 -0500
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: matthias@corelatus.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050115013013.1b3af366.akpm@osdl.org>
-References: <16872.55357.771948.196757@antilipe.corelatus.se>
-	 <20050115013013.1b3af366.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105830384.16028.11.camel@localhost.localdomain>
+	Sat, 15 Jan 2005 21:02:22 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+Date: Sun, 16 Jan 2005 02:02:19 +0000 (UTC)
+Organization: Cistron
+Message-ID: <cschvb$p6d$1@news.cistron.nl>
+References: <20050115234204.20123.qmail@science.horizon.com> <1105829719.16028.3.camel@localhost.localdomain> <Pine.LNX.4.58.0501151611540.8178@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 16 Jan 2005 00:58:30 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1105840939 25805 194.109.0.112 (16 Jan 2005 02:02:19 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@cistron.nl (mikevs)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-15 at 09:30, Andrew Morton wrote:
-> Matthias Lang <matthias@corelatus.se> wrote:
-> These are things we probably cannot change now.  All three are arguably
-> sensible behaviour and do satisfy the principle of least surprise.  So
-> there may be apps out there which will break if we "fix" these things.
-> 
-> If the kernel version was 2.7.0 then well maybe...
+In article <Pine.LNX.4.58.0501151611540.8178@ppc970.osdl.org>,
+Linus Torvalds  <torvalds@osdl.org> wrote:
+>
+>On Sat, 15 Jan 2005, Alan Cox wrote:
+>>
+>> Alan Cox (the other Alan Cox not me)
+>
+>Oh no! You guys are multiplying! 
 
-These are things we should fix. They are bugs. Since there is no 2.7
-plan pick a date to fix it. We should certainly error the overflow case
-*now* because the behaviour is undefined/broken. The other cases I'm not
-clear about. setitimer() is a library interface and it can do the basic
-checking and error if it wants to be strictly posixly compliant.
+http://www.imdb.com/name/nm0184893/
 
+Mike.
 

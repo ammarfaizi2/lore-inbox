@@ -1,129 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVCIRUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVCIRV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVCIRUL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCIRUC
+	id S262088AbVCIRV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCIRV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:20:02 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:29131 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262111AbVCIRSW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:18:22 -0500
-Message-ID: <422F2FDD.4050908@us.ltcfwd.linux.ibm.com>
-Date: Wed, 09 Mar 2005 12:18:21 -0500
-From: Wen Xiong <wendyx@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
-References: <42225A47.3060206@us.ltcfwd.linux.ibm.com> <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com>
-In-Reply-To: <20050309163518.GC25079@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------020701010509070405030302"
+	Wed, 9 Mar 2005 12:21:56 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:37345 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262088AbVCIRVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:21:36 -0500
+Message-Id: <200503091721.j29HLNg24054@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
+Date: Wed, 9 Mar 2005 09:21:22 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUkcSgaDBjncYCsRmWAZtN826Ko7QABKRbA
+In-Reply-To: <20050308222737.3712611b.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020701010509070405030302
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote on Tuesday, March 08, 2005 10:28 PM
+> But before doing anything else, please bench this on real hardware,
+> see if it is worth pursuing.
 
-Greg KH wrote:
+Let me answer the questions in reverse order.  We started with running
+industry standard transaction processing database benchmark on 2.6 kernel,
+on real hardware (4P smp, 64 GB memory, 450 disks) running industry
+standard db application.  What we measured is that with best tuning done
+to the system, 2.6 kernel has a huge performance regression relative to
+its predecessor 2.4 kernel (a kernel from RHEL3, 2.4.21 based).
 
->On Wed, Mar 09, 2005 at 10:47:22AM -0500, Wen Xiong wrote:
->  
->
->>+static ssize_t jsm_driver_debug_show(struct device_driver *ddp, char *buf)
->>+{
->>+	return snprintf(buf, PAGE_SIZE, "0x%x\n", jsm_debug);
->>+}
->>+static DRIVER_ATTR(debug, S_IRUSR, jsm_driver_debug_show, NULL);
->>    
->>
->
->Should just be a module paramater, right?  So you can drop this too...
->
->This file is getting quite small now :)
->
->thanks,
->
->greg k-h
->
->  
->
-If I removed two module paramaters, only two files left: version and state.
- Removed all of them?
+Ever since we had that measurement, people kick my butt everyday and
+asking "after you telling us how great 2.6 kernel is, why is my workload
+running significantly slower on this shinny 2.6 kernel?".  It hurts,
+It hurts like a sledge hammer nailed right in the middle of my head.
 
-Thanks,
-wendy
+This is all real: real benchmark running on real hardware, with real
+result showing large performance regression.  Nothing synthetic here.
+
+And yes, it is all worth pursuing, the two patches on raw device recuperate
+1/3 of the total benchmark performance regression.
+
+The reason I posted the pseudo disk driver is for people to see the effect
+easier without shelling out a couple of million dollar to buy all that
+equipment.
 
 
---------------020701010509070405030302
-Content-Type: text/plain;
- name="patch4.jasmine"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch4.jasmine"
+> Once you bolt this onto a real device driver the proportional difference
+> will fall, due to addition of the constant factor.
+>
+> Once you bolt all this onto a real disk controller all the numbers will get
+> worse (but in a strictly proportional manner) due to the disk transfers
+> depriving the CPU of memory bandwidth.
+>
 
-diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_sysfs.c linux-2.6.11.new/drivers/serial/jsm/jsm_sysfs.c
---- linux-2.6.11.org/drivers/serial/jsm/jsm_sysfs.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.11.new/drivers/serial/jsm/jsm_sysfs.c	2005-03-09 11:17:37.055947624 -0600
-@@ -0,0 +1,53 @@
-+/************************************************************************
-+ * Copyright 2003 Digi International (www.digi.com)
-+ *
-+ * Copyright (C) 2004 IBM Corporation. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED; without even the 
-+ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-+ * PURPOSE.  See the GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License 
-+ * along with this program; if not, write to the Free Software 
-+ * Foundation, Inc., 59 * Temple Place - Suite 330, Boston,
-+ * MA  02111-1307, USA.
-+ *
-+ * Contact Information:
-+ * Scott H Kilau <Scott_Kilau@digi.com>
-+ * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-+ *
-+ ***********************************************************************/
-+#include <linux/device.h>
-+#include <linux/serial_reg.h>
-+
-+#include "jsm_driver.h"
-+
-+static ssize_t jsm_driver_version_show(struct device_driver *ddp, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%s\n", JSM_VERSION);
-+}
-+static DRIVER_ATTR(version, S_IRUSR, jsm_driver_version_show, NULL);
-+
-+static ssize_t jsm_driver_state_show(struct device_driver *ddp, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%s\n", jsm_driver_state_text[jsm_driver_state]);
-+}
-+static DRIVER_ATTR(state, S_IRUSR, jsm_driver_state_show, NULL);
-+
-+void jsm_create_driver_sysfiles(struct device_driver *driverfs)
-+{
-+	driver_create_file(driverfs, &driver_attr_version);
-+	driver_create_file(driverfs, &driver_attr_state);
-+}
-+
-+void jsm_remove_driver_sysfiles(struct device_driver  *driverfs)
-+{
-+	driver_remove_file(driverfs, &driver_attr_version);
-+	driver_remove_file(driverfs, &driver_attr_state);
-+}
+That's not how I would interpret the number.  Kernel utilization went up for
+2.6 kernel running the same db workload.  One reason is I/O stack is taxing a
+little bit on each I/O call (or I should say less efficient), even with minuscule
+amount, given the shear amount of I/O rate, it will be amplified very quickly.
+One cpu cycle spend in the kernel means one less cpu cycle for the application.
+My mean point is with less efficient I/O stack, kernel is actually taking away
+valuable compute resources from application to crunch SQL transaction.  And that
+leads to lower performance.
 
---------------020701010509070405030302--
+One can extrapolate it the other way: make kernel more efficient in processing
+these I/O requests, kernel utilization goes down, cycle saved will transfer to
+application to crunch more SQL transaction, and performance goes up.  I hope
+everyone is following me here.
+
+
+> At 5 usecs per request I figure that's 3% CPU utilisation for 16k requests
+> at 100 MB/sec.
+
+Our smallest setup has 450 disks, and the workload will generate about 50,000
+I/O per second.  Larger setup will have more I/O rate.
+
+
+> What sort of CPU?
+>
+> What speed CPU?
+>
+> What size requests?
+>
+> Reads or writes?
+>
+
+1.6 GHz Itanium2, 9M L3
+I/O requests are mixture of 2KB and 16KB, occasionally some large size in burst.
+Both read/write, about 50/50 split on rw.
+
+- Ken
+
 

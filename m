@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbTFASmX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 14:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFASmX
+	id S264707AbTFASxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 14:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264708AbTFASxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 14:42:23 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:63370 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264039AbTFASmW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 14:42:22 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Jun 2003 11:53:17 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Gutko <gutko@poczta.onet.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What is wrong  with modules in 2.5.69-70 ?
-In-Reply-To: <000501c3286e$62d1b510$17010101@hal>
-Message-ID: <Pine.LNX.4.55.0306011151440.25548@bigblue.dev.mcafeelabs.com>
-References: <000501c3286e$62d1b510$17010101@hal>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Jun 2003 14:53:06 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:57835 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S264707AbTFASxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 14:53:05 -0400
+Message-Id: <200306011858.h51IwlsG022457@ginger.cmf.nrl.navy.mil>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] assorted he driver cleanup 
+In-reply-to: Your message of "Thu, 29 May 2003 14:36:37 -0300."
+             <20030529173637.GZ24054@conectiva.com.br> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Sun, 01 Jun 2003 14:57:02 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, Gutko wrote:
+In message <20030529173637.GZ24054@conectiva.com.br>,Arnaldo Carvalho de Melo writes:
+>Sure thing, but hey, spin_lock_irqsave and friends take care of how to behave
+>when in up or smp, i.e. its how all the other drivers use spinlocks 8)
 
-> What is wrong  with modules in 2.5.69-70 generally. Every option I compile
-> as module does not work because modprobe says on boot "couldn't load module
-> xxxxx". If I compile it in (*) then works ok. In 2.4.x modules works ok for
-> me.
-> I've updated all "boot" programs to versions mentioned in
-> /Documentation/Changes
-> Mandrake 9.1
-
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.12.tar.gz
-
-
-
-- Davide
-
+but on a single processor machine (i.e. #undef CONFIG_SMP) there is no
+chance that there will be reads/writes from other processors so i dont
+need any locking OR protection from interrupts.  so the degenerate case
+of spin_lock_irqsave() isnt quite as dengerate as i would like for this
+particular spin lock.

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290891AbSBFXGb>; Wed, 6 Feb 2002 18:06:31 -0500
+	id <S290930AbSBFXZs>; Wed, 6 Feb 2002 18:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290866AbSBFXGL>; Wed, 6 Feb 2002 18:06:11 -0500
-Received: from bitmover.com ([192.132.92.2]:40137 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290853AbSBFXGC>;
-	Wed, 6 Feb 2002 18:06:02 -0500
-Date: Wed, 6 Feb 2002 15:06:02 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206150602.W7674@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com> <20020206193818.GA158@elf.ucw.cz>
+	id <S290931AbSBFXZi>; Wed, 6 Feb 2002 18:25:38 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:3938 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S290930AbSBFXZ0>; Wed, 6 Feb 2002 18:25:26 -0500
+Date: Thu, 7 Feb 2002 00:30:51 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Warning, 2.5.3 eats filesystems
+Message-ID: <20020206233051.GA503@chiara.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020205192826.GA112@elf.ucw.cz> <878za7wmg0.fsf@inanna.rimspace.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020206193818.GA158@elf.ucw.cz>; from pavel@suse.cz on Wed, Feb 06, 2002 at 08:38:18PM +0100
+In-Reply-To: <878za7wmg0.fsf@inanna.rimspace.net>
+User-Agent: Mutt/1.5.0-hc8-current-20020125i (Linux 2.4.18-pre8-rps i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 08:38:18PM +0100, Pavel Machek wrote:
-> Hey, this looks very good! At this level of verbosity, it might be
-> nice to also list modified files, but this is really good.
+On Wed Feb 06 2002, Daniel Pittman wrote:
 
-He generated that listing with "bk changes", you want "bk changes -v", which
-I included below, but doesn't have any more useful info (yet) because the
-comments are all auto generated from the email.  
+> > 2.5.3 managed to damage my ext2 filesystem (few lost directories);
+> > beware.
 
-We will stick up a web page someplace that says "send Linus comments
-like this if you want individual file comments to be different", and is
-totally BK agnostic, i.e., you can send them with a regular diff -Nur
-style patch and the import tools will do the right thing.  Then the
-verbose listing will start to be useful.
+> I can confirm that there are filesystem corruption issues with 2.5.3;
+> after this message I rebooted and did a forced fsck which turned up
+> around a half dozen inodes where the block count in the inode itself was
+> too high.
 
---lm
+Exactly the same thing here, and I bet it _is_ 2.5.3 and not a relict from
+a 2.5.3-pre patch because I switched directly from 2.4.17 to 2.5.3
+without ever using any pre patch at this machine.
 
-ChangeSet
-  1.237 02/02/06 10:57:18 reiser@namesys.com +1 -0
-  [PATCH] reiserfs fix for inodes with wrong item versions (2.5)
-  
-     This is hopefully last bugfix for a bug introduced by struct inode splittin
-g.
-     Because of setting i_flags to some value and then cleaning the i_flags
-     contents later, on-disk items received wrong item version ob v3.6 filesyste
-ms
-
-  fs/reiserfs/inode.c
-    1.34 02/02/06 10:57:17 reiser@namesys.com +7 -7
-    reiserfs fix for inodes with wrong item versions (2.5)
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+# Heinz Diehl, 68259 Mannheim, Germany

@@ -1,79 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbUC3RKA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbUC3RJ7
+	id S263763AbUC3RIv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbUC3RIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:09:59 -0500
-Received: from bad-attitude.baracus.preventsys.com ([207.158.60.2]:42958 "HELO
-	face.preventsys.com") by vger.kernel.org with SMTP id S263765AbUC3RJo convert rfc822-to-8bit
+	Tue, 30 Mar 2004 12:08:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:52099 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263763AbUC3RHQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:09:44 -0500
-content-class: urn:content-classes:message
+	Tue, 30 Mar 2004 12:07:16 -0500
+Date: Tue, 30 Mar 2004 12:09:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sched_yield() version 2.4.24
+In-Reply-To: <4069A729.3030507@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.53.0403301204510.7155@chaos>
+References: <Pine.LNX.4.53.0403301138260.6967@chaos> <4069A729.3030507@nortelnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: NULL pointer in proc_pid_stat -- oops.
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Tue, 30 Mar 2004 09:09:41 -0800
-Message-ID: <8758F8D58219684FAB0239EE8967048A4A7D6A@calculon.preventsys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: NULL pointer in proc_pid_stat -- oops.
-Thread-Index: AcQU5iPbvhwgjuNcQUGjPXfVfl9IwgBk2ayg
-From: "Andrew Reiter" <areiter@preventsys.com>
-To: "OGAWA Hirofumi" <hirofumi@mail.parknet.co.jp>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, I was getting confused since proc_pid_status() is directly above
-proc_pid_stat() in fs/proc/array.c, so I misinterpreted some of the
-asm<-->C translation and was stating we were dying in task_name().
-Sorry for the confusion.  Will apply Ricky's patch for now as a work
-around as it seems fine to me for the moment.
+On Tue, 30 Mar 2004, Chris Friesen wrote:
 
-Thanks for the help... 
+> Richard B. Johnson wrote:
+> > Anybody know why a task that does:
+> >
+> > 		for(;;)
+> > 		   sched_yield();
+> >
+> > Shows 100% CPU utiliization when there are other tasks that
+> > are actually getting the CPU?
+>
+> What do the other tasks show for cpu in top?
+>
+
+Well in excess of 100% on a single-CPU system.
+
+ 12:02pm  up 1 day, 53 min,  4 users,  load average: 2.54, 1.25, 0.90
+34 processes: 31 sleeping, 3 running, 0 zombie, 0 stopped
+CPU states: 65.8% user, 134.6% system,  0.0% nice,  0.0% idle
+Mem:  322352K av, 101772K used, 220580K free,      0K shrd,   9836K buff
+Swap: 1044208K av, 1044208K used,      0K free                 20240K cached
+
+ PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
+ 7144 root      19   0  5564 5564  1444 R       0 82.5  1.7   2:27 client
+ 7143 root      15   0   980  976   428 S       0 59.9  0.3   1:57 server
+ 7142 root      18   0  1464 1464  1444 R       0 56.0  0.4   1:39 client
+ 7163 root      11   0   568  564   432 R       0  1.9  0.1   0:00 top
+[SNIPPED...sleeping tasks]
+
+Here, one of the 'client' tasks is yielding its CPU time when it
+is waiting on a semaphore from the first one.
+
+> Maybe it's an artifact of the timer-based process sampling for cpu
+> utilization, and it just happens to be running when the timer interrupt
+> fires, so it keeps getting billed?
+>
+> Chris
+>
+
+I think somebody forgot to put something into the 'current' structure
+when sys_sched_yield() gets called.
 
 Cheers,
-Andrew
-
------Original Message-----
-From: OGAWA Hirofumi [mailto:hirofumi@mail.parknet.co.jp] 
-Sent: Sunday, March 28, 2004 9:00 AM
-To: Andrew Reiter
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NULL pointer in proc_pid_stat -- oops.
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-"Andrew Reiter" <areiter@preventsys.com> writes:
-
-> 0x000004d4 <proc_pid_stat+124>: test   %ecx,%ecx
-> 0x000004d6 <proc_pid_stat+126>: je     0x510 <proc_pid_stat+184>
-> 0x000004d8 <proc_pid_stat+128>: mov    0x98(%ecx),%eax
-> 0x000004de <proc_pid_stat+134>: mov    %eax,0x20(%esp,1)
-> 0x000004e2 <proc_pid_stat+138>: mov    0x4(%ecx),%edx
-> 0x000004e5 <proc_pid_stat+141>: movswl 0x64(%edx),%eax
-> 0x000004e9 <proc_pid_stat+145>: movswl 0x66(%edx),%edx
-> 0x000004ed <proc_pid_stat+149>: shl    $0x14,%eax
-> 0x000004f0 <proc_pid_stat+152>: or     %edx,%eax
-> 0x000004f2 <proc_pid_stat+154>: add    0x8(%ecx),%eax
-> 
-> And from the oops trace output (that is attached), we can see that
-%edx
-> is 0x0; so we can easily see here why we're crashing at least.  After
-> examining the C source, I see that we're dying in the call to
-> task_name() (inline) from proc_pid_stat().
-
-Looks like this problem is same with BSD acct Oops.
-
-	if (task->tty) {
-		tty_pgrp = task->tty->pgrp;
-		tty_nr = new_encode_dev(tty_devnum(task->tty));
-	}
-
-Some place doesn't take the any lock for ->tty. I think we need to
-take the lock for ->tty.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

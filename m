@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271376AbTGQKKh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 06:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271377AbTGQKKh
+	id S271389AbTGQKRL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 06:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271392AbTGQKRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 06:10:37 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41468 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S271376AbTGQKKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 06:10:36 -0400
-Date: Thu, 17 Jul 2003 06:23:50 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@suse.cz>,
-       Larry McVoy <lm@work.bitmover.com>, Andrew Morton <akpm@digeo.com>,
-       Daniel Phillips <phillips@arcor.de>, acme@conectiva.com.br, cw@f00f.org,
-       torvalds@transmeta.com, geert@linux-m68k.org, alan@lxorguk.ukuu.org.uk,
-       perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-Message-ID: <20030717062350.Q15481@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622014345.GD10801@conectiva.com.br> <20030621191705.3c1dbb16.akpm@digeo.com> <200306221522.29653.phillips@arcor.de> <20030622103251.158691c3.akpm@digeo.com> <20030623010555.GA4302@work.bitmover.com> <20020104113205.GB1778@zaurus.ucw.cz> <20030717111805.A18449@infradead.org>
+	Thu, 17 Jul 2003 06:17:11 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:3086 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271389AbTGQKRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 06:17:04 -0400
+Date: Thu, 17 Jul 2003 11:31:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [BUG?] 2.5.71 removed request_module("scsi_hostadapter")
+Message-ID: <20030717113158.B18620@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <200307161145.h6GBjaSi025681@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030717111805.A18449@infradead.org>; from hch@infradead.org on Thu, Jul 17, 2003 at 11:18:05AM +0100
+In-Reply-To: <200307161145.h6GBjaSi025681@harpo.it.uu.se>; from mikpe@csd.uu.se on Wed, Jul 16, 2003 at 01:45:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 11:18:05AM +0100, Christoph Hellwig wrote:
-> On Fri, Jan 04, 2002 at 12:32:05PM +0100, Pavel Machek wrote:
-> > Perhaps someone schould create 2.7.3 with long long bugs fixed
-> > and with c99 initializers?
+On Wed, Jul 16, 2003 at 01:45:36PM +0200, Mikael Pettersson wrote:
+> While trying to figure out why my SCSI modules don't autoload
+> properly in 2.6.0-test1 and late 2.5 kernels, I found that
+> patch-2.5.71 removed scsi.c's request_module("scsi_hostadapter").
+> It seems that some driver model conversion changed scsi_register_device()
+> to scsi_register_{driver,interface}(), but the latter don't do
+> anything wrt autoloading the host adapter.
 > 
-> 2.7 does have C99 initializers.
+> Is this an oversight or is it intensional?
 
-No, neither egcs 1.1.x nor gcc 2.95*.
-They handle some C99 initializers, but definitely not what the
-standard mandates.
+It's intentional.
 
-	Jakub
+> I can probably work around this through "install" command
+> kludgery in /etc/modprobe.conf, but that's (a) is ugly, and
+> (b) probably won't work for configs with built-in SCSI core
+> but modular host adapter.
+
+builtin scsi core doesn't matter for this at all, the question
+is whether the highlevel drivers are compiled in or not.
+
+modular highlevel driver(s)
+
+	simples postinst in old-style modules.conf (or some rusty equivalent)
+
+builtin highlevel driver(s)
+
+	the request_module is useless anyway as it happens before root is
+	mounted.
+

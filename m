@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272402AbTHOXkS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 19:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272407AbTHOXkS
+	id S272329AbTHOXgA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 19:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272337AbTHOXgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 19:40:18 -0400
-Received: from mail.cybertrails.com ([162.42.150.35]:22801 "EHLO
-	mail1.cybertrails.com") by vger.kernel.org with ESMTP
-	id S272402AbTHOXkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 19:40:16 -0400
-Date: Fri, 15 Aug 2003 16:40:10 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O14int
-Message-Id: <20030815164010.09651254.dickson@permanentmail.com>
-In-Reply-To: <20030814061953.GL32488@holomorphy.com>
-References: <200308090149.25688.kernel@kolivas.org>
-	<200308120033.32391.kernel@kolivas.org>
-	<1060615179.13255.133.camel@workshop.saharacpt.lan>
-	<200308121545.52042.kernel@kolivas.org>
-	<20030814061953.GL32488@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 19:36:00 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:22029 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S272329AbTHOXf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 19:35:59 -0400
+Date: Sat, 16 Aug 2003 09:35:24 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Matt Mackall <mpm@selenic.com>, Jamie Lokier <jamie@shareable.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, <davem@redhat.com>
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+In-Reply-To: <20030815221211.GA4306@think>
+Message-ID: <Mutt.LNX.4.44.0308160927070.30515-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 23:19:53 -0700, William Lee Irwin III wrote:
+On Fri, 15 Aug 2003, Theodore Ts'o wrote:
 
-> I found some strange SMP artifacts that seemed to show a dromedary-like
-> throughput curve with respect to tasks, with one peak at 4 tasks/cpu and
-> another peak at 16 tasks/cpu on a 16x box (for kernel compiles).
+> > d) not disable preemption for long stretches while hashing (a
+> >    limitation of cryptoapi)
+> 
+> Sounds like a bug in CryptoAPI that should be fixed in CryptoAPI.
 
-"Dromedary-like" is a bell-shaped curve.  Perhaps you meant "bactrian-like".
+This is for the case of hashing from a per cpu context, which is an
+inherently unsafe context for introducing schedule points.  This is not
+a crypto API specific problem.
 
-Sorry.  I couldn't resist posting this.   :-)
 
-	-Paul
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

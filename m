@@ -1,91 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317714AbSGaDiw>; Tue, 30 Jul 2002 23:38:52 -0400
+	id <S317701AbSGaDcR>; Tue, 30 Jul 2002 23:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317711AbSGaDiw>; Tue, 30 Jul 2002 23:38:52 -0400
-Received: from unthought.net ([212.97.129.24]:51170 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S317708AbSGaDiu>;
-	Tue, 30 Jul 2002 23:38:50 -0400
-Date: Wed, 31 Jul 2002 05:42:15 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
+	id <S317705AbSGaDcR>; Tue, 30 Jul 2002 23:32:17 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:64655 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S317701AbSGaDcQ>; Tue, 30 Jul 2002 23:32:16 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "jeff millar" <wa1hco@adelphia.net>
+Date: Wed, 31 Jul 2002 13:32:26 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15687.23114.805995.595589@notabene.cse.unsw.edu.au>
+Cc: "Bill Davidsen" <davidsen@tmr.com>,
+       "Jakob Oestergaard" <jakob@unthought.net>,
+       "Kernel mailing list" <linux-kernel@vger.kernel.org>
 Subject: Re: RAID problems
-Message-ID: <20020731034215.GM11129@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Kernel mailing list <linux-kernel@vger.kernel.org>,
-	linux-raid@vger.kernel.org
-References: <20020730175505.GI11129@unthought.net> <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: message from jeff millar on Tuesday July 30
+References: <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com>
+	<004501c23841$03265a30$6a01a8c0@wa1hco>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 10:46:55PM -0400, Bill Davidsen wrote:
-...
-> I think you misread my comment, it was not "why doesn't the documentation
-> say this" but rather "why does software RAID have this problem?"
+On Tuesday July 30, wa1hco@adelphia.net wrote:
+> 
+> Raid needs an automatic way to maintain device synchronization.  Why should
+> I have to...
+>     manually examine the device data (lsraid)
+>     find two devices that match
+>     mark the others failed in /etc/raidtab
+>     reinitialize the raid devices...putting all data at risk
+>     hot add the "failed" device
+>     wait for it to recover (hours)
+>     change /etc/raidtab again
+>     retest everything
+> 
+> This is 10 times worse that e2fsck and much more error prone.  The file
+> system guru's worked hard on journalling to minimize this kind of risk.
+> 
 
-Ok, my bad.
+Part of the answer is to use mdadm
+   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 
- - btw. I CC'ed linux-raid as this is getting a little OT for
-   linux-kernel.  Let's let the thread migrate to linux-raid instead...
+mdadm --assemble --force ....
 
-> I know
-> this can happen in theory, but it seems that the docs imply that this
-> isn't a surprise in practice. I've been running systems with SCSI RAID and
+will do a lot of that for you.
 
-I would say it's not a surprise as such, but it's something that really
-should be a very very rare occurrance.
+Another part of the answer is that raid5 should never mark two drives
+as failed.  There really isn't any point.
+If they are both really failed, you've lost your data anyway.
+If it is really a cable failure, then it should be easier to get back
+to where you started from.
+I hope to have raid5 working better in this respect in 2.6.
 
-I've seen it maybe once on a production system, having run MD on quite a
-few computers for the past half decade.  And I've had a few handfulls of
-people asking me about it over the years.
+A finally part of the answer is that even perfect raid software cannot
+make up for buggy drivers, shoddy hard drives, or flacky cabling.
 
-...
-> I just surprised that the software RAID doesn't have better luck with
-> this, I don't see any magic other than maybe a bus reset the firmware
-> would be doing, and I'm wondering why this seems to be common with Linux.
-
-I don't have the impression that it is common on stable hardware.  Can
-anyone who runs SW RAID on a number (greater than 1) of machines comment
-on this ?
-
-However, some people run their RAID-5 arrays on the same SCSI busses as
-their Zip drives, their scanners, and five other el-cheapo almost-scsi
-devices, and that is just *bound* to cause this kind of mess when one of
-the devices decide to lock up the bus.
-
-You don't see this with HW raid because you don't put your $15
-almost-scsi magic-foo device on your $2k HW RAID controller.
-
-There might be other simple reasons why some HW cards don't show this
-behaviour - they might simply maintain their superblocks differently
-from Linux SW RAID.   I have *no* idea how current controllers do this.
-
-> Or am I misreading the frequency with which it happens?
-
-I hope  ;)
-
-At least in the "stable hardware" situation.  Comments, please...
-
-...
-> Thye words are clear, I'm surprised at the behaviour. Yes, I know that's
-> not your thing.
-
-I *will* be surprised if it turns out that this is really a common
-occurrence for people.   :)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+NeilBrown

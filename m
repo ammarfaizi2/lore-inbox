@@ -1,42 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268311AbTCFTCb>; Thu, 6 Mar 2003 14:02:31 -0500
+	id <S268312AbTCFTEj>; Thu, 6 Mar 2003 14:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268312AbTCFTCb>; Thu, 6 Mar 2003 14:02:31 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:16352 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S268311AbTCFTCa>; Thu, 6 Mar 2003 14:02:30 -0500
-Date: Thu, 6 Mar 2003 19:14:47 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: Dave McCracken <dmccr@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nonlinear oddities
-In-Reply-To: <Pine.LNX.4.44.0303061618460.2422-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303061903170.1215-100000@localhost.localdomain>
+	id <S268315AbTCFTEj>; Thu, 6 Mar 2003 14:04:39 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27200 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S268312AbTCFTEh>; Thu, 6 Mar 2003 14:04:37 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200303061915.h26JFAP06033@devserv.devel.redhat.com>
+Subject: Linux 2.5.64-ac1
+To: linux-kernel@vger.kernel.org
+Date: Thu, 6 Mar 2003 14:15:10 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Hugh Dickins wrote:
-> 1.  Revert MAP_NONLINEAR and VM_NONLINEAR: I can easily imagine wanting
-> VM_NONLINEAR in future, warning that vma is unusual, but currently it's
-> not useful: install_page just needs to SetPageAnon if the page is put
-> somewhere try_to_unmap_obj_one wouldn't be able to find it.
 
-Now I think about it more, install_page's SetPageAnon is not good at all.
-That (unlocked) page may already be mapped into other vmas as a shared
-file page, non-zero mapcount, we can't suddenly switch it to Anon
-(pte_chained) without doing the work to handle that case.
+Linux 2.5.64-ac1
+	Merge Linus 2.5.63
+	Merge Linus 2.5.64
+	Revert broken watchdog changes
+o	Revert wrong -ac change to keyboard.c		(me)
+o	Fix cpufreq compile				(Bob Miller)
 
-Before Ingo's file-offset-in-pte, it would have been consistent without
-any SetPageAnon there, because the remapped pages would be unreliable
-unless locked, and having them unfindable is equivalent to being locked.
+Linux 2.5.62-ac1
+	Merge Linus 2.5.62
+o	UNEXPECTED_IO_APIC can be static		(Pavel Machek)
+o	Update IPMI driver to version 18		(Corey Minyard)
+o	Tons of spelling fixes				(Steven Cole)
+o	FBdev updates					(James Simmons)
+o	PC-9800 update					(Osamu Tomita)
+o	Remove dead scripts				(Brian Gerst)
+o	v850 updates					(Miles Bader)
+o	Update 3c523 to new MCA api (untested)		(James Bottomley)
+o	Toshiba keyboard workaround			(Pavel Machek)
+o	Fix mremap file name in comments		(Paul Larson)
+o	Firestream typo fixes				(Maciej Soltysiak)
+o	Backport trident reset fix from 2.4		(Muli Ben-Yehuda)
+o	Morse code panics are back!			(Tomas Szepe)
+o	Fix aicasm build				(Bob Tracy)
+o	Fixes for 700/710 drivers			(Rolf Eike Beer)
+o	Spelling fixes					(Rolf Eike Beer)
+o	Optimise CRC32					(Joakim Tjernlund)
+o	Next batch of v850 updates			(Miles Bader)
+o	Takayoshi Kochi has moved email			(Takayoshi Kochi)
+o	SunRPC race fix					(Trond Myklebust)
+o	Refix addr/port naming confusion in IDE iops	(me)
+o	Forward port VIA APIC handling quirks		(me)
+o	Forward port ALi magick quirk flag handler	(me)
+	| Needs bt848 etc to acquire the fix too
+o	Forward port IDE bases fix			(me)
+o	Forward port pci irq search for legacy IDE	(me)
 
-But if we're to bother with file-offset-in-pte, then we have to bother
-with finding the remapped pages, handling mapped-earlier case properly.
+Linux 2.5.61-ac1
+	Merge Linus 2.5.61
+o	Fix aic7xxx makefile				(Sam Ravnborg)
+o	Fix ieee1394 build on Alpha			(Ben Collins)
+o	Fix isdn_net build with X.25			(Adriank Bunk)
+o	Typo fix					(Steven Bosscher)
+o	A pile of other typo fixes			(Steven Cole)
+o	C99 initializers				(Art Haas)
+o	dasd typo fix					(Maciej Soltysiak)
+o	Remove an unused variable in sunrpc		(Robert Love)
+o	Remove duplicate different BSD partition names	(Andries Brouwer)
+o	PPC plural fix					(Steven Cole)
+o	EISA driver class patches			(Marc Zyngier)
+o	VIA Rhine updates				(Roger Luethi)
+o	Further ppa scsi fix				(John Kim)
+o	Kill unused __beep				(Hugh Dickins)
+o	Merge visws support 				(Andrey Panin)
+	| Some collisions with pc9800 but should be ok
+o	Limits for upward growing stacks		(Matthew Wilcox)
+o	ucLinux updates					(Greg Ungerer)
+o	68328 frame buffer updates			(Greg Ungerer)
+o	Merge ucLinux H8300 support			(Yoshinori Sato)
+o	Fix aironet compile				(Ookhoi)
+o	Fix DMA mask on OSS trident driver		(Ivan Kokshaysky)
+o	Kill some old 2.4 glue code in DRM		(John Kim)
+o	Fix compile of old "hd.c" driver		(Paul Gortmaker)
+o	Add experimental BOCHS virtualisation		(Kevin Lawton)
+o	Clean up intermezzo driver			(Adrian Bunk)
+o	Clean up rio use of compatmac			(Adrian Bunk)
+o	Remove 2.0 ifdefs from ipchains code		(Adrian Bunk)
+o	Remove old junk from efs 			(Adrian Bunk)
+o	Remove old 2.0/2.2 junk from media/video	(Adrian Bunk)
+o	Remove unused variable in ali-ircc		(Adrian Bunk)
+o	Remove 2.0 ifdefs from network drivers		(Adrian Bunk)
+o	Clean up uglies in inia100			(Adrian Bunk)
+o	Clean up uglies in i91u scsi 			(Adrian Bunk)
+o	Clean up wan drivers 2.0/2.2 code		(Adrian Bunk)
+o	Restore ontrack remap support			(Jim Houston)
+	| I'd really like to see this get turned into device mapper..
+o	Forward port emu10k1 driver to 2.5		(Rui Souza)
+o	Fix boot on EPOX 4BEA-R and friends		(Alexandar Achenbach)
+o	Switch alpha cia code to static inline		(Matt Reppert)
+o	Fix pcmcia scsi compile breakages		(Mike Anderson)
+o	EHCI workarounds				(David Brownell)
 
-Hugh
-
+Linux 2.5.60-ac1 (not published)
+	Includes Linus BK snapshot
+	Merge relevant pieces from old -ac		(me)
+	| Dropped visws and stuff thats been redone
+	| also dropped out IRQ stacks (port is tricky!)
+o	Fix build of cciss driver			(me)
+o	Fix build of 3036 tv tuner			(me)
+o	Remove i2o_lan					(me)
+o	Fix i2o_scsi					(Randy Dunlap)
+o	Fix iph5526 scsi changes (not fixed DMA)	(me)
+o	Make starfire compile				(me)
+o	Make mca-legacy warn if used			(me)
+o	Make sim710 build with EISA			(me)
+o	Make ultrastor compile				(me)
+o	Make aha152x/aha154x build			(Randy Dunlap)
+o	Fix aha154x/mca bits				(me)
+o	Fix fd_mcs build				(me)
+o	Fix NCR53c406a.c				(me)
+o	Fix sym53c416.c					(me)
+o	Fix ibmmca compile				(me)
+o	Fix ppa compile					(me)
+o	Fix NCR539x compile				(John Kim)
+o	Fix mca_53c9x compile				(me)

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265616AbSKAExS>; Thu, 31 Oct 2002 23:53:18 -0500
+	id <S265627AbSKAEyf>; Thu, 31 Oct 2002 23:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265617AbSKAExR>; Thu, 31 Oct 2002 23:53:17 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:9140 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265616AbSKAExR>;
-	Thu, 31 Oct 2002 23:53:17 -0500
-Date: Fri, 1 Nov 2002 04:59:22 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-Message-ID: <20021101045922.GA32021@bjl1.asuk.net>
-References: <20021031154112.GB27801@bjl1.asuk.net> <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com> <20021031230215.GA29671@bjl1.asuk.net> <20021101042942.GB12999@mark.mielke.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021101042942.GB12999@mark.mielke.cc>
-User-Agent: Mutt/1.4i
+	id <S265625AbSKAEyf>; Thu, 31 Oct 2002 23:54:35 -0500
+Received: from naru.ramix.jp ([218.45.113.209]:4362 "EHLO mail.ramix.jp")
+	by vger.kernel.org with ESMTP id <S265624AbSKAEyK>;
+	Thu, 31 Oct 2002 23:54:10 -0500
+Date: Fri, 01 Nov 2002 14:00:32 +0900
+From: YOSHIMURA Keitaro <ramsy@linux.or.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.5.45]: Kconfig needed qt also except xconfig is corrected.
+Message-Id: <20021101135313.0540.RAMSY@linux.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
-> On Thu, Oct 31, 2002 at 11:02:15PM +0000, Jamie Lokier wrote:
-> > The semantics for this are a bit confusing and inconsistent with
-> > poll().  User gets POLL_RDNORM event which means something in the
-> > directory has changed, not that the directory is now readable or that
-> > poll() would return POLL_RDNORM.  It really should be a different
-> > flag, made for the purpose.
-> 
-> Don't be encouraging any of us to expect the ability to poll() for changes
-> to regular files (log file parsers that sit on EOF periodically polling for
-> further data...).
+Kconfig bugfix. Please apply:)
 
-Actually you can already do something similar, if a little coarse
-grained, in 2.4 kernels using dnotify on the parent directory.
+My box text console only... Therefore, QT is not installed!
 
-> Just get *something* decent out so that we can play with it in a
-> production environment. I would put off extensions such as this
-> until the API is well established.
+thanks
 
-"something decent" is already out - epoll is quite useful in its
-present form.  (Take that with a grain of salt - I haven't tried it,
-and it only just went into 2.4.45, and I have the impression Davide is
-cleaning up the code for 2.4.46 - but it looks basically ok).
+--- linux-2.5.45/scripts/kconfig/Makefile	Thu Oct 31 09:43:45 2002
++++ linux-2.5.45-kconfig_fix/scripts/kconfig/Makefile	Fri Nov  1 13:48:02 2002
+@@ -34,7 +34,7 @@
+ 
+ $(obj)/qconf.o: $(obj)/.tmp_qtcheck
+ 
+--include $(obj)/.tmp_qtcheck
++#-include $(obj)/.tmp_qtcheck
+ 
+ # QT needs some extra effort...
+ $(obj)/.tmp_qtcheck:
 
--- Jamie
+
+<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
+<|> mailto:ramsy@linux.or.jp
+<|> http://jla.linux.or.jp/index.html
+

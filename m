@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSGBCIU>; Mon, 1 Jul 2002 22:08:20 -0400
+	id <S316599AbSGBCtP>; Mon, 1 Jul 2002 22:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316598AbSGBCIT>; Mon, 1 Jul 2002 22:08:19 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:35017 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S316594AbSGBCIT>; Mon, 1 Jul 2002 22:08:19 -0400
-Message-Id: <200207020217.g622HBAp001248@pool-141-150-241-241.delv.east.verizon.net>
-Date: Mon, 1 Jul 2002 22:17:10 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.24 : fs/intermezzo/psdev.c compile error
-References: <Pine.LNX.4.44.0207011726210.860-100000@localhost.localdomain>
+	id <S316600AbSGBCtO>; Mon, 1 Jul 2002 22:49:14 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:16043
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316599AbSGBCtO>; Mon, 1 Jul 2002 22:49:14 -0400
+Date: Mon, 1 Jul 2002 19:48:25 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+Message-ID: <20020702024825.GI20920@opus.bloom.county>
+References: <Pine.LNX.3.96.1020701134937.23820A-100000@gatekeeper.tmr.com> <20020701181228.GF20920@opus.bloom.county> <20020701234432.GC1697@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207011726210.860-100000@localhost.localdomain>; from fdavis@si.rr.com on Mon, Jul 01, 2002 at 05:31:25PM -0400
+In-Reply-To: <20020701234432.GC1697@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Davis wrote:
->    Does a patch exist for the following compile error? I thought that one 
-> existed, but can't find one in the linux-kernel archives. If not, I can 
-> work on one.
+On Tue, Jul 02, 2002 at 01:44:32AM +0200, J.A. Magallon wrote:
+> 
+> On 2002.07.01 Tom Rini wrote:
+> >On Mon, Jul 01, 2002 at 01:52:54PM -0400, Bill Davidsen wrote:
+> >
+> >> What's the issue?
+> >
+> >b) 2.4 is the _stable_ tree.  If every big change in 2.5 got back ported
+> >to 2.4, it'd be just like 2.5 :)
+> 
+> So you want to wait till 2.6.40 to be able to use a O1 scheduler on a
+> kernel that does not eat up your drives ? (say, next year by this same month...)
 
-There have been various patches for Intermezzo posted but they have
-fixed compile errors only and not made it work.  IIRC, the locking scheme
-has never caught up to the 2.5 changes.  There are more problems than
-just compile errors.
+I assume you mean 2.4.60 here, and no, I don't think O1 scheduler should
+go into 2.4 ever.  We're aiming for a _stable_ series here.  Let me
+stress that again, _stable_.  I'd hope that 2.4.60 is as slow in coming
+as 2.0.40 is.
+
+> >c) I also suspect that it hasn't been as widley tested on !x86 as the
+> >stuff currently in 2.4.  And again, 2.4 is the stable tree.
+> 
+> I know it is not a priority for 2.4, but say it wil never happen...
+
+I won't say it will never happen, just that I don't think it should.
+It's a rather invasive thing (and as Ingo said, it's just not getting
+stable).
 
 -- 
-Skip
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

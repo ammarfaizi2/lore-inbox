@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284541AbRLXKFg>; Mon, 24 Dec 2001 05:05:36 -0500
+	id <S284557AbRLXKJh>; Mon, 24 Dec 2001 05:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284542AbRLXKF0>; Mon, 24 Dec 2001 05:05:26 -0500
-Received: from d-dialin-2782.addcom.de ([213.61.81.150]:27888 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S284541AbRLXKFQ>; Mon, 24 Dec 2001 05:05:16 -0500
-Date: Mon, 24 Dec 2001 11:05:00 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        "H . J . Lu" <hjl@lucon.org>
-Subject: Re: How to fix false positives on references to discarded text/data?
-In-Reply-To: <28371.1009174924@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33.0112241055380.1676-100000@vaio>
+	id <S284553AbRLXKJ1>; Mon, 24 Dec 2001 05:09:27 -0500
+Received: from Ptrillia.EUnet.sk ([193.87.242.40]:640 "EHLO meduna.org")
+	by vger.kernel.org with ESMTP id <S284546AbRLXKJJ>;
+	Mon, 24 Dec 2001 05:09:09 -0500
+From: Stanislav Meduna <stano@meduna.org>
+Message-Id: <200112240930.fBO9U9b01874@meduna.org>
+Subject: IDE CDROM locks the system hard on media error
+To: linux-kernel@vger.kernel.org
+Date: Mon, 24 Dec 2001 10:30:09 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Dec 2001, Keith Owens wrote:
+Hello,
 
-> >> .text.lock.es1371:
-> >> 6387:   80 bd f8 00 00 00 00    cmpb   $0x0,0xf8(%ebp)
-> >> 638e:   f3 90                   repz nop
-> >> 6390:   0f 8e f1 ff ff ff       jle    6387 <.text.lock.es1371> <=== 6 bytes
-> >> 6396:   e9 33 9e ff ff          jmp    1ce <set_adc_rate+0x8e>
-> >> 
-> >> The inline code is unchanged, it is only the out of line code that is
-> >> bigger.  IMHO the subsection difference is a gcc/as bug which should
-> >> not stop us using this fix.
-> >
-> >I don't see this.   With egcs-1.1.2 and assembler 2.11.90.0.25,
-> >your patch actually (and mysteriously) shrunk the kernel by 500
-> >bytes - the new .text is a little smaller than the sum of the
-> >old .text and .text.lock.
+I am catalogizing my set of CDs and so I have tortured my CD drive
+with a bunch of less-than-optimal CDs. I had two hard lockups
+most probably connected to problematic media.
 
-Another datapoint (RH7.2):
+The last message in log is
 
-00006397 <.text.lock.es1371>:
-    6397:       80 bd f8 00 00 00 00    cmpb   $0x0,0xf8(%ebp)
-    639e:       f3 90                   repz nop
-    63a0:       7e f5                   jle    6397 <.text.lock.es1371>
-    63a2:       e9 27 9e ff ff          jmp    1ce <set_adc_rate+0x8e>
+ kernel: scsi0: ERROR on channel 0, id 0, lun 0,
+   CDB: Request Sense 00 00 00 40 00 
+ kernel: Current sd0b:00: sense key Medium Error
+ kernel: Additional sense indicates No seek complete
+ kernel:  I/O error: dev 0b:00, sector 504
+ kernel: ISOFS: unable to read i-node block
 
-[kai@vaio kai]$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-[kai@vaio kai]$ as -v
-GNU assembler version 2.11.90.0.8 (i386-redhat-linux) using BFD version 
-2.11.90.0.8
-[kai@vaio kai]$ rpm -qf `which as`
-binutils-2.11.90.0.8-9
+Shortly (but not immediately, the kernel tried a bit more to get
+some data from the drive) after that the system froze - not even
+SysRq worked.
 
-> NOTE: The patch had one .previous left in include/asm-i386/spinlock.h,
->       which needs to be changed to .subsection 0\n.  But that change
->       makes no difference.
+I am using vanilla 2.4.17, hdc=ide-scsi, my drive is Mitsumi CR-4804TE,
+motherboard is Abit BP6 SMP, Intel PIIX4 IDE controller,
 
-According to my reading of the docs and also to my testing, .subsection 0 
-and .previous should be equivalent here. But .subsection 0 may be cleaner.
+More details available upon request. Please, Cc: replies to me.
 
---Kai
+Regards
+-- 
+                                   Stano
 

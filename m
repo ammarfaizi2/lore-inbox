@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264316AbTICUb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTICUb2
+	id S264431AbTICUUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264406AbTICUTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:31:28 -0400
-Received: from mail.kroah.org ([65.200.24.183]:41148 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264316AbTICUaA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:30:00 -0400
-Date: Wed, 3 Sep 2003 13:30:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "Blake B." <shadoi@nanovoid.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test 4 and USB
-Message-ID: <20030903202959.GA1618@kroah.com>
-References: <bj4to7$i3p$1@sea.gmane.org> <Pine.LNX.3.96.1030903154731.9300A-100000@gatekeeper.tmr.com>
+	Wed, 3 Sep 2003 16:19:11 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:44810 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264399AbTICUSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 16:18:02 -0400
+Date: Wed, 3 Sep 2003 21:18:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Clark <jimwclark@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Message-ID: <20030903211801.A10695@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
+References: <200309031850.14925.jimwclark@ntlworld.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030903154731.9300A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200309031850.14925.jimwclark@ntlworld.com>; from jimwclark@ntlworld.com on Wed, Sep 03, 2003 at 06:53:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 03:54:11PM -0400, Bill Davidsen wrote:
-> On Wed, 3 Sep 2003, Blake B. wrote:
+On Wed, Sep 03, 2003 at 06:53:01PM +0100, James Clark wrote:
+> Following my initial post yesterday please find attached my proposal for a 
+> binary 'plugin' interface:
 > 
-> > watermodem wrote:
-> > > I forgot to note on the USB and CUPs problem that I see the USB tree 
-> > > under "/sys/bus/usb" where-as under /proc/bus/usb I see nothing.
-> > > This may break a lot of existing code... Is is suppose to be this way?
-> > > 
-> > > 
-> > > 
-> > 
-> > Read /linux-kernel-source/Documentation/usb/proc_usb_info.txt
-> 
-> I must be missing something, the mount command from that file doesn't
-> seem to solve the original poster's problem, the /proc/bus/usb is still
-> empty...
-> 
-> ================================================================
-> 
-> >From root@oddball.prodigy.com Wed Sep  3 15:47:22 2003
-> Subject: USB proc stuff
-> From: root <root@oddball.prodigy.com>
-> Date: Wed, 3 Sep 2003 13:19:15 -0400
-> To: davidsen@tmr.com
-> 
-> oddball:root> mount -t usbfs none /proc/bus/usb
-> oddball:root> df
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/hda3              2522076   2338380     55580  98% /
-> /dev/hda1                23302     20030      2069  91% /boot
-> /dev/hda5              1510032    265388   1167936  19% /home
-> /dev/hdb3              1474320    897712    501716  65% /usr/src
-> none                     46776         0     46776   0% /dev/shm
-> oddball:root> mount -t usbfs none /proc/bus/usb
-> mount: none already mounted or /proc/bus/usb busy
-> mount: according to mtab, none is already mounted on /proc/bus/usb
+> This is not an attempt to have a Microkernel, or any move away from GNU/OSS 
+> software. I believe that sometimes the ultimate goals of stability and 
+> portability get lost in the debate on OSS and desire to allow anyone to 
+> contribute. It is worth remembering that for every Kernel hacker there must 
+> be 1000's of plain users. I believe this proposal would lead to better 
+> software and more people using it.
 
-What does 'cat /proc/mounts' show?
+Looks like you're looking for UDI.  Most people on this list don't like
+it for various reasons (me included) but you seem to like it.  Since
+SCO was the driving factor development probably has slowed down even
+more, go and help them!
 
-> oddball:root> lc /proc/bus/usb
-> oddball:root> l -aR /proc/bus/usb
-> /proc/bus/usb:
-> total 0
-> drwxr-xr-x    2 root            0 Sep  3 13:17 .
-> dr-xr-xr-x    6 root            0 Sep  3 13:17 ..
+Don't expect it to ever be merged though..
 
-Do you have any USB host controller drivers loaded?  That is necessary
-for anything to actually show up in here :)
-
-thanks,
-
-greg k-h
+	http://projectudi.sourceforge.net/

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263933AbTJ1LlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 06:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTJ1LlQ
+	id S263930AbTJ1Lds (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTJ1Lds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 06:41:16 -0500
-Received: from 192.38.236.45.ip.tele2adsl.dk ([192.38.236.45]:33268 "HELO
-	mail.musikcheck.dk") by vger.kernel.org with SMTP id S263933AbTJ1LlP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 06:41:15 -0500
-Message-ID: <20031028114015.1986.qmail@mail.musikcheck.dk>
-From: "Hasse Hagen Johansen" <hhj@musikcheck.dk>
+	Tue, 28 Oct 2003 06:33:48 -0500
+Received: from home.wiggy.net ([213.84.101.140]:48605 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S263930AbTJ1Ldq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 06:33:46 -0500
+Date: Tue, 28 Oct 2003 12:33:44 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: question about PDC20378 sata driver
-Date: Tue, 28 Oct 2003 12:40:15 +0100
+Subject: Re: status of ipchains in 2.6?
+Message-ID: <20031028113344.GA3718@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com> <20031028015032.734caf21.davem@redhat.com> <bnliqd$sq6$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bnliqd$sq6$1@news.cistron.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Miquel van Smoorenburg wrote:
+> I can't find a mailinglist archive of netdev.
 
-Hi 
+Luckily google -> netdev archive -> I feel lucky brings you straight to
+http://oss.sgi.com/projects/netdev/archive/
 
-I cannot find any information about this. Is it possible to use the ide-raid 
-function of the pdc20378 based chipset builtin on some mainboards, just 
-using the sata driver? 
+Wichert.
 
-I would very much like to test the 2.6 kernel series 
-
-Please CC me directly 
-
-Regards
-Hasse 
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.
 

@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbSJ3EGo>; Tue, 29 Oct 2002 23:06:44 -0500
+	id <S263785AbSJ3ERB>; Tue, 29 Oct 2002 23:17:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263966AbSJ3EGo>; Tue, 29 Oct 2002 23:06:44 -0500
-Received: from bozo.vmware.com ([65.113.40.131]:18191 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S263960AbSJ3EGM>; Tue, 29 Oct 2002 23:06:12 -0500
-Date: Tue, 29 Oct 2002 20:13:53 -0800
-From: chrisl@vmware.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021030041353.GA1798@vmware.com>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021028195831.GC1564@vmware.com> <20021028213225.GL13972@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021028213225.GL13972@dualathlon.random>
-User-Agent: Mutt/1.4i
+	id <S263958AbSJ3ERB>; Tue, 29 Oct 2002 23:17:01 -0500
+Received: from 208-135-136-018.customer.apci.net ([208.135.136.18]:9479 "EHLO
+	blessed") by vger.kernel.org with ESMTP id <S263785AbSJ3EQ7>;
+	Tue, 29 Oct 2002 23:16:59 -0500
+Date: Tue, 29 Oct 2002 22:23:15 -0600 (CST)
+From: Josh Myer <jbm@joshisanerd.com>
+X-X-Sender: jbm@blessed
+To: tiwai@suse.de, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sound/pci/via82xx.c "sleeping function called..."
+Message-ID: <Pine.LNX.4.44.0210292218370.15699-200000@blessed>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1042570846-1035951795=:15699"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 10:32:25PM +0100, Andrea Arcangeli wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> the reason it isn't easily feasible is that you can learn that the
-> writepage fails way after the process isn't mapping the page anymore and
+--8323328-1042570846-1035951795=:15699
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Hmm, nice to know that. When I do bigmm test, I see it kswapd call to
-writepage. You are telling me at that point, bigmm is dead already?
-I did not know enough about the vm system. If program did not map
-this memory any more. It is ok to drop then. VMware do not care about
-what is left on the ram file at all.
+Attached is a patch which seems to cure these, but no promises that it's
+Correct (!):
 
-Thanks for you long explain.
+(To: l-k so the Gurus can tell me i'm wrong more efficiently =)
 
-Chris
+Debug: sleeping function called from illegal context at mm/slab.c:1374
+Call Trace:
+ [<c0114d41>] __might_sleep+0x55/0x64
+ [<c012f44a>] kmalloc+0x56/0x1e4
+ [<c4049098>] build_via_table+0x38/0x184 [snd-via82xx]
+ [<c40490bb>] build_via_table+0x5b/0x184 [snd-via82xx]
+ [<c01b8567>] __delay+0x13/0x28
+ [<c404955a>] snd_via82xx_setup_periods+0x2e/0x128 [snd-via82xx]
+ [<c4049864>] snd_via82xx_playback_prepare+0x80/0x8c [snd-via82xx]
+ [<c4037e80>] snd_pcm_prepare+0xac/0x18c [snd-pcm]
+ [<c40397e6>] snd_pcm_common_ioctl1+0x1d6/0x2a8 [snd-pcm]
+ [<c4039c1e>] snd_pcm_playback_ioctl1+0x366/0x374 [snd-pcm]
+ [<c4039fbf>] snd_pcm_kernel_playback_ioctl_R7d246e95+0x27/0x30 [snd-pcm]
+ [<c403a01b>] snd_pcm_kernel_ioctl_Ra45ade40+0x23/0x40 [snd-pcm]
+ [<c4052c81>] snd_pcm_oss_prepare+0x15/0x34 [snd-pcm-oss]
+ [<c4052cd2>] snd_pcm_oss_make_ready+0x32/0x40 [snd-pcm-oss]
+ [<c4053060>] snd_pcm_oss_write1+0x3c/0x148 [snd-pcm-oss]
+ [<c4054f6a>] snd_pcm_oss_write+0x32/0x68 [snd-pcm-oss]
+ [<c013d351>] vfs_write+0xc1/0x160
+ [<c013d456>] sys_write+0x2a/0x3c
+ [<c0108b07>] syscall_call+0x7/0xb
 
-> we can't keep unowned unwriteable dirty pages  around for long, we've to
-> drop them. if the vm tried to writepage it means no one single task had
-> such page mapped, so at that time of the failure we've no clue of who to
-> notify for such page, all tasks just thought to have written the data
-> successfully when the pte dirty bit is been trasmitted to the page dirty
-> bit, by the time the page dirty bit is lost because writepage fails it's
-> too late to let know the task about it, the task may be exited long ago.
-> We lose track of the task when we trasmit the dirty information
-> from pagetable to pte, and only after that happens we will attempt a
-> writepage. So as far as I can tell the only way to fix it and to for
-> example reliably send a signal to a task to notify a write is been lost,
-> is to run the fs get_block(create = 1) while trasmitting the dirty bit
-> from pte_t to page_t, which isn't a trivial change, certainly not
-> something that would be confortable to do in 2.4 and it would affect
-> performance, it is much cleaner and efficient to deal with the fs only
-> at the page_t phyical pagecache layer rather than at the pte layer.
-> Lefting unowned, unfreeable pages around by marking the page dirty when
-> block_write_full_page fails, doesn't look a viable option, the kernel
-> could do nothing but loop forever trying to write in such case.
-> 
-> Andrea
+It's creepy to look over at the TV and see what looks like an Oops trace
+but the music is still going... =)
+--
+/jbm, but you can call me Josh. Really, you can!
+ "What's a metaphor?" "For sheep to graze in"
+7958 1C1C 306A CDF8 4468  3EDE 1F93 F49D 5FA1 49C4
 
 
+--8323328-1042570846-1035951795=:15699
+Content-Type: TEXT/plain; name="via82xx_GFP_ATOMIC.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0210292223150.15699@blessed>
+Content-Description: 
+Content-Disposition: attachment; filename="via82xx_GFP_ATOMIC.diff"
+
+LS0tIGxpbnV4LTIuNS40NC9zb3VuZC9wY2kvdmlhODJ4eC5jCTIwMDItMTAt
+MTkgMDA6MDE6MTkuMDAwMDAwMDAwIC0wNDAwDQorKysgbGludXgtMi41LjQ0
+LWpibS9zb3VuZC9wY2kvdmlhODJ4eC5jCTIwMDItMTAtMjkgMjM6MTI6MjYu
+MDAwMDAwMDAwIC0wNTAwDQpAQCAtMjE3LDcgKzIxNyw3IEBADQogCQkJcmV0
+dXJuIC1FTk9NRU07DQogCX0NCiAJaWYgKCEgZGV2LT5pZHhfdGFibGUpIHsN
+Ci0JCWRldi0+aWR4X3RhYmxlID0ga21hbGxvYyhzaXplb2YoKmRldi0+aWR4
+X3RhYmxlKSAqIFZJQV9UQUJMRV9TSVpFLCBHRlBfS0VSTkVMKTsNCisJCWRl
+di0+aWR4X3RhYmxlID0ga21hbGxvYyhzaXplb2YoKmRldi0+aWR4X3RhYmxl
+KSAqIFZJQV9UQUJMRV9TSVpFLCBHRlBfQVRPTUlDKTsNCiAJCWlmICghIGRl
+di0+aWR4X3RhYmxlKQ0KIAkJCXJldHVybiAtRU5PTUVNOw0KIAl9DQo=
+--8323328-1042570846-1035951795=:15699--

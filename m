@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270932AbRHSXjF>; Sun, 19 Aug 2001 19:39:05 -0400
+	id <S270942AbRHSXrQ>; Sun, 19 Aug 2001 19:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270933AbRHSXi4>; Sun, 19 Aug 2001 19:38:56 -0400
-Received: from d-dialin-1524.addcom.de ([62.96.165.84]:51699 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S270932AbRHSXis>; Sun, 19 Aug 2001 19:38:48 -0400
-Date: Mon, 20 Aug 2001 00:19:49 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Chris Oxenreider <oxenreid@state.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install
- 'isdn')
-In-Reply-To: <Pine.SV4.4.10.10108191436230.4651-100000@dorthy>
-Message-ID: <Pine.LNX.4.33.0108200019320.23800-100000@vaio>
+	id <S270933AbRHSXrG>; Sun, 19 Aug 2001 19:47:06 -0400
+Received: from waste.org ([209.173.204.2]:27712 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S270947AbRHSXqt>;
+	Sun, 19 Aug 2001 19:46:49 -0400
+Date: Sun, 19 Aug 2001 18:47:03 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Robert Love <rml@tech9.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <riel@conectiva.com.br>
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+In-Reply-To: <Pine.LNX.4.30.0108191124430.740-100000@waste.org>
+Message-ID: <Pine.LNX.4.30.0108191845320.740-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Aug 2001, Oliver Xymoron wrote:
 
-On Sun, 19 Aug 2001, Chris Oxenreider wrote:
+> My understanding is that net devices are still mixing data into the pool,
+> but with an entropy estimate of zero.
 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.9/kernel/drivers/isdn/eicon/eicon.o
-> depmod: 	vsnprintf
+..which appears to be wrong.
 
-This patch should fix it:
+> If they're not mixing data into the pool at all any more, then that
+> seems wrong to me - we should be adding likely sources of entropy as
+> well, even if we can't rely on them enough to credit them.
 
-diff -u linux-2.4.9/kernel/ksyms.c linux-2.4.9.work/kernel/ksyms.c
---- linux-2.4.9/kernel/ksyms.c	Fri Aug 17 09:57:12 2001
-+++ linux-2.4.9.work/kernel/ksyms.c	Mon Aug 20 00:16:58 2001
-@@ -458,6 +458,8 @@
- EXPORT_SYMBOL(printk);
- EXPORT_SYMBOL(sprintf);
- EXPORT_SYMBOL(vsprintf);
-+EXPORT_SYMBOL(snprintf);
-+EXPORT_SYMBOL(vsnprintf);
- EXPORT_SYMBOL(kdevname);
- EXPORT_SYMBOL(bdevname);
- EXPORT_SYMBOL(cdevname);
+What we really need is an add_untrusted_randomness().
 
---Kai
-
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

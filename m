@@ -1,1755 +1,652 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbSJJUI4>; Thu, 10 Oct 2002 16:08:56 -0400
+	id <S263979AbSJJUe4>; Thu, 10 Oct 2002 16:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262787AbSJJUHN>; Thu, 10 Oct 2002 16:07:13 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:57054 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S262215AbSJJUDw>; Thu, 10 Oct 2002 16:03:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: torvalds@transmeta.com
-Subject: [PATCH] EVMS core (3/9) discover.c
-Date: Thu, 10 Oct 2002 14:35:29 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-References: <02101014305502.17770@boiler>
-In-Reply-To: <02101014305502.17770@boiler>
+	id <S263982AbSJJUe4>; Thu, 10 Oct 2002 16:34:56 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:15694 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S263979AbSJJUel>; Thu, 10 Oct 2002 16:34:41 -0400
+Date: Thu, 10 Oct 2002 13:48:31 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>,
+       <yakker@aparity.com>
+Subject: [PATCH] 2.5.41: lkcd (8/8): dump driver and build files
+Message-ID: <Pine.LNX.4.44.0210101345430.29122-101000@nakedeye.aparity.com>
 MIME-Version: 1.0
-Message-Id: <02101014352905.17770@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: MULTIPART/MIXED; BOUNDARY="20979877-502199567-1034282911=:29122"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Part 3 of the EVMS core driver.
+--20979877-502199567-1034282911=:29122
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-This file provides the code to coordinate volume
-discovery among the EVMS plugins.
+This is the complete set of dump drivers for creating crash dumps
+during panic/exception situations in the Linux kernel.  It can be
+built as a module or as a built-in with the kernel.
 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+ drivers/Makefile             |    1
+ drivers/dump/Makefile        |   30
+ drivers/dump/dump_base.c     | 1867 +++++++++++++++++++++++++++++++++++++++++++ drivers/dump/dump_blockdev.c |  411 +++++++++
+ drivers/dump/dump_gzip.c     |  129 ++
+ drivers/dump/dump_i386.c     |  315 +++++++
+ drivers/dump/dump_rle.c      |  176 ++++
+ include/asm-i386/dump.h      |   94 ++
+ include/linux/dump.h         |  440 ++++++++++
+ 9 files changed, 3463 insertions(+)
 
+This is included as a gzip'd attachment, as the size is too
+big for vger, apparently.
 
+--Matt
 
-diff -Naur linux-2.5.41/drivers/evms/core/discover.c linux-2.5.41-evms/drivers/evms/core/discover.c
---- linux-2.5.41/drivers/evms/core/discover.c	Wed Dec 31 18:00:00 1969
-+++ linux-2.5.41-evms/drivers/evms/core/discover.c	Thu Oct 10 13:14:27 2002
-@@ -0,0 +1,1714 @@
-+/*
-+ *   Copyright (c) International Business Machines  Corp., 2000 - 2002
-+ *
-+ *   This program is free software;  you can redistribute it and/or modify
-+ *   it under the terms of the GNU General Public License as published by
-+ *   the Free Software Foundation; either version 2 of the License, or
-+ *   (at your option) any later version.
-+ *
-+ *   This program is distributed in the hope that it will be useful,
-+ *   but WITHOUT ANY WARRANTY;  without even the implied warranty of
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
-+ *   the GNU General Public License for more details.
-+ *
-+ *   You should have received a copy of the GNU General Public License
-+ *   along with this program;  if not, write to the Free Software
-+ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+/*
-+ * Core routines related to volume discovery and activation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/blk.h>
-+#include <linux/root_dev.h>
-+#include <linux/evms.h>
-+#include <linux/evms_ioctl.h>
-+#include "evms_core.h"
-+
-+/**
-+ * evms_discover_logical_disk - invokes the discover code in each device manager plugin
-+ * @disk_list:	ptr to logical disk (storage objects)
-+ *
-+ * Traverses the list of plugins, passing the disk_list to each
-+ * device manager plugin type.
-+ **/
-+void
-+evms_discover_logical_disks(struct list_head *disk_list)
-+{
-+	struct evms_plugin_header *plugin;
-+	LOG_EXTRA("discovering logical disks...\n");
-+	spin_lock(&plugin_lock);
-+	list_for_each_entry(plugin, &plugin_head, headers) {
-+		if (GetPluginType(plugin->id) == EVMS_DEVICE_MANAGER) {
-+			spin_unlock(&plugin_lock);
-+			DISCOVER(plugin, disk_list);
-+			spin_lock(&plugin_lock);
-+		}
-+	}
-+	spin_unlock(&plugin_lock);
-+}
-+
-+/**
-+ * evms_discover_segments - invokes the discover code in each segment manager plugin
-+ * @discover_list:	ptr to discover list of storage objects
-+ *
-+ * Traverses the list of plugins, passing the discover list (list of objects
-+ * to be probed) to each segment manager plugin type.
-+ *
-+ * Plugins claim storage objects by removing them from the discover list.
-+ * Objects not claimed are left on the list. Newly created objects are put onto
-+ * the list. The segment managers return a positive value indicating the number
-+ * of object they put onto the list.
-+ *
-+ * Since segment managers can be stacked, when a segment manager puts a new
-+ * object on the list it also returns a count to this function. If this
-+ * function receives a positive count from segment manager, it must rerun
-+ * through the entire list of segment managers again to allow each segment
-+ * manager to probe the new object(s). Rerunning continues until no segment
-+ * manager puts any new objects onto the list.
-+ *
-+ * Plugins with incomplete objects do not put them on the discover list when
-+ * invoked through their discover entry point. However, when the plugin's
-+ * end_discover entry point is called, they can then put partial volumes (in
-+ * READ-ONLY mode) on to the list.
-+ **/
-+static void
-+evms_discover_segments(struct list_head *discover_list)
-+{
-+	int rc, done;
-+
-+	struct evms_plugin_header *plugin;
-+	LOG_EXTRA("discovering segments...\n");
-+	do {
-+		done = 1;
-+		spin_lock(&plugin_lock);
-+		list_for_each_entry(plugin, &plugin_head, headers) {
-+			if (GetPluginType(plugin->id) == EVMS_SEGMENT_MANAGER) {
-+				spin_unlock(&plugin_lock);
-+				rc = DISCOVER(plugin, discover_list);
-+				spin_lock(&plugin_lock);
-+				if (rc > 0)
-+					done = 0;
-+			}
-+		}
-+		spin_unlock(&plugin_lock);
-+	} while (done == 0);
-+
-+	spin_lock(&plugin_lock);
-+	list_for_each_entry(plugin, &plugin_head, headers) {
-+		if (GetPluginType(plugin->id) == EVMS_SEGMENT_MANAGER) {
-+			if (plugin->fops->end_discover) {
-+				spin_unlock(&plugin_lock);
-+				END_DISCOVER(plugin, discover_list);
-+				spin_lock(&plugin_lock);
-+			}
-+		}
-+	}
-+	spin_unlock(&plugin_lock);
-+}
-+
-+/**
-+ * evms_discover_regions - invokes the discover code in each region manager plugin
-+ * @dicover_list:	ptr to discover list of storage objects
-+ *
-+ * Traverses the list of plugins, passing the discover list (list of objects
-+ * to be probed) to each region manager plugin type.
-+ *
-+ * Plugins claim storage objects by removing them from the discover list.
-+ * Objects not claimed are left on the list. Newly created objects are put onto
-+ * the list. The region managers return a positive value indicating the number
-+ * of object they put onto the list.
-+ *
-+ * Since region managers can be stacked, when a region manager puts a new object
-+ * on the list it also returns a count to this function. If this function
-+ * receives a positive count from region manager, it must rerun through the
-+ * entire list of region managers again to allow each region manager to probe
-+ * the new object(s). Rerunning continues until no region manager puts any new
-+ * objects onto the list.
-+ *
-+ * Plugins with incomplete objects do not put them on the discover list when
-+ * invoked through their discover entry point. However, when the plugin's
-+ * end_discover entry point is called, they can then put partial volumes (in
-+ * READ-ONLY mode) on to the list.
-+ **/
-+static void
-+evms_discover_regions(struct list_head *discover_list)
-+{
-+	int rc, done;
-+
-+	struct evms_plugin_header *plugin;
-+	LOG_EXTRA("discovering regions...\n");
-+	do {
-+		done = 1;
-+		spin_lock(&plugin_lock);
-+		list_for_each_entry(plugin, &plugin_head, headers) {
-+			if (GetPluginType(plugin->id) == EVMS_REGION_MANAGER) {
-+				spin_unlock(&plugin_lock);
-+				rc = DISCOVER(plugin, discover_list);
-+				spin_lock(&plugin_lock);
-+				if (rc > 0)
-+					done = 0;
-+			}
-+		}
-+		spin_unlock(&plugin_lock);
-+	} while (done == 0);
-+
-+	spin_lock(&plugin_lock);
-+	list_for_each_entry(plugin, &plugin_head, headers) {
-+		if (GetPluginType(plugin->id) == EVMS_REGION_MANAGER) {
-+			if (plugin->fops->end_discover) {
-+				spin_unlock(&plugin_lock);
-+				END_DISCOVER(plugin, discover_list);
-+				spin_lock(&plugin_lock);
-+			}
-+		}
-+	}
-+	spin_unlock(&plugin_lock);
-+}
-+
-+/**
-+ * le_feature_header_to_cpu - convert a feature header struct to native cpu format
-+ * @fh:		feature header ptr
-+ *
-+ * Convert all the feature header fields into cpu native format from the
-+ * on-disk Little Endian format. From this point forward all plugins can deal
-+ * with feature headers natively.
-+ **/
-+void
-+le_feature_header_to_cpu(struct evms_feature_header *fh)
-+{
-+	fh->signature = le32_to_cpup(&fh->signature);
-+	fh->crc = le32_to_cpup(&fh->crc);
-+	fh->version.major = le32_to_cpup(&fh->version.major);
-+	fh->version.minor = le32_to_cpup(&fh->version.minor);
-+	fh->version.patchlevel = le32_to_cpup(&fh->version.patchlevel);
-+	fh->engine_version.major = le32_to_cpup(&fh->engine_version.major);
-+	fh->engine_version.minor = le32_to_cpup(&fh->engine_version.minor);
-+	fh->engine_version.patchlevel =
-+	    le32_to_cpup(&fh->engine_version.patchlevel);
-+	fh->flags = le32_to_cpup(&fh->flags);
-+	fh->feature_id = le32_to_cpup(&fh->feature_id);
-+	fh->sequence_number = le64_to_cpup(&fh->sequence_number);
-+	fh->alignment_padding = le64_to_cpup(&fh->alignment_padding);
-+	fh->feature_data1_start_lsn =
-+	    le64_to_cpup(&fh->feature_data1_start_lsn);
-+	fh->feature_data1_size = le64_to_cpup(&fh->feature_data1_size);
-+	fh->feature_data2_start_lsn =
-+	    le64_to_cpup(&fh->feature_data2_start_lsn);
-+	fh->feature_data2_size = le64_to_cpup(&fh->feature_data2_size);
-+	fh->volume_serial_number = le64_to_cpup(&fh->volume_serial_number);
-+	fh->volume_system_id = le32_to_cpup(&fh->volume_system_id);
-+	fh->object_depth = le32_to_cpup(&fh->object_depth);
-+}
-+
-+/**
-+ * edef_load_feature_header - load a feature header into memory
-+ * @node:	storage object to feature header is read
-+ *
-+ * load and validate the feature header for a storage object. validation consists
-+ * of verifying the signature and crc of the structure. since there is redundant (two)
-+ * copies of the feature header, check them both, and select the most recent copy.
-+ *
-+ * returns: 0 = success
-+ *          otherwise error code
-+ **/
-+static int
-+edef_load_feature_header(struct evms_logical_node *node)
-+{
-+	int i, rc = 0, rc_array[2] = { 0, 0 };
-+	ulong size_in_bytes;
-+	u64 size_in_sectors, starting_sector = 0;
-+	struct evms_feature_header *fh = NULL, *fh1 = NULL, *fh2 = NULL;
-+	char *location_name = NULL;
-+	struct evms_version version = {
-+		EVMS_FEATURE_HEADER_MAJOR,
-+		EVMS_FEATURE_HEADER_MINOR,
-+		EVMS_FEATURE_HEADER_PATCHLEVEL
-+	};
-+
-+	if (node->feature_header) {
-+		return 0;
-+	}
-+	/* allocate buffers for feature headers */
-+	size_in_sectors = evms_cs_size_in_vsectors(sizeof (*fh));
-+	size_in_bytes = size_in_sectors << EVMS_VSECTOR_SIZE_SHIFT;
-+	fh1 = kmalloc(size_in_bytes, GFP_KERNEL);
-+	if (!fh1) {
-+		return -ENOMEM;
-+	}
-+	fh2 = kmalloc(size_in_bytes, GFP_KERNEL);
-+	if (!fh2) {
-+		kfree(fh1);
-+		return -ENOMEM;
-+	}
-+	for (i = 0; i < 2; i++) {
-+		if (i == 0) {
-+			starting_sector =
-+			    node->total_vsectors - size_in_sectors;
-+			fh = fh1;
-+			location_name = EVMS_PRIMARY_STRING;
-+		} else {
-+			starting_sector--;
-+			fh = fh2;
-+			location_name = EVMS_SECONDARY_STRING;
-+		}
-+		/* read header into buffer */
-+		rc = INIT_IO(node, 0, starting_sector, size_in_sectors, fh);
-+		if (rc) {
-+			LOG_ERROR("error(%d) probing for %s feature header "
-+				  "(at "PFU64") on '%s'.\n", rc, location_name,
-+				  starting_sector, node->name);
-+			rc_array[i] = rc;
-+			continue;
-+		}
-+		/* validate header signature */
-+		if (cpu_to_le32(fh->signature) != EVMS_FEATURE_HEADER_SIGNATURE) {
-+			rc_array[i] = -ENODATA;
-+			continue;
-+		}
-+		/* validate header CRC */
-+		if (fh->crc != EVMS_MAGIC_CRC) {
-+			u32 org_crc, final_crc;
-+			org_crc = cpu_to_le32(fh->crc);
-+			fh->crc = 0;
-+			final_crc =
-+			    evms_cs_calculate_crc(EVMS_INITIAL_CRC, fh,
-+						  sizeof (*fh));
-+			if (final_crc != org_crc) {
-+				LOG_ERROR("CRC mismatch error [stored(%x), "
-+					  "computed(%x)] in %s feature header "
-+					  "(at "PFU64") on '%s'.\n",
-+					  org_crc, final_crc, location_name,
-+					  starting_sector, node->name);
-+				rc_array[i] = -EINVAL;
-+				continue;
-+			}
-+		} else {
-+			LOG_WARNING("CRC disabled in %s feature header "
-+				    "(at "PFU64") on '%s'.\n", location_name,
-+				    starting_sector, node->name);
-+		}
-+		/* convert the feature header from the
-+		 * on-disk format (Little Endian) to
-+		 * native cpu format.
-+		 */
-+		le_feature_header_to_cpu(fh);
-+		/* verify the system data version */
-+		rc = evms_cs_check_version(&version, &fh->version);
-+		if (rc) {
-+			LOG_ERROR("error: obsolete version(%d,%d,%d) in %s "
-+				  "feature header on '%s'.\n",
-+				  fh->version.major, fh->version.minor,
-+				  fh->version.patchlevel, location_name,
-+				  node->name);
-+			rc_array[i] = rc;
-+		}
-+	}
-+	/* analyze return codes from both copies */
-+	/* getting same return code for both copies? */
-+	if (rc_array[0] == rc_array[1]) {
-+		rc = rc_array[0];
-+		/* if no errors on both copies,
-+		 * check the sequence numbers.
-+		 * use the highest sequence number.
-+		 */
-+		if (!rc) {
-+			/* compare sequence numbers */
-+			if (fh1->sequence_number == fh2->sequence_number) {
-+				fh = fh1;
-+			} else {
-+				LOG_WARNING("%s feature header sequence number"
-+					    "("PFU64") mismatches %s feature "
-+					    "header sequence number("PFU64") "
-+					    "on '%s'!\n", EVMS_PRIMARY_STRING,
-+					    fh1->sequence_number,
-+					    EVMS_SECONDARY_STRING,
-+					    fh2->sequence_number, node->name);
-+				if (fh1->sequence_number > fh2->sequence_number) {
-+					fh = fh1;
-+					location_name = EVMS_PRIMARY_STRING;
-+					/* indicate bad sequence number of secondary */
-+					rc_array[1] = -1;
-+				} else {
-+					fh = fh2;
-+					location_name = EVMS_SECONDARY_STRING;
-+					/* indicate bad sequence number of primary */
-+					rc_array[0] = -1;
-+				}
-+			}
-+		}
-+	} else			/* getting different return codes for each copy */
-+	/* if either primary or secondary copy is
-+	   * valid, use the valid copy.
-+	 */ if ((rc_array[0] == 0) || (rc_array[1] == 0)) {
-+		char *warn_name = NULL;
-+
-+		/* indicate success */
-+		rc = 0;
-+		/* set variables based on which copy is valid */
-+		if (rc_array[0] == 0) {
-+			/* use primary (rear) copy if its good */
-+			fh = fh1;
-+			location_name = EVMS_PRIMARY_STRING;
-+			warn_name = EVMS_SECONDARY_STRING;
-+		} else {
-+			/* use secondary (front) copy if its good */
-+			fh = fh2;
-+			location_name = EVMS_SECONDARY_STRING;
-+			warn_name = EVMS_PRIMARY_STRING;
-+		}
-+		/* warn the user about the invalid copy */
-+		LOG_WARNING("warning: error(%d) probing/verifying the %s "
-+			    "feature header on '%s'.\n",
-+			    rc_array[0] + rc_array[1], warn_name, node->name);
-+	} else
-+		/* both copies had a different error,
-+		 * and one was a fatal error, so
-+		 * indicate fatal error.
-+		 */
-+	if ((rc_array[0] == -EINVAL) || (rc_array[1] == -EINVAL)) {
-+		rc = -EINVAL;
-+	}
-+	/* on error, set fh to NULL */
-+	if (rc) {
-+		fh = NULL;
-+	}
-+	/* deallocate metadata buffers appropriately */
-+	if (fh != fh2)
-+		kfree(fh2);
-+	if (fh != fh1)
-+		kfree(fh1);
-+	/* save validated feature header pointer */
-+	if (!rc) {
-+		node->feature_header = fh;
-+		if (rc_array[0] != rc_array[1]) {
-+			LOG_DETAILS("using %s feature header on '%s'.\n",
-+				    location_name, node->name);
-+		}
-+	}
-+	/* if no signature found, adjust return code */
-+	if (rc == -ENODATA) {
-+		rc = 0;
-+		LOG_DEBUG("no feature header found on '%s'.\n", node->name);
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_find_first_features - probes potential EVMS bottom-most objects for EVMS metadata.
-+ * @discover_list:	ptr to list of storage objects to probe
-+ *
-+ * probe this list of objects to see if any objects have EVMS metadata on them. this
-+ * probe occurs after regions discover has been completed and represents the earlier
-+ * point at which EVMS features could be found.
-+ *
-+ * if a storage object is found to have EVMS metadata, we allocate a volume info structure,
-+ * which keeps track of the persistant EVMS volume data (Serial #, minor #, name). this
-+ * volume info structure is then shared by all storage objects built off/from this storage
-+ * object. 
-+ * 
-+ * EVMS also has metadata it uses to determine if a region/segment/disk is not to be
-+ * exported. if we detect these flags here, we purge the storage object from memory. 
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_find_first_features(struct list_head *discover_list)
-+{
-+	int rc;
-+	struct evms_logical_node *node, *next_node, *tmp_node;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		int found = 0;
-+
-+		/* check for duplicate pointers
-+		 * search for the node in evms fbottom list
-+		 */
-+		list_for_each_entry(tmp_node, &evms_fbottom_list, fbottom) {
-+			if (tmp_node == node) {
-+				found = 1;
-+				break;
-+			}
-+		}
-+		/* already present? */
-+		if (found) {
-+			/* yes, already present */
-+			LOG_DETAILS("deleting duplicate reference to '%s'.\n",
-+				    node->name);
-+			/* forgot this node by not adding back
-+			 * onto the discover list.
-+			 */
-+			list_del_init(&node->discover);
-+			continue;
-+		}
-+		/* load the feature header if present */
-+		rc = edef_load_feature_header(node);
-+		if (rc) {
-+			LOG_ERROR("error(%d): reading feature header on '%s'\n",
-+				  rc, node->name);
-+			list_del_init(&node->discover);
-+			DELETE(node);
-+			continue;
-+		}
-+		if (node->feature_header) {
-+			/* check for object flag */
-+			if (node->feature_header->flags &
-+			    EVMS_VOLUME_DATA_OBJECT) {
-+				LOG_DEFAULT("object detected, deleting '%s'.\n",
-+					    node->name);
-+				list_del_init(&node->discover);
-+				DELETE(node);
-+				continue;
-+			}
-+			/* check for stop-data flag */
-+			if (node->feature_header->flags & EVMS_VOLUME_DATA_STOP) {
-+				LOG_DEFAULT("stop data detected, deleting "
-+					    "'%s'.\n", node->name);
-+				list_del_init(&node->discover);
-+				DELETE(node);
-+				continue;
-+			}
-+			/* we have a valid feature header.
-+			   * initialize appropriate node fields
-+			   * to indicate this.
-+			 */
-+			node->flags |= EVMS_VOLUME_FLAG;
-+			node->iflags |= EVMS_FEATURE_BOTTOM;
-+			node->volume_info
-+			    = kmalloc(sizeof (struct evms_volume_info),
-+				      GFP_KERNEL);
-+			if (!node->volume_info) {
-+				LOG_ERROR("error(%d): allocating volume info "
-+					  "struct, deleting '%s'.\n",
-+					  -ENOMEM, node->name);
-+				list_del_init(&node->discover);
-+				DELETE(node);
-+				continue;
-+			}
-+			/* set up volume
-+			   * info struct
-+			 */
-+			node->volume_info->
-+			    volume_sn =
-+			    node->feature_header->volume_serial_number;
-+			node->volume_info->
-+			    volume_minor =
-+			    node->feature_header->volume_system_id;
-+			strcpy(node->volume_info->
-+			       volume_name, node->feature_header->volume_name);
-+			/* register(add) node to the bottom feature list */
-+			list_add(&node->fbottom, &evms_fbottom_list);
-+		}
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * edef_isolate_nodes_ty_type - move storage objects by type from one list to another
-+ * @type:     		type of node to move (see defines below)
-+ * @src_list:		source list to search
-+ * @trg_list:		target list to put matching nodes
-+ * @compare32:		32-bit comparison field
-+ * @compare64:		64-bit comparison field
-+ *
-+ * moves storage object nodes by type from one list to another.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+/**
-+ * file @type defines
-+ **/
-+#define ISOLATE_ASSOCIATIVE_FEATURES		0
-+#define ISOLATE_COMPATIBILITY_VOLUMES		1
-+#define ISOLATE_EVMS_VOLUMES			2
-+#define ISOLATE_EVMS_VOLUME_SERIAL_NUMBER	3
-+#define ISOLATE_EVMS_NODES_BY_FEATURE_AND_DEPTH	4
-+
-+static int
-+edef_isolate_nodes_by_type(unsigned int type,
-+			   struct list_head *src_list,
-+			   struct list_head *trg_list,
-+			   u32 compare32, u64 compare64)
-+{
-+	struct evms_logical_node *node, *next_node;
-+	int rc = 0, found_node;
-+	struct evms_feature_header *fh = NULL;
-+
-+	list_for_each_entry_safe(node, next_node, src_list, discover) {
-+		if (node->feature_header)
-+			fh = node->feature_header;
-+		found_node = 0;
-+		switch (type) {
-+		case ISOLATE_ASSOCIATIVE_FEATURES:
-+			if (fh) {
-+				if (GetPluginType(fh->feature_id) ==
-+				    EVMS_ASSOCIATIVE_FEATURE) {
-+					found_node = 1;
-+				}
-+			}
-+			break;
-+		case ISOLATE_COMPATIBILITY_VOLUMES:
-+			if (!(node->flags & EVMS_VOLUME_FLAG)) {
-+				found_node = 1;
-+			}
-+			break;
-+		case ISOLATE_EVMS_VOLUMES:
-+			if (node->flags & EVMS_VOLUME_FLAG) {
-+				found_node = 1;
-+			}
-+			break;
-+			/* EVMS volumes with same serial # */
-+		case ISOLATE_EVMS_VOLUME_SERIAL_NUMBER:
-+			if (node->volume_info->volume_sn == compare64) {
-+				found_node = 1;
-+			}
-+			break;
-+		case ISOLATE_EVMS_NODES_BY_FEATURE_AND_DEPTH:
-+			if (fh) {
-+				if (fh->object_depth == compare64) {
-+					if (fh->feature_id == compare32) {
-+						found_node = 1;
-+					}
-+				}
-+			}
-+			break;
-+		}
-+		if (found_node == 1) {
-+			list_del_init(&node->discover);
-+			list_add(&node->discover, trg_list);
-+		}
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_apply_feature - apply a feature to a list of objects 
-+ * @node:		object whose plugin's discover function will be invoked
-+ * @volume_node_list:	list of potentially associated objects used during discover
-+ *
-+ * invoke the node's plugin's discover entry point and pass in the list of objects
-+ * that can be processed by this plugin.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_apply_feature(struct evms_logical_node *node,
-+		   struct list_head *volume_node_list)
-+{
-+	struct evms_plugin_header *plugin;
-+	spin_lock(&plugin_lock);
-+	list_for_each_entry(plugin, &plugin_head, headers) {
-+		if (plugin->id == node->feature_header->feature_id) {
-+			spin_unlock(&plugin_lock);
-+			return DISCOVER(plugin, volume_node_list);
-+		}
-+	}
-+	spin_unlock(&plugin_lock);
-+	return -ENOPKG;
-+}
-+
-+/**
-+ * edef_get_feature_plugin_header - retrieves the header record for a plugin
-+ * @id:	       	the feature or plugin ID
-+ * @header:	the returned plugin header record
-+ *
-+ * retrieve the header record for the specified plugin.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_get_feature_plugin_header(u32 id, struct evms_plugin_header **header)
-+{
-+	struct evms_plugin_header *plugin;
-+	spin_lock(&plugin_lock);
-+	list_for_each_entry(plugin, &plugin_head, headers) {
-+		if (plugin->id == id) {
-+			spin_unlock(&plugin_lock);
-+			*header = plugin;
-+			return 0;
-+		}
-+	}
-+	spin_unlock(&plugin_lock);
-+	LOG_SERIOUS("no plugin loaded for feature id(0x%x)\n", id);
-+	return -ENOPKG;
-+}
-+
-+/**
-+ * struct evms_volume_build_info - handy struct used during volume create time
-+ * @node_count:			count of objects in this pass
-+ * @feature_count:		count of unique plugins for the objects in this pass
-+ * @associative_feature_count:	count of objects needing associations to continue
-+ * @max_depth:			object with max volume depth on this pass
-+ * @plugin:			plugin the max depth object requires to continue
-+ * @feature_node_list:		list of nodes at max depth requiring @plugin
-+ *
-+ * handy structure used to track volume building info. updated and reused on each pass.
-+ **/
-+struct evms_volume_build_info {
-+	int node_count;
-+	int feature_count;
-+	int associative_feature_count;
-+	u64 max_depth;
-+	struct evms_plugin_header *plugin;
-+	struct list_head feature_node_list;
-+};
-+
-+/**
-+ * edef_evaluate_volume_node_list - performs one pass on the volume node list
-+ * @volume_node_list:	list of nodes to built into a volume
-+ * @vbi:		per pass volume build info
-+ * @volume_complete:	status flag
-+ *
-+ *   does:
-+ *	1) put all nodes from feature list back on volume list
-+ *      2) loads the node's feature headers
-+ *      3) counts the node list's entries
-+ *      4) builds the feature node list
-+ *	5) counts the feature headers for associative features
-+ *	6) sets feature count to >1 if >1 features to be processed
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ */
-+static int
-+edef_evaluate_volume_node_list(struct list_head *volume_node_list,
-+			       struct evms_volume_build_info *vbi,
-+			       int volume_complete)
-+{
-+	int rc;
-+	struct evms_logical_node *node;
-+
-+	vbi->node_count =
-+	    vbi->feature_count =
-+	    vbi->associative_feature_count = vbi->max_depth = 0;
-+	vbi->plugin = NULL;
-+
-+	/* put all feature nodes back on the volume list */
-+	rc = edef_isolate_nodes_by_type(ISOLATE_EVMS_VOLUMES,
-+					&vbi->feature_node_list,
-+					volume_node_list, 0, 0);
-+	if (rc) {
-+		return rc;
-+	}
-+	/* load all the feature headers */
-+	if (!volume_complete) {
-+		list_for_each_entry(node, volume_node_list, discover) {
-+			rc = edef_load_feature_header(node);
-+			if (rc) {
-+				return rc;
-+			}
-+		}
-+	}
-+
-+	/* find the 1st max depth object:
-+	 *   record the depth
-+	 *   record the plugin
-+	 */
-+	list_for_each_entry(node, volume_node_list, discover) {
-+		struct evms_plugin_header *plugin;
-+		struct evms_feature_header *fh = node->feature_header;
-+
-+		/* count the nodes */
-+		vbi->node_count++;
-+
-+		/* no feature header found, continue to next node */
-+		if (!fh) {
-+			continue;
-+		}
-+		/* check the depth */
-+		if (fh->object_depth > vbi->max_depth) {
-+			/* record new max depth */
-+			vbi->max_depth = fh->object_depth;
-+			/* find the plugin header for this feature id */
-+			rc = edef_get_feature_plugin_header(fh->feature_id,
-+							    &plugin);
-+			if (rc) {
-+				return rc;
-+			}
-+			/* check for >1 plugins */
-+			if (vbi->plugin != plugin) {
-+				vbi->feature_count++;
-+				vbi->plugin = plugin;
-+			}
-+		}
-+		/* check for "associative" feature indicator */
-+		if (GetPluginType(vbi->plugin->id) == EVMS_ASSOCIATIVE_FEATURE) {
-+			vbi->associative_feature_count++;
-+		}
-+	}
-+	/* build a list of max depth nodes for this feature */
-+	if (vbi->max_depth) {
-+		rc = edef_isolate_nodes_by_type
-+		    (ISOLATE_EVMS_NODES_BY_FEATURE_AND_DEPTH, volume_node_list,
-+		     &vbi->feature_node_list, vbi->plugin->id, vbi->max_depth);
-+		if (rc) {
-+			return rc;
-+		}
-+		if (!vbi->plugin) {
-+			return -ENODATA;
-+		}
-+		if (list_empty(&vbi->feature_node_list)) {
-+			return -ENODATA;
-+		}
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_check_feature_conditions
-+ * @vbi:	volume build info
-+ *
-+ * This routine verifies the state of volume based on the features
-+ * headers and nodes in the current @vbi.
-+ */
-+static int
-+edef_check_feature_conditions(struct evms_volume_build_info *vbi)
-+{
-+	if (vbi->associative_feature_count) {
-+		if (vbi->node_count > 1) {
-+			LOG_ERROR("associative ERROR: > 1 nodes(%d) remaining "
-+				  "to be processed!\n", vbi->node_count);
-+			return -EVMS_VOLUME_FATAL_ERROR;
-+		}
-+		if (vbi->max_depth != 1) {
-+			LOG_ERROR("associative ERROR: associative feature "
-+				  "found at node depth("PFU64") != 1!\n",
-+				  vbi->max_depth);
-+			return -EVMS_VOLUME_FATAL_ERROR;
-+		}
-+		return -EVMS_ASSOCIATIVE_FEATURE;
-+	}
-+	if (!vbi->max_depth) {
-+		if (vbi->node_count > 1) {
-+			LOG_ERROR("max depth ERROR: > 1 nodes(%d) remaining "
-+				  "to be processed!\n", vbi->node_count);
-+			return -EVMS_VOLUME_FATAL_ERROR;
-+		}
-+	}
-+	if (vbi->max_depth == 1) {
-+		if (vbi->feature_count > 1) {
-+			LOG_ERROR("max depth 1 ERROR: > 1 features remaining "
-+				  "to be processed!\n");
-+			return -EVMS_VOLUME_FATAL_ERROR;
-+		}
-+	}
-+	return 0;
-+}
-+
-+/** edef_apply_features
-+ * @volume_node_list:	all the objects to be built into a volume
-+ *
-+ * This routine applies none, one, or more features to an EVMS
-+ * volume. The features are applied and verified recursively until the
-+ * entire volume has been constructed. Fatal errors result in
-+ * all nodes in the volume discovery list being deleted.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ */
-+static int
-+edef_apply_features(struct list_head *volume_node_list)
-+{
-+	int rc, done, top_feature_applying;
-+	struct evms_volume_build_info vbi;
-+
-+	INIT_LIST_HEAD(&vbi.feature_node_list);
-+	rc = edef_evaluate_volume_node_list(volume_node_list, &vbi, 0);
-+
-+	/* ensure we don't go into the next loop
-+	 * without having a target plugin to
-+	 * pass control to.
-+	 */
-+	if (!rc) {
-+		if (!vbi.plugin) {
-+			rc = -ENODATA;
-+		}
-+	}
-+
-+	/* this loop should ONLY get used when
-+	 * there are features to process.
-+	 */
-+	done = (rc) ? 1 : 0;
-+	while (!done) {
-+		rc = edef_check_feature_conditions(&vbi);
-+		if (rc)
-+			break;
-+		top_feature_applying = (vbi.max_depth == 1) ? 1 : 0;
-+		rc = vbi.plugin->fops->discover(&vbi.feature_node_list);
-+		if (!rc) {
-+			rc = edef_evaluate_volume_node_list(volume_node_list,
-+							    &vbi,
-+							    top_feature_applying);
-+			if (top_feature_applying == 1) {
-+				if (vbi.node_count > 1) {
-+					rc = -EVMS_VOLUME_FATAL_ERROR;
-+					LOG_ERROR("ERROR: detected > 1 node at "
-+						  "volume completion!\n");
-+				}
-+				done = 1;
-+			} else {
-+				if (!vbi.plugin) {
-+					rc = -EVMS_VOLUME_FATAL_ERROR;
-+					LOG_ERROR("ERROR: depth("PFU64"): "
-+						  "expected another feature!\n",
-+						  vbi.max_depth);
-+					done = 1;
-+				}
-+			}
-+		} else {	/* rc != 0 */
-+			rc = -EVMS_VOLUME_FATAL_ERROR;
-+			done = 1;
-+		}
-+	}
-+	if (rc) {
-+		/* put all feature nodes back on the volume list */
-+		if (edef_isolate_nodes_by_type(ISOLATE_EVMS_VOLUMES,
-+					       &vbi.feature_node_list,
-+					       volume_node_list, 0, 0)) {
-+			BUG();
-+		}
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_delete_node - generic delete an object from a volume node list
-+ * @node_list:		the current object list
-+ * @node:		the object to be deleted
-+ * @return_code:	the error code
-+ * @log_text:		logging text
-+ *
-+ * convenience function to delete an object from a volume list. this generates
-+ * the appropriate syslog messages and sets the return code.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_delete_node(struct list_head *node_list,
-+		 struct evms_logical_node *node, int return_code,
-+		 char *log_text)
-+{
-+	int rc;
-+
-+	if (!list_empty(&node->discover)) {
-+		list_del_init(&node->discover);
-+		LOG_ERROR("%s error(%d): deleting volume(%s), node(%s)\n",
-+			  log_text, return_code,
-+			  node->volume_info->volume_name, node->name);
-+		rc = DELETE(node);
-+		if (rc) {
-+			LOG_ERROR("error(%d) while deleting node(%s)\n",
-+				  rc, node->name);
-+		}
-+	} else {
-+		LOG_WARNING("%s error(%d): node gone, assumed deleted by "
-+			    "plugin.\n", log_text, return_code);
-+		/* plugin must have cleaned up the node.
-+		 * So just reset the return code and leave.
-+		 */
-+		rc = 0;
-+	}
-+
-+	return rc;
-+}
-+
-+/**
-+ * edef_process_evms_volumes - build an EVMS volume from storage objects
-+ * @discover_list:		list of all objects being discovered
-+ * @associative_feature_list:	returned list of objects required associative features
-+ *
-+ * groups all evms objects with the same serial number onto a volume list and sends
-+ * that list into edef_apply_features. this process is repeated unto all evms volume
-+ * serial number groups have been processed. objects representing complete volumes
-+ * are put back on the discover list and objects requiring associative processing
-+ * are put on an associative feature list.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_process_evms_volumes(struct list_head *discover_list,
-+			  struct list_head *associative_feature_list)
-+{
-+	int rc = 0;
-+	struct list_head evms_volumes_list, volume_node_list;
-+	struct evms_logical_node *node = NULL;
-+	u64 volume_sn;
-+
-+	INIT_LIST_HEAD(&evms_volumes_list);
-+	/* put all EVMS volumes on their own list */
-+	rc = edef_isolate_nodes_by_type(ISOLATE_EVMS_VOLUMES,
-+					discover_list,
-+					&evms_volumes_list, 0, 0);
-+
-+	/* apply features to each EVMS volume */
-+	/* one volume at a time on each pass  */
-+	while (!list_empty(&evms_volumes_list)) {
-+		node = list_entry(evms_volumes_list.next, struct evms_logical_node, discover);
-+		/* put all nodes for one EVMS volume on separate list */
-+		INIT_LIST_HEAD(&volume_node_list);
-+		volume_sn = node->volume_info->volume_sn;
-+		rc = edef_isolate_nodes_by_type
-+		    (ISOLATE_EVMS_VOLUME_SERIAL_NUMBER, &evms_volumes_list,
-+		     &volume_node_list, 0, volume_sn);
-+		if (rc) {
-+			break;
-+		}
-+		/* go apply all the volume features now */
-+		rc = edef_apply_features(&volume_node_list);
-+		switch (rc) {
-+		case 0:	/* SUCCESS */
-+			/* remove volume just processed */
-+			node = list_entry(volume_node_list.next, struct evms_logical_node, discover);
-+			list_del_init(&node->discover);
-+			/* put volume on global list */
-+			list_add_tail(&node->discover, discover_list);
-+			break;
-+		case -EVMS_ASSOCIATIVE_FEATURE:
-+			/* put all "associative" features on their own list */
-+			rc = edef_isolate_nodes_by_type
-+			    (ISOLATE_ASSOCIATIVE_FEATURES, &volume_node_list,
-+			     associative_feature_list, 0, 0);
-+			break;
-+		default:	/* FATAL ERROR */
-+			/* delete each node remaining in the list */
-+			if (!list_empty(&volume_node_list)) {
-+				node = list_entry(volume_node_list.next, struct evms_logical_node, discover);
-+				LOG_ERROR("encountered fatal error building "
-+					  "volume '%s'\n",
-+					  node->volume_info->volume_name);
-+			}
-+			while (!list_empty(&volume_node_list)) {
-+				node = list_entry(volume_node_list.next, struct evms_logical_node, discover);
-+				edef_delete_node(&volume_node_list,
-+						 node, rc, "EVMS feature");
-+			}
-+			rc = 0;
-+			break;
-+		}
-+		if (rc) {
-+			break;
-+		}
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_process_associative_volumes - find the associative feature for the objects in this list
-+ * @associative_feature_list:	list of objects requiring associative features
-+ * @discover_list:		list to put completed volumes object back onto
-+ * 
-+ * find and apply the appropriate associative feature for the objects on the
-+ * associative feature list. if successfully applied, put the resulting completed
-+ * volume objects on to the discover list. error result in the volume objects
-+ * being deleted.
-+ * 
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+static int
-+edef_process_associative_volumes(struct list_head *associative_feature_list,
-+				 struct list_head *discover_list)
-+{
-+	int rc = 0;
-+	struct evms_logical_node *node, *next_node;
-+
-+	list_for_each_entry_safe(node, next_node, associative_feature_list, discover) {
-+		/* remove this node from associative feature list */
-+		list_del_init(&node->discover);
-+		rc = edef_load_feature_header(node);
-+		if (rc) {
-+			edef_delete_node(discover_list, node, rc,
-+					 "Associative Feature");
-+			continue;
-+		}
-+		/* put volume on global list */
-+		list_add_tail(&node->discover, discover_list);
-+		rc = edef_apply_feature(node, discover_list);
-+	}
-+	return rc;
-+}
-+
-+/**
-+ * edef_check_for_incomplete_volumes
-+ * @discover_list:	list of post discovery time volume objects
-+ *
-+ * check to see if any incomplete volumes are left around if so, delete them.
-+ * complete volumes should not have feature_headers hanging off them, if we
-+ * find any, we know the volume is incomplete.
-+ **/
-+static void
-+edef_check_for_incomplete_volumes(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *next_node, *node;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		if (node->feature_header) {
-+			edef_delete_node(discover_list, node, 0,
-+					 "Unexpected feature header");
-+		}
-+	}
-+}
-+
-+/**
-+ * evms_discover_evms_features
-+ * @discover_list:	list of objects to discover evms features on
-+ *
-+ * find EVMS features for nodes on the discover list
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ */
-+static int
-+evms_discover_evms_features(struct list_head *discover_list)
-+{
-+	struct list_head associative_feature_list;
-+	int rc;
-+
-+	LOG_EXTRA("discovering evms volume features...\n");
-+
-+	INIT_LIST_HEAD(&associative_feature_list);
-+	rc = edef_find_first_features(discover_list);
-+	if (rc) {
-+		return rc;
-+	}
-+	rc = edef_process_evms_volumes(discover_list,
-+				       &associative_feature_list);
-+	if (rc) {
-+		return rc;
-+	}
-+	rc = edef_process_associative_volumes(&associative_feature_list,
-+					      discover_list);
-+	if (rc) {
-+		return rc;
-+	}
-+	edef_check_for_incomplete_volumes(discover_list);
-+	return 0;
-+}
-+
-+/**
-+ * eelv_geninit - initialize a gendisk entry for a volume
-+ * @volume:	ptr to new volume
-+ * @minor:	minor value of new volume
-+ *
-+ * This routine initializes a gendisk entry for the specified volume.
-+ **/
-+static void
-+eelv_geninit(struct evms_logical_volume *lv)
-+{
-+	struct gendisk *gd = lv->gd;
-+
-+	if (!gd) {
-+		gd = alloc_disk();
-+		BUG_ON(!gd);
-+		lv->gd = gd;
-+	}
-+
-+	gd->major = EVMS_MAJOR;
-+	gd->first_minor = lv->minor;
-+	snprintf(gd->disk_name, 16, "%s%d", EVMS_DIR_NAME, lv->minor);
-+	gd->fops = &evms_fops;
-+	set_capacity(gd, lv->node->total_vsectors);
-+
-+	/* set removable flags as needed */
-+	gd->flags = 0;
-+	if (lv->flags & EVMS_DEVICE_REMOVABLE) {
-+		gd->flags |= GENHD_FL_REMOVABLE;
-+	}
-+
-+	gd->de = devfs_register(evms_dir_devfs_handle,
-+				lv->name, DEVFS_FL_DEFAULT,
-+				EVMS_MAJOR, lv->minor,
-+				S_IFBLK | S_IRUGO | S_IWUGO,
-+				&evms_fops, NULL);
-+
-+	add_disk(gd);
-+}
-+
-+/**
-+ * add_logical_volume - adds a newly created logical volume to our list
-+ * @lv:		logical volume to be added.
-+ *
-+ * adds a newly created logical volume to our list.
-+ * this function keeps the list ordered by minor
-+ * number from low to high.
-+ **/
-+static void
-+add_logical_volume(struct evms_logical_volume *lv)
-+{
-+	if (list_empty(&evms_logical_volumes)) {
-+		list_add(&lv->volumes, &evms_logical_volumes);
-+	} else {
-+		struct evms_logical_volume *tmpvol;
-+		list_for_each_entry(tmpvol, &evms_logical_volumes, volumes) {
-+			BUG_ON(tmpvol->minor == lv->minor);
-+			if (tmpvol->minor > lv->minor) {
-+				break;
-+			}
-+		}
-+		list_add(&lv->volumes, tmpvol->volumes.prev);
-+	}
-+}
-+
-+/**
-+ * evms_do_request_fn
-+ * @q:		request queue
-+ **/
-+static void
-+evms_do_request_fn(request_queue_t * q)
-+{
-+	LOG_WARNING("This function should not be called.\n");
-+}
-+
-+/**
-+ * eelv_assign_volume_minor - assigns a minor number to a volume
-+ * @node: 	volume object to process
-+ * @minor:	minor device number to assign
-+ *
-+ * This routine assigns a specific minor number to a volume. It
-+ * also performs the remaining steps to make this volume visible
-+ * and usable to the kernel.
-+ **/
-+static void
-+eelv_assign_volume_minor(struct evms_logical_node *node, int minor,
-+			 struct evms_logical_volume *vol)
-+{
-+	struct evms_logical_volume *lv = vol;
-+
-+	if (!lv) {
-+		lv = kmalloc(sizeof(struct evms_logical_volume), GFP_KERNEL);
-+		BUG_ON(!lv);
-+		memset(lv, 0, sizeof(struct evms_logical_volume));
-+		lv->requests_in_progress = (atomic_t) ATOMIC_INIT(0);
-+	}
-+	lv->node = node;
-+	lv->name = kmalloc(strlen(EVMS_GET_NODE_NAME(node)) + 1, GFP_KERNEL);
-+	BUG_ON(!lv->name);
-+	strcpy(lv->name, EVMS_GET_NODE_NAME(node));
-+	lv->minor = minor;
-+	lv->flags = node->flags;
-+	if (lv->flags & EVMS_VOLUME_READ_ONLY) {
-+		set_device_ro(mk_kdev(EVMS_MAJOR, minor), 1);
-+	}
-+
-+	/* round volume size down to next hardsector */
-+	node->total_vsectors &=
-+	    ~((node->hardsector_size >> EVMS_VSECTOR_SIZE_SHIFT) - 1);
-+
-+	eelv_geninit(lv);
-+
-+	/* set up the request queue for this volume */
-+	lv->requests_in_progress = (atomic_t) ATOMIC_INIT(0);
-+	lv->request_lock = SPIN_LOCK_UNLOCKED;
-+	if (!vol) {
-+		init_waitqueue_head(&lv->quiesce_wait_queue);
-+		init_waitqueue_head(&lv->request_wait_queue);
-+		blk_init_queue(&lv->request_queue,
-+			       evms_do_request_fn,
-+			       &lv->request_lock);
-+		blk_queue_make_request(&lv->request_queue,
-+				       evms_make_request_fn);
-+		add_logical_volume(lv);
-+	}
-+	evms_volumes++;
-+	LOG_DEFAULT("Exporting EVMS Volume(%u,%u) from \"%s%s\".\n",
-+		    EVMS_MAJOR, minor, EVMS_DIR_NAME "/", lv->name);
-+}
-+
-+/**
-+ * eelv_check_for_duplicity
-+ * @discover_list: 	list of potential volume objects to export
-+ *
-+ * This routine compares the serial number in the top most node
-+ * in the volume to the list of currently exported volumes. If
-+ * this volumes serial number is found in the list then we know
-+ * this volume is a duplicate and it is then delete.
-+ **/
-+static void
-+eelv_check_for_duplicity(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *next_node, *node;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		struct evms_logical_volume *lv = NULL;
-+		int is_dup = 0;
-+		while ((lv = find_next_volume(lv))) {
-+			char *type_ptr = NULL;
-+			/* only check exported volumes */
-+			if (!lv->node) {
-+				continue;
-+			}
-+			/* check for duplicate pointer */
-+			if (node == lv->node) {
-+				is_dup = 1;
-+				type_ptr = "pointer";
-+				/* check for duplicate node */
-+			} else if (!strcmp(node->name, lv->node->name)) {
-+				is_dup = 1;
-+				type_ptr = "node";
-+			}
-+			if (is_dup == 1) {
-+				LOG_DETAILS("deleting duplicate %s to EVMS "
-+					    "volume(%u,%u,%s)...\n",
-+					    type_ptr, EVMS_MAJOR, lv->minor,
-+					    EVMS_GET_NODE_NAME(node));
-+				list_del_init(&node->discover);
-+				/* forget duplicate */
-+				break;
-+			}
-+		}
-+	}
-+}
-+
-+/**
-+ * eelv_reassign_soft_deleted_volume_minors
-+ * @discover_list: 	list of volume objects to export
-+ *
-+ * This routine reassigns previous minor numbers to rediscovered "soft"
-+ * deleted volumes.
-+ **/
-+static void
-+eelv_reassign_soft_deleted_volume_minors(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *next_node, *node;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		struct evms_logical_volume *lv = NULL;
-+		while ((lv = find_next_volume(lv))) {
-+			/* only check soft deleted volumes:
-+			 *  they have a non-NULL name.
-+			 */
-+			if (!(lv->flags & EVMS_VOLUME_SOFT_DELETED)) {
-+				continue;
-+			}
-+			if (strcmp(EVMS_GET_NODE_NAME(node), lv->name)) {
-+				continue;
-+			}
-+			/* reassign requested minor */
-+			list_del_init(&node->discover);
-+			LOG_DEFAULT("Re");
-+			/* free the previously used name */
-+			kfree(lv->name);
-+			lv->name = NULL;
-+			/* clear the EVMS_VOLUME_SOFT_DELETED flag */
-+			lv->flags = 0;
-+			eelv_assign_volume_minor(node, lv->minor, lv);
-+			break;
-+		}
-+	}
-+}
-+
-+/**
-+ * eelv_assign_evms_volume_minors
-+ * @discover_list: 	list of volume objects to export
-+ *
-+ * This routine assigns minor numbers to new evms volumes. If
-+ * the specified minor is already in use, the requested minor
-+ * is set to 0, and will be assigned next available along with
-+ * any remaining volumes at the end of evms_export_logical_volumes.
-+ **/
-+static void
-+eelv_assign_evms_volume_minors(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *next_node, *node, *lv_node;
-+	unsigned int requested_minor, lv_flags;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		/* only process evms volumes */
-+		if (!(node->flags & EVMS_VOLUME_FLAG)) {
-+			continue;
-+		}
-+		requested_minor = node->volume_info->volume_minor;
-+		/* is there a requested minor? */
-+		if (!requested_minor) {
-+			continue;
-+		}
-+		/* check range of requested minor */
-+		if (requested_minor >= MAX_EVMS_VOLUMES) {
-+			lv_node = node;
-+			lv_flags = 0;
-+		} else {
-+			struct evms_logical_volume *lv;
-+			lv_node = NULL;
-+			lv_flags = 0;
-+			lv = lookup_volume(requested_minor);
-+			if (lv) {
-+				lv_node = lv->node;
-+				lv_flags = lv->flags;
-+			}
-+		}
-+		if (lv_node || (lv_flags & EVMS_VOLUME_SOFT_DELETED)) {
-+			LOG_WARNING("EVMS volume(%s) requesting invalid/in-use "
-+				    "minor(%d), assigning next available!\n",
-+				    node->volume_info->volume_name,
-+				    requested_minor);
-+			/*
-+			 * requested minor is already
-+			 * in use, defer assignment
-+			 * until later.
-+			 */
-+			node->volume_info->volume_minor = 0;
-+		} else {
-+			/* assign requested minor */
-+			list_del_init(&node->discover);
-+			eelv_assign_volume_minor(node, requested_minor, NULL);
-+		}
-+	}
-+}
-+
-+/**
-+ * find_unused_minor - finds the first unused minor based on the specified direction
-+ * @dir:	direction of search (0 = forward, 1 = backward)
-+ *
-+ * Searches for the first available minor number in the specified search
-+ * direction.
-+ *
-+ * Returns the first available minor number or 0. 0 is reserved for the block
-+ * device itself and is therefore never usable for a logical volume.
-+ **/
-+static int
-+find_unused_minor(int dir)
-+{
-+	int i;
-+	if (!dir) {
-+		for (i = 1; i < MAX_EVMS_VOLUMES; i++) {
-+			if (!lookup_volume(i)) {
-+				return i;
-+			}
-+		}
-+	} else {
-+		for (i = MAX_EVMS_VOLUMES - 1; i; i--) {
-+			if (!lookup_volume(i)) {
-+				return i;
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * eelv_assign_remaining_evms_volume_minors
-+ * @discover_list: 	list of volume objects to export
-+ *
-+ * This routine assigns minor numbers to new evms volumes that
-+ * have no/conflicting minor assignments. This function will
-+ * search from high(255) minor values down, for the first available
-+ * minor. Searching high to low minimizes the possibility of
-+ * conflicting evms volumes causing "compatibility" minor
-+ * assignments to shift from expected assignments.
-+ */
-+static void
-+eelv_assign_remaining_evms_volume_minors(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *next_node, *node;
-+	int minor;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		/* only process evms volumes */
-+		/* all remaining evms volumes should now
-+		 * have a minor value of 0, meaning they
-+		 * had no minor assignment, or their minor
-+		 * assignment conflicted with an existing
-+		 * minor assignment.
-+		 */
-+		if (!(node->flags & EVMS_VOLUME_FLAG)) {
-+			continue;
-+		}
-+		list_del_init(&node->discover);
-+		/* find next available minor number */
-+		minor = find_unused_minor(1);
-+		/* check range of assigned minor */
-+		if (!minor) {
-+			LOG_CRITICAL("no more minor numbers available for "
-+				     "evms volumes!!!!\n");
-+			DELETE(node);
-+		} else {
-+			/* assign requested minor */
-+			eelv_assign_volume_minor(node, minor, NULL);
-+		}
-+	}
-+}
-+
-+/**
-+ * eelv_assign_remaining_volume_minors
-+ * @discover_list: 	list of volume objects to export
-+ *
-+ * This routine assigns minor numbers to all remaining unassigned
-+ * volumes. Minor numbers are assigned on an first availability
-+ * basis. The first free minor number is used in the assignment.
-+ **/
-+static void
-+eelv_assign_remaining_volume_minors(struct list_head *discover_list)
-+{
-+	struct evms_logical_node *node, *next_node;
-+	int minor;
-+
-+	list_for_each_entry_safe(node, next_node, discover_list, discover) {
-+		list_del_init(&node->discover);
-+		/* find next available minor number */
-+		minor = find_unused_minor(0);
-+		if (!minor) {
-+			LOG_CRITICAL("no more minor numbers available for "
-+				     "compatibility volumes!!!!\n");
-+			DELETE(node);
-+		} else {
-+			/* assign minor */
-+			eelv_assign_volume_minor(node, minor, NULL);
-+		}
-+	}
-+}
-+
-+/**
-+ * eelv_check_for_unreassign_soft_deleted_volume
-+ * @discover_list: 	list of volume objects to export
-+ *
-+ * This routine reports any "soft deleted" volumes that were not
-+ * found after a rediscovery.
-+ **/
-+static void
-+eelv_check_for_unreassign_soft_deleted_volume(void)
-+{
-+	struct evms_logical_volume *lv, *next_lv;
-+
-+	next_lv = NULL;
-+	while ((lv = find_next_volume_safe(&next_lv))) {
-+		/* only check soft deleted volumes:
-+		 *  they have a NULL node ptr &
-+		 *  they have a non-NULL name.
-+		 */
-+		if (!(lv->flags & EVMS_VOLUME_SOFT_DELETED)) {
-+			continue;
-+		}
-+		if (is_busy(mk_kdev(EVMS_MAJOR, lv->minor))) {
-+			lv->flags |= EVMS_VOLUME_CORRUPT;
-+		}
-+		LOG_ERROR("error: rediscovery failed to find %smounted "
-+			  "'soft deleted' volume(%u,%u,%s)...\n",
-+			  ((lv->flags & EVMS_VOLUME_CORRUPT) ? "" : "un"),
-+			  EVMS_MAJOR, lv->minor, lv->name);
-+		if (lv->flags & EVMS_VOLUME_CORRUPT) {
-+			LOG_ERROR("    flagging volume(%u:%u,%s) as CORRUPT!\n",
-+				  EVMS_MAJOR, lv->minor, lv->name);
-+		} else {
-+			LOG_ERROR("    releasing minor(%d) used by "
-+				  "volume(%s)!\n", lv->minor, lv->name);
-+			/* clear logical volume structure
-+			 * for this volume so it may be
-+			 * reused.
-+			 */
-+			blk_cleanup_queue(&lv->request_queue);
-+			kfree(lv->name);
-+			list_del_init(&lv->volumes);
-+			kfree(lv);
-+		}
-+	}
-+}
-+
-+/**
-+ * eelv_unquiesce_volumes - unquiesces all volumes after a rediscover operation
-+ *
-+ * unquiesces all volumes after a rediscover operation.
-+ **/
-+static void
-+eelv_unquiesce_volumes(void)
-+{
-+	struct evms_logical_volume *lv = NULL;
-+	/* check each volume entry */
-+	while((lv = find_next_volume(lv))) {
-+		/* is this volume "quiesced" ? */
-+		if (!lv->quiesced) {
-+			continue;
-+		}
-+		if (!lv->node) {
-+			continue;
-+		}
-+		/* "unquiesce" it */
-+		evms_quiesce_volume(lv, 0, lv->minor, 0);
-+	}
-+}
-+
-+/**
-+ * evms_export_logical_volumes
-+ *
-+ * This function is called from evms_discover_volumes. It
-+ * check for duplicate volumes, assigns minor values to evms
-+ * volumes, and assigns minor values to the remaining volumes.
-+ * In addition to assigning minor values to each volume this
-+ * function also completes the final steps necessary to allow
-+ * the volumes to be using by the operating system.
-+ **/
-+static void
-+evms_export_logical_volumes(struct list_head *discover_list)
-+{
-+	LOG_EXTRA("exporting EVMS logical volumes...\n");
-+
-+	eelv_check_for_duplicity(discover_list);
-+	eelv_reassign_soft_deleted_volume_minors(discover_list);
-+	eelv_assign_evms_volume_minors(discover_list);
-+	eelv_assign_remaining_evms_volume_minors(discover_list);
-+	eelv_assign_remaining_volume_minors(discover_list);
-+	eelv_check_for_unreassign_soft_deleted_volume();
-+	eelv_unquiesce_volumes();
-+}
-+
-+/**
-+ * edv_populate_discover_list - initially populates the discover list with disk objects
-+ * @src_list:		source list for disk objects
-+ * @trg_list:		target list for disk objects
-+ * @discover_parms:	rediscover ioctl packet
-+ *
-+ * based on the presence or the contents of the rediscover packet, the discover list
-+ * is populated with disk objects. if the @discover_parms == NULL, all disk objects
-+ * will be copied to the discover list. if the @discover_parms points to a rediscover
-+ * packet, the disks matching the disk handles from in the ioctl packet will be copied
-+ * to the discover list.
-+ *
-+ **/
-+static void
-+edv_populate_discover_list(struct list_head *src_list,
-+			   struct list_head *trg_list,
-+			   struct evms_rediscover_pkt *discover_parms)
-+{
-+	int i, use_all_disks = 0;
-+	struct evms_logical_node *node;
-+
-+	/* if no discover parameters are specified */
-+	/* copy ALL the disk nodes into the        */
-+	/* discovery list.                         */
-+	if ((discover_parms == NULL) ||
-+	    (discover_parms->drive_count == REDISCOVER_ALL_DEVICES))
-+		use_all_disks = 1;
-+
-+	/* copy the disk nodes specified in the */
-+	/* discover_parms over to a discover list */
-+
-+	list_for_each_entry(node, &evms_device_list, device) {
-+		int move_node;
-+		move_node = use_all_disks;
-+		if (move_node == 0)
-+			/* check the rediscovery array */
-+			for (i = 0; i < discover_parms->drive_count; i++) {
-+				struct evms_logical_node *disk_node = 
-+				    DEV_HANDLE_TO_NODE(discover_parms->
-+						       drive_array[i]);
-+				if (disk_node == node) {
-+					move_node = 1;
-+					break;
-+				}
-+			}
-+		/* check to see if we want this node */
-+		if (move_node == 1) {
-+			if (list_empty(&node->discover)) {
-+				list_add_tail(&node->discover, trg_list);
-+			}
-+		}
-+	}
-+}
-+
-+/**
-+ * evms_discover_volumes - probe the disks to discover volumes
-+ * @discover_parms:	ptr to a rediscover ioctl packet
-+ *
-+ * perform a rediscover operation. the presence or contents of a rediscover packet
-+ * will dictate the scope of the operation.
-+ *
-+ * returns: 0 = success
-+ *	    otherwise error code
-+ **/
-+int
-+evms_discover_volumes(struct evms_rediscover_pkt *discover_parms)
-+{
-+	struct list_head discover_list;
-+
-+	INIT_LIST_HEAD(&discover_list);
-+	evms_discover_logical_disks(&discover_list);
-+	if (!list_empty(&evms_device_list)) {
-+		/* move the appropriate disk nodes, based on */
-+		/* on the discover parameters, onto the      */
-+		/* discover list for the partition managers  */
-+		/* to process                                */
-+		edv_populate_discover_list(&evms_device_list,
-+					   &discover_list, discover_parms);
-+	}
-+	if (!list_empty(&discover_list)) {
-+		evms_discover_segments(&discover_list);
-+	}
-+	if (!list_empty(&discover_list)) {
-+		evms_discover_regions(&discover_list);
-+	}
-+	if (!list_empty(&discover_list)) {
-+		evms_discover_evms_features(&discover_list);
-+	}
-+	if (!list_empty(&discover_list)) {
-+		evms_export_logical_volumes(&discover_list);
-+		evms_cs_signal_event(EVMS_EVENT_END_OF_DISCOVERY);
-+	}
-+	BUG_ON(!list_empty(&discover_list));
-+	return 0;
-+}
-+
-+/**
-+ * find_root_fs_dev
-+ *
-+ * If "root=/dev/evms/???" was specified on the kernel command line, and devfs
-+ * is not enabled, we need to determine the appropriate minor number for the
-+ * specified volume for the root fs.
-+ *
-+ * This function will never get called if EVMS is built as a module, and
-+ * adding the #ifndef MODULE condition prevents having to add an
-+ * EXPORT_SYMBOL() somewhere for get_root_device_name.
-+ */
-+static void
-+find_root_fs_dev(void)
-+{
-+#ifndef MODULE
-+	struct evms_logical_volume *lv;
-+	char root_name[64] = { 0 };
-+	char *name;
-+
-+	//get_root_device_name(root_name);
-+
-+	if (!strncmp(root_name, EVMS_DIR_NAME "/", strlen(EVMS_DIR_NAME) + 1)) {
-+		name = &root_name[strlen(EVMS_DIR_NAME) + 1];
-+		
-+		lv = NULL;
-+		while ((lv = find_next_volume(lv))) {
-+			if (lv->name &&
-+			    !strncmp(name, lv->name, strlen(lv->name))) {
-+				ROOT_DEV = kdev_val(mk_kdev(EVMS_MAJOR, lv->minor));
-+				return;
-+			}
-+		}
-+	}
-+#endif
-+}
-+
-+/**
-+ * evms_init_discover
-+ *
-+ * If EVMS is statically built into the kernel, this function will be called
-+ * to perform an initial volume discovery.
-+ **/
-+int __init
-+evms_init_discover(void)
-+{
-+	/* Go find volumes */
-+	evms_discover_volumes(NULL);
-+
-+	/* Check if the root fs is on EVMS */
-+	if (MAJOR(ROOT_DEV) == EVMS_MAJOR) {
-+		find_root_fs_dev();
-+	}
-+	return 0;
-+}
-+
-+__initcall(evms_init_discover);
-+
+--20979877-502199567-1034282911=:29122
+Content-Type: APPLICATION/x-gzip; name="dump.patch.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0210101348310.29122@nakedeye.aparity.com>
+Content-Description: compressed dump.patch, LKCD driver files
+Content-Disposition: attachment; filename="dump.patch.gz"
+
+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
+Z0jZJQCRRIK0Lgqi8AqmqgzzXrhEQblnxfpLnnOjKT4JuDucIXc4bgPzqGhw
+PnBOAnWD5pHz3xOXYsJu2wOEK4y1HScPrHE10vccpj6mVK1FJxuk43yYrFBw
+LCXhQHe7/h3l47JAKJSXbs2huRoD0jv3KFzIjt/U8bX9vItxv8iKDZMHBgCl
+4fiKUp0N8s5XnHGv1PzGai4pka/0TQecuzEdwfZhRKS7mB/Ns5wJFzDOvipI
+1UnnTFbPodFwUR6QFUnJrIIVCRKfZrsdO2g6UGVZz4QPYKyicABBni4xqZh1
+hYfiNIaSCf+Bsol6oQTyofipox/aaMqjYWa5Xjsf/0Z+/fXAw7+x7TURxxmW
+6MvLJN8o2HUSlFZXV8VFqEae6zeYHmZMWfL4uhEOU7Jn9FmeXl5KgnUFEOVg
+40LCgiZ2ort/n+0kl3fYx16GKgLlqFVNM4D3mPajJOOEvtFJPehyRy6zD2OR
+u8zTNcnm/GygzucsH6MX6wjDz9UEIkjmT0BvijtSidaIHnwYixCik8Gxs5Pz
+Vsz6WLaDF6Ms6w71XqgImNztglEoPHmSP3ymNArrW4r0LP/+9wuhI1Z0V3oH
+0+rvf69otuk1W6lo9dRrtVZu9fFP9PFLyslR/rf8M7mIQiYvtHdFzkddREhK
+1M+iiGVKicLCZuL3ypNrhtNmMI5xJ8f4lmIytpGFowmgMjy7j/G/FrfoK7z+
+HzDF6jVFxGzzLaM3vpiOlWuhzQKLJPbs+Di5yK+UCK8ZFhNc3UiehEKSDpRu
+oBkz1OUaQda50ByxQ1NkV7ckeToQC6OUMTl4JUv9BJ7m0hAPBEnL7s1GXpSB
+vIVL2gz3hjjuq59ewYaLv5sIsYc7b/Z320fnh69aJ9vlLqYGi7Q2xuHK9ixr
+tY1PtIrnqG6MHjCLzUZORQnPpaOM9CK+VPr4nix+O+fsbxQinC6i3FI0L+0J
+Jr16Eap/jAqpagireAjULlXtjdLB/VHVUry2XsR96WfIF5Ws/gvPaj6bnTe8
+bHfYvkKf0z6cTje9qz+SOxs7G/x8dfKhXWQdXKH3wYzm01L7KXegBQ5QTjw/
+O8XIg3br6Ozk5/bpf7vMKuE3yfOv1RID3cCjUEqWCDd8kPHfRpP4zEDtUvfD
+4VZd43Bw2pRFx8RI7MUHVa0/a1SJtV5sUNf4s8YUurPYmK7xZ43ZB6EB8GOx
+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
+--20979877-502199567-1034282911=:29122--

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267021AbTAJS6b>; Fri, 10 Jan 2003 13:58:31 -0500
+	id <S266353AbTAJTRG>; Fri, 10 Jan 2003 14:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266377AbTAJS4t>; Fri, 10 Jan 2003 13:56:49 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:42669 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266615AbTAJS4b>;
-	Fri, 10 Jan 2003 13:56:31 -0500
-Date: Fri, 10 Jan 2003 11:01:26 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andi Kleen <ak@suse.de>
-cc: <Valdis.Kletnieks@vt.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
-In-Reply-To: <20030110171950.GA6064@wotan.suse.de>
-Message-ID: <Pine.LNX.4.33L2.0301101055030.19536-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266354AbTAJTRG>; Fri, 10 Jan 2003 14:17:06 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:34463 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S266353AbTAJTRF>;
+	Fri, 10 Jan 2003 14:17:05 -0500
+Date: Fri, 10 Jan 2003 21:25:46 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Paul Gortmaker <p_gortmaker@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.55 fix etherleak in 8390.c [rescued]
+Message-ID: <20030110192546.GI27709@mea-ext.zmailer.org>
+References: <200301101835.h0AIZA704332@mail.intergenia.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301101835.h0AIZA704332@mail.intergenia.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Andi Kleen wrote:
+On Fri, Jan 10, 2003 at 07:35:10PM +0100, Rudmer van Dijk wrote:
+> this is the fix which went in 2.4.21-pre3-ac2, rediffed against 2.5.55
+> 	Rudmer
 
-| On Fri, Jan 10, 2003 at 12:13:48PM -0500, Valdis.Kletnieks@vt.edu wrote:
-| > On Fri, 10 Jan 2003 17:12:12 +0100, Andi Kleen <ak@suse.de>  said:
-| > >
-| > > > So the end-result of the discussion is, "What should really happen here?"
-| > > > and "What, if anything, do you want me to do?"
-| > >
-| > > IMHO best would be to get rid of /proc/*/wchan and keep the kallsyms
-| > > lookup slow, simple and stupid.
-| >
-| > And replace the current /proc/*/wchan functionality with what?
-|
-| Ctrl-Rollen (or whatever the key is called on your keyboard) on the console,
-| like in all previous linux releases.
+  That  scratch[]  allocation is 60 bytes, taken off the stack.
+  It isn't very large, and isn't recursive, but still...
 
-Ctrl-ScrollLock on mine if I'm following you correctly.
-Same as Sysrq-P if sysrq is enabled, except that the former
-is always available.
+> --- linux-2.5.55/drivers/net/8390.c.orig	2003-01-10 16:23:44.000000000 +0100
+> +++ linux-2.5.55/drivers/net/8390.c	2003-01-10 16:23:00.000000000 +0100
+> @@ -270,6 +270,7 @@
+>  	struct ei_device *ei_local = (struct ei_device *) dev->priv;
+>  	int length, send_length, output_page;
+>  	unsigned long flags;
+> +	char scratch[ETH_ZLEN];
+>  
+>  	length = skb->len;
 
-Are there other similar functions that are available without
-Sysrq enabled?  If so, where can I find info about them?
-(other than drivers/char/keyboard.c :)
 
-| Note /proc/*/wchan is not in 2.4.
-|
-| Also you still have WCHAN in ps, just not a full backtrace.
-
--- 
-~Randy
-
+/Matti Aarnio

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131730AbRCVLvM>; Thu, 22 Mar 2001 06:51:12 -0500
+	id <S132010AbRCVMMW>; Thu, 22 Mar 2001 07:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131989AbRCVLvC>; Thu, 22 Mar 2001 06:51:02 -0500
-Received: from mailhost.mipsys.com ([62.161.177.33]:22270 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S131730AbRCVLuu>; Thu, 22 Mar 2001 06:50:50 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel_thread vs. zombie
-Date: Thu, 22 Mar 2001 12:49:27 +0100
-Message-Id: <20010322114927.14509@mailhost.mipsys.com>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S132011AbRCVMMN>; Thu, 22 Mar 2001 07:12:13 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14598 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132009AbRCVMMA>; Thu, 22 Mar 2001 07:12:00 -0500
+Subject: Re: cramfs b0rken on HIGHMEM machines
+To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+Date: Thu, 22 Mar 2001 12:13:42 +0000 (GMT)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20010322051956.A11126@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Mar 22, 2001 05:19:57 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14g3yL-0002Pa-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+> just look at fs/cramfs/inode.c:cramfs_read_page()
+> It uses page_address instead of kmap().
+> 
+> I would have fixed it myself, but I don't know, how I should
+> kunmap() it, once we have memory pressure.
 
-I'm changing the ADB bus reset & probe code to be in a kernel threads
-that is created when a bus reset is triggered and that dies of it's own
-death. 
+Take a look at ramfs. kmap isnt really a 'pressure' thing. You want to kunmap
+the page as soon as you can. The kmap/unmap operations are fairly fast but
+there is a limited pool of maps.
 
-Everything is fine when the bus reset is triggered during kernel init as
-my thread is a child of init. However, when created as a result of an
-ioctl, the thread becomes a zombie as it's a child of the process who
-caused the ioctl (typically when entering sleep mode).
-
-How do I force a kernel thread to always be a child of init and never
-become a zombie ?
-
-I do call daemonize at the beginning of the thread (as it won't do
-anything with files, signals or whatever), but that doesn't seem to be enough.
-
-Reagrds,
-Ben.
-
-
+Alan
 

@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUCKWkl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUCKWkl
+	id S261793AbUCKWpz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUCKWpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:40:41 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37772 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261802AbUCKWkf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:40:35 -0500
-Message-ID: <4050EC1F.2060005@tmr.com>
-Date: Thu, 11 Mar 2004 17:45:51 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: Dax Kelson <dax@gurulabs.com>,
-       James Ketrenos <jketreno@linux.co.intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-References: <404E27E6.40200@linux.co.intel.com> <1078866774.2925.15.camel@mentor.gurulabs.com> <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 17:45:55 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:29354 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261793AbUCKWpw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:45:52 -0500
+Date: Fri, 12 Mar 2004 09:44:43 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       kenneth.w.chen@intel.com, cattelan@xfs.org, lord@xfs.org
+Subject: Re: [PATCH] per-backing dev unplugging #2
+Message-ID: <20040311224443.GC736@frodo>
+References: <20040311083619.GH6955@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040311083619.GH6955@suse.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote:
+Hi Jens,
 
-> *FLAME ALERT*
-> /me is slowly getting mad about his prism54 11g hardware
-> and its firmware, with neither firmware authors nor documentation
-> for this pile of silicon crap nowhere in sight
+On Thu, Mar 11, 2004 at 09:36:19AM +0100, Jens Axboe wrote:
+> Hi,
 > 
-> What's so cool about having binary firmware? Bugs are bugs,
-> and you won't be able to even see bugs, less fix, in it.
-> I don't like being at the mercy of firmware authors.
+> Final version, unless something stupid pops up. Changes:
+> 
+> - Adapt to 2.6.4-mm1
+> - Cleaned up the dm bits, much nicer with the lockless unplugging
+>   (thanks Joe)
+> - md and loop unplugging, stacked devices should unplug their targets.
+>   Otherwise they'll end up waiting for the unplug timer, which sucks.
+> - XFS fixed up, I hope. XFS folks still encouraged to look at this,
+>   looks better this time around though (and works, I tested).
 
-There are two common reasons for binary firmware:
-1 - it runs on some sort of a state machine implemented in an ASIC or 
-other device for which you have no manuals or assembler.
-2 - since these devices are regulated all to hell by the FCC and other 
-non-technical groups balancing technical advice with political pressure, 
-a user might code the device out of spec, causing some manner of legal 
-hassle.
+...[snip]
 
-I don't know if (1) applies here, but I'd bet (2) is applicable.
+> diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-mm1/fs/xfs/linux/xfs_buf.c linux-2.6.4-mm1/fs/xfs/linux/xfs_buf.c
+> --- /opt/kernel/linux-2.6.4-mm1/fs/xfs/linux/xfs_buf.c	2004-03-11 03:55:21.000000000 +0100
+> +++ linux-2.6.4-mm1/fs/xfs/linux/xfs_buf.c	2004-03-11 09:07:12.706793571 +0100
 
-Let's be happy that we have a driver and treat the device as a black 
-box. There are people paid to know enought details to write firmware, 
-I'm happy to treat NICs and CD/DVD burners with the "buy good and update 
-firmware at the first problem." Keeping the old firmaware of course.
+...[snip]
 
-		-bill
+> @@ -1689,7 +1685,6 @@
+>  	page_buf_t		*pb;
+>  	struct list_head	*curr, *next, tmp;
+>  	int			pincount = 0;
+> -	int			flush_cnt = 0;
+>  
+>  	pagebuf_runall_queues(pagebuf_dataio_workqueue);
+>  	pagebuf_runall_queues(pagebuf_logio_workqueue);
+> @@ -1733,14 +1728,8 @@
+>  
+>  		pagebuf_lock(pb);
+>  		pagebuf_iostrategy(pb);
+> -		if (++flush_cnt > 32) {
+> -			blk_run_queues();
+> -			flush_cnt = 0;
+> -		}
+>  	}
+>  
+> -	blk_run_queues();
+> -
+
+Extrapolating out from Steve's last comment yesterday/day before,
+this final blk_run_queues removal here should be replaced with:
+
++	if (flags & PBDF_WAIT)
++		blk_run_address_space(target->pbr_mapping);
+
+and we XFS guys need to huddle some more and figure out whether the
+magic number used earlier there (32) and the request starvation it
+was preventing, is still an issue on 2.6.  
+
+cheers.
+
+-- 
+Nathan

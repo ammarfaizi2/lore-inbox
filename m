@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVC2H10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVC2H1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbVC2H10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 02:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVC2HZc
+	id S262488AbVC2H1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 02:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVC2HZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:25:32 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:10451 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262476AbVC2HHU (ORCPT
+	Tue, 29 Mar 2005 02:25:54 -0500
+Received: from fire.osdl.org ([65.172.181.4]:13721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262488AbVC2HJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:07:20 -0500
-Date: Tue, 29 Mar 2005 09:06:51 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Pekka Enberg <penberg@gmail.com>
-cc: Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       penberg@cs.helsinki.fi
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <84144f02050328223017b17746@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-  <1111825958.6293.28.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com> 
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost> 
- <1111881955.957.11.camel@mindpipe>  <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
-  <20050327065655.6474d5d6.pj@engr.sgi.com>  <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
-  <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
- <84144f02050328223017b17746@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Mar 2005 02:09:52 -0500
+Date: Mon, 28 Mar 2005 23:09:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] s390: qeth tcp segmentation offload
+Message-Id: <20050328230929.639e51f3.akpm@osdl.org>
+In-Reply-To: <4248FD8D.6030208@pobox.com>
+References: <200503290533.j2T5X0ZZ028790@hera.kernel.org>
+	<4248FD8D.6030208@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I see kfree used in several hot paths.  Check out
->> this /proc/latency_trace excerpt:
+Jeff Garzik <jgarzik@pobox.com> wrote:
 >
->Yes, but is the pointer being free'd NULL most of the time?
+> Please help me understand:  why add all this TSO code (zerocopy), if you 
+>  are adding memcpy() under the hood?
+> 
+>  Was this reviewed on netdev?  or by any network developer?
+> 
+>  Overall this patch adds a whole lot of code that must be VERY intimate 
+>  with the net stack, a huge maintenance burden that is likely to be rife 
+>  with out-of-date code and bugs over time.
+> 
 
-"[...]In general, you should prefer to use actual profile feedback for this 
-(`-fprofile-arcs'), as programmers are NOTORIOUSLY BAD AT PREDICTING how 
-their programs actually perform." --gcc info pages.
-
->The optimization does not help if you are releasing actual memory.
-
-It does not turn the real case (releasing memory) worse, but just improves the 
-unreal case (releasing NULL).
-
-
-
-Jan Engelhardt
--- 
-No TOFU for me, please.
+There was some dicussion on linux-net last Thursday.

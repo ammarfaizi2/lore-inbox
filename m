@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbUDAI31 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 03:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUDAI31
+	id S262773AbUDAI2a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 03:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUDAI23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 03:29:27 -0500
-Received: from gprs213-219.eurotel.cz ([160.218.213.219]:45184 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262454AbUDAI3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 03:29:17 -0500
-Date: Thu, 1 Apr 2004 10:29:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: perex@suse.cz, Tjeerd.Mulder@fujitsu-siemens.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: via82xx cmd line parsing is evil [was Re: Sound on newer arima notebook...]
-Message-ID: <20040401082905.GE224@elf.ucw.cz>
-References: <20040331145206.GA384@elf.ucw.cz> <s5h7jx1xdel.wl@alsa2.suse.de> <20040401080954.GA464@elf.ucw.cz> <s5hr7v8w1gr.wl@alsa2.suse.de>
+	Thu, 1 Apr 2004 03:28:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29453 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262773AbUDAI2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 03:28:17 -0500
+Date: Thu, 1 Apr 2004 09:28:13 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David L <idht4n@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: serial port canonical mode weirdness?
+Message-ID: <20040401092813.A20360@flint.arm.linux.org.uk>
+Mail-Followup-To: David L <idht4n@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <BAY2-F51LDp7mvjkO2200021e67@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hr7v8w1gr.wl@alsa2.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <BAY2-F51LDp7mvjkO2200021e67@hotmail.com>; from idht4n@hotmail.com on Wed, Mar 31, 2004 at 04:44:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Mar 31, 2004 at 04:44:32PM -0800, David L wrote:
+> When I configure a serial port for canonical mode (newtio.c_lflag = ICANON),
+> I get behavior that isn't what I'd expect.
 
-> > via82xx command line parsing code is *evil*. It has completely
-> > different parameters as a module / in kernel, and in-kernel parameters
-> > shift according to the joystick support! (which is config_time option). Ouch.
-> 
-> yep, i know it - it annoys me too...
-> 
-> > Is there some easy way to convert MODULE_PARM with an array to some
-> > more modern interface?
-> 
-> there is a patch pending in my tree to allow empty boot options, such
-> as
-> 	snd-via82xx=,,,,,2
-> but it doesn't improve so much.
-> 
-> perhaps the better way would be like
-> 
-> 	snd-via82xx=enable:1,ac97_quirk:4
-> 
-> ??
-> 
-> in this way, it's hard to keep the compatibility with old boot
-> parameters, but i don't think no one will complain if they see it
-> nicer.
+Can you supply the test program you're using on the receive end?
 
-Its so broken that we do not want compatibility, I believe. Having to
-use snd-via82xx=,,,,,2 normally, but add one "," if joystick is
-configured in is evil.
-
-snd-via82xx=enable:1 syntax is ugly, too, and we have better syntax
-already. via82xx.enable=1 via82xx.ac97_quirk=2 should be possible with
-new param handling code. I'm just not sure how it is supposed to work
-with arrays:
-
-static char *psmouse_proto;
-static unsigned int psmouse_max_proto = -1U;
-module_param_named(proto, psmouse_proto, charp, 0);
-MODULE_PARM_DESC(proto, "Highest protocol extension to probe (bare,
-imps, exps). Useful for KVM switches.");
-
-...automatically produces "proto" param for module and "psmouse.proto"
-param for kernel.
-
-Something similar should be the way to go.
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289981AbSAOQAc>; Tue, 15 Jan 2002 11:00:32 -0500
+	id <S289997AbSAOQFw>; Tue, 15 Jan 2002 11:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289990AbSAOQAW>; Tue, 15 Jan 2002 11:00:22 -0500
-Received: from gnu.in-berlin.de ([192.109.42.4]:56848 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S289981AbSAOQAF>;
-	Tue, 15 Jan 2002 11:00:05 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 15 Jan 2002 16:16:53 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-ID: <20020115161653.A9550@bytesex.org>
-In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com> <E16QETz-0002yD-00@the-village.bc.nu> <20020115004205.A12407@werewolf.able.es> <slrna480cv.68d.kraxel@bytesex.org> <20020115121424.10bb89b2.skraw@ithnet.com> <20020115142017.D8191@bytesex.org> <20020115144652.46d9ee18.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115144652.46d9ee18.skraw@ithnet.com>
-User-Agent: Mutt/1.3.20i
+	id <S289998AbSAOQFm>; Tue, 15 Jan 2002 11:05:42 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1506 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289997AbSAOQF2>;
+	Tue, 15 Jan 2002 11:05:28 -0500
+Date: Tue, 15 Jan 2002 09:46:28 -0600 (CST)
+From: Paul Larson <plars@austin.ibm.com>
+X-X-Sender: <plars@eclipse.ltc.austin.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.2
+In-Reply-To: <Pine.LNX.4.40.0201142042570.935-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0201150943210.3557-100000@eclipse.ltc.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 02:46:52PM +0100, Stephan von Krawczynski wrote:
-> On Tue, 15 Jan 2002 14:20:17 +0100
-> Gerd Knorr <kraxel@bytesex.org> wrote:
-> 
-> > Yes.  Instead of remapping vmalloced kernel memory it gives you shared
-> > anonymous pages, then does zerocopy DMA using kiobufs.  You may run in
-> > trouble with >4GB machines.
-> 
-> Interesting.
-> What's the problem on > 4GB ?
+On Mon, 14 Jan 2002, Davide Libenzi wrote:
+> Linus, i've a weird behavior with 2.5.2
+> swapon first fails at boot ( early stage ) then it succeed ( late boot
+> stage ) but the swap is not actually activated. Running swapon by hand it
+> reports a seccessful operation but the swap is not on.
+> I'm trying to understand what is happening ...
 
-The bt878/848 is a 32bit PCI device, it simply can't go DMA to main
-memory above 4GB.  At least on ia32, on architecures with a iommu
-(sparc, ...) it should work without trouble.
+I am having this problem also
 
-  Gerd
+# swapon /dev/hda2
+swapon: /dev/hda2: Success
+# free
+             total       used       free     shared    buffers     cached
+Mem:        254492      40236     214256          0       2220      22432
+-/+ buffers/cache:      15584     238908
+Swap:            0          0          0
+#
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+-Paul Larson
+

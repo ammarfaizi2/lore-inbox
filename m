@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281312AbRKEUWk>; Mon, 5 Nov 2001 15:22:40 -0500
+	id <S281327AbRKEUwm>; Mon, 5 Nov 2001 15:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281315AbRKEUWc>; Mon, 5 Nov 2001 15:22:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60422 "EHLO
+	id <S281328AbRKEUwe>; Mon, 5 Nov 2001 15:52:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6920 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281314AbRKEUWP>; Mon, 5 Nov 2001 15:22:15 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Limited RAM - how to save it?
-Date: 5 Nov 2001 12:21:51 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9s6scv$hq0$1@cesium.transmeta.com>
-In-Reply-To: <20011105125231.A3783@microdata-pos.de>
+	id <S281327AbRKEUw2>; Mon, 5 Nov 2001 15:52:28 -0500
+Date: Mon, 5 Nov 2001 12:49:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-pre6
+In-Reply-To: <20011102120108.A47@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0111051241410.3682-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011105125231.A3783@microdata-pos.de>
-By author:    Jan-Benedict Glaw <jbglaw@microdata-pos.de>
-In newsgroup: linux.dev.kernel
-> 
-> I'm working on a 4MB linux system (for a customer) which has quite
-> limited resources at all:
-> 
-> 	- 4MB RAM
-> 	- 386 or 486 like processor (9..16 BogoMIPS)
-> 	- < 100MB HDD
-> 	- Quite a lot user space running:-(
-> 
-> For me, 4MB seems to be a problem. I've stripped diwn the applications
-> quite a lot, but 4MB behaves very slow and unresponsible. Adding only
-> one more MB solves any performance problem! I've made a small patch
-> practically removing printk() from kernel which helps a lot (patch
-> attached below). Basically, the running kernel is ~160KB smaller!
-> Are there further methods of saving space? I've already done some
-> other things, but these don't help that much:
-> 
 
-4 MB was the practical minimum for even the very early versions of
-Linux.  I would probably suggest backrevving to 2.0 (which is still
-maintained) or even 1.2 (which isn't) for a start...
+On Fri, 2 Nov 2001, Pavel Machek wrote:
+>
+> > Oh, and the first funny patches for the upcoming SMT P4 cores are starting
+> > to show up. More to come.
+>
+> What is SMT P4?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+It's the upcoming symmetric multi-threading on the P4 chips (disabled in
+hardware in currently selling stuff, but apparently various Intel contacts
+already have chips to test with).
+
+Basically, you get two virtual CPU's per die, and each CPU can run two
+threads at the same time. It slows some stuff down, because it makes for
+much more cache pressure, but Intel claims up to 30% improvement on some
+loads that scale well.
+
+The 30% is probably a marketing number (ie it might be more like 10% on
+more normal loads), but you have to give them points for interesting
+technology <)
+
+> > Anybody out there with cerberus?
+> >
+> > 		Linus "128MB of RAM and 1GB into swap, and happy" Torvalds
+>
+> Someone go and steal 64MB from Linus....
+
+Hey, hey. I actually have spent a _lot_ of time with 40MB of RAM and KDE
+over the last few weeks. And this is with DRI on a graphics card that also
+seems to eat up 8MB just for the direct rendering stuff, _and_ with kernel
+profiling enabled, so it actually had more like 30MB of "real" memory
+available. In 1600x1200, 16-bit color.
+
+Konqueror is a pig, but it's _usable_. I did real work, including kernel
+compiles, with it.
+
+Admittedly I do like the behaviour with 2GB a lot better. That way I can
+cache every kernel tree I work on, and not ever think about "diff" times.
+
+		Linus
+

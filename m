@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264898AbSJVSjO>; Tue, 22 Oct 2002 14:39:14 -0400
+	id <S264905AbSJVSlU>; Tue, 22 Oct 2002 14:41:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264896AbSJVSjO>; Tue, 22 Oct 2002 14:39:14 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:55302 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264898AbSJVSjJ>; Tue, 22 Oct 2002 14:39:09 -0400
-Date: Tue, 22 Oct 2002 19:45:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
-       hch@infradead.org, marcelo@conectiva.com.br
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-Message-ID: <20021022194514.B3867@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	Jan Kasprzak <kas@informatics.muni.cz>,
-	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-References: <20021022161957.N26402@fi.muni.cz> <20021022184034.GA26585@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021022184034.GA26585@win.tue.nl>; from aebr@win.tue.nl on Tue, Oct 22, 2002 at 08:40:34PM +0200
+	id <S264904AbSJVSkz>; Tue, 22 Oct 2002 14:40:55 -0400
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:40867
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S264895AbSJVSjb>; Tue, 22 Oct 2002 14:39:31 -0400
+Message-ID: <3DB59EBC.9010500@rackable.com>
+Date: Tue, 22 Oct 2002 11:53:48 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roelf Schreurs <rosc@imc.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: source for 2.4.18-10 (redhat)
+References: <3DB55FE9.9060104@imc.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2002 18:45:39.0942 (UTC) FILETIME=[37C84860:01C279FB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 08:40:34PM +0200, Andries Brouwer wrote:
-> On Tue, Oct 22, 2002 at 04:19:57PM +0200, Jan Kasprzak wrote:
-> 
-> > 	I.e. if you read the /proc/partitions in single read() call,
-> > it gets read OK. However, if you read() with smaller-sized blocks,
-> > you get the truncated contents.
-> 
-> Having statistics in /proc/partitions leads to such problems.
-> Make sure you do not ask for them.
+Roelf Schreurs wrote:
 
-Andries,
+> Hi
+>
+> I'm upgrading to 2.4.18-10 (on redhat 7.3), and therefore need some 
+> files.
+> On updates.redhat.com I found:
+> kernel-2.4.18-10.i686.rpm
+> kernel-bigmem-2.4.18-10.i686.rpm
+> kernel-debug-2.4.18-10.i686.rpm
+> kernel-smp-2.4.18-10.i686.rpm
+>
+> Do I need kernel-source.2.4.18-10.i686.rpm and 
+> kernel-doc-2.4.18-10.i686.rpm and if yes, where do I find it.
+> I guess the doc is not too important, but the source seems to be 
+> important.
+>
+  You want kernel-source.2.4.18-10.i386.rpm.  The kernel-source package 
+is not compiled so it works just as well on 386 or a Quad P4 Xeon.  The 
+only difference is the config file used to compile the kernel. The 
+config file can be found in the configs directory in the kernel source.
 
-have you actually CHECKED whether he has it enabled?
 
-I rather suspect it's the following bug (introduce by me, but not
-depend on CONFIG_BLK_STATS):
+BTW- kernel-2.4.18-17.7.x is redhat's current eratta kernel.  In 
+addition your downloads may be a bit faster if you use a mirror.
+http://www.redhat.com/download/mirror.html
 
---- 1.23/drivers/block/genhd.c	Wed Aug 21 10:03:48 2002
-+++ edited/drivers/block/genhd.c	Tue Oct 22 20:43:16 2002
-@@ -155,13 +155,14 @@
- 
- #ifdef CONFIG_PROC_FS
- /* iterator */
--static void *part_start(struct seq_file *s, loff_t *pos)
-+static void *part_start(struct seq_file *s, loff_t *ppos)
- {
- 	struct gendisk *gp;
-+	loff_t pos = *ppos;
- 
- 	read_lock(&gendisk_lock);
- 	for (gp = gendisk_head; gp; gp = gp->next)
--		if (!*pos--)
-+		if (!pos--)
- 			return gp;
- 	return NULL;
- }

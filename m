@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276384AbRJKOgI>; Thu, 11 Oct 2001 10:36:08 -0400
+	id <S276430AbRJKOsT>; Thu, 11 Oct 2001 10:48:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276452AbRJKOf6>; Thu, 11 Oct 2001 10:35:58 -0400
-Received: from dns-cta.onda.com.br ([200.195.192.133]:4005 "EHLO
-	rosa.onda.com.br") by vger.kernel.org with ESMTP id <S276384AbRJKOfk>;
-	Thu, 11 Oct 2001 10:35:40 -0400
-Date: Thu, 11 Oct 2001 11:28:37 -0300 (BRT)
-From: "Alexandre P. Nunes" <alex@PolesApart.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.12 - ieee1284_ops.c
-Message-ID: <Pine.LNX.4.33.0110111126030.9081-100000@PolesApart.dhs.org>
+	id <S276448AbRJKOsJ>; Thu, 11 Oct 2001 10:48:09 -0400
+Received: from kiln.isn.net ([198.167.161.1]:17696 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S276430AbRJKOr6>;
+	Thu, 11 Oct 2001 10:47:58 -0400
+Message-ID: <3BC5B12E.1420A7FE@isn.net>
+Date: Thu, 11 Oct 2001 11:48:14 -0300
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.11-pre6 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: parport modules in 2.4.12
+Content-Type: multipart/mixed;
+ boundary="------------605175EB304FEA9EA2D63B84"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------605175EB304FEA9EA2D63B84
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-parport module doesn't compile, at least when enabled ieee 1284 options...
-the cause is a typo, the patch should make it clear.
+Attached the relevant log of make modules
+cc
+Garst
+--------------605175EB304FEA9EA2D63B84
+Content-Type: text/plain; charset=us-ascii;
+ name="makemodules.log"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="makemodules.log"
 
-Cheers,
+make -C parport modules
+make[2]: Entering directory `/usr/src/linux/drivers/parport'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE   -c -o ieee1284_ops.o ieee1284_ops.c
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+make[2]: *** [ieee1284_ops.o] Error 1
 
-Alexandre
-
---- ieee1284_ops.c~	Thu Oct 11 11:10:37 2001
-+++ ieee1284_ops.c	Thu Oct 11 11:22:31 2001
-@@ -362,7 +362,7 @@
- 	} else {
- 		DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
- 			 port->name);
--		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
- 	}
-
- 	return retval;
-@@ -394,7 +394,7 @@
- 		DPRINTK (KERN_DEBUG
- 			 "%s: ECP direction: failed to switch forward\n",
- 			 port->name);
--		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
-+		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
- 	}
-
--- 
-Life would be so much easier if we could just look at the source code.
+--------------605175EB304FEA9EA2D63B84--
 

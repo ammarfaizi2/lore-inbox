@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUGWSb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267878AbUGWSfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267872AbUGWSb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267877AbUGWSb5
+	id S267878AbUGWSfy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267877AbUGWSfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:31:57 -0400
-Received: from alhambra.mulix.org ([192.117.103.203]:7622 "EHLO
-	granada.merseine.nu") by vger.kernel.org with ESMTP id S267872AbUGWSbf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:31:35 -0400
-Date: Fri, 23 Jul 2004 21:31:07 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
+	Fri, 23 Jul 2004 14:35:54 -0400
+Received: from [66.35.79.110] ([66.35.79.110]:17561 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S267878AbUGWSfQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:35:16 -0400
+Date: Fri, 23 Jul 2004 11:25:54 -0700
+From: Tim Hockin <thockin@hockin.org>
 To: Robert Love <rml@ximian.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [patch] kernel events layer
-Message-ID: <20040723183107.GB4905@granada.merseine.nu>
+Message-ID: <20040723182554.GA31701@hockin.org>
 References: <1090604517.13415.0.camel@lucy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V0207lvV8h4k8FAm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1090604517.13415.0.camel@lucy>
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
 On Fri, Jul 23, 2004 at 01:41:57PM -0400, Robert Love wrote:
-> +void send_kmessage(int type, const char *object, const char *signal,
-> +		   const char *fmt, ...)
-> +{
-> +	char *buffer;
-> +	int len;
-> +	int ret;
-> +
-> +	if (!object)
-> +		return;
-> +
-> +	if (!signal)
-> +		return;
-> +
-> +	if (strlen(object) > PAGE_SIZE)
-> +		return;
-> +
-> +	buffer =3D (char *) get_zeroed_page(GFP_ATOMIC);
-> +	if (!buffer)
-> +		return;
-> +
-> +	len =3D sprintf(buffer, "From: %s\n", object);
-> +	len +=3D sprintf(&buffer[len], "Signal: %s\n", signal);
-> +
-> +	/* possible anxiliary data */
-> +	if (fmt) {
-> +		va_list args;
-> +
-> +		va_start(args, fmt);
-> +		len +=3D vscnprintf(&buffer[len], PAGE_SIZE-len-1, fmt, args);
-> +		va_end(args);
-> +	}
-> +	buffer[len++] =3D '\0';
-> +
-> +	ret =3D netlink_send((1 << type), buffer, len);
+> OK, Kernel Summit and my OLS talk are over, so here are the goods.
 
-Should we be ignoring the return value of netlink_send here, or
-propogating a possible error to the callers?
+It's good to see something concrete in this vein.  Is this interface going
+to be intended for things like error states?  The first thing that jumps
+to mind is all the evlog stuff that was argued about last year.
 
-> +	free_page((unsigned long) buffer);
-> +}
+Is this interface intended to be used in the name of driver "hardening"
+and fault handling?
 
-Cheers,=20
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+> +		send_kmessage(KMSG_POWER,
+> +			"/org/kernel/devices/system/cpu/temperature", "high",
+> +			"Cpu: %d\n", cpu);
 
+I have to ask why the path needs to include /org ?  It seems pretty much
+like useless stuff.  In fact, why does it need to specify /org/kernel?
+Userspace can safely assume that anything that comes out of the netlink
+socket is from the kernel, no?
 
---V0207lvV8h4k8FAm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+If userspace is going to use this "object" path as a globalish identifier,
+it can prepend hatever it needs.  Really, it should prepend some sort of
+network id, if this stuff is ever going to find a network, so eliminating
+the /org/kernel might just be precedent.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+At worst case, why type it in every call to send_kmessage?  If they ALL
+start with /org/kernel, just add that inside the send_kmessage() guts.
 
-iD8DBQFBAVlrKRs727/VN8sRAiZJAJ0ev1TeNZLyS0QODLQlbRUhU6IlggCffDst
-GLzNIjOduodRn9+U3zYrjvI=
-=kfv1
------END PGP SIGNATURE-----
+Further, if you want to eliminate stupid typo errors, these paths cn be
+further macro-ized.
 
---V0207lvV8h4k8FAm--
+	send_kmessage(KMSG_POWER, KMSUBSYS_CPU, "temperature", "high",
+		"Cpu: %d", cpu);
+
+KMSUBSYS_CPU can be recognized and expanded to "/devices/system/cpu".
+That way, no one ever misspels it, leaving you stuck with it.  Also note
+that requiring the caller to pass a '\n' seems pretty dumb.
+
+Just my initial thoughts.  I need to read the paper, still.
+
+Tim

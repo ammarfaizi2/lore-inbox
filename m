@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbTKNBqq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 20:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTKNBqq
+	id S264494AbTKNCOd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 21:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbTKNCOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 20:46:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:19354 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264481AbTKNBqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 20:46:45 -0500
-Date: Thu, 13 Nov 2003 17:45:21 -0800
-From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olh@suse.de>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: USB-keyboard not recognized when not connected during startup
-Message-ID: <20031114014521.GV16352@kroah.com>
-References: <3FAFDA82.864DC1BE@orpatec.ch>
-Mime-Version: 1.0
+	Thu, 13 Nov 2003 21:14:33 -0500
+Received: from web11503.mail.yahoo.com ([216.136.172.35]:42107 "HELO
+	web11503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264494AbTKNCOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 21:14:31 -0500
+Message-ID: <20031114021430.12641.qmail@web11503.mail.yahoo.com>
+Date: Thu, 13 Nov 2003 18:14:30 -0800 (PST)
+From: gary ng <garyng2000@yahoo.com>
+Subject: USB mouse driver depends on module loading sequence to function properly ?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FAFDA82.864DC1BE@orpatec.ch>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 07:35:47PM +0100, Otto Wyss wrote:
-> Please CC, I'm not subscribed.
-> 
-> I use an USB-keyboard via an USB-switchbox on 2 computers (PC and Mac).
-> When I boot into Windows or MacOS9 it doesn't matter whether my USB is
-> connected, the keyboard gets recognized when the connection happens. Not
-> so on Linux (PC), there the keyboard gets only recognized if it's
-> connected during startup. If I forget to switch the keyboard to the PC
-> before I start Linux, it isn't recognized and unusable. This is mostly
-> annoying because I can't get rid of my AT-keyboard and just use the
-> USB-keyboard, a none working keyboard is identical to a system crash!
-> When the USB-keyboard is connected during startup everything is okay.
+Hi,
 
-Do you have something like "USB Legacy support" enabled in your BIOS?
-Or it might be called something else.  Try disabling that.
+I have a small USB to PS/2 converting device which has
+one USB male to plug to the computer and the other end
+has two PS/2 connector, one for keyboard, one for
+mouse.
 
-Good luck,
+While it is recognized correctly by linux and all the
+proper drivers loaded, the mouse just doesn't work but
+the keyboard function normally(both plug to this
+device). I use hotplug package to manage to
+loading/unloading stuff.
 
-greg k-h
+After some digging, I found that in order for the
+mouse to be properly initiated(and it would work), I
+have to do the module loading in the following
+sequence :
+
+modprobe usbcore
+modprobe hid
+modprobe usb-uhci
+
+but by default, I do it as(well, hotplug does) :
+
+modprobe usbcore
+modprobe usb-uhci
+
+What is even stranger is that if I just plug an USB
+mouse in the system, the later sequence works.
+
+So it seems that for this particular device(which has
+two USB HID devices on the same bus), the loading
+sequence of hid(must be before everything else) is
+important in order for the mouse port to work but for
+simple USB mouse, it doesn't matter.
+
+I am not sure if this should be classified as a bug
+and if it should be reported here. My current work
+around is to just load hid right after usbcore.
+
+I am using 2.4.21 vanilla kernel. Please let me know
+if there is other information needed or if I should
+report to a different devloper group(say hotplug).
+
+regards,
+
+gary
+
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

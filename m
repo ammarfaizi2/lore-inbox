@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266952AbTGGLdD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 07:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266953AbTGGLdC
+	id S264905AbTGGLkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 07:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTGGLkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 07:33:02 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:10393 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S266952AbTGGLc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 07:32:59 -0400
-Date: Mon, 7 Jul 2003 13:46:42 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: benh@kernel.crashing.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-Message-ID: <20030707114642.GA7104@wohnheim.fh-wedel.de>
-References: <20030703202410.GA32008@wohnheim.fh-wedel.de> <20030704174339.GB22152@wohnheim.fh-wedel.de> <20030704174558.GC22152@wohnheim.fh-wedel.de> <20030704175439.GE22152@wohnheim.fh-wedel.de> <16134.2877.577780.35071@cargo.ozlabs.ibm.com> <20030705073946.GD32363@wohnheim.fh-wedel.de> <16135.57910.936187.611245@cargo.ozlabs.ibm.com> <20030706101754.GA23341@wohnheim.fh-wedel.de> <16137.23193.530130.847522@nanango.paulus.ozlabs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16137.23193.530130.847522@nanango.paulus.ozlabs.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 7 Jul 2003 07:40:39 -0400
+Received: from mta6-svc.business.ntl.com ([62.253.164.46]:56304 "EHLO
+	mta6-svc.business.ntl.com") by vger.kernel.org with ESMTP
+	id S264905AbTGGLki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 07:40:38 -0400
+Date: Mon, 7 Jul 2003 12:57:17 +0100 (BST)
+From: William Gallafent <william.gallafent@virgin.net>
+X-X-Sender: williamg@officebedroom.oldvicarage
+To: Hakan Lennestal <hakanl@cdt.luth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via-rhine problem with older hardware
+In-Reply-To: <Pine.GSO.4.53.0307021639270.24488@delta1>
+Message-ID: <Pine.LNX.4.53.0307071255590.2313@officebedroom.oldvicarage>
+References: <Pine.GSO.4.53.0307021639270.24488@delta1>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 July 2003 21:33:45 +1000, Paul Mackerras wrote:
-> 
-> It just occurred to me that the simplest and best fix for the specific
-> problem you mention is for you to set the SA_ONESHOT flag when you
-> install the SIGSEGV handler.  That way, if you get another
-> segmentation violation while you are already in the SIGSEGV handler,
-> it will just dump core straight away.
+On Wed, 2 Jul 2003, Hakan Lennestal wrote:
 
-That makes sense.  One would still have to re-enable the signal
-handler inside the signal handler, but if htat is the last code before
-function return, we should be safe.
+>
+> Hi !
+>
+> I'm having troubles with newer via-rhine drivers (1.1.17) and older
+> via-rhine hardware (VT86C100A [Rhine] (rev 06)).
+> With moderate CPU load (10-15 %) and some network load
+> (a couple of houndred kbps) I'm repeatedly getting:
+>   Jul  1 19:56:52 ip2 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+>   Jul  1 19:56:52 ip2 kernel: eth0: Transmit timed out, status 0000, PHY
+>   status 782d, resetting...
+>
+> Everything works just smoothly with via-rhine 1.1.15.
+>
+> This machine does not have ACPI (or APM) enabled.
 
-Great idea, thanks!
-
-Jörn
+I had similar problems a while ago on an AMD 760MP system with APIC
+enabled. Have you tried booting 'noapic'? The problem went away with a BIOS
+update, too, so make sure you have the latest BIOS.
 
 -- 
-A defeated army first battles and then seeks victory.
--- Sun Tzu
+Bill Gallafent.

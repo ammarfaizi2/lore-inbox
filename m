@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290074AbSAKUA1>; Fri, 11 Jan 2002 15:00:27 -0500
+	id <S290078AbSAKUCX>; Fri, 11 Jan 2002 15:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290077AbSAKUAK>; Fri, 11 Jan 2002 15:00:10 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:52598 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S290074AbSAKT7y>; Fri, 11 Jan 2002 14:59:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ronald.Wahl@informatik.tu-chemnitz.de (Ronald Wahl)
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Date: Fri, 11 Jan 2002 20:59:45 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Oocq-0005tX-00@the-village.bc.nu>
-In-Reply-To: <E16Oocq-0005tX-00@the-village.bc.nu>
+	id <S290081AbSAKUCJ>; Fri, 11 Jan 2002 15:02:09 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:34080 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S290078AbSAKUCC> convert rfc822-to-8bit; Fri, 11 Jan 2002 15:02:02 -0500
+Date: Fri, 11 Jan 2002 21:01:27 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Andreas Boman <aboman@goofy.nerdfest.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 has 2 modules named sym53c8xx.o
+In-Reply-To: <20020111000052.34204997.aboman@goofy.nerdfest.org>
+Message-ID: <20020111204356.G1567-100000@gerard>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020111195946.38C35142E@shrek.lisa.de>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 11. January 2002 00:28, Alan Cox wrote:
-> > is it possible to include an emulation for the CMOV* (and possible other
-> > i686 instructions) for processors that dont have these (k6, pentium
-> > etc.)? I think this should work like the fpu emulation. Even if its slow
->
-> The kernel isnt there to fix up the fact authors can't read. Its also very
-> hard to get emulations right. I grant that this wasn't helped by the fact
-> the gcc x86 folks also couldnt read the pentium pro manual correctly.
 
-But it shouldn't crash, if the wrong architecture is chosen. (Different
-problem, I know) Perfect solution would be emulate them all, but at least
-an simple error message (please eject CPU, and put in a XXX one) would be 
-sufficient, IMHO. 
 
-> If you have a static linked program install the right version. RPMv4
-> even knows about cmov and i686 rpms.
+On Fri, 11 Jan 2002, Andreas Boman wrote:
 
-Hans-Peter
+> It seems a new sym53c8xx was added in 2.4.17, and now there are 2 modules,
+> both named sym53c8xx.o (CONFIG_SCSI_SYM53C8XX and
+> CONFIG_SCSI_SYM53C8XX_2). This was noticed since my mkinitrd script isn't
+> smart enough to destinguish the two. Leading to the question how does
+> modprobe? Comparing this with the naming scheme used for the two aic7xxx
+> modules (aic7xxx.o and aic7xxx_old.o) it seems like its a bug to me, in
+> either case I'd appritiate some input from somebody clued in on the issue.
+
+This is a compatibility feature. Just select _the_ driver you want to use
+but not both. The bug is to build the both drivers without special needs
+or goal.
+
+Renaming a driver object module will break compatibility of old linux
+installations depending of the driver selected, and also may break
+flexibility for who knows what he is doing.
+
+By the way, if it ever happens one of the two modules to be renamed in
+2.4, it is the old version that will be. As a result, the patch you sent
+me directly that renames the new version is exactly what I donnot want to
+be done.
+
+In kernel 2.5, SYM53C8XX_2 will replace SYM53C8XX. I already agreed with
+the proposal to remove the old driver version, and I suggested so
+implicitely, obviously, by providing SYM53C8XX_2. I hope this will also
+happen in 2.4 series, but probably a bit later.
+
+  Gérard.
+

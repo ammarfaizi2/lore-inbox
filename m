@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbTJKRD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 13:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTJKRD5
+	id S263339AbTJKRO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 13:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbTJKRN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 13:03:57 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:9638 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263327AbTJKRDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 13:03:55 -0400
-Message-ID: <3F8837FA.4090808@softhome.net>
-Date: Sat, 11 Oct 2003 19:03:54 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Sat, 11 Oct 2003 13:13:59 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:10914 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S263334AbTJKRN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 13:13:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with de4x5 on Alpha?
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20031011162651.GA25489@wang-fu.org>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Sat, 11 Oct 2003 19:12:08 +0200
+Message-ID: <wrppth3snpz.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20031011162651.GA25489@wang-fu.org> (Nathan Poznick's message
+ of "Sat, 11 Oct 2003 11:26:51 -0500")
 MIME-Version: 1.0
-To: asdfd esadd <retu834@yahoo.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 thoughts: common well-architected object model 
-References: <Ft4B.3ML.3@gated-at.bofh.it> <FutO.5TB.29@gated-at.bofh.it>
-In-Reply-To: <FutO.5TB.29@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-asdfd esadd wrote:
-> the other OS has an at this stage highly consistent
-> object model user along the lines of COM+ from the
-> kernel up encompassing a single event, thread etc.
-> model. Things are quite consistently wrapped, user
-> mode exposed if needed etc. If people were to fully
-> draw on it and the simpler .net BCL and not ride win32
-> that would (will be) a killer.  
-> 
-> So let me restate the need:
-> 
-> * a unified well architected core component model
-> which is extensible from OS services to application
-> objects
-> 
-> * the object model should be defined from the kernel
-> layer for process/events/devices etc. up and not
-> started at the application layer
-> 
+>>>>> "Nathan" == Nathan Poznick <kraken@drunkmonkey.org> writes:
 
-   Hm.
+Nathan> I've been trying to get 2.6.0-test[6|7] to boot on my AS2100
+Nathan> (Sable),
 
-   Any real world application for which POSIX is not enough?
-   Any real world application which can benefit /enourmosly/ from this?
+[...]
 
-   State, please, problem first - do not put the requirements ahead of 
-problem.
+Could you please try 2.6.0-test5 ? Or even better, 2.6.0-test7 with
+the 2.6.0-test5 driver (revert de4x5.[ch] and the Space.c changes) ?
 
-   Since as of event system I would say POSIX (and Linux in particular) 
-far ahead of permanently inconsistent Win32.
-   [ Win32 is a very bad example, since you have there a "spawn one more 
-thread" solution/workaround for any problem. Try to read MSDN by yourself. ]
+The usual debug informations would be helpful too...
 
-P.S. <kidding> Probably Java is what you are looking for? (java.* after 
-all some kind of kernel for Java, and jvm is some kind of cpu ;-)))) 
-</kidding>
-
+	M.
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+Places change, faces change. Life is so very strange.

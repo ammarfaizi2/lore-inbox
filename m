@@ -1,109 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268391AbTBNMoW>; Fri, 14 Feb 2003 07:44:22 -0500
+	id <S268381AbTBNM5d>; Fri, 14 Feb 2003 07:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268386AbTBNMoK>; Fri, 14 Feb 2003 07:44:10 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:12377
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268391AbTBNMno>; Fri, 14 Feb 2003 07:43:44 -0500
-Date: Fri, 14 Feb 2003 07:52:15 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH][2.5][14/14] smp_call_function_on_cpu - x86_64
-In-Reply-To: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0302140751530.3518-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268422AbTBNMz6>; Fri, 14 Feb 2003 07:55:58 -0500
+Received: from cs-ats40.donpac.ru ([217.107.128.161]:26894 "EHLO pazke")
+	by vger.kernel.org with ESMTP id <S268410AbTBNMxY>;
+	Fri, 14 Feb 2003 07:53:24 -0500
+Date: Fri, 14 Feb 2003 15:58:38 +0300
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] visws: sound update (11/13)
+Message-ID: <20030214125838.GK8230@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="bFUYW7mPOLJ+Jd2A"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Uname: Linux 2.4.20aa1 i686 unknown
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One liner to fix num_cpus == 0 on SMP kernel w/ UP box
 
-Index: linux-2.5.60/arch/x86_64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/x86_64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/x86_64/kernel/smp.c	10 Feb 2003 22:15:09 -0000	1.1.1.1
-+++ linux-2.5.60/arch/x86_64/kernel/smp.c	14 Feb 2003 12:17:24 -0000
-@@ -385,26 +385,35 @@
-  * in the system.
+--bFUYW7mPOLJ+Jd2A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi.
+
+This patch contains SGI visws OSS sound driver update.
+
+Please consider applying.
+
+Best regards.
+
+-- 
+Andrey Panin		| Embedded systems software developer
+pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+
+--bFUYW7mPOLJ+Jd2A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-visws-sound
+
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/sound/oss/Kconfig linux-2.5.60/sound/oss/Kconfig
+--- linux-2.5.60.vanilla/sound/oss/Kconfig	Thu Feb 13 20:32:37 2003
++++ linux-2.5.60/sound/oss/Kconfig	Thu Feb 13 20:42:02 2003
+@@ -225,7 +225,7 @@
+ 
+ config SOUND_VWSND
+ 	tristate "SGI Visual Workstation Sound"
+-	depends on SOUND_PRIME!=n && VISWS && SOUND
++	depends on SOUND_PRIME!=n && X86_VISWS && SOUND
+ 	help
+ 	  Say Y or M if you have an SGI Visual Workstation and you want to be
+ 	  able to use its on-board audio.  Read
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/sound/oss/vwsnd.c linux-2.5.60/sound/oss/vwsnd.c
+--- linux-2.5.60.vanilla/sound/oss/vwsnd.c	Thu Feb 13 20:32:36 2003
++++ linux-2.5.60/sound/oss/vwsnd.c	Thu Feb 13 20:42:02 2003
+@@ -144,14 +144,12 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+-#include <linux/sched.h>
+-#include <linux/semaphore.h>
+-#include <linux/stddef.h>
+ #include <linux/spinlock.h>
+ #include <linux/smp_lock.h>
+-#include <asm/fixmap.h>
+-#include <asm/cobalt.h>
++#include <linux/wait.h>
++#include <linux/interrupt.h>
+ #include <asm/semaphore.h>
++#include <asm/mach-visws/cobalt.h>
+ 
+ #include "sound_config.h"
+ 
+@@ -256,7 +254,7 @@
+  * Returns 0 on success, -errno on failure.
   */
  
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
- /*
-- * [SUMMARY] Run a function on all other CPUs.
-- * <func> The function to run. This must be fast and non-blocking.
-- * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-- * <wait> If true, wait (atomically) until function has completed on other CPUs.
-- * [RETURNS] 0 on success, else a negative status code. Does not return until
-- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask: The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-  *
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
+-static int li_create(lithium_t *lith, unsigned long baseaddr)
++static int __init li_create(lithium_t *lith, unsigned long baseaddr)
  {
- 	struct call_data_struct data;
--	int cpus = num_online_cpus()-1;
-+	int i, cpu, num_cpus;
-+
+ 	static void li_destroy(lithium_t *);
  
--	if (!cpus)
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight64(mask);
-+	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
-+	}
- 
- 	data.func = func;
- 	data.info = info;
-@@ -416,19 +425,26 @@
- 	spin_lock(&call_lock);
- 	call_data = &data;
- 	wmb();
-+
- 	/* Send a message to all other CPUs and wait for them to respond */
--	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
-+	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
- 
- 	/* Wait for response */
--	while (atomic_read(&data.started) != cpus)
-+	while (atomic_read(&data.started) != num_cpus)
- 		barrier();
- 
- 	if (wait)
--		while (atomic_read(&data.finished) != cpus)
-+		while (atomic_read(&data.finished) != num_cpus)
- 			barrier();
- 	spin_unlock(&call_lock);
--
-+	put_cpu_no_resched();
- 	return 0;
-+}
-+
-+int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
-+			int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+@@ -3040,15 +3038,15 @@
  }
  
- static void stop_this_cpu (void * dummy)
+ static struct file_operations vwsnd_audio_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	read:		vwsnd_audio_read,
+-	write:		vwsnd_audio_write,
+-	poll:		vwsnd_audio_poll,
+-	ioctl:		vwsnd_audio_ioctl,
+-	mmap:		vwsnd_audio_mmap,
+-	open:		vwsnd_audio_open,
+-	release:	vwsnd_audio_release,
++	.owner =	THIS_MODULE,
++	.llseek =	no_llseek,
++	.read =		vwsnd_audio_read,
++	.write =	vwsnd_audio_write,
++	.poll =		vwsnd_audio_poll,
++	.ioctl =	vwsnd_audio_ioctl,
++	.mmap =		vwsnd_audio_mmap,
++	.open =		vwsnd_audio_open,
++	.release =	vwsnd_audio_release,
+ };
+ 
+ /*****************************************************************************/
+@@ -3230,11 +3228,11 @@
+ }
+ 
+ static struct file_operations vwsnd_mixer_fops = {
+-	owner:		THIS_MODULE,
+-	llseek:		no_llseek,
+-	ioctl:		vwsnd_mixer_ioctl,
+-	open:		vwsnd_mixer_open,
+-	release:	vwsnd_mixer_release,
++	.owner =	THIS_MODULE,
++	.llseek =	no_llseek,
++	.ioctl =	vwsnd_mixer_ioctl,
++	.open =		vwsnd_mixer_open,
++	.release =	vwsnd_mixer_release,
+ };
+ 
+ /*****************************************************************************/
+@@ -3281,7 +3279,8 @@
+ 		return 0;
+ 	}
+ 
+-	printk(KERN_INFO "probe_vwsnd: lithium audio found\n");
++	printk(KERN_INFO "vwsnd: lithium audio at mmio %#x irq %d\n",
++		hw_config->io_base, hw_config->irq);
+ 
+ 	return 1;
+ }
+@@ -3309,7 +3308,7 @@
+ 	if (err)
+ 		goto fail1;
+ 
+-	init_waitqueue(&devc->open_wait);
++	init_waitqueue_head(&devc->open_wait);
+ 
+ 	devc->rport.hwbuf_size = HWBUF_SIZE;
+ 	devc->rport.hwbuf_vaddr = __get_free_pages(GFP_KERNEL, HWBUF_ORDER);
+@@ -3378,18 +3377,18 @@
+ 
+ 	/* Initialize as much of *devc as possible */
+ 
+-	devc->open_sema = MUTEX;
+-	devc->io_sema = MUTEX;
+-	devc->mix_sema = MUTEX;
++	init_MUTEX(&devc->open_sema);
++	init_MUTEX(&devc->io_sema);
++	init_MUTEX(&devc->mix_sema);
+ 	devc->open_mode = 0;
+ 	devc->rport.lock = SPIN_LOCK_UNLOCKED;
+-	init_waitqueue(&devc->rport.queue);
++	init_waitqueue_head(&devc->rport.queue);
+ 	devc->rport.swstate = SW_OFF;
+ 	devc->rport.hwstate = HW_STOPPED;
+ 	devc->rport.flags = 0;
+ 	devc->rport.swbuf = NULL;
+ 	devc->wport.lock = SPIN_LOCK_UNLOCKED;
+-	init_waitqueue(&devc->wport.queue);
++	init_waitqueue_head(&devc->wport.queue);
+ 	devc->wport.swstate = SW_OFF;
+ 	devc->wport.hwstate = HW_STOPPED;
+ 	devc->wport.flags = 0;
+@@ -3468,8 +3467,9 @@
+ 	DBGXV("\n");
+ 	DBGXV("sound::vwsnd::init_module()\n");
+ 
+-	if(!probe_vwsnd(&the_hw_config))
++	if (!probe_vwsnd(&the_hw_config))
+ 		return -ENODEV;
++
+ 	err = attach_vwsnd(&the_hw_config);
+ 	if (err < 0)
+ 		return err;
+
+--bFUYW7mPOLJ+Jd2A--

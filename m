@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272485AbTGZNqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 09:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272487AbTGZNqi
+	id S272487AbTGZN6r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 09:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272488AbTGZN6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 09:46:38 -0400
-Received: from batman.jypoly.fi ([195.148.27.23]:44486 "EHLO batman.jypoly.fi")
-	by vger.kernel.org with ESMTP id S272485AbTGZNqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 09:46:36 -0400
-From: "kimmo.myllyvirta" <78161@batman.jypoly.fi>
-To: h.truhetz@ecowatt.at
-CC: linux-kernel@vger.kernel.org
-Subject: Re: AMD760MP - Troubles with MSI K7D
-Date: Sat, 26 Jul 2003 17:01:47 +0900
-Message-Id: <20030726170147.M58068@batman.jypoly.fi>
-X-Mailer: Open WebMail 1.64 20020415
-X-OriginatingIP: 130.234.196.246 (78161)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 26 Jul 2003 09:58:47 -0400
+Received: from D7142.pppool.de ([80.184.113.66]:34519 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S272487AbTGZN6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 09:58:46 -0400
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+From: Daniel Egger <degger@fhm.edu>
+To: Yury Umanets <umka@namesys.com>
+Cc: Nikita Danilov <Nikita@Namesys.COM>, Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@namesys.com>
+In-Reply-To: <1059203990.21910.13.camel@haron.namesys.com>
+References: <3F1EF7DB.2010805@namesys.com>
+	 <1059062380.29238.260.camel@sonja>
+	 <16160.4704.102110.352311@laputa.namesys.com>
+	 <1059093594.29239.314.camel@sonja>
+	 <16161.10863.793737.229170@laputa.namesys.com>
+	 <1059142851.6962.18.camel@sonja>
+	 <1059143985.19594.3.camel@haron.namesys.com>
+	 <1059181687.10059.5.camel@sonja>
+	 <1059203990.21910.13.camel@haron.namesys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VsYeRtbFWBv/fltru1uL"
+Message-Id: <1059228808.10692.7.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 26 Jul 2003 16:13:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have two Athlon MP's 2600+ mounted on a MSI K7D-Master-L with the famous 
-> AMD-768 (Opus) chipset (latest BIOS 1.82).
-> Actually I'm using debian's 'woody' distribution with the kernel 2.4.22-pre8, 
-> glibc 2.2.5 and gcc 2.95.4.
-> I have problems with the IDE support:
-> On the hardisk (Maxtor 6Y120L0 - 120GB) there is a 1.4 GB file, I want to 
-> copy. But when I try this, the system stops with the error message:
-> 
-> attempt to access beyond end of device
-> 03:09: rw=0, want=976094472, limit=109948828
-> 
-> and I have to push the reset button.
-> 
-> When I switch DMA off by using 'hdparm -d0' everthing works fine, but the 
-> hole copy-process takes about 8 minutes!
-> 
-> Are there any solutions or workarounds to fix these problems?
 
-Plug in a PS/2 mouse, and it works.
+--=-VsYeRtbFWBv/fltru1uL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-See product errata for the AMD-768 (#10):
-"Multiprocessor system may hang while in FULL APIC mode and IOAPIC interrupt
-is masked"
+Am Sam, 2003-07-26 um 09.19 schrieb Yury Umanets:
 
-I'm currently running similar setup (same MB, Redhat 9 + 2.4.22-pre7) without 
-any problems. If the PS/2 mouse is removed i get exactly the same problems as 
-you described. 
+> I think this is more then enough for running reiser4. Reiser4 is a linux
+> filesystem first of all, and linux is able to be ran on even worse
+> hardware then you have.
 
-And it's not only the IDE that is affected. E.g. doing 'ifdown eth0' causes 
-the system to hang (at least for me it did), so turning off the DMA is not 
-a solution.
+Linux is running just fine one the system, thanks. My question is
+whether reiserfs is suitable for flash devices. The chances to get some
+usable answers seem to be incredible low though...
 
-> Do I have to upgrade the glibc or any other system components?
+--=20
+Servus,
+       Daniel
 
-no. (it will not solve this problem)
+--=-VsYeRtbFWBv/fltru1uL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-> Does this problem affect any inter-CPU processes like OpenMP?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-no, when you have the PS/2 mouse.
+iD8DBQA/IoyHchlzsq9KoIYRApkaAJ4m0vaU+xThl31eRHhrOdsYpitaMgCeMoWr
+yvmfUaTS8DkdY7Qd3cY4WA8=
+=hwAL
+-----END PGP SIGNATURE-----
 
-> Do I have to change the motherboard? Which mobo's are said to be reliable?
-
-Same problem appears with all motherboards using AMD 768 (rev B1 or B2). 
-(Correct me if i'm wrong. Maybe some manufacturer had made workaround for 
-this problem...)
-
-Cheers,
-KM
+--=-VsYeRtbFWBv/fltru1uL--
 

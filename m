@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275818AbRJYRf5>; Thu, 25 Oct 2001 13:35:57 -0400
+	id <S275778AbRJYRsk>; Thu, 25 Oct 2001 13:48:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275778AbRJYRfr>; Thu, 25 Oct 2001 13:35:47 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:53775 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S275861AbRJYRff>; Thu, 25 Oct 2001 13:35:35 -0400
-Message-ID: <3BD84C76.9A7DE8CA@zip.com.au>
-Date: Thu, 25 Oct 2001 10:31:34 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac6 i686)
-X-Accept-Language: en
+	id <S275813AbRJYRs3>; Thu, 25 Oct 2001 13:48:29 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:35348 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S275778AbRJYRsS>;
+	Thu, 25 Oct 2001 13:48:18 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
+Date: Thu, 25 Oct 2001 09:26:58 -0700 (PDT)
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <20011025082001.B764@hq2>
+Message-ID: <Pine.LNX.4.40.0110250926380.15014-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Radivoje Todorovic <radivojet@jaspur.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [NETWORK MODULE PERFORMANCE]: How to measure it?
-In-Reply-To: <BOEOJGNGENIJJMAOLHHCEEIKCEAA.radivojet@jaspur.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Radivoje Todorovic wrote:
-> 
-> Hello,
-> 
-> I am confronted with somewhat hard problem. Say one develops Network Module
-> X, i.e. using Netfilter hooks. X will (simply) mangle the packets and then
-> forward them or do whatever. How can I measure the performance of X module?
-> I am not sure exactly what I am asking but say, I have a Linux router with X
-> module running and I need to get information what is the CPU usage under
-> heavy traffic with, and without X module. Actually it would be nice to see
-> the latency per-packet that X introduces and how it changes if the volume of
-> traffic increases.
-> 
+let alone a reason for a suspend to be triggered while running the tape.
 
-The most precise tool known to mankind is cyclesoak :)
-It's at http://www.uow.edu.au/~andrewm/linux/#zc and there's
-a README in the tarball.
+David Lang
 
-cyclesoak measures subtractively - rather than measuring the
-load of your software, it measures how much other system
-load slows it down.  For networking it gives results which
-are repeatable down to about 0.2% of system capacity.  So
-you should run a known workload both with and without your
-netfilter code and record the difference in cyclesoak output.
+On Thu, 25 Oct 2001, Victor Yodaiken wrote:
 
-Currently it tries to lump memory bandwidth load and CPU cycle
-load into a single metric, which doesn't work very well - these
-things are orthogonal and should be reported separately.  That's
-on my TTD list.
-
--
+> Date: Thu, 25 Oct 2001 08:20:01 -0600
+> From: Victor Yodaiken <yodaiken@fsmlabs.com>
+> To: Rob Turk <r.turk@chello.nl>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [RFC] New Driver Model for 2.5
+>
+> On Thu, Oct 25, 2001 at 10:27:11AM +0200, Rob Turk wrote:
+> > > The act of "suspend" should basically be: shut off the SCSI controller,
+> > > screw all devices, reset the bus on resume.
+> > >
+> >
+> > Doing so will create havoc on sequential devices, such as tape drives. If
+>
+> I'm failing  to imagine a good case for suspending a system that has a
+> tape drive on it.
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319014AbSIDCeR>; Tue, 3 Sep 2002 22:34:17 -0400
+	id <S319018AbSIDCkG>; Tue, 3 Sep 2002 22:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319019AbSIDCeR>; Tue, 3 Sep 2002 22:34:17 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:50876 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319014AbSIDCeQ>; Tue, 3 Sep 2002 22:34:16 -0400
-Date: Tue, 3 Sep 2002 23:38:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Robert Love <rml@tech9.net>
-cc: imran.badr@cavium.com, <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages
-In-Reply-To: <1031106469.24330.3276.camel@phantasy>
-Message-ID: <Pine.LNX.4.44L.0209032337330.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319019AbSIDCkG>; Tue, 3 Sep 2002 22:40:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3087 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319018AbSIDCkF>;
+	Tue, 3 Sep 2002 22:40:05 -0400
+Message-ID: <3D75766F.1ED7257D@zip.com.au>
+Date: Tue, 03 Sep 2002 19:56:47 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Important per-cpu fix.
+References: <20020904023535.73D922C12D@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Sep 2002, Robert Love wrote:
-> On Tue, 2002-09-03 at 22:19, Imran Badr wrote:
->
-> > Does __get_free_pages(..) return physically contiguous pages?
->
-> Yes.
+Rusty Russell wrote:
+> 
+> Frankly, I'm amazed the kernel worked for long without this.
+> 
+> Every linker script thinks the section is called .data.percpu.
+> Without this patch, every CPU ends up sharing the same "per-cpu"
+> variable.
+> 
 
-But only if they're available. Linux doesn't currently have
-any mechanisms for smart defragmentation of physical memory
-and even if we had them they couldn't be fully reliable.
-
-So be careful what you ask for, if you ask for too large a
-chunk of memory you might end up not getting any at all.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+wow.  Either this was working by fluke, or Bill's softirq problem
+just got solved.

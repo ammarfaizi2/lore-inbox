@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUGMDJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUGMDWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUGMDJo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 23:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUGMDJo
+	id S263107AbUGMDWe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 23:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUGMDWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 23:09:44 -0400
-Received: from muss.CIS.McMaster.CA ([130.113.64.9]:2719 "EHLO
-	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S263085AbUGMDJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 23:09:42 -0400
-From: Gabriel Devenyi <devenyga@mcmaster.ca>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] Re: Preempt Threshold Measurements
-Date: Mon, 12 Jul 2004 23:09:43 -0400
-User-Agent: KMail/1.6.2
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-References: <200407121943.25196.devenyga@mcmaster.ca> <200407122248.50377.devenyga@mcmaster.ca> <20040713025502.GR21066@holomorphy.com>
-In-Reply-To: <20040713025502.GR21066@holomorphy.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 12 Jul 2004 23:22:34 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:54987 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263107AbUGMDWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 23:22:32 -0400
+Subject: Re: desktop and multimedia as an afterthought?
+From: Florin Andrei <florin@andrei.myip.org>
+To: linux-kernel@vger.kernel.org, linux-audio-dev@music.columbia.edu
+In-Reply-To: <20040712172458.2659db52.akpm@osdl.org>
+References: <1089665153.1231.88.camel@cube>
+	 <200407122354.i6CNsNqS003382@localhost.localdomain>
+	 <20040712172458.2659db52.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089688948.2523.5.camel@rivendell.home.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 12 Jul 2004 20:22:28 -0700
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407122309.43088.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ah good, thanks for the suggestion on how to improve this... Now, what exactly 
-is that, and where/how do I change it.... (I really should start/finish that 
-"understanding the linux kernel" book of mine)
+On Mon, 2004-07-12 at 17:24, Andrew Morton wrote:
 
+> Something weird is happening, I don't know what it is, I cannot reproduce
+> it and I need help understanding what it is, OK?  The sooner we can do
+> that, the sooner it gets fixed up.
+
+Sounds fair to me.
+
+I have no time whatsoever for such things, but if i do get time, i'll do
+some tests and post results. I'll lurk in the background meanwhile, to
+figure out more precisely just what kind of tests you guys want, what
+kind of debugging to turn on, etc.
+
+Thank you,
 
 -- 
-Gabriel Devenyi
-devenyga@mcmaster.ca
+Florin Andrei
 
-On Monday 12 July 2004 22:55, William Lee Irwin III wrote:
-> On Mon, Jul 12, 2004 at 10:48:50PM -0400, Gabriel Devenyi wrote:
-> > Well I'm not particularly educated in kernel internals yet, here's some
-> > reports from the system when its running.
-> > 6ms non-preemptible critical section violated 4 ms preempt threshold
-> > starting at do_munmap+0xd2/0x140 and ending at do_munmap+0xeb/0x140
-> >  [<c014007b>] do_munmap+0xeb/0x140
-> >  [<c01163b0>] dec_preempt_count+0x110/0x120
-> >  [<c014007b>] do_munmap+0xeb/0x140
-> >  [<c014010f>] sys_munmap+0x3f/0x60
-> >  [<c0103ee1>] sysenter_past_esp+0x52/0x71
->
-> Looks like ZAP_BLOCK_SIZE may be too large for you. Lowering that some
-> may "help" this. It's probably harmless, but try lowering that to half
-> of whatever it is now, or maybe 64*PAGE_SIZE. It may be worthwhile
-> to restructure how the preemption points are done in unmap_vmas() so
-> we don't end up in some kind of tuning nightmare.
->
->
-> -- wli
-> _______________________________________________
-> ck@vds.kolivas.org
-> ck mailing list - unmoderated. Please reply-to-all when posting.
-> http://bhhdoa.org.au/mailman/listinfo/ck
+http://florin.myip.org/
+

@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129110AbRBCJnO>; Sat, 3 Feb 2001 04:43:14 -0500
+	id <S129168AbRBCJsz>; Sat, 3 Feb 2001 04:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129163AbRBCJnF>; Sat, 3 Feb 2001 04:43:05 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:45415 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129110AbRBCJmw>; Sat, 3 Feb 2001 04:42:52 -0500
-Date: Sat, 3 Feb 2001 03:42:48 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Darren Tucker <dtucker@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Etherworks3 driver now obsolete?
-In-Reply-To: <200102010822.f118Mlu02001@gate.dodgy.net.au>
-Message-ID: <Pine.LNX.3.96.1010203034048.26992C-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129511AbRBCJsp>; Sat, 3 Feb 2001 04:48:45 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:61523 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129168AbRBCJsd>; Sat, 3 Feb 2001 04:48:33 -0500
+Date: Sat, 3 Feb 2001 04:48:09 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Paul Jakma <paul@clubi.ie>
+Cc: "J . A . Magallon" <jamagallon@able.es>, Hans Reiser <reiser@namesys.com>,
+        Alan Cox <alan@redhat.com>, Chris Mason <mason@suse.com>,
+        Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com,
+        "Yury Yu . Rupasov" <yura@yura.polnet.botik.ru>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+Message-ID: <20010203044809.Z16592@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <20010202191701.Y16592@devserv.devel.redhat.com> <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org>; from paul@clubi.ie on Sat, Feb 03, 2001 at 04:25:20AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Darren Tucker wrote:
-> I decided to try a shiny new 2.4.0 kernel but I couldn't configure the driver
-> for my etherworks3 ISA ethernet card (AMD K6III PC hardware).
+On Sat, Feb 03, 2001 at 04:25:20AM +0000, Paul Jakma wrote:
+> On Fri, 2 Feb 2001, Jakub Jelinek wrote:
 > 
-> A bit of grepping showed that it only appears if CONFIG_OBSOLETE is defined
-> but nothing in the configuration tools seems to set it (at least for i386).
-
-If you are willing to be a target^H^H^Htester, then I can probably whip
-up a patch to fix it.
-
-
-> CONFIG_OBSOLETE is checked for by Config.in for a couple of drivers (net and
-> char), but the only place it seems to be defined is for the ARM architecture. 
+> > You can do:
+> > if [ "$CC" = gcc ]; then
+> >   echo 'inline void f(unsigned int n){int i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);exit(1);}' > test.c
+> >   gcc -O2 -o test test.c
+> >   if ./test; then echo "*** Please don't use this compiler to compile kernel"; fi
+> >   rm -f test.c test
+> > fi
+> >
+> > (the $CC = gcc test is there e.g. so that the test is not done when
+> > cross-compiling or when there is a separate kernel compiler and userland
+> > compiler (e.g. on sparc64). This test will barf on gcc-2.96 up to -67 and
+> >
+> > 	Jakub
 > 
-> Is this deliberate? Are some of the older drivers to be phased out?
-> Should there be a "bool 'Prompt for obsolete code/drivers' CONFIG_OBSOLETE"
-> in the config.in for other architectures, too?
+> ehhmm..
+> 
+> [root@fogarty /tmp]# rpm -q gcc
+> gcc-2.96-70
+> [root@fogarty /tmp]# cat test.c
+> inline void f(unsigned int n){int
+> i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);
+> exit(1);}
+> [root@fogarty /tmp]# gcc -o test test.c
+> [root@fogarty /tmp]# ./test
+> 
+> didn't barf here with 2.96-70.
 
-CONFIG_OBSOLETE really means "this driver is broken, don't EVER show it
-in the kernel config."
+I used a wrong word (the test originally had abort() instead of exit(0) and
+exit(0) instead of exit(1)). The test will exit with 0 if it was
+miscompiled, 1 if it was not. And on 2.96-70 it should exit with 1 as it
+should not be miscompiled.
 
-	Jeff
-
-
-
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

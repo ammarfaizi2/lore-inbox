@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUIUUyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUIUUzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268057AbUIUUyd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 16:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIUUyd
+	id S268066AbUIUUzB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 16:55:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUIUUzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 16:54:33 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:30631 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S268057AbUIUUya convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 16:54:30 -0400
-Date: Tue, 21 Sep 2004 20:54:29 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH 2.6.9-rc2-mm1] i8042 ACPI enumeration update
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-References: <200409211352.22318.bjorn.helgaas@hp.com>
-In-Reply-To: <200409211352.22318.bjorn.helgaas@hp.com> (from
-	bjorn.helgaas@hp.com on Tue Sep 21 21:52:22 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1095800069l.4348l.0l@werewolf.able.es>
+	Tue, 21 Sep 2004 16:55:01 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:16611 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S268066AbUIUUyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 16:54:51 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.9-rc2-mm1] floppy ACPI enumeration update
+Date: Tue, 21 Sep 2004 14:54:40 -0600
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+Message-Id: <200409211454.40116.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This adds ACPI device name ("Floppy Controller") and takes
+advantage of acpi_device_bid() rather than the open-coded
+equivalent.
 
-On 2004.09.21, Bjorn Helgaas wrote:
-> This adds a few updates:
-> 
->  - Fix build on ia64 (I8042_MAP_IRQ() isn't defined at compile-time)
->  - Add FixedIO support from Hans-Frieder Vogt
->  - Add ACPI device name (e.g., "PS/2 Keyboard Controller")
->  - Fall back to default ports/IRQ if ACPI _CRS doesn't supply them
->  - Fall back to previous blind probing if ACPI is disabled
-> 
-> I'd appreciate any comments or feedback.  If it looks reasonable,
-> please include this in the next -mm patchset.
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> 
+Please include in the next -mm patchset.
 
-Perhaps this cures my kbd/mouse disdetections (it fails somteimes at boot,
-I suddenly find myself without mouse or keyboard. Replugging works.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-But...your mailer has screwed the patch, tabs were changed to spaces...
-
-Please, could you resend it ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc2-mm1 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #2
-
-
+diff -u -ur 2.6.9-rc2-mm1/drivers/block/floppy.c floppy1/drivers/block/floppy.c
+--- 2.6.9-rc2-mm1/drivers/block/floppy.c 2004-09-21 12:51:48.000000000 -0600
++++ floppy1/drivers/block/floppy.c 2004-09-21 14:41:11.000000000 -0600
+@@ -4301,7 +4301,9 @@
+  if (ACPI_FAILURE(status))
+   return -ENODEV;
+ 
+- printk("%s: ACPI %s [%s] at I/O 0x%x-0x%x", DEVICE_NAME,
++ strncpy(acpi_device_name(device), "Floppy Controller",
++  sizeof(acpi_device_name(device)));
++ printk("ACPI: %s [%s] at I/O 0x%x-0x%x",
+   acpi_device_name(device), acpi_device_bid(device),
+   fd.io_region[0].base,
+   fd.io_region[0].base + fd.io_region[0].size - 1);
+@@ -4335,8 +4337,8 @@
+      (port) < (region).base + (region).size)
+ 
+  if (!(contains(fd.io_region[0], dcr) || contains(fd.io_region[1], dcr))) {
+-  printk(KERN_WARNING "%s: %s _CRS doesn't include FD_DCR; also claiming 0x%x\n",
+-   DEVICE_NAME, device->pnp.bus_id, dcr);
++  printk(KERN_WARNING "ACPI: [%s] doesn't declare FD_DCR; also claiming 0x%x\n",
++   acpi_device_bid(device), dcr);
+  }
+ 
+ #undef contains
+@@ -4348,11 +4350,11 @@
+  } else if (acpi_floppies == 1) {
+   FDC2 = base;
+   if (fd.irq != FLOPPY_IRQ || fd.dma_channel != FLOPPY_DMA)
+-   printk(KERN_WARNING "%s: different IRQ/DMA info for %s; may not work\n",
+-    DEVICE_NAME, device->pnp.bus_id);
++   printk(KERN_WARNING "%s: different IRQ/DMA info for [%s]; may not work\n",
++    DEVICE_NAME, acpi_device_bid(device));
+  } else {
+-  printk(KERN_ERR "%s: only 2 controllers supported; %s ignored\n",
+-   DEVICE_NAME, device->pnp.bus_id);
++  printk(KERN_ERR "%s: only 2 controllers supported; [%s] ignored\n",
++   DEVICE_NAME, acpi_device_bid(device));
+   return -ENODEV;
+  }
+ 

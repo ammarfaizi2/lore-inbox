@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUGZBKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264774AbUGZBVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbUGZBKS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 21:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUGZBKS
+	id S264774AbUGZBVi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 21:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUGZBVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 21:10:18 -0400
-Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:15814 "EHLO
-	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264770AbUGZBKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 21:10:10 -0400
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040725174849.75f2ecf6.akpm@osdl.org> <cone.1090803691.689003.20693.502@pc.kolivas.org>
-Message-ID: <cone.1090804198.848689.20693.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Date: Mon, 26 Jul 2004 11:09:58 +1000
+	Sun, 25 Jul 2004 21:21:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52380 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264774AbUGZBVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 21:21:36 -0400
+Date: Sun, 25 Jul 2004 18:20:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+Message-Id: <20040725182006.6c6a36df.akpm@osdl.org>
+In-Reply-To: <40FD23A8.6090409@suse.de>
+References: <40FD23A8.6090409@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-pc.kolivas.org-20693-1090804198-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-
---=_mimegpg-pc.kolivas.org-20693-1090804198-0001
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Con Kolivas writes:
-
-> Andrew Morton writes:
-
->> Seriously, we've seen placebo effects before...
+Hannes Reinecke <hare@suse.de> wrote:
+>
+> the attached patch limits the number of concurrent hotplug processes.
+>  Main idea behind it is that currently each call to call_usermodehelper 
+>  will result in an execve() of "/sbin/hotplug", without any check whether 
+>  enough resources are available for successful execution. This leads to 
+>  hotplug being stuck and in worst cases to machines being unable to boot.
 > 
-> I am in full agreement there... It's easy to see that applications do not 
-> swap out overnight; but i'm having difficulty trying to find a way to 
-> demonstrate the other part. I guess timing the "linking the kernel with full 
-> debug" on a low memory box is measurable.
+>  This check cannot be implemented in userspace as the resources are 
+>  already taken by the time any resource check can be done; for the same 
+>  reason any 'slim' programs as /sbin/hotplug will only delay the problem.
 
-I should have said - finding a swappiness that ensures not swapping out 
-applications with updatedb, then using that same swappiness value to do the 
-linking test.
+hm, it's a bit sad that this happens.  Are you able to tell us more about
+what is causing such an explosion of module probes?
 
-Con
+>  Any comments/suggestions welcome; otherwise please apply.
+
+I suggest you just use a semaphore, initialised to a suitable value:
 
 
---=_mimegpg-pc.kolivas.org-20693-1090804198-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+static struct semaphore foo = __SEMAPHORE_INITIALIZER(foo, 50);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBBBFnmZUg7+tp6mRURAiBrAJ9RC4hNX73ysfVmeuOgfQfF6NGt6gCeMBG6
-VuFip1C3OtUcc3s8XP9VGn4=
-=lVkL
------END PGP SIGNATURE-----
+{
+	...
+	down(&foo);
+	...
+	up(&foo);
+	...
+}
 
---=_mimegpg-pc.kolivas.org-20693-1090804198-0001--

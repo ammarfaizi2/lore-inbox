@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130439AbQKBFZg>; Thu, 2 Nov 2000 00:25:36 -0500
+	id <S130073AbQKBFu2>; Thu, 2 Nov 2000 00:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130459AbQKBFZ1>; Thu, 2 Nov 2000 00:25:27 -0500
-Received: from www.wen-online.de ([212.223.88.39]:65285 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130439AbQKBFZT>;
-	Thu, 2 Nov 2000 00:25:19 -0500
-Date: Thu, 2 Nov 2000 06:25:21 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Pieter van Prooijen <pprooi@xs4all.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.0-test10 locks up during kernel compiles on Toshiba
- CDT  1640
-In-Reply-To: <3A009557.135DF15E@xs4all.nl>
-Message-ID: <Pine.Linu.4.10.10011020613270.1061-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130459AbQKBFuS>; Thu, 2 Nov 2000 00:50:18 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:56329 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S130073AbQKBFuM>; Thu, 2 Nov 2000 00:50:12 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: "David S. Miller" <davem@redhat.com>
+cc: npsimons@fsmlabs.com, garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
+Message-ID: <8625698B.00200009.00@smtpnotes.altec.com>
+Date: Wed, 1 Nov 2000 23:46:04 -0600
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Pieter van Prooijen wrote:
 
-> Content-Type: text/plain; charset=us-ascii
-> Content-Transfer-Encoding: 7bit
-> 
-> Hi,
-> 
-> During kernel compilation (or other heavy use of the machine), the
-> machine
-> locks up. No oops, no alt-sysreq, only a hardware reset is
-> possible. 
-> 
-> Machine is a Toshiba CDT 1640 laptop: 475 MHz K6-II+, 128KB cache, 64 MB
-> ram, Aladdin V chipset, 6 GB Fujitsu hd.
-> 
-> Observations:
-> 
-> The standard RedHat kernel (2.2.16) and Windows work fine, so it doesn't
-> seem to be a hardware problem.
 
-Except likely it is hardware.. the plastic case :)
+I've been following this kgcc discussion with interest for weeks now and there's
+one thing that still puzzles me.  Everyone on both sides of the issue seems to
+be saying that kgcc (AKA egcs 1.1.2) is used because the gcc versions shipped by
+several vendors don't compile the kernel correctly.  What I haven't seen yet is
+an explanation of why kgcc can't be used for compiling *everything* and why
+another compiler even needs to be installed.  I'm using egcs-1.1.2 with the
+latest kernel, binutils, modutils, etc. as well as applications like the latest
+ppp and setiathome with no problems.  Instead of using two compilers, why not
+stay with the older version for everything and not use the latest gcc for
+anything until both the kernel and userland stuff can be compiled with it?
 
-> When the machine locks up, the little fan begins running immediately,
-> which means the processor is getting very hot (doing what ?)
+I'm not trying to fan the flames, just wondering why there's such an apparent
+rush to upgrade to a newer gcc.  Everyone seems to be taking it for granted that
+an upgrade is needed, but there's disagreement on which version to use.  Why do
+we need to upgrade the compiler at all right now?
 
-Compiling is very cpu intensive, so the system won't be doing many
-idle calls (where cpu can cool down).  This sounds like your cpu is
-having a heatstroke and shutting down instead of frying itself.
-
-It may well be that 2.4 kernel is keeping the cpu busy more than 2.2
-or windows does, and your box is poorly designed wrt heat disipation.
-
-	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

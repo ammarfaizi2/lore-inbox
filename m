@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263434AbRFXBki>; Sat, 23 Jun 2001 21:40:38 -0400
+	id <S265701AbRFXBn5>; Sat, 23 Jun 2001 21:43:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265696AbRFXBk1>; Sat, 23 Jun 2001 21:40:27 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:55270 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S263434AbRFXBkN>; Sat, 23 Jun 2001 21:40:13 -0400
-Message-ID: <3B35455E.5EF33B04@idcomm.com>
-Date: Sat, 23 Jun 2001 19:41:50 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
+	id <S265699AbRFXBnr>; Sat, 23 Jun 2001 21:43:47 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:62848 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265700AbRFXBnd>; Sat, 23 Jun 2001 21:43:33 -0400
+Date: Sat, 23 Jun 2001 21:43:05 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Wan Hing Wah <50191914@uxmail.cityu.edu.hk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GPIB support
+In-Reply-To: <Pine.GSO.4.33.0106231213430.19291-100000@moscow>
+Message-ID: <Pine.LNX.3.95.1010623213228.21862A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: For comment: draft BIOS use document for the kernel
-In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Sat, 23 Jun 2001, Wan Hing Wah wrote:
+
+> I'm doing a project which port a component testing program in DOS which
+> use GPIB to linux
+> Does the Linux kernel support GPIB?
 > 
-> Linux 2.4 BIOS usage reference
 > 
-> Boot Sequence
-> -------------
-> 
-> Linux is normally loaded either directly as a bootable floppy image or from
-> hard disk via a boot loader called lilo. The kernel image is transferred
-> into low memory and a parameter block above it.
-> 
-> When booting from floppy disk the BIOS disk parameter tables are replaced
-> by a new table set up to allow a maximum sector count of 36 (the track size
-> for a 2.88Mb ED floppy)
-> 
-> int 0x13, AH=0x02 is issued to to probe and find the disk geometry.
-> int 0x13, AH=0x00 is used to reset the floppy controller.
-> int 0x13, AH=0x02 is then issued repeatedly to load tracks of data. The
->         boot loader ensures no issued requests cross the track boundaries
-> 
-> int 0x10 service 3 is used during the boot loading sequence to obtain the
-> cursor position. int 0x10 service 13 is used to display loading messages
-> as the loading procedure continues. int 0x10 AH=0xE is used to display a
-> progress bar of '=' characters during the bootstrap
-> 
-> Control is then transferred to the loaded image whether by the floppy boot
-> loader or other services
+> I find a linux gpib driver in the  linux lab project
+> http://www.llp.fu-berlin.de/
 > 
 
-If it is within the realm of the paper, I'd like to know the differences
-when booting from an ATAPI cdrom (or the fact that there is no
-difference). Or for SCSI cdrom if relevant or useful to the purposes of
-the paper.
+GPIB is terribly device-specific. What board do you intend to use?
+National Instruments has a so-called driver for their TNT4882 on
+their web-site. I was never able to get it to even compile, much
+less work.
 
-D. Stimits, stimits@idcomm.com
+I have a driver written for that chip. It's not GPLed, but it
+could be if there is enough interest. In any event, I could send
+you the source to try out. Just don't publish it yet. Let me
+know because I could use additional input for testing. In other
+words, if asked, I would just say that you are helping to test
+a driver...
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

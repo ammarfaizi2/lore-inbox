@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274991AbRJJGu6>; Wed, 10 Oct 2001 02:50:58 -0400
+	id <S275012AbRJJHCV>; Wed, 10 Oct 2001 03:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274990AbRJJGus>; Wed, 10 Oct 2001 02:50:48 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:38791 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S274989AbRJJGuc>; Wed, 10 Oct 2001 02:50:32 -0400
-Date: Wed, 10 Oct 2001 12:24:00 +0530
+	id <S275003AbRJJHCK>; Wed, 10 Oct 2001 03:02:10 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60103 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S274997AbRJJHBv>; Wed, 10 Oct 2001 03:01:51 -0400
+Date: Wed, 10 Oct 2001 12:36:03 +0530
 From: Dipankar Sarma <dipankar@in.ibm.com>
-To: torvalds@transmeta.com
+To: balbir.singh@wipro.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010122400.A17006@in.ibm.com>
+Message-ID: <20011010123603.A17043@in.ibm.com>
 Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,23 +20,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In article <Pine.LNX.4.33.0110092236210.1305-100000@penguin.transmeta.com> Linus Torvalds wrote:
+In article <3BC3D9ED.6050901@wipro.com> BALBIR SINGH wrote:
 
-> Now, in all fairness I can imagine hacky lock-less removals too. To get
-> them to work, you have to (a) change the "next" pointer to point to the
-> next->next (and have some serialization between removals, but removals
-> only, to make sure you don't have next->next also going away from you) and
-> (b) leave the old "next" pointer (and thus the data structure) around
-> until you can _prove_ that nobody is looking anything up any more, and
-> that the now-defunct data structure can truly be removed.
+> What about cases like the pci device list or any other such list. Sometimes
+> you do not care if somebody added something, while you were looking through
+> the list as long as you do not get illegal addresses or data.
+> Wouldn't this be very useful there? Most of these lists come up
+> at system startup and change rearly, but we look through them often.
 
-This is exactly what Read-Copy Update does. You keep the old data
-structure around until you are sure that all the CPUs have lost
-references to it by context switching. There are more than
-one relatively non-intrusive ways of detecting completion of such a cycle
-and "deleted" data can be freed afterwards.
+How often does the linux kernel need to go through the PCI device
+list ? Looking at only SCSI code, it seems that not very often.
+If that is the case in general, optimizing it for lockless
+lookup (assuming that you use RCU or something to support deletion),
+is probably an overkill.
 
-The details are in http://lse.sourceforge.net/locking/rcupdate.html.
+One example of where it is useful is maintenance of route information
+in either storage or network. Route information changes infrequently but
+needs to be looked up for every I/O and being able to do lockless
+lookup here is a good gain.
 
 Thanks
 Dipankar

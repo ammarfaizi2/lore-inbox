@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131745AbQLIQnv>; Sat, 9 Dec 2000 11:43:51 -0500
+	id <S131781AbQLIQpL>; Sat, 9 Dec 2000 11:45:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131781AbQLIQnm>; Sat, 9 Dec 2000 11:43:42 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:49676
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S131745AbQLIQne>; Sat, 9 Dec 2000 11:43:34 -0500
-Date: Sat, 9 Dec 2000 11:23:00 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Alpha crash: 2.4.0-test12-pre6 + LVM 0.9 + REISERFS 3.6.22
-Message-ID: <20001209112300.A15246@animx.eu.org>
-Mime-Version: 1.0
+	id <S132118AbQLIQpB>; Sat, 9 Dec 2000 11:45:01 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9989 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S131781AbQLIQoz>;
+	Sat, 9 Dec 2000 11:44:55 -0500
+Message-ID: <3A325A47.29DE00D8@mandrakesoft.com>
+Date: Sat, 09 Dec 2000 11:13:59 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>, rgooch@ras.ucalgary.ca,
+        jgarzik@mandrakesoft.mandrakesoft.com, dhinds@valinux.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+In-Reply-To: <Pine.LNX.4.10.10012082328260.2121-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this happened w/o reiserfs compiled or not.  I didn't leave
-it running over night (crash happened about 07:00)
+Linus Torvalds wrote:
+> On Sat, 9 Dec 2000, Theodore Y. Ts'o wrote:
+> >    I didn't have time to do more than just quickly apply the patch and leave
+> >    in a hurry, but my Vaio certainly recognized the serial port on the combo
+> >    cardbus card I have with this patch. Everything looked fine - I got a
+> >    message saying it found a 16450 on ttyS4 when I plugged the card in.
+> >
+> > When you have a chance, can you check and make sure that you actually
+> > can talk to the modem?  That will make me feel much better.....
+> 
+> Done.
+> 
+> It works perfectly fine for me, with the following caveat:
+> 
+> It crashes hard if I remove the card while the modem is in use, though (ie
+> insert card, point minicom at it, sit at the minicom window while removing
+> the card).
+> 
+> This is a problem that many drivers have: when the card is removed, the
+> driver sees an interrupt (which happens to be the CardBus card removal
+> interrupt, but the serial driver doesn't know that, and the way cardbus
+> interrupts work it's always shared with the driver).
+> 
+> So the serial driver reads the modem status byte, which is all ones, and
+> decides that there is a ton of work to do. It then loops forever, because
+> the status byte bits will obviously continue to be all ones.
+> 
+> Note how the "rs_interrupt()" routine _tries_ to avoid this by having a
+> pass counter value, but that logic never triggers because we will loop
+> forever in receive_chars(), so the rs_interrupt() counter never even gets
+> to increment.
 
-Last thing in the log before this was st being loaded (I have a backup that
-starts at 06:00)  I don't believe this has anything to do with the crash,
-but the machine crashed before with the same kernel (this was captured with
-serial console, those things come in handy).
+Other places in serial.c check for 0xff, which implies we can and should
+do the same in the interrupt handler...
 
-Here's the decoded oops
+>        /*
+>         *      If we read 0xff from the LSR, there is no UART here.
+>         */
+>        if (serial_in(info, UART_LSR) == 0xff)
+>               return -1;
 
-ksymoops 2.3.4 on alpha 2.2.17-LVM-RAID.  Options used
-     -v /240t12p6-LVM-REISERFS (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.4.0-test12-pre6-LVM-REISERFS/ (specified)
-     -m /boot/System.map-2.4.0-test12-pre6-LVM-REISERFS (specified)
+I'm starting to think this Ositech Jack of Spades is unusual in some
+way, since your (Linus) BestData card and other serial CardBus cards
+sound like they work.
 
-No modules in ksyms, skipping objects
-Unable to handle kernel paging request at virtual address 0000000000000228
-swapper(0): Oops 1
-pc = [<fffffc00003c8fc0>]  ra = [<fffffc00003c8fbc>]  ps = 0007
-Using defaults from ksymoops -t elf64-alpha -a alpha
-v0 = 0000000000030000  t0 = 0000000000030000  t1 = fffffffffff21080
-t2 = 0000000000000006  t3 = fffffc000015f9c8  t4 = 0000000000000000
-t5 = fffffffffffffc18  t6 = fffffc00004520c0  t7 = fffffc0000468000
-s0 = 0000000000000000  s1 = fffffc000015f800  s2 = 0000000000000006
-s3 = fffffc000015f8b8  s4 = 0000000000000006  s5 = fffffc00004c6d40
-s6 = 0000000000000000
-a0 = fffffc00007a6140  a1 = 0000000000007000  a2 = fffffc000046bee8
-a3 = 0000000000000001  a4 = fffffc000046c640  a5 = fffffc000048b2c0
-t8 = 0000000000000000  t9 = 000000008cf1d8ff  t10= 0000000000000000
-t11= 000006f800000004  pv = fffffc00004249e0  at = fffffc0000468000
-gp = fffffc00004a8110  sp = fffffc000046be18
-Code: 443ff001 2fe00000 402075a1 e4200006 d340004b 47ff041f <b0090228>
-c3e00004
+	Jeff
 
->>PC;  fffffc00003c8fc0 <isp1020_intr_handler+360/480>   <=====
-Code;  fffffc00003c8fa8 <isp1020_intr_handler+348/480>
-0000000000000000 <_PC>:
-Code;  fffffc00003c8fa8 <isp1020_intr_handler+348/480>
-   0:   01 f0 3f 44       and  t0,0xff,t0
-Code;  fffffc00003c8fac <isp1020_intr_handler+34c/480>
-   4:   00 00 e0 2f       unop 
-Code;  fffffc00003c8fb0 <isp1020_intr_handler+350/480>
-   8:   a1 75 20 40       cmpeq        t0,0x3,t0
-Code;  fffffc00003c8fb4 <isp1020_intr_handler+354/480>
-   c:   06 00 20 e4       beq  t0,28 <_PC+0x28> fffffc00003c8fd0
-<isp1020_intr_handler+370/480>
-Code;  fffffc00003c8fb8 <isp1020_intr_handler+358/480>
-  10:   4b 00 40 d3       bsr  ra,140 <_PC+0x140> fffffc00003c90e8
-<isp1020_return_status+8/120>
-Code;  fffffc00003c8fbc <isp1020_intr_handler+35c/480>
-  14:   1f 04 ff 47       nop  
-Code;  fffffc00003c8fc0 <isp1020_intr_handler+360/480>   <=====
-  18:   28 02 09 b0       stl  v0,552(s0)   <=====
-Code;  fffffc00003c8fc4 <isp1020_intr_handler+364/480>
-  1c:   04 00 e0 c3       br   30 <_PC+0x30> fffffc00003c8fd8
-<isp1020_intr_handler+378/480>
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Jeff Garzik         |
+Building 1024       | These are not the J's you're lookin' for.
+MandrakeSoft        | It's an old Jedi mind trick.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

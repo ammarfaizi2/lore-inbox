@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267484AbTBDWHv>; Tue, 4 Feb 2003 17:07:51 -0500
+	id <S267493AbTBDWOM>; Tue, 4 Feb 2003 17:14:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTBDWHv>; Tue, 4 Feb 2003 17:07:51 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:26325 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267484AbTBDWHt>;
-	Tue, 4 Feb 2003 17:07:49 -0500
-Date: Tue, 4 Feb 2003 23:16:59 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Cuenta de la lista de linux <user_linux@citma.cu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Help with promise sx6000 card
-Message-ID: <20030204231659.A22045@ucw.cz>
-References: <20030203221923.M79151@webmail.citma.cu> <20030204213903.A21554@ucw.cz> <1044399167.29825.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267494AbTBDWOM>; Tue, 4 Feb 2003 17:14:12 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:24251 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267493AbTBDWOK>; Tue, 4 Feb 2003 17:14:10 -0500
+Date: Tue, 04 Feb 2003 14:15:31 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
+Message-ID: <384960000.1044396931@flay>
+In-Reply-To: <20030204001709.5e2942e8.akpm@digeo.com>
+References: <20030203233156.39be7770.akpm@digeo.com><167540000.1044346173@[10.10.2.4]> <20030204001709.5e2942e8.akpm@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1044399167.29825.12.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Feb 04, 2003 at 10:52:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 10:52:48PM +0000, Alan Cox wrote:
-> On Tue, 2003-02-04 at 20:39, Vojtech Pavlik wrote:
-> > 1) Make sure the card BIOS is enabled.
-> > 2) In the BIOS of the card, set it to "Other OS', not Linux
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm8/
+>> 
+>> Booted to login prompt, then immediately oopsed 
+>> (16-way NUMA-Q, mm6 worked fine). At a wild guess, I'd suspect 
+>> irq_balance stuff.
+>> 
 > 
-> Both should work. "Other OS" changes how the promise cards I have map
-> the IDE controllers and whether the I2O asks the OS for space or not.
-> Does your BIOS also change the PCI class or pci idents ?
-
-Well, if I set it to "Linux", the IDE controllers disappear completely
-and the I2O fails to initialize. I might have a different firmware,
-version, though. It works then with Promise's own sx6000 specific drivers
-only.
-
-> > 3) Disable support for Promise cards in Linux
+> There are a lot of scsi updates in Linus's tree.  Can you please
+> test just
 > 
-> Shouldnt be needed now days
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm8/broken-out/linus.patch
 
-Hopefully not. 
+Yup, the SCSI code in Linus' tree has broken since 2.5.59.
+I reproduced this on my 4-way SMP machine (panic from that below), 
+so it's not just NUMA-Q wierdness ;-)
 
-> > 4) Enable I2O and I2O block devices
-> 
-> Use 2.4.19 or later. The promise stuff freaks if you do clever cache
-> hints and older kernels don't know about that
+M.
 
-Indeed.
+Unable to handle kernel NULL pointer dereference at virtual address 0000013c
+ printing eip:
+c01c1986
+*pde = 00000000
+Oops: 0002
+CPU:    3
+EIP:    0060:[<c01c1986>]    Not tainted
+EFLAGS: 00010046
+EIP is at isp1020_intr_handler+0x1e6/0x290
+eax: 00000000   ebx: f7c42080   ecx: 00000000   edx: 00000054
+esi: 00000002   edi: 00000013   ebp: 00000000   esp: f7f97efc
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=f7f96000 task=f7f9d240)
+Stack: f7c42080 f7c52800 00000002 00000013 f7f97f80 00000003 00000003 f7c5289c 
+       f7c52800 c01c1791 00000013 f7c52800 f7f97f80 f7ffe1e0 24000001 c010a815 
+       00000013 f7c52800 f7f97f80 c028fa60 00000260 00000013 f7f97f78 c010a9e6 
+Call Trace:
+ [<c01c1791>] do_isp1020_intr_handler+0x25/0x34
+ [<c010a815>] handle_IRQ_event+0x29/0x4c
+ [<c010a9e6>] do_IRQ+0x96/0x100
+ [<c0106ca0>] default_idle+0x0/0x34
+ [<c01094a8>] common_interrupt+0x18/0x20
+ [<c0106ca0>] default_idle+0x0/0x34
+ [<c0106cc9>] default_idle+0x29/0x34
+ [<c0106d53>] cpu_idle+0x37/0x48
+ [<c0119d21>] printk+0x149/0x160
 
-> > 6) With luck, it'll work. Anyway, SX6000's are DAMN SLOW.
-> 
-> 7) Sell the promise card to someone who doesnt know better and buy
-> a 3ware. Certainly under Linux the 3ware is way faster
-> 
-> > Now to get a SX4000 working, that's a much more interesting task ...
-> 
-> SX4000 is i2o or something stranger ?
+Code: 89 85 3c 01 00 00 83 c4 04 eb 0a c7 85 3c 01 00 00 00 00 07 
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-Something very strange. It does XORs in HW, and has two IDE channels but
-that's all. And it's completely undocumented. It could be reasonably
-fast, though. The chip name is PDC20621.
-
--- 
-Vojtech Pavlik
-SuSE Labs

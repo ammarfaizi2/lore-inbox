@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270745AbUJUPW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270740AbUJUPAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270745AbUJUPW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbUJUPVc
+	id S270740AbUJUPAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUJUO7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:21:32 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:42630 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S270745AbUJUPUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:20:36 -0400
-Date: Thu, 21 Oct 2004 18:18:42 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-In-Reply-To: <1098289667.1429.52.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.61.0410211815280.6913@musoma.fsmlabs.com>
-References: <593560000.1094826651@[10.10.2.4]> 
- <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> 
- <20040910151538.GA24434@devserv.devel.redhat.com>  <20040910152852.GC15643@x30.random>
-  <20040910153421.GD24434@devserv.devel.redhat.com>  <20040912141701.GA21626@nocona.random>
- <622230000.1095001434@[10.10.2.4]>  <Pine.LNX.4.53.0409121133480.2297@montezuma.fsmlabs.com>
- <1098289667.1429.52.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Oct 2004 10:59:05 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:65041 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S270465AbUJUOiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:38:23 -0400
+Date: Thu, 21 Oct 2004 09:33:22 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@davemloft.net, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com,
+       greearb@candelatech.com
+Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network drivers
+Message-ID: <20041021093322.E29340@tuxdriver.com>
+Mail-Followup-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+	davem@davemloft.net, john.ronciak@intel.com,
+	ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+	ctindel@users.sourceforge.net, fubar@us.ibm.com,
+	greearb@candelatech.com
+References: <20041020141146.C8775@tuxdriver.com> <1098350269.2810.17.camel@laptop.fenrus.com> <20041021082205.A29340@tuxdriver.com> <1098366370.2810.31.camel@laptop.fenrus.com> <20041021085509.B29340@tuxdriver.com> <1098367875.2810.36.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098367875.2810.36.camel@laptop.fenrus.com>; from arjan@fenrus.demon.nl on Thu, Oct 21, 2004 at 04:11:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Lee Revell wrote:
+On Thu, Oct 21, 2004 at 04:11:17PM +0200, Arjan van de Ven wrote:
+> On Thu, 2004-10-21 at 14:55, John W. Linville wrote:
 
-> Are these really "priorities" in real life?  I am not being facetious,
-> this is actually a common myth among users, that you will get better
-> performance by putting the device you care about on a "high priority"
-> irq or tweaking the priorities in your local APIC.  My impression was
-> that this is pointless because it only determines which interrupt the
-> CPU sees first if they fire at _exactly_ the same time.  Since we allow
-> interrupt to nest this does not matter in practice, right?
+> > Again, I think it would have to be the maintainer's responsibility
+> > to make the version numbers meaningful.
+> 
+> absolutely; however you're not the maintainer of all of the ones you
+> patched... and I still argue that until the number is meaningful
+> exporting it as meaning something is more harm than good.
 
-Yep, it only affects which vector gets dispatched first in the multiple 
-vectors queued scenario which doesn't really matter with nesting as you 
-noted.
+As you say, I'm not the maintainer.  I just proposed the patches.
 
-	Zwane
+It seems you are not really talking to me.  Instead, you are telling the
+maintainers that by applying these patches, they should be committing
+themselves to making/keeping the version numbers meaningful?
 
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,67 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263613AbUDQD3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 23:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUDQD3Q
+	id S263620AbUDQEg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 00:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263644AbUDQEg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 23:29:16 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:61853 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S263613AbUDQD3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 23:29:14 -0400
-Date: Sat, 17 Apr 2004 05:29:12 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5+BK compile error: binfmt_elf on sparc64
-Message-ID: <20040417032912.GA23888@MAIL.13thfloor.at>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.44.0404141104370.28974-100000@math.ut.ee> <20040414115301.37145997.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 Apr 2004 00:36:56 -0400
+Received: from gizmo11bw.bigpond.com ([144.140.70.21]:58597 "HELO
+	gizmo11bw.bigpond.com") by vger.kernel.org with SMTP
+	id S263620AbUDQEgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 00:36:53 -0400
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: ross.biro@gmail.com
+Subject: Re: Kernel writes to RAM it doesn't own on 2.4.24   
+Date: Sat, 17 Apr 2004 14:40:18 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040414115301.37145997.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200404171440.18829.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 11:53:01AM -0700, David S. Miller wrote:
-> On Wed, 14 Apr 2004 11:33:00 +0300 (EEST)
-> Meelis Roos <mroos@linux.ee> wrote:
-> 
-> > Because of -Werror, it bails out:
-> > 
-> > In file included from arch/sparc64/kernel/binfmt_elf32.c:154:
-> > fs/binfmt_elf.c: In function `load_elf_interp':
-> > fs/binfmt_elf.c:369: warning: comparison is always false due to limited range of data type
-> > fs/binfmt_elf.c: In function `load_elf_binary':
-> > fs/binfmt_elf.c:780: warning: comparison is always false due to limited range of data type
-> > 
-> > It's the comparision "elf_ppnt->p_memsz > TASK_SIZE".
-> > 
-> > p_memsz is Elf32_Word, TASK_SIZE is defined as
-> > #define TASK_SIZE       ((unsigned long)-VPTE_SIZE)
-> > 
-> > At the first glance I can't see what's wrong here.
-> 
-> The compiler is telling us that the condition is always false because a 32-bit
-> value can never have the codition being tested against a 64-bit one (TASK_SIZE).
-> I've tried everything to kill this warning, even casting both sides of the
-> conparison to 64-bit, but gcc can still see things clearly.
-> 
-> So just comment out the -Werror line in arch/sparc64/kernel/Makefile which is
-> how I'm (unfortunately) solving this for now.
+On Fri, 16 Apr 2004, Ross Biro wrote: 
 
-what about the good old
+> On Fri, 16 Apr 2004, Richard B. Johnson wrote: 
+> > 
+> > On Fri, 16 Apr 2004, Ross Biro wrote: 
+> > 
+> > > mem= isn't there to tell the kernel what ram it owns and what ram it 
+> > > doesn't own. It's there to tell the kernel what ram is in the system. 
+> > > Since you told the system it only has 500m, it assumes the rest of 
+> > > the 3.5G of address space is available for things like memory mapped 
+> > > i/o. If you cat /proc/iomem, you'll probably see something has 
+> > > reserved the memory range in question. 
+> > > 
+> > 
+> > No! This is address space, not RAM. Whether or not a PCI device 
+> > or whatever has internal RAM that's mapped makes no difference. 
+> > 
+> > I told the kernel that it has 500m of RAM. It better not assume 
+> > I don't know what I'm talking about. I might have reserved that 
+> > RAM because it's bad or I may have something else important to 
+> > do with that RAM (which I do). 
+ 
 
-	eppnt->p_memsz - TASK_SIZE > 0
 
-HTH,
-Herbert
+> The problem is that the kernel does assume you know what you are 
+> talking about, and you don't. You are abusing the mem= parameter. 
+> That's fine, but then you have to tell the kernel what you really 
+> mean. What you really want to say is there is memory above 500M and I 
+> don't want you to touch it. There may be a way to do that via the 
+> fancy mem=@ parameters. 
+ 
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+> What mem= tells the kernel is that there is RAM in a certain spot an 
+>  no where else. Since you told the kernel there is no ram about 500M, 
+> that means that address space is free to be used for memory mapped 
+> I/O. Since the kernel trusts you, it started using the memory above 
+> 500m for memory mapped i/o. Since you LIED to the kernel, you are 
+> getting results you do not like. The solution I settled on was to 
+> tell the kernel that people LIE to it and only use memory for I/O if 
+> both the BIOS and the USER agree that it's available. You have to 
+> find a way to tell the kernel the TRUTH, or you will never get the 
+> results you want. 
+> - 
+
+
+This is all most enlightening. If I am understanding correctly then every
+device driver that the author specifies to use a "mem=" command to 
+reserve some memory for said drivers use at the upper part of physical
+memory is stuffed by design. 
+
+I thought it was a valid technique? I never questioned it because there is
+a history of its use -I think the early bttv driver was written this way.
+
+I have been debugging an oops on a system which uses the open source
+driver for the Matrox MeteorII multichannel available from,
+http://www.emlix.com/index.php?id=158
+This driver uses the technique and I am getting a corrupted slab free list. 
+
+Ross B, could I please have details of your mem bios hack please so I can try
+it as a workaround.
+
+Regards
+Ross Dickson
+
+
+

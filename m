@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265975AbRG1BGt>; Fri, 27 Jul 2001 21:06:49 -0400
+	id <S266133AbRG1B0D>; Fri, 27 Jul 2001 21:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266103AbRG1BGj>; Fri, 27 Jul 2001 21:06:39 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:8976 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265975AbRG1BG2>; Fri, 27 Jul 2001 21:06:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8-pre1 and dbench -20% throughput
-Date: Sat, 28 Jul 2001 03:11:16 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <linux-mm@kvack.org>
-In-Reply-To: <200107272112.f6RLC3d28206@maila.telia.com> <0107280034050V.00285@starship> <200107272347.f6RNlTs15460@maild.telia.com>
-In-Reply-To: <200107272347.f6RNlTs15460@maild.telia.com>
+	id <S266130AbRG1BZx>; Fri, 27 Jul 2001 21:25:53 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:13700 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S266150AbRG1BZi>;
+	Fri, 27 Jul 2001 21:25:38 -0400
+Message-ID: <3B62167A.64047CC2@randomlogic.com>
+Date: Fri, 27 Jul 2001 18:33:46 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0107280311160X.00285@starship>
-Content-Transfer-Encoding: 7BIT
+To: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Re: Linx Kernel Source tree and metrics
+In-Reply-To: <E15QHJY-0006pR-00@the-village.bc.nu> <3B62053D.5E8B5834@randomlogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Saturday 28 July 2001 01:43, Roger Larsson wrote:
-> Hi again,
->
-> It might be variations in dbench - but I am not sure since I run
-> the same script each time.
->
-> (When I made a testrun in a terminal window - with X running, but not
-> doing anything activly, I got
-> [some '.' deleted]
-> .............++++++++++++++++++++++++++++++++************************
->******** Throughput 15.8859 MB/sec (NB=19.8573 MB/sec  158.859
-> MBit/sec) 14.74user 22.92system 4:26.91elapsed 14%CPU
-> (0avgtext+0avgdata 0maxresident)k 0inputs+0outputs
-> (912major+1430minor)pagefaults 0swaps
->
-> I have never seen anyting like this - all '+' together!
->
-> I logged off and tried again - got more normal values 32 MB/s
-> and '+' were spread out.
->
-> More testing needed...
+Please, no more wgets on my poor limited bandwidth (256Kbit uplink) web server. Next week I will have a fatter pipe and you can D/L the whole dir if you want.
+(Though it would be better if you let me compress it and put it on a ftp server).
 
-Truly wild, truly crazy.  OK, this is getting interesting.  I'll go 
-read the dbench source now, I really want to understand how the IO and 
-thread sheduling are interrelated.  I'm not even going to try to 
-advance a theory just yet ;-)
+Thank you for your support. ;)
 
-I'd mentioned that dbench seems to run fastest when threads run and 
-complete all at different times instead of all together.  It's easy to 
-see why this might be so: if the sum of all working sets is bigger than 
-memory then the system will thrash and do its work much more slowly.  
-If the threads *can* all run independently (which I think is true of 
-dbench because it simulates SMB accesses from a number of unrelated 
-sources) then the optimal strategy is to suspend enough processes so 
-that all the working sets do fit in memory.  Linux has no mechanism for 
-detecting or responding to such situations (whereas FreeBSD - our 
-arch-rival in the mm sweepstakes - does) so we sometimes see what are 
-essentially random variations in scheduling causing very measurable 
-differences in throughput.  (The "butterfly effect" where the beating 
-wings of a butterfly in Alberta set in motion a chain of events that 
-culminates with a hurricane in Florida.)
+PGA
 
-I am not saying this is the effect we're seeing here (the working set 
-effect, not the butterfly:-) but it is something to keep in mind when 
-investigating this.  There is such a thing as being too fair, and maybe 
-that's what we're running into here.
-
---
-Daniel
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

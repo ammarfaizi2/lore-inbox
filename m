@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288623AbSATOZS>; Sun, 20 Jan 2002 09:25:18 -0500
+	id <S288624AbSATOZ2>; Sun, 20 Jan 2002 09:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288639AbSATOZI>; Sun, 20 Jan 2002 09:25:08 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:263 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S288623AbSATOY4>;
-	Sun, 20 Jan 2002 09:24:56 -0500
-Message-ID: <3C4AD24D.4050206@namesys.com>
-Date: Sun, 20 Jan 2002 17:21:01 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S288639AbSATOZS>; Sun, 20 Jan 2002 09:25:18 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:11230 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S288624AbSATOZE>; Sun, 20 Jan 2002 09:25:04 -0500
+Date: Sun, 20 Jan 2002 15:23:52 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Momchil Velikov <velco@fadata.bg>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __linux__ and cross-compile
+In-Reply-To: <874rlhazst.fsf@fadata.bg>
+Message-ID: <Pine.NEB.4.44.0201201519460.20948-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201201155380.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Write clustering is one thing it achieves.   When we flush a slum, the 
-cost of the seek so far outweighs the transfer cost that we should 
-transfer FLUSH_SIZE (where flush size is imagined to be something like 
-64 or 16 or at least 8) adjacent (in the tree order) nodes at the same 
-time to disk.  There are many ways in which LRU is only an approximation 
-to optimum.  This is one of many.
+On 20 Jan 2002, Momchil Velikov wrote:
 
-Flushing everything involved in a transaction so that (the buffers being 
-pinned in RAM (so that they don't have to be reread from disk when the 
-transaction commits) until the transaction commits) can be unpinned is 
-another thing.  
+> Hi there,
+>
+> The following patch fixes compilation/miscompilation problems, which
+> may happend iwtg variuos cross compile configuration, wherte the
+> compiler used to compile the kernel does not necessarily define
+> __linux__. The patch replaces __linux__ with __KERNEL__, using
 
-Hans
+Isn't this a compiler bug?
+
+> __KERNEL_ as an indication that the source is compiled as a part of
+>...
+
+This is definitely wrong in files that are not Linux-specific and that are
+used on FreeBSD (and BSDI) as well (you would know that if you'd looked at
+the files your patch changes)...
+
+cu
+Adrian
+
 

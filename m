@@ -1,194 +1,290 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTIBSce (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbTIBSce
+	id S261170AbTIBSf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 14:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbTIBSf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:32:34 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:40906 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S261159AbTIBScY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 14:32:24 -0400
-Message-ID: <3F54A9F4.4020705@wmich.edu>
-Date: Tue, 02 Sep 2003 10:32:20 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
-X-Accept-Language: en
+	Tue, 2 Sep 2003 14:35:58 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35222 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261170AbTIBSfx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 14:35:53 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ide: remove supports_dma field from ide_driver_t
+Date: Tue, 2 Sep 2003 20:36:16 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: devfs to be obsloted by udev?
-References: <3F54A4AC.1020709@wmich.edu> <20030902182025.GA18397@kroah.com>
-In-Reply-To: <20030902182025.GA18397@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309022036.16612.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Sep 02, 2003 at 10:09:48AM -0400, Ed Sweetman wrote:
-> 
->>It appears that devfs is to be replaced by the use of udev in the not so 
->>distant future.
-> 
-> 
-> Possibly.  There are some things that udev can not do that only devfs in
-> the kernel can do.  For those who need those things, devfs will be
-> required.
-> 
-> I'm just offering people a choice :)
-> 
-> 
->>I'm not sure how it's supposed to replace a static /dev situaton
->>seeing as how it is a userspace daemon.  Is it not supposed to replace
->>/dev even when it's completed?
-> 
-> 
-> Yes.
-> 
-> Think of a userspace daemon using mknod and rm to manage device nodes
-> dynamically.
-> 
-> 
->>I dont see the real benefit in having two directories that basically
->>give the same info.
-> 
-> 
-> What "two directories"?  udev can handle /dev.  What other directory are
-> you talking about?
 
-in your readme you  use the example of making the device root for udev 
-/udev ... I thought that was the official suggestion since udev couldn't 
-be loaded immediately at kernel boot.
+ide: remove supports_dma field from ide_driver_t
 
+driver->supports_dma was used together with CONFIG_IDEDMA_ONLYDISK to limit
+DMA access to disk devices only.  However Alan introduced new scheme in 2.5.63
+and this field is not needed any longer because all ide drivers support DMA.
 
-> 
->>Right now we have something like that with proc and sysfs although not
->>everything in proc makes sense to be in sysfs and both are virtual
->>fs's where as /dev is a static fs on the disk that takes up space and
->>inodes and includes way too many files that a system may not use.
-> 
-> 
-> Then delete your /dev and use udev to manage it.
-> 
-> Well, don't do that today, we aren't quite yet there :)
-> 
-> 
->>If udev is to take over the job of devfs, how will modules and drivers
->>work that require device files to be present in order to work since
->>undoubtedly the udev daemon will have to wait until the kernel is done
->>booting before being run.
-> 
-> 
-> udev can run out of initramfs which is uncompressed before any busses
-> are probed.
-> 
-> For more details, please read my OLS 2003 paper about udev.
+ drivers/ide/ide-cd.c      |    1 -
+ drivers/ide/ide-default.c |    6 ------
+ drivers/ide/ide-disk.c    |    1 -
+ drivers/ide/ide-floppy.c  |    1 -
+ drivers/ide/ide-tape.c    |    1 -
+ drivers/ide/ide.c         |    5 -----
+ drivers/scsi/ide-scsi.c   |    1 -
+ include/linux/ide.h       |    1 -
+ 8 files changed, 17 deletions(-)
 
-Will do.  The initramfs is an interesting method, i'll have to check 
-that out too.
+diff -puN drivers/ide/ide.c~ide-supports-dma drivers/ide/ide.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide.c~ide-supports-dma	2003-09-02 18:03:17.925980888 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide.c	2003-09-02 18:03:17.955976328 +0200
+@@ -1359,8 +1359,6 @@ static int set_io_32bit(ide_drive_t *dri
+ 
+ static int set_using_dma (ide_drive_t *drive, int arg)
+ {
+-	if (!DRIVER(drive)->supports_dma)
+-		return -EPERM;
+ 	if (!drive->id || !(drive->id->capability & 1))
+ 		return -EPERM;
+ 	if (HWIF(drive)->ide_dma_check == NULL)
+@@ -2443,9 +2441,6 @@ int ide_register_subdriver (ide_drive_t 
+ 	if ((drive->autotune == IDE_TUNE_DEFAULT) ||
+ 		(drive->autotune == IDE_TUNE_AUTO)) {
+ 		/* DMA timings and setup moved to ide-probe.c */
+-		if (!driver->supports_dma && HWIF(drive)->ide_dma_off_quietly)
+-//			HWIF(drive)->ide_dma_off_quietly(drive);
+-			HWIF(drive)->ide_dma_off(drive);
+ 		drive->dsc_overlap = (drive->next != drive && driver->supports_dsc_overlap);
+ 		drive->nice1 = 1;
+ 	}
+diff -puN drivers/ide/ide-cd.c~ide-supports-dma drivers/ide/ide-cd.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-cd.c~ide-supports-dma	2003-09-02 18:03:17.929980280 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-cd.c	2003-09-02 18:03:17.958975872 +0200
+@@ -3318,7 +3318,6 @@ static ide_driver_t ide_cdrom_driver = {
+ 	.version		= IDECD_VERSION,
+ 	.media			= ide_cdrom,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 1,
+ 	.cleanup		= ide_cdrom_cleanup,
+ 	.do_request		= ide_do_rw_cdrom,
+diff -puN drivers/ide/ide-default.c~ide-supports-dma drivers/ide/ide-default.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-default.c~ide-supports-dma	2003-09-02 18:03:17.932979824 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-default.c	2003-09-02 18:03:17.958975872 +0200
+@@ -40,18 +40,12 @@ static int idedefault_attach(ide_drive_t
+ 
+ /*
+  *	IDE subdriver functions, registered with ide.c
+- *
+- *	idedefault *must* support DMA because it will be
+- *	attached before the other drivers are loaded and
+- *	we don't want to lose the DMA status at probe
+- *	time.
+  */
+ 
+ ide_driver_t idedefault_driver = {
+ 	.name		=	"ide-default",
+ 	.version	=	IDEDEFAULT_VERSION,
+ 	.attach		=	idedefault_attach,
+-	.supports_dma	=	1,
+ 	.drives		=	LIST_HEAD_INIT(idedefault_driver.drives)
+ };
+ 
+diff -puN drivers/ide/ide-disk.c~ide-supports-dma drivers/ide/ide-disk.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-disk.c~ide-supports-dma	2003-09-02 18:03:17.935979368 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-disk.c	2003-09-02 18:03:17.960975568 +0200
+@@ -1716,7 +1716,6 @@ static ide_driver_t idedisk_driver = {
+ 	.version		= IDEDISK_VERSION,
+ 	.media			= ide_disk,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.cleanup		= idedisk_cleanup,
+ 	.flushcache		= do_idedisk_flushcache,
+diff -puN drivers/ide/ide-floppy.c~ide-supports-dma drivers/ide/ide-floppy.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-floppy.c~ide-supports-dma	2003-09-02 18:03:17.939978760 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-floppy.c	2003-09-02 18:03:17.961975416 +0200
+@@ -1854,7 +1854,6 @@ static ide_driver_t idefloppy_driver = {
+ 	.version		= IDEFLOPPY_VERSION,
+ 	.media			= ide_floppy,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.cleanup		= idefloppy_cleanup,
+ 	.do_request		= idefloppy_do_request,
+diff -puN drivers/ide/ide-tape.c~ide-supports-dma drivers/ide/ide-tape.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-tape.c~ide-supports-dma	2003-09-02 18:03:17.943978152 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-tape.c	2003-09-02 18:03:17.966974656 +0200
+@@ -6316,7 +6316,6 @@ static ide_driver_t idetape_driver = {
+ 	.version		= IDETAPE_VERSION,
+ 	.media			= ide_tape,
+ 	.busy			= 1,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap 	= 1,
+ 	.cleanup		= idetape_cleanup,
+ 	.do_request		= idetape_do_request,
+diff -puN drivers/scsi/ide-scsi.c~ide-supports-dma drivers/scsi/ide-scsi.c
+--- linux-2.6.0-test4-bk3/drivers/scsi/ide-scsi.c~ide-supports-dma	2003-09-02 18:03:17.946977696 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/scsi/ide-scsi.c	2003-09-02 18:03:17.967974504 +0200
+@@ -627,7 +627,6 @@ static ide_driver_t idescsi_driver = {
+ 	.version		= IDESCSI_VERSION,
+ 	.media			= ide_scsi,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.attach			= idescsi_attach,
+ 	.cleanup		= idescsi_cleanup,
+diff -puN include/linux/ide.h~ide-supports-dma include/linux/ide.h
+--- linux-2.6.0-test4-bk3/include/linux/ide.h~ide-supports-dma	2003-09-02 18:03:17.949977240 +0200
++++ linux-2.6.0-test4-bk3-root/include/linux/ide.h	2003-09-02 18:03:17.968974352 +0200
+@@ -1216,7 +1216,6 @@ typedef struct ide_driver_s {
+ 	const char			*version;
+ 	u8				media;
+ 	unsigned busy			: 1;
+-	unsigned supports_dma		: 1;
+ 	unsigned supports_dsc_overlap	: 1;
+ 	int		(*cleanup)(ide_drive_t *);
+ 	int		(*shutdown)(ide_drive_t *);
 
-
-> 
->>I'm just not following how it is going to replace devfs and thus why 
->>devfs is being abandoned as mentioned in akpm's patchset. Or as it 
->>seems, already has been abandoned.
-> 
-> 
-> The devfs code base has been abandoned by its original
-> author/maintainer.  udev has nothing to do with that.
-> 
-> Hope this helps,
-> 
-> greg k-h
-> 
-
-i didn't think udev was responsible for the lack of development, I 
-assumed that was due to the lack of devfs adoption in the main stream.
+_
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-Greg KH wrote:
-> On Tue, Sep 02, 2003 at 10:09:48AM -0400, Ed Sweetman wrote:
-> 
->>It appears that devfs is to be replaced by the use of udev in the not so 
->>distant future.
-> 
-> 
-> Possibly.  There are some things that udev can not do that only devfs in
-> the kernel can do.  For those who need those things, devfs will be
-> required.
-> 
-> I'm just offering people a choice :)
-> 
-> 
->>I'm not sure how it's supposed to replace a static /dev situaton
->>seeing as how it is a userspace daemon.  Is it not supposed to replace
->>/dev even when it's completed?
-> 
-> 
-> Yes.
-> 
-> Think of a userspace daemon using mknod and rm to manage device nodes
-> dynamically.
-> 
-> 
->>I dont see the real benefit in having two directories that basically
->>give the same info.
-> 
-> 
-> What "two directories"?  udev can handle /dev.  What other directory are
-> you talking about?
 
-in your readme you  use the example of making the device root for udev 
-/udev ... I thought that was the official suggestion since udev couldn't 
-be loaded immediately at kernel boot.
+ide: remove supports_dma field from ide_driver_t
 
+driver->supports_dma was used together with CONFIG_IDEDMA_ONLYDISK to limit
+DMA access to disk devices only.  However Alan introduced new scheme in 2.5.63
+and this field is not needed any longer because all ide drivers support DMA.
 
-> 
->>Right now we have something like that with proc and sysfs although not
->>everything in proc makes sense to be in sysfs and both are virtual
->>fs's where as /dev is a static fs on the disk that takes up space and
->>inodes and includes way too many files that a system may not use.
-> 
-> 
-> Then delete your /dev and use udev to manage it.
-> 
-> Well, don't do that today, we aren't quite yet there :)
-> 
-> 
->>If udev is to take over the job of devfs, how will modules and drivers
->>work that require device files to be present in order to work since
->>undoubtedly the udev daemon will have to wait until the kernel is done
->>booting before being run.
-> 
-> 
-> udev can run out of initramfs which is uncompressed before any busses
-> are probed.
-> 
-> For more details, please read my OLS 2003 paper about udev.
+ drivers/ide/ide-cd.c      |    1 -
+ drivers/ide/ide-default.c |    6 ------
+ drivers/ide/ide-disk.c    |    1 -
+ drivers/ide/ide-floppy.c  |    1 -
+ drivers/ide/ide-tape.c    |    1 -
+ drivers/ide/ide.c         |    5 -----
+ drivers/scsi/ide-scsi.c   |    1 -
+ include/linux/ide.h       |    1 -
+ 8 files changed, 17 deletions(-)
 
-Will do.  The initramfs is an interesting method, i'll have to check 
-that out too.
+diff -puN drivers/ide/ide.c~ide-supports-dma drivers/ide/ide.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide.c~ide-supports-dma	2003-09-02 18:03:17.925980888 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide.c	2003-09-02 18:03:17.955976328 +0200
+@@ -1359,8 +1359,6 @@ static int set_io_32bit(ide_drive_t *dri
+ 
+ static int set_using_dma (ide_drive_t *drive, int arg)
+ {
+-	if (!DRIVER(drive)->supports_dma)
+-		return -EPERM;
+ 	if (!drive->id || !(drive->id->capability & 1))
+ 		return -EPERM;
+ 	if (HWIF(drive)->ide_dma_check == NULL)
+@@ -2443,9 +2441,6 @@ int ide_register_subdriver (ide_drive_t 
+ 	if ((drive->autotune == IDE_TUNE_DEFAULT) ||
+ 		(drive->autotune == IDE_TUNE_AUTO)) {
+ 		/* DMA timings and setup moved to ide-probe.c */
+-		if (!driver->supports_dma && HWIF(drive)->ide_dma_off_quietly)
+-//			HWIF(drive)->ide_dma_off_quietly(drive);
+-			HWIF(drive)->ide_dma_off(drive);
+ 		drive->dsc_overlap = (drive->next != drive && driver->supports_dsc_overlap);
+ 		drive->nice1 = 1;
+ 	}
+diff -puN drivers/ide/ide-cd.c~ide-supports-dma drivers/ide/ide-cd.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-cd.c~ide-supports-dma	2003-09-02 18:03:17.929980280 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-cd.c	2003-09-02 18:03:17.958975872 +0200
+@@ -3318,7 +3318,6 @@ static ide_driver_t ide_cdrom_driver = {
+ 	.version		= IDECD_VERSION,
+ 	.media			= ide_cdrom,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 1,
+ 	.cleanup		= ide_cdrom_cleanup,
+ 	.do_request		= ide_do_rw_cdrom,
+diff -puN drivers/ide/ide-default.c~ide-supports-dma drivers/ide/ide-default.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-default.c~ide-supports-dma	2003-09-02 18:03:17.932979824 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-default.c	2003-09-02 18:03:17.958975872 +0200
+@@ -40,18 +40,12 @@ static int idedefault_attach(ide_drive_t
+ 
+ /*
+  *	IDE subdriver functions, registered with ide.c
+- *
+- *	idedefault *must* support DMA because it will be
+- *	attached before the other drivers are loaded and
+- *	we don't want to lose the DMA status at probe
+- *	time.
+  */
+ 
+ ide_driver_t idedefault_driver = {
+ 	.name		=	"ide-default",
+ 	.version	=	IDEDEFAULT_VERSION,
+ 	.attach		=	idedefault_attach,
+-	.supports_dma	=	1,
+ 	.drives		=	LIST_HEAD_INIT(idedefault_driver.drives)
+ };
+ 
+diff -puN drivers/ide/ide-disk.c~ide-supports-dma drivers/ide/ide-disk.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-disk.c~ide-supports-dma	2003-09-02 18:03:17.935979368 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-disk.c	2003-09-02 18:03:17.960975568 +0200
+@@ -1716,7 +1716,6 @@ static ide_driver_t idedisk_driver = {
+ 	.version		= IDEDISK_VERSION,
+ 	.media			= ide_disk,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.cleanup		= idedisk_cleanup,
+ 	.flushcache		= do_idedisk_flushcache,
+diff -puN drivers/ide/ide-floppy.c~ide-supports-dma drivers/ide/ide-floppy.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-floppy.c~ide-supports-dma	2003-09-02 18:03:17.939978760 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-floppy.c	2003-09-02 18:03:17.961975416 +0200
+@@ -1854,7 +1854,6 @@ static ide_driver_t idefloppy_driver = {
+ 	.version		= IDEFLOPPY_VERSION,
+ 	.media			= ide_floppy,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.cleanup		= idefloppy_cleanup,
+ 	.do_request		= idefloppy_do_request,
+diff -puN drivers/ide/ide-tape.c~ide-supports-dma drivers/ide/ide-tape.c
+--- linux-2.6.0-test4-bk3/drivers/ide/ide-tape.c~ide-supports-dma	2003-09-02 18:03:17.943978152 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-tape.c	2003-09-02 18:03:17.966974656 +0200
+@@ -6316,7 +6316,6 @@ static ide_driver_t idetape_driver = {
+ 	.version		= IDETAPE_VERSION,
+ 	.media			= ide_tape,
+ 	.busy			= 1,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap 	= 1,
+ 	.cleanup		= idetape_cleanup,
+ 	.do_request		= idetape_do_request,
+diff -puN drivers/scsi/ide-scsi.c~ide-supports-dma drivers/scsi/ide-scsi.c
+--- linux-2.6.0-test4-bk3/drivers/scsi/ide-scsi.c~ide-supports-dma	2003-09-02 18:03:17.946977696 +0200
++++ linux-2.6.0-test4-bk3-root/drivers/scsi/ide-scsi.c	2003-09-02 18:03:17.967974504 +0200
+@@ -627,7 +627,6 @@ static ide_driver_t idescsi_driver = {
+ 	.version		= IDESCSI_VERSION,
+ 	.media			= ide_scsi,
+ 	.busy			= 0,
+-	.supports_dma		= 1,
+ 	.supports_dsc_overlap	= 0,
+ 	.attach			= idescsi_attach,
+ 	.cleanup		= idescsi_cleanup,
+diff -puN include/linux/ide.h~ide-supports-dma include/linux/ide.h
+--- linux-2.6.0-test4-bk3/include/linux/ide.h~ide-supports-dma	2003-09-02 18:03:17.949977240 +0200
++++ linux-2.6.0-test4-bk3-root/include/linux/ide.h	2003-09-02 18:03:17.968974352 +0200
+@@ -1216,7 +1216,6 @@ typedef struct ide_driver_s {
+ 	const char			*version;
+ 	u8				media;
+ 	unsigned busy			: 1;
+-	unsigned supports_dma		: 1;
+ 	unsigned supports_dsc_overlap	: 1;
+ 	int		(*cleanup)(ide_drive_t *);
+ 	int		(*shutdown)(ide_drive_t *);
 
-
-> 
->>I'm just not following how it is going to replace devfs and thus why 
->>devfs is being abandoned as mentioned in akpm's patchset. Or as it 
->>seems, already has been abandoned.
-> 
-> 
-> The devfs code base has been abandoned by its original
-> author/maintainer.  udev has nothing to do with that.
-> 
-> Hope this helps,
-> 
-> greg k-h
-> 
-
-i didn't think udev was responsible for the lack of development, I 
-assumed that was due to the lack of devfs adoption in the main stream.
+_
 

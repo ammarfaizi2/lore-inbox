@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbRENTRk>; Mon, 14 May 2001 15:17:40 -0400
+	id <S262410AbRENTVU>; Mon, 14 May 2001 15:21:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbRENTRa>; Mon, 14 May 2001 15:17:30 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:36764 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S262392AbRENTRS>; Mon, 14 May 2001 15:17:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] proc fs extension for "one-value-per-file"
-Date: Mon, 14 May 2001 20:59:33 +0200
-X-Mailer: KMail [version 1.2]
+	id <S262409AbRENTVK>; Mon, 14 May 2001 15:21:10 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:17169 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262402AbRENTUx>; Mon, 14 May 2001 15:20:53 -0400
+Message-ID: <3B002FC6.C0093C18@transmeta.com>
+Date: Mon, 14 May 2001 12:19:34 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Message-Id: <01051420593300.00951@cookie>
-Content-Transfer-Encoding: 7BIT
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: LANANA: To Pending Device Number Registrants
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch extends the proc fs api as discussed in the thread "/proc 
-format" last month (http://marc.theaimsgroup.com/?t=98822545000007&w=2&r=1). 
+First of all, I apologize for not having sent this notice out sooner. 
+This kind of writing is very painful to deal with.
 
-It adds the following features:
-- dynamic directories. Enables you to use directories for enumerations, 
-similar to the per-process directories (/proc/<number>) or usbdevfs. 
-- context callbacks for directories. They can do things that are common for 
-all files in a directory, like locking, and are also used for dynamic 
-directories.
-- special functions with context support for proc files that containing short 
-strings, integers or enums
+Linus Torvalds has requested a moratorium on new device number
+assignments. His hope is that a new and better method for device space
+handing will emerge as a result.
 
-These things give the proc filesystem the functionality that I need for the 
-Device Registry patch to replace the XML output with the one-value-per-file 
-approach. The api is documented in fs/proc/onevalue.c. 
+Alan Cox has requested that I maintain a forked registry for his -ac
+kernel patch tree.  I have agreed to do so once I have forked off the
+"final" version of the registry for Linus' tree.  At that time I will
+process the backlog for the benefit of the -ac registry only.  Please
+have patience until I can get that to happen.
 
-You can download the patch for 2.4.4 here (40 kB):
-http://www.tjansen.de/devreg/proc_ov-2.4.4.diff
+Please note that this is not my decision (in fact, I have serious
+concerns with it.)  In particular, /dev namespace coordination still
+applies.
 
-bye...
+Sincerely,
 
+	H. Peter Anvin
+	The Linux Assigned Names and Numbers Authority

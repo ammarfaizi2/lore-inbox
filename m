@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275898AbSIURZo>; Sat, 21 Sep 2002 13:25:44 -0400
+	id <S275917AbSIURhH>; Sat, 21 Sep 2002 13:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275903AbSIURZo>; Sat, 21 Sep 2002 13:25:44 -0400
-Received: from mail.gmx.de ([213.165.64.20]:1455 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S275898AbSIURZn>;
-	Sat, 21 Sep 2002 13:25:43 -0400
-Date: Sat, 21 Sep 2002 20:30:33 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix to strchr() in lib/string.c
-Message-ID: <20020921173033.GB19943@callisto.yi.org>
-References: <Pine.LNX.4.44.0209211209390.15918-100000@xanadu.home>
+	id <S275925AbSIURhG>; Sat, 21 Sep 2002 13:37:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:28813 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S275917AbSIURhF>;
+	Sat, 21 Sep 2002 13:37:05 -0400
+Date: Sat, 21 Sep 2002 10:35:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: quadratic behaviour
+Message-ID: <20020921173531.GQ3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <20020921125626.GA15603@win.tue.nl> <Pine.LNX.4.44.0209210958080.2702-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209211209390.15918-100000@xanadu.home>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0209210958080.2702-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 12:25:59PM -0400, Nicolas Pitre wrote:
-> 
-> The return value of strchr("foo",0) should be the start address of
-> "foo" + 3, not NULL.
+On Sat, 21 Sep 2002, Andries Brouwer wrote:
+>> Let me repeat this, and call it an observation instead of a question,
+>> so that you do not think I am in doubt.
 
-Correct me if I'm wrong, but no fix is needed.
+On Sat, Sep 21, 2002 at 10:06:02AM -0700, Linus Torvalds wrote:
+> The reason Ingo thinks it is fixed is that it is fixed for the case of 
+> having millions of threads - because the threads (with the new thread 
+> library) won't show up on the "for_each_process()" loop. Which makes 
+> threaded apps look a lot better on ps and top (we'll have to expose them 
+> some day under /proc/<pid>/thread/<tid>/, but that's another matter)
+> But the quadratic behaviour wrt processes clearly isn't fixed. Suggestions
+> welcome (and we'll need to avoid the same quadratic behaviour wrt the
+> threads when we expose them).
 
-strchr("foo", 0) doesn't return NULL, for the simple fact that 
-the loop will stop when reaching '\0' before the 'if' that returns
-NULL, and then s will be returned.
+Okay, I'm in trouble. My end-users use processes. But /proc/ needs some
+more tweaking before they can use it during larger runs anyway.
 
-If it wasn't like this, add_stats() (in net/atm/proc.c) 
-would have Oopsed on us long ago.
- 
-> --- linux/lib/string.c	Thu Aug  1 17:16:34 2002
-> +++ linux/lib/string.c	Sat Sep 21 12:21:54 2002
-> @@ -190,10 +190,11 @@
->   */
->  char * strchr(const char * s, int c)
->  {
-> -	for(; *s != (char) c; ++s)
-> -		if (*s == '\0')
-> -			return NULL;
-> -	return (char *) s;
-> +	do {
-> +		if (*s == (char) c)
-> +			return (char *) s;
-> +	} while (*s++);
-> +	return NULL;
->  }
->  #endif
->  
-> 
 
--- 
-Dan Aloni
-da-x@gmx.net
+On Sat, Sep 21, 2002 at 10:06:02AM -0700, Linus Torvalds wrote:
+> The only "obvious" thing to do is to insert markers into the process list,
+> and have "for_each_process()" automatically skip the marker entries. There
+> probably wouldn't be all that many things that would ever notice if that
+> were done (excatly because most things that want to traverse the list use
+> "for_each_process()" already). And then instead of using "index", you 
+> carry the marker thing around...
+
+This also sounds like an excellent idea. I may take a stab at this.
+
+
+Thanks,
+Bill

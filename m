@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264988AbRFZP3R>; Tue, 26 Jun 2001 11:29:17 -0400
+	id <S264993AbRFZPeh>; Tue, 26 Jun 2001 11:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264989AbRFZP3H>; Tue, 26 Jun 2001 11:29:07 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:40975 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S264988AbRFZP3B>;
-	Tue, 26 Jun 2001 11:29:01 -0400
-Date: Tue, 26 Jun 2001 17:28:57 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Jordan Crouse <jordanc@Censoft.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: When the FUD is all around (sniff).
-In-Reply-To: <01062608593502.10305@cosmic>
-Message-ID: <Pine.LNX.4.33.0106261724130.14551-100000@Expansa.sns.it>
+	id <S264994AbRFZPe2>; Tue, 26 Jun 2001 11:34:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51463 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264993AbRFZPeW>; Tue, 26 Jun 2001 11:34:22 -0400
+Subject: Re: AMD thunderbird oops
+To: adeucher@UU.NET (Alex Deucher)
+Date: Tue, 26 Jun 2001 16:33:59 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3B38A988.A576028B@uu.net> from "Alex Deucher" at Jun 26, 2001 11:26:00 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Euql-0003hh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What's weird though is that it is rock solid as long as I don't use
+> athlon optimizations.  I'm not sure how much of a speed improvement they
 
+That fits the pattern beautifully. 
 
-On Tue, 26 Jun 2001, Jordan Crouse wrote:
+> provide, but everything's fine with i686, so I can't complain, besides I
+> doubt I can return the board at this point anyway.  BTW, which would be
+> better with an athlon, k6 or i686 optimization?  I've heard i686 is
+> faster, but I've never really looked into it too much myself.
 
-> On Tuesday 26 June 2001 06:34, Alan Cox mentioned:
->
-> > > I suppose they received some pression from M$, but if people read of a
-> > > FUD from a M$ employed, then they can guess what is going on, if it is a
-> > > newspaper usually telling facts in a correct way...
-> >
-> > It is common for newspaper staff to be corrupt, same with magazine people.
-> > Sometimes because people generally believe in a cause and are not impartial
-> > (which I've seen both pro and anti Linux btw) and sometimes because
-> > advertising revenue is a good thing.
->
-> >From reading the article, the author showed that he understood the open
-> source world fairly well (better than my grandmother), even taking a crack at
-> Microsoft at one point:
->
-> "il servizio Hotmail di Microsoft, che gestisce la posta per oltre 12 milioni
-> di utenti Internet, non "gira", come si dice nel gergo tecnico, su
-> piattaforma Microsoft, ma su di un aggregato di pacchetti Open Source."
->
-> "Hotmail, from Microsoft, doesn't run on a Microsoft platform but rather a
-> collection of Open Source packages."
->
-> He also discussed Perl, Python and other projects at length.  Basically, from
-> his writing, I think that he was more missinformed that actually pushing real
-> FUD.  I'll bet when he investigated the story, somebody close to him
-> mentioned that Linus had the final say on what went into the kernel, and he
-> probably saw a few e-mails on Google from people with rejected patches, and
-> he assumed that there was something rotten going on.
-Those informations came from an article printed on Linux&C just 6 days
-before the one on "affari e Finanza", written by A frined of mine, Felice
-Mainolfi. Nothing wrong to take informations from another article,
-(it takes also the same words), the final use of those true informations
-is deprecable (to title after a page "and also Us will be open" about
-M$ open source policy).
+The optimisations are worth several %age points on some benchmarks - the
+prefetching memory copier it uses basically hits the full bus bandwidth on
+memory copies which rep movs will not do.
 
-> And it probably doesn't
-> help that we are always fighting amongst ourselves over architecture,
-> implementation and the such.  An uneducated person reading over the archives
-> would probably assume that Alan and Linus are ready to start hunting each
-> other down, and the articles they write would probably reflect this.
+My current speculation is that the sdram setup on some of these boards can't
+actually take the full CPU spec caused by these hand tuned routines. There is
+some evidence to support that as several other boards only work with Athlon
+optimisation if you set the BIOS options to 'conservative' not 'optimised'
 
-probable.
->
+Equally we don't see the problem on AMD chipset boards and we don't know if
+that indicates a bug in the kernel not tripped on such boards or a chipset
+problem (even BIOS setuo maybe) on the VIA.
 
-Luigi Genoni
+Alan
 

@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265877AbUAKNJV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 08:09:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbUAKNJV
+	id S261552AbUAKNRd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 08:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAKNRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 08:09:21 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:57046 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265877AbUAKNJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 08:09:13 -0500
-Date: Sun, 11 Jan 2004 14:09:10 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111130910.GA5916@piper.madduck.net>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Content-Disposition: inline
-In-Reply-To: <20040111125404.E1931@flint.arm.linux.org.uk>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+	Sun, 11 Jan 2004 08:17:33 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:44942 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261552AbUAKNRc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 08:17:32 -0500
+Date: Sun, 11 Jan 2004 11:16:49 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, sim@netnation.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 SMP lockups
+In-Reply-To: <Pine.LNX.4.44.0401102311310.14466-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58L.0401111039030.2548@logos.cnet>
+References: <Pine.LNX.4.44.0401102311310.14466-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1354 +0100=
-]:
-> Hope this helps to make things a little clearer.
+On Sat, 10 Jan 2004, Rik van Riel wrote:
 
-It does. Thanks. (It's very cool!)
+> On Sat, 10 Jan 2004, Andrew Morton wrote:
+>
+> > We don't have an each-CPU backtrace facility - it could be handy.
+> > There's one in the low-latency patch for some reason.
+>
+> There's one in the RHEL3 tree, too.
+>
+> Marcelo, do you want me to rediff it and send it to you ?
 
-> ... which seems to be exactly the same as my 3ccfe575bt card I have here.
-> I note though that the product description seems to be wrong (the PCI IDs
-> are identical.)  The card is most definitely "3CCFE575BT" and not "3c575".
-
-Well, it does have a -D after the 3CCFE575BT (as read on the card
-itself)
-
-Anyhow, I will recompile 2.6.1 with 3c59x and then report.
-
-Thanks for your time!
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"every day is long. 86400 doesn't fit in a short."
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAAUr2IgvIgzMMSnURAp8sAKCFDb2/xoBg5hTHEoL+uceg5egn0wCfXBwo
-KC2B/uapKfEFcnegMqotGcY=
-=gs/E
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+Yes please.

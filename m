@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271246AbRHPOP0>; Thu, 16 Aug 2001 10:15:26 -0400
+	id <S271038AbRHPORG>; Thu, 16 Aug 2001 10:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271296AbRHPOPQ>; Thu, 16 Aug 2001 10:15:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57227 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271246AbRHPOPK>;
-	Thu, 16 Aug 2001 10:15:10 -0400
-Date: Thu, 16 Aug 2001 07:15:19 -0700 (PDT)
-Message-Id: <20010816.071519.66059870.davem@redhat.com>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] zero-bounce highmem I/O
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010816153541.A9265@bytesex.org>
-In-Reply-To: <20010816.053415.10296707.davem@redhat.com>
-	<20010816153541.A9265@bytesex.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271316AbRHPOQ5>; Thu, 16 Aug 2001 10:16:57 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:11513 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S271296AbRHPOQr> convert rfc822-to-8bit; Thu, 16 Aug 2001 10:16:47 -0400
+Message-ID: <3B7BD5BB.F5FCE1DD@mvista.com>
+Date: Thu, 16 Aug 2001 07:16:27 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How should nano_sleep be fixed (was: ptrace(), fork(), sleep(), 
+ exit(), SIGCHLD)
+In-Reply-To: <20010813093116Z270036-761+611@vger.kernel.org> <20010814092849.E13892@pc8.lineo.fr> <20010814201825Z270798-760+1687@vger.kernel.org> <3B7A9953.744977A5@mvista.com> <3B7AB93D.F8B5B455@mvista.com> <3B7B1B07.A9FB293B@mvista.com> <20010816121746.A5861@pc8.lineo.fr> <20010816112905.A30202@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gerd Knorr <kraxel@bytesex.org>
-   Date: Thu, 16 Aug 2001 15:35:41 +0200
+Russell King wrote:
+> 
+> On Thu, Aug 16, 2001 at 12:17:46PM +0200, christophe barbé wrote:
+> > > asmlinkage long sys_nanosleep(struct timespec *rqtp, struct timespec
+> > > *rmtp)
+> > > {
+> > >     struct timespec t;
+> > >     unsigned long expire;
+> > > +   struct pt_regs * regs = (struct pt_regs *) &rqtp;
+> 
+> Note also that this is bogus as an architecture invariant.
+> 
+> On ARM, we have to pass a pt_regs pointer into any function that requires
+> it.
+> 
+Does that mean that any function that requires pt_regs _must_ not be in
+common code?  Isn't there a better solution than implementing these
+functions over and over for each platform?
 
-   > To be honest, you really shouldn't care about this.  If you are
-   > writing a block device, the block/scsi/ide/whatever layer should take
-   > care to only give you memory that can be DMA'd to/from.
-   > 
-   > Same goes for the networking layer.
-   
-   bttv is neither blkdev nor networking ...
-   
-It is video layer, and the video layer should be helping along with
-these sorts of issues.
-
-The video layer should provide PCI device helpers which allow the
-drivers to just do something like:
-
-struct scatterlist *video_pci_get_user_pages(struct pci_dev *pdev,
-					     int npages);
-
-void video_pci_put_user_pages(struct pci_dev *pdev,
-			      struct scatterlist *sg,
-			      int npages);
-
-The scatter list returned (NULL indicates failure, ala -ENOMEM)
-will tell the driver everything it needs to know.  Let us define
-it as follows:
-
-SG entry 0
-	address == base of vmalloc()'d area
-
-SG entry 0 ... NPAGES
-	sg_dma_address(sg) = dma_address for that page
-	sg_dma_len(sg) = dma_length, usually PAGE_SIZE
-
-sg_dma_len could be something larger than PAGE_SIZE if the
-platform has a way of using virtual mappings in PCI space.
-You would simply give the device DMA address/len pairs from
-the SG array until you either hit the NPAGES entry or you
-see a dma_len of zero.
-
-I realize this does not address the kiovec based scheme you
-are experimenting with now, but this does deal with the biggest
-problem the video layer has right now wrt. portability.
-
-In fact, this isn't even a video layer issue, and the kernel
-ought to provide my suggested interfaces in some generic
-place.
-
-Later,
-David S. Miller
-davem@redhat.com
+George

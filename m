@@ -1,62 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTKCIXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 03:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKCIXx
+	id S261506AbTKCIvz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 03:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKCIvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 03:23:53 -0500
-Received: from [200.76.215.158] ([200.76.215.158]:260 "EHLO zion.home.mx")
-	by vger.kernel.org with ESMTP id S261294AbTKCIXw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 03:23:52 -0500
-Date: Mon, 3 Nov 2003 02:23:09 -0600
-From: Felipe Contreras <al593181@mail.mty.itesm.mx>
-To: linux-kernel@vger.kernel.org
-Subject: Debug: sleeping function called from invalid context at mm/slab.c:1856
-Message-ID: <20031103082309.GB5878@zion.mshome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 3 Nov 2003 03:51:55 -0500
+Received: from badenpowell.cs.ubc.ca ([142.103.6.71]:3566 "EHLO
+	badenpowell.cs.ubc.ca") by vger.kernel.org with ESMTP
+	id S261506AbTKCIvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 03:51:52 -0500
+Date: Mon, 3 Nov 2003 00:51:49 -0800 (PST)
+From: Dustin Lang <dalang@cs.ubc.ca>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re:No backlight control on PowerBook G4
+In-Reply-To: <1067820334.692.38.camel@gaston>
+Message-ID: <Pine.GSO.4.53.0311021647410.17357@columbia.cs.ubc.ca>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+ <1067820334.692.38.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -6.2 BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_PINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Probably this is a known issue, and might be I should send this message to the
-ACPI list, but I tought that considering the current state of the linux kernel
-might be someone could be interested in this.
+Hi Ben,
 
-I'm getting this message about every 10 secconds. It seems to be a debug
-warning, but it's annoying.
+> You can't expect a machine just released a couple of weeks ago by
+> Apple to be fully supported by linux, do you ? :)
 
-kernel: Debug: sleeping function called from invalid context at mm/slab.c:1856
-kernel: in_atomic():1, irqs_disabled():0
-kernel: Call Trace:
-kernel:  [<c011ae0f>] __might_sleep+0xab/0xcc
-kernel:  [<c013a9a5>] __kmalloc+0x93/0x9a
-kernel:  [<c01bad82>] acpi_os_allocate+0x10/0x14
-kernel:  [<c01ce618>] acpi_ut_callocate+0x2f/0x73
-kernel:  [<c01c80d3>] acpi_ns_internalize_name+0x43/0x77
-kernel:  [<c01c79fa>] acpi_ns_evaluate_relative+0x32/0xad
-kernel:  [<c01c63e9>] acpi_hw_low_level_read+0x5e/0xa1
-kernel:  [<c01c63e9>] acpi_hw_low_level_read+0x5e/0xa1
-kernel:  [<c01c735e>] acpi_evaluate_object+0x103/0x1a5
-kernel:  [<c01d35c6>] acpi_ec_gpe_query+0xd7/0xf1
-kernel:  [<c01c0437>] acpi_ev_gpe_dispatch+0x34/0x109
-kernel:  [<c01c02ff>] acpi_ev_gpe_detect+0xc2/0x110
-kernel:  [<c01beed3>] acpi_ev_sci_xrupt_handler+0x13/0x1c
-kernel:  [<c01baee7>] acpi_irq+0xf/0x1a
-kernel:  [<c010b924>] handle_IRQ_event+0x39/0x62
-kernel:  [<c01baed8>] acpi_irq+0x0/0x1a
-kernel:  [<c010bc57>] do_IRQ+0x99/0x144
-kernel:  [<c010a398>] common_interrupt+0x18/0x20
-kernel:  [<c01d592b>] acpi_processor_idle+0xe9/0x1e5
-kernel:  [<c0105000>] rest_init+0x0/0x60
-kernel:  [<c01080b7>] cpu_idle+0x2f/0x38
-kernel:  [<c0312680>] start_kernel+0x150/0x15d
-kernel:  [<c031240e>] unknown_bootoption+0x0/0xf8
-kernel: 
+I'm very impressed at how well things are supported.  I had to buy a USB
+wireless dongle, the Linksys WUSB12 (which works great), thanks to
+Broadcom's proprietariness about the Airport Extreme, but other than that,
+almost everything is automagic.
 
--- 
-Felipe Contreras
+> If it's a new Mobility 9600 machine, then I expect my 2.6 tree
+> (bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from source.mvista.com)
+> to work, though the actual backlight "scale" may not be fully correct
+> yet.
+
+Actually, it's got a GeForce FX Go 5200.
+
+I just grabbed your 2.6 tree and see the same things happening.
+
+> Unfortunately, there's isn't much HW documentation available for these
+> babies, other than reading Apple darwin source, Open Firmware forth
+> code, etc...
+
+Oh joy.  I've heard great things about Forth :)
+
+> Regarding overall power management (that is machine sleep), it is not
+> supported on these machines yet. The blocking factor is the new ATI chip,
+> which need to be rebooted from scratch. ATI told me they might be able to
+> send me tables to do that though, so there is hope.
+
+Cool.  I think backlight control, drive spindown, and CPU frequency
+scaling should go a fairly long way on the battery life front.  Speaking
+of CPU scaling, do you know if it should work on this machine?  I selected
+it in the kernel config, but /sys/devices/system/cpu/cpu0 is empty.
+
+Just for reference, /proc/cpuinfo is:
+
+cpu             : 7457, altivec supported
+clock           : 999MHz
+revision        : 1.1 (pvr 8002 0101)
+bogomips        : 761.85
+machine         : PowerBook6,2
+motherboard     : PowerBook6,2 MacRISC3 Power Macintosh
+board revision  : 00000002
+detected as     : 287 (Unknown Intrepid-based)
+pmac flags      : 00000008
+L2 cache        : 512K unified
+memory          : 256MB
+pmac-generation : NewWorld
+
+
+Oh, I just noticed something else in dmesg:
+    PMU driver 2 initialized for Core99, firmware: 0c
+
+*shrug*
+
+I grabbed the newest Darwin/xnu source I could find from Apple, and I can
+no longer find where they do the backlight control - it used to be in
+iokit/Drivers/platform/drvApplePMU .  I'll have to look more closely
+tomorrow...
+
+Again, many thanks for your work on this platform.
+
+Cheers,
+dstn.

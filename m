@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUEUPMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265889AbUEUPNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUEUPMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 11:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbUEUPMf
+	id S265889AbUEUPNt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 11:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265904AbUEUPNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 11:12:35 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:2000 "EHLO
+	Fri, 21 May 2004 11:13:48 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:10448 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263616AbUEUPMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 11:12:32 -0400
-Date: Fri, 21 May 2004 11:13:24 -0400 (EDT)
+	id S265889AbUEUPNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 11:13:46 -0400
+Date: Fri, 21 May 2004 11:14:39 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][2.6-mm] Make i386 boot not so chatty
-In-Reply-To: <m3vfiq3wge.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0405211110490.2864@montezuma.fsmlabs.com>
-References: <1Yaiz-33L-1@gated-at.bofh.it> <m3vfiq3wge.fsf@averell.firstfloor.org>
+In-Reply-To: <20040520234006.291c3dfa.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405211113290.2864@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
+ <20040520234006.291c3dfa.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 May 2004, Andi Kleen wrote:
+On Thu, 20 May 2004, Andrew Morton wrote:
 
-> Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
->
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+> >
 > > This patch silences the default i386 boot by putting a lot of development
-> > related printks under KERN_DEBUG loglevel, allowing the normal chatty mode
-> > to be turned on by using the 'debug' kernel parameter. I have avoided
-> > changing files which have external development repositories, like cpufreq and ACPI.
+> >  related printks under KERN_DEBUG loglevel, allowing the normal chatty mode
+> >  to be turned on by using the 'debug' kernel parameter.
 >
-> How about this much simpler patch?
+> I think I like it chatty.  Turning this stuff off by default makes kernel
+> developers' lives that little bit harder.
 >
-> -Andi
->
->  /* printk's without a loglevel use this.. */
-> -#define DEFAULT_MESSAGE_LOGLEVEL 4 /* KERN_WARNING */
-> +#define DEFAULT_MESSAGE_LOGLEVEL 6 /* KERN_INFO */
+> Is the `quiet' option not suitable?
 
-Still rather verbose, there is too much debugging stuff under KERN_INFO.
+Hey that's just a little too silent ;)
 
+Restarting system.
+ip1394: eth2: IEEE-1394 IPv4 over 1394 Ethernet (fw-host0)
+INIT: version 2.85 booting

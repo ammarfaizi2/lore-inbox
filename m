@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318316AbSHEU7f>; Mon, 5 Aug 2002 16:59:35 -0400
+	id <S318875AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318879AbSHEU7f>; Mon, 5 Aug 2002 16:59:35 -0400
-Received: from pdbn-d9b8caad.pool.mediaWays.net ([217.184.202.173]:5641 "EHLO
-	korben.citd.de") by vger.kernel.org with ESMTP id <S318316AbSHEU7e>;
-	Mon, 5 Aug 2002 16:59:34 -0400
-Date: Mon, 5 Aug 2002 23:03:04 +0200 (CEST)
-From: Matthias Schniedermeyer <ms@citd.de>
-To: linux-kernel@vger.kernel.org
-Subject: Heavy Clock-Drift after update from Kernel 2.4.9 to 2.4.19
-Message-ID: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318878AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:43764 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318875AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
+Subject: Re: Linux 2.4.19-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James Mayer <james@cobaltmountain.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020805205608.GA24188@galileo>
+References: <200208051147.g75Blh720012@devserv.devel.redhat.com> 
+	<20020805205608.GA24188@galileo>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 23:19:31 +0100
+Message-Id: <1028585971.18478.92.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
+On Mon, 2002-08-05 at 21:56, James Mayer wrote:
+> > The IDE debugging continues. -ac4 should fix the breakages in ac2/ac3. It
+> > hopefully also fixes the ALi hangs with non ALi north bridges (mostly 
+> > Transmeta boxes).
+> 
+> This update fixes my Transmeta box's ALi north bridge lockup.
 
-
-
-I updated to 2.4.19 the day after it was released. Since then i have a
-heavy clock-drift problem.
-
-Some time there is no clock drift, other times there is heavy clock drift.
-
-e.g. When i load a page with mozilla. The "rotating thing" spins
-randomly fast/normal.
-Or when i play a movie with "xine". Every few seconds the playing gets
-faster and then back to normal.
-
-With 2.4.9 the clock was "rock solid" for weeks.
-
-A bit strange is that it seems to depend on load. Higher load seems to
-cause less/none clock drift.
-(e.g. when i compile something in background, the "rotating thing" in
-mozilla doesn't spin to fast)
-
-Hardware is a Dual-PIII-933Mhz. Kernel is configured as SMP.
-Any more details needed?
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
-
+Ok anyone else still have ALi IDE hangs with 2.4.19-ac4 or can I cross
+ALi off the problem list now ?
 

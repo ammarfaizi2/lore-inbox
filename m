@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279303AbRKSPNo>; Mon, 19 Nov 2001 10:13:44 -0500
+	id <S279233AbRKSPNO>; Mon, 19 Nov 2001 10:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279317AbRKSPNf>; Mon, 19 Nov 2001 10:13:35 -0500
-Received: from wallext.webflex.nl ([212.115.150.250]:22192 "EHLO
-	palm.webflex.nl") by vger.kernel.org with ESMTP id <S279303AbRKSPNb>;
-	Mon, 19 Nov 2001 10:13:31 -0500
-Message-ID: <XFMail.20011119161221.mathijs@knoware.nl>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <01111916225301.00817@nemo>
-Date: Mon, 19 Nov 2001 16:12:21 +0100 (CET)
-From: Mathijs Mohlmann <mathijs@knoware.nl>
+	id <S279144AbRKSPNE>; Mon, 19 Nov 2001 10:13:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16537 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278985AbRKSPM6>;
+	Mon, 19 Nov 2001 10:12:58 -0500
+Date: Mon, 19 Nov 2001 10:12:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: RE: x bit for dirs: misfeature?
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature?
+In-Reply-To: <01111917034005.00817@nemo>
+Message-ID: <Pine.GSO.4.21.0111191006510.17210-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 19-Nov-2001 vda wrote:
-> Everytime I do 'chmod -R a+rX dir' and wonder are there
-> any executables which I don't want to become world executable,
-> I think "Whatta hell with this x bit meaning 'can browse'
-> for dirs?! Who was that clever guy who invented that? Grrrr"
+
+On Mon, 19 Nov 2001, vda wrote:
+
+> > Trivial example: you have a directory with a bunch of subdirectories.
+> > You want owners of subdirectories to see them.  You don't want them
+> > to _know_ about other subdirectories.
 > 
-> Isn't r sufficient? Can we deprecate x for dirs?
-> I.e. make it a mirror of r: you set r, you see x set,
-> you clear r, you see x cleared, set/clear x = nop?
-> 
-> Benefits:
-> chmod -R go-x dir (ensure there is no executables)
-> chmod -R a+r dir (make tree world readable)
-> mount -t vfat -o umask=644 /dev/xxx dir
->       (I don't want all files to be flagged as executables there)
+> Security through obscurity, that is.
 
-This is all userspace:
-find . -type d -exec chmod a+rx {} \;
+Huh?  By the same logics /etc/shadow is security through obscurity -
+after all, you can try all possible passwords one by one.  Ability to use
+key != ability to see valid keys.
+ 
+> Do you have even a single dir on your boxes with r!=x?
 
-make an alias for it and stop considering changing one of the earliest
-unix standards. I'm sure if you really want this policy you can write your
-own chmod executable.
+Yes.
 
-        me
+Please, go to rtfm.mit.edu and find the UNIX FAQ there.  Then read the
+relevant parts.
 
-
--- 
-        me

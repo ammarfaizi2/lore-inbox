@@ -1,163 +1,311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268904AbUJEJUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUJEJYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268904AbUJEJUr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 05:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUJEJUr
+	id S268907AbUJEJYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 05:24:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUJEJYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 05:20:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58578 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268904AbUJEJUk (ORCPT
+	Tue, 5 Oct 2004 05:24:09 -0400
+Received: from mail.gmx.de ([213.165.64.20]:21728 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268907AbUJEJXE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 05:20:40 -0400
-Date: Tue, 5 Oct 2004 02:17:36 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
- memory placement
-Message-Id: <20041005021736.40f51b33.pj@sgi.com>
-In-Reply-To: <13000000.1096928155@flay>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-	<835810000.1096848156@[10.10.2.4]>
-	<20041003175309.6b02b5c6.pj@sgi.com>
-	<838090000.1096862199@[10.10.2.4]>
-	<20041003212452.1a15a49a.pj@sgi.com>
-	<843670000.1096902220@[10.10.2.4]>
-	<20041004085327.727191bf.pj@sgi.com>
-	<118120000.1096913871@flay>
-	<20041004132551.551c9fd3.pj@sgi.com>
-	<13000000.1096928155@flay>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 5 Oct 2004 05:23:04 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc3-mm2
+Date: Tue, 5 Oct 2004 11:25:04 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20041004020207.4f168876.akpm@osdl.org>
+In-Reply-To: <20041004020207.4f168876.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1385008.ksIJCADXf3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410051125.07489.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin wrote:
-> Let me make one thing clear: I don't work on CKRM ;-) 
+--nextPart1385008.ksIJCADXf3
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-ok ...
+On Monday 04 October 2004 11:02, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2=
+=2E6
+>.9-rc3-mm2/
 
-Indeed, unless I'm not recognizing someone's expertise properly, there
-seems to be a shortage of the CKRM experts on this thread.
+i get a lot of usb errors on boot. they appear since -rc2-mm1.
+below the relevant part of dmesg output. i'm not sure if the "Neighbour tab=
+le=20
+overflow" messages are also relevant? i didn't get them before in this lan=
+=20
+network i'm now. (but they are here since about 3 months, i thought it=20
+depends on the lan connection, so i didn't report it, but now they are=20
+present on my main lan too):
 
-Who am I missing ...
+sis96x_smbus 0000:00:02.1: SiS96x SMBus base address: 0x10c0
+ohci1394: $Rev: 1226 $ Ben Collins <bcollins@debian.org>
+ACPI: PCI interrupt 0000:00:02.3[B] -> GSI 17 (level, low) -> IRQ 17
+ohci1394: fw-host0: Unexpected PCI resource length of 1000!
+ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=3D[17]  MMIO=3D[e2427000-e2427=
+7ff] =20
+Max
+ Packet=3D[2048]
+snd: Unknown parameter `device_gid'
+ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 18 (level, low) -> IRQ 18
+intel8x0_measure_ac97_clock: measured 49715 usecs
+intel8x0: clocking to 48000
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ACPI: PCI interrupt 0000:00:03.0[A] -> GSI 20 (level, low) -> IRQ 20
+ohci_hcd 0000:00:03.0: Silicon Integrated Systems [SiS] USB 1.0 Controller
+ohci_hcd 0000:00:03.0: irq 20, pci mem 0xe2420000
+ohci_hcd 0000:00:03.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:03.1[B] -> GSI 21 (level, low) -> IRQ 21
+ohci_hcd 0000:00:03.1: Silicon Integrated Systems [SiS] USB 1.0 Controller=
+=20
+(#2)
+ohci_hcd 0000:00:03.1: irq 21, pci mem 0xe2421000
+ohci_hcd 0000:00:03.1: new USB bus registered, assigned bus number 2
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[000010dc001ee09a]
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:03.2[C] -> GSI 22 (level, low) -> IRQ 22
+ohci_hcd 0000:00:03.2: Silicon Integrated Systems [SiS] USB 1.0 Controller=
+=20
+(#3)
+ohci_hcd 0000:00:03.2: irq 22, pci mem 0xe2422000
+ohci_hcd 0000:00:03.2: new USB bus registered, assigned bus number 3
+usb 2-1: new full speed USB device using address 2
+SCSI subsystem initialized
+Initializing USB Mass Storage driver...
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+scsi0 : SCSI emulation for USB Mass Storage devices
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+usb-storage: device found at 2
+usb-storage: waiting for device to settle before scanning
+ACPI: PCI interrupt 0000:00:03.3[D] -> GSI 23 (level, low) -> IRQ 23
+ehci_hcd 0000:00:03.3: Silicon Integrated Systems [SiS] USB 2.0 Controller
+ehci_hcd 0000:00:03.3: irq 23, pci mem 0xe2423000
+ehci_hcd 0000:00:03.3: new USB bus registered, assigned bus number 4
+PCI: cache line size of 128 is not supported by device 0000:00:03.3
+ehci_hcd 0000:00:03.3: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
+usb 2-1: USB disconnect, address 2
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 6 ports detected
+sis900.c: v1.08.07 11/02/2003
+ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 19 (level, low) -> IRQ 19
+eth0: Unknown PHY transceiver found at address 0.
+eth0: Realtek RTL8201 PHY transceiver found at address 1.
+eth0: Unknown PHY transceiver found at address 2.
+eth0: Unknown PHY transceiver found at address 3.
+ohci_hcd 0000:00:03.1: wakeup
+eth0: Unknown PHY transceiver found at address 4.
+eth0: Unknown PHY transceiver found at address 5.
+eth0: Unknown PHY transceiver found at address 6.
+eth0: Unknown PHY transceiver found at address 7.
+eth0: Unknown PHY transceiver found at address 8.
+eth0: Unknown PHY transceiver found at address 9.
+eth0: Unknown PHY transceiver found at address 10.
+eth0: Unknown PHY transceiver found at address 11.
+eth0: Unknown PHY transceiver found at address 12.
+eth0: Unknown PHY transceiver found at address 13.
+eth0: Unknown PHY transceiver found at address 14.
+eth0: Unknown PHY transceiver found at address 15.
+eth0: Unknown PHY transceiver found at address 16.
+eth0: Unknown PHY transceiver found at address 17.
+eth0: Unknown PHY transceiver found at address 18.
+eth0: Unknown PHY transceiver found at address 19.
+eth0: Unknown PHY transceiver found at address 20.
+eth0: Unknown PHY transceiver found at address 21.
+eth0: Unknown PHY transceiver found at address 22.
+eth0: Unknown PHY transceiver found at address 23.
+eth0: Unknown PHY transceiver found at address 24.
+eth0: Unknown PHY transceiver found at address 25.
+eth0: Unknown PHY transceiver found at address 26.
+eth0: Unknown PHY transceiver found at address 27.
+eth0: Unknown PHY transceiver found at address 28.
+eth0: Unknown PHY transceiver found at address 29.
+eth0: Unknown PHY transceiver found at address 30.
+eth0: Unknown PHY transceiver found at address 31.
+eth0: Using transceiver found at address 1 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:ff:af:cd:aa.
+usb 2-1: new full speed USB device using address 3
+8139too Fast Ethernet driver 0.9.27
+ACPI: PCI interrupt 0000:00:07.0[A] -> GSI 18 (level, low) -> IRQ 18
+eth1: RealTek RTL8139 at 0xd135a000, 00:50:fc:2d:9a:5c, IRQ 18
+eth1:  Identified 8139 chip type 'RTL-8139C'
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
+Linux video capture interface: v1.00
+saa7130/34: v4l2 driver version 0.2.12 loaded
+ACPI: PCI interrupt 0000:00:08.0[A] -> GSI 19 (level, low) -> IRQ 19
+saa7134[0]: found at 0000:00:08.0, rev: 1, irq: 19, latency: 32, mmio:=20
+0xe242600
+0
+saa7134[0]: subsystem: 16be:0003, board: Medion 7134 [card=3D12,autodetecte=
+d]
+saa7134[0]: board init: gpio is 0
+saa7134[0]: i2c eeprom 00: be 16 03 00 08 20 1c 55 43 43 a9 1c 55 43 43 a9
+saa7134[0]: i2c eeprom 10: ff ff ff ff 15 00 0e 01 0c c0 08 00 00 00 00 00
+saa7134[0]: i2c eeprom 20: 00 00 00 e3 ff ff ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 30: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+tuner: Ignoring new-style parameters in presence of obsolete ones
+tuner: chip found at addr 0xc0 i2c-bus saa7134[0]
+tuner: type set to 38 (Philips PAL/SECAM multi (FM1216ME MK3)) by saa7134[0]
+tda9887: Ignoring new-style parameters in presence of obsolete ones
+tda9885/6/7: chip found @ 0x86
+saa7134[0]: registered device video0 [v4l2]
+saa7134[0]: registered device vbi0
+saa7134[0]: registered device radio0
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+eth0: Media Link On 100mbps full-duplex
+  Vendor: Medion    Model: Flash XL      CF  Rev: 2.6D
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+usb-storage: device scan complete
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+eth0: Media Link On 100mbps full-duplex
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
+PPP BSD Compression module registered
+PPP Deflate Compression module registered
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb3: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+usb usb1: string descriptor 0 read error: -113
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+Neighbour table overflow.
+printk: 64315 messages suppressed.
 
-> However, the non-dedicated stuff seems much more debateable, and where
-> the overlap with CKRM stuff seems possible to me. Do the people showing
-> up at random with smaller parallel jobs REALLY, REALLY care about the
-> physical layout of the machine? I suspect not, it's not the highly tuned
-> syncopated rhythm stuff you describe above. The "give me 1.5 CPUs worth
-> of bandwidth please" model of CKRM makes much more sense to me.
 
-It will vary.  In shops that are doing alot of highly parallel work,
-such as with OpenMP or MPI, many smaller parallel jobs will also be
-placement sensitive.  The performance of such jobs is hugely sensitive
-to their placement and scheduling on dedicated CPUs and Memory, one per
-active thread.
+lspci (only usb part):
+0000:00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0=20
+Controller (rev 0f) (prog-if 10 [OHCI])
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+=20
+Stepping- SERR- FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-=
+=20
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
+        Interrupt: pin A routed to IRQ 20
+        Region 0: Memory at e2420000 (32-bit, non-prefetchable) [size=3D4K]
 
-These shops will often use a batch scheduler or workload manager, such
-as PBS or LSF to manage their jobs.  PBS and LSF make a business of
-defining various sized cpusets to fit the queued jobs, and running each
-job in a dedicated cpuset.  Their value comes from obtaining high
-utilization, and optimum repeatable runtimes, on a varied input job
-stream, especially of placement sensitive jobs.  The feature set of
-cpusets was driven as much as anything by what was required to support a
-port of PBS or LSF.
+0000:00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0=20
+Controller (rev 0f) (prog-if 10 [OHCI])
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+=20
+Stepping- SERR- FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-=
+=20
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
+        Interrupt: pin B routed to IRQ 21
+        Region 0: Memory at e2421000 (32-bit, non-prefetchable) [size=3D4K]
 
-> I'd argue the interface of specifying physical resources is a bit
-> clunky for non-dedicated stuff.
+0000:00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0=20
+Controller (rev 0f) (prog-if 10 [OHCI])
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+=20
+Stepping- SERR- FastB2B-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-=
+=20
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), Cache Line Size: 0x08 (32 bytes)
+        Interrupt: pin C routed to IRQ 22
+        Region 0: Memory at e2422000 (32-bit, non-prefetchable) [size=3D4K]
 
-Likeky so - the interface is expected to be wrapped with a user level
-'cpuset' library, which converts it to a 'C' friendly model.  And that
-in turn is expected to be wrapped with a port of LSF or PBS, which
-converts placement back to something that the customer finds familiar
-and useful for managing their varied job mix.
+0000:00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0=20
+Controller (prog-if 20 [EHCI])
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 7010
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+=20
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-=
+=20
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max)
+        Interrupt: pin D routed to IRQ 23
+        Region 0: Memory at e2423000 (32-bit, non-prefetchable) [size=3D4K]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA=20
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
 
-I don't expect admins at HPC shops to spend much time poking around the
-/dev/cpuset file system, though it is a nice way to look around and
-figure out how things work.
 
-The /dev/cpuset pseudo file system api was chosen because it was
-convenient for small scale work, learning and experimentation, because
-it was a natural for the hierarchical name space with permissions that I
-required, and because it was convenient to leverage existing vfs
-structure in the kernel.
+btw, no usb devices are connected.
 
-> So personally what I'd like is to have a unified interface
-> ...
-> Not sure if that's exactly what Andrew was hoping
-> for, or the rest of you either ;-)
+best regards,
+dominik
 
-Well, not what I'm pushing for, that's for sure.
+--nextPart1385008.ksIJCADXf3
+Content-Type: application/pgp-signature
 
-We really have two different mechanisms here:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-  1) A placement mechanism, explicitly specifying what CPUs and Memory
-     Nodes are allowed, and
-  2) A sharing mechanism, specifying what proportion of fungible
-     resources as cpu cycles, page faults, i/o requests a particular
-     subset (class) of the user population is to receive.
+iQCVAwUAQWJocwvcoSHvsHMnAQJuDAQAhFw+a8atil3/YK20KT4DG/OMxo5zgOin
+lXBffcrEFzOg9HpFefB0qZuy7dvYqZAziB39IIo+Q6+Z/Th76cIitzV9oiaco2vo
+jDBaF7gUb5YDRf3N2DXGV4PLCo/WOKp2npTVxRGYgrn7tENOktJqi0nLHxKx1c3f
+ljGGGODBBJI=
+=AECY
+-----END PGP SIGNATURE-----
 
-If you look at the very lowest level hooks for cpusets and CKRM, you
-will see the essential difference:
-
-  1) cpusets hooks the scheduler to prohibit scheduling on a CPU that
-     is not allowed, and the allocator to prohibit obtaining memory
-     on a Node that is not allowed.
-  2) CKRM hooks these and other places to throttle tasks by inserting
-     small delays, so as to obtain the requested share or percentage,
-     per class of user, of the rate of usage of fungible resources.
-
-The specific details which must be passed back and forth across the
-boundary between the kernel and user-space for these two mechanisms are
-simply different.  One controls which of a list of enumerable finite
-non-substitutable resources may or may not be used, and the other
-controls what share of other anonymous, fungible resources may be used.
-
-Looking for a unified interface is a false economy in my view, and I
-am suspicious that such a search reflects a failure to recognize the
-essential differences between the two mechanisms.
-
-> The whole discussion about multiple sched-domains, etc, we had earlier
-> is kind of just an implementation thing, but is a crapload easier to do
-> something efficient here if the bits caring about that stuff are only
-> dealing with dedicated resource partitions.
-
-Yes - much easier.  I suspect that someday I will have to add to cpusets
-the ability to provide, for select cpusets, the additional guarantees
-(sole and exclusive ownership of all the CPUs, Memory Nodes, Tasks and
-affinity masks therein) which a scheduler or allocator that's trying to
-be smart requires to avoid going crazy.  Not all cpusets need this - but
-those cpusets which define the scope of scheduler or allocator domain
-would sure like it.  Whatever my exclusive flag means now, I'm sure we
-all agree that it is too weak to meet this particular requirement.
-
-> OK, now my email is getting as long as yours, so I'll stop ;-) ;-)
-
-That would be tragic indeed.  Good thing you stopped.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--nextPart1385008.ksIJCADXf3--

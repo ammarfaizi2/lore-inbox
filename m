@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266529AbRGGUMT>; Sat, 7 Jul 2001 16:12:19 -0400
+	id <S266531AbRGGUeZ>; Sat, 7 Jul 2001 16:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266530AbRGGUMK>; Sat, 7 Jul 2001 16:12:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14610 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266529AbRGGUL5>; Sat, 7 Jul 2001 16:11:57 -0400
-Date: Sat, 7 Jul 2001 17:11:49 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33.0107071146320.31249-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0107071710180.1389-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266536AbRGGUeP>; Sat, 7 Jul 2001 16:34:15 -0400
+Received: from toscano.org ([64.50.191.142]:63680 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S266531AbRGGUd7>;
+	Sat, 7 Jul 2001 16:33:59 -0400
+Date: Sat, 7 Jul 2001 16:34:00 -0400
+From: Pete Toscano <pete.lkml@toscano.org>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hi all, a strange full lock in SMP-kernel 2.4.6 and 2.4.5
+Message-ID: <20010707163400.B3983@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
+	kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010707021356.A2232@eresmas.net> <20010706235324.A19386@bubba.toscano.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010706235324.A19386@bubba.toscano.org>; from pete.lkml@toscano.org on Fri, Jul 06, 2001 at 11:53:24PM -0400
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 4:31pm  up  1:02,  2 users,  load average: 0.04, 0.10, 0.20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jul 2001, Linus Torvalds wrote:
+Just to follow up to myself, after futher testing, it looks like it's an
+SMP-related problem.  I'm not yet sure if it's an SMP-Via chipset
+problem or just an SMP problem.  I've heard from two people with this
+same problem.  I think one of them has a Via chipset and I'm not sure
+about the other one.  
 
-> In fact, I do not see any part of the whole path that sets the
-> page age at all, so we're basically using a completely
-> uninitialized field here (it's been initialized way back when
-> the page was allocated, but because it hasn't been part of the
-> normal aging scheme it has only been aged up, never down, so the
-> value is pretty much random by the time we actually add it to
-> the swap cache pool).
+Can anybody look into this or give me a good brain dump on how I can fix
+it?
 
-Not quite. The more a page has been used, the higher the
-page->age will be. This means the system has a way to
-distinguish between anonymous pages which were used once
-and anonymous pages which are used lots of times.
+Thanks,
+pete
 
+On Fri, 06 Jul 2001, Pete Toscano wrote:
 
-> Suggested fix:
-
-	[snip disabling of page aging for anonymous memory]
-
-> That would certainly help explain why aging doesn't work for some people.
-
-As would your patch ;)
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+> I think I've seen this same problem, at least with regards to USB
+> printing.  Yesterday, I traced the problem down to a patch to usb-uhci.c
+> in the transition from 2.4.3 to 2.4.4.  The problem persists today.  A
+> work around for this problem is to use the alternate UHCI driver
+> (uhci.o).
+> 
+> What motherboard and chipset are you using.  I use the Tyan Tiger 133
+> motherboard with the VIA Apollo Pro 133a chipset.  Someone else who I
+> heard from uses another VIA-based chipset (I think, he never replied to
+> my question).  Maybe this is a VIA-related problem, like the APIC
+> problem is.  (Do you use "noapic" when you boot?  He and I both have SMP
+> systems too....)
+> 
+> I posted something on the linux-usb list yesterday about this problem
+> and with all the info I was able to track down, but I have yet to see
+> any response.  I've taken this as far as I can by myself.  I don't know
+> enough about kernel programming or about USB to check the code in
+> usb-uhci.c, but I'm more than happy to help by providing information
+> and/or testing potential patches/fixes.
+> 
+> pete

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbTAXUrv>; Fri, 24 Jan 2003 15:47:51 -0500
+	id <S265373AbTAXUzx>; Fri, 24 Jan 2003 15:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265578AbTAXUrv>; Fri, 24 Jan 2003 15:47:51 -0500
-Received: from web80304.mail.yahoo.com ([66.218.79.20]:5423 "HELO
-	web80304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265568AbTAXUrv>; Fri, 24 Jan 2003 15:47:51 -0500
-Message-ID: <20030124205658.15127.qmail@web80304.mail.yahoo.com>
-Date: Fri, 24 Jan 2003 12:56:58 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-To: Derek Fawcus <dfawcus@cisco.com>
-Cc: Valdis.Kletnieks@vt.edu, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030124201808.E14343@edinburgh.cisco.com>
+	id <S265633AbTAXUzx>; Fri, 24 Jan 2003 15:55:53 -0500
+Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:33124
+	"EHLO bluetooth.WNI.AD") by vger.kernel.org with ESMTP
+	id <S265373AbTAXUzv>; Fri, 24 Jan 2003 15:55:51 -0500
+Message-ID: <3E31AB26.5080508@WirelessNetworksInc.com>
+Date: Fri, 24 Jan 2003 14:07:50 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: AnonimoVeneziano <voloterreno@tin.it>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Spurious 8259A interrupt: IRQ7 ????
+References: <3E2C8EFF.6020707@tin.it> <3E3199FF.3090000@tin.it>
+In-Reply-To: <3E3199FF.3090000@tin.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 21:05:04.0516 (UTC) FILETIME=[44497C40:01C2C3EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It is a hardware 'feature', but nothing to worry about.  The software 
+just has to live with it.  This problem is as old as the PC itself, 
+dating back to the original IBM design from 1981.
 
---- Derek Fawcus <dfawcus@cisco.com> wrote:
-> It doesn't belong on the LK list.
+Cheers,
+-- 
+Herman Oosthuysen
+B.Eng (E), Member of IEEE
+Aerospace Software Ltd
+http://www.AerospaceSoftware.com
+Phone: 1.403.852-5545, Fax: 1.403.241-8841
+E-mail: Herman@AerospaceSoftware.com
+E-mail: Herman@ARMdimension.com
+
+
+AnonimoVeneziano wrote:
+> I've noticed also that the number indicated by the ERR field in 
+> /proc/interrupts increase slowly with the time.
+> But, at the end of all I haven't understood well what is this error, and 
+> what the ERR field indicates. And why with IO-APIC it disappears? 
+> (IO-APIC gives me very much problems with ACPI :-( )
 > 
-> Well actually I find it quite interesting...
+> Bye
 > 
-> One thing that seems to have been alluded to but not explicity stated
-> is just where is this patch going, and what affect will happen when
-> running a non 'VM friendly' OS under the 'new plex86'.
+> 
+> AnonimoVeneziano wrote:
+> 
+>> What does it mean this message?
+>>
+>> Of what problem is the signal?
+>> There is a way to solve this? (Next kernel versions) or is an HW 
+>> problem? (Motherboard MSI KT7 Ultra)
+>>
+>> Thanks
+>>
+>> Bye
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The effect of a non VM'able guest would be it would go into the weeds.
-And that effect is irrelevant to the LK list, be you interested or
-not.  Because that involves no particular issues of Linux as
-a host nor guest, not the simple patches I submitted.  Off-list, please.
-
--Kevin
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com

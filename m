@@ -1,48 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVCAMDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVCAMGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVCAMDN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 07:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCAMDN
+	id S261888AbVCAMGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVCAMGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 07:03:13 -0500
-Received: from gprs215-195.eurotel.cz ([160.218.215.195]:45788 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261885AbVCAMC7 (ORCPT
+	Tue, 1 Mar 2005 07:06:36 -0500
+Received: from styx.suse.cz ([82.119.242.94]:65239 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261888AbVCAMGX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 07:02:59 -0500
-Date: Tue, 1 Mar 2005 13:02:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       barryn@pobox.com, marado@student.dei.uc.pt,
-       acpi-devel@lists.sourceforge.net, Len Brown <len.brown@intel.com>
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-ID: <20050301120246.GM1345@elf.ucw.cz>
-References: <20050228231721.GA1326@elf.ucw.cz> <20050301015231.091b5329.akpm@osdl.org> <20050301105448.GG1345@elf.ucw.cz> <m1psyjr559.fsf@ebiederm.dsl.xmission.com>
+	Tue, 1 Mar 2005 07:06:23 -0500
+Date: Tue, 1 Mar 2005 13:08:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kenan Esau <kenan.esau@conan.de>
+Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+Message-ID: <20050301120839.GA5720@ucw.cz>
+References: <1108578892.2994.2.camel@localhost> <20050216213508.GD3001@ucw.cz> <1108649993.2994.18.camel@localhost> <20050217150455.GA1723@ucw.cz> <20050217194217.GA2458@ucw.cz> <1108817681.5774.44.camel@localhost> <20050219131639.GA4922@ucw.cz> <1108973216.5774.72.camel@localhost> <20050224090338.GA3699@ucw.cz> <1109664709.18617.10.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1psyjr559.fsf@ebiederm.dsl.xmission.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1109664709.18617.10.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Mar 01, 2005 at 09:11:49AM +0100, Kenan Esau wrote:
+  
+> > This looks like it either expects some other data (like a second
+> > parameter to the command?) or just wants the 0x07 again (and not the
+> > whole command) to make sure you really mean it.
+> > 
+> > Could you try sending 0xe8 0x07 0x07?
+> 
+> My old driver did that. But with the same result. It doesn't seem to
+> matter what the first and the second bytes are -- the answers from the
+> device are alway the same.
 
-> > Yes, the patch is very ugly. If something like this needs to be done,
-> > then perhaps acpi should properly register into driver model and do
-> > the work there. This will also mean code will be called consistently.
-> 
-> I totally agree.  Do you have an example of how a non-device
-> can do this?
-> 
-> In particular something that gets as close to shutting down
-> the system devices as possible.  But gets called before that.
-> 
-> Or perhaps acpi should simply be setup to be the first system device?
+So even 0xe8 0x03 returns error?
 
-I believe that's the prefered solution.
-								Pavel
+Maybe we should send a command after this (any command), to make sure
+the 
+
+	psmouse->set_rate(psmouse, psmouse->rate);
+
+call succeeds and is not confused by the 0xfc response.
+
+> > > At the end of this mail you'll find some traces I did.
+> > > 
+> > > I also wonder if it is possible at all to probe this device. I think
+> > > not. IMHO we should go for a module-parameter which enforces the
+> > > lifebook-protokoll. Something like "force_lb=1". Any Ideas /
+> > > suggestions? 
+> > 
+> > I'd suggest using psmouse.proto=lifebook
+> 
+> The current patch has implemented it that way. But the meaning is a
+> little bit different. With proto=lifebook you ENFORCE the lifebook
+> protocol. As far as I read the meaning of the other ones this does not
+> really enforce these protocols.
+
+That's OK. I'd like to keep the DMI probing as well, though, so it's not
+absolutely necessary to provide the parameter.
+
+> > > How does this work out with a second/external mouse?
+> > 
+> > The external mouse has to be in bare PS/2 mode anyway, so we don't need
+> > to care.
+> 
+> Why that?
+
+Can you send any commands to the external mouse? How the touchscreen
+reacts when the mouse starts sending 4-byte responses? We process the
+external mouse packets inside lifebook.c anyway and we don't have any
+support for the enhanced protocols there.
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Vojtech Pavlik
+SuSE Labs, SuSE CR

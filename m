@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUI2Uyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269029AbUI2U4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbUI2Uyl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUI2Uyl
+	id S269029AbUI2U4g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269030AbUI2U4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:54:41 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:46582 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268998AbUI2UyT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:54:19 -0400
-Date: Wed, 29 Sep 2004 13:55:22 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
-       kraxel@bytesex.org
-Subject: [PATCH 2.6.9-rc2-mm4 bttv-driver.c][4/8] convert pci_find_device to pci_dev_present
-Message-ID: <15470000.1096491322@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 29 Sep 2004 16:56:36 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:45451 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S269029AbUI2U42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:56:28 -0400
+Message-ID: <415B2178.7060907@am.sony.com>
+Date: Wed, 29 Sep 2004 13:56:24 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Henry Margies <henry.margies@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is there a problem in timeval_to_jiffies?
+References: <20040909154828.5972376a.henry.margies@gmx.de>	<20040912163319.6e55fbe6.henry.margies@gmx.de>	<20040915203039.369bb866.rddunlap@osdl.org>	<414962DF.5080209@mvista.com>	<20040916200203.6259e113.henry.margies@gmx.de>	<4149F56E.50406@mvista.com> <20040917115502.33831479.henry.margies@gmx.de>
+In-Reply-To: <20040917115502.33831479.henry.margies@gmx.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Henry Margies wrote:
+> Right? But for arm, with a jiffie size of 10000000, it is much
+> more easier. And that is why I don't understand why an one second
+> interval is converted to 101 jiffies (on arm).
+...
+> I agree. But then, why adding one jiffie to every interval? If
+> there is no latency, the timer should appear right at the
+> beginning of a jiffie. For x86 you are right, because 10 jiffies
+> are less then 10ms. But for arm, 1 jiffie is precisely 10ms. 
 
-As pci_find_device is going away need to replace it. This file did not use the dev returned
-from pci_find_device so is replaceable by pci_dev_present. I was not able to test it
-as I do not have the hardware.
+How does the computer "know" that the timer is at the beginning
+of the jiffy?  By definition, Linux (without HRT support) has
+no way of dealing with sub-jiffy resolution for timers.
 
-Hanna Linder
-IBM Linux Technology Center
+Maybe a graphic (ascii-graphic) will help:
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+tick 1 ---------------------
 
-diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c linux-2.6.9-rc2-mm4patch/drivers/media/video/bttv-driver.c
---- linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c	2004-09-28 14:58:35.000000000 -0700
-+++ linux-2.6.9-rc2-mm4patch/drivers/media/video/bttv-driver.c	2004-09-29 13:08:59.369697520 -0700
-@@ -4012,6 +4012,10 @@ static int bttv_init_module(void)
- {
- 	int rc;
- 	bttv_num = 0;
-+	static struct pci_device_id cx2388x[] {
-+		{ PCI_DEVICE(0x14f1, 0x8800) },
-+		{ },
-+	};
- 
- 	printk(KERN_INFO "bttv: driver version %d.%d.%d loaded\n",
- 	       (BTTV_VERSION_CODE >> 16) & 0xff,
-@@ -4036,7 +4040,7 @@ static int bttv_init_module(void)
- 	rc = pci_module_init(&bttv_pci_driver);
- 	if (-ENODEV == rc) {
- 		/* plenty of people trying to use bttv for the cx2388x ... */
--		if (NULL != pci_find_device(0x14f1, 0x8800, NULL))
-+		if (pci_dev_present(cx2388x))
- 			printk("bttv doesn't support your Conexant 2388x card.\n");
- 	}
- 	return rc;
 
+
+
+tick 2 ---------------------
+schedule point A ->
+
+
+schedule point B ->
+tick 3 ---------------------
+
+
+
+
+tick 4 ---------------------
+
+
+
+
+tick 5 ---------------------
+
+
+Let's say, that at point A, you ask for a 20 millisecond timer.
+(2 jiffies, on ARM).  You think you are asking for a timer to fire
+on tick 4 (20 milliseconds after tick 2), but Linux can't
+distinguish point A from point B.  In order to avoid
+the situation where someone scheduled a 20 millisecond timer
+at point B, and had it fire on tick 4 (only 10 milliseconds
+later), Linux adds one jiffy to the expiration time.
+Both timers (set at point A or point B) would fire
+on tick 5.  For the A timer, this makes it 30 milliseconds
+(or, jiffies plus one) later, which looks pretty bad.
+For the B timer, the interval would be close to 20
+milliseconds, which looks pretty good.
+
+If you are rescheduling one-shot timers immediately
+after they fire, you should 'undershoot' on the time
+interval, to hit the tick boundary you want, based
+on the jiffy resolution of your platform.
+
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

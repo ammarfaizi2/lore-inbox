@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSITIOg>; Fri, 20 Sep 2002 04:14:36 -0400
+	id <S261666AbSITIPZ>; Fri, 20 Sep 2002 04:15:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261653AbSITIOg>; Fri, 20 Sep 2002 04:14:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54999 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261619AbSITIOf>; Fri, 20 Sep 2002 04:14:35 -0400
-Date: Fri, 20 Sep 2002 10:19:31 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@redhat.com>
-cc: Dominik Brodowski <linux@brodo.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre7-ac3
-In-Reply-To: <200209191728.g8JHSBg22827@devserv.devel.redhat.com>
-Message-ID: <Pine.NEB.4.44.0209201012540.23207-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S261679AbSITIPZ>; Fri, 20 Sep 2002 04:15:25 -0400
+Received: from math.ut.ee ([193.40.5.125]:10944 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id <S261666AbSITIPU>;
+	Fri, 20 Sep 2002 04:15:20 -0400
+Date: Fri, 20 Sep 2002 11:20:16 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: PIIX4 IDE still broken in pre7-ac2
+In-Reply-To: <Pine.LNX.4.10.10209200014350.25090-100000@master.linux-ide.org>
+Message-ID: <Pine.GSO.4.44.0209201116060.20984-100000@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Alan Cox wrote:
+> Lemme work with you one on one!
 
->...
-> Linux 2.4.20-pre7-ac3
->...
-> o       Interrupt.h needs asm/system for smb_mb         (Dominik Brodowski)
->...
+I'm open to suggestions of what to try, patches etc.
 
+I also have some additional information: it didn't actually hang with
+2.4.20-pre7-ac2. It recovered after some minutes, just after I had sent
+the last message. But the disk (hdd - the problematic mwdma Seagate) was
+put offline so the problem persists, it just has a little different
+form. The kernel decided that the disk is not accessible, that gave
+errors to ext3 and ext3 survived too, giving IO errors and empty
+directories to the user (and many errors in the syslog). The disk still
+works fine in 2.4.18. dmesg:
 
-The following part of his patches is also needed in order to compile
-cpufreq.c:
+hdd: dma_timer_expiry: dma status == 0x61
+hda: dma_timer_expiry: dma status == 0x61
+hdd: timeout waiting for DMA
+hdd: timeout waiting for DMA
+hdd: (__ide_dma_test_irq) called while not waiting
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: drive not ready for command
+hdd: status timeout: status=0xd0 { Busy }
+hdc: DMA disabled
+hdd: drive not ready for command
+ide1: reset timed-out, status=0xff
+hdd: dma_timer_expiry: dma status == 0x41
+hda: dma_timer_expiry: dma status == 0x61
+hdd: timeout waiting for DMA
+hdd: timeout waiting for DMA
+hdd: (__ide_dma_test_irq) called while not waiting
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: drive not ready for command
+hdd: status timeout: status=0xd0 { Busy }
+hdd: drive not ready for command
+ide1: reset timed-out, status=0xff
+end_request: I/O error, dev 16:41 (hdd), sector 277216
+end_request: I/O error, dev 16:41 (hdd), sector 277224
+end_request: I/O error, dev 16:41 (hdd), sector 277232
+end_request: I/O error, dev 16:41 (hdd), sector 277240
+end_request: I/O error, dev 16:41 (hdd), sector 277248
+end_request: I/O error, dev 16:41 (hdd), sector 277256
+end_request: I/O error, dev 16:41 (hdd), sector 277264
 
-
-
---- include/asm-i386/hw_irq.h.old	2002-09-20 09:25:37.000000000 +0200
-+++ include/asm-i386/hw_irq.h	2002-09-19 19:52:25.000000000 +0200
-@@ -13,8 +13,10 @@
-  */
-
- #include <linux/config.h>
-+#include <linux/smp_lock.h>
- #include <asm/atomic.h>
- #include <asm/irq.h>
-+#include <asm/current.h>
-
- /*
-  * IDT vectors usable for external interrupt sources start
-
-
-
-
-With this patch applied I got a compile error in ieee1394_core.c because
-asm-i386/smplock.h was included twice. It seems the following is needed,
-too:
-
-
-
---- include/asm-i386/smplock.h.old	2002-09-19 20:53:57.000000000 +0200
-+++ include/asm-i386/smplock.h	2002-09-19 20:54:46.000000000 +0200
-@@ -1,3 +1,6 @@
-+#ifndef __ASM_SMPLOCK_H
-+#define __ASM_SMPLOCK_H
-+
- /*
-  * <asm/smplock.h>
-  *
-@@ -74,3 +77,5 @@
- 		 "=m" (current->lock_depth));
- #endif
- }
-+
-+#endif /* __ASM_SMPLOCK_H */
+and so on, later also ext3 errors as a result.
 
 
-cu
-Adrian
-
+-- 
+Meelis Roos (mroos@linux.ee)
 

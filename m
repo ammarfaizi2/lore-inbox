@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319166AbSIDNSW>; Wed, 4 Sep 2002 09:18:22 -0400
+	id <S319089AbSIDNet>; Wed, 4 Sep 2002 09:34:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319167AbSIDNSW>; Wed, 4 Sep 2002 09:18:22 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:460 "EHLO
+	id <S319135AbSIDNet>; Wed, 4 Sep 2002 09:34:49 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:43473 "EHLO
 	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S319166AbSIDNSU>; Wed, 4 Sep 2002 09:18:20 -0400
+	id <S319089AbSIDNes>; Wed, 4 Sep 2002 09:34:48 -0400
 Subject: Re: ip_conntrack_hash() problem
 From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
 To: Harald Welte <laforge@gnumonks.org>
@@ -19,48 +19,31 @@ References: <1031142822.3314.116.camel@biker.pdb.fsc.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Sep 2002 15:24:12 +0200
-Message-Id: <1031145854.3359.125.camel@biker.pdb.fsc.net>
+Date: 04 Sep 2002 15:40:51 +0200
+Message-Id: <1031146851.3314.139.camel@biker.pdb.fsc.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mit, 2002-09-04 um 14.56 schrieb Harald Welte:
+Just to make my previous statement clearer:
 
-> It is an artificial case, in which you have a single client opening 
-> thousands of connections to a single port on a singles server.  Please 
-> correct me, if I misunderstood.
-
-As I stated before, yes, it's artificial, but it is easy to come up with
-real-world scenarios that come close. (proxy<->router<->webserver).
-
-> > The fix is rather trivial (mainly the port numbers are accounted for
-> > outside the ntohl() function), and therefore I'd like to ask again that
-> > it be applied.
-> 
-> Would you be satisfied with making the default hashsize no longer a
-> power of two?
-
-I don't know. After all, users expect that if they set hashsize=4096,
-the hashsize will be 4096. It should be possible to use that setting
-without suffering extreme performance losses. IMO the right thing for
-now is take the port numbers out of the ntohl() function.
-
-> > Unless I am mistaken, the past discussions were mainly concerned with
-> > fine-tuning of the hash function, which is a topic my patch doesn't
-> > address, and can easily be done on top of it.
-> 
-> no, exactly the 'power-of-two' has been discussed as well.
-
-Right. But as stated above, making certain hash sizes impossible would
-change the usage. Are we sure that there are no user-space tools out
-there that rely on the hashsize being equal to what they specify when
-the module is loaded?
-
-I think the hash function should be fixed, not the possible choice of
-hash sizes, if that is at feasible.
+I think there's nothing wrong with a power-of-2 hashsize, as long as the
+hash function contains no implicit or explicit multipliers that are also
+powers of two. In general, multipliers should not have a greatest common
+divisor (GCD) larger than 1 with the hash size. Unfortunately, in the
+current implementation, ntohl() creates an implicit multiplier of 2^16
+for the port numbers (on little-endian machines).
 
 Martin
+
+PS: For the sake of that, the patch also changed the multiplier for the
+source port from 2 to 7, assuming that it's relatively unlikely to have
+a hash size that is a multiple of 7, and knowing that  multiplying by 7
+is cheap. Instead of 7, 31 or 127 also seem good candidates that are
+even more unlikely to be divisors of the hash size.
+
+I recommend to printk() a warning if the hash size turns out to have a
+GCD >1 with multiple of any multiplier in the hash function.
 
 -- 
 Martin Wilck                Phone: +49 5251 8 15113

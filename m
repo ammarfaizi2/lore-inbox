@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVDEJoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDEKdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVDEJoh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDEJm4
+	id S261698AbVDEKdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 06:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVDEJk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:42:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51678 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261648AbVDEJgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:36:41 -0400
-Date: Tue, 5 Apr 2005 10:36:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405093616.GA28866@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-	Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-References: <20050405000524.592fc125.akpm@osdl.org> <20050405074405.GE26208@infradead.org> <16978.22078.532831.667378@cargo.ozlabs.ibm.com> <20050405091255.GA28343@infradead.org> <16978.23538.676953.730507@cargo.ozlabs.ibm.com>
+	Tue, 5 Apr 2005 05:40:28 -0400
+Received: from verein.lst.de ([213.95.11.210]:39607 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261672AbVDEJj2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:39:28 -0400
+Date: Tue, 5 Apr 2005 11:39:02 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ian Campbell <ijc@hellion.org.uk>, Sven Luther <sven.luther@wanadoo.fr>,
+       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050405093902.GA18669@lst.de>
+References: <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <20050405093258.GA18523@lst.de> <1112693819.6275.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16978.23538.676953.730507@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <1112693819.6275.36.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 07:35:46PM +1000, Paul Mackerras wrote:
-> Christoph Hellwig writes:
-> 
-> > It's documented where the other filesystem entry points are documented.
-> 
-> Which is?
-> 
-> $ grep -r compat_ioctl Documentation
-> Documentation/filesystems/Locking:      long (*compat_ioctl) (struct file *, unsigned int, unsigned long);
-> Documentation/filesystems/Locking:compat_ioctl:         no
-> 
-> Marvellous documentation, that. :)
+On Tue, Apr 05, 2005 at 11:36:58AM +0200, Arjan van de Ven wrote:
+> One of the options is to even ship the firmware in the kernel tarbal but
+> from a separate directory with a clear license clarification text in it.
 
-The other methods don't have much more documentation either ;-)
+I think that's what we should do.  I currently don't have any firmware
+requiring devices, but I'd volunteer to keep such a tarball for now if
+no one else wants to do tiny amount of work.
 

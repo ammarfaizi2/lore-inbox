@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbUL1Jmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbUL1Kl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbUL1Jmo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 04:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUL1Jmo
+	id S261190AbUL1Kl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 05:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbUL1Kl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 04:42:44 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:7307
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261178AbUL1Jmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 04:42:42 -0500
-Subject: Re: VM fixes [4/4]
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0412270837001.19240@chimarrao.boston.redhat.com>
-References: <20041224174156.GE13747@dualathlon.random>
-	 <Pine.LNX.4.61.0412270837001.19240@chimarrao.boston.redhat.com>
-Content-Type: text/plain
-Date: Tue, 28 Dec 2004 10:42:40 +0100
-Message-Id: <1104226960.27708.321.camel@tglx.tec.linutronix.de>
+	Tue, 28 Dec 2004 05:41:26 -0500
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:37906 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261190AbUL1KlS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 05:41:18 -0500
+Date: Tue, 28 Dec 2004 11:42:58 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Philip Pokorny <ppokorny@penguincomputing.com>
+Cc: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: [RFC] I2C: Remove the i2c_client id field
+Message-Id: <20041228114258.35e9b5b7.khali@linux-fr.org>
+In-Reply-To: <41D0942B.8020109@penguincomputing.com>
+References: <20041227230402.272fafd0.khali@linux-fr.org>
+	<41D0942B.8020109@penguincomputing.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-27 at 08:38 -0500, Rik van Riel wrote:
-> On Fri, 24 Dec 2004, Andrea Arcangeli wrote:
-> 
-> > --- x/mm/oom_kill.c.orig	2004-12-24 17:53:50.807536152 +0100
-> > +++ x/mm/oom_kill.c	2004-12-24 18:01:19.903263224 +0100
-> > @@ -45,18 +45,30 @@
-> > unsigned long badness(struct task_struct *p, unsigned long uptime)
-> > {
-> 
-> > 	/*
-> > +	 * Processes which fork a lot of child processes are likely
-> > +	 * a good choice. We add the vmsize of the childs if they
-> > +	 * have an own mm. This prevents forking servers to flood the
-> > +	 * machine with an endless amount of childs
-> > +	 */
-> 
-> I'm not sure about this one.  You'll end up killing the
-> parent httpd and sshd, instead of letting them hang around
-> so the system can recover by itself after the memory use
-> spike is over.
+Hi Philip,
 
-The selection is adding the child VM size, but the killer itself kills a
-child process first, so the parent is not the one which is killed in the
-first place.
+> So only the drives I wrote use the ID in a meaningful way?
 
-tglx
+True, providing we limit our consideration to the hardware monitoring
+drivers. Even in your drivers, the meaningfulness is discussable.
 
+The lm85 driver simply displays the assigned id once (at the time it
+assigns it). Since the id is then never used, I would consider the lm85
+driver similar to the other hardware monitoring drivers.
 
+The adm1026 driver, OTOH, does use the id value in all debug messages,
+and it also only reconfigures the GPIO pins for the first client only
+(id == 0). Although this is a real use of the id, it only matters if you
+use the module parameters for GPIO pins reconfiguration and actually
+have more than one ADM1026 chip (a quite rare chip if you remember). You
+don't necessarily know which ADM1026 will get id 0 anyway (if the chips
+are on different busses it depends on the order the bus drivers were
+loaded in), and I am not sure why one would want to reprogram only the
+first chip. Unless someone comes with such a specific hardware setup so
+that we can examine what is really needed, I think we can get rid of the
+"id == 0" test and reconfigure "all" ADM1026 chips (which really is only
+one for the two known boards using an ADM1026).
+
+BTW, does anyone really use the GPIO pins reconfiguration parameters?
+
+> What do you propose to replace the ID value in the debug messages
+> with?
+> Ideally it would be the things you mention that uniquely identify
+> the chip in question (bus number and address)
+> How hard are those values to get at?  Do we have to chase possibly
+> NULL pointers?
+
+Everything is already done. The adm1026 driver (like all other drivers
+of the directory) uses dev_dbg to print its debug messages, and dev_dbg
+prepends the bus number and chip address to any line it prints. This
+means that the "client id" is redundant and can be removed losslessly.
+
+Thanks,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

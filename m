@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314188AbSDVNXi>; Mon, 22 Apr 2002 09:23:38 -0400
+	id <S314190AbSDVNcd>; Mon, 22 Apr 2002 09:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314190AbSDVNXh>; Mon, 22 Apr 2002 09:23:37 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:57811 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S314188AbSDVNXh> convert rfc822-to-8bit; Mon, 22 Apr 2002 09:23:37 -0400
-Message-Id: <scc3ce39.036@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Mon, 22 Apr 2002 09:23:11 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <jordan.breeding@attbi.com>, <kwijibo@zianet.com>
-Cc: <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S314192AbSDVNcd>; Mon, 22 Apr 2002 09:32:33 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:50950 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S314190AbSDVNcc>;
+	Mon, 22 Apr 2002 09:32:32 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Urban Widmark <urban@teststation.com>
+Date: Mon, 22 Apr 2002 15:31:47 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [patch] 64bit archs doing incorrect magic for smbfs?
+CC: <davem@redhat.com>, <jj@sunsite.ms.mff.cuni.cz>, <davidm@hpl.hp.com>,
+        <schwidefsky@de.ibm.com>, <engebret@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <3187FEB377F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had the original problem with a Tyan Tiger MP board. Linux can't reboot it, Windoze 2000 can, but in my case the font is screwed up. I agree with Steve, it's a BIOS problem - the BIOS on my board is a POS.
+On 21 Apr 02 at 12:37, Urban Widmark wrote:
+> 
+> For smbfs the data part is now often sent as a normal ascii string (when
+> using samba 2.2.0+) and should then not be modified at all. ncpfs defines
+> two different formats (v3 and v4), don't know if both are used.
 
-Nik
+If you have recent (2.2.0.18/2.2.0.19) ncpfs, format v4 is used (it allows
+for 32bit uid/gid). I have no non-ia32 test environment, so if anybody finds 
+that ncpfs does not work on any platform, feel free to send patches either 
+to me or to arch maintainers...
+ 
+> Untested patch vs 2.4.19-pre7-ac2 below adds version number checks for the
+> smbfs case (yes, it handles the ascii format too). Similar changes are
+> needed in 2.5.
 
-
->>> <kwijibo@zianet.com> 04/21/02 05:12PM >>>
-<snip>
-
->  I have chalked this up to a BIOS problem though
-> and not a Linux one cause the BIOS should be smart enough
-> to pull it's head out of it's ass and reset any bad states that
-> may have been left behind. I would bitch to Tyan if I were you,
-> I have thought about it but never got up the energy.
-
-> Steve
-
+I plan using ASCII format too, but it is not high enough on my TODO list.
+If it will make life for Al or other architectures easier, I'll do it
+sooner...
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz

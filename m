@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293403AbSBYNRG>; Mon, 25 Feb 2002 08:17:06 -0500
+	id <S293409AbSBYNUG>; Mon, 25 Feb 2002 08:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293404AbSBYNQ4>; Mon, 25 Feb 2002 08:16:56 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:11219 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S293403AbSBYNQr>;
-	Mon, 25 Feb 2002 08:16:47 -0500
-Message-ID: <3C7A398A.1060300@sgi.com>
-Date: Mon, 25 Feb 2002 07:18:02 -0600
-From: Stephen Lord <lord@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Andrew Morton <akpm@zip.com.au>, Andi Kleen <ak@suse.de>,
+	id <S293412AbSBYNT5>; Mon, 25 Feb 2002 08:19:57 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:6638 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S293409AbSBYNTu>; Mon, 25 Feb 2002 08:19:50 -0500
+Date: Mon, 25 Feb 2002 14:19:23 +0100
+From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, fernando@quatro.com.br,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-In-Reply-To: <1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel> <3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel> <3C77F503.1060005@sgi.com.suse.lists.linux.kernel> <p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au> <3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au> <3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au> <3C7A35FF.5040508@sgi.com> <20020225131218.GO11837@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Message-ID: <20020225131923.GY13774@os.inf.tu-dresden.de>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, fernando@quatro.com.br,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020223231850.4ea9d3ca.skraw@ithnet.com> <58726664.1014540170@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <58726664.1014540170@[10.10.2.3]>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Sun Feb 24, 2002 at 08:42:52 -0800, Martin J. Bligh wrote:
+> If you are crashing near the wait_init_idle fix, you might
+> try Ingo's scheduler patch - it has a different way of
+> fixing this race condition.
 
->On Mon, Feb 25 2002, Stephen Lord wrote:
->
->>Andrew Morton wrote:
->>
->>>
->>>Unfortunately I seem to have found a bug in existing ext2, a bug
->>>in existing block_write_full_page, a probable bug in the aic7xxx
->>>driver, and an oops in the aic7xxx driver.  So progress has slowed
->>>down a bit :(
->>>
->>Try this for the aic driver:
->>
->
->Steve,
->
->DaveM's alternate fix has been in the 2.4 and 2.5 kernels for some time,
->so given that Andrew is testing 2.5.5 this can't be the problem.
->
+I tried sched-O1-2.4.18-pre8-K3 and it didn't work with a SMP kernel
+either.
 
-OK, I was not aware that went in, thanks.
+Furthermore it also doesn't work with a UP kernel with Local IO APIC support
+(CONFIG_X86_UP_IOAPIC). Without it does work. It reliably hangs in
+arch/i386/kernel/io_apic.c:check_timer (in 2.4.18-pre8-K3 about line 1510)
 
->
->
->>We hit this once bio got introduced and we maxed out the request size
->>for the driver. Justin has the  code in his next aic version.
->>
->
->Just for the record, this was/is not a bio bug, it was an aic7xxx bug
->that could trigger with or without bio.
->
-Yep, bio just made it easier to get larger requests.
+        printk(KERN_INFO "..TIMER: vector=0x%02X pin1=%d pin2=%d\n", vector, pin1, pin2);
 
-Steve
+        if (pin1 != -1) {
+                /*
+                 * Ok, does IRQ0 through the IOAPIC work?
+                 */
+          printk(KERN_ERR "1\n");
+                unmask_IO_APIC_irq(0);
+          printk(KERN_ERR "2\n");
+                if (timer_irq_works()) {
+
+The "1" still occurs, then it hangs...
 
 
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+..TIMER: vector=0x31 pin1=2 pin2=0
+1
 
+
+
+
+Adam
+-- 
+Adam                 adam@os.inf.tu-dresden.de
+  Lackorzynski         http://a.home.dhs.org

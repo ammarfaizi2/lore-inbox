@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313199AbSDDOLA>; Thu, 4 Apr 2002 09:11:00 -0500
+	id <S313204AbSDDOKt>; Thu, 4 Apr 2002 09:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313179AbSDDOKt>; Thu, 4 Apr 2002 09:10:49 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:50091 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S313189AbSDDOKh>; Thu, 4 Apr 2002 09:10:37 -0500
-Date: Thu, 4 Apr 2002 16:10:25 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: rml@tech9.net
-Subject: [PATCH 2.5.8-pre1] ppp_deflate.c fix...
-Message-ID: <20020404141025.GI9820@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	rml@tech9.net
+	id <S313183AbSDDOKj>; Thu, 4 Apr 2002 09:10:39 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:32645
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S313182AbSDDOKZ>; Thu, 4 Apr 2002 09:10:25 -0500
+Date: Thu, 4 Apr 2002 07:10:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, boot protocol 2.04 7/9
+Message-ID: <20020404141035.GB7211@opus.bloom.county>
+In-Reply-To: <m1ofh0spik.fsf@frodo.biederman.org> <20020403191538.GA7211@opus.bloom.county> <m13cycrvsh.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling 2.5.8-pre1 without CONFIG_PREEMPT, and ppp all in modules,
-I have unresolved symbols in ppp_deflate.o (local_bh_enable and
-local_bh_disable). If CONFIG_PREEMPT is on, no problems.
+On Wed, Apr 03, 2002 at 08:23:58PM -0700, Eric W. Biederman wrote:
+> Tom Rini <trini@kernel.crashing.org> writes:
+> 
+> > On Wed, Apr 03, 2002 at 09:41:55AM -0700, Eric W. Biederman wrote:
+> > 
+> > > In imitation of the arm and ppc ports a CONFIG_CMDLINE option is also
+> > > implemented.
+> > 
+> > Just wondering, why didn't you do it with a
+> > CONFIG_CMDLINE_BOOL/CONFIG_CMDLINE set of options?  The way you did it,
+> > I _think_ you can't actually get a help msg from 'config' or
+> > 'oldconfig', you'll just set the commandline to '?'.
+> 
+> I just tested it and oldconfig at least works.
 
-The attached patch fixes it by adding some header files to ppp_deflate.c which
-somehow makes it properly compile.
+That's sort of supprising.
 
-But after a second look, I must say I don't really understand how this is 
-supposed to work, for example:
-	include/linux/spinlock.h 
-		* defines spin_lock_bh dependent on local_bh_disable
-		* defines preempt_disable
-	include/asm-i386/softirq.h
-		* defines local_bh_disable dependent on ... preempt_disable
+> > Also, on current PPC, if we have a compiled-in commandline we put it in
+> > arch/ppc/kernel/setup.c and allow it to be overridden.  This even makes
+> > it semi-useful outside of the self-containted {b,}zImage situation.
+> 
+> I currently allow a compiled in command line to be appended to.  lilo
+> also does this when you specify a command line, and to my knowledge all
+> boot options prefer the last value specified so that should be good
+> enough.  As the decision happens in C code it isn't to hard to change
+> either way.
 
-Do we have here a circular dependency problem or ? 
+The way you're doing it now, you're sticking it into final image itself
+tho, and passing it along.  If you're not going to be able to change the
+commandline, why not handle it all in C? eg:
+strcpy(cmd_line, CONFIG_CMDLINE);
+if ( passed a new commandline )
+   strcpy(cmd_line, new_cmdline);
 
-Stelian.
+Tho I have to admit I'm not sure where x86 ends up passing the
+commandline in now..
 
-===== drivers/net/ppp_deflate.c 1.6 vs edited =====
---- 1.6/drivers/net/ppp_deflate.c	Mon Mar  4 14:20:25 2002
-+++ edited/drivers/net/ppp_deflate.c	Thu Apr  4 14:31:05 2002
-@@ -36,11 +36,13 @@
- #include <linux/vmalloc.h>
- #include <linux/init.h>
- #include <linux/smp_lock.h>
-+#include <linux/spinlock.h>
- 
- #include <linux/ppp_defs.h>
- #include <linux/ppp-comp.h>
- 
- #include <linux/zlib.h>
-+#include <linux/interrupt.h>
- 
- static spinlock_t comp_free_list_lock = SPIN_LOCK_UNLOCKED;
- static LIST_HEAD(comp_free_list);
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

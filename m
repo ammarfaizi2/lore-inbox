@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318591AbSHADcw>; Wed, 31 Jul 2002 23:32:52 -0400
+	id <S318599AbSHADry>; Wed, 31 Jul 2002 23:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318599AbSHADcw>; Wed, 31 Jul 2002 23:32:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25485 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318591AbSHADcv>; Wed, 31 Jul 2002 23:32:51 -0400
-Date: Wed, 31 Jul 2002 20:34:22 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Lincoln Dale <ltd@cisco.com>
-cc: David Luyer <david_luyer@pacific.net.au>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-Message-ID: <771740373.1028147661@[10.10.2.3]>
-In-Reply-To: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
-References: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S318601AbSHADry>; Wed, 31 Jul 2002 23:47:54 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:30913 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S318599AbSHADrx>; Wed, 31 Jul 2002 23:47:53 -0400
+Date: Wed, 31 Jul 2002 23:51:19 -0400
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: BIG files & file systems
+Message-ID: <20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	"Peter J. Braam" <braam@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No shit. Now, how do you create a ps executable that handles
-> a 2.4.xx kernel with a modified HZ value? People did this all
-> the time. I got many bug reports from these people, so don't
-> go saying they don't exist. Remember: one executable, running
-> on both of the these:
->
-> <rant deleted>
+On Wed, Jul 31, 2002 at 05:13:46PM -0400, Alexander Viro wrote:
+> On Wed, 31 Jul 2002, Jan Harkes wrote:
+> > On Wed, Jul 31, 2002 at 01:16:20PM -0600, Peter J. Braam wrote:
+> > > I've just been told that some "limitations" of the following kind will
+> > > remain:
+> > >   page index = unsigned long
+> > >   ino_t      = unsigned long
+> > 
+> > The number of files is not limited by ino_t, just look at the
+> > iget5_locked operation in fs/inode.c. It is possible to have your own
+> > n-bit file identifier, and simply provide your own comparison function.
+> > The ino_t then becomes the 'hash-bucket' in which the actual inode is
+> > looked up.
+> 
+> You _do_ need unique ->st_ino from stat(2), though - otherwise tar(1)
+> and friends will break in all sorts of amusing ways.  And there's
+> nothing kernel can do about that - applications expect 32bit st_ino
+> (compare them as 32bit values, etc.)
 
-Is it somehow impossible to just export HZ in /proc, and read it?
-Doesn't seem too hard to me.
+Which is why "tar and friends" are to different extents already broken
+on various filesystems like Coda, NFS, NTFS, ReiserFS, and probably XFS.
+(i.e. anything that currently uses iget5_locked instead of iget to grab
+the inode).
 
-M.
+Jan
 

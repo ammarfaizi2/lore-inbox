@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264966AbTLMNHc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 08:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTLMNHc
+	id S264564AbTLMNEI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 08:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264599AbTLMNEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 08:07:32 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:53265 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264966AbTLMNHa
+	Sat, 13 Dec 2003 08:04:08 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:22958 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264564AbTLMNEG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 08:07:30 -0500
-Date: Sat, 13 Dec 2003 14:18:36 +0100
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+	Sat, 13 Dec 2003 08:04:06 -0500
+Date: Sat, 13 Dec 2003 14:01:06 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Marcus Blomenkamp <Marcus.Blomenkamp@epost.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
-Message-ID: <20031213131836.GB11073@hh.idb.hist.no>
-References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+Subject: Re: r8169 GigE driver problem, locks up 2.4.23 NFS subsystem
+Message-ID: <20031213140106.A24017@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xd6auyvac.fsf@kth.se>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 03:18:03PM +0100, Måns Rullgård wrote:
-> Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
-> 
-> > 1. Floppy motor spins when floppy module not installed.
-> 
-> It's a known problem.  Some broken BIOSes don't turn off the motor
-> after probing for a disk.  One solution is to change the boot priority
-> in the BIOS settings so the hard disk is tried before floppy.  If you
-> ever need to boot from a floppy, you can change it back.
-> 
-The kernel stops the spinning floppy _if_ you gives it a driver
-for the floppy hardware.
+In-Reply-To: <200312131300.05847.Marcus.Blomenkamp@epost.de>; from
+Marcus.Blomenkamp@epost.de on Sat, Dec 13, 2003 at 01:00:05PM +0100
+[nfs+r8169 foobar]
+> If anyone is interested, i have dmesg output and ethereal log files handy.
 
-This is not a problem at all, considering that linux comes
-with such a driver.
+Yes.
 
-Compile it in, or arranger for the module to be loaded at
-boot time.  You may of course arrange to unload it a little
-later if you want to save the memory.
+A few questions:
+- the client behaves correctly with a 8139, be it with 2.4.23-pre9 or
+  2.6.0-test11 ?
+- could you be more specific wrt "special realtek supplied version" ?
 
-Helge Hafting 
+--
+Ueimor

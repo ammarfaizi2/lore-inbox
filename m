@@ -1,126 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264605AbTE1Hf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 03:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264606AbTE1Hf1
+	id S264606AbTE1Hid (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 03:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTE1Hid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 03:35:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6827 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264605AbTE1HfW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 03:35:22 -0400
-Date: Wed, 28 May 2003 09:48:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andy Polyakov <appro@fy.chalmers.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-70 ide-cd to guarantee fault-free CD/DVD burning experience?
-Message-ID: <20030528074839.GU845@suse.de>
-References: <3ED4681A.738DA3C6@fy.chalmers.se>
+	Wed, 28 May 2003 03:38:33 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:17176 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264606AbTE1Hia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 03:38:30 -0400
+Date: Wed, 28 May 2003 00:51:56 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: m.c.p@wolk-project.de, kernel@kolivas.org, manish@storadinc.com,
+       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-Id: <20030528005156.1fda5710.akpm@digeo.com>
+In-Reply-To: <20030528073544.GR845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com>
+	<200305281713.24357.kernel@kolivas.org>
+	<20030528071355.GO845@suse.de>
+	<200305280930.48810.m.c.p@wolk-project.de>
+	<20030528073544.GR845@suse.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED4681A.738DA3C6@fy.chalmers.se>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 May 2003 07:51:45.0675 (UTC) FILETIME=[FC63BDB0:01C324ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28 2003, Andy Polyakov wrote:
-> Linux is setting new landmarks all the time. Linux 2.5 is taking CD/DVD
-> burning to whole new level by *guaranteeing* fault-free burning
-> experience. No more hassle with overburns, underruns, poorly supported
-> media, positioning errors, power calibration failures, you name it...
-> It just works [by keeping the user-land totally unaware of errors
-> conditions raised by the logical unit]. Welcome to the future:-)
-
-;-))
-
-> Well, I'm probably pushing this joke too far:-) In such case accept the
-> apologies along with this patch which makes it possible to access the
-> sense data returned by IDE CD/DVD units from user-land with SG_IO ioctl.
-> As for the last part, req->data?req->data:req->buffer. I'm not sure if
-> it's "the right thing(tm)" to do, but an error condition (dereferencing
-> of NULL pointer to be specific) is raised otherwise, whenever call to
-> bio_map_user in drivers/block/scsi_ioctl.c fails. The patch is
-> applicable at least to 2.5.69 and 2.5.70.
+Jens Axboe <axboe@suse.de> wrote:
+>
+> > that one, the answer is YES.
 > 
-> As for 69-ac. SG_IO doesn't work there at all (kernel logs "confused,
-> missing data" and then "N residual after xfer"). As far as I can tell
-> drivers/block/scsi_ioctl.c needs a "face lift," but that's AC's(?)
-> concern.
+>  That's the one, yes. Andrew, looks like your patch brought out some
+>  really bad behaviour.
 
-69-ac doesn't have the data direction fix yet probably, after the rq-dyn
-alloc patch.
+Yes, but why?
 
-> As for scsi_ioctl.c in more general sense. It apparently doesn't comply
-> with SG HOWTO, in particular it mis-interprets time-out values.
-> Background information and patch is available at
-> http://fy.chalmers.se/~appro/linux/DVD+RW/scsi_ioctl-2.5.69.patch.
-> There're couple of other issues, usage of 'bytes' variable in access_ok
-> and DMA being off when bio_map_user fails, that needs some further
-> discussion in my opinion. As for discussion. Please note that I'm not
-> on the linux-kernel list so that keep me on Cc:.
+It'd be interesting if any of these changes make a difference.
 
-Well care to expand on these?
 
-> 
-> Cheers. A.
-> 8<--------8<--------8<--------8<--------8<--------8<--------8<--------
-> --- ./drivers/ide/ide-cd.c.orig	Mon May  5 01:53:14 2003
-> +++ ./drivers/ide/ide-cd.c	Mon May 26 17:06:09 2003
-> @@ -667,7 +667,8 @@
->  		void *sense = &info->sense_data;
->  		
->  		if (failed && failed->sense)
-> -			sense = failed->sense;
-> +			sense = failed->sense,
-> +			failed->sense_len=rq->sense_len;
->  
->  		cdrom_analyze_sense_data(drive, failed, sense);
->  	}
+ drivers/block/ll_rw_blk.c |    7 
+ fs/buffer.c               | 3030 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 3033 insertions(+), 4 deletions(-)
 
-Looks good, applied.
+diff -puN drivers/block/ll_rw_blk.c~a drivers/block/ll_rw_blk.c
+--- 24/drivers/block/ll_rw_blk.c~a	2003-05-28 00:48:09.000000000 -0700
++++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 00:50:02.000000000 -0700
+@@ -590,10 +590,10 @@ static struct request *__get_request_wai
+ 	register struct request *rq;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+-	generic_unplug_device(q);
+-	add_wait_queue_exclusive(&q->wait_for_requests[rw], &wait);
++	add_wait_queue(&q->wait_for_requests[rw], &wait);
+ 	do {
+ 		set_current_state(TASK_UNINTERRUPTIBLE);
++		generic_unplug_device(q);
+ 		if (q->rq[rw].count == 0)
+ 			schedule();
+ 		spin_lock_irq(&io_request_lock);
+@@ -829,8 +829,7 @@ void blkdev_release_request(struct reque
+ 	 */
+ 	if (q) {
+ 		list_add(&req->queue, &q->rq[rw].free);
+-		if (++q->rq[rw].count >= q->batch_requests &&
+-				waitqueue_active(&q->wait_for_requests[rw]))
++		if (++q->rq[rw].count >= q->batch_requests)
+ 			wake_up(&q->wait_for_requests[rw]);
+ 	}
+ }
 
-> @@ -723,7 +724,7 @@
->  		 * scsi status byte
->  		 */
->  		if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
-> -			rq->errors = CHECK_CONDITION;
-> +			rq->errors = CHECK_CONDITION<<1;
->  
->  		/* Check for tray open. */
->  		if (sense_key == NOT_READY) {
-
-Ditto, but lets use SAM_CHECK_CONDITION instead, I hate this bit
-shifting crap.
-
-> @@ -1471,8 +1472,13 @@
->  		/* Keep count of how much data we've moved. */
->  		rq->data += thislen;
->  		rq->data_len -= thislen;
-> +#if 0
->  		if (rq->cmd[0] == GPCMD_REQUEST_SENSE)
->  			rq->sense_len++;
-> +#else
-> +		if (rq->flags & REQ_SENSE)
-> +			rq->sense_len+=thislen;
-> +#endif
->  	} else {
->  confused:
->  		printk ("%s: cdrom_pc_intr: The drive "
-
-Hmm confused, care to expand?
-
-> @@ -1609,7 +1615,7 @@
->  
->  static void post_transform_command(struct request *req)
->  {
-> -	char *ibuf = req->buffer;
-> +	char *ibuf = req->data?req->data:req->buffer;
->  	u8 *c = req->cmd;
->  
->  	if (!blk_pc_request(req))
-
-That is bad, though. I've changed this to just bail on !ibuf.
-
--- 
-Jens Axboe
+_
 

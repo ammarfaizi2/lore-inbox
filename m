@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132693AbRDDETW>; Wed, 4 Apr 2001 00:19:22 -0400
+	id <S132745AbRDDEjH>; Wed, 4 Apr 2001 00:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132745AbRDDETM>; Wed, 4 Apr 2001 00:19:12 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:52748 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S132693AbRDDETD>; Wed, 4 Apr 2001 00:19:03 -0400
-Message-ID: <3ACAA164.BDFF9B4C@chromium.com>
-Date: Tue, 03 Apr 2001 21:21:57 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Kravetz <mkravetz@sequent.com>
-CC: Ingo Molnar <mingo@elte.hu>, frankeh@us.ibm.com,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <20010403121308.A1054@w-mikek2.sequent.com> <Pine.LNX.4.30.0104032024290.9285-100000@elte.hu> <20010403154314.E1054@w-mikek2.sequent.com> <3ACA683A.89D24DED@chromium.com> <20010403194700.A1024@w-mikek2.sequent.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132746AbRDDEir>; Wed, 4 Apr 2001 00:38:47 -0400
+Received: from f38.law3.hotmail.com ([209.185.241.38]:51729 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S132745AbRDDEim>;
+	Wed, 4 Apr 2001 00:38:42 -0400
+X-Originating-IP: [65.25.188.54]
+From: "John William" <jw2357@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2048 byte/sector problems with kernel 2.4
+Date: Wed, 04 Apr 2001 04:37:56 
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F38vnbEG10Gai4omRXf000005a9@hotmail.com>
+X-OriginalArrivalTime: 04 Apr 2001 04:37:56.0949 (UTC) FILETIME=[0544F850:01C0BCC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was actually suspecting that the extra lines in your patch were there for a
-reason :)
-
-A few questions:
-
-What is the real impact of a (slight) change in scheduling semantics?
-
-Under which situation one should notice a difference?
-
-As you state in your papers the global decision comes with a cost, is it worth it?
-
-Could you make a port of your thing on recent kernels?
-I tried and I failed and I don't have enough time to figure out why, that should be
-trivial for you though.
-
-TIA, ciao,
-
- - Fabio
-
-Mike Kravetz wrote:
-
-> On Tue, Apr 03, 2001 at 05:18:03PM -0700, Fabio Riccardi wrote:
-> >
-> > I have measured the HP and not the "scalability" patch because the two do more
-> > or less the same thing and give me the same performance advantages, but the
-> > former is a lot simpler and I could port it with no effort on any recent
-> > kernel.
+On Tue, 3 Apr 2001, Harvey Fishman wrote:
+>On Tue, 3 Apr 2001, Alan Cox wrote:
 >
-> Actually, there is a significant difference between the HP patch and
-> the one I developed.  In the HP patch, if there is a schedulable task
-> on the 'local' (current CPU) runqueue it will ignore runnable tasks on
-> other (remote) runqueues.  In the multi-queue patch I developed, the
-> scheduler always attempts to make the same global scheduling decisions
-> as the current scheduler.
+>> > I also tried it with 2.2.18 there it works but it seems to be >utterly 
+>> > slow. I'm using kernel 2.4.2(XFS version to be precise).
+>>
+>>M/O disks are slow. At a minimum make sure you are using a physical >block 
+>>size of 2048 bytes when using 2048 byte media and plenty of memory to 
+>> >cache stuff when reading. Seek times on M/O media are pretty poor
 >
-> --
-> Mike Kravetz                                 mkravetz@sequent.com
-> IBM Linux Technology Center
+>Another thing making for the snailicity of MO drives is that writing is >a 
+>two pass operation. It is very like core memory; first you write the >spot 
+>to a known state, and then you write the data. So you have an average 
+>latency of 25 mS. for write operations and 8.33 mS. for read >operations. 
+>There WERE direct overwrite media for a while that would, in theory, be 
+>able to write the data directly, but a combination of high cost, >limited 
+>sources, and strong questions about the permanence of the recorded data 
+>severely limited the demand for these and I think that they have been 
+>withdrawn.
+>
+>Harvey
+
+No, direct overwrite disks are expensive, but they are still available. I do 
+not know of any, and have not heard of any problems related to direct 
+overwrite technology. For some reason M/O never really caught on in the US, 
+and the high price of direct overwrite disks is what seems to be killing 
+them off. I have a bunch I use for backup and have never had any problems.
+
+Slow is a relative term. Compared to a Seagate X15? Yes, a M/O drive is 
+probably slower. Compared to an 8X CD burner? No, my 640MB and 1.3GB M/O 
+drives are quite a bit faster, particularly for random writes. For most 
+applications, M/O is designed to compete with the latter, rather than the 
+former.
+
+People need to remember that M/O drives are meant to compete with CD-R or 
+CD-RW as a moderate capacity, highly robust storage medium for archiving and 
+backup. But it is somewhat annoying that 2.4.x doesn't (yet) support their 
+2K sector sizes correctly.
+
+- John
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

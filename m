@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbTIYRzA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTIYRye
+	id S261346AbTIYSMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTIYSLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:54:34 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:50655 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261376AbTIYRUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:20:48 -0400
-Date: Thu, 25 Sep 2003 19:20:08 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (11/19): dasd partitions.
-Message-ID: <20030925172008.GL2951@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Thu, 25 Sep 2003 14:11:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12245 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261820AbTIYSJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:09:48 -0400
+Date: Thu, 25 Sep 2003 11:05:40 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Jon Smirl <jonsmirl@yahoo.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sysfs - which driver for a device?
+In-Reply-To: <20030924020344.55460.qmail@web14905.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0309251102270.947-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix bug in CMS label recognition in ibm.c
 
-diffstat:
- fs/partitions/ibm.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+> In sysfs it is easy to see which devices a driver is supporting.
+> For example /sys/bus/pci/drivers/e1000 links to 0000:02:0c.0 in my system.
+> 
+> But how do you go the other way; starting from 0000:02:0c.0 to determine the
+> driver? Is the best solution to loop though the drivers directories searching
+> for the device? Or would it be better to change sysfs to add an attribute to
+> each device containing the driver name?
 
-diff -urN linux-2.6/fs/partitions/ibm.c linux-2.6-s390/fs/partitions/ibm.c
---- linux-2.6/fs/partitions/ibm.c	Mon Sep  8 21:50:41 2003
-+++ linux-2.6-s390/fs/partitions/ibm.c	Thu Sep 25 18:33:29 2003
-@@ -9,6 +9,7 @@
-  * 07/10/00 Fixed detection of CMS formatted disks     
-  * 02/13/00 VTOC partition support added
-  * 12/27/01 fixed PL030593 (CMS reserved minidisk not detected on 64 bit)
-+ * 07/24/03 no longer using contents of freed page for CMS label recognition (BZ3611)
-  */
+Well, one could use a script to ascertain the driver name for a given 
+device. Or, you could use the patch below, which will insert a 'driver' 
+symlink that points to the device driver's directory. 
+
+
+	Pat
+
+===== drivers/base/bus.c 1.51 vs edited =====
+--- 1.51/drivers/base/bus.c	Fri Aug 29 14:18:26 2003
++++ edited/drivers/base/bus.c	Thu Sep 25 10:55:14 2003
+@@ -243,6 +243,7 @@
+ 	list_add_tail(&dev->driver_list,&dev->driver->devices);
+ 	sysfs_create_link(&dev->driver->kobj,&dev->kobj,
+ 			  kobject_name(&dev->kobj));
++	sysfs_create_link(&dev->kobj,&dev->driver->kobj,"driver");
+ }
  
- #include <linux/config.h>
-@@ -98,7 +99,7 @@
- 		/*
- 		 * VM style CMS1 labeled disk
- 		 */
--		int *label = (int *) data;
-+		int *label = (int *) vlabel;
  
- 		if (label[13] != 0) {
- 			printk("CMS1/%8s(MDSK):", name);
+@@ -365,6 +366,7 @@
+ 	struct device_driver * drv = dev->driver;
+ 	if (drv) {
+ 		sysfs_remove_link(&drv->kobj,kobject_name(&dev->kobj));
++		sysfs_remove_link(&dev->kobj,"driver");
+ 		list_del_init(&dev->driver_list);
+ 		device_detach_shutdown(dev);
+ 		if (drv->remove)
+

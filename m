@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbTDYOUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 10:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTDYOUQ
+	id S261968AbTDYO0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 10:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTDYO0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 10:20:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52109 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263245AbTDYOUP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 10:20:15 -0400
-Date: Fri, 25 Apr 2003 16:32:21 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: mikem@beardog.cca.cpqcorp.net, linux-kernel@vger.kernel.org,
-       mike.miller@hp.com, steve.cameron@hp.com
-Subject: Re: RE:cciss patches for 2.4.21-rc1, 4 of 4
-Message-ID: <20030425143221.GQ1012@suse.de>
-References: <200304242212.h3OMCgc01143@beardog.cca.cpqcorp.net> <1051279472.1391.15.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051279472.1391.15.camel@laptop.fenrus.com>
+	Fri, 25 Apr 2003 10:26:12 -0400
+Received: from smtp.invisible.uk.net ([195.224.32.67]:7041 "EHLO
+	invisible.uk.net") by vger.kernel.org with ESMTP id S261968AbTDYO0L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 10:26:11 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: statvfs()
+Content-Class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Fri, 25 Apr 2003 15:38:02 +0100
+Message-ID: <541025071C7AC24C84E9F82296BB9B951C32D6@OPTEX1.optex.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: statvfs()
+Thread-Index: AcMLJofCXkhz+YAjQv6HECU1gu8PLgAEYy2g
+From: "John Hall" <john.hall@optionexist.co.uk>
+To: "John Meyers" <meyers@sdf-eu.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25 2003, Arjan van de Ven wrote:
-> On Fri, 2003-04-25 at 00:12, mikem@beardog.cca.cpqcorp.net wrote:
-> > 20030424
-> > 
-> > Changes:
-> > 	1. Sets the DMA mask to 64 bits. Removes RH's code for the DMA mask.
-> > 
-> > diff -urN lx2421rc1-p3/drivers/block/cciss.c lx2421rc1/drivers/block/cciss.c
-> > --- lx2421rc1-p3/drivers/block/cciss.c	Wed Apr 23 14:40:48 2003
-> > +++ lx2421rc1/drivers/block/cciss.c	Wed Apr 23 14:51:55 2003
-> > @@ -106,7 +106,7 @@
-> >  #define NR_CMDS		 128 /* #commands that can be outstanding */
-> >  #define MAX_CTLR 8
-> >  
-> > -#define CCISS_DMA_MASK	0xFFFFFFFF	/* 32 bit DMA */
-> > +#define CCISS_DMA_MASK 0xFFFFFFFFFFFFFFFF /* 64 bit DMA */
-> >  
-> >  static ctlr_info_t *hba[MAX_CTLR];
-> >  
-> > @@ -2861,17 +2861,6 @@
-> >  	hba[i]->ctlr = i;
-> >  	hba[i]->pdev = pdev;
-> >  
-> > -	/* configure PCI DMA stuff */
-> > -	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff))
-> > -		printk("cciss: using DAC cycles\n");
-> > -	else if (!pci_set_dma_mask(pdev, (u64) 0xffffffff))
-> > -		printk("cciss: not using DAC cycles\n");
-> > -	else {
-> > -		printk("cciss: no suitable DMA available\n");
-> > -		free_hba(i);
-> > -		return -ENODEV;
-> > -	}
-> > -		
-> 
-> 
-> this is wrong. The code there is EXACTLY what is needed as per
-> Documentation/DMA-mapping.txt, removing it is a bug.
+On 25 April 2003 13:12, John Meyers <meyers@sdf-eu.org> wrote:
 
-Agree, besides, it was never RH code, dunno where that idea came from?
+> Wheere can i find documentation for statvfs ? 
+> Any explanation or links would be helpful.
 
--- 
-Jens Axboe
+Google throws up:
+	http://www.mcsr.olemiss.edu/cgi-bin/man-cgi?statvfs+2
 
+which seems to be a generic 'Unix' man page, but has worked for me in
+the past.
+
+Regards,
+John

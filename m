@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbTFEXt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 19:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTFEXt2
+	id S265266AbTFFACh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 20:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbTFFACh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 19:49:28 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52951 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265248AbTFEXt1
+	Thu, 5 Jun 2003 20:02:37 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:30916 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265266AbTFFACg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 19:49:27 -0400
-Date: Thu, 05 Jun 2003 17:03:35 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@digeo.com>
-cc: Pavel Machek <pavel@suse.cz>, mochel@osdl.org, greg@kroah.com,
-       hannal@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
-Message-ID: <26710000.1054857815@w-hlinder>
-In-Reply-To: <20030605234150.GY6754@parcelfarce.linux.theplanet.co.uk>
-References: <20030605220716.GF608@elf.ucw.cz> <Pine.LNX.4.44.0306051511350.13077-100000@cherise> <20030605224535.GH608@elf.ucw.cz> <20030605155642.68179245.akpm@digeo.com> <20030605234150.GY6754@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 5 Jun 2003 20:02:36 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 5 Jun 2003 17:13:55 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
+In-Reply-To: <20030605183408.GB3291@matchmail.com>
+Message-ID: <Pine.LNX.4.55.0306051710110.4466@bigblue.dev.mcafeelabs.com>
+References: <11E89240C407D311958800A0C9ACF7D1A33EBD@EXCHANGE>
+ <Pine.LNX.4.55.0306041717230.3655@bigblue.dev.mcafeelabs.com>
+ <20030605183408.GB3291@matchmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Friday, June 06, 2003 12:41:50 AM +0100 viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Thu, 5 Jun 2003, Mike Fedyk wrote:
 
-> 
-> It doesn't - note the absense of ->release() in the introduced objects,
-
-Well... The ->release() part didnt exist when I sent out this patch.
-I understand this original attempt had some problems.
-
-> zombies ("I want it gone, but sysfs holds it") and when that is
-> done - have freeing done from ->release() of kobject.
+> On Wed, Jun 04, 2003 at 05:19:05PM -0700, Davide Libenzi wrote:
+> > Besides the stupid name O_REALLYNONBLOCK, it really should be different
+> > from both O_NONBLOCK and O_NDELAY. Currently in Linux they both map to the
+> > same value, so you really need a new value to not break binary compatibility.
 >
+> Hmm, wouldn't that be source and binary compatability?  If an app used
+> O_NDELAY and O_NONBLOCK interchangably, then a change to O_NDELAY would
+> break source compatability too.
 
-Yup. That is the plan. I will be fully compliant in following the
-agreed-to sysification solution ;)
+Oh, that's for sure.
 
-Thanks.
 
-Hanna
+> Also, what do other UNIX OSes do?  Do they have seperate semantics for
+> O_NONBLOCK and O_NDELAY?  If so, then it would probably be better to change
+> O_NDELAY to be similar and add another feature at the same time as reducing
+> platform specific codeing in userspace.
 
+If I remember it correctly, they differ from the return value that you get
+from blocking-candidate functions (0 <-> -1).
+
+
+
+- Davide
 

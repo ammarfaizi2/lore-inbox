@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266330AbSKLJMW>; Tue, 12 Nov 2002 04:12:22 -0500
+	id <S266323AbSKLJMU>; Tue, 12 Nov 2002 04:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266335AbSKLJMW>; Tue, 12 Nov 2002 04:12:22 -0500
-Received: from holomorphy.com ([66.224.33.161]:6842 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266330AbSKLJMU>;
-	Tue, 12 Nov 2002 04:12:20 -0500
-Date: Tue, 12 Nov 2002 01:16:40 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: [12/11] hugetlb: fix lack of radix tree locking
-Message-ID: <20021112091640.GZ22031@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
+	id <S266330AbSKLJMT>; Tue, 12 Nov 2002 04:12:19 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:11404 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266323AbSKLJMT>;
+	Tue, 12 Nov 2002 04:12:19 -0500
+Date: Tue, 12 Nov 2002 10:15:46 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+       Torben Mathiasen <torben.mathiasen@hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-2.5.46] IDE BIOS timings
+Message-ID: <20021112101546.A29909@ucw.cz>
+References: <1036780850.16651.105.camel@irongate.swansea.linux.org.uk> <Pine.LNX.3.96.1021111120435.18680B-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1021111120435.18680B-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Nov 11, 2002 at 12:10:13PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds a spinlock to each individual key, initializes it and the
-atomic counter, and uses it when manipulating the radix tree.
-As pointed out by akpm.
+On Mon, Nov 11, 2002 at 12:10:13PM -0500, Bill Davidsen wrote:
+> On 8 Nov 2002, Alan Cox wrote:
+> 
+> > On Fri, 2002-11-08 at 16:56, Jens Axboe wrote:
+> > > > Linus please drop this patch for now. Its not been tested on enough
+> > > > controllers, its making things unneccessarily ugly and its also just
+> > > > going to make updates hard.
+> > > 
+> > > Alan, the patch is pretty much straight forward. Cleaning up the magic
+> > > numbers and ->autotune consistencies is a good thing, imo.
+> > 
+> > You can clean up the naming but it still hasn't been tested, not all
+> > bioses neccessarily give us timings we can trust either.  I'm not
+> > opposed to the concept but after the previous IDE mess in 2.5 merging
+> > something that isnt tested on lots of controllers and might have weird
+> > effects does both me a bit
+> 
+> This is one of those things which we should allow at user risk. After all,
+> you can shoot yourself in the foot with hdparm as well, there are many
+> unwise things allowed.
+> 
+> Having seen all the warnings from bad setup of MPS and ACPI in dmesg, I
+> would say it's more likely that the BIOS get these settings right, since
+> they may be used by that other operating system.
 
- hugetlbpage.c |    8 ++++++++
- 1 files changed, 8 insertions(+)
+I can tell you that many VIA (namely older) boards simply crash after
+the first DMA access when you don't fix the timings/fifo settings of the
+chip after what mess the BIOS left there.
 
-
-diff -urpN htlb-2.5.47-11/arch/i386/mm/hugetlbpage.c htlb-2.5.47-12/arch/i386/mm/hugetlbpage.c
---- htlb-2.5.47-11/arch/i386/mm/hugetlbpage.c	2002-11-11 23:27:18.000000000 -0800
-+++ htlb-2.5.47-12/arch/i386/mm/hugetlbpage.c	2002-11-12 00:35:02.000000000 -0800
-@@ -32,6 +32,7 @@ static spinlock_t htlbpage_lock = SPIN_L
- struct hugetlb_key {
- 	struct radix_tree_root tree;
- 	atomic_t count;
-+	spinlock_t lock;
- 	int key;
- 	int busy;
- 	uid_t uid;
-@@ -392,6 +393,7 @@ static int prefault_key(struct hugetlb_k
- 	BUG_ON(vma->vm_end & ~HPAGE_MASK);
- 
- 	spin_lock(&mm->page_table_lock);
-+	spin_lock(&key->lock);
- 	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
- 		unsigned long idx;
- 		pte_t *pte = huge_pte_alloc(mm, addr);
-@@ -410,6 +412,7 @@ static int prefault_key(struct hugetlb_k
- 		if (!page) {
- 			page = alloc_hugetlb_page();
- 			if (!page) {
-+				spin_unlock(&key->lock);
- 				ret = -ENOMEM;
- 				goto out;
- 			}
-@@ -418,6 +421,7 @@ static int prefault_key(struct hugetlb_k
- 		}
- 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
- 	}
-+	spin_unlock(&key->lock);
- out:
- 	spin_unlock(&mm->page_table_lock);
- 	return ret;
-@@ -625,6 +629,10 @@ static int __init hugetlb_init(void)
- 	}
- 	htlbpage_max = htlbpagemem = htlbzone_pages = i;
- 	printk("Total HugeTLB memory allocated, %ld\n", htlbpagemem);
-+	for (i = 0; i < MAX_ID; ++i) {
-+		atomic_init(&htlbpagek[i].count);
-+		spinlock_init(&htlbpagek[i].lock);
-+	}
- 	return 0;
- }
- module_init(hugetlb_init);
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292085AbSBYSkB>; Mon, 25 Feb 2002 13:40:01 -0500
+	id <S292091AbSBYSll>; Mon, 25 Feb 2002 13:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292144AbSBYSjw>; Mon, 25 Feb 2002 13:39:52 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:55027
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292085AbSBYSjl>; Mon, 25 Feb 2002 13:39:41 -0500
-Date: Mon, 25 Feb 2002 10:40:21 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Dan Maas <dmaas@dcine.com>, "Rose, Billy" <wrose@loislaw.com>,
+	id <S292092AbSBYSlc>; Mon, 25 Feb 2002 13:41:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8210 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292091AbSBYSlP>; Mon, 25 Feb 2002 13:41:15 -0500
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 25 Feb 2002 18:06:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
+        mingo@elte.hu, matthew@hairy.beasts.org (Matthew Kirkwood),
+        bcrl@redhat.com (Benjamin LaHaise), david@mysql.com (David Axmark),
+        wli@holomorphy.com (William Lee Irwin III),
         linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020225184021.GA27211@matchmail.com>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Dan Maas <dmaas@dcine.com>, "Rose, Billy" <wrose@loislaw.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <Pine.LNX.3.95.1020225125900.26412A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0202250942110.8978-100000@penguin.transmeta.com> from "Linus Torvalds" at Feb 25, 2002 09:44:09 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020225125900.26412A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fPWS-0005hU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 01:08:23PM -0500, Richard B. Johnson wrote:
-> On Mon, 25 Feb 2002, Dan Maas wrote:
-> 
-> > > but I don't want a Netware filesystem running on Linux, I
-> > > want a *native* Linux filesystem (i.e. ext3) that has the
-> > > ability to queue deleted files should I configure it to.
-> > 
-> > Rather than implementing this in the filesystem itself, I'd first try
-> > writing a libc shim that overrides unlink(). You could copy files to safety,
-> > or do anything else you want, before they actually get deleted...
-> > 
-> > Regards,
-> > Dan
-> > 
-> Yes... unlink() becomes `mv /path/filename /deleted/path/filename`
-> Simple.  For idiot users, you can just make such an alias for those
+> The most common case for any fast semaphores are for _threaded_
+> applications. No shared memory, no nothing.
 
-It would be nice if there was a 'deleted' dir per mount point, as that would
-keep similar speeds as rm.  Also, 'deleted' would probably have to be marked
-writable, but not readable and would need a suid binary to read that dir and
-limit the output to only list files owned by the calling uid.  But that's a
-bit too offtopic for this list...
+Ok I see where you are coming from now -- that makes sense for a few cases.
+POSIX thread locks have to be able to work interprocess not just between
+threads though, so a full posix lock implementation couldn't be done without
+being able to put these things on shared pages (hence I was coming from
+the using shmfs as backing store angle).  Using a subset of shmfs also got
+me resource management which happens to be nice.
 
-Mike
+The other user of these kind of fast locks is databases. Oracle for example
+seems not to be a single mm threaded application.
+
+If we are talking about being able to say "make this page semaphores" then I 
+agree - the namespace is a seperate problem and up to whoever allocated the
+backing store in the first place, and may well not involve a naming at all.

@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264570AbTLGXSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 18:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbTLGXSY
+	id S264588AbTLGXZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 18:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTLGXZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 18:18:24 -0500
-Received: from ca1.symonds.net ([66.92.42.136]:40714 "EHLO symonds.net")
-	by vger.kernel.org with ESMTP id S264570AbTLGXSX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 18:18:23 -0500
-Message-ID: <008501c3bd18$697361e0$7a01a8c0@gandalf>
-From: "Mark Symonds" <mark@symonds.net>
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: "Keith Owens" <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Harald Welte" <laforge@netfilter.org>
-References: <Pine.LNX.4.44.0312071236430.1283-100000@logos.cnet>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-Date: Sun, 7 Dec 2003 15:18:24 -0800
+	Sun, 7 Dec 2003 18:25:57 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:46313 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264588AbTLGXZ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 18:25:56 -0500
+Message-ID: <3FD3B221.1060200@cyberone.com.au>
+Date: Mon, 08 Dec 2003 10:05:05 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-15?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+CC: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's scheduler v19a
+References: <3FB62608.4010708@cyberone.com.au>	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>	 <1069395102.16807.11.camel@midux>  <3FBDAE99.9050902@cyberone.com.au>	 <1069405566.18362.5.camel@midux>  <3FBDD790.5060401@cyberone.com.au>	 <1070468086.17208.4.camel@midux>  <3FCE6073.7040503@cyberone.com.au> <1070833955.3572.2.camel@midux>
+In-Reply-To: <1070833955.3572.2.camel@midux>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-> 
-> The first oops looks like:
-> 
-> Unable to handle kernel NULL pointer
-> dereference at virtual address: 00000000
-> 
-[...]
-> 
-> 
-> Isnt it a bit weird that the full backtrace is not reported ? 
-> 
-> wli suggests that might stack corruption.
-> 
+Markus Hästbacka wrote:
 
-My bad - wrote it down by hand originally since 
-it was locked hard.  
+>Hi again Nick, I ported the patch forward to -bk1>, the problem was
+>here:
+><snip>
+>-                       if (sync)
+><snip>
+>
+>That should be:
+><snip>
+>-                       if (sync && (task_cpu(p) == smp_processor_id()))
+><snip>
+>when patchin kernel/sched.c
+>Is this right?
+>
 
-> 
-> I dont see any suspicious change around tcp_print_conntrack().
-> 
-> Any clues? 
-> 
+Hi Markus,
+Yep thats correct.
 
-I'm using ipchains compatability in there, looks like 
-this is a possible cause - getting a patch right now,
-will test and let y'all know (and then switch to 
-iptables, finally). 
-
--- 
-Mark
 

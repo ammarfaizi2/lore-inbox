@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285022AbSAGSkI>; Mon, 7 Jan 2002 13:40:08 -0500
+	id <S285060AbSAGSk6>; Mon, 7 Jan 2002 13:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285023AbSAGSj6>; Mon, 7 Jan 2002 13:39:58 -0500
-Received: from unknown-1-11.wrs.com ([147.11.1.11]:45289 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id <S285022AbSAGSjx>;
-	Mon, 7 Jan 2002 13:39:53 -0500
-From: mike stump <mrs@windriver.com>
-Date: Mon, 7 Jan 2002 10:38:54 -0800 (PST)
-Message-Id: <200201071838.KAA11914@kankakee.wrs.com>
-To: Dautrevaux@microprocess.com, dewar@gnat.com, paulus@samba.org
-Subject: RE: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
+	id <S285023AbSAGSkt>; Mon, 7 Jan 2002 13:40:49 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:23790 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S285065AbSAGSk3>;
+	Mon, 7 Jan 2002 13:40:29 -0500
+Message-ID: <3C39EB68.BC8C804@alsa-project.org>
+Date: Mon, 07 Jan 2002 19:39:36 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i586)
+X-Accept-Language: en, it
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@ns.caldera.de>,
+        Jaroslav Kysela <perex@suse.cz>, sound-hackers@zabbo.net,
+        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
+Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+In-Reply-To: <Pine.LNX.4.33.0201071024450.6671-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Bernard Dautrevaux <Dautrevaux@microprocess.com>
-> To: "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org
-> Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
->         velco@fadata.bg
-> Date: Mon, 7 Jan 2002 14:24:35 +0100 
+Linus Torvalds wrote:
+> 
+> On Mon, 7 Jan 2002, Abramo Bagnara wrote:
+> >
+> > IMO the latter makes much more sense (also for "net" case), but I doubt
+> > you're willing to change current schema.
+> 
+> Agreed. I do not really think that it makes sense to move "drivers/net" to
+> "net/drivers" even if it _would_ be the logical way to group all net
+> things together. Whatever potential incremental advantage (if any) just
+> isn't worth the disruption.
+> 
+> > If you want to keep top level cleaner and avoid proliferation of entries
+> > we might have:
+> >
+> > subsys/sound
+> ...
+> 
+> No, I hate to create structure abstractions for their own sake, and a
+> "subsys" kind of abstraction doesn't really add any information.
 
-> Truly sure; In fact when writiong our Real Time Kernel in C++ we
-> just had this problem, and had to "hack" GCC C and C++ compilers so
-> that volatile acesses are guaranteed to be done with the right size,
-> even in case of bit fields in fact.
+Ok, I agree.
 
-Did your case include more than bitfields?  I recognize that bitfields
-have two possible semantics, and that you and gcc may have different
-opinions about the semantics of them.  I discount the alternative
-choice of semantic as being an example of this problem.  Roughly
-speaking, as I recall...  The two semantics are, the base type of the
-bitfield defines the mode in which memory is accessed and the smallest
-size supported that contains the bitfield defines the access.
+Just to resume, you think that the way to go is:
 
-struct { unsigned int field:8; };
+1) to have sound/ with *all* sound related stuff inside
+2) to leave drivers/net/ and net/ like they are now (because although
+it's suboptimal, to change it is a mess we don't want to face now)
 
-would be a 32 bit access, versus
+Right?
 
-struct { unsigned int field:8; };
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-would be an 8 bit access.
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-If gcc doesn't do one of them, it truly is broken (if the machine
-supports the access of course).  I would like to know if gcc is truly
-broken.
-
-> Using volatile (and expanding its semantics to mean: read and write
-> with the requested size) was a great help.
-
-In gcc, it already means that.  If you think otherwise, I'd like to
-see the example that shows it.
+ALSA project               http://www.alsa-project.org
+It sounds good!

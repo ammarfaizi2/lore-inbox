@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUEQXZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUEQX34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUEQXZf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 19:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUEQXZf
+	id S261673AbUEQX34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 19:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbUEQX34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 19:25:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45586 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263147AbUEQXZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 19:25:34 -0400
-Date: Tue, 18 May 2004 00:25:28 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Robert.Picco@hp.com,
-       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com
-Subject: Re: [PATCH] HPET driver
-Message-ID: <20040518002528.B26439@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, Robert.Picco@hp.com,
-	linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com
-References: <40A3F805.5090804@hp.com> <40A40204.1060509@pobox.com> <40A93DA5.4020701@hp.com> <20040517160508.63e1ddf0.akpm@osdl.org> <20040517161212.659746db.akpm@osdl.org> <40A94857.9030507@pobox.com>
+	Mon, 17 May 2004 19:29:56 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1189 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261673AbUEQX3z (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 19:29:55 -0400
+Message-Id: <200405172329.i4HNTpGZ016512@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+Cc: "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org
+Subject: Re: ramdisk driver in 2.6.6 has a severe bug 
+In-Reply-To: Your message of "Mon, 17 May 2004 19:18:37 EDT."
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40A94857.9030507@pobox.com>; from jgarzik@pobox.com on Mon, May 17, 2004 at 07:18:47PM -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-1025329140P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 17 May 2004 19:29:51 -0400
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 07:18:47PM -0400, Jeff Garzik wrote:
-> Seems sane, though I wonder about two things:
+--==_Exmh_-1025329140P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 17 May 2004 19:18:37 EDT, Valdis.Kletnieks@vt.edu said:
+
+> > [tapebox:root]:(/mnt/floppy)# cp -ap bin boot cdrom dev etc floppy lib mnt proc root sbin tag tmp usr var /mnt/root
 > 
-> * better home is probably asm-generic
+> Were you expecting those to copy all the contents, or just the directories themselves?
 
-hmm, I wonder about endian issues tho (and please remember that ARM can
-be either BE or LE depending on the machine we're building for...)
+Nevermind - I managed to miss that -a flag... :)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+--==_Exmh_-1025329140P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAqUrucC3lWbTT17ARAgRyAKC8gUbFLgZRG7GUd8CDIc0ZM8ga5QCgm/+m
++5b9tGxMZJaP9mIztgEDr8A=
+=7Y9d
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1025329140P--

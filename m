@@ -1,61 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273051AbTG3RLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273052AbTG3RLu
+	id S273036AbTG3RFD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 13:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273040AbTG3RFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:11:50 -0400
-Received: from smtp230.tiscali.dk ([62.79.79.115]:62147 "EHLO
-	smtp230.tiscali.dk") by vger.kernel.org with ESMTP id S273051AbTG3RLt
+	Wed, 30 Jul 2003 13:05:03 -0400
+Received: from 3eea282f.cable.wanadoo.nl ([62.234.40.47]:52751 "EHLO
+	diana.kozmix.org") by vger.kernel.org with ESMTP id S273036AbTG3RE6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:11:49 -0400
-From: Jesper Juhl <jju@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2 - mtrr overlaps existing
-Date: Wed, 30 Jul 2003 19:15:07 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 13:04:58 -0400
+Date: Wed, 30 Jul 2003 19:04:32 +0200
+From: Sander van Malssen <svm@kozmix.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Yaroslav Halchenko <yoh@onerussian.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
+Message-ID: <20030730170432.GA692@kozmix.org>
+Mail-Followup-To: Sander van Malssen <svm@kozmix.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Yaroslav Halchenko <yoh@onerussian.com>,
+	linux-kernel@vger.kernel.org
+References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307301915.07792.jju@dif.dk>
+In-Reply-To: <20030729135025.335de3a0.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday, 29 July 2003 at 13:50:25 -0700, Andrew Morton wrote:
 
-First of all, please CC jju@dif.dk on replies since I'm not subscribed to the 
-list.
+> Yaroslav Halchenko <yoh@onerussian.com> wrote:
+> >
+> > Buffer I/O error on device hda2, logical block 3861502
+> > Buffer I/O error on device hda2, logical block 3861504
+> > Buffer I/O error on device hda2, logical block 3861506
+> 
+> Odd.
+> 
+> What filesystem types are in use?
+> 
+> Are you using some sort of initrd setup?
+> 
+> Could you please run with this patch, send the traces?
 
-I'm testing out 2.6.0-test2 at the moment, and I've noticed that since 
-switching
-to this kernel I'm seeing occasional messages like this one in syslog :
-
-Jul 30 18:17:47 dragon kernel: mtrr: 0xf0000000,0x4000000 overlaps existing 
-0xf0000000,0x1000000
-
-This is probaby not a problem, but I'm still currious as to the cause.
-Can someone explain to me what the cause of this message is, and if there
-is something I should do about it?
-
-With 2.4.18 and 2.4.20 kernels I never saw this message (I don't have logs 
-from other kernel versions). With the 2.4 kernels I only see these mtrr 
-related
-messages (which I don't see with 2.6.0-test2, but that's probably because they
-have been removed) :
-
-Jul 30 10:12:17 dragon kernel: mtrr: v1.40 (20010327) Richard Gooch 
-(rgooch@atnf.csiro.au)
-Jul 30 10:12:17 dragon kernel: mtrr: detected mtrr type: Intel
-
-This machine's CPU is a 1.4GHz AMD Athlon (Thumderbird) and the 
-motherboard is a ASUS A7M266.
-If further details are of interrest, then just ask and I'll provide whatever 
-info you need.
+If I try this on 2.6.0-test2-mm1 with the dump_stack() added (ext3, no
+initrd) I get the following:
 
 
-Kind regards,
+Buffer I/O error on device hda1, logical block 25361
+Call Trace:
+ [<c0150f02>] buffer_io_error+0x42/0x50
+ [<c013b87d>] cache_grow+0x15d/0x260
+ [<c0151601>] end_buffer_async_read+0xf1/0x110
+ [<c0154330>] end_bio_bh_io_sync+0x30/0x40
+ [<c015548e>] bio_endio+0x4e/0x80
+ [<c028109b>] __make_request+0x12b/0x4f0
+ [<c02815ca>] generic_make_request+0x16a/0x230
+ [<c0119ec0>] autoremove_wake_function+0x0/0x50
+ [<c015491b>] alloc_buffer_head+0x3b/0x60
+ [<c0154bec>] bio_alloc+0xcc/0x1a0
+ [<c02816cd>] submit_bio+0x3d/0x70
+ [<c0153453>] block_read_full_page+0x213/0x2b0
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c0170c0a>] do_mpage_readpage+0x23a/0x320
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c0133eb9>] add_to_page_cache+0x59/0xf0
+ [<c0170e1a>] mpage_readpages+0x12a/0x170
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c018a640>] ext3_readpages+0x0/0x30
+ [<c013a66e>] read_pages+0x16e/0x180
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c01382c3>] __alloc_pages+0x83/0x300
+ [<c013a7cf>] do_page_cache_readahead+0x14f/0x1e0
+ [<c013a99f>] page_cache_readahead+0x13f/0x180
+ [<c0134b1e>] do_generic_mapping_read+0x44e/0x470
+ [<c0134b40>] file_read_actor+0x0/0xf0
+ [<c0134e09>] __generic_file_aio_read+0x1d9/0x220
+ [<c0134b40>] file_read_actor+0x0/0xf0
+ [<c0134ea2>] generic_file_aio_read+0x52/0x70
+ [<c014f782>] do_sync_read+0xc2/0x100
+ [<c0119ec0>] autoremove_wake_function+0x0/0x50
+ [<c02aff85>] start_request+0x175/0x290
+ [<c0123a16>] update_process_times+0x46/0x50
+ [<c012388d>] update_wall_time+0xd/0x40
+ [<c0123cfe>] do_timer+0xde/0xf0
+ [<c014f86d>] vfs_read+0xad/0x120
+ [<c014fb3f>] sys_read+0x3f/0x60
+ [<c010936b>] syscall_call+0x7/0xb
 
-Jesper Juhl <jju@dif.dk>
+Buffer I/O error on device hda1, logical block 25753
+Call Trace:
+ [<c0150f02>] buffer_io_error+0x42/0x50
+ [<c0119e00>] prepare_to_wait_exclusive+0x30/0x80
+ [<c0151601>] end_buffer_async_read+0xf1/0x110
+ [<c0154330>] end_bio_bh_io_sync+0x30/0x40
+ [<c015548e>] bio_endio+0x4e/0x80
+ [<c028109b>] __make_request+0x12b/0x4f0
+ [<c02815ca>] generic_make_request+0x16a/0x230
+ [<c0119ec0>] autoremove_wake_function+0x0/0x50
+ [<c015491b>] alloc_buffer_head+0x3b/0x60
+ [<c0154bec>] bio_alloc+0xcc/0x1a0
+ [<c02816cd>] submit_bio+0x3d/0x70
+ [<c0153453>] block_read_full_page+0x213/0x2b0
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c0170c0a>] do_mpage_readpage+0x23a/0x320
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c0133eb9>] add_to_page_cache+0x59/0xf0
+ [<c0170e1a>] mpage_readpages+0x12a/0x170
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c018a640>] ext3_readpages+0x0/0x30
+ [<c013a66e>] read_pages+0x16e/0x180
+ [<c0189720>] ext3_get_block+0x0/0x90
+ [<c01382c3>] __alloc_pages+0x83/0x300
+ [<c013a7cf>] do_page_cache_readahead+0x14f/0x1e0
+ [<c013a99f>] page_cache_readahead+0x13f/0x180
+ [<c0134b1e>] do_generic_mapping_read+0x44e/0x470
+ [<c0134b40>] file_read_actor+0x0/0xf0
+ [<c0134e09>] __generic_file_aio_read+0x1d9/0x220
+ [<c0134b40>] file_read_actor+0x0/0xf0
+ [<c0134ea2>] generic_file_aio_read+0x52/0x70
+ [<c014f782>] do_sync_read+0xc2/0x100
+ [<c0119ec0>] autoremove_wake_function+0x0/0x50
+ [<c02aff85>] start_request+0x175/0x290
+ [<c0123a16>] update_process_times+0x46/0x50
+ [<c012388d>] update_wall_time+0xd/0x40
+ [<c0123cfe>] do_timer+0xde/0xf0
+ [<c014f86d>] vfs_read+0xad/0x120
+ [<c014fb3f>] sys_read+0x3f/0x60
+ [<c010936b>] syscall_call+0x7/0xb
+
+
+Cheers,
+Sander
+
+-- 
+     Sander van Malssen -- svm@kozmix.org -- http://www.kozmix.org/
+      http://www.peteandtommysdayout.com/ -- http://www.1-2-5.net/
 

@@ -1,109 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286241AbRLJMWn>; Mon, 10 Dec 2001 07:22:43 -0500
+	id <S286247AbRLJMWb>; Mon, 10 Dec 2001 07:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286244AbRLJMWb>; Mon, 10 Dec 2001 07:22:31 -0500
-Received: from eos.dobrich.net ([217.79.68.4]:14342 "EHLO eos.dobrich.net")
-	by vger.kernel.org with ESMTP id <S286241AbRLJMW1>;
-	Mon, 10 Dec 2001 07:22:27 -0500
-Date: Mon, 10 Dec 2001 14:21:59 +0200 (EET)
-From: Admin <root@eos.dobrich.net>
+	id <S286244AbRLJMWV>; Mon, 10 Dec 2001 07:22:21 -0500
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:658 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S286241AbRLJMWQ>; Mon, 10 Dec 2001 07:22:16 -0500
+Date: Mon, 10 Dec 2001 12:22:15 GMT
+From: ncw@axis.demon.co.uk
+Message-Id: <200112101222.fBACMFC17255@irishsea.home.craig-wood.com>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: kernel: Unable to handle kernel paging request
-Message-ID: <Pine.LNX.4.10.10112101411530.2642-100000@eos.dobrich.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: "Colo[u]rs"
+In-Reply-To: <1007972036.1237.36.camel@phantasy>
+In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>  <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>   <5.1.0.14.2.20011210024959.01c81c20@whisper.qrpff.net> <1007972036.1237.36.camel@phantasy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love <rml@tech9.net> wrote:
+>  On Mon, 2001-12-10 at 03:00, Stevie O wrote:
+>  
+> > For the n-way associative deal:
+>  
+>  If the cache is n-way associative, it can store n lines at each
+>  mapping.  So even though two virtual addresses map to the same cache
+>  line, they can both be stored.  Of course, if you have k addresses such
+>  that k>n, then you reach the same problem as direct map (the case where
+>  n=1) caches.
 
-Full description of the report:
-Dec 10 02:02:30 shtajga kernel: Unable to handle kernel paging request at
-virtual address 0000c7df
-Dec 10 02:02:30 shtajga kernel: current->tss.cr3 = 09b2c000, %%cr3 =
-09b2c000
-Dec 10 02:02:30 shtajga kernel: *pde = 00000000
-Dec 10 02:02:30 shtajga kernel: Oops: 0000
-Dec 10 02:02:30 shtajga kernel: CPU:    0
-Dec 10 02:02:30 shtajga kernel: EIP:    0010:[redo_fd_request+366/964]
-Dec 10 02:02:30 shtajga kernel: EFLAGS: 00010002
-Dec 10 02:02:30 shtajga kernel: eax: 00000000   ebx: 0000c79b   ecx:
-c0219556   edx: 00000001
-Dec 10 02:02:30 shtajga kernel: esi: 00000000   edi: 00000000   ebp:
-000001a8   esp: c9d1dedc
-Dec 10 02:02:30 shtajga kernel: ds: 0018   es: 0018   ss: 0018
-Dec 10 02:02:30 shtajga kernel: Process ipchains (pid: 10735, process nr:
-67, stackpage=c9d1d000)
-Dec 10 02:02:30 shtajga kernel: Stack: 00000238 c9d1c000 00000001 c0248a40
-00000000 00000000 cffbf680 c011b9aa 
-Dec 10 02:02:30 shtajga kernel:        c9d1c000 c01a8303 ca034238 c7230500
-0000c79b 00000246 c6f6ff00 00000400 
-Dec 10 02:02:30 shtajga kernel:        ca034000 00000400 00000000 000003e9
-00000238 00000246 c6f6ff00 ffffffea 
-Dec 10 02:02:30 shtajga kernel: Call Trace: [do_no_page+54/212]
-[redo_fd_request+695/964] [mem_read+25/328] [get_task+11/88]
-[sys_read+178/208] [error_code+53/64] [system
-_call+52/56] 
-Dec 10 02:02:30 shtajga kernel: Code: 8b 4c 18 44 01 4c 24 18 8b 4c 18 48
-11 4c 24 1c 03 74 18 4c 
+That is a good explanation.  Related would be the TLB and its
+thrashing...
 
-Kernel version:
-Linux version 2.2.19 (root@shtajga) (gcc version 2.95.4 20010319 (Debian
-prerelease)) #3 Fri Oct 26 16:50:45 EEST 2001
+>  To reiterate, the point of coloring would be to prevent the case of
+>  multiple addresses mapping to the same line.
 
-Software:
-Linux shtajga 2.2.19 #3 Fri Oct 26 16:50:45 EEST 2001 i686 unknown
-Gnu C                  2.95.4
-Gnu make               3.78.1
-binutils               2.11.90.0.7
-util-linux             2.10f
-modutils               2.3.11
-e2fsprogs              1.18
-reiserfsprogs          3.x.0j
-PPP                    2.3.11
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.6
-Net-tools              1.54
-Kbd                    0.96
-Sh-utils               2.0
-Modules Loaded         
+Can you get colo[u]red memory from user-space?  This would be really
+useful for certain memory intensive applications (I'm thinking of
+large FFT users like mprime/ARMprime here)
 
-Processor information:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 548.545
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
-pat pse36 psn mmx fxsr xmm
-bogomips        : 1094.45
+-- 
+Nick Craig-Wood
+ncw@axis.demon.co.uk
 
-Modules: None
+>  Let me give you a
+>  real-life example.  We recently have been trying to color the kernel
+>  stack.  If every process's stack lies at the same address (let alone the
+>  same page multiple and offset), then they all map to the same place in
+>  the cache and we can effectively only cache one of them (and
+>  subsequently cache miss on every other access).  If we "color" the
+>  location of the stack, we make sure they don't all map to the same
+>  place.  This obviously involves some knowledge of the cache system, but
+>  it tends to be general enough that we can get it right for all cases.
+>  
+>  If you are _really_ interested in this, an excellent and very thorough
+>  book is UNIX Systems for Modern Architectures: Symmetric Multiprocessing
+>  and Caching for Kernel Programmers, by Curt Schimmel.
+>  
+>  	Robert Love
+>  
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>  the body of a message to 
+>  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  Please read the FAQ at  http://www.tux.org/lkml/
+>  
 
-SCSI: None
-
-Memory information:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  263589888 256901120  6688768 104308736 79421440 64991232
-Swap: 268877824        0 268877824
-MemTotal:    257412 kB
-MemFree:       6532 kB
-MemShared:   101864 kB
-Buffers:      77560 kB
-Cached:       63468 kB
-SwapTotal:   262576 kB
-SwapFree:    262576 kB
 

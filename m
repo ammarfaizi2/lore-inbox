@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVBGWYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBGW0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVBGWYn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGWYn
+	id S261281AbVBGW0S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVBGW0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:24:43 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:33691 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261241AbVBGWYl (ORCPT
+	Mon, 7 Feb 2005 17:26:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29113 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261281AbVBGW0H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:24:41 -0500
-Subject: [ANNOUNCE] February release of LTP
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sf.net,
-       ltp-announce@lists.sf.net
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFCF5A51B1.4D3C878A-ON85256FA1.007AF2C1-86256FA1.007B1707@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Mon, 7 Feb 2005 16:24:39 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.53IBM1 HF6|December 9, 2004) at
- 02/07/2005 17:24:40
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 7 Feb 2005 17:26:07 -0500
+Date: Mon, 7 Feb 2005 14:26:03 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
+Message-ID: <20050207142603.A469@build.pdx.osdl.net>
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050207193129.GB834@halcrow.us>; from mhalcrow@us.ibm.com on Mon, Feb 07, 2005 at 01:31:30PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Michael Halcrow (mhalcrow@us.ibm.com) wrote:
+> This is the third in a series of eight patches to the BSD Secure
+> Levels LSM.  It moves the claim on the block device from the inode
+> struct to the file struct in order to address a potential
+> circumvention of the control via hard links to block devices.  Thanks
+> to Serge Hallyn for pointing this out.
 
+Hard links still point to same inode, what's the issue that this
+addresses?
 
-
-
-The February release of LTP is now available.
-
-LTP-20050207
-- runltp now exports $TMPDIR as a copy of $TMP, certain exceptions caused
-these to be different.
-- extra functions for LTP libs are to make these tests fail with a more
-  informative message when attempts to create swap on tmpfs are made.
-- IPV6 testcase updates from David Stevens
-- Applied patch from Jacky Malcles that fixes an inconsistency regarding
-synchronization.
-- Make proc01 skip kcore
-- Fix gives an hint to the probable solution if capset01 test fails
-- Fix for race conditions in synchronization between children and parent on
-fcntl15.
-- Applied patch from Jacky Malcles to allow test to run on ia64.
-- The test llseek sets RLIMIT_FSIZE to a small number, this fix to
-  restore it to its original value.
-- Fix IPV6 Makefile install path problem
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285747AbSBOA7H>; Thu, 14 Feb 2002 19:59:07 -0500
+	id <S285720AbSBOBAr>; Thu, 14 Feb 2002 20:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSBOA66>; Thu, 14 Feb 2002 19:58:58 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:7178
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S285747AbSBOA6r>; Thu, 14 Feb 2002 19:58:47 -0500
-Date: Thu, 14 Feb 2002 19:33:29 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: CML2-2.3.0 is available
-Message-ID: <20020214193329.A23463@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S285589AbSBOBAj>; Thu, 14 Feb 2002 20:00:39 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:34534 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S285720AbSBOBA2>; Thu, 14 Feb 2002 20:00:28 -0500
+Date: Thu, 14 Feb 2002 19:00:03 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Robert Love <rml@tech9.net>
+Cc: john slee <indigoid@higherplane.net>, J Sloan <joe@tmsusa.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: tux officially in kernel?
+Message-ID: <20020214190003.B1518@asooo.flowerfire.com>
+In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com> <20020213135841.GB4826@higherplane.net> <3C6C4942.4050305@lexus.com> <1013730883.807.251.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <1013730883.807.251.camel@phantasy>; from rml@tech9.net on Thu, Feb 14, 2002 at 06:54:41PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
+The problem with X15 is that it's unavailable.  I've tried for months
+and months to get someone at that company to respond or get a copy to
+try.  Also, is it GPL?  Free?
 
-Release 2.3.0: Thu Feb 14 19:20:38 EST 2002
-	* Resync with 2.5.4, 2.5.4-dj1 and 2.4.18-pre9.
-	* `menus' and `explanations' declarations are gone from the language;
-	  all prompts and help info are declared by `symbols` declarations
-	  now.
-	* Partial fixes to support autoconfigure on Sparc by Mike Cramer.
+For me, X15 are three alphanumeric characters.
 
-This doesn't include Linus's 2.5.5-pre1 changes, so it won't configure
-ALSA.  I'll fold those in when the ALSA stuff shows up in Dave Jones's
-tree. 
+I'd love to try it, though.
+
+As for TUX, I would certainly prefer user-space if it was indeed as fast
+in all cases.  But I don't think X15 is really a factor in TUX's
+inclusion.  I'd say replacing khttpd with TUX2 is a no-brainer unless
+X15's performance has been proven and it's GPL.  And while khttpd is an
+interesting example, it really rocks at small image serving.  I've had
+it in production since 2.4.0-test1.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Ken.
+brownfld@irridia.com
+
+On Thu, Feb 14, 2002 at 06:54:41PM -0500, Robert Love wrote:
+| On Thu, 2002-02-14 at 18:33, J Sloan wrote:
+| 
+| > So, just out of curioisity, why is khttpd in
+| > the kernel? If there were any web server
+| > in the mainline kernel I'd think it'd be tux -
+| 
+| Personally khttpd should be ripped from the kernel.  It is a nice, uh,
+| example.  Or something.
+| 
+| TUX touches enough code that it isn't a clear decision to merge,
+| although it is certainly worth it.  I, however, think we are rapidly
+| approaching the point, if not there already, that with a zero-copy
+| network driver userspace can perform as good as TUX with none of the
+| downsides.  That was part of Ingo's goal and a lot of the benefits -
+| sendfile etc - are a result of TUX.
+| 
+| Anyhow, if I recall correctly, X15 performed better than TUX.
+| 
+| 	Robert Love
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

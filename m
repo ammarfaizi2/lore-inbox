@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265045AbUFAQ0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265133AbUFAQ31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbUFAQ0X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUFAQ0L
+	id S265133AbUFAQ31 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbUFAQ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:26:11 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:15077 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265127AbUFAQZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:25:12 -0400
-Date: Tue, 1 Jun 2004 17:24:07 +0100
-From: Dave Jones <davej@redhat.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: intel-agp: skip non-AGP devices
-Message-ID: <20040601162407.GB1265@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
-References: <20040601160457.GA11437@lists.us.dell.com>
-Mime-Version: 1.0
+	Tue, 1 Jun 2004 12:26:32 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:12461 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265097AbUFAQY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:24:59 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040601160457.GA11437@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16572.44497.301200.142505@alkaid.it.uu.se>
+Date: Tue, 1 Jun 2004 18:24:49 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1
+In-Reply-To: <20040601112957.GO2093@holomorphy.com>
+References: <20040601021539.413a7ad7.akpm@osdl.org>
+	<20040601112957.GO2093@holomorphy.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 11:04:57AM -0500, Matt Domsch wrote:
-
- > On our PowerEdge 2600 system, which has an Intel E7501 Memroy
- > Controller Hub, the intel-agp probe code is reporting, at KERN_ERR no less:
+William Lee Irwin III writes:
+ > On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
+ > > - NFS server udpates
+ > > - md updates
+ > > - big x86 dmi_scan.c cleanup
+ > > - merged perfctr.  No documentation though :(
+ > > - cris architecture update
  > 
- > agpgart: Unsupported Intel chipset (device id 254c)
- > 
- > Now, of course it says this, as this device does not present itself as
- > AGP-capable:
- > 
- > The patch below checks for a valid cap_ptr prior to printing the
- > message, now at KERN_WARNING level (it's not really an error, is it?)
+ > Hmm. perfctr needs some structs.
 
-indeed, patch applied.
+Indeed. CONFIG_PERFCTR=n leads to compile-time warnings
+from the syscall prototypes in <linux/perfctr.h>.
+I'm not sure if providing dummy struct declarations is
+cleaner than bracketing the offending code inside #ifdef
+CONFIG_PERFCTR, but this patch should fix the warnings for now.
 
-Thanks,
+Andrew: please apply.
 
-		Dave
+/Mikael
 
+--- linux-2.6.7-rc2-mm1/include/linux/perfctr.h.~1~	2004-06-01 17:53:56.000000000 +0200
++++ linux-2.6.7-rc2-mm1/include/linux/perfctr.h	2004-06-01 18:18:24.000000000 +0200
+@@ -54,6 +54,11 @@
+ 	unsigned int _reserved4;
+ };
+ 
++#else
++struct perfctr_info;
++struct perfctr_cpu_mask;
++struct perfctr_sum_ctrs;
++struct vperfctr_control;
+ #endif	/* CONFIG_PERFCTR */
+ 
+ #ifdef __KERNEL__

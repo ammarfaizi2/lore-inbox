@@ -1,22 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271205AbTHHFTU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 01:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271210AbTHHFTU
+	id S271223AbTHHFZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 01:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271225AbTHHFZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 01:19:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52122 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271205AbTHHFTT (ORCPT
+	Fri, 8 Aug 2003 01:25:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271223AbTHHFZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 01:19:19 -0400
-Date: Thu, 7 Aug 2003 22:21:21 -0700
+	Fri, 8 Aug 2003 01:25:23 -0400
+Date: Thu, 7 Aug 2003 22:27:18 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jason Lunz <lunz@falooley.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswapd oops in 2.4.22-rc1
-Message-Id: <20030807222121.7e8a0e19.akpm@osdl.org>
-In-Reply-To: <slrnbj6684.jqn.lunz@orr.homenet>
-References: <slrnbj6684.jqn.lunz@orr.homenet>
+To: Paul Clements <Paul.Clements@SteelEye.com>
+Cc: ldl@aros.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
+Message-Id: <20030807222718.5ef37049.akpm@osdl.org>
+In-Reply-To: <3F332ED7.712DFE5D@SteelEye.com>
+References: <3F2FE078.6020305@aros.net>
+	<3F300760.8F703814@SteelEye.com>
+	<3F303430.1080908@aros.net>
+	<3F30510A.E918924B@SteelEye.com>
+	<3F30AF81.4070308@aros.net>
+	<3F332ED7.712DFE5D@SteelEye.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,24 +29,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Lunz <lunz@falooley.org> wrote:
+Paul Clements <Paul.Clements@SteelEye.com> wrote:
 >
-> I built a raid5 nfs server out of an old pentium 200 mmx
->
-> ...
->
->  Unable to handle kernel NULL pointer dereference at virtual address 00000824
->  c0136b56
->  *pde = 00000000
->  Oops: 0002
->  CPU:    0
->  EIP:    0010:[<c0136b56>]    Not tainted
->  Using defaults from ksymoops -t elf32-i386 -a i386
->  EFLAGS: 00010206
->  eax: 00000000   ebx: 00000000   ecx: 00000800   edx: 00000000
+> Here's the patch to fix up several race conditions in nbd. It requires
+>  reverting the already included (but admittedly incomplete)
+>  nbd-race-fix.patch that's in -mm5.
+> 
+>  Andrew, please apply.
 
-                                             ^ single bit error.
+Sure.  Could I please have a summary of what races were fixed, and how?
 
-It's time to treat yourself to a new computer.
-
-
+Thanks.

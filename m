@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTFBDoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 23:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTFBDoK
+	id S261807AbTFBD45 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 23:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTFBD45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 23:44:10 -0400
-Received: from granite.he.net ([216.218.226.66]:50437 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261798AbTFBDoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 23:44:10 -0400
-Date: Sun, 1 Jun 2003 20:49:47 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Rolland <rol@as2917.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.70] - APIC error on CPU0: 00(40)
-Message-ID: <20030602034946.GA27338@kroah.com>
-References: <006c01c32755$4baabd10$2101a8c0@witbe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <006c01c32755$4baabd10$2101a8c0@witbe>
-User-Agent: Mutt/1.4.1i
+	Sun, 1 Jun 2003 23:56:57 -0400
+Received: from web14006.mail.yahoo.com ([216.136.175.122]:53307 "HELO
+	web14006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261807AbTFBD44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 23:56:56 -0400
+Message-ID: <20030602041020.77468.qmail@web14006.mail.yahoo.com>
+Date: Sun, 1 Jun 2003 21:10:20 -0700 (PDT)
+From: Matt Hartley <matthartley@yahoo.com>
+Subject: Re: [PATCH] linux-2.4.21-rc5-ac2
+To: alan@lxorguk.ukuu.org.uk, xose@wanadoo.es, lkml@lpbproductions.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054309256.23566.49.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 11:16:18AM +0200, Paul Rolland wrote:
+Thanks all for the comments.  I went through my original patch and
+added  everything to the PCI IDs database that was in the kernel and
+not in the database already.  Fortunately, there weren't too many.
+
+Thanks again!
+Matt Hartley
+
+
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2003-05-30 at 09:33, Matt Hartley wrote:
+> > Alan,
+> > 
+> > After noticing that drivers/pci/pci.ids was over nine months old, I
+> > grabbed the latest list off of http://pciids.sourceforge.net,
+> modded it
+> > to include a few recent submissions and to fix a couple of broken
+> > lines, and created this patch. 
 > 
-> I also have a very strange :
-> USB scanner device (0x03f0/0x2005) now attached to ^ER^VÀ\2003?ß\200 ?ß\2003?ß<7OÀØ6OÀÀ6OÀ
+> Mostly merged - dropped a couple of bits where it backed out kernel
+> changes that seem to have failed to reach the master list
 > 
-> though I had :
-> USB scanner device (0x03f0/0x2005) now attached to usb/scanner0
-> with a 2.5.69
 
-Should be fixed with the latest -bk version.
-If not, please let me know.
 
-thanks,
-
-greg k-h
+__________________________________
+Do you Yahoo!?
+Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
+http://calendar.yahoo.com

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133003AbRAGPBt>; Sun, 7 Jan 2001 10:01:49 -0500
+	id <S133051AbRAGPCT>; Sun, 7 Jan 2001 10:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133051AbRAGPBk>; Sun, 7 Jan 2001 10:01:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26892 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133003AbRAGPB1>;
-	Sun, 7 Jan 2001 10:01:27 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101071502.f07F2vY08119@flint.arm.linux.org.uk>
-Subject: Re: [PATCH] new bug report script
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 7 Jan 2001 15:02:56 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14FGfM-0002jO-00@the-village.bc.nu> from "Alan Cox" at Jan 07, 2001 02:19:21 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S135256AbRAGPCK>; Sun, 7 Jan 2001 10:02:10 -0500
+Received: from slc175.modem.xmission.com ([166.70.9.175]:53257 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S133051AbRAGPBz>; Sun, 7 Jan 2001 10:01:55 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Theodore Y. Ts'o" <tytso@MIT.EDU>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 todo list update
+In-Reply-To: <Pine.LNX.4.21.0101051244440.1295-100000@duckman.distro.conectiva>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jan 2001 07:51:33 -0700
+In-Reply-To: Rik van Riel's message of "Fri, 5 Jan 2001 12:58:34 -0200 (BRDT)"
+Message-ID: <m1n1d3ifey.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > ./arch/arm/lib/extractconstants.pl
+Rik van Riel <riel@conectiva.com.br> writes:
+
+
+> The following bugs _could_ be fixed ... I'm not 100% certain
+> but they're probably gone (could somebody confirm/deny?):
 > 
-> None of these are needed for normal build/use/bug reporting work. In fact
-> if you look at script_asm you'll see we go to great pains to ship prebuilt
-> files too
+> * mm->rss is modified in some places without holding the
+>   page_table_lock
 
-Whoops. ;(
+As of linux-2.4.0-test13-pre7 I can confirm that this bug
+still exists.  The most obvious  location is in zap_page_range,
+there may be others as well.
 
-I've already got a fix for this one though using grep and sed.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Eric
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

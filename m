@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbSK0IZc>; Wed, 27 Nov 2002 03:25:32 -0500
+	id <S261661AbSK0IZs>; Wed, 27 Nov 2002 03:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSK0IZc>; Wed, 27 Nov 2002 03:25:32 -0500
-Received: from zero.aec.at ([193.170.194.10]:22789 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S261660AbSK0IZc>;
-	Wed, 27 Nov 2002 03:25:32 -0500
-Date: Wed, 27 Nov 2002 09:29:18 +0100
-From: Andi Kleen <ak@muc.de>
-To: davidm@hpl.hp.com
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linus <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, schwidefsky@de.ibm.com,
-       ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] Start of compat32.h (again)
-Message-ID: <20021127082918.GA5227@averell>
-References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au> <15844.31669.896101.983575@napali.hpl.hp.com>
+	id <S261663AbSK0IZs>; Wed, 27 Nov 2002 03:25:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25508 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261661AbSK0IZq>;
+	Wed, 27 Nov 2002 03:25:46 -0500
+Date: Wed, 27 Nov 2002 09:29:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
+Message-ID: <20021127082931.GD19903@suse.de>
+References: <200211262203.20088.harisri@bigpond.com> <3DE3D1D1.BE5B30ED@digeo.com> <15843.54741.609413.371274@notabene.cse.unsw.edu.au> <200211271912.05131.harisri@bigpond.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15844.31669.896101.983575@napali.hpl.hp.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200211271912.05131.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 27, 2002 at 09:00:53AM +0100, David Mosberger wrote:
-> >>>>> On Wed, 27 Nov 2002 18:42:28 +1100, Stephen Rothwell <sfr@canb.auug.org.au> said:
+On Wed, Nov 27 2002, Srihari Vijayaraghavan wrote:
+> Hello Neil,
 > 
->   Stephen> I make the follwing assumptions: returning s32 from a 32
->   Stephen> bit compatibility system call is the same as returning long
->   Stephen> or int.
+> On Wednesday 27 November 2002 07:13, Neil Brown wrote:
+> > Srihari, could you possibly try with the following patch please to see
+> > if it gives more useful information.
 > 
-> That is not a safe assumption.  The ia64 ABI requires that a 32-bit
-> result is returned in the least-significant 32 bits only---the upper
-> 32 bits may contain garbage.  It should be safe to declare the syscall
-> return type always as "long", no?
+> No worries. That did the trick.
+> 
+> The following message appears just before the first oops:
+> Nov 27 18:56:32 localhost kernel: bio_add_page: want to add 4096 at 17658 but 
+> only allowed 3072 - prepare to oops...
 
-But the 32bit user space surely doesn't care about any garbage in 
-the upper 32bits, no ?
+Neil, this is the problem. Currently a driver _must_ be able to accept a
+page worth of data at any location...
 
-64bit user space might, but that's not driven by a shared compat layer.
+-- 
+Jens Axboe
 
--Andi

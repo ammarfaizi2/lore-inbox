@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129304AbRBTVCv>; Tue, 20 Feb 2001 16:02:51 -0500
+	id <S129282AbRBTVEB>; Tue, 20 Feb 2001 16:04:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129307AbRBTVCl>; Tue, 20 Feb 2001 16:02:41 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:38793 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129304AbRBTVCj>; Tue, 20 Feb 2001 16:02:39 -0500
-Date: Tue, 20 Feb 2001 16:00:53 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: <mingo@devserv.devel.redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, <linux-kernel@vger.kernel.org>,
-        <macro@ds2.pg.gda.pl>
-Subject: Re: [PATCH] 2.4.1-ac UP-APIC updates
-In-Reply-To: <E14VJoa-0000f1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.32.0102201556510.7613-100000@devserv.devel.redhat.com>
+	id <S129791AbRBTVDv>; Tue, 20 Feb 2001 16:03:51 -0500
+Received: from ns2.cypress.com ([157.95.67.5]:13552 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S129282AbRBTVDj>;
+	Tue, 20 Feb 2001 16:03:39 -0500
+Message-ID: <3A92DB9F.28DF79F1@cypress.com>
+Date: Tue, 20 Feb 2001 15:03:27 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: kernel/printk.c: increasing the buffer size to capture 
+ devfsd debug messages.
+In-Reply-To: <3A92A99E.2F255CB3@yk.rim.or.jp> <20010220111542.A4106@tenchi.datarithm.net> <3A92C76C.6519DF1A@cypress.com> <20010220121727.B4106@tenchi.datarithm.net> <3A92D930.6F11B505@cypress.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Dodd wrote:
+> 
+> Robert Read wrote:
+> >
+> > Ok, here is a simple patch to add a config option, I'm compiling it
+> > now, so it's not tested yet.  One question: what is the best way to
+> > force this option to be a power of 2?
+> 
+> Why not just make the config option in Kbytes.
+> and do:
+> 
+> #define LOG_BUF_LEN (CONFIG_PRINTK_BUF_LEN * 1024)
+> 
+> since the config option has a default option and will
+> always be defined, is the #ifdef check really needed?
 
-On Tue, 20 Feb 2001, Alan Cox wrote:
+Oops...
 
-> > i dont like this one. 100 times a second makes absolutely no performance
-> > difference whatsoever - but eg. i'm driving kernel profiling from the NMI
-> > handler to get profiles of eg. IRQ handlers and other cli()-ed code areas.
->
-> So set it to 100Hz as a debugging option like slab debugging
+It's not needed if all arch's have the config option added.
+Only parisc uses a different file, config.common instead of config.in
+Would this break any thing?
 
-my major gripe right now is that we still have bug reports that say that
-systems hang when using nmi_watchdog=1 and work if nmi_watchdog=0.
-Changing the NMI watchdog to be 1 Hz will make these bugreports "Linux
-hangs once a week" instead of a "Linux hangs after 1-2 hours", which is
-clearly hiding things and making debugging harder.
-
-(and driving kernel-profiling from the NMI interrupt is a short-term
-patch, so there is just no point in going to 1 Hz right now just to go
-back to 100 Hz a few days later.)
-
-the rest of the changes are excellent - it's only the 100 Hz NMI issue i
-have a problem with.
-
-	Ingo
-
+	-Thomas

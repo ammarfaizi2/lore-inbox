@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265989AbUBRQoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUBRQoc
+	id S264446AbUBRQmS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUBRQmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:44:32 -0500
-Received: from main.gmane.org ([80.91.224.249]:63705 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265989AbUBRQmn (ORCPT
+	Wed, 18 Feb 2004 11:42:18 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:9874 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S264446AbUBRQmP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:42:43 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Happe <andreashappe@gmx.net>
-Subject: [radeonfb] black screen/wrong display size detected
-Date: Wed, 18 Feb 2004 17:42:25 +0100
-Message-ID: <slrnc375fh.145.andreashappe@flatline.ath.cx>
-Reply-To: Andreas Happe <andreashappe@gmx.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 62.47.73.173
-User-Agent: slrn/0.9.8.0 (Linux)
+	Wed, 18 Feb 2004 11:42:15 -0500
+Date: Wed, 18 Feb 2004 11:24:14 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Mark Hindley <mark@hindley.uklinux.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pnp missing proc entries?
+Message-ID: <20040218112414.GA10238@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Mark Hindley <mark@hindley.uklinux.net>,
+	linux-kernel@vger.kernel.org
+References: <20040218074414.GA11598@titan.home.hindley.uklinux.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040218074414.GA11598@titan.home.hindley.uklinux.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-display turns black after loading radeon on bootup (compiled in). It
-stays black, even after xdm should have started.
+Hi,
 
-hardware: 	HP Compaq nx7000
-			01:00.0 VGA compatible controller: ATI Technologies Inc
-			Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 01)
+On Wed, Feb 18, 2004 at 07:44:14AM +0000, Mark Hindley wrote:
+> Hi,
+> 
+> I have just switched to 2.6 and am trying to resolve and irq conflict
+> between a sound card and internal modem.
 
-partial dmesg output:
-| Linux version 2.6.3-mm1 (crow@flatline.ath.cx) (gcc version 3.3.2) #7 Wed Feb 18 11:49:15 CET 2004
-| [..]
-| ACPI: RSDP (v000 COMPAQ                                    ) @ 0x000f6350
-| ACPI: RSDT (v001 HP     CPQ0860  0x30090320 CPQ  0x00000001) @ 0x1fff0c84
-| ACPI: FADT (v002 HP     CPQ0860  0x00000002 CPQ  0x00000001) @ 0x1fff0c00
-| ACPI: SSDT (v001 COMPAQ  CPQGysr 0x00001001 MSFT 0x0100000e) @ 0x1fff5bd7
-| ACPI: DSDT (v001 HP       nx7000 0x00010000 MSFT 0x0100000e) @ 0x00000000
-| ACPI: PM-Timer IO Port: 0x1008
-| Built 1 zonelists
-| Local APIC disabled by BIOS -- reenabling.
-| Found and enabled local APIC!
-| Initializing CPU#0
-| Kernel command line: root=/dev/hda2 idebus=66 nmi_watchdog=2 mem=524096K
-| [..]
-| radeonfb: Found Intel x86 BIOS ROM Image
-| radeonfb: Retreived PLL infos from BIOS
-| radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=250.00 Mhz, System=220.00 MHz
-| i2c_adapter i2c-0: registered as adapter #0
-| i2c_adapter i2c-1: registered as adapter #1
-| i2c_adapter i2c-2: registered as adapter #2
-| i2c_adapter i2c-3: registered as adapter #3
-| i2c_adapter i2c-1: master_xfer: with 2 msgs.
-| i2c_adapter i2c-1: master_xfer: with 2 msgs.
-| i2c_adapter i2c-1: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| Non-DDC laptop panel detected
-| i2c_adapter i2c-2: master_xfer: with 2 msgs.
-| i2c_adapter i2c-2: master_xfer: with 2 msgs.
-| i2c_adapter i2c-2: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| i2c_adapter i2c-3: master_xfer: with 2 msgs.
-| radeonfb: Monitor 1 type LCD found
-| radeonfb: Monitor 2 type no found
-| radeonfb: panel ID string: Samsung LTN150P1-L02    
-| radeonfb: detected LVDS panel size from BIOS: 1400x1050
+Is the pnp layer complaining about this conflict?  Are you using pnpbios 
+support?  Are both the sound card and internal modem isapnp devices?
 
-wrong size detected, display is 1680x1050.
+> 
+> Looking in Documentation/pnp.txt there should be files in
+> proc/bus/isapnp/<node>/{id,resources,options}.
+> 
+> However all I have is plain node at /proc/bnus/isapnp/<node> that dumps
+> some binary data.
+> 
+> Is the documentation out of date? I can see the calls to make the
 
-| radeondb: BIOS provided dividers will be used
-| radeonfb: Assuming panel size 1400x1050
-| radeonfb: Power Management enabled for Mobility chipsets
-| radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
-| Machine check exception polling timer started.
+Thanks for bringing this to my attention.  I'll update the documentation 
+soon.
 
--- 
-Andreas
+> missing nodes in pnp_add_device() but can't find it called from
+> anywhere. Is this a deliberate omission?
+> 
+> Thanks
+> 
+> Mark
+> 
+
+You can access this information through sysfs.
+
+try something like this:
+mkdir /sys
+mount -t sysfs none /sys
+
+Thanks,
+Adam
 

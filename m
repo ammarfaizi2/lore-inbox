@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbTBTDGO>; Wed, 19 Feb 2003 22:06:14 -0500
+	id <S264748AbTBTD24>; Wed, 19 Feb 2003 22:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264748AbTBTDGO>; Wed, 19 Feb 2003 22:06:14 -0500
-Received: from holomorphy.com ([66.224.33.161]:59804 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264745AbTBTDGN>;
-	Wed, 19 Feb 2003 22:06:13 -0500
-Date: Wed, 19 Feb 2003 19:15:14 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
-Message-ID: <20030220031514.GX29983@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Chris Wedgwood <cw@f00f.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>
-References: <Pine.LNX.4.44.0302191527400.9786-100000@penguin.transmeta.com> <Pine.LNX.4.50.0302192113480.10247-100000@montezuma.mastecende.com> <20030220022627.GW29983@holomorphy.com> <Pine.LNX.4.50.0302192146580.10247-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302192146580.10247-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S264749AbTBTD24>; Wed, 19 Feb 2003 22:28:56 -0500
+Received: from mail.cityisp.net ([66.230.219.2]:8464 "EHLO RADIUS.radius")
+	by vger.kernel.org with ESMTP id <S264748AbTBTD2z> convert rfc822-to-8bit;
+	Wed, 19 Feb 2003 22:28:55 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: gilson redrick <gilsonr@cityisp.net>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.x freezes on booting
+Date: Wed, 19 Feb 2003 22:40:22 -0500
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302192240.22261.gilsonr@cityisp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, William Lee Irwin III wrote:
->> Looks like either a pagetable or physmap/vmalloc/fixmap screwup.
->> What do the bootlogs have for those things?
+Hi!
 
-On Wed, Feb 19, 2003 at 09:55:47PM -0500, Zwane Mwaikambo wrote:
-> Verified there were no overlapping regions. If you really really really 
-> want them i can put in some printks
+I've rechecked my procedures, have gone through the archive without result.
 
-The printk's should have come in with the pgcl patch. Did you keep the
-bootlogs? I'm looking for rounding errors in my pagetable init stuff
-to see if we're trying to use memory beyond the edge of a 2MB region
-we didn't bother mapping or something but that only matters for phys
-mappings and so on. If you hit vmallocspace or fixmapspace it's an
-entirely different question. There are also small "holes"...
+I compiled 2.4.19 and 2.4.20 (which I'm using right now) without problem, but 
+2.5.x is, so far, winning over me.
 
-So it'd be very handy to figure out which of the three spaces the
-address that turned up in %cr2 was supposed to be in. I can probably
-guess a little better if you told me your PAGE_MMUSHIFT value also.
+First was 2.5.59, then 2.5.60 and now 2.5.61. With all them, the same 
+scenario: make modules and modules_install go without errors; after copying 
+System.map and bzImage and creating initrd, I reboot and get six lines of 
+text:
+    kernel (hd0,8) /boot/vmlinuz-2.5.61 root=/dev/hda9
+	devfs=mount hdc=ide-scsi vga=0x0f05
+    [Linux-bzImage, setup=0xc00, size=0xa4828]
+    initrd (hd0,8) /boot/initrd-2.5.61-img
+    [Linux-initrd @ 0xf7da000, 0x5717 bytes]
+	Uncompressing Linux ...	Ok, booting the kernel
+and the system is frozen; nothing runs, no chance for Ctrl-Alt-Del.
 
+Why 2.4.x works well, and 2.5.x, with the same compling technique, on the same 
+hardware, doesn't?
 
--- wli
+This is a 1.3GHz Duron, one 20GB HD running Mandrake-9.0. No SCSI, USB or any 
+fancy additive or appendage (simply because I can't afford them!)
+
+Any word of wisdom will be greatly appreciated. Please CC to me, as I am not 
+on the kernel list.
+
+-- 
+Regards,
+
+gilson: gilsonr@cityisp.net
+(in /usually/ balmy, sunny Florida's Suncoast)
+[An Intel-free, M$-free, virus-free computer; not by chance, but by choice: 
+powered by MandrakeSoft-9.0 Linux-2.4.20]

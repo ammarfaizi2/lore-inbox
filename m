@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVCVOCC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVCVOFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVCVOCC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 09:02:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVCVOCC
+	id S261257AbVCVOFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 09:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVCVOFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 09:02:02 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:17372 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261251AbVCVN7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 08:59:46 -0500
-Subject: Re: mouse&keyboard with 2.6.10+
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, mjt@tls.msk.ru,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050322074435.GC3360@ucw.cz>
-References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru>
-	 <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru>
-	 <20050314162537.GA2716@ucw.cz> <4235BDFD.1070505@tls.msk.ru>
-	 <20050314164342.GA1735@ucw.cz> <20050321172411.247e32b6.akpm@osdl.org>
-	 <20050322074435.GC3360@ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1111499816.14833.82.camel@localhost.localdomain>
+	Tue, 22 Mar 2005 09:05:31 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:20192 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261257AbVCVOFO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 09:05:14 -0500
+Date: Tue, 22 Mar 2005 15:05:14 +0100
+From: DervishD <lkml@dervishd.net>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Voodoo 3 2000 framebuffer problem
+Message-ID: <20050322140514.GB9073@DervishD>
+Mail-Followup-To: Bodo Eggert <7eggert@gmx.de>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <fa.cmkmtid.l6sdqh@ifi.uio.no> <E1DDjsg-0000rS-0e@be1.7eggert.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 22 Mar 2005 13:56:58 +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1DDjsg-0000rS-0e@be1.7eggert.dyndns.org>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-03-22 at 07:44, Vojtech Pavlik wrote:
-> Not yet. There was opposition from Alan Cox, who said that it crashes
-> some machines hard. On the other hand, that is a BIOS interaction bug
-> that most likely can be fixed and is very rare. I'd prefer a
-> 'usb-no-handoff' switch for these machines.
+    Hi Bodo :)
 
-I'm not opposed to that. The only real constraint to avoid the majority
-of problem boxes I've seen is that the handoff is done with a timeout
-and we continue in BIOS mode if the handoff fails.
+ * Bodo Eggert <7eggert@gmx.de> dixit:
+> >     Linux Kernel 2.4.29, in a do-it-yourself linux box, equipped with
+> > an AGP Voodoo 3 2000 card, tdfx framebuffer support. I boot in vga
+> > mode 0x0f05, with parameter 'video=tdfx:800x600-32@100' and I get
+> > (correctly) 100x37 character grid. All of that is correct. What is
+> > not correct is the characters attributes, namely the 'blink'
+> > attribute.
+> Blinking a whole screen of text is much more expensive than a block cursor.
 
-The ACPI updates for VIA also seem to have cured some boxes that die
-with USB enabled.
+    I don't want to blink a whole screen of text... But I think I
+know what you mean, for blinking some text on the screen you need to
+be able to blink the entire screen.
 
-Alan
+> You'll want hardware support, e.g. some kind of double-buffering or
+> using 240 colors just for that purpose in a 256 color mode. (I
+> would not implement that.)
 
+    I assumed that the textmodes of framebuffer supported all
+capabilities that the standard text modes support... So, no blinking
+text in framebuffer, am I wrong?
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

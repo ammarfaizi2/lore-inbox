@@ -1,120 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUEGT6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUEGUB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263725AbUEGT6y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 15:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUEGT4S
+	id S263714AbUEGUB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUEGUB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 15:56:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263712AbUEGTzu (ORCPT
+	Fri, 7 May 2004 16:01:56 -0400
+Received: from mail.skule.net ([216.235.14.165]:49127 "EHLO mail.skule.net")
+	by vger.kernel.org with ESMTP id S263718AbUEGT6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 15:55:50 -0400
-Date: Fri, 7 May 2004 12:41:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: paul@clubi.ie, arjanv@redhat.com, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-Message-Id: <20040507124157.7705bf77.akpm@osdl.org>
-In-Reply-To: <535920000.1083943568@[10.10.2.4]>
-References: <20040505013135.7689e38d.akpm@osdl.org>
-	<200405051312.30626.dominik.karall@gmx.net>
-	<200405051822.i45IM2uT018573@turing-police.cc.vt.edu>
-	<20040505215136.GA8070@wohnheim.fh-wedel.de>
-	<200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
-	<1083858033.3844.6.camel@laptop.fenrus.com>
-	<Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org>
-	<20040506195002.520b0793.akpm@osdl.org>
-	<Pine.LNX.4.58.0405070433170.1979@fogarty.jakma.org>
-	<20040506205838.6948a018.akpm@osdl.org>
-	<535920000.1083943568@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 7 May 2004 15:58:33 -0400
+Date: Fri, 7 May 2004 13:48:26 -0400
+From: Mark Frazer <mark@mjfrazer.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040507174826.GG30384@mjfrazer.org>
+References: <20040506130846.GA241@elf.ucw.cz> <Pine.LNX.4.44.0405071652280.15067-100000@localhost.localdomain> <20040507165700.GE18175@atrey.karlin.mff.cuni.cz> <409BC7A7.4060203@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <409BC7A7.4060203@techsource.com>
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Fry-1: And then when I feel so stuffed I can't eat any more, I just use
+X-Fry-2: the restroom, and then I *can* eat more!
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> 2 nfs_writepage_sync is a known stack-abuser ;-) 1632 bytes on PPC64 at least
->  (from Anton's data). Maybe it's that struct nfs_write_data ?
+Timothy Miller <miller@techsource.com> [04/05/07 13:26]:
+> >>>Perhaps what we really want is "swap_back_in" script? That way you
+> >>>could do "updatedb; swap_back_in" in cron and be happy.
+> >>
+> >>swapoff -a; swapon -a
+> >
+> >
+> >Good point... it will not bring back executable pages, through.
+> >
+> >								Pavel
+> 
+> Wouldn't this also be a problem if you are using more memory than you 
+> have physical RAM?
 
- (from Anton's data). Maybe it's that struct nfs_write_data ?
+#!/bin/bash
+swapused=$(( $(sed -n -e 's/ \+/-/g' -e '/^Swap:/p' /proc/meminfo | cut -d'-' -f2,4) ))
+bufsused=$(( $(sed -n -e 's/ \+/+/g' -e '/^Mem:/p' /proc/meminfo | cut -d'+' -f6,7) ))
 
+if [ $bufsused -gt $(( 11 * swapused / 10 )) ]
+then	swapoff -a; swapon -a
+fi
 
-diff -puN fs/nfs/write.c~nfs_writepage_sync-stack-reduction fs/nfs/write.c
---- 25/fs/nfs/write.c~nfs_writepage_sync-stack-reduction	2004-05-07 12:36:51.648098192 -0700
-+++ 25-akpm/fs/nfs/write.c	2004-05-07 12:39:41.320304096 -0700
-@@ -179,7 +179,13 @@ static int nfs_writepage_sync(struct fil
- {
- 	unsigned int	wsize = NFS_SERVER(inode)->wsize;
- 	int		result, written = 0;
--	struct nfs_write_data	wdata = {
-+	struct nfs_write_data *wdata;
-+
-+	wdata = kmalloc(sizeof(*wdata), GFP_NOFS);
-+	if (!wdata)
-+		return -ENOMEM;
-+
-+	*wdata = (struct nfs_write_data) {
- 		.flags		= how,
- 		.cred		= NULL,
- 		.inode		= inode,
-@@ -192,8 +198,8 @@ static int nfs_writepage_sync(struct fil
- 			.count		= wsize,
- 		},
- 		.res		= {
--			.fattr		= &wdata.fattr,
--			.verf		= &wdata.verf,
-+			.fattr		= &wdata->fattr,
-+			.verf		= &wdata->verf,
- 		},
- 	};
- 
-@@ -205,22 +211,22 @@ static int nfs_writepage_sync(struct fil
- 	nfs_begin_data_update(inode);
- 	do {
- 		if (count < wsize)
--			wdata.args.count = count;
--		wdata.args.offset = page_offset(page) + wdata.args.pgbase;
-+			wdata->args.count = count;
-+		wdata->args.offset = page_offset(page) + wdata->args.pgbase;
- 
--		result = NFS_PROTO(inode)->write(&wdata, file);
-+		result = NFS_PROTO(inode)->write(wdata, file);
- 
- 		if (result < 0) {
- 			/* Must mark the page invalid after I/O error */
- 			ClearPageUptodate(page);
- 			goto io_error;
- 		}
--		if (result < wdata.args.count)
-+		if (result < wdata->args.count)
- 			printk(KERN_WARNING "NFS: short write, count=%u, result=%d\n",
--					wdata.args.count, result);
-+					wdata->args.count, result);
- 
--		wdata.args.offset += result;
--	        wdata.args.pgbase += result;
-+		wdata->args.offset += result;
-+	        wdata->args.pgbase += result;
- 		written += result;
- 		count -= result;
- 	} while (count);
-@@ -234,9 +240,10 @@ static int nfs_writepage_sync(struct fil
- 
- io_error:
- 	nfs_end_data_update_defer(inode);
--	if (wdata.cred)
--		put_rpccred(wdata.cred);
-+	if (wdata->cred)
-+		put_rpccred(wdata->cred);
- 
-+	kfree(wdata);
- 	return written ? written : result;
- }
- 
-
-_
-
+or something like that
+-- 
+How can I live my life if I can't tell good from evil? - Fry

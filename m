@@ -1,147 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbULERSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbULERWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbULERSC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 12:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbULERPM
+	id S261363AbULERWV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 12:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbULERUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 12:15:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15115 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261338AbULERKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 12:10:50 -0500
-Date: Sun, 5 Dec 2004 18:10:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] char/pcmcia/synclink_cs.: make some functions static
-Message-ID: <20041205171047.GW2953@stusta.de>
-References: <20041205170944.GV2953@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041205170944.GV2953@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 5 Dec 2004 12:20:53 -0500
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:34696
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S261323AbULERJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 12:09:34 -0500
+Message-ID: <41B3410E.7050000@freemail.hu>
+Date: Sun, 05 Dec 2004 18:10:38 +0100
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; hu; rv:1.7.3) Gecko/20041020
+X-Accept-Language: hu, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: CD-ROM problem on x86-64
+References: <41A84875.2030505@freemail.hu> <20041129175851.0b7ed213.akpm@osdl.org> <41B33B4A.5040104@freemail.hu>
+In-Reply-To: <41B33B4A.5040104@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ first mail included the wrong patch ]
+Zoltan Boszormenyi írta:
+> I created /mnt/cdrom and
+> tried mounting /dev/hdc there (as root) but the mount hung...
 
-The patch below makes some needlessly global functions static.
+With this I meant the machine is up and running but the mount process
+is in D state and stays there. dmesg does not show anything about it.
 
+And there is something else. When I log into GNOME, nautilus doesn't
+come up immediately in neither X as before. After some minutes which
+may be a timeout (or several timeouts) they come up with the chosen
+background image and their icons. I say 'they' because with the
+linuxconsole.sf.net patch it's possible to use several videocards,
+keyboards and mice for different X consoles, and I logged in on both
+consoles.
 
-diffstat output:
- drivers/char/pcmcia/synclink_cs.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/drivers/char/pcmcia/synclink_cs.c.old	2004-11-07 00:36:23.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/char/pcmcia/synclink_cs.c	2004-11-07 00:39:15.000000000 +0100
-@@ -923,7 +923,7 @@
- /* Return next bottom half action to perform.
-  * or 0 if nothing to do.
-  */
--int bh_action(MGSLPC_INFO *info)
-+static int bh_action(MGSLPC_INFO *info)
- {
- 	unsigned long flags;
- 	int rc = 0;
-@@ -1017,7 +1017,7 @@
- }
- 
- /* eom: non-zero = end of frame */ 
--void rx_ready_hdlc(MGSLPC_INFO *info, int eom) 
-+static void rx_ready_hdlc(MGSLPC_INFO *info, int eom) 
- {
- 	unsigned char data[2];
- 	unsigned char fifo_count, read_count, i;
-@@ -1079,7 +1079,7 @@
- 	issue_command(info, CHA, CMD_RXFIFO);
- }
- 
--void rx_ready_async(MGSLPC_INFO *info, int tcd) 
-+static void rx_ready_async(MGSLPC_INFO *info, int tcd) 
- {
- 	unsigned char data, status;
- 	int fifo_count;
-@@ -1153,7 +1153,7 @@
- }
- 
- 
--void tx_done(MGSLPC_INFO *info) 
-+static void tx_done(MGSLPC_INFO *info) 
- {
- 	if (!info->tx_active)
- 		return;
-@@ -1190,7 +1190,7 @@
- 	}
- }
- 
--void tx_ready(MGSLPC_INFO *info) 
-+static void tx_ready(MGSLPC_INFO *info) 
- {
- 	unsigned char fifo_count = 32;
- 	int c;
-@@ -1239,7 +1239,7 @@
- 	}
- }
- 
--void cts_change(MGSLPC_INFO *info) 
-+static void cts_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->cts_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1276,7 +1276,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void dcd_change(MGSLPC_INFO *info) 
-+static void dcd_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->dcd_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1310,7 +1310,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void dsr_change(MGSLPC_INFO *info) 
-+static void dsr_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->dsr_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -1325,7 +1325,7 @@
- 	info->pending_bh |= BH_STATUS;
- }
- 
--void ri_change(MGSLPC_INFO *info) 
-+static void ri_change(MGSLPC_INFO *info) 
- {
- 	get_signals(info);
- 	if ((info->ri_chkcount)++ >= IO_PIN_SHUTDOWN_LIMIT)
-@@ -2955,7 +2955,7 @@
- 
- /* Called to print information about devices
-  */
--int mgslpc_read_proc(char *page, char **start, off_t off, int count,
-+static int mgslpc_read_proc(char *page, char **start, off_t off, int count,
- 		 int *eof, void *data)
- {
- 	int len = 0, l;
-@@ -3212,7 +3212,7 @@
- module_init(synclink_cs_init);
- module_exit(synclink_cs_exit);
- 
--void mgslpc_set_rate(MGSLPC_INFO *info, unsigned char channel, unsigned int rate) 
-+static void mgslpc_set_rate(MGSLPC_INFO *info, unsigned char channel, unsigned int rate) 
- {
- 	unsigned int M, N;
- 	unsigned char val;
-@@ -3248,7 +3248,7 @@
- 
- /* Enabled the AUX clock output at the specified frequency.
-  */
--void enable_auxclk(MGSLPC_INFO *info)
-+static void enable_auxclk(MGSLPC_INFO *info)
- {
- 	unsigned char val;
- 	
+Best regards,
+Zoltán Böszörményi

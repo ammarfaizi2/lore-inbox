@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSF1TDv>; Fri, 28 Jun 2002 15:03:51 -0400
+	id <S317114AbSF1TE2>; Fri, 28 Jun 2002 15:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317114AbSF1TDu>; Fri, 28 Jun 2002 15:03:50 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:34094 "EHLO tsmtp8.mail.isp")
-	by vger.kernel.org with ESMTP id <S317102AbSF1TDu>;
-	Fri, 28 Jun 2002 15:03:50 -0400
-Date: Fri, 28 Jun 2002 21:08:16 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Cc: linux-kernel@vger.kernel.org, martin@daleki.de
-Subject: Re: [BUG] IDE error in (un)stable trees
-Message-Id: <20020628210816.15f281bd.diegocg@teleline.es>
-In-Reply-To: <3D1C3856.3020000@inet6.fr>
-References: <20020627212843.3439f49e.diegocg@teleline.es>
-	<3D1C3856.3020000@inet6.fr>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S317142AbSF1TE0>; Fri, 28 Jun 2002 15:04:26 -0400
+Received: from mailhost.cs.clemson.edu ([130.127.48.6]:53651 "EHLO
+	cs.clemson.edu") by vger.kernel.org with ESMTP id <S317114AbSF1TEY>;
+	Fri, 28 Jun 2002 15:04:24 -0400
+Date: Fri, 28 Jun 2002 15:06:42 -0400 (EDT)
+From: Bendi Vinaya Kumar <vbendi@cs.clemson.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Skbuff Trimming
+In-Reply-To: <p73k7okm7d1.fsf@oldwotan.suse.de>
+Message-ID: <Pine.GSO.4.44.0206281432170.8345-100000@noisy.cs.clemson.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jun 2002 12:20:06 +0200
-Lionel Bouton <Lionel.Bouton@inet6.fr> escribió:
 
-> 2/ timings might be messed up because of the FSB used (75MHz instead
-> of 66MHz) on your configuration.
-> 
-> If you can, underclock your mainboard to 66MHz and see what happens.
-> If it solves your problem, then dynamically computing timings from the
-> FSB (in my TODO list but behind ATA133 support) will eventually solve
-> your problem. Until then you could modify the timings by hand (I could
-> provide you a patch for your specific configuration).
+On 28 Jun 2002, Andi Kleen wrote:
 
-My mainboard supports 75 mhz of FSB, but strangely, the system can't
-boot. The bios stops just before printing the message that says that a
-cdrom has been detected. So I'm using 66 mhz FSB.
+> Bendi Vinaya Kumar <vbendi@cs.clemson.edu> writes:
+>
+> > But, it does not do the same on
+> > "frag_list". Why?
+>
+> frag_list is not a general purpose skbuff facility and is not used by
+> most protocols and not directly supported by most of skbuff.c It is just
+> supported by some specific paths to enable lazy defragmenting. It is not
+> an attempt to turn skbuffs into mbufs.
+>
+> -Andi
 
+I agree with you. I couldn't find a
+case when it (frag_list) is used.
 
-Diego Calleja
+Function
+
+ip_rcv
+(http://lxr.linux.no/source/net/ipv4/ip_input.c#L383)
+
+uses two functions, namely,
+
+1) pskb_may_pull, which might
+   result in a call to __pskb_pull_tail
+
+and 2) __pskb_trim, which might
+       result in a call to ___pskb_trim.
+
+Function __pskb_pull_tail
+operates on data in both frags
+array and frag_list. As mentioned
+earlier, ___pskb_trim doesn't operate
+on frag_list. Since these two functions
+are called from ip_rcv, they must be
+operating on the same sk buff. One function
+handles frag_list, the other doesn't.
+
+Isn't there an inconsistency in treatment here,
+even though frag_list is not commonly used
+in practice?
+
+Thank you.
+
+Regards,
+Vinaya Kumar Bendi
+P.S.: Kindly CC any answers/comments
+      to vbendi@cs.clemson.edu.
+

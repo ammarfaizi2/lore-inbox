@@ -1,59 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVAHN1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAHN2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVAHN1X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVAHN1X
+	id S261165AbVAHN2o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAHN2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:27:23 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:3030 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261168AbVAHNZo (ORCPT
+	Sat, 8 Jan 2005 08:28:44 -0500
+Received: from gprs215-164.eurotel.cz ([160.218.215.164]:63360 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261165AbVAHN1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:25:44 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] s/driverfs/sysfs/ in include/linux/cpu.h and net/sunrpc/rpc_pipe.c
-Date: Fri, 7 Jan 2005 13:58:49 +0100
-User-Agent: KMail/1.7.2
-References: <200501071349.08553.eike-kernel@sf-tec.de>
-In-Reply-To: <200501071349.08553.eike-kernel@sf-tec.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Jan 2005 08:27:35 -0500
+Date: Sat, 8 Jan 2005 14:27:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>, David Shaohua <shaohua.li@intel.com>
+Subject: Re: Patch 3/3: Reduce number of get_cmos_time_calls.
+Message-ID: <20050108132718.GD7363@elf.ucw.cz>
+References: <1105176732.5478.20.camel@desktop.cunninghams> <1105177308.5478.43.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501071358.51205.eike-kernel@sf-tec.de>
+In-Reply-To: <1105177308.5478.43.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-here is another rename of driverfs to sysfs. It looks like there are some 
-more. I will not fix them all, someone should use "grep -ri drivers *" to 
-find and fix some more.
+> Create new __get_cmos_time patch, which doesn't wait for the start of a
+> new second before returning. Adjust timer_suspend to use this as we
+> don't appear to need the exact start of a second when suspending.
 
-Eike
+Basically nice cleanup. I do not know if this does not mean up-to
+second error in clock for each suspend/resume?
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> --- 913-old/arch/x86_64/kernel/time.c	2004-12-10 14:27:08.000000000 +1100
+> +++ 913-new/arch/x86_64/kernel/time.c	2005-01-08 19:39:24.664278320 +1100
+> @@ -499,11 +499,56 @@ unsigned long long sched_clock(void)
+>  	return cycles_2_ns(a);
+>  }
+>  
+> +unsigned long __get_cmos_time(void)
+> +{
 
---- linux-2.6.10/include/linux/cpu.h	2005-01-01 17:55:38.000000000 +0100
-+++ linux-2.6.10/include/linux/cpu.h.fixed	2005-01-07 13:55:36.167681848 +0100
-@@ -8,7 +8,7 @@
-  * Basic handling of the devices is done in drivers/base/cpu.c
-  * and system devices are handled in drivers/base/sys.c. 
-  *
-- * CPUs are exported via driverfs in the class/cpu/devices/
-+ * CPUs are exported via sysfs in the class/cpu/devices/
-  * directory. 
-  *
-  * Per-cpu interfaces can be implemented using a struct device_interface. 
---- linux-2.6.10/net/sunrpc/rpc_pipe.c	2005-01-01 17:55:50.000000000 +0100
-+++ linux-2.6.10/net/sunrpc/rpc_pipe.c.fixed	2005-01-07 14:01:05.373634936 +0100
-@@ -3,7 +3,7 @@
-  *
-  * Userland/kernel interface for rpcauth_gss.
-  * Code shamelessly plagiarized from fs/nfsd/nfsctl.c
-- * and fs/driverfs/inode.c
-+ * and fs/sysfs/inode.c
-  *
-  * Copyright (c) 2002, Trond Myklebust <trond.myklebust@fys.uio.no>
-  *
+Missing static?
+
+> +
+> +	/*
+> +	 * Do we need the spinlock in here too?
+> +	 *
+> +	 * If we're called directly (not via get_cmos_time),
+> +	 * we're in the middle of a sysdev suspend/resume
+> +	 * and interrupts are disabled, so this 
+> +	 * should be safe without any locking.
+> +	 * 				-- NC
+> +	 */
+
+I'd say "Caller is responsible for locking"... and explain this in
+caller. Also do not sign comments.
+
+> +	do {
+> +		sec = CMOS_READ(RTC_SECONDS);
+> +		min = CMOS_READ(RTC_MINUTES);
+> +		hour = CMOS_READ(RTC_HOURS);
+> +		day = CMOS_READ(RTC_DAY_OF_MONTH);
+> +		mon = CMOS_READ(RTC_MONTH);
+> +		year = CMOS_READ(RTC_YEAR);
+> +	} while (sec != CMOS_READ(RTC_SECONDS));
+> +
+> +	/*
+> +	 * We know that x86-64 always uses BCD format, no need to check the config
+> +	 * register.
+> +	 */
+> +
+> +	    BCD_TO_BIN(sec);
+> +	    BCD_TO_BIN(min);
+> +	    BCD_TO_BIN(hour);
+> +	    BCD_TO_BIN(day);
+> +	    BCD_TO_BIN(mon);
+> +	    BCD_TO_BIN(year);
+
+Whitespace damage?
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

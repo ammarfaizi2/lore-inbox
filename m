@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271022AbUJUWDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271010AbUJUWDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271022AbUJUWDx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 18:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271019AbUJUWBs
+	id S271010AbUJUWDy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 18:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271009AbUJUWBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 18:01:48 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:9953 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S270998AbUJUV5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:57:24 -0400
-Subject: Re: Proposal: Desktop kernel bk tree/patchset.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041021214142.GA14250@kroah.com>
-References: <1098344977.4146.21.camel@desktop.cunninghams>
-	 <20041021161710.GA10561@kroah.com>
-	 <1098393829.4146.38.camel@desktop.cunninghams>
-	 <20041021214142.GA14250@kroah.com>
-Content-Type: text/plain
-Message-Id: <1098395480.4146.53.camel@desktop.cunninghams>
+	Thu, 21 Oct 2004 18:01:18 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:54980 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S271006AbUJUWAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:00:40 -0400
+Date: Thu, 21 Oct 2004 15:00:37 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RESEND][PATCH 2.6.9] ppc32: Fix building for Motorola Sandpoint with O=
+Message-ID: <20041021220036.GB1532@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 22 Oct 2004 07:51:21 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+[ Resend since I still don't see it, Andrew can you pick this up please?
+Thanks ]
 
-On Fri, 2004-10-22 at 07:41, Greg KH wrote:
-> Then why stop at USB?  Why not pci, i2c and driver core bk pulls too?
-> Continue down that path and you've duplicated the -mm tree :)
+Since we directly -include $(clear_L2_L3) when needed, we need to point
+to the full path of it.
 
-I was only thinking of USB because that's one of the areas at the
-forefront of my mind at the moment: USB support doesn't work well with
-suspending to disk yet.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-That said, you're right, I should probably look at the others too. Don't
-want to duplicate -mm though!
+--- 1.34/arch/ppc/boot/simple/Makefile	2004-10-05 23:05:22 -07:00
++++ edited/arch/ppc/boot/simple/Makefile	2004-10-19 09:32:39 -07:00
+@@ -41,7 +41,7 @@
+ # if present on 'classic' PPC.
+ cacheflag-y	:= -DCLEAR_CACHES=""
+ # This file will flush / disable the L2, and L3 if present.
+-clear_L2_L3	:= $(boot)/simple/clear.S
++clear_L2_L3	:= $(srctree)/$(boot)/simple/clear.S
+ 
+ #
+ # See arch/ppc/kconfig and arch/ppc/platforms/Kconfig
 
-It's only a proposal :>
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
-
+Tom Rini
+http://gate.crashing.org/~trini/

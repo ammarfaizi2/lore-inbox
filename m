@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQKAHmn>; Wed, 1 Nov 2000 02:42:43 -0500
+	id <S129234AbQKAIV0>; Wed, 1 Nov 2000 03:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbQKAHmd>; Wed, 1 Nov 2000 02:42:33 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:57099 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129026AbQKAHmU>; Wed, 1 Nov 2000 02:42:20 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129119AbQKAIVR>; Wed, 1 Nov 2000 03:21:17 -0500
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:38895 "EHLO
+	vaio.greennet") by vger.kernel.org with ESMTP id <S129069AbQKAIVC>;
+	Wed, 1 Nov 2000 03:21:02 -0500
+Date: Wed, 1 Nov 2000 03:23:38 -0500 (EST)
+From: Donald Becker <becker@scyld.com>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, pavel rabel <pavel@web.sajt.cz>,
+        linux-net@vger.kernel.org, netdev@oss.sgi.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] NE2000
+In-Reply-To: <39FFAA94.4D389E85@yahoo.com>
+Message-ID: <Pine.LNX.4.10.10011010315070.11540-100000@vaio.greennet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14847.51541.625121.78324@wire.cadcamlab.org>
-Date: Wed, 1 Nov 2000 01:42:13 -0600 (CST)
-To: Vladislav Malyshkin <mal@gromco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <39FEF039.69FAFDB2@gromco.com>
-	<14846.63285.212616.574188@wire.cadcamlab.org>
-	<39FF0A71.FE05FAEB@gromco.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Nov 2000, Paul Gortmaker wrote:
 
-[Vladislav Malyshkin <mal@gromco.com>]
-> Also, the function remove_duplicates can be written using make rules
-> and functions.  Using functions "foreach" "if" from make and
-> comparison you can easily build a function remove_duplicates in make,
-> no shell involved.
+> Jeff Garzik wrote:
+> > Paul Gortmaker wrote:
+> > > There is no urgency in trying to squeeze a patch like this in the back
+> > > door of a 2.4.0 release.  For example, there are people out there now
+> > > who are using the ne.c driver to run both ISA and PCI cards in the same
+> > > box without having to use 2 different drivers.  We can wait until 2.5.0
+> > > to break their .config file.
+> > 
+> > IMNSHO this is a bug, though...
+..
+> If you want to roll it into the merge (and can get it past Linus) then
+> please feel free to do so - I'll be glad to cross it off my list sooner
+> as opposed to later.
 
-Could you please write me this function?  I am curious to see how you
-do it.
+If the ne* drivers are going to be updated, you might want to add in the
+full-duplex support of the latest ne2k-pci.c driver at
+    ftp://www.scyld.com/pub/network/ne2k-pci.c
 
-I am also a bit skeptical.  About 3 months ago, I thought it would be
-possible to do this, so I spent a few hours fiddling around and reading
-documentation.  I failed; nothing I tried worked.
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 
-> so instead of $(sort) your will have $(remove_duplicates) written
-> entirely in make.
-
-That would make me happy.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

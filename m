@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262682AbRFBUCG>; Sat, 2 Jun 2001 16:02:06 -0400
+	id <S262689AbRFBU0V>; Sat, 2 Jun 2001 16:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262684AbRFBUB4>; Sat, 2 Jun 2001 16:01:56 -0400
-Received: from line93.ba.psg.sk ([195.80.179.93]:42112 "HELO ivan.doma")
-	by vger.kernel.org with SMTP id <S262682AbRFBUBq>;
-	Sat, 2 Jun 2001 16:01:46 -0400
-Date: Sat, 2 Jun 2001 22:02:19 +0200
-From: Ivan <pivo@pobox.sk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PID of init != 1 when initrd with pivot_root
-Message-ID: <20010602220219.A1091@ivan.doma>
-In-Reply-To: <20010601040627.A1335@ivan.doma>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010601040627.A1335@ivan.doma>; from pivo@pobox.sk on Fri, Jun 01, 2001 at 04:06:27AM +0200
+	id <S262692AbRFBU0L>; Sat, 2 Jun 2001 16:26:11 -0400
+Received: from host213-123-127-165.btopenworld.com ([213.123.127.165]:51724
+	"EHLO argo.dyndns.org") by vger.kernel.org with ESMTP
+	id <S262689AbRFBU0B>; Sat, 2 Jun 2001 16:26:01 -0400
+X-test: X
+To: John Cavan <johnc@damncats.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+From: lk@mailandnews.com
+Subject: Re: CUV4X-D lockup on boot
+In-Reply-To: <E156E44-0001sS-00@the-village.bc.nu> <3B193BE0.4B15ACEC@damncats.org>
+Date: 02 Jun 2001 21:25:58 +0100
+In-Reply-To: John Cavan's message of "Sat, 02 Jun 2001 15:17:52 -0400"
+Message-ID: <m3snhipr1l.fsf@fork.man2.dom>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well, I upgraded and found pivot_root and the problem is that how do I make init
-> > run with PID 1. My linuxrc gets PID 7.
-> > 
-> >     1 ?        00:03:05 swapper
-> >     2 ?        00:00:00 keventd
-> >     3 ?        00:00:00 kswapd
-> >     4 ?        00:00:00 kreclaimd
-> >     5 ?        00:00:00 bdflush
-> >     6 ?        00:00:00 kupdated
-> >     7 ?        00:00:00 linuxrc
-> > 
-> > init doesn't like running with any other PID than 1. I could probably revert to
-> > the not so old way of doing things and exit linuxrc and let the kernel change
-> > root. But then I wouldn't be able to mount root over samba :-(. ( not that I
-> > have any samba shares :-)
->
-> This is this way for backwards bug compatibility.  Use the following
-> command line options to make it behave properly:
->
->         ram=/dev/ram0 init=/linuxrc
+John Cavan <johnc@damncats.org> writes:
 
-That's what I did, almost. I think you meant root=/dev/rd/0 init=/linuxrc ( with
-devfs) though init parameter is made redundant by the new "root change
-mechanism" pivot_root.
+> Alan Cox wrote:
+> > At minimum you need the 1007 bios and to run noapic. As yet we don't know why
+> > or what the newer BIOS has done to make it boot at all
+> 
+> Actually, I'm running this board with MPS 1.1, BIOS version 1007, and
+> APIC enabled without problem. Current kernel is 2.4.5-ac5, no lockups,
+> no boot failures, full access to my USB, etc.
+> 
+> With the older BIOS revision, you definitely need to have "noapic" as an
+> option. For the latest BIOS, just ensure that you set MPS 1.4 support
+> off.
 
-But the problem still remains. How do I make my /sbin/init run with PID 1 using
-initial ramdisk under the new root change mechanism? I don't want to use the old
-change_root mechanism since the Documentation/initrd.txt says:
+Indeed, disabling MPS 1.4 does appear to solve the problem. Incidentally,
+I also had to enable legacy USB support always (instead of Auto) to
+allow my usb camera to work whilst in SMP mode. Is MPS 1.4 worth
+having and the problem worth solving, or should I stick with this?
 
-Obsolete root change mechanism
-------------------------------
-
-The following mechanism was used before the introduction of pivot_root.
-Current kernels still support it, but you should _not_ rely on its
-continued availability.
-...
-This old, deprecated mechanism is commonly called "change_root", while
-the new, supported mechanism is called "pivot_root".
-
---
-Ivan Vadovic
+Paul

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130765AbRBVS1T>; Thu, 22 Feb 2001 13:27:19 -0500
+	id <S130099AbRBVSwG>; Thu, 22 Feb 2001 13:52:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130843AbRBVS1J>; Thu, 22 Feb 2001 13:27:09 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:29446 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130677AbRBVS1E>; Thu, 22 Feb 2001 13:27:04 -0500
-Date: Thu, 22 Feb 2001 13:28:16 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Tim Wright <timw@splhi.com>
-cc: Pavel Machek <pavel@suse.cz>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Wrong data [was Re: Incorrect module init message..]
-In-Reply-To: <20010222100132.A1744@kochanski.internal.splhi.com>
-Message-ID: <Pine.LNX.4.33.0102221325530.2548-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S130211AbRBVSv4>; Thu, 22 Feb 2001 13:51:56 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:13061 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S130099AbRBVSvr>;
+	Thu, 22 Feb 2001 13:51:47 -0500
+Message-ID: <3A9556A7.D052D8A6@cup.hp.com>
+Date: Thu, 22 Feb 2001 10:12:55 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nye Liu <nyet@curtis.curtisfong.org>, linux-kernel@vger.kernel.org
+Subject: Re: Very high bandwith packet based interface and performance problems
+In-Reply-To: <E14Vsrg-0003pw-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Tim Wright wrote:
+Alan Cox wrote:
+> 
+> > > TCP _requires_ the remote end ack every 2nd frame regardless of progress.
+> >
+> > um, I thought the spec says that ACK every 2nd segment is a SHOULD not a
+> > MUST?
+> 
+> Yes its a SHOULD in RFC1122, but in any normal environment pretty much a
+> must and I know of no stack significantly violating it.
 
->Date: Thu, 22 Feb 2001 10:01:32 -0800
->From: Tim Wright <timw@splhi.com>
->To: Mike A. Harris <mharris@opensourceadvocate.org>
->Cc: Pavel Machek <pavel@suse.cz>,
->     Linux Kernel mailing list <linux-kernel@vger.kernel.org>
->Content-Type: text/plain; charset=us-ascii
->Subject: Wrong data [was Re: Incorrect module init message..]
->
->There's nothing wrong with the mailing list. Pavel, please set your clock
->correctly :-)
+I didn't know there was such a thing as a normal environment :)
 
-No, Pavel's clock is fine AFAIK.  The message was sent in
-January.  However, it was just received AGAIN today.  I don't
-have a clue how it could have happened, but my guess was perhaps
-vger was restored from a backup or something and the mail queue
-was ancient.
+> RFC1122 also requires that your protocol stack SHOULD be able to leap tall
+> buldings at a single bound of course...
 
-Also, my duplicate filter is still nailing lots of postings from
-lkml, so some looping must still be happening as I'm only sub'd
-under this address.
+And, of course my protocol stack does :) It is also a floor wax, AND a
+dessert topping!-)
 
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-Press every key to continue.
-
+rick jones
+-- 
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...

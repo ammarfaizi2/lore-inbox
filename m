@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTKTNIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 08:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTKTNHS
+	id S261724AbTKTNEu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 08:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTKTNEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 08:07:18 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19942 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261774AbTKTNHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 08:07:08 -0500
-Date: Thu, 20 Nov 2003 13:52:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>, Adrian Bunk <bunk@fs.tum.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
-Message-ID: <20031120125228.GC432@openzaurus.ucw.cz>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com>
+	Thu, 20 Nov 2003 08:04:50 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:49930 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261724AbTKTNEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 08:04:50 -0500
+Date: Thu, 20 Nov 2003 13:04:32 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <aradorlinux@yahoo.es>
+Cc: Nick Piggin <piggin@cyberone.com.au>, wli@holomorphy.com,
+       jgarzik@pobox.com, jt@hpl.hp.com, linux-kernel@vger.kernel.org,
+       pof@users.sourceforge.net
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120130432.A30975@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?Diego_Calleja_Garc=EDa?= <aradorlinux@yahoo.es>,
+	Nick Piggin <piggin@cyberone.com.au>, wli@holomorphy.com,
+	jgarzik@pobox.com, jt@hpl.hp.com, linux-kernel@vger.kernel.org,
+	pof@users.sourceforge.net
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC402E.6070109@cyberone.com.au> <20031120043848.GG19856@holomorphy.com> <3FBC4A42.8010806@cyberone.com.au> <20031120134121.02e11aff.aradorlinux@yahoo.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031119232651.GA22676@kroah.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031120134121.02e11aff.aradorlinux@yahoo.es>; from aradorlinux@yahoo.es on Thu, Nov 20, 2003 at 01:41:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Nov 20, 2003 at 01:41:21PM +0100, Diego Calleja García wrote:
+> "windows driver model" abi which doesn't change even between W9x and nt)
 
-> > > Hm, with the 006 release, what do you find lacking in udev?
-> > > 
-> > 
-> > I am guessing its more driver support, etc.  Input devices for
-> > instance do not seem to have any sysfs support yet,
-> 
-> Yes, we do need better driver support.  But that's nothing that udev
-> itself can do :)
-> 
-> I have a number of patches pending for 2.6.1 that will add more driver
-> support for sysfs.
-> 
-What drivers did you convert? sysfs-for-inputs would
-be *very* welcome.
-
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+that's what microsoft PR says.  in fact it's rather difficult to have a driver
+working on win9x and nt without very ugly hacks.  And for some driver classes
+it doesn't work at all.
 

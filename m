@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280947AbRLDA4f>; Mon, 3 Dec 2001 19:56:35 -0500
+	id <S284495AbRLDAVD>; Mon, 3 Dec 2001 19:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282171AbRLDAz5>; Mon, 3 Dec 2001 19:55:57 -0500
-Received: from zok.sgi.com ([204.94.215.101]:14296 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S284570AbRLDAxJ>;
-	Mon, 3 Dec 2001 19:53:09 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Dave Jones <davej@suse.de>
-Cc: esr@thyrsus.com, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
-In-Reply-To: Your message of "Tue, 04 Dec 2001 01:22:52 BST."
-             <Pine.LNX.4.33.0112040118210.3228-100000@Appserv.suse.de> 
+	id <S284406AbRLDAQS>; Mon, 3 Dec 2001 19:16:18 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:59520 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S285324AbRLCWvQ>;
+	Mon, 3 Dec 2001 17:51:16 -0500
+Date: Mon, 3 Dec 2001 21:10:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rune Petersen <rune.mail-list@mail.tele.dk>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI+HP omnibook -- freeze until power is pressed?
+Message-ID: <20011203211020.B248@elf.ucw.cz>
+In-Reply-To: <20011202121922.A2356@elf.ucw.cz> <000b01c17bbe$a8bdd3a0$0b00a8c0@runner>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 04 Dec 2001 11:52:58 +1100
-Message-ID: <20012.1007427178@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <000b01c17bbe$a8bdd3a0$0b00a8c0@runner>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001 01:22:52 +0100 (CET), 
-Dave Jones <davej@suse.de> wrote:
->Do you plan to fix the x2 slowdown before removing kbuild 2.4 ?
->Or is this something that will be worked on as we progress through 2.5.
+Hi!
 
-It will be worked on during 2.5.  I don't have time to rewrite the core
-code _and_ track kernel releases for two kernel trees and 4
-architectures at the same time.  Putting kbuild 2.5 into the kernel
-frees me to work on the speed up, otherwise it may never get done.
+> I've experiensed something with my laptop (Uniwill):
+> It sometimes locks up when I've booted up, and the powerbutton sometimes
+> help, other times it just powers off.
+> it has happend for me since kernel 2.4.3, but since by laptop is buggy I
+> thought it something wrong with it. seams I was wrong..
 
+Do you use ACPI?
+								Pavel
+-- 
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317617AbSFIOip>; Sun, 9 Jun 2002 10:38:45 -0400
+	id <S317616AbSFIOjM>; Sun, 9 Jun 2002 10:39:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317618AbSFIOio>; Sun, 9 Jun 2002 10:38:44 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:5105 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S317616AbSFIOim>; Sun, 9 Jun 2002 10:38:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-kernel@vger.kernel.org
-Subject: r128.o unresolved symbol vmalloc_32
-Date: Sun, 9 Jun 2002 16:38:34 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S317611AbSFIOjL>; Sun, 9 Jun 2002 10:39:11 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:62733 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317616AbSFIOjF>; Sun, 9 Jun 2002 10:39:05 -0400
+Message-ID: <3D035ACA.2070309@evision-ventures.com>
+Date: Sun, 09 Jun 2002 15:40:26 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17H3pz-0006PB-00@baldrick>
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+CC: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: comments on adding slist.h
+In-Reply-To: <Pine.GSO.4.05.10206091405450.16324-100000@mausmaki.cosy.sbg.ac.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.5.21:
+Thomas 'Dent' Mirlacher wrote:
+> since we've already list.h, what about adding slist.h for
+> single linked lists?
+> 
+> single linked list are often used within the kernel,
+> specifically slist_for_each() could be useful, since we can use
+> prefetch() there.  (slist_for_each could be used 42 times alone net/core)
+> 
+> any comments, (like, single linked lists are so trivial, there is no
+> need for a header file. or, the programmer has to take care of using
+> prefetch() when traversing single linked lists ...) are welcome.
+> 
+> thanks,
+> 	tm
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /usr/src/linux-2.5.21/debian/tmp-image -r 2.5.21; fi
-depmod: *** Unresolved symbols in /usr/src/linux-2.5.21/debian/tmp-image/lib/modules/2.5.21/kernel/drivers/char/drm/r128.o
-depmod:         vmalloc_32
-make[2]: *** [_modinst_post] Error 1
+
+Just do it plese. It has been long overdue.
+

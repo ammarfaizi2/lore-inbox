@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUHEWMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268007AbUHEWXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268014AbUHEWMB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUHEWKj
+	id S268007AbUHEWXF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUHEWUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:10:39 -0400
-Received: from hostmaster.org ([212.186.110.32]:63632 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S267906AbUHEWKR (ORCPT
+	Thu, 5 Aug 2004 18:20:02 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:40162 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S268006AbUHEWPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:10:17 -0400
-Subject: linux-2.6.8-rc2 seems to break grub-0.95
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org, bug-grub@gnu.org
+	Thu, 5 Aug 2004 18:15:04 -0400
+Subject: Re: What PM should be and do (Was Re: Solving suspend-level
+	confusion)
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Greg KH <greg@kroah.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <20040805181925.GB30543@kroah.com>
+References: <20040730164413.GB4672@elf.ucw.cz>
+	 <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston>
+	 <200408032030.41410.david-b@pacbell.net>
+	 <1091594872.3191.71.camel@laptop.cunninghams>
+	 <20040805181925.GB30543@kroah.com>
 Content-Type: text/plain
-Date: Fri, 06 Aug 2004 00:10:14 +0200
-Message-Id: <1091743814.2333.20.camel@realborg.geizhals.at>
+Message-Id: <1091744073.2597.15.camel@laptop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 06 Aug 2004 08:14:34 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-after compiling and installing linux 2.6.8-rc3 my workstation refused to
-boot the new kernel.
+On Fri, 2004-08-06 at 04:19, Greg KH wrote:
+> On Wed, Aug 04, 2004 at 02:47:52PM +1000, Nigel Cunningham wrote:
+> > - support for telling what class of device a driver is handling (I'm
+> > particularly interested in keeping the keyboard, screen and storage
+> > devices alive while suspending).
+> 
+> You can see that info today from userspace by looking in
+> /sys/class/input, /sys/class/graphics, and /sys/block
 
-Trying to reinstall grub (setup hd0) only made things worse in that it
-hanged in "loading stage2..".
+Does this apply to all devices, and how do I tell it 'programmatically'?
+Ie, is the class an element in a struct somewhere?
 
-Even from floppy I could not boot the new kernel and things got even
-worse after reinstalling the files in /boot/grub in that in hanged after
-the message "GRUB".
+Regards,
 
-I finally figured out that these problem must be related to the kernel
-and after booting linux 2.6.7 and reinstalling the files in /boot/grub
-followed by the boot loader everything seems to be working fine again.
-
-Tom
-
-PS: My config is a software RAID 1 with reiserfs on /dev/hda2
-and /dev/hdc2
+Nigel
 

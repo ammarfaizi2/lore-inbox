@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSFEKfx>; Wed, 5 Jun 2002 06:35:53 -0400
+	id <S315245AbSFEKm6>; Wed, 5 Jun 2002 06:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSFEKfx>; Wed, 5 Jun 2002 06:35:53 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:17156 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S314835AbSFEKfv>; Wed, 5 Jun 2002 06:35:51 -0400
-Message-ID: <3CFDEA79.2980BF8D@zip.com.au>
-Date: Wed, 05 Jun 2002 03:39:53 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S315239AbSFEKm5>; Wed, 5 Jun 2002 06:42:57 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:18963 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315168AbSFEKm5>; Wed, 5 Jun 2002 06:42:57 -0400
+Message-ID: <3CFDDD77.30207@evision-ventures.com>
+Date: Wed, 05 Jun 2002 11:44:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: Andreas Dilger <adilger@clusterfs.com>,
-        lkml <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@zip.com.au>
+CC: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [rfc] "laptop mode"
-In-Reply-To: <3CFD50B9.259366F4@zip.com.au> <1023272806.15438.106.camel@bip>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3CFD453A.B6A43522@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
-> 
-> Le mer 05/06/2002 à 01:43, Andrew Morton a écrit :
-> 
-> > Also, it has been suggested that the feature become more fully-fleshed,
-> > to support desktops with one disk spun down, etc.  It's not really
-> > rocket science to do that - the `struct backing_dev_info' gives
-> > a specific communication channel between the high-level VFS code and
-> > the request queue.  But that would require significantly more surgery
-> > against the writeback code, so I'm fishing for requirements here.  If
-> > the current (simple) patch is sufficient then, well, it is sufficient.
-> 
-> Have per-disk laptop-mode, so that some user-mode proggy (e.g. hotplug)
-> could decide what to do.
+Andrew Morton wrote:
 
-But why?
+> 
+> laptop_mode
 
--
+Great idea!.
+
+> 
+> This implementation doesn't try to be very smart - there's a direct
+> ca
+> --- 2.5.20/drivers/ide/ide.c~laptop-mode	Tue Jun  4 15:27:54 2002
+> +++ 2.5.20-akpm/drivers/ide/ide.c	Tue Jun  4 15:27:54 2002
+> @@ -1043,6 +1043,7 @@ static void do_request(struct ata_channe
+>  
+>  void do_ide_request(request_queue_t *q)
+>  {
+> +	disk_spun_up();
+>  	do_request(q->queuedata);
+>  }
+
+Hugh? Perhaps moving this down to do_request would be
+an idea worth consideration?
+

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281919AbRKZQ4A>; Mon, 26 Nov 2001 11:56:00 -0500
+	id <S281918AbRKZQ4A>; Mon, 26 Nov 2001 11:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281921AbRKZQzu>; Mon, 26 Nov 2001 11:55:50 -0500
-Received: from dialin-145-254-222-136.arcor-ip.net ([145.254.222.136]:1012
-	"HELO duron.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S281919AbRKZQzm>; Mon, 26 Nov 2001 11:55:42 -0500
-Date: Mon, 26 Nov 2001 17:55:33 +0100
-From: Dominik Kubla <kubla@sciobyte.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, editors@newsforge.com,
-        lwn@lwn.net
-Subject: Re: Linux 2.4.16
-Message-ID: <20011126175533.A4524@duron.intern.kubla.de>
-In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.23i
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S281919AbRKZQzv>; Mon, 26 Nov 2001 11:55:51 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:30448 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S281918AbRKZQzk>; Mon, 26 Nov 2001 11:55:40 -0500
+Date: Mon, 26 Nov 2001 17:55:34 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Serguei Miridonov <mirsev@cicese.mx>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] better URL for the bigphysarea patch
+Message-ID: <Pine.NEB.4.42.0111261750290.2656-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 10:30:08AM -0200, Marcelo Tosatti wrote:
-> 
-> Hi, 
-> 
-> Due to the corruption problems on 2.4.15, I'm releasing 2.4.16.
-> 
+Hi Serguei,
 
-Excellent!
+while searching for a version of the bigphysarea patch for another kernel
+patch I noticed that you don't have read permissions at the root direct
+http://www.polyware.nl/~middelin/patch/ of the URL that is mentionend in
+Documentation/video4linux/Zoran. The patch below changes this to an URL
+from where you can see all available patches.
 
-Dominik Kubla
+
+--- Documentation/video4linux/Zoran.old	Mon Nov 26 17:46:18 2001
++++ Documentation/video4linux/Zoran	Mon Nov 26 17:47:26 2001
+@@ -160,9 +160,9 @@
+   set aside the necessary memory during boot time. There seem to be
+   several versions of this patch against various kernel versions
+   floating around in the net, you may obtain one e.g. from:
+-  http://www.polyware.nl/~middelin/patch/bigphysarea-2.2.1.tar.gz You
+-  also have to compile your driver AFTER installing that patch in order
+-  to get it working
++  http://www.polyware.nl/~middelin/hob-v4l.html#bigphysarea
++  You also have to compile your driver AFTER installing that patch in
++  order to get it working
+
+   or
+
+
+cu
+Adrian
+
 -- 
-ScioByte GmbH    Zum Schiersteiner Grund 2     55127 Mainz (Germany)
-Phone: +49 700 724 629 83                    Fax: +49 700 724 629 84
-1024D/717F16BB    A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+

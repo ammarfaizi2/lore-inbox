@@ -1,100 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263717AbTEEQ4c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTEEQ4C
+	id S263672AbTEEQug (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTEEQsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:56:02 -0400
-Received: from mail.goshen.edu ([199.8.232.22]:63956 "EHLO mail.goshen.edu")
-	by vger.kernel.org with ESMTP id S263700AbTEEQyu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:54:50 -0400
-Subject: Re: partitions in meta devices
-From: Ezra Nugroho <ezran@goshen.edu>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3EB69883.8090609@gmx.net>
-References: <1052153060.29588.196.camel@ezran.goshen.edu>
-		<3EB693B1.9020505@gmx.net> <1052153834.29676.219.camel@ezran.goshen.edu> 
-	<3EB69883.8090609@gmx.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 05 May 2003 12:21:24 -0500
-Message-Id: <1052155284.29676.250.camel@ezran.goshen.edu>
+	Mon, 5 May 2003 12:48:23 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:35464 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263759AbTEEQrq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:47:46 -0400
+Date: Mon, 5 May 2003 10:02:02 -0700
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>, Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [RFC] support for sysfs string based properties for SCSI (1/3)
+Message-ID: <20030505170202.GA1296@kroah.com>
+References: <1051989099.2036.7.camel@mulgrave> <1051989565.2036.14.camel@mulgrave>
 Mime-Version: 1.0
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1051989565.2036.14.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 11:59, Carl-Daniel Hailfinger wrote:
-> Ezra Nugroho wrote:
-> > On Mon, 2003-05-05 at 11:39, Carl-Daniel Hailfinger wrote:
-> > 
-> >>Ezra Nugroho wrote:
-> >>
-> >>>however, I couldn't create any file system for them, or mount them.
-> >>>/dev/md0px just don't exist.
-> >>>
-> >>
-> >>Please reboot after partitioning.
-> > 
-> > I did. Nothing changed. fdisk reported the changes still.
-> 
-> OK. Maybe I wasn't clear enough.
-> 1. Partition a drive
-> 2. Reboot
-> 3. Now the kernel should see the partitions and let you create file
-> systems on them.
+On Sat, May 03, 2003 at 02:19:23PM -0500, James Bottomley wrote:
+> diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+> --- a/drivers/base/core.c	Sat May  3 14:18:21 2003
+> +++ b/drivers/base/core.c	Sat May  3 14:18:21 2003
+> @@ -42,6 +42,8 @@
+>  
+>  	if (dev_attr->show)
+>  		ret = dev_attr->show(dev,buf);
+> +	else if (dev->bus->show)
+> +		ret = dev->bus->show(dev, buf, attr);
+>  	return ret;
 
-Did all that, kernel didn't see the partition.
- 
-> You rebooted and fdisk sees the partitions now. Fine. Please try to
-> mke2fs /dev/md0p1
+Can't you do this by using the class interface instead?
 
-This didn't work, because /dev/md0p1 doesn't exists.
+This also forces you to do a lot of string compares within the bus show
+function (as your example did) which is almost as unwieldy as just
+having individual show functions, right?  :)
 
-> That should work. If it doesn't, devfs could be the problem.
+thanks,
 
-It could be.
- 
-> Could you please tell us which kernel version you're using?
-
-My linux is:
-Linux version 2.4.20 (root@localhost) (gcc version 3.2.2)
-
-kernel config related to raid:
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=m
-CONFIG_MD_LINEAR=m
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=m
-CONFIG_MD_MULTIPATH=m
-# CONFIG_BLK_DEV_LVM is not set
-
-
-My raidtab is:
-       raiddev /dev/md0
-           raid-level              5
-           nr-raid-disks           3
-           nr-spare-disks          0
-           persistent-superblock   1
-           chunk-size              32
-           parity-algorithm        left-symmetric
-
-           device                  /dev/hdc
-           raid-disk               0
-           device                  /dev/hde
-           raid-disk               1
-           device                  /dev/hdg
-           raid-disk               2
-
-
-any idea?
-
+greg k-h

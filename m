@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263750AbUFKEZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUFKEhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263750AbUFKEZI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 00:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUFKEZI
+	id S263761AbUFKEhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 00:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUFKEhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 00:25:08 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:50354 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S263750AbUFKEZD (ORCPT
+	Fri, 11 Jun 2004 00:37:24 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:42444 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263761AbUFKEhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 00:25:03 -0400
-Date: Fri, 11 Jun 2004 06:31:07 +0200
-From: Luca Risolia <luca.risolia@studio.unibo.it>
-To: linux-usb-devel@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, greg@kroah.com
-Cc: rtjohnso@eecs.berkeley.edu, linux-kernel@vger.kernel.org
-Subject: [linux-usb-devel] Re: Finding user/kernel pointer bugs [no html]
-Message-Id: <20040611063107.0c62e2f8.luca.risolia@studio.unibo.it>
-In-Reply-To: <E1BYXuJ-0006vd-RU@sc8-sf-list1.sourceforge.net>
-References: <E1BYXuJ-0006vd-RU@sc8-sf-list1.sourceforge.net>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 11 Jun 2004 00:37:23 -0400
+Date: Thu, 10 Jun 2004 21:36:59 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc3-mm1
+Message-Id: <20040610213659.0fd93039.pj@sgi.com>
+In-Reply-To: <20040609015001.31d249ca.akpm@osdl.org>
+References: <20040609015001.31d249ca.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew,
 
->                    unsigned int cmd, void* arg)
->  {
->  	struct w9968cf_device* cam;
-> +	void __user *user_arg = (void __user *)arg;
+Do you recall why your i386-uninline-bitops.patch moves i386
+find_next_bit() and find_next_zero_bit() out of line, but not
+find_first_zero_bit() nor find_first_bit()?
 
-The right place to apply this patch is in video_usercopy().
+Text sizes - i386 optimized routine (decimal):
+    find_next_zero_bit	132
+    find_next_bit 	114
+    find_first_zero_bit  76
+    find_first_bit	 50
 
-When video_usercopy() is used in the ioctl() method, there is no need
-to dereference the arg pointer in ioctl() itself, since one of the purposes
-of video_usercopy() is to do this work for us.
+Uninlining find_first_bit() reduces my i386 kernel text size by 1336 bytes.
 
-Please have a look at definition of the function in videodev.c.
+Uninlining find_first_zero_bit() is good for another 208 bytes.
 
-int
-video_usercopy(struct inode *inode, struct file *file,
-               unsigned int cmd, unsigned long arg,
-               int (*func)(struct inode *inode, struct file *file,
-                           unsigned int cmd, unsigned void *arg))
+Eh - perhaps this is too small potatoes to worry about now.
 
-What you have patched in your patch is the function pointed
-by "func" above, which should already receive the __user pointer to arg.
+Or perhaps there was good reason to leave them inline all along.
 
-Luca
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Perhaps someone else has further insight to the tradeoffs here, such as
+a 'recommended size', above which most routines should be not inlined,
+except in special cases.
 
-iD8DBQFAyTWLmdpdKvzmNaQRAhDuAJ0e8okB48LQUaHnxZsSS0ZFTmuxRQCgnYqZ
-WECeSegLUG5WDyUArFcByKU=
-=u+vB
------END PGP SIGNATURE-----
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

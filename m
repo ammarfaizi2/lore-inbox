@@ -1,96 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265976AbRGZKjN>; Thu, 26 Jul 2001 06:39:13 -0400
+	id <S266900AbRGZKqf>; Thu, 26 Jul 2001 06:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266698AbRGZKjE>; Thu, 26 Jul 2001 06:39:04 -0400
-Received: from pD951F257.dip.t-dialin.net ([217.81.242.87]:24960 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S265976AbRGZKi7> convert rfc822-to-8bit; Thu, 26 Jul 2001 06:38:59 -0400
-Date: Thu, 26 Jul 2001 12:39:03 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.2.19 kernel bug, possibly sys_newlstat or iput?
-Message-ID: <20010726123903.B17244@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.19i
+	id <S266736AbRGZKqZ>; Thu, 26 Jul 2001 06:46:25 -0400
+Received: from smtp2.wp.pl ([212.77.101.159]:34312 "HELO smtp.wp.pl")
+	by vger.kernel.org with SMTP id <S266698AbRGZKqL>;
+	Thu, 26 Jul 2001 06:46:11 -0400
+Date: Thu, 26 Jul 2001 12:44:29 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Patch to agpgart for VIA Apollo Pro 133A - VIA694X chipset 
+From: "maciek n" <maciek_now@wp.pl>
+X-Mailer: Interfejs WWW poczty Wirtualnej Polski
+X-IP: 213.77.64.3 (kafe.age.pl)
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010726104622Z266698-720+6508@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+Please find small patch to linux-2.4.7 agpgart/drm for very popular 
+and powerfull VIA VT82C694X chipset ( Intel PIII/CII ). 
 
-the night before last night, a machine logged major kernel difficulties
-during a backup operation, I caught the syslog info it sent to its
-loghost.
+Until now it was not directly supported by agpgart/drm in kernel
+and for operation need ugly agp_try_unsupported=1 into modules.conf
 
-I wouldn't normally report this, but a working backup client is crucial
-on production machines, and the kernel must not get in the way.
+If you interested there is also the second patch ( or you can put it
+manually ) to XFree-4.1.0 drm/kernel
 
-The owner of that machine reported that the machine hung, but
-Magic-SysRq still worked, he said the machine didn't fsck on next
-reboot. (The "standard machine freeze recovery procedure" is magic-sysrq
-held along with: e, wait, i, wait, s, wait, u, wait, s, wait, b -- wait
-== wait until 2 s after disks are quiet and LEDs off)
-
-I advised him to force an fsck over his next lunch, just to be sure, but
-I'm not holding this mail for longer. (That box has e2fsprogs 1.22
-installed ATM.)
-
-I have a kernel that is patched somewhat, I call it 2.2.19-ma4. I'm
-keeping the patch at
-http://mandree.home.pages.de/kernelpatches/v2.2/v2.2.19/patch-2.2.19-ma4.bz2
-
-It contains:
-
-ide.2.2.19.05042001.patch
-i2c-2.5.5
-reiserfs-3.5.32 which I made ext3 friendly¹ (unused)
-serial 5.05 driver (unused)
-autofs v4 patch
-ext3fs (unused)
-OW1 security patch
-most of Trond's NFS client patches (alpha_writes, dir, llseek,
-lock_reclaim, superblock, symlink, tcp_hang)
-pci-scan (Donald Becker)
-rtl8139-1.13
-
-¹ just renaming symbols and fixing Makefile patch clashes
+Is it possible to include it to in future kernels ?
 
 
-Since dsmc has no business with NFS in our configuration, this can only
-have happened on an ext2 file system.
+Maciek
 
-
-Help is appreciated unless this is already fixed for the current
-2.2.20pre in which case just drop a line stating so.
-
-Thanks in advance.
+If you have any questions to me please add cc: to 
+maciek_now@wp.pl because I'am not subscribed to this list
 
 
 
-I caught this message:
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000007d 
-current->tss.cr3 = 1540d000, %%cr3 = 1540d000 
-*pde = 1532f067 
-*pte = 00000000 
-Oops: 0000 
-CPU:    0 
-EIP:    0010:[iput+26/552] 
-EFLAGS: 00010206 
-eax: 00000065   ebx: 00000000   ecx: d3d52808   edx: 00000000 
-esi: d3d527b8   edi: 000000cf   ebp: fffff0cb   esp: d1819d6c 
-ds: 0018   es: 0018   ss: 0018 
-Process dsmc (pid: 24057, process nr: 96, stackpage=d1819000) 
-Stack: 00001000 00000246 00000000 c010b568 d35ea008 c0133ed5 d3d527b8 d5d4f1c0  
-       d1819dec 00000000 00000000 c02902d8 00001004 d1819dec c0134e0c 00000010  
-       00000000 00001004 c02902d8 00001004 d1819dec c0134f4e 00000000 00001004  
-Call Trace: [common_interrupt+24/32] [prune_dcache+229/360] [__free_inodes+28/104] [try_to_free_inodes+190/260] [grow_inodes+32/432] [cprt+7008/57600] [get_new_inode+201/316]  [iget4+117/128] [__brelse+29/192] [iget+22/32] [ext2_lookup+90/140] [real_lookup+91/180] [permission+32/56] [lookup_dentry+304/504] [getname+95/156]  [__namei+49/104] [filldir+0/136] [sys_newlstat+20/116] [system_call+52/64]  
-Code: 8b 40 18 85 c0 74 02 89 c3 85 db 74 10 8b 43 08 85 c0 74 09  
+--- linux-2.4.7-VIA694X-patch -------------------------
 
--- 
-Matthias Andree
+diff -u --recursive --new-file linux-2.4.7-
+orig/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
+--- linux-2.4.7-orig/drivers/char/agp/agp.h	Tue Jul  3 00:27:56 
+2001
++++ linux/drivers/char/agp/agp.h	Wed Jul 25 21:49:03 2001
+@@ -160,6 +160,9 @@
+ #ifndef PCI_DEVICE_ID_VIA_8363_0
+ #define PCI_DEVICE_ID_VIA_8363_0      0x0305
+ #endif
++#ifndef PCI_DEVICE_ID_VIA_82C694X_0
++#define PCI_DEVICE_ID_VIA_82C694X_0      0x0605
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_810_0
+ #define PCI_DEVICE_ID_INTEL_810_0       0x7120
+ #endif
+diff -u --recursive --new-file linux-2.4.7-
+orig/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
+--- linux-2.4.7-orig/drivers/char/agp/agpgart_be.c	Tue Jul  3 
+00:27:56 2001
++++ linux/drivers/char/agp/agpgart_be.c	Wed Jul 25 22:07:49 2001
+@@ -507,6 +507,7 @@
+ 		if (cap_ptr != 0x00)
+ 			pci_write_config_dword(device, cap_ptr + 8, 
+command);
+ 	}
++	printk (KERN_INFO PFX "AGP mode is %ldx\n", command & 7);
+ }
+ 
+ static int agp_generic_create_gatt_table(void)
+@@ -3022,6 +3023,12 @@
+ 		VIA_APOLLO_KT133,
+ 		"Via",
+ 		"Apollo Pro KT133",
++		via_generic_setup },
++	{ PCI_DEVICE_ID_VIA_82C694X_0,
++		PCI_VENDOR_ID_VIA,
++		VIA_APOLLO_PRO133A,
++		"Via",
++		"Apollo Pro 133A",
+ 		via_generic_setup },
+ 	{ 0,
+ 		PCI_VENDOR_ID_VIA,
+diff -u --recursive --new-file linux-2.4.7-
+orig/drivers/char/drm/agpsupport.c linux/drivers/char/drm/agpsupport.c
+--- linux-2.4.7-orig/drivers/char/drm/agpsupport.c	Tue Jul  3 
+00:27:56 2001
++++ linux/drivers/char/drm/agpsupport.c	Wed Jul 25 22:19:21 2001
+@@ -275,6 +275,8 @@
+ 			break;
+ 		case VIA_APOLLO_KT133:	head->chipset = "VIA Apollo 
+KT133"; 
+ 			break;
++		case VIA_APOLLO_PRO133A:head->chipset = "VIA Apollo 
+Pro 133A";
++			break;
+ #endif
+ 
+ 		case VIA_APOLLO_PRO: 	head->chipset = "VIA Apollo 
+Pro";
+diff -u --recursive --new-file linux-2.4.7-
+orig/include/linux/agp_backend.h linux/include/linux/agp_backend.h
+--- linux-2.4.7-orig/include/linux/agp_backend.h	Tue Jul  3 
+00:27:56 2001
++++ linux/include/linux/agp_backend.h	Wed Jul 25 22:15:01 2001
+@@ -55,6 +55,7 @@
+ 	VIA_APOLLO_PRO,
+ 	VIA_APOLLO_KX133,
+ 	VIA_APOLLO_KT133,
++	VIA_APOLLO_PRO133A,
+ 	SIS_GENERIC,
+ 	AMD_GENERIC,
+ 	AMD_IRONGATE,
+
+
+--- XFree86-4.1.0-DRM-VIA694X-patch --------------------------------
+
+
+diff -u /tmp/dri/xc/programs/Xserver/hw/xfree86/os-
+support/linux/drm/kernel/drm_agpsupport.h 
+xc/programs/Xserver/hw/xfree86/os-
+support/linux/drm/kernel/drm_agpsupport.h
+--- /tmp/dri/xc/programs/Xserver/hw/xfree86/os-
+support/linux/drm/kernel/drm_agpsupport.h	Tue Apr 10 18:08:04 
+2001
++++ xc/programs/Xserver/hw/xfree86/os-
+support/linux/drm/kernel/drm_agpsupport.h	Tue Jul 24 23:15:13 
+2001
+@@ -285,6 +285,8 @@
+ 			break;
+ 		case VIA_APOLLO_KT133:	head->chipset = "VIA Apollo 
+KT133";
+ 			break;
++		case VIA_APOLLO_PRO133A:head->chipset = "VIA Apollo 
+Pro133A";
++			break;
+ #endif
+ 
+ 		case VIA_APOLLO_PRO: 	head->chipset = "VIA Apollo 
+Pro";
+
+
+
+-----------------------------------------------------------------------
+Najtañsze ksi±¿ki, p³yty, filmy. Kliknij! < http://www.ws.pl/Reklama/m.html?s=5 >
+

@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUJGJOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269762AbUJGJSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269759AbUJGJOs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJGJOs
+	id S269762AbUJGJSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269763AbUJGJSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:14:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12813 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269759AbUJGJOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:14:44 -0400
-Date: Thu, 7 Oct 2004 10:14:38 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: todd nguyen <toddnguyen@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
-Subject: Re: Oops in loading cardbus bridge drivers in kernel version 2.6.9-rc1
-Message-ID: <20041007101438.B10716@flint.arm.linux.org.uk>
-Mail-Followup-To: todd nguyen <toddnguyen@yahoo.com>,
-	linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
-References: <20041006225645.43733.qmail@web11204.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041006225645.43733.qmail@web11204.mail.yahoo.com>; from toddnguyen@yahoo.com on Wed, Oct 06, 2004 at 03:56:45PM -0700
+	Thu, 7 Oct 2004 05:18:41 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:19945 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S269762AbUJGJSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 05:18:35 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.4] 0-order allocation failed
+Date: Thu, 7 Oct 2004 13:18:13 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Message-Id: <200410071318.21091.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart3599702.ivUqQrdHHC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 03:56:45PM -0700, todd nguyen wrote:
-> " Unable to handle kernel NULL pointer dereference at
-> virtual address 00000008"  Can anyone give me some
-> pointer on why I'm seeing this error?
+--nextPart3599702.ivUqQrdHHC
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Something for the PCI people to look at I think...  However, you might
-consider including _full_ lspci -vv information rather than just a
-subset.
+Hi all,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I'm running 2.4.28 bk snapshot of 2004.09.03
+The machine has an uptime of 7 days, 23:46 now.
+
+I was running several bittorrent clients inside of
+a screen session. Suddenly they all died (including the
+screen session).
+dmesg sayed this:
+
+__alloc_pages: 0-order allocation failed (gfp=3D0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
+VM: killing process python
+__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
+__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
+VM: killing process screen
+
+I already got this with kernel 2.4.27 vanilla after a
+higher amount of uptime (I think it was over 10 days).
+This was exactly the reason I updated to bk snapshot.
+
+What can be the reason for this? Is it OOM? (I can't
+really believe it is).
+Is it a kernel memory leak?
+
+With 2.4.26 I never got these errors. And I ran uptimes
+up to 50 days.
+
+=2D-=20
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+--nextPart3599702.ivUqQrdHHC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD4DBQBBZSX9FGK1OIvVOP4RAq0+AJ44OI2/4mA2O7n2yG5///L19C74GQCVGzdP
+KESQbTzgdJgj/rPGXeo/wA==
+=5fjC
+-----END PGP SIGNATURE-----
+
+--nextPart3599702.ivUqQrdHHC--

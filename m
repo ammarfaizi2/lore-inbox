@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269974AbRHXHSd>; Fri, 24 Aug 2001 03:18:33 -0400
+	id <S270263AbRHXHZX>; Fri, 24 Aug 2001 03:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270178AbRHXHSY>; Fri, 24 Aug 2001 03:18:24 -0400
-Received: from erm1.u-strasbg.fr ([130.79.74.61]:4 "HELO erm1.u-strasbg.fr")
-	by vger.kernel.org with SMTP id <S269974AbRHXHSO>;
-	Fri, 24 Aug 2001 03:18:14 -0400
-Date: Fri, 24 Aug 2001 09:29:37 +0200
-To: linux-kernel@vger.kernel.org
-Subject: lance-modul:ping produces neighbour table overflow
-Message-ID: <20010824092937.C30405@erm1.u-strasbg.fr>
-Mail-Followup-To: bboett@erm1.u-strasbg.fr,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: bboett@erm1.u-strasbg.fr (Bruno Boettcher)
+	id <S270178AbRHXHZE>; Fri, 24 Aug 2001 03:25:04 -0400
+Received: from motgate2.mot.com ([136.182.1.10]:54983 "EHLO motgate2.mot.com")
+	by vger.kernel.org with ESMTP id <S270263AbRHXHYw>;
+	Fri, 24 Aug 2001 03:24:52 -0400
+Message-Id: <3B86014C.D6C7C93A@crm.mot.com>
+Date: Fri, 24 Aug 2001 09:25:00 +0200
+From: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>
+Reply-To: Emmanuel Varagnat-AEV010 
+	  <Emmanuel_Varagnat-AEV010@email.mot.com>
+Organization: Centre de Recherche de Motorola - Paris
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Userlimits
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-i have as a second network card a PCnet card which shows up nicely with
-a lspci, where i can load the module without prob, can configure it with
-ifconfig but when i try to ping it itself i get:
-ping 192.168.0.254
-PING 192.168.0.254 (192.168.0.254): 56 data bytes
-neighbour table overflow
-ping: sendto: No buffer space available
-ping: wrote 192.168.0.254 64 chars, ret=-1
 
-there's plenty of free memory, so i can't see whats wrong....
-kernel is debianized 2.4.9 kernel on an Athlon
+Does it exist any patches for the kernel for a support of a
+per user or group limit (number of process, process size, ...) ?
 
--- 
-ciao bboett
-==============================================================
-bboett@earthling.net
-http://inforezo.u-strasbg.fr/~bboett http://erm1.u-strasbg.fr/~bboett
-===============================================================
-the total amount of intelligence on earth is constant.
-human population is growing....
+I'm really interested in writing such a thing after read a thread
+about that in a newsgroup.
+
+Thanks
+
+-Manu

@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCKSbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVCKStr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVCKSbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCKS3I
+	id S261325AbVCKStr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCKSn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:29:08 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:3668 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261242AbVCKSNo (ORCPT
+	Fri, 11 Mar 2005 13:43:59 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:9143 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261269AbVCKSYU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:13:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hJcIwy2kGG2QIWVT9V9SuI1mNdDQ8jFzSLzzB07KmquGBLLfoAfXURIgx09/N0uvowY2nOQzch4mx+RJjgCeudoN4asS8ZRjsX3hPADxeuiENr2VChY6SXpsxF1MXhQQBI2j/IIR6NCTM12OzU6qhuzpIGz/h7oTWLOMHLY75AY=
-Message-ID: <9e473391050311101356536667@mail.gmail.com>
-Date: Fri, 11 Mar 2005 13:13:37 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer Splash
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Michal Januszewski <spock@gentoo.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-In-Reply-To: <Pine.LNX.4.56.0503111801550.10827@pentafluge.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050308015731.GA26249@spock.one.pl>
-	 <200503091301.15832.adaplas@hotpop.com>
-	 <9e473391050308220218cc26a3@mail.gmail.com>
-	 <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be>
-	 <1110392212.3116.215.camel@localhost.localdomain>
-	 <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org>
-	 <1110408049.9942.275.camel@localhost.localdomain>
-	 <Pine.LNX.4.62.0503101009240.9227@numbat.sonytel.be>
-	 <20050310145419.GD632@openzaurus.ucw.cz>
-	 <Pine.LNX.4.56.0503111801550.10827@pentafluge.infradead.org>
+	Fri, 11 Mar 2005 13:24:20 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] PCI Express Advanced Error Reporting Driver
+Date: Fri, 11 Mar 2005 10:24:15 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024080392EC@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] PCI Express Advanced Error Reporting Driver
+Thread-Index: AcUl+m4g7lDaIWxxTtKVLyXeewg1TAAa5T9A
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <greg@kroah.com>, <benh@kernel.crashing.org>
+Cc: <linux-kernel@vger.kernel.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 11 Mar 2005 18:24:17.0172 (UTC) FILETIME=[88FD5D40:01C52667]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005 18:03:20 +0000 (GMT), James Simmons
-<jsimmons@www.infradead.org> wrote:
-> > > > Thats why moving the eye candy console into user space is such a good
-> > > > idea. You don't have to run it 8) It also means that the console
-> > > > development is accessible to all the crazy rasterman types.
-> > >
-> > > Yep. The basic console we already have. Everyone who wants eye candy can switch
-> > > from basic console to user space console in early userspace.
-> > >
-> >
-> > Heh, I'm afraid it does not work like that. Anyone who wants eye-candy
-> > simply applies broken patch to their kernel... unless their distribution applied one
-> > already.
-> >
-> > Situation where we have one working eye-candy patch would certainly
-> > be an improvement.
-> 
-> Why do we need patches in the kernel. Just set you config to
-> CONFIG_DUMMY_CONSOLE, CONFIG_FB, CONFIG_INPUT and don't set fbcon or
-> vgacon. Then have a userspace app using /dev/fb and /dev/input create a
-> userland console. There is no need to do special hacks in the kernel.
 
-/dev/fb is not accelerated, if you want full acceleration use
-/dev/dri. Using /dev/dri you can write a fully composited console that
-displays dengavi in realtime. This is also a path to getting multiuser
-working without a lot of kernel patches.
+On Thursday, March 10, 2005 9:23 PM Greg KH wrote:
+>> On Thu, Mar 10, 2005 at 03:04:18PM -0800, long wrote:
+>> PCI Express error signaling can occur on the PCI Express link itself
+>> or on behalf of transactions initiated on the link. PCI Express
+>> defines the Advanced Error Reporting capability, which is implemented
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+>> with a PCI Express advanced error reporting extended capability
+>> structure, to provide more robust error reporting. With the Advanced
+>> Error Reporting capability a PCI Express component, which detects an
+>> error, can send an error message to the Root Port associated with
+>> its hierarchy.  
+
+>This patch was too big for lkml, and should also be sent to the
+>linux-pci list.  Care to split it up and resend it?
+
+Will split it up and resend.
+
+> Also, how does this tie into the recent discussion about pci error
+> recovery?
+
+The standard PCI Specification calls out SERR and PERR. I am not sure
+about the recent discussion of PCI error of recovery. It is perhaps
+regarding the possibility of recovering from a PERR or SERR. However,
+PCI Express error occurs on the PCI Express link or on behalf of
+transactions occurred on the PCI Express link. PCI Express component,
+which implements PCI Express Advanced Error Reporting Capability, sends
+error message to the Root Port to indicate error occurred on the PCI
+Express link where it is connected. The PCI Express error recovery is on
+behalf of attempting to do a PCI Express link recovery, not PCI error
+recovery. It appears that PCI Express AER is disjoint from PCI error
+recovery.
+
+Thanks,
+Long

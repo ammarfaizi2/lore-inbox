@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280029AbRK0PJT>; Tue, 27 Nov 2001 10:09:19 -0500
+	id <S280101AbRK0PJg>; Tue, 27 Nov 2001 10:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280814AbRK0PIV>; Tue, 27 Nov 2001 10:08:21 -0500
-Received: from [67.36.120.14] ([67.36.120.14]:59538 "HELO tabris.net")
-	by vger.kernel.org with SMTP id <S280714AbRK0PH2>;
-	Tue, 27 Nov 2001 10:07:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-Organization: Dome-S-Isle Data
-To: "Martin A. Brooks" <martin@jtrix.com>, <ast@domdv.de>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Date: Tue, 27 Nov 2001 10:06:53 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
-In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+	id <S280133AbRK0PJY>; Tue, 27 Nov 2001 10:09:24 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:47369 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S280798AbRK0PIQ>;
+	Tue, 27 Nov 2001 10:08:16 -0500
+Message-ID: <XFMail.20011127160456.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011127150654.07242FB80D@tabris.net>
+In-Reply-To: <E168jk1-0001J7-00@the-village.bc.nu>
+Date: Tue, 27 Nov 2001 16:04:56 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+Cc: linux-kernel@vger.kernel.org, lkml@patrickburleson.com,
+        <martin@jtrix.com (Martin A. Brooks)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 November 2001 09:38, Martin A. Brooks wrote:
-> > As far as I remember this was talked about earlier. Different mobos,
-> > chipsets, processor brands, but always IRQ 7. /me wonders.
->
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
->
-Yes. RTL 8139.
 
-> Martin A. Brooks
->
->
+On 27-Nov-2001 Alan Cox wrote:
+>> > Something I should have added to my post is that I have a Tulip based
+>> > NIC  from Netgear.  But I believe something is definitely amiss with
+>> > Athlon based  machines and Tulip cards and compiled in SMP support.
+>> 
+>> Mine is a UP box.
+> 
+> With IO Apic support included ? If you are using an AMD/VIA combo chipset
+> board that would explain it
 
--- 
-tabris
+IO Apic, yes. But the PII/PIII systems are BX or I810/I815.
 
-   Life is pain. Anybody that tells you differently is selling something.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-                                    William Goldman, "The princess bride"
-
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,94 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265039AbSK1B2L>; Wed, 27 Nov 2002 20:28:11 -0500
+	id <S265051AbSK1Bdh>; Wed, 27 Nov 2002 20:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbSK1B2K>; Wed, 27 Nov 2002 20:28:10 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7157 "HELO
+	id <S265058AbSK1Bdh>; Wed, 27 Nov 2002 20:33:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:38644 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265039AbSK1B2J>; Wed, 27 Nov 2002 20:28:09 -0500
-Date: Thu, 28 Nov 2002 02:35:27 +0100
+	id <S265051AbSK1Bdg>; Wed, 27 Nov 2002 20:33:36 -0500
+Date: Thu, 28 Nov 2002 02:40:38 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Christer Weinigel <wingel@nano-system.com>
+To: Alan Cox <alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: scx200_gpio.c doesn't compile in 2.5.50
-Message-ID: <20021128013527.GU21307@fs.tum.de>
+Subject: Re: Linux 2.5.49-ac2
+Message-ID: <20021128014038.GV21307@fs.tum.de>
+References: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200211262321.gAQNLPR12191@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compilation of drivers/char/scx200_gpio.c fails in 2.5.50 with the error
-messages below.
+Hi Alan,
 
-cu
-Adrian
+I'm getting the following compile error in 2.5.49-ac{1,2} but not in
+2.5.49 (I haven't tried older -ac kernels):
 
 <--  snip  -->
 
 ...
-  gcc -Wp,-MD,drivers/char/.scx200_gpio.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6
--Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=scx200_gpio
--DKBUILD_MODNAME=scx200_gpio   -c -o drivers/char/scx200_gpio.o drivers/char/scx200_gpio.c
-drivers/char/scx200_gpio.c: In function `scx200_gpio_write':
-drivers/char/scx200_gpio.c:31: warning: implicit declaration of function
-`minor'
-drivers/char/scx200_gpio.c:31: dereferencing pointer to incomplete type
-drivers/char/scx200_gpio.c:34: dereferencing pointer to incomplete type
-drivers/char/scx200_gpio.c: In function `scx200_gpio_read':
-drivers/char/scx200_gpio.c:82: dereferencing pointer to incomplete type
-drivers/char/scx200_gpio.c:85: dereferencing pointer to incomplete type
-drivers/char/scx200_gpio.c: At top level:
-drivers/char/scx200_gpio.c:95: warning: `struct inode' declared inside
-parameter list
-drivers/char/scx200_gpio.c:95: warning: its scope is only this
-definition or declaration, which is probably not what you want.
-drivers/char/scx200_gpio.c: In function `scx200_gpio_open':
-drivers/char/scx200_gpio.c:97: dereferencing pointer to incomplete type
-drivers/char/scx200_gpio.c: At top level:
-drivers/char/scx200_gpio.c:103: warning: `struct inode' declared inside
-parameter list
-drivers/char/scx200_gpio.c:109: variable `scx200_gpio_fops' has
-initializer but incomplete type
-drivers/char/scx200_gpio.c:110: unknown field `owner' specified in
-initializer
-drivers/char/scx200_gpio.c:110: warning: excess elements in struct
-initializer
-drivers/char/scx200_gpio.c:110: warning: (near initialization for
-`scx200_gpio_fops')
-drivers/char/scx200_gpio.c:111: unknown field `write' specified in
-initializer
-drivers/char/scx200_gpio.c:111: warning: excess elements in struct
-initializer
-drivers/char/scx200_gpio.c:111: warning: (near initialization for
-`scx200_gpio_fops')
-drivers/char/scx200_gpio.c:112: unknown field `read' specified in
-initializer
-drivers/char/scx200_gpio.c:112: warning: excess elements in struct
-initializer
-drivers/char/scx200_gpio.c:112: warning: (near initialization for
-`scx200_gpio_fops')
-drivers/char/scx200_gpio.c:113: unknown field `open' specified in
-initializer
-drivers/char/scx200_gpio.c:113: warning: excess elements in struct
-initializer
-drivers/char/scx200_gpio.c:113: warning: (near initialization for
-`scx200_gpio_fops')
-drivers/char/scx200_gpio.c:114: unknown field `release' specified in
-initializer
-drivers/char/scx200_gpio.c:114: warning: excess elements in struct
-initializer
-drivers/char/scx200_gpio.c:114: warning: (near initialization for
-`scx200_gpio_fops')
-drivers/char/scx200_gpio.c: In function `scx200_gpio_init':
-drivers/char/scx200_gpio.c:128: warning: implicit declaration of
-function `register_chrdev'
-drivers/char/scx200_gpio.c: In function `scx200_gpio_cleanup':
-drivers/char/scx200_gpio.c:143: warning: implicit declaration of
-function `unregister_chrdev'
-make[2]: *** [drivers/char/scx200_gpio.o] Error 1
+  gcc -Wp,-MD,arch/i386/math-emu/.reg_ld_str.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6 -p -Iarch/i386/mach-generic
+-Iarch/i386/mach-defaults -DPARANOID  -fno-builtin  -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=reg_ld_str -DKBUILD_MODNAME=reg_ld_str   -c -o
+arch/i386/math-emu/reg_ld_str.o arch/i386/math-emu/reg_ld_str.c
+cpp0: output pipe has been closed
+gcc: Internal compiler error: program cc1 got fatal signal 11
+make[1]: *** [arch/i386/math-emu/reg_ld_str.o] Error 1
+make: *** [arch/i386/math-emu] Error 2
+{standard input}: Assembler messages:
+{standard input}:2235: Warning: end of file not at end of a line; newline inserted
+{standard input}:2438: Error: suffix or operands invalid for `mov'
 
 <--  snip  -->
+
+This is with a 2.95 gcc (the one in Debian unstable). Compiling with
+3.2.1 or setting the optimization to -O1 fixes the problem so it might
+be an optimizer bug.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

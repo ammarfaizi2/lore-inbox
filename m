@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315410AbSEUSNr>; Tue, 21 May 2002 14:13:47 -0400
+	id <S315412AbSEUSW0>; Tue, 21 May 2002 14:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315412AbSEUSNq>; Tue, 21 May 2002 14:13:46 -0400
-Received: from cocoa.globalgold.co.uk ([212.250.240.8]:39657 "EHLO
-	cocoa.globalgold.co.uk") by vger.kernel.org with ESMTP
-	id <S315410AbSEUSNp> convert rfc822-to-8bit; Tue, 21 May 2002 14:13:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gareth Fleming <gareth@joocy.com>
-Reply-To: gareth@joocy.com
-Organization: Joocy
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: Annotated kernel sources
-Date: Tue, 21 May 2002 19:13:14 +0100
-X-Mailer: KMail [version 1.4]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0205211025480.19652-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200205211913.14797.gareth@joocy.com>
+	id <S315413AbSEUSWZ>; Tue, 21 May 2002 14:22:25 -0400
+Received: from ns.suse.de ([213.95.15.193]:14608 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315412AbSEUSWY>;
+	Tue, 21 May 2002 14:22:24 -0400
+To: C Hanish Menon <hanishkvc@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Seems like a race or unhandled situation with ksoftirqd scheduling/management
+In-Reply-To: <3CEA8742.2040308@yahoo.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 May 2002 20:22:24 +0200
+Message-ID: <p73hel1xswv.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 May 2002 6:32 pm, Randy.Dunlap wrote:
-> On Tue, 21 May 2002, Gareth Fleming wrote:
-> | Is there anywhere I can pick up some annotated kernel sources?
-> |
-> | (That's not OT, is it?)
->
-> nah.
->
-> You can pick up the book "Linux Core Kernel Commentary,"
-> by Scott Maxwell, from CoriolisOpen Press (www.coriolis.com).
-> ISBN 1-57610-469-9.  (hmm, server down/offline, or not in
-> business?)
->
-> However, it's for kernel 2.2.5, and much has changed
-> since then.  Keeping up with Linux requires lots of time.
+C Hanish Menon <hanishkvc@yahoo.com> writes:
 
-Thanks for the lead. According to Amazon, the 2nd edition of this book covers 
-2.4
+>    According to the comment in cpu_raise_softirq it doesn't 
+> wakeup_softirqd in irq context because on returning from a irq
+> softirqd will be run,  but it doesn't seem to be valid in any
+> architectures (have varified x86, mips). Because on returning
+> from irq context, just the scheduler gets called, but as
+> the ksoftirqd is not in the run queue, it won't get scheduled.
 
-I think I'll try it, though, at 35 pounds(as in "that's expensive", not "I 
-can't carry THAT!") , I'd certainly follow anyone elses 'leads' on this one!
+At least i386 runs the softirqs at the end of do_IRQ.
+
+ksoftirqd is just supposed to be a fallback mechanism for the case
+of soft irqs eating excessive runtime or one softirq triggering another
+(common case is networking and serial softirq for BH). It is not
+the primary way to run softirqs.
+
+-Andi

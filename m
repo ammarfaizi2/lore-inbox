@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269779AbUJGWIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269830AbUJGWIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269779AbUJGWIx (ORCPT <rfc822;willy@w.ods.org>);
+	id S269830AbUJGWIx (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Oct 2004 18:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269845AbUJGWHg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269779AbUJGWHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:07:36 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:23245 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S269779AbUJGV7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:59:38 -0400
-Message-ID: <4165B3A0.3090003@drdos.com>
-Date: Thu, 07 Oct 2004 15:22:40 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jonathan@jonmasters.org,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>	 <35fb2e590410011509712b7d1@mail.gmail.com>  <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <4165A5E3.6050602@nortelnetworks.com>
-In-Reply-To: <4165A5E3.6050602@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 18:07:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:22482 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269697AbUJGWDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:03:55 -0400
+Date: Thu, 7 Oct 2004 15:03:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm3
+Message-ID: <20041007220338.GX9106@holomorphy.com>
+References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org> <20041007114040.GV9106@holomorphy.com> <1097184341l.10532l.0l@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097184341l.10532l.0l@werewolf.able.es>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+On 2004.10.07, William Lee Irwin III wrote:
+>> Here is a more likely correct patch for what that was trying to do,
+>> however misguided that may be. Untested, uncompiled, vs. 2.6.9-rc3-mm3
+>> without the bad patch:
+> ...
+>>+static inline void profile_tick(int type, struct pt_regs *regs)
+>>+{
+>>+	extern cpumask_t prof_cpu_mask;
+>>+
 
-> Jeff V. Merkey wrote:
->
->> We offer to kernel.org the sum of $50,000.00 US for a one time
->> license to the Linux Kernel Source for a single snapshot of
->> a single Linux version by release number. This offer must be
->> accepted by **ALL** copyright holders and this snapshot will
->> subsequently convert the GPL license into a BSD style license
->> for the code.
->
->
-> For an unlimited use license of the linux tree, $50,000 USD is 
-> ludicrously tiny.
+On Thu, Oct 07, 2004 at 09:25:41PM +0000, J.A. Magallon wrote:
+> This conflicts with kernel/irq/proc.c:
+> 	unsigned long prof_cpu_mask = -1;
+> Shouldn't this be:
+> 	cpumask_t prof_cpu_mask = CPU_MASK_NONE;
+> This will show problems when NR_CPUS > sizeof(long)....
+> Hope this helps.
+
+What in the goddamned Hell? Who wrote that? What arch?
 
 
-$50,000 per copy -- that's a hell of a pricetag. Windows only goes for 
-$100.00 a copy.
-You guys should be flattered.
-
-Let's see, 10,000 companies x $50,000.00 a pop = $500,000,000 / year in 
-license
-fees. What a deal. 500,000,000 / 300 developers = 1.1 million per year 
-for each of you.
-Sounds like good business to me.
-
-Companies will line up to do this, and what's great is you will still 
-get new licensees every year,
-so long as you keep ahead of the curve with innovation.
-
-Jeff
-
->
-> Think of the number of man-years of work invested in the current tree.
->
-> Chris
->
->
-
+-- wli

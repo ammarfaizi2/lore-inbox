@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTEMPrm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbTEMPrm
+	id S261433AbTEMPve (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTEMPvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:47:42 -0400
-Received: from b.smtp-out.sonic.net ([208.201.224.39]:57039 "HELO
-	b.smtp-out.sonic.net") by vger.kernel.org with SMTP id S261624AbTEMPrk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:47:40 -0400
-X-envelope-info: <dhinds@sonic.net>
-Date: Tue, 13 May 2003 09:00:22 -0700
-From: David Hinds <dhinds@sonic.net>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Hinds <dahinds@users.sourceforge.net>
-Subject: Re: PCMCIA 2.5.X sleeping from illegal context
-Message-ID: <20030513090022.A12249@sonic.net>
-References: <1052775331.1995.49.camel@diemos> <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk> <1052742964.1467.3.camel@doobie> <20030512234828.C17227@flint.arm.linux.org.uk> <1052839384.2255.10.camel@diemos>
-Mime-Version: 1.0
+	Tue, 13 May 2003 11:51:22 -0400
+Received: from pat.uio.no ([129.240.130.16]:51945 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261757AbTEMPt4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:49:56 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052839384.2255.10.camel@diemos>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16065.5911.55131.430734@charged.uio.no>
+Date: Tue, 13 May 2003 18:02:31 +0200
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030513154741.GA4511@suse.de>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+	<shswugvjcy9.fsf@charged.uio.no>
+	<20030513135756.GA676@suse.de>
+	<16065.3159.768256.81302@charged.uio.no>
+	<20030513152228.GA4388@suse.de>
+	<16065.4109.129542.777460@charged.uio.no>
+	<20030513154741.GA4511@suse.de>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 10:23:05AM -0500, Paul Fulghum wrote:
-> 
-> Which brings up a question:
-> The include/pcmcia/ds.h file defines the dev_link_t
-> structure that contains the release timer_list member.
-> 
-> Should I continue to initialize this member in
-> my driver or will this member be eliminated requiring
-> that all references to this member be removed from
-> the individual PCMCIA drivers?
+>>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
 
-You shouldn't need to initialize it in your driver, since you've
-eliminated the actual usage of the timer.
+     > I had thought that the 2.4 server survived this. I just did a
+     > test with a 2.4.21pre7 kernel and found the same behaviour, so
+     > this isn't a regression, just something thats not very nice.
 
--- Dave
+Then I'm confused as to what you are saying. Are we talking about a
+full NFS server crash or just a temporary 'server not responding'
+situation? Does NFS over TCP fix it, for instance?
+
+Cheers,
+  Trond

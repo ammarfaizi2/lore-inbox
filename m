@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbQL3XQT>; Sat, 30 Dec 2000 18:16:19 -0500
+	id <S129431AbQL3XcR>; Sat, 30 Dec 2000 18:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQL3XQJ>; Sat, 30 Dec 2000 18:16:09 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39950 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129348AbQL3XPx>; Sat, 30 Dec 2000 18:15:53 -0500
-Date: Sat, 30 Dec 2000 14:44:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederman@uswest.net>
-cc: Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <m1u27lpo1g.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.10.10012301441350.1477-100000@penguin.transmeta.com>
+	id <S130643AbQL3Xb6>; Sat, 30 Dec 2000 18:31:58 -0500
+Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:62461 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S129431AbQL3Xbs>;
+	Sat, 30 Dec 2000 18:31:48 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012302301.eBUN1IF01354@pobox.com>
+Subject: NIC recommendations (was Re: Repeatable 2.4.0-test13-pre4...)
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Sat, 30 Dec 2000 15:01:18 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A4DBC02.92C0FD9A@uow.edu.au> from "Andrew Morton" at Dec 30, 2000 09:42:10 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> The 3c905C is a well manufactured and very feature-rich NIC which at
+> present appears to have fewer problem reports than eepro100, 8139 or tulip.
 
+3c905c is a bit expensive, though. pcnet32 cards also work very well for
+me, and are less expensive. The 905c could be a better card (I don't
+really know), but pcnet32's might be more cost-effective, depending
+on your needs. (I've seen pcnet32-based cards selling for $15-20, and
+I bought a new 10-pack (of HP NightDirector 10/100's) for about $36,
+including shipping, on eBay.)
+ 
+In any case, tulips have been more problematic for me than 8139, pcnet32,
+or 3c905c (whose reliability are all comparable IME). I've never tried
+eepro100, though. (Also, I'm speaking in terms of my experiences across
+all OS's which I've used the cards under, not just under Linux, although
+my Linux experiences are similar to the experiences I've had overall.)
 
-On 30 Dec 2000, Eric W. Biederman wrote:
-> 
-> One other thing to think about for the VFS/MM layer is limiting the
-> total number of dirty pages in the system (to what disk pressure shows
-> the disk can handle), to keep system performance smooth when swapping.
+Anyway, those are my experiences and recommendations. YMMV. :)
 
-This is a separate issue, and I think that it is most closely tied in to
-the "RSS limit" kind of patches because of the memory mapping issues. If
-you've seen the RSS rlimit patch (it's been posted a few times this week),
-then you could think of that modified by a "Resident writable pages Set
-Size" approach. Not just for shared mappings - this is also an issue with
-limiting swapout.
-
-(I actually don't think that RSS is all that interesting, it's really the
-"potentially dirty RSS" that counts for VM behaviour - everything else can
-be dropped easily enough)
-
-		Linus
-
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

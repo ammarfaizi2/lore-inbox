@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbTFBSeR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 14:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbTFBSeQ
+	id S264832AbTFBSdp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 14:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbTFBSdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 14:34:16 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:14728 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264833AbTFBSeM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 14:34:12 -0400
-Message-ID: <3EDB9BC9.8010703@namesys.com>
-Date: Mon, 02 Jun 2003 22:47:37 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
+	Mon, 2 Jun 2003 14:33:44 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:9636 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264832AbTFBSdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 14:33:44 -0400
+Date: Mon, 2 Jun 2003 11:47:05 -0700
+Message-Id: <200306021847.h52Il5V06194@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARKS] 2.5.70 for 4 filesystems
-References: <20030531163339.GA9426@rushmore.suse.lists.linux.kernel> <p73add36p8n.fsf@oldwotan.suse.de>
-In-Reply-To: <p73add36p8n.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Anton Blanchard <anton@samba.org>
+X-Fcc: ~/Mail/linus
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: FP state in threaded coredumps
+In-Reply-To: Anton Blanchard's message of  Tuesday, 3 June 2003 04:30:47 +1000 <20030602183047.GF1169@krispykreme>
+X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should expect V3 to be slow at quad CPU smp benchmarks because 
-balancing is giant locked.   V4 fixes this with fine grained locking, we 
-hope to release at Linux Tag in July.  Fortunately quad CPU boxes will 
-not be economical compared to dual CPU boxes until V4 has been out for a 
-while....;-)  V4 CPU  usage and general performance has gotten a lot 
-better, we need to put a new snapshot on our website.....
+> I was adding threaded coredump support to ppc64 and noticed that the
+> ELF_CORE_SYNC hook was never called. It looks like we need something
+> like this on archs that do lazy FP save/restore to ensure the FP state
+> for threads running on other cpus is up to date.
 
-Andi Kleen wrote:
-
->rwhron@earthlink.net writes: 
->  
->
->>                  --------------- Sequential ----------
->>                  ----- Create -----   ---- Delete ----
->>                   /sec  %CPU    Eff   /sec  %CPU   Eff
->>2.5.70-reiserfs    7584  86.7   8751   2628  37.3  7038
->>2.5.70-xfs         1710  39.3   4347   2053  28.3  7247
->>2.5.70-ext2         150  99.0    151  60883 100.0  6088
->>2.5.70-ext3         119  95.0    126  26319  87.7  3002
->>    
->>
->
->It's quite surprising that reiserfs is so slow at deletion. In my
->normal experience reiserfs rm -rf is much faster than anything else
->(e.g. with a big rm -rf on an ext2 you have a chance to ctrl-c still,
->on reiserfs no such chance; XFS is really slow at this). Perhaps this
->is some 2.5 regression? Do you have 2.4 comparison numbers?
->
->-Andi 
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+All the threads already synchronize with coredump_wait in __exit_mm.  A
+thread reaching that point already has control of the CPU that might be
+holding its FPU state.  It seems to me it would be simplest and most
+efficient to just do any necessary copy-in there, before
+`complete(mm->core_startup_done)'.
 
 
--- 
-Hans
-
-
+Thanks,
+Roland

@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSLPW22>; Mon, 16 Dec 2002 17:28:28 -0500
+	id <S262067AbSLPWdC>; Mon, 16 Dec 2002 17:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLPW22>; Mon, 16 Dec 2002 17:28:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57311
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261963AbSLPW21>; Mon, 16 Dec 2002 17:28:27 -0500
-Subject: Re: [PATCH] linux-2.4.21-pre1_cyclone-timer_B3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1040076206.1583.14.camel@w-jstultz2.beaverton.ibm.com>
-References: <1040076206.1583.14.camel@w-jstultz2.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Dec 2002 23:15:55 +0000
-Message-Id: <1040080555.13787.109.camel@irongate.swansea.linux.org.uk>
+	id <S262208AbSLPWdC>; Mon, 16 Dec 2002 17:33:02 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56072 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262067AbSLPWdB>; Mon, 16 Dec 2002 17:33:01 -0500
+Date: Mon, 16 Dec 2002 23:40:57 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Metolious hardware-sensors-using-ACPI specs
+Message-ID: <20021216224057.GE20773@atrey.karlin.mff.cuni.cz>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A5A4@orsmsx119.jf.intel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A5A4@orsmsx119.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-16 at 22:03, john stultz wrote:
-> Marcelo, All, 
-> 	This patch fixes gettimeofday for multi-node Summit based systems (IBM
-> x440, etc). These systems suffer from TSC skew, and thus require an
-> alternate high res time source. This patch allows do_gettimeofday to
-> access a register on the cyclone chip found on these systems, which
-> functions as a global time source.
+Hi!
+
+> > Is it goign to be implemented in linux-acpi?
+> > 
+> > I took a look at specs at intel, and it has rather funny legaleese:
 > 
-> Please consider for acceptance. 
+> Wow, is that still on a website somewhere?
 
-Older versions have been in -ac and seem fine
+Yep, as someone already pointed out.
 
+> So as you may know from looking at the spec, Metolious was a spec that
+> defined a way for platforms to enumerate various motherboard sensors to the
+> OS, for manageability purposes.
+> 
+> It never took off, except for a couple companies that used the Windows
+> driver for other things because they didn't want to write a driver that
+> received ACPI device Notify()s.
+
+> The licensing may be weird, but given that there really is no point in
+> implementing it on Linux, does that really matter?
+
+Ouch, I started implementing that hour ago... [Never mind, very little
+damage done so far].
+
+But... Metolious sounds *needed*; how do you access voltage sensors
+without metolious, in a way that can coexist with ACPI thermal
+support?
+
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

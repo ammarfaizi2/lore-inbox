@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131704AbQKTOu0>; Mon, 20 Nov 2000 09:50:26 -0500
+	id <S131858AbQKTOtq>; Mon, 20 Nov 2000 09:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131809AbQKTOuQ>; Mon, 20 Nov 2000 09:50:16 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:33141 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131938AbQKTOuL>; Mon, 20 Nov 2000 09:50:11 -0500
-Date: Mon, 20 Nov 2000 14:20:09 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Oleg Makarenko <omakarenko@cyberplat.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre22: ppa_fail(3) from ppa_wait at line 319
-Message-ID: <20001120142009.Z20970@redhat.com>
-In-Reply-To: <3A192EBC.F5B048F2@cyberplat.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="aEcIyhw0mmnxygNd"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A192EBC.F5B048F2@cyberplat.ru>; from omakarenko@cyberplat.ru on Mon, Nov 20, 2000 at 05:01:32PM +0300
+	id <S131958AbQKTOth>; Mon, 20 Nov 2000 09:49:37 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:12711 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131938AbQKTOt1>;
+	Mon, 20 Nov 2000 09:49:27 -0500
+Date: Mon, 20 Nov 2000 15:19:02 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011201419.PAA132679.aeb@aak.cwi.nl>
+To: aeb@veritas.com, andre@linux-ide.org
+Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old BIOS
+Cc: linux-kernel@vger.kernel.org, tai@imasy.or.jp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From andre@linux-ide.org Mon Nov 20 12:29:59 2000
 
---aEcIyhw0mmnxygNd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+    Andries,
 
-On Mon, Nov 20, 2000 at 05:01:32PM +0300, Oleg Makarenko wrote:
+    Don't you mean
 
-> the following partial reversal patch seems to help (but I am not sure it
-> is correct):
+    (drive->id->cfs_enable_1 & 0x0400)        word85
+    and not
+    (drive->id->command_set_1 & 0x0400)        word82
 
-Hmm.  That patch went in because without it it doesn't work at all for
-some people. :-((
+    Because when bit 10 of word 85 is not set then clip or HPArea is not enabled.
 
-Tim.
-*/
+I saw no reason to complain about that part.
 
---aEcIyhw0mmnxygNd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+As far as I can see, ATA4 and ATA5 both require these two bits
+to be identical. (Note that ATA4 has "supported" both in text
+and table in both places, while ATA5 has "supported" in three
+places and "enabled" in one. My preliminary ATA6 drafts do not differ.
+And for example, there is no Set Features subcommand to enable/disable
+the Host Protected Area feature. Maybe you have more recent drafts that
+do allow disabling this feature?)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+A small detail that might be improved is that one is only allowed to look
+at this bit when words 83 and 84 have bit 15 equal to 0 and bit 14 equal to 1.
+(Or, in case you prefer looking at word 85, bit 15 of word 87
+must be 0 and bit 14 must be 1.)
 
-iD8DBQE6GTMYONXnILZ4yVIRAo6oAJ9mJt1OKfYJ6FB+AkRWRjXhPTPMBwCgil+V
-P+72jDmR5UlzLvPBEVP3vXI=
-=Qidw
------END PGP SIGNATURE-----
-
---aEcIyhw0mmnxygNd--
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269152AbRHBVM0>; Thu, 2 Aug 2001 17:12:26 -0400
+	id <S269157AbRHBVMg>; Thu, 2 Aug 2001 17:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269155AbRHBVMQ>; Thu, 2 Aug 2001 17:12:16 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10503 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269152AbRHBVL6>; Thu, 2 Aug 2001 17:11:58 -0400
-Subject: Re: harddisk suddenly locked?!
-To: goemon@anime.net (Dan Hollis)
-Date: Thu, 2 Aug 2001 22:09:54 +0100 (BST)
-Cc: alan@bagpuss.swansea.linux.org.uk (Alan Cox),
-        tanner@ffii.org (Thomas Tanner), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0108021356440.25815-100000@anime.net> from "Dan Hollis" at Aug 02, 2001 01:57:10 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269155AbRHBVM0>; Thu, 2 Aug 2001 17:12:26 -0400
+Received: from [64.1.233.146] ([64.1.233.146]:7361 "EHLO windmill.gghcwest.com")
+	by vger.kernel.org with ESMTP id <S269154AbRHBVMK>;
+	Thu, 2 Aug 2001 17:12:10 -0400
+Date: Thu, 2 Aug 2001 14:11:21 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.3.95.1010802165949.7742A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0108021409100.21298-100000@heat.gghcwest.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15SPj8-0001W2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 29 Jul 2001, Alan Cox wrote:
-> > Or someone broke into the box and did it. In fact given this feature
-> > is actually enabled on ibm disks Im amazed the windows viruses havent
-> > all started doing it
-> 
-> Destroying the bios is a bit more straightforward and certainly more
-> universal.
 
-And a lot less damaging. Its "Oh dear put the disk in aother box and
-disinfect" not "oh god, all our web server data is lost"
+
+On Thu, 2 Aug 2001, Richard B. Johnson wrote:
+
+> Well I don't have any such problems here. I wrote this script
+> from your instructions. I don't know if you REALLY wanted all
+> the file content to go out to the screen, but I wrote it explicitly.
+
+[snip]
+
+> Script started on Thu Aug  2 16:50:47 2001
+> # ps -laxw | grep pause
+>    140     0    16     1  -1 -20    712    40 pause       S < ?   0:00 (bdflush) te
+>      0     0  7433     1   9   0 321056 137808 pause       S    1  0:02 /tmp/try
+>      0     0  7631  7626  19   0    844   240             R   p0  0:00 grep pause
+> # cat /proc/meminfo
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  328048640 326234112  1814528        0  4255744 173219840
+> Swap: 1069268992 189992960 879276032
+                             ^^^^^^^^^
+You still have almost 1GB of swap left.  I mean use all the memory in your
+box, RAM + swap.
+
+As I said, I expect degraded performance but not a complete meltdown.
+
+-jwb
+

@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312691AbSCZSjI>; Tue, 26 Mar 2002 13:39:08 -0500
+	id <S312684AbSCZSkA>; Tue, 26 Mar 2002 13:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312684AbSCZSi6>; Tue, 26 Mar 2002 13:38:58 -0500
-Received: from 209-VALL-X7.libre.retevision.es ([62.83.213.209]:36871 "EHLO
-	ragnar-hojland.com") by vger.kernel.org with ESMTP
-	id <S312691AbSCZSio>; Tue, 26 Mar 2002 13:38:44 -0500
-Date: Tue, 26 Mar 2002 19:38:08 +0100
-From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-To: Sander Storms <s.storms@technology.asb.nl>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: C-Media 8783 driver
-Message-ID: <20020326193808.A2539@ragnar-hojland.com>
-In-Reply-To: <C159F0A1CD3ED411A8A600508B556292091B25@mx-int.technology.asb.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+	id <S312694AbSCZSjs>; Tue, 26 Mar 2002 13:39:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4359 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312684AbSCZSjl>; Tue, 26 Mar 2002 13:39:41 -0500
+Subject: Re: Linux 2.4.19pre4-ac1
+To: dana.lacoste@peregrine.com (Dana Lacoste)
+Date: Tue, 26 Mar 2002 18:56:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'),
+        linux-kernel@vger.kernel.org ("Linux-Kernel (E-mail)")
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2D58@OTTONEXC1> from "Dana Lacoste" at Mar 26, 2002 10:34:14 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16pw7E-0003h9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 22, 2002 at 02:15:19PM +0100, Sander Storms wrote:
-> Does anyone know a descent driver for the C-Media 8783?
-> The current driver included in kernel 2.4.18 does work correctly, except for
-> the FM-chip and the Midi-output.
+> > Linux 2.4.19pre1-ac2
+> > o	Merge a version of the sard I/O accounting	
+> > (Stephen Tweedie, Christoph Hellwig)
+> 
+> Is there any chance you're going to push the SARD stuff to Marcello? :)
 
-In case you haven't seen my previous email, Asus has a linux driver at their
-.tw page (http://download.asus.com.tw/mb_dl_menu.asp)
+Thats really up to Christoph and Stephen
 
--- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."      [15 pend. Mar 10]

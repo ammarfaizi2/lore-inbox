@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263164AbTCTAuA>; Wed, 19 Mar 2003 19:50:00 -0500
+	id <S261287AbTCTAxL>; Wed, 19 Mar 2003 19:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263183AbTCTAuA>; Wed, 19 Mar 2003 19:50:00 -0500
-Received: from mail-1.tiscali.it ([195.130.225.147]:36668 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263164AbTCTAt6>;
-	Wed, 19 Mar 2003 19:49:58 -0500
-Date: Thu, 20 Mar 2003 02:00:32 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Mansfield <david@cobite.com>
-Cc: David Mansfield <lkml@dm.cobite.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] cvsps support for parsing BK->CVS kernel tree logs
-Message-ID: <20030320010032.GX30541@dualathlon.random>
-References: <20030319223625.GS30541@dualathlon.random> <Pine.LNX.4.44.0303191837360.19298-100000@admin>
+	id <S261284AbTCTAxL>; Wed, 19 Mar 2003 19:53:11 -0500
+Received: from holomorphy.com ([66.224.33.161]:53637 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261281AbTCTAxJ>;
+	Wed, 19 Mar 2003 19:53:09 -0500
+Date: Wed, 19 Mar 2003 17:03:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alexander Hoogerhuis <alexh@ihatent.com>, philippe.gramoulle@mmania.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hard freeze with 2.5.65-mm1
+Message-ID: <20030320010319.GB1240@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>,
+	Alexander Hoogerhuis <alexh@ihatent.com>,
+	philippe.gramoulle@mmania.com, linux-kernel@vger.kernel.org
+References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com> <8765qfacaz.fsf@lapper.ihatent.com> <20030319182442.4a9fa86c.philippe.gramoulle@mmania.com> <877kav5ikv.fsf@lapper.ihatent.com> <20030319121909.74f957af.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303191837360.19298-100000@admin>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+In-Reply-To: <20030319121909.74f957af.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 07:19:32PM -0500, David Mansfield wrote:
-> On Wed, 19 Mar 2003, Andrea Arcangeli wrote:
-> 
-> > this is a critical feature for me, note that if Larry agreed of tagging
-> > the tree with the atomic-date of the patchset extracting those patchset
-> > would be an order of magnitude faster, I would pay for the RTT latency 1
-> > per patchset, not once per file and it would be possible to teach cvsps
-> > to learn diffing against the tag if it matches. Anyways stuff works now
-> > so I'll just wait for the RTT all the time w/o being able to use the
-> > real bandwidth provided by my link. As soon as the CVS tarball is
-> > available I'll use it for the large patch extractions.
-> 
-> I just looked briefly at the 'cvs server' protocol.  It looks fairly easy 
-> to have a 'keepalive' session with a server where multiple diffs of 
-> multiple files are requested.  This isn't a 5 minute fix though, but I've 
+Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+>> I've had I/O stall a few times while watching movies, but only the
+>> mplayer process hung, and I could break it off and restart and it
+>> woudl fun again for a few minutes.
 
-this sounds an excellent plan if technically doable
+On Wed, Mar 19, 2003 at 12:19:09PM -0800, Andrew Morton wrote:
+> This is a bug in the new nanosleep code.  mplayer asks the kernel for a 50
+> millisecond sleep and the kernel gives it a two month sleep instead.
+> Please set INITIAL_JIFFIES to zero and retest.
+> With what compiler are you building your kernels?
 
-> been bothered by the RTT per file as well, because we use 'ssh' to 
-> authenticate cvs access here, and each file is a complete ssh handshake 
-> which is very slow.
+Just hit it with xmms:
 
-with ssh the latency would be exploded indeed, it takes quite some cpu too
+$ less /proc/1284/wchan
+sys_rt_sigsuspend
+$ less /proc/1285/wchan
+schedule_timeout
+$ less /proc/1286/wchan
+schedule_timeout
+$ less /proc/16656/wchan
+do_clock_nanosleep
+$ less /proc/16657/wchan
+do_clock_nanosleep
 
-> > One more feature wish (besides the python inteface for a quick gui) is
-> > the C^c killing cvsps too during a -g patch extraction, you probably
-> > should check the return code of cvs when extracting the patches. Right
-> > now I press C^z and then I killall cvsps ;)
-> 
-> Already fixed in my code.  I won't bother you with a diff.
+kill -STOP `pidof xmms` ; kill -CONT `pidof xmms` gets it unstuck so
+it's not lethal, but still...
 
-I'll fetch it with the next release, thanks.
 
-Andrea
+-- wli

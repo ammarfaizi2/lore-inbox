@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289959AbSAQXOq>; Thu, 17 Jan 2002 18:14:46 -0500
+	id <S290517AbSAQXQQ>; Thu, 17 Jan 2002 18:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290517AbSAQXOj>; Thu, 17 Jan 2002 18:14:39 -0500
-Received: from pille.addcom.de ([62.96.128.34]:24079 "HELO pille.addcom.de")
-	by vger.kernel.org with SMTP id <S289959AbSAQXO1>;
-	Thu, 17 Jan 2002 18:14:27 -0500
-Date: Fri, 18 Jan 2002 00:14:29 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dave Jones <davej@suse.de>, Jes Sorensen <jes@wildopensource.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] VAIO irq assignment fix
-In-Reply-To: <Pine.LNX.4.33.0201171433260.3114-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0201180000490.1434-100000@vaio>
+	id <S290515AbSAQXQH>; Thu, 17 Jan 2002 18:16:07 -0500
+Received: from svr3.applink.net ([206.50.88.3]:31246 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S289949AbSAQXQC>;
+	Thu, 17 Jan 2002 18:16:02 -0500
+Message-Id: <200201172313.g0HNDlk02939@home.ashavan.org.>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: newbie with a qlogic host bus adapter
+Date: Thu, 17 Jan 2002 17:11:29 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C474B9C.560DF747@excelco.com> <20020117223232.GA26240@emma1.emma.line.org>
+In-Reply-To: <20020117223232.GA26240@emma1.emma.line.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Linus Torvalds wrote:
+On Thursday 17 January 2002 16:32, Matthias Andree wrote:
+> On Thu, 17 Jan 2002, root wrote:
+> > I have a Qlogic qla2200f host bus adapter for an optical SAN.  I am
+> > running SuSE linux 7.1, I just downloaded kernel 2.4.17 sources and want
+> > to compile a kernel.  But when I "make menuconfig"
+> > I go into scsi support, and into scs low level drivers, the qlogic
+> > "qla2x00 QLC driver support" is not an option as it should be according
+> > to the documentation for the qla2200.
+> > how do i fix that?
+> >
+> > also i tried to just compile the drivers to be modules, but i get the
+> > error: /usr/src/linux-2.4/include/linux/modversions.h: No such file or
+> > directory
+> >
+> > where can I get this file?
+>
+> You can probably just do
+> cd /usr/src
+> ln -s linux-2.4.WHATEVERSUSE7.1HAS linux-2.4
+>
+> to "fix" the latter problem, or maybe you need to tweak the Makefile.
+>
+> As to the former problem, I cannot tell. Should your problem not be
+> solved until Jan 27th, feel free to ask me in private mail.
+>
+> Oh, and while I'm at it: please do use a regular user account to read
+> and send mail, root should not expose himself to the dangers of possible
+> bugs in his mailer -- use yast or useradd to add a regular user for
+> yourself, and use /etc/aliases or /etc/mail/aliases to forward root mail
+> to that user.
 
-> No. Could we please integrate this not with ACPI, but with the much more
-> limited "arch/i386/kernel/acpitable.c", which does NOT imply full ACPI,
-> only scanning the tables for information in static format (like the irq
-> routing stuff).
 
-Unfortunately, the PCI interrupt routing stuff in ACPI is not in a static 
-table, but needs the full-blown AML interpreter. Bad, but we can't do 
-anything about it.
+I you would like more good SysAdmin advice, please let your employer
+know that I am available.  I've been doing Linux/Unix SysAdmin for
+over five years now.   My resume is available upon request.
 
-> That we can/will/should always enable, and we should NOT EVER encourage
-> this kind of "per-BIOS" crud. That just becomes a total horror to maintain
-> in the long run.
-
-There's one thing which may be worth doing, I think someone else did 
-suggest this before: Allow for overriding BIOS tables with user provided 
-correct ones. In this case, Jes could add an entry for the PCMCIA bridge 
-to the $PIR table and tell the kernel to use this instead of the buggy 
-BIOS' one.
-
-The question is how to do this cleanly. Of course, it's easy enough to
-invent some way to use a corrected table which is linked into vmlinux at
-compile time. However, that means that the user has to recompile his
-kernel to add the table, which is not an easy option for everyone.
-
-It would be nicer to dynamically add the table, e.g. have the bootloader
-load it, kind of like the initrd, but that seems not possible without a
-lot of effort. (Or is the initrd protocol flexible enough to allow for 
-this?)
-
---Kai
-
+-- 
+timothy.covell@ashavan.org.

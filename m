@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267248AbUHIVOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267269AbUHIVQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267248AbUHIVOU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267230AbUHIVNN
+	id S267269AbUHIVQt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267226AbUHIVOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:13:13 -0400
-Received: from gprs214-227.eurotel.cz ([160.218.214.227]:640 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267226AbUHIVMG (ORCPT
+	Mon, 9 Aug 2004 17:14:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10714 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267249AbUHIVNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:12:06 -0400
-Date: Mon, 9 Aug 2004 14:48:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: -mm swsusp: fix highmem handling
-Message-ID: <20040809124825.GA602@elf.ucw.cz>
+	Mon, 9 Aug 2004 17:13:46 -0400
+Date: Mon, 9 Aug 2004 14:11:55 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: bjorn.helgaas@hp.com, akpm@osdl.org, ehm@cris.com, grif@cs.ucr.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] QLogic ISP2x00: remove needless busyloop
+Message-Id: <20040809141155.0c94b8c4.davem@redhat.com>
+In-Reply-To: <20040809210335.A9711@infradead.org>
+References: <200408091252.58547.bjorn.helgaas@hp.com>
+	<20040809210335.A9711@infradead.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 9 Aug 2004 21:03:35 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-This fixes highmem handling, and adds some comments so that others do
-not fall into the same trap I fallen in: code does not continue below
-swsusp_arch_resume if things go okay.
+> Don't use that driver.  qla2xxx is the right driver, and qlogicfc is only
+> still there and confuses people because davem is lazy and can shout louder
+> than others.
 
-Please apply,
-								Pavel
+Let me defend myself.
 
---- clean-mm/kernel/power/swsusp.c	2004-07-28 23:39:49.000000000 +0200
-+++ linux-mm/kernel/power/swsusp.c	2004-08-09 11:54:04.000000000 +0200
-@@ -870,8 +866,12 @@
- 	local_irq_disable();
- 	save_processor_state();
- 	error = swsusp_arch_suspend();
-+	/* Restore control flow magically appears here */
- 	restore_processor_state();
- 	local_irq_enable();
-+#ifdef CONFIG_HIGHMEM
-+	restore_highmem();
-+#endif
- 	return error;
- }
- 
-@@ -890,8 +889,12 @@
- {
- 	int error;
- 	local_irq_disable();
- 	save_processor_state();
- 	error = swsusp_arch_resume();
-+	/* Code below is only ever reached in case of failure. Otherwise
-+	 * execution continues at place where swsusp_arch_suspend was called
-+         */
-+	BUG_ON(!error);
- 	restore_processor_state();
- 	local_irq_enable();
- 	return error;
+The qla2xxx driver numbers devices differently than qlogicfc does.
 
+The qla2xxx driver never existed upstream until it was added a few
+months ago, and even with that it's 2.6.x only, therefore people
+using pure upstream kernels for all of their systems (such as myself)
+has only the qlogicfc driver to use.
 
+So it's not how loud I can yell or not, it's that not keeping the
+qlogicfc driver around would break people's systems.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+You could remove the qlogicfc driver if you really wanted, by providing
+a config option that would provide qlogicfc compatible device numbering
+in the qla2xxx driver.
+
+So implement that instead of bitching about me trying to keep people's
+systems functional, ok? :-)

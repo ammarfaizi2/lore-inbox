@@ -1,52 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVAIG1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVAIG4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVAIG1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 01:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVAIG1s
+	id S262265AbVAIG4i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 01:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAIG4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 01:27:48 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25485 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262262AbVAIG1r
+	Sun, 9 Jan 2005 01:56:38 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:33198 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S262265AbVAIG4d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 01:27:47 -0500
-Date: Sat, 8 Jan 2005 22:27:31 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
+	Sun, 9 Jan 2005 01:56:33 -0500
+Message-ID: <41E0D5B2.7030106@cwazy.co.uk>
+Date: Sun, 09 Jan 2005 01:56:50 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, arjan@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jtk@us.ibm.com, wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, Linus Torvalds <torvalds@osdl.org>,
-       dipankar@in.ibm.com
-Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
-Message-ID: <20050109062731.GD1265@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com> <20050108183220.GA2033@us.ibm.com> <1105215021.10519.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105215021.10519.50.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: ERROR: [PATCH] moxa: Update status of Moxa Smartio driver
+References: <200501082329.j08NT873032639@hera.kernel.org> <1105232081.12028.23.camel@localhost.localdomain>
+In-Reply-To: <1105232081.12028.23.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.220.243] at Sun, 9 Jan 2005 00:56:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 08, 2005 at 09:46:34PM +0000, Alan Cox wrote:
-> On Sad, 2005-01-08 at 18:32, Paul E. McKenney wrote:
-> > What:	call_rcu(), call_rcu_bh(), and synchronize_kernel() change from
-> > 	EXPORT_SYMBOL() to EXPORT_SYMBOL_GPL().
-> > When:	January 9, 2006
-> > Files:  kernel/rcupdate.c
-> > Why:	There are no known environments supporting RCU from which
-> > 	one could reasonably expect to port a non-GPL kernel module
-> > 	or driver to Linux.
+Alan Cox wrote:
+> This changeset is incorrect. The "1.8" version is for the Moxa mxser
+> driver. Moxa haven't released any 2.6 driver for the ancient "smartio"
+> hardware. (Checked this while fixing mxser).
 > 
-> IBM might want to also note that anyone wanting to do so needs an IBM
-> patent license for non GPL use ..
+> In the mxser case that change and update has now been done.
+> 
+> Please revert this changeset.
+> 
+> Alan (with tty layer hat on)
+> 
+> 
 
-Last time I checked with IBM's lawyers, they were not interested in doing
-so.  Nonetheless, you are correct, non-GPL use of RCU would require a
-conversation with IBM.  And in fact the five relevant patents (one lapsed)
-are called out in Documentation/RCU/RTFP.txt.  The four non-lapsed patents
-are called out as "contributed under GPL", so I think that we are covered.
+Actually, per
 
-							Thanx, Paul
+http://web4.moxa.com/support/download.asp#mxser.tgz
+
+the mxser driver supports the smartio boards - and from the 1.8 mxser package 
+readme.txt:
+
+    The Smartio/Industio/UPCI family Linux driver supports following multiport
+    boards.
+ 
+
+     - 2 ports multiport board
+         CP-102U, CP-102UL
+         CP-132U-I, CP-132UL,
+         CP-132, CP-132I, CP132S, CP-132IS,
+         CI-132, CI-132I, CI-132IS,
+         (C102H, C102HI, C102HIS, C102P, CP-102, CP-102S)
+ 
+
+     - 4 ports multiport board
+         CP-104UL, CP-104JU,
+         CP-134U, CP-134U-I
+         C104H/PCI, C104HS/PCI,
+         CP-114, CP-114I, CP-114S, CP-114IS,
+         C104H, C104HS,
+         CI-104J, CI-104JS
+         CI-134, CI-134I, CI-134IS,
+         (C114HI, CT-114I, C104P)
+ 
+
+     - 8 ports multiport board
+         CP-118U
+         CP-168U,
+         C168H/PCI,
+         C168H, C168HS,
+         (C168P)
+
+and Documentation/moxa-smartio says:
+
+    The Smartio family Linux driver, Ver. 1.1, supports following multiport
+    boards.
+
+     -C104P/H/HS, C104H/PCI, C104HS/PCI, CI-104J 4 port multiport board.
+     -C168P/H/HS, C168H/PCI 8 port multiport board.
+
+Granted, the mxser driver supports many more boards - but it also supports the 
+boards mentioned in the smartio driver.
+
+This just means that the smartio driver needs to be marked "obsolete" if mxser is 
+merged.  Not that I'm complaining - it's a bit of a mess.
+
+Jim
+
+> 
+>>ChangeSet 1.2371, 2005/01/08 14:09:24-08:00, james4765@gmail.com
+> 
+> 
+>>+***NOTE*** - The driver included in the kernel is not maintained by Moxa.  They
+>>+have a version 1.8 driver available from:
+>>+
+>>+http://www.moxa.com
+>>+
+>>+that works with 2.6 kernels.  Currently, Moxa has no plans to have their updated
+>>+driver merged into the kernel.
+>>+
+>>+James Nelson <james4765@gmail.com> - 12-12-2004
+>>+
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

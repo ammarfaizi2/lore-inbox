@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVAJUPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVAJUTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbVAJUPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVAJUME
+	id S262506AbVAJUTq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVAJUQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:12:04 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:20705 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262469AbVAJUID
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:08:03 -0500
-Date: Mon, 10 Jan 2005 12:08:00 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [UPDATE PATCH] drivers/dmapool: use TASK_UNINTERRUPTIBLE instead of TASK_INTERRUPTIBLE
-Message-ID: <20050110200800.GA9186@us.ibm.com>
-References: <20050110164703.GD14307@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 10 Jan 2005 15:16:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60902 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262502AbVAJUMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 15:12:39 -0500
+Date: Mon, 10 Jan 2005 12:12:33 -0800 (PST)
+From: Michael Werner <werner@mrcoffee.engr.sgi.com>
+Message-Id: <200501102012.j0AKCXJr2075714@mrcoffee.engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 2.6.10-mm2] agpgart: Add agp_find_bridge function
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
-> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
-> 
-> Quick patch summary: about 30 new, 30 merged, 30 dropped.
-> Seems like most external trees are merged in -linus, so i'll start
-> (re)sending old patches.
+This patch gives non-generic platforms a method for using
+platform specific agp_find_bridge functions.
 
-<snip>
+Signed-off-by: Mike Werner <werner@sgi.com>
+---
 
-> msleep_interruptible-drivers_base_dmapool.patch
+ drivers/char/agp/backend.c  |    5 ++++-
+ include/linux/agp_backend.h |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-Please replace with the following patch. msleep_interruptible() is not
-appropriate for this delay, as the waitqueue events will be missed.
-TASK_UNINTERRUPTIBLE should be used instead of TASK_INTERRUPTIBLE, though, as
-signals are not checked for.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-
---- 2.6.10-v/drivers/base/dmapool.c	2004-12-24 13:35:28.000000000 -0800
-+++ 2.6.10/drivers/base/dmapool.c	2005-01-10 12:05:08.000000000 -0800
-@@ -293,7 +293,7 @@ restart:
- 		if (mem_flags & __GFP_WAIT) {
- 			DECLARE_WAITQUEUE (wait, current);
+# This is a BitKeeper generated diff -Nru style patch.
+#
+#   Add agp_find_bridge
+# 
+diff -Nru a/drivers/char/agp/backend.c b/drivers/char/agp/backend.c
+--- a/drivers/char/agp/backend.c	2005-01-10 09:21:20 -08:00
++++ b/drivers/char/agp/backend.c	2005-01-10 09:21:20 -08:00
+@@ -50,6 +50,9 @@
+ 	.minor = AGPGART_VERSION_MINOR,
+ };
  
--			current->state = TASK_INTERRUPTIBLE;
-+			set_current_state(TASK_UNINTERRUPTIBLE);
- 			add_wait_queue (&pool->waitq, &wait);
- 			spin_unlock_irqrestore (&pool->lock, flags);
++struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
++	&agp_generic_find_bridge;
++
+ struct agp_bridge_data *agp_bridge;
+ LIST_HEAD(agp_bridges);
+ EXPORT_SYMBOL(agp_bridge);
+@@ -63,7 +66,7 @@
+ {
+ 	struct agp_bridge_data *bridge;
  
+-	bridge = agp_generic_find_bridge(pdev);
++	bridge = agp_find_bridge(pdev);
+ 
+ 	if (!bridge)
+ 		return NULL;
+diff -Nru a/include/linux/agp_backend.h b/include/linux/agp_backend.h
+--- a/include/linux/agp_backend.h	2005-01-10 09:21:20 -08:00
++++ b/include/linux/agp_backend.h	2005-01-10 09:21:20 -08:00
+@@ -94,6 +94,8 @@
+ extern struct agp_bridge_data *agp_bridge;
+ extern struct list_head agp_bridges;
+ 
++extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
++
+ extern void agp_free_memory(struct agp_memory *);
+ extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
+ extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);

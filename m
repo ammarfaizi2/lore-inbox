@@ -1,132 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275175AbSIUAWK>; Fri, 20 Sep 2002 20:22:10 -0400
+	id <S275270AbSIUA1T>; Fri, 20 Sep 2002 20:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275224AbSIUAWK>; Fri, 20 Sep 2002 20:22:10 -0400
-Received: from momus.sc.intel.com ([143.183.152.8]:40935 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S275175AbSIUAWI>; Fri, 20 Sep 2002 20:22:08 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0A53899F@orsmsx108.jf.intel.com>
-From: "Rhoads, Rob" <rob.rhoads@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "Rhoads, Rob" <rob.rhoads@intel.com>
-Subject: [ANNOUNCE] Linux Hardened Device Drivers Project 
-Date: Fri, 20 Sep 2002 17:26:47 -0700
+	id <S275320AbSIUA1T>; Fri, 20 Sep 2002 20:27:19 -0400
+Received: from mta04bw.bigpond.com ([139.134.6.87]:4595 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S275270AbSIUA1S>; Fri, 20 Sep 2002 20:27:18 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+Date: Sat, 21 Sep 2002 10:25:58 +1000
+User-Agent: KMail/1.4.5
+Cc: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <200209210922.41887.bhards@bigpond.net.au> <20020920193642.I1627@sventech.com>
+In-Reply-To: <20020920193642.I1627@sventech.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209211025.59114.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Project Announcement:
---------------------
-We've started a new project on sourceforge.net w/ focus 
-on hardening Linux device drivers for highly available 
-systems. This project is being worked on with folks from 
-OSDL's CGL and DCL projects as well.
+On Sat, 21 Sep 2002 09:36, Johannes Erdfelt wrote:
+> Personally, I've never used /proc/bus/usb/drivers. I've always just
+> looked at lsmod.
+>
+> Why should this be any different?
+Because lsmod only works for drivers that are modular. Real users mix built-in 
+and modules.
 
-Initially we've created a specification, a few kernel modules
-that implement a set of driver programming interfaces, and
-a sample device driver that demonstrates those interfaces.
+Brad
 
-We are actively soliciting involvement with others in the 
-Linux developer community. We need your help to make this 
-project relevant and useful. 
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Below I've included an overview of the hardened driver project. 
-By no means is this complete or final. It's just our initial
-attempt at defining what is meant by the term hardened driver
-and the areas we want to focus on.
-
-For additional info, please checkout the links at the bottom 
-of this message and the Hardened Drivers web site at 
-http://hardeneddrivers.sf.net.
-
-
-Hardened Driver Project Overview:
---------------------------------
-Device drivers have traditionally been a significant source 
-of software faults. For this reason, they are of key concern
-in improving the availability and stability of the operating
-system. A critical element in creating Highly Available (HA)
-environment is to reduce the likelihood of faults in key 
-drivers, a methodology called driver hardening. 
-
-A device driver is typically implemented with emphasis on 
-the proper operation of the hardware. Attention to how it 
-will function in the event of hardware faults is often 
-minimal. Hardened drivers, on the other hand, are designed
-with the assumption that the underlying hardware that they
-control will fail. They need to respond to such failures by
-handling faults gracefully, limiting the impact on the overall
-system. Hardened device drivers must continue to operate when 
-the hardware has failed (e.g. allow device fail-over), and 
-must not allow the propagation of corrupt data from a failed 
-device to other components of the system.
-
-Hardened device drivers must also be active participants in 
-the recovery of detected faults, by locally recovering them or
-by reporting them to higher-level system management software 
-that subsequently instructs the driver to take a specific 
-action.
-
-The goal of a hardened driver is to provide an environment 
-in which hardware and software failures are transparent to 
-the applications using their services, where possible. The 
-way to effectively achieve this goal is to analyze a 
-driver's software design and implement appropriate changes
-to improve stability, reliability and availability, and 
-to provide instrumentation for management middleware.
-
-We believe that improving driver stability and reliability 
-includes such measures as ensuring that all wait loops are
-limited with a timeout, validating input and output data and
-structuring the driver to anticipate hardware errors. 
-Improving availability includes adding support for device
-hot swapping and validating the driver with fault injection.
-Instrumentation for management middleware includes functions
-such as reporting of statistical indicators and logging of 
-pertinent events to enable postmortem analysis in the event
-of a failure.
-
-To minimize instability contributed by device drivers and to 
-enhance the availability of HA systems, we've attempted to 
-define a set of requirements that a device driver should 
-adhere to in order to be considered a hardened driver. We 
-then define different hardening traits and the required 
-programming interfaces to support these hardening traits.
-
-We've identified four areas in which drivers can be hardened:
-o Hardening with code robustness
-o Hardening with event logging
-o Hardening with diagnostics
-o Hardening with resource monitoring and statistics
-
-We've also identified some key areas we feel are most critical
-to overall system stability and plan to focus initial hardening 
-efforts on drivers for network interface cards, physical storage, 
-and logical storage.
-
-Project Links:
--------------
-o The Driver Hardening website:  
-  http://hardeneddrivers.sourceforge.net
-
-o The SourceForge project related info:
-  http://sourceforge.net/projects/hardeneddrivers
-
-o Hardened Drivers Mailing List Info (subscribe here):
-  http://lists.sourceforge.net/mailman/listinfo/hardeneddrivers-discuss
-
-
-+=+=+
-Rob Rhoads                     mailto:rob.rhoads@intel.com
-Staff Software Engineer        office: 503-677-5498
-Telecom Software Platforms
-Intel Communications Group
-
-This email message solely contains my own personal views, and not
-necessarily those of my employer.
+iD8DBQE9i7yXW6pHgIdAuOMRAhaVAJ9r7DqZ8N5Zyq/V2TCKfnFDEYC1awCghryW
+sx2q98LjfXpiSgzW0gGPZC4=
+=mzPE
+-----END PGP SIGNATURE-----
 

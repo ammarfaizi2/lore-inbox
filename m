@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268011AbUH3NSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUH3NUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268011AbUH3NSj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 09:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268014AbUH3NSj
+	id S268014AbUH3NUo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 09:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUH3NUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 09:18:39 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:52390 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S268011AbUH3NSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 09:18:31 -0400
-In-Reply-To: <4132DA55.5080903@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-Cc: flx@msu.ru, pj@sgi.com, riel@redhat.com, ninja@slaphack.com,
-       torvalds@osdl.org, diegocg@teleline.es, jamie@shareable.org,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
-From: "Alexander G. M. Smith" <agmsmith@rogers.com>
-Date: Mon, 30 Aug 2004 09:17:28 -0400 EDT
-Message-Id: <48730003943-BeMail@cr593174-a>
+	Mon, 30 Aug 2004 09:20:44 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:961 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S268014AbUH3NUj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 09:20:39 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 30 Aug 2004 14:52:34 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l/bttv: add sanity check (bug #3309)
+Message-ID: <20040830125233.GA1727@bytesex>
+References: <20040830025443.3aad9fa4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040830025443.3aad9fa4.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote on Mon, 30 Aug 2004 00:42:13 -0700:
-> or, 2) we should ask Alexander Smith to help with applying the graph 
-> traversal cycle detection code that he wrote.
+> Software Environment: gnomemeeting
+> Problem Description: I have a miropctv (bttv card=1), kernel serie 2.4 have v4l
+> only implementation. Kernel serie 2.6 have v4l2 only implementation (v4l
+> broken). I had to go back to 2.4 to use gnomemeeting (v4l only). Everything is
+> fine in 2.4.x. With 2.6, programs using v4l2 works ok (xawtv, ...); and programs
+> using v4l crash:
 
-I put my foot into it, didn't I?  It's not too bad, one trick to simplify
-things is to have the concept of a main parent and step parents.  The file
-system name space graph is kept structured so that by always going upward
-through the main parent, you're guaranteed to reach the root.  It doesn't
-save anything on traversal when deleting files (you still have to visit
-all the relevant nodes to check for cycles), but allows you to replace
-hard links with a new kind of dynamic symbolic link.  The hard link
-pretends to be a symbolic link presenting the "true path" to its target,
-which changes as the target moves around (so it's not as reliable as real
-hard link).  Old software doesn't see the cycles in the graph, just follows
-the single true path to any particular object like it currently does, and
-sees a bunch of symbolic links to everything else.  New software can see
-the full parent list (not just a single "..") and the actual hard links.
+> Aug 25 19:20:19 zain kernel: kernel BUG at drivers/media/video/bttv-driver.c:1900!
 
-> Ok, Linus and Viro, now I see why it was hard. Being able to effectively 
-> connect to compound documents only with symlinks is a bit distasteful, 
-> but it is quite livable, and I very much hope you decide it is better 
-> than fragmenting the namespace.
+Missing sanity check, overlay is supported for packed pixel formats
+only.  Patch below.  It's not API related btw, the bug can be triggered
+using the v4l2 API as well.
 
-Still, having hard links to attributes or directories of attributes is
-useful.  For example, if several contact manager entries reference the
-same person, it would be nice to have that represented as a hard link to
-the attribute directory tree describing that person.  That's assuming you
-implement contacts (name, address, etc) as a bunch of attributes in a
-directory.
+  Gerd
 
-- Alex
+diff -u linux-2.6.9-rc1/drivers/media/video/bttv-driver.c linux/drivers/media/video/bttv-driver.c
+--- linux-2.6.9-rc1/drivers/media/video/bttv-driver.c	2004-08-25 18:23:10.000000000 +0200
++++ linux/drivers/media/video/bttv-driver.c	2004-08-30 14:42:43.321218189 +0200
+@@ -1861,6 +1861,8 @@
+ 
+ 	if (NULL == fh->ovfmt)
+ 		return -EINVAL;
++	if (!(fh->ovfmt->flags & FORMAT_FLAGS_PACKED))
++		return -EINVAL;
+ 	retval = verify_window(&bttv_tvnorms[btv->tvnorm],win,fixup);
+ 	if (0 != retval)
+ 		return retval;

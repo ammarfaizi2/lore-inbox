@@ -1,116 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUA3SDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUA3SDU
+	id S263125AbUA3SP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUA3SP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:03:20 -0500
-Received: from p5080BFA5.dip.t-dialin.net ([80.128.191.165]:22956 "EHLO
-	fb04206.mathematik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id S263062AbUA3SDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:03:16 -0500
-To: linux-kernel@vger.kernel.org
-From: Andre Noll <noll@mathematik.tu-darmstadt.de>
-Subject: Re: [ANNOUNCE] udev 015 release
-References: <20040126215036.GA6906@kroah.com> <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de>
-Organization: No organization left on /dev/organization
-Message-ID: <slrnc1l72v.9m.noll@localhost.mathematik.tu-darmstadt.de>
-User-Agent: slrn/0.9.8.0 (Linux)
-NNTP-Posting-Host: 127.0.0.1
-Date: Fri, 30 Jan 2004 18:03:11 -0000
+	Fri, 30 Jan 2004 13:15:58 -0500
+Received: from smtp14.eresmas.com ([62.81.235.114]:12425 "EHLO
+	smtp14.eresmas.com") by vger.kernel.org with ESMTP id S263125AbUA3SPR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 13:15:17 -0500
+Message-ID: <401A9F2B.1060400@wanadoo.es>
+Date: Fri, 30 Jan 2004 19:15:07 +0100
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.4.1) Gecko/20031114
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Compile Regression] 2.4.25-pre8: 126 warnings 0 errors
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004 17:45:41 +0100 you wrote in local.lists.kernel:
-> Unable to handle kernel NULL pointer dereference at virtual address 0000001e
->   printing eip:
-> f9b370cc
-> *pde = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<f9b370cc>]    Tainted: PF
-> EFLAGS: 00010282
-> EIP is at disconnect_scanner+0x2c/0x6d [scanner]
-> eax: f685f0c0   ebx: f685f0d4   ecx: f9b370a0   edx: 00000007
-> esi: 00000000   edi: f73194e8   ebp: f9b3abfc   esp: f78c3e50
-> ds: 007b   es: 007b   ss: 0068
-> Process khubd (pid: 983, threadinfo=f78c2000 task=f78da720)
-> Stack: f685f0c0 f9b3ac78 f685f0c0 f9b3ace0 f9a4611b f685f0c0 f685f0c0 
-> f685f100
->         f685f0d4 f9b3ad00 c026c214 f685f0d4 f685f100 f73194fc f73194c0 
-> f9b36a4f
->         f685f0d4 f685f0c0 f73194fc f9b3ac0c 00000000 00000000 c021cbf8 
-> f73194fc
-> Call Trace:
->   [<f9a4611b>] usb_unbind_interface+0x7b/0x80 [usbcore]
->   [<c026c214>] device_release_driver+0x64/0x70
->   [<f9b36a4f>] destroy_scanner+0x4f/0xb0 [scanner]
->   [<c021cbf8>] kobject_cleanup+0x98/0xa0
->   [<f9a4611b>] usb_unbind_interface+0x7b/0x80 [usbcore]
->   [<c026c214>] device_release_driver+0x64/0x70
->   [<c026c345>] bus_remove_device+0x55/0xa0
->   [<c026b27d>] device_del+0x5d/0xa0
->   [<f9a4c6af>] usb_disable_device+0x6f/0xb0 [usbcore]
->   [<f9a46b76>] usb_disconnect+0x96/0xf0 [usbcore]
->   [<f9a492df>] hub_port_connect_change+0x30f/0x320 [usbcore]
->   [<f9a48c13>] hub_port_status+0x43/0xb0 [usbcore]
->   [<f9a495ba>] hub_events+0x2ca/0x340 [usbcore]
->   [<f9a4965d>] hub_thread+0x2d/0xf0 [usbcore]
->   [<c010925e>] ret_from_fork+0x6/0x14
->   [<c011c9e0>] default_wake_function+0x0/0x20
->   [<f9a49630>] hub_thread+0x0/0xf0 [usbcore]
->   [<c0107289>] kernel_thread_helper+0x5/0xc
->
-> Code: 80 7e 1e 00 75 2e 85 f6 74 17 8d 46 3c 8b 5c 24 08 8b 74 24
+hi,
 
-Same problem here. Also with Epson Perfection (640U) and kernel
-2.6.2-rc1:
+ kernel: 2.4.25-pre8
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000001e 
- printing eip: 
-c02ba64c 
-*pde = 00000000 
-Oops: 0000 [#1] 
-CPU:    0 
-EIP:    0060:[<c02ba64c>]    Not tainted 
-EFLAGS: 00010282 
-EIP is at disconnect_scanner+0x2c/0x6d 
-eax: e7dc0bc0   ebx: e7dc0bd4   ecx: c02ba620   edx: 00000005 
-esi: 00000000   edi: e7dbab68   ebp: c03b9dfc   esp: c17b1e50 
-ds: 007b   es: 007b   ss: 0068 
-Process khubd (pid: 5, threadinfo=c17b0000 task=e7f8e040) 
-Stack: e7dc0bc0 c03b9e78 e7dc0bc0 c03b9ee0 c02aa0db e7dc0bc0 e7dc0bc0 e7dc0c00  
-       e7dc0bd4 c03b9f00 c0265414 e7dc0bd4 e7dc0c00 e7dbab7c e7dbab40 c02b9fcf  
-       e7dc0bd4 e7dc0bc0 e7dbab7c c03b9e0c 00000000 00000000 c0207b08 e7dbab7c  
-Call Trace: 
- [<c02aa0db>] usb_unbind_interface+0x7b/0x80 
- [<c0265414>] device_release_driver+0x64/0x70 
- [<c02b9fcf>] destroy_scanner+0x4f/0xb0 
- [<c0207b08>] kobject_cleanup+0x98/0xa0 
- [<c02aa0db>] usb_unbind_interface+0x7b/0x80 
- [<c0265414>] device_release_driver+0x64/0x70 
- [<c0265545>] bus_remove_device+0x55/0xa0 
- [<c026447d>] device_del+0x5d/0xa0 
- [<c02b043f>] usb_disable_device+0x6f/0xb0 
- [<c02aa8f6>] usb_disconnect+0x96/0xe0 
- [<c02ad05f>] hub_port_connect_change+0x30f/0x320 
- [<c02ac993>] hub_port_status+0x43/0xb0 
- [<c02ad33a>] hub_events+0x2ca/0x340 
- [<c02ad3dd>] hub_thread+0x2d/0xf0 
- [<c010b25e>] ret_from_fork+0x6/0x14 
- [<c011e9a0>] default_wake_function+0x0/0x20 
- [<c02ad3b0>] hub_thread+0x0/0xf0 
- [<c0109289>] kernel_thread_helper+0x5/0xc 
+ distribution : RHL 9
+ gcc:    3.2.2
 
+[...]
 
-> And that's it. I cannot do a clean shut-down anymore, as the scanner 
-> module won't get unloaded. Is this an udev issue or is the module 
-> faulty? I am using latest Linus kernel 2.6.2-rc2.
+Kernel build of original configuration:
+   Making bzImage (oldconfig): 15 warnings, 0 errors
+   Making modules (oldconfig): 126 warnings, 0 errors
 
-Not related to udev or modules IMHO, since my kernel does not have
-module support compiled in and I'm not using udev.
+Warning Summary (individual module builds):
 
-Andre
--- 
-Andre Noll, http://www.mathematik.tu-darmstadt.de/~noll
+   drivers/atm: 1 warnings, 0 errors
+   drivers/char: 10 warnings, 0 errors
+   drivers/ide: 2 warnings, 0 errors
+   drivers/ieee1394: 1 warnings, 0 errors
+   drivers/isdn: 25 warnings, 0 errors
+   drivers/media: 1 warnings, 0 errors
+   drivers/mtd: 10 warnings, 0 errors
+   drivers/net: 10 warnings, 0 errors
+   drivers/net: 2 warnings, 0 errors
+   drivers/pcmcia: 2 warnings, 0 errors
+   drivers/scsi: 14 warnings, 0 errors
+   drivers/scsi/aacraid: 2 warnings, 0 errors
+   drivers/scsi/pcmcia: 2 warnings, 0 errors
+   drivers/sound: 5 warnings, 0 errors
+   drivers/telephony: 2 warnings, 0 errors
+   drivers/usb: 6 warnings, 0 errors
+   drivers/video: 9 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/riva: 1 warnings, 0 errors
+   fs/befs: 4 warnings, 0 errors
+   fs/hfs: 2 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/nfs: 2 warnings, 0 errors
+   fs/xfs: 1 warnings, 0 errors
+   net: 7 warnings, 0 errors
+
+Warning List:
+
+aachba.c:1682: warning: cast to pointer from integer of different size
+aachba.c:1744: warning: cast to pointer from integer of different size
+ac97_plugin_ad1980.c:92: warning: initialization from incompatible pointer type
+ad1889.c:361: warning: unsigned int format, different type arg (arg 4)
+agpgart_be.c:5647:17: warning: extra tokens at end of #undef directive
+../aha152x.c:853: warning: `do_setup' defined but not used
+aha1542.c:114: warning: `setup_str' defined but not used
+ali5455.c:2939: warning: `addr2' might be used uninitialized in this function
+ali5455.c:2939: warning: `data' might be used uninitialized in this function
+amd74xx.c:389: warning: `ata66_amd74xx' defined but not used
+amd76x_pm.c:483: warning: `activate_amd76x_SLP' defined but not used
+amd76xrom.c:181: warning: label `err_out_none' defined but not used
+amd7930_fn.h:35: warning: `initAMD' defined but not used
+applicom.c:268:2: warning: #warning "LEAK"
+applicom.c:532:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
+aty128fb.c:1066: warning: `aty128_set_crt_enable' defined but not used
+aty128fb.c:1076: warning: `aty128_set_lcd_enable' defined but not used
+aty128fb.c:2485: warning: unused variable `fb'
+aty128fb.c:2486: warning: unused variable `value'
+aty128fb.c:2487: warning: unused variable `rc'
+cardbus.c:239: warning: assignment makes pointer from integer without a cast
+cardbus.c:239: warning: implicit declaration of function `pci_scan_device_Rsmp_aceae718'
+cfi_cmdset_0001.c:1135: warning: unsigned int format, different type arg (arg 2)
+cfi_cmdset_0001.c:1165: warning: unsigned int format, different type arg (arg 2)
+cfi_cmdset_0001.c:826: warning: unsigned int format, different type arg (arg 2)
+cfi_cmdset_0020.c:1137: warning: unsigned int format, different type arg (arg 3)
+cfi_cmdset_0020.c:1286: warning: unsigned int format, different type arg (arg 3)
+cfi_cmdset_0020.c:491: warning: unsigned int format, different type arg (arg 3)
+cfi_cmdset_0020.c:851: warning: unsigned int format, different type arg (arg 3)
+cmdlinepart.c:345: warning: `mtdpart_setup' defined but not used
+cpqfcTSi2c.c:62: warning: `i2c_delay' declared `static' but never defined
+crc32.c:91: warning: static declaration for `fn_calc_memory_chunk_crc32' follows non-static
+csr.c:120: warning: long unsigned int format, int arg (arg 3)
+/datos/kernel/linux/include/asm/smpboot.h:126: warning: deprecated use of label at end of compound statement
+/datos/kernel/linux/include/linux/autoconf.h:2070:1: warning: "CONFIG_SERIAL_SHARE_IRQ" redefined
+/datos/kernel/linux/include/linux/ixjuser.h:45: warning: `ixjuser_h_rcsid' defined but not used
+/datos/kernel/linux/include/linux/kdev_t.h:81:1: warning: this is the location of the previous definition
+/datos/kernel/linux/include/linux/modules/sunrpc_syms.ver:38:1: warning: this is the location of the previous definition
+doc1000.c:85:2: warning: #warning This is definitely not SMP safe. Lock the paging mechanism.
+dtc.c:182: warning: `dtc_setup' defined but not used
+fbcon.c:2138: warning: unused variable `line'
+fbcon.c:2141: warning: unused variable `dst'
+fbcon.c:2141: warning: unused variable `src'
+fbcon.c:2142: warning: unused variable `x1'
+fbcon.c:2142: warning: unused variable `y1'
+fbdev.c:2224: warning: label `err_out_kfree' defined but not used
+../fdomain.c:565: warning: `fdomain_setup' defined but not used
+file.c:64: warning: `rc' might be used uninitialized in this function
+gamma_dma.c:608:18: warning: #warning list_entry() is needed here
+g_NCR5380.c:212: warning: `do_NCR5380_setup' defined but not used
+g_NCR5380.c:230: warning: `do_NCR53C400_setup' defined but not used
+g_NCR5380.c:248: warning: `do_NCR53C400A_setup' defined but not used
+g_NCR5380.c:266: warning: `do_DTC3181E_setup' defined but not used
+hc_sl811_rh.c:171: warning: duplicate `const'
+hc_sl811_rh.c:416: warning: duplicate `const'
+hc_sl811_rh.c:421: warning: duplicate `const'
+hid-core.c:879: warning: implicit declaration of function `hiddev_report_event'
+i2o_block.c:510: warning: `i2ob_flush' defined but not used
+i2o_pci.c:393:1: warning: no newline at end of file
+idt77252.c:669: warning: unsigned int format, different type arg (arg 5)
+interrupt.c:201: warning: unsigned int format, different type arg (arg 4)
+ip_conntrack_core.c:1161: warning: passing arg 1 of `unhelp' discards qualifiers from pointer target type
+ircomm_param.c:202: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1244: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1258: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1277: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1284: warning: concatenation of string literals with __FUNCTION__ is deprecated
+it8181fb.c:162: warning: `fontname' defined but not used
+ixj.h:41: warning: `ixj_h_rcsid' defined but not used
+kaweth.c:738: warning: assignment from incompatible pointer type
+linuxvfs.c:682: warning: `befs_listxattr' defined but not used
+linuxvfs.c:690: warning: `befs_getxattr' defined but not used
+linuxvfs.c:697: warning: `befs_setxattr' defined but not used
+linuxvfs.c:703: warning: `befs_removexattr' defined but not used
+ma600.c:51:22: warning: extra tokens at end of #undef directive
+main.c:236:2: warning: #warning "Initialisation order race. Must register after usable"
+make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
+matroxfb_g450.c:134: warning: duplicate `const'
+matroxfb_g450.c:135: warning: duplicate `const'
+matroxfb_g450.c:561: warning: unused variable `minfo'
+matroxfb_maven.c:359: warning: duplicate `const'
+matroxfb_maven.c:360: warning: duplicate `const'
+meye.c:212: warning: passing arg 3 of `dma_alloc_coherent' from incompatible pointer type
+mpc.c:330: warning: `mpoa_device_type_string' defined but not used
+mptbase.c:2906: warning: `pCached' might be used uninitialized in this function
+NCR5380.c:402: warning: `NCR5380_print' defined but not used
+NCR5380.c:458: warning: `NCR5380_print_phase' defined but not used
+NCR5380.c:684: warning: `NCR5380_probe_irq' defined but not used
+NCR5380.c:738: warning: `NCR5380_print_options' defined but not used
+nfs3proc.c:48:1: warning: "rpc_call_sync" redefined
+ns83820.c:1708: warning: `ns83820_probe_phy' defined but not used
+pc300_tty.c:706: warning: passing arg 2 of pointer to function discards qualifiers from pointer target type
+pci-pc.c:180:1: warning: "PCI_CONF1_ADDRESS" redefined
+pci-pc.c:58:1: warning: this is the location of the previous definition
+pm3fb.c:3835: warning: passing arg 2 of `__release_region_Rsmp_d49501d4' makes integer from pointer without a cast
+pm3fb.c:3838: warning: passing arg 2 of `__release_region_Rsmp_d49501d4' makes integer from pointer without a cast
+r128_cce.c:357: warning: unsigned int format, different type arg (arg 3)
+radeon_cp.c:908: warning: unsigned int format, different type arg (arg 3)
+radeon_mem.c:135: warning: `print_heap' defined but not used
+scsi_merge.c:104: warning: long unsigned int format, different type arg (arg 4)
+sddr09.c:448: warning: `sddr09_request_sense' defined but not used
+siimage.c:65: warning: control reaches end of non-void function
+sstfb.c:971: warning: unused variable `i'
+st5481_b.c:122: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_b.c:176: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_b.c:367: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_d.c:362: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_d.c:386: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_d.c:419: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_d.c:453: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_d.c:602: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:134: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:188: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:244: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:253: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:263: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:360: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:474: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:504: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:510: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:512: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:514: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:51: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:522: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:609: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:612: warning: concatenation of string literals with __FUNCTION__ is deprecated
+st5481_usb.c:67: warning: concatenation of string literals with __FUNCTION__ is deprecated
+sundance.c:1678: warning: unsigned int format, different type arg (arg 3)
+sundance.c:994: warning: unsigned int format, different type arg (arg 3)
+super.c:164: warning: `fork' might be used uninitialized in this function
+super.c:164: warning: `names' might be used uninitialized in this function
+tipar.c:76:1: warning: "minor" redefined
+tms380tr.c:1449: warning: long unsigned int format, different type arg (arg 3)
+vac-serial.c:13:1: warning: this is the location of the previous definition
+vesafb.c:93: warning: `fbcon_cmap' defined but not used
+wd7000.c:832: warning: `p' might be used uninitialized in this function
+xfs_log_recover.c:1534: warning: `flags' might be used uninitialized in this function
+yellowfin.c:1282: warning: unsigned int format, different type arg (arg 2)
+yellowfin.c:1294: warning: unsigned int format, different type arg (arg 2)
+
+# EOT
 

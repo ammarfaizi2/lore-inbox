@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263066AbTDQFWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 01:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbTDQFWs
+	id S263068AbTDQFef (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 01:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTDQFef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 01:22:48 -0400
-Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:45510 "EHLO
-	cheetah.psv.nu") by vger.kernel.org with ESMTP id S263066AbTDQFWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 01:22:48 -0400
-Date: Thu, 17 Apr 2003 07:34:36 +0200 (CEST)
-From: Peter Svensson <petersv@psv.nu>
-To: Robert White <rwhite@casabyte.com>
-cc: Brien <admin@brien.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: my dual channel DDR 400 RAM won't work on any linux distro
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGCEMNCHAA.rwhite@casabyte.com>
-Message-ID: <Pine.LNX.4.44.0304170727000.16313-100000@cheetah.psv.nu>
+	Thu, 17 Apr 2003 01:34:35 -0400
+Received: from NS5.Sony.CO.JP ([137.153.0.45]:26824 "EHLO ns5.sony.co.jp")
+	by vger.kernel.org with ESMTP id S263068AbTDQFee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 01:34:34 -0400
+Message-ID: <3E9E3FA9.6060509@sm.sony.co.jp>
+Date: Thu, 17 Apr 2003 14:46:17 +0900
+From: Yusuf Wilajati Purna <purna@sm.sony.co.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk
+CC: purna@sm.sony.co.jp
+Subject: Re: 2.4+ptrace exploit fix breaks root's ability to strace
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003, Robert White wrote:
+Hi,
 
-> The BS layman's speak they gave me at the store was that they had seen a lot
-> of cases where having "double sided SIMMs" (they were oh-so-usefully
-> classifying the memory based on whether there were chips on just one side,
-> or on both sides of the circuit card 8-) in the second and subsequent slots
-> never worked.
+On 2003-03-22 17:28:54, Arjan van de Ven wrote:
+>On Sat, Mar 22, 2003 at 05:13:12PM +0000, Russell King wrote:
+>> 
+>> int ptrace_check_attach(struct task_struct *child, int kill)
+>> {
+>> 	...
+>> +       if (!is_dumpable(child))
+>> +               return -EPERM;
+>> }
+>> 
+>> So, we went from being able to ptrace daemons as root, to being able to
+>> attach daemons and then being unable to do anything with them, even if
+>> you're root (or have the CAP_SYS_PTRACE capability).  I think this
+>> behaviour is getting on for being described as "insane" 8) and is
+>> clearly wrong.
+>
+>ok it seems this check is too strong. It *has* to check
+>child->task_dumpable and return -EPERM, but child->mm->dumpable is not
+>needed.
 
-This is actually a perfectly resonable thing to do. Twice the number of 
-chips (and for double-sided modules with stacked chips four times) will 
-load the address bus with twice (our four times) the capacitance. Thus the 
-siganl flanks will become less and less well defined when adding more 
-chips on the bus until some access patterns start to give bad results.
+So, do you mean that the following is enough:
 
-Some motherboards, mostly servers, specify registered memories that have a
-buffer circuit to greatly reduce the load on the line drivers. More 
-serious technical details from at least some motherboards will specify 
-that only a maximum number of chip-loads are possible. Since there are 
-only a few address bus driver chipsets the same limitations apply to most 
-motherboards. The manefacturer can play some games with voltages and 
-buffer strentghs but only so much. At high speeds and several stacked-chip 
-modules you really need registered modules.
+int ptrace_check_attach(struct task_struct *child, int kill)
+{
+      ...
++       if (!child->task_dumpable)
++               return -EPERM;
+}
 
-Peter
---
-Peter Svensson      ! Pgp key available by finger, fingerprint:
-<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
-------------------------------------------------------------------------
-Remember, Luke, your source will be with you... always...
+Regards,
+
+Purna
+         		
 
 

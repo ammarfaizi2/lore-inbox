@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266751AbUHOO7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266752AbUHOPBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266751AbUHOO7l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUHOO7l
+	id S266752AbUHOPBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 11:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266762AbUHOPBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:59:41 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:62177 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266751AbUHOO7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:59:21 -0400
-Date: Sun, 15 Aug 2004 11:03:16 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: [PATCH][2.6-mm] i386 Hotplug CPU
-In-Reply-To: <20040815144655.GA784@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0408151056380.22078@montezuma.fsmlabs.com>
-References: <1090870667.22306.40.camel@pants.austin.ibm.com>
- <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
- <20040811135019.GC1120@openzaurus.ucw.cz> <Pine.LNX.4.58.0408112043100.2544@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408142313450.22078@montezuma.fsmlabs.com>
- <20040815144655.GA784@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 15 Aug 2004 11:01:23 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:37258 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266752AbUHOPAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 11:00:31 -0400
+Date: Sun, 15 Aug 2004 17:00:29 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: kj <kernel-janitors@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] remove-last-suser-call drivers/char/rocket.c
+Message-ID: <20040815150029.GJ1799@stro.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004, Pavel Machek wrote:
 
-> > > Yeah i recall you mentioning this earlier, i'll look into adding the
-> > > necessary bits so that you have enough state to resume from. Your
-> > > mentioning this was one of the reasons i wanted this in.
-> >
-> > Pavel, considering that the processor is in a quiescent state when it's in
-> > the idle thread, can't we simply restart them all when we do the final
-> > sleep? So on the resume, we steer the APs straight into the offline cpu
-> > spin and manually bring them up again when the BSP has resumed? I
-> > reckon
->
-> Sorry, I do not understand what AP and BSP means in this context.
 
-My mistake, Application and Bootstrap Processors.
+Attached patch removes the lone remaining suser() call,
+suser() has long gone in summer 2002.
+applies to 2.6.8.1-kjt1, compile tested
 
-> Yes, we can just shut those cpus down on suspend and completely boot
-> them from real mode during resume... that should work. And we will
-> need to do that during suspend-to-ram.
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-Thanks i just wanted to run that by you first.
 
+
+---
+
+ linux-2.6.8-max/drivers/char/rocket.c |    4 ----
+ 1 files changed, 4 deletions(-)
+
+diff -puN drivers/char/rocket.c~remove-last-suser-call drivers/char/rocket.c
+--- linux-2.6.8/drivers/char/rocket.c~remove-last-suser-call	2004-08-15 16:54:13.000000000 +0200
++++ linux-2.6.8-max/drivers/char/rocket.c	2004-08-15 16:54:13.000000000 +0200
+@@ -1283,11 +1283,7 @@ static int set_config(struct r_port *inf
+ 	if (copy_from_user(&new_serial, new_info, sizeof (new_serial)))
+ 		return -EFAULT;
+ 
+-#ifdef CAP_SYS_ADMIN
+ 	if (!capable(CAP_SYS_ADMIN))
+-#else
+-	if (!suser())
+-#endif
+ 	{
+ 		if ((new_serial.flags & ~ROCKET_USR_MASK) != (info->flags & ~ROCKET_USR_MASK))
+ 			return -EPERM;
+
+_

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVCPPtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbVCPP7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVCPPtt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVCPPtt
+	id S262632AbVCPP7T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVCPP7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:49:49 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:36757 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261267AbVCPPtn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:49:43 -0500
-Message-ID: <423864EE.52A3AE91@tv-sign.ru>
-Date: Wed, 16 Mar 2005 19:55:10 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Wed, 16 Mar 2005 10:59:19 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:37815 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262632AbVCPP7P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 10:59:15 -0500
+Message-ID: <423857D3.80609@cosmosbay.com>
+Date: Wed, 16 Mar 2005 16:59:15 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: fr, en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org,
-       Shai Fultheim <Shai@Scalex86.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/2] del_timer_sync: proof of concept
-References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net> <4237192B.7E8AA85A@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
+To: regatta <regatta@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 32Bit vs 64Bit
+References: <5a3ed5650503160744730b7db4@mail.gmail.com>
+In-Reply-To: <5a3ed5650503160744730b7db4@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 16 Mar 2005 16:59:10 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> If we're prepared to rule that a timer handler is not allowed to do
-> add_timer_on() then a recurring timer is permanently pinned to a CPU, isn't
-> it?
->
-> That should make things simpler?
+regatta wrote:
 
-I think that current inplementation of del_timer_sync() don't like
-add_timer_on() too.
+> Hi everyone,
+> 
+> I have a question about the 64Bit mode in AMD 64bit
+> 
+> My question is if I run a 32Bit application in Optreon AMD 64Bit with
+> Linux 64Bit does this give my any benefit ? I mean running 32Bit
+> application in 64Bit machine with 64 Linux is it better that running
+> it in 32Bit or doesn't make any different at all ?
+> 
+> Thanks
 
-Consider the timer running on CPU_0. It sets timer->expires = jiffies,
-and calls add_timer_on(1). Now it is possible that local timer interrupt
-on CPU_1 happens and starts that timer before timer->function returns on
-CPU_0.
+Hi
 
-del_timer_sync() detects that timer is running on CPU_0, waits while
-->running_timer == timer, and returns. The timer still runs on CPU_1.
+Running a 32 bits application on a x86_64 kernel gives more virtual 
+address : 4GB of user memory, instead of 3GB on a standard 32bits kernel
 
-Oleg.
+If your application uses a lot of in-kernel ressources (like tcp 
+sockets and network buffers), it also wont be constrained by the 
+pressure a 32 bits kernel has on lowmem (typically 896 MB of lowmem)
+
+If your machine has less than 2GB, running a 64bits kernel is not a 
+win, because all kernel data use more ram (pointers are 64 bits 
+instead of 32bits)
+
+Eric
+

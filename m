@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267896AbRGROr7>; Wed, 18 Jul 2001 10:47:59 -0400
+	id <S267892AbRGROvT>; Wed, 18 Jul 2001 10:51:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267894AbRGROru>; Wed, 18 Jul 2001 10:47:50 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:12553 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267892AbRGROri>; Wed, 18 Jul 2001 10:47:38 -0400
-Message-ID: <3B55A12C.F194DAF6@namesys.com>
-Date: Wed, 18 Jul 2001 18:46:04 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S267897AbRGROvJ>; Wed, 18 Jul 2001 10:51:09 -0400
+Received: from pricie.ccl.kuleuven.ac.be ([134.58.128.16]:55194 "EHLO
+	pricie.ccl.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S267892AbRGROu5>; Wed, 18 Jul 2001 10:50:57 -0400
+Date: Wed, 18 Jul 2001 16:50:51 +0200 (CEST)
+From: Bert de Bruijn <bob@ccl.kuleuven.ac.be>
+To: <linux-kernel@vger.kernel.org>
+cc: David HM Spector <spector@zeitgeist.com>
+Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter
+In-Reply-To: <200107181443.QAA01801@ace.ulyssis.org>
+Message-ID: <Pine.LNX.4.33.0107181644150.7821-100000@pricie.ccl.kuleuven.ac.be>
 MIME-Version: 1.0
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-CC: Craig Soules <soules@happyplace.pdl.cmu.edu>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-In-Reply-To: <Pine.LNX.3.96L.1010717180713.13980K-100000@happyplace.pdl.cmu.edu> <3B54BA7A.42B0E107@namesys.com> <20010718100037.A18393@cs.cmu.edu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Harkes wrote:
-> 
-> On Wed, Jul 18, 2001 at 02:21:46AM +0400, Hans Reiser wrote:
-> > Craig Soules wrote:
-> > > Unfortunately to comply with NFSv2, the cookie cannot be larger than
-> > > 32-bits.  I believe this oversight has been correct in later NFS versions.
-> > >
-> > > I do agree that forcing the underlying fs to "fix" itself for NFS is the
-> > > wrong solution. I can understand their desire to follow unix semantics
-> > > (although I don't entirely agree with them), so until I think up a more
-> > > palatable solution for the linux community, I will just keep my patches to
-> > > myself :)
-> > >
-> > > Craig
-> >
-> > 64 bits as in NFS v4 is still not large enough to hold a filename.
-> > For practical reasons, ReiserFS does what is needed to work with NFS,
-> > but what is needed bad design features, and any FS designer who
-> > doesn't feel the need to get along with NFS should not have acceptance
-> > of bad design be made a criterion for the acceptance of his patches.
-> > Just let NFS not work for Craig's FS, what is the problem with that?
-> 
-> Those 64-bits could be used for a simple hash to identify the filename.
+On Tue, 17 Jul 2001 David HM Spector <spector@zeitgeist.com> wrote in
+ Message-ID: <200107171706.f6HH63S05993@thx1138.ny.zeitgeist.com> :
 
-That is what reiserfs does today.  It sucks.  The performance is worse for many to most apps because
-files are not in lexicographic order, and stem compression is impossible.
+> Hi,  included is a bug-report that seems to be a PCI oops that affects the
+> intallation of a Lucent PCI CardBus adapter.
+>
+> [1.] One line summary of the problem:
+>
+>      PCI Drivers fail to allocate interrrupt for Lucent Cardbus bridge
+>
+> [2.] Full description of the problem/report:
+>
+> The 2.4.3 kernel recognizes the card but failts to allocate an
+> interrupt for it.  This is the Lucent Oinoco PCI Carbus bridge product
+> which is based on the TI1410 chip.  In talking with Dave Hinds about
+> the problem, he looked at the enclose outbut and suggested that it
+> looks like a kernel/PCI problem.
+>
+> Moving PCI cards arong, removing other from the system etc has no affect.
 
-> 
-> In any case, what happens if the file was renamed or removed between the
-> 2 readdir calls. A cookie identifying a name that was returned last, or
-> should be read next is just as volatile as a cookie that contains an
-> offset into the directory.
+I got my Lucent PCI-to-PCMCIA adapter to work on my dual Intel box, but
+win2k had some problems with it (slow booting, IIRC). I put the card in my
+Alpha (Miata), but it has never worked there, with symptoms similar to the
+ones you describe. The PCI initialisation apparently never allocates
+(enough) resources to the card. But that PCI initialisation is
+arch-dependant AFAIK.
 
-No, if the file was removed, it still tells you where to start your search.  A missing filename is
-just as good a marker as a present one.
 
-Hans
+-- 
+/* Bert de Bruijn        E-mail@home: bert @ debruijn.be         */
+/* Linux specialist              web: http://bert.debruijn.be/   */
+/* * * * *  I'm not lost, but I still want to be found.  * * * * */
+

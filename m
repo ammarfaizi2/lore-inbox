@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264992AbTCCXyw>; Mon, 3 Mar 2003 18:54:52 -0500
+	id <S265373AbTCCX5E>; Mon, 3 Mar 2003 18:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265154AbTCCXyw>; Mon, 3 Mar 2003 18:54:52 -0500
-Received: from bitmover.com ([192.132.92.2]:9090 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264992AbTCCXyv>;
-	Mon, 3 Mar 2003 18:54:51 -0500
-Date: Mon, 3 Mar 2003 16:05:11 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
-       "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pavel@janik.cz, pavel@ucw.cz
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <20030304000511.GC21701@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	pavel@janik.cz, pavel@ucw.cz
-References: <Pine.LNX.4.44.0303031554230.29949-100000@dlang.diginsite.com> <3E63ED14.5090809@pobox.com>
+	id <S265711AbTCCX5E>; Mon, 3 Mar 2003 18:57:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32529 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265373AbTCCX5C>; Mon, 3 Mar 2003 18:57:02 -0500
+Date: Tue, 4 Mar 2003 00:07:27 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63: Can't handle class_mask in drivers/serial/8250_pci
+Message-ID: <20030304000727.A3898@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikael Pettersson <mikpe@user.it.uu.se>,
+	linux-kernel@vger.kernel.org
+References: <200303032334.h23NYf6X012570@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E63ED14.5090809@pobox.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303032334.h23NYf6X012570@harpo.it.uu.se>; from mikpe@user.it.uu.se on Tue, Mar 04, 2003 at 12:34:41AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 07:02:28PM -0500, Jeff Garzik wrote:
-> David Lang wrote:
-> >On Mon, 3 Mar 2003, Andrea Arcangeli wrote:
-> >
-> >
-> >>Just curious, this also means that at least around the 80% of merges
-> >>in Linus's tree is submitted via a bitkeeper pull, right?
-> >>
-> >>Andrea
-> >
-> >
-> >remember how Linus works, all normal patches get copied into a single
-> >large patch file as he reads his mail then he runs patch to apply them to
-> >the tree. I think this would make the entire batch of messages look like
-> >one cset.
+On Tue, Mar 04, 2003 at 12:34:41AM +0100, Mikael Pettersson wrote:
+> Compiling 2.5.63 with PCI enabled and SERIAL_8250 as a module
+> generates these warnings from scripts/file2alias:do_pci_entry(),
+> via scripts/modpost:
 > 
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:0001
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:0002
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:0004
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:0008
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
+> *** Warning: Can't handle class_mask in drivers/serial/8250_pci:FFFF00
 > 
-> Not correct.  His commits properly separate the patches out into 
-> individual csets.
+> Non-fatal, but something's obviously not right.
+> 
+> Who maintains drivers/serial/, Theodore Ts'o or Russell King?
 
-And we've written code which finds the longest path through the graph
-to get the finest granularity; when run on his tree we get 8138 nodes.
-That is 43% of the 18837 nodes possible.  The trunk only includes
-1068 nodes.  So we can a very good job exporting to CVS.
+Me, but the entries are correct.  If we're unable to support a class
+mask of 0xffff00, a fair amount of stuff is going to break, since it'll
+match the programming interface byte as well.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

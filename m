@@ -1,74 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUJLOW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJLOXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUJLOW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUJLOW0
+	id S264246AbUJLOXh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJLOXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:22:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:44521 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262406AbUJLOWY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:22:24 -0400
-Date: Tue, 12 Oct 2004 16:23:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
-       mark_h_johnson@raytheon.com
-Subject: Re: VP-2.6.9-rc4-mm1-T7
-Message-ID: <20041012142338.GA7632@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <32080.195.245.190.93.1097589566.squirrel@195.245.190.93>
+	Tue, 12 Oct 2004 10:23:36 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:35010 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S264246AbUJLOX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:23:27 -0400
+Date: Tue, 12 Oct 2004 16:24:17 +0200
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: secure computing for 2.6.7
+Message-ID: <20041012142417.GD17372@dualathlon.random>
+References: <20040704173903.GE7281@dualathlon.random> <20040704143526.62d00790.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32080.195.245.190.93.1097589566.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040704143526.62d00790.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 04, 2004 at 02:35:26PM -0700, Andrew Morton wrote:
+> Of course, yes, the patch is sufficiently safe and simple for it to be
+> mergeable in 2.6, if this is the way we want to do secure computing.  I'd
+> wonder whether the API should be syscall-based rather than /proc-based, and
+> whether there should be a config option for it.
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+here a new patch, possibly candidate for merging in 2.6.10pre?
 
-> OK. 2.6.9-rc4-mm1-T7 builds and runs on my laptop (P4/UP), apparently
-> fine. I know it's probably too early to complain, but I'm sending a
-> couple of dmesg's that I took right after init, showing some badness
-> going on.
+	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.9-rc4/seccomp
 
-does the patch below ontop of T7 fix these messages for you?
+I added the config option, mostly to be sure archs will show the seccomp
+file only if they really support the feature interally.
 
-	Ingo
+For my purpose seccomp is the most robust and secure API I could desire.
+Adding genericity isn't the object, the object is to keep it simple and
+obviously safe and as hard as possible to break.  I plan to eventually
+go a bit more complex (and in turn a bit less secure from the point of
+view of the seller) with xen-like trusted computing later once there
+will be enough hardware in the market to make it worthwhile. As for the
+syscall vs /proc, it's not performance critical, and I find this more
+usable (plus currently I'm firing it on with python and excuting a new
+syscalls with python isn't as quick as a file('/proc/' + pid +
+'/seccomp', 'w').write('1').
 
---- linux/sound/pci/ali5451/ali5451.c.orig
-+++ linux/sound/pci/ali5451/ali5451.c
-@@ -261,8 +261,8 @@ struct snd_stru_ali {
- 	unsigned short	ac97_ext_id;
- 	unsigned short	ac97_ext_status;
- 
--	spinlock_t	reg_lock;
--	spinlock_t	voice_alloc;
-+	raw_spinlock_t	reg_lock;
-+	raw_spinlock_t	voice_alloc;
- 
- #ifdef CONFIG_PM
- 	ali_image_t *image;
---- linux/fs/fcntl.c.orig
-+++ linux/fs/fcntl.c
-@@ -541,7 +541,7 @@ int send_sigurg(struct fown_struct *fown
- 	return ret;
- }
- 
--static rwlock_t fasync_lock = RW_LOCK_UNLOCKED;
-+static DECLARE_RAW_RWLOCK(fasync_lock);
- static kmem_cache_t *fasync_cache;
- 
- /*
+Also note, I don't mind if the seccomp file could be removed from /proc
+eventually, as far as I have the guarantee that when it's in there it
+implements the feature. Ideally the seccomp.c file should be pretty much
+fixed in stone and not subject to any further kernel development.
+
+To receive the data asynchronously SIGIO can be set by the
+seccomp-loader, or it can simply retry some read syscall from the socket
+once every couple of seconds if the buffer isn't already full (socket
+can be set in nonblocking mode).  That's all userspace stuff that
+belongs to the seccomp loader. On the kernel side I will make it with
+only read/write/exit/sigreturn.  Even once trusted computing will be
+enabled I will only allow those few operations to communicate with the
+untrusted world. So the model is going to stay and this also means
+ideally no bytecode would require modification to run in trusted
+computing mode by just creating a proper trusted-seccomp-loader (we'll
+see if this is really true, I think it's at least theoretically
+feasible, but it's not a short term matter).
+
+It's a pain to program inside the seccomp mode for the programmer, but
+the power he/she will get if he does I believe could make it worthwhile
+and the whole thing worth a quick try.
+
+Another reason for merging this is that projects like BOINC should start
+using seccomp too. They write in their webpage "Accidental abuse of
+participant hosts by projects: BOINC does nothing to prevent this. The
+chances of it happening can be minimized by pre-released application
+testing. Projects should test their applications thoroughly on all
+platforms and with all input data scenarios before promoting them to
+production status.".  seccomp will fix it completely, which means the
+userbase could increase significantly too, beacuse the seller will not
+have to trust the buyer not to have bugs.
+
+Relaying on seccomp not to break (like I'm doing) is no different from
+relaying on the netfilter code not to break and it's no different from
+relaying on the openssh code not to break, and again no different from
+relaying on the IPSEC code not to break. Except this is an order of
+magnitude simpler to guarantee as obviously safe since much less kernel
+code is involved in these secure paths. Plus this is a lot more secure
+too since if something breaks I will force an upgrade immediatly on
+every single client connected and I'll notify via email as well anybody
+who could have been affeected, something not enforceable on firewall
+kernel code for example on a random computer on the internet.

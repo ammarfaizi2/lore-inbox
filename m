@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbTHZM2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 08:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTHZM0x
+	id S263706AbTHZMa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 08:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbTHZMa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 08:26:53 -0400
-Received: from mail.donpac.ru ([217.107.128.190]:32195 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S263782AbTHZM0g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 08:26:36 -0400
-Date: Tue, 26 Aug 2003 16:26:34 +0400
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 26 Aug 2003 08:30:57 -0400
+Received: from fep03.swip.net ([130.244.199.131]:42948 "EHLO
+	fep03-svc.swip.net") by vger.kernel.org with ESMTP id S263765AbTHZM2P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 08:28:15 -0400
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: 2.6.0-test4: CONFIG_KCORE_AOUT doesn't compile
+Date: Tue, 26 Aug 2003 14:28:07 +0200
+User-Agent: KMail/1.5.3
+References: <200308252332.46101.cijoml@volny.cz> <20030826105145.GC7038@fs.tum.de>
+In-Reply-To: <20030826105145.GC7038@fs.tum.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] visws: fix 2.6.0-test4 breakage
-Message-ID: <20030826122634.GB3913@pazke>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fOHHtNG4YXGJ0yqR"
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
+Message-Id: <200308261428.07929.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for helping me.
+Kernel got compiled now, but not boot.
 
---fOHHtNG4YXGJ0yqR
-Content-Type: multipart/mixed; boundary="gr/z0/N6AeWAPJVB"
-Content-Disposition: inline
+It gets into maintaince wanting root password and then telling me:
 
+QM_MODULES - function not implemented.
 
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What need I switch on to get modules working?
 
-Hi,
+Michal
 
-attached trivial patch fixes visws subarch kernel build.
-It was broken by 2.6.0-test4 cpumask_t changes.
+Dne út 26. srpna 2003 12:51 jste napsal(a):
+> On Mon, Aug 25, 2003 at 11:32:46PM +0200, Michal Semler (volny.cz) wrote:
+> > Hi,
+> >
+> > I tried compile 2.6.0-test4, but I got this error messages:
+> > gcc-3.3, Debian Woody with bunk debs
+> >
+> > arch/i386/mm/built-in.o(.init.text+0x4bf): In function `mem_init':
+> > : undefined reference to `kclist_add'
+> >
+> > arch/i386/mm/built-in.o(.init.text+0x4ec): In function `mem_init':
+> > : undefined reference to `kclist_add'
+> >
+> > make: *** [.tmp_vmlinux1] Error 1
+> >
+> > .config included
+>
+> @Michal:
+>
+> # CONFIG_KCORE_ELF is not set
+> CONFIG_KCORE_AOUT=y
+>
+>
+> I assume you want to change
+>   Executable file formats
+>     Kernel core (/proc/kcore) format
+> to
+>   ELF
+>
+>
+> @all:
+>
+> Is there any specific reason to keep CONFIG_KCORE_AOUT or is it time to
+> remove this option?
+>
+> > Michal
+>
+> cu
+> Adrian
 
-Please apply.
-
-Best regards.
-
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-visws-2.6.0-test4"
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/share/dontdiff linux-2.6.0-test4.vanilla/arch/i386/mach-v=
-isws/mpparse.c linux-2.6.0-test4/arch/i386/mach-visws/mpparse.c
---- linux-2.6.0-test4.vanilla/arch/i386/mach-visws/mpparse.c	Tue Aug 26 23:=
-33:35 2003
-+++ linux-2.6.0-test4/arch/i386/mach-visws/mpparse.c	Tue Aug 26 22:27:21 20=
-03
-@@ -38,7 +38,7 @@
- void __init MP_processor_info (struct mpc_config_processor *m)
- {
-  	int ver, logical_apicid;
--	cpumask_t apic_cpus;
-+	physid_mask_t apic_cpus;
-  =09
- 	if (!(m->mpc_cpuflag & CPU_ENABLED))
- 		return;
-
---gr/z0/N6AeWAPJVB--
-
---fOHHtNG4YXGJ0yqR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/S1H6by9O0+A2ZecRAmEiAKDYyD7l04fIPJBkSWIGTvsVoBJi5QCguyY9
-6uyEyW2KKn3zGaigwVAazJY=
-=6JG8
------END PGP SIGNATURE-----
-
---fOHHtNG4YXGJ0yqR--

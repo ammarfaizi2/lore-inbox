@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSFOSXB>; Sat, 15 Jun 2002 14:23:01 -0400
+	id <S315457AbSFOS1O>; Sat, 15 Jun 2002 14:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315457AbSFOSXA>; Sat, 15 Jun 2002 14:23:00 -0400
-Received: from holomorphy.com ([66.224.33.161]:1195 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315456AbSFOSW7>;
-	Sat, 15 Jun 2002 14:22:59 -0400
-Date: Sat, 15 Jun 2002 11:22:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: remove unnecessary headers from mm/page_alloc.c
-Message-ID: <20020615182241.GQ25360@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
+	id <S315458AbSFOS1N>; Sat, 15 Jun 2002 14:27:13 -0400
+Received: from pool-141-155-118-190.ny5030.east.verizon.net ([141.155.118.190]:49792
+	"EHLO mylaptop.gatworks.com") by vger.kernel.org with ESMTP
+	id <S315457AbSFOS1N>; Sat, 15 Jun 2002 14:27:13 -0400
+Message-ID: <3D0B4E36.5F5EDEF9@voicenet.com>
+Date: Sat, 15 Jun 2002 10:24:54 -0400
+From: Uncle George <gatgul@voicenet.com>
+Organization: GatWorks.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: psheer@icon.co.za, dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
+Subject: got a xircom pcmcia credit kard eth100
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-page_alloc.c does not use either slab.h or swapctl.h. This removes the
-inclusion of those headers from page_alloc.c
+And when I transfer at 100mbps I get nearly 100% system (overhead) time
+for this kard. The ethernet card ( on the laptop mother board ) that is
+native to this machine uses approx 25% system overhead ( for the same
+transfer specs).
 
-Cheers,
-Bill
+I suppose there is no quick ans as to why so many CPU cycles are being
+used by this device driver - xirc2ps_cs/ds/pcmcia_core ?
 
-
-===== mm/page_alloc.c 1.67 vs edited =====
---- 1.67/mm/page_alloc.c	Mon Jun  3 08:25:10 2002
-+++ edited/mm/page_alloc.c	Sat Jun 15 11:21:33 2002
-@@ -15,11 +15,9 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/swap.h>
--#include <linux/swapctl.h>
- #include <linux/interrupt.h>
- #include <linux/pagemap.h>
- #include <linux/bootmem.h>
--#include <linux/slab.h>
- #include <linux/compiler.h>
- #include <linux/module.h>
- #include <linux/suspend.h>

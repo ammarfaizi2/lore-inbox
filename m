@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262595AbUCJMe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 07:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUCJMe4
+	id S262600AbUCJMib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 07:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbUCJMia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 07:34:56 -0500
-Received: from gate.firmix.at ([80.109.18.208]:7827 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S262595AbUCJMev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 07:34:51 -0500
-Subject: Re: Kernel panic with SLES8.0
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Psm.Swamiji@Sun.COM
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <404F750B.4040100@Sun.COM>
-References: <404F5FC1.7070207@Sun.COM>  <404F750B.4040100@Sun.COM>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1078922086.23064.7.camel@tara.firmix.at>
+	Wed, 10 Mar 2004 07:38:30 -0500
+Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:47491 "EHLO
+	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
+	id S262600AbUCJMg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 07:36:27 -0500
+Date: Wed, 10 Mar 2004 13:36:17 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
+Subject: Re: Strange DMA-errors and system hang with Promise 20268
+Message-ID: <20040310123616.GA31893@darkside.22.kls.lan>
+Mail-Followup-To: Mario 'BitKoenig' Holbe <Mario.Holbe@RZ.TU-Ilmenau.DE>,
+	Bruce Allen <ballen@gravity.phys.uwm.edu>,
+	Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
+References: <1078752642.1239.14.camel@vega> <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 13:34:47 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mit, 2004-03-10 at 21:05, Sesha Muneendra Swameejee Panda wrote:
-[...]
-> Sesha Muneendra Swameejee Panda wrote:
-[...]
-> > I have installed the SLES8.0 on a LX50 server. The installation went
+On Wed, Mar 10, 2004 at 05:50:12AM -0600, Bruce Allen wrote:
+> Does the disk's SMART error log (smartctl -l error) show any entries
+> related to this problem?  If so, please print them with the latest version
 
-You should probably go to SuSE with the bug report since it is theirs
-product.
+No, none at all. This was the first I was looking at, because
+I just thought it was some disk problem.
 
-	Bernd
+
+regards,
+   Mario
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+"Why are we hiding from the police, daddy?"      | J. E. Guenther
+"Because we use SuSE son, they use SYSVR4."      | de.alt.sysadmin.recovery

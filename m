@@ -1,94 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTLCVSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 16:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTLCVSJ
+	id S261812AbTLCVKs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 16:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTLCVKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 16:18:09 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:39945 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261406AbTLCVSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 16:18:01 -0500
-Date: Wed, 3 Dec 2003 22:14:49 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031203211449.GB11325@alpha.home.local>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <m2k75dzj6n.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Dec 2003 16:10:47 -0500
+Received: from adsl-68-78-201-244.dsl.klmzmi.ameritech.net ([68.78.201.244]:28424
+	"EHLO mail.domedata.com") by vger.kernel.org with ESMTP
+	id S261812AbTLCVKh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 16:10:37 -0500
+From: tabris <tabris@tabris.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23-pac1 (and others) issue with PDC20265
+Date: Wed, 3 Dec 2003 16:10:28 -0500
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <m2k75dzj6n.fsf@tnuctip.rychter.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200312031610.34288.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, Dec 03, 2003 at 01:26:56PM -0800, Jan Rychter wrote:
-> I am terrified of the following scenario, which is extremely probable to
-> happen soon:
-> 
->   1) 2.4 is being moved into "pure maintenance" mode and people are
->      being encouraged to move to 2.6.
->   2) While people slowly start using 2.6, Linus starts 2.7 and all
->      kernel developers move on to the really cool and fashionable things
->      [3].
->   3) 2.6 bug reports receive little attention, as it's much cooler to
->      work on new features than fix bugs. Bugs are not fashionable.
->   4) In the meantime, third-party vendors are confused and do not
->      support any kernel properly [4].
+I have an ASUS A7V266-E motherboard, AMD AthlonXP 1800+ CPU.
+several hard drives of various makes.
 
-This was already already discussed when 2.4 was about to born. But finally
-people didn't not jump that fast to 2.5 in part because early releases were
-not stable enough for all developpers.
+I've tested a couple different kernels... all (afaik) with preempt.
+I've tried 2.4.22-10mdk, plus 2.4.23-pac1+preempt+lowlatency, and also a 
+2.4.22-ac4+preempt
 
-> What are my suggestions? Two main points, I guess:
-> 
->   1) Please don't stop working (and that does include pulling in new
->      stuff) on 2.4, as many people still have to use it.
-> 
->   2) Please don't start developing 2.7 too soon. Go for at least 6
->      months of bug-fixing. During that time, patches with new features
->      will accumulate anyway, so it isn't lost time. But it will at least
->      prevent people from saying "well, I use 2.7.45 and it works for
->      me".
+What I'm getting are deadlocks on what I think are dma issues when copying 
+btwn hdf and hdg.
+according to /proc/ide/*/model
+hda is a WDC AC28400R
+hdb is a Maxtor 93652U8
+hde is a WDC WD200BB-32BSA0
+hdf is a Maxtor 4D060H3
+hdg is a Maxtor 4D060H3 (just installed today, likely used)
 
-I think the exact opposite. I too have been hit by recurrent API changes in
-2.4. For instance, I remember I once wanted to upgrade to the latest tg3
-driver because of a problem in production, but this required me to include
-NAPI support in the kernel. Not that pleasant on a stable release.
+i've only gotten ONE error message 
+Dec  3 12:51:12 tabriel kernel: hdf: dma_timer_expiry: dma status == 0x61
 
-I think that what incitates people to constantly break APIs and backwards
-compatibility is the adding of new features in stable kernels, which is
-induced by an overly long release cycle. When developpers have fresh ideas
-in their head, they need to implement them right now. If you tell them "wait
-6 more months before playing with the dev kernel", what happens ? They test
-it on the stable one, and once it works, they propose the patch, people like
-you and me find it cool, download it, pressure Marcelo to include it because
-we're lazy (don't want to do the job twice), then something breaks.
+and that was with 2.4.22-10mdk
 
-The other solution: start the new devel kernel even before the stable release
-so that developpers can start to play again and not only do the dirty boring
-job of running after bug reports. A good developper will always try to fix a
-problem in a stable kernel before playing with any other nice feature. But he
-needs motivation and not frustration. So I'm totally for a permanent
-development tree and regular stable releases with only bug fixes. It's about
-what we have with 2.4 at the end of its life. One release every 6 months with
-intermediate development releases. But in this case, it's the second digit
-and not the third which should be incremented every 6 months.
+the rest all deadlock without ANY error messages.
 
-> [5] Please don't tell me to buy an open-source supported 3D card. I've
->     seen such answers before and they are ridiculous. There is no such
->     card on the market if you want anything like reasonable performance.
+Help?
 
-Open a paypal account to fund development of these drivers under NDA if you
-need... How can you require people you don't even know to find specifications
-of closed chips on their own time to write a kernel driver for you ? If it
-was that simple, I would ask that someone ports Linux to my under-used G400
-so that this graphics card with lots of RAM (32 MB) could embed one more
-penguin in my system !
+- --
+tabris
+currently copying from hdf -> hdg with DMA turned off on hdf. going at 
+about 1MB/minute, with some spikes.
+- -
+"Life would be much simpler and things would get done much faster if it
+weren't for other people"
+		-- Blore
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Willy
+iD8DBQE/zlFI1U5ZaPMbKQcRAlRBAJ9vJp2ujbmf8KcytXH6E3e0mG+P7gCeL951
+p4JfhV5Y+eRpaq289AHRZ0Y=
+=Zefz
+-----END PGP SIGNATURE-----
 

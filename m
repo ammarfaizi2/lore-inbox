@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVAMFvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVAMGLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVAMFvl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 00:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVAMFvl
+	id S261160AbVAMGLg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 01:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVAMGLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 00:51:41 -0500
-Received: from orb.pobox.com ([207.8.226.5]:5812 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261163AbVAMFvj (ORCPT
+	Thu, 13 Jan 2005 01:11:36 -0500
+Received: from main.gmane.org ([80.91.229.2]:13991 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261160AbVAMGLf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 00:51:39 -0500
-Date: Wed, 12 Jan 2005 21:51:30 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113055130.GF4378@ip68-4-98-123.oc.oc.cox.net>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
+	Thu, 13 Jan 2005 01:11:35 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: TG3 driver dies with "irq 12: nobody cared" on 2.6.10 (x86)
+Date: Thu, 13 Jan 2005 11:13:14 +0500
+Message-ID: <cs53eb$jfe$1@sea.gmane.org>
+References: <2628963E-6521-11D9-B39A-0030656D1AB0@sigkill.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inet.ycc.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 08:48:57PM -0800, Linus Torvalds wrote:
-> Quite frankly, nobody should ever depend on the kernel having zero holes.  
-> We do our best, but if you want real security, you should have other
-> shields in place. exec-shield is one. So is using a compiler that puts
+Scott Laird wrote:
 
-That reminds me...
+> I'm having a huge pile of problems with my home file server.  Since
+> upgrading from 2.6.2 to 2.6.10, the box now falls off the network at
+> the drop of a hat.  Here's one round of logs:
+> 
+> Jan 12 17:16:49 nfs kernel: irq 12: nobody cared!
+> Jan 12 17:16:49 nfs kernel:  [<c012a2ea>] __report_bad_irq+0x2a/0x90
+> Does anyone have any suggestions?
 
-What are the chances of exec-shield making it into mainline anytime
-in the near future? It's the *big* feature that has me preferring
-Red Hat/Fedora vendor kernels over mainline kernels, even on non-Red
-Hat/Fedora distributions. (I know that parts of exec-shield are already in
-mainline, but I'm wondering about the parts that haven't been merged yet.)
+Try booting with noapic and see if this helps.
 
--Barry K. Nathan <barryn@pobox.com>
+-- 
+Alexander E. Patrakov
 

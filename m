@@ -1,101 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbSKFTwK>; Wed, 6 Nov 2002 14:52:10 -0500
+	id <S266010AbSKFTiz>; Wed, 6 Nov 2002 14:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266065AbSKFTwK>; Wed, 6 Nov 2002 14:52:10 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:4871 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S266064AbSKFTwG>;
-	Wed, 6 Nov 2002 14:52:06 -0500
-Message-ID: <3DC9744F.4090702@namesys.com>
-Date: Wed, 06 Nov 2002 22:58:07 +0300
-From: Yury Umanets <umka@namesys.com>
-Organization: NAMESYS
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Cliff White <cliffw@osdl.org>
-CC: reiserfs-dev@namesys.com, Linux-Kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] build failure: reiser4progs-0.1.0
-References: <200211061956.gA6Ju8B12346@mail.osdl.org>
-In-Reply-To: <200211061956.gA6Ju8B12346@mail.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266015AbSKFTiy>; Wed, 6 Nov 2002 14:38:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11281 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266010AbSKFTiy>; Wed, 6 Nov 2002 14:38:54 -0500
+Date: Wed, 6 Nov 2002 19:45:28 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dmesg of 2.5.45 boot on NFS client
+Message-ID: <20021106194528.C7495@flint.arm.linux.org.uk>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+References: <200211061605.gA6G5xp14090@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211061605.gA6G5xp14090@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Wed, Nov 06, 2002 at 06:57:45PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cliff White wrote:
+On Wed, Nov 06, 2002 at 06:57:45PM -0200, Denis Vlasenko wrote:
+> Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing disabled
+> tts/%d0 at I/O 0x3f8 (irq = 4) is a 16550A
+>     ^^
 
->>Cliff White wrote:
->>
->>    
->>
->>>Attempting to test reiser4, kernel 2.5.46, using the 2002.11.05 snapshot.
->>>--------------------------------------------------
->>>gcc -DHAVE_CONFIG_H -I. -I. -I../.. -I../../include -g -O2 -D_REENTRANT 
->>>-D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -Werror 
->>>-DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -c alloc40.c -MT alloc40.lo -MD -MP 
->>>-MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
->>>cc1: warnings being treated as errors
->>>alloc40.c: In function `callback_fetch_bitmap':
->>>alloc40.c:50: warning: signed and unsigned type in conditional expression
->>>alloc40.c: In function `callback_flush_bitmap':
->>>alloc40.c:209: warning: signed and unsigned type in conditional expression
->>>alloc40.c: In function `callback_check_bitmap':
->>>alloc40.c:376: warning: signed and unsigned type in conditional expression
->>>make[3]: *** [alloc40.lo] Error 1
->>>make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
->>>oc40'
->>>make[2]: *** [all-recursive] Error 1
->>>make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
->>>make[1]: *** [all-recursive] Error 1
->>>make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
->>>make: *** [all] Error 2
->>>-------------------------------------
->>>cliffw
->>>
->>>
->>>
->>>
->>> 
->>>
->>>      
->>>
->>You are probably using gcc-3.2. Okay, fixed. Thanks a lot for report.
->>    
->>
->
->No, i am not using gcc-3.2
->]# gcc -v
->Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
->gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
->I have replicated the problem on two machines
->cliffw
->
->  
->
->>-- 
->>Yury Umanets
->>
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>    
->>
->
->
->
->
->  
->
-Try for awhile:
-configure --without-readline
-
+Already killed.  I think it went in just after 2.5.46 was released.
 
 -- 
-Yury Umanets
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUEHCQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263946AbUEHCf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263881AbUEHCQB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 22:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbUEHCQB
+	id S263946AbUEHCf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 22:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbUEHCfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 22:16:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263881AbUEHCP7 (ORCPT
+	Fri, 7 May 2004 22:35:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43930 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263946AbUEHCfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 22:15:59 -0400
-Date: Fri, 7 May 2004 19:15:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tim Bird <tim.bird@am.sony.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: get_cmos_time() takes up to a second on boot
-In-Reply-To: <409C2CBA.8040709@am.sony.com>
-Message-ID: <Pine.LNX.4.58.0405071908060.3271@ppc970.osdl.org>
-References: <409C2CBA.8040709@am.sony.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 May 2004 22:35:54 -0400
+Date: Fri, 7 May 2004 19:35:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
+Cc: linux-kernel@vger.kernel.org, danlee@informatik.uni-freiburg.de,
+       b-gruber@gmx.de, mhakali@telia.com, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] SERIO_USERDEV: direct userspace access to
+ mouse/keyboard psaux serial ports
+Message-Id: <20040507193519.06062655.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0405072348120.21057@stekt37>
+References: <Pine.GSO.4.58.0405072348120.21057@stekt37>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 7 May 2004, Tim Bird wrote:
+Tuukka Toivonen <tuukkat@ee.oulu.fi> wrote:
+>
+> SERIO_USERDEV - Direct serial input device access for userspace
 > 
-> What is the downside of disabling this
-> synchronization with the clock edge?
+>  This driver provides direct access from usespace into PS/2 (or psaux)
+>  serial ports used usually for input devices such as mouses and keyboards.
 
-It might not matter any more, but if I remember correctly, the real 
-problem was that we used to always write back the time to the CMOS clock 
-too, and then booting a few times and consistently getting the time wrong 
-the same way made the clock drift quite noticeably.
+I must say that last time this went around, the arguments which were made
+in its favour made sense.  Let me recap:
 
-These days, I think we do the write-back only if we use an external clock 
-(NTP), so we probably _could_ just remove the synchronization at 
-read-time (removing it at write-time doesn't sound like a good idea).
+At present, the kernel decodes the external device into logical "events"
+and, if someone wants access to the raw device bitstream the kernel will
+synthesize that bitstream from the decoded event stream.
 
-Does anybody remember better?
+But if, for example, the kernel doesn't have a decoder for the external
+device, we're out of luck.
 
-> 1 second of variability is unnacceptable
-> when you're requirement is to boot in
-> .5 seconds.  :)
+And given that the external device generates a stream of bits, the kernel
+should provide some way for applications to directly access that stream
+without the intervening interpretation.
 
-Heh. And yes, it could be handled other ways (you could check the cmos
-time in the timer interrupt during boot, and correct it there rather than
-busy-waiting).
 
-> Would it be bad to disable this synchronization
-> completely?  How about just during boot?
+Is that a decent summary of the situation?
 
-I don't think we should necessarily disable the synchronization, but we
-could certainly make it optional for cases that don't care about it. We
-might even make the default be "don't care about the read
-synchronization".
+If so then yeah, I think the kernel should have a driver which does all of
+this.
 
-		Linus

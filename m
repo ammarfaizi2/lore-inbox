@@ -1,61 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269246AbRGaKzT>; Tue, 31 Jul 2001 06:55:19 -0400
+	id <S269250AbRGaLBK>; Tue, 31 Jul 2001 07:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269247AbRGaKzK>; Tue, 31 Jul 2001 06:55:10 -0400
-Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:49677 "EHLO
-	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
-	id <S269246AbRGaKzF>; Tue, 31 Jul 2001 06:55:05 -0400
-Date: Tue, 31 Jul 2001 12:55:12 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-cc: <pworach@mysun.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100 2.4.7-ac3 problems (apm related)
-Message-ID: <Pine.LNX.4.33.0107311246360.3857-100000@chaos.tp1.ruhr-uni-bochum.de>
+	id <S269251AbRGaLA7>; Tue, 31 Jul 2001 07:00:59 -0400
+Received: from gandalf.drinsama.de ([212.72.64.1]:52487 "EHLO
+	gandalf.drinsama.de") by vger.kernel.org with ESMTP
+	id <S269250AbRGaLAz>; Tue, 31 Jul 2001 07:00:55 -0400
+From: "Thomas Tanner" <tanner@ffii.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: harddisk suddenly locked?!
+Date: Tue, 31 Jul 2001 13:00:07 +0200
+Message-ID: <MABBKEJEMCFLBEDCGCDNGEABCAAA.tanner@ffii.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001, Martin Knoblauch wrote:
+Please help me! I'm desperate
 
-> > The eepro100 interface in my Fujitsy/Siemens Lifebook S-4546
-> > won't come up after a suspend, if I unload the module and load it again
-> > it works fine...
-> > "ioctl SIOCSIFFLAGS: No such device" is the error message.
-> 
->  same here with an eepro100 inside a IBM Thinkpad570. Happened with
-> 2.4.6-ac2. Since then I apply the appended patch after installing "-ac"
-> stuff. This completely disables power state handling for the device. Not
-> very clean, but I do not care in this particular case. It probably shows
-> a more principal issue with the eepro100. Kai - did you look deeper into
-> the issue?
+ I can't access the data on my harddrive any longer ;-((
 
-I didn't look to deep, since my eepro100 works fine here, so I can't 
-reproduce your problem.
+ The IBM Disk Fitness Test tool tells me:
+   Model                   : IBM-DJNA-372200
+   Microcode level         : J71OA30K
+   ATA Compliance          : ATA-4
+  ...
+   Settings
+  ...
+     S.M.A.R.T. status     : Good
+     Security feature      : Supported
+       Password            : Set
+       Password level      : High
+       Security mode       : Locked
 
-However, I'm wondering if the problems you guys are having are really the 
-same. IIRC, Martin's eepro100 wouldn't ever come up from state D2 into 
-working state again until the next reboot, right?
+ However, I haven't set any password. I don't even know how to set it!!
+ My system is (was) Linux 2.4.7 with PIIX support and "SCSI over IDE"
+enabled,
+ experimental IDE code disabled.
+ After booting the system and leaving it one hour alone (idle, no internet
+connection)
+ I wanted to start XWindows (4.01). However, it switched the video mode and
+suddenly
+ locked up for ~10 sec. I pressed Ctrl-Alt-Backspace/Del several times to
+reboot.
+ After some seconds it responded and seemed to shut down as usual.
+ Since then the hd is locked and I don't know why.
 
-Whereas Pawel's eepro100 can be revived by reloading the module, so there 
-seems to be a difference. For Pawel, can you supply lspci -vvxxx output 
-before and after the suspend. That should give some hints.
+ According to the ATA-3 specification there are two passwords: a master and
+a user password.
+ The passwords are stored in the EPROM of the hd and are certainly very very
+hard to remove.
+ A locked drive rejects all media access commands.
+ When a new master password is set, the drive won't be locked.
+ Setting a new user password locks the drive the next time it is powered-on.
+ A drive can be unlocked by one of the two passwords.
+ IBM sets the master password to all ASCII blanks (0x20) during
+ manufacturing.
 
-Martin, if you want to spend some work on your problem, you could try to 
-collect some more data an your problem, particularly what about using 
-another state (D1/D3) when the interface is down. D3 will probably mean 
-that you have to save/restore PCI config space, so it's a bit more 
-tedious. Also, is there anything which makes your card work again after it 
-was in state D2? Like suspend/resume, or putting it into D3 and back into 
-D0? Does a warm reboot suffice, or do you need to power cycle.
+ To unlock a drive one has to send the command SECURITY UNLOCK (0xBB)
+ and transfer a single sector to the drive:
+ Word
+ 0     Bit 0 Identifier: 0=compare user password, 0=compare master password
+ 1-16  Password (32 Bytes)
+ 17-255 reserved
 
-As it stands, I don't see an alternative to Martin's problem apart from
-the patch he's using - well, that could be done a bit more nicely, like
-having a config option for the sleep D state, which would increase chances
-Alan would take it as an -ac patch.
+ Word 128 of the Identify Drive command contains the Security status:
+ Bit
+ 8 : Security level  0=High (can be unlocked), 1=Maximum (disk must be
+erased)
+ 4 : 1=Security count expired (more than five failed unlock tries,
+hard-reset necessary)
+ 3 : 1=Security frozen (all security commands aborted)
+ 2 : 1=Security locked (media access not allowed)
+ 1 : 1=Security enabled
+ 0 : 1=Security supported
 
---Kai
+ Something must have sent a lock command to my hd. Maybe a bug in the IDE
+code?
+ I hope to be able to unlock my drive using the default master password.
+ My question is: how can I send the unlock command to the hd?
+ Is there any program that can do it?
+ AFAICS one can send only the command code using a HDIO_DRIVE_CMD ioctl.
+ But how can I transfer the password?
+
+ Any ideas?
+
+ Thank you very much in advance!
+
+PS: please CC to me
+
+Thomas Tanner-------------------
+tanner@(ffii.org|gnu.org|gmx.de)
 

@@ -1,109 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280236AbRJaO13>; Wed, 31 Oct 2001 09:27:29 -0500
+	id <S280240AbRJaO1I>; Wed, 31 Oct 2001 09:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280238AbRJaO1U>; Wed, 31 Oct 2001 09:27:20 -0500
-Received: from mail201.mail.bellsouth.net ([205.152.58.141]:46661 "EHLO
-	imf01bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280236AbRJaO1K>; Wed, 31 Oct 2001 09:27:10 -0500
-Message-ID: <3BE00A61.EAA52CE1@mandrakesoft.com>
-Date: Wed, 31 Oct 2001 09:27:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: pre6 oom killer oops
-In-Reply-To: <Pine.GSO.4.21.0110310916210.5536-100000@weyl.math.psu.edu>
+	id <S280236AbRJaO06>; Wed, 31 Oct 2001 09:26:58 -0500
+Received: from oyster.morinfr.org ([62.4.22.234]:18312 "EHLO
+	oyster.morinfr.org") by vger.kernel.org with ESMTP
+	id <S280237AbRJaO0p>; Wed, 31 Oct 2001 09:26:45 -0500
+Date: Wed, 31 Oct 2001 15:27:17 +0100
+From: Guillaume Morin <guillaume@morinfr.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] TCP ECN bits and TCP_RESERVED_BITS macro
+Message-ID: <20011031152717.A25584@morinfr.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Wed, 31 Oct 2001, Jeff Garzik wrote:
-> 
-> > further comments #2:
-> >
-> > when rebooting, there was some disk corruption in the ext2 filesystem.
-> >
-> > It is my guess that this is to the large number of buffers in the vmstat
-> > output, which I believe are dirty buffers that never got written out
-> 
-> Judging by your log it's not an OOM - page table corruption got caught by
-> do_wp_page(), which means that handle_mm_fault() fails (surprise, surprise),
-> which kills the process.
-> 
-> Looks like a massive memory corruption - later it fscked you in pte_alloc()
-> and then it screwed buffer cache lists.
+Hi folks,
 
-I'm reinstalling now, with a bad blocks check, to make sure random disk
-crap isn't affecting things.  Disk is good AFAIK.  Vaguely recent ATA-33
-drive.  I'll switch to the other alpha to see if I can see similar
-symptoms.  
+As most people here know, RFC3168 adds two new bits to the TCP header
+(ECE and CWR). Those were reserved in RFC793 (standard for TCP).
 
-Unfortunately I don't know of a good alpha memory tester like
-memtest86.  SRM firmware tests memory ok, but that probably doesn't mean
-much.
+Since RFC3168 is an proposed standard and ECN is now used widely on
+Linux systems, I'd like to suggest the modification of the
+TCP_RESERVED_BITS. This change seems logical wrt
 
-Final comment before leaving this machine.  Restarting the rpm-rebuilder
-(post reboot and fsck), I still see a very large number of buffs.  Since
-there is zero swapped, this may or may not be normal.  The cache value
-appears sane, FWIW.
+include/linux/tcp.h the tcphdr struct :
+    __u16   doff:4,
+	        res1:4,
+	        cwr:1,  
+	        ece:1,
+
+This change is pretty harmless, since, this macro is used in
+
+1) include/net/tcp_ecn.h. I've patched the related part even if it would
+have work without. It is just cleaner.
+
+2) netfilter: 
+ - in the LOG target, it won't break them. I'll submit patches
+   to netfilter-devel to display TCP ECN bits just like any other TCP flags
+   (which will ease the LOG readings)
+ - In the unclean target where the current value breaks the module.
+
+Patch against 2.4.14-pre6
 
 
-   procs                      memory    swap          io    
-system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us 
-sy  id
- 2  0  0      0  35024  13016 267256   0   0     3   491 1046   136  84 
-12   4
- 1  0  0      0 106776  14864 191984   0   0   380     0 1903   696  13 
-20  67
- 3  0  0      0  85448  16424 210216   0   0   239    11 1066  1305  58 
-25  17
- 1  0  0      0  83624  16560 210712   0   0   107    21 1068   550  54 
-25  21
- 1  0  0      0  81952  16600 211224   0   0     3     0 1030    96 
-93   6   0
- 1  0  0      0  78720  16704 212080   0   0   144    11 1045   118  79 
-12   9
- 2  0  0      0  79608  16728 212400   0   0    30     0 1037   108 
-86   8   5
- 1  0  0      0  73288  16792 212736   0   0    35    11 1039    84 
-91   5   4
- 1  0  0      0  71784  16792 212736   0   0     0    11 1038    25 
-99   1   0
- 1  0  0      0  81560  16944 214840   0   0   446     0 1049   259  70 
-19  11
- 1  0  0      0  76920  16984 215480   0   0     4     0 1031   487  75 
-24   1
- 1  0  0      0  79384  17016 215600   0   0     0     0 1029    23 
-94   6   0
- 0  1  1      0  79432  17056 215976   0   0    12  1396 1132   188  48 
-12  40
- 0  1  1      0  79384  17056 216008   0   0    11  4542 1107    14  
-0   2  98
- 1  0  0      0  74400  17128 216984   0   0   331   217 1090   269  25 
-10  65
- 2  0  0      0  70456  17136 217064   0   0     0   288 1030   119 
-96   4   0
- 1  0  0      0  72200  17152 217176   0   0     0     0 1050    96 
-97   3   0
- 1  0  0      0  67232  17152 217264   0   0     0   107 1041    93 
-98   2   0
- 1  0  0      0  70072  17160 217416   0   0     0     0 1029    91 
-97   3   0
- 1  0  0      0  68272  17168 217496   0   0     0    75 1035   122 
-96   4   0
+diff -uNr linux/include/linux/tcp.h linux-new-tcprb/include/linux/tcp.h
+--- linux/include/linux/tcp.h	Sat Apr 28 00:48:20 2001
++++ linux-new-tcprb/include/linux/tcp.h	Wed Oct 31 14:51:40 2001
+@@ -110,7 +110,7 @@
+ 	TCP_FLAG_RST = __constant_htonl(0x00040000), 
+ 	TCP_FLAG_SYN = __constant_htonl(0x00020000), 
+ 	TCP_FLAG_FIN = __constant_htonl(0x00010000),
+-	TCP_RESERVED_BITS = __constant_htonl(0x0FC00000),
++	TCP_RESERVED_BITS = __constant_htonl(0x0F000000),
+ 	TCP_DATA_OFFSET = __constant_htonl(0xF0000000)
+ }; 
+ 
+diff -uNr linux/include/net/tcp_ecn.h linux-new-tcprb/include/net/tcp_ecn.h
+--- linux/include/net/tcp_ecn.h	Wed Oct 31 14:57:53 2001
++++ linux-new-tcprb/include/net/tcp_ecn.h	Wed Oct 31 14:50:46 2001
+@@ -3,7 +3,7 @@
+ 
+ #include <net/inet_ecn.h>
+ 
+-#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH)|TCP_FLAG_ECE|TCP_FLAG_CWR)
++#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH))
+ 
+ #define	TCP_ECN_OK		1
+ #define TCP_ECN_QUEUE_CWR	2
+
+
+All comments welcome.
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Guillaume Morin <guillaume@morinfr.org>
 
+         Do you worry that you're not liked ? How long till you break
+                                (Our Lady Peace)

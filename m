@@ -1,84 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264438AbTH2GpO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 02:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTH2GpN
+	id S264337AbTH2Gnf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 02:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTH2Gne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 02:45:13 -0400
-Received: from D7182.pppool.de ([80.184.113.130]:10146 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S264438AbTH2GpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 02:45:06 -0400
-Subject: Re: UP optimizations ..
-From: Daniel Egger <degger@fhm.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: herbert@13thfloor.at,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <16204.62914.298711.293389@gargle.gargle.HOWL>
-References: <20030827160315.GD26817@www.13thfloor.at>
-	 <16204.62914.298711.293389@gargle.gargle.HOWL>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2n4AfUZH6IbNO+jkpJEC"
-Message-Id: <1062058995.965.2.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 28 Aug 2003 10:23:16 +0200
+	Fri, 29 Aug 2003 02:43:34 -0400
+Received: from lakemtao06.cox.net ([68.1.17.115]:63383 "EHLO
+	lakemtao06.cox.net") by vger.kernel.org with ESMTP id S264337AbTH2Gnd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 02:43:33 -0400
+From: GibsonSG <gibsonsg@cox.net>
+To: mec@shout.net
+Subject: Error Report
+Date: Fri, 29 Aug 2003 01:41:07 -0500
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308290141.07070.gibsonsg@cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Menuconfig has encountered a possible error in one of the kernel's 
+configuration files and is unable to continue.  Here is the error report:
 
---=-2n4AfUZH6IbNO+jkpJEC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Q> scripts/Menuconfig: line 832: MCmenu71: command not found
 
-Am Mit, 2003-08-27 um 20.17 schrieb Mikael Pettersson:
-
-> +#else
-> +
-> +static inline int task_cpu(const struct task_struct *p)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline void set_task_cpu(struct task_struct *p, int cpu)
-> +{
-> +}
-> +
-> +static inline unsigned long task_cpus_allowed(const struct task_struct *=
-p)
-> +{
-> +	return ~0UL;
-> +}
-> +
-> +static inline void set_task_cpus_allowed(struct task_struct *p,
-> +					 unsigned long cpus_allowed)
-> +{
-> +}
-> +
-> +static inline void set_task_cpus_runnable(struct task_struct *p,
-> +					  unsigned long cpus_runnable)
-> +{
-> +}
-> +
-> +#endif /* CONFIG_SMP */
-
-Shouldn't these be marked const?
-
---=20
-Servus,
-       Daniel
-
---=-2n4AfUZH6IbNO+jkpJEC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/Tbvzchlzsq9KoIYRAgILAKDcKFFmQVSiT47ZN8dHHmZrIXCOaQCdHkGR
-ySzvc2bLeiahR9039/7C6g8=
-=XUdf
------END PGP SIGNATURE-----
-
---=-2n4AfUZH6IbNO+jkpJEC--
-
+I have received this error when compiling both 2.4.21-0.13mdk and 2.4.22-1mdk 
+when attempting to open the ALSA sound menu.

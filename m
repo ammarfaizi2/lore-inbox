@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310912AbSCPWJy>; Sat, 16 Mar 2002 17:09:54 -0500
+	id <S311043AbSCPWNo>; Sat, 16 Mar 2002 17:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310940AbSCPWJo>; Sat, 16 Mar 2002 17:09:44 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47403 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S310912AbSCPWJ1>; Sat, 16 Mar 2002 17:09:27 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds),
-        andersg@0x63.nu (Anders Gustafsson), arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-In-Reply-To: <E16mLHd-00079Z-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Mar 2002 15:03:26 -0700
-In-Reply-To: <E16mLHd-00079Z-00@the-village.bc.nu>
-Message-ID: <m1hengxj9t.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S311023AbSCPWNe>; Sat, 16 Mar 2002 17:13:34 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:57861 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311040AbSCPWNY>; Sat, 16 Mar 2002 17:13:24 -0500
+Message-ID: <3C93C31E.A3025F63@zip.com.au>
+Date: Sat, 16 Mar 2002 14:11:42 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: John McCutchan <ttb@tentacle.dhs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext3_error()
+In-Reply-To: <20020316194233.GA26338@tentacle.dhs.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> > Please for the Linux booting Linux scenario it is mandatory we get this right
-> > for reboot.  I know for a fact that currently we leave active receive buffers
-> on
+John McCutchan wrote:
 > 
-> > network cards when we reboot. (If you haven't downed the interface).  So it
-> > is possible for a network packet to come in and hose a machine that is
-> rebooting.
+> Hello,
 > 
+> I got this in my kern.log file:
 > 
-> Thats a bios bug. Its pretty much the whole reason for having bus master
-> enable bits in the PCI configuration. The BIOS should have killed the bus
-> masters.
+> Feb 20 00:41:00 golbez kernel: ext3_free_blocks: Freeing blocks not in datazone
+> - block = 538082710, count = 1
+> 
+> What could be the cause of this?
+> 
 
-In the general reboot case yes it is a BIOS bug.  In the general Linux
-booting Linux case there is no BIOS involved.
+Bad things.   Something somewhere has corrupted in-core or
+on-disk allocation tables.
 
-Eric
+Any time anything like this comes out of a filesystem,  it's
+time to shut everything off and run fsck.
+
+-

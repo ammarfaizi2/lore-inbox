@@ -1,157 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUFTXM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUFTXMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUFTXM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 19:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUFTXM1
+	id S262370AbUFTXMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 19:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUFTXMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 19:12:27 -0400
-Received: from wblv-246-169.telkomadsl.co.za ([165.165.246.169]:35511 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S262380AbUFTXMK
+	Sun, 20 Jun 2004 19:12:16 -0400
+Received: from wblv-246-169.telkomadsl.co.za ([165.165.246.169]:35255 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262370AbUFTXMK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 20 Jun 2004 19:12:10 -0400
 Subject: Re: [PATCH 0/2] kbuild updates
 From: Martin Schlemmer <azarah@nosferatu.za.org>
 Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: arjanv@redhat.com, Sam Ravnborg <sam@ravnborg.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Kai Germaschewski <kai@germaschewski.name>
-In-Reply-To: <200406210026.43988.agruen@suse.de>
+To: s0348365@sms.ed.ac.uk
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <200406202326.54354.s0348365@sms.ed.ac.uk>
 References: <20040620211905.GA10189@mars.ravnborg.org>
-	 <1087767752.2805.18.camel@laptop.fenrus.com>
-	 <1087768362.14794.53.camel@nosferatu.lan>
-	 <200406210026.43988.agruen@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q36DO0F12ONKlzn/B0Jl"
-Message-Id: <1087771141.14794.89.camel@nosferatu.lan>
+	 <20040620220319.GA10407@mars.ravnborg.org>
+	 <1087769761.14794.69.camel@nosferatu.lan>
+	 <200406202326.54354.s0348365@sms.ed.ac.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WYqcmLbK6iOyhD4Od4yY"
+Message-Id: <1087772041.14794.104.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 00:39:01 +0200
+Date: Mon, 21 Jun 2004 00:54:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-q36DO0F12ONKlzn/B0Jl
+--=-WYqcmLbK6iOyhD4Od4yY
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2004-06-21 at 00:26, Andreas Gruenbacher wrote:
-> On Sunday 20 June 2004 23:52, Martin Schlemmer wrote:
-> > On Sun, 2004-06-20 at 23:42, Arjan van de Ven wrote:
-> > > > Given, but to 'use' the kbuild infrastructure, you must still call =
-it
-> > > > via:
-> > > >
-> > > >   make -C _path_to_sources M=3D`pwd`
+On Mon, 2004-06-21 at 00:26, Alistair John Strachan wrote:
+> [snipped a few CC addresses]
+>=20
+> On Sunday 20 June 2004 23:16, Martin Schlemmer wrote:
+> > On Mon, 2004-06-21 at 00:03, Sam Ravnborg wrote:
+> > > On Sun, Jun 20, 2004 at 11:30:34PM +0200, Martin Schlemmer wrote:
+> > > > I know Sam's mta blocks my mail at least (lame isp), but for the re=
+st,
+> > > > please reconsider using this.
 > > >
-> > > I see no problem with requiring this though; requiring a correct
-> > > makefile is perfectly fine with me, and this is the only and document=
-ed
-> > > way for 2.6 already.
-> > > (And it's also the only way to build modules against Fedora Core 2
-> > > kernels by the way)
+> > > Hmm, got your mail.
+> > >
+> > > > Many external modules, libs, etc use
+> > > > /lib/modules/`uname -r`/build to locate the _source_, and this will
+> > > > break them all.
+> > >
+> > > Examples please. What I have seen so far is modules that was not
+> > > adapted to use kbuild when being build.
+> > > If they fail to do so they are inherently broken.
 > >
-> > I did not mean I have a problem with that.  Say you take svgalib, and
-> > you want the build system to automatically compile the kernel module,
-> > you might do something like:
+> > Well, glibc use it for instance as an fall-through if you do not specif=
+y
+> > it via ./configure arguments, or environment (yes, glibc should not use
+> > it, etc, etc, no flames please =3D).  So as well does alsa-driver,
+> > nvidia's drivers (gah, puke, yes, its got some binary-only stuff in
+> > there ;), ati's drivers and a lot of other stuff (if you really need
+> > them all I can try to find time to look for more).
 > >
-> > ---
-> > build_2_6_module:
-> > 	@make -C /lib/modules/`uname -r`/build M=3D`PWD`
-> > ---
+> > I am not sure about ati's drivers and alsa, but nvidia uses kbuild.
 > >
-> > will break with proposed patch ...
+> >
+> > Thanks,
 >=20
-> No it won't.
+> Sam's point is that unless you ask KBUILD to put the kernel build in a=20
+> separate directory to its sources (this is not the default=20
+> behaviour), /lib/modules/`uname -r`/build will still point to the mixture=
+ of=20
+> source and build data, therefore no breakage will occur.
 >=20
-> You always need to figure out $(objtree) to build external modules, with =
-or=20
-> without a separate output directory. Many modules don't need to know=20
-> $(srctree) explicitly at all.
->=20
-> In case you want to do something depending on the sources/confguration, t=
-here=20
-> are two ways:
->   - follow the new source symlink,
->   - let kbuild take you to $(srctree): When the makefile in the M directo=
-ry
->     is included, the current working directory is $(srctree). besides, al=
-l the
->     usual variables like $(srctree), $(objtree), CONFIG_* variables, etc.=
- are
->     all available. That's a good time to check for features, etc.
->=20
-
-But my original concern (that the only way to figure where the source
-are for the running kernel will be broken) is still valid.  And to do
-all that you mentioned above, you still need to figure out _where_ the
-kernel source are ...
-
-> > And the point I wanted to make was that AFIAK
-> > '/lib/modules/`uname -r`/build' is an interface to figure
-> > out where the _sources_ for the current running kernel are
-> > located.
->=20
-> That's a misconception. At the minimum, you want to be able to build the=20
-> module. Directly messing with the sources is usually wrong. I know extern=
-al=20
-> module authors like to do that nevertheless; in a few cases it's actually=
+> I understand Sam's reasoning and I believe it is sensible to have the sou=
+rce=20
+> and build output in separate directories within /lib/modules/`uname -r`. =
+The=20
+> drivers in question can easily be updated to support the exceptional case=
 =20
-> useful. Most of the time it really is not. Most external modules have tot=
-ally=20
-> braindead/broken makefiles.
+> whereby users build kernels in a different directory to the source.
 >=20
+> Sam, maybe if there was a way to easily detect whether a kernel had been =
+build=20
+> with or without a different output directory, it would be easier to have=20
+> vendors take this change on board. For example, I imagine in the typical =
+case=20
+> whereby no change in build directory is made, you will have something lik=
+e=20
+> this:
+>=20
+> /lib/modules/2.6.7/build -> /home/alistair/linux-2.6
+> /lib/modules/2.6.7/source -> /home/alistair/linux-2.6
+>=20
+> Whereas when O is given, it will instead be like this:
+>=20
+> /lib/modules/2.6.7/build -> /home/alistair/my-dir
+> /lib/modules/2.6.7/source -> /home/alistair/linux-2.6
+>=20
+> I presume that checking for the existence of /lib/modules/`uname -r`/sour=
+ce=20
+> will be enough.
+>=20
+> #
+> # where's the kernel source?
+> #
+>=20
+> if [ -d /lib/modules/`uname -r`/source ]; then
+> 	# 2.6.8 and newer
+> 	KERNDIR=3D"/lib/modules/`uname -r`/source"
+> else
+> 	# pre 2.6.8 kernels
+> 	KERNDIR=3D"/lib/modules/`uname -r`/build"
+> fi
+>=20
+> Yeah?
 
-I never said anything about messing with the source.  But anything that
-needs access to the running kernel's headers need to know where the
-sources are - and that could have been figured out by looking at the
-'build' symlink.
+Yes, as said before, I can understand the name change.  The point is
+more that the 'build' symlink will change in behavior in certain
+circumstances, and because many projects already support 2.6, and
+make use of the 'build' symlink, they will break.
 
-Say you maintain an opensource (just to throw out the 'its closed
-source, so screw them' arguments) external module that supports both
-2.4 and 2.6, and easy way to implement it is to have:
-
-makefile - make will first look for this, and then process it.
-           in here you check what kernel is running (via uname -r
-           or whatever), and then create the proper 'Makefile'
-           symlink, and then call make with arguments to properly
-           handle the external module build process for that
-           version kernel.
-
-Makefile-pre_M_flag - 100% valid kbuild Makefile for kernels that
-                      do not support M=3D
-
-Makefile-post_M_flag - 100% valid kbuild Makefile for kernels
-                       supporting M=3D
-
-Makefile-2_4 - 100% valid kbuild/whatever Makefile for 2.4 kernels
-               (Ok, I am not so sure about how 2.4 handles things
-               these days anymore ...)
-
-now the clueless user just calls 'make && make install' and it should
-work perfectly.
-
-Or you create an install.sh that does things properly, or whatever,
-but point remains that you need to know where the source are ...
-
-
-Thanks,
+If it was however done in 2.7, things will get supported well before
+2.8 is out, or in general use ...
 
 --=20
 Martin Schlemmer
 
---=-q36DO0F12ONKlzn/B0Jl
+--=-WYqcmLbK6iOyhD4Od4yY
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA1hIFqburzKaJYLYRAi1aAJ9q4fnbnrKJ2+0Nv6pz4AC9dhSzcQCfc5mg
-R5UBmyu0EzxkVHFWzQwwtnM=
-=q57v
+iD8DBQBA1hWJqburzKaJYLYRAiYSAJ9eWj2dndeytXgUbhP8KKclEegM2ACfThee
+TiH3PtzC3NBCjU+4+PKs4/g=
+=t7pR
 -----END PGP SIGNATURE-----
 
---=-q36DO0F12ONKlzn/B0Jl--
+--=-WYqcmLbK6iOyhD4Od4yY--
 

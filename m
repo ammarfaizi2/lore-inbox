@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278982AbRJVWRA>; Mon, 22 Oct 2001 18:17:00 -0400
+	id <S278989AbRJVWUK>; Mon, 22 Oct 2001 18:20:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278989AbRJVWQu>; Mon, 22 Oct 2001 18:16:50 -0400
-Received: from [212.113.174.249] ([212.113.174.249]:61731 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S278990AbRJVWQS>;
-	Mon, 22 Oct 2001 18:16:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Pedro Corte-Real <typo@netcabo.pt>
-To: stimits@idcomm.com
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 23:17:32 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011022135759.A17384@crdic.ath.cx> <20011022163755.A2727@kittpeak.ece.umn.edu> <3BD4978E.3802AC91@idcomm.com>
-In-Reply-To: <3BD4978E.3802AC91@idcomm.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S278996AbRJVWTZ>; Mon, 22 Oct 2001 18:19:25 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43790 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S278989AbRJVWRm>; Mon, 22 Oct 2001 18:17:42 -0400
+Date: Mon, 22 Oct 2001 18:12:52 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A nicer nice scheduling
+In-Reply-To: <Pine.LNX.4.10.10110221644570.25216-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.3.96.1011022175924.23660D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01rMum5Tj0005a0a7@smtp.netcabo.pt>
-X-OriginalArrivalTime: 22 Oct 2001 22:13:42.0677 (UTC) FILETIME=[CF4BBC50:01C15B46]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 22 Oct 2001, Mark Hahn wrote:
 
-On Monday 22 October 2001 23:02, D. Stimits wrote:
->
->
-> Too bad the option only applies to people with enough money to relocate.
->
+> > kernels. But such an aggressive nice does have a downside as given, it
+> > can result in a process in memory which doesn't get scheduled. 
+> 
+> why would it be "in memory"?  idle pages get reclaimed/swapped.
 
-Well, freedom in the US has always been about money. The independence war was 
-about getting rid of taxes and modern freedom is bought in the courtrooms 
-with expensive lawyers. Why should it change now? 
+In the long run that's true, but there's nothing to preferentially swap
+that page set, so they don't go away any faster than any other pages. If
+the idle process were another thing instead of just a low priority
+process, it could be treated in some special ways WRT memory management.
 
-Greetings,
+We have two people actively working on VM, please let them comment on what
+could be done. I would think about swapping the idle process
+preferentially if it didn't get run for some realtime, and perhaps doing
+{something_else} fancy otherwise. At the rate the VM code is getting
+complex I expect to see standard deviation and FFTs in 2.5. Only half
+kidding, both VMs are working better with every refinement, complexity is
+not bad if it produces better results. I always thought per-process page
+fault rates would be useful, if some weighted attention to that would
+reduce the total system i/o rate.
 
-Pedro.
+Anyway, that was my thinking, if the load is high a true idle process
+could be treated as a special case, including running a small number of
+them instead of having a lot of low priority processes doing not much if
+too many were started. I can remember batch processing, and for real idle
+jobs that's not a bad thing.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-PS: sorry for fueling offtopic posts into an offtopic thread.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE71JsD2SBo0jBmgGARAvx8AKDFN+CuPqCYZDbBryK9dKRcy+8OGgCfVcPl
-gCZ4lh5AQZkzubm+M4qYE7A=
-=SK5+
------END PGP SIGNATURE-----

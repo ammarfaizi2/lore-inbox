@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUJMDQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUJMD1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUJMDQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 23:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUJMDQJ
+	id S268270AbUJMD1w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 23:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUJMD1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 23:16:09 -0400
-Received: from mail.renesas.com ([202.234.163.13]:11714 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S268255AbUJMDQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 23:16:03 -0400
-Date: Wed, 13 Oct 2004 12:15:47 +0900 (JST)
-Message-Id: <20041013.121547.863739114.takata.hirokazu@renesas.com>
-To: jgarzik@pobox.com
-Cc: takata@linux-m32r.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       paul.mundt@nokia.com, nico@cam.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-From: Hirokazu Takata <takata.hirokazu@renesas.com>
-In-Reply-To: <416C8E0B.4030409@pobox.com>
-References: <416BFD79.1010306@pobox.com>
-	<20041013.105243.511706221.takata.hirokazu@renesas.com>
-	<416C8E0B.4030409@pobox.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 12 Oct 2004 23:27:51 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:16576 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S268270AbUJMD1s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 23:27:48 -0400
+Message-ID: <416CA0B1.20900@hp.com>
+Date: Tue, 12 Oct 2004 20:27:45 -0700
+From: John Byrne <john.l.byrne@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Still a mm bug in the fork error path
+References: <416C6915.9080201@hp.com> <Pine.LNX.4.58.0410121902100.3897@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410121902100.3897@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-Date: Tue, 12 Oct 2004 22:08:11 -0400
-> Hirokazu Takata wrote:
-> > Please throw away this patch and retrieve the previous 
-> > m32r-trivial-fix-of-smc91xh.patch again, 
-> > if the above patch "[PATCH] net: fix smc91x build for sh/ppc" is applied.
+Linus Torvalds wrote:
+> 
+> On Tue, 12 Oct 2004, John Byrne wrote:
+> 
+>>@@ -1104,9 +1146,7 @@
+>>  bad_fork_cleanup_namespace:
+>>  	exit_namespace(p);
+>>  bad_fork_cleanup_mm:
+>>-	exit_mm(p);
+>>-	if (p->active_mm)
+>>-		mmdrop(p->active_mm);
+>>+	mmput(p->mm);
+>>  bad_fork_cleanup_signal:
+>>  	exit_signal(p);
+>>  bad_fork_cleanup_sighand:
+>>
+>>However, the new code will panic if the thread being forked is a process 
+>>with a NULL mm. It looks very unlikely to be hit in the real world, but 
+>>it is possible.
 > 
 > 
-> Would you be kind enough to send me this patch?
+> Hmm.. How does it happen? As far as I can tell, we only get here if
+>  - copy_thread or copy_namespaces had an error
+> and "mm" can be NULL only for kernel threads.
 > 
-> 	Jeff
+> Now, I don't think any kernel threads will ask for new namespaces, so 
+> copy_namespaces can't return an error. Similarly, I don't see how 
+> copy_thread() could either (at least on x86 it can only return an error if 
+> an IO bitmap allocation fails, I think - again something that shouldn't 
+> happen for kernel threads. And most other architectures will never fail 
+> at all, I do believe).
+> 
+> 
+>>(My modified kernel makes it much more likely which is how I found it.)
+>>The attached patch is against 2.6.9-rc4. This time for sure!
+> 
+> 
+> I don't mind the patch per se, but I'd rather put it in after 2.6.9 unless
+> you can tell me how this can actually happen with an unmodified kernel.
+> 
+> 			Linus
+> 
 
-OK. I will send you again, Jeff.
+In my kernel, it was a SIGKILL to a forking kernel thread that caused 
+the problem. While I see SIGKILLs being sent to some kernel threads, I 
+don't know if any of the kernel threads ever fork. If they don't, 
+barring a demented root user sending SIGKILLs to kernel threads, I don't 
+know if anyone else will ever see this. So, I don't have any problems 
+with it being fixed post 2.6.9.
 
-This patch has been already applied to 2.6.9-rc4-mm1 kernel and 
-you can also find it as
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/m32r-trivial-fix-of-smc91xh.patch
+Thanks,
 
-Thanks.
+John Byrne
 
 
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc2-mm2] [m32r] Trivial fix of smc91x.h
-----
-Hello,
 
-Here is a patch to fix smc91x.h for m32r.
-Please apply.
 
-Thanks.
-
-	* drivers/net/smc91x.h:
-	Fix LED control.
-
-Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- smc91x.h |    3 +++
- 1 files changed, 3 insertions(+)
-
-diff -ruNp a/drivers/net/smc91x.h b/drivers/net/smc91x.h
---- a/drivers/net/smc91x.h	2004-09-23 10:11:08.000000000 +0900
-+++ b/drivers/net/smc91x.h	2004-09-23 13:16:42.000000000 +0900
-@@ -216,6 +216,9 @@ static inline void SMC_outsw (unsigned l
- #define SMC_insw(a, r, p, l)	insw((a) + (r) - 0xa0000000, p, l)
- #define SMC_outsw(a, r, p, l)	outsw((a) + (r) - 0xa0000000, p, l)
- 
-+#define RPC_LSA_DEFAULT		RPC_LED_TX_RX
-+#define RPC_LSB_DEFAULT		RPC_LED_100_10
-+
- #elif	defined(CONFIG_MACH_LPD7A400) || defined(CONFIG_MACH_LPD7A404)
- 
- #include <asm/arch/constants.h>	/* IOBARRIER_VIRT */
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
 

@@ -1,393 +1,609 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUHaM31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUHaMk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268070AbUHaM31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268081AbUHaM31
+	id S268100AbUHaMk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUHaMk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:29:27 -0400
-Received: from f23.mail.ru ([194.67.57.149]:26120 "EHLO f23.mail.ru")
-	by vger.kernel.org with ESMTP id S268070AbUHaM3F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:29:05 -0400
-From: Kirill Korotaev <kksx@mail.ru>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] obscure pid implementation fix
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 192.168.0.129 via proxy [195.133.213.201]
-Date: Tue, 31 Aug 2004 16:29:03 +0400
-Reply-To: Kirill Korotaev <kksx@mail.ru>
-Content-Type: multipart/mixed;
-	boundary="----RDClcUBr-RqXlahk3uJ51wUga:1093955343"
-Message-Id: <E1C27l1-0009Me-00.kksx-mail-ru@f23.mail.ru>
+	Tue, 31 Aug 2004 08:40:29 -0400
+Received: from web50608.mail.yahoo.com ([206.190.38.95]:5978 "HELO
+	web50608.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268100AbUHaMjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 08:39:44 -0400
+Message-ID: <20040831123944.38866.qmail@web50608.mail.yahoo.com>
+Date: Tue, 31 Aug 2004 05:39:44 -0700 (PDT)
+From: Jeba Anandhan A <jeba_career@yahoo.com>
+Subject: Kernel Module Compilation Error
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-------RDClcUBr-RqXlahk3uJ51wUga:1093955343
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+hi,
+i am working in Fedora .
+Kernel =2.4.22-1.2115.nptl #1 Wed Oct 29 15:42:51 EST
+2003 i686 i686 i386 GNU/Linux
 
-This patch fixes strange and obscure pid implementation in current kernels:
-- it removes calling of put_task_struct() from detach_pid()
-  under tasklist_lock. This allows to use blocking calls
-  in security_task_free() hooks (in __put_task_struct()).
-- it saves some space = 5*5 ints = 100 bytes in task_struct
-- it's smaller and tidy, more straigthforward and doesn't use
-  any knowledge about pids using and assignment.
-- it removes pid_links and pid_struct doesn't hold reference counters
-  on task_struct. instead, new pid_structs and linked altogether and
-  only one of them is inserted in hash_list.
+my kernel module program is
+#include<linux/kernel.h>
+#include<linux/module.h>
+#include<linux/mm.h>
+                                                      
+                        extern *current;
+int init_module(void){
+return 0;
+}
+void cleanup_module(void){
+}
+                                                      
+                        
+~
+when i give 
+# gcc -c -DMODULE -D__KERNEL__ currenttask.c
+the following error is shown.
+what should i do?.
+how to compile the kernel module with some kernel
+header files ?.
 
-Kirill
+In file included from /usr/include/linux/module.h:25,
+                 from currenttask.c:2:
+/usr/include/asm/atomic.h:40:2: warning: #warning
+Using kernel header in userland program. BAD!
+In file included from /usr/include/linux/fs.h:26,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/asm/bitops.h:327:2: warning: #warning
+This includefile is not available on all
+architectures.
+/usr/include/asm/bitops.h:328:2: warning: #warning
+Using kernel headers in userspace: atomicity not
+guaranteed
+In file included from /usr/include/linux/rwsem.h:21,
+                 from
+/usr/include/linux/ext3_fs_i.h:19,
+                 from /usr/include/linux/fs.h:304,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/asm/system.h: In function `__cmpxchg':
+/usr/include/asm/system.h:126: error: `LOCK_PREFIX'
+undeclared (first use in this function)
+/usr/include/asm/system.h:126: error: (Each undeclared
+identifier is reported only once
+/usr/include/asm/system.h:126: error: for each
+function it appears in.)
+/usr/include/asm/system.h:126: error: syntax error
+before string constant
+/usr/include/asm/system.h:132: error: syntax error
+before string constant
+/usr/include/asm/system.h:138: error: syntax error
+before string constant
+In file included from /usr/include/linux/fs.h:304,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/ext3_fs_i.h: At top level:
+/usr/include/linux/ext3_fs_i.h:75: error: field
+`truncate_sem' has incomplete type
+In file included from /usr/include/linux/fs.h:305,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/hpfs_fs_i.h:19: error: field
+`i_sem' has incomplete type
+In file included from
+/usr/include/linux/affs_fs_i.h:7,
+                 from /usr/include/linux/fs.h:312,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/time.h: In function
+`timespec_to_jiffies':
+/usr/include/linux/time.h:37: error: `_SC_CLK_TCK'
+undeclared (first use in this function)
+/usr/include/linux/time.h: In function
+`jiffies_to_timespec':
+/usr/include/linux/time.h:47: error: `_SC_CLK_TCK'
+undeclared (first use in this function)
+In file included from /usr/include/linux/fs.h:312,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/affs_fs_i.h: At top level:
+/usr/include/linux/affs_fs_i.h:27: error: field
+`i_link_lock' has incomplete type
+/usr/include/linux/affs_fs_i.h:28: error: field
+`i_ext_lock' has incomplete type
+In file included from /usr/include/linux/fs.h:325,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/ncp_fs_i.h:22: error: field
+`open_sem' has incomplete type
+In file included from /usr/include/linux/fs.h:328,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/jffs2_fs_i.h:26: error: field `sem'
+has incomplete type
+In file included from /usr/include/linux/fs.h:380,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/quota.h:284: error: field
+`dqio_sem' has incomplete type
+/usr/include/linux/quota.h:285: error: field
+`dqoff_sem' has incomplete type
+In file included from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/fs.h:429: error: field `sem' has
+incomplete type
+/usr/include/linux/fs.h:439: error: field `bd_sem' has
+incomplete type
+/usr/include/linux/fs.h:468: error: field `i_sem' has
+incomplete type
+/usr/include/linux/fs.h:469: error: field
+`i_alloc_sem' has incomplete type
+/usr/include/linux/fs.h:470: error: field `i_zombie'
+has incomplete type
+In file included from /usr/include/linux/fs.h:720,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/msdos_fs_sb.h:44: error: field
+`fat_lock' has incomplete type
+In file included from /usr/include/linux/fs.h:724,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/affs_fs_sb.h:28: error: field
+`s_bmlock' has incomplete typeIn file included from
+/usr/include/linux/fs.h:728,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/smb_fs_sb.h:37: error: field `sem'
+has incomplete type
+In file included from /usr/include/linux/fs.h:735,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/ncp_fs_sb.h:46: error: field `sem'
+has incomplete type
+In file included from /usr/include/linux/fs.h:738,
+                 from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/jffs2_fs_sb.h:30: error: field
+`gc_thread_start' has incomplete type
+/usr/include/linux/jffs2_fs_sb.h:35: error: field
+`alloc_sem' has incomplete type
+In file included from
+/usr/include/linux/capability.h:17,
+                 from /usr/include/linux/binfmts.h:4,
+                 from /usr/include/linux/sched.h:10,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/fs.h:759: error: field `s_umount'
+has incomplete type
+/usr/include/linux/fs.h:760: error: field `s_lock' has
+incomplete type
+/usr/include/linux/fs.h:804: error: field
+`s_vfs_rename_sem' has incomplete type
+/usr/include/linux/fs.h:813: error: field
+`s_nfsd_free_path_sem' has incomplete type
+In file included from /usr/include/linux/sched.h:15,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/timex.h:63:5: missing binary
+operator before token "("
+/usr/include/linux/timex.h:65:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:67:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:69:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:71:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:73:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:75:7: missing binary
+operator before token "("
+/usr/include/linux/timex.h:78:3: #error You lose.
+In file included from /usr/include/linux/sched.h:26,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/tty.h:141: error: field `pty_sem'
+has incomplete type
+/usr/include/linux/tty.h:307: error: field
+`atomic_read' has incomplete type
+/usr/include/linux/tty.h:308: error: field
+`atomic_write' has incomplete type
+In file included from /usr/include/linux/signal.h:4,
+                 from /usr/include/linux/sched.h:28,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/asm/signal.h:107: error: syntax error
+before "sigset_t"
+/usr/include/asm/signal.h:110: error: syntax error
+before '}' token
+In file included from /usr/include/linux/sched.h:28,
+                 from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/signal.h:19: error: syntax error
+before "sigset_t"
+/usr/include/linux/signal.h:31: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `sigaddset':
+/usr/include/linux/signal.h:33: error: `_sig'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:34: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:35: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:37: error: `_NSIG_BPW'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:40: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `sigdelset':
+/usr/include/linux/signal.h:42: error: `_sig'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:43: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:44: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:46: error: `_NSIG_BPW'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:49: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`sigismember':
+/usr/include/linux/signal.h:51: error: `_sig'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:52: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:53: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:55: error: `_NSIG_BPW'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:108: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `sigorsets':
+/usr/include/linux/signal.h:108: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:108: error: `a' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:108: error: `b' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:108: error: `r' undeclared
+(first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:111: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `sigandsets':
+/usr/include/linux/signal.h:111: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:111: error: `a' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:111: error: `b' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:111: error: `r' undeclared
+(first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:114: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`signandsets':
+/usr/include/linux/signal.h:114: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:114: error: `a' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:114: error: `b' undeclared
+(first use in this function)
+/usr/include/linux/signal.h:114: error: `r' undeclared
+(first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:140: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `signotset':
+/usr/include/linux/signal.h:140: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:140: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:145: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`sigemptyset':
+/usr/include/linux/signal.h:147: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:149: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:149: error: `sigset_t'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:157: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `sigfillset':
+/usr/include/linux/signal.h:159: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:161: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:161: error: `sigset_t'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:169: error: syntax error
+before '*' token
+/usr/include/linux/signal.h:173: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`sigaddsetmask':
+/usr/include/linux/signal.h:175: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:175: error: `mask'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:178: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`sigdelsetmask':
+/usr/include/linux/signal.h:180: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:180: error: `mask'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:183: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`sigtestsetmask':
+/usr/include/linux/signal.h:185: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:185: error: `mask'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:188: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function `siginitset':
+/usr/include/linux/signal.h:190: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:190: error: `mask'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:191: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: At top level:
+/usr/include/linux/signal.h:200: error: syntax error
+before '*' token
+/usr/include/linux/signal.h: In function
+`siginitsetinv':
+/usr/include/linux/signal.h:202: error: `set'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:202: error: `mask'
+undeclared (first use in this function)
+/usr/include/linux/signal.h:203: error: `_NSIG_WORDS'
+undeclared (first use in this function)
+/usr/include/linux/signal.h: In function
+`init_sigpending':
+/usr/include/linux/signal.h:216: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/signal.h:217: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/signal.h:218: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/signal.h:218: error: dereferencing
+pointer to incomplete type
+In file included from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/sched.h: At top level:
+/usr/include/linux/sched.h:273: error: syntax error
+before "pgd_t"
+/usr/include/linux/sched.h:293: error: syntax error
+before ':' token
+/usr/include/linux/sched.h:301: error: syntax error
+before '}' token
+/usr/include/linux/sched.h:325: error: `_NSIG'
+undeclared here (not in a function)
+/usr/include/linux/sched.h:343: error: field
+`shared_pending' has incomplete type
+/usr/include/linux/sched.h:513: error: syntax error
+before "sigset_t"
+/usr/include/linux/sched.h:520: error: syntax error
+before '*' token
+/usr/include/linux/sched.h:535: error: syntax error
+before '}' token
+/usr/include/linux/sched.h:728: error: field `task'
+has incomplete type
+In file included from /usr/include/linux/mm.h:4,
+                 from currenttask.c:3:
+/usr/include/linux/sched.h:742:25: asm/current.h: No
+such file or directory
+/usr/include/linux/sched.h:782: error: syntax error
+before '*' token
+/usr/include/linux/sched.h:784: error: syntax error
+before "sigset_t"
+/usr/include/linux/sched.h: In function
+`signal_pending':
+/usr/include/linux/sched.h:806: error: dereferencing
+pointer to incomplete type/usr/include/linux/sched.h:
+In function `on_sig_stack':
+/usr/include/linux/sched.h:813: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function
+`sas_ss_flags':
+/usr/include/linux/sched.h:818: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function `suser':
+/usr/include/linux/sched.h:843: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function `fsuser':
+/usr/include/linux/sched.h:852: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function `capable':
+/usr/include/linux/sched.h:868: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function `mmdrop':
+/usr/include/linux/sched.h:891: error: dereferencing
+pointer to incomplete type/usr/include/linux/sched.h:
+At top level:
+/usr/include/linux/sched.h:948: error: conflicting
+types for `kernel_thread'
+/usr/include/asm/processor.h:435: error: previous
+declaration of `kernel_thread'
+/usr/include/linux/sched.h: In function
+`thread_group_empty':
+/usr/include/linux/sched.h:1076: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h: In function `task_lock':
+/usr/include/linux/sched.h:1089: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h: In function `get_task_mm':
+/usr/include/linux/sched.h:1108: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h:1110: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h: In function `d_path':
+/usr/include/linux/sched.h:1123: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function
+`set_need_resched':
+/usr/include/linux/sched.h:1137: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function
+`clear_need_resched':
+/usr/include/linux/sched.h:1142: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/sched.h: In function
+`set_tsk_need_resched':
+/usr/include/linux/sched.h:1147: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h: In function
+`clear_tsk_need_resched':
+/usr/include/linux/sched.h:1152: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/sched.h: In function
+`need_resched':
+/usr/include/linux/sched.h:1157: error: `current'
+undeclared (first use in this function)
+In file included from currenttask.c:3:
+/usr/include/linux/mm.h:26:25: asm/pgtable.h: No such
+file or directory
+In file included from currenttask.c:3:
+/usr/include/linux/mm.h: At top level:
+/usr/include/linux/mm.h:53: error: syntax error before
+"pgprot_t"
+/usr/include/linux/mm.h:75: error: syntax error before
+'}' token
+/usr/include/linux/mm.h:129: error: syntax error
+before "protection_map"
+/usr/include/linux/mm.h:495: error: syntax error
+before "pgprot_t"
+/usr/include/linux/mm.h:496: error: syntax error
+before "pgprot_t"
+/usr/include/linux/mm.h:499: error: syntax error
+before '*' token
+/usr/include/linux/mm.h:499: error: syntax error
+before "pgd_t"
+/usr/include/linux/mm.h:500: error: syntax error
+before '*' token
+/usr/include/linux/mm.h:500: error: syntax error
+before "pmd_t"
+/usr/include/linux/mm.h:514: error: syntax error
+before '*' token
+/usr/include/linux/mm.h:514: error: syntax error
+before "pgd_t"
+/usr/include/linux/mm.h: In function `pmd_alloc':
+/usr/include/linux/mm.h:516: error: `pgd' undeclared
+(first use in this function)
+/usr/include/linux/mm.h:517: error: `mm' undeclared
+(first use in this function)
+/usr/include/linux/mm.h:517: error: `address'
+undeclared (first use in this function)
+/usr/include/linux/mm.h: In function `__vma_unlink':
+/usr/include/linux/mm.h:581: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:581: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:582: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:582: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:583: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:584: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:585: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h: In function `can_vma_merge':
+/usr/include/linux/mm.h:590: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h:590: error: dereferencing
+pointer to incomplete type
+/usr/include/linux/mm.h: In function `pf_gfp_mask':
+/usr/include/linux/mm.h:638: error: `current'
+undeclared (first use in this function)
+/usr/include/linux/mm.h: In function
+`find_vma_intersection':
+/usr/include/linux/mm.h:658: error: dereferencing
+pointer to incomplete type
+currenttask.c: At top level:
+/usr/include/linux/sched.h:277: error: storage size of
+`mmap_sem' isn't known
+/usr/include/linux/sched.h:514: error: storage size of
+`pending' isn't known
 
 
-------RDClcUBr-RqXlahk3uJ51wUga:1093955343
-Content-Type: application/octet-stream; name="diff-pid-2.6.8.1"
-Content-Disposition: attachment; filename="diff-pid-2.6.8.1"
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4LTIuNi44LjEvaW5jbHVkZS9saW51eC9waWQuaC5waWQJMjAwNC0wOC0xNCAxNDo1
-NDo1Mi4wMDAwMDAwMDAgKzA0MDAKKysrIGxpbnV4LTIuNi44LjEvaW5jbHVkZS9saW51eC9waWQu
-aAkyMDA0LTA4LTMxIDE1OjI4OjA3LjI1NzkxMjkyMCArMDQwMApAQCAtMTAsNTUgKzEwLDQ0IEBA
-IGVudW0gcGlkX3R5cGUKIAlQSURUWVBFX01BWAogfTsKIAotc3RydWN0IHBpZAorc3RydWN0IHBp
-ZF9zdHJ1Y3QKIHsKIAlpbnQgbnI7Ci0JYXRvbWljX3QgY291bnQ7Ci0Jc3RydWN0IHRhc2tfc3Ry
-dWN0ICp0YXNrOwotCXN0cnVjdCBsaXN0X2hlYWQgdGFza19saXN0OwotCXN0cnVjdCBsaXN0X2hl
-YWQgaGFzaF9jaGFpbjsKLX07Ci0KLXN0cnVjdCBwaWRfbGluawotewotCXN0cnVjdCBsaXN0X2hl
-YWQgcGlkX2NoYWluOwotCXN0cnVjdCBwaWQgKnBpZHB0cjsKLQlzdHJ1Y3QgcGlkIHBpZDsKKwlz
-dHJ1Y3QgbGlzdF9oZWFkIGhhc2hfbGlzdDsKKwlzdHJ1Y3QgbGlzdF9oZWFkIHBpZF9saXN0Owkv
-KiBsaXN0IG9mIHRoZSBzYW1lIHBpZHMgKi8KIH07CiAKICNkZWZpbmUgcGlkX3Rhc2soZWxlbSwg
-dHlwZSkgXAotCWxpc3RfZW50cnkoZWxlbSwgc3RydWN0IHRhc2tfc3RydWN0LCBwaWRzW3R5cGVd
-LnBpZF9jaGFpbikKKwlsaXN0X2VudHJ5KGVsZW0sIHN0cnVjdCB0YXNrX3N0cnVjdCwgcGlkc1t0
-eXBlXS5waWRfbGlzdCkKIAogLyoKLSAqIGF0dGFjaF9waWQoKSBhbmQgbGlua19waWQoKSBtdXN0
-IGJlIGNhbGxlZCB3aXRoIHRoZSB0YXNrbGlzdF9sb2NrCi0gKiB3cml0ZS1oZWxkLgorICogYXR0
-YWNoX3BpZCgpIGFuZCBkZXRhY2hfcGlkKCkgbXVzdCBiZSBjYWxsZWQgd2l0aCB0aGUKKyAqIHRh
-c2tsaXN0X2xvY2sgd3JpdGUtaGVsZC4KICAqLwogZXh0ZXJuIGludCBGQVNUQ0FMTChhdHRhY2hf
-cGlkKHN0cnVjdCB0YXNrX3N0cnVjdCAqdGFzaywgZW51bSBwaWRfdHlwZSB0eXBlLCBpbnQgbnIp
-KTsKIAotZXh0ZXJuIHZvaWQgRkFTVENBTEwobGlua19waWQoc3RydWN0IHRhc2tfc3RydWN0ICp0
-YXNrLCBzdHJ1Y3QgcGlkX2xpbmsgKmxpbmssIHN0cnVjdCBwaWQgKnBpZCkpOwotCi0vKgotICog
-ZGV0YWNoX3BpZCgpIG11c3QgYmUgY2FsbGVkIHdpdGggdGhlIHRhc2tsaXN0X2xvY2sgd3JpdGUt
-aGVsZC4KLSAqLwogZXh0ZXJuIHZvaWQgRkFTVENBTEwoZGV0YWNoX3BpZChzdHJ1Y3QgdGFza19z
-dHJ1Y3QgKnRhc2ssIGVudW0gcGlkX3R5cGUpKTsKIAogLyoKICAqIGxvb2sgdXAgYSBQSUQgaW4g
-dGhlIGhhc2ggdGFibGUuIE11c3QgYmUgY2FsbGVkIHdpdGggdGhlIHRhc2tsaXN0X2xvY2sKICAq
-IGhlbGQuCiAgKi8KLWV4dGVybiBzdHJ1Y3QgcGlkICpGQVNUQ0FMTChmaW5kX3BpZChlbnVtIHBp
-ZF90eXBlLCBpbnQpKTsKK2V4dGVybiBzdHJ1Y3QgcGlkX3N0cnVjdCAqRkFTVENBTEwoZmluZF9w
-aWQoZW51bSBwaWRfdHlwZSwgaW50KSk7CiAKIGV4dGVybiBpbnQgYWxsb2NfcGlkbWFwKHZvaWQp
-OwogZXh0ZXJuIHZvaWQgRkFTVENBTEwoZnJlZV9waWRtYXAoaW50KSk7CiBleHRlcm4gdm9pZCBz
-d2l0Y2hfZXhlY19waWRzKHN0cnVjdCB0YXNrX3N0cnVjdCAqbGVhZGVyLCBzdHJ1Y3QgdGFza19z
-dHJ1Y3QgKnRocmVhZCk7CiAKLSNkZWZpbmUgZm9yX2VhY2hfdGFza19waWQod2hvLCB0eXBlLCB0
-YXNrLCBlbGVtLCBwaWQpCQlcCi0JaWYgKChwaWQgPSBmaW5kX3BpZCh0eXBlLCB3aG8pKSkJCQlc
-Ci0JICAgICAgICBmb3IgKGVsZW0gPSBwaWQtPnRhc2tfbGlzdC5uZXh0LAkJCVwKLQkJCXByZWZl
-dGNoKGVsZW0tPm5leHQpLAkJCQlcCi0JCQl0YXNrID0gcGlkX3Rhc2soZWxlbSwgdHlwZSk7CQkJ
-XAotCQkJZWxlbSAhPSAmcGlkLT50YXNrX2xpc3Q7CQkJXAotCQkJZWxlbSA9IGVsZW0tPm5leHQs
-IHByZWZldGNoKGVsZW0tPm5leHQpLCAJXAotCQkJdGFzayA9IHBpZF90YXNrKGVsZW0sIHR5cGUp
-KQorI2RlZmluZSBkb19lYWNoX3Rhc2tfcGlkKHdobywgdHlwZSwgdGFzaykJCQkJXAorCWlmICgo
-dGFzayA9IGZpbmRfdGFza19ieV9waWRfdHlwZSh0eXBlLCB3aG8pKSkgewkJXAorCQlwcmVmZXRj
-aCh0YXNrLT5waWRzW3R5cGVdLnBpZF9saXN0Lm5leHQpOwkJXAorCQlkbyB7CisKKyNkZWZpbmUg
-d2hpbGVfZWFjaF90YXNrX3BpZCh3aG8sIHR5cGUsIHRhc2spCQkJCVwKKwkJCXRhc2sgPSBwaWRf
-dGFzayh0YXNrLT5waWRzW3R5cGVdLnBpZF9saXN0Lm5leHQsCVwKKwkJCQkJCXR5cGUpOwkJCVwK
-KwkJCXByZWZldGNoKHRhc2stPnBpZHNbdHlwZV0ucGlkX2xpc3QubmV4dCk7CVwKKwkJfSB3aGls
-ZSAobGlzdF9lbXB0eSgmdGFzay0+cGlkc1t0eXBlXS5oYXNoX2xpc3QpKTsJXAorCX0KIAogI2Vu
-ZGlmIC8qIF9MSU5VWF9QSURfSCAqLwotLS0gbGludXgtMi42LjguMS9pbmNsdWRlL2xpbnV4L3Nj
-aGVkLmgucGlkCTIwMDQtMDgtMTQgMTQ6NTQ6NDkuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0y
-LjYuOC4xL2luY2x1ZGUvbGludXgvc2NoZWQuaAkyMDA0LTA4LTMxIDEyOjI4OjE0LjAwMDAwMDAw
-MCArMDQwMApAQCAtNDQ0LDcgKzQ0NCw3IEBAIHN0cnVjdCB0YXNrX3N0cnVjdCB7CiAJc3RydWN0
-IHRhc2tfc3RydWN0ICpncm91cF9sZWFkZXI7CS8qIHRocmVhZGdyb3VwIGxlYWRlciAqLwogCiAJ
-LyogUElEL1BJRCBoYXNoIHRhYmxlIGxpbmthZ2UuICovCi0Jc3RydWN0IHBpZF9saW5rIHBpZHNb
-UElEVFlQRV9NQVhdOworCXN0cnVjdCBwaWRfc3RydWN0IHBpZHNbUElEVFlQRV9NQVhdOwogCiAJ
-d2FpdF9xdWV1ZV9oZWFkX3Qgd2FpdF9jaGxkZXhpdDsJLyogZm9yIHdhaXQ0KCkgKi8KIAlzdHJ1
-Y3QgY29tcGxldGlvbiAqdmZvcmtfZG9uZTsJCS8qIGZvciB2Zm9yaygpICovCkBAIC03MjcsNyAr
-NzI3LDggQEAgZXh0ZXJuIHN0cnVjdCB0YXNrX3N0cnVjdCBpbml0X3Rhc2s7CiAKIGV4dGVybiBz
-dHJ1Y3QgICBtbV9zdHJ1Y3QgaW5pdF9tbTsKIAotZXh0ZXJuIHN0cnVjdCB0YXNrX3N0cnVjdCAq
-ZmluZF90YXNrX2J5X3BpZChpbnQgcGlkKTsKKyNkZWZpbmUgZmluZF90YXNrX2J5X3BpZChucikJ
-ZmluZF90YXNrX2J5X3BpZF90eXBlKFBJRFRZUEVfUElELCBucikKK2V4dGVybiBzdHJ1Y3QgdGFz
-a19zdHJ1Y3QgKmZpbmRfdGFza19ieV9waWRfdHlwZShpbnQgdHlwZSwgaW50IHBpZCk7CiBleHRl
-cm4gdm9pZCBzZXRfc3BlY2lhbF9waWRzKHBpZF90IHNlc3Npb24sIHBpZF90IHBncnApOwogZXh0
-ZXJuIHZvaWQgX19zZXRfc3BlY2lhbF9waWRzKHBpZF90IHNlc3Npb24sIHBpZF90IHBncnApOwog
-CkBAIC05MzAsOSArOTMxLDcgQEAgZXh0ZXJuIHRhc2tfdCAqIEZBU1RDQUxMKG5leHRfdGhyZWFk
-KGNvbgogCiBzdGF0aWMgaW5saW5lIGludCB0aHJlYWRfZ3JvdXBfZW1wdHkodGFza190ICpwKQog
-ewotCXN0cnVjdCBwaWQgKnBpZCA9IHAtPnBpZHNbUElEVFlQRV9UR0lEXS5waWRwdHI7Ci0KLQly
-ZXR1cm4gcGlkLT50YXNrX2xpc3QubmV4dC0+bmV4dCA9PSAmcGlkLT50YXNrX2xpc3Q7CisJcmV0
-dXJuIGxpc3RfZW1wdHkoJnAtPnBpZHNbUElEVFlQRV9UR0lEXS5waWRfbGlzdCk7CiB9CiAKICNk
-ZWZpbmUgZGVsYXlfZ3JvdXBfbGVhZGVyKHApIFwKLS0tIGxpbnV4LTIuNi44LjEvZHJpdmVycy9j
-aGFyL3R0eV9pby5jLnBpZAkyMDA0LTA4LTE0IDE0OjU1OjM0LjAwMDAwMDAwMCArMDQwMAorKysg
-bGludXgtMi42LjguMS9kcml2ZXJzL2NoYXIvdHR5X2lvLmMJMjAwNC0wOC0zMSAxMjoxMzoxNC4w
-MDAwMDAwMDAgKzA0MDAKQEAgLTQxMCw3ICs0MTAsNiBAQCB2b2lkIGRvX3R0eV9oYW5ndXAodm9p
-ZCAqZGF0YSkKIAlzdHJ1Y3QgZmlsZSAqIGNvbnNfZmlscCA9IE5VTEw7CiAJc3RydWN0IGZpbGUg
-KmZpbHAsICpmID0gTlVMTDsKIAlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnA7Ci0Jc3RydWN0IHBpZCAq
-cGlkOwogCWludCAgICBjbG9zZWNvdW50ID0gMCwgbjsKIAogCWlmICghdHR5KQpAQCAtNDgxLDgg
-KzQ4MCw3IEBAIHZvaWQgZG9fdHR5X2hhbmd1cCh2b2lkICpkYXRhKQogCQogCXJlYWRfbG9jaygm
-dGFza2xpc3RfbG9jayk7CiAJaWYgKHR0eS0+c2Vzc2lvbiA+IDApIHsKLQkJc3RydWN0IGxpc3Rf
-aGVhZCAqbDsKLQkJZm9yX2VhY2hfdGFza19waWQodHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwg
-cCwgbCwgcGlkKSB7CisJCWRvX2VhY2hfdGFza19waWQodHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJ
-RCwgcCkgewogCQkJaWYgKHAtPnNpZ25hbC0+dHR5ID09IHR0eSkKIAkJCQlwLT5zaWduYWwtPnR0
-eSA9IE5VTEw7CiAJCQlpZiAoIXAtPnNpZ25hbC0+bGVhZGVyKQpAQCAtNDkxLDcgKzQ4OSw3IEBA
-IHZvaWQgZG9fdHR5X2hhbmd1cCh2b2lkICpkYXRhKQogCQkJc2VuZF9ncm91cF9zaWdfaW5mbyhT
-SUdDT05ULCBTRU5EX1NJR19QUklWLCBwKTsKIAkJCWlmICh0dHktPnBncnAgPiAwKQogCQkJCXAt
-PnNpZ25hbC0+dHR5X29sZF9wZ3JwID0gdHR5LT5wZ3JwOwotCQl9CisJCX0gd2hpbGVfZWFjaF90
-YXNrX3BpZCh0dHktPnNlc3Npb24sIFBJRFRZUEVfU0lELCBwKTsKIAl9CiAJcmVhZF91bmxvY2so
-JnRhc2tsaXN0X2xvY2spOwogCkBAIC01NjMsOCArNTYxLDYgQEAgdm9pZCBkaXNhc3NvY2lhdGVf
-Y3R0eShpbnQgb25fZXhpdCkKIHsKIAlzdHJ1Y3QgdHR5X3N0cnVjdCAqdHR5OwogCXN0cnVjdCB0
-YXNrX3N0cnVjdCAqcDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCXN0cnVjdCBwaWQgKnBpZDsK
-IAlpbnQgdHR5X3BncnAgPSAtMTsKIAogCWxvY2tfa2VybmVsKCk7CkBAIC01OTMsOCArNTg5LDkg
-QEAgdm9pZCBkaXNhc3NvY2lhdGVfY3R0eShpbnQgb25fZXhpdCkKIAl0dHktPnBncnAgPSAtMTsK
-IAogCXJlYWRfbG9jaygmdGFza2xpc3RfbG9jayk7Ci0JZm9yX2VhY2hfdGFza19waWQoY3VycmVu
-dC0+c2lnbmFsLT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCwgbCwgcGlkKQorCWRvX2VhY2hfdGFz
-a19waWQoY3VycmVudC0+c2lnbmFsLT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCkgewogCQlwLT5z
-aWduYWwtPnR0eSA9IE5VTEw7CisJfSB3aGlsZV9lYWNoX3Rhc2tfcGlkKGN1cnJlbnQtPnNpZ25h
-bC0+c2Vzc2lvbiwgUElEVFlQRV9TSUQsIHApOwogCXJlYWRfdW5sb2NrKCZ0YXNrbGlzdF9sb2Nr
-KTsKIAl1bmxvY2tfa2VybmVsKCk7CiB9CkBAIC0xMjM1LDE1ICsxMjMyLDE1IEBAIHN0YXRpYyB2
-b2lkIHJlbGVhc2VfZGV2KHN0cnVjdCBmaWxlICogZmkKIAkgKi8KIAlpZiAodHR5X2Nsb3Npbmcg
-fHwgb190dHlfY2xvc2luZykgewogCQlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnA7Ci0JCXN0cnVjdCBs
-aXN0X2hlYWQgKmw7Ci0JCXN0cnVjdCBwaWQgKnBpZDsKIAogCQlyZWFkX2xvY2soJnRhc2tsaXN0
-X2xvY2spOwotCQlmb3JfZWFjaF90YXNrX3BpZCh0dHktPnNlc3Npb24sIFBJRFRZUEVfU0lELCBw
-LCBsLCBwaWQpCisJCWRvX2VhY2hfdGFza19waWQodHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwg
-cCkgewogCQkJcC0+c2lnbmFsLT50dHkgPSBOVUxMOworCQl9IHdoaWxlX2VhY2hfdGFza19waWQo
-dHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCk7CiAJCWlmIChvX3R0eSkKLQkJCWZvcl9lYWNo
-X3Rhc2tfcGlkKG9fdHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCxsLCBwaWQpCisJCQlkb19l
-YWNoX3Rhc2tfcGlkKG9fdHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCkgewogCQkJCXAtPnNp
-Z25hbC0+dHR5ID0gTlVMTDsKKwkJCX0gd2hpbGVfZWFjaF90YXNrX3BpZChvX3R0eS0+c2Vzc2lv
-biwgUElEVFlQRV9TSUQsIHApOwogCQlyZWFkX3VubG9jaygmdGFza2xpc3RfbG9jayk7CiAJfQog
-CkBAIC0xNjA2LDggKzE2MDMsNiBAQCBzdGF0aWMgaW50IGZpb25iaW8oc3RydWN0IGZpbGUgKmZp
-bGUsIGluCiAKIHN0YXRpYyBpbnQgdGlvY3NjdHR5KHN0cnVjdCB0dHlfc3RydWN0ICp0dHksIGlu
-dCBhcmcpCiB7Ci0Jc3RydWN0IGxpc3RfaGVhZCAqbDsKLQlzdHJ1Y3QgcGlkICpwaWQ7CiAJdGFz
-a190ICpwOwogCiAJaWYgKGN1cnJlbnQtPnNpZ25hbC0+bGVhZGVyICYmCkBAIC0xNjMwLDggKzE2
-MjUsOSBAQCBzdGF0aWMgaW50IHRpb2NzY3R0eShzdHJ1Y3QgdHR5X3N0cnVjdCAqCiAJCQkgKi8K
-IAogCQkJcmVhZF9sb2NrKCZ0YXNrbGlzdF9sb2NrKTsKLQkJCWZvcl9lYWNoX3Rhc2tfcGlkKHR0
-eS0+c2Vzc2lvbiwgUElEVFlQRV9TSUQsIHAsIGwsIHBpZCkKKwkJCWRvX2VhY2hfdGFza19waWQo
-dHR5LT5zZXNzaW9uLCBQSURUWVBFX1NJRCwgcCkgewogCQkJCXAtPnNpZ25hbC0+dHR5ID0gTlVM
-TDsKKwkJCX0gd2hpbGVfZWFjaF90YXNrX3BpZCh0dHktPnNlc3Npb24sIFBJRFRZUEVfU0lELCBw
-KTsKIAkJCXJlYWRfdW5sb2NrKCZ0YXNrbGlzdF9sb2NrKTsKIAkJfSBlbHNlCiAJCQlyZXR1cm4g
-LUVQRVJNOwpAQCAtMTkzOCw4ICsxOTM0LDYgQEAgc3RhdGljIHZvaWQgX19kb19TQUsodm9pZCAq
-YXJnKQogI2Vsc2UKIAlzdHJ1Y3QgdHR5X3N0cnVjdCAqdHR5ID0gYXJnOwogCXN0cnVjdCB0YXNr
-X3N0cnVjdCAqcDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCXN0cnVjdCBwaWQgKnBpZDsKIAlp
-bnQgc2Vzc2lvbjsKIAlpbnQJCWk7CiAJc3RydWN0IGZpbGUJKmZpbHA7CkBAIC0xOTUyLDcgKzE5
-NDYsNyBAQCBzdGF0aWMgdm9pZCBfX2RvX1NBSyh2b2lkICphcmcpCiAJaWYgKHR0eS0+ZHJpdmVy
-LT5mbHVzaF9idWZmZXIpCiAJCXR0eS0+ZHJpdmVyLT5mbHVzaF9idWZmZXIodHR5KTsKIAlyZWFk
-X2xvY2soJnRhc2tsaXN0X2xvY2spOwotCWZvcl9lYWNoX3Rhc2tfcGlkKHNlc3Npb24sIFBJRFRZ
-UEVfU0lELCBwLCBsLCBwaWQpIHsKKwlkb19lYWNoX3Rhc2tfcGlkKHNlc3Npb24sIFBJRFRZUEVf
-U0lELCBwKSB7CiAJCWlmIChwLT5zaWduYWwtPnR0eSA9PSB0dHkgfHwgc2Vzc2lvbiA+IDApIHsK
-IAkJCXByaW50ayhLRVJOX05PVElDRSAiU0FLOiBraWxsZWQgcHJvY2VzcyAlZCIKIAkJCSAgICAi
-ICglcyk6IHAtPnNpZ25hbC0+c2Vzc2lvbj09dHR5LT5zZXNzaW9uXG4iLApAQCAtMTk3OSw3ICsx
-OTczLDcgQEAgc3RhdGljIHZvaWQgX19kb19TQUsodm9pZCAqYXJnKQogCQkJc3Bpbl91bmxvY2so
-JnAtPmZpbGVzLT5maWxlX2xvY2spOwogCQl9CiAJCXRhc2tfdW5sb2NrKHApOwotCX0KKwl9IHdo
-aWxlX2VhY2hfdGFza19waWQoc2Vzc2lvbiwgUElEVFlQRV9TSUQsIHApOwogCXJlYWRfdW5sb2Nr
-KCZ0YXNrbGlzdF9sb2NrKTsKICNlbmRpZgogfQotLS0gbGludXgtMi42LjguMS9mcy9wcm9jL2Jh
-c2UuYy5waWQJMjAwNC0wOC0xNCAxNDo1NTozNS4wMDAwMDAwMDAgKzA0MDAKKysrIGxpbnV4LTIu
-Ni44LjEvZnMvcHJvYy9iYXNlLmMJMjAwNC0wOC0zMSAxMzoyNzoxNS4wMDAwMDAwMDAgKzA0MDAK
-QEAgLTc2NywxMCArNzY3LDkgQEAgc3RhdGljIHN0cnVjdCBpbm9kZV9vcGVyYXRpb25zIHByb2Nf
-cGlkXwogCS5mb2xsb3dfbGluawk9IHByb2NfcGlkX2ZvbGxvd19saW5rCiB9OwogCi1zdGF0aWMg
-aW50IHBpZF9hbGl2ZShzdHJ1Y3QgdGFza19zdHJ1Y3QgKnApCitzdGF0aWMgaW5saW5lIGludCBw
-aWRfYWxpdmUoc3RydWN0IHRhc2tfc3RydWN0ICpwKQogewotCUJVR19PTihwLT5waWRzW1BJRFRZ
-UEVfUElEXS5waWRwdHIgIT0gJnAtPnBpZHNbUElEVFlQRV9QSURdLnBpZCk7Ci0JcmV0dXJuIGF0
-b21pY19yZWFkKCZwLT5waWRzW1BJRFRZUEVfUElEXS5waWQuY291bnQpOworCXJldHVybiBwLT5w
-aWRzW1BJRFRZUEVfUElEXS5uciAhPSAwOwogfQogCiAjZGVmaW5lIE5VTUJVRiAxMAotLS0gbGlu
-dXgtMi42LjguMS9mcy9mY250bC5jLnBpZAkyMDA0LTA4LTE0IDE0OjU1OjM1LjAwMDAwMDAwMCAr
-MDQwMAorKysgbGludXgtMi42LjguMS9mcy9mY250bC5jCTIwMDQtMDgtMzEgMTI6MTM6MTQuMDAw
-MDAwMDAwICswNDAwCkBAIC00OTcsMTEgKzQ5Nyw5IEBAIHZvaWQgc2VuZF9zaWdpbyhzdHJ1Y3Qg
-Zm93bl9zdHJ1Y3QgKmZvd24KIAkJCXNlbmRfc2lnaW9fdG9fdGFzayhwLCBmb3duLCBmZCwgYmFu
-ZCk7CiAJCX0KIAl9IGVsc2UgewotCQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCQlzdHJ1Y3QgcGlk
-ICpwaWRwdHI7Ci0JCWZvcl9lYWNoX3Rhc2tfcGlkKC1waWQsIFBJRFRZUEVfUEdJRCwgcCwgbCwg
-cGlkcHRyKSB7CisJCWRvX2VhY2hfdGFza19waWQoLXBpZCwgUElEVFlQRV9QR0lELCBwKSB7CiAJ
-CQlzZW5kX3NpZ2lvX3RvX3Rhc2socCwgZm93biwgZmQsIGJhbmQpOwotCQl9CisJCX0gd2hpbGVf
-ZWFjaF90YXNrX3BpZCgtcGlkLCBQSURUWVBFX1BHSUQsIHApOwogCX0KIAlyZWFkX3VubG9jaygm
-dGFza2xpc3RfbG9jayk7CiAgb3V0X3VubG9ja19mb3duOgpAQCAtNTM0LDExICs1MzIsOSBAQCBp
-bnQgc2VuZF9zaWd1cmcoc3RydWN0IGZvd25fc3RydWN0ICpmb3duCiAJCQlzZW5kX3NpZ3VyZ190
-b190YXNrKHAsIGZvd24pOwogCQl9CiAJfSBlbHNlIHsKLQkJc3RydWN0IGxpc3RfaGVhZCAqbDsK
-LQkJc3RydWN0IHBpZCAqcGlkcHRyOwotCQlmb3JfZWFjaF90YXNrX3BpZCgtcGlkLCBQSURUWVBF
-X1BHSUQsIHAsIGwsIHBpZHB0cikgeworCQlkb19lYWNoX3Rhc2tfcGlkKC1waWQsIFBJRFRZUEVf
-UEdJRCwgcCkgewogCQkJc2VuZF9zaWd1cmdfdG9fdGFzayhwLCBmb3duKTsKLQkJfQorCQl9IHdo
-aWxlX2VhY2hfdGFza19waWQoLXBpZCwgUElEVFlQRV9QR0lELCBwKTsKIAl9CiAJcmVhZF91bmxv
-Y2soJnRhc2tsaXN0X2xvY2spOwogIG91dF91bmxvY2tfZm93bjoKLS0tIGxpbnV4LTIuNi44LjEv
-a2VybmVsL3BpZC5jLnBpZAkyMDA0LTA4LTE0IDE0OjU1OjMzLjAwMDAwMDAwMCArMDQwMAorKysg
-bGludXgtMi42LjguMS9rZXJuZWwvcGlkLmMJMjAwNC0wOC0zMSAxNTozNDowMy4yMzQ3OTYyMDgg
-KzA0MDAKQEAgLTE0Niw2OSArMTQ2LDYwIEBAIGZhaWx1cmU6CiAJcmV0dXJuIC0xOwogfQogCi1m
-YXN0Y2FsbCBzdHJ1Y3QgcGlkICpmaW5kX3BpZChlbnVtIHBpZF90eXBlIHR5cGUsIGludCBucikK
-K2Zhc3RjYWxsIHN0cnVjdCBwaWRfc3RydWN0ICpmaW5kX3BpZChlbnVtIHBpZF90eXBlIHR5cGUs
-IGludCBucikKIHsKIAlzdHJ1Y3QgbGlzdF9oZWFkICplbGVtLCAqYnVja2V0ID0gJnBpZF9oYXNo
-W3R5cGVdW3BpZF9oYXNoZm4obnIpXTsKLQlzdHJ1Y3QgcGlkICpwaWQ7CisJc3RydWN0IHBpZF9z
-dHJ1Y3QgKnBpZDsKIAogCV9fbGlzdF9mb3JfZWFjaChlbGVtLCBidWNrZXQpIHsKLQkJcGlkID0g
-bGlzdF9lbnRyeShlbGVtLCBzdHJ1Y3QgcGlkLCBoYXNoX2NoYWluKTsKKwkJcGlkID0gbGlzdF9l
-bnRyeShlbGVtLCBzdHJ1Y3QgcGlkX3N0cnVjdCwgaGFzaF9saXN0KTsKIAkJaWYgKHBpZC0+bnIg
-PT0gbnIpCiAJCQlyZXR1cm4gcGlkOwogCX0KIAlyZXR1cm4gTlVMTDsKIH0KIAotdm9pZCBmYXN0
-Y2FsbCBsaW5rX3BpZCh0YXNrX3QgKnRhc2ssIHN0cnVjdCBwaWRfbGluayAqbGluaywgc3RydWN0
-IHBpZCAqcGlkKQotewotCWF0b21pY19pbmMoJnBpZC0+Y291bnQpOwotCWxpc3RfYWRkX3RhaWwo
-JmxpbmstPnBpZF9jaGFpbiwgJnBpZC0+dGFza19saXN0KTsKLQlsaW5rLT5waWRwdHIgPSBwaWQ7
-Ci19Ci0KIGludCBmYXN0Y2FsbCBhdHRhY2hfcGlkKHRhc2tfdCAqdGFzaywgZW51bSBwaWRfdHlw
-ZSB0eXBlLCBpbnQgbnIpCiB7Ci0Jc3RydWN0IHBpZCAqcGlkID0gZmluZF9waWQodHlwZSwgbnIp
-OworCXN0cnVjdCBwaWRfc3RydWN0ICpwaWQsICp0YXNrX3BpZDsKIAotCWlmIChwaWQpCi0JCWF0
-b21pY19pbmMoJnBpZC0+Y291bnQpOwotCWVsc2UgewotCQlwaWQgPSAmdGFzay0+cGlkc1t0eXBl
-XS5waWQ7Ci0JCXBpZC0+bnIgPSBucjsKLQkJYXRvbWljX3NldCgmcGlkLT5jb3VudCwgMSk7Ci0J
-CUlOSVRfTElTVF9IRUFEKCZwaWQtPnRhc2tfbGlzdCk7Ci0JCXBpZC0+dGFzayA9IHRhc2s7Ci0J
-CWdldF90YXNrX3N0cnVjdCh0YXNrKTsKLQkJbGlzdF9hZGQoJnBpZC0+aGFzaF9jaGFpbiwgJnBp
-ZF9oYXNoW3R5cGVdW3BpZF9oYXNoZm4obnIpXSk7CisJdGFza19waWQgPSAmdGFzay0+cGlkc1t0
-eXBlXTsKKwlwaWQgPSBmaW5kX3BpZCh0eXBlLCBucik7CisJaWYgKHBpZCA9PSBOVUxMKSB7CisJ
-CWxpc3RfYWRkKCZ0YXNrX3BpZC0+aGFzaF9saXN0LCAmcGlkX2hhc2hbdHlwZV1bcGlkX2hhc2hm
-bihucildKTsKKwkJSU5JVF9MSVNUX0hFQUQoJnRhc2tfcGlkLT5waWRfbGlzdCk7CisJfSBlbHNl
-IHsKKwkJSU5JVF9MSVNUX0hFQUQoJnRhc2tfcGlkLT5oYXNoX2xpc3QpOworCQlsaXN0X2FkZF90
-YWlsKCZ0YXNrX3BpZC0+cGlkX2xpc3QsICZwaWQtPnBpZF9saXN0KTsKIAl9Ci0JbGlzdF9hZGRf
-dGFpbCgmdGFzay0+cGlkc1t0eXBlXS5waWRfY2hhaW4sICZwaWQtPnRhc2tfbGlzdCk7Ci0JdGFz
-ay0+cGlkc1t0eXBlXS5waWRwdHIgPSBwaWQ7CisJdGFza19waWQtPm5yID0gbnI7CiAKIAlyZXR1
-cm4gMDsKIH0KIAogc3RhdGljIGlubGluZSBpbnQgX19kZXRhY2hfcGlkKHRhc2tfdCAqdGFzaywg
-ZW51bSBwaWRfdHlwZSB0eXBlKQogewotCXN0cnVjdCBwaWRfbGluayAqbGluayA9IHRhc2stPnBp
-ZHMgKyB0eXBlOwotCXN0cnVjdCBwaWQgKnBpZCA9IGxpbmstPnBpZHB0cjsKKwlzdHJ1Y3QgcGlk
-X3N0cnVjdCAqcGlkLCAqcGlkX25leHQ7CiAJaW50IG5yOwogCi0JbGlzdF9kZWwoJmxpbmstPnBp
-ZF9jaGFpbik7Ci0JaWYgKCFhdG9taWNfZGVjX2FuZF90ZXN0KCZwaWQtPmNvdW50KSkKLQkJcmV0
-dXJuIDA7Ci0KKwlwaWQgPSAmdGFzay0+cGlkc1t0eXBlXTsKKwlpZiAoIWxpc3RfZW1wdHkoJnBp
-ZC0+aGFzaF9saXN0KSkgeworCQlsaXN0X2RlbCgmcGlkLT5oYXNoX2xpc3QpOworCQlpZiAoIWxp
-c3RfZW1wdHkoJnBpZC0+cGlkX2xpc3QpKSB7CisJCQlwaWRfbmV4dCA9IGxpc3RfZW50cnkocGlk
-LT5waWRfbGlzdC5uZXh0LAorCQkJCQkJc3RydWN0IHBpZF9zdHJ1Y3QsIHBpZF9saXN0KTsKKwkJ
-CS8qIGluc2VydCBuZXh0IHBpZCBmcm9tIHBpZF9saXN0IHRvIGhhc2ggKi8KKwkJCWxpc3RfYWRk
-KCZwaWRfbmV4dC0+aGFzaF9saXN0LAorCQkJCSZwaWRfaGFzaFt0eXBlXVtwaWRfaGFzaGZuKHBp
-ZF9uZXh0LT5ucildKTsKKwkJfQorCX0KKwlsaXN0X2RlbCgmcGlkLT5waWRfbGlzdCk7CiAJbnIg
-PSBwaWQtPm5yOwotCWxpc3RfZGVsKCZwaWQtPmhhc2hfY2hhaW4pOwotCXB1dF90YXNrX3N0cnVj
-dChwaWQtPnRhc2spOworCXBpZC0+bnIgPSAwOwogCiAJcmV0dXJuIG5yOwogfQogCi1zdGF0aWMg
-dm9pZCBfZGV0YWNoX3BpZCh0YXNrX3QgKnRhc2ssIGVudW0gcGlkX3R5cGUgdHlwZSkKLXsKLQlf
-X2RldGFjaF9waWQodGFzaywgdHlwZSk7Ci19Ci0KIHZvaWQgZmFzdGNhbGwgZGV0YWNoX3BpZCh0
-YXNrX3QgKnRhc2ssIGVudW0gcGlkX3R5cGUgdHlwZSkKIHsKIAlpbnQgbnIgPSBfX2RldGFjaF9w
-aWQodGFzaywgdHlwZSk7CkBAIC0yMjIsMTYgKzIxMywxNiBAQCB2b2lkIGZhc3RjYWxsIGRldGFj
-aF9waWQodGFza190ICp0YXNrLCBlCiAJZnJlZV9waWRtYXAobnIpOwogfQogCi10YXNrX3QgKmZp
-bmRfdGFza19ieV9waWQoaW50IG5yKQordGFza190ICpmaW5kX3Rhc2tfYnlfcGlkX3R5cGUoaW50
-IHR5cGUsIGludCBucikKIHsKLQlzdHJ1Y3QgcGlkICpwaWQgPSBmaW5kX3BpZChQSURUWVBFX1BJ
-RCwgbnIpOworCXN0cnVjdCBwaWRfc3RydWN0ICpwaWQgPSBmaW5kX3BpZCh0eXBlLCBucik7CiAK
-IAlpZiAoIXBpZCkKIAkJcmV0dXJuIE5VTEw7Ci0JcmV0dXJuIHBpZF90YXNrKHBpZC0+dGFza19s
-aXN0Lm5leHQsIFBJRFRZUEVfUElEKTsKKwlyZXR1cm4gcGlkX3Rhc2soJnBpZC0+cGlkX2xpc3Qs
-IHR5cGUpOwogfQogCi1FWFBPUlRfU1lNQk9MKGZpbmRfdGFza19ieV9waWQpOworRVhQT1JUX1NZ
-TUJPTChmaW5kX3Rhc2tfYnlfcGlkX3R5cGUpOwogCiAvKgogICogVGhpcyBmdW5jdGlvbiBzd2l0
-Y2hlcyB0aGUgUElEcyBpZiBhIG5vbi1sZWFkZXIgdGhyZWFkIGNhbGxzCkBAIC0yNDAsMTMgKzIz
-MSwxMyBAQCBFWFBPUlRfU1lNQk9MKGZpbmRfdGFza19ieV9waWQpOwogICovCiB2b2lkIHN3aXRj
-aF9leGVjX3BpZHModGFza190ICpsZWFkZXIsIHRhc2tfdCAqdGhyZWFkKQogewotCV9kZXRhY2hf
-cGlkKGxlYWRlciwgUElEVFlQRV9QSUQpOwotCV9kZXRhY2hfcGlkKGxlYWRlciwgUElEVFlQRV9U
-R0lEKTsKLQlfZGV0YWNoX3BpZChsZWFkZXIsIFBJRFRZUEVfUEdJRCk7Ci0JX2RldGFjaF9waWQo
-bGVhZGVyLCBQSURUWVBFX1NJRCk7CisJKHZvaWQpX19kZXRhY2hfcGlkKGxlYWRlciwgUElEVFlQ
-RV9QSUQpOworCSh2b2lkKV9fZGV0YWNoX3BpZChsZWFkZXIsIFBJRFRZUEVfVEdJRCk7CisJKHZv
-aWQpX19kZXRhY2hfcGlkKGxlYWRlciwgUElEVFlQRV9QR0lEKTsKKwkodm9pZClfX2RldGFjaF9w
-aWQobGVhZGVyLCBQSURUWVBFX1NJRCk7CiAKLQlfZGV0YWNoX3BpZCh0aHJlYWQsIFBJRFRZUEVf
-UElEKTsKLQlfZGV0YWNoX3BpZCh0aHJlYWQsIFBJRFRZUEVfVEdJRCk7CisJKHZvaWQpX19kZXRh
-Y2hfcGlkKHRocmVhZCwgUElEVFlQRV9QSUQpOworCSh2b2lkKV9fZGV0YWNoX3BpZCh0aHJlYWQs
-IFBJRFRZUEVfVEdJRCk7CiAKIAlsZWFkZXItPnBpZCA9IGxlYWRlci0+dGdpZCA9IHRocmVhZC0+
-cGlkOwogCXRocmVhZC0+cGlkID0gdGhyZWFkLT50Z2lkOwotLS0gbGludXgtMi42LjguMS9rZXJu
-ZWwvZXhpdC5jLnBpZAkyMDA0LTA4LTE0IDE0OjU2OjAxLjAwMDAwMDAwMCArMDQwMAorKysgbGlu
-dXgtMi42LjguMS9rZXJuZWwvZXhpdC5jCTIwMDQtMDgtMzEgMTI6MTU6MjUuMDAwMDAwMDAwICsw
-NDAwCkBAIC0xMzEsMTYgKzEzMSwxNSBAQCB2b2lkIHVuaGFzaF9wcm9jZXNzKHN0cnVjdCB0YXNr
-X3N0cnVjdCAqCiBpbnQgc2Vzc2lvbl9vZl9wZ3JwKGludCBwZ3JwKQogewogCXN0cnVjdCB0YXNr
-X3N0cnVjdCAqcDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCXN0cnVjdCBwaWQgKnBpZDsKIAlp
-bnQgc2lkID0gLTE7CiAKIAlyZWFkX2xvY2soJnRhc2tsaXN0X2xvY2spOwotCWZvcl9lYWNoX3Rh
-c2tfcGlkKHBncnAsIFBJRFRZUEVfUEdJRCwgcCwgbCwgcGlkKQorCWRvX2VhY2hfdGFza19waWQo
-cGdycCwgUElEVFlQRV9QR0lELCBwKSB7CiAJCWlmIChwLT5zaWduYWwtPnNlc3Npb24gPiAwKSB7
-CiAJCQlzaWQgPSBwLT5zaWduYWwtPnNlc3Npb247CiAJCQlnb3RvIG91dDsKIAkJfQorCX0gd2hp
-bGVfZWFjaF90YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BHSUQsIHApOwogCXAgPSBmaW5kX3Rhc2tf
-YnlfcGlkKHBncnApOwogCWlmIChwKQogCQlzaWQgPSBwLT5zaWduYWwtPnNlc3Npb247CkBAIC0x
-NjEsMTEgKzE2MCw5IEBAIG91dDoKIHN0YXRpYyBpbnQgd2lsbF9iZWNvbWVfb3JwaGFuZWRfcGdy
-cChpbnQgcGdycCwgdGFza190ICppZ25vcmVkX3Rhc2spCiB7CiAJc3RydWN0IHRhc2tfc3RydWN0
-ICpwOwotCXN0cnVjdCBsaXN0X2hlYWQgKmw7Ci0Jc3RydWN0IHBpZCAqcGlkOwogCWludCByZXQg
-PSAxOwogCi0JZm9yX2VhY2hfdGFza19waWQocGdycCwgUElEVFlQRV9QR0lELCBwLCBsLCBwaWQp
-IHsKKwlkb19lYWNoX3Rhc2tfcGlkKHBncnAsIFBJRFRZUEVfUEdJRCwgcCkgewogCQlpZiAocCA9
-PSBpZ25vcmVkX3Rhc2sKIAkJCQl8fCBwLT5zdGF0ZSA+PSBUQVNLX1pPTUJJRSAKIAkJCQl8fCBw
-LT5yZWFsX3BhcmVudC0+cGlkID09IDEpCkBAIC0xNzUsNyArMTcyLDcgQEAgc3RhdGljIGludCB3
-aWxsX2JlY29tZV9vcnBoYW5lZF9wZ3JwKGludAogCQkJcmV0ID0gMDsKIAkJCWJyZWFrOwogCQl9
-Ci0JfQorCX0gd2hpbGVfZWFjaF90YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BHSUQsIHApOwogCXJl
-dHVybiByZXQ7CS8qIChzaWdoaW5nKSAiT2Z0ZW4hIiAqLwogfQogCkBAIC0xOTQsMTAgKzE5MSw4
-IEBAIHN0YXRpYyBpbmxpbmUgaW50IGhhc19zdG9wcGVkX2pvYnMoaW50IHAKIHsKIAlpbnQgcmV0
-dmFsID0gMDsKIAlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnA7Ci0Jc3RydWN0IGxpc3RfaGVhZCAqbDsK
-LQlzdHJ1Y3QgcGlkICpwaWQ7CiAKLQlmb3JfZWFjaF90YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BH
-SUQsIHAsIGwsIHBpZCkgeworCWRvX2VhY2hfdGFza19waWQocGdycCwgUElEVFlQRV9QR0lELCBw
-KSB7CiAJCWlmIChwLT5zdGF0ZSAhPSBUQVNLX1NUT1BQRUQpCiAJCQljb250aW51ZTsKIApAQCAt
-MjEzLDcgKzIwOCw3IEBAIHN0YXRpYyBpbmxpbmUgaW50IGhhc19zdG9wcGVkX2pvYnMoaW50IHAK
-IAogCQlyZXR2YWwgPSAxOwogCQlicmVhazsKLQl9CisJfSB3aGlsZV9lYWNoX3Rhc2tfcGlkKHBn
-cnAsIFBJRFRZUEVfUEdJRCwgcCk7CiAJcmV0dXJuIHJldHZhbDsKIH0KIApAQCAtODY1LDkgKzg2
-MCw2IEBAIGFzbWxpbmthZ2UgbG9uZyBzeXNfZXhpdChpbnQgZXJyb3JfY29kZSkKIAogdGFza190
-IGZhc3RjYWxsICpuZXh0X3RocmVhZChjb25zdCB0YXNrX3QgKnApCiB7Ci0JY29uc3Qgc3RydWN0
-IHBpZF9saW5rICpsaW5rID0gcC0+cGlkcyArIFBJRFRZUEVfVEdJRDsKLQljb25zdCBzdHJ1Y3Qg
-bGlzdF9oZWFkICp0bXAsICpoZWFkID0gJmxpbmstPnBpZHB0ci0+dGFza19saXN0OwotCiAjaWZk
-ZWYgQ09ORklHX1NNUAogCWlmICghcC0+c2lnaGFuZCkKIAkJQlVHKCk7CkBAIC04NzUsMTEgKzg2
-Nyw3IEBAIHRhc2tfdCBmYXN0Y2FsbCAqbmV4dF90aHJlYWQoY29uc3QgdGFza18KIAkJCQkhcnds
-b2NrX2lzX2xvY2tlZCgmdGFza2xpc3RfbG9jaykpCiAJCUJVRygpOwogI2VuZGlmCi0JdG1wID0g
-bGluay0+cGlkX2NoYWluLm5leHQ7Ci0JaWYgKHRtcCA9PSBoZWFkKQotCQl0bXAgPSBoZWFkLT5u
-ZXh0OwotCi0JcmV0dXJuIHBpZF90YXNrKHRtcCwgUElEVFlQRV9UR0lEKTsKKwlyZXR1cm4gcGlk
-X3Rhc2socC0+cGlkc1tQSURUWVBFX1RHSURdLnBpZF9saXN0Lm5leHQsIFBJRFRZUEVfVEdJRCk7
-CiB9CiAKIEVYUE9SVF9TWU1CT0wobmV4dF90aHJlYWQpOwotLS0gbGludXgtMi42LjguMS9rZXJu
-ZWwvc3lzLmMucGlkCTIwMDQtMDgtMTQgMTQ6NTQ6NDkuMDAwMDAwMDAwICswNDAwCisrKyBsaW51
-eC0yLjYuOC4xL2tlcm5lbC9zeXMuYwkyMDA0LTA4LTMxIDEyOjEzOjE0LjAwMDAwMDAwMCArMDQw
-MApAQCAtMzEwLDggKzMxMCw2IEBAIGFzbWxpbmthZ2UgbG9uZyBzeXNfc2V0cHJpb3JpdHkoaW50
-IHdoaWMKIHsKIAlzdHJ1Y3QgdGFza19zdHJ1Y3QgKmcsICpwOwogCXN0cnVjdCB1c2VyX3N0cnVj
-dCAqdXNlcjsKLQlzdHJ1Y3QgcGlkICpwaWQ7Ci0Jc3RydWN0IGxpc3RfaGVhZCAqbDsKIAlpbnQg
-ZXJyb3IgPSAtRUlOVkFMOwogCiAJaWYgKHdoaWNoID4gMiB8fCB3aGljaCA8IDApCkBAIC0zMzYs
-OCArMzM0LDkgQEAgYXNtbGlua2FnZSBsb25nIHN5c19zZXRwcmlvcml0eShpbnQgd2hpYwogCQlj
-YXNlIFBSSU9fUEdSUDoKIAkJCWlmICghd2hvKQogCQkJCXdobyA9IHByb2Nlc3NfZ3JvdXAoY3Vy
-cmVudCk7Ci0JCQlmb3JfZWFjaF90YXNrX3BpZCh3aG8sIFBJRFRZUEVfUEdJRCwgcCwgbCwgcGlk
-KQorCQkJZG9fZWFjaF90YXNrX3BpZCh3aG8sIFBJRFRZUEVfUEdJRCwgcCkgewogCQkJCWVycm9y
-ID0gc2V0X29uZV9wcmlvKHAsIG5pY2V2YWwsIGVycm9yKTsKKwkJCX0gd2hpbGVfZWFjaF90YXNr
-X3BpZCh3aG8sIFBJRFRZUEVfUEdJRCwgcCk7CiAJCQlicmVhazsKIAkJY2FzZSBQUklPX1VTRVI6
-CiAJCQlpZiAoIXdobykKQEAgLTM3MSw4ICszNzAsNiBAQCBvdXQ6CiBhc21saW5rYWdlIGxvbmcg
-c3lzX2dldHByaW9yaXR5KGludCB3aGljaCwgaW50IHdobykKIHsKIAlzdHJ1Y3QgdGFza19zdHJ1
-Y3QgKmcsICpwOwotCXN0cnVjdCBsaXN0X2hlYWQgKmw7Ci0Jc3RydWN0IHBpZCAqcGlkOwogCXN0
-cnVjdCB1c2VyX3N0cnVjdCAqdXNlcjsKIAlsb25nIG5pY2V2YWwsIHJldHZhbCA9IC1FU1JDSDsK
-IApAQCAtMzk0LDExICszOTEsMTEgQEAgYXNtbGlua2FnZSBsb25nIHN5c19nZXRwcmlvcml0eShp
-bnQgd2hpYwogCQljYXNlIFBSSU9fUEdSUDoKIAkJCWlmICghd2hvKQogCQkJCXdobyA9IHByb2Nl
-c3NfZ3JvdXAoY3VycmVudCk7Ci0JCQlmb3JfZWFjaF90YXNrX3BpZCh3aG8sIFBJRFRZUEVfUEdJ
-RCwgcCwgbCwgcGlkKSB7CisJCQlkb19lYWNoX3Rhc2tfcGlkKHdobywgUElEVFlQRV9QR0lELCBw
-KSB7CiAJCQkJbmljZXZhbCA9IDIwIC0gdGFza19uaWNlKHApOwogCQkJCWlmIChuaWNldmFsID4g
-cmV0dmFsKQogCQkJCQlyZXR2YWwgPSBuaWNldmFsOwotCQkJfQorCQkJfSB3aGlsZV9lYWNoX3Rh
-c2tfcGlkKHdobywgUElEVFlQRV9QR0lELCBwKTsKIAkJCWJyZWFrOwogCQljYXNlIFBSSU9fVVNF
-UjoKIAkJCWlmICghd2hvKQpAQCAtMTAxNSwxMiArMTAxMiwxMSBAQCBhc21saW5rYWdlIGxvbmcg
-c3lzX3NldHBnaWQocGlkX3QgcGlkLCBwCiAKIAlpZiAocGdpZCAhPSBwaWQpIHsKIAkJc3RydWN0
-IHRhc2tfc3RydWN0ICpwOwotCQlzdHJ1Y3QgcGlkICpwaWQ7Ci0JCXN0cnVjdCBsaXN0X2hlYWQg
-Kmw7CiAKLQkJZm9yX2VhY2hfdGFza19waWQocGdpZCwgUElEVFlQRV9QR0lELCBwLCBsLCBwaWQp
-CisJCWRvX2VhY2hfdGFza19waWQocGdpZCwgUElEVFlQRV9QR0lELCBwKSB7CiAJCQlpZiAocC0+
-c2lnbmFsLT5zZXNzaW9uID09IGN1cnJlbnQtPnNpZ25hbC0+c2Vzc2lvbikKIAkJCQlnb3RvIG9r
-X3BnaWQ7CisJCX0gd2hpbGVfZWFjaF90YXNrX3BpZChwZ2lkLCBQSURUWVBFX1BHSUQsIHApOwog
-CQlnb3RvIG91dDsKIAl9CiAKQEAgLTEwOTgsNyArMTA5NCw3IEBAIGFzbWxpbmthZ2UgbG9uZyBz
-eXNfZ2V0c2lkKHBpZF90IHBpZCkKIAogYXNtbGlua2FnZSBsb25nIHN5c19zZXRzaWQodm9pZCkK
-IHsKLQlzdHJ1Y3QgcGlkICpwaWQ7CisJc3RydWN0IHBpZF9zdHJ1Y3QgKnBpZDsKIAlpbnQgZXJy
-ID0gLUVQRVJNOwogCiAJaWYgKCF0aHJlYWRfZ3JvdXBfbGVhZGVyKGN1cnJlbnQpKQotLS0gbGlu
-dXgtMi42LjguMS9rZXJuZWwvc2lnbmFsLmMucGlkCTIwMDQtMDgtMTQgMTQ6NTU6MTkuMDAwMDAw
-MDAwICswNDAwCisrKyBsaW51eC0yLjYuOC4xL2tlcm5lbC9zaWduYWwuYwkyMDA0LTA4LTMxIDEy
-OjE1OjE3LjAwMDAwMDAwMCArMDQwMApAQCAtMTA3Miw4ICsxMDcyLDYgQEAgaW50IGdyb3VwX3Nl
-bmRfc2lnX2luZm8oaW50IHNpZywgc3RydWN0IAogaW50IF9fa2lsbF9wZ19pbmZvKGludCBzaWcs
-IHN0cnVjdCBzaWdpbmZvICppbmZvLCBwaWRfdCBwZ3JwKQogewogCXN0cnVjdCB0YXNrX3N0cnVj
-dCAqcDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCXN0cnVjdCBwaWQgKnBpZDsKIAlpbnQgcmV0
-dmFsLCBzdWNjZXNzOwogCiAJaWYgKHBncnAgPD0gMCkKQEAgLTEwODEsMTEgKzEwNzksMTEgQEAg
-aW50IF9fa2lsbF9wZ19pbmZvKGludCBzaWcsIHN0cnVjdCBzaWdpbgogCiAJc3VjY2VzcyA9IDA7
-CiAJcmV0dmFsID0gLUVTUkNIOwotCWZvcl9lYWNoX3Rhc2tfcGlkKHBncnAsIFBJRFRZUEVfUEdJ
-RCwgcCwgbCwgcGlkKSB7CisJZG9fZWFjaF90YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BHSUQsIHAp
-IHsKIAkJaW50IGVyciA9IGdyb3VwX3NlbmRfc2lnX2luZm8oc2lnLCBpbmZvLCBwKTsKIAkJc3Vj
-Y2VzcyB8PSAhZXJyOwogCQlyZXR2YWwgPSBlcnI7Ci0JfQorCX0gd2hpbGVfZWFjaF90YXNrX3Bp
-ZChwZ3JwLCBQSURUWVBFX1BHSUQsIHApOwogCXJldHVybiBzdWNjZXNzID8gMCA6IHJldHZhbDsK
-IH0KIApAQCAtMTExMiw4ICsxMTEwLDYgQEAgaW50CiBraWxsX3NsX2luZm8oaW50IHNpZywgc3Ry
-dWN0IHNpZ2luZm8gKmluZm8sIHBpZF90IHNpZCkKIHsKIAlpbnQgZXJyLCByZXR2YWwgPSAtRUlO
-VkFMOwotCXN0cnVjdCBwaWQgKnBpZDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwogCXN0cnVjdCB0
-YXNrX3N0cnVjdCAqcDsKIAogCWlmIChzaWQgPD0gMCkKQEAgLTExMjEsMTMgKzExMTcsMTMgQEAg
-a2lsbF9zbF9pbmZvKGludCBzaWcsIHN0cnVjdCBzaWdpbmZvICppbgogCiAJcmV0dmFsID0gLUVT
-UkNIOwogCXJlYWRfbG9jaygmdGFza2xpc3RfbG9jayk7Ci0JZm9yX2VhY2hfdGFza19waWQoc2lk
-LCBQSURUWVBFX1NJRCwgcCwgbCwgcGlkKSB7CisJZG9fZWFjaF90YXNrX3BpZChzaWQsIFBJRFRZ
-UEVfU0lELCBwKSB7CiAJCWlmICghcC0+c2lnbmFsLT5sZWFkZXIpCiAJCQljb250aW51ZTsKIAkJ
-ZXJyID0gZ3JvdXBfc2VuZF9zaWdfaW5mbyhzaWcsIGluZm8sIHApOwogCQlpZiAocmV0dmFsKQog
-CQkJcmV0dmFsID0gZXJyOwotCX0KKwl9IHdoaWxlX2VhY2hfdGFza19waWQoc2lkLCBQSURUWVBF
-X1NJRCwgcCk7CiAJcmVhZF91bmxvY2soJnRhc2tsaXN0X2xvY2spOwogb3V0OgogCXJldHVybiBy
-ZXR2YWw7Ci0tLSBsaW51eC0yLjYuOC4xL2tlcm5lbC9mb3JrLmMucGlkCTIwMDQtMDgtMTQgMTQ6
-NTQ6NDkuMDAwMDAwMDAwICswNDAwCisrKyBsaW51eC0yLjYuOC4xL2tlcm5lbC9mb3JrLmMJMjAw
-NC0wOC0zMSAxMjoxMzoxNC4wMDAwMDAwMDAgKzA0MDAKQEAgLTEwODMsMTQgKzEwODMsMTMgQEAg
-c3RydWN0IHRhc2tfc3RydWN0ICpjb3B5X3Byb2Nlc3ModW5zaWduZQogCQlfX3B0cmFjZV9saW5r
-KHAsIGN1cnJlbnQtPnBhcmVudCk7CiAKIAlhdHRhY2hfcGlkKHAsIFBJRFRZUEVfUElELCBwLT5w
-aWQpOworCWF0dGFjaF9waWQocCwgUElEVFlQRV9UR0lELCBwLT50Z2lkKTsKIAlpZiAodGhyZWFk
-X2dyb3VwX2xlYWRlcihwKSkgewotCQlhdHRhY2hfcGlkKHAsIFBJRFRZUEVfVEdJRCwgcC0+dGdp
-ZCk7CiAJCWF0dGFjaF9waWQocCwgUElEVFlQRV9QR0lELCBwcm9jZXNzX2dyb3VwKHApKTsKIAkJ
-YXR0YWNoX3BpZChwLCBQSURUWVBFX1NJRCwgcC0+c2lnbmFsLT5zZXNzaW9uKTsKIAkJaWYgKHAt
-PnBpZCkKIAkJCV9fZ2V0X2NwdV92YXIocHJvY2Vzc19jb3VudHMpKys7Ci0JfSBlbHNlCi0JCWxp
-bmtfcGlkKHAsIHAtPnBpZHMgKyBQSURUWVBFX1RHSUQsICZwLT5ncm91cF9sZWFkZXItPnBpZHNb
-UElEVFlQRV9UR0lEXS5waWQpOworCX0KIAogCW5yX3RocmVhZHMrKzsKIAl3cml0ZV91bmxvY2tf
-aXJxKCZ0YXNrbGlzdF9sb2NrKTsKLS0tIGxpbnV4LTIuNi44LjEva2VybmVsL2NhcGFiaWxpdHku
-Yy5waWQJMjAwNC0wOC0xNCAxNDo1NTo0Ny4wMDAwMDAwMDAgKzA0MDAKKysrIGxpbnV4LTIuNi44
-LjEva2VybmVsL2NhcGFiaWxpdHkuYwkyMDA0LTA4LTMxIDEyOjEzOjE0LjAwMDAwMDAwMCArMDQw
-MApAQCAtODksMTQgKzg5LDEyIEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBjYXBfc2V0X3BnKGludCBw
-Z3JwLCAKIAkJCSAgICAgIGtlcm5lbF9jYXBfdCAqcGVybWl0dGVkKQogewogCXRhc2tfdCAqZywg
-KnRhcmdldDsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpsOwotCXN0cnVjdCBwaWQgKnBpZDsKIAotCWZv
-cl9lYWNoX3Rhc2tfcGlkKHBncnAsIFBJRFRZUEVfUEdJRCwgZywgbCwgcGlkKSB7CisJZG9fZWFj
-aF90YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BHSUQsIGcpIHsKIAkJdGFyZ2V0ID0gZzsKIAkJd2hp
-bGVfZWFjaF90aHJlYWQoZywgdGFyZ2V0KQogCQkJc2VjdXJpdHlfY2Fwc2V0X3NldCh0YXJnZXQs
-IGVmZmVjdGl2ZSwgaW5oZXJpdGFibGUsIHBlcm1pdHRlZCk7Ci0JfQorCX0gd2hpbGVfZWFjaF90
-YXNrX3BpZChwZ3JwLCBQSURUWVBFX1BHSUQsIGcpOwogfQogCiAvKgo=
-
-------RDClcUBr-RqXlahk3uJ51wUga:1093955343--
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

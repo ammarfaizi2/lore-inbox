@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276340AbRI1WMw>; Fri, 28 Sep 2001 18:12:52 -0400
+	id <S276343AbRI1WPm>; Fri, 28 Sep 2001 18:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276342AbRI1WMm>; Fri, 28 Sep 2001 18:12:42 -0400
-Received: from balabit.bakats.tvnet.hu ([195.38.106.66]:5643 "EHLO
-	kuka.balabit") by vger.kernel.org with ESMTP id <S276340AbRI1WMc>;
-	Fri, 28 Sep 2001 18:12:32 -0400
-Date: Sat, 29 Sep 2001 00:12:45 +0200
-From: Balazs Scheidler <bazsi@balabit.hu>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reproducible bug in 2.2.19 & 2.4.x
-Message-ID: <20010929001245.A25486@balabit.hu>
-In-Reply-To: <20010928203019.A24999@balabit.hu> <Pine.LNX.4.10.10109281515050.6506-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
+	id <S276346AbRI1WPc>; Fri, 28 Sep 2001 18:15:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56331 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276343AbRI1WP3>; Fri, 28 Sep 2001 18:15:29 -0400
+Subject: Re: 2.4.9-ac16 good perfomer?
+To: linux4u@wanadoo.es (Pau Aliagas)
+Date: Fri, 28 Sep 2001 23:20:08 +0100 (BST)
+Cc: riel@conectiva.com.br (Rik van Riel), davidsen@tmr.com (bill davidsen),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109282109590.10387-100000@pau.intranet.ct> from "Pau Aliagas" at Sep 28, 2001 09:14:22 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10109281515050.6506-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Fri, Sep 28, 2001 at 03:15:32PM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15n5zM-00006b-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 03:15:32PM -0400, Mark Hahn wrote:
-> 
-> seems like an interaction between your signal code and pthread,
-> no obvious reason to blame the kernel:
-[snip]
+> idle for some time, for instance after the screensaver has been running
+> during lunch time; it takes a few seconds moving from desktop to desktop
+> til it "swaps in" applications again. Maybe we are throwing away pages too
+> aggressively?
 
-If you check out the code again, you can see that I _don't_ have signal code
-for SIGPIPE, it's SIG_IGN-ed. I only have signal handler for SIGSEGV, which
-is executed when the bogus jump occurrs to 0x1.
+-ac is throwing away dcache too aggressively currently, that needs
+addressing in part by pruning the dcache and inode cache more smartly
 
-I agree that this can be either a kernel, pthread or libc problem.
-
-BTW: the SIGSEGV occurs on UP machine with SMP kernel as well.
-
--- 
-Bazsi
-PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1
+Alan

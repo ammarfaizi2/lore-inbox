@@ -1,83 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268400AbUI2NKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUI2NPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268400AbUI2NKx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 09:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUI2NKw
+	id S268405AbUI2NPB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 09:15:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268407AbUI2NPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 09:10:52 -0400
-Received: from hhlx01.visionsystems.de ([62.145.30.242]:53650 "EHLO
-	hhlx01.visionsystems.de") by vger.kernel.org with ESMTP
-	id S268367AbUI2NJ6 convert rfc822-to-8bit (ORCPT
+	Wed, 29 Sep 2004 09:15:00 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:4799 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S268405AbUI2NOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 09:09:58 -0400
-From: Roland =?utf-8?q?Ca=C3=9Febohm?= 
-	<roland.cassebohm@VisionSystems.de>
-Organization: Vision Systems GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serial driver hangs
-Date: Wed, 29 Sep 2004 15:09:38 +0200
-User-Agent: KMail/1.6.2
-Cc: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de> <1096409562.14082.53.camel@localhost.localdomain> <1096420364.6003.29.camel@at2.pipehead.org>
-In-Reply-To: <1096420364.6003.29.camel@at2.pipehead.org>
+	Wed, 29 Sep 2004 09:14:05 -0400
+Message-ID: <415AB516.80108@logix.cz>
+Date: Wed, 29 Sep 2004 15:13:58 +0200
+From: Michal Ludvig <michal@logix.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: cs, cz, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409291509.39187.roland.cassebohm@visionsystems.de>
-X-OriginalArrivalTime: 29 Sep 2004 13:09:40.0059 (UTC) FILETIME=[940542B0:01C4A625]
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.79
+To: Andreas Happe <andreashappe@flatline.ath.cx>
+Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+References: <20040831175449.GA2946@final-judgement.ath.cx>	<Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com>	<20040901082819.GA2489@final-judgement.ath.cx>	<Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz>	<20040907143509.GA30920@old-fsckful.ath.cx>	<Pine.LNX.4.53.0409071659070.19015@maxipes.logix.cz>	<20040910105502.GA4663@final-judgement.ath.cx>	<20040927084149.GA3625@final-judgement.ath.cx>	<Pine.LNX.4.53.0409271046280.12238@maxipes.logix.cz> <20040928123426.GA21069@final-judgement.ath.cx>
+In-Reply-To: <20040928123426.GA21069@final-judgement.ath.cx>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Am Mittwoch, 29. September 2004 03:12 schrieb Paul Fulghum:
-> On Tue, 2004-09-28 at 17:12, Alan Cox wrote:
-> > We have throttle()/unthrottle(). Drivers also know if
-> > they can't push data.
->
-> Yes, though these are manipulated by the ldisc
-> in relation to the ldisc receive buffer.
-> Coordinating the use of these functions between
-> a buffering layer (like the flip buffer) and
-> the ldisc would require each to have
-> knowledge of the other's state to know who
-> calls what and when (yuck).
->
-> But much of that may go away when...
->
-> > TTY_DONT_FLIP has to die.
->
-> *bang*
->
-> Until then, flushing the UART receive
-> FIFO and dropping the bytes (and updating
-> overrun stat) seems a reasonable short term
-> solution to stop the machine from locking up
-> while leaving the device in a recoverable state.
->
-> We can even mark it with *FIXME* in a comment.
-> That always seems to work :-)
+Andreas Happe told me that:
+> Michal Ludvig <michal@logix.cz> [040927 11:32]:
+> 
+>> If I'd finally have two or more modules for the same algorithm loaded,
+>> how
+>> should the /sys subtree look like?
+> 
+> good one.
+> 
+> If there are lots of different implementation for a given algorithm it
+> could be worthwhile to create a algorithm and a implementation -
+> directory e.g.
+> 
+> ls /sysfs/class/crypto/implementations would list:
+> aes-i586 aes-c4 md5 sha1 sha256-c4
+> 
+> and: ls /sysfs/class/crypto/algorithms
+> aes
+> 
+> with ls /sysfs/class/crypto/algorithms/aes
+> name type implementations
+> 
+> where implementations is a directory with links to the given
+> implementations in /sysfs/class/crypto/implementations.
+> 
+> Seems like a lot of work if there are only few implementations (like aes
+> and aes-i586).
 
-I have made a little test, at which the receive interrupt is 
-disabled in that state. It seems to be no improvement to the 
-solution of just trow away the bytes of the FIFO. In both 
-cases characters got lost.
+Once we have a support for hardware cryptocards it will be usefull. I'm
+already having the VIA PadLock patch that adds yet another AES
+implementation. For VIA C7 it will also support SHA (one module, two
+algorithms? why not ;-)
 
-So I think you are right, it would be the best to make the 
-simple solution with flushing the UART receive FIFO till the 
-flip buffer implementation will be reworked.
+IMHO it is worth having it done "right and expandable" since the
+beginning (changing the /sys tree once it goes mainline will be harder).
 
-Roland
--- 
-___________________________________________________
+Michal Ludvig
+- --
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-VS Vision Systems GmbH, Industrial Image Processing
-Dipl.-Ing. Roland Caßebohm
-Aspelohe 27A, D-22848 Norderstedt, Germany
-Mail: roland.cassebohm@visionsystems.de
-http://www.visionsystems.de
-___________________________________________________
+iD8DBQFBWrUUDDolCcRbIhgRAqU7AKCCKEUplTD8PJldxT0yodC1M52UjQCg2DSx
+Im6Amy3cGI+UhUqo4s/4IVk=
+=fqyy
+-----END PGP SIGNATURE-----

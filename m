@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311497AbSCND1T>; Wed, 13 Mar 2002 22:27:19 -0500
+	id <S311498AbSCNDcJ>; Wed, 13 Mar 2002 22:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311498AbSCND1K>; Wed, 13 Mar 2002 22:27:10 -0500
-Received: from [208.48.139.185] ([208.48.139.185]:13961 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S311497AbSCND1C>; Wed, 13 Mar 2002 22:27:02 -0500
-Date: Wed, 13 Mar 2002 19:26:56 -0800
-From: David Rees <dbr@greenhydrant.com>
+	id <S311499AbSCNDcA>; Wed, 13 Mar 2002 22:32:00 -0500
+Received: from harddata.com ([216.123.194.198]:39940 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S311498AbSCNDbs>;
+	Wed, 13 Mar 2002 22:31:48 -0500
+Date: Wed, 13 Mar 2002 20:32:39 -0700
+From: Michal Jaegermann <michal@harddata.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem
-Message-ID: <20020313192656.B12472@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16lLTa-0008BN-00@the-village.bc.nu> <3C901105.5040605@mandrakesoft.com>
+Cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Linux 2.4.19-pre3
+Message-ID: <20020313203239.A5381@mail.harddata.com>
+In-Reply-To: <20020312134631.GE1473@suse.de> <Pine.LNX.4.21.0203121558300.3462-100000@freak.distro.conectiva> <20020313080946.GC15877@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C901105.5040605@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Mar 13, 2002 at 09:55:01PM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020313080946.GC15877@suse.de>; from axboe@suse.de on Wed, Mar 13, 2002 at 09:09:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 09:55:01PM -0500, Jeff Garzik wrote:
->
-> Talk about a small world, I just found out today someone I know has been 
-> maintaining the NGPT kernel patches :)
+On Wed, Mar 13, 2002 at 09:09:46AM +0100, Jens Axboe wrote:
 > 
-> http://gtf.org/~dank/ngpt/
+> So why does 2.4.19-pre3 work for pio at all? For the same reason that
+> Andre never found this problem in 2.5 either: the taskfile interrupt
+> handlers are _never_ used in pio mode. In 2.5 it was by accident, and
+> when the merge happened they did indeed get used. It ate disks, very
+> quickly. ...
 
-It even looks like kernel support is included 2.4.19-pre3:
+Well, I tried 2.4.19-pre3 yesterday (Alpha with an IDE drive) and
+my ext2 file system is indeed gone.  I do not want to claim that this
+is certainly due to an IDE driver from 2.4.19-pre3, as this is
+a machine with a number still open issues and very experimental
+installation, but it survived a number of very rough attempts on
+file systems in the past and now it died.  This _could be_ coincidental;
+I did use various kernels from "ac" series on it in the past.
 
-http://oss.software.ibm.com/pthreads/
+BTW  - e2fsck made an impression that it is running in circles.
+After mounting a disk from another system I have leftovers and number
+of files can be read and copied but, among other things, '/lib' is
+not a directory anymore. :-)
 
-But don't see anything about it in any of the recent change logs...
-
--Dave
+  Michal

@@ -1,40 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267828AbUIVVMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUIVVao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267828AbUIVVMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 17:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUIVVMR
+	id S267401AbUIVVao (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 17:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUIVVan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 17:12:17 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19351 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267828AbUIVVLI (ORCPT
+	Wed, 22 Sep 2004 17:30:43 -0400
+Received: from gprs214-200.eurotel.cz ([160.218.214.200]:20361 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267401AbUIVVal (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 17:11:08 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc2-mm2
-Date: Wed, 22 Sep 2004 17:10:52 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040922131210.6c08b94c.akpm@osdl.org> <200409221659.29280.jbarnes@engr.sgi.com> <20040922140422.78f8767f.akpm@osdl.org>
-In-Reply-To: <20040922140422.78f8767f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Sep 2004 17:30:41 -0400
+Date: Wed, 22 Sep 2004 23:30:29 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: year 9223372034708485227 problem
+Message-ID: <20040922213028.GE14891@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409221710.52695.jbarnes@engr.sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, September 22, 2004 5:04 pm, Andrew Morton wrote:
-> >  I assume you have one of the Intel Big Sur
-> > whiteboxes?
->
-> It's an Intel "tiger" (not sure if that's the official name...)
->
-> I'll try a defconfig build later today.
+Hi!
 
-Your config looks ok for that box.  IIRC it supports up to 4 McKinely 
-processors.
+For testing (read() and write() is returning wrong value on 2.4
+kernels) I played a bit with really big numbers... And I found out we
+have year 9223372034708485227 problem ;-).
 
-Jesse
+hobit:/tmp # cat 2gbtime.c
+
+/**************************** 2gbwrite.c **************************/
+#define _SVID_SOURCE /* glibc2 needs this */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <values.h>
+#include <malloc.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+
+int main(int argc, char **argv)
+{
+  long t = 0x7fffffff80123456;
+  stime(&t);
+  printf("It is now: %lx\n", time(NULL));
+}
+/*********************** end of 2gbwrite.c *************************/
+hobit:/tmp # ./2gbtime
+It is now: 7fffffff80123456
+hobit:/tmp # date
+Segmentation fault
+hobit:/tmp # top
+Segmentation fault
+hobit:/tmp # mc
+Segmentation fault
+hobit:/tmp # /sbin//shutdown -r now
+Segmentation fault
+hobit:/tmp # halt
+Segmentation fault
+hobit:/tmp #
+
+I'm not sure if it is kernel problem... but it is sure pretty
+common. I wonder how much damage it will do to my filesystems: touch
+foo seems to store the right year into reiserfs. I wonder if it is
+still there after reboot? No, it is not. That looks like kernel bug :-).
+
+Anyway I believe we are going to have some fun in year 2038. Even if
+all systems are 64-bit by then, there will still be some 32-bit fields
+hidden somewhere.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

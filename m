@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316577AbSFFAOG>; Wed, 5 Jun 2002 20:14:06 -0400
+	id <S316579AbSFFAYv>; Wed, 5 Jun 2002 20:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSFFAOF>; Wed, 5 Jun 2002 20:14:05 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:46585 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S316577AbSFFAOE>; Wed, 5 Jun 2002 20:14:04 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S316586AbSFFAYu>; Wed, 5 Jun 2002 20:24:50 -0400
+Received: from bitmover.com ([192.132.92.2]:34215 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316579AbSFFAYt>;
+	Wed, 5 Jun 2002 20:24:49 -0400
+Date: Wed, 5 Jun 2002 17:24:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bcrl@redhat.com, lord@sgi.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+Message-ID: <20020605172449.K2938@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"David S. Miller" <davem@redhat.com>, bcrl@redhat.com, lord@sgi.com,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20020604225539.F9111@redhat.com> <1023315323.17160.522.camel@jen.americas.sgi.com> <20020605183152.H4697@redhat.com> <20020605.161342.71552259.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15614.43338.841104.697862@wombat.chubb.wattle.id.au>
-Date: Thu, 6 Jun 2002 10:14:02 +1000
-To: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-CC: jdthood@mail.com, dahinds@users.sourceforge.net
-Subject: [PATCH] pnpbios_proc.c needs init.h
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
- {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
- F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
-Comments: Hyperbole mail buttons accepted, v04.18.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 05, 2002 at 04:13:42PM -0700, David S. Miller wrote:
+>    From: Benjamin LaHaise <bcrl@redhat.com>
+>    Date: Wed, 5 Jun 2002 18:31:52 -0400
+> 
+>    On Wed, Jun 05, 2002 at 05:15:23PM -0500, Steve Lord wrote:
+>    > Just what are the tasks you normally run - and how many code
+>    > paths do you think there are out there which you do not run. XFS
+>    > might get a bit stack hungry in places, we try to keep it down,
+>    > but when you get into file system land things can stack up quickly:
+>    
+>    You already lose in that case today, as multiple irqs may come in 
+>    from devices and eat up the stack.
+> 
+> I agree with Ben, if things explode due to stack overflow with his
+> changes they are almost certain to explode before his changes.
 
-Without init.h, pnpbios_proc.c won't compile (2.5.20), as it has a
-function declared __init.
-
-
-===== linux/drivers/pnp/pnpbios_proc.c 1.2 vs edited =====
---- 1.2/drivers/pnp/pnpbios_proc.c      Sun Mar 24 09:55:28 2002
-+++ edited/drivers/pnp/pnpbios_proc.c   Thu Jun  6 10:06:31 2002
-@@ -28,6 +28,7 @@
- #include <linux/types.h>
- #include <linux/proc_fs.h>
- #include <linux/pnpbios.h>
-+#include <linux/init.h>
- 
- static struct proc_dir_entry *proc_pnp = NULL;
- static struct proc_dir_entry *proc_pnp_boot = NULL;
-
-
---
-Peter C					    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+Just a "me too".  I like Ben's patch, it seems like it is a sort of
+"bloat meter", if you overflow the stack that suggests something is
+wrong, and it isn't stack size.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

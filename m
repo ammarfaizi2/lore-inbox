@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269271AbTCBSax>; Sun, 2 Mar 2003 13:30:53 -0500
+	id <S269267AbTCBS0z>; Sun, 2 Mar 2003 13:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269268AbTCBSaw>; Sun, 2 Mar 2003 13:30:52 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:65171 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S269271AbTCBSav>; Sun, 2 Mar 2003 13:30:51 -0500
-Date: Mon, 03 Mar 2003 07:44:03 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: S4bios support for 2.5.63
-In-reply-to: <20030302133138.GA27031@outpost.ds9a.nl>
-To: bert hubert <ahu@ds9a.nl>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1046630641.3610.13.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20030226211347.GA14903@elf.ucw.cz>
- <20030302133138.GA27031@outpost.ds9a.nl>
+	id <S269268AbTCBS0z>; Sun, 2 Mar 2003 13:26:55 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43531 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269267AbTCBS0y>; Sun, 2 Mar 2003 13:26:54 -0500
+Date: Sun, 2 Mar 2003 19:37:09 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Patch/resubmit linux-2.5.63-bk4 try_module_get simplification
+In-Reply-To: <200303021733.JAA15313@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0303021928090.32518-100000@serv>
+References: <200303021733.JAA15313@adam.yggdrasil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-This bug is fixed in Linus tree. If you want swsusp to work in the mean
-time, look for a couple of patches Pavel sent recently.
+On Sun, 2 Mar 2003, Adam J. Richter wrote:
 
-Regards,
+> 	Is there enough traffic on the module reference counts to make
+> this trade-off worthwhile?
 
-Nigel
+I don't know, you have to ask that Rusty.
+BTW the same trick is also possible with the old module count:
 
+int try_inc_mod_count(struct module *mod)
+{
+	int res;
+
+	if (mod) {
+		__MOD_INC_USE_COUNT(mod);
+		smp_mb__after_atomic_inc()
+		if (unlikely(mod->flags & MOD_DELETED))
+			goto check;
+	}
+	return 1;
+check:
+	res = 1;
+	spin_lock(&unload_lock);
+	if (mod->flags & MOD_DELETED) {
+		__MOD_DEC_USE_COUNT(mod);
+		res = 0;
+	}
+	spin_unlock(&unload_lock);
+	return res;
+}
+
+(and a similiar change to sys_delete_module.)
+
+bye, Roman
 

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269186AbRHGRHF>; Tue, 7 Aug 2001 13:07:05 -0400
+	id <S269198AbRHGRKF>; Tue, 7 Aug 2001 13:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269202AbRHGRGz>; Tue, 7 Aug 2001 13:06:55 -0400
-Received: from bender.toppoint.de ([195.244.243.2]:34689 "EHLO
-	mail.toppoint.de") by vger.kernel.org with ESMTP id <S269186AbRHGRGq>;
-	Tue, 7 Aug 2001 13:06:46 -0400
->Received: (from netzwurm@localhost)
-	by gandalf.discordia (8.9.3/8.9.3/Debian 8.9.3-21) id SAA28644;
-	Tue, 7 Aug 2001 18:21:04 +0200
-Date: Tue, 7 Aug 2001 18:21:04 +0200
-From: David Spreen <david@spreen.de>
-To: David Maynor <david.maynor@oit.gatech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: encrypted swap
-Message-ID: <20010807182104.A28490@foobar.toppoint.de>
-In-Reply-To: <5.1.0.14.2.20010807110412.00a8bec0@pop.prism.gatech.edu>
+	id <S269202AbRHGRJp>; Tue, 7 Aug 2001 13:09:45 -0400
+Received: from weta.f00f.org ([203.167.249.89]:24209 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S269198AbRHGRJi>;
+	Tue, 7 Aug 2001 13:09:38 -0400
+Date: Wed, 8 Aug 2001 05:10:36 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Helge Hafting <helgehaf@idb.hist.no>,
+        Crutcher Dunnavant <crutcher@datastacks.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+Message-ID: <20010808051036.A26495@weta.f00f.org>
+In-Reply-To: <20010808035647.D26290@weta.f00f.org> <E15UA88-0003Eg-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20010807110412.00a8bec0@pop.prism.gatech.edu>; from david.maynor@oit.gatech.edu on Tue, Aug 07, 2001 at 11:06:36AM -0400
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15UA88-0003Eg-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 11:06:36AM -0400, David Maynor wrote:
-> But is the 10% perf hit really gaining you anything, expect to quell your 
-> paranoia. What is next, an encrypted /proc so that possible attackers can't 
-> gain information about running processes?
+On Tue, Aug 07, 2001 at 05:54:56PM +0100, Alan Cox wrote:
 
-This was not the point. I you don't care about your data on disks which
-maybe stolen (for example in notebooks) this is okay for me. 
-My question was only if there's an existing implementation of this.
-10 - 30% performance problems are quite acceptable for 
-good privacy aren't they?
+    Since several people have asked me directly about the IBM thing
 
-So if I understood you guys correctly it would be possible by
-getting random-data at boottime and use them to build a key
-(for example with the algorythms from the kerneli patch), which
-will be used to encrypt the swapped out data right?
+    	http://www-124.ibm.com/developerworks/oss/4758/index.html
 
-Would be cool to hear from some others who are interested in 
-such an implementation of crypted swap, maybe we could start
-something like that.
+    And no I've no idea how much they cost, but since it says 'and
+    talk to a 4758 PCI specialist' I suspect its not $25 a shot 8)
 
-Btw. one of the BSDs uses encrypted swap too iirc, how did they
-implement?
+Nah, only about $2500 US --- at RSA 2001 we did a demo of Linux
+running inside one.  Even the pointy heads at IBM were impressed!
 
-so long...
 
-David
--- 
-  __          _              | David "netzwurm" Spreen      Kiel, Germany
- / _|___  ___| |__  __ _ _ _ | http://www.netzwurm.cc/      david@spreen.de
-|  _/ _ \/ _ \ '_ \/ _` | '_|| gnupg key (on keyservers):   C8B6823A
-|_| \___/\___/_.__/\__,_|_|  | CellPhone:                   +49 173 3874061
+
+  --cw
 

@@ -1,50 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313702AbSEHMTe>; Wed, 8 May 2002 08:19:34 -0400
+	id <S313690AbSEHMZF>; Wed, 8 May 2002 08:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313578AbSEHMTd>; Wed, 8 May 2002 08:19:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:49024 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S313571AbSEHMTc>; Wed, 8 May 2002 08:19:32 -0400
-Date: Wed, 8 May 2002 08:21:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Serguei I. Ivantsov" <administrator@svitonline.com>
-cc: linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Measure time
-In-Reply-To: <abaokj$ugl$1@news.lucky.net>
-Message-ID: <Pine.LNX.3.95.1020508081422.3374A-100000@chaos.analogic.com>
+	id <S313711AbSEHMZE>; Wed, 8 May 2002 08:25:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56333 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313690AbSEHMZD>; Wed, 8 May 2002 08:25:03 -0400
+Subject: Re: Unable to handle kernel paging request problem at shutdown on 2.2.12
+To: pavankvk@indiatimes.com
+Date: Wed, 8 May 2002 13:23:59 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200205080509.KAA29799@WS0005.indiatimes.com> from "pavankvk" at May 08, 2002 10:56:49 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175QUB-0001SG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Serguei I. Ivantsov wrote:
+> everything went fine during installation.the system is running fine to my knowledge.
+> The problem is with complete shutdown.when i give init 0 command,everything succeeded and the system is halted.But instead of getting a powerdown message finally, i got a error as below :
 
-> Hello!
-> 
-> Is there any function for high precision time measuring.
-> time() returns only in second. I need nanoseconds.
-> 
-> --
->  Regards,
->   Serguei I. Ivantsov
->    GSC Game World
-> 
-
-gettimeofday() returns seconds/microseconds. If you need nanoseconds,
-you can read CPU clock cycles in Intel machines with (assembly) rdtsc
-instructions and convert, based upon the CPU clock.
-
-If you really need nanosecond resolution in code that may be
-interrupted or preempted at any time, you are in a world of hurt.
-I suggest you review the requirement. You may need a TMS320C30 or
-similar DSP standing alone.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+The kernel asked the BIOS to do an APM poweroff and the BIOS crashed. There
+are a few BIOSes that fail when the 32bit APM poweroff interface is called,
+notably in the old K6/Cyrix socket7 world. Its not actually going to do
+any harm.

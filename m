@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263076AbUKTDdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbUKTDg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbUKTDdz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 22:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbUKTDcc
+	id S263071AbUKTDg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 22:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbUKTDeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 22:32:32 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:23682 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263092AbUKTDas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 22:30:48 -0500
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: brking@us.ibm.com
-Cc: greg@kroah.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1100917635.9398.12.camel@localhost.localdomain>
+	Fri, 19 Nov 2004 22:34:07 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:21990 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S263070AbUKTDd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 22:33:29 -0500
+Date: Fri, 19 Nov 2004 21:33:12 -0600
+From: Robin Holt <holt@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Lameter <clameter@sgi.com>, torvalds@osdl.org, akpm@osdl.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Robin Holt <holt@sgi.com>
+Subject: Re: page fault scalability patch V11 [0/7]: overview
+Message-ID: <20041120033312.GB1434@lnx-holt.americas.sgi.com>
+References: <Pine.LNX.4.58.0411181835540.1421@schroedinger.engr.sgi.com> <419D5E09.20805@yahoo.com.au> <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com> <20041120020401.GC2714@holomorphy.com> <419EA96E.9030206@yahoo.com.au> <20041120023443.GD2714@holomorphy.com> <419EAEA8.2060204@yahoo.com.au> <20041120030425.GF2714@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 20 Nov 2004 02:27:16 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041120030425.GF2714@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-11-19 at 20:23, brking@us.ibm.com wrote:
+On Fri, Nov 19, 2004 at 07:04:25PM -0800, William Lee Irwin III wrote:
+> Why the Hell would you bother giving each cpu a separate cacheline?
+> The odds of bouncing significantly merely amongst the counters are not
+> particularly high.
 
-> +#define PCI_READ_CONFIG(size,type)	\
-> +int pci_read_config_##size	\
-> +	(struct pci_dev *dev, int pos, type *val)	\
-> +{									\
-> +	unsigned long flags;					\
-> +	int ret = 0;						\
-> +	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-> +	spin_lock_irqsave(&access_lock, flags);		\
-> +	if (!dev->block_cfg_access)				\
-> +		ret = pci_bus_read_config_##size(dev->bus, dev->devfn, pos, val);	\
-> +	else if (pos < sizeof(dev->saved_config_space))		\
-> +		*val = (type)dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
-> +	else								\
-> +		*val = -1;						\
-> +	spin_unlock_irqrestore(&access_lock, flags);	\
-> +	return ret;							\
-> +}
-
-Several vendors (for good or for bad) require configuration space is
-touched from interrupts on fast paths. This change will _really_ hurt
-random PC class machines so please make it more sensible in its
-condition handling.
-
-To start with you can do something like
-
-	if(unlikely(dev->designed_badly)) {
-		slow_spinlock_path
-	}
-	/* Designed less badly 8) */
-	existing code path
-
-Even better, put that code in your private debug tree. Replace the
-locked cases with BUG() and fix the driver to get its internal locking
-right in this situation.
-
-It seems wrong to put expensive checks in core code paths when you could
-just as easily provide
-
-	my_device_is_stupid_pci_read_config_byte()
-
-and equivalent lock taking functions that wrap the existing ones and are
-locked against the reset path without hurting sane computing devices
-(and PC's).
-
-Alan
-
+Agree, we are currently using atomic ops on a global rss on our 2.4
+kernel with 512cpu systems and not seeing much cacheline contention.
+I don't remember how little it ended up being, but it was very little.
+We had gone to dropping the page_table_lock and only reaquiring it if
+the pte was non-null when we went to insert our new one.  I think that
+was how we had it working.  I would have to wake up and actually look
+at that code as it was many months ago that Ray Bryant did that work.
+We did make rss atomic.  Most of the contention is sorted out by the
+mmap_sem.  Processes acquiring themselves off of mmap_sem were found
+to have spaced themselves out enough that they were all approximately
+equal time from doing their atomic_add and therefore had very little
+contention for the cacheline.  At least it was not enough that we could
+measure it as significant.

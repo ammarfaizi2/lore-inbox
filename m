@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129741AbQLNOMX>; Thu, 14 Dec 2000 09:12:23 -0500
+	id <S129464AbQLNOQo>; Thu, 14 Dec 2000 09:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbQLNOMN>; Thu, 14 Dec 2000 09:12:13 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:59457 "EHLO
-	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129741AbQLNOME>; Thu, 14 Dec 2000 09:12:04 -0500
-Date: Thu, 14 Dec 2000 15:49:00 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: brian@worldcontrol.com
+	id <S129904AbQLNOQe>; Thu, 14 Dec 2000 09:16:34 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:22547 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129886AbQLNOQ3>; Thu, 14 Dec 2000 09:16:29 -0500
+Message-Id: <200012141345.eBEDjrs46412@aslan.scsiguy.com>
+To: "J . A . Magallon" <jamagallon@able.es>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Is this a compromise and how?
-In-Reply-To: <20001214005345.A3732@top.worldcontrol.com>
-Message-ID: <Pine.LNX.4.21.0012141548100.2159-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
+In-Reply-To: Your message of "Thu, 14 Dec 2000 11:22:17 +0100."
+             <20001214112217.A9662@werewolf.able.es> 
+Date: Thu, 14 Dec 2000 06:45:53 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I tried it against clean 2.2.18 and patches did not work.
+>Some drawbacks:
+>- the patch adds config info for AIX7XXX in the top level Makefile, instead
+>of in the Makefile in the scsi dir.
 
-> Pretty cool huh?
-> 
-> Let me know if you would like a copy of the code.
-> 
-> A quick strace shows that it binds to port 24000.
-> 
-> It also contains a list of 5 IP addrs.  I suspect it doesn't
-> broadcast, but allows people in from those IPs.
-> 
-> Anyone know what has happened?  I religiously install the redhat
-> updates, and am subscribed to the CERT advistors and install
-> the fixes the moment I get them.
-> 
-> The system was RedHat 6.2, linux 2.2.17pre14 at the time the
-> breakin occured.
-> 
-> I've been running firewalled with only services I provide turned
-> on for access, and in /etc/inetd.conf.
-> 
-> What is keeping strlib.h from appearing ls's?  A hacked ls command?
+Yes, this will be fixed today.  The aic7xx directory will build the module
+or main driver file into the scsi directory so that no files need to be
+renamed.  This also means that the module name can remain the same.
 
-Yep. Looks like a rootkit to me.
+>- The subdir for aic7xxx has not a Makefile, or at least it is not created
+>with the patches for 2.2.18.
 
+It was supposed to be part of the patches for 2.2.18 (each kernel version
+requires a slightly different Makefile which is why it is not included
+in the main source ball).
 
+>- The structure of the driver (all files inside a subdir) has changed, so
+>you get the old files still there.
 
-	Igmar
+There is no way to remove those files other than instructing the user to
+do so or to execute a script.
 
+>I am going to try to clean up the thigs to make the driver easily updated:
+>- First thing is to move all files in the actual 5.1.31 to INSIDE the dir
+>  and change the scsi/Makefile to build it as a SUB_DIR.
+>- Change names of files: aic7xxx.o has to be built from many *.c, so you
+>  should rename the aic7xxx.c to something like aic7xxx_main.c.
+>- Then you have the aic7xxx subdir and you can add a similar aic7xxx-6 subdir
+>and even add an exclusive option to build one or the other, the second
+>marked EXPERIMENTAL.
+
+Blah.  I'd rather prove the utility of the new driver prior to having
+it incorporated into the kernel tree and at that point have it as a
+full replacement.  Otherwise there is just too much room for confusion.
+
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

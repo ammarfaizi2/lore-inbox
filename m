@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUCNXPp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 18:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUCNXPp
+	id S262035AbUCNXR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 18:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUCNXR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 18:15:45 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:13820 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S262006AbUCNXPo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 18:15:44 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: kernel threads holding /dev/console
-References: <yw1x8yi3dpz8.fsf@ford.guide>
-	<20040314150346.387b59a6.akpm@osdl.org>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Mon, 15 Mar 2004 00:15:41 +0100
-In-Reply-To: <20040314150346.387b59a6.akpm@osdl.org> (Andrew Morton's
- message: 03:46 -0800")
-Message-ID: <yw1x4qsrdnqa.fsf@ford.guide>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 14 Mar 2004 18:17:28 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:15347 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262035AbUCNXRV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 18:17:21 -0500
+Message-ID: <4054E754.70602@us.ibm.com>
+Date: Sun, 14 Mar 2004 15:14:28 -0800
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+> That is, of course, an excellent approach.
+> 
+> But beware of being *too* disconnected from the lists@vger.kernel.org.  We
+> don't want to get in the situation where you pop up with a couple of
+> person-years' worth of work and other kernel developers have major issues
+> with it.  Please find a balance - some way of regularly checkpointing.
 
-> mru@kth.se (Måns Rullgård) wrote:
->>
->> I'm trying to set up a pivot_root hack to do some things, switch root,
->>  and then unmount the original root.  However, the unmount fails
->>  because ksoftirqd/0, events/0, kblockd/0 and aio/0 have /dev/console
->>  opened.  Why are they doing this?  Can it be prevented?  This happens
->>  when using kernel 2.6.3 (2.6.4 is reportedly broken on Alpha).  It
->>  works with a 2.4 kernel using the same script.  Does anyone have a
->>  hint?
->
-> That's a bug.
->
-> keventd and friends are currently holding /dev/console open three times. 
-> It's all inherited from init.
->
-> Steal the relevant parts of daemonize() to fix that up.
+Andrew,
 
-That did the trick.  Thanks for the quick response.
+Thanks. I had wanted to convey the gist of what you say to someone
+earlier this week.  It would have been nice to point to some document
+that captures this, and though I looked around, I haven't found anything
+in one place, surprisingly. It's a plea kernel maintainers frequently make
+to Linux contributors, but new projects seem to run into the same problems
+repeatedly. I figured it would be worth putting together your comments
+and some basic related advice given to those wishing to get their
+code into the kernel in a document. Hope that's ok.
 
--- 
-Måns Rullgård
-mru@kth.se
+File follows in a separate mail.
+
+thanks,
+Nivedita
+
+

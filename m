@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264578AbTLCNd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 08:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbTLCNd2
+	id S264568AbTLCOR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 09:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTLCOR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 08:33:28 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:56801 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264578AbTLCNdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 08:33:25 -0500
-Date: Wed, 3 Dec 2003 14:33:18 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Sven Luther <sven.luther@wanadoo.fr>
-Cc: Johannes Stezenbach <js@convergence.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test9 ioctl compile warnings in userspace
-Message-ID: <20031203133318.GD1947@wohnheim.fh-wedel.de>
-References: <20031112163750.GB18989@convergence.de> <20031202114350.GA25170@iliana> <20031203125648.GC1947@wohnheim.fh-wedel.de> <20031203130603.GA7094@iliana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031203130603.GA7094@iliana>
-User-Agent: Mutt/1.3.28i
+	Wed, 3 Dec 2003 09:17:28 -0500
+Received: from web41215.mail.yahoo.com ([66.218.93.48]:44701 "HELO
+	web41215.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264568AbTLCOR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 09:17:27 -0500
+Message-ID: <20031203141725.3429.qmail@web41215.mail.yahoo.com>
+Date: Wed, 3 Dec 2003 06:17:25 -0800 (PST)
+From: Jin Suh <jinssuh@yahoo.com>
+Subject: Re: [2.6.0-test11]: It doesn't boot with a bootcd
+To: Jonathan Fors <etnoy@myrealbox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3FCDAD1D.5080001@myrealbox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 December 2003 14:06:03 +0100, Sven Luther wrote:
-> On Wed, Dec 03, 2003 at 01:56:48PM +0100, Jörn Engel wrote:
-> > 
-> > It doesn't clearly fix a bug, afaics.  Also, most kernel hackers don't
-> > care too much about the signed/unsigned warnings, as they are 99%
-> > noise.
+I use Lilo way as following:
+
+append initrd=ramdisk.img root=/dev/ram0 rootfs=tmpfs vga=791
+The "vga=normal" acts like no framebuffer (same problem). If I don't use the
+framebuffer, I don't pass vga=791.
+
+I don't see any boot ptompt and I watch the little led on cdrom. It doen't seem
+to load anything. When I push the cd eject button, the cd comes out. Usually
+when it loads, it doesn't come out by pushing the button.
+Jin
+
+--- Jonathan Fors <etnoy@myrealbox.com> wrote:
+> Are you booting with Lilo? Then you could try to pass the vga=normal 
+> parameter to the bootloader in lilo.conf . I'm not sure with Grub, but I 
+> bet somebody else here is.
 > 
-> Well, the main problem is that since the 2.6.0 kernel headers are used
-> by glibc on debian (and maybe others) it makes building userland
-> packages about this difficult. I was asking to know if there was
-> something inherently bad about implementing this in the userland kernel
-> headers provided by the glibc, as the glibc debian maintainers have not
-> been responsive about this, but i know since that a fixed package will
-> be provided once the situation resulting from the intrusion is cleared.
-
-The current status for userland kernel headers is "the kernel doesn't
-care".  Let the glibc folks and whoever else gather the information
-from the kernel headers and create derived, but different, userland
-headers.
-
-So unless you change this paradigm, your point is void, sorry.
-
-> > Resend the patch after 2.6.0 has been released, I don't see any change
-> > for it to go in before.
+> If you let the booting progress continue blind-headed, can you login or 
+> wait for X to start? It's possible that the system actually boots, just 
+> that you don't see it.
 > 
-> But also no particular reason not to use it, right ?
+> Jonathan
+> 
+> Jin Suh wrote:
+> 
+> >With framebuffer option on, it went to out ot range on my monitor shortly
+> after
+> >I see Loading Linux.... and about 10 lines of boot messages (couldn't read
+> the
+> >messages).
+> >Without framebuffer option, my monitor goes to a messed-up color right after
+> I
+> >see Loading Linux... and few other lines. 
+> >
+> >Thanks,
+> >Jin
+> >
+> >  
+> >
+> 
 
-Stability, stability, stability - are three reasons enough? ;)
 
-Linus wants to have very few patches these days and all of them have
-to fix a real bug.  Please don't question him doing so, just remember
-the 2.4 days with slashdot stories like "kernel of pain".
-
-Jörn
-
--- 
-Fools ignore complexity.  Pragmatists suffer it.
-Some can avoid it.  Geniuses remove it.
--- Perlis's Programming Proverb #58, SIGPLAN Notices, Sept.  1982
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

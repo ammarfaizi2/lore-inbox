@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbTKFTT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbTKFTT0
+	id S263768AbTKFTdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTKFTdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:19:26 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35850 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263356AbTKFTTZ
+	Thu, 6 Nov 2003 14:33:16 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:38819 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S263768AbTKFTdO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:19:25 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: 6 Nov 2003 19:08:58 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <boe68a$f3g$1@gatekeeper.tmr.com>
-References: <3FA69CDF.5070908@gmx.de> <3FA8C916.3060702@gmx.de> <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de>
-X-Trace: gatekeeper.tmr.com 1068145738 15472 192.168.12.62 (6 Nov 2003 19:08:58 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Thu, 6 Nov 2003 14:33:14 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: load 2.4.x binary only module on 2.6
+Date: Thu, 6 Nov 2003 14:33:12 -0500
+User-Agent: KMail/1.5.1
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Marcel Lanz <marcel.lanz@ds9.ch>,
+       linux-kernel@vger.kernel.org
+References: <20031106153004.GA30008@ds9.ch> <200311061243.19536.gene.heskett@verizon.net> <200311061922.hA6JMsHG003109@turing-police.cc.vt.edu>
+In-Reply-To: <200311061922.hA6JMsHG003109@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311061433.12555.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.62.77] at Thu, 6 Nov 2003 13:33:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3FA8CA87.2070201@gmx.de>,
-Prakash K. Cheemplavam <prakashkc@gmx.de> wrote:
+On Thursday 06 November 2003 14:22, Valdis.Kletnieks@vt.edu wrote:
+>On Thu, 06 Nov 2003 12:43:19 EST, Gene Heskett said:
+>> It may be there, and I may have a copy of it, but it won't install
+>> if I'm running 2.6.0-test9-mm2.
+>
+>Huh?  I'm running -test9-mm2 with the minion stuff as I'm typing
+> this.
 
-| Sorry, I wasn't precise: The data is on the disc, as my DVD-ROM restores 
-| the full image (md5sum matches), but the CD-RW does not.
+I've got minions 4496 here, so how did you make it work?  I had to 
+revert to the kernel driver nv which doesn't do as much, but is 
+easily 100000% more stable.
 
-There is a problem with ide-scsi in 2.6, and rather than fix it someone
-came up with a patch to cdrecord to allow that application to work
-properly, and perhaps "better" in some way. Since the problem with
-ide-scsi seems to still exist for other applications, you will probably
-find you have to work around the problem, by using the -pad option of
-cdrecord (thought that was standard now for TAO at least) or reading
-using the ide-cd driver.
+>Or are you talking about the general case if you have a wrapper for
+>a 2.4 kernel?  If so, then yes, you'll need to do some programming
+> to get the wrapper to do things the 2.6 way (which is what minion's
+> patch basically does, it changes the NVidia 2.4 wrapper code to the
+> 2.6 schemes).
 
-I don't remember what the issue was for using ZIP drives with ide-scsi,
-other than that using the alternate driver didn't do something right.
-That might be fixed, I just went back to 2.4 on my machine which needs
-that.
-
-The problem using ide tapes was that you needed ide-scsi to make 'mt'
-work, there's no patch for that AFAIK, and tape operations work without
-kernel errors, but the data read back didn't have the same md5 as the
-data written out. My one IDE tape drive is on the same box as the ZIP,
-both seem to work fine with ide-scsi under 2.4. I only use those devices
-for exchange with a few clients, so spending time on the problem wasn't
-and isn't justified.
-
-Hope this helps you define your problem more clearly.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

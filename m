@@ -1,92 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264927AbTL3FD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 00:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbTL3FD6
+	id S264452AbTL3E4b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 23:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264457AbTL3E4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 00:03:58 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:1469 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S264927AbTL3FDy (ORCPT
+	Mon, 29 Dec 2003 23:56:31 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:47306 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264452AbTL3E42 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 00:03:54 -0500
-Date: Tue, 30 Dec 2003 05:03:29 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm2
-In-Reply-To: <200312292315.08854.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.58.0312300454120.7711@student.dei.uc.pt>
-References: <20031229013223.75c531ed.akpm@osdl.org> <200312291832.35367.dtor_core@ameritech.net>
- <Pine.LNX.4.58.0312300247570.25540@student.dei.uc.pt>
- <200312292315.08854.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Mon, 29 Dec 2003 23:56:28 -0500
+Date: Mon, 29 Dec 2003 20:51:57 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: Problem with dev_kfree_skb_any() in 2.6.0
+Message-Id: <20031229205157.4c631f28.davem@redhat.com>
+In-Reply-To: <3FF0FA6A.8000904@pobox.com>
+References: <1072567054.4112.14.camel@gaston>
+	<20031227170755.4990419b.davem@redhat.com>
+	<3FF0FA6A.8000904@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 29 Dec 2003 23:09:14 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-On Mon, 29 Dec 2003, Dmitry Torokhov wrote:
+> Not really...  pretty much _all_ TX queue packet freeing occurs inside 
+> an irq handler and inside the driver spinlock.  Further, we don't want 
+> to reinvent some sort of "queue skb for freeing" code in every driver.
 
-[..SKIP..]
-> OK, I understand your concerns. Synaptics support had its share of problems
-> and being incompatible with all other mice "scared" off a lot of people.
-> Since then translation from absolute to relative (compatible with other mice)
-> mode was added to mousedev. This translation allows userspace see touchpad
-> as a regular PS2 mice, bare protocol and no support for tapping or any
-> advanced features. This is what you seem to be using at the moment. It is
-> there to ease transition from older kernels, the mouse should just work.
-> There was a couple quirks with it but they should be resolved in the latest
-> bk.
-[..SKIP..]
-> If for some reason you do not want use your touchpad in native mode you can
-> disable it by passing psmouse_proto={bare|imps|exps} to the kernel. Any one
-> of them will suffice. It will disable touchpad's absolute mode and will
-> switch it to PS/2 hardware emulation, much like in 2.4. Now, in latest -bk
-> there is a problem passing parameters to psmouse if its compiled directly
-> into the kernel (you have to specify psmouse.psmouse_proto=... instead of
-> just psmouse_proto=...) but I will be sending patch for it shortly.
-[..SKIP..]
+There is one important detail not mentioned.
 
-First of all, thanks for the help, my problem is now solved, and it's good to
-see the patch you sent so used just have to pass psmouse_proto=... to the
-kernel whenever they compiled it as a module or built-in in the kernel.
-However the question is still there... I mean: I now know the sollution because
-I asked here on lkml, and now I understand what's really happening, but if the
-target is to get the work easy for those upgrading from 2.4, then you're
-failing... I mean, for those who are in the same sittuation than me they will
-just stop having the mouse tap feature with the kernel update, so why don't
-just make the psmouse_proto={bare|imps|exps} argument selectable in the kernel
-configuration?
+If we let the TX free occur in cpu IRQ disabled context, the
+BH to actually do the work will occur as some indeterminate
+time in the future after the top level IRQ spinlock release
+occurs.
 
-Once again, maybe there's something more that I can't see here, but makes
-pretty much more sense to me people have to do the choice while compiling the
-kernel than having no choice and then having to pass an argument to the
-kernel...
+Unlike local_bh_enable(), local_irq_enable() does not run
+softirq work.  Similarly when comparing IRQ handler return
+(which also runs softirq work if pending).
 
-Please take that into consideration,
-My best regards and keep the good work,
-
-Mind Booster Noori
-
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQE/8QclmNlq8m+oD34RAmJzAKC+cR8bmrmeGSOvbQFvd4O/qJSQoQCdFxFT
-ImYIFSTdmPj4iun2Bl4VVR0=
-=78ue
------END PGP SIGNATURE-----
-
+This is the most important reason why the suggested change is wrong.

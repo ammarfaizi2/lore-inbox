@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbUCXW0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 17:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUCXW0D
+	id S262213AbUCXWaf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 17:30:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCXWaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 17:26:03 -0500
-Received: from mail.tpgi.com.au ([203.12.160.61]:51332 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S262063AbUCXW0B (ORCPT
+	Wed, 24 Mar 2004 17:30:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31370 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262227AbUCXWac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 17:26:01 -0500
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on
-	the merge?]
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Markus Gaugusch <markus@gaugusch.at>
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.58.0403242259220.9887@phoenix.kerstin.at>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au>
-	 <200403231743.01642.dtor_core@ameritech.net>
-	 <20040323233228.GK364@elf.ucw.cz>
-	 <200403232352.58066.dtor_core@ameritech.net>
-	 <20040324102233.GC512@elf.ucw.cz>
-	 <Pine.LNX.4.58.0403242259220.9887@phoenix.kerstin.at>
-Content-Type: text/plain
-Message-Id: <1080163557.2628.0.camel@calvin.wpcb.org.au>
+	Wed, 24 Mar 2004 17:30:32 -0500
+Date: Wed, 24 Mar 2004 14:30:28 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Compile problem on sparc64
+Message-Id: <20040324143028.747af65c.davem@redhat.com>
+In-Reply-To: <1080160367.2309.71.camel@pegasus>
+References: <1080130448.2515.108.camel@pegasus>
+	<20040324121914.00fb9bf9.davem@redhat.com>
+	<1080160367.2309.71.camel@pegasus>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Thu, 25 Mar 2004 09:25:57 +1200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 24 Mar 2004 21:32:47 +0100
+Marcel Holtmann <marcel@holtmann.org> wrote:
 
-On Thu, 2004-03-25 at 10:05, Markus Gaugusch wrote:
-> By the way - 
-> higher debug levels disable nice output automatically (AFAIR).
+> > > I am using Debian Sid with GCC 3.3.3 (Debian 20040320) and I got the
+> > > following error on my sparc64 platform while compiling the latest
+> > > Bitkeeper sources from 2.6:
+> > 
+> > This should cure it, let me know if it doesn't.
+> 
+> Seems that this is not enough. Now I get this one:
+> 
+>   CC      arch/sparc64/kernel/process.o
+> arch/sparc64/kernel/process.c: In function `flush_thread':
+> arch/sparc64/kernel/process.c:435: warning: use of cast expressions as lvalues is deprecated
 
-That's right.
+I'm not getting these, I wonder why.  I'm using something similar
+to you for builds:
 
-Nigel
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
+davem@nuts:/disk1/BK/sparc-2.6$ gcc --version
+gcc (GCC) 3.3.3 (Debian)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+davem@nuts:/disk1/BK/sparc-2.6$
 
+Please also send me your .config under seperate cover if you'd be so
+kind, thanks.

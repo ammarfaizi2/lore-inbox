@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270386AbTGWQFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 12:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270391AbTGWQFJ
+	id S270416AbTGWQOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 12:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270430AbTGWQOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 12:05:09 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:49913 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270386AbTGWQFG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 12:05:06 -0400
-Subject: Re: kernel bug in socketpair()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: dgk@research.att.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gsf@research.att.com, netdev@oss.sgi.com
-In-Reply-To: <20030723083621.26429e51.davem@redhat.com>
-References: <200307231332.JAA26197@raptor.research.att.com>
-	 <1058970007.5520.68.camel@dhcp22.swansea.linux.org.uk>
-	 <20030723083621.26429e51.davem@redhat.com>
+	Wed, 23 Jul 2003 12:14:11 -0400
+Received: from [64.65.189.210] ([64.65.189.210]:9360 "EHLO mail.pacrimopen.com")
+	by vger.kernel.org with ESMTP id S270416AbTGWQOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 12:14:08 -0400
+Subject: Re: Dependency problem in 2.6.0-test1
+From: Joshua Schmidlkofer <kernel@pacrimopen.com>
+To: Amol Lad <amol@amplewave.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1058958553.32116.24.camel@amol.amplewave.com>
+References: <1058958553.32116.24.camel@amol.amplewave.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058976818.5520.91.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058977750.11797.0.camel@bubbles.imr-net.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 17:13:40 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 23 Jul 2003 09:29:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-23 at 16:36, David S. Miller wrote:
-> > This is intentional - sockets do not have an "open" operation currently.
+On Wed, 2003-07-23 at 04:09, Amol Lad wrote:
+> Hi,
+> make && make install && make modules && make modules_install,
 > 
-> Sure, but we've known this for a long time.
+> I get following error message
 > 
-> And because we knew, we decided not to add an "open"
-> method to sockets.  The reason, as I remember it, was
-> security.
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.6.0-test1/kernel/drivers/char/agp/intel-agp.ko
+> depmod:         agp_remove_bridge
+> depmod:         agp_generic_free_gatt_table
+> depmod:         agp_generic_enable
+> ...
+> ...
+> ...
 > 
-> Was it not?
+> 
+> but the symbols are already defined, 
+> 
+> [root@amol agp]# pwd
+> /lib/modules/2.6.0-test1/kernel/drivers/char/agp
+> [root@amol agp]# nm agpgart.ko | grep agp_remove_bridge
+> 00000450 T agp_remove_bridge
+> 00000062 r __kstrtab_agp_remove_bridge
+> 00000008 r __ksymtab_agp_remove_bridge
+> [root@amol agp]# 
+> 
+> My modules.dep in /lib/modules/2.6.0-test1 looks like
+> .....
+>  /lib/modules/2.6.0-test1/kernel/drivers/char/agp/agpgart.ko:
+> 
+>  /lib/modules/2.6.0-test1/kernel/drivers/char/agp/intel-agp.ko:
+> 
+>  /lib/modules/2.6.0-test1/kernel/drivers/char/agp/sworks-agp.ko:
+> .....
+> 
+> I think here intel-agp is dependent on agpgart but this dependency is
+> not in modules.dep.
+> 
+> please CC me
+> 
+> Thanks
+> Amol
+> 
 
-Mostly if I remember rightly that if you don't do the check because you have
-no open operation to create a new instance you crash the box. HPA did have 
-some sensible ideas about how to do "open" on AF_UNIX sockets but for the 
-others its really unclear quite what "open" means
+Do you have the updated modutils package installed?
+
 

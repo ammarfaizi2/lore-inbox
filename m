@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135304AbRAVWF2>; Mon, 22 Jan 2001 17:05:28 -0500
+	id <S135449AbRAVWG2>; Mon, 22 Jan 2001 17:06:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135460AbRAVWFS>; Mon, 22 Jan 2001 17:05:18 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:12049 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S135304AbRAVWFM>; Mon, 22 Jan 2001 17:05:12 -0500
-Message-ID: <3A6CAE8E.CFECDF23@intel.com>
-Date: Mon, 22 Jan 2001 14:05:02 -0800
-From: "Randy.Dunlap" <randy.dunlap@intel.com>
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Duncan Laurie <duncan@virtualwire.org>
-CC: Petr Matula <pem@informatics.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: int. assignment on SMP + ServerWorks chipset
-In-Reply-To: <20010121215423.A20953@virtualwire.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135482AbRAVWGS>; Mon, 22 Jan 2001 17:06:18 -0500
+Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:22535 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S135449AbRAVWGH>; Mon, 22 Jan 2001 17:06:07 -0500
+Date: Mon, 22 Jan 2001 14:04:35 -0800
+Message-Id: <200101222204.f0MM4Zv09976@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: David Lang <dlang@diginsite.com>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Val Henson <vhenson@esscom.com>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.31.0101221159120.29530-100000@dlang.diginsite.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Laurie wrote:
-> 
-...
-> 
-> The output you are looking for should look something like this:
-> 
-> Device 00:0f.0 (slot 0): ISA bridge
->     INTA: link 0x01, irq mask 0x0400 [10]
-... 
-> Good luck, and feel free to send me the output from "dump_pirq"
-> and "mptable" if it doesn't work..
+On Mon, 22 Jan 2001 12:01:23 -0800 (PST), David Lang <dlang@diginsite.com> wrote:
+> how about always_defragment (or whatever the option is now called) so that
+> your routing box always reassembles packets and then fragments them to the
+> correct size for the next segment? wouldn't this do the job?
 
-Hi Duncan,
+It doesn't help with TCP, because the negotiated MSS will always be 1500
+and thus there won't be any fragments to re-assemble.
 
-(BTW, it's an STL2 board, not SBT2.  And it's Randy, not Mr. Dunlap. :)
+>  On Mon, 22 Jan 2001, Val Henson wrote:
+>
+>> Well, there is a (real-world) case where your TCP proxy doesn't want
+>> to look at the data and you can't use IP forwarding.  If you have TCP
+>> connections between networks that have very different MTU's, using IP
+>> forwarding will result in tiny packets on the large MTU networks.
 
-Here's my output from dump_pirq.  Is the PCI router info unique
-enough so that you'll need to debug it instead of me doing so?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-[root@localhost src]# ./dump_pirq
- 
-Interrupt routing table found at address 0xfdf10
-  Version 1.0, 0 bytes
-  Interrupt router is device ff:1f.7
-  PCI exclusive interrupt mask: 0x0000 []
- 
-Interrupt router at ff:1f.7:
-Could not read router info from /proc/bus/pci/ff/1f.7.
-[root@localhost src]#
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is another real-world case: a load-balancing proxy. socket->socket
+sendfile would allow the proxy to open a non-keepalive connection to the
+backend server, send the request, and then just link the two sockets
+together using sendfile.
 
-Thanks,
-~Randy
+Of course, some changes would have to be made to the API. An asynchronous
+sendsocket()/sendfile() system call would be just lovely, in fact. :-)
+
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

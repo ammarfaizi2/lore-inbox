@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289365AbSA1ULF>; Mon, 28 Jan 2002 15:11:05 -0500
+	id <S289368AbSA1UM4>; Mon, 28 Jan 2002 15:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289367AbSA1UKz>; Mon, 28 Jan 2002 15:10:55 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:11012 "EHLO
+	id <S289364AbSA1UMn>; Mon, 28 Jan 2002 15:12:43 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:19972 "EHLO
 	peabody.ximian.com") by vger.kernel.org with ESMTP
-	id <S289351AbSA1UKm>; Mon, 28 Jan 2002 15:10:42 -0500
+	id <S289367AbSA1ULz>; Mon, 28 Jan 2002 15:11:55 -0500
 Subject: Re: Ethernet data corruption?
 From: Kevin Breit <mrproper@ximian.com>
-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020128145238.19243A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1020128145238.19243A-100000@chaos.analogic.com>
+In-Reply-To: <E16VHub-0001Zg-00@the-village.bc.nu>
+In-Reply-To: <E16VHub-0001Zg-00@the-village.bc.nu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.1.99+cvs.2002.01.23.19.37 (Preview Release)
-Date: 28 Jan 2002 15:13:23 -0600
-Message-Id: <1012252404.6097.7.camel@kbreit.lan>
+Date: 28 Jan 2002 15:14:40 -0600
+Message-Id: <1012252482.6159.9.camel@kbreit.lan>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-28 at 13:58, Richard B. Johnson wrote:
-> Every TCP/IP data packet is check-summed. Every Ethernet packet has
-> a CRC. If you have data corruption it is caused either by a memory
-> error or, most likely, you did not set the ftp data-transfer mode
-> to binary `set bin` when you have the 'ftp>' prompt.
-I believed that I was uploading in bin mode anyways.  As when I opened
-gftp, it said I was uising Binary mode.
+On Mon, 2002-01-28 at 13:57, Alan Cox wrote:
+> At the physical layer ethernet has hardware checksumming, at the IP/TCP layer
+> there is also checksum protection. That means that its almost certainly either
+> 
+> -	Problem hardware/driver
+The hardware on this box _is_ quite poor.  I do have a LOT of problems
+with Linux on here, so this could be it.
 
- 
-> Also, text-files (Java Script) on DOS-based stuff (like windows) use
-> both a '\r' and a '\n' at the end of each line. Unix/Linux uses '\n'
-> only. I am pretty sure this is not a kernel issue.
-My professor's server is a Mac box.  I doubt this is an issue anyways.
+> -	Some kind of broken transparent proxy server between the two boxes
+> 
+> What you really want to try is to upload the same files via different
+> machines to find out which end is the problem, or if it is perhaps the
+> link between them - eg does it go away only if both boxes are on the same
+> LAN.
+I'll try this from my desktop box tomorrow.
 
-Thanks
+Thanks a lot
 
 Kevin Breit
 

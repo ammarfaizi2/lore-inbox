@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTKOTf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 14:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKOTf0
+	id S262033AbTKOTv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 14:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTKOTv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 14:35:26 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:47490
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261930AbTKOTfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 14:35:20 -0500
-Date: Sat, 15 Nov 2003 14:34:08 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-In-Reply-To: <Pine.LNX.4.53.0311141954160.27998@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.53.0311151427080.30079@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.44.0311141344290.5877-100000@home.osdl.org>
- <Pine.LNX.4.53.0311141954160.27998@montezuma.fsmlabs.com>
+	Sat, 15 Nov 2003 14:51:58 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:37511 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S262033AbTKOTvz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 14:51:55 -0500
+Date: Sat, 15 Nov 2003 19:52:00 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@einstein.homenet
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: seq_file API strangeness
+In-Reply-To: <20031114211912.GL24159@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0311151950320.743-100000@einstein.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 4G/4G page fault handling path doesn't appear to handle faults 
-happening whilst in vm86. The regs->xcs != __USER_CS so it confused the in 
-kernel test.
+Hi Al,
 
-However i'm still debugging the X11 triple fault in test9-mm3
+Yes, you are right, thank you. I don't know why I thought open/release 
+took different arguments. Yes, calling seq_release(inode,file) is the 
+right way, I will change my code.
 
-Unable to handle kernel paging request at virtual address 00002000
- printing eip:
-00007341
-*pde = 00000000
-Oops: 0004 [#1]
-SMP DEBUG_PAGEALLOC
-CPU:    0
-EIP:    c000:[<00007341>]    Not tainted VLI
-EFLAGS: 00033246
-EIP is at 0x7341
-eax: 32454256   ebx: 00000000   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: 00002000   ebp: 00000fd6   esp: 087bbf24
-ds: 0000   es: 0000   ss: 0068
-Process X (pid: 939, threadinfo=087ba000 task=0891c690)
-Stack: 00000fcb 00000100 00000000 0000c000 00000000 00000000 00000000 00000000
-       00000005 ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
-       ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
-Call Trace:
+Kind regards
+Tigran
 
-Index: linux-2.6.0-test9-mm3/arch/i386/mm/fault.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm3/arch/i386/mm/fault.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 fault.c
---- linux-2.6.0-test9-mm3/arch/i386/mm/fault.c	13 Nov 2003 08:07:17 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm3/arch/i386/mm/fault.c	15 Nov 2003 19:08:34 -0000
-@@ -264,7 +264,9 @@ asmlinkage void do_page_fault(struct pt_
- 		if (error_code & 3)
- 			goto bad_area_nosemaphore;
- 
-- 		goto vmalloc_fault;
-+		/* If it's vm86 fall through */
-+		if (!(error_code & 4))
-+			goto vmalloc_fault;
- 	}
- #else
- 	if (unlikely(address >= TASK_SIZE)) { 
+On Fri, 14 Nov 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+> On Fri, Nov 14, 2003 at 08:55:48PM +0000, Tigran Aivazian wrote:
+> > In the ->open() method I allocate a seq->private like this:
+> > 
+> >   err = seq_open(file, sop);
+> >   if (!err) {
+> > 	struct seq_file *m = file->private_data;
+> > 
+> > 	m->private = kmalloc(sizeof(struct ctask), GFP_KERNEL);
+> >         if (!m->private) {
+> >                         kfree(file->private_data);
+> >                         return -ENOMEM;
+> >         }
+> >   }
+> > 
+> > Now, freeing the structure that I did not allocate (file->private_data 
+> > allocated in seq_open()) is not nice. But calling seq_release() from 
+> > ->open() method is not nice either (different arguments, namely 'inode'
+> 
+> I beg your pardon?  What different arguments?
+> 
+> ->open() gets struct inode * and struct file *
+> ->release() gets exactly the same.
+> seq_release() is what you use as ->release()
+> 
+> What's the problem?
+> 
+> > and also m->buf is NULL at that point, although I believe kfree(NULL) is 
+> > not illegal).
+> 
+> Of course it is not illegal.  Moreover, if you just do open() immediately
+> followed by close(), you won't get non-NULL ->buf at all.  It's a perfectly
+> normal situation and seq_release() can handle it - no problems with that.
+> 
+> > What do you think?
+> 
+> 	if (!m->private) {
+> 		seq_release(inode, file);
+> 		return -ENOMEM;
+> 	}
+> 
+> Same as e.g. fs/proc/base.c does in similar situation (see mounts_open()).
+> 
+

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265047AbTFCPYr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265048AbTFCPYq
+	id S265050AbTFCP11 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTFCP11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:24:46 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:39693 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S265047AbTFCPYp (ORCPT
+	Tue, 3 Jun 2003 11:27:27 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:1474 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265050AbTFCP10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:24:45 -0400
-Message-ID: <3EDCC0E1.90503@xss.co.at>
-Date: Tue, 03 Jun 2003 17:38:09 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: venom@sns.it
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: system clock speed too high?
-References: <Pine.LNX.4.43.0306031714570.24363-100000@cibs9.sns.it>
-In-Reply-To: <Pine.LNX.4.43.0306031714570.24363-100000@cibs9.sns.it>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jun 2003 11:27:26 -0400
+Date: Tue, 3 Jun 2003 08:40:19 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Message-Id: <20030603084019.5e97e6bd.rddunlap@osdl.org>
+In-Reply-To: <20030603153859.GV8978@holomorphy.com>
+References: <1054446976.19557.23.camel@spc>
+	<20030601132626.GA3012@work.bitmover.com>
+	<1054519757.161606@palladium.transmeta.com>
+	<20030603123256.GG1253@admingilde.org>
+	<20030603124501.GB13838@suse.de>
+	<bbi77j$mb3$1@tangens.hometree.net>
+	<20030603133925.GG20413@holomorphy.com>
+	<1054651445.25694.70.camel@forge.intermeta.de>
+	<20030603082505.33bc3561.rddunlap@osdl.org>
+	<20030603153859.GV8978@holomorphy.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 3 Jun 2003 08:38:59 -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Hi!
+| On Tue, Jun 03, 2003 at 08:25:05AM -0700, Randy.Dunlap wrote:
+| > You did good (or even well considering that you are a
+| > non-native speaker).  Yes, whitespace is a trivial problem.
+| > ~Randy
+| 
+| Bad whitespace, along with all other coding style violations, is
+| a very serious maintainability problem.
 
-venom@sns.it wrote:
-> I reported this same problem for kernel 2.5.69/70 on pentiumIII with chipset
-> i810, but it seems the reports has been unnoticed.
->
-> I replicated your tests with 2.5.70 without acpi, same results here.
->
-Hm, do you have "USB legacy support" enabled on your
-system, too? Does the problem go away if you disable it?
+I agree.  I mean that it's a trivial problem to fix... if the
+patches were to be accepted.  But that's another problem.
 
-What motherboard and BIOS does your computer have (manufacturer,
-version numbers)?
-
-(This is a totally different chipset, so the problems
-might be completely unrelated)
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+3MDWxJmyeGcXPhERAmk+AKDER5RkBffYSYFpnNFq7nKhaqPwyACgr1rJ
-UxspwdElGOOGQs58Ol1N5v4=
-=Gb0Z
------END PGP SIGNATURE-----
-
+--
+~Randy

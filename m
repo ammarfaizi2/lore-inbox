@@ -1,76 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUG2NGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUG2NOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUG2NGi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 09:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2NGi
+	id S264571AbUG2NOz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 09:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUG2NOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 09:06:38 -0400
-Received: from guardian.hermes.si ([193.77.5.150]:50957 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S264560AbUG2NGc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 09:06:32 -0400
-Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF090202@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: David Balazic <david.balazic@hermes.si>,
-       "'Matt Domsch'" <Matt_Domsch@dell.com>
-Cc: Dave Jones <davej@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: RE: Weird:  30 sec delay during early boot
-Date: Thu, 29 Jul 2004 15:05:10 +0200
+	Thu, 29 Jul 2004 09:14:55 -0400
+Received: from mail.timesys.com ([65.117.135.102]:19952 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S264571AbUG2NOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 09:14:51 -0400
+Message-ID: <4108F845.7080305@timesys.com>
+Date: Thu, 29 Jul 2004 09:14:45 -0400
+From: Greg Weeks <greg.weeks@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] PPC math-emu multiply problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jul 2004 13:14:22.0468 (UTC) FILETIME=[F6BCF440:01C4756D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm seeing what appears to be a bug in the ppc kernel trap math 
+emulator. An extreme case for multiplies isn't working the way gcc 
+soft-float or hardware floating point is. The value in mindble is the 
+smallest that can be represented in a double. When we try to divide it 
+by two we should see an underflow and a return value of 0. We see this 
+when using soft-float in gcc, or when there is HW floating point 
+support, but it fails when the kernel trap emulator is used.
 
-> From: 	Matt Domsch[SMTP:Matt_Domsch@dell.com]
-> 
-> On Wed, Jul 28, 2004 at 02:16:19PM +0200, David Balazic wrote:
-> > The same delay as before.
-> > 
-> > I built 2.6.8-rc1 first, then patched and issued a "make bzImage";
-> > maybe it did not compile all the new stuff ?
-> 
-> No, it didn't work for Jeff either, and I've been gone on vacation/OLS
-> the past couple weeks, just now getting back into normal work mode.  I
-> haven't forgotten about you.
-> 
-> The crazy thing is, the early real mode code has issued a "Get Disk
-> Type" (int13 fn15) command for ages, so I suspect it's not being slow for
-> disk 80 or 81, but for one of the higher values.  From setup.S:
-> 
-> # Check that there IS a hd1 :-)
->         movw    $0x01500, %ax
->         movb    $0x81, %dl
->         int     $0x13
->         jc      no_disk1
->         cmpb    $3, %ah
->         je      is_disk1
-> 
-> This is all I was trying to accomplish with that test patch.
-> 
-> David, you had said before that by downgrading your BIOS you no longer
-> saw the delay.  Is this not still true?
-> 
-Still true, downgrading removes the delay.
+If anyone can verify this on a PPC other than an 8560 without hardware 
+floating point I'd appreciate it. I did all of these tests with a 2.6.X 
+based kernels. The x86 was 2.6.6 vanilla, 8560 is 2.6.6 with lots of 
+stuff added and support for 8560. The 8260 was 2.6.0 with changes. I 
+bumped into this with the LSB ldexp test. A simple multiply shows the 
+problem though.
 
-> You also mentioned that Grub made different calls.  I'll check that
-> out too.
-> 
-Can you make a patch, that only accesses hd0 and hd1 ?
-Or one which prints what is it doing, on each step ?
-( I tried this one myself, but it did not work :blush: , IA32 assembler
-is not my strong side )
+Greg Weeks
 
-> Thanks,
-> Matt
-> 
-> -- 
-> Matt Domsch
-> Sr. Software Engineer, Lead Engineer
-> Dell Linux Solutions linux.dell.com & www.dell.com/linux
-> Linux on Dell mailing lists @ http://lists.us.dell.com
-> 
+mulbug.c file
+------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <math.h>
+#include <errno.h>
+
+int main()
+{
+        double  x, rtval;
+        double mindble = 4.9406564584124654418e-324;
+
+        x = mindble;
+
+        printf("x = %.20g\n", x);
+
+        errno = 0;
+        rtval = ldexp(x, -1);
+
+        printf("using ldexp(x, -1) ERRNO = %d - %s,  %.20g\n",
+            errno, strerror(errno), rtval);
+
+        printf("using (x * .5) %.20g\n", (x * .5));
+
+   exit(0);
+}
+-----------------------------------------
+
+compile with:
+gcc mulbug.c -lm -o mulbug
+
+
+on an 8260 ppc with HW float.
+
+x = 4.9406564584124654418e-324
+using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+using (x * .5) 0
+
+on an x86 with HW float.
+
+x = 4.9406564584124654418e-324
+using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+using (x * .5) 0
+
+on an 8560 ppc with kernel trap float emulator.
+
+x = 4.9406564584124654418e-324
+using ldexp(x, -1) ERRNO = 0 - Success,  4.9406564584124654418e-324
+using (x * .5) 4.9406564584124654418e-324
+
+on an 8260 with soft-float in the gcc
+
+x = 4.9406564584124654418e-324
+using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
+using (x * .5) 0
+
+

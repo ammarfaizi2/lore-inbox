@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286350AbRLJSZ2>; Mon, 10 Dec 2001 13:25:28 -0500
+	id <S286348AbRLJS1T>; Mon, 10 Dec 2001 13:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286348AbRLJSZY>; Mon, 10 Dec 2001 13:25:24 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:1176 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S286354AbRLJSY0>; Mon, 10 Dec 2001 13:24:26 -0500
-Date: Mon, 10 Dec 2001 11:24:21 -0700
-Message-Id: <200112101824.fBAIOLJ22603@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] devfs=only and boot
-In-Reply-To: <Pine.GSO.4.21.0112101019001.14238-100000@binet.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0112101019001.14238-100000@binet.math.psu.edu>
+	id <S286357AbRLJS1J>; Mon, 10 Dec 2001 13:27:09 -0500
+Received: from borderworlds.dk ([193.162.142.101]:23812 "HELO
+	klingon.borderworlds.dk") by vger.kernel.org with SMTP
+	id <S286348AbRLJS06>; Mon, 10 Dec 2001 13:26:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: NULL pointer dereference in moxa driver
+In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
+From: Christian Laursen <xi@borderworlds.dk>
+Date: 10 Dec 2001 19:26:52 +0100
+In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
+Message-ID: <m3vgfflymr.fsf@borg.borderworlds.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 	Richard, just how devfs=only is supposed to work with
-> loading ramdisk from floppies?
+Christian Laursen <xi@borderworlds.dk> writes:
 
-IIRC, it's supposed to work just like normal reading from a
-floppy. That should still work.
+> I have a problem when trying to use two of the serial cards known as
+> MOXA C104H/PCI.
+> 
+> When only using one, everything works like a charm, but when
+> an attempt is made to access a serial port on the second card,
+> I get a NULL pointer dereference.
+> 
 
-> 	BTW, with initrd exiting with real-root-dev set (regardless of
-> devfs=only) your code still goes by root_device_name and ignores new
-> ROOT_DEV.  Again, what behaviour is expected?
+I forgot information about my versions of things in the other post,
+here we go:
 
-The intent is that root_device_name is changed, so it should just
-work. Has something broken? AFAIK, this too used to work.
+[xi@borg /usr/src/linux/scripts]$ ./ver_linux                                                                    [19:22]
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux borg 2.4.16 #1 SMP Thu Dec 6 22:23:25 CET 2001 i686 unknown
+ 
+Gnu C                  2.95.3
+Gnu make               3.79.1
+binutils               2.11.90.0.29
+util-linux             2.11i
+mount                  2.11i
+modutils               2.4.8
+e2fsprogs              1.24a
+reiserfsprogs          3.x.0k-pre9
+pcmcia-cs              3.1.28
+PPP                    2.4.1
+isdn4k-utils           3.1pre2
+Linux C Library        x    1 root     root      1384168 Sep 20 05:52 /lib/libc.so.6
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.04
+Sh-utils               2.0
+Modules Loaded         nfsd lockd sunrpc 3c59x
 
-I'll try to have a closer look at this tonight. Which kernel version
-are you staring at?
-
-BTW: you didn't respond to my question about fixing devfs+blkdev
-races. If my scheme will work, or at least improve things, I'd like to
-include that in my next patch. Marcelo is waiting for me to fix
-something else. Here's what I wrote a couple of days ago:
-
-Alexander Viro writes:
-> 	BTW, here's one more devfs rmmod race: check_disk_changed() in
-> fs/devfs/base.c.  Calling ->check_media_change() with no protection
-> whatsoever.  If rmmod happens at that point...
-
-How about if I do this sequence:
-	lock_kernel();
-	devfs checks;
-	if (bd_op->owner)
-		__MOD_INC_USE_COUNT(bd_op->owner);
-	revalidate();
-	if (bd_op->owner)
-		__MOD_DEC_USE_COUNT(bd_op->owner);
-	unlock_kernel();
-
-Is there any reason why that won't work?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Med venlig hilsen
+    Christian Laursen

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261415AbSJCX1V>; Thu, 3 Oct 2002 19:27:21 -0400
+	id <S261418AbSJCXLQ>; Thu, 3 Oct 2002 19:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261422AbSJCX1V>; Thu, 3 Oct 2002 19:27:21 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:54941 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261415AbSJCX1U>;
-	Thu, 3 Oct 2002 19:27:20 -0400
-Date: Fri, 4 Oct 2002 00:35:04 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: Greg KH <greg@kroah.com>, kernel <linux-kernel@vger.kernel.org>
+	id <S261422AbSJCXLQ>; Thu, 3 Oct 2002 19:11:16 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:58379 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261418AbSJCXLP>; Thu, 3 Oct 2002 19:11:15 -0400
+Date: Fri, 4 Oct 2002 00:14:57 +0100
+From: John Levon <levon@movementarian.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: kernel <linux-kernel@vger.kernel.org>
 Subject: Re: export of sys_call_table
-Message-ID: <20021003233504.GA20570@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Robert Love <rml@tech9.net>, Greg KH <greg@kroah.com>,
-	kernel <linux-kernel@vger.kernel.org>
-References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy>
+Message-ID: <20021003231457.GC79989@compsoc.man.ac.uk>
+References: <20021003225842.GA79989@compsoc.man.ac.uk> <Pine.GSO.4.21.0210031903480.15787-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1033684027.1247.43.camel@phantasy>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.GSO.4.21.0210031903480.15787-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 06:27:06PM -0400, Robert Love wrote:
+On Thu, Oct 03, 2002 at 07:10:28PM -0400, Alexander Viro wrote:
 
- > > Hmm, I guess this means oprofile has no chance of working
- > > on Red Hat's kernels ? Bummer.
- > Newer oprofile does not need the exported syscall table.
+> > Sort of. They've broken IA64 oprofile, and they seem not to care.
+> 
+> More or less off-topic, but could the persons who'd invented that
+> name stand up and tell what the hell were they thinking about?
 
-Hrmmm, HEAD CVS from a few minutes ago still does.
-John's work on getting things done correctly for 2.6 doesn't
-change the fact that it's buggered on Red Hat's 2.4 kernel.
-Or does it ?
- 
- > I believe Red Hat 8.0 even ships with oprofile :)
+Guilty. You would prefer "Turdometer" ?
 
-Interesting. Maybe I'll download a copy sometime 8)
+> Al, who can't help misreading that name 10 times out of 10.  The worst
+> thing being, coprofile sounds like a very apt description of way too many
+> files in drivers/*...
 
-		Dave
+heh :)
+
+It's not my fault you find yourself adding an extra 'c'
+
+The [a-z]profile namespace is pretty crowded ... as it is, I share name
+with some Windows "tool"
+
+regards
+john
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+"Me and my friends are so smart, we invented this new kind of art:
+ Post-modernist throwing darts"
+	- the Moldy Peaches

@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261612AbSJQBOn>; Wed, 16 Oct 2002 21:14:43 -0400
+	id <S261606AbSJQBRQ>; Wed, 16 Oct 2002 21:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261613AbSJQBOm>; Wed, 16 Oct 2002 21:14:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59318 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261612AbSJQBOm>;
-	Wed, 16 Oct 2002 21:14:42 -0400
-Date: Wed, 16 Oct 2002 18:12:13 -0700 (PDT)
-Message-Id: <20021016.181213.35446337.davem@redhat.com>
-To: levon@movementarian.org
-Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+	id <S261613AbSJQBRQ>; Wed, 16 Oct 2002 21:17:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61878 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261606AbSJQBRP>;
+	Wed, 16 Oct 2002 21:17:15 -0400
+Date: Wed, 16 Oct 2002 18:15:50 -0700 (PDT)
+Message-Id: <20021016.181550.88499112.davem@redhat.com>
+To: acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one
+ record per call
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017011623.GA9096@compsoc.man.ac.uk>
-References: <20021017005728.GA8267@compsoc.man.ac.uk>
-	<20021016.175515.21904896.davem@redhat.com>
-	<20021017011623.GA9096@compsoc.man.ac.uk>
+In-Reply-To: <20021017011108.GT7541@conectiva.com.br>
+References: <20021017010135.GR7541@conectiva.com.br>
+	<20021016.175809.28811497.davem@redhat.com>
+	<20021017011108.GT7541@conectiva.com.br>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,23 +25,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Levon <levon@movementarian.org>
-   Date: Thu, 17 Oct 2002 02:16:23 +0100
+   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   Date: Wed, 16 Oct 2002 22:11:08 -0300
 
-   On Wed, Oct 16, 2002 at 05:55:15PM -0700, David S. Miller wrote:
-   
-   > True.
-   > 
-   > What if you could query the cookie size at runtime?
-   
-   Not sure what you mean here. The cookie is passed in the syscall, so has
-   to be fixed-size no matter what, right ?
-   
-Right, but you could zero-extend that from u32 if u32
-were the size appropriate for the current kernel.
+   That would be nice, yes, bastardizing pos for this is, humm, ugly, and
+   it isn't accessible at show time (pun intended 8) ).
 
-I'm trying to decrease the size of your logfile.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Can you remind me what the original objection was to
+just using seq->private?  Is it used, or planned to
+be used, by something else?

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUHWSZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUHWSZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUHWSZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 14:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUHWSY4
+	id S266391AbUHWSZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 14:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUHWSYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 14:24:56 -0400
-Received: from zero.aec.at ([193.170.194.10]:25094 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266479AbUHWST0 (ORCPT
+	Mon, 23 Aug 2004 14:24:52 -0400
+Received: from mail.cs.umn.edu ([128.101.32.202]:26314 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S266391AbUHWSTF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:19:26 -0400
-To: John Levon <levon@movementarian.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-References: <2v3Ad-5tc-29@gated-at.bofh.it> <2v4w9-6aQ-5@gated-at.bofh.it>
-	<2vxeJ-4kg-3@gated-at.bofh.it> <2vZNN-7AT-33@gated-at.bofh.it>
-	<2w5q4-34M-1@gated-at.bofh.it> <2w9Dq-65C-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 23 Aug 2004 20:19:10 +0200
-In-Reply-To: <2w9Dq-65C-13@gated-at.bofh.it> (John Levon's message of "Mon,
- 23 Aug 2004 01:10:08 +0200")
-Message-ID: <m3k6vphg4h.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 23 Aug 2004 14:19:05 -0400
+Date: Mon, 23 Aug 2004 13:18:58 -0500
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, paulus@samba.org, akpm@osdl.org,
+       ipseries-list@redhat.com
+Subject: Re: [PATCH] ppc64 mf_proc file position fix
+Message-ID: <20040823181858.GA15598@cs.umn.edu>
+Reply-To: boutcher@cs.umn.edu
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>, paulus@samba.org,
+	akpm@osdl.org, ipseries-list@redhat.com
+References: <20040820201032.GA14005@cs.umn.edu> <20040823185423.A19476@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040823185423.A19476@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <levon@movementarian.org> writes:
+On Mon, Aug 23, 2004 at 06:54:23PM +0100, Christoph Hellwig wrote:
+> On Fri, Aug 20, 2004 at 03:10:32PM -0500, Dave C Boutcher wrote:
+> > Andrew, 
+> > 
+> > arch/ppc64/kernel/mf_proc.c uses a bad interface for moving 
+> > along file position in a proc_write routine.  This quit working
+> > altogether in 2.6.8.  Patch to fix.  And I did a quick scan of the
+> > kernel to see if anyone else was similarly broken...apparantly not :-)
+> > 
+> > Fixes a broken update of f_pos in a proc file write routine.
+> 
+> What about moving on to seq_file while you're at it?  Switching from
+> one deprecated interface to another doesn't really sound like a worthwile
+> effort.
 
-> On Sun, Aug 22, 2004 at 08:27:38PM +0200, Tomasz K?oczko wrote:
->
->> As same as KProbe/DTrace. Can you use OProfile for something other tnan 
->> profiling ? Probably yes and this answer opens: probably it will be good 
->> prepare some common code for KProbe and Oprofile.
->
-> I don't see an overlap here, except maybe the possibility of delivering
-> sample events into the kprobes framework
+The specific problem was on the write side, not the read side, so AFAIK,
+seq_file wasn't going to help out.  I started re-writing the whole file
+to use seq_file for all the read stuff, and after a few hours into it I
+decided to just fix the broken bit rather than gratuitously rewriting
+the whole thing.
 
-Not sure what you mean with "delivering into the kprobes framework"
-kprobes currently only uses printk which really isn't up to the 
-task of any significant data delivery. The IBM people have relayfs
-to solve this problem, eventually this should be probably
-merged too. Without something like relayfs i don't see any way
-to compete with dtrace.
-
--Andi
-
+-- 
+Dave Boutcher

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286968AbSBGJ6k>; Thu, 7 Feb 2002 04:58:40 -0500
+	id <S287045AbSBGKCB>; Thu, 7 Feb 2002 05:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287045AbSBGJ6b>; Thu, 7 Feb 2002 04:58:31 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:14095 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S286968AbSBGJ6Z>;
-	Thu, 7 Feb 2002 04:58:25 -0500
-Date: Thu, 7 Feb 2002 10:58:27 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oleg Drokin <green@namesys.com>
-cc: reiserfs-dev@namesys.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] oops with reiserfs and kernel 2.5.4-pre1 on
- sparc64
-In-Reply-To: <20020207092012.C6351@namesys.com>
-Message-ID: <Pine.LNX.4.44.0202071058010.25208-100000@Expansa.sns.it>
+	id <S287048AbSBGKBw>; Thu, 7 Feb 2002 05:01:52 -0500
+Received: from borderworlds.dk ([193.162.142.101]:18184 "HELO
+	klingon.borderworlds.dk") by vger.kernel.org with SMTP
+	id <S287045AbSBGKBh>; Thu, 7 Feb 2002 05:01:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problems with iso9660 as initrd
+In-Reply-To: <m3r8ny8by5.fsf@borg.borderworlds.dk>
+	<a3sei4$h5p$1@cesium.transmeta.com>
+	<m3n0yl90xb.fsf@borg.borderworlds.dk>
+	<a3te3d$7f2$1@cesium.transmeta.com>
+From: Christian Laursen <xi@borderworlds.dk>
+Date: 07 Feb 2002 11:01:33 +0100
+In-Reply-To: <a3te3d$7f2$1@cesium.transmeta.com>
+Message-ID: <m3g04dy5j6.fsf@borg.borderworlds.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
+> Followup to:  <m3n0yl90xb.fsf@borg.borderworlds.dk>
+> By author:    Christian Laursen <xi@borderworlds.dk>
+> In newsgroup: linux.dev.kernel
+> > > 
+> > > Also, you don't have CONFIG_ZISOFS set...
+> > 
+> > Sorry for not being precise enough. It is not a zisofs, just compressed
+> > with gzip as usual for an initrd image.
+> > 
+> 
+> Still unusual, though.  Why iso9660?  It's not particularly well
+> suited for an initrd, especially because of all the redundant data
+> structures and extra blocking.
 
-On Thu, 7 Feb 2002, Oleg Drokin wrote:
+Mostly because it is easily scriptable to build it with tools usually
+available.
 
-> Hello!
->
-> On Wed, Feb 06, 2002 at 06:53:47PM +0100, Luigi Genoni wrote:
->
-> > I was trying 2.5.4-pre1 on sparc64 sun4u ultra2,
-> > with 1GB memory and scsi controller ess.
-> > This system has just one CPU.
-> > >>TPC; 0046cf7c <grow_buffers+5c/e0>   <=====
-> > >>O7;  0046cf38 <grow_buffers+18/e0>
-> > >>I7;  0046b260 <__getblk+20/60>
-> > Trace; 0046b260 <__getblk+20/60>
-> > Trace; 0046b56c <__bread+c/a0>
-> > Trace; 004d1374 <journal_init+214/8e0>
-> This looks like VFS have exploded for whatever reson, I think
-> because one ot these checks failed:
-> linux/fs/buffer.c:
->         if (size & (get_hardsect_size(to_kdev_t(bdev->bd_dev))-1))
->                 BUG();
->         /* Size must be within 512 bytes and PAGE_SIZE */
->         if (size < 512 || size > PAGE_SIZE)
->                 BUG();
->
-> Can any of sparc64 people comment on what kind of exception will one
-> get for __builtin_trap?
-> Second BUG() seems to be out of the question, though.
-> Do you have CONFIG_DEBUG_BUGVERBOSE enabled?
-No, I have not
-
+-- 
+Best regards
+    Christian Laursen

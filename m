@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTKBRAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 12:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTKBRAb
+	id S261753AbTKBRPl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 12:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTKBRPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 12:00:31 -0500
-Received: from web40908.mail.yahoo.com ([66.218.78.205]:1366 "HELO
-	web40908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261733AbTKBRAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 12:00:30 -0500
-Message-ID: <20031102170029.59013.qmail@web40908.mail.yahoo.com>
-Date: Sun, 2 Nov 2003 09:00:29 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: What do frame pointers do?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 2 Nov 2003 12:15:41 -0500
+Received: from h80ad263a.async.vt.edu ([128.173.38.58]:57318 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261753AbTKBRPj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 12:15:39 -0500
+Message-Id: <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Brian Beattie <beattie@beattie-home.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right 
+In-Reply-To: Your message of "Sun, 02 Nov 2003 08:11:32 EST."
+             <1067778693.1315.76.camel@kokopelli> 
+From: Valdis.Kletnieks@vt.edu
+References: <1067778693.1315.76.camel@kokopelli>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1458627488P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 02 Nov 2003 12:15:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What exactly is the purpose of a frame pointer? As far back as I can remember, 2.4
-and 2.6 kernels have supported something called a frame pointer, which slows down
-the kernel slightly but supposedly outputs 'very useful debugging information.'
-Unfortunately, it doesn't really explain what they are, and for the past few months,
-I haven't seen any hacker gods asking for CONFIG_FRAME_POINTER=y, except for Russell
-King, who wants them compiled for ARM processors for some reason (I grepped the
-kernel source looking for answers and found a comment which implied this).
+--==_Exmh_1458627488P
+Content-Type: text/plain; charset=us-ascii
 
-Does anyone know where I can find a good explanation of what they are and what they
-do?
+On Sun, 02 Nov 2003 08:11:32 EST, Brian Beattie <beattie@beattie-home.net>  said:
 
-TIA
+> for storage might be feasible soon.  The idea is that you have a
+> permanent store, using raid or raid-like redundancy and file versioning
+> so that nothing is ever deleted, you just keep adding drives and
+> replacing those that fail.  Of course you'd need some geographic
+> diversity and a way for storage to migrate to newer "file stores" to
+> really work, but just think, no more backups to fail...ever!   
 
-Brad Chapman
+This may be very nice for the high end, but getting "geographic diversity"
+means you have to get space in a colo of some sort (unless you're a big enough
+site that you have another building of your own at least a mile or two away),
+and bandwidth between the two sites.
 
-=====
-Brad Chapman
+Somehow, I don't see this anytime soon for the home user, the SOHO user, or the
+small company that has 7-8 internal servers and a T-1.
 
-Permanent e-mail: kakadu_croc@yahoo.com
+Remember that for this to work, the bandwidth and off-site storage has to be
+available at a cost the user can afford.  Remember that a lot of people aren't
+too happy with the current price point for cable or DSL access - and those
+price points are set with a high overcommital of bandwidth.  If everybody
+starts trying to do backups over the network, the provider will have to build
+out more capacity, and raise the price to cover it.
 
-__________________________________
-Do you Yahoo!?
-Exclusive Video Premiere - Britney Spears
-http://launch.yahoo.com/promos/britneyspears/
+Yes, we're looking at offsite disk mirroring as a backup solution.  But we're
+lucky that we have a large open space in a switch room some 3 miles from the
+data center and dark fiber from here to there.  But it's STILL going to be a
+big chunk of change. I dread to think what it would cost per month if we had to
+pay for the space and bandwidth.
+
+
+--==_Exmh_1458627488P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/pTu0cC3lWbTT17ARAvGyAJ4uyjMCJhz78LuOvY5+Wa0jZvvcfACgrJbt
+iA5nKnNWStTBMhYLPiAtse8=
+=Ov+g
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1458627488P--

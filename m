@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291997AbSBAUrY>; Fri, 1 Feb 2002 15:47:24 -0500
+	id <S292017AbSBAUxE>; Fri, 1 Feb 2002 15:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292000AbSBAUrP>; Fri, 1 Feb 2002 15:47:15 -0500
-Received: from h24-76-184-239.vs.shawcable.net ([24.76.184.239]:3033 "HELO
-	md5.ca") by vger.kernel.org with SMTP id <S291997AbSBAUrC>;
-	Fri, 1 Feb 2002 15:47:02 -0500
-Date: Fri, 1 Feb 2002 12:46:58 -0800
-From: Pavel Zaitsev <pavel@md5.ca>
-To: Bruce Harada <bruce@ask.ne.jp>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020201124658.A602@md5.ca>
-Reply-To: pavel@md5.ca
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020115073749.26b8f7a1.bruce@ask.ne.jp>
+	id <S292015AbSBAUwz>; Fri, 1 Feb 2002 15:52:55 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:1408 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S292013AbSBAUwp>;
+	Fri, 1 Feb 2002 15:52:45 -0500
+Date: Fri, 1 Feb 2002 12:52:34 -0800
+From: Bob Miller <rem@osdl.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.3 remove global semaphore_lock spin lock.
+Message-ID: <20020201125234.A1418@doc.pdx.osdl.net>
+In-Reply-To: <20020131150139.A1345@doc.pdx.osdl.net> <3C59D956.4F2B85DB@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20020115073749.26b8f7a1.bruce@ask.ne.jp>; from bruce@ask.ne.jp on Tue, Jan 15, 2002 at 07:37:49AM +0900
-X-Arbitrary-Number-Of-The-Day: 42
+In-Reply-To: <3C59D956.4F2B85DB@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agreed. ESR is reading too much of "Unix haters handbook" and should
-take a pinch of reality.
-p.
+On Thu, Jan 31, 2002 at 03:55:02PM -0800, Andrew Morton wrote:
+> Bob Miller wrote:
+> > 
+> > Below is a patch for i386 that replaces the global spin lock semaphore_lock,
+> > with the rwlock_t embedded in the wait_queue_head_t in the struct semaphore.
+> > 
+> 
+> Looks sane.  In practice, the speedup is unmeasurable, but...
+> 
+> > ...
+> > +       unsigned long flags;
+> > +       wq_write_lock_irqsave(&sem->wait.lock, flags);
+> > -       spin_lock_irq(&semaphore_lock);
+> 
+> I rather dislike spin_lock_irq(), because it's fragile (makes
+> assumptions about the caller's state).  But in this case,
+> it's probably a reasonable micro-optimisation to not have to
+> save the flags.  Nobody should be calling down() with local
+> interrupts disabled.
+> 
+> > ...
+> > +/*
+> > + * Same as __wake_up but called with the wait_queue_head_t lock held
+> > + * in at least read mode.
+> > + */
+> > +void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr)
+> > +{
+> > +       if (q) {
+> 
+> I don't think we need to test `q' here.  It's a new function,
+> and we don't need to support broken callers.  So __wake_up_locked()
+> can become a macro direct call to __wake_up_common().
+> 
+> > +               __wake_up_common(q, mode, nr, 0);
+> 
+> This one breaks the camel's back :)
+> 
+> Let's un-inline __wake_up_common and EXPORT_SYMBOL it.
+> 
+> It'd be good if you could also verify that the code still
+> works when the use-rwlocks-for-waitqueues option is turned
+> on.   (wait.h:USE_RW_WAIT_QUEUE_SPINLOCK)
+> 
+>  
+Thanks for the feed back. I've incorporated your comments.  Also, at your
+suggestion I set wait.h:USE_RW_WAIT_QUEUE_SPINLOCK on a clean 2.5.3 system
+to test.  The problem is that it OOPs on startup.  After I track that down
+and test with my stuff I'll resubmit the patch.
 
-Bruce Harada(bruce@ask.ne.jp)@Tue, Jan 15, 2002 at 07:37:49AM +0900:
-> On Mon, 14 Jan 2002 16:59:09 -0500
-> "Eric S. Raymond" <esr@thyrsus.com> wrote:
-> 
-> > Scenario #3: Penelope goes where the geeks are surfing.
-> > 
-> [SNIP]
-> >
-> > Penelope needs to build a kernel to support her exotic driver, but she
-> > hasn't got more than the vaguest idea how to go about it.  The
-> > instructions with the driver source patch tell her to apply it at the
-> > top level of a current Linux source tree and then just say "build the
-> > kernel" before getting off into technicalia about the user-space
-> > tools.
-> > 
-> [SNIP]
-> 
-> So, she calls up one of the innumerable independent Linux support companies in
-> her area (hey, this is a fantasy scenario, right?) and tells them what she
-> needs, pays them $30, and guess what? she never needed to run anything
-> herself.
-> 
-> I think some people are getting too involved with the issue to see that SOME
-> people probably don't care what kernel they're running, or even what a kernel
-> is, they just want to give someone money to fix their problem. It's like your
-> local auto-repair shop - someone who knows about car engines wouldn't take
-> their car there except for major repairs, because they know what to do in most
-> situations, but most people just want to drive. If they ever get sick of
-> paying to put the mechanic's kids through college, they will learn how to
-> change the oil themselves, but honestly, most people simply can't be bothered.
-> 
-> And before you say that Linux is supposed to empower the people of the world,
-> not limit them, I wouldn't say that learning how to change my oil "empowers"
-> me all that much.
+Thanks for taking the time...
 
 -- 
-Create like God. Command like a King. Work like a Slave.
-110461387
-http://gpg.md5.ca
-http://perlpimp.com
+Bob Miller					Email: rem@osdl.org
+Open Software Development Lab			Phone: 503.626.2455 Ext. 17

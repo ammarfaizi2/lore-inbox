@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129377AbQKCPYj>; Fri, 3 Nov 2000 10:24:39 -0500
+	id <S129455AbQKCPcw>; Fri, 3 Nov 2000 10:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130492AbQKCPY2>; Fri, 3 Nov 2000 10:24:28 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:55749 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129377AbQKCPYU>; Fri, 3 Nov 2000 10:24:20 -0500
-Date: Fri, 3 Nov 2000 16:24:09 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Yann Dirson <ydirson@altern.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails, machine hangs)
-Message-ID: <20001103162409.S7204@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20001101174816.A18510@athlon.random> <Pine.LNX.4.21.0011011456430.11112-100000@duckman.distro.conectiva> <20001101220326.A4514@bylbo.nowhere.earth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001101220326.A4514@bylbo.nowhere.earth>; from ydirson@altern.org on Wed, Nov 01, 2000 at 10:03:27PM +0100
+	id <S129471AbQKCPcn>; Fri, 3 Nov 2000 10:32:43 -0500
+Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:57805 "EHLO
+	styx.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S129455AbQKCPci>; Fri, 3 Nov 2000 10:32:38 -0500
+Date: Fri, 3 Nov 2000 15:14:20 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@suse.com>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [linux-fbdev] [PATCH] fbcon->vgacon->fbcon
+In-Reply-To: <Pine.LNX.4.21.0011022340440.14650-100000@euclid.oak.suse.com>
+Message-ID: <Pine.LNX.4.10.10011031513310.1627-100000@cassiopeia.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 10:03:27PM +0100, Yann Dirson wrote:
-> On Wed, Nov 01, 2000 at 02:59:01PM -0200, Rik van Riel wrote:
-> > it appears there has been amazingly little research on this
-> > subject and it's completely unknown which approach will work
-> > "best" ... or even, what kind of behaviour is considered to
-> > be best by the users...
+On Thu, 2 Nov 2000, James Simmons wrote:
+> > Matroxfb does not switch hardware to VGA mode on exit. Try doing
+> > 'fbset -depth 0 -a' before quitting from matroxfb.
 > 
-> Sounds to me like a good point to favour a config-time selection of
-> OOM killers.
+> I know. I wanted for vgacon to reset the video mode itself. This way ANY
+> fbdev driver can go back top vgacon. 
 
-Better yet: Apply my OOM-Killer-API-Patch[1] and build your own
-OOM-Killer!
+That won't be possible because returning to VGA text mode is chip-specific.
 
-Just lock your module into memory, supply an function to
-install_oom_killer(), save the old one (you get it as return if
-installing it went ok) and be happy.
+Gr{oetje,eeting}s,
 
-And now have fun bringing your machine into OOM situations.
+						Geert
 
-Want to change it back? No problem. Just get signaled somehow[2],
-reinstall the old one, unlock your module and wait to be cleaned
-up.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I never tried it above Riks 2.2.x-OOM-Killer-Patch, but it should
-work on top of it, because oom_kill.c isn't all that different.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-Regards
-
-Ingo Oeser
-
-[1] http://www.tu-chemnitz.de/~ioe/oom_kill_api.patch
-[2] if you don't know that much about the kernel, you shouldn't
-   play with oom-handlers anyway ;-)
--- 
-Feel the power of the penguin - run linux@your.pc
-<esc>:x
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

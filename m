@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSHMMQN>; Tue, 13 Aug 2002 08:16:13 -0400
+	id <S315214AbSHMMNi>; Tue, 13 Aug 2002 08:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSHMMQN>; Tue, 13 Aug 2002 08:16:13 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:5112 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315265AbSHMMQM>; Tue, 13 Aug 2002 08:16:12 -0400
-Subject: Re: searching for dell 2650 PERC3-DI driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208131503350.1075-100000@boston.corp.fedex.com>
-References: <Pine.LNX.4.44.0208131503350.1075-100000@boston.corp.fedex.com>
-Content-Type: text/plain
+	id <S315257AbSHMMNi>; Tue, 13 Aug 2002 08:13:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:48132 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S315214AbSHMMNi>; Tue, 13 Aug 2002 08:13:38 -0400
+Message-ID: <3D58F932.4D87A904@aitel.hist.no>
+Date: Tue, 13 Aug 2002 14:18:58 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no, vojtech@suse.cz
+CC: linux-kernel@vger.kernel.org
+Subject: Various trouble in 2.5.31
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 Aug 2002 13:17:04 +0100
-Message-Id: <1029241024.22847.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-13 at 08:04, Jeff Chua wrote:
-> I'm buying a Dell PowerEdge 2650 and need to know where to get driver for
-> the RAID controller
-> 
->         PERC3-DI, PERC3-DC, or PERC3-QC
-> 
-> Does anyone know what kind of network adaptor is on the board?
+Some problems and oddities I have seen:
 
-It'll either be a megaraid or aacraid. 
+UP, no preempt
+* nfs gets stuck sometimes.  klogd and rpciod shares the cpu,
+  umounting is impossible.  cat'ing a nfs file shows the
+  contents but the cat process won't die.  Stuck on close?
+  This also happens with 2.5.30
 
-Alan
+* ide-cd is broken as module
 
+SMP, with and without preempt.
+* During boot I get atkbd not present(ed), and the keyboard 
+  is disabled.  It wakes up later in the boot process, so
+  no big trouble here.
+
+* raid has trouble, even with 4k maximum bio's.
+  The bootup e2fsck complains that it can't find a valid
+  superblock on my raid-1 and raid-0 devices, although
+  mount has no trouble.  I get logged complaints about
+  e2fsck using outdated ioctl's for md.  Strange that
+  fsck should needs to know about raid devices.
+  Possibly a problem with e2fsck 1.27?
+
+Helge Hafting

@@ -1,163 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319232AbSH2P1T>; Thu, 29 Aug 2002 11:27:19 -0400
+	id <S319239AbSH2PaW>; Thu, 29 Aug 2002 11:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319235AbSH2P1T>; Thu, 29 Aug 2002 11:27:19 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:49415
+	id <S319237AbSH2P3t>; Thu, 29 Aug 2002 11:29:49 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:57351
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319232AbSH2P1R>; Thu, 29 Aug 2002 11:27:17 -0400
-Subject: [PATCH] low-latency zap_page_range()
+	with ESMTP id <S319234AbSH2P2k>; Thu, 29 Aug 2002 11:28:40 -0400
+Subject: [PATCH] misc. kernel preemption bits
 From: Robert Love <rml@tech9.net>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Aug 2002 11:31:39 -0400
-Message-Id: <1030635100.939.2551.camel@phantasy>
+Date: 29 Aug 2002 11:33:01 -0400
+Message-Id: <1030635181.978.2559.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Linus,
 
-Attached patch implements a low latency version of "zap_page_range()".
+Misc. kernel preemption-related bits.  Specifically,
 
-Calls with even moderately large page ranges result in very long lock
-held times and consequently very long periods of non-preemptibility. 
-This function is in my list of the top 3 worst offenders.  It is gross.
+	- update to Documentation/preempt-locking.txt (me)
 
-This new version reimplements zap_page_range() as a loop over
-ZAP_BLOCK_SIZE chunks.  After each iteration, if a reschedule is
-pending, we drop page_table_lock and automagically preempt.  Note we can
-not blindly drop the locks and reschedule (e.g. for the non-preempt
-case) since there is a possibility to enter this codepath holding other
-locks.
+	- preempt-safe arch/i386/kernel/ioport.c :: sys_ioperm()
+	  (George Anzinger)
 
-... I am sure you are familar with all this, its the same deal as your
-low-latency work.  This patch implements the "cond_resched_lock()" as we
-discussed sometime back.  I think this solution should be acceptable to
-you and Linus.
+	- remove "kernel_lock()" cruft in include/linux/smp.h
+	  (Andrew Morton)
 
-There are other misc. cleanups, too.
+	- we have a debug check in preempt_schedule that, even
+	  on detecting a schedule with irqs disabled, still goes
+	  ahead and reschedules.  We should return. (me)
 
-This new zap_page_range() yields latency too-low-to-benchmark: <<1ms.
+	- preempt-safe net/core/dev.c :: netif_rx() (George Anzinger)
 
-Please, Andrew, add this to your ever-growing list.
+All fairly trivial and/or simple.  Patch is against 2.5.32-bk.  Please,
+apply.
 
 	Robert Love
 
-diff -urN linux-2.5.32/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.5.32/include/linux/sched.h	Tue Aug 27 15:26:34 2002
-+++ linux/include/linux/sched.h	Wed Aug 28 18:04:41 2002
-@@ -898,6 +898,34 @@
- 		__cond_resched();
- }
+diff -urN linux-2.5.32/Documentation/preempt-locking.txt linux/Documentation/preempt-locking.txt
+--- linux-2.5.32/Documentation/preempt-locking.txt	Tue Aug 27 15:26:32 2002
++++ linux/Documentation/preempt-locking.txt	Wed Aug 28 23:23:30 2002
+@@ -1,7 +1,7 @@
+ 		  Proper Locking Under a Preemptible Kernel:
+ 		       Keeping Kernel Code Preempt-Safe
+-			  Robert Love <rml@tech9.net>
+-			   Last Updated: 22 Jan 2002
++			 Robert Love <rml@tech9.net>
++			  Last Updated: 28 Aug 2002
  
-+#ifdef CONFIG_PREEMPT
+
+ INTRODUCTION
+@@ -112,3 +112,24 @@
+ 
+ This code is not preempt-safe, but see how easily we can fix it by simply
+ moving the spin_lock up two lines.
 +
-+/*
-+ * cond_resched_lock() - if a reschedule is pending, drop the given lock,
-+ * call schedule, and on return reacquire the lock.
-+ *
-+ * Note: this does not assume the given lock is the _only_ lock held.
-+ * The kernel preemption counter gives us "free" checking that we are
-+ * atomic -- let's use it.
-+ */
-+static inline void cond_resched_lock(spinlock_t * lock)
-+{
-+	if (need_resched() && preempt_count() == 1) {
-+		_raw_spin_unlock(lock);
-+		preempt_enable_no_resched();
-+		__cond_resched();
-+		spin_lock(lock);
-+	}
-+}
 +
-+#else
++PREVENTING PREEMPTION USING INTERRUPT DISABLING
 +
-+static inline void cond_resched_lock(spinlock_t * lock)
-+{
-+}
 +
-+#endif
++It is possible to prevent a preemption event using local_irq_disable and
++local_irq_save.  Note, when doing so, you must be very careful to not cause
++an event that would set need_resched and result in a preemption check.  When
++in doubt, rely on locking or explicit preemption disabling.
 +
- /* Reevaluate whether the task has signals pending delivery.
-    This is required every time the blocked sigset_t changes.
-    Athread cathreaders should have t->sigmask_lock.  */
-diff -urN linux-2.5.32/mm/memory.c linux/mm/memory.c
---- linux-2.5.32/mm/memory.c	Tue Aug 27 15:26:42 2002
-+++ linux/mm/memory.c	Wed Aug 28 18:03:11 2002
-@@ -389,8 +389,8 @@
++Note in 2.5 interrupt disabling is now only per-CPU (e.g. local).
++
++An additional concern is proper usage of local_irq_disable and local_irq_save.
++These may be used to protect from preemption, however, on exit, if preemption
++may be enabled, a test to see if preemption is required should be done.  If
++these are called from the spin_lock and read/write lock macros, the right thing
++is done.  They may also be called within a spin-lock protected region, however,
++if they are ever called outside of this context, a test for preemption should
++be made. Do note that calls from interrupt context or bottom half/ tasklets
++are also protected by preemption locks and so may use the versions which do
++not check preemption.
+diff -urN linux-2.5.32/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+--- linux-2.5.32/arch/i386/kernel/ioport.c	Tue Aug 27 15:26:42 2002
++++ linux/arch/i386/kernel/ioport.c	Wed Aug 28 23:23:30 2002
+@@ -55,12 +55,16 @@
+ asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
  {
- 	pgd_t * dir;
+ 	struct thread_struct * t = &current->thread;
+-	struct tss_struct * tss = init_tss + smp_processor_id();
++	struct tss_struct * tss;
++	int ret = 0;
  
--	if (address >= end)
--		BUG();
-+	BUG_ON(address >= end);
+ 	if ((from + num <= from) || (from + num > IO_BITMAP_SIZE*32))
+ 		return -EINVAL;
+ 	if (turn_on && !capable(CAP_SYS_RAWIO))
+ 		return -EPERM;
 +
- 	dir = pgd_offset(vma->vm_mm, address);
- 	tlb_start_vma(tlb, vma);
- 	do {
-@@ -401,30 +401,43 @@
- 	tlb_end_vma(tlb, vma);
++	tss = init_tss + get_cpu();
++
+ 	/*
+ 	 * If it's the first ioperm() call in this thread's lifetime, set the
+ 	 * IO bitmap up. ioperm() is much less timing critical than clone(),
+@@ -69,8 +73,11 @@
+ 	if (!t->ts_io_bitmap) {
+ 		unsigned long *bitmap;
+ 		bitmap = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+-		if (!bitmap)
+-			return -ENOMEM;
++		if (!bitmap) {
++			ret = -ENOMEM;
++			goto out;
++		}
++
+ 		/*
+ 		 * just in case ...
+ 		 */
+@@ -88,7 +95,9 @@
+ 	set_bitmap(t->ts_io_bitmap, from, num, !turn_on);
+ 	set_bitmap(tss->io_bitmap, from, num, !turn_on);
+ 
+-	return 0;
++out:
++	put_cpu();
++	return ret;
  }
  
--/*
-- * remove user pages in a given range.
-+#define ZAP_BLOCK_SIZE	(256 * PAGE_SIZE) /* how big a chunk we loop over */
-+ 
-+/**
-+ * zap_page_range - remove user pages in a given range
-+ * @vma: vm_area_struct holding the applicable pages
-+ * @address: starting address of pages to zap
-+ * @size: number of bytes to zap
-  */
- void zap_page_range(struct vm_area_struct *vma, unsigned long address, unsigned long size)
+ /*
+diff -urN linux-2.5.32/include/linux/smp.h linux/include/linux/smp.h
+--- linux-2.5.32/include/linux/smp.h	Tue Aug 27 15:26:43 2002
++++ linux/include/linux/smp.h	Wed Aug 28 23:23:30 2002
+@@ -87,9 +87,6 @@
+ #define smp_processor_id()			0
+ #define hard_smp_processor_id()			0
+ #define smp_threads_ready			1
+-#ifndef CONFIG_PREEMPT
+-#define kernel_lock()
+-#endif
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
+diff -urN linux-2.5.32/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.32/kernel/sched.c	Tue Aug 27 15:26:37 2002
++++ linux/kernel/sched.c	Wed Aug 28 23:23:24 2002
+@@ -1039,6 +1039,7 @@
+ 		printk("bad: schedule() with irqs disabled!\n");
+ 		show_stack(NULL);
+ 		preempt_enable_no_resched();
++		return;
+ 	}
+ 
+ need_resched:
+diff -urN linux-2.5.32/net/core/dev.c linux/net/core/dev.c
+--- linux-2.5.32/net/core/dev.c	Tue Aug 27 15:26:43 2002
++++ linux/net/core/dev.c	Wed Aug 28 23:23:30 2002
+@@ -1229,19 +1229,20 @@
+ 
+ int netif_rx(struct sk_buff *skb)
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	mmu_gather_t *tlb;
--	unsigned long start = address, end = address + size;
-+	unsigned long end, block;
+-	int this_cpu = smp_processor_id();
++	int this_cpu;
+ 	struct softnet_data *queue;
+ 	unsigned long flags;
  
--	/*
--	 * This is a long-lived spinlock. That's fine.
--	 * There's no contention, because the page table
--	 * lock only protects against kswapd anyway, and
--	 * even if kswapd happened to be looking at this
--	 * process we _want_ it to get stuck.
--	 */
--	if (address >= end)
--		BUG();
- 	spin_lock(&mm->page_table_lock);
--	flush_cache_range(vma, address, end);
+ 	if (!skb->stamp.tv_sec)
+ 		do_gettimeofday(&skb->stamp);
  
--	tlb = tlb_gather_mmu(mm, 0);
--	unmap_page_range(tlb, vma, address, end);
--	tlb_finish_mmu(tlb, start, end);
-+  	/*
-+ 	 * This was once a long-held spinlock.  Now we break the
-+ 	 * work up into ZAP_BLOCK_SIZE units and relinquish the
-+ 	 * lock after each interation.  This drastically lowers
-+ 	 * lock contention and allows for a preemption point.
-+  	 */
-+	while (size) {
-+		block = (size > ZAP_BLOCK_SIZE) ? ZAP_BLOCK_SIZE : size;
-+ 		end = address + block;
-+ 
-+ 		flush_cache_range(vma, address, end);
-+ 		tlb = tlb_gather_mmu(mm, 0);
-+ 		unmap_page_range(tlb, vma, address, end);
-+ 		tlb_finish_mmu(tlb, address, end);
-+ 
-+ 		cond_resched_lock(&mm->page_table_lock);
-+ 
-+ 		address += block;
-+ 		size -= block;
-+ 	}
-+
- 	spin_unlock(&mm->page_table_lock);
- }
+-	/* The code is rearranged so that the path is the most
+-	   short when CPU is congested, but is still operating.
++	/*
++	 * The code is rearranged so that the path is the most
++	 * short when CPU is congested, but is still operating.
+ 	 */
+-	queue = &softnet_data[this_cpu];
+-
+ 	local_irq_save(flags);
++	this_cpu = smp_processor_id();
++	queue = &softnet_data[this_cpu];
+ 
+ 	netdev_rx_stat[this_cpu].total++;
+ 	if (queue->input_pkt_queue.qlen <= netdev_max_backlog) {
+@@ -1252,10 +1253,10 @@
+ enqueue:
+ 			dev_hold(skb->dev);
+ 			__skb_queue_tail(&queue->input_pkt_queue, skb);
+-			local_irq_restore(flags);
+ #ifndef OFFLINE_SAMPLE
+ 			get_sample_stats(this_cpu);
+ #endif
++			local_irq_restore(flags);
+ 			return queue->cng_level;
+ 		}
  
 
 

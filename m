@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUHMHKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUHMHKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269013AbUHMHKw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 03:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUHMHKw
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 03:10:52 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:20466 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269013AbUHMHKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S269012AbUHMHKr (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 13 Aug 2004 03:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269013AbUHMHKq
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 13 Aug 2004 03:10:46 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:33513 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S269012AbUHMHKp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 03:10:45 -0400
+Date: Fri, 13 Aug 2004 09:10:44 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Florin Andrei <florin@andrei.myip.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: excessive swapping
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1092379468.2597.16.camel@rivendell.home.local>
+Message-ID: <20040813071044.GA10988@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Florin Andrei <florin@andrei.myip.org>, linux-kernel@vger.kernel.org
 References: <1092379250.2597.14.camel@rivendell.home.local>
-	 <1092379468.2597.16.camel@rivendell.home.local>
-Content-Type: text/plain
-Message-Id: <1092381036.2597.29.camel@rivendell.home.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 Aug 2004 00:10:37 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092379250.2597.14.camel@rivendell.home.local>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 23:44, Florin Andrei wrote:
-> On Thu, 2004-08-12 at 23:40, Florin Andrei wrote:
-> 
-> > The system is swapping excessively. There's no way the total size of the
-> > applications exceeds the size of RAM. There's plenty of room to spare,
-> > yet 16% of the 530MB of swap is used.
-> 
-> Now it's 22% and counting. Way to go. :-(
+On Thu, Aug 12, 2004 at 11:40:51PM -0700, Florin Andrei wrote:
+> I am running 2.6.8-rc4 with Ingo's voluntary preempt patch O5, on Fedora
+> 2.
+> I'm using the default Gnome environment, reading mail with Evolution,
+> browsing with Firefox, etc. I've 512MB of RAM.
 
-Now it's 27%. You get the picture.
+Please see if you can reproduce this behaviour without any additional
+patches. Furthermore, when this has happened, please show the output of cat
+/proc/meminfo and cat /proc/slabinfo and your .config.
 
-Anyway, out of the 512MB of RAM, like 390MB are disk cache. No wonder
-that the useful pages are swaped out.
+> The system is swapping excessively. There's no way the total size of the
+> applications exceeds the size of RAM. There's plenty of room to spare,
+> yet 16% of the 530MB of swap is used.
 
-It seems like the kernel believes that the disk cache has some
-miraculous properties w.r.t. the system performance, and desperately
-tries to grow it as much as possible.
-This is wrong religion. The reality is opposite. The system is much
-slower, because applications are thrown out in the swap, then sucked
-back in, which is a very slow process.
+Please show a few lines of vmstat 1 when this happens.
 
-The efficiency of increasing the disk cache decreases exponentially with
-size, like any other cache. Then what's the point of sacrificing useful
-memory just to increase some hypothetical "useful" cache?
-
-Even on a server, the same universal laws still apply, the efficiency of
-increasing cache still decreases exponentially. There's still precious
-time wasted when an application is sucked back in from swap, at the
-price of an immeasurably small performance gain due to the disk cache
-being larger.
-
-I'm sorry for rambling, but to me the current swapping policy is so
-blatantly wrong. Besides the space occupied by the apps themselves,
-there's a lot of room to _spare_ - then why swap?
+Thanks!
 
 -- 
-Florin Andrei
-
-http://florin.myip.org/
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

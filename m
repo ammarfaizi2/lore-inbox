@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVA1U7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVA1U7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbVA1U7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbVA1U4z
+	id S262769AbVA1U7O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVA1U5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:56:55 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:51878 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262747AbVA1Umy (ORCPT
+	Fri, 28 Jan 2005 15:57:00 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34251
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262744AbVA1UuH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:42:54 -0500
-Subject: Re: Why does the kernel need a gig of VM?
-From: Josh Boyer <jdub@us.ibm.com>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41FA9B37.1020100@comcast.net>
-References: <41FA9B37.1020100@comcast.net>
-Content-Type: text/plain
-Date: Fri, 28 Jan 2005 14:42:49 -0600
-Message-Id: <1106944969.7542.13.camel@windu.rchland.ibm.com>
+	Fri, 28 Jan 2005 15:50:07 -0500
+Date: Fri, 28 Jan 2005 12:45:17 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+Cc: shemminger@osdl.org, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       netdev@oss.sgi.com, arjan@infradead.org, hlein@progressive-comp.com
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port
+Message-Id: <20050128124517.36aa5e05.davem@davemloft.net>
+In-Reply-To: <1106944492.3864.30.camel@localhost.localdomain>
+References: <1106932637.3778.92.camel@localhost.localdomain>
+	<20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
+	<1106937110.3864.5.camel@localhost.localdomain>
+	<20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
+	<1106944492.3864.30.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-28 at 15:06 -0500, John Richard Moser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Can someone give me a layout of what exactly is up there?  I got the
-> basic idea
-> 
-> K 4G
-> A 3G
-> A 2G
-> A 1G
-> 
-> App has 3G, kernel has 1G at the top of VM on x86 (dunno about x86_64).
-> 
-> So what's the layout of that top 1G?  What's it all used for?  Is there
-> some obscene restriction of 1G of shared memory or something that gets
-> mapped up there?
-> 
-> How much does it need, and why?  What, if anything, is variable and
-> likely to do more than 10 or 15 megs of variation?
+On Fri, 28 Jan 2005 21:34:52 +0100
+Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
 
-Because of various reasons.  Normal kernel space virtual addresses
-usually start at 0xc0000000, which is where the 3GiB userspace
-restriction comes from.  
+> Attached the new patch following Arjan's recommendations.
 
-Then there is the vmalloc virtual address space, which usually starts at
-a higher address than a normal kernel address.  Along the same lines are
-ioremap addresses, etc.
-
-Poke around in the header files.  I bet you'll find lots of reasons.
-
-josh
-
+No SMP protection on the SBOX, better look into that.
+The locking you'll likely need to add will make this
+routine serialize many networking operations which is
+one thing we've been trying to avoid.

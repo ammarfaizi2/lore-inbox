@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbTFFUNU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 16:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFFUNU
+	id S262259AbTFFUXS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 16:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFFUXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 16:13:20 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:14344 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S262267AbTFFUNT
+	Fri, 6 Jun 2003 16:23:18 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27046 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262259AbTFFUXQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 16:13:19 -0400
-Message-ID: <3EE0F90C.8030604@zianet.com>
-Date: Fri, 06 Jun 2003 14:26:52 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Fri, 6 Jun 2003 16:23:16 -0400
+Date: Fri, 6 Jun 2003 22:36:07 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
+In-Reply-To: <20030606201306.GJ10487@wohnheim.fh-wedel.de>
+Message-ID: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: John Stoffel <stoffel@lucent.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Smart Array driver
-References: <3EE0D5E0.4060408@zianet.com> <16096.59965.283412.477292@gargle.gargle.HOWL>
-In-Reply-To: <16096.59965.283412.477292@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Argh, I thought I had checked that option.  That option
-was off and it worked when I turned it on. It didn't boot
-all the way because the kernel didn't understand the
-/ label on the partition.  Something I can fix however.
 
-Thanks.
+On Fri, 6 Jun 2003, [iso-8859-1] Jörn Engel wrote:
 
-John Stoffel wrote:
+> Hi Linus!
+>
+> This one is pure magic, really.  No comment and inspection of the code
+> doesn't show much either.  But judging from the other changes, this
+> should also fix a real problem, at least a theoretical one.
 
->kwijibo> Is the Compaq Smart Array 5XXX driver 2.5.x ready?  Before I
->kwijibo> get to far into debugging this computer I figure I would ask.
->kwijibo> It boots fine in 2.4.x kernels but when I try 2.5.70 it
->kwijibo> freezes at the Uncompressing Linux line.  I thought maybe I
->kwijibo> didn't the console set up right for 2.5 but as far as I can
->kwijibo> tell it is and even if it wasn't it should still continue
->kwijibo> booting and eventually be pingable.  My first thought was of
->kwijibo> the RAID controller.  This is on a HP Proliant ML530.  Any
->kwijibo> suggestions?  Config attached.
+Eee, no magic here :-).
+
+from 1.1.4 ChangeLog:
+"- force windowBits > 8 to avoid a bug in the encoder for a window size
+   of 256 bytes. (A complete fix will be available in 1.1.5)."
+
+I guess complete fix is here:
+http://www.cs.toronto.edu/~cosmin/pngtech/zlib-256win-bug.html
+
+Regards,
+--
+Bartlomiej
+
+> The only code that could be bitten by this change is ppp, so I changed
+> that as well.  Paulus, could you have a quick look at it?
 >
->I was going to suggest that you make sure ACPI was turned off, but
->your config shows that already.  Make sure you have CONFIG_VGA_CONSOLE
->set is all I can think of.
+> Jörn
 >
->John
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> --
+> This above all: to thine own self be true.
+> -- Shakespeare
 >
+> --- linux-2.5.70-bk11/lib/zlib_deflate/deflate.c~zlib_merge_magic	2003-06-06 20:44:51.000000000 +0200
+> +++ linux-2.5.70-bk11/lib/zlib_deflate/deflate.c	2003-06-06 22:05:30.000000000 +0200
+> @@ -216,7 +216,7 @@
+>          windowBits = -windowBits;
+>      }
+>      if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
+> -        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
+> +        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
+>  	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+>          return Z_STREAM_ERROR;
+>      }
+> --- linux-2.5.70-bk11/include/linux/ppp-comp.h~zlib_merge_magic	2003-06-05 17:46:35.000000000 +0200
+> +++ linux-2.5.70-bk11/include/linux/ppp-comp.h	2003-06-06 22:07:08.000000000 +0200
+> @@ -182,7 +182,7 @@
+>  #define CI_DEFLATE_DRAFT	24	/* value used in original draft RFC */
+>  #define CILEN_DEFLATE		4	/* length of its config option */
 >
->  
->
+> -#define DEFLATE_MIN_SIZE	8
+> +#define DEFLATE_MIN_SIZE	9
+>  #define DEFLATE_MAX_SIZE	15
+>  #define DEFLATE_METHOD_VAL	8
+>  #define DEFLATE_SIZE(x)		(((x) >> 4) + DEFLATE_MIN_SIZE)
 
 

@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUKISFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUKISOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbUKISFU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 13:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKISFU
+	id S261600AbUKISOK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 13:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUKISOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 13:05:20 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:2236 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261597AbUKISFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 13:05:12 -0500
-Date: Tue, 09 Nov 2004 13:04:49 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: insmod module-loading errors, Linux-2.6.9
-In-reply-to: <Pine.LNX.4.61.0411090745160.11563@chaos.analogic.com>
-To: linux-os@analogic.com
-Cc: Valdis.Kletnieks@vt.edu, Colin Leroy <colin.lkml@colino.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au
-Message-id: <419106C1.40809@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <200411090000.iA900Obi004485@turing-police.cc.vt.edu>
- <Pine.LNX.4.61.0411090745160.11563@chaos.analogic.com>
+	Tue, 9 Nov 2004 13:14:09 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:64464 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261600AbUKISOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 13:14:06 -0500
+Message-ID: <419108ED.9090608@trash.net>
+Date: Tue, 09 Nov 2004 19:14:05 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 RCU breakage in dev_queue_xmit
+References: <4190FFE9.8000203@drdos.com>
+In-Reply-To: <4190FFE9.8000203@drdos.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jeff V. Merkey wrote:
 
-linux-os wrote:
-> On Mon, 8 Nov 2004 Valdis.Kletnieks@vt.edu wrote:
-> 
->> On Mon, 08 Nov 2004 12:52:18 EST, linux-os said:
->>
->>> There are certainly work-arounds for problems that shouldn't
->>> exist at all. So, every time I do something to a kernel, I
->>> have to change whatever the EXTRAVERSION field is?  Then, when
->>> a customer demands that the kernel version be exactly the
->>> same that was shipped with Fedora or whatever, I'm screwed.
->>
->>
->> If you didn't have the foresight to keep that kernel version around,
->> there isn't much we can do to help you.  Yes, this may mean you have
->> a big bunch of /usr/src/linux-2.6.* directories.
->>
-> 
-> Wrong. Whoever put the module-loading code INSIDE the kernel,
-> for POLITICAL reasons, created a new POLICY.
-> 
+>
+> Running dual gigabit interfaces at 196 MB/S (megabytes/second) on 
+> receive, 12 CLK interacket gap time, 1500 bytes payload
+> at 65000 packets per second per gigabit interface, and retransmitting 
+> received packets at 130 MB/S out of a third gigabit interface
+> with skb, RCU locks in dev_queue_xmit breaks and enters the following 
+> state:
+>
+> Nov  8 15:38:08 ds kernel: Badness in local_bh_enable at 
+> kernel/softirq.c:141
+> Nov  8 15:38:08 ds kernel:  [<40107d1e>] dump_stack+0x1e/0x30
+> Nov  8 15:38:08 ds kernel:  [<401218b0>] local_bh_enable+0x70/0x80
+> Nov  8 15:38:08 ds kernel:  [<402c5bbb>] dev_queue_xmit+0x11b/0x250
+> Nov  8 15:38:08 ds kernel:  [<f8981cb7>] xmit_skb+0x17/0x20 [dsfs]
+> Nov  8 15:38:08 ds kernel:  [<f8981f8e>] xmit_packet+0x2e/0x80 [dsfs]
+> Nov  8 15:38:08 ds kernel:  [<f89820eb>] regen_data+0x10b/0x290 [dsfs]
 
-No.  Version information is still stripped in module-init-tools in
-_userspace_ for modprobe --force.  The fact that insmod doesn't support
-'-f' is probably an oversight and Rusty would likely accept a patch.
+There is no such function in the 2.6.9 kernel.
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
+Regards
+Patrick
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkQbBdQs4kOxk3/MRArfFAJ9So6d7pRXqAgkuGj9XhsELsrymdgCfZs+x
-Yz1bhTMbZkD35dbd8CEk+vk=
-=kAgK
------END PGP SIGNATURE-----

@@ -1,276 +1,477 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269322AbUIHTe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUIHTkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269322AbUIHTe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 15:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269320AbUIHTdO
+	id S269325AbUIHTkB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269337AbUIHThl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 15:33:14 -0400
+	Wed, 8 Sep 2004 15:37:41 -0400
 Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:20439 "EHLO
 	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S269322AbUIHT2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 15:28:33 -0400
+	id S269325AbUIHT2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 15:28:55 -0400
 From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch][9/9] block: remove bio walking
-Date: Wed, 8 Sep 2004 21:27:04 +0200
+Subject: [patch][6/9] ide: sg PIO for fs requests
+Date: Wed, 8 Sep 2004 21:26:59 +0200
 User-Agent: KMail/1.6.2
-Cc: Jens Axboe <axboe@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409082127.04331.bzolnier@elka.pw.edu.pl>
+Message-Id: <200409082126.59128.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[patch] block: remove bio walking
+[patch] ide: sg PIO for fs requests
 
-IDE driver was the only user of bio walking code.
+Convert CONFIG_IDE_TASKFILE_IO=n code to use
+scatterlist for PIO transfers.
 
-I now think that block drivers shouldn't use bios directly.
+Fixes longstanding 'data integrity on error' issue.
 
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 ---
 
- linux-2.6.9-rc1-bk10-bzolnier/drivers/block/ll_rw_blk.c |  114 ----------------
- linux-2.6.9-rc1-bk10-bzolnier/include/linux/blkdev.h    |   36 -----
- 2 files changed, 5 insertions(+), 145 deletions(-)
+ linux-2.6.9-rc1-bk10-bzolnier/Documentation/block/biodoc.txt |    3 
+ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-disk.c         |  223 ++---------
+ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-taskfile.c     |   21 -
+ linux-2.6.9-rc1-bk10-bzolnier/include/linux/ide.h            |   34 -
+ 4 files changed, 79 insertions(+), 202 deletions(-)
 
-diff -puN drivers/block/ll_rw_blk.c~bio_walking drivers/block/ll_rw_blk.c
---- linux-2.6.9-rc1-bk10/drivers/block/ll_rw_blk.c~bio_walking	2004-09-08 19:59:00.551496200 +0200
-+++ linux-2.6.9-rc1-bk10-bzolnier/drivers/block/ll_rw_blk.c	2004-09-08 19:59:00.566493920 +0200
-@@ -2383,9 +2383,7 @@ again:
- 				break;
+diff -puN Documentation/block/biodoc.txt~ide_sg_pio Documentation/block/biodoc.txt
+--- linux-2.6.9-rc1-bk10/Documentation/block/biodoc.txt~ide_sg_pio	2004-09-06 01:17:41.000000000 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/Documentation/block/biodoc.txt	2004-09-06 01:17:41.000000000 +0200
+@@ -1172,8 +1172,7 @@ PIO drivers (or drivers that need to rev
+ while (IDE for example)), where the CPU is doing the actual data
+ transfer a virtual mapping is needed. If the driver supports highmem I/O,
+ (Sec 1.1, (ii) ) it needs to use __bio_kmap_atomic and bio_kmap_irq to
+-temporarily map a bio into the virtual address space. See how IDE handles
+-this with ide_map_buffer.
++temporarily map a bio into the virtual address space.
  
- 			bio->bi_next = req->bio;
--			req->cbio = req->bio = bio;
--			req->nr_cbio_segments = bio_segments(bio);
--			req->nr_cbio_sectors = bio_sectors(bio);
-+			req->bio = bio;
  
- 			/*
- 			 * may not be valid. if the low level driver said
-@@ -2457,11 +2455,9 @@ get_rq:
- 	req->current_nr_sectors = req->hard_cur_sectors = cur_nr_sectors;
- 	req->nr_phys_segments = bio_phys_segments(q, bio);
- 	req->nr_hw_segments = bio_hw_segments(q, bio);
--	req->nr_cbio_segments = bio_segments(bio);
--	req->nr_cbio_sectors = bio_sectors(bio);
- 	req->buffer = bio_data(bio);	/* see ->buffer comment above */
- 	req->waiting = NULL;
--	req->cbio = req->bio = req->biotail = bio;
-+	req->bio = req->biotail = bio;
- 	req->rq_disk = bio->bi_bdev->bd_disk;
- 	req->start_time = jiffies;
+ 8. Prior/Related/Impacted patches
+diff -puN drivers/ide/ide-disk.c~ide_sg_pio drivers/ide/ide-disk.c
+--- linux-2.6.9-rc1-bk10/drivers/ide/ide-disk.c~ide_sg_pio	2004-09-06 01:17:41.000000000 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-disk.c	2004-09-06 01:17:41.000000000 +0200
+@@ -128,55 +128,30 @@ static int lba_capacity_is_ok (struct hd
+ static ide_startstop_t read_intr (ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+-	u32 i = 0, nsect	= 0, msect = drive->mult_count;
+-	struct request *rq;
+-	unsigned long flags;
++	struct request *rq = hwif->hwgroup->rq;
+ 	u8 stat;
+-	char *to;
  
-@@ -2642,83 +2638,6 @@ void submit_bio(int rw, struct bio *bio)
+ 	/* new way for dealing with premature shared PCI interrupts */
+ 	if (!OK_STAT(stat=hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
+ 		if (stat & (ERR_STAT|DRQ_STAT)) {
+-			return DRIVER(drive)->error(drive, "read_intr", stat);
++			return task_error(drive, rq, __FUNCTION__, stat);
+ 		}
+ 		/* no data yet, so wait for another interrupt */
+ 		ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
+ 		return ide_started;
+ 	}
+-	
+-read_next:
+-	rq = HWGROUP(drive)->rq;
+-	if (msect) {
+-		if ((nsect = rq->current_nr_sectors) > msect)
+-			nsect = msect;
+-		msect -= nsect;
+-	} else
+-		nsect = 1;
+-	to = ide_map_buffer(rq, &flags);
+-	taskfile_input_data(drive, to, nsect * SECTOR_WORDS);
+-#ifdef DEBUG
+-	printk("%s:  read: sectors(%ld-%ld), buffer=0x%08lx, remaining=%ld\n",
+-		drive->name, rq->sector, rq->sector+nsect-1,
+-		(unsigned long) rq->buffer+(nsect<<9), rq->nr_sectors-nsect);
+-#endif
+-	ide_unmap_buffer(rq, to, &flags);
+-	rq->sector += nsect;
++
++	if (drive->mult_count)
++		ide_pio_multi(drive, 0);
++	else
++		ide_pio_sector(drive, 0);
+ 	rq->errors = 0;
+-	i = (rq->nr_sectors -= nsect);
+-	if (((long)(rq->current_nr_sectors -= nsect)) <= 0)
+-		ide_end_request(drive, 1, rq->hard_cur_sectors);
+-	/*
+-	 * Another BH Page walker and DATA INTEGRITY Questioned on ERROR.
+-	 * If passed back up on multimode read, BAD DATA could be ACKED
+-	 * to FILE SYSTEMS above ...
+-	 */
+-	if (i > 0) {
+-		if (msect)
+-			goto read_next;
+-		ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
+-                return ide_started;
++	if (!hwif->nleft) {
++		ide_end_request(drive, 1, hwif->nsect);
++		return ide_stopped;
+ 	}
+-        return ide_stopped;
++	ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
++	return ide_started;
+ }
  
- EXPORT_SYMBOL(submit_bio);
+ /*
+@@ -187,106 +162,27 @@ static ide_startstop_t write_intr (ide_d
+ 	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct request *rq	= hwgroup->rq;
+-	u32 i = 0;
+ 	u8 stat;
  
--/**
-- * blk_rq_next_segment
-- * @rq:		the request being processed
-- *
-- * Description:
-- *	Points to the next segment in the request if the current segment
-- *	is complete. Leaves things unchanged if this segment is not over
-- *	or if no more segments are left in this request.
-- *
-- *	Meant to be used for bio traversal during I/O submission
-- *	Does not affect any I/O completions or update completion state
-- *	in the request, and does not modify any bio fields.
-- *
-- *	Decrementing rq->nr_sectors, rq->current_nr_sectors and
-- *	rq->nr_cbio_sectors as data is transferred is the caller's
-- *	responsibility and should be done before calling this routine.
-- **/
--void blk_rq_next_segment(struct request *rq)
--{
--	if (rq->current_nr_sectors > 0)
--		return;
--
--	if (rq->nr_cbio_sectors > 0) {
--		--rq->nr_cbio_segments;
--		rq->current_nr_sectors = blk_rq_vec(rq)->bv_len >> 9;
--	} else {
--		if ((rq->cbio = rq->cbio->bi_next)) {
--			rq->nr_cbio_segments = bio_segments(rq->cbio);
--			rq->nr_cbio_sectors = bio_sectors(rq->cbio);
-- 			rq->current_nr_sectors = bio_cur_sectors(rq->cbio);
--		}
-- 	}
--
--	/* remember the size of this segment before we start I/O */
--	rq->hard_cur_sectors = rq->current_nr_sectors;
+ 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),
+ 			DRIVE_READY, drive->bad_wstat)) {
+-		printk("%s: write_intr error1: nr_sectors=%ld, stat=0x%02x\n",
+-			drive->name, rq->nr_sectors, stat);
++		printk("%s: write_intr error1: nr_sectors=%u, stat=0x%02x\n",
++			drive->name, hwif->nleft, stat);
+         } else {
+-#ifdef DEBUG
+-		printk("%s: write: sector %ld, buffer=0x%08lx, remaining=%ld\n",
+-			drive->name, rq->sector, (unsigned long) rq->buffer,
+-			rq->nr_sectors-1);
+-#endif
+-		if ((rq->nr_sectors == 1) ^ ((stat & DRQ_STAT) != 0)) {
+-			rq->sector++;
++		if ((hwif->nleft == 0) ^ ((stat & DRQ_STAT) != 0)) {
+ 			rq->errors = 0;
+-			i = --rq->nr_sectors;
+-			--rq->current_nr_sectors;
+-			if (((long)rq->current_nr_sectors) <= 0)
+-				ide_end_request(drive, 1, rq->hard_cur_sectors);
+-			if (i > 0) {
+-				unsigned long flags;
+-				char *to = ide_map_buffer(rq, &flags);
+-				taskfile_output_data(drive, to, SECTOR_WORDS);
+-				ide_unmap_buffer(rq, to, &flags);
+-				ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
+-                                return ide_started;
++			if (!hwif->nleft) {
++				ide_end_request(drive, 1, hwif->nsect);
++				return ide_stopped;
+ 			}
+-                        return ide_stopped;
++			ide_pio_sector(drive, 1);
++			ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
++			return ide_started;
+ 		}
+ 		/* the original code did this here (?) */
+ 		return ide_stopped;
+ 	}
+-	return DRIVER(drive)->error(drive, "write_intr", stat);
 -}
 -
--/**
-- * process_that_request_first	-	process partial request submission
-- * @req:	the request being processed
-- * @nr_sectors:	number of sectors I/O has been submitted on
+-/*
+- * ide_multwrite() transfers a block of up to mcount sectors of data
+- * to a drive as part of a disk multiple-sector write operation.
 - *
-- * Description:
-- *	May be used for processing bio's while submitting I/O without
-- *	signalling completion. Fails if more data is requested than is
-- *	available in the request in which case it doesn't advance any
-- *	pointers.
+- * Note that we may be called from two contexts - __ide_do_rw_disk() context
+- * and IRQ context. The IRQ can happen any time after we've output the
+- * full "mcount" number of sectors, so we must make sure we update the
+- * state _before_ we output the final part of the data!
 - *
-- *	Assumes a request is correctly set up. No sanity checks.
-- *
-- * Return:
-- *	0 - no more data left to submit (not processed)
-- *	1 - data available to submit for this request (processed)
-- **/
--int process_that_request_first(struct request *req, unsigned int nr_sectors)
+- * The update and return to BH is a BLOCK Layer Fakey to get more data
+- * to satisfy the hardware atomic segment.  If the hardware atomic segment
+- * is shorter or smaller than the BH segment then we should be OKAY.
+- * This is only valid if we can rewind the rq->current_nr_sectors counter.
+- */
+-static void ide_multwrite(ide_drive_t *drive, unsigned int mcount)
+-{
+- 	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
+- 	struct request *rq	= &hwgroup->wrq;
+- 
+-  	do {
+-  		char *buffer;
+-  		int nsect = rq->current_nr_sectors;
+-		unsigned long flags;
+- 
+-		if (nsect > mcount)
+-			nsect = mcount;
+-		mcount -= nsect;
+-		buffer = ide_map_buffer(rq, &flags);
+-
+-		rq->sector += nsect;
+-		rq->nr_sectors -= nsect;
+-		rq->current_nr_sectors -= nsect;
+-
+-		/* Do we move to the next bh after this? */
+-		if (!rq->current_nr_sectors) {
+-			struct bio *bio = rq->bio;
+-
+-			/*
+-			 * only move to next bio, when we have processed
+-			 * all bvecs in this one.
+-			 */
+-			if (++bio->bi_idx >= bio->bi_vcnt) {
+-				bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+-				bio = bio->bi_next;
+-			}
+-
+-			/* end early early we ran out of requests */
+-			if (!bio) {
+-				mcount = 0;
+-			} else {
+-				rq->bio = bio;
+-				rq->nr_cbio_segments = bio_segments(bio);
+-				rq->current_nr_sectors = bio_cur_sectors(bio);
+-				rq->hard_cur_sectors = rq->current_nr_sectors;
+-			}
+-		}
+-
+-		/*
+-		 * Ok, we're all setup for the interrupt
+-		 * re-entering us on the last transfer.
+-		 */
+-		taskfile_output_data(drive, buffer, nsect<<7);
+-		ide_unmap_buffer(rq, buffer, &flags);
+-	} while (mcount);
++	return task_error(drive, rq, __FUNCTION__, stat);
+ }
+ 
+ /*
+@@ -294,42 +190,29 @@ static void ide_multwrite(ide_drive_t *d
+  */
+ static ide_startstop_t multwrite_intr (ide_drive_t *drive)
+ {
+-	ide_hwgroup_t *hwgroup	= HWGROUP(drive);
+ 	ide_hwif_t *hwif	= HWIF(drive);
+-	struct request *rq	= &hwgroup->wrq;
+-	struct bio *bio		= rq->bio;
++	struct request *rq = hwif->hwgroup->rq;
+ 	u8 stat;
+ 
+ 	stat = hwif->INB(IDE_STATUS_REG);
+ 	if (OK_STAT(stat, DRIVE_READY, drive->bad_wstat)) {
+ 		if (stat & DRQ_STAT) {
+-			/*
+-			 *	The drive wants data. Remember rq is the copy
+-			 *	of the request
+-			 */
+-			if (rq->nr_sectors) {
+-				ide_multwrite(drive, drive->mult_count);
++			/* The drive wants data. */
++			if (hwif->nleft) {
++				ide_pio_multi(drive, 1);
+ 				ide_set_handler(drive, &multwrite_intr, WAIT_CMD, NULL);
+ 				return ide_started;
+ 			}
+ 		} else {
+-			/*
+-			 *	If the copy has all the blocks completed then
+-			 *	we can end the original request.
+-			 */
+-			if (!rq->nr_sectors) {	/* all done? */
+-				bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+-				rq = hwgroup->rq;
+-				ide_end_request(drive, 1, rq->nr_sectors);
++			if (!hwif->nleft) {	/* all done? */
++				ide_end_request(drive, 1, hwif->nsect);
+ 				return ide_stopped;
+ 			}
+ 		}
+-		bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+ 		/* the original code did this here (?) */
+ 		return ide_stopped;
+ 	}
+-	bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+-	return DRIVER(drive)->error(drive, "multwrite_intr", stat);
++	return task_error(drive, rq, __FUNCTION__, stat);
+ }
+ 
+ /*
+@@ -346,6 +229,9 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 
+ 	nsectors.all		= (u16) rq->nr_sectors;
+ 
++	if (!drive->using_dma)
++		ide_init_sg_cmd(drive, rq);
++
+ 	if (IDE_CONTROL_REG)
+ 		hwif->OUTB(drive->ctl, IDE_CONTROL_REG);
+ 
+@@ -413,24 +299,39 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 		hwif->OUTB(head|drive->select.all,IDE_SELECT_REG);
+ 	}
+ 
++	if (drive->using_dma) {
++		if (rq_data_dir(rq)) {
++			if (!hwif->ide_dma_write(drive))
++				return ide_started;
++		} else {
++			if (!hwif->ide_dma_read(drive))
++				return ide_started;
++		}
++		ide_init_sg_cmd(drive, rq);
++	}
++
+ 	if (rq_data_dir(rq) == READ) {
+-		if (drive->using_dma && !hwif->ide_dma_read(drive))
+-			return ide_started;
++		if (drive->mult_count) {
++			hwif->data_phase = TASKFILE_MULTI_IN;
++			command = lba48 ? WIN_MULTREAD_EXT : WIN_MULTREAD;
++		} else {
++			hwif->data_phase = TASKFILE_IN;
++			command = lba48 ? WIN_READ_EXT : WIN_READ;
++		}
+ 
+-		command = ((drive->mult_count) ?
+-			   ((lba48) ? WIN_MULTREAD_EXT : WIN_MULTREAD) :
+-			   ((lba48) ? WIN_READ_EXT : WIN_READ));
+ 		ide_execute_command(drive, command, &read_intr, WAIT_CMD, NULL);
+ 		return ide_started;
+ 	} else {
+ 		ide_startstop_t startstop;
+ 
+-		if (drive->using_dma && !(HWIF(drive)->ide_dma_write(drive)))
+-			return ide_started;
++		if (drive->mult_count) {
++			hwif->data_phase = TASKFILE_MULTI_OUT;
++			command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
++		} else {
++			hwif->data_phase = TASKFILE_OUT;
++			command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
++		}
+ 
+-		command = ((drive->mult_count) ?
+-			   ((lba48) ? WIN_MULTWRITE_EXT : WIN_MULTWRITE) :
+-			   ((lba48) ? WIN_WRITE_EXT : WIN_WRITE));
+ 		hwif->OUTB(command, IDE_COMMAND_REG);
+ 
+ 		if (ide_wait_stat(&startstop, drive, DATA_READY,
+@@ -443,17 +344,11 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 		if (!drive->unmask)
+ 			local_irq_disable();
+ 		if (drive->mult_count) {
+-			ide_hwgroup_t *hwgroup = HWGROUP(drive);
+-
+-			hwgroup->wrq = *rq; /* scratchpad */
+ 			ide_set_handler(drive, &multwrite_intr, WAIT_CMD, NULL);
+-			ide_multwrite(drive, drive->mult_count);
++			ide_pio_multi(drive, 1);
+ 		} else {
+-			unsigned long flags;
+-			char *to = ide_map_buffer(rq, &flags);
+ 			ide_set_handler(drive, &write_intr, WAIT_CMD, NULL);
+-			taskfile_output_data(drive, to, SECTOR_WORDS);
+-			ide_unmap_buffer(rq, to, &flags);
++			ide_pio_sector(drive, 1);
+ 		}
+ 		return ide_started;
+ 	}
+diff -puN drivers/ide/ide-taskfile.c~ide_sg_pio drivers/ide/ide-taskfile.c
+--- linux-2.6.9-rc1-bk10/drivers/ide/ide-taskfile.c~ide_sg_pio	2004-09-06 01:17:41.000000000 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/drivers/ide/ide-taskfile.c	2004-09-06 01:17:41.000000000 +0200
+@@ -301,7 +301,7 @@ static u8 wait_drive_not_busy(ide_drive_
+ 	return stat;
+ }
+ 
+-static void ide_pio_sector(ide_drive_t *drive, unsigned int write)
++void ide_pio_sector(ide_drive_t *drive, unsigned int write)
+ {
+ 	ide_hwif_t *hwif = drive->hwif;
+ 	struct scatterlist *sg = hwif->sg_table;
+@@ -338,14 +338,7 @@ static void ide_pio_sector(ide_drive_t *
+ #endif
+ }
+ 
+-static inline void ide_pio_multi(ide_drive_t *drive, unsigned int write)
 -{
 -	unsigned int nsect;
 -
--	if (req->nr_sectors < nr_sectors)
--		return 0;
--
--	req->nr_sectors -= nr_sectors;
--	req->sector += nr_sectors;
--	while (nr_sectors) {
--		nsect = min_t(unsigned, req->current_nr_sectors, nr_sectors);
--		req->current_nr_sectors -= nsect;
--		nr_sectors -= nsect;
--		if (req->cbio) {
--			req->nr_cbio_sectors -= nsect;
--			blk_rq_next_segment(req);
--		}
--	}
--	return 1;
+-	nsect = min_t(unsigned int, drive->hwif->nleft, drive->mult_count);
+-	while (nsect--)
+-		ide_pio_sector(drive, write);
 -}
--
--EXPORT_SYMBOL(process_that_request_first);
--
- void blk_recalc_rq_segments(struct request *rq)
- {
- 	struct bio *bio, *prevbio = NULL;
-@@ -2754,8 +2673,7 @@ void blk_recalc_rq_sectors(struct reques
- 		rq->hard_nr_sectors -= nsect;
++EXPORT_SYMBOL_GPL(ide_pio_sector);
  
- 		/*
--		 * Move the I/O submission pointers ahead if required,
--		 * i.e. for drivers not aware of rq->cbio.
-+		 * Move the I/O submission pointers ahead if required.
- 		 */
- 		if ((rq->nr_sectors >= rq->hard_nr_sectors) &&
- 		    (rq->sector <= rq->hard_sector)) {
-@@ -2763,11 +2681,7 @@ void blk_recalc_rq_sectors(struct reques
- 			rq->nr_sectors = rq->hard_nr_sectors;
- 			rq->hard_cur_sectors = bio_cur_sectors(rq->bio);
- 			rq->current_nr_sectors = rq->hard_cur_sectors;
--			rq->nr_cbio_segments = bio_segments(rq->bio);
--			rq->nr_cbio_sectors = bio_sectors(rq->bio);
- 			rq->buffer = bio_data(rq->bio);
--
--			rq->cbio = rq->bio;
- 		}
- 
- 		/*
-@@ -2979,33 +2893,13 @@ void blk_rq_bio_prep(request_queue_t *q,
- 	rq->current_nr_sectors = bio_cur_sectors(bio);
- 	rq->hard_cur_sectors = rq->current_nr_sectors;
- 	rq->hard_nr_sectors = rq->nr_sectors = bio_sectors(bio);
--	rq->nr_cbio_segments = bio_segments(bio);
--	rq->nr_cbio_sectors = bio_sectors(bio);
- 	rq->buffer = bio_data(bio);
- 
--	rq->cbio = rq->bio = rq->biotail = bio;
-+	rq->bio = rq->biotail = bio;
+ static inline void ide_pio_datablock(ide_drive_t *drive, struct request *rq,
+ 				     unsigned int write)
+@@ -364,9 +357,8 @@ static inline void ide_pio_datablock(ide
+ 	}
  }
  
- EXPORT_SYMBOL(blk_rq_bio_prep);
- 
--void blk_rq_prep_restart(struct request *rq)
--{
--	struct bio *bio;
--
--	bio = rq->cbio = rq->bio;
--	if (bio) {
--		rq->nr_cbio_segments = bio_segments(bio);
--		rq->nr_cbio_sectors = bio_sectors(bio);
--		rq->hard_cur_sectors = bio_cur_sectors(bio);
--		rq->buffer = bio_data(bio);
--	}
--	rq->sector = rq->hard_sector;
--	rq->nr_sectors = rq->hard_nr_sectors;
--	rq->current_nr_sectors = rq->hard_cur_sectors;
--}
--
--EXPORT_SYMBOL(blk_rq_prep_restart);
--
- int kblockd_schedule_work(struct work_struct *work)
+-#ifdef CONFIG_IDE_TASKFILE_IO
+-static ide_startstop_t task_error(ide_drive_t *drive, struct request *rq,
+-				  const char *s, u8 stat)
++ide_startstop_t task_error(ide_drive_t *drive, struct request *rq,
++			   const char *s, u8 stat)
  {
- 	return queue_work(kblockd_workqueue, work);
-diff -puN include/linux/blkdev.h~bio_walking include/linux/blkdev.h
---- linux-2.6.9-rc1-bk10/include/linux/blkdev.h~bio_walking	2004-09-08 19:59:00.553495896 +0200
-+++ linux-2.6.9-rc1-bk10-bzolnier/include/linux/blkdev.h	2004-09-08 19:59:00.567493768 +0200
-@@ -107,13 +107,7 @@ struct request {
- 	/* no. of sectors left to complete in the current segment */
- 	unsigned int hard_cur_sectors;
+ 	if (rq->bio) {
+ 		ide_hwif_t *hwif = drive->hwif;
+@@ -395,9 +387,8 @@ static ide_startstop_t task_error(ide_dr
+ 	}
+ 	return drive->driver->error(drive, s, stat);
+ }
+-#else
+-# define task_error(d, rq, s, stat) drive->driver->error(d, s, stat)
+-#endif
++
++EXPORT_SYMBOL_GPL(task_error);
  
--	/* no. of segments left to submit in the current bio */
--	unsigned short nr_cbio_segments;
--	/* no. of sectors left to submit in the current bio */
--	unsigned long nr_cbio_sectors;
--
--	struct bio *cbio;		/* next bio to submit */
--	struct bio *bio;		/* next unfinished bio to complete */
-+	struct bio *bio;
- 	struct bio *biotail;
+ static void task_end_request(ide_drive_t *drive, struct request *rq, u8 stat)
+ {
+diff -puN include/linux/ide.h~ide_sg_pio include/linux/ide.h
+--- linux-2.6.9-rc1-bk10/include/linux/ide.h~ide_sg_pio	2004-09-06 01:17:41.000000000 +0200
++++ linux-2.6.9-rc1-bk10-bzolnier/include/linux/ide.h	2004-09-06 01:17:41.000000000 +0200
+@@ -824,27 +824,6 @@ typedef struct ide_dma_ops_s {
+ 	int (*ide_dma_timeout)(ide_drive_t *drive);
+ } ide_dma_ops_t;
  
- 	void *elevator_private;
-@@ -444,32 +438,6 @@ static inline void blk_clear_queue_full(
-  */
- #define blk_queue_headactive(q, head_active)
- 
--/* current index into bio being processed for submission */
--#define blk_rq_idx(rq)	((rq)->cbio->bi_vcnt - (rq)->nr_cbio_segments)
+-/*
+- * mapping stuff, prepare for highmem...
+- * 
+- * temporarily mapping a (possible) highmem bio for PIO transfer
+- */
+-#ifndef CONFIG_IDE_TASKFILE_IO
 -
--/* current bio vector being processed */
--#define blk_rq_vec(rq)	(bio_iovec_idx((rq)->cbio, blk_rq_idx(rq)))
--
--/* current offset with respect to start of the segment being submitted */
--#define blk_rq_offset(rq) \
+-#define ide_rq_offset(rq) \
 -	(((rq)->hard_cur_sectors - (rq)->current_nr_sectors) << 9)
 -
--/*
-- * temporarily mapping a (possible) highmem bio (typically for PIO transfer)
-- */
--
--/* Assumes rq->cbio != NULL */
--static inline char * rq_map_buffer(struct request *rq, unsigned long *flags)
+-static inline void *ide_map_buffer(struct request *rq, unsigned long *flags)
 -{
--	return (__bio_kmap_irq(rq->cbio, blk_rq_idx(rq), flags)
--		+ blk_rq_offset(rq));
+-	return bio_kmap_irq(rq->bio, flags) + ide_rq_offset(rq);
 -}
 -
--static inline void rq_unmap_buffer(char *buffer, unsigned long *flags)
+-static inline void ide_unmap_buffer(struct request *rq, char *buffer, unsigned long *flags)
 -{
--	__bio_kunmap_irq(buffer, flags);
+-	bio_kunmap_irq(buffer, flags);
 -}
+-#endif /* !CONFIG_IDE_TASKFILE_IO */
 -
- /*
-  * q->prep_rq_fn return values
-  */
-@@ -568,7 +536,6 @@ static inline void blk_run_address_space
- extern int end_that_request_first(struct request *, int, int);
- extern int end_that_request_chunk(struct request *, int, int);
- extern void end_that_request_last(struct request *);
--extern int process_that_request_first(struct request *, unsigned int);
- extern void end_request(struct request *req, int uptodate);
+ #define IDE_CHIPSET_PCI_MASK	\
+     ((1<<ide_pci)|(1<<ide_cmd646)|(1<<ide_ali14xx))
+ #define IDE_CHIPSET_IS_PCI(c)	((IDE_CHIPSET_PCI_MASK >> (c)) & 1)
+@@ -1413,6 +1392,19 @@ extern void atapi_output_bytes(ide_drive
+ extern void taskfile_input_data(ide_drive_t *, void *, u32);
+ extern void taskfile_output_data(ide_drive_t *, void *, u32);
  
- /*
-@@ -637,7 +604,6 @@ extern void blk_queue_invalidate_tags(re
- extern long blk_congestion_wait(int rw, long timeout);
++extern void ide_pio_sector(ide_drive_t *, unsigned int);
++
++static inline void ide_pio_multi(ide_drive_t *drive, unsigned int write)
++{
++	unsigned int nsect;
++
++	nsect = min_t(unsigned int, drive->hwif->nleft, drive->mult_count);
++	while (nsect--)
++		ide_pio_sector(drive, write);
++}
++
++extern ide_startstop_t task_error(ide_drive_t *, struct request *, const char *, u8);
++
+ extern int drive_is_ready(ide_drive_t *);
+ extern int wait_for_ready(ide_drive_t *, int /* timeout */);
  
- extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
--extern void blk_rq_prep_restart(struct request *);
- extern int blkdev_issue_flush(struct block_device *, sector_t *);
- 
- #define MAX_PHYS_SEGMENTS 128
 _

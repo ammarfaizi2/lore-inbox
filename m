@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVCAVNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCAVST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVCAVNa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 16:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVCAVNa
+	id S262013AbVCAVST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 16:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCAVST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 16:13:30 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:62083 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261976AbVCAVNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 16:13:22 -0500
-Date: Tue, 1 Mar 2005 21:11:43 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, Colin Harrison <colin.harrison@virgin.net>,
-       "Ammar T. Al-Sayegh" <ammar@kunet.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Bad page state mapcount
-Message-ID: <Pine.LNX.4.61.0503012102001.32710@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 1 Mar 2005 16:18:19 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:1637 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262034AbVCAVSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 16:18:10 -0500
+Date: Tue, 1 Mar 2005 16:18:09 -0500
+From: Jeffrey Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: [PATCH 0/3] openfirmware/macio: implements hotplug for macio devices
+Message-ID: <20050301211809.GA16465@locomotive.unixthugs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.111.19-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small change to the tests for "Bad page state", to avoid one class of
-the page_remove_rmap BUG reports, giving more information while letting
-the system continue: check page_mapcount (_mapcount != -1) rather than
-page_mapped (_mapcount >= 0).
 
-And how does _mapcount go bad?  In the case under study, it looks sure
-now that an overheating(?) Pentium III sometimes gets confused by a pair
-of instructions in the no-buddy-bitmap __free_pages_bulk, and clears the
-PG_private bit from the _mapcount field while buddying around - changing
-PG_private value changes the bit cleared from _mapcount.  Bad page state
-mapcount:-4096 would have tracked this down much sooner, and will be
-recognizable if other cpus show the same aberrant reaction to 2.6.11.
+Hello all -
 
-The page_remove_rmap BUG does need to be replaced by more permissive and
-informative handling, but I'm not yet ready to to finalize such a patch.
+I posted these patches a while ago, and let them fall by the wayside.
 
-Please admit Colin Harrison to the Order of the Iridescent Penguin,
-for his tireless testing.
+The following 3 patches, combined with the userspace patches referenced below,
+implement hotplug events for open firmware/macio devices such as apple airport
+wireless ethernet cards.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+* 01-openfirmware-device-table.diff
+  - Converts struct of_match to a MODULE_DEVICE_TABLE-compatible
+    struct of_device_id
+  - Uses the information to generate a device table parsable by
+    depmod(8)
 
---- 2.6.11-rc5-bk4/mm/page_alloc.c	2005-02-24 19:44:06.000000000 +0000
-+++ linux/mm/page_alloc.c	2005-03-01 19:58:44.000000000 +0000
-@@ -276,7 +276,7 @@ static inline void __free_pages_bulk (st
- 
- static inline void free_pages_check(const char *function, struct page *page)
- {
--	if (	page_mapped(page) ||
-+	if (	page_mapcount(page) ||
- 		page->mapping != NULL ||
- 		page_count(page) != 0 ||
- 		(page->flags & (
-@@ -404,7 +404,7 @@ void set_page_refs(struct page *page, in
-  */
- static void prep_new_page(struct page *page, int order)
- {
--	if (page->mapping || page_mapped(page) ||
-+	if (page->mapping || page_mapcount(page) ||
- 	    (page->flags & (
- 			1 << PG_private	|
- 			1 << PG_locked	|
+* 02-openfirmware-sysfs.diff
+  - Exports openfirmware variables via sysfs so that coldplug can read and
+    take appropriate action
+
+* 03-openfirmware-hotplug.diff
+  - Adds the hotplug routine for generating hotplug events. Uses the
+    information published to provide the hotplug environment variables to
+    userspace.
+
+In addition to the kernel patches, userspace patches for hotplug and
+module-init-tools are also required. These patches, including the kernel
+patches, are available here:
+
+ftp://ftp.suse.com/pub/people/jeffm/linux/macio-hotplug/
+
+I'd appreciate any comments.
+
+-Jeff
+
+-- 
+Jeff Mahoney
+SuSE Labs

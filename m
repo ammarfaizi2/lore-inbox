@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbTANT6c>; Tue, 14 Jan 2003 14:58:32 -0500
+	id <S265154AbTANUOE>; Tue, 14 Jan 2003 15:14:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbTANT6b>; Tue, 14 Jan 2003 14:58:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6661 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265140AbTANT63>; Tue, 14 Jan 2003 14:58:29 -0500
-Date: Tue, 14 Jan 2003 20:07:19 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add module reference to struct tty_driver
-Message-ID: <20030114200719.B4077@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030113054708.GA3604@kroah.com>
+	id <S265196AbTANUOE>; Tue, 14 Jan 2003 15:14:04 -0500
+Received: from mail5.intermedia.net ([206.40.48.155]:32527 "EHLO
+	mail5.intermedia.net") by vger.kernel.org with ESMTP
+	id <S265154AbTANUOD>; Tue, 14 Jan 2003 15:14:03 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030114193758.GB15412@mark.mielke.cc>
+References: <20030106173949.GA1712@gnuppy.monkey.org>
+	<E18Vtxz-0002cB-00@fencepost.gnu.org>
+	<20030107141758.GA10770@gnuppy.monkey.org>
+	<E18WB8Q-0004k6-00@fencepost.gnu.org>
+	<20030108115327.GA5020@gnuppy.monkey.org>
+	<E18WlrH-0000NO-00@fencepost.gnu.org> <20030110101043.A19070@uph.com>
+	<E18Xghf-0004GP-00@fencepost.gnu.org> <20030112125849.A28266@uph.com>
+	<E18YJvF-0007rd-00@fencepost.gnu.org> 
+	<20030114193758.GB15412@mark.mielke.cc>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 14 Jan 2003 12:23:32 +0100
+Message-Id: <1042543412.564.21.camel@ranjeet-linux-1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030113054708.GA3604@kroah.com>; from greg@kroah.com on Sun, Jan 12, 2003 at 09:47:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 09:47:09PM -0800, Greg KH wrote:
-> In digging into the tty layer locking, I noticed that the tty layer
-> doesn't handle module reference counting for any tty drivers.  Well, I've
-> known this for a long time, just finally got around to fixing it :)
-> Here's a patch against 2.5.56 that should fix this issue (works for
-> me...)
-> 
-> Comments?  If no one objects, I'll send it on to Linus, and add support
-> for this to a number of tty drivers that commonly get built as modules.
 
-Firstly, I've proven my original suspicions about tty hangup wrong.
-However, I'm concerned that we don't have sufficient locking present
-(even in 2.4) to ensure that unloading tty driver modules is safe by
-any means.
+hi Richard,
 
-The first point where we obtain a driver structure is under the
-BKL in tty_io.c:init_dev(), which calls get_tty_driver().
-get_tty_driver() searches a list of drivers for the relevant
-entry.  There are no locks here.
+At the point in time when you started the GNU project, do you mind
+telling us how much of the GNU code was based on BSD and how much was
+not ?
 
-Now, consider tty_unregister_driver().  This is normally called from
-a tty driver modules cleanup function.  Also note that there are no
-locks here.
+I am asking for a reasonably accurate percentage e.g. 20% BSD, 80%
+non-BSD, OR 85% BSD, 15% non-BSD. Something to that effect.
+Comments/Code/Headers whatever originated from the BSD team gets
+attributed to them, and the modifications you guys wrote are credited to
+the GNU project.
 
-Also consider tty_register_driver() and note, again, that there are
-no locks here.
+Also, someone posted that the original GNU code was based on the BSD
+code and therefore the BSD licence, and one fine day the BSD licence was
+replaced with the GNU licence. Is that correct or incorrect ?
 
-Checking kernel/module.c, the BKL isn't held when calling the modules
-init and cleanup functions.
+thanks,
+Ranjeet Shetye.
 
-So, all in all, we have a nice SMP race between loading tty driver
-modules, unloading tty driver modules, and getting reference counts
-on driver modules.
-
-Since tty_register_driver() and tty_unregister_driver() are both
-called from process context, the fix can be a semaphore.  However,
-note carefully that any semaphore that can sleep in the open path
-will drop the BKL and therefore could cause other races (wrt
-driver->refcount?).
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265706AbRFXCMw>; Sat, 23 Jun 2001 22:12:52 -0400
+	id <S265707AbRFXCag>; Sat, 23 Jun 2001 22:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265707AbRFXCMm>; Sat, 23 Jun 2001 22:12:42 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:7941 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265706AbRFXCMc>;
-	Sat, 23 Jun 2001 22:12:32 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: root@chaos.analogic.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sizeof problem in kernel modules 
-In-Reply-To: Your message of "Sat, 23 Jun 2001 21:56:06 -0400."
-             <Pine.LNX.3.95.1010623214533.21862B-100000@chaos.analogic.com> 
+	id <S265709AbRFXCaQ>; Sat, 23 Jun 2001 22:30:16 -0400
+Received: from lithium.nac.net ([64.21.52.68]:56073 "HELO lithium.nac.net")
+	by vger.kernel.org with SMTP id <S265707AbRFXCaL>;
+	Sat, 23 Jun 2001 22:30:11 -0400
+Date: Sat, 23 Jun 2001 22:29:55 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Possible freezing bug located after ac13
+Message-ID: <20010623222954.A9031@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jun 2001 12:12:24 +1000
-Message-ID: <19093.993348744@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: <tcm@nac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001 21:56:06 -0400 (EDT), 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->FYI, structures are designed to be accessed only by their member-names.
->Therefore, the compiler is free to put members at any offset. In fact,
->members, other than the first, don't even have to be in the order
->written!
+I've recently been going slightly nuts with the fact ac15, 16, and 17
+all like deadlocking/slowing to a crawl for seconds/minutes on my K6-III
+with 64MB of ram and a swap space of 128MB...
 
-Bzzt!  I don't know where people get these ideas from.  Extracts from
-the C9X draft.
+Recently I noticed something VERY odd, I'd been keeping an eye on
+gkrellm while I was doing stupid things to produce the problem (a du
+as root in X of / generally would always make it pop up) ... And swap
+was doing I/O at the time *JUST* before when I'd either deadlock or slow
+down to a crawl, and if it recovered, swap would do more I/O...
 
-  A structure type describes a sequentially allocated nonempty set of
-  member objects (and, in certain circumstances, an incomplete array),
-  each of which has an optionally specified name and possibly distinct
-  type.
+So. I tried unmounting all swap, and suddenly everything worked fine,
+although I couldn't exactly do everythign I wanted of course.
 
-  When two pointers are compared ... If the objects pointed to are
-  members of the same aggregate object, pointers to structure members
-  declared later compare greater than pointers to members declared
-  earlier in the structure.
+I regression tested this, ac 16,15 and even 14 do this. ac 13 does *not*
+- IMHO I think the dead swap patches introduced into 14 may be related
+to the problem.
 
-  Two objects may be adjacent in memory because they are adjacent
-  elements of a larger array or adjacent members of a structure with no
-  padding between them,
+Just my two cents.
 
-  As discussed in 6.2.5, a structure is a type consisting of a sequence
-  of members, whose storage is allocated in an ordered sequence,
-
-  Within  a structure object, the non-bit-field members and the units
-  in which bit-fields reside have addresses that increase in the order
-  in which they are declared
-
-C requires that members of a structure be defined in ascending address
-order as specified by the programmer.  The compiler may not reorder
-structure fields, although bitfields are a special case.
-
+Tim

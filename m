@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbTIGVlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 17:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbTIGVlw
+	id S261499AbTIGVrL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 17:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbTIGVrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 17:41:52 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:10899 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261455AbTIGVlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 17:41:50 -0400
-Date: Sun, 7 Sep 2003 22:39:24 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, marcelo.tosatti@cyclades.com.br,
-       linux-kernel@vger.kernel.org, Peter Daum <peter_daum@t-online.de>
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-Message-ID: <20030907213924.GA28927@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Adrian Bunk <bunk@fs.tum.de>, marcelo.tosatti@cyclades.com.br,
-	linux-kernel@vger.kernel.org, Peter Daum <peter_daum@t-online.de>
-References: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel> <p73u17ojq83.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73u17ojq83.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Sep 2003 17:47:10 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:12423 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261499AbTIGVrG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 17:47:06 -0400
+Date: Sun, 7 Sep 2003 23:46:58 +0200 (MEST)
+Message-Id: <200309072146.h87LkwWU020877@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: jamie@shareable.org
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org, robert@schwebel.de,
+       rusty@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 10:30:52PM +0200, Andi Kleen wrote:
- > Adrian Bunk <bunk@fs.tum.de> writes:
- > 
- > > With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
- > > requires 7.
- > It doesn't require 7, it just prefers 7. 
+On Sun, 7 Sep 2003 18:43:41 +0100, Jamie Lokier wrote:
+>> There is to the best of my knowledge nothing in 2.6.0-test4
+>> that prevents a kernel compiled for CPU type N from working
+>> with CPU types >N. Just to prove it, I built a CONFIG_M486
+>> 2.6.0-test4 and booted it w/o problems on P4, PIII, and K6-III.
+>
+>You may be right, although I wonder if there are real problems like an
+>SMP Pentium kernel not setting up MTRRs when run on an SMP P3.
 
-*nod*. This 'fix' also papers over the bug instead of fixing it.
-Likely it's something like a network card driver setting its cacheline
-size incorrectly. Peter what NIC did you see the problem on ?
+Only if you omit CONFIG_MTRR. MTRR support is independent of
+which CPU type you chose to optimise for.
 
-I thought Ivan's PCI cacheline sizing fixes from 2.6
-(see arch/i386/pci/common.c) already made it into 2.4,
-but from a quick grep, it seems that didn't happen.
+>The main problems are:
+>
+>	1. Optimisation.  A kernel optimised for P3 but compatible
+>	   with 486 needs to use 64 byte cache line alignment, and TSC
+>	   for timing, but not use any SSE instructions.
 
- > > The patch below does:
- > > - set CONFIG_X86_L1_CACHE_SHIFT 7 for all Intel processors (needed for 
- > >   the Pentium 4)
- > > - set CONFIG_X86_L1_CACHE_SHIFT 6 for the K6 (needed for the Athlon)
- > I think these changes should be only done with CONFIG_X86_GENERIC is set.
- > Otherwise the people who want kernels really optimized for their CPUs
- > won't get the full benefit. On UP it does not make that much difference,
- > but on a SMP kernel having a bigger than needed cache size wastes a lot
- > of memory.
+A 486 kernel will use TSC if there is one. CONFIG_TSC (derived
+from configured CPU type) allows the kernel to skip checking
+for _not_ having a TSC; !CONFIG_TSC only means it has to check
+before using it.
 
-ACK.
+>	2. The CPU types are not a total order.  Say I want a kernel
+>	   that supports Athlons and a Centaur for my cluster.  What
+>	   CPU setting should I use?  What CPU setting will give my the best
+>	   performing kernel - and is that the same as the one for smallest
+>	   kernel?
 
-		Dave
+CONFIG_M586 supports both, with some performance loss for the K7,
+but that's your choice.
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+>	3. Like 2, but for embedded systems.  I'm (hypothetically)
+>	   selling a cable modem which was originally based on one
+>	   CPU, but we changed to a different one because it was
+>	   cheaper.  I need to send out a firmware upgrade, and it is
+>	   convenient to use a kernel which can run on either model.
+>	   But I don't want to compile in support for every x86,
+>	   because space is tight, and I want it to run as fast as it
+>	   can given that it could run on either of the two chips.
+
+So configure for the lowest common denominator. As long as your
+embedded system isn't SMP, L1 cache line size assumptions don't
+matter much, so you only lose (a) gcc -march= optimisations that
+aren't common to both CPU types you support, and (b) some features
+(like TSC if it isn't common to both) may need a runtime test
+and/or dynamic dispatch. Given your insistence on having a common
+kernel, this is the best you can do.
+
+>I'm not sure if an Athlon is "lower" than a PII or not....  Which do I
+>option do I pick, to run on either of those without including
+>redundant stuff for older CPUs?
+
+K7 is PIII (or PII, but I don't think so) + some stuff.
+
+Admittedly, the kernel could include some more performance-tweaking
+CONFIG options (mainly for L1 cache size and gcc -mcpu= values),
+but that's a simple thing to add if necessary.
+
+/Mikael

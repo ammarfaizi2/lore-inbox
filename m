@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbTE2LFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 07:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTE2LFc
+	id S262148AbTE2LKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 07:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTE2LKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 07:05:32 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:9896 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262151AbTE2LFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 07:05:31 -0400
-Date: Thu, 29 May 2003 12:20:57 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Christian <evil@g-house.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IPv6 module oopsing on 2.5.69
-Message-ID: <20030529112057.GA20425@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Christian <evil@g-house.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3ED5E9E7.5070602@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED5E9E7.5070602@g-house.de>
-User-Agent: Mutt/1.5.4i
+	Thu, 29 May 2003 07:10:21 -0400
+Received: from oak.sktc.net ([64.71.97.14]:45715 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S262148AbTE2LKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 07:10:20 -0400
+Message-ID: <3ED5EDB2.9060506@sktc.net>
+Date: Thu, 29 May 2003 06:23:30 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Lowery <Robert.Lowery@colorbus.com.au>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: mounting VXDOS partitions under linux
+References: <370747DEFD89D2119AFD00C0F017E66126C91D@cbus613-server4.colorbus.com.au>
+In-Reply-To: <370747DEFD89D2119AFD00C0F017E66126C91D@cbus613-server4.colorbus.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 01:07:19PM +0200, Christian wrote:
+One other thing to look out for is that Wind River also has a "long 
+filename" FAT-like file system in which directory entries are longer, 
+and which allows for longer filenames and case-sensitivity.
 
- > IPv6 support is not useable then, a single run of the "ping6" binary 
- > (even without options) gives a segfault. the machine is a Athlon 900,
- > running debian/testing (glibc 2.3.1), one tainted module (nvidia) 
- > loaded. more info available on demand.
+(Gads, I hate working with VxWorks. Wish I'd know a couple of years ago 
+where Linux was going to be in a few months - I'd've never spec'ed my 
+project to run under VxWorks.)
 
-repeatable without the binary stuff having ever been loaded at all?
-
-		Dave
-
+But yes, I would love to see a VxFAT module that could read WRS's 
+wonderfully screwed up filesystems.
 

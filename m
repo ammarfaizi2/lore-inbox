@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbTLKGTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 01:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTLKGTE
+	id S263472AbTLKGb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 01:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTLKGb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 01:19:04 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:57064
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S264359AbTLKGTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 01:19:01 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: <hzhong@cisco.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Date: Thu, 11 Dec 2003 00:19:28 -0600
-User-Agent: KMail/1.5
-References: <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>
-In-Reply-To: <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312110019.29080.rob@landley.net>
+	Thu, 11 Dec 2003 01:31:56 -0500
+Received: from dyn-213-36-224-2.ppp.tiscali.fr ([213.36.224.2]:61700 "EHLO
+	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S263472AbTLKGbz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 01:31:55 -0500
+Date: Thu, 11 Dec 2003 07:31:44 +0100
+From: Witukind <witukind@nsbm.kicks-ass.org>
+To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+Cc: ed.sweetman@wmich.edu, linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Message-Id: <20031211073144.326634fd.witukind@nsbm.kicks-ass.org>
+In-Reply-To: <yw1x7k142vkg.fsf@kth.se>
+References: <200312081536.26022.andrew@walrond.org>
+	<20031208154256.GV19856@holomorphy.com>
+	<3FD4CC7B.8050107@nishanet.com>
+	<20031208233755.GC31370@kroah.com>
+	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
+	<20031209075619.GA1698@kroah.com>
+	<1070960433.869.77.camel@nomade>
+	<20031209090815.GA2681@kroah.com>
+	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<yw1xd6ayib3f.fsf@kth.se>
+	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>
+	<yw1xd6aw4ge3.fsf@kth.se>
+	<20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
+	<3FD78645.9090300@wmich.edu>
+	<20031210222821.25514125.witukind@nsbm.kicks-ass.org>
+	<yw1x7k142vkg.fsf@kth.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 December 2003 23:13, Hua Zhong wrote:
-> Sorry for digging out this old discussion.
->
-> This would be a tremendous enhancement to Linux filesystems, and one of
-> my current projects actually needs this capability badly.
->
-> The project is a lightweight user-space library which implements a
-> file-based database. Each database has several files. The files are all
-> block-based, and each block is always a multiple of 512 byte (and we
-> could make it a multiple of 4K, in case this feature existed).
->
-> Blocks are organized as a B+ tree, so we have a root block, which points
-> to its child blocks, and in turn they point to the next level. There is
-> a free block list too.
->
-> The problem is with a lot of add/delete, there are a lot of free blocks
-> inside the file. So essentially we'd have to manually shrink these files
-> when it grows too big and eats up too much space. If we could just "dig
-> a hole", it would be trivial to return those blocks to the filesystem
-> without doing an expensive defragmentation.
+On Wed, 10 Dec 2003 22:48:31 +0100
+mru@kth.se (Måns Rullgård) wrote:
 
-It could be worse.  Java didn't have a "truncate file" command at all until I 
-yelled at Sun about it.  (It was too late to get it into 1.1, but they added 
-it to 1.2.  Of course, that was back when I cared about Java... :)
+> Witukind <witukind@nsbm.kicks-ass.org> writes:
+> 
+> [about memory used by modules]
+> 
+> > The thing is also it's not just ONE module.
+> 
+> The total size of all modules loaded on my laptop right now (31 in
+> all) is 960k.  Not much of a save compared to the total 640 MB.
 
-Al Viro mentioned that making hole creation play nice with mmap would be evil.  
-I suspect that having the "punch hole" call simply fail if any part of the 
-range you're trying to zap is currently mmaped is probably good enough for a 
-first pass.  (Maybe some fallback code could write zeroes into the range so 
-the behavior was sort of similar in the failure case...)  But I haven't 
-looked at the code enough to even know what the issues are, and I certainly 
-won't have time this week...
+It depends on which system. I have more than 31 (more like 50-60) useful
+modules even on the laptop. But anyway, in general any amount of saved RAM
+is good. It's a question of efficiency.
 
-Rob
+
+-- 
+Jabber: heimdal@jabber.org

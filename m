@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316568AbSFEXe1>; Wed, 5 Jun 2002 19:34:27 -0400
+	id <S315483AbSFEXln>; Wed, 5 Jun 2002 19:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316572AbSFEXe1>; Wed, 5 Jun 2002 19:34:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12815 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316568AbSFEXe0>; Wed, 5 Jun 2002 19:34:26 -0400
-Date: Thu, 6 Jun 2002 00:34:20 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add <linux/kdev_t.h> to <linux/bio.h>
-Message-ID: <20020606003420.A17872@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <20020605232220.GA709@opus.bloom.county>
+	id <S316322AbSFEXlm>; Wed, 5 Jun 2002 19:41:42 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:60170 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315483AbSFEXlm>;
+	Wed, 5 Jun 2002 19:41:42 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.20 i2c uses nonexistent linux/i2c-old.h 
+In-Reply-To: Your message of "Wed, 05 Jun 2002 19:17:19 +0200."
+             <20020605191719.H11945@suse.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Thu, 06 Jun 2002 09:41:32 +1000
+Message-ID: <30528.1023320492@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 04:22:20PM -0700, Tom Rini wrote:
-> The following add <linux/kdev_t.h> to <linux/bio.h>.
-> 
-> This is needed since bio_ioctl takes a kdev_t for its first argument.
+On Wed, 5 Jun 2002 19:17:19 +0200, 
+Dave Jones <davej@suse.de> wrote:
+>Why is kbuild2.5 expanding <linux/foo.h> to /usr/include/linux/foo.h ?
+>If $sourcetree/include/linux/foo.h doesn't exist, it should stop
+>compiling, not look in /usr/include/ for a (obsolete/wrong) alternative.
 
-This should be fixed by a patch I submitted earlier today (you're getting
-a build error in fs/mpage.c, right?)
-
-hch asked the very pertinent question though - why isn't kdev_t defined
-by linux/types.h ?
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The nostdinc code in core-15 was incomplete, it was corrected in
+core-16 which then highlighted the missing includes.  Just a bug.
 

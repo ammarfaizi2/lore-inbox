@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269523AbTHGAGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 20:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274968AbTHGAGc
+	id S274997AbTHGAAe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 20:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275022AbTHGAAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 20:06:32 -0400
-Received: from postino4.prima.com.ar ([200.42.0.162]:8458 "HELO
-	postino4.prima.com.ar") by vger.kernel.org with SMTP
-	id S269523AbTHGAGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 20:06:31 -0400
-Subject: Re: GeForce 4 MX440
-From: Lucas Lain <lainl@inf.net.ar>
-To: Jeff Sipek <jeffpc@optonline.net>
+	Wed, 6 Aug 2003 20:00:33 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:64222 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S274997AbTHGAAa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 20:00:30 -0400
+Date: Thu, 7 Aug 2003 09:59:08 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Karol Kozimor <sziwan@hell.org.pl>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200308061947.47185.jeffpc@optonline.net>
-References: <1060213293.384.4.camel@shitbox>
-	 <200308061947.47185.jeffpc@optonline.net>
-Content-Type: text/plain
-Organization: Personal
-Message-Id: <1060214870.762.2.camel@shitbox>
+Subject: Re: [2.5/2.6] buffer layer error at fs/buffer.c:2800 when unlinking
+Message-ID: <20030806235908.GC854@frodo>
+References: <20030803145113.GA31715@hell.org.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 06 Aug 2003 21:07:50 -0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030803145113.GA31715@hell.org.pl>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks jeff! Worked fine
+On Sun, Aug 03, 2003 at 04:51:13PM +0200, Karol Kozimor wrote:
+> Hi,
+> 
+> I've recently managed to nail down the problems that have been occuring on 
+>  my machine at least since 2.5.59. I use XFS as my rootfs, no other
+> filesystems are compiled in, but I doubt the filesystem is to blame, since
+> the problem does not appear under 2.4, despite the similar codebase.
+> ...
+> Here's the guts: upon unlinking files in /var/{run,lock/subsys} (typically
+> during shutdown, but not only), and when doing "dd if=/dev/urandom
+> of=/etc/random-seed count=1 bs=512" the following traces appear:
+> #v+
+> buffer layer error at fs/buffer.c:2800
+> Call Trace:
+>  [<c014f1c6>] drop_buffers+0xb3/0xb9
+>  [<c014f208>] try_to_free_buffers+0x3c/0x96
+>  [<c01db1a1>] linvfs_release_page+0x74/0x78
+>  [<c014d2e6>] try_to_release_page+0x5c/0x6c
 
-L.
+Hi there,
+
+This is indeed an XFS issue (thanks for reporting it), the
+patch below fixes it.
+
+cheers.
+
+-- 
+Nathan
 
 
-On Wed, 2003-08-06 at 20:47, Jeff Sipek wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Wednesday 06 August 2003 19:41, Lucas Lain wrote:
-> > Hello everyone ! i have this video card and the NVIDIA_kernel package. I
-> > installed the 2.6.0-test2 kernel but the nvidia driver is not for this
-> > kernel. Is there a nvidia.patch to apply to the nvidia sources?
-> > Thanks !
-> 
-> Look at http://minion.de.
-> 
-> Jeff.
-> 
-> - -- 
-> It used to be said [...] that AIX looks like one space alien discovered
-> Unix, and described it to another different space alien who then
-> implemented AIX. But their universal translators were broken and they'd
-> had to gesture a lot.
-> 		- Paul Tomblin 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.2 (GNU/Linux)
-> 
-> iD8DBQE/MZOewFP0+seVj/4RAll6AKCdk5Z1ABqQLFkNbwXTsVZY2eij2gCfTwQn
-> oTsVfvpuYXAYOqf0jOYJWHQ=
-> =tplg
-> -----END PGP SIGNATURE-----
-> 
-> 
-
+--- /usr/tmp/TmpDir.2013-0/linux/fs/xfs/linux/xfs_aops.c_1.45	2003-08-07 09:55:53.000000000 +1000
++++ linux/fs/xfs/linux/xfs_aops.c	2003-08-07 09:22:10.808194848 +1000
+@@ -803,7 +803,7 @@
+ 		bh = bh->b_this_page;
+ 	} while (offset < end_offset);
+ 
+-	if (uptodate)
++	if (uptodate && bh == head)
+ 		SetPageUptodate(page);
+ 
+ 	if (startio)

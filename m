@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbTEYNUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 09:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTEYNUt
+	id S262135AbTEYNhH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 09:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTEYNhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 09:20:49 -0400
-Received: from web9607.mail.yahoo.com ([216.136.129.186]:4358 "HELO
-	web9607.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262100AbTEYNUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 09:20:48 -0400
-Message-ID: <20030525133358.75349.qmail@web9607.mail.yahoo.com>
-Date: Sun, 25 May 2003 06:33:58 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: [PATCH] sigprocmask and invalid how parameter
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-518996958-1053869638=:74780"
+	Sun, 25 May 2003 09:37:07 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:43020 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S262135AbTEYNhG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 09:37:06 -0400
+Date: Sun, 25 May 2003 15:50:03 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-Id: <20030525155003.5b837661.skraw@ithnet.com>
+In-Reply-To: <200305251447.34027.m.c.p@wolk-project.de>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<20030524111608.GA4599@alpha.home.local>
+	<20030525125811.68430bda.skraw@ithnet.com>
+	<200305251447.34027.m.c.p@wolk-project.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-518996958-1053869638=:74780
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+On Sun, 25 May 2003 14:47:56 +0200
+Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
 
-Hello,
+> On Sunday 25 May 2003 12:58, Stephan von Krawczynski wrote:
+> 
+> Hi Stephan,
 
-I was playing around with sigprocmask and found that if the
-"how" parameter was bad, the kernel treated it just like a
-SIG_SETMASK was passed in except that it returned an error.
-I think that it should perform no action if "how" is
-invalid.
+> before trying this, could you please update to aic20030523? Thank you.
 
-The attached patch makes the kernel unlock the irq and
-leave if how is invalid. The patch was created against a
-2.4.18 kernel, but this function hasn't changed. Even the
-2.5 kernels look the same for this function.
+Is there a changelog somewhere? What is the difference between 20030520 and 20030523 ?
 
-Best Regards,
--Steve Grubb
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo.
-http://search.yahoo.com
---0-518996958-1053869638=:74780
-Content-Type: text/plain; name="inv_how.patch"
-Content-Description: inv_how.patch
-Content-Disposition: inline; filename="inv_how.patch"
-
---- signal.c.orig	2003-05-25 07:12:46.000000000 -0400
-+++ signal.c	2003-05-25 07:15:02.000000000 -0400
-@@ -885,11 +885,13 @@
- 			break;
- 		}
- 
-+		if (error) {
-+			spin_unlock_irq(&current->sigmask_lock);
-+			goto out;
-+		}
- 		current->blocked = new_set;
- 		recalc_sigpending(current);
- 		spin_unlock_irq(&current->sigmask_lock);
--		if (error)
--			goto out;
- 		if (oset)
- 			goto set_old;
- 	} else if (oset) {
-
---0-518996958-1053869638=:74780--
+Regards,
+Stephan

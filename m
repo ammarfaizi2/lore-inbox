@@ -1,108 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbUCRTwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUCRTwc
+	id S262916AbUCRT5U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUCRT5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:52:32 -0500
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:49859 "EHLO
-	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S262912AbUCRTvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:51:36 -0500
-Date: Thu, 18 Mar 2004 20:51:31 +0100
-To: linux-kernel@vger.kernel.org
-Cc: rml@ximian.com
-Subject: use of PREEMPT_ACTIVE ?
-Message-ID: <20040318195130.GA26321@foudroyante.lifl.fr>
+	Thu, 18 Mar 2004 14:57:20 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:22402 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262916AbUCRT5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:57:09 -0500
+Date: Thu, 18 Mar 2004 20:58:19 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: akpm@osdl.org, anton@samba.org,
+       kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.x atkbd.c moaning
+Message-ID: <20040318195819.GB4248@ucw.cz>
+References: <opr41z9zel4evsfm@smtp.pacific.net.th> <20040318120114.GN28212@krispykreme> <opr42hoctn4evsfm@smtp.pacific.net.th> <opr42nq0a24evsfm@smtp.pacific.net.th>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
-	micalg=sha1; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Julien.Soula@lifl.fr
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
+In-Reply-To: <opr42nq0a24evsfm@smtp.pacific.net.th>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 19, 2004 at 03:14:50AM +0800, Michael Frank wrote:
+> On Fri, 19 Mar 2004 01:03:38 +0800, Michael Frank <mhf@linuxmail.org> wrote:
+> 
+> >On Thu, 18 Mar 2004 23:01:14 +1100, Anton Blanchard <anton@samba.org> 
+> >wrote:
+> >
+> >>
+> >>>Why is this and should I investigate further?
+> >>..
+> >>
+> >>>mice: PS/2 mouse device common for all mice
+> >>>serio: i8042 AUX port at 0x60,0x64 irq 12
+> >>>input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+> >>>serio: i8042 KBD port at 0x60,0x64 irq 1
+> >>>input: AT Translated Set 2 keyboard on isa0060/serio0
+> >>>atkbd.c: Unknown key released (translated set 2, code 0x7a on 
+> >>>isa0060/serio0).
+> >>
+> >>Did this happen recently? If so, does backing out the following patch 
+> >>help?
+> >
+> >I think so but later than this changeset 1.34 of 19 December.
+> 
+> The Unknown key release msg is introduced in 2.6.1 with i8042
+> changesets from 1.33 to 1.35 (likely 1.34 as Anton suggested). Guess i
+> did not think much of it as it was "smaller" but "blaming xfree"
+> during boot since 2.6.2 caught my attention.
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+XFree86 was fixed (post 4.4) thanks to this message. kbdrate is also
+fixed in the current version. With latest XFree86 and latest kbd package
+you shouldn't be getting this message anymore.
 
-hello,
+> >The patch has no effect.
+> >
+> >Also the mouse screws up after a few hours and becomes unusable.
+> 	On 2.6.4
+> 
+> On 2.6.[012] the mouse does not sync at all (even after power up).
+> 
+> On 2.4.18-26 mouse never had problems.
 
-the PREEMPT_ACTIVE flag set by preempt_schedule() or during return of
-interrupt / exception / syscall. And it's tested in schedule() to
-avoid some operations like deactivate_task().
+Can you give details on the mouse and the machine? I seem to have missed
+them.
 
-Our purpose is to force deactivation of the task. So we planned to set
-task state to TASK_INTERRUPTIBLE value and then to call
-schedule(). However the PREEMPT_ACTIVE flag can prevent it.
+> >psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, 
+> >throwing 1 bytes away.
+> >psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, 
+> >throwing 3 bytes away.
+> 
+> Could also be load dependent. Will do more testing on 2.6.4 to reproduce.
+> 
+> The serious issue with the mouse is that it does not recover and stays
+> out of sync and interprets further movement as random coordinates/button 
+> clicks.
 
-So what is the significance of the PREEMPT_ACTIVE flag and the test in
-schedule() ?
+Does unloading and reloading the psmouse module help?
 
-Sincerly, thanks in advance,
---=20
-Julien
-
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/x-pkcs7-signature
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIIKXAYJKoZIhvcNAQcCoIIKTTCCCkkCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
-CA8wggSaMIIDgqADAgECAgIGGTANBgkqhkiG9w0BAQQFADA0MQswCQYDVQQGEwJGUjENMAsG
-A1UEChMEQ05SUzEWMBQGA1UEAxMNQ05SUy1TdGFuZGFyZDAeFw0wMzA0MDcwNzU2NTJaFw0w
-NDA0MDcwNzU2NTJaMGoxCzAJBgNVBAYTAkZSMQ0wCwYDVQQKEwRDTlJTMRAwDgYDVQQLEwdV
-TVI4MDIyMRUwEwYDVQQDEwxKdWxpZW4gU291bGExIzAhBgkqhkiG9w0BCQEWFEp1bGllbi5T
-b3VsYUBsaWZsLmZyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq46AHM1kLvyW
-w2TkspV9WIEnhuRn6ooKzoTrKb/P26frE+azSjUvaI2Nz7QGQQdnIwMdEDHUaBH6PbvbDwku
-ZTYI3jpyYvyK5TRicwMK5aRElOykoEsmy+kCebMZatnHjkzbgonxOlFZEi664SUo79ld1MbC
-MzyH+9TWRTMY7X4SPYwPrErnrU4x531mY0dFPaos8xRJc+yovLlVqC0gtdYB2AboFT+K+2P+
-uBSxf8zERnpnTx0ZAByWOTFrs5WPaJljUey/Vxh7gmtN1k7r6spDGJFeqQaSnPZ/R8RQSHpS
-I46U0sGItfIgJeDAZ6IxaFuK9AWCpR8lyL6ty8X3YwIDAQABo4IBfjCCAXowDAYDVR0TAQH/
-BAIwADARBglghkgBhvhCAQEEBAMCBLAwDgYDVR0PAQH/BAQDAgXgMHgGCWCGSAGG+EIBDQRr
-FmlDZXJ0aWZpY2F0IENOUlMtU3RhbmRhcmQuIFBvdXIgdG91dGUgaW5mb3JtYXRpb24gc2Ug
-cmVwb3J0ZXIg4CBodHRwOi8vaWdjLnNlcnZpY2VzLmNucnMuZnIvQ05SUy1TdGFuZGFyZC8w
-HQYDVR0OBBYEFMbTtO+IHE0H2G9SIvbGWcfBksk1MFMGA1UdIwRMMEqAFGdZpeUHdEkD7wXP
-zC6kGNUQyJ48oS+kLTArMQswCQYDVQQGEwJGUjENMAsGA1UEChMEQ05SUzENMAsGA1UEAxME
-Q05SU4IBAjBZBgNVHR8EUjBQME6gTKBKhkhodHRwOi8vaWdjLnNlcnZpY2VzLmNucnMuZnIv
-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
-8Qb1Eqqa9hIApw==
-
---Dxnq1zWXvFF0Q93v--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

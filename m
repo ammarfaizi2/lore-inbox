@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267920AbUH3Mv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUH3Mxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267920AbUH3Mv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 08:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267923AbUH3Mv7
+	id S267923AbUH3Mxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 08:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267940AbUH3Mxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 08:51:59 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:52893 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267920AbUH3Mv5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 08:51:57 -0400
-Date: Mon, 30 Aug 2004 14:52:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q3
-Message-ID: <20040830125235.GA32750@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys> <1093715573.8611.38.camel@krustophenia.net> <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net>
+	Mon, 30 Aug 2004 08:53:47 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:32394 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S267923AbUH3Mxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 08:53:43 -0400
+Subject: Re: reverse engineering pwcx
+From: Albert Cahalan <albert@users.sf.net>
+To: Paul Jakma <paul@clubi.ie>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, clemtaylor@comcast.net, qg@biodome.org,
+       rogers@isi.edu
+In-Reply-To: <Pine.LNX.4.61.0408300836010.2441@fogarty.jakma.org>
+References: <1093709838.434.6797.camel@cube>
+	 <20040829210436.GA24350@hh.idb.hist.no>
+	 <Pine.LNX.4.61.0408300836010.2441@fogarty.jakma.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093870332.434.6983.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093727453.8611.71.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 30 Aug 2004 08:52:12 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Sat, 2004-08-28 at 16:31, Ingo Molnar wrote:
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q3
-> > 
+On Mon, 2004-08-30 at 03:42, Paul Jakma wrote:
+> On Sun, 29 Aug 2004, Helge Hafting wrote:
 > 
-> I get this error: 
+> > There's no need for faith or speculation here.
+> > Put the chip under a microscope and count the pixels,
+> > or rather measure their size and estimate their number.
 > 
-> WARNING: /lib/modules/2.6.9-rc1-Q3/kernel/fs/ntfs/ntfs.ko needs unknown symbol unlock_kernel
-> WARNING: /lib/modules/2.6.9-rc1-Q3/kernel/fs/ntfs/ntfs.ko needs unknown symbol lock_kernel
+> The lavarnd guy did and counted 160x120:
 > 
-> I believe this is the correct fix:
-> 
-> --- fs/ntfs/super.c~	2004-08-28 16:31:33.000000000 -0400
-> +++ fs/ntfs/super.c	2004-08-28 17:08:11.000000000 -0400
-> @@ -29,6 +29,7 @@
->  #include <linux/buffer_head.h>
->  #include <linux/vfs.h>
->  #include <linux/moduleparam.h>
-> +#include <linux/smp_lock.h>
+>  	http://slashdot.org/comments.pl?sid=119578&cid=10091208
 
-indeed. Applied your fix to my tree and it will show up in -Q6.
+Unless he explains a bit better, there's no reason
+to assume he counted correctly. There may be a larger
+pattern that was counted by mistake. For example,
+there may be 160x120 red-sensing sub-pixels. He could
+have counted only that.
 
-	Ingo
+Also, there is more than one type of sensor that can
+be fitted to these webcam chips. They may vary.
+
+

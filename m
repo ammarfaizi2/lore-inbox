@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129875AbRAaEDL>; Tue, 30 Jan 2001 23:03:11 -0500
+	id <S130661AbRAaEGm>; Tue, 30 Jan 2001 23:06:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130107AbRAaECw>; Tue, 30 Jan 2001 23:02:52 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:13551 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S129875AbRAaECp>;
-	Tue, 30 Jan 2001 23:02:45 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Javier Miguel Rodríguez (GUFO) 
-	<javier.miguel@futurainteractiva.com>
-Cc: linux-kernel@vger.kernel.org, netfilter@us5.samba.org
-Subject: Re: 2.4.0+ipchains+sparc 450= CRASH! 
-In-Reply-To: Your message of "Tue, 30 Jan 2001 14:07:01 -0000."
-             <01013014063301.15042@Petete> 
-Date: Wed, 31 Jan 2001 15:02:31 +1100
-Message-Id: <E14NoTY-0007lF-00@halfway>
+	id <S130763AbRAaEGd>; Tue, 30 Jan 2001 23:06:33 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5380 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130661AbRAaEGY>; Tue, 30 Jan 2001 23:06:24 -0500
+Date: Wed, 31 Jan 2001 00:16:43 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.1 find_page_nolock fixes
+In-Reply-To: <Pine.LNX.4.21.0101301728520.1321-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101310015290.16164-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <01013014063301.15042@Petete> you write:
->         I use kernel 2.4.0 + ipchains compatibilty. I use ipchains 1.3.9
->  
->  This code:
->  
->  ipchains -A input -p tcp --dport 80 -s 192.168.0.35 -j REDIRECT 81
 
-Oops.  Thanks to Anton for testing and touching up this patch.
+On Tue, 30 Jan 2001, Rik van Riel wrote:
 
-The 2.0/2.2 setsockopt code used to do the copy_from_user for you...
+> Hi Linus,
+> 
+> the patch below contains 3 small changes to mm/filemap.c:
+> 
+> 1. replace the aging in __find_page_nolock() with setting
+>    PageReferenced(), otherwise a large number of small
+>    reads from (or writes to) a page can drive up the page
+>    age unfairly
+> 
+> 2. remove the wakeup of kswapd from __find_page_nolock(),
+>    the wakeup condition is complex and leaving out the
+>    wakeup has no influence on any workload I tested in
+>    the last few weeks
+> 
+> 3. add a __find_page_simple(), which is like __find_page_nolock()
+>    but only needs 2 arguments and doesn't touch the page ... this
+>    can be used by IO clustering and other things that really don't
+>    want to influence page aging, removing the 3rd argument also
+>    keeps things simple
 
-Rusty.
-PS.  No security worries, as you need CAP_NET_ADMIN for this...
---
-Premature optmztion is rt of all evl. --DK
+The swapin readahead still makes the page referenced bit set, and it
+should not as we discussed previously.
 
-diff -ru --exclude-from=exclude linux/net/ipv4/netfilter/ip_fw_compat.c linux_work/net/ipv4/netfilter/ip_fw_compat.c
---- linux/net/ipv4/netfilter/ip_fw_compat.c	Wed Jan 31 14:47:42 2001
-+++ linux_work/net/ipv4/netfilter/ip_fw_compat.c	Wed Jan 31 14:43:23 2001
-@@ -9,6 +9,7 @@
- #include <linux/inetdevice.h>
- #include <linux/netdevice.h>
- #include <linux/module.h>
-+#include <asm/uaccess.h>
- #include <net/ip.h>
- #include <net/route.h>
- #include <linux/netfilter_ipv4/compat_firewall.h>
-@@ -198,14 +199,28 @@
- 	return NF_ACCEPT;
- }
- 
--extern int ip_fw_ctl(int optval, void *user, unsigned int len);
-+extern int ip_fw_ctl(int optval, void *m, unsigned int len);
- 
- static int sock_fn(struct sock *sk, int optval, void *user, unsigned int len)
- {
-+	/* MAX of:
-+	   2.2: sizeof(struct ip_fwtest) (~14x4 + 3x4 = 17x4)
-+	   2.2: sizeof(struct ip_fwnew) (~1x4 + 15x4 + 3x4 + 3x4 = 22x4)
-+	   2.0: sizeof(struct ip_fw) (~25x4)
-+
-+	   We can't include both 2.0 and 2.2 headers, they conflict.
-+	   Hence, 200 is a good number. --RR */
-+	char tmp_fw[200];
- 	if (!capable(CAP_NET_ADMIN))
- 		return -EPERM;
- 
--	return -ip_fw_ctl(optval, user, len);
-+	if (len > sizeof(tmp_fw) || len < 1)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&tmp_fw, user, len))
-+		return -EFAULT;
-+
-+	return -ip_fw_ctl(optval, &tmp_fw, len);
- }
- 
- static struct nf_hook_ops preroute_ops
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUHEOmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHEOoC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267685AbUHEOmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUHEOmc
+	id S266692AbUHEOoC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267723AbUHEOmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:42:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60556 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267685AbUHEOL1 (ORCPT
+	Thu, 5 Aug 2004 10:42:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:51919 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267722AbUHEOje (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:11:27 -0400
-Date: Thu, 5 Aug 2004 10:11:14 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Michal Ludvig <mludvig@suse.cz>
-cc: linux-kernel@vger.kernel.org, <cryptoapi@lists.logix.cz>
-Subject: Re: [PATCH]
-In-Reply-To: <41123B7E.2060601@suse.cz>
-Message-ID: <Xine.LNX.4.44.0408051000130.17694-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Aug 2004 10:39:34 -0400
+Date: Thu, 5 Aug 2004 16:39:33 +0200
+From: Olaf Hering <olh@suse.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, spot@redhat.com, akpm@osdl.org
+Subject: Re: Make MAX_INIT_ARGS 25
+Message-ID: <20040805143933.GA19219@suse.de>
+References: <20040804193243.36009baa@lembas.zaitcev.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040804193243.36009baa@lembas.zaitcev.lan>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004, Michal Ludvig wrote:
+ On Wed, Aug 04, Pete Zaitcev wrote:
 
-> Hi James,
 > 
-> the aes-i586 patch recently added to BK breaks compilation of AES on
-> non-i586 platforms. Attached patch fixes it.
+> --- linux-2.6.7/init/main.c	2004-06-16 16:54:07.000000000 -0700
+> +++ linux-2.6.7-usb/init/main.c	2004-08-04 19:16:22.566593218 -0700
+> @@ -102,8 +102,8 @@
+>  /*
+>   * Boot command-line arguments
+>   */
+> -#define MAX_INIT_ARGS 8
+> -#define MAX_INIT_ENVS 8
+> +#define MAX_INIT_ARGS 25
+> +#define MAX_INIT_ENVS 25
 
-Thanks, the code is about to be dropped and replaced, so we need to
-remember to fix it then.
+Why is there a limit anyway? Can the whole thing be dynamic? Any why
+panic if there are more than n options passed? Just ignore the remaining
+options?
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
+USB is for mice, FireWire is for men!
 
-
+sUse lINUX ag, nÜRNBERG

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbUB0Svc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUB0Svb
+	id S262931AbUB0SrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262933AbUB0Sqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:51:31 -0500
-Received: from hera.kernel.org ([63.209.29.2]:11214 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262908AbUB0SvW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:51:22 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [BK PATCH] SCSI host num allocation improvement
-Date: Fri, 27 Feb 2004 18:51:12 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c1o3j0$ir3$1@terminus.zytor.com>
-References: <20040226235412.GA819@phunnypharm.org> <20040226171928.750f5f6f.akpm@osdl.org>
+	Fri, 27 Feb 2004 13:46:30 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:43706 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262934AbUB0Sno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 13:43:44 -0500
+Date: Fri, 27 Feb 2004 18:42:23 +0000
+From: Dave Jones <davej@redhat.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sysfs is too restrictive
+Message-ID: <20040227184223.GB9352@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040227100541.284fb155@dell_ss3.pdx.osdl.net> <20040227181454.GD15016@redhat.com> <20040227103003.4832cbf0@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1077907872 19300 63.209.29.3 (27 Feb 2004 18:51:12 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 27 Feb 2004 18:51:12 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040227103003.4832cbf0@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040226171928.750f5f6f.akpm@osdl.org>
-By author:    Andrew Morton <akpm@osdl.org>
-In newsgroup: linux.dev.kernel
-> 
-> This allocate-me-the-lowest-available-number is a common idiom in the
-> kernel and we really should do it better.  Seems we need to convert the
-> dynamic pty allocation to do it as well - it has yet another open-coded
-> ad-hoc allocator.
-> 
+On Fri, Feb 27, 2004 at 10:30:03AM -0800, Stephen Hemminger wrote:
 
-Well, I actually *didn't* want it to be allocate-the-lowest-available
-number.  I deliberately went with the same allocation scheme used for
-PIDs (continual advance with wraparound and duplication avoidance);
-this is a cheap approximation of NRU.
+ > > Shouldn't you be seeing the other side of the bridge in here too ?
+ > > Ie, if br0 is a bridge between eth0 and eth1, how does that fit
+ > > your plan ?
+ > 
+ > yes, there would be multiple interfaces in the port directory.
+ > More like this:
 
-Immediate re-use is *BAD* (in the pty example, it means you're liable
-to have "write" write to an unrelated session by mistake, for example)
-at least if there is no penalty for expanding into the full allocated
-number space.  Lowest available number is architecturally mandated for
-file descriptors, but it doesn't mean it's a preferred allocation
-scheme by any means.
+Ok, that makes more sense.
 
-	-hpa
+		Dave
 

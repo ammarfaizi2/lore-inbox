@@ -1,58 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263921AbTLJUiW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTLJUiW
+	id S263930AbTLJUql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLJUql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:38:22 -0500
-Received: from thunk.org ([140.239.227.29]:43709 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263921AbTLJUiV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:38:21 -0500
-Date: Wed, 10 Dec 2003 15:37:10 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Andre Hedrick <andre@linux-ide.org>, Valdis.Kletnieks@vt.edu,
-       Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210203710.GC31300@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jesse Pollard <jesse@cats-chateau.net>,
-	Andre Hedrick <andre@linux-ide.org>, Valdis.Kletnieks@vt.edu,
-	Peter Chubb <peter@chubb.wattle.id.au>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100512480.3805-100000@master.linux-ide.org> <03121009022103.31567@tabby>
+	Wed, 10 Dec 2003 15:46:41 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63206 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263930AbTLJUqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:46:38 -0500
+Date: Wed, 10 Dec 2003 21:46:28 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ralf@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.24-pre1: ask for CONFIG_INDYDOG only on mips
+Message-ID: <20031210204628.GA9103@fs.tum.de>
+References: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <03121009022103.31567@tabby>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 09:02:21AM -0600, Jesse Pollard wrote:
-> 
-> You are still deriving your binary from a GPL source when a module is loaded.
-> The kernel relocation symbols themselves are under GPL.
-> 
+On Wed, Dec 10, 2003 at 02:23:14PM -0200, Marcelo Tosatti wrote:
+>...
+> Summary of changes from v2.4.23 to v2.4.24-pre1
+> ============================================
+>...
+> Ralf Bächle:
+>...
+>   o MIPS char driver update
+>...
 
-Even if the relocation symbols are under GPL'ed (there is doubt
-whether such symbols are copyrightable --- since things like telephone
-numbers are not copyrightable, for example), there is still the issue
-that the user is the one which is loading the module, not the person
-writing and distributing the module.  And at this point, given that
-the GPL itself says that it's all about distribution, not about the
-use of the GPL'ed software, not to mention the fair use doctrine
-(trust me, the open source community does **not** want to narrow what
-is considered fair use), there isn't a problem.
+This change contains the following bogus change for
+drivers/char/Config.in:
 
-						- Ted
+...
+@@ -237,9 +251,6 @@
+    tristate '  Eurotech CPU-1220/1410 Watchdog Timer' CONFIG_EUROTECH_WDT
+    tristate '  IB700 SBC Watchdog Timer' CONFIG_IB700_WDT
+    tristate '  ICP ELectronics Wafer 5823 Watchdog' CONFIG_WAFER_WDT
+-   if [ "$CONFIG_SGI_IP22" = "y" ]; then
+-      dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
+-   fi
+    tristate '  Intel i810 TCO timer / Watchdog' CONFIG_I810_TCO
+    tristate '  Mixcom Watchdog' CONFIG_MIXCOMWD
+    tristate '  SBC-60XX Watchdog Timer' CONFIG_60XX_WDT
+@@ -256,6 +267,7 @@
+       fi
+    fi
+    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
++   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
+    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
+ fi
+ endmenu
+...
+
+
+A dependency on a possibly undefined variable doesn't work with the 2.4 
+config system, and "make oldconfig" asks me on i386 for CONFIG_INDYDOG.
+
+The following patch fixes it:
+
+
+--- linux-2.4.24-pre1-full/drivers/char/Config.in.old	2003-12-10 18:48:40.000000000 +0100
++++ linux-2.4.24-pre1-full/drivers/char/Config.in	2003-12-10 18:51:15.000000000 +0100
+@@ -267,7 +267,9 @@
+       fi
+    fi
+    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
+-   dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
++   if [ "$CONFIG_SGI_IP22" = "y" ]; then
++      dep_tristate '  Indy/I2 Hardware Watchdog' CONFIG_INDYDOG $CONFIG_SGI_IP22
++   fi
+    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
+ fi
+ endmenu
+
+
+
+cu
+Adrian
+
+BTW: Why does this mips patch remove the i386 Mwave support option
+     from drivers/char/Config.in ?
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

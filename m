@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131560AbRANJwF>; Sun, 14 Jan 2001 04:52:05 -0500
+	id <S131917AbRANJwP>; Sun, 14 Jan 2001 04:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131819AbRANJvy>; Sun, 14 Jan 2001 04:51:54 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:42148 "EHLO
+	id <S131819AbRANJwF>; Sun, 14 Jan 2001 04:52:05 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:42916 "EHLO
 	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131560AbRANJvn>; Sun, 14 Jan 2001 04:51:43 -0500
-To: elenstev@mesatop.com
-Cc: Karsten Hopp <Karsten.Hopp@redhat.de>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux 2.4.0-ac9
-In-Reply-To: <01011318404000.18233@localhost.localdomain>
-	<20010114040550.A13315@bochum.redhat.de>
-	<01011320473400.00928@localhost.localdomain>
+	id <S131917AbRANJvq>; Sun, 14 Jan 2001 04:51:46 -0500
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: david+validemail@kalifornia.com, linux-kernel@vger.kernel.org
+Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
+In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
 From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <01011320473400.00928@localhost.localdomain>
-Message-ID: <m3n1cuh3vy.fsf@linux.local>
+In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
+Message-ID: <m3itnih3eb.fsf@linux.local>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 14 Jan 2001 10:56:11 +0100
+Date: 14 Jan 2001 10:56:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole <elenstev@mesatop.com> writes:
+Hi Albert,
 
-> Here is a little patch which also fixes the symptoms of the build
-> problem, and makes a kernel 1510 bytes smaller (without
-> CONFIG_SWAPFS).  Someone more knowlegable than I will have to verify
-> its correctness.
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-Thanks, this is correct. I did not test the symlink fixes w/o
-CONFIG_SWAPFS. My bad.
+> Admins already know what "tmpfs" means, so you should just call
+> your filesystem that. I know it isn't a pretty name, but in the
+> interest of reducing confusion, you should use the existing name.
+> 
+> Don't think of it as just "for /tmp". It is for temporary storage.
+> The name is a reminder that you shouldn't store archives in tmpfs.
+
+OK right now I see two alternatives for the name: "tmpfs" for the SUN
+admins and "vmfs" for expressing what it does and to be in line with
+"ramfs". Any votes?
+
+> Again for compatibility, Sun's size option would be useful.
+> 
+> -o size=111222333      Size in bytes, rounded up by page size.
+> -o size=111222k        Size in kilobytes (base-2 or ISO standard?)
+> -o size=111m           Size in megabytes (base-2 or ISO standard?)
+> 
+> I'd prefer k for ISO standard and K for base-2.
+> Of course m isn't millibytes, but that isn't horrible.
+
+No, I would go for base-2 only. That's what we typically mean with K
+and M in the IT world. To be case sensitive is IMHO overkill and
+confusing.
 
 Greetings
-                Christoph
+                Christoph 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262773AbULQIva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbULQJKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262773AbULQIva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 03:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbULQIva
+	id S262777AbULQJKv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 04:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbULQJKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 03:51:30 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:15249 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S262773AbULQIvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 03:51:14 -0500
-Date: Fri, 17 Dec 2004 03:51:11 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: Magic Number for New File system
-In-reply-to: <6E1F4DB94568BB4AA8A30083E67378924BB67C@iiex2ku01.agere.com>
-To: "Bhattiprolu, Ravikumar (Ravikumar)" <ravikb@agere.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <41C29DFF.9060803@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <6E1F4DB94568BB4AA8A30083E67378924BB67C@iiex2ku01.agere.com>
+	Fri, 17 Dec 2004 04:10:51 -0500
+Received: from piglet.wetlettuce.com ([82.68.149.69]:21120 "EHLO
+	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
+	id S262777AbULQJKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 04:10:44 -0500
+Message-ID: <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
+Date: Fri, 17 Dec 2004 09:10:14 -0000 (GMT)
+Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
+From: "Mark Broadbent" <markb@wetlettuce.com>
+To: <mpm@selenic.com>
+In-Reply-To: <20041216211024.GK2767@waste.org>
+References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
+        <20041216211024.GK2767@waste.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: markb@wetlettuce.com
+X-Mailer: SquirrelMail (version 1.2.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner: Mail is clear of Viree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Bhattiprolu, Ravikumar (Ravikumar) wrote:
-> Hi All,
-> 
-> We are planning to write a new file system for our requirements. Is
-> there any standard way to allocate a magic number for this new file
-> system?
+Matt Mackall said:
+> On Thu, Dec 16, 2004 at 04:20:02PM -0000, Mark Broadbent wrote:
+>> Hi,
+>>
+>> I'm having problem using ethereal/tcpdump in conjunction with the
+>> netconsole (built as a module).  If the netconsole is loaded and I try
+>> to launch tcpdump on the same interface as the netconsole is
+>> transmitting I get a hard lock-up.  The following commands can
+>> consistently do this: # tcpdump -i eth0
+>> eth0: Promiscuous Mode Entered
+>> <... normal output ...>
+>> ^C
+>> # modprobe netconsole
+>> # tcpdump -i eth0
+>> eth0: Promiscuous Mode Entered
+>> <4>NMI Watchdog detected LOCKUP
+>
+> Joy. Can you try it on your other interface to see if it's
+> driver-specific?
 
-Have a cat walk across your numpad.  The value is pretty meaningless
-other than as a unique identifier for your fstype. See statfs(2) for a
-list of known MAGIC numbers.
+Tried using eth1 which is using the r8169 but it doesn't support polling. 
+I also tried with 2.6.10-rc3-bk10 but it still doesn't support polling. 
+Also it still locks up using eth0 (the tulip driver) with 2.6.10-rc3-bk10.
+Thanks
+Mark
 
-> Also how to go about writing the new file system?
-> 
+-- 
+Mark Broadbent <markb@wetlettuce.com>
+Web: http://www.wetlettuce.com
 
-For a block device backed fs, see fs/minix/* for a simple enough
-example.  Another good example for a much simpler fs is fs/ramfs/inode.c
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBwp3/dQs4kOxk3/MRAnR0AJ4vOWqcG6L192xmsaO3w03Vc5qQhACbBthn
-IDjz1oO7q0mofmP1uuitv/E=
-=u+W+
------END PGP SIGNATURE-----

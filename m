@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272431AbRIMVuM>; Thu, 13 Sep 2001 17:50:12 -0400
+	id <S272465AbRIMV4m>; Thu, 13 Sep 2001 17:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272464AbRIMVuD>; Thu, 13 Sep 2001 17:50:03 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:16355 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S272431AbRIMVts>; Thu, 13 Sep 2001 17:49:48 -0400
-Date: Thu, 13 Sep 2001 14:53:59 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Otto Wyss <otto.wyss@bluewin.ch>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How errorproof is ext2 fs?
-In-Reply-To: <3BA1258F.5CC18A2C@bluewin.ch>
-Message-ID: <Pine.LNX.4.33.0109131441230.1089-100000@twin.uoregon.edu>
+	id <S272511AbRIMV4d>; Thu, 13 Sep 2001 17:56:33 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59916 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272464AbRIMV4R>; Thu, 13 Sep 2001 17:56:17 -0400
+Date: Thu, 13 Sep 2001 17:31:57 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109131633380.3580-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109131718320.4107-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope this will help a bit...
 
-On Thu, 13 Sep 2001, Otto Wyss wrote:
 
-> While reading the thread about "HFS Plus on Linux?" at
-> "debian-powerpc@list.debian.org" I had the following experience:
->
-> Within an hour I had to hard reset both of my computers, first my Linux-i386 due
-> to a complete lockup of the system while using el3diag, second my MacOS-powermac
-> due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
-> the Mac restarted without any fuse I had to fix the ext2-fs manually for about
-> 15 min. Luckily it seems I haven't lost anything on both system.
->
-> This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
-> worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
-> it does not need a good  error proof fs. Still can't ext2 be made a little more
-> error proof?
+On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
 
-If you mount you ext2 filesytem with synchronous i/o rather than async
-they'll be signficantly less brittle at the expense of some speed. I do
-this occasionaly when testing new hardware or radical changes
-something like:
+> 
+> 
+> On Thu, 13 Sep 2001, Hugh Dickins wrote:
+> 
+> > On Wed, 12 Sep 2001, Marcelo Tosatti wrote:
+> > > On Tue, 11 Sep 2001, Hugh Dickins wrote:
+> > > > It may be made more likely by my swapoff changes (not bumping swap
+> > > > count in valid_swaphandles), but it's not been introduced by those
+> > > > changes.  Though usually swapin_readahead/valid_swaphandles covers
+> > > > (includes) the particular swap entry which do_swap_page actually
+> > > > wants to bring in, under pressure that's not always so, and then
+> > > > the race you outline can occur with the "bare" read_swap_cache_async
+> > > > for which there was no bumping.  Furthermore, you can play your
+> > > > scenario with valid_swaphandles through to add_to_swap_cache on CPU0
+> > > > interposed between the get_swap_page and add_to_swap_cache on CPU1
+> > > > (if interrupt on CPU1 diverts it).
+> > > 
+> > > I don't think so. A "bare" read_swap_cache_async() call only happens on
+> > > swap entries which already have additional references. That is, its
+> > > guaranteed that a "bare" read_swap_cache_async() call only happens for
+> > > swap map entries which already have a reference, so we're guaranteed that
+> > > it cannot be reused.
+> > 
+> > Almost agreed, but there may be a long interval between when that reference
+> > was observed in the page table, and when read_swap_cache_async upon it is
+> > actually performed (waiting for BKL, waiting to allocate pages for prior
+> > swapin_readahead).  In that interval the reference can be removed:
+> > certainly by swapoff, certainly by vm_swap_full removal, anything else?
+> 
+> Not sure about swapoff(). 
+> 
+> vm_swap_full() is only going to remove the reference _after_ we did the
+> swapin, so I don't see how the race can happen with it.
 
-mount -o remount sync /fsname
+Ooh I see:
 
-> Okay, there are other fs for Linux which cope better with such a
-> situation, but are they really more errorproof or are they just better
-> in fixing up the mess afterwards?
+CPU0			CPU1			CPU2
+do_swap_page()		try_to_swap_out()	swapin_readahead()
+						swapin_readahead() finds valid swap
+						map entry and considers it "readable"
+		
+swap_free(entry);				
+			get_swap_page()
 
-both actually if your're refering to reiserfs/ext3/jfs
+if (exclusive_swap_p..) {
+if (vm_swap_full()) {
+delete_from_swap_cache_nolock(page);
+pte = pte_mkdirty(pte);
+}
+}
+UnlockPage(page);
 
-> Could there be more attention in not
-> creating errors instead of fixing them afterwards?
+						__find_get_page() fails on swapin_readahead()
+						swap_duplicate() succeeds.
+						add_to_swap_cache()
+			add_to_swap_cache()
 
-The errors are the result of omitted data not incorrect data... the files
-were open the data that was gonna be written was sitting in the buffer, it
-just hadn't been comitted yet...
+BOOM.
 
-> O. Wyss
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+Now, if we get additional references at valid_swaphandles() the above race
+is NOT possible: we're guaranteed that any get_swap_page() will not find
+the swap map entry used. See?
 
 

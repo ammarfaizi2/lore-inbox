@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbULAJD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbULAJUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbULAJD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 04:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbULAJD1
+	id S261346AbULAJUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 04:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbULAJUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 04:03:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:17371 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261336AbULAJDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 04:03:23 -0500
-Date: Wed, 1 Dec 2004 10:02:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@Raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
-       Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041201090220.GE15928@elte.hu>
-References: <OFF4F89D90.B89E0767-ON86256F5C.004C735C@raytheon.com>
+	Wed, 1 Dec 2004 04:20:35 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:8379 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261346AbULAJUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 04:20:31 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 1 Dec 2004 10:02:03 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jdike@addtoit.com, bstroesser@fujitsu-siemens.com,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: VFS interactions with UML and other big UML changes (was: Re: [patch 1/2] Uml - first part rework of run_helper() and users.)
+Message-ID: <20041201090203.GD12963@bytesex>
+References: <20041130200845.2C5058BAFE@zion.localdomain> <20041130152017.129e134c.akpm@osdl.org> <200412010120.39579.blaisorblade_spam@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OFF4F89D90.B89E0767-ON86256F5C.004C735C@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200412010120.39579.blaisorblade_spam@yahoo.it>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > uml-terminal-cleanup.patch
+> 
+> I don't know technically this one. It won't probably go in 2.6.10, I think 
+> later... tested in the SuSE tree, but let's be quiet in merging _big_ things, 
+> ok? It was also tested in a different tree, so it perfectly working on 2.6.9 
+> does not mean perfectly working on current kernels.
 
-* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
+Tested by me on 2.6.10-rc2-bk<something> as well.  It needed some
+trivial adaptions to the tty layer changes done by Linus compared
+to the old 2.6.9 version.  I'm pretty confident it wouldn't break
+anything, but as it is to big to be classified as ObviouslyCorrect[tm]
+fix it probably should not go to into 2.6.10 but be merged in the
+2.6.11 cycle.
 
-> I have results from two builds of -V0.7.31-9. The first build is
-> CONFIG_RT (RT) and the second is CONFIG_DESKTOP (PK or as described in
-> .config help - Preempt Kernel).
+  Gerd
 
-interesting numbers. The slowdown in networking could easily be due to
-IRQ and softirq threading, so it would make sense to also add a "PNT"
-test (preempt, non-threaded), just to have something functionally
-comparable to 2.4 lowlat+preempt.
-
-	Ingo
+-- 
+#define printk(args...) fprintf(stderr, ## args)

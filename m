@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291851AbSBAQwp>; Fri, 1 Feb 2002 11:52:45 -0500
+	id <S291861AbSBARBz>; Fri, 1 Feb 2002 12:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291850AbSBAQwf>; Fri, 1 Feb 2002 11:52:35 -0500
-Received: from are.twiddle.net ([64.81.246.98]:63384 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S291848AbSBAQwT>;
-	Fri, 1 Feb 2002 11:52:19 -0500
-Date: Fri, 1 Feb 2002 08:52:14 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-Message-ID: <20020201085214.A11266@are.twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Richard Henderson <rth@twiddle.net>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
-In-Reply-To: <20020130214935.A7479@are.twiddle.net> <E16WZUe-0001Xw-00@wagner.rustcorp.com.au>
+	id <S291858AbSBARBp>; Fri, 1 Feb 2002 12:01:45 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:9694 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S291857AbSBARBj>; Fri, 1 Feb 2002 12:01:39 -0500
+Date: Fri, 1 Feb 2002 11:01:37 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020201110137.B2560@asooo.flowerfire.com>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16WZUe-0001Xw-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Feb 01, 2002 at 07:56:24PM +1100
+In-Reply-To: <1012582401.813.1.camel@phantasy>; from rml@tech9.net on Fri, Feb 01, 2002 at 11:53:20AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 07:56:24PM +1100, Rusty Russell wrote:
-> This better?
+On Fri, Feb 01, 2002 at 11:53:20AM -0500, Robert Love wrote:
+| On Fri, 2002-02-01 at 04:17, Ken Brownfield wrote:
+| Most of the useful fixes actually came in a large update from Andreas
+| Dilger.  Perhaps he would have some insight, too.
 
-Yep.  Thanks.
+Ah, my apoligies then.
 
+| Exhausting entropy to zero under high use is not uncommon (that is a
+| motivation for my netdev-random patch).  What boggles me is why it does
+| not regenerate?
 
-r~
+Yeah -- slow entropy is "acceptable", but blocking until a reboot is rather unacceptable. ;)
+
+Thx much,
+-- 
+Ken.
+brownfld@irridia.com
+
+| 
+| 	Robert
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

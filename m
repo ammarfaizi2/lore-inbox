@@ -1,85 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286446AbRL0SK7>; Thu, 27 Dec 2001 13:10:59 -0500
+	id <S286413AbRL0SIS>; Thu, 27 Dec 2001 13:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286447AbRL0SKr>; Thu, 27 Dec 2001 13:10:47 -0500
-Received: from isis.telemach.net ([213.143.65.10]:64264 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S286429AbRL0SJy>;
-	Thu, 27 Dec 2001 13:09:54 -0500
-Date: Thu, 27 Dec 2001 19:09:54 +0100
-From: Jure Pecar <pegasus@telemach.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17-rc1 oops
-Message-Id: <20011227190954.6b504c04.pegasus@telemach.net>
-Organization: Select Technology 
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S286411AbRL0SID>; Thu, 27 Dec 2001 13:08:03 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57606
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S286413AbRL0SHx>; Thu, 27 Dec 2001 13:07:53 -0500
+Date: Thu, 27 Dec 2001 10:06:29 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Guolin Cheng <Guolin@alexa.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'adam@yggdrasil.com'" <adam@yggdrasil.com>
+Subject: Re: where is the patch  ide.2.4.14.11062001.patch, for supporting
+ EID E ata133 ??
+In-Reply-To: <A6CFEF730CCE38449F1774A6B5D62B0C031905@shockG.archive.alexa.com>
+Message-ID: <Pine.LNX.4.10.10112271005550.24428-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
 
-This happened yesterday on our 4-way system with highmem:
+NO
 
-ksymoops 0.7c on i686 2.4.17-rc1.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.17-rc1/ (default)
-     -m /usr/src/linux/System.map (specified)
+I will not merge until I can DOMAIN VALIDATE the pile of SHIT called 2.5.X
 
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
-says c01ee900, vmlinux says c0156eb0.  Ignoring ksyms_base entry
-Dec 26 09:06:00 castor kernel: invalid operand: 0000 
-Dec 26 09:06:00 castor kernel: CPU:    0 
-Dec 26 09:06:00 castor kernel: EIP:    0010:[__free_pages_ok+75/508]  Not tainted 
-Dec 26 09:06:00 castor kernel: EFLAGS: 00010202 
-Dec 26 09:06:00 castor kernel: eax: 00000840   ebx: c1e1dec0   ecx: c1e1dec0   edx: 00000000 
-Dec 26 09:06:00 castor kernel: esi: fe2b6fdd   edi: 00000000   ebp: 00000000   esp: f1d79ef4 
-Dec 26 09:06:00 castor kernel: ds: 0018   es: 0018   ss: 0018 
-Dec 26 09:06:00 castor kernel: Process ps (pid: 32579, stackpage=f1d79000)
+On Mon, 3 Dec 2001, Guolin Cheng wrote:
 
-Dec 26 09:06:00 castor kernel: Stack: 00000360 fe2b6fdd 00000000 d3778000 e979a700 bffffc7d 00000000 00000000  
-Dec 26 09:06:00 castor kernel:        00000360 c012e8d8 c011de64 e979a700 00000000 00000360 d8124000 f1d79f44  
-Dec 26 09:06:00 castor kernel:        f1d78000 e979a71c d3778000 e979a700 c1e1dec0 f4c973e0 c0152319 d8124000  
-Dec 26 09:06:00 castor kernel: Call Trace: [__free_pages+28/32] [access_process_vm+368/432] [proc_pid_environ+85/104]
-[proc_info_read+89/296] [sys_read+142/196]  
-Dec 26 09:06:00 castor kernel: Code: 0f 0b 8b 43 18 a8 80 74 02 0f 0b 80
-63 18 eb be 00 e0 ff ff 
-Using defaults from ksymoops -t elf32-i386 -a i386
+> Hi, all,
+> 
+>  I tried to search the file ide.2.4.14.11062001.patch on internet, but I can
+> not find it, The search results on google can not help, it disappears:
+> 
+>  
+> www.jp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.14/readme.48bit.ul
+> tra133
+> The latest patch release can be found on:: http://www.linuxdiskcert.org/
+> ide.2.4.14.11062001.patch
+> Fresh Release. Regards, Linux ATA Development Linux Disk ... 
+> 1k - Cached - Similar pages
+> 
+>  Another question is: anyone know whether this patch is merged into 2.4.15
+> and 2.4.16 versions?
+> 
+> 
+>  Yours sincerely,
+>  Guolin Cheng
+> 
+>  
+> 
+> -----Original Message-----
+> From: Guolin Cheng [mailto:Guolin@alexa.com]
+> Sent: Monday, December 03, 2001 6:00 PM
+> To: 'Adam J. Richter'; andre@linux-ide.org
+> Cc: 'linux-kernel@vger.kernel.org'
+> Subject: RE: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
+> 
+> 
+> Hi, Adam,
+> 
+>  Thanks a lot that you have tested Maxtor 160G drives under Linux, Could you
+> tell me which former version linux kernel are you using? can we use the
+> newest 2.4.16 downloaded from www.kernel.org?
+> 
+>  Do we need to check some special options in the configuration file for
+> version 2.4.16 to support Promise ata133 card and Maxtor 160G drive? Because
+> from the kernel configuration file for 2.4.16, only ata33/ata66/ata100 are
+> supported for Promise card. 
+> 
+>  The last question, do we need to manually change any files beside
+> downloading the former newest kernel?
+> 
+>  Thanks a lot. 
+> 
+> 
+>  Yours sincerely,
+>  Guolin Cheng
+>  
+> 
+> -----Original Message-----
+> From: Adam J. Richter [mailto:adam@yggdrasil.com]
+> Sent: Saturday, November 17, 2001 4:59 AM
+> To: andre@linux-ide.org
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
+> 
+> 
+> Hello Andre,
+> 
+> 	Thank you very much for implementing the 48-bit ATA controller
+> support in your recent IDE kernel patches (ide.2.4.14.11062001.patch).
+> I am using a Maxtor 160GB hard disk with your patches on linux-2.4.15-pre5,
+> and it seems to be working well so far (two hours).
+> 
+> 	I do have a couple of minor notes about your patch.  I could
+> generate some diffs, but they're simple and I'm not completely sure
+> about the right solution.
+> 
+> 	1. Your patch creates a circular dependency between the ide-mod.o
+> and ide-probe-mod.o modules, which is only noticible when IDE support
+> is compiled as a module.  The problem is that ide.c has the
+> EXPORT_SYMBOL declarations for export_ide_init_queue and
+> export_probe_for_drive in ide-probe.c.  At the moment, I have
+> moved the two EXPORT_SYMBOL declarations to the ide-probe.c, but I
+> believe the correct solution is just to remove the two routines
+> from your patch, since it appears that nothing uses them yet.
+> 
+> 	2. A while ago, I posted a change that modularizes partition
+> support (in reality, I never use the kernel-based partition code, but
+> that's another matter).  Your declaration of ide_xlate_1024_hook to
+> fs/partitions/msdos.c creates a circular dependency in my kernel (but
+> not in Linus's), which I fixed by moving the declatation to
+> fs/partitions/check.c.  I do not yet understand the purpose of
+> ide_xlate_1024 to understand whether it really is specific to the
+> MSDOS style of partition labeling.
+> 
+> 	Anyhow, I hope this information is helpful.  Please let me know
+> if you want me to geneate a patch or test anything.  So far, your patch
+> seems to be working very well.  Thank you very much for developing it.
+> 
+> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite
+> 104
+> adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
+> +1 408 261-6630         | g g d r a s i l   United States of America
+> fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a   
-Code;  00000002 Before first symbol
-   2:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  00000005 Before first symbol
-   5:   a8 80                     test   $0x80,%al
-Code;  00000007 Before first symbol
-   7:   74 02                     je     b <_EIP+0xb> 0000000b Before
-first symbol
-Code;  00000009 Before first symbol
-   9:   0f 0b                     ud2a   
-Code;  0000000b Before first symbol
-   b:   80 63 18 eb               andb   $0xeb,0x18(%ebx)
-Code;  0000000f Before first symbol
-   f:   be 00 e0 ff ff            mov    $0xffffe000,%esi
-
-
-1 warning issued.  Results may not be reliable.
-
-
-This box is a heavily loaded mail server, running what once was redhat
-6.2. When users started complaining, it was around 13h and loadavg was
-~400 and still growing. I couldn't even list the processes, hard reset was
-the only option to put things back into normal quickly. Luckily I have ext3 :)
-
-Any ideas?
-
---
-
-Jure Pecar
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbUCXXtp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 18:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCXXsx
+	id S262549AbUCXXvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 18:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUCXXtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 18:48:53 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:33700 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262316AbUCXXrl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 18:47:41 -0500
-Date: Thu, 25 Mar 2004 05:16:43 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, tiwai@suse.de,
-       Robert Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RCU for low latency (experimental)
-Message-ID: <20040324234643.GD12035@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1080038105.5296.8.camel@laptop.fenrus.com> <20040323123105.GI22639@dualathlon.random> <20040323124002.GH3676@in.ibm.com> <20040323125044.GL22639@dualathlon.random> <20040324172657.GA1303@us.ibm.com> <20040324175142.GW2065@dualathlon.random> <20040324213914.GD4539@in.ibm.com> <20040324225326.GH2065@dualathlon.random> <20040324231145.GB12035@in.ibm.com> <20040324233430.GJ2065@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040324233430.GJ2065@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Mar 2004 18:49:53 -0500
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:60204 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262370AbUCXXtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 18:49:24 -0500
+Message-ID: <40621E85.50503@blueyonder.co.uk>
+Date: Wed, 24 Mar 2004 23:49:25 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Mar 2004 23:49:24.0608 (UTC) FILETIME=[A2EBE000:01C411FA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 12:34:30AM +0100, Andrea Arcangeli wrote:
-> On Thu, Mar 25, 2004 at 04:41:45AM +0530, Dipankar Sarma wrote:
-> > That was not 16 callbacks per tick, it was 16 callbacks in one
-> > batch of a single softirq. And then I reschedule the RCU tasklet
-> 
-> sorry so you're already using tasklets in current code? I misunderstood
-> the current code then.
+Andreas Happe wrote:
+On 2004-03-24, Andrew Morton <akpm@xxxxxxxx> wrote:
+ >>/ -initramfs-search-for-init.patch/>
+ >>/ -initramfs-search-for-init-zombie-fix.patch/
+ >>/ +initramfs-search-for-init-orig.patch/
+ >>
+ >>/ Go back to the original, simple version of this patch./
 
-+               if (count >= rcumaxbatch) {
-+                       RCU_plugticks(cpu) = rcuplugticks;
-+                       if (!RCU_plugticks(cpu))
-+                               tasklet_hi_schedule(&RCU_tasklet(cpu));
-+                       break;
-+               }
+ > 2.6.5-rc2-mm2 still hangs after:
+ > VFS: mounted root (ext3 filesystem) readonly
+ >  Freeing unused kernel memory: 140kB
+ >
+ > SysRq still works, what information would you need to solve that
+ > problem?
+ >
+ > --Andreas
+I am getting the same symptons on Acer 1501LCe laptop, Athlon 64,  
+2.6.5-rc2 vanilla boots OK.
+Regards
+Sid.
 
-That does it. Although, the tasklet handler needs to optimized
-to for such frequent rescheduling when there isn't anything
-else to process in that cpu. Later.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
-Thanks
-Dipankar

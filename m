@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbRE0EX0>; Sun, 27 May 2001 00:23:26 -0400
+	id <S262745AbRE0E30>; Sun, 27 May 2001 00:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262744AbRE0EXR>; Sun, 27 May 2001 00:23:17 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6319 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262742AbRE0EXE>;
-	Sun, 27 May 2001 00:23:04 -0400
-Date: Sun, 27 May 2001 00:22:58 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Rankin <rankinc@pacbell.net>
-cc: linux-kernel@vger.kernel.org, reiser@namesys.com
-Subject: Re: Linux-2.4.5, reiserfs, Oops!
-In-Reply-To: <200105270414.f4R4Emk01883@twopit.underworld>
-Message-ID: <Pine.GSO.4.21.0105270018390.1945-100000@weyl.math.psu.edu>
+	id <S262746AbRE0E3Q>; Sun, 27 May 2001 00:29:16 -0400
+Received: from cpe.atm0-0-0-148189.arcnxx1.customer.tele.dk ([193.89.254.68]:36077
+	"HELO serverrummet.dk") by vger.kernel.org with SMTP
+	id <S262745AbRE0E3H>; Sun, 27 May 2001 00:29:07 -0400
+Date: Sun, 27 May 2001 06:28:45 +0200 (CEST)
+From: Rene <kaos@intet.dk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 + ReiserFS + SMP + umount = oops 
+In-Reply-To: <30785.990936705@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.21.0105270625390.22201-100000@virkelig.intet>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 May 2001, Keith Owens wrote:
 
+> On Sun, 27 May 2001 06:04:28 +0200 (CEST), 
+> Rene <kaos@intet.dk> wrote:
+> >hmm I feel quite certain that I am using /dev/tty - is there some way I
+> >can check this?
+> 
+> /etc/inittab, lines for mingetty, getty or agetty.
 
-On Sat, 26 May 2001, Chris Rankin wrote:
+1:2345:respawn:/sbin/mingetty tty1
+.....			      ....	
+8:2345:respawn:/sbin/mingetty tty8
 
-> Linux 2.4.5, SMP, devfs, < 1 GB memory, compiled with gcc-2.95.3
- 
-> drive. I didn't do anything clever with parameters or anything; just
-> "mkreisferfs /dev/sda1", mounted it and then unmounted it again. And
-> the kernel oopsed on me.
+is what I have 
+default runlevel is 4
 
-Bloody hell. 
---- fs/super.c       Fri May 25 21:51:14 2001
-+++ fs/super.c.new     Sun May 27 00:21:53 2001
-@@ -873,6 +873,7 @@
-        }
-        spin_unlock(&dcache_lock);
-        down_write(&sb->s_umount);
-+       lock_kernel();
-        sb->s_root = NULL;
-        /* Need to clean after the sucker */
-        if (fs->fs_flags & FS_LITTER)
-@@ -901,6 +902,7 @@
-        put_filesystem(fs);
-        sb->s_type = NULL;
-        unlock_super(sb);
-+       unlock_kernel();
-        up_write(&sb->s_umount);
-        if (bdev) {
-                blkdev_put(bdev, BDEV_FS);
-
+regards
+  /rene
+-- 
+Rene Mikkelsen, 
+Tlf: +45 40501985
+---------------------------------------------------------------
+http://www.eslug.dk - the choice of a GNU generation
+http://dustpuppy.dk - UF på dansk
+---------------------------------------------------------------
 

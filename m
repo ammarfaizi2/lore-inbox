@@ -1,40 +1,99 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314635AbSD0Ww6>; Sat, 27 Apr 2002 18:52:58 -0400
+	id <S314640AbSD0XId>; Sat, 27 Apr 2002 19:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314638AbSD0Ww5>; Sat, 27 Apr 2002 18:52:57 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:7697 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314635AbSD0Ww5>;
-	Sat, 27 Apr 2002 18:52:57 -0400
-Message-ID: <3CCB1D18.2010402@evision-ventures.com>
-Date: Sat, 27 Apr 2002 23:50:16 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314642AbSD0XIc>; Sat, 27 Apr 2002 19:08:32 -0400
+Received: from ECE.CMU.EDU ([128.2.136.200]:63972 "EHLO ece.cmu.edu")
+	by vger.kernel.org with ESMTP id <S314640AbSD0XIb>;
+	Sat, 27 Apr 2002 19:08:31 -0400
+Date: Sat, 27 Apr 2002 19:08:16 -0400 (EDT)
+From: Nilmoni Deb <ndeb@ece.cmu.edu>
+To: jgarzik@mandrakesoft.com
+cc: linux-kernel@vger.kernel.org
+Subject: via82cxxx_audio bug in kernel-2.4.18
+In-Reply-To: <87bsjt59jb.fsf@pixie.eng.ascend.com>
+Message-ID: <Pine.LNX.3.96L.1020427185739.8423C-100000@d-alg.ece.cmu.edu>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-In-Reply-To: <Pine.GSO.4.21.0204271425030.25240-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alexander Viro napisa?:
-> 
-> On Sat, 27 Apr 2002, Christoph Lameter wrote:
-> 
-> 
->>The best thing would be to stop this egg-dance around open sourceness and
->>release BK under GPL. This is wasting too much time. Trying to use a
-> 
-> 
-> 1001st time, CHOICE OF LICENSE BELONGS AUTHOR OF CODE IN QUESTION, dimwit.
-> How many times should that be repeated until it sinks down?
 
+Using 2.4.18 kernel of mandrake-8.2 . Sound is played ok until
+'dmesg' shows these error messages:
 
-Anton please please let this discussion going on. It is *very*
-good at pointing at the people who need an permanent personal
-entry in my killfile for lkml ;-).
+Assertion failed! chan->is_active ==
+sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+Assertion failed! chan->is_active ==
+sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+Assertion failed! chan->is_active ==
+sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+via_audio: ignoring drain playback error -512
+Assertion failed! chan->is_active ==
+sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
+via_audio: ignoring drain playback error -512
+
+The lsmod output after the error shows nothing strange:
+
+Module                  Size  Used by    Not tainted
+via82cxxx_audio        18144   0
+uart401                 6336   0 [via82cxxx_audio]
+ac97_codec              9568   0 [via82cxxx_audio]
+sound                  57292   0 [via82cxxx_audio uart401]
+soundcore               4068   5 [via82cxxx_audio sound]
+
+After this error no sound is played. Unload and reload of via82cxxx_audio
+makes no difference. Only way out is reboot.
+
+Output of 'via-audio-diag -eps':
+
+via-audio-diag.c:v1.00 05/06/2000 Jeff Garzik (jgarzik@mandrakesoft.com)
+Index #1: Found a via 686a audio adapter at 0xcc00.
+AC97 RESET = 0x6D50 (27984)
+AC97 MASTER_VOL_STEREO = 0x0A0A (2570)
+AC97 HEADPHONE_VOL = 0x0A0A (2570)
+AC97 MASTER_VOL_MONO = 0x000A (10)
+AC97 MASTER_TONE = 0x0000 (0)
+AC97 PCBEEP_VOL = 0x000A (10)
+AC97 PHONE_VOL = 0x000A (10)
+AC97 MIC_VOL = 0x8000 (32768)
+AC97 LINEIN_VOL = 0x0A0A (2570)
+AC97 CD_VOL = 0x0A0A (2570)
+AC97 VIDEO_VOL = 0x0A0A (2570)
+AC97 AUX_VOL = 0x0A0A (2570)
+AC97 PCMOUT_VOL = 0x0000 (0)
+AC97 RECORD_SELECT = 0x0000 (0)
+AC97 RECORD_GAIN = 0x0A0A (2570)
+AC97 RECORD_GAIN_MIC = 0x0000 (0)
+AC97 GENERAL_PURPOSE = 0x0000 (0)
+AC97 3D_CONTROL = 0x0000 (0)
+AC97 MODEM_RATE = 0x0000 (0)
+AC97 POWER_CONTROL = 0x000F (15)
+AC97 EXTENDED_ID = 0x0201 (513)
+AC97 EXTENDED_STATUS = 0x0001 (1)
+AC97 PCM_FRONT_DAC_RATE = 0xBB80 (48000)
+AC97 PCM_SURR_DAC_RATE = 0x0000 (0)
+AC97 PCM_LFE_DAC_RATE = 0x0000 (0)
+AC97 PCM_LR_ADC_RATE = 0xBB80 (48000)
+AC97 PCM_MIC_ADC_RATE = 0x0000 (0)
+AC97 CENTER_LFE_MASTER = 0x0000 (0)
+AC97 SURROUND_MASTER = 0x0000 (0)
+AC97 RESERVED_3A = 0x0000 (0)
+SGD Playback            : 88 00 B7 01EC1088 00000000
+SGD Record              : 00 00 00 00000000 00000000
+SGD FM                  : 00 00 00 00000000 00000000
+SGD Modem Playback      : 00 00 00 00000000 00000000
+SGD Modem Record        : 00 00 00 00000000 00000000
+SGD reg 0x80 = 0x00BA0000
+SGD reg 0x84 = 0x00001000
+SGD reg 0x88 = 0x00000000
+SGD reg 0x8C = 0x00000000
+PCI reg 0x10 = 0xD8000008
+PCI reg 0x3C = 0x00
+PCI reg 0x40 = 0x00
+PCI reg 0x41 = 0x00
+PCI reg 0x42 = 0x00
+PCI reg 0x43 = 0x00
+PCI reg 0x44 = 0x00
+PCI reg 0x48 = 0x00
 

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264004AbUDOP6U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbUDOP6T
+	id S264093AbUDOQBn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 12:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbUDOQBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:58:19 -0400
-Received: from web40608.mail.yahoo.com ([66.218.78.145]:59703 "HELO
-	web40608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264004AbUDOP6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:58:17 -0400
-Message-ID: <20040415155816.47730.qmail@web40608.mail.yahoo.com>
-Date: Thu, 15 Apr 2004 17:58:16 +0200 (CEST)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Re: multithreaded coredump in 2.6
-To: Sergey Lapin <slapin@caseta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <81C5E83694ADD211ACB50000C02F79D703B735D9@eagle.caseta.com>
+	Thu, 15 Apr 2004 12:01:43 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:22361 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S264093AbUDOQBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 12:01:42 -0400
+Message-ID: <407EBFD3.7080705@myrealbox.com>
+Date: Thu, 15 Apr 2004 10:01:07 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040415
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: =?ISO-8859-1?Q?J=F6rg_Mensmann?= <joerg.mensmann@gmx.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-kernel] Via-Rhine ethernet driver problem?
+References: <1F9GE-4iZ-31@gated-at.bofh.it> <m3pta9z1pw.fsf@msgid.bitplanet.de>
+In-Reply-To: <m3pta9z1pw.fsf@msgid.bitplanet.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Sergey Lapin <slapin@caseta.com> a écrit : > Hi,
+Jörg Mensmann wrote:
+> Hi!
 > 
-> I have run into problem of getting multithreaded coredumps.
-> All I am getting
-> is core file which under gdb shows only one thread out of my
-> around 300
-> threads.
+> Did you find a solution for that problem? I think I'm currently fighting
+> with the same issues.
 > 
-> 
-> What's wrong? Am I missing something? May be I should change
-> some 
-> kernel settings to enable kernel dump all threads?
-> 
+> walt <wa1ter@myrealbox.com> wrote:
+>>ECS K7VTA3 motherboard with built-in ethernet chip:
+>>The problem is terrible performance -- I noticed that NFS file transfers grind
+>>to a complete halt almost immediately on this machine.
 
-AFAIK the default name of the core file is core. So if you have
-300 threads they could overwrite the file to one another.
-You can customize the core file naming:
-/proc/sys/kernel/core_pattern
+Roger Luethi (the maintainer) sent me this patch which works great for me:
 
-see Documentation/sysctl/kernel.txt in your kernel tree
-
-> I will appreciate any help.
-> Thanks,
-> Sergey Lapin
-> -
-
-Calin
-
-=====
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
-
-
-	
-
-	
-		
-Yahoo! Mail : votre e-mail personnel et gratuit qui vous suit partout ! 
-Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
-
-Dialoguez en direct avec vos amis grâce à Yahoo! Messenger !Téléchargez Yahoo! Messenger sur http://fr.messenger.yahoo.com
+--- via-rhine.c.orig	2004-04-12 19:27:41.000000000 +0200
++++ via-rhine.c	2004-04-14 19:09:29.860264907 +0200
+@@ -834,6 +834,7 @@
+  					netif_carrier_on(dev);
+  				else
+  					netif_carrier_off(dev);
++				break;
+  			}
+  		}
+  		np->mii_cnt = phy_idx;

@@ -1,59 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbTCMDXz>; Wed, 12 Mar 2003 22:23:55 -0500
+	id <S262120AbTCMDW6>; Wed, 12 Mar 2003 22:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbTCMDXz>; Wed, 12 Mar 2003 22:23:55 -0500
-Received: from imap.gmx.net ([213.165.64.20]:2089 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262128AbTCMDXx>;
-	Wed, 12 Mar 2003 22:23:53 -0500
-Message-Id: <5.2.0.9.2.20030313042854.00c56550@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 13 Mar 2003 04:39:11 +0100
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.64-mm2->4 hangs on contest
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <200303131222.12588.kernel@kolivas.org>
-References: <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
- <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
- <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
+	id <S262128AbTCMDW6>; Wed, 12 Mar 2003 22:22:58 -0500
+Received: from toq3-srv.bellnexxia.net ([209.226.175.16]:5805 "EHLO
+	toq3-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S262120AbTCMDW5>; Wed, 12 Mar 2003 22:22:57 -0500
+Subject: [OOPS] 2.5.64
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047526326.2261.9.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 12 Mar 2003 22:32:06 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:22 PM 3/13/2003 +1100, Con Kolivas wrote:
->On Wed, 12 Mar 2003 23:30, Mike Galbraith wrote:
-> > At 10:19 PM 3/12/2003 +1100, Con Kolivas wrote:
-> > >On Wed, 12 Mar 2003 21:37, Mike Galbraith wrote:
-> > > > >Is this in addition to your previous errr hack or instead of?
-> > > >
-> > > > Instead of.  The buttugly patch destroyed interactivity.  This one
-> > > > cures starvation, and interactivity is really nice.
-> > >
-> > >Ok that fixes the "getting stuck in process load" but it still hangs on
-> > >contest. I'll just have to give mm5 a go and see if whatever problem that
-> > > was went away in the mean time.
-> >
-> > (%$&#!!)
->
->No need to curse. Turns out this is an unrelated bug with the anticipatory
->scheduler which akpm is onto. Your fix worked fine for the scheduler based
->hang.
+Hi,
 
-Nope (drat), not quite.  I fixed the parse Mem: booboo, and see occasional 
-hangs doing complete irman test runs.  The process load works fine, but the 
-other two loads will hang once in a while.
+Got this oops during boot up. Machine is still alive.
 
-> > Oh well, Ingo probably has it nailed already anyway.
->
-> > (but meanwhile, where's your website again?)
->
->contest?
->http://contest.kolivas.org
+Athlon TB, IDE
 
-Yeah, thanks.
+hde: drive_cmd: error=0x04 { DriveStatusError }
+hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hde: drive_cmd: error=0x04 { DriveStatusError }
+SCSI subsystem initialized
+parport_pc: Via 686A parallel port disabled in BIOS
+lp: driver loaded but no devices found
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+Unable to handle kernel NULL pointer dereference at virtual address
+0000006c
+ printing eip:
+d88f440e
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<d88f440e>]    Not tainted
+EFLAGS: 00010206
+EIP is at rpc_depopulate+0x1e/0x120 [sunrpc]
+eax: 00000000   ebx: d5e6ba80   ecx: 0000006c   edx: d5e6baf4
+esi: d5e6ba80   edi: d5731dc0   ebp: 00000000   esp: d59bdcd4
+ds: 007b   es: 007b   ss: 0068
+Process rpc.nfsd (pid: 1290, threadinfo=d59bc000 task=d5ea26c0)
+Stack: 00000000 00000000 d5e6ba80 d5e6ba80 d5731dc0 00000000 d88f4942
+d5e6ba80 
+       d5d0a800 d7ffaac0 d59bdcf8 00000282 d56ccd40 00000010 00000001
+d88eba5d 
+       d6054d40 d59bddb4 d5c11740 d88e6302 d6054dd4 d6054d40 d88e6378
+d6054d40 
+Call Trace:
+ [<d88f4942>] rpc_rmdir+0x52/0x90 [sunrpc]
+ [<d88eba5d>] rpcauth_destroy+0xd/0x60 [sunrpc]
+ [<d88e6302>] rpc_destroy_client+0x42/0x70 [sunrpc]
+ [<d88e6378>] rpc_release_client+0x48/0x50 [sunrpc]
+ [<d88eac04>] rpc_release_task+0x1b4/0x1e0 [sunrpc]
+ [<d88ea5b5>] __rpc_execute+0x355/0x360 [sunrpc]
+ [<c0119380>] default_wake_function+0x0/0x20
+ [<d88e65ee>] rpc_call_setup+0x3e/0x60 [sunrpc]
+ [<d88e64d8>] rpc_call_sync+0x68/0xa0 [sunrpc]
+ [<d88e64e9>] rpc_call_sync+0x79/0xa0 [sunrpc]
+ [<d88fffb8>] all_tasks+0x0/0x8 [sunrpc]
+ [<d88fffb8>] all_tasks+0x0/0x8 [sunrpc]
+ [<d89001f4>] pmap_procedures+0x30/0x60 [sunrpc]
+ [<d88e9700>] gcc2_compiled.+0x0/0xa0 [sunrpc]
+ [<d88f6116>] +0xc52/0x105c [sunrpc]
+ [<d890023c>] pmap_program+0x0/0x24 [sunrpc]
+ [<d88f1558>] rpc_register+0xf8/0x130 [sunrpc]
+ [<c0133807>] __alloc_pages+0x87/0x2b0
+ [<d89001f4>] pmap_procedures+0x30/0x60 [sunrpc]
+ [<d89001f4>] pmap_procedures+0x30/0x60 [sunrpc]
+ [<c0130000>] filemap_fdatawait+0xc0/0x160
+ [<d89273e0>] nfsd_program+0x0/0x20 [nfsd]
+ [<d88eccc5>] svc_register+0x85/0xe0 [sunrpc]
+ [<d89273e0>] nfsd_program+0x0/0x20 [nfsd]
+ [<d8927fd8>] nfsd_version3+0x0/0x28 [nfsd]
+ [<d88ec92e>] gcc2_compiled.+0xce/0xe0 [sunrpc]
+ [<d89130a9>] nfsd_svc+0x89/0x1a0 [nfsd]
+ [<d89273e0>] nfsd_program+0x0/0x20 [nfsd]
+ [<d89137ef>] gcc2_compiled.+0x10f/0x130 [nfsd]
+ [<c0152c6f>] path_release+0xf/0x30
+ [<c016870f>] sys_nfsservctl+0xaf/0xf0
+ [<c013da04>] sys_munmap+0x34/0x50
+ [<c010a767>] syscall_call+0x7/0xb
 
-         -Mike 
+Code: ff 48 6c 0f 88 60 09 00 00 b8 00 e0 ff ff 21 e0 ff 40 10 8b 
+
+Regards,
+
+Shane
+
+
 

@@ -1,61 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbSIZQA2>; Thu, 26 Sep 2002 12:00:28 -0400
+	id <S261336AbSIZPyf>; Thu, 26 Sep 2002 11:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbSIZQA1>; Thu, 26 Sep 2002 12:00:27 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:56850 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S261352AbSIZQAZ>; Thu, 26 Sep 2002 12:00:25 -0400
-Date: Thu, 26 Sep 2002 18:14:24 +0200
-From: DervishD <raul@pleyades.net>
-To: immortal1015 <immortal1015@52mail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A newbie's question
-Message-ID: <20020926161424.GF47@DervishD>
-References: <20020926144558Z261317-8740+1711@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020926144558Z261317-8740+1711@vger.kernel.org>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+	id <S261339AbSIZPyf>; Thu, 26 Sep 2002 11:54:35 -0400
+Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:7911 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S261336AbSIZPya>; Thu, 26 Sep 2002 11:54:30 -0400
+From: Lightweight Patch Manager <patch@luckynet.dynu.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@connectiva.com.br>
+Subject: [PATCH][2.5] Single linked lists for Linux, overly complicated but working
+X-Mailer: Lightweight Patch Manager
+Message-ID: <20020926160028.C221C3@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+User-Agent: Lightweight Patch Manager/1.04
+Date: Thu, 26 Sep 2002 16:00:28 +0000
+X-Priority: I really don't care.
+Content-Type: text/plain; charset=US-ASCII
+Organization: Lightweight Networking
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi unknown :)
+This is an overly complicated version,  I guess I'll have a better one
+once I've got my noodles in. Wait an hour, I'll be back.
 
-> 	rep
-> 	movw
+And BTW, I got the luckynet address fixed, you can send me again...
 
-    In my bootsector.S, it's movsw: repeat move (string) by words.
-'movw' is 'mov word size operands'.
+--- /dev/null	Wed Dec 31 17:00:00 1969
++++ slist-2.5/include/linux/slist.h	Thu Sep 26 09:57:25 2002
+@@ -0,0 +1,139 @@
++#ifdef __KERNEL__
++#ifndef _LINUX_SLIST_H
++#define _LINUX_SLIST_H
++
++#include <asm/processor.h>
++
++/*
++ * Type-safe single linked list helper-functions.
++ * (originally taken from list.h)
++ *
++ * Thomas 'Dent' Mirlacher, Daniel Phillips,
++ * Andreas Bogk, Thunder from the hill
++ */
++
++#define INIT_SLIST_HEAD(name)			\
++	(name->next = name)
++
++#define SLIST_HEAD_INIT(name)			\
++	name
++
++#define SLIST_HEAD(type,name)			\
++	typeof(type) name = INIT_SLIST_HEAD(name)
++
++/**
++ * slist_add_front - add a new entry at the first slot, moving the old head
++ *		     to the second slot
++ * @new:	new entry to be added
++ * @head:	head of the single linked list
++ *
++ * Insert a new entry before the specified head.
++ * This is good for implementing stacks.
++ */
++
++#define slist_add_front(_new, _head)		\
++do {						\
++	(_new)->next = (_head);			\
++	(_head) = (_new);			\
++} while (0)
++
++/**
++ * slist_add - add a new entry
++ * @new:       new entry to be added
++ * @head:      head of the single linked list
++ *
++ * Insert a new entry before the specified head.
++ * This is good for implementing stacks.
++ *
++ * Careful: if you do this concurrently, _head
++ * might get into nirvana...
++ */
++#define slist_add(_new, _head)			\
++do {						\
++	(_new)->next = (_head)->next;		\
++	(_head)->next = (_new);			\
++	(_new) = (_head);			\
++} while (0)
++
++/**
++ * slist_del -	remove an entry from list
++ * @head:	head to remove it from
++ * @entry:	entry to be removed
++ */
++#define slist_del(_entry)				\
++({							\
++	typeof(_entry) _head =				\
++	    kmalloc(sizeof(_entry), GFP_KERNEL), _free;	\
++	if (_head) {					\
++	    memcpy(_head, (_entry), sizeof(_entry));	\
++	    _free = (_entry);				\
++	    (_entry) = (_entry)->next;			\
++	    kfree(_free);				\
++	    _head->next = NULL;				\
++	    _head;					\
++	} else						\
++	    NULL;					\
++})
++
++/**
++ * slist_del_init -	remove an entry from list and initialize it
++ * @head:	head to remove it from
++ * @entry:	entry to be removed
++ */
++#define slist_del_init(_entry)				\
++({							\
++	typeof(_entry) _head =				\
++	    kmalloc(sizeof(_entry), GFP_KERNEL), _free;	\
++	if (_head) {					\
++	    memcpy(_head, (_entry), sizeof(_entry));	\
++	    _free = (_entry);				\
++	    (_entry) = (_entry)->next;			\
++	    kfree(_free);				\
++	    _head->next = _head;			\
++	    _head;					\
++	} else						\
++	    NULL;					\
++})
++
++/**
++ * slist_del_single -	untag a list from an entry
++ * @list:	list entry to be untagged
++ */
++#define slist_del_single(_list)			\
++	((_list)->next = NULL)
++
++/**
++ * slist_pop	-	pop out list entry
++ * @list:	entry to be popped out
++ *
++ * Pop out an entry from a list.
++ */
++#define slist_pop(_list) ({			\
++	typeof(_list) _NODE_ = _list;		\
++	if (_list) {				\
++	    (_list) = (_list)->next;		\
++	    _NODE_->next = NULL;		\
++	}					\
++	_NODE_; })
++
++/**
++ * slist_for_each	-	iterate over a list
++ * @pos:	the pointer to use as a loop counter.
++ * @head:	the head for your list (this is also the first entry).
++ */
++#define slist_for_each(pos, head)				\
++	for (pos = head; pos && ({ prefetch(pos->next); 1; });	\
++	    pos = pos->next)
++
++/**
++ * slist_for_each_del	-	iterate over a list, popping off entries
++ * @pos:       the pointer to use as a loop counter.
++ * @head:      the head for your list (this is also the first entry).
++ */
++#define slist_for_each_del(pos, head)			\
++	for (pos = slist_pop(head); pos &&		\
++    	    ({ prefetch(pos->next); 1; });		\
++	    pos = slist_pop(head))
++
++#endif /* _LINUX_SLIST_H */
++#endif /* __KERNEL__ */
 
-> 	jmpi	go,INITSEG
+-- 
+Lightweight Patch Manager, without pine.
+If you have any objections (apart from who I am), tell me
 
-    AFAIK, the correct is 'ljmp': long jump. What kernel sources are
-you seeing?. Old kernels (2.0 and I think that 2.2 too) used as86 to
-do the assembling, and the syntax was like the Intel one, but with
-some differences. Not quite standard, I think.
-
-> /////////////////////////////
-> 1. What assembly language used in boot.s? Intel Asm or AT&T?
-
-    AT&T in new kernels, fully 'assembleable' with GNU as. IMHO is a
-better syntax, but I don't want to feed a troll here ;)
-
-> 2. Where is the definition of operand movw and jmpi?
-> I cant find it in the Intel Manual.
-
-    Of course, there aren't Intel syntax anyway :) I recommend you to
-see the 2.4 sources for reading the assembler part. Moreover, the
-info section for 'GNU as' comments the differences between Intel
-assembly syntax and the AT&T one. This will be of great help.
-
-    In addition to this, I have a document about using GNU as for
-real mode assembly that comments some of these points. But it is
-written in spanish only :((
-
-    Last, the Assembly-HOWTO will cast some light to the issue, too.
-
-    Raúl

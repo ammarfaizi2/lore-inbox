@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313139AbSDDL6m>; Thu, 4 Apr 2002 06:58:42 -0500
+	id <S313147AbSDDL7m>; Thu, 4 Apr 2002 06:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313147AbSDDL6d>; Thu, 4 Apr 2002 06:58:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:21775 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313139AbSDDL6S>;
-	Thu, 4 Apr 2002 06:58:18 -0500
-Date: Thu, 4 Apr 2002 13:58:17 +0200
-From: Dave Jones <davej@suse.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: James Simmons <jsimmons@transvirtual.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new fbdev api.
-Message-ID: <20020404135817.Q20040@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	James Simmons <jsimmons@transvirtual.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10204031224280.14670-100000@www.transvirtual.com> <Pine.GSO.4.21.0204040949550.28139-100000@vervain.sonytel.be>
+	id <S313149AbSDDL7d>; Thu, 4 Apr 2002 06:59:33 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:21222 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S313147AbSDDL7N>; Thu, 4 Apr 2002 06:59:13 -0500
+Date: Thu, 4 Apr 2002 03:59:10 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: torvalds@transmeta.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at boot time
+Message-ID: <20020404035910.A281@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 09:50:09AM +0200, Geert Uytterhoeven wrote:
- > > This will have a very important impact on linux embedded devices. It has
- > > been tested and has been in Dave Jones tree for some time. Geert with
- > > your blessing I like to have it added to Linus tree.
- > 
- > Please go ahead!
 
-Indeed, the fb changes are the largest chunk of -dj right now.
-The three heavy-weight patches pending integration by their maintainers
-make up for half of whats left to be resynced..
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(davej@noodles:resync)$ ll new-*
--rw-r--r--    1 davej    users      527576 Apr  1 21:48 new-console-layer.diff
--rw-r--r--    1 davej    users     2005697 Apr  1 03:12 new-fbdev.diff
--rw-r--r--    1 davej    users      396297 Apr  1 19:01 new-input-layer.diff
+	When I attempted to boot linux-2.5.8-pre1, I got a kernel
+BUG() for exit.c line 519.  The was a small change to to kernel/exit.c
+in 2.5.8-pre1 which deleted a kernel_lock() call.  Restoring that line
+resulted in a kernel that booted fine.  I am sending this email from
+the machine running that kernel (so I guess a matching release of
+the kernel lock is already in the code).
 
+	Here is the patch.  Of course, it would be helpful if someone
+who actually understands this could take a look at it.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="exit.diff"
+
+--- linux-2.5.8-pre1/kernel/exit.c	2002-04-03 23:38:32.000000000 -0800
++++ linux/kernel/exit.c	2002-04-04 03:52:18.000000000 -0800
+@@ -499,6 +499,7 @@
+ 	acct_process(code);
+ 	__exit_mm(tsk);
+ 
++	lock_kernel();
+ 	sem_exit();
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+
+--OgqxwSJOaUobr8KG--

@@ -1,59 +1,107 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315830AbSETKM0>; Mon, 20 May 2002 06:12:26 -0400
+	id <S315819AbSETK2B>; Mon, 20 May 2002 06:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315808AbSETKMZ>; Mon, 20 May 2002 06:12:25 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:54687 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S315860AbSETKMX>;
-	Mon, 20 May 2002 06:12:23 -0400
-Date: Mon, 20 May 2002 13:12:22 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Manik Raina <manik@cisco.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH]: adding counters to count bytes read/written
-Message-ID: <20020520131222.K9955@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.21.0205201506240.14394-100000@localhost.localdomain>
+	id <S315832AbSETK2A>; Mon, 20 May 2002 06:28:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63620 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315819AbSETK16>;
+	Mon, 20 May 2002 06:27:58 -0400
+Date: Mon, 20 May 2002 15:59:58 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Miller <davem@redhat.com>
+Subject: Re: [RFC][PATCH] TIMER_BH-less smptimers
+Message-ID: <20020520155958.F6270@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020516185448.A8069@in.ibm.com> <20020520085500.GB14488@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 20, 2002 at 03:09:36PM +0530, Manik Raina wrote:
-> Hi Linus,
+On Mon, May 20, 2002 at 06:55:00PM +1000, Anton Blanchard wrote:
 > 
-> 	This patch adds 2 counters to the task_struct for
-> 	counting how many bytes were read/written using
-> 	the read()/write() system calls. 
+> Hi Dipankar,
 > 
-> 	These counters may be useful in determining how
-> 	many IO requests are made by each process.
+> > I have been experimenting with Ingo's smptimers and I ended up
+> > extending it a little bit. I would really appreciate comments
+> > on whether these things make sense or not.
+> 
+> I tried it out and found that we were context switching like crazy.
+> It seems we were always running the timers out of a tasklet because
+> we never unlocked the net_bh_lock.
 
-  These are defined as UINTegers, are you sure that is appropriate type ?
-  What to do when they will overflow ?  For short term activity tracking 
-  they may be ok (4GB/200 MB/sec = 20 sec to wrap around), but for accounting
-  the overflow might not be liked thing..
+The tasklet code also needs fixing. It is a miracle that the kernel
+booted when I tested that code. Here is a fixed diff.
 
-  For short-term IO-activity tracking they may indeed make sense, but I
-  would add another pair of counters to assist on that tracking.  Namely
-  "values at the end of previous interval", which are maintained by the
-  activity tracking code.
+I am curious about performance of smptimers. It seems that
+webserver benchmark performance worsens with smptimers (Ingo version)
+contrary to our expectations. Do you see this ? If so, could this
+happen because -
 
-  Reading one byte at the time won't grow those counters very fast, but will
-  cause massive amounts of syscalls, and context switches, so tracking data
-  amount alone isn't good enough.
+1) Bouncing around of global_bh_lock cacheline by more cpus compared
+to earlier timer implemenation ?
+2) All per-cpu timers invoked from timer_bh running in one cpu ?
 
-....
-> diff -u -r ../temp/linux-2.5.12/include/linux/sched.h ./include/linux/sched.h
-> --- ../temp/linux-2.5.12/include/linux/sched.h	Wed May  1 05:38:47 2002
-> +++ ./include/linux/sched.h	Mon May 20 09:25:32 2002
-> @@ -315,6 +315,7 @@
->  	int link_count, total_link_count;
->  	struct tty_struct *tty; /* NULL if no tty */
->  	unsigned int locks; /* How many file locks are being held */
-> +	unsigned int bytes_written, bytes_read;
->  /* ipc stuff */
->  	struct sysv_sem sysvsem;
->  /* CPU-specific state of this task */
+Do you see any other side-effects of smptimers ?
 
-/Matti Aarnio
+Also, did my PPC changes for smptimers work or you had to fix it ?
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+--- linux-2.5.12-smptimers/kernel/timer.c	Tue May 14 13:21:26 2002
++++ linux-2.5.14-smptimers/kernel/timer.c	Mon May 20 15:46:29 2002
+@@ -680,19 +680,14 @@
+                 goto resched;
+ 
+         if (!spin_trylock(&net_bh_lock))
+-                goto resched_net;
+-
+-        if (!hardirq_trylock(cpu))
+                 goto resched_unlock;
+ 
+ 	if ((long)(jiffies - base->timer_jiffies) >= 0)
+ 		__run_timers(base);
+ 
+-        hardirq_endlock(cpu);
++        spin_unlock(&net_bh_lock);
+         spin_unlock(&global_bh_lock);
+         return;
+-resched_net:
+-        spin_unlock(&net_bh_lock);
+ resched_unlock:
+         spin_unlock(&global_bh_lock);
+ resched:
+@@ -719,20 +714,21 @@
+ 	if (!spin_trylock(&global_bh_lock))
+ 		goto out_enable_mark;
+         if (!spin_trylock(&net_bh_lock))
+-                goto out_unlock_net;
++                goto out_unlock_enable_mark;
+ 
+ 	if (!hardirq_trylock(cpu))
+-		goto out_unlock_enable_mark;
++		goto out_unlock_enable_mark_net;
+ 
+ 	if ((long)(jiffies - base->timer_jiffies) >= 0)
+ 		__run_timers(base);
+ 
+ 	hardirq_endlock(cpu);
++	spin_unlock(&net_bh_lock);
+ 	spin_unlock(&global_bh_lock);
+ 	local_irq_enable();
+ 	local_bh_enable();
+ 	return;
+-out_unlock_net:
++out_unlock_enable_mark_net:
+ 	spin_unlock(&net_bh_lock);
+ out_unlock_enable_mark:
+ 	spin_unlock(&global_bh_lock);
+
+

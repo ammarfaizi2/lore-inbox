@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265845AbTL3WQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbTL3WPU
+	id S265891AbTL3W1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:27:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbTL3WYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:15:20 -0500
-Received: from mail.kroah.org ([65.200.24.183]:55745 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265845AbTL3WGi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:06:38 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.0
-In-Reply-To: <10728219701447@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Dec 2003 14:06:10 -0800
-Message-Id: <1072821970466@kroah.com>
+	Tue, 30 Dec 2003 17:24:16 -0500
+Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:57550 "EHLO
+	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S265880AbTL3WXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:23:38 -0500
+Subject: Re: no DRQ after issuing WRITE was Re: 2.4.23-uv3 patch set
+	released
+From: Rob Love <rml@ximian.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Daniel Tram Lux <daniel@starbattle.com>, steve@drifthost.com,
+       James Bourne <jbourne@hardrock.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Gergely Tamas <dice@mfa.kfki.hu>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.58.0312301352570.2065@home.osdl.org>
+References: <Pine.LNX.4.51.0312290052470.1599@cafe.hardrock.org>
+	 <Pine.LNX.4.58L.0312300935040.22101@logos.cnet>
+	 <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
+	 <Pine.LNX.4.58L.0312301849400.23875@logos.cnet>
+	 <Pine.LNX.4.58.0312301352570.2065@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1072823015.4350.40.camel@fur>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Tue, 30 Dec 2003 17:23:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1496.20.2, 2003/12/19 10:47:09-08:00, mds@paradyne.com
+On Tue, 2003-12-30 at 16:57, Linus Torvalds wrote:
 
-[PATCH] I2C: fix amd756 byte writes
+> Is CONFIG_PREEMPT on in the cases, and is there really no locking 
+> anywhere? Preempting in the middle of the data transfer phase sounds like 
+> a fundamentally bad idea, and maybe the code needs a few preempt 
+> disable/enable pairs somewhere?
 
-This fixes byte writes (used by the eeprom driver) in the i2c-amd756
-driver.  It is similar to recent fixes for the i2c-amd8111 and
-i2c-nforce2 drivers.
+Is the kernel patched with kernel preemption?  It is not in stock 2.4.
 
-Tested by me.
+Anyhow, if interrupts are disabled, preemption should be disabled (we
+check for that condition in both preempt_schedule() and
+return_from_intr).
 
+If interrupts are not disabled, then preempting would definitely be a
+bad thing.  But I would think, for the same reasons you do not want to
+preempt, you would want interrupts disabled ..
 
- drivers/i2c/busses/i2c-amd756.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+	Rob Love
 
-
-diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c	Tue Dec 30 12:29:49 2003
-+++ b/drivers/i2c/busses/i2c-amd756.c	Tue Dec 30 12:29:49 2003
-@@ -213,9 +213,8 @@
- 	case I2C_SMBUS_BYTE:
- 		outw_p(((addr & 0x7f) << 1) | (read_write & 0x01),
- 		       SMB_HOST_ADDRESS);
--		/* TODO: Why only during write? */
- 		if (read_write == I2C_SMBUS_WRITE)
--			outb_p(command, SMB_HOST_COMMAND);
-+			outb_p(command, SMB_HOST_DATA);
- 		size = AMD756_BYTE;
- 		break;
- 	case I2C_SMBUS_BYTE_DATA:
 

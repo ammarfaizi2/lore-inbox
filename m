@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTKDQGV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 11:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTKDQGU
+	id S262337AbTKDQXr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 11:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKDQXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 11:06:20 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:57476 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262319AbTKDQGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 11:06:20 -0500
-Date: Tue, 4 Nov 2003 16:05:43 +0000
-From: Dave Jones <davej@redhat.com>
-To: Ruben Puettmann <ruben@puettmann.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend and AGP in 2.6.0-test9
-Message-ID: <20031104160543.GD5512@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ruben Puettmann <ruben@puettmann.net>, linux-kernel@vger.kernel.org
-References: <NMa8.7uR.11@gated-at.bofh.it> <NN6b.pY.5@gated-at.bofh.it> <E1AH3Rg-00033v-00@baloney.puettmann.net>
-Mime-Version: 1.0
+	Tue, 4 Nov 2003 11:23:46 -0500
+Received: from ezoffice.mandrakesoft.com ([212.11.15.34]:39569 "EHLO
+	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id S262337AbTKDQXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 11:23:45 -0500
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Tomas Szepe <szepe@pinerecords.com>, Valdis.Kletnieks@vt.edu,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: how to restart userland?
+X-URL: <http://www.linux-mandrake.com/
+References: <20031103193940.GA16820@louise.pinerecords.com>
+	<200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
+	<20031103201223.GC16820@louise.pinerecords.com>
+	<3FA779F5.6090704@aitel.hist.no>
+From: Thierry Vignaud <tvignaud@mandrakesoft.com>
+Organization: MandrakeSoft
+Date: Tue, 04 Nov 2003 15:47:26 +0000
+In-Reply-To: <3FA779F5.6090704@aitel.hist.no> (Helge Hafting's message of
+ "Tue, 04 Nov 2003 11:05:41 +0100")
+Message-ID: <m2ptg8rv8x.fsf@vador.mandrakesoft.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1AH3Rg-00033v-00@baloney.puettmann.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 04:50:16PM +0100, Ruben Puettmann wrote:
+Helge Hafting <helgehaf@aitel.hist.no> writes:
 
- > > Suspend/Resume code in agpgart is virtually non-existant.
- > Do you know if there is some work in progress?
+> > > Is there a reason you want to "completely" restart userland and
+> > > *not* reboot (for instance, wanting to keep existing mounts,
+> > > etc)?
+> > Extensive userland upgrades (glibc is a nice example I guess),
+> > etc.
+>
+> Consider using debian then - a glibc upgrade there is no problem as
+> various services (including init) are restarted automatically mostly
+> without disturbing running applications.
 
-not afaik.
+this should be mandatory in the packaging system.
+mandrake too restart servers on glibc update.
 
- > Without suspend and
- > resume with XFree most laptop users will not be happy with 2.6.
-
-then most laptop users will need to wait until I've got time to
-fix it, or fix it themselves.
-
-		Dave
+this is definitively not a kernel problem, but a userland one.
 

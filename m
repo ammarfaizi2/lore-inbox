@@ -1,61 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUEGILT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUEGIcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUEGILT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 04:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbUEGILT
+	id S262960AbUEGIcG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 04:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEGIcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 04:11:19 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:34695 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262361AbUEGILR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 04:11:17 -0400
-Message-ID: <409B4494.5253316B@melbourne.sgi.com>
-Date: Fri, 07 May 2004 18:11:00 +1000
-From: Greg Banks <gnb@melbourne.sgi.com>
-Organization: SGI Australian Software Group
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
-X-Accept-Language: en
+	Fri, 7 May 2004 04:32:06 -0400
+Received: from indianer.linux-kernel.at ([212.24.125.53]:22503 "EHLO
+	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
+	id S262960AbUEGIb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 04:31:58 -0400
+From: "Oliver Pitzeier" <oliver@linux-kernel.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: Strange Linux behaviour!?
+Date: Fri, 7 May 2004 10:33:02 +0200
+Organization: linux-kernel.at
+Message-ID: <013001c4340d$e9860470$d50110ac@sbp.uptime.at>
 MIME-Version: 1.0
-To: Oliver Tennert <tennert@science-computing.de>
-CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       Linux NFS Mailing List <nfs@lists.sourceforge.net>
-Subject: Re: PATCH [NFSd] NFSv3/TCP
-References: <Pine.LNX.4.44.0405070949160.5549-100000@picard.science-computing.de>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <409B4494.5253316B@melbourne.sgi.com>
+Importance: Normal
+X-MailScanner-Information-linux-kernel.at: Please contact your Internet E-Mail Service Provider for more information
+X-MailScanner-linux-kernel.at: Found to be clean
+X-MailScanner-From: oliver@linux-kernel.at
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Tennert wrote:
-> 
-> As it does not any changes for say a i386 architecture, 
+Hi folks!
 
-Yes, by design.
+Strange things are happinging some times, and here we have a new. :-)
 
-> I cannot see why
-> after that my lockups should go away.
+We have a machine with five partitions mounted. One of those partitions
+is /usr. We can created files on /usr, but we cannot created
+directories. mkdir says, that there is no space left on device, but
+there actually IS space as you can see and files can be created, so why
+NO directories? Is it the kernel, is it the filesystem, is it the full
+moon high in the sky? :-) I have no clue, but maybe you have... Any
+help/idea is welcome!
 
-I don't claim any such thing,  I was just resending a patch (which is of no
-use to you) that Neil mentioned had been lost in the shuffle.
+Please have a look at this log:
 
-> Are lockups no known problem at all? Am I the only one experiencing them?
-> They _definitely_ went away for me with NFSSVC_MAXBLKSIZE equal 32k, even
-> under high IO pressure.
+uname -a
+Linux apache2.dev.xxx.at 2.4.18-3 #1 Thu Apr 18 07:37:53 EDT 2002 i686
+unknown
 
-Sure, I believe you, I just have no idea what your problem is.
+mount -l
+/dev/sda7 on / type ext3 (rw) [/]
+none on /proc type proc (rw)
+/dev/sda1 on /boot type ext3 (rw) [/boot]
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /dev/shm type tmpfs (rw)
+/dev/sda6 on /tmp type ext3 (rw) [/tmp]
+/dev/sda2 on /usr type ext3 (rw) [/usr]
+/dev/sda5 on /var/log type ext3 (rw) [/var/log]
 
-As a general statement of no particular import, I note that going to 32K
-has a number of other side effects other than the obvious.  For streaming
-reads and writes the call rate goes down by a factor of 4 so you may be
-not exercising some race condition.  Also there may be different code paths
-through READDIR and READDIR+ code.
+df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda7              10G  1.9G  8.0G  19% /
+/dev/sda1              38M   15M   21M  40% /boot
+none                  504M     0  503M   0% /dev/shm
+/dev/sda6             243M  103M  128M  45% /tmp
+/dev/sda2             4.8G  703M  3.8G  16% /usr
+/dev/sda5             648M   19M  597M   3% /var/log
+/usr
 
-Now if you had some kind of kernel debugger and could post some more
-information, like process list and kernel stack traces from the hang,
-someone (not me) may be able to figure out the real problem that you've
-hidden by going to 32K.
+cd /usr
+mkdir test
+mkdir: cannot create directory `test': No space left on device
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+cd /tmp
+mkdir test
+ls
+drwxr-xr-x    2 root     root         1024 May  7 09:08 test
+
+mkdir --version
+mkdir (fileutils) 4.1
+Written by David MacKenzie.
+
+Copyright (C) 2001 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is
+NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
+
+Best regards,
+ Oliver
+
+PS: Please CC answers to dh@uptime.at
+

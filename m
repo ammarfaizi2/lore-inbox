@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261699AbSJFQr4>; Sun, 6 Oct 2002 12:47:56 -0400
+	id <S261658AbSJFQoz>; Sun, 6 Oct 2002 12:44:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261707AbSJFQr4>; Sun, 6 Oct 2002 12:47:56 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:62705 "EHLO
+	id <S261689AbSJFQoz>; Sun, 6 Oct 2002 12:44:55 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:57073 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261699AbSJFQrz>; Sun, 6 Oct 2002 12:47:55 -0400
-Subject: Re: New BK License Problem?
+	id <S261658AbSJFQoz>; Sun, 6 Oct 2002 12:44:55 -0400
+Subject: Re: BK MetaData License Problem?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: Skip Ford <skip.ford@verizon.net>, Linus Torvalds <torvalds@transmeta.com>,
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@redhat.com>,
+       Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       bcollins@debian.org, Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021006163831.GA16144@conectiva.com.br>
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>
-	<3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com>
-	<1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
-	<anoivq$35b$1@penguin.transmeta.com>
-	<200210060743.g967hEWf000528@pool-141-150-241-241.delv.east.verizon.net> 
-	<20021006163831.GA16144@conectiva.com.br>
+In-Reply-To: <20021006150854.C31147@flint.arm.linux.org.uk>
+References: <20021006144821.B31147@flint.arm.linux.org.uk>
+	<Pine.LNX.4.44.0210061601040.7386-100000@localhost.localdomain> 
+	<20021006150854.C31147@flint.arm.linux.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 18:02:39 +0100
-Message-Id: <1033923759.21282.35.camel@irongate.swansea.linux.org.uk>
+Date: 06 Oct 2002 17:58:26 +0100
+Message-Id: <1033923506.22038.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 17:38, Arnaldo Carvalho de Melo wrote:
-> Are you dying to see X.25, lapbether, LLC, IPX and other non-sexy/mainstream
-> patches here? I can start doing it for the stuff I've been sending only via
-> bitkeeper to David Miller, I'm mostly alone in this and having people
+On Sun, 2002-10-06 at 15:08, Russell King wrote:
+> The way BK openlogging works, it exports personal information out of the
+> EU.  This is explicitly prohibited under EU law, unless the owner of that
+> personal information has explicitly granted that it may be used in that
+> manner.
 
-I would really like a linux-patches@vger.kernel.org list that was
-nothing but all the patches people planned to submit, with minimal
-commentaries, and which had a reply to pointing at linux-kernel.
+You can give anyone you like your -own- personal info. That is your
+problem. What you can't do is do that with someone elses.
 
-Things like the hugetlb crap might then not have gotten in
+
+If it bothers you start a project in some free country that is about
+cracking DRM schemes, use bitkeeper, document profusely in commit
+messages and wait ;)
+
 

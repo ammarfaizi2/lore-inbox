@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbSLWJLB>; Mon, 23 Dec 2002 04:11:01 -0500
+	id <S265276AbSLWJPB>; Mon, 23 Dec 2002 04:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbSLWJLB>; Mon, 23 Dec 2002 04:11:01 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:42121 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265196AbSLWJLA>;
-	Mon, 23 Dec 2002 04:11:00 -0500
-Date: Mon, 23 Dec 2002 10:18:05 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Type confusion in fbcon
-In-Reply-To: <20021220213056.A25155@flint.arm.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0212231014460.12134-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265446AbSLWJPA>; Mon, 23 Dec 2002 04:15:00 -0500
+Received: from mail.gmx.net ([213.165.65.60]:46232 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265276AbSLWJO7>;
+	Mon, 23 Dec 2002 04:14:59 -0500
+Date: Mon, 23 Dec 2002 10:23:04 +0100
+To: linux-kernel@vger.kernel.org
+Subject: compile error in isdn_ppp_mp.h (kernel 2.5.52)
+Message-ID: <20021223092303.GB4995@mob.wid>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Disposition: inline
+x-gpg-fingerprint: 717B AE57 49B3 410F A733  FE6A 2D43 E1E3 CF28 6A67
+x-gpg-key: wwwkeys.de.pgp.net
+From: Felix Triebel <ernte23@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Dec 2002, Russell King wrote:
-> On Fri, Dec 20, 2002 at 06:10:17PM +0000, James Simmons wrote:
-> > > I'll get back to bashing the sa1100fb driver to work out why fbcon is
-> > > producing a _completely_ blank display, despite characters being written
-> > > to it.
-> > 
-> > Did you figure out what was wrong?
-> 
-> Firstly, setting fix.line_length to zero (which the old API didn't care
-> about) caused one set of problems.
 
-That's because originally there was no fix.line_length field, and the line
-length was derived from var.xres_virtual and var.bits_per_pixel.
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With some hardware, the line length must be a multiple of 32 or 64 bits, and we
-needed a way to specify that, so fix.line_length was introduced. If it was
-zero, user code should fallback to the old behavior.
+Hi,
 
-Anyway, I think it's good to make fix.line_length mandatory with the new fbdev
-API.
+compiling kernel 2.5.52 stops with this:
 
-Gr{oetje,eeting}s,
+gcc -Wp,-MD,drivers/isdn/i4l/.isdn_ppp.o.d -D__KERNEL__ -Iinclude -Wall -Ws=
+trict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe =
+-mpreferred-stack-boundary=3D2 -march=3Di686 -malign-functions=3D4 -Iarch/i=
+386/mach-generic -fomit-frame-pointer -nostdinc -iwithprefix include -DMODU=
+LE   -DKBUILD_BASENAME=3Disdn_ppp -DKBUILD_MODNAME=3Disdn   -c -o drivers/i=
+sdn/i4l/isdn_ppp.o drivers/isdn/i4l/isdn_ppp.c
+In file included from drivers/isdn/i4l/isdn_ppp.c:22:
+drivers/isdn/i4l/isdn_ppp_mp.h: In function `ippp_mp_xmit':
+drivers/isdn/i4l/isdn_ppp_mp.h:47: too many arguments to function `ippp_xmi=
+t'
+make[4]: *** [drivers/isdn/i4l/isdn_ppp.o] error 1
+make[3]: *** [drivers/isdn/i4l] error 2
+make[2]: *** [drivers/isdn] error 2
+make[1]: *** [drivers] error 2
+make: *** [modules] error 2
 
-						Geert
+Is this a known problem?
+I just wanted to test 2.5.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+regards,
+Felix T.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--=20
 
+/"\  ASCII RIBBON CAMPAIGN
+\ /  AGAINST HTML MAIL
+ X   AND POSTINGS  :)
+/ \  http://www.dcoul.de/
+
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+
+iD8DBQE+BtX3LUPh488oamcRAkbRAJ42rv8XM/3XTfIDHGO7GDHhfX5mswCdFEqB
+7chWJ269Wzi50DPmUH1aSDg=
+=fQJ/
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--

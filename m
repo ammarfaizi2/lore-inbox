@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbULUX5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbULUX6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbULUX5j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 18:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbULUX5j
+	id S261906AbULUX6n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 18:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULUX6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 18:57:39 -0500
-Received: from pop.gmx.net ([213.165.64.20]:60907 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261905AbULUX4K (ORCPT
+	Tue, 21 Dec 2004 18:58:42 -0500
+Received: from pop.gmx.de ([213.165.64.20]:5783 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261906AbULUX4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 21 Dec 2004 18:56:10 -0500
-Date: Wed, 22 Dec 2004 00:56:05 +0100 (MET)
+Date: Wed, 22 Dec 2004 00:56:06 +0100 (MET)
 From: "Manfred Schwarb" <manfred99@gmx.ch>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
@@ -19,7 +19,7 @@ References: <20041221164610.GC3596@logos.cnet>
 Subject: Re: 2.4.29-pre2 Oops at find_inode/reiserfs_find_actor
 X-Priority: 3 (Normal)
 X-Authenticated: #17170890
-Message-ID: <1730.1103673365@www47.gmx.net>
+Message-ID: <1742.1103673366@www47.gmx.net>
 X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="us-ascii"
@@ -183,5 +183,5 @@ tend to belive memory is ok, and knock on wood...
 
 
 -- 
-+++ Sparen Sie mit GMX DSL +++ http://www.gmx.net/de/go/dsl
-AKTION für Wechsler: DSL-Tarife ab 3,99 EUR/Monat + Startguthaben
+Psssst! Mit GMX Handyrechnung senken: http://www.gmx.net/de/go/mail
+100 FreeSMS/Monat (GMX TopMail), 50 (GMX ProMail), 10 (GMX FreeMail)

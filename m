@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbRBYUdp>; Sun, 25 Feb 2001 15:33:45 -0500
+	id <S129719AbRBYUpG>; Sun, 25 Feb 2001 15:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129715AbRBYUdf>; Sun, 25 Feb 2001 15:33:35 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:30480 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129706AbRBYUdY>; Sun, 25 Feb 2001 15:33:24 -0500
-Date: Sun, 25 Feb 2001 15:32:47 -0500
-From: Chris Mason <mason@suse.com>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs: still problems with tail conversion
-Message-ID: <1026050000.983133167@tiny>
-In-Reply-To: <20010225173752.A866@arthur.ubicom.tudelft.nl>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S129732AbRBYUor>; Sun, 25 Feb 2001 15:44:47 -0500
+Received: from jalon.able.es ([212.97.163.2]:26076 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129719AbRBYUon>;
+	Sun, 25 Feb 2001 15:44:43 -0500
+Date: Sun, 25 Feb 2001 21:44:29 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Nick Kurshev <nickols_k@mail.ru>
+Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Probably patch-2.4.1 is not complete
+Message-ID: <20010225214429.A1443@werewolf.able.es>
+In-Reply-To: <E14X3Ut-000CN7-00@smtp2.port.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14X3Ut-000CN7-00@smtp2.port.ru>; from nickols_k@mail.ru on Sun, Feb 25, 2001 at 19:41:28 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ok, found it.  It is related to the last null byte problem in that it also
-only happens when the direct item is split between two blocks.  This is
-more likely as the tail increases in size, which is why you saw it on
-larger small files.
+On 02.25 Nick Kurshev wrote:
+> Hello!
+> 
+> I have downloaded a full tarball of linux-kernel-2.4.0 and patches:
+> patch-2.4.1 patch-2.4.2.
+> But patch-2.4.1 imho it not complete. During linking a linker said about
+> unresolved reference:
+> __buggy_fxsr_alignment
 
-The bug is in the code that zeros the unused part of the unformatted node
-after a direct->indirect conversion.  This code only gets called when the
-page/buffer wasn't already up to date, which is why you see it more when
-there is less ram.
+Are you using pgcc ?
+Which compiler do you build kernel with ?
 
-Fix will be out shortly....
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
--chris
+Linux werewolf 2.4.2-ac3 #1 SMP Fri Feb 23 21:48:09 CET 2001 i686
 

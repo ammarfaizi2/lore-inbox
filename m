@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132727AbRC2Ttp>; Thu, 29 Mar 2001 14:49:45 -0500
+	id <S132830AbRC2UOi>; Thu, 29 Mar 2001 15:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132823AbRC2Tth>; Thu, 29 Mar 2001 14:49:37 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:4310 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S132727AbRC2TtZ>;
-	Thu, 29 Mar 2001 14:49:25 -0500
-From: tom_gall@vnet.ibm.com
-Message-ID: <3AC3914E.B0EE39E3@vnet.ibm.com>
-Date: Thu, 29 Mar 2001 19:47:26 +0000
-Reply-To: tom_gall@vnet.ibm.com
-Organization: IBM
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Obtaining new Device Numbers
+	id <S132834AbRC2UO3>; Thu, 29 Mar 2001 15:14:29 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:24345 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S132830AbRC2UOI>;
+	Thu, 29 Mar 2001 15:14:08 -0500
+Message-ID: <20010329221327.B8791@win.tue.nl>
+Date: Thu, 29 Mar 2001 22:13:27 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Aaron Lunansky <alunansky@rim.net>, linux-kernel@vger.kernel.org
+Subject: Re: Mount locks on bad ISO image?
+In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8107F45925@xch01ykf.rim.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8107F45925@xch01ykf.rim.net>; from Aaron Lunansky on Thu, Mar 29, 2001 at 02:16:03PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Thu, Mar 29, 2001 at 02:16:03PM -0500, Aaron Lunansky wrote:
+> I tried mounting a file as an ISO image (turns out it was corrupted) - after
+> running mount file.iso /cdrom -o loop
+> mount hung and did not respond.. I could not ^Z it into the background, or
+> kill, or kill -9 it...
+> 
+> I'm certain that I have ISO and loopback support compiled into my kernel.
+> 
+> Anyone know what might be going on?
 
-  According to Documentation/devices.txt to request new major / numbers, all you
-should have to do is get ahold of H. Peter Anvin.
+Answer 1: in 2.4.2 the loop device does not work
+ (but things are better in the -ac patches).
+Answer 2: the kernel tends to believe filesystem data,
+ and a corrupted filesystem can seriously confuse the kernel.
 
-  Does anybody know if he is still doing this? Perhaps has he passed this duty
-on to someone else? It would appear he isn't answering requests mailed to
-device@lanana.org.
+If you make sure that the problem does not lie in loop
+(you can mount other images without problems), then
+I wouldnt mind seeing your image (or rather, the first
+MB or two of it) to see whether the isofs code must be
+improved. (In that case, put some smallish fragment up for ftp
+and mail the URL to aeb@cwi.nl. Don't mail cd images.)
 
-  I'm trying to get the major / minor number issues resolved for the Linux port
-to the IBM AS/400 aka iSeries. We have released our first set of patches and
-before we put out the next set we'd like to get this nailed down as we're using
-bogus major / minor numbers that we just grabbed out of mid-air... obviously not
-the right thing.
-
-  For those interested in the patches, take a gander to
-oss.software.ibm.com/developerworks/opensource/linux/projects/ppc/iSeries_notes.php
-
-  Thanks much for any info!
-
-  Regards,
-
-  Tom
--- 
-Tom Gall - PowerPC Linux Team    "Where's the ka-boom? There was
-Linux Technology Center           supposed to be an earth
-(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
-(w) 507-253-4558                 -- Marvin Martian
-(h) tgall@rochcivictheatre.org
-http://oss.software.ibm.com/developerworks/opensource/linux
+Andries

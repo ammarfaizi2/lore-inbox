@@ -1,116 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318839AbSG0WEm>; Sat, 27 Jul 2002 18:04:42 -0400
+	id <S318837AbSG0WR7>; Sat, 27 Jul 2002 18:17:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318836AbSG0WEm>; Sat, 27 Jul 2002 18:04:42 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:65499 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S318835AbSG0WEj>; Sat, 27 Jul 2002 18:04:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Robert White <rwhite@pobox.com>
-Reply-To: rwhite@pobox.com
-To: Russell King <rmk@arm.linux.org.uk>, Ed Vance <EdV@macrolink.com>
-Subject: Re: n_tty.c driver patch (semantic and performance correction) (a ll recent versions)
-Date: Sat, 27 Jul 2002 15:07:56 -0700
-User-Agent: KMail/1.4.1
-Cc: "'Theodore Tso'" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-References: <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE> <20020726151723.F19802@flint.arm.linux.org.uk>
-In-Reply-To: <20020726151723.F19802@flint.arm.linux.org.uk>
-X-Evil-Bastard: True (but nice about it)
+	id <S318838AbSG0WR5>; Sat, 27 Jul 2002 18:17:57 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:47612 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S318837AbSG0WRz>; Sat, 27 Jul 2002 18:17:55 -0400
+From: "Buddy Lumpkin" <b.lumpkin@attbi.com>
+To: "Austin Gonyou" <austin@digitalroadkill.net>,
+       <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "Ville Herva" <vherva@niksula.hut.fi>, "DervishD" <raul@pleyades.net>,
+       "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: About the need of a swap area
+Date: Sat, 27 Jul 2002 15:22:04 -0700
+Message-ID: <FJEIKLCALBJLPMEOOMECOEPFCPAA.b.lumpkin@attbi.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207271507.56873.rwhite@pobox.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1027803522.18360.17.camel@UberGeek.digitalroadkill.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree that that is what that line of the text says, my position is that the 
-entire statement was was written nieavely, and proveably so.  Throughout the 
-entire section the standard (not the linux manual page) discusses "satisfying 
-a read" (singular).  The text was written with an "everybody will know 
-basically what I mean" aditude that leaves it flawed for strict 
-interpretation.  And the linux manual pages still show through enough to use 
-as the bases of my argument.
-
-Pre-Summary: My entire position rests on what the original author meant by 
-"receive".  That is, is it "receive into the driver" or "receive into the 
-user context".  He proveably meant receive into the user context (e.g. the 
-read buffer).
-
-The best example to use for the "sloppyness" of writing in the standard and 
-manual page is that technically, if it is "receive into the driver", if you 
-have both VMIN and VTIME set non-zero, VTIME will not start until "a 
-character is received" which, by strict intrepertation of "received (by the 
-driver)", discounts the presence of any characters in the buffer.  Restated, 
-if it is "receive into the driver" this read will wait for a new character 
-even if there are hundreds of characters already buffered.
-
-(CITATION: from the linux manual page: "When both are set, a read will wait 
-until at least one character has been received, and then return  as  soon  as 
-either  MIN  characters  have been received or time TIME has passed since the 
-last character was received.")
-
-This "clearly states" that if you have a meg in the buffer (passed-tense 
-received) the driver "will  wait for a character to be received" (imparative 
-future tense) but we all know that is dumb...
-
-Even the existing implementation for VMIN and VTIME has them in the user read 
-context already, which is why the round-down is only the one compound 
-statement.  That clearly shows that "received" is interpreted as "received 
-into the user context (read buffer)."
-
-IF the context of "to receive", that is, the boundry between here and not-here 
-is fixed, by definition, to the read call itself, the technicalities all 
-disapear except one, that one being what to do if VMIN is greater than the 
-receive (read) buffer size since, in this more-consistent boundry point "to 
-receive" across, the more-than-buffer-sized characters can't ever then be 
-received by definition.  The obvious interpretation is then not to wait for 
-the unreceivable characters.
-
-There are more examples of the "received by" being the read call, and the 
-"received from" being the driver instead of the hardware.  Look at when 
-non-raw processing take place.
-
-Having only the raw-mode processing "receive" at the hardware level (with the 
-buffer tossed in halfway because we all know that's what it means 8-) doesn't 
-make consistent sense.  Especially if it is to preserve a conception that 
-isn't ever used "in the wild".
-
-Rob.
 
 
-On Friday 26 July 2002 07:17, Russell King wrote:
-> On Wed, Jun 26, 2002 at 10:48:30AM -0700, Ed Vance wrote:
-> > Does the spec say that VMIN behavior depends on the size of a
-> > blocking read? No, it says that the read completes when VMIN or
-> > more characters have been received. If VMIN is three and two
-> > characters have been received, completing a blocking read of any
-> > size is a violation. Should we also add a "read buffer size"
-> > parameter to select and poll, etc. so they can report that read
-> > data is available before satisfying VMIN, too?
-> >
-> > Ted, Russell, please weigh in on this.
->
-> I just found this mail again.  Yes, I agree with your interpretation,
-> which reflects the code we presently have, as well as my reading of
-> SuS.  The SuS is quite clear that "A pending read shall not be
-> satisfied until MIN bytes are received".  It doesn't say "A pending
-> read shall not be satisfied until MIN bytes or the number of requested
-> bytes in read() are received"
->
-> In addition, it also says "MIN represents the minimum number of bytes
-> that should be received when the read() function returns successfully."
-> Successful completion for read() is defined as "Upon successful
-> completion, read() shall return a non-negative integer indicating the
-> number of bytes actually read."
->
-> So, for _any_ read() to a terminal with MIN set, for this call to
-> return data (ie, success) MIN bytes must have been received.
->
-> (Note that the behaviour where the number of bytes > MIN seems to be
-> a little vague, SuS just talks about "block the calling thread until
-> _some_ data becomes available" for the blocking case.)
->
-> I'd be interested to know if Ted agrees with my position here; he is
-> the author of the tty code, and is presently looking at that area.
+>You really must think beyond the desktop as well. With large servers
+>running many databases, or a single large database, you will inherently
+>use swap. Maybe not much, but it will get used.
+>On a P4 Xeon 1MB L3 server with 8GB ram, I've got 4GB swap configured,
+>and use about 2 of that with a 4 oracle instances running. The largest
+>instance is ~700GB, whereas the 4 others are ~30GB ea.
+
+>In this scenario you have a large SHMMAX defined (4GB in this case), or
+>50% available RAM. As Oracle, Java, and other bits are used in the
+>system threading or not, most of the entirety of the availble ram will
+>eventually get used. The available to cache ratio on a box like this
+>with 2.4.19-rc1 is ~2% free ram, and 95% cached, and 3% active.
+>Swap is ~50% right now. So regardless of how much ram you have, you will
+>swap some, somewhere.
+
+
+I thought linux worked more like Solaris where it didn't use any swap (AT
+ALL) until it has to... At least, I hope linux works this way.
+
+I manage a couple of Sun E10K domains (currently 20 procs, 20GB ram) running
+Oracle instances that are in excess
+of 1.5TB (for a single instance, this is considered very large for OLTP
+based usage of an Oracle instance)
+and we rarely see any use of our swap devices.
+
+Solaris uses a two handed clock algorithm that traverses the PTE's for all
+pages in the system.
+The 1st hand resets the MMU reference and modified bits for a given page and
+the second hand checks to see if the reference
+or modified bit has been flipped since the 1st hand reset it.
+If not, it ( > Solaris 2.5.1 with priority paging or Solaris 8 ) checks to
+see if the page is a filesystem
+page and if so, flushes it to it's backing store (the filesystem), if it's
+an anoymous page then it may or may
+not send that page to swap (depending how memory deprived the system is,
+there are several watermarks that trigger different behavior).
+Pages that are mapped in MAP_PRIVATE and executable are skipped over until
+the system is seriously deprived of physical memory.
+
+I believe Linux does something similar (even though the implementations
+probably look completely different)...
+
+The point to make here is that this mechanism doesn't even kick in until
+free physical memory on the system drops
+to a low watermark (in Solaris it could be cachefree or lotsfree depending
+on version and whether it's using priority paging).
+Your not gonna have *anything* on the swap device until you have reached one
+of these watermarks (1/64 physical memory free in Solaris 8).
+
+Solaris recently added an option to vmstat to look at paging statistics. It
+nicely seperates out executable anonymous and filesystem page in/outs. Heres
+some sample output fom one of the domains mentioned above:
+
+# uname -a
+SunOS <hostname removed> 5.8 Generic_108528-07 sun4u sparc
+SUNW,Ultra-Enterprise-10000
+# prtconf | head
+System Configuration:  Sun Microsystems  sun4u
+Memory size: 20480 Megabytes
+System Peripherals (Software Nodes):
+
+SUNW,Ultra-Enterprise-10000
+    packages (driver not attached)
+        terminal-emulator (driver not attached)
+        deblocker (driver not attached)
+        obp-tftp (driver not attached)
+        disk-label (driver not attached)
+
+# vmstat -p 2
+     memory           page          executable      anonymous
+filesystem
+   swap  free  re  mf  fr  de  sr  epi  epo  epf  api  apo  apf  fpi  fpo
+fpf
+ 80330680 10599432 2613 14569 352 0 8 144 3    3   16   38   38 1294  382
+310
+ 79949440 11044024 3 234 0  0   0    0    0    0    0    0    0    0    0
+0
+ 79946224 11041472 0 286 0  0   0    0    0    0    0    0    0    0    0
+0
+ 79940672 11037392 0 227 0  0   0    0    0    0    0    0    0    0    0
+0
+ 79939440 11035592 0 0  0   0   0    0    0    0    0    0    0    0    0
+0
+ 79936296 11031664 12 577 28 0  0    0    0    0    0    0    0    0   28
+28
+ 79934240 11030512 51 249 0 0   0    0    0    0    0    0    0    0    0
+0
+ 79931920 11029176 18 227 172 0 0    0    0    0    0    0    0    0  172
+172
+ 79930704 11028264 0 58 0   0   0    0    0    0    0    0    0    0    0
+0
+ 79926096 11025032 3 205 0  0   0    0    0    0    0    0    0    0    0
+0
+ 79927752 11024472 57 691 0 0   0    0    0    0    0    0    0    0    0
+0
+ 79922632 11019248 0 223 0  0   0    0    0    0    0    0    0    0    0
+0
+ 79920776 11017768 98 984 0 0   0    0    0    0    0    0    0    0    0
+0
+
+
+So as you can see here, using the process described above, the system hit a
+point where it was low on physical memory, turned the scanner on (name for
+the clock algorithm described above) and it found some filesystem pages to
+flush to their backing store that have not been used recently. Nothing went
+to the swap device.
+
+Now there is a little sitting on the swap device here, but this system has
+been up for several days. What im stressing here is that it doesn't normally
+use the swap devices at all.
+
+When you size your DB you have control over how much memory is used for
+buffer caches and sort area (for hash joins, etc..). you should be able to
+size your instances so that they only occasionally hit the swap device. Now
+if you can't afford the correct amount of hardware to stay off the swap
+device, then that's another story, but what you imply above is that you
+always use the swap device when runnning large DB's, and that just doesn't
+make any sense to me.
+
+--Buddy
 

@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263957AbTKZDiK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 22:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTKZDiK
+	id S263082AbTKZEAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 23:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTKZEAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 22:38:10 -0500
-Received: from h80ad25ef.async.vt.edu ([128.173.37.239]:34688 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263957AbTKZDiH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 22:38:07 -0500
-Message-Id: <200311260337.hAQ3bwmw016622@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org, linux390@de.ibm.com
-Subject: 2.6.0-test10 s390/Kconfig typo?
-From: Valdis.Kletnieks@vt.edu
+	Tue, 25 Nov 2003 23:00:24 -0500
+Received: from holomorphy.com ([199.26.172.102]:43708 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263082AbTKZEAR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 23:00:17 -0500
+Date: Tue, 25 Nov 2003 19:59:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Jack Steiner <steiner@sgi.com>, Anton Blanchard <anton@samba.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <20031126035953.GF8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@redhat.com>, Jack Steiner <steiner@sgi.com>,
+	Anton Blanchard <anton@samba.org>,
+	Jes Sorensen <jes@trained-monkey.org>,
+	Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, jbarnes@sgi.com
+References: <20031125231108.GA5675@sgi.com> <Pine.LNX.4.44.0311252238140.22777-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_898817537P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Nov 2003 22:37:57 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311252238140.22777-100000@chimarrao.boston.redhat.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_898817537P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 25 Nov 2003, Jack Steiner wrote:
+>> That was a concern to me too. However, on IA64, all page structs are in
+>> the vmalloc region
 
-OK, it's been a few years since I did S390, but this looks like
-it's confused for 31/32 bit mode (happened to trip over it while digging
-up info for another posting)
+On Tue, Nov 25, 2003 at 10:39:10PM -0500, Rik van Riel wrote:
+> Which you'll probably want to fix eventually.  At least
+> PAGE_VALID() doesn't seem to work as advertised currently...
+> (occasionally leading to "false positives", with PAGE_VALID()
+> saying that a page exists while it really doesn't)
 
---- linux-2.6.0-test10/arch/s390/Kconfig.dist	2003-11-25 22:35:09.247637990 -0500
-+++ linux-2.6.0-test10/arch/s390/Kconfig	2003-11-25 22:35:20.298903222 -0500
-@@ -142,7 +142,7 @@
- 	default y
+Speaking of which, no one's bothered fixing the X crashes on i386
+discontigmem. Untested patch below.
+
+
+-- wli
+
+
+diff -prauN linux-2.6.0-test10/include/asm-i386/mmzone.h pfn_valid-2.6.0-test10/include/asm-i386/mmzone.h
+--- linux-2.6.0-test10/include/asm-i386/mmzone.h	2003-11-23 17:31:56.000000000 -0800
++++ pfn_valid-2.6.0-test10/include/asm-i386/mmzone.h	2003-11-25 19:54:31.000000000 -0800
+@@ -85,13 +85,19 @@ extern struct pglist_data *node_data[];
+ })
+ #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+ /*
+- * pfn_valid should be made as fast as possible, and the current definition 
+- * is valid for machines that are NUMA, but still contiguous, which is what
+- * is currently supported. A more generalised, but slower definition would
+- * be something like this - mbligh:
+- * ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) ) 
++ * pfn_valid must absolutely be correct, regardless of speed concerns.
+  */ 
+-#define pfn_valid(pfn)          ((pfn) < num_physpages)
++#define pfn_valid(pfn)							\
++({									\
++	unsigned long __pfn__ = pfn;					\
++	u8 __nid__ = pfn_to_nid(__pfn__);				\
++	pg_data_t *__pgdat__;						\
++	__pgdat__ = __nid__ < MAX_NUMNODES ? NODE_DATA(__nid__) : NULL;	\
++	__pgdat__ &&							\
++		__pfn__ >= __pgdat__->node_start_pfn &&			\
++		__pfn__ - __pgdat__->node_start_pfn			\
++				< __pgdat__->node_spanned_pages;	\
++})
  
- config BINFMT_ELF32
--	tristate "Kernel support for 31 bit ELF binaries"
-+	tristate "Kernel support for 32 bit ELF binaries"
- 	depends on S390_SUPPORT
- 	help
- 	  This allows you to run 32-bit Linux/ELF binaries on your zSeries
-
-
---==_Exmh_898817537P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/xCAVcC3lWbTT17ARAi6CAKCLj8Gag4V1Yn8BGqwfaYD6/eMBlACgrVpl
-Q8EwnZuzdLGj9BR+e0AHIvA=
-=dnO/
------END PGP SIGNATURE-----
-
---==_Exmh_898817537P--
+ /*
+  * generic node memory support, the following assumptions apply:

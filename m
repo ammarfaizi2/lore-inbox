@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283188AbRLDPPk>; Tue, 4 Dec 2001 10:15:40 -0500
+	id <S283129AbRLDOo2>; Tue, 4 Dec 2001 09:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283204AbRLDPOm>; Tue, 4 Dec 2001 10:14:42 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:8968 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S283064AbRLDPMz>; Tue, 4 Dec 2001 10:12:55 -0500
-Date: Tue, 4 Dec 2001 11:56:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: petter wahlman <pwa@norman.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-pre2 missing ymfpci updates
-In-Reply-To: <1007463970.2776.2.camel@lunix>
-Message-ID: <Pine.LNX.4.21.0112041150250.19552-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283630AbRLDOnN>; Tue, 4 Dec 2001 09:43:13 -0500
+Received: from ns.caldera.de ([212.34.180.1]:26304 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283135AbRLDMkC>;
+	Tue, 4 Dec 2001 07:40:02 -0500
+Date: Tue, 4 Dec 2001 13:39:32 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Christoph Hellwig <hch@caldera.de>,
+        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204133932.A8805@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	"Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
+	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204072808.A11867@thyrsus.com>; from esr@thyrsus.com on Tue, Dec 04, 2001 at 07:28:08AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 04, 2001 at 07:28:08AM -0500, Eric S. Raymond wrote:
+> Christoph Hellwig <hch@caldera.de>:
+> > On Mon, Dec 03, 2001 at 12:06:12PM +1100, Keith Owens wrote:
+> > > The CML1 to CML2 conversion comes later, either in 2.5.3 or 2.5.4.
+> > 
+> > Is the CML2 merge actually agreed on?
+> 
+> Yes, unless Linus has changed his mind since March.  Which would be his
+> privilege, of course -- but since the CML1 maintainers are unanimous that 
+> CML1 is too kludgy to live and Linus knows that, it seems unlikely.
 
-Yes, sorry about that...
+There is no CML1 maintainer.  There are people maintaining the different
+tools intepreting CML1.  Some (e.g. the intree ones) are to ugly to consider,
+others are pretty nice.
 
-I'm still getting used to maintain all of the patches.
 
-I'm setting up an internal CVS to avoid making those mistakes again...
+	Christoph (current maintainer of a CML1 intepreter)
 
-On 4 Dec 2001, petter wahlman wrote:
-
-> According to the changelog there should be some changes to the
-> ymfpci driver. This does not seem to be the case:
-> 
-> [97%](petter):patches>egrep -i 'ymf|Zaitcev' patch-2.4.17-pre2
-> [97%](petter):patches>
-> 
-> from changelog:
-> ...
-> - ymfpci driver cleanup 			(Pete Zaitcev)
-> ...
-> 
-> 
-> btw: I'm not subscribed to this list.
-> 
-> 
-> Petter Wahlman
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

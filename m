@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTFYJgj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 05:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTFYJga
+	id S262578AbTFYJfM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 05:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTFYJfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 05:36:30 -0400
-Received: from pop.gmx.de ([213.165.64.20]:14302 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262584AbTFYJgZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 05:36:25 -0400
-Message-Id: <5.2.0.9.2.20030625114909.00cfb988@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 25 Jun 2003 11:54:48 +0200
-To: "Rick A. Hohensee" <rickh@capaccess.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 4 is good. .00000001% is good.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fc.0010c7b2009359090010c7b200935909.93590f@capaccess.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 25 Jun 2003 05:35:12 -0400
+Received: from cmu-24-35-32-166.mivlmd.cablespeed.com ([24.35.32.166]:3076
+	"EHLO lap.molina") by vger.kernel.org with ESMTP id S262578AbTFYJfJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 05:35:09 -0400
+Date: Wed, 25 Jun 2003 05:47:27 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@lap.molina
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Compaq Presario and 2.5.72
+In-Reply-To: <20030623100345.C23411@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306250542300.1007-100000@lap.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:43 PM 6/24/2003 -0400, you wrote:
->Yes, osimplay is probably for 4 people on the planet. The 4 that don't
->confuse writing an operating system with porting Minix to pmode. All 4 of
->whom have been ostracized from the Linux Kernel Clique, but who probably
->still read l-k occaisionally to see what kind of shenanigans Billy's Free
->Unix Boys are up to, like pretending SMP scales.
->
->By the way, if you don't like the looks of a "bastard offspring of a
->drunken encounter between Intercal and APL" (Smoorenberg), it's a shell
->script, moron, so if you're more comfortable, it shouldn't even take a
->Kernel-cliquer more than a few minutes to make it resemble a cross between
->Alan Cox, Matthew Wilcox, a plate of bad sushi and a couple hundred
->ioctls. With more teeth than Torvalds. Just don't leave it where I might
->get a whiff of it.
+On Mon, 23 Jun 2003, Russell King wrote:
 
-Either be civil, or take a hike.  Please. 
+> On Wed, Jun 18, 2003 at 06:07:05AM -0600, Thomas Molina wrote:
+> > The other problem was getting my pcmcia ethernet card up and operational.  
+> > The change in the yenta module for the latest bk version of 72 allows it 
+> > to be autoloaded by my RedHat 8.0 system as previously done.  However, 
+> > there is another problem.  Although all the required modules get loaded -- 
+> > pcmcia core, yenta socket, ds, crc32, tulip -- for some reason the dhcp 
+> > client doesn't get brought up to acquire an address for the interface.  It 
+> > may be a problem with the RedHat scripts since running the dhclient 
+> > software manually does its magic.  It is a change in behaviour so I am 
+> > reporting it here also.
+> 
+> Can you check whether 2.5.73 fixes it for you?  If not, please re-report
+> the problem.
+
+The problem persisits in the latest bk pull of 2.5.73.  All the modules 
+get autoloaded, but, for some reason, the dhcp client doesn't get called.  
+I apologize for not having a better report.  I will look into it as I have 
+time.
 

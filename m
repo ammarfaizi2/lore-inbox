@@ -1,32 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbSL1Kcz>; Sat, 28 Dec 2002 05:32:55 -0500
+	id <S261529AbSL1Lsk>; Sat, 28 Dec 2002 06:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266203AbSL1Kcz>; Sat, 28 Dec 2002 05:32:55 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:64760 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S266200AbSL1Kcy>; Sat, 28 Dec 2002 05:32:54 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2601AA1378@pdsmsx32.pd.intel.com>
-From: "Zhuang, Louis" <louis.zhuang@intel.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] fix os release detection in module-init-tools-0.9.6 
-Date: Sat, 28 Dec 2002 18:38:54 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261600AbSL1Lsk>; Sat, 28 Dec 2002 06:48:40 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:63188 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261529AbSL1Lsj>;
+	Sat, 28 Dec 2002 06:48:39 -0500
+Subject: Re: [PATCH] amd756 and amd8111 sensors support
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212280303.gBS33o628113@hera.kernel.org>
+References: <200212280303.gBS33o628113@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-oIlZ3DsiNd7wafpp5Jmh"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Dec 2002 12:46:42 +0100
+Message-Id: <1041076002.1485.2.camel@laptop.fenrus.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, why do you want /proc/ksyms exactly?  I'm not hugely opposed to
-> it, but it's rarely what people actually want, since it contains only
-> exported symbols.
-The two things make me want ksyms... ;-)
-First, if I'm a stranger to a system, how can I know if a feature
-(preemptive, for example) is on/off on that?
-Second, when module version is back, how can I know what is the magic
-version number on the system?
 
-Yours truly,
-  - Louis
+--=-oIlZ3DsiNd7wafpp5Jmh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2002-12-26 at 22:55, Linux Kernel Mailing List wrote:
+> ChangeSet 1.958, 2002/12/26 13:55:05-08:00, pavel@ucw.cz
+>=20
+> 	[PATCH] amd756 and amd8111 sensors support
+> =09
+> 	Add support for amd756 and amd8111 sensors
+>=20
+>=20
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.957   -> 1.958 =20
+> #	include/linux/i2c-id.h	1.6     -> 1.7   =20
+> #	drivers/i2c/i2c-core.c	1.11    -> 1.12  =20
+> #	 drivers/i2c/Kconfig	1.1     -> 1.2   =20
+> #	  drivers/char/mem.c	1.32    -> 1.33  =20
+> #	drivers/i2c/i2c-proc.c	1.7     -> 1.8   =20
+> #	include/linux/i2c-proc.h	1.2     -> 1.3   =20
+> #	         MAINTAINERS	1.112   -> 1.113 =20
+> #	drivers/i2c/i2c-dev.c	1.17    -> 1.18  =20
+> #	    drivers/Makefile	1.27    -> 1.28  =20
+> #	               (new)	        -> 1.1     drivers/i2c/chips/Makefile
+> #	               (new)	        -> 1.1     drivers/i2c/chips/lm75.c
+> #	               (new)	        -> 1.1     drivers/i2c/chips/sensors.c
+> #	               (new)	        -> 1.1     drivers/i2c/chips/adm1021.c
+> #	               (new)	        -> 1.1     drivers/i2c/busses/Makefile
+> #	               (new)	        -> 1.1     drivers/i2c/busses/i2c-mainboar=
+d.c
+> #	               (new)	        -> 1.1     drivers/i2c/chips/Kconfig
+> #	               (new)	        -> 1.1     drivers/i2c/busses/i2c-amd8111.=
+c
+> #	               (new)	        -> 1.1     drivers/i2c/busses/i2c-amd756.c
+> #	               (new)	        -> 1.1     drivers/i2c/busses/Kconfig
+> #	               (new)	        -> 1.1     include/linux/sensors.h
+> #
+
+cool! lm_sensors finally in 2.5!
+
+--=-oIlZ3DsiNd7wafpp5Jmh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+DY8ixULwo51rQBIRAuLGAJ9TBb/bwjm1N3RBYv26nfDB2il3ggCdG14e
+T1FZcFtZHibXegaqM1GEATU=
+=AEAC
+-----END PGP SIGNATURE-----
+
+--=-oIlZ3DsiNd7wafpp5Jmh--

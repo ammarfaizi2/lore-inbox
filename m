@@ -1,24 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265819AbSLIRbh>; Mon, 9 Dec 2002 12:31:37 -0500
+	id <S265880AbSLIR1g>; Mon, 9 Dec 2002 12:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbSLIRbh>; Mon, 9 Dec 2002 12:31:37 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16548 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S265819AbSLIRbg>; Mon, 9 Dec 2002 12:31:36 -0500
-Date: Mon, 9 Dec 2002 12:40:43 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.20-BK] Needed patch to build ide-scsi with new IDE
- -ac merge
-In-Reply-To: <1039311122.27923.2.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.50L.0212091240280.11691-100000@freak.distro.conectiva>
-References: <200212072055.55152.m.c.p@wolk-project.de> <20021207231841.GC3183@werewolf.able.es>
-  <200212080021.31324.m.c.p@wolk-project.de> <1039311122.27923.2.camel@irongate.swansea.linux.org.uk>
+	id <S265885AbSLIR1g>; Mon, 9 Dec 2002 12:27:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36619 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265880AbSLIR1d>; Mon, 9 Dec 2002 12:27:33 -0500
+Date: Mon, 9 Dec 2002 09:35:59 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mikael Starvik <mikael.starvik@axis.com>
+cc: "'Daniel Jacobowitz'" <dan@debian.org>,
+       "'george anzinger'" <george@mvista.com>,
+       "'Jim Houston'" <jim.houston@ccur.com>,
+       "'Stephen Rothwell'" <sfr@canb.auug.org.au>,
+       "'LKML'" <linux-kernel@vger.kernel.org>,
+       "'anton@samba.org'" <anton@samba.org>,
+       "'David S. Miller'" <davem@redhat.com>, "'ak@muc.de'" <ak@muc.de>,
+       "'davidm@hpl.hp.com'" <davidm@hpl.hp.com>,
+       "'schwidefsky@de.ibm.com'" <schwidefsky@de.ibm.com>,
+       "'ralf@gnu.org'" <ralf@gnu.org>,
+       "'willy@debian.org'" <willy@debian.org>
+Subject: RE: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE4E9@mailse01.axis.se>
+Message-ID: <Pine.LNX.4.44.0212090906340.3410-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,22 +30,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 8 Dec 2002, Alan Cox wrote:
-
-> On Sat, 2002-12-07 at 23:21, Marc-Christian Petersen wrote:
-> > On Sunday 08 December 2002 00:18, J.A. Magallon wrote:
-> >
-> > Hi J.A.,
-> >
-> > > Ejem, does this mean that Andre's ide is going into 2.4.21-pre1 ?
-> > > ;))))
-> > finally!!!!!!!!!
+On Mon, 9 Dec 2002, Mikael Starvik wrote:
 >
-> Yes though various bits seem to have vanished in the submission
-> (system.h bits and ide-scsi). Davem has some follow up bits I need to
-> apply (the new IDE broke some weird 64bit bigendian platform that he
-> supports 8))
+> No problem for CRIS architechture (port will be submitted when 2.5.51
+> has been released if that happens before xmas).
 
-system.h bits ? Dunno about those.
+Note that I've not committed the patch to my tree at all, and as far as I
+am concerned this is in somebody elses court (ie somebody that cares about
+restarting). I don't have any strong feelings either way about how
+restarting should work - and I'd like to have somebody take it up and
+testing it as well as having architecture maintainers largely sign off on
+this approach.
 
-I'm fixing the ide-scsi now.
+It's certainly more flexible to save restart info in user space registers,
+so in that way it's good. It has some downsides, though - it may be
+against the callinmg convention of the architecture, for example, to
+change those registers (some people expect the system call arguments to
+not be changed by the system call, so when it returns and the arguments
+have been modified to be the "restart arguments", those people would be
+unhappy).
+
+And apparently ia64 is again being a singularly awkward architecture.
+
+			Linus
+

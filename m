@@ -1,32 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263427AbTC2OpT>; Sat, 29 Mar 2003 09:45:19 -0500
+	id <S263429AbTC2OxU>; Sat, 29 Mar 2003 09:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263428AbTC2OpT>; Sat, 29 Mar 2003 09:45:19 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:32499 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S263427AbTC2OpT>;
-	Sat, 29 Mar 2003 09:45:19 -0500
-Subject: Re: [TRIVIAL PATCH] Compile error in 2.4.21-pre5-ac3 without PCI
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.51.0303290010060.32041@localhost.localdomain>
-References: <Pine.LNX.4.51.0303290010060.32041@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048949886.6846.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 29 Mar 2003 14:58:08 +0000
+	id <S263430AbTC2OxU>; Sat, 29 Mar 2003 09:53:20 -0500
+Received: from klesk.etc.utt.ro ([193.226.10.1]:19160 "EHLO klesk.etc.utt.ro")
+	by vger.kernel.org with ESMTP id <S263429AbTC2OxS>;
+	Sat, 29 Mar 2003 09:53:18 -0500
+Message-ID: <56648.194.138.39.56.1048950517.squirrel@webmail.etc.utt.ro>
+Date: Sat, 29 Mar 2003 17:08:37 +0200 (EET)
+Subject: Re: Compile error 2.5.66-mm1 (haven't tried with 2.5.66 vanilla)
+From: "Szonyi Calin" <sony@etc.utt.ro>
+To: <bwindle@fint.org>
+In-Reply-To: <Pine.LNX.4.43.0303290950390.470-100000@morpheus>
+References: <44829.194.138.39.56.1048947941.squirrel@webmail.etc.utt.ro>
+        <Pine.LNX.4.43.0303290950390.470-100000@morpheus>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-29 at 07:11, Pavel Roskin wrote:
-> Hello!
-> 
-> I'm getting this error when compiling Linux 2.4.21-pre5-ac3 for a 486
-> system without PCI:
-
 Thanks
+
+"Sleepy" Calin :-) (seem that I forgot to atach the config)
+
+
+Burton Windle said:
+> http://bugzilla.kernel.org/show_bug.cgi?id=499
+>
+> --
+> Burton Windle                           burton@fint.org
+> Linux: the "grim reaper of innocent orphaned children."
+>           from /usr/src/linux-2.4.18/init/main.c:461
+>
+>
+> On Sat, 29 Mar 2003, Sony Calin wrote:
+>
+>> Hello
+>>
+>> Compiling 2.5.66-mm1 gives me the following error
+>>
+>>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+>> init/mounts.o init/initramfs.o
+>>         ld -m elf_i386  -T arch/i386/vmlinux.lds.s
+>> arch/i386/kernel/head.o
+>> arch/i386/kernel/init_task.o   init/built-in.o --start-group
+>> usr/built-in.o  arch/i386/kernel/built-in.o
+>> arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o
+>> kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
+>> security/built-in.o  crypto/built-in.o  lib/lib.a
+>> arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
+>> arch/i386/pci/built-in.o  net/built-in.o --end-group  -o
+>> .tmp_vmlinux1
+>> sound/built-in.o: In function `cs4232_pnp_remove':
+>> sound/built-in.o(.text+0xaf51): undefined reference to `local symbols
+>> in discarded section .exit.text'
+>> make: *** [.tmp_vmlinux1] Error 1
+>>
+>> Program versions and config are atached.
+>>
+>> Bye
+>> Calin
+>>
+>> --
+>> # fortune
+>> fortune: write error on /dev/null - please empty the bit bucket
+>>
+>>
+>>
+
+-- 
+# fortune
+fortune: write error on /dev/null --- please empty the bit bucket
+
+
+-----------------------------------------
+This email was sent using SquirrelMail.
+   "Webmail for nuts!"
+http://squirrelmail.org/
+
 

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbRB0Si7>; Tue, 27 Feb 2001 13:38:59 -0500
+	id <S129747AbRB0Sna>; Tue, 27 Feb 2001 13:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbRB0Sit>; Tue, 27 Feb 2001 13:38:49 -0500
-Received: from host217-32-154-203.hg.mdip.bt.net ([217.32.154.203]:56580 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129754AbRB0Sid>;
-	Tue, 27 Feb 2001 13:38:33 -0500
-Date: Tue, 27 Feb 2001 18:38:08 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [patch-2.4.2] bugfix -- ENXIO for read/write beyond end of raw device
-In-Reply-To: <Pine.LNX.4.21.0011021622210.2677-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.21.0102271831540.751-100000@penguin.homenet>
+	id <S129754AbRB0SnU>; Tue, 27 Feb 2001 13:43:20 -0500
+Received: from www.topmail.de ([212.255.16.226]:61653 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129747AbRB0SnG> convert rfc822-to-8bit;
+	Tue, 27 Feb 2001 13:43:06 -0500
+Message-ID: <000001c0a0ed$1ea188d0$742c9c3e@tp.net>
+From: "Thorsten Glaser Geuer" <eccesys@topmail.de>
+To: "LKML" <linux-kernel@vger.kernel.org>,
+        "Mack Stevenson" <mackstevenson@hotmail.com>
+In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com>
+Subject: Re: ISO-8859-1 completeness of kernel fonts?
+Date: Tue, 27 Feb 2001 16:26:21 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+> Hello,
+> 
+> The 8x16 and Sun 12x22 kernel fonts I tried seem to lack some standard 
+> glyphs necessary to represent the entire ISO-8859-1 charmap; I am talking 
+> about all accented capital vowels except for 'I'.
+> 
+> This seems to happen in both 2.2.16 as well as in 2.2.18.
+> 
+> Is this intentional? If so, why?
+> 
+> How can I override this behaviour?
+> 
+> Thank you.
+> 
+> Cheers,
+> 
+> Mack Stevenson
 
-Yes, I know that Stephen had fixed this bug ages ago but, nevertheless, it
-is still present in 2.4.2 and I don't know about his plans for resending
-the patch -- but it is a part of the set I maintain so I just wanted to
-bring it to your attention. Small bug, small obvious fix -- why not
-consider it sooner rather than later?
+I have converted my fonts by hand (with a GW-BASIC proggy) from bitmap
+to .c, though not the SUN fonts for ISO but the PC fonts for cp437.
+I did this because I do not like e.g. the glyph "0" in standard font
+and included the "Euro" sign. (I use the same for DOS and Linux now,
+and even Windoze recently got it as Terminal font!)
 
-Regards,
-Tigran
+My second suggestion: code it as .psfu and load it by setfont, including
+the appropiate console-map. AFAIK all the kernel default fonts are cp437
+(linux/drivers/char/cp437.uni; consolemap.*)
 
-diff -urN -X dontdiff linux/drivers/char/raw.c vmfs/drivers/char/raw.c
---- linux/drivers/char/raw.c	Mon Oct  2 04:35:15 2000
-+++ vmfs/drivers/char/raw.c	Thu Feb 22 07:21:26 2001
-@@ -277,8 +277,11 @@
- 	
- 	if ((*offp & sector_mask) || (size & sector_mask))
- 		return -EINVAL;
--	if ((*offp >> sector_bits) > limit)
-+	if ((*offp >> sector_bits) >= limit) {
-+		if (size)
-+			return -ENXIO;
- 		return 0;
-+	}
- 
- 	/* 
- 	 * We'll just use one kiobuf
+-mirabilos
+
 

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUKRXov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUKRXld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUKRXov (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbUKRXlz
+	id S261195AbUKRXld (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUKRUtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:41:55 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.21]:28238 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262906AbUKRUti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:49:38 -0500
-Date: Thu, 18 Nov 2004 21:49:35 +0100
-Message-Id: <200411182049.iAIKnZEZ007078@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 526] fm2fb: Update Steffen A. Mork's email address
+	Thu, 18 Nov 2004 15:49:39 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:13034 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262904AbUKRUrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:47:41 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+To: Werner Almesberger <wa@almesberger.net>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@nurfuerspam.de
+Date: Thu, 18 Nov 2004 21:48:01 +0100
+References: <fa.ev73q5c.ejcnom@ifi.uio.no> <fa.es1mdq5.76ib8j@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fm2fb: Update Steffen A. Mork's email address
+Werner Almesberger wrote:
 
-Signed-off-by: Steffen A. Mork <linux-dev@morknet.de>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> A process could declare itself as usual suspect. This would then be
+> recorded as a per-task flag, to be inherited by children. Now, one
+> could write a launcher like this:
 
---- linux-2.6.10-rc2/drivers/video/fm2fb.c 2004-08-14 12:55:19.000000000 +0200
-+++ linux-m68k-2.6.10-rc2/drivers/video/fm2fb.c 2004-11-18 09:18:49.486166768 +0100
-@@ -2,7 +2,7 @@
-  *  linux/drivers/video/fm2fb.c -- BSC FrameMaster II/Rainbow II frame buffer
-  *				   device
-  *
-- *	Copyright (C) 1998 Steffen A. Mork (mork@ls7.cs.uni-dortmund.de)
-+ *	Copyright (C) 1998 Steffen A. Mork (linux-dev@morknet.de)
-  *	Copyright (C) 1999 Geert Uytterhoeven
-  *
-  *  Written for 2.0.x by Steffen A. Mork
+You'll have some precompiled binaries causing trouble, while other
+precompiled binaries will be killed while you want them to stay alife.
+Sometimes you'll have the same binary (e.g. perl or java) running a
+"notme"-task like watching the log for intrusion while at the same time
+processing a very large image.
 
-Gr{oetje,eeting}s,
+The best solution I can think of is attaching a kill priority (similar to
+the nice value). Before killing, this value would be added to lg_2(memsize),
+and the least desirable process would "win", even if it's sshd running wild.
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+For the trashing problem: I like the idea of sending a signal to stop the
+process, but it should rather be a request to stop that can be caught by
+the process. A SETI-like task could save its workset and free the memory
+instead, a browser would discard it's memory cache and pause loading
+Images for the sites etc.
+-- 
+The newest and least experienced soldier will usually win the Congressional
+Medal Of Honor.
+
+Friﬂ, Spammer: abuse@online-loanz.com cxePdomFs@suncoastrewards.com

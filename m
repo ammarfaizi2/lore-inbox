@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUD3SXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265185AbUD3SX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUD3SXT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 14:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUD3SXS
+	id S265185AbUD3SX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 14:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbUD3SX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 14:23:18 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:60932 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265210AbUD3SXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 14:23:05 -0400
-Message-ID: <40929AA5.1080409@techsource.com>
-Date: Fri, 30 Apr 2004 14:27:49 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Sean Estabrooks <seanlkml@rogers.com>
-CC: Marc Boucher <marc@linuxant.com>, koke@sindominio.net,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, riel@redhat.com,
-       david@gibson.dropbear.id.au, paul@wagland.net
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>	<4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net>	<4091757B.3090209@techsource.com>	<200404292347.17431.koke_lkml@amedias.org>	<0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>	<20040429195553.4fba0da7.seanlkml@rogers.com>	<4092776A.5020705@techsource.com>	<E17E7EB8-9AC9-11D8-B83D-000A95BCAC26@linuxant.com> <20040430134653.4f11c843.seanlkml@rogers.com>
-In-Reply-To: <20040430134653.4f11c843.seanlkml@rogers.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 14:23:28 -0400
+Received: from vena.lwn.net ([206.168.112.25]:44963 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S265185AbUD3SVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 14:21:40 -0400
+Message-ID: <20040430182138.8758.qmail@lwn.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [BUG] 2.6.6-rc2-bk5 mm/slab.c change broke x86-64 SMP 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 30 Apr 2004 18:11:46 +0200."
+             <200404301611.i3UGBkdK026345@harpo.it.uu.se> 
+Date: Fri, 30 Apr 2004 12:21:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The change to mm/slab.c between 2.6.6-rc2-bk4 and -bk5
+> broke x86-64 SMP. The symptoms are general protection
+> faults in __switch_to shortly after init starts, and
+> then the machine is dead. (Can't be more specific, my
+> box can't log early boot oopses.)
+> 
+> I'm only seeing this with x86-64 SMP; x86-64 UP and i386
+> SMP on the same machine (Athlon64 UP) have no problems.
 
+FWIW, this sure looks a lot like the boot-time crash I'm seeing; I get the
+same __switch_to oopses once init starts.  *But* I'm running a UP,
+no-preempt kernel.  And I get it with -rc1 as well.  Might reverting the
+later slab change be concealing a different problem?
 
-Sean Estabrooks wrote:
-
-> "Now loading a non GPL driver.   Please consider supporting vendors that
-> provide open source drivers for their hardware.  Your kernel will now be
-> marked as tainted, all this means is that you should send any support
-> requests to the author of this driver."
-
-
-I really like this wording too!
-
+jon

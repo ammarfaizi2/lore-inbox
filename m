@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267452AbRGPQ2Z>; Mon, 16 Jul 2001 12:28:25 -0400
+	id <S267458AbRGPQbz>; Mon, 16 Jul 2001 12:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267453AbRGPQ2P>; Mon, 16 Jul 2001 12:28:15 -0400
-Received: from mail.erste.de ([195.243.98.251]:58979 "EHLO RalfBurger.com")
-	by vger.kernel.org with ESMTP id <S267452AbRGPQ2A>;
-	Mon, 16 Jul 2001 12:28:00 -0400
-Date: Mon, 16 Jul 2001 18:28:02 +0200 (CEST)
-From: "Victoria W." <wicki@terror.de>
+	id <S267459AbRGPQbp>; Mon, 16 Jul 2001 12:31:45 -0400
+Received: from portofix.ida.liu.se ([130.236.177.25]:53177 "EHLO
+	portofix.ida.liu.se") by vger.kernel.org with ESMTP
+	id <S267458AbRGPQbf>; Mon, 16 Jul 2001 12:31:35 -0400
 To: linux-kernel@vger.kernel.org
-cc: volker@erste.de
-Subject: oops in 2.4.6/2.4.5
-In-Reply-To: <20010716161031Z267445-720+2808@vger.kernel.org>
-Message-ID: <Pine.LNX.4.10.10107161814140.3877-100000@csb.terror.de>
+Subject: Raw sockets and zero-source IP packets
+X-face: (@~#v$c[GP"T}a;|MU<%Dpm5*6yv"NR|7k;uk8MAISFxdZ(Og$C{u(j"9X7v$qonp}SKfhT
+ g|5[Pu~/3F7XQEk70gK'4z%1R%%gg7]}=>/jD`qcBeHDgo&HS,^S!&.zoTSxh<>-O6EB?SSy96&m37
+X-url: http://www.ida.liu.se/~davby/
+From: David Byers <davby@ida.liu.se>
+Date: 16 Jul 2001 18:31:34 +0200
+Message-ID: <41elrg4yzd.fsf@sen2.ida.liu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+I apologise if this is something that has already been discussed. I
+haven't been keeping track of linux-kernel for very long.
 
-a fax-machine with cyclades-8-card (isa) 256MB, 1GB ext2, 1GB swap, 40GB
-reiserfs hangs after a period of time (8-48h) with an oops.
-It seems to hang on a "sync" but the messages are not the same every time.
-(there was a dead "sync" process in "ps x")
+For testing purposes I need to be able to send IP packets with the
+source address set to zero (at the moment for testing ICMP address
+mask request/reply, but I've seen that others who want to test DHCP
+and BOOTP implementations also think they need this).
 
-the same behaviour occurs in 2.4.5 and 2.4.6.
+Since I do not want to deal with the link layer, I would prefer to use
+raw IP sockets with IP_HDRINCL. As far as I can tell all such pakets
+get sent through raw_getrawfrag in net/ipv4/raw.c. This function will
+always overwrite a zero source address. Short of using packet sockets
+I can't see a way around this feature (unless using the control
+message to set the source address would work -- I haven't tried that
+in combination with IP_HDRINCL).
 
-I've tried to reproduce the crash by pushing the load up to >100 - but
-nothing happens. But within 48h the machine hung again.
+The questions then:
 
-Do you have any hints or ideas what to do now ?
+* Is there a reason for never allowing source address zero on outgoing
+  IP packets? I appreciate that it is convenient not to have to set
+  the source address, but I fail to see why it should be impossible to
+  set it to zero if you really, really want to.
 
-best regards
-wicki
+* Is there a reason for never allowing packet ID zero on outgoing IP
+  packets? 
 
-
-
-here is one oops-example:
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-c0005bed
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0005bed>]
-EFLAGS: 00010246
-eax: 00000000   ebx: cf3f2690   ecx: c9d80260   edx: c9d80260
-esi: cab5dfb8   edi: cab5c000   ebp: 00000000   esp: cab5dfa8
-ds: 0018   es: 0018   ss: 0018
-Process loop5 (pid: 270, stackpage=cab5d000)
-Stack: cab5c000 cecd5f28 cf3f258c c77c1500 00000001 cab5c000 cf3f269c
-cf3f269c 
-       c0105ca3 cf3f2690 c77c1500 d08288f6 00000f00 cecd5f28 cf3f258c
-ffff0303 
-       00000078 c010563b c0105644 cf3f258c 00000078 cf229860 
-Call Trace: [<c0105ca3>] [<c010563b>] [<c0105644>] 
-
-Code: 00 00 00 7c 67 13 08 32 00 00 00 21 cc 01 cc 61 cb 41 cb 61 
-
-and here an other one from the same machine:
-
-kernel: kernel BUG at page_alloc.c:75!
-kernel: invalid operand: 0000
-kernel: CPU:    0
+* Is there a reason for not allowing the user to specify the total
+  length and checksum of IP packets? Again, I appreciate the
+  convenience of this feature, but sometimes it is convenient to be
+  able to construct invalid packets (again, for testing purposes)
+  without having to deal with link layer details.
 
 
+It seems to be fairly straightforward to add a socket option (I added
+one just to make sure) that would allow the user to specify which of
+the source address, total length, packet ID and checksum are not to be
+touched on raw sockets, regardless of their values. 
 
+* Can invalid values in these fields cause problems elsewhere in the
+  kernel?
 
+* If not, would a patch adding a socket option to specify fields not
+  to touch stand any chance whatsoever of being included in the kernel
+  (provided it's well written, doesn't break other things etc.)? 
 
+-- 
+David Byers.

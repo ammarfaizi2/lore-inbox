@@ -1,149 +1,304 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVDCHvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVDCHxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVDCHvX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 03:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVDCHvX
+	id S261598AbVDCHxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 03:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVDCHxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 03:51:23 -0400
-Received: from c-67-177-11-57.hsd1.ut.comcast.net ([67.177.11.57]:48512 "EHLO
-	vger") by vger.kernel.org with ESMTP id S261592AbVDCHvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 03:51:10 -0400
-Message-ID: <424F997A.9080307@utah-nac.org>
-Date: Sun, 03 Apr 2005 00:21:30 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
+	Sun, 3 Apr 2005 03:53:37 -0400
+Received: from omc3-s40.bay6.hotmail.com ([65.54.249.114]:58622 "EHLO
+	OMC3-S40.phx.gbl") by vger.kernel.org with ESMTP id S261598AbVDCHwG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 03:52:06 -0400
+Message-ID: <BAY10-F53F98A846BEB2918701804D93A0@phx.gbl>
+X-Originating-IP: [146.229.160.228]
+X-Originating-Email: [getarunsri@hotmail.com]
+In-Reply-To: <1112491074.27149.95.camel@localhost.localdomain>
+From: "Arun Srinivas" <getarunsri@hotmail.com>
+To: rostedt@goodmis.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
-References: <424F73F8.8020108@utah-nac.org> <20050403054746.GA7858@alpha.home.local> <424F9424.6030902@utah-nac.org> <20050403073839.GA18612@alpha.home.local>
-In-Reply-To: <20050403073839.GA18612@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: sched /HT processor
+Date: Sun, 03 Apr 2005 13:22:04 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 03 Apr 2005 07:52:04.0812 (UTC) FILETIME=[070AD0C0:01C53822]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I disabled the FIFO resetting code and am running tests. See what 
-happens. I am on 2.6 not
-2.4 so it could be a problem there. At any rate, I will see if the 
-problem goes away.
+I looked at my "include/asm-i386/param.h" and the HZ value is 1000.So, I 
+suppose the timer interrupt frequency is 1000 times per sec. or once every 1 
+millisec.
 
-Jeff
+So, is scheduler_tick() ( for resceduling) called only once every 1 ms?? I 
+am measuring the time when 2  of my processes are scheduled in a HT 
+processor.So, the possible timedifference of when my 2 processes are 
+scheduled can be only the following:
 
-Willy Tarreau wrote:
+1) 0 (if both of my processes are scheduled @ the same time since its a HT)
+2) 1ms ( this is the min. possible time diff.
+3) some value greater than 1 ms
+Is the above argument correct?
 
->On Sat, Apr 02, 2005 at 11:58:44PM -0700, jmerkey wrote:
->  
+Thanks
+
+>From: Steven Rostedt <rostedt@goodmis.org>
+>To: Arun Srinivas <getarunsri@hotmail.com>
+>CC: LKML <linux-kernel@vger.kernel.org>
+>Subject: Re: sched /HT processor
+>Date: Sat, 02 Apr 2005 20:17:54 -0500
 >
->>It works fine with the Intel Dual Port Pro-1000 MT adapters without 
->>these problems.
->>    
->>
+>On Sun, 2005-04-03 at 06:07 +0530, Arun Srinivas wrote:
+> > HI
+> >
+> > I have pentium4 hyperthreaded processor.I am using kernel 2.6.5 and i
+> > rebuilt my kernel with CONFIG_SMP enabled (in this kernel source there 
+>is
+> > nothing such as CONFIG_SMT...i noticed this only in recent 2.6.11).
+> >
 >
->but unless I'm mistaken, there's no PCI bridge on this board, and it is
->possible that the two ports share the same IRQ, that's why I suggested
->trying a 4-port sun QFE or something which is more similar to the starfire.
+>I don't have a 2.6.5 available, but I do have a 2.6.9 to look at.
 >
->  
+> > 1)  So, after I rebulit it with CONFIG_SMP enabled does linux recogonize 
+>my
+> > machine as hyperthreaded or as 2 seperate processor? Also, if it does 
+>not
+> > recogonize it as hyperthreaded(but only as 2 seperate CPU's), does the
+> > scheduler schedule instruction in the 2 cpu's independently? (does it
+> > maintain 2 seperate runqueues?
+> >
 >
->>I am using testing scenarios
->>with Jumbo Frames as well. I am guessing the PCI bus contention is high 
->>due to the disk I/O bandwidth and
->>this is causing conditions the adapter does not normally see. 
->>    
->>
+>I believe even HT on 2.6.11 maintains two different runqueues.  But it
+>doesn't care so much to jump from one runqueue to the next if it is HT.
 >
->As I said, I have been saturating this card for weeks during stress tests
->and although it spitted out lots of messages, it never hanged (at least on
->recent 2.4 kernels, because very early 2.4 were a real pain with this one).
+> > 2) If it has indeed recogonized this as hyperthreaded processor...does 
+>the
+> > scheduler use a common runqueue for the 2 logical processor?
+> >
 >
->  
+>No, you wouldn't want to.
 >
->>Documentation states that this message should be very
->>rare, and not spool off into the logs at this rate.
->>    
->>
 >
->perhaps you have a mix of small and large frames which makes the driver
->constantly change the fifo size, and this part is not handled properly ?
+> > (please read below)
 >
->Willy
+>What do you want us to see?
 >
->  
+> > 
+>*********************************************************************************************************
+> > (I am attaching the ouput of  'dmesg' (command)  on my machine)
+> > 
+>*************************************************************************************************************
+> > Apr  2 17:43:12 kulick2 kernel: Linux version 2.6.5-1.358custom
+> > (root@kulick2) (gcc version 3.3
+> > .3 20040412 (Red Hat Linux 3.3.3-7)) #133 SMP Wed Mar 30 12:16:27 CST 
+>2005
+> > Apr  2 17:43:12 kulick2 kernel: BIOS-provided physical RAM map:
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 0000000000000000 -
+> > 00000000000a0000 (usable)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000000f0000 -
+> > 0000000000100000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 0000000000100000 -
+> > 000000001f770000 (usable)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 000000001f770000 -
+> > 000000001f772000 (ACPI NVS)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 000000001f772000 -
+> > 000000001f793000 (ACPI data)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 000000001f793000 -
+> > 000000001f800000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000fec00000 -
+> > 00000000fec10000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000fecf0000 -
+> > 00000000fecf1000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000fed20000 -
+> > 00000000fed90000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000fee00000 -
+> > 00000000fee10000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel:  BIOS-e820: 00000000ffb00000 -
+> > 0000000100000000 (reserved)
+> > Apr  2 17:43:12 kulick2 kernel: 0MB HIGHMEM available.
+> > Apr  2 17:43:12 kulick2 kernel: 503MB LOWMEM available.
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: S3 and PAE do not like each other 
+>for
+> > now, S3 disabled.
+> > Apr  2 17:43:12 kulick2 kernel: found SMP MP-table at 000fe710
+> > Apr  2 17:43:12 kulick2 kernel: On node 0 totalpages: 128880
+> > Apr  2 17:43:12 kulick2 kernel:   DMA zone: 4096 pages, LIFO batch:1
+> > Apr  2 17:43:12 kulick2 kernel:   Normal zone: 124784 pages, LIFO 
+>batch:16
+> > Apr  2 17:43:12 kulick2 kernel:   HighMem zone: 0 pages, LIFO batch:1
+> > Apr  2 17:43:12 kulick2 kernel: DMI 2.3 present.
+> > Apr  2 17:43:12 kulick2 kernel: Using APIC driver default
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: RSDP (v000 DELL
+> >                ) @
+> > 0x000feba0
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: RSDT (v001 DELL    GX270   
+>0x00000007
+> > ASL  0x00000061) @
+> > 0x000fd192
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: FADT (v001 DELL    GX270   
+>0x00000007
+> > ASL  0x00000061) @
+> > 0x000fd1ca
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: SSDT (v001   DELL    st_ex 
+>0x00001000
+> > MSFT 0x0100000d) @
+> > 0xfffd4eee
+> > Apr  2 17:43:12 kulick2 irqbalance: irqbalance startup succeeded
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: MADT (v001 DELL    GX270   
+>0x00000007
+> > ASL  0x00000061) @
+> > 0x000fd23e
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: BOOT (v001 DELL    GX270   
+>0x00000007
+> > ASL  0x00000061) @
+> > 0x000fd2aa
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: ASF! (v016 DELL    GX270   
+>0x00000007
+> > ASL  0x00000061) @
+> > 0x000fd2d2
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: DSDT (v001   DELL    dt_ex 
+>0x00001000
+> > MSFT 0x0100000d) @
+> > 0x00000000
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: PM-Timer IO Port: 0x808
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: LAPIC (acpi_id[0x01] 
+>lapic_id[0x00]
+> > enabled)
+> > Apr  2 17:43:12 kulick2 kernel: Processor #0 15:2 APIC version 20
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: LAPIC (acpi_id[0x02] 
+>lapic_id[0x01]
+> > enabled)
+> > Apr  2 17:43:12 kulick2 kernel: Processor #1 15:2 APIC version 20
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: LAPIC (acpi_id[0x03] 
+>lapic_id[0x01]
+> > disabled)
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: LAPIC (acpi_id[0x04] 
+>lapic_id[0x03]
+> > disabled)
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: IOAPIC (id[0x02] 
+>address[0xfec00000]
+> > global_irq_base[0x0]
+> > )
+> > Apr  2 17:43:12 kulick2 kernel: IOAPIC[0]: Assigned apic_id 2
+> > Apr  2 17:43:12 kulick2 kernel: IOAPIC[0]: apic_id 2, version 32, 
+>address
+> > 0xfec00000, GSI 0-23
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0
+> > global_irq 2 dfl dfl)
+> > Apr  2 17:43:12 kulick2 kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9
+> > global_irq 9 high level)
+> > Apr  2 17:43:12 kulick2 kernel: Enabling APIC mode:  Flat.  Using 1 I/O
+> > APICs
+> > Apr  2 17:43:12 kulick2 kernel: Using ACPI (MADT) for SMP configuration
+> > information
+> > Apr  2 17:43:12 kulick2 portmap: portmap startup succeeded
+> > Apr  2 17:43:12 kulick2 kernel: Built 1 zonelists
+> > Apr  2 17:43:12 kulick2 kernel: Kernel command line: ro root=LABEL=/ 
+>rhgb
+> > quiet
+> > Apr  2 17:43:12 kulick2 kernel: mapped 4G/4G trampoline to fffeb000.
+> > Apr  2 17:43:12 kulick2 kernel: Initializing CPU#0
+> > Apr  2 17:43:12 kulick2 kernel: CPU 0 irqstacks, hard=023cb000 
+>soft=023ab000
+> > Apr  2 17:43:12 kulick2 kernel: PID hash table entries: 2048 (order 11:
+> > 16384 bytes)
+> > Apr  2 17:43:12 kulick2 kernel: Detected 2993.225 MHz processor.
+> > Apr  2 17:43:12 kulick2 kernel: Using pmtmr for high-res timesource
+> > Apr  2 17:43:12 kulick2 kernel: Console: colour VGA+ 80x25
+> > Apr  2 17:43:12 kulick2 kernel: Memory: 505996k/515520k available (1744k
+> > kernel code, 8772k res
+> > erved, 756k data, 180k init, 0k highmem)
+> > Apr  2 17:43:12 kulick2 kernel: Calibrating delay loop... 5931.00 
+>BogoMIPS
+> > Apr  2 17:43:12 kulick2 kernel: Security Scaffold v1.0.0 initialized
+> > Apr  2 17:43:12 kulick2 kernel: SELinux:  Initializing.
+> > Apr  2 17:43:12 kulick2 kernel: SELinux:  Starting in permissive mode
+> > Apr  2 17:43:12 kulick2 kernel: There is already a security framework
+> > initialized, register_sec
+> > urity failed.
+> > Apr  2 17:43:12 kulick2 kernel: Failure registering capabilities with 
+>the
+> > kernel
+> > Apr  2 17:43:12 kulick2 kernel: selinux_register_security:  Registering
+> > secondary module capabi
+> > lity
+> > Apr  2 17:43:12 kulick2 kernel: Capability LSM initialized
+> > Apr  2 17:43:12 kulick2 kernel: Dentry cache hash table entries: 32768
+> > (order: 5, 131072 bytes)
+> > Apr  2 17:43:12 kulick2 kernel: Inode-cache hash table entries: 32768
+> > (order: 5, 131072 bytes)
+> > Apr  2 17:43:12 kulick2 kernel: Mount-cache hash table entries: 512 
+>(order:
+> > 0, 4096 bytes)
+> > Apr  2 17:43:12 kulick2 kernel: CPU: Trace cache: 12K uops, L1 D cache: 
+>8K
+> > Apr  2 17:43:12 kulick2 rpc.statd[2019]: Version 1.0.6 Starting
+> > Apr  2 17:43:12 kulick2 kernel: CPU: L2 cache: 512K
+> > Apr  2 17:43:12 kulick2 kernel: CPU: Physical Processor ID: 0
+> > Apr  2 17:43:12 kulick2 rpc.statd[2019]: gethostbyname error for kulick2
+> > Apr  2 17:43:12 kulick2 kernel: Intel machine check architecture 
+>supported.
+> > Apr  2 17:43:12 kulick2 kernel: Intel machine check reporting enabled on
+> > CPU#0.
+> > Apr  2 17:43:12 kulick2 nfslock: rpc.statd startup succeeded
+> > Apr  2 17:43:12 kulick2 kernel: CPU#0: Intel P4/Xeon Extended MCE MSRs 
+>(12)
+> > available
+> > Apr  2 17:43:12 kulick2 kernel: CPU#0: Thermal monitoring enabled
+> > Apr  2 17:43:12 kulick2 kernel: Enabling fast FPU save and restore... 
+>done.
+> > Apr  2 17:43:12 kulick2 kernel: Enabling unmasked SIMD FPU exception
+> > support... done.
+> > Apr  2 17:43:12 kulick2 kernel: Checking 'hlt' instruction... OK.
+> > Apr  2 17:43:12 kulick2 kernel: POSIX conformance testing by UNIFIX
+> > Apr  2 17:43:12 kulick2 kernel: CPU0: Intel(R) Pentium(R) 4 CPU 3.00GHz
+> > stepping 09
+> > Apr  2 17:43:12 kulick2 kernel: per-CPU timeslice cutoff: 1462.93 usecs.
+> > Apr  2 17:43:12 kulick2 kernel: task migration cache decay timeout: 2 
+>msecs.
+> > Apr  2 17:43:12 kulick2 kernel: enabled ExtINT on CPU#0
+> > Apr  2 17:43:12 kulick2 kernel: ESR value before enabling vector: 
+>00000040
+> > Apr  2 17:43:12 kulick2 kernel: ESR value after enabling vector: 
+>00000000
+> > Apr  2 17:43:12 kulick2 kernel: Booting processor 1/1 eip 2000
+> > Apr  2 17:43:12 kulick2 kernel: CPU 1 irqstacks, hard=023cc000 
+>soft=023ac000
+> > Apr  2 17:43:12 kulick2 kernel: Initializing CPU#1
+> > Apr  2 17:43:12 kulick2 kernel: masked ExtINT on CPU#1
+> > Apr  2 17:43:12 kulick2 kernel: ESR value before enabling vector: 
+>00000000
+> > Apr  2 17:43:12 kulick2 kernel: ESR value after enabling vector: 
+>00000000
+> > Apr  2 17:43:12 kulick2 kernel: Calibrating delay loop... 5980.16 
+>BogoMIPS
+> > Apr  2 17:43:12 kulick2 kernel: CPU: Trace cache: 12K uops, L1 D cache: 
+>8K
+> > Apr  2 17:43:12 kulick2 kernel: CPU: L2 cache: 512K
+> > Apr  2 17:43:12 kulick2 kernel: CPU: Physical Processor ID: 0
+> > Apr  2 17:43:12 kulick2 kernel: Intel machine check architecture 
+>supported.
+> > Apr  2 17:43:12 kulick2 kernel: Intel machine check reporting enabled on
+> > CPU#1.
+> > Apr  2 17:43:12 kulick2 kernel: CPU#1: Intel P4/Xeon Extended MCE MSRs 
+>(12)
+> > available
+> > Apr  2 17:43:12 kulick2 kernel: CPU#1: Thermal monitoring enabled
+> > Apr  2 17:43:12 kulick2 kernel: CPU1: Intel(R) Pentium(R) 4 CPU 3.00GHz
+> > stepping 09
+> > Apr  2 17:43:12 kulick2 kernel: Total of 2 processors activated 
+>(11911.16
+> > BogoMIPS).
+> > Apr  2 17:43:12 kulick2 kernel: cpu_sibling_map[0] = 1
+> > Apr  2 17:43:12 kulick2 kernel: cpu_sibling_map[1] = 0
 >
->>See http://www.ibiblio.org/mdw/HOWTO/Ethernet-HOWTO-8.html
->>
->>Jeff
->>
->>Willy Tarreau wrote:
->>
->>    
->>
->>>Hi Jeff,
->>>
->>>I've also experienced those messages under 2.4, but they were harmless,
->>>and I never had a machine hang even after weeks of full load (the adapter
->>>was mounted on a stress test machine before being used in firewalls for
->>>months).
->>>
->>>So I wonder how you can be sure that it is this driver which finally 
->>>locks
->>>the bus. Perhaps the system locks for any other reason (eg: race 
->>>condition).
->>>Have you tried with any other 4-port NIC (tulip or sun for example) ? Sun
->>>QFE would be the most interesting to test as it also supports 64 bits /
->>>66 MHz.
->>>
->>>Regards,
->>>Willy
->>>
->>>On Sat, Apr 02, 2005 at 09:41:28PM -0700, jmerkey wrote:
->>>
->>>
->>>      
->>>
->>>>With linux 2.6.9 running at 192 MB/S network loading and protocol 
->>>>splitting drivers routing packets out of
->>>>a 2.6.9 device at full 100 mb/s (12.5 MB/S) simultaneously over 4 
->>>>ports, the adaptec starfire driver goes into
->>>>constant Tx FIFO reconfiguration mode and after 3-4 days of constantly 
->>>>resetting the Tx FIFO window and
->>>>generating a deluge of messages such as:
->>>>
->>>>ethX:  PCI bus congestion, resetting Tx FIFO window to X bytes
->>>>
->>>>pouring into the system log file at a rate of a dozen per minute.  
->>>>After several days, the PCI bus totally locks up
->>>>and hangs the system.  Need a config option to allow the starfire to 
->>>>disable this feature.  At very
->>>>high bus loading rates, the starfire card will completely lock the bus 
->>>>after 3-4 days
->>>>of constant Tx FIFO reconfiguration at very high data rates with 
->>>>protocol splitting and routing.
->>>>
->>>>Jeff
->>>>-
->>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
->>>>in
->>>>the body of a message to majordomo@vger.kernel.org
->>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>Please read the FAQ at  http://www.tux.org/lkml/
->>>>  
->>>>
->>>>        
->>>>
->>>
->>>      
->>>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+>Here you see that you have two CPUs.  0 is the sibling of 1 and 1 to 0.
+>This just shows that you have HT.  If you were to have a dual xeon, then
+>you would see 4 CPUs and two pairs.
 >
->  
+>-- Steve
 >
+
+_________________________________________________________________
+News, views and gossip. http://www.msn.co.in/Cinema/ Get it all at MSN 
+Cinema!
 

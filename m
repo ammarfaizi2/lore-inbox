@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTGGUvr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 16:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTGGUvr
+	id S264328AbTGGVA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 17:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264407AbTGGVA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 16:51:47 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24453 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264450AbTGGUvp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 16:51:45 -0400
-Date: Mon, 7 Jul 2003 14:00:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org, devfs@oss.sgi.com
-Subject: Re: [PATCH][2.5.74] devfs lookup deadlock/stack corruption combined
- patch
-Message-Id: <20030707140010.4268159f.akpm@osdl.org>
-In-Reply-To: <200307072306.15995.arvidjaar@mail.ru>
-References: <E198K0q-000Am8-00.arvidjaar-mail-ru@f23.mail.ru>
-	<20030706120315.261732bb.akpm@osdl.org>
-	<20030706175405.518f680d.akpm@osdl.org>
-	<200307072306.15995.arvidjaar@mail.ru>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Jul 2003 17:00:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47280 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264328AbTGGVA6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 17:00:58 -0400
+Message-ID: <3F09E2E7.7020500@pobox.com>
+Date: Mon, 07 Jul 2003 17:15:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Torri <storri@sbcglobal.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to grab 2.5 tree via bkbits
+References: <1057610739.11432.18.camel@base>
+In-Reply-To: <1057610739.11432.18.camel@base>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov <arvidjaar@mail.ru> wrote:
->
-> I finally hit a painfully trivial way to reproduce another long standing devfs 
-> problem - deadlock between devfs_lookup and devfs_d_revalidate_wait.
+Stephen Torri wrote:
+> I am trying to grab the kernel via bk but I am not able to find the
+> rigth directory. My first attempt was as follows:
+> 
+> 
+>>$ bk clone http://linux.bkbits.net/linux-2.5 linux-2.5
+> 
+> Clone http://linux.bkbits.net/linux-2.5 -> file://usr/src/linux-2.5
+> linux-2.5: No such file or directory
+> 
+> Yet when I when I viewed the hosted projects at www.bkbits.net I noticed
+> that there was a linus project for the kernel. So I tried that:
+> 
+> 
+>>$ bk clone http://linus.bkbits.net/linux-2.5 linux-2.5
+> 
+> Clone http://linus.bkbits.net/linux-2.5 -> file://usr/src/linux-2.5
+> linux-2.5: No such file or directory
+> 
+> So far I see no messages that alert me to a problem with bkbits.net so I
+> am suspecting the problem is on my end. Can someone show me the errors
+> of my ways?
 
-uh.
 
-> The current fix is to move re-acquire of i_sem after all 
-> devfs_d_revalidate_wait waiters have been waked up.
+Just to verify, I'm definitely able to pull and clone from 
+http://linux.bkbits.net/linux-2.5 ...  I even cut-n-pasted your first 
+command line to be sure.
 
-Directory modifications appear to be under write_lock(&dir->u.dir.lock); so
-that obvious problem is covered.  Your patch might introduce a race around
-_devfs_get_vfs_inode() - two CPUs running that against the same inode at
-the same time?
+It sounds like a local problem... disk space?  no rights to write to curdir?
 
-> Andrew, I slightly polished original stack corruption version to look more 
-> consistent with the rest of devfs;
+	Jeff
 
-I think it's Lindent time.
 
 

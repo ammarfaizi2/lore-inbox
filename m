@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272164AbSISSK3>; Thu, 19 Sep 2002 14:10:29 -0400
+	id <S272187AbSISST2>; Thu, 19 Sep 2002 14:19:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272182AbSISSK3>; Thu, 19 Sep 2002 14:10:29 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:61077 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S272164AbSISSK1>;
-	Thu, 19 Sep 2002 14:10:27 -0400
-Message-ID: <3D8A141D.2080809@us.ibm.com>
-Date: Thu, 19 Sep 2002 11:14:53 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
+	id <S272191AbSISST2>; Thu, 19 Sep 2002 14:19:28 -0400
+Received: from auscon.arc.nasa.gov ([143.232.69.76]:24448 "EHLO
+	rudi.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S272187AbSISST1>; Thu, 19 Sep 2002 14:19:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dan Christian <dchristian@mail.arc.nasa.gov>
+Reply-To: dchristian@mail.arc.nasa.gov
+Organization: NASA Ames Research Center
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 serial drops characters with 16654
+Date: Thu, 19 Sep 2002 11:24:24 -0700
+User-Agent: KMail/1.4.1
+References: <11E89240C407D311958800A0C9ACF7D13A7992@EXCHANGE> <200209191027.46127.dchristian@mail.arc.nasa.gov> <1032457132.27721.45.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1032457132.27721.45.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: "Bond, Andrew" <Andrew.Bond@hp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TPC-C benchmark used standard RH kernel
-References: <45B36A38D959B44CB032DA427A6E106402D09E42@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209191124.24964.dchristian@mail.arc.nasa.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bond, Andrew wrote:
- > I believe I need to clarify my earlier posting about kernel features that
- > gave the benchmark a boost.  The kernel that we used in the benchmark was an
- > unmodified Red Hat Advanced Server 2.1 kernel.  We did tune the kernel via
- > standard user space tuning, but the kernel was not patched.  HP, Red Hat, and
- > Oracle have worked closely together to make sure that the features I
- > mentioned were in the Advanced Server kernel "out of the box."
+This still isn't getting at the core problem.  I'm sending data out the 
+port and dropping characters.  The receive works fine.
 
-Have you done much profiling of that kernel?  I'm sure a lot of people would be 
-very interested to see even readprofile results from a piece of the cluster 
-during a TPC run.
+It can't be a problem with the receiving device being over-run, since 
+the 16550 works (even though it sends several bytes after CTS drops), 
+and the 16654 doesn't (it stops after the current byte).
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+I think that data must be lost when the receiving device drops CTS.  
+Either this is a hardware flaw (and data is lost from the transmit 
+FIFO), or there is some kind of race condition between the CTS drop and 
+re-loading the FIFO.
 
+-Dan
+
+On Thursday 19 September 2002 10:38, Alan Cox wrote:
+> On Thu, 2002-09-19 at 18:27, Dan Christian wrote:
+> > The problem seems to be related to the RTS/CTS flow control
+> > handling. The 16654 handles flow control in hardware, but the 16550
+> > does it in software (I've verified this with a digital
+> > oscilloscope).  I don't currently have the equipment to compare
+> > when the lines drop and which characters are lost.
+>
+> Actually you can do it in hardware on the 16550 depending how its
+> wired. Take a look at the usenet-2 serial port design some day. The
+> software mode we do does in theory mean heavy delay to the bh
+> handling might delay the assertion excessively. That I think may be
+> the real explanation here.
+>
+> Its
+>          buffer full
+>          bh handler delayed by bh load (tasklet nowdays I guess I
+> mean) overrun
+>          overrun
+>          ...
+>          ksoftirqd
+>          Oh look I should do carrier
+>
+> Russell - does that sound reasonable.
+>
+> If so the answer yet again (as with the gige performance and some
+> others) might be to make it much much harder for stuff tofall back to
+> ksoftirqd.

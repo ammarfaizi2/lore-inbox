@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUE2Cmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUE2DN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUE2Cmm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 22:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUE2Cmm
+	id S262772AbUE2DN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 23:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUE2DN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 22:42:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17619 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263788AbUE2Cmf (ORCPT
+	Fri, 28 May 2004 23:13:58 -0400
+Received: from ozlabs.org ([203.10.76.45]:43245 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262772AbUE2DN4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 22:42:35 -0400
-Date: Fri, 28 May 2004 19:38:55 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: vimpagliazzo@libero.it
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: multiple printk problem
-Message-Id: <20040528193855.27231ea1.rddunlap@osdl.org>
-In-Reply-To: <20040528165600.1971fdc0.rddunlap@osdl.org>
-References: <20040528165600.1971fdc0.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 28 May 2004 23:13:56 -0400
+Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040520093817.GX30909@devserv.devel.redhat.com>
+References: <20040520093817.GX30909@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1085635370.9356.13.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 29 May 2004 13:13:25 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-05-20 at 19:38, Jakub Jelinek wrote:
+> Hi!
+> 
+> FUTEX_REQUEUE operation has been added to the kernel mainly to improve
+> pthread_cond_broadcast which previously used FUTEX_WAKE INT_MAX op.
 
-| Hi, I'm quite new to kernel module programming,
-| I was wondering why multiple consecutive calls to printk will not be 
-| correctly logged by the system logger (linux-2.4.25 with metalog without 
-| buffering in my case).
-| 
-| Consider for example the following example, only the first message can 
-| be found in logs:
-| 
-|     #include <linux/version.h>
-|     #include <linux/init.h>
-|     #include <linux/module.h>
-|     #include <linux/kernel.h>
-| 
-| 
-|     MODULE_AUTHOR ("Vito Impagliazzo <vimpagliazzo@libero.it>");
-|     MODULE_DESCRIPTION ("Hello World");
-|     MODULE_LICENSE("Dual BSD/GPL");
-| 
-|     static int hello_init(void)
-|     {
-|         printf(KERN_ALERT "1\n");
-|         printf(KERN_ALERT "2\n");
-|         printf(KERN_ALERT "3\n");
-|         return 0;
-|     }
-| 
-|     static void hello_exit(void)
-|     {
-|         printk(KERN_ALERT "Goodbye, cruel world\n");
-|     }
-| 
-| module_init(hello_init);
-| module_exit(hello_exit);
+For the record, I wasn't happy about adding FUTEX_REQUEUE to optimize
+for suboptimal apps using the horrid pthreads interface, but I
+understand the benchmarking realities.
 
-Hi,
+I'm certainly way less than thrilled to discover that it doesn't work,
+and we need to implement FUTEX_CMP_REQUEUE, and of course can't get rid
+of FUTEX_REQUEUE.
 
-Your module works fine if you change "printf" to "printk".
+The base futex concept and interface is simple (although the
+implementation w/ the Linux mm subsystem proved interesting in the
+corner cases); it's increasingly becoming a horror with these kind of
+hacks.
 
-If you still fail to see all 3 messages, it's a metalog
-problem and not a kernel problem.
-You should be able to contact them at
-	http://sourceforge.net/projects/metalog/
+8(
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
---
-~Randy

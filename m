@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284326AbRLCIvn>; Mon, 3 Dec 2001 03:51:43 -0500
+	id <S281879AbRLCIvk>; Mon, 3 Dec 2001 03:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284409AbRLCIuJ>; Mon, 3 Dec 2001 03:50:09 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:15119 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S284897AbRLCI2T>;
-	Mon, 3 Dec 2001 03:28:19 -0500
-Message-Id: <200112030244.fB32iMx4024126@sleipnir.valparaiso.cl>
-To: Stanislav Meduna <stano@meduna.org>
-cc: linux-kernel@vger.kernel.org
+	id <S284471AbRLCIuf>; Mon, 3 Dec 2001 03:50:35 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:63503 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S284404AbRLBX1f>;
+	Sun, 2 Dec 2001 18:27:35 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: hps@intermeta.de, jgarzik@mandrakesoft.com, lm@bitmover.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: Coding style - a non-issue 
-In-Reply-To: Your message of "Sun, 02 Dec 2001 09:01:32 BST."
-             <200112020801.fB281Wt07893@meduna.org> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 02 Dec 2001 23:44:22 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+In-Reply-To: Your message of "Sun, 02 Dec 2001 15:21:57 -0800."
+             <20011202.152157.123925377.davem@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Dec 2001 10:27:22 +1100
+Message-ID: <30026.1007335642@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stanislav Meduna <stano@meduna.org> said:
-> "Alan Cox" at dec 01, 2001 09:18:15 said:
+On Sun, 02 Dec 2001 15:21:57 -0800 (PST), 
+"David S. Miller" <davem@redhat.com> wrote:
+>   From: Keith Owens <kaos@ocs.com.au>
+>   Date: Sat, 01 Dec 2001 12:17:03 +1100
+>   
+>   What is ugly in aic7xxx is :-
+>
+>You missed:
+>
+>* #undef's "current"
 
-[...]
+Where?  fgrep -ir current 2.4.17-pre2/drivers/scsi/aic7xxx did not find it.
 
-> > If you want a high quality, tested supported kernel which has been through
-> > extensive QA then use kernel for a reputable vendor, or do the QA work
-> > yourself or with other people.
-
-> Correct. But this has one problem - it is splitting resources.
-> Pushing much of the QA work later in the process means
-> that the bugs are found later, that there is more people
-> doing this as absolutely necessary and that much more
-> communication (and this can be the most important bottleneck)
-> is needed as necessary.
-
-Have you got any idea how QA is done in closed environments?
-
-> The need of the VM change is probably a classical example -
-> why was it not clear at the 2.4.0-pre1, that the current
-> implementation is broken to the point of no repair?
-
-Perhaps because of the same phenomenon that made MS state "WinNT 4.0 has no
-flaws" when asked about a nasty problem shortly after release, and it is
-now at sp6a + numerous "hotfixes". Like Win2k which now has sp2. Like
-Solaris, which still is being fixed. Etc, ad nauseam. Complex software
-*has* bugs, bugs which aren't apparent except under unsusual circumstances
-are rarely found in the first round of bug chasing.
-
-[...]
-
-> As a user of the vendor's kernel I have no idea what to do
-> with a bug.
-
-Report it to the vendor, through the documented channels?
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

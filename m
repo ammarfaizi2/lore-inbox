@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131140AbRCGSU1>; Wed, 7 Mar 2001 13:20:27 -0500
+	id <S131139AbRCGSU1>; Wed, 7 Mar 2001 13:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131141AbRCGSUR>; Wed, 7 Mar 2001 13:20:17 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:11731 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131140AbRCGSUM>;
-	Wed, 7 Mar 2001 13:20:12 -0500
-Date: Wed, 7 Mar 2001 15:12:17 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit capable block device layer
-In-Reply-To: <20010307184749.A4653@suse.de>
-Message-ID: <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131140AbRCGSUS>; Wed, 7 Mar 2001 13:20:18 -0500
+Received: from f112.law11.hotmail.com ([64.4.17.112]:5129 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S131139AbRCGSUE>;
+	Wed, 7 Mar 2001 13:20:04 -0500
+X-Originating-IP: [63.89.188.169]
+From: "Ying Chen" <yingchenb@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: pthreads related issues
+Date: Wed, 07 Mar 2001 10:19:32 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F112MQtFu9NHFto4pxw0000224a@hotmail.com>
+X-OriginalArrivalTime: 07 Mar 2001 18:19:33.0115 (UTC) FILETIME=[2881F4B0:01C0A733]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Jens Axboe wrote:
-> On Wed, Mar 07 2001, Rik van Riel wrote:
+Hi,
 
-> > how would you feel about having the block device layer 64-bit
-> > capable, so Linux can have block devices of more than 2GB in
-> > size ?
->
-> I already did this here, or something similar at least. Using
-> a sector_t type that is 64-bit, regardless of platform. Is it
-> really worth it to differentiate and use 32-bit types for old
-> machines?
+I think I forgot to include the subject on the email I sent last time.
+Not sure how many people saw it. I'm trying to send this message again...
 
-Wonderful !
+I have two questions on Linux pthread related issues. Would anyone be able 
+to help?
 
-I'm not sure how expensive 64-bit arithmetic would be on
-eg. 386, 486 or 68k machines, or how much impact the extra
-memory taken would have.
+1. Does any one have some suggestions (pointers) on good kernel Linux thread 
+libraries?
+2. We ran multi-threaded application using Linux pthread library on 2-way 
+SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
+significant increase in context switching when moving from UP to SMP, and 
+high CPU usage with no performance gain in turns of actual work being done 
+when moving to SMP, despite the fact the benchmark we are running is 
+CPU-bound. The kernel profiler indicates that the a lot of kernel CPU ticks 
+went to scheduling and signaling overheads. Has anyone seen something like 
+this before with pthread applications running on SMP platforms? Any 
+suggestions or pointers on this subject?
 
-OTOH, I'm not sure what problems it could give to make this
-a compile-time option...
 
-regards,
+Ying
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

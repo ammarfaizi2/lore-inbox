@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263115AbTJPTgV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTJPTgV
+	id S263119AbTJPT20 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTJPT20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:36:21 -0400
-Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:63112
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263115AbTJPTgU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:36:20 -0400
-Message-ID: <3F8EF3BB.6090602@trash.net>
-Date: Thu, 16 Oct 2003 21:38:35 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
-X-Accept-Language: en
+	Thu, 16 Oct 2003 15:28:26 -0400
+Received: from ogi.bezeqint.net ([192.115.106.14]:13497 "EHLO ogi.bezeqint.net")
+	by vger.kernel.org with ESMTP id S263119AbTJPT2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 15:28:25 -0400
+Message-ID: <3F8EF17A.2040502@users.sf.net>
+Date: Thu, 16 Oct 2003 21:28:58 +0200
+From: Eli Billauer <eli_billauer@users.sf.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test7: XFS fills files with 0-bytes after crash
+To: linux-kernel@vger.kernel.org
+Cc: David Mosberger-Tang <David.Mosberger@acm.org>
+Subject: Re: [RFC] frandom - fast random generator module
+References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it> <ugzng1axel.fsf@panda.mostang.com>
+In-Reply-To: <ugzng1axel.fsf@panda.mostang.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently encountered a problem with XFS: while hacking on some network 
-stuff
-I crashed my box multiple times. Every time I saved a file directly 
-before the crash
-XFS filled the file with 0-bytes (I assume at recovery). The file size 
-was unchanged.
-Syncing and waiting a couple of seconds before crashing the box helped. 
-To confirm
-my network hacking didn't accidentally damage XFS data structures I 
-created a
-module which does nothing more than dereferencing a NULL pointer in softirq
-context, the problem persisted.
+Allow me to supply a couple facts about frandom:
 
-ver_linux:
+* It's not a "crappy" RNG. Its RC4 origins and the fact, that it has 
+passed tests indicate the opposite. A fast RNG doesn't necessarily mean 
+a bad one. I doubt if any test will tell the difference between frandom 
+and any other good RNG. You're most welcome to try.
 
-Gnu C                  3.3.2
-Gnu make               3.80
-util-linux             2.12
-mount                  2.12
-module-init-tools      0.9.15-pre2
-e2fsprogs              1.35-WIP
-xfsprogs               2.5.11
-nfs-utils              1.0.5
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.12
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0.91
-Modules Loaded         sch_hfsc iptable_filter ipt_MARK iptable_mangle 
-ip_tables cls_fw oprofile nfsd exportfs deflate zlib_deflate twofish 
-serpent aes blowfish des sha256 sha1 md5 af_key 8250 serial_core nfs 
-lockd sunrpc af_packet snd_pcm_oss snd_mixer_oss snd_ens1371 snd_rawmidi 
-snd_seq_device snd_pcm snd_page_alloc snd_timer snd_ac97_codec snd 
-soundcore 8139too mii rtc unix
+* Frandom is written completely in C. On an i686, gcc compiles the 
+critical part to 26 assembly instructions per byte, and I doubt if any 
+hand assembly would help significantly. The algorithms is clean and 
+simple, and the compiler performs well with it.
 
-xfsprogs 2.5.11-1 (debian)
-
-If more specific information is required please tell me ..
-
-Best regards,
-Patrick
-
+   Eli
 

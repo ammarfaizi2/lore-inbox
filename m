@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314432AbSDRTUD>; Thu, 18 Apr 2002 15:20:03 -0400
+	id <S314433AbSDRT1h>; Thu, 18 Apr 2002 15:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314431AbSDRTUC>; Thu, 18 Apr 2002 15:20:02 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43268 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S314430AbSDRTUC>; Thu, 18 Apr 2002 15:20:02 -0400
-Date: Thu, 18 Apr 2002 21:20:03 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Doug Ledford <dledford@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
-        jh@suse.cz, linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de,
-        ak@suse.de, pavel@atrey.karlin.mff.cuni.cz,
-        References:20020417194249.B23438@redhat.com,
-        20020418072615.I14322@dualathlon.random
-Subject: Re: SSE related security hole
-Message-ID: <20020418192003.GE11220@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020418072615.I14322@dualathlon.random> <20020418094444.A2450@redhat.com>
+	id <S314434AbSDRT1g>; Thu, 18 Apr 2002 15:27:36 -0400
+Received: from jalon.able.es ([212.97.163.2]:52617 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S314433AbSDRT1f>;
+	Thu, 18 Apr 2002 15:27:35 -0400
+Date: Thu, 18 Apr 2002 21:27:28 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Heinz Diehl <hd@cavy.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
+Message-ID: <20020418192728.GA1891@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.10.10204161720260.10691-100000@master.linux-ide.org> <20020417134004.GA2025@werewolf.able.es> <20020418081152.GA559@chiara.cavy.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > +		asm volatile("xorq %%mm0, %%mm0;
-> > > +			      xorq %%mm1, %%mm1;
-> > > +			      xorq %%mm2, %%mm2;
-> > > +			      xorq %%mm3, %%mm3;
-> > > +			      xorq %%mm4, %%mm4;
-> > > +			      xorq %%mm5, %%mm5;
-> > > +			      xorq %%mm6, %%mm6;
-> > > +			      xorq %%mm7, %%mm7");
-> > 
-> > This mean the mmx isn't really backwards compatible and that's
-> > potentially a problem for all the legacy x86 multiuser operative
-> > systems.  That's an hardware design bug, not a software problem.  In
-> > short running a 2.[02] kernel on a MMX capable CPU isn't secure, the
-> > same potentially applies to windows NT and other unix, no matter of SSE.
-> 
-> Why is that not backwards compatible?  I've never heard of anywhere that 
-> specifies that the starting value in the mmx registers will be anything of 
-> consequence?  Also, even though register space is (possibly) shared with 
-> the FP register stack, clearing out the MMX registers does not actually 
-> harm the FP register stack since the fninit already blows the stack away, 
-> which forces the application to load fp data before it can use the fpu 
-> again.
+On 2002.04.18 Heinz Diehl wrote:
+>On Wed Apr 17 2002, J.A. Magallon wrote:
+>
+>> Can it be related to my system getting hung on boot trying to do
+>> an hdparm ?
+>
+>Yep, here it is exactly the same.
+>
+>I also changed '#if 1' to '#if 0' as Andre mentioned but it has no effect,
+>my machine hangs at boot time....
+>
 
-It introduces security hole: Unrelated tasks now have your top secret
-value you stored in one of your registers.
-								Pavel
+It worked for me, just booted fine with hdparm included...
+
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam1 #2 SMP Wed Apr 17 21:20:31 CEST 2002 i686

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289982AbSA3Qb0>; Wed, 30 Jan 2002 11:31:26 -0500
+	id <S289973AbSA3QWR>; Wed, 30 Jan 2002 11:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289989AbSA3QbK>; Wed, 30 Jan 2002 11:31:10 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:52948 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290025AbSA3QaB>;
-	Wed, 30 Jan 2002 11:30:01 -0500
-Date: Wed, 30 Jan 2002 11:29:57 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, kaboom@gatech.edu,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: ANOTHER modest proposal -- We need a documentation package
-Message-ID: <20020130112957.D21325@havoc.gtf.org>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2C@ottonexc1.ottawa.loran.com>
+	id <S289968AbSA3QV0>; Wed, 30 Jan 2002 11:21:26 -0500
+Received: from 200-171-140-137.dsl.telesp.net.br ([200.171.140.137]:20229 "HELO
+	josephine.e-mail4you.com.br") by vger.kernel.org with SMTP
+	id <S289975AbSA3QUj>; Wed, 30 Jan 2002 11:20:39 -0500
+Date: Wed, 30 Jan 2002 14:21:36 -0200
+From: michelpereira@uol.com.br (Michel Angelo da Silva Pereira)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.4.18-pre3-ac2 with Intel ServerRAID Controller
+Message-ID: <20020130142136.A3501@josephine.e-mail4you.com.br>
+In-Reply-To: <Pine.LNX.4.44.0201301602510.2726-100000@netfinity.realnet.co.sz> <Pine.LNX.4.44.0201301756530.5518-100000@netfinity.realnet.co.sz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2C@ottonexc1.ottawa.loran.com>; from dana.lacoste@peregrine.com on Wed, Jan 30, 2002 at 07:23:40AM -0800
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.44.0201301756530.5518-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Wed, Jan 30, 2002 at 05:57:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 07:23:40AM -0800, Dana Lacoste wrote:
-> > Its then permanently out of date, and you can't keep the two 
-> > tied together.
+	Noone kernel works here, I´ve an Adaptec AIC7XXX onboard
+and this card Offboard.
+	I´m going to compile without adaptec module.
 
-> but from what was said, Linus isn't keeping them up to date
-> anyways, so how would this be _worse_?
-
-Because _I_ am keeping some of the docs up to date.
-
-	Jeff
+Bye
 
 
+On Wed, Jan 30, 2002 at 05:57:51PM +0200, Zwane Mwaikambo wrote:
+> Could you please try without the adaptec i2o driver compiled in and only 
+> the generic i2o drivers. Also which kernel last worked for you?
+> 
+> Cheers,
+> 	Zwane Mwaikambo
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+=================================================
+Borges & Rinolfi Soluções em Redes Corporativas
+Security Officer
+Profissional Certificado Conectiva Linux
+www.techs.com.br/kidmumu - UIN 4553082 - LC 83522
+=================================================
 

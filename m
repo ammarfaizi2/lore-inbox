@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbUK3Sv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUK3Sy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbUK3Sv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUK3SuK
+	id S262272AbUK3Sy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbUK3SyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:50:10 -0500
-Received: from holomorphy.com ([207.189.100.168]:53918 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262244AbUK3StE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:49:04 -0500
-Date: Tue, 30 Nov 2004 10:48:52 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm4
-Message-ID: <20041130184852.GI2714@holomorphy.com>
-References: <20041130095045.090de5ea.akpm@osdl.org> <1101837994.2640.67.camel@laptop.fenrus.org> <20041130102105.21750596.akpm@osdl.org> <1101839110.2640.69.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101839110.2640.69.camel@laptop.fenrus.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 30 Nov 2004 13:54:15 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:23312 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262274AbUK3Svz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:51:55 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Concurrent access to /dev/urandom
+Date: Tue, 30 Nov 2004 10:50:45 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEKJACAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.53.0411300919500.18635@yvahk01.tjqt.qr>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 30 Nov 2004 10:27:06 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 30 Nov 2004 10:27:07 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 10:21 -0800, Andrew Morton wrote:
->> For pages which have a physical address <4G.  I assume this was motivated
->> by the lack of an IOMMU on ia32e?
 
-On Tue, Nov 30, 2004 at 07:25:10PM +0100, Arjan van de Ven wrote:
-> but there's the swiommu for those... so that can't be it
-> realistically....
-> Is there code using the zone GFP mask yet ??
+> >Even timer interrupts are incredibly unpredictable.  Instructions can
+> >take
+> >variable times to complete, and all instructions plus some indeterminate
+> >cache operations and queue flushing must occur before the CPU can
+> >even begin to service an interrupt.
+> 
+> Well, don't timer interrupts happen every 1/1000 s (unless, of 
+> course, cli() is
+> in effect)?
 
-ZONE_NORMAL and ZONE_DMA are both too overloaded to handle the 4GB
-boundary. And it makes a lot of sense on more machine types than x86-64
-(e.g. ia64, ia32 and others with 32-bit PCI but no zone representing it).
+	Roughly. If you store the TSC on every timer interrupt, there is nobody in the world that can accurately predict what TSC value you will get. Or, to put it in more precise terms, if you log 100 such TSC values and run an MD5 on all of them together, nobody can predict with better than 50% accuracy the value of any bit of that MD5 output.
+ 
+> >Also of note, there are small
+> >critical
+> >sections with interrupts disabled scattered all over the kernel and
+> >scheduler,
+> >in addition to varying memory latencies, etc. (NOTE: I am not an arch
+> >expert
+> 
+> In case you mean the RDTSC, it is of course better than the I8042, for
+> random-aphy.
+
+	To mine the entropy in the unpredictability of instruction scheduling, cache effectiveness, and slew between the various oscillators in a computer, you need a timing source with the accuracy of the TSC.
+
+	You can mine entropy from any two independent oscillators. However, the rate at which you can mine them varies largely upon the frequency of the slowest oscillator. This is why network cards are such good sources of entropy on Pentium machines. You have the network card's oscillator, the oscillator on the network card sending the data to you, and the TSC. All are fast and totally independent.
+
+	The timer interrupt may be generated by a clock that ultimately comes from the same source as the TSC clock. This varies from motherboard to motherboard. However, they're generally produced by a PLL that has lots of jitter and slew. So there should be some entropy in there, even without considering unpredictable cache and disk delays.
+
+	DS
 
 
--- wli

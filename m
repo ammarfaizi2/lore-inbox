@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbTL3Pw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 10:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbTL3Pw5
+	id S265815AbTL3PyF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 10:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbTL3PyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 10:52:57 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:39904 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S265812AbTL3Pw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 10:52:56 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16369.40927.110483.701341@gargle.gargle.HOWL>
-Date: Tue, 30 Dec 2003 16:55:11 +0100
-To: Duncan Sands <baldrick@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: speedtouch for 2.6.0
-In-Reply-To: <200312300911.02044.baldrick@free.fr>
-References: <16366.61517.501828.389749@gargle.gargle.HOWL>
-	<200312291804.40544.baldrick@free.fr>
-	<16368.52302.736757.403219@gargle.gargle.HOWL>
-	<200312300911.02044.baldrick@free.fr>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-From: "Guldo K" <guldo@tiscali.it>
-Reply-to: "Guldo K" <guldo@tiscali.it>
+	Tue, 30 Dec 2003 10:54:05 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55765 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265815AbTL3PyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 10:54:01 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Date: Tue, 30 Dec 2003 10:53:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0: alsa, esd, mpg123
+Message-ID: <20031230155358.GB23963@butterfly.hjsoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands writes:
- > You are compiling against 2.6 kernel headers.
- > (Most people have 2.4 kernel headers in
- > /usr/include/linux, even if they are running a
- > 2.6 kernel).  You will need to update the
- > firmware_loader directory.  Do the following:
- > 
- >         cvs -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch login
- > 
- > (just hit return if asked for a password).
 
-It looks like this needs a connection... it couldn't find the server.
-Of course, I'm offline when doing this. :-(
+--St7VIuEGZ6dlpu13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is getting too frustrating...
-Maybe I'd better get an ethernet modem, shouldn't I?
+on my debian (unstable) laptop newly running 2.6.0, i've noticed
+an irritating tendency for music to not pause, but instead to
+try to go too fast, skipping small parts of the song (fractions
+of a second).  this results in music with regular beats sounding
+erratic.
 
-Anyway, thank you very much for your answers and your patience.
+i'm using gqmpeg -> mpg123-esd -> esd -> oss -> alsa (maestro3).
 
-Happy 2004! :-)
+switching esd to use -tcp instead of -unix seems to alleviate
+the trouble a bit.  ogg123 playing through esd doesn't seem to
+do it as much either.
 
-*Guldo*
+has anyone else noted this problem and tuned it away?  thanks.
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
- > Then do
- > 
- >         cvs -z 9 -d:pserver:anonymous@cvs.speedtouch.sourceforge.net:/cvsroot/speedtouch co speedtouch
- > 
- > This creates a directory called speedtouch.  Replace the contents of the
- > firmware_loader directory with the contents of this new speedtouch
- > directory.  Now rebuild: in the top level of the speedbundle do
- > 
- >         make clean
- >         make
- > (become root)
- >         make install
- > 
+--St7VIuEGZ6dlpu13
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/8Z+WCGPRljI8080RAjHvAJ9oPspSOyEw2iRMyJA3oCAOGSQm5gCfdf0v
+vuuWEmhsEd1aF2+ERcN1Hao=
+=aeZz
+-----END PGP SIGNATURE-----
+
+--St7VIuEGZ6dlpu13--

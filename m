@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTFJIPv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 04:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTFJIPv
+	id S262426AbTFJI3o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 04:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTFJI3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 04:15:51 -0400
-Received: from userk185.dsl.pipex.com ([62.188.58.185]:33432 "HELO
-	userk185.dsl.pipex.com") by vger.kernel.org with SMTP
-	id S262444AbTFJIPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 04:15:50 -0400
-From: "Sean Hunter" <sean@uncarved.com>
-Date: Tue, 10 Jun 2003 08:29:30 +0000
-To: Shawn <core@enodev.com>
-Cc: Matthias Schniedermeyer <ms@citd.de>,
-       "Leonardo H. Machado" <leoh@dcc.ufmg.br>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: cachefs on linux
-Message-ID: <20030610082930.GA26777@uncarved.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>, Shawn <core@enodev.com>,
-	Matthias Schniedermeyer <ms@citd.de>,
-	"Leonardo H. Machado" <leoh@dcc.ufmg.br>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br> <20030609204249.GA11373@citd.de> <1055191776.13435.6.camel@localhost>
+	Tue, 10 Jun 2003 04:29:44 -0400
+Received: from angband.namesys.com ([212.16.7.85]:5297 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262426AbTFJI3n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 04:29:43 -0400
+Date: Tue, 10 Jun 2003 12:43:23 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 / reiserfs data corruption, 2.5-bk
+Message-ID: <20030610084323.GA16435@namesys.com>
+References: <20030609193541.GA21106@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055191776.13435.6.camel@localhost>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030609193541.GA21106@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 03:49:36PM -0500, Shawn wrote:
-> Well, it's a nice way to simulate writing on r/o filesystems IIRC. Like
-> mounting a cdrom then writing to it, but you're not.
-> 
-> Was that was this was? Anyway, linux also does not have unionFS. If it
-> was that big of a deal, someone would write it. As it is, it's a
-> whizbang no one cares about enough.
+Hello!
 
-Its particularly handy for fast read-only NFS stuff.  We have thousands
-of linux hosts and distributing software to all of them is a pain.  With
-cachefs with NFS as the "back" filesystem, you push to the masters and
-the clients get the changes over NFS and then store them in their local
-cache so your software distribution nightmare becomes no problem at all.
-Clients read off the local disk if they can, but fetch over NFS as
-required.  You can tune the cache size on all of the client machines so
-they can cache more or less of the most recently used NFS junk on its
-local disk.
+On Mon, Jun 09, 2003 at 08:35:55PM +0100, Dave Jones wrote:
 
-Sean
+> 2.5 Bitkeeper tree as of last 24 hrs. Running a lot
+> of disk IO stress (multiple fsstress, over 100 fsx instances,
+> and random sync calling) produced failures on both reiserfs
+> and ext3.
+> Tests were done on seperate disks, but concurrently.
+
+Do you have smp or preempt enabled?
+
+Bye,
+    Oleg

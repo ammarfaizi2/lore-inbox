@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbTKMBQS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 20:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTKMBQS
+	id S261850AbTKMBWz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 20:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTKMBWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 20:16:18 -0500
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:24519 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S261831AbTKMBQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 20:16:17 -0500
-Message-ID: <3FB2DA30.4090406@upb.de>
-Date: Thu, 13 Nov 2003 02:11:12 +0100
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.1) Gecko/20031008
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
+	Wed, 12 Nov 2003 20:22:55 -0500
+Received: from zok.sgi.com ([204.94.215.101]:19857 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261850AbTKMBWx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 20:22:53 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Michael Frank <mhf@linuxmail.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] modprobe sch_htb fails
-References: <bld5lc$p3n$1@sea.gmane.org> <20031112165031.GA5962@fs.tum.de>
-In-Reply-To: <20031112165031.GA5962@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.upb.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=3.271,
-	required 4, IDENT_NOBODY 0.00, RCVD_IN_DYNABLOCK 2.55,
-	RCVD_IN_NJABL 0.10, RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-UNI-PB_FAK-EIM-MailScanner-SpamScore: sss
+Subject: Re: 2.4.22 hangs upon echo > /proc/acpi/alarm 
+In-reply-to: Your message of "Wed, 12 Nov 2003 20:33:18 +0800."
+             <200311122033.18729.mhf@linuxmail.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Nov 2003 12:21:02 +1100
+Message-ID: <2758.1068686462@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>"modprobe sch_htb" failed with:
->>
->>/lib/modules/2.4.22/kernel/net/sched/sch_htb.o: unresolved symbol 
->>qdisc_get_rtab
->>...
-> 
-> Does this problem still occur in 2.4.23-rc1?
+On Wed, 12 Nov 2003 20:33:18 +0800, 
+Michael Frank <mhf@linuxmail.org> wrote:
+>ACPI version is 20031002
+>
+>Initial backtrace obtained with kdb:
+>
+>acpi_os_read_port+36
+>acpi_hw_lowlevel_read+7b
+>acpi_ev_gpe_detect+94
+>acpi_ev_sci_xrupt_handler+3c
+>acpi_irq+d
+>handle_IRQ_event+31
+>do_IRQ+72
+>call_do_IRQ+5
+>do_softirq+5a
+>do_IRQ+a1
+>proc_file_write+9b
+>sys_write+be
+>system_call+33
+>
+>Further stepping shows endless loop around:
+>
+>acpi_ev_gpe_detect+80
+>  acpi_hw_lowlevel_read
+>    acpi_os_read_port
+>    acpi_ut_get_region_name
+>    acpi_ut_debug_print 
+>  acpi_ut_debug_print
+>  jmp acpi_ev_gpe_detect+80
+>
+>Debugging is compiled in, but no meesages go to dmesg
+>
+>How to enable acpi_ut_debug_print output?
 
-I again compiled everything unter Networking/QoS as a module and it 
-works now. I think the problem is gone now.
+printk() can be called from anywhere but the text is only stored in the
+log buffer.  The text is written from the log buffer to the console or
+syslog when the kernel is not running in interrupt context.  This is a
+common problem with printk, you get no output when debugging interrupt
+problems.
 
-Thx for fixing it.
-
-cu
-Sven
+Since you have already applied the kdb patch, change acpi to add
+#include <linux/kdb.h> and call kdb_printf() instead of printk for
+debugging messages.  kdb_printf uses polling mode I/O so you get the
+output immediately.
 

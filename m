@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291713AbSBNPda>; Thu, 14 Feb 2002 10:33:30 -0500
+	id <S288047AbSBNPjK>; Thu, 14 Feb 2002 10:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291717AbSBNPdV>; Thu, 14 Feb 2002 10:33:21 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:9746 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S291713AbSBNPdD>;
-	Thu, 14 Feb 2002 10:33:03 -0500
-Message-ID: <3C6BD897.7090704@evision-ventures.com>
-Date: Thu, 14 Feb 2002 16:32:39 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291718AbSBNPjB>; Thu, 14 Feb 2002 10:39:01 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:21197 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S291717AbSBNPin>; Thu, 14 Feb 2002 10:38:43 -0500
+Message-ID: <3C6BDA01.7050906@linuxhq.com>
+Date: Thu, 14 Feb 2002 10:38:41 -0500
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH} 2.5.5-pre1 VESA fb
-In-Reply-To: <E16bNc9-0000GD-00@the-village.bc.nu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.5-pre1 OSS YMFPCI
+In-Reply-To: <mailman.1013655425.19267.linux-kernel2news@redhat.com> <200202140718.g1E7I0P02575@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->>This adjusts the VESA fb driver to the new bus mapping API.
->>I think that this time this is providing the right replacement.... but 
->>who knows
+Pete Zaitcev wrote:
+>>The ALSA YMFPCI driver doesn't seem to be functioning.
 >>
->
->The VESA fb window will be higher than the ISA window as its a linear
->frame buffer
->
->>-		pmi_base  = (unsigned short*)bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
->>+		pmi_base  = (unsigned short*)isa_bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
->>
->
->I don't think it actually matters on x86 but phys_to_virt() is probably
->more correct
->
+> 
+> Just curious... Can you enable the old OSS driver in the
+> 2.5.5-pre1 kernel?
+> 
 
-Well I think this is only the BIOS register gateway which we deal with 
-here and I was therefore assuming
-(without reading the doc's about the *isa*pci*bus*phys*virt* ) that this 
-can be expected to reside in
-the low memmory area < 1M of the physical address space. And then there 
-are no pci references in the vesa driver
-at all. Perhaps becouse they ignore the actual frame-buffer mapping 
-games for non intel archs entierly.
-Anyway I think that the isa_variant is correct. But please feel free to 
-consider me a bit
-arrogant for not reading the doc's about the address mapping functions. 
-If I'm mistaken here, you could
-alternatively consider it as a test for the fact that the API isn't 
-"obvious" in first place, becouse it's not
-easy to figure out what to do without sudying the docu for something 
-such trivial like IO address range mapping ;-).
+I actually have been using the old OSS driver since I discovered that 
+the ALSA driver wasn't working.
 
-Regards
+So, provided that I move the CONFIG_SOUND_YMFPCI option out from inside 
+the 'OSS Sound Modules' section (which takes care of the link error 
+caused by dmabuf.c use of virt_to_bus -- which occurs even when I 
+disable persitent dma buffers), the OSS YMFPCI driver works perfectly.
+
+Here's what I did to 2.5.5-pre1:
+
+--- linux-2.5.4/sound/oss/Config.in     Thu Feb 14 10:32:40 2002
++++ linux-2.5.5/sound/oss/Config.in     Wed Feb 13 21:48:57 2002
+@@ -103,6 +103,8 @@
+  dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
+  dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX 
+$CONFIG_SOUND_VIA82CXXX
+
++dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' 
+CONFIG_SOUND_YMFPCI $CON
+FIG_PCI
++
+  dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
+
+  if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
+@@ -164,7 +166,6 @@
+     dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' 
+CONFIG_SOUND
+_YM3812 $CONFIG_SOUND_OSS
+     dep_tristate '    Yamaha OPL3-SA1 audio controller' 
+CONFIG_SOUND_OPL3SA1 $CO
+NFIG_SOUND_OSS
+     dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' 
+CONFIG_SOUND_OPL3
+SA2 $CONFIG_SOUND_OSS
+-   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' 
+CONFIG_SOUND_YMFPCI
+  $CONFIG_SOUND_OSS $CONFIG_PCI
+     dep_mbool '      Yamaha PCI legacy ports support' 
+CONFIG_SOUND_YMFPCI_LEGACY
+  $CONFIG_SOUND_YMFPCI
+     dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 
+$CONFIG_SOUND_OSS
+
+
+
+(o- j o h n   e   w e b e r
+//\  http://www.linuxhq.com/people/weber/
+v_/_ john.weber@linuxhq.com
 

@@ -1,29 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318447AbSHPPNB>; Fri, 16 Aug 2002 11:13:01 -0400
+	id <S318460AbSHPPTC>; Fri, 16 Aug 2002 11:19:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318460AbSHPPNB>; Fri, 16 Aug 2002 11:13:01 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:39351 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318447AbSHPPNB>;
-	Fri, 16 Aug 2002 11:13:01 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200208161516.TAA29782@sex.inr.ac.ru>
-Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
-To: jmorris@intercode.com.au (James Morris)
-Date: Fri, 16 Aug 2002 19:16:08 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Mutt.LNX.4.44.0208170057420.1165-100000@blackbird.intercode.com.au> from "James Morris" at Aug 17, 2 01:03:20 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S318464AbSHPPTC>; Fri, 16 Aug 2002 11:19:02 -0400
+Received: from mnh-1-13.mv.com ([207.22.10.45]:54020 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318460AbSHPPTB>;
+	Fri, 16 Aug 2002 11:19:01 -0400
+Message-Id: <200208161625.LAA02494@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: James Morris <jmorris@intercode.com.au>
+cc: Alan Cox <alan@redhat.com>, "David S. Miller" <davem@redhat.com>,
+       kuznet@ms2.inr.ac.ru, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31 
+In-Reply-To: Your message of "Fri, 16 Aug 2002 03:16:57 +1000."
+             <Mutt.LNX.4.44.0208160302100.28909-100000@blackbird.intercode.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Aug 2002 11:25:54 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+jmorris@intercode.com.au said:
+>   o Fixed fowner race (lockless technique suggested by Alan Cox). 
 
-> Well, do you think it's worth adding a spinlock for just one fcntl handler
-> and the SIOCSPGRP/FIOSETOWN ioctls?
+This looks broken to me.  
 
-You do not have choice. Alternative is to move bkl at top level of
-in dnotify.c, I do not think vfs people will be happy about this. :-)
++static void f_modown(struct file *filp, unsigned long pid,
++                     uid_t uid, uid_t euid)
++{
++	filp->f_owner.pid = PID_INVALID;
++	wmb();
++	filp->f_owner.uid = uid;
++	filp->f_owner.euid = euid;
++	wmb();
++	filp->f_owner.pid = pid;
++}
 
-Alexey
+@@ -469,6 +491,9 @@
+ 	struct task_struct * p;
+ 	int   pid	= fown->pid;
+ 	
++	if (!pid || pid == PID_INVALID)
++		return;
++	
+
+This introduces a window within which SIGIO will be dropped.  As it stands,
+this will break UML.  Lost SIGIOs will cause UML hangs.
+
+If you're determined to avoid spinlocks, why not do something like this:
+
++	if (!pid)
++		return;
++	while(fown->pid == PID_INVALID) ;
+
+maybe with a cpu_relax() in the loop.
+
+But that starts looking a lot like a spinlock.
+
+Also, shouldn't there be a capable(CAP_KILL) in here rather than a check
+for uid == 0?
+
++static inline int sigio_perm(struct task_struct *p,
++                             struct fown_struct *fown)
++{
++	return ((fown->euid == 0) ||
++ 	        (fown->euid == p->suid) || (fown->euid == p->uid) ||
++ 	        (fown->uid == p->suid) || (fown->uid == p->uid));
++}
++
+
+				Jeff
+

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSJALdv>; Tue, 1 Oct 2002 07:33:51 -0400
+	id <S261580AbSJALdI>; Tue, 1 Oct 2002 07:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261586AbSJALdv>; Tue, 1 Oct 2002 07:33:51 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:33842 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S261585AbSJALdt>;
-	Tue, 1 Oct 2002 07:33:49 -0400
-Date: Tue, 1 Oct 2002 13:39:10 +0200 (MEST)
-From: Markus Weiss <mweiss38@gmx.net>
+	id <S261584AbSJALdI>; Tue, 1 Oct 2002 07:33:08 -0400
+Received: from tbaytel3.tbaytel.net ([206.47.150.179]:41134 "EHLO tbaytel.net")
+	by vger.kernel.org with ESMTP id <S261580AbSJALdH> convert rfc822-to-8bit;
+	Tue, 1 Oct 2002 07:33:07 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Garrett Kajmowicz <garrett@tbaytel.net>
+Reply-To: garrett@tbaytel.net
+Organization: Garrett Kajmowicz
 To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
+Date: Tue, 1 Oct 2002 07:34:14 -0400
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0015120543@gmx.net
-X-Authenticated-IP: [147.173.81.84]
-Message-ID: <8556.1033472350@www19.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210010734.14949.garrett@tbaytel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 October 2002 09:32, Linus Torvalds wrote: 
-<snip> 
-> And if it wasn't clear to the non-2.5-development people out there, yes 
-> you _should_ also test this code out even before the freeze. The IDE layer
+As per the suggestion of the lkml FAQ section 7-7, I have spent some time 
+working on a script to automatically go through the Linux source tree and 
+generate a stripped down version of the kernel source code (x86 only), along 
+with a few additional 'modules' which will contain additional funtionality, 
+if desired (such as irda or scsi support).
 
-> shouldn't be all that scary any more, and while there are still silly 
-> things like trivially non-compiling setups etc, it's generally a good idea
+I have requested an account on kernel.org, and hope to run/test this script 
+for each full, stable release.  I would like all of the input possible on the 
+script.  Please note that this is the first version, so there are probably 
+many rough areas.
 
-> to try things out as widely as possible before it's getting too late to 
-> complain about things.. 
- 
-I also would love to test on my laptop (especially because of ACPI), 
-but I have / on LVM :-( 
- 
-Any info, when I might be able to get a 2.5 kernel running ? 
- 
-Thanks, 
-	Markus 
+For a copy of the script please try:
 
--- 
-Werden Sie mit uns zum "OnlineStar 2002"! Jetzt GMX wählen -
-und tolle Preise absahnen! http://www.onlinestar.de
+http://garrett.dyndns.biz/makemini.sh.bz2
 
+Please Cc: all comments to:
+
+Garrett Kajmowicz
+gkajmowi@tbaytel.net
+
+Thank you for your suggestions.

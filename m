@@ -1,98 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264347AbTLPECE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 23:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTLPECE
+	id S264452AbTLPEFj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 23:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTLPEFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 23:02:04 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:16390 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S264347AbTLPECA
+	Mon, 15 Dec 2003 23:05:39 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:50088 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S264452AbTLPEFg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 23:02:00 -0500
-Date: Mon, 15 Dec 2003 20:01:56 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: raid0 slower than devices it is assembled of?
-Message-ID: <20031216040156.GJ12726@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200312151434.54886.adasi@kernel.pl>
+	Mon, 15 Dec 2003 23:05:36 -0500
+Date: Mon, 15 Dec 2003 23:02:04 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@Stimpy.netroedge.com>
+Subject: Re: [PATCH 2.6] sensors chip updates (1 of 4)
+Message-ID: <20031216040204.GB1658@earth.solarsys.private>
+References: <20031216035219.GA1658@earth.solarsys.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312151434.54886.adasi@kernel.pl>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: If you're running Outlook, look out!
+In-Reply-To: <20031216035219.GA1658@earth.solarsys.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 02:34:54PM +0100, Witold Krecicki wrote:
-> I've got / on linux-raid0 on 2.6.0-t11-cset-20031209_2107:
-> <cite>
-> /dev/md/1:
->         Version : 00.90.01
->   Creation Time : Thu Sep 11 22:04:54 2003
->      Raid Level : raid0
->      Array Size : 232315776 (221.55 GiB 237.89 GB)
->    Raid Devices : 2
->   Total Devices : 2
-> Preferred Minor : 1
->     Persistence : Superblock is persistent
-> 
->     Update Time : Mon Dec 15 12:55:48 2003
->           State : clean, no-errors
->  Active Devices : 2
-> Working Devices : 2
->  Failed Devices : 0
->   Spare Devices : 0
-> 
->      Chunk Size : 64K
-> 
->     Number   Major   Minor   RaidDevice State
->        0       8        3        0      active sync   /dev/sda3
->        1       8       19        1      active sync   /dev/sdb3
->            UUID : b66633c2:ff11f60d:00119f8d:7bb9fc6c
->          Events : 0.357
-> </cite>
-> Disks are two ST3120026AS connected to sii3112a controller, driven by sata_sil 
-> 'patched' so no limit for block size is applied (it's not needed for it). 
-> 
-> Those are results of hdparm -tT on drives:
-> <cite>
-> /dev/md/1:
->  Timing buffer-cache reads:   128 MB in  0.40 seconds =323.28 MB/sec
->  Timing buffered disk reads:  64 MB in  1.75 seconds = 36.47 MB/sec
-> /dev/sda:
->  Timing buffer-cache reads:   128 MB in  0.41 seconds =309.23 MB/sec
->  Timing buffered disk reads:  64 MB in  1.46 seconds = 43.87 MB/sec
-> /dev/sdb:
->  Timing buffer-cache reads:   128 MB in  0.41 seconds =315.32 MB/sec
->  Timing buffered disk reads:  64 MB in  1.23 seconds = 52.04 MB/sec
-> </cite>
-> What seems strange to me is that second drive is faster than first one 
-> (devices are symmetrical, sd[a,b]2 is swapspace (not mounted at time of 
-> test), sd[a,b]1 is /boot (raid1)).
-> What is even stranger is that raid0 which should be faster than single drive, 
-> is pretty much slower- what's the reason of that?
 
-Overhead+randomness would make an md stripe slower.
+This patch improves chip detection.  It was forward ported from the 
+lm_sensors project CVS, from these revisions:
 
-	This measurement is an indication of  how fast  the
-	drive  can sustain sequential data reads
+	1.104 (Khali) Enhance chip detection (stricter).
+	1.108 (Khali) Fix W83627HF detection.
 
-No Linux [R]AID improves sequential performance.  How would
-reading 65KB from two disks in alternation be faster than
-reading continuously from one disk?
-
-There used to be some HW raid controllers that might have
-improved sequential performance by using stripe sizes of 512
-bytes (every access hit all disks) but then you suffered
-near worst case latency with every non-cached read.
-
-
+--- linux-2.6.0-test11-gkh/drivers/i2c/chips/w83781d.c	2003-12-14 13:53:50.000000000 -0500
++++ linux-2.6.0-test11-mmh/drivers/i2c/chips/w83781d.c	2003-12-14 15:50:46.000000000 -0500
+@@ -24,10 +24,11 @@
+     Supports following chips:
+ 
+     Chip	#vin	#fanin	#pwm	#temp	wchipid	vendid	i2c	ISA
+-    as99127f	7	3	1?	3	0x30	0x12c3	yes	no
+-    asb100 "bach" (type_name = as99127f)	0x30	0x0694	yes	no
+-    w83781d	7	3	0	3	0x10	0x5ca3	yes	yes
+-    w83627hf	9	3	2	3	0x20	0x5ca3	yes	yes(LPC)
++    as99127f	7	3	1?	3	0x31	0x12c3	yes	no
++    as99127f rev.2 (type_name = 1299127f)	0x31	0x5ca3	yes	no
++    asb100 "bach" (type_name = as99127f)	0x31	0x0694	yes	no
++    w83781d	7	3	0	3	0x10-1	0x5ca3	yes	yes
++    w83627hf	9	3	2	3	0x21	0x5ca3	yes	yes(LPC)
+     w83627thf	9	3	2	3	0x90	0x5ca3	no	yes(LPC)
+     w83782d	9	3	2-4	3	0x30	0x5ca3	yes	yes
+     w83783s	5-6	3	2	1-2	0x40	0x5ca3	yes	no
+@@ -1264,7 +1265,7 @@
+ 			goto ERROR2;
+ 		}
+ 		/* If Winbond SMBus, check address at 0x48.
+-		   Asus doesn't support */
++		   Asus doesn't support, except for as99127f rev.2 */
+ 		if ((!is_isa) && (((!(val1 & 0x80)) && (val2 == 0xa3)) ||
+ 				  ((val1 & 0x80) && (val2 == 0x5c)))) {
+ 			if (w83781d_read_value
+@@ -1295,18 +1296,17 @@
+ 			goto ERROR2;
+ 		}
+ 
+-		/* mask off lower bit, not reliable */
+-		val1 =
+-		    w83781d_read_value(new_client, W83781D_REG_WCHIPID) & 0xfe;
+-		if (val1 == 0x10 && vendid == winbond)
++		val1 = w83781d_read_value(new_client, W83781D_REG_WCHIPID);
++		if ((val1 == 0x10 || val1 == 0x11) && vendid == winbond)
+ 			kind = w83781d;
+ 		else if (val1 == 0x30 && vendid == winbond)
+ 			kind = w83782d;
+-		else if (val1 == 0x40 && vendid == winbond && !is_isa)
++		else if (val1 == 0x40 && vendid == winbond && !is_isa
++				&& address == 0x2d)
+ 			kind = w83783s;
+-		else if ((val1 == 0x20 || val1 == 0x90) && vendid == winbond)
++		else if ((val1 == 0x21 || val1 == 0x90) && vendid == winbond)
+ 			kind = w83627hf;
+-		else if (val1 == 0x30 && vendid == asus && !is_isa)
++		else if (val1 == 0x31 && !is_isa && address >= 0x28)
+ 			kind = as99127f;
+ 		else if (val1 == 0x60 && vendid == winbond && is_isa)
+ 			kind = w83697hf;
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Mark M. Hoffman
+mhoffman@lightlink.com
 
-		Remember Cernan and Schmitt

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270608AbTGNMkq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270598AbTGNMiK
+	id S270600AbTGNMuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270603AbTGNMh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:38:10 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56593 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S270608AbTGNMag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:30:36 -0400
-Date: Sat, 5 Jan 2002 12:13:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       James Simmons <jsimmons@infradead.org>,
+	Mon, 14 Jul 2003 08:37:59 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61121
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270597AbTGNM1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:27:36 -0400
+Subject: Re: Linux v2.6.0-test1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, John Bradford <john@grabjohn.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] fbdev and power management
-Message-ID: <20020105111340.GA2254@zaurus.ucw.cz>
-References: <Pine.LNX.4.44.0307090024170.32323-100000@phoenix.infradead.org> <1057750557.514.22.camel@gaston> <20030709151032.A22612@flint.arm.linux.org.uk>
+       torvalds@osdl.org
+In-Reply-To: <20030714120009.GH15452@holomorphy.com>
+References: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk>
+	 <20030714115313.GA21773@suse.de>  <20030714120009.GH15452@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058186383.606.52.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030709151032.A22612@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 13:39:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Llu, 2003-07-14 at 13:00, William Lee Irwin III wrote:
+> Some work has been done here, though I'm not sure how much; I'll try to
+> get the IBM people involved with it to chime in.
 
-> I'm slightly concerned by this.  There are a growing amount of drivers
-> in 2.5 which are being made to work with the existing power management
-> system.  This "new" system seems to have been hanging around for about
-> 4 months now with no visible further work, presumably so that a paper
-> can be presented before its release.
-
-I believe it is bad idea to change driver
-model again in 2.6.x-pre. I believe current
-solution is pretty much okay.
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+The IBM india folks (being outside the DMCA zone) went through a long list of 
+fixes and propogated them but there are lots of others some pretty critical such
+as the fs/exec stuff and proc leaks
 

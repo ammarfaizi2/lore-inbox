@@ -1,136 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVCZF2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCZFyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVCZF2B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 00:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCZF2A
+	id S262013AbVCZFyn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 00:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVCZFyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 00:28:00 -0500
-Received: from hera.kernel.org ([209.128.68.125]:54741 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261996AbVCZF1N (ORCPT
+	Sat, 26 Mar 2005 00:54:43 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34775 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262013AbVCZFyl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 00:27:13 -0500
-Date: Fri, 25 Mar 2005 21:46:31 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.30-rc2
-Message-ID: <20050326004631.GC17637@logos.cnet>
+	Sat, 26 Mar 2005 00:54:41 -0500
+Date: Fri, 25 Mar 2005 21:52:55 -0800
+From: Jason Uhlenkott <jasonuhl@sgi.com>
+To: Len Brown <len.brown@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
+Message-ID: <20050326055255.GA210003@dragonfly.engr.sgi.com>
+References: <20050325002154.335c6b0b.akpm@osdl.org> <20050326014327.GB207782@dragonfly.engr.sgi.com> <1111802218.19916.59.camel@d845pe> <20050326020212.GC207782@dragonfly.engr.sgi.com> <1111803861.19920.91.camel@d845pe> <20050326025704.GE207782@dragonfly.engr.sgi.com> <1111810359.19919.113.camel@d845pe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1111810359.19919.113.camel@d845pe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Mar 25, 2005 at 11:12:39PM -0500, Len Brown wrote:
+> I realize now I didn't answer your original question.
+> The reason ACPI now depends on PM is that
+> it makes it easier for us to do a more orderly shutdown --
+> acpi registers as a device so it can do some stuff
+> upon the PM device shutdowns -- before interrupts are disabled.
+> 
+> I think with all the twisty turney passages
+> related to the suspend states, poweroff, sys-req, and now kexec,
+> that it is best if we can keep the code paths as
+> common as possible or some of them will never get the
+> testing needed to prevent them from getting broken.
+> 
+> Also, it is now common practice to include PM && ACPI together
+> in the x86 world.  Though technically one could have
+> ACPI w/o PM and you'd have lost only ACPI_SLEEP, virtually
+> nobody seems to use/depend-on that combination.
 
-Here goes the second release candidate for v2.4.30.
-
-It contains a bunch of security updates (ext2 mkdir leak, af_bluetooth range
-checking, isofs corrupt media, load_elf_library DoS), an ia64 update, another 
-round of networking fixes, amongst others.
-
-If nothing terrible shows up, this will become v2.4.30.
-
-Please help with testing!
-
-Summary of changes from v2.4.30-rc1 to v2.4.30-rc2
-============================================
-
-<davem:sunset.davemloft.net>:
-  o [TG3]: Add missing CHIPREV_5750_{A,B}X defines
-  o [TG3]: Missing counter bump in tigon3_4gb_hwbug_workaround()
-  o [TG3]: Update driver version and reldate
-
-<magnus.damm:gmail.com>:
-  o eepro100: fix module parameter description typo
-
-<mlafon:arkoon.net>:
-  o CAN-2005-0400: ext2 mkdir() directory entry random kernel memory leak
-
-<relf:os2.ru>:
-  o fs/hpfs/*: fix HPFS support under 64-bit kernel
-
-<sj-netfilter:cookinglinux.org>:
-  o [NETFILTER]: Fix another DECLARE_MUTEX in header file
-
-Bjorn Helgaas:
-  o ia64: force all kernel sections into one and the same segment
-  o ia64: round iommu allocations to power-of-two sizes
-  o ia64: fix perfmon typo in /proc/pal/CPU*/processor_info w.r.t. BERR
-  o ia64: add missing syscall-slot
-  o ia64: Update defconfigs
-
-Chris Wright:
-  o isofs: Some more defensive checks to keep corrupt isofs images from corrupting memory/oopsing
-
-Dave Kleikamp:
-  o JFS: remove aops from directory inodes
-
-David Mosberger:
-  o Fix pte_modify() bug which allowed mprotect() to change too many bits
-  o ia64: Fix _PAGE_CHG_MASK so PROT_NONE works again.  Caught by Linus
-
-Greg Banks:
-  o link_path_walk refcount problem allows umount of active filesystem
-
-Herbert Xu:
-  o [CRYPTO]: Mark myself as co-maintainer
-  o [NETLINK]: Fix multicast bind/autobind race
-  o CAN-2005-0794: Potential DOS in load_elf_library
-
-Keith Owens:
-  o [IA64] Sanity check unw_unwind_to_user
-  o [IA64] Tighten up unw_unwind_to_user check
-
-Linus Torvalds:
-  o isofs: Handle corupted rock-ridge info slightly better
-  o isofs: more "corrupted iso image" error cases
-
-Marcel Holtmann:
-  o CAN-2005-0750: Fix af_bluetooth range checking bug, discovered by Ilja van Sprundel <ilja@suresec.org>
-
-Marcelo Tosatti:
-  o Change VERSION to 2.4.30-rc2
-
-Michael Chan:
-  o [TG3]: Add 5705_plus flag
-  o [TG3]: Flush status block in tg3_interrupt()
-  o [TG3]: Add unstable PLL workaround for 5750
-  o [TG3]: Fix jumbo frames phy settings
-  o [TG3]: Fix ethtool set functions
-  o [TG3]: Add Broadcom copyright
-
-Neil Brown:
-  o nlm: fix f_count leak
-  o [PATCH md: allow degraded raid1 array to resync after an unclean shutdown
-
-Pablo Neira:
-  o [NETFILTER]: Fix DECLARE_MUTEX in header file
-
-Patrick McHardy:
-  o [NETFILTER]: fix return values of ipt_recent checkentry
-  o [NETFILTER]: Fix ip_ct_selective_cleanup(), and rename ip_ct_iterate_cleanup()
-  o [NETFILTER]: Fix cleanup in ipt_recent
-  o [NETFILTER]: Fix ip6tables ESP matching with "-p all"
-  o [NETFILTER]: Fix refreshing of overlapping expectations
-  o [NETFILTER]: Fix IP/TCP option logging
-  o [TUN]: Fix check for underflow
-
-Pete Zaitcev:
-  o USB: fix oops in serial_write
-  o USB: Fix baud selection in mct_u232
-
-Simon Horman:
-  o [IPVS]: Fix comment typos
-  o Backport v2.6 ATM copy-to-user signedness fix
-  o earlyquirk.o is needed for CONFIG_ACPI_BOOT
-
-Stephen Hemminger:
-  o [TCP]: BIC not binary searching correctly
-
-Wensong Zhang:
-  o [IPVS]: Update mark->cw in the WRR scheduler while service is updated
-
-Yanmin Zhang:
-  o [IA64] clean up ptrace corner cases
-
+OK, that makes sense.  I see now that Jesse has already sent a patch
+to allow CONFIG_PM on sn2, so we'll be fine as soon as that gets
+merged.

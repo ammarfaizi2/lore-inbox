@@ -1,78 +1,298 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265084AbUGCMpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUGCMxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265084AbUGCMpc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 08:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUGCMpc
+	id S265087AbUGCMxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 08:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265088AbUGCMxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 08:45:32 -0400
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:40150 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265084AbUGCMpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 08:45:30 -0400
-Date: Sat, 3 Jul 2004 22:44:35 +1000
-From: Andrew Clausen <clausen@gnu.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Szakacsits Szabolcs <szaka@sienet.hu>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
-       Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-Message-ID: <20040703124435.GH630@gnu.org>
-References: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org> <s5gzn6iz2or.fsf@patl=users.sf.net> <20040703025457.GC630@gnu.org> <Pine.LNX.4.60.0407030843400.2415@hermes-1.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0407030843400.2415@hermes-1.csi.cam.ac.uk>
-X-Accept-Language: en,pt
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 3 Jul 2004 08:53:20 -0400
+Received: from spoolo2.tiscali.be ([62.235.13.173]:27815 "EHLO
+	spoolo2.tiscali.be") by vger.kernel.org with ESMTP id S265087AbUGCMxI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 08:53:08 -0400
+Message-ID: <40E6AC41.4050804@tiscali.be>
+Date: Sat, 03 Jul 2004 12:53:21 +0000
+From: Joel Soete <soete.joel@tiscali.be>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040624 Debian/1.7-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>, marcelo.tosatti@cyclades.com
+Subject: Some cleanup patches for: '...lvalues is deprecated'
+Content-Type: multipart/mixed;
+ boundary="------------030803070301050303090008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 08:53:39AM +0100, Anton Altaparmakov wrote:
-> On Sat, 3 Jul 2004, Andrew Clausen wrote:
-> > In any case, I don't have any evidence that anything is wrong.  On my
-> > computer, I can tell the BIOS to use CHS geometry, (as opposed to
-> > "Auto", "LBA" or "Large") modify the partition table to set the CHS
-> > start/end of the Windows partition to 0, 1024, or anything I like, and
-> > Windows STILL works.  I can't get anything to break!
-> 
-> Which version of Windows?
+This is a multi-part message in MIME format.
+--------------030803070301050303090008
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-XP home edition (the green box)
+Hi Marcelo,
 
-> Does it use NTFS as both the boot and system drive?
+Please appolgies first for wrong presentation of previous post (that was the first and certainly the last time that I used the 
+'forwarding' option of this webmail interface :( ).
 
-I am using a single NTFS partition.
+Here are some backport to clean up some warning of type: use of cast experssion
+as lvalues is deprecated.
+--- linux-2.4.27-rc2-pa4mm/kernel/sysctl.c.Orig	2004-06-29 09:03:42.000000000 +0200
++++ linux-2.4.27-rc2-pa4mm/kernel/sysctl.c	2004-06-29 10:10:31.588030256 +0200
+@@ -890,7 +890,7 @@
+  				if (!isspace(c))
+  					break;
+  				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+  			}
+  			if (!left)
+  				break;
+@@ -1043,7 +1043,7 @@
+  				if (!isspace(c))
+  					break;
+  				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+  			}
+  			if (!left)
+  				break;
+@@ -1144,7 +1144,7 @@
+  				if (!isspace(c))
+  					break;
+  				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+  			}
+  			if (!left)
+  				break;
+=========><=========
+--- linux-2.4.27-rc2-pa4mm/fs/readdir.c.Orig	2004-06-29 11:18:46.636488264 +0200
++++ linux-2.4.27-rc2-pa4mm/fs/readdir.c	2004-06-29 11:25:40.281604648 +0200
+@@ -264,7 +264,7 @@
+  	put_user(reclen, &dirent->d_reclen);
+  	copy_to_user(dirent->d_name, name, namlen);
+  	put_user(0, dirent->d_name + namlen);
+-	((char *) dirent) += reclen;
++	dirent = (void *)dirent + reclen;
+  	buf->current_dir = dirent;
+  	buf->count -= reclen;
+  	return 0;
+@@ -347,7 +347,7 @@
+  	copy_to_user(dirent, &d, NAME_OFFSET(&d));
+  	copy_to_user(dirent->d_name, name, namlen);
+  	put_user(0, dirent->d_name + namlen);
+-	((char *) dirent) += reclen;
++	dirent = (void *)dirent + reclen;
+  	buf->current_dir = dirent;
+  	buf->count -= reclen;
+  	return 0;
+=========><=========
+--- linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c.Orig	2004-06-29 10:47:31.901491304 +0200
++++ linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c	2004-06-29 11:13:31.846343640 +0200
+@@ -1877,7 +1877,10 @@
+         font length must be multiple of 256, at least. And 256 is multiple
+         of 4 */
+      k = 0;
+-    while (p > new_data) k += *--(u32 *)p;
++    while (p > new_data) {
++        p = (u8 *)((u32 *)p - 1);
++        k += *(u32 *)p;
++    }
+      FNTSUM(new_data) = k;
+      /* Check if the same font is on some other console already */
+      for (i = 0; i < MAX_NR_CONSOLES; i++) {
+=========><=========
+--- linux-2.4.27-rc2-pa4mm/lib/crc32.c.Orig	2004-06-29 11:29:31.721420448 +0200
++++ linux-2.4.27-rc2-pa4mm/lib/crc32.c	2004-06-29 11:36:19.964358088 +0200
+@@ -99,7 +99,9 @@
+  	/* Align it */
+  	if(unlikely(((long)b)&3 && len)){
+  		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+  		} while ((--len) && ((long)b)&3 );
+  	}
+  	if(likely(len >= 4)){
+@@ -120,7 +122,9 @@
+  	/* And the last few bytes */
+  	if(len){
+  		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+  		} while (--len);
+  	}
 
-Note: I reversed-engineered the Windows FAT bootstrap code.  My analysis
-is contained in the file doc/FAT in the Parted source distribution.  I
-concluded that Windows uses LBA if the LBA flag is set in the boot
-partition table entry.  (i.e. the partition type includes LBA in the
-fdisk codes - this corresponds to a bit being set)
+@@ -200,7 +204,9 @@
+  	/* Align it */
+  	if(unlikely(((long)b)&3 && len)){
+  		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+  		} while ((--len) && ((long)b)&3 );
+  	}
+  	if(likely(len >= 4)){
+@@ -221,7 +227,9 @@
+  	/* And the last few bytes */
+  	if(len){
+  		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+  		} while (--len);
+  	}
+  	return __be32_to_cpu(crc);
+=========><=========
 
-> > So, can anyone break Windows?
-> 
-> Easily.  Modify any of the relevant values in the NTFS bootsector and 
-> windows will no longer boot.  So it clearly cares hugely about the 
-> geometry.  And at present there is no easy way for us to tell what it is 
-> so mkntfs and ntfsclone cannot create bootable partitions on 2.6 kernels.  
-> (Works fine on 2.4 using HDIO_GETGEO.)
-> 
-> The relevant fields are (see linux/fs/ntfs/layout.h or 
-> ntfsprogs/include/ntfs/layout.h) in the NTFS_BOOT_SECTOR in the 
-> BIOS_PARAMETER_BLOCK:
-> 
-> u16 sectors_per_track; /* Required to boot Windows. */
-> u16 heads;             /* Required to boot Windows. */
-> u32 hidden_sectors;    /* Offset to the start of the partition relative 
-> to the disk in sectors.  Required to boot Windows. */
+hth,
+     Joel
 
-I just set the first 2 of these fields to 0, and everything still works.
-Am I blessed?  (Or perhaps cursed!)
+PS: because of bad wrapping pb with mail interface I also join original
+files
 
-Isn't hidden_sectors an LBA value (and hence irrelevant to this discussion)?
+--------------030803070301050303090008
+Content-Type: text/plain;
+ name="k-2.4.27-rc2_crc32.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="k-2.4.27-rc2_crc32.c.diff"
 
-Cheers,
-Andrew
+--- linux-2.4.27-rc2-pa4mm/lib/crc32.c.Orig	2004-06-29 11:29:31.721420448 +0200
++++ linux-2.4.27-rc2-pa4mm/lib/crc32.c	2004-06-29 11:36:19.964358088 +0200
+@@ -99,7 +99,9 @@
+ 	/* Align it */
+ 	if(unlikely(((long)b)&3 && len)){
+ 		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+ 		} while ((--len) && ((long)b)&3 );
+ 	}
+ 	if(likely(len >= 4)){
+@@ -120,7 +122,9 @@
+ 	/* And the last few bytes */
+ 	if(len){
+ 		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+ 		} while (--len);
+ 	}
+ 
+@@ -200,7 +204,9 @@
+ 	/* Align it */
+ 	if(unlikely(((long)b)&3 && len)){
+ 		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+ 		} while ((--len) && ((long)b)&3 );
+ 	}
+ 	if(likely(len >= 4)){
+@@ -221,7 +227,9 @@
+ 	/* And the last few bytes */
+ 	if(len){
+ 		do {
+-			DO_CRC(*((u8 *)b)++);
++			u8 *p = (u8 *)b;
++			DO_CRC(*p++);
++			b = (void *)p;
+ 		} while (--len);
+ 	}
+ 	return __be32_to_cpu(crc);
 
+--------------030803070301050303090008
+Content-Type: text/plain;
+ name="k-2.4.27-rc2_fbcon.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="k-2.4.27-rc2_fbcon.c.diff"
+
+--- linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c.Orig	2004-06-29 10:47:31.901491304 +0200
++++ linux-2.4.27-rc2-pa4mm/drivers/video/fbcon.c	2004-06-29 11:13:31.846343640 +0200
+@@ -1877,7 +1877,10 @@
+        font length must be multiple of 256, at least. And 256 is multiple
+        of 4 */
+     k = 0;
+-    while (p > new_data) k += *--(u32 *)p;
++    while (p > new_data) {
++        p = (u8 *)((u32 *)p - 1);
++        k += *(u32 *)p;
++    }
+     FNTSUM(new_data) = k;
+     /* Check if the same font is on some other console already */
+     for (i = 0; i < MAX_NR_CONSOLES; i++) {
+
+--------------030803070301050303090008
+Content-Type: text/plain;
+ name="k-2.4.27-rc2_readdir.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="k-2.4.27-rc2_readdir.c.diff"
+
+--- linux-2.4.27-rc2-pa4mm/fs/readdir.c.Orig	2004-06-29 11:18:46.636488264 +0200
++++ linux-2.4.27-rc2-pa4mm/fs/readdir.c	2004-06-29 11:25:40.281604648 +0200
+@@ -264,7 +264,7 @@
+ 	put_user(reclen, &dirent->d_reclen);
+ 	copy_to_user(dirent->d_name, name, namlen);
+ 	put_user(0, dirent->d_name + namlen);
+-	((char *) dirent) += reclen;
++	dirent = (void *)dirent + reclen;
+ 	buf->current_dir = dirent;
+ 	buf->count -= reclen;
+ 	return 0;
+@@ -347,7 +347,7 @@
+ 	copy_to_user(dirent, &d, NAME_OFFSET(&d));
+ 	copy_to_user(dirent->d_name, name, namlen);
+ 	put_user(0, dirent->d_name + namlen);
+-	((char *) dirent) += reclen;
++	dirent = (void *)dirent + reclen;
+ 	buf->current_dir = dirent;
+ 	buf->count -= reclen;
+ 	return 0;
+
+--------------030803070301050303090008
+Content-Type: text/plain;
+ name="k-2.4.27-rc2_sysctl.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="k-2.4.27-rc2_sysctl.c.diff"
+
+--- linux-2.4.27-rc2-pa4mm/kernel/sysctl.c.Orig	2004-06-29 09:03:42.000000000 +0200
++++ linux-2.4.27-rc2-pa4mm/kernel/sysctl.c	2004-06-29 10:10:31.588030256 +0200
+@@ -890,7 +890,7 @@
+ 				if (!isspace(c))
+ 					break;
+ 				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+ 			}
+ 			if (!left)
+ 				break;
+@@ -1043,7 +1043,7 @@
+ 				if (!isspace(c))
+ 					break;
+ 				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+ 			}
+ 			if (!left)
+ 				break;
+@@ -1144,7 +1144,7 @@
+ 				if (!isspace(c))
+ 					break;
+ 				left--;
+-				((char *) buffer)++;
++				buffer += sizeof(char);
+ 			}
+ 			if (!left)
+ 				break;
+
+--------------030803070301050303090008--

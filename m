@@ -1,147 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUBET0w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:26:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUBET0w
+	id S266494AbUBETgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266817AbUBETgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:26:52 -0500
-Received: from gw0.infiniconsys.com ([65.219.193.226]:24837 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S266807AbUBET0U convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:26:20 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Date: Thu, 5 Feb 2004 14:26:19 -0500
-Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96BF@mercury.infiniconsys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Thread-Index: AcPsGjVG9LMkXfbHTmW9mkOBO5uEEQAAQZCw
-From: "Tillier, Fabian" <ftillier@infiniconsys.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: <greg@kroah.com>, <sean.hefty@intel.com>, <linux-kernel@vger.kernel.org>,
-       <hozer@hozed.org>, <woody@co.intel.com>, <bill.magro@intel.com>,
-       <woody@jf.intel.com>, <infiniband-general@lists.sourceforge.net>
+	Thu, 5 Feb 2004 14:36:25 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:32779
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S266494AbUBETgO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 14:36:14 -0500
+Date: Thu, 5 Feb 2004 11:36:21 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [PATCH] powernow-k8 max speed sanity check
+Message-ID: <20040205193621.GE7658@atomide.com>
+References: <20040131203512.GA21909@atomide.com> <20040203131432.GE550@openzaurus.ucw.cz> <20040205181704.GC7658@atomide.com> <20040205184841.GB590@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+In-Reply-To: <20040205184841.GB590@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy,
 
-All issues are in include/asm-x86/atomic.h
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Comments as to the useful range of an atomic_t for x86 states 24-bits
-atomic_add is a void.  It should return the incremented value.
-atomic_sub is a void.  It should return the decremented value.
-atomic_inc is a void.  It should return the incremented value.
-atomic_dec is a void.  It should return the decremented value.
+* Pavel Machek <pavel@ucw.cz> [040205 10:50]:
+> 
+> > > Someone should really bug them to fix their BIOS. (BTW does keyboard work
+> > > ok for you?) 
 
-There is no atomic exchange.  include/asm-x86/system.h does provide a
-compare exchange, but it takes an extra size parameter.
+Ah, I think what's the keyboard problem. If I don't have usb compiled into
+the kernel, my keyboard shows stuck keys continuously. I just posted my .config
+at http://www.muru.com/linux/amd64/
 
-Do note that for non x86 architectures, the component library atomic
-abstraction is all #define to the Linux provided functions.  Only x86
-needed help because of i386 backwards compatibility which is not a goal
-of the InfiniBand project.
+> Attached is my cpufreq patch. You may still prefer yours, but this one
+> has correct tables derived from ACPI.
 
-Hope that helps.
+Cool, I'll check it out.
 
-- Fab
+> > There are some ACPI related issues though, such as: via-rhine gets wrong 
+> > irq with ACPI on, system hangs with yenta_socket loaded if I 
+> > connect/disconnect the power cord... So for now, I don't use the
+> > PCMCIA.
+> 
+> They did something very stupid with io-ports at 0x4000. This should
+> work around it. [Note, I probably have slightly different machine from
+> you.]
 
------Original Message-----
-From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
-Sent: Thursday, February 05, 2004 10:53 AM
-To: Tillier, Fabian
-Cc: greg@kroah.com; sean.hefty@intel.com; linux-kernel@vger.kernel.org;
-hozer@hozed.org; woody@co.intel.com; bill.magro@intel.com;
-woody@jf.intel.com; infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-theLinux kernel
+Excellent, I'll try it out as well for the PCMCIA.
 
-On Thu, 5 Feb 2004 13:31:45 -0500 "Tillier, Fabian"
-<ftillier@infiniconsys.com> wrote:
+Here's a bios patch that gets rid of one error and allows the machine to
+boot with ioapic option. I've not yet verified that it's this patch though.
+With ioapic, the USB and network interrupts stop working, so there's
+something else.
 
-| Greg,
-| 
-| The atomic operation abstraction is there because atomic support has
-| different prototypes between x86 and IA64 (at least it did when it was
-| written), with some of the x86 functions not returning values while
-the
-| IA64 ones did.  Further, comments in the x86 code base indicated that
-| only 24-bits are actually valid (probably from some i386 limitation
-that
-| is no longer relevant).  Thus, the implementation of atomic operations
-| for the x86 processor architecture fails a build (via #error) if
-you're
-| targeting an i386 processor, and provides the same semantics
-independent
-| of processor architecture.
-| 
-| To answer your broader question, the reason to have abstraction is to
-| facilitate portability.  I'm not just talking about portability
-between
-| different operating systems, but even portability between different
-| versions of Linux distributions and kernels.  Differences between
-Linux
-| distributions and kernel versions can be handled in a single place,
-| avoiding the need to pepper the rest of the code base with #ifdefs.
-| This results in more readable and maintainable code for the rest of
-the
-| project by concentrating platform specific issues to the abstraction
-| layer.
+Tony						       
 
-Besides Greg's comments:
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-m6805-bios-warning
 
-Can (will) you provide specific examples of these differences/problems?
-They need to be quashed.
+--- dsdt.dsl.orig	2004-02-03 23:34:13.000000000 -0800
++++ dsdt.dsl	2004-02-03 23:34:19.000000000 -0800
+@@ -2922,7 +2922,7 @@
+                     }
+                 }
+ 
+-                OperationRegion (CCRD, PCI_Config, 0x00, 0xA7)
++                OperationRegion (CCRD, PCI_Config, 0x00, 0xA8)
+                 Field (CCRD, DWordAcc, Lock, Preserve)
+                 {
+                     Offset (0x04), 
 
-Thanks.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=Makefile
 
-| Are you suggesting that if there is any abstraction, the code will
-never
-| be accepted?  Or rather that the abstraction better be correct?  I'm
-| hoping for the latter, however please clarify.
-| 
-| - Fab
-| 
-| -----Original Message-----
-| From: Greg KH [mailto:greg@kroah.com] 
-| Sent: Thursday, February 05, 2004 10:10 AM
-| To: Hefty, Sean; linux-kernel@vger.kernel.org
-| Cc: Troy Benjegerdes; Woodruff, Robert J; Magro, Bill; Woodruff,
-Robert
-| J; infiniband-general@lists.sourceforge.net
-| Subject: Re: [Infiniband-general] Getting an Infiniband access layer
-in
-| the linux kernel
-| 
-| On Thu, Feb 05, 2004 at 10:01:13AM -0800, Hefty, Sean wrote:
-| > As an FYI, the code is available for download on bitkeeper at
-| > http://infiniband.bkbits.net/iba.  We're still working on providing
-a
-| > tarball and patch for 2.6, but if you would like to see the code
-now,
-| it
-| > is available.
-| 
-| Oh, I've seen that code, and still feel ill after looking at some of
-| it...
-| 
-| Come on, implementing your own spinlocks (and getting it wrong) and
-| atomit_t?  Why in the world would you _ever_ want to do that.
-| 
-| That code needs a _lot_ of cleanup to make it into the kernel tree.
-| 
-| Good luck,
-| 
-| greg k-h
+dump:
+	./acpidmp DSDT > dsdt.orig && \
+	cp dsdt.orig dsdt
 
+decompile:
+	./iasl -d dsdt
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+compile:
+	./iasl -tc dsdt.dsl
+
+install:
+	cp dsdt.hex /usr/src/linux/drivers/acpi/tables/acpi_dsdt.c
+--ReaqsoxgOBHFXBhH--

@@ -1,55 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUIUTbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUIUTfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268010AbUIUTbW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIUTbW
+	id S268021AbUIUTfq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUIUTfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:31:22 -0400
-Received: from gprs214-135.eurotel.cz ([160.218.214.135]:8325 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268010AbUIUTbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:31:17 -0400
-Date: Tue, 21 Sep 2004 21:31:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC] exposing ACPI objects in sysfs
-Message-ID: <20040921193104.GC30425@elf.ucw.cz>
-References: <1095716476.5360.61.camel@tdi> <20040921122428.GB2383@elf.ucw.cz> <1095785315.6307.6.camel@tdi> <20040921172625.GA30425@elf.ucw.cz> <1095789614.24751.31.camel@tdi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095789614.24751.31.camel@tdi>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 21 Sep 2004 15:35:46 -0400
+Received: from c-24-19-11-70.client.comcast.net ([24.19.11.70]:26580 "EHLO
+	ultimation.org") by vger.kernel.org with ESMTP id S268021AbUIUTfh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 15:35:37 -0400
+Message-ID: <16359.69.25.132.5.1095795335.squirrel@69.25.132.5>
+In-Reply-To: <20040921190710.GA4237@ucw.cz>
+References: <12361.69.25.132.5.1095791755.squirrel@69.25.132.5>
+    <20040921190710.GA4237@ucw.cz>
+Date: Tue, 21 Sep 2004 12:35:35 -0700 (PDT)
+Subject: Re: [PATCH] Support for Snapstream Firefly remote added to 
+     ati_remote.c
+From: dylan@ultimation.org
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: dylan@ultimation.org, greg@kroah.com, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3-RC1
+X-Mailer: SquirrelMail/1.4.3-RC1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> On Tue, Sep 21, 2004 at 11:35:55AM -0700, dylan@ultimation.org wrote:
+>
+>> I've added support for the Snapstream Firefly X10 remote
+>> (http://www.snapstream.com/Products/firefly/). This involved adding a
+>> new
+>> product ID, and adding some additional logic to the event_lookup
+>> function.
+>> The Firefly alternately encodes the keypress data differently than the
+>> driver currently expects, so that every other keypress is invalid with
+>> the
+>> current driver version. The transformation is pretty simple; I'm
+>> assuming
+>> it's there simply to allow the driver to distinguish between what two
+>> distinct key events looks like and what it looks like to drop signal in
+>> the middle of holding a remote button.
+>>
+>> As well, I also added a module_param called disable_keyboard which
+>> allows
+>> the user to toggle off whether the driver actually sends key events, or
+>> simply generates raw evdev events. I found this useful, since I'm
+>> working
+>> on an app that reads the evdev events natively and then sends it's own
+>> keyboard/mouse/window events in X. The keyboard events being sent by the
+>> driver were interfering with the events I wanted to generate myself.
+>>
+>> This patch applies to version 2.6.9-rc1-mm4.
+>>
+>> Signed-off-by: Dylan Paris <kernelcontrib@ultimation.org>
+>>
+>> @@ -280,6 +289,9 @@ static struct
+>>         {KIND_FILTERED, 0xf4, 0x2F, EV_KEY, KEY_END, 1},        /* END
+>> */
+>>         {KIND_FILTERED, 0xf5, 0x30, EV_KEY, KEY_SELECT, 1},     /*
+>> SELECT */
+>>
+>> +       /* Firefly Remote Buttons */
+>> +       {KIND_FILTERED, 0xf1, 0x2c, EV_KEY, KEY_KATAKANA, 1},     /*
+>> MAXIMIZE */
+>> +
+>
+> Now, now, would it be too hard to add a proper key definition into
+> input.h? I don't think you want the remote to change character sets on
+> Japanese machines.
+>
 
->    So, I think the library wrapper will need to deal with the 32/64 bit
-> problem or we'll have to translate data structures to strictly defined
-> sizes.  Any other thoughts on how this could be done?  I'm concerned
-> about alignment issues too, so this is definitely an area that could use
-> some work.
+Will do.
 
-You can't count on library. On 32-bit only system, noone will debug
-the library. Then 64-bit extensions came. 64-bit kernel has to be
-binary compatible with 32-bit applications.
+>> @@ -460,6 +479,7 @@ static void ati_remote_input_report(stru
+>>         struct input_dev *dev = &ati_remote->idev;
+>>         int index, acc;
+>>         int remote_num;
+>> +       int ev_type;
+>>
+>>         /* Deal with strange looking inputs */
+>>         if ( (urb->actual_length != 4) || (data[0] != 0x14) ||
+>> @@ -492,7 +512,9 @@ static void ati_remote_input_report(stru
+>>
+>>         if (ati_remote_tbl[index].kind == KIND_LITERAL) {
+>>                 input_regs(dev, regs);
+>> -               input_event(dev, ati_remote_tbl[index].type,
+>> +
+>> +               ev_type = ((disable_keyboard) ? 0 : >
+>> ati_remote_tbl[index].type);
+>> +               input_event(dev, ev_type,
+>>                         ati_remote_tbl[index].code,
+>>                         ati_remote_tbl[index].value);
+>>                 input_sync(dev);
+>
+> I won't let you abuse the input API this way. Event type 0 is EV_SYN and
+> is reserved for synchronization and configuration change notifications.
+> Definitely not for sending events that look like keystrokes but aren't.
+>
+> There is a nice ioctl, called EVIOCGRAB which will give you what you
+> want (the console won't be receiving the events anymore) without any
+> ugly hacks.
+>
 
-> > Perhaps ioctl is really right thing to use here? read() should not
-> > have side effects and it solves 32/64 bit problem.
-> 
->    If it solved the entire 32/64 bit problem, an ioctl would probably be
-> the right choice.  But it doesn't AFAICT.  I also like how this
-> implementation fits into the existing ACPI sysfs tree and that you can
-> get useful info simply by cat'ing a file.  Thanks,
+Sorry for the hacks, I'm still learning about how this all works. I was
+just excited that I was able to get it "work" at all, even if it was
+really ugly. ;)  I'll look into EVIOCGRAB and touch up the patch before
+thinking about resubmitting again. Thanks for the input!
 
-Well, you also get nasty sideeffects by simply catting the
-file. ioctl() does not solve entire 32/64 bit problem, but it at least
-makes the problem solvable.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> --
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+>
+
+

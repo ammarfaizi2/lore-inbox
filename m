@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbUCAKF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUCAKF6
+	id S261154AbUCAKJH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbUCAKJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:05:58 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:5339 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261161AbUCAKFe
+	Mon, 1 Mar 2004 05:09:07 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:30171 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261154AbUCAKI7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:05:34 -0500
+	Mon, 1 Mar 2004 05:08:59 -0500
 From: "Amit S. Kale" <amitkale@emsyssoft.com>
 Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>, Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][3/7] SysRq-G
-Date: Mon, 1 Mar 2004 15:35:17 +0530
-User-Agent: KMail/1.5
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Tom Rini <trini@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-References: <20040227212301.GC1052@smtp.west.cox.net> <20040227213254.GE1052@smtp.west.cox.net> <403FC980.8040905@mvista.com>
-In-Reply-To: <403FC980.8040905@mvista.com>
+Subject: Re: [KGDB PATCH][7/7] Move debugger_entry()
+Date: Mon, 1 Mar 2004 15:38:44 +0530
+User-Agent: KMail/1.5
+References: <20040227212301.GC1052@smtp.west.cox.net> <20040227215211.GI1052@smtp.west.cox.net> <20040227215428.GJ1052@smtp.west.cox.net>
+In-Reply-To: <20040227215428.GJ1052@smtp.west.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403011535.17747.amitkale@emsyssoft.com>
+Message-Id: <200403011538.44953.amitkale@emsyssoft.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -33,68 +33,25 @@ X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 Feb 2004 4:19 am, George Anzinger wrote:
-> There may be a need to change the keyboard driver for this.  I have had
-> trouble with it in the past.  Seems it doesn't like to not get control back
-> for a very long time.  I am not sure what the problem is but, be warned.
-
-Let's put it in core instead of core-lite, then,
+OK to checkin.
 
 -Amit
 
+On Saturday 28 Feb 2004 3:24 am, Tom Rini wrote:
+> Hello.  When we use kgdboe, we can't use it until do_basic_setup() is done.
+> So we have two options, not allow kgdboe to use the initial breakpoint
+> or move debugger_entry() to be past the point where kgdboe will be usable.
+> I've opted for the latter, as if an earlier breakpoint is needed you can
+> still use serial and throw kgdb_schedule_breakpoint/breakpoint where
+> desired.
 >
-> -g
+> --- linux-2.6.3-rc4/init/main.c	2004-02-17 09:51:19.000000000 -0700
+> +++ linux-2.6.3-rc4-kgdb/init/main.c	2004-02-17 11:33:51.854388988 -0700
+> @@ -581,6 +582,7 @@ static int init(void * unused)
 >
-> Tom Rini wrote:
-> > Hello.  The following adds SysRq-G.  This is always configured in on
-> > CONFIG_KGDB && CONFIG_SYSRQ.
-> >
-> > diff -zrupN linux-2.6.3+config+serial/drivers/char/sysrq.c
-> > linux-2.6.3+config+serial+sysrq+arch_hooks/drivers/char/sysrq.c ---
-> > linux-2.6.3+config+serial/drivers/char/sysrq.c	2004-02-27
-> > 12:06:22.000000000 -0700 +++
-> > linux-2.6.3+config+serial+sysrq+arch_hooks/drivers/char/sysrq.c	2004-02-2
-> >7 12:16:14.000000000 -0700 @@ -31,6 +31,7 @@
-> >  #include <linux/suspend.h>
-> >  #include <linux/writeback.h>
-> >  #include <linux/buffer_head.h>		/* for fsync_bdev() */
-> > +#include <linux/kgdb.h>			/* for breakpoint() */
-> >
-> >  #include <linux/spinlock.h>
-> >
-> > @@ -44,6 +45,25 @@ int sysrq_enabled = 1;
-> >  /* Machine specific power off function */
-> >  void (*sysrq_power_off)(void);
-> >
-> > +/* Make a breakpoint() right now. */
-> > +#ifdef CONFIG_KGDB
-> > +#define  GDB_OP &kgdb_op
-> > +static void kgdb_sysrq(int key, struct pt_regs *pt_regs, struct
-> > tty_struct *tty) +{
-> > +	printk("kgdb sysrq\n");
-> > +	breakpoint();
-> > +}
-> > +
-> > +static struct sysrq_key_op kgdb_op = {
-> > +	.handler	= kgdb_sysrq,
-> > +	.help_msg	= "kGdb|Fgdb",
-> > +	.action_msg	= "Debug breakpoint\n",
-> > +};
-> > +
-> > +#else
-> > +#define  GDB_OP NULL
-> > +#endif
-> > +
-> >  /* Loglevel sysrq handler */
-> >  static void sysrq_handle_loglevel(int key, struct pt_regs *pt_regs,
-> >  				  struct tty_struct *tty)
-> > @@ -239,7 +259,7 @@ static struct sysrq_key_op *sysrq_key_ta
-> >  /* d */	NULL,
-> >  /* e */	&sysrq_term_op,
-> >  /* f */	NULL,
-> > -/* g */	NULL,
-> > +/* g */	GDB_OP,
-> >  /* h */	NULL,
-> >  /* i */	&sysrq_kill_op,
-> >  /* j */	NULL,
+>  	smp_init();
+>  	do_basic_setup();
+> +	debugger_entry();
+>
+>  	prepare_namespace();
 

@@ -1,91 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbUDBS1c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 13:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbUDBS1c
+	id S264141AbUDBShE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 13:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUDBShE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 13:27:32 -0500
-Received: from prosun.first.gmd.de ([194.95.168.2]:38301 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S262263AbUDBS13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 13:27:29 -0500
-Subject: solved (was Re: xterm scrolling speed - scheduling weirdness in
-	2.6 ?!)
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Kenneth Johansson <ken@kenjo.org>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Willy Tarreau <willy@w.ods.org>,
-       szonyi calin <caszonyi@yahoo.com>, azarah@nosferatu.za.org,
-       Con Kolivas <kernel@kolivas.org>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <1073296227.8535.34.camel@tiger>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>  <1073296227.8535.34.camel@tiger>
+	Fri, 2 Apr 2004 13:37:04 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:21661 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264141AbUDBShC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 13:37:02 -0500
+Subject: [PATCH] fix the subarch build again after ACPI breakage
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: len.brown@intel.com, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1080930132.1720.38.camel@localhost>
-Mime-Version: 1.0
-Date: Fri, 02 Apr 2004 20:22:12 +0200
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 02 Apr 2004 13:36:50 -0500
+Message-Id: <1080931012.1804.149.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 10:50, Kenneth Johansson wrote:
-> On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> > On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > > at a time. I have yet to understand why 'ls|cat' behaves
-> > > differently, but fortunately it works and it has already saved
-> > > me some useful time.
-> > 
-> > cat probably does some buffering for you, and sends the output to xterm in
-> > larger blocks.
-> 
-> you can try with "ls |dd bs=1"
-> 
-> I also see this problem but it is not constant. I noticed that "ps ax"
-> sometimes takes like 10 times longer than usual. But I can only get this
-> in a gnome-terminal not in xterm. The problem is that it should really
-> not be that big difference when the load of the system is the same. 
+This patch:
 
-Ok, there is indeed an issue in the *terminals. As above pointed out
-buffering the programs output helps. Also a usleep of 5ms in the read
-loop of the *terms would help.
 
-I fixed this issue in multi-gnome-terminal by using a buffer of 32kb.
-It is filled as long as there is input comming in within 10ms.
-If the buffer is full or 10ms passed the buffer is written out to the
-screen. This makes it also 2-3 times faster on kernel 2.4.
+ChangeSet@1.1608.1.44, 2004-03-17 00:44:22-05:00, len.brown@intel.com
+  [ACPI] check "maxcpus=N" early -- same as NR_CPUS check.
+  http://bugzilla.kernel.org/show_bug.cgi?id=2317
 
-So in my eyes it is definitely not a scheduler bug, but in every single
-terminal out there. However it seems as if kernel 2.6 s scheduling is so
-fast that data can be continously outputted. And the busy loop in the
-terminal makes it eat up all cpu time instead of jump scrolling take
-place.
+Broke by putting maxcpus (a variable which is only exported by
+mpparse.c) into parse_cmdline_early().
 
- static void
- zvt_term_readdata (gpointer data, gint fd, GdkInputCondition condition) {
-[...]  
-+  while ( (count>0) && (select_retval==1) && (total_count<32768) )
-+  {
-+         count=0;
-+         int maxread=32768-total_count;
-+         if (maxread>4096)
-+                 maxread=4096;
-+
-+         count = read (fd, &buffer[total_count], maxread);
-+         saveerrno=errno;
-[...]
-+         if (count>0)
-+                 total_count+=count;
-+
-+         FD_ZERO(&rfds);
-+         FD_SET(fd, &rfds);
-+         tv.tv_sec = 0;
-+         tv.tv_usec = 10000;
-+         select_retval = select(fd+1, &rfds, NULL, NULL, &tv);
-[...]
-+  }
+The fix is to make it depend on the correct CONFIG_ option.
 
-Soeren.
+In the subarchitectures:
+
+CONFIG_X86_SMP is the one that means "I want standard x86 smp code" and
+that's what this should depend on.
+
+James
+
+===== arch/i386/kernel/setup.c 1.114 vs edited =====
+--- 1.114/arch/i386/kernel/setup.c	Mon Mar 22 15:03:22 2004
++++ edited/arch/i386/kernel/setup.c	Fri Apr  2 12:21:43 2004
+@@ -560,7 +560,7 @@
+ 			}
+ 		}
+ 
+-#ifdef  CONFIG_SMP
++#ifdef  CONFIG_X86_SMP
+ 		/*
+ 		 * If the BIOS enumerates physical processors before logical,
+ 		 * maxcpus=N at enumeration-time can be used to disable HT.
 

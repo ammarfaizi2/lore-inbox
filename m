@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277322AbRJVAEh>; Sun, 21 Oct 2001 20:04:37 -0400
+	id <S277338AbRJVAK2>; Sun, 21 Oct 2001 20:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277330AbRJVAER>; Sun, 21 Oct 2001 20:04:17 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:62282 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277322AbRJVAEJ>; Sun, 21 Oct 2001 20:04:09 -0400
-Date: Mon, 22 Oct 2001 02:04:29 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: jogi@planetzork.ping.de
+	id <S277341AbRJVAKT>; Sun, 21 Oct 2001 20:10:19 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:21239
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S277333AbRJVAKC>; Sun, 21 Oct 2001 20:10:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Tim Jansen <tim@tjansen.de>, James Simmons <jsimmons@transvirtual.com>
+Subject: Re: The new X-Kernel !
+Date: Sun, 21 Oct 2001 19:10:32 -0500
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13pre5aa1
-Message-ID: <20011022020429.C8408@athlon.random>
-In-Reply-To: <20011019061914.A1568@athlon.random> <20011021211726.A476@planetzork.spacenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011021211726.A476@planetzork.spacenet>; from jogi@planetzork.ping.de on Sun, Oct 21, 2001 at 09:17:26PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.10.10110211025130.13079-100000@transvirtual.com> <15vO3W-0DSqTwC@fmrl00.sul.t-online.com>
+In-Reply-To: <15vO3W-0DSqTwC@fmrl00.sul.t-online.com>
+MIME-Version: 1.0
+Message-Id: <01102119103200.19723@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 09:17:26PM +0200, jogi@planetzork.ping.de wrote:
-> 2.4.13-pre3aa1:   4:54.39   6:00.32   10:15.06     *
-					^^^^^^^^
-> 2.4.13-pre5aa1:   4:54.61   5:10.38   5:19.68   5:40.37
-					^^^^^^^
+On Sunday 21 October 2001 14:17, Tim Jansen wrote:
+> On Sunday 21 October 2001 19:40, James Simmons wrote:
+> > It sets the hardware state of the keyboards and the
+> > mice. The user runs apps that alter the state. The second user comes
+> > along and log in on desktop two. He runs another small application to
+> > test the mice. It changes the state which in turn effects the person on
+> > desktop one.
+>
+> Isn't this a driver problem? If two processes can interfere when using the
+> same device the driver should only allow one access (one device file
+> opened) at a time. And if two processes need to access it it should be
+> managed by a daemon.
 
-this is interesting. I'm also wondering what you'd get if you used:
+Neither - It is a resource allocation problem, which all UNIX style systems
+seem to lack. And second, it doesn't happen at the present time with 
+mice/keyboard/display unless somebody (root) did not configure the system 
+properly (as in leave the device inodes accessable to world) OR change the
+protection to permit access.
 
-	echo 8 > /proc/sys/vm/vm_scan_ratio
-	echo 1 > /proc/sys/vm/vm_mapped_ratio
-	echo 3 > /proc/sys/vm/vm_balance_ratio
+Once a resource is allocated to a user session (not process) it should not be 
+accessable to other users.
 
-(or also the other combination that I suggested in the other emails)
+Linux doesn't have a resource allocation other than the limited single open
+support for character device drivers. This is usually sufficient for 
+keyboard/mouse/display since it is the X server that is opening the device.
 
-Anyways you can probably skip the above test and wait for a further
-update that changes more than just the default sysctl values (also
-notably it introduces the PG_launder logic originated from a discussion
-with Marcelo and Linus, resemling somehow part of the PG_wait_for_IO
-write throttling logic that I had in 2.4.12aa1 and 2.4.13pre3aa1, but I
-doubt pre3aa1 was slower because of that, and in case next -aa will
-slowdown again I'll later ask you to try with a one liner patch that
-will disable the write throttling for writepage again [like pre5aa1 did]
-just to make sure it's not the one that hurts :)
+It is NOT sufficient for things like tape drives. The only way to prevent
+conflict at the present time is to change the ownership of the inode, and 
+ensure that the protection mask only permits user access. It is ALSO 
+necessary to ensure that no other processes have that device open at the same 
+time.
 
-thanks to you too for the feedback!
-
-Andrea
+How those devices are controled/configured/used after allocation is and 
+should remain a user mode function, NOT a kernel function.

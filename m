@@ -1,87 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268193AbUH3Odf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268257AbUH3Ojb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268193AbUH3Odf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 10:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUH3Ode
+	id S268257AbUH3Ojb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 10:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268340AbUH3OiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 10:33:34 -0400
-Received: from srv1-1.itssrv.com ([143.199.124.13]:34758 "EHLO
-	srv1-1.itssrv.com") by vger.kernel.org with ESMTP id S268163AbUH3OdL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 10:33:11 -0400
-content-class: urn:content-classes:message
+	Mon, 30 Aug 2004 10:38:05 -0400
+Received: from wasp.net.au ([203.190.192.17]:35011 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S268257AbUH3Oh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 10:37:27 -0400
+Message-ID: <41333BC9.1050903@wasp.net.au>
+Date: Mon, 30 Aug 2004 18:38:01 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
-Subject: reiser4 semantics / BeFS Architect(s) Query Resolution
-Date: Mon, 30 Aug 2004 08:32:55 -0600
-Message-ID: <3DF9165145FACB4C96977FF650C1E9040C46A3D1@its-mail1.its.corp.gwl.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: reiser4 semantics / BeFS Architect(s) Query Resolution
-Thread-Index: AcSM5Rws31ypFZsORomhdV8gFTXI6QBraHCw
-From: "Burnes, James" <james.burnes@gwl.com>
-To: "Hans Reiser" <reiser@namesys.com>, "Will Dyson" <will_dyson@pobox.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, <hch@lst.de>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <flx@namesys.com>, <torvalds@osdl.org>, <reiserfs-list@namesys.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: libata dev_config call order wrong.
+References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com>	 <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com>	 <41321F7F.7050300@pobox.com>	 <1093805994.28289.4.camel@localhost.localdomain>	 <4132EF78.9000200@wasp.net.au> <1093872174.30146.15.camel@localhost.localdomain>
+In-Reply-To: <1093872174.30146.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(comments below)
-
-> -----Original Message-----
-> From: Hans Reiser [mailto:reiser@namesys.com]
-> Sent: Saturday, August 28, 2004 3:55 AM
-> To: Will Dyson
-> Cc: Andrew Morton; hch@lst.de; linux-fsdevel@vger.kernel.org; linux-
-> kernel@vger.kernel.org; flx@namesys.com; torvalds@osdl.org; reiserfs-
-> list@namesys.com
-> Subject: Re: silent semantic changes with reiser4
+Alan Cox wrote:
+> On Llu, 2004-08-30 at 10:12, Brad Campbell wrote:
 > 
-> I think there are two ways to analyze the code boundary issue.  One is
-> "does it belong in the kernel?"  Another is, "does it belong in the
-> filesystem. and if so should name resolution in a filesystem be split
-> into two parts, one in kernel, and one in user space."  In ten years I
-> might have the knowledge needed to make such a split, but I know for
-> sure that I don't know how to do it today without regretting it
-> tomorrow, and I don't really have confidence that I will ever be able
-to
-> do it without losing performance.
+>>Given that the SATA->PATA bridge boards support 80 pin detection, then bit 13 of word 93 must be 
+>>high on any drive that supports lba48, and given the *current* sata spec states that word 93 must be 
+>>zero, we should be able to use this detection method.
 > 
-> Glad that BeFS finds the new model better.:)
->
-
-(glad that BeFS supposedly solved it)
-
 > 
-> > Hans Reiser wrote:
-> >
-> >> Will Dyson wrote:
-> >>
-> >>>
-> >>> In the original BeOS, they solved the problem by having the
-> >>> filesystem driver itself take a text query string and parse it,
-> >>> returning a list of inodes that match. The whole business of
-parsing
-> >>> a query string in the kernel (let alone in the filesystem driver)
-> >>> has always seemed ugly to me.
-> >>
-> >>
-> >> Why?
-> >
+> Word 53 is the important one and essentially tells you what else to
+> believe later on in the configuration.
 
-Here is an interesting interview of Dominic Giampaolo and Benoit
-Schillings regarding the structure of BeFS.  Some interesting issues
-regarding how queries were done.
-
-http://www.theregister.co.uk/2002/03/29/windows_on_a_database_sliced/
-
-BTW: I get paid during the day to do security engineering work.
-Wouldn't parsing the query in the kernel make the kernel susceptible to
-buffer overflows?  Bad place to have an overflow.
-
-j.burnes
+Ok, well acording to my copy of the ATA-6 spec, word 53 mentions nothing about word 93. From 
+everything I have read in ATA-5 -> ATA-7 (Draft) word 93 appears to be pretty fixed.
+It certainly works with my limited test set (all WD unfortunately)
 

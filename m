@@ -1,117 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261633AbSIXJ62>; Tue, 24 Sep 2002 05:58:28 -0400
+	id <S261634AbSIXJ6g>; Tue, 24 Sep 2002 05:58:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261634AbSIXJ62>; Tue, 24 Sep 2002 05:58:28 -0400
-Received: from unthought.net ([212.97.129.24]:2540 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S261633AbSIXJ6Z>;
-	Tue, 24 Sep 2002 05:58:25 -0400
-Date: Tue, 24 Sep 2002 12:03:38 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>
-Subject: Re: ReiserFS buglet
-Message-ID: <20020924100338.GH2442@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org,
-	Hans Reiser <reiser@namesys.com>
-References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <20020924134816.A23185@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020924134816.A23185@namesys.com>
-User-Agent: Mutt/1.3.28i
+	id <S261635AbSIXJ6g>; Tue, 24 Sep 2002 05:58:36 -0400
+Received: from dobit2.rug.ac.be ([157.193.42.8]:20940 "EHLO dobit2.rug.ac.be")
+	by vger.kernel.org with ESMTP id <S261634AbSIXJ6d>;
+	Tue, 24 Sep 2002 05:58:33 -0400
+Date: Tue, 24 Sep 2002 12:03:41 +0200 (MEST)
+From: Frank Cornelis <Frank.Cornelis@rug.ac.be>
+To: <linux-kernel@vger.kernel.org>
+cc: <Frank.Cornelis@rug.ac.be>
+Subject: Oops on umount -a -f
+Message-ID: <Pine.GSO.4.31.0209241144260.11353-100000@eduserv.rug.ac.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 01:48:16PM +0400, Oleg Drokin wrote:
-> Hello!
-...
-> > Disk errors are common. Software can also flip that bit.
-> 
-> Not only disk errors are common, but also CPU/memory/chipset/wiring errors are.
+Hi,
 
-It's a question of which errors one wishes to handle, and which you
-simply choose to ignore.
+This Oops has been annoying me for a while now so here's the report after
+some disassembling.
+Situation: linux 2.4.19 rh7.3 when I poweroff and the system is doing
+	umount -a -f
 
-It's a compromise, and I understand that.
+In the file:function fs/file_table.c:fs_may_remount_ro
+	struct inode *inode = file->f_dentry->d_inode;
+oopses (NULL ptr deref at 00000008) on instruction fs_may_remount_ro+19:
+	0xc0138550 <fs_may_remount_ro+16>:      mov    0x8(%edx),%eax
+	0xc0138553 <fs_may_remount_ro+19>:      mov    0x8(%eax),%eax
+which does the evaluation of
+        f_dentry->d_inode
+so seems like file->f_dentry can be NULL, which should be checked first.
 
-For example, BK uses checksums on all it's files (AFAIK).  This allows
-you to at least discover hardware errors.  CVS doesn't - but CVS is
-still "good enough" for a lot of people.
+A quick and dirty patch for this:
+--- fs/file_table.c.orig-2.4.19 Tue Sep 24 11:58:17 2002
++++ fs/file_table.c     Tue Sep 24 12:00:34 2002
+@@ -170,7 +170,11 @@
+        file_list_lock();
+        for (p = sb->s_files.next; p != &sb->s_files; p = p->next) {
+                struct file *file = list_entry(p, struct file, f_list);
+-               struct inode *inode = file->f_dentry->d_inode;
++               struct dentry *dentry = file->f_dentry;
++               struct inode *inode;
++               if (!dentry)
++                 continue;
++               inode = dentry->d_inode;
 
-Some hardware problems cannot be detected, much less recovered from,
-without adding some significant cost (run-time performance wise,
-complexity wise, or ...).
+                /* File with pending delete? */
+                if (inode->i_nlink == 0)
 
-This problem, however, you can both detect and recover from perfectly,
-with little extra effort.  Whether you want to do so or not is of course
-up to you.
 
-I'm not going to push - I just wanted to point it out  :)
+'m not on the mailing list anymore, contact me by email.
 
-...
-> > I posted to LKML about a month ago with some questions regarding exactly
-> > this issue.  I had a disk that worked on 128 byte atomic writes - a
-> > standard IDE disk.
-> 
-> Hm. This is still much larger than 20 bytes we use.
+Greetz,
+Frank.
 
-Assuming your 20 bytes do not span a 128 byte boundary  ;)
-
-Perhaps you're safe on current LVM/RAID/partition layers (which may
-guarantee a coarser alignment - today).
-
-And perhaps there is no disk out there with less than 128 byte atomic
-writes.  Maybe.   Do you know?  I certanly don't.
-
-> 
-> > The conclusion was something like "we know jack about the disk's
-> > internal logic" so we need consistency measures instead of relying on
-> > anything from the disk.
-> 
-> Actually we submit data to disk in 512 byte chunks (4k blocksize case),
-> and disk should not write any data before it receives all of it and
-> checks the integrity (hm, this is only true for UDMA, though.)
-> Still I do not see why any sane disk would start to write a sector before fully
-> receiving new sector's content (thinking of disk drives of course, solid state
-> stuff should take its own measures in this direction too).
-
-Please read the original mails about the IDE disk writing.
-
-The date is 5th of August this year, the subject was "Disk (block) write
-strangeness".
-
-The conclusion really was that there is no such thing as a 512 byte
-sector.  Not in the real world.  The disk interface may emulate it, but
-that doesn't mean that the disk is internally working with a concept
-even remotely close to that.
-
-> This is even more insane than ACKing data and putting it in not battery
-> backed cache to be lost on power loss (Yes, I know this is a common
-> practice now. At least there is a way either to turn such feature off
-> or to flush a cache on demand).
-
-I was pretty surprised about all this myself, and I just wanted to bring
-the issue to your attention.
-
-The real world just sucks sometimes  ;)
-
-> 
-> Thanks for bringing our attention to such issues, though changing disk format
-> is our of questions for reiser3 now, some kind of verifying single instance
-> on-disk structures may/will be incorporated in reiser4.
-
-Of course - I look forward to seeing how/if you will deal with the
-problem.
-
-Cheers,
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

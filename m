@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131346AbRCUMNp>; Wed, 21 Mar 2001 07:13:45 -0500
+	id <S131351AbRCUMcT>; Wed, 21 Mar 2001 07:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131351AbRCUMNf>; Wed, 21 Mar 2001 07:13:35 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:3859 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131346AbRCUMNV>;
-	Wed, 21 Mar 2001 07:13:21 -0500
-Date: Wed, 21 Mar 2001 13:11:35 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Anton Blanchard <anton@linuxcare.com.au>
+	id <S131352AbRCUMcK>; Wed, 21 Mar 2001 07:32:10 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:40714 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131351AbRCUMcA>; Wed, 21 Mar 2001 07:32:00 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Wed, 21 Mar 2001 23:27:02 +1100
+To: Ingo Molnar <mingo@elte.hu>
 Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] pagecache SMP-scalability patch [was: spinlock usage]
-In-Reply-To: <20010321180607.A11941@linuxcare.com>
-Message-ID: <Pine.LNX.4.30.0103211301530.5270-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [patch] pagecache SMP-scalability patch [was: spinlock usage]
+Message-ID: <20010321232701.A16455@linuxcare.com>
+In-Reply-To: <20010321180607.A11941@linuxcare.com> <Pine.LNX.4.30.0103211301530.5270-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.30.0103211301530.5270-100000@elte.hu>; from mingo@elte.hu on Wed, Mar 21, 2001 at 01:11:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Hi,
 
-Anton,
+>   http://people.redhat.com/~mingo/smp-pagecache-patches/pagecache-2.4.2-H1
+> 
+> this patch splits up the main scalability offender in non-RAM-limited
+> dbench runs, which is pagecache_lock. The patch was designed and written
+> by David Miller, and is being forward ported / maintained by me. (The new
+> pagecache lock design is similar to TCP's hashed spinlocks, which proved
+> to scale excellently.)
 
-if you are doing SMP-intensive dbench runs, then check out the SMP
-pagecache-scalability patch (against 2.4.2-ac20):
+Thanks Ingo! Davem told me about this a while ago but I had forgotten
+about it. I'll do some runs tomorrow including ones which dont fit in
+RAM.
 
-  http://people.redhat.com/~mingo/smp-pagecache-patches/pagecache-2.4.2-H1
+> (about lstat(): IMO lstat() should not call into the lowlevel FS code.)
 
-this patch splits up the main scalability offender in non-RAM-limited
-dbench runs, which is pagecache_lock. The patch was designed and written
-by David Miller, and is being forward ported / maintained by me. (The new
-pagecache lock design is similar to TCP's hashed spinlocks, which proved
-to scale excellently.)
+Ooops, sorry I meant stats as in statistics :)
 
-(about lstat(): IMO lstat() should not call into the lowlevel FS code.)
-
-	Ingo
-
+Anton

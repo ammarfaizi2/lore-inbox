@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261335AbRERSPb>; Fri, 18 May 2001 14:15:31 -0400
+	id <S261421AbRERSTv>; Fri, 18 May 2001 14:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261388AbRERSPL>; Fri, 18 May 2001 14:15:11 -0400
-Received: from web11301.mail.yahoo.com ([216.136.131.204]:45839 "HELO
-	web11301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261335AbRERSPK>; Fri, 18 May 2001 14:15:10 -0400
-Message-ID: <20010518181509.88522.qmail@web11301.mail.yahoo.com>
-Date: Fri, 18 May 2001 11:15:09 -0700 (PDT)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: DMA support for toshiba IDE controllers
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S261388AbRERSTl>; Fri, 18 May 2001 14:19:41 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:26762 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261405AbRERST1>; Fri, 18 May 2001 14:19:27 -0400
+Date: Fri, 18 May 2001 20:19:24 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: Linux 2.4.4-ac10
+Message-ID: <20010518201924.M754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.21.0105181403280.5531-100000@imladris.rielhome.conectiva> <Pine.LNX.4.33.0105181936240.583-100000@mikeg.weiden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0105181936240.583-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Fri, May 18, 2001 at 07:45:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know if there is any DMA support for the
-toshiba IDE controller's in many of their portable
-models such as the older porteges and librettos?  The
-controllers support DMA, but not in linux.  I'm not
-sure what toshiba's policy is on documentation.  They
-used to be pretty stingy, but I heard they have
-recently opened up of lot of their doc's, like the
-oboe IR controller for instance. 
+On Fri, May 18, 2001 at 07:45:15PM +0200, Mike Galbraith wrote:
+> Yes, ~exactly!  I chose 30 tasks because they almost do (tool/userland
+> dependant.. must recalibrate often) fit.  The bitch is to get the vm
+> to automagically detect the rss/cache munch tradeoff point without all
+> the manual help.
 
-Thanks,
+What about a sysctl for that? Choose decent steps and let 0
+(which is an insane value) mean "let's kernel decide" and make
+this default.
 
-Alex
+In the past we could do this by adjusting some watermarks in
+/proc/sys/vm but now, we can't do anything but trust the genius
+kernel developers.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+I doubt that we can test all kinds of workload and even imagine
+what pervert stuff some people do with their machines.
+
+Tuning _is_ manual work. Always has been and always will be.
+
+This countinously "I know it better then you" is what I hated
+about Windows and now this comes more and more into Linux :-(
+
+Rik: Would you take patches for such a tradeoff sysctl?
+
+Regards
+
+Ingo Oeser
+-- 
+To the systems programmer,
+users and applications serve only to provide a test load.

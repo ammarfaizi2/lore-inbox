@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262416AbSJaOZq>; Thu, 31 Oct 2002 09:25:46 -0500
+	id <S262636AbSJaO3N>; Thu, 31 Oct 2002 09:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262444AbSJaOZq>; Thu, 31 Oct 2002 09:25:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32267 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262416AbSJaOZp>;
-	Thu, 31 Oct 2002 09:25:45 -0500
-Message-ID: <3DC13EAD.9020408@pobox.com>
-Date: Thu, 31 Oct 2002 09:31:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Dax Kelson <dax@gurulabs.com>, Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com> <20021031062249.GB18007@tapu.f00f.org> <1036046904.1521.74.camel@mentor> <20021031065629.GA19030@tapu.f00f.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262750AbSJaO3N>; Thu, 31 Oct 2002 09:29:13 -0500
+Received: from ppp-217-133-222-193.dialup.tiscali.it ([217.133.222.193]:3969
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S262636AbSJaO3L>; Thu, 31 Oct 2002 09:29:11 -0500
+Date: Thu, 31 Oct 2002 15:34:39 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] Clear TLS on execve
+Message-ID: <20021031143439.GA1697@home.ldb.ods.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+	Ingo Molnar <mingo@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
 
->problems most people don't have?  What next, some kind of misdesigned
->in-kernel CryptoAPI?
->  
->
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+This trivial patch causes the TLS to be cleared on execve (code is in flush=
+_thread).
+This is necessary to avoid ESRCH errors when set_thread_area is asked
+to choose a free TLS entry after several nested execve's.
 
-Ok, I'll allow myself to be trolled.
+The LDT also has a similar problem, but it is less serious because the
+LDT code doesn't scan for free entries. I'll probably send a patch to
+fix this too, unless there is something important relying on this behavior.
 
-What's wrong with our current 2.5.45 crypto api?
+diff --exclude-from=3D/home/ldb/src/linux-exclude -urNdp linux-2.5.45/arch/=
+i386/kernel/process.c linux-2.5.45_ldb/arch/i386/kernel/process.c
+--- linux-2.5.45/arch/i386/kernel/process.c	2002-10-12 06:21:02.000000000 +=
+0200
++++ linux-2.5.45_ldb/arch/i386/kernel/process.c	2002-10-31 14:23:18.0000000=
+00 +0100
+@@ -247,6 +247,7 @@ void flush_thread(void)
+ 	struct task_struct *tsk =3D current;
+=20
+ 	memset(tsk->thread.debugreg, 0, sizeof(unsigned long)*8);
++	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));=09
+ 	/*
+ 	 * Forget coprocessor state..
+ 	 */
 
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9wT9+djkty3ft5+cRAtiOAKCNGWGecmDu1O5KkGp/6CNl3pmvGACglepm
+ipp3BOlokVRNwoVBeKxJdU0=
+=UHUY
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--

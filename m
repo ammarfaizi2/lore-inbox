@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVBQTEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVBQTL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbVBQTEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 14:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVBQTEa
+	id S261181AbVBQTL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 14:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVBQTLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 14:04:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42926 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262310AbVBQTEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 14:04:11 -0500
-Date: Thu, 17 Feb 2005 19:04:08 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Christophe Lucas <c.lucas@ifrance.com>,
-       kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH] drivers/char/watchdog/* : pci_request_regions
-Message-ID: <20050217190408.GW29917@parcelfarce.linux.theplanet.co.uk>
-References: <20050214150111.GH20620@rhum.iomeda.fr> <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk> <4214E728.3030501@pobox.com>
+	Thu, 17 Feb 2005 14:11:44 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:56256 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262353AbVBQTJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 14:09:28 -0500
+Date: Thu, 17 Feb 2005 20:09:24 +0100
+To: Pavel Machek <pavel@suse.cz>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+Message-ID: <20050217190924.GD4925@gamma.logic.tuwien.ac.at>
+References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <20050215194710.GE7338@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <4214E728.3030501@pobox.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050215194710.GE7338@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 01:49:12PM -0500, Jeff Garzik wrote:
-> Matthew Wilcox wrote:
-> >On Mon, Feb 14, 2005 at 04:01:11PM +0100, Christophe Lucas wrote:
-> >
-> >>If PCI request regions fails, then someone else is using the
-> >>hardware we wish to use. For that one case, calling
-> >>pci_disable_device() is rather rude.
-> >>See : http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/1061.html
-> >
-> >
-> >Actually, that isn't necessarily true.  If the request_regions call fails,
-> >that can mean there's a resource conflict.  If so, leaving the device
-> >enabled is the worst possible thing to do as we'll now have two devices
-> >trying to respond to the same io accesses.
+On Die, 15 Feb 2005, Pavel Machek wrote:
+> > - Sometimes I have to make a Sysrq-s (sync) to get some stuff running
+> >   (eg logging in from the console hangs after input of passwd, calling
+> >   sysrq-s makes it continue). I had a similar effect when logging in
+> >   AFTER resuming (for the resume I had only gdm running but wasn't
+> >   logged in) the GNOME starting screen stayed there indefinitely, no
+> >   change. Even after restarting the X server and retrying.
+> >   Logging in with twm session DID work without any problem.
+> >   Do you have any idea what this could be?
 > 
-> Incorrect.  If request_region() fails, drivers are coded to _not_ touch 
-> the hardware.  That's the entire purpose of the whole charade: to avoid 
-> having two devices responding to the same io accesses.
-> 
-> If your driver is talking to the hardware after request_region() fails, 
-> it is BROKEN plain and simple.
+> Does it happen with swsusp? Is it in any way reproducible? Maybe
+> commenting out refrigerator would help....
 
-I don't think you understood my point.  Assume we really do have two
-devices in the system with clashing resource settings.  Yes, I really
-have seen this happen; it's rare.
 
-While the PCI device is disabled, there is no problem.  But then we call
-pci_enable_device(), so now the device is enabled to respond to IO and
-memory resources in its BARs.
+Hmm, don't have swsusp in my kernel (2.6.11-rc3-mm2).
 
-At the point we discover this, we need to disable the PCI device again
--- exactly the opposite behaviour from your case where we need to leave
-the PCI device enabled when we have resource conflicts.
+reproducible: Not deterministically, i.e. it happened again, but then
+again not always. Sorry.
 
-I think the only way to fix this is have pci_enable_device claim the
-resources for the BARs before enabling the PCI device to respond to the
-resources; that way we leave the enable bits the way they currently are.
-No, this doesn't cure the world's ills, but it does obey "First, do
-no harm".  One way it'll fail is if the other driver loads after the PCI
-driver that claims this resource.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>                 Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+PLYMOUTH (vb.)
+To relate an amusing story to someone without remembering that it was
+they who told it to you in the first place.
+			--- Douglas Adams, The Meaning of Liff

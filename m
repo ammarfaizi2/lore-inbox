@@ -1,81 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277228AbRKFBo5>; Mon, 5 Nov 2001 20:44:57 -0500
+	id <S277230AbRKFBpu>; Mon, 5 Nov 2001 20:45:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277112AbRKFBor>; Mon, 5 Nov 2001 20:44:47 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:12304 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277228AbRKFBog>;
-	Mon, 5 Nov 2001 20:44:36 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Mike Maravillo <mike.maravillo@q-linux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac6: videodev/__release_region oops! 
-In-Reply-To: Your message of "Tue, 06 Nov 2001 04:50:14 +0800."
-             <20011106045014.A1361@maravillo.q-linux.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Nov 2001 12:44:23 +1100
-Message-ID: <13664.1005011063@ocs3.intra.ocs.com.au>
+	id <S277112AbRKFBpi>; Mon, 5 Nov 2001 20:45:38 -0500
+Received: from cogito.cam.org ([198.168.100.2]:40731 "EHLO cogito.cam.org")
+	by vger.kernel.org with ESMTP id <S277230AbRKFBp2>;
+	Mon, 5 Nov 2001 20:45:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] vm_swap_full
+Date: Mon, 5 Nov 2001 07:37:59 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Mike Fedyk <mfedyk@matchmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105123800.07D741126F@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001 04:50:14 +0800, 
-Mike Maravillo <mike.maravillo@q-linux.com> wrote:
-># lsmod
->Module                  Size  Used by
->tuner                   8368   1  (autoclean)
->bttv                   58864   0  (autoclean)
->videodev                4672   3  (autoclean) [bttv]
->
-># lsmod | xargs rmmod
->rmmod: module Module is not loaded
->rmmod: module Size is not loaded
->rmmod: module Used is not loaded
->rmmod: module by is not loaded
->tuner: Device or resource busy
->rmmod: module 8368 is not loaded
->rmmod: module 1 is not loaded
->rmmod: module (autoclean) is not loaded
->xargs: rmmod: terminated by signal 11
->
->Unable to handle kernel paging request at virtual address 80008004
->c0118012
->*pde = 00000000
->Oops: 0000
->CPU:    0
->EIP:    0010:[<c0118012>]    Not tainted
->Using defaults from ksymoops -t elf32-i386 -a i386
->EFLAGS: 00010286
->eax: 80008000   ebx: c0002014   ecx: 80008000   edx: 80008000
->esi: ec000fff   edi: ec000000   ebp: c5c6d000   esp: c4d3ff50
->ds: 0018   es: 0018   ss: 0018
->Process rmmod (pid: 1289, stackpage=c4d3f000)
->Stack: d0130000 00001000 c1430800 d0129062 c0239ff8 ec000000 00001000 02430800 
->       c1430800 d012dae0 00000000 c01b663e c1430800 d0123000 c5c6d000 d012949a 
->       d012dae0 c011589e d0123000 c5c6d000 00000000 c0114cfc d0123000 00000000 
->Call Trace: [<d0130000>] [<d0129062>] [<d012dae0>] [<c01b663e>] [<d012949a>] 
->   [<d012dae0>] [<c011589e>] [<c0114cfc>] [<c0106dd3>] 
->Code: 8b 42 04 39 f8 77 f0 8b 4a 08 39 f1 72 e9 83 7a 0c 00 78 05 
->
->>>EIP; c0118012 <__release_region+22/70>   <=====
->Trace; d0130000 <[videodev].bss.end+edc1/24e21>
->Trace; d0129062 <[videodev].bss.end+7e23/24e21>
->Trace; d012dae0 <[videodev].bss.end+c8a1/24e21>
+Think of it this way.  nr_swap_pages is the ammount of space
+available for new swap pages.  nr inactive pages is the ammount
+of pages we know that just might get swapped - so we want to be
+sure we keep space in swap for them.  The logic I am trying to
+implement is to switch to aggressive swap (reclaim the swap space
+at page in) when we are in at risk of filling swap.  IMO we
+do not way to reclaim until we have too, as there are gains to
+be had if we page in a page,it does not get changed and we have
+memory pressure.  
 
-It is actually failing in rmmod bttv, not rmmod videodev.  videodev
-shows up in the ksymoops decode because the bttv symbols have been
-removed by the time the oops occurred.  You need the values of
-/proc/ksyms and /proc/modules from _before_ rmmod bttv was issued.  man
-insmod and read the section "KSYMOOPS ASSISTANCE", in particular
-/var/log/ksymoops.  Once you have /var/log/ksymoops setup, reproduce
-the bug using
+The test as it stood would be fine for machines with small swap.
+Some applications (SAP for instance) recommend swap as 3 x memory.
+If you have 2G memory and 6G swap it does not make much sense to
+start unmapping swap pages at swap in when you have only 3G in
+swap.  It does make sense to do this when you have less than
+600M of free swap pages.  Problem is to decide what is a reasonable
+threshold.  Since the inactive list is what can get swapped out,
+using its size as the metric makes sense.
 
- lsmod | awk '{print $1}' | xargs -l1 -t rmmod
+Ed Tomlinson 
 
-When it fails, tell ksymoops to use the saved ksyms and modules in
-/var/log/ksymoops from just before rmmod bttv.  modules.xxx should
-contain bttv and videodev but not tuner.
+Mike Fedyk wrote:
 
-Send the clean decode to l-k, not to me.
-
+> On Sun, Nov 04, 2001 at 09:58:17PM -0500, Ed Tomlinson wrote:
+>> On November 4, 2001 09:08 pm, Mike Fedyk wrote:
+>> > On Sun, Nov 04, 2001 at 02:36:34PM -0200, Rik van Riel wrote:
+>> > > On Sun, 4 Nov 2001, Ed Tomlinson wrote:
+>> > > > -/* Swap 50% full? Release swapcache more aggressively.. */
+>> > > > -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
+>> > > > +/* Free swap less than inactive pages? Release swapcache more
+>> > > > aggressively.. */ +#define vm_swap_full() (nr_swap_pages <
+>> > > > nr_inactive_pages)
+>> > > >
+>> > > > Comments?
+>> > >
+>> > > Makes absolutely no sense for systems which have more
+>> > > swap than RAM, eg. a 64MB system with 200MB of swap.
+>> >
+>> > How does the inactive list get bigger than physical ram?
+>> >
+>> > If swap is bigger than ram, there is *no* possibility of the inactive
+>> > list being bigger than swap, and thus no aggressive swapping...
+>> 
+>> nr_swap_pages is the number of swap pages free.
+> 
+> Oh, I thought it was total swap pages...
+> 
+>>The idea is to start
+>> aggressive swap only when we are at risk of running out of swap.  This
+>> way we get to take full advantage of throwing away clean pages that are
+>> backed up by swap when under vm pressure.
+>> 
+> Yes.  My point is that the inactive list can't get bigger than RAM, and
+> thus if swap is bigger than ram this case wouldn't trigger...
+> 
+> But now that nr_swap_pages is *free* swap, you'll have to add another test
+> for (swap > RAM)...
+> 
+> Mike
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

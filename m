@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267564AbRG2ISc>; Sun, 29 Jul 2001 04:18:32 -0400
+	id <S266706AbRG2JOt>; Sun, 29 Jul 2001 05:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267565AbRG2ISW>; Sun, 29 Jul 2001 04:18:22 -0400
-Received: from 20dyn97.com21.casema.net ([213.17.90.97]:2321 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S267564AbRG2ISO>; Sun, 29 Jul 2001 04:18:14 -0400
-Message-Id: <200107290817.KAA28266@cave.bitwizard.nl>
-Subject: Re: "oversized" files
-In-Reply-To: <E15M6LP-0005NU-00@the-village.bc.nu> from Alan Cox at "Jul 16,
- 2001 12:15:19 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sun, 29 Jul 2001 10:17:56 +0200 (MEST)
-CC: Aaron Smith <yoda_2002@yahoo.com>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S266710AbRG2JOj>; Sun, 29 Jul 2001 05:14:39 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46134 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S266706AbRG2JOV>; Sun, 29 Jul 2001 05:14:21 -0400
+To: swsnyder@home.com
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: What does "Neighbour table overflow" message indicate?
+In-Reply-To: <01072820231401.01125@mercury.snydernet.lan>
+	<01072820534802.01125@mercury.snydernet.lan>
+	<20010729135728.B3282@weta.f00f.org>
+	<01072821151103.01125@mercury.snydernet.lan>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2001 03:08:13 -0600
+In-Reply-To: <01072821151103.01125@mercury.snydernet.lan>
+Message-ID: <m11yn0cdc2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
+> Further snooping shows the error msg text in file inux/net/ipv4/route.c:
+> 
+>     if (net_ratelimit())
+>         printk("Neighbour table overflow.\n");
 
-> > I have a file that is approximately 3.25GB and my system keeps
-> > bitching about "Value too large for defined data type."  Is there
-> > any way to stop this?  Since I'm sure you're wondering why I have a
-> > file that large, I'm using it via loopback as my MP3 partition, so I
-> > can remove it fairly quick if the need should ever arise.
- 
-> You need a 2.4 kernel and you need to be using NFSv3 to handle files >2Gb
+> 
+> The reference to "net_ratelimit" make me wonder if it is related to 
+> iptables.  I am using iptable, and have since kernel 2.4.1, but I've seen 
+> these messages before.  Hmmm.
 
-But the error message he posted is mostly from local apps. You need
-a  set of apps compiled with recent GLIBC to be able to handle files 
-bigger than 2G. 
+My experience with this is the message occurs when you a machine starts
+arping for a non-existent ip address.  I suspect net_ratelimit triggers
+when there are too many arps.
 
-			Roger. 
+Run tcpdump -n -i eth0 (assuming your network is on eth0) and see if you
+see an arp request that never gets answered.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Eric

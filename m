@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274808AbRJKBKb>; Wed, 10 Oct 2001 21:10:31 -0400
+	id <S274809AbRJKBcP>; Wed, 10 Oct 2001 21:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJKBKU>; Wed, 10 Oct 2001 21:10:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56840 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274808AbRJKBKJ>; Wed, 10 Oct 2001 21:10:09 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.11: mount flag noexec still broken for VFAT partition
-Date: 10 Oct 2001 18:10:15 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9q2rhn$77i$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0110102258290.28429-100000@gulbis.latnet.lv> <20011010151333.G10443@turbolinux.com> <20011011003609.B18573@l-t.ee>
+	id <S275041AbRJKBcF>; Wed, 10 Oct 2001 21:32:05 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:60178 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S274809AbRJKBb5>; Wed, 10 Oct 2001 21:31:57 -0400
+Date: Wed, 10 Oct 2001 18:28:48 -0700 (PDT)
+From: Mike Borrelli <mike@nerv-9.net>
+To: trini@kernel.crashing.org
+cc: linux-kernel@vger.kernel.org
+Subject: re: [PATCH] 2.4.10-ac10 ppc fixes
+Message-ID: <Pine.LNX.4.21.0110101821330.11511-100000@asuka.nerv-9.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011011003609.B18573@l-t.ee>
-By author:    Marko Kreen <marko@l-t.ee>
-In newsgroup: linux.dev.kernel
-> 
-> Um.  'noexec' does not touch flags, it only disallows exec'ing
-> on particular mountpoint.
-> 
+Hi,
 
-It does on FAT filesystems (except UMSDOS), since they don't have real
-flags.  Files and directories have syntesized attributes of
-(0777 & ~umask); noexec is supposed to modify that to (0666 & ~umask)
-for files but not directories.
+Sorry I can't quote the message; I'm not actually on the lkml.
 
-That has been the Linux behaviour since the 0.x days.
+I didn't mean that Alan should apply it to his tree.  I only merged the
+fixes so that I could compile (it died on my cube) and figured someone
+else might like it.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+If I'm propagating bad code, I'll take the patch down and only mess with
+my own stuff so as not to hurt others.
+
+I appologize for anything I mistakenly implied by naming my patch as I
+did.  My intention was only to give credit and make it easily
+identifiable.
+
+I agree, my patches shouldn't ever go into the main kernel trees as they
+are half-assed at best. =)
+
+Sorry for the confusion,
+
+-Mike
+

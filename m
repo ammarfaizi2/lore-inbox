@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131283AbQKPTrn>; Thu, 16 Nov 2000 14:47:43 -0500
+	id <S130074AbQKPTxP>; Thu, 16 Nov 2000 14:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131308AbQKPTrd>; Thu, 16 Nov 2000 14:47:33 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:32392 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131283AbQKPTrU>; Thu, 16 Nov 2000 14:47:20 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <Pine.LNX.4.21.0011160959340.13085-100000@duckman.distro.conectiva>
-Organisation: SAP LinuxLab
-Date: 16 Nov 2000 20:17:02 +0100
-In-Reply-To: Rik van Riel's message of "Thu, 16 Nov 2000 10:01:11 -0200 (BRDT)"
-Message-ID: <qwwwve3ybf5.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129853AbQKPTxE>; Thu, 16 Nov 2000 14:53:04 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35594 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129076AbQKPTwx>; Thu, 16 Nov 2000 14:52:53 -0500
+Date: Thu, 16 Nov 2000 14:22:19 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Nishant Rao <nishant@cs.utexas.edu>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Setting IP Options in the IP-Header
+In-Reply-To: <Pine.LNX.4.21.0011161136160.5903-100000@crom.cs.utexas.edu>
+Message-ID: <Pine.LNX.4.21.0011161421380.735-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Thu, 16 Nov 2000, Nishant Rao wrote:
 
-On Thu, 16 Nov 2000, Rik van Riel wrote:
-> On 16 Nov 2000, Christoph Rohland wrote:
->> So in shm_swap_out I check if the page is already in the swap
->> cache. If not I put the page into it and note the swap entry in
->> the shadow pte of shm. Right?
-> 
-> Exactly. And I'll change page_launder() to:
-> 1. write dirty swap cache pages to disk
-> 2. do some IO clustering (maybe) or rely on luck ;)
-> 
->> So does the page live all the time in the swap cache? This would
->> lead to a vastly increased swap usage since we would have to
->> preallocate the swap entries on page allocation.
-> 
-> If the usage count of the swap entry is 1 (all users of the
-> page have swapped it in and the swap cache is the only user),
-> then we can free the page from swap and the swap cache.
+>Date: Thu, 16 Nov 2000 11:55:24 -0600 (CST)
+>From: Nishant Rao <nishant@cs.utexas.edu>
+>To: Andi Kleen <ak@suse.de>
+>Cc: linux-kernel@vger.kernel.org
+>Content-Type: TEXT/PLAIN; charset=US-ASCII
+>Subject: Re: Setting IP Options in the IP-Header
+>
+>Well, while what you say makes sense, it isn't exactly a solution to our
+>problem.
+>
+>we are trying to expose and set a NEW option altogether. So our question 
+>pertains more to what code we write in the kernel to create and expose a 
+>new custom option. so for this, we would need to know the offsets of the
+>current options like source routing etc and then hopefully try and stuff
+>data from setting our option after the maximum that can be set by these
+>other existing options.
+>
+>once that code is in place within the ip_build_options routine in the
+>ip_options.c file in the linux kernel, we can then use the setsockopt() 
+>at the application level to make sure that a packet is filled with the
+>corresponding option.
+>
+>i hope i was able to explain my question more clearly.
 
-Great. So what do we have to do to get this done? The shm stuff sounds
-pretty easy.
+RFC791 should give you all you need to know I believe, plus
+examining the existing kernel sources. It's pretty basic.
 
-Greetings
-		Christoph
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+Red Hat Linux:  http://www.redhat.com
+Download for free:  ftp://ftp.redhat.com/pub/redhat/redhat-6.2/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

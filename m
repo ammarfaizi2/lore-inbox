@@ -1,87 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbTJGP4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 11:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTJGP4y
+	id S262440AbTJGQVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 12:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJGQVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 11:56:54 -0400
-Received: from enigma.barak.net.il ([212.150.48.99]:30607 "EHLO
-	enigma.barak.net.il") by vger.kernel.org with ESMTP id S262443AbTJGP4w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 11:56:52 -0400
-From: "Amir Hermelin" <amir@montilio.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Format of an 'oops' call trace (in show_trace)
-Date: Tue, 7 Oct 2003 17:56:38 +0200
-Organization: Montilio
-Message-ID: <00d101c38ceb$9ad4daf0$0401a8c0@CARTMAN>
+	Tue, 7 Oct 2003 12:21:09 -0400
+Received: from madness.at ([213.153.61.104]:26887 "EHLO cronos.madness.at")
+	by vger.kernel.org with ESMTP id S262440AbTJGQU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 12:20:58 -0400
+Message-ID: <3F82E7F2.5060804@madness.at>
+Date: Tue, 07 Oct 2003 18:21:06 +0200
+From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6a) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+To: linux-kernel@vger.kernel.org
+Subject: Serverworks CSB5 IDE-DMA Problem (2.4 and 2.6)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Can someone please point me to a description of what I see in the Call of
-the oops dump?  I tried looking into show_trace and lookup_symbol functions,
-but I couldn't understand some things.  For example, in this following
-trace:
-Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0 (0xd5543fb4))
+Hello!
 
-Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 (0xd5543fe0)) 
-I don't understand the relevance to reqrdata (since it's not a function, but
-a data structure, and isn't the parameter to the mymod function).  And could
-someone please explain what the 0x0 in the lines mean? From the code I
-understood it to be the offset of the symbol within the module, but that
-can't be right if both symbols translate to the same offset - so I must've
-understood it wrong.
-
-Thanks for any help,
-Amir.
+we have a bunch of IBM x305 here which are entrylevel 1HE servers based 
+on a Serverworks CSB5 chipset.
+One of those has 2 120GB IDE disks in a software RAID1 and the main 
+userspace-application is a heavly (mostly insert/update) used 
+postgresql-database. The database generates a lot of sustained 
+IO-traffic and after some minutes (depends on the load - sometimes it 
+even works for one or two hours) the kernel generates the following 
+messages(2.4.22 and 2.6.0-test6 behave almost identically - 
+error-messages are from 2.6.0-test6):
 
 
-Oct  7 17:13:54 joji kernel:  printing eip:
-Oct  7 17:13:54 joji kernel: e01b090b
-Oct  7 17:13:54 joji kernel: *pde = 00000000
-Oct  7 17:13:54 joji kernel: Oops: 0002
-Oct  7 17:13:54 joji kernel: nfsd nfs lockd sunrpc bcm5700 parport_pc lp
-parport autofs sg sr_mod ide-scsi scsi_mod ide-cd cdrom key mymod bdev
-mousedev hid input usb-uhci ehci-hcd usbcore ext3 
-Oct  7 17:13:54 joji kernel: CPU:    0
-Oct  7 17:13:54 joji kernel: EIP:    0060:[<e01b090b>]    Not tainted
-Oct  7 17:13:54 joji kernel: EFLAGS: 00010282
-Oct  7 17:13:54 joji kernel: 
-Oct  7 17:13:54 joji kernel: EIP is at rtp_recv [mymod] 0x5b
-(2.4.20-8custom)
-Oct  7 17:13:54 joji kernel: eax: 00000000   ebx: d5542000   ecx: 00000001
-edx: c0374c88
-Oct  7 17:13:54 joji kernel: esi: e01bae00   edi: d76aa400   ebp: d5543fcc
-esp: d5543f98
-Oct  7 17:13:54 joji kernel: ds: 0068   es: 0068   ss: 0068
-Oct  7 17:13:54 joji kernel: Process mymod (pid: 6978, stackpage=d5543000) 
-Oct  7 17:13:54 joji kernel: Stack: e01bae00 d76aa400 d5542000 00000000
-d76aa400 ffffffff e01a5308 e01bae00 
-Oct  7 17:13:54 joji kernel:        d76aa400 d5543fcc d5542000 d5542000
-dbd15900 00000000 d54f3fd0 d5533fd0 
-Oct  7 17:13:54 joji kernel:        d5542000 00000000 e01a5220 00000000
-00000000 00000000 c010742d d76aa400 
-Oct  7 17:13:54 joji kernel: Call Trace:   [<e01bae00>] reqrdata [mymod] 0x0
-(0xd5543f98))
-Oct  7 17:13:54 joji kernel: [<e01a5308>] mymod [mymod] 0xe8 (0xd5543fb0)) 
-Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0 (0xd5543fb4))
+hdc: dma_timer_expiry: dma status == 0x20
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xd0 { Busy }
 
-Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 (0xd5543fe0)) 
-Oct  7 17:13:54 joji kernel: [<c010742d>] kernel_thread_helper [kernel] 0x5
-(0xd5543ff0)) 
-Oct  7 17:13:54 joji kernel: 
-Oct  7 17:13:54 joji kernel: 
-Oct  7 17:13:54 joji kernel: Code: ff 40 1c 8b 56 10 8b 52 1c 89 97 98 01 00
-00 01 50 24 89 7c 
+hdc: drive not ready for command
+ide1: reset: success
+hdc: dma_timer_expiry: dma status == 0x20
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xd0 { Busy }
 
+hdc: drive not ready for command
+ide1: reset: success
+hdc: dma_timer_expiry: dma status == 0x20
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xd0 { Busy }
+
+hdc: drive not ready for command
+ide1: reset: success
+hdc: dma_timer_expiry: dma status == 0x20
+hdc: DMA timeout retry
+hdc: timeout waiting for DMA
+hdc: status timeout: status=0xd0 { Busy }
+
+hdc: drive not ready for command
+ide1: reset: success
+hda: dma_timer_expiry: dma status == 0x60
+hda: DMA timeout retry
+hda: timeout waiting for DMA
+hda: status timeout: status=0xd0 { Busy }
+
+hdb: DMA disabled
+hda: drive not ready for command
+ide0: reset: success
+blk: queue dfdee200, I/O limit 4095Mb (mask 0xffffffff)
+hda: dma_timer_expiry: dma status == 0x20
+hda: DMA timeout retry
+hda: timeout waiting for DMA
+hda: status timeout: status=0xd0 { Busy }
+
+hda: drive not ready for command
+ide0: reset: success
+hda: dma_timer_expiry: dma status == 0x20
+hda: DMA timeout retry
+hda: timeout waiting for DMA
+hda: status timeout: status=0xd0 { Busy }
+
+hda: drive not ready for command
+ide0: reset: success
+
+
+after one of this events DMA on one of the disks (either hdc or hda) 
+gets disabled and the maschine is heavily overloaded and the database 
+cannot keep up any more with the incoming load of database-updates.
+It's also worth mentioning that the kernel reports a "DMA disabled" only 
+for hdb which is the internal cd-drive and completely unused.
+
+I do know that Serverworks IDE has been flaky (especially with the CSB4) 
+in the past but I thought this had been fixed in newer chipset-revisions 
+- is there anything I can do to solve this problem?
+
+dmesg of the machine in question can be found at 
+http://www.kaltenbrunner.cc/files/dmesg.txt
+
+
+
+many thanks
+
+Stefan Kaltenbrunner
 

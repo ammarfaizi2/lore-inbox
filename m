@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUJEXai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUJEX3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266324AbUJEXai (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUJEXaO
+	id S266463AbUJEX3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266252AbUJEX3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:30:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16064 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266324AbUJEX1I convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:27:08 -0400
-Date: Tue, 5 Oct 2004 16:30:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
- availlable
-Message-Id: <20041005163052.305f0d88.akpm@osdl.org>
-In-Reply-To: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 5 Oct 2004 19:29:54 -0400
+Received: from sa6.bezeqint.net ([192.115.104.20]:60574 "EHLO sa6.bezeqint.net")
+	by vger.kernel.org with ESMTP id S266362AbUJEX1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 19:27:09 -0400
+Date: Wed, 6 Oct 2004 01:28:18 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3 lost cdrom
+Message-ID: <20041005232818.GA3084@luna.mooo.com>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20041003021055.GA3227@luna.mooo.com> <20041004061902.GC2287@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041004061902.GC2287@suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
->
-> --- linux-2.6.8cow/init/main.c~console	2004-10-05 20:46:40.000000000 +0200
-> +++ linux-2.6.8cow/init/main.c	2004-10-05 20:46:08.000000000 +0200
-> @@ -695,8 +695,11 @@
->  	system_state = SYSTEM_RUNNING;
->  	numa_default_policy();
+On Mon, Oct 04, 2004 at 08:19:06AM +0200, Jens Axboe wrote:
+> On Sun, Oct 03 2004, Micha Feigin wrote:
+> > I seem to have lost cdrom support through scsi emulation, any ideas?
+> > (its a burner, and drive detection with xcdroast in ide mode is
+> > terrible, takes minutes).
+> 
+> So did it work in 2.6.9-rc2?
+> 
+
+It turned out to be hardware problems. Cleaned it with some compressed
+air and it works for now (hopefully that was the only problem).
+
+On the other had, ide-scsi still segfaults when trying to remove it
+(seems to be no relation to the faulty cd drive).
+
+The stack trace is in the other mail I sent.
+
+> -- 
+> Jens Axboe
+> 
 >  
-> -	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
-> +	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0) {
->  		printk("Warning: unable to open an initial console.\n");
-> +		if (open("/dev/null", O_RDWR, 0) == 0)
-> +			printk("         Falling back to /dev/null.\n");
-> +	}
->  
->  	(void) sys_dup(0);
->  	(void) sys_dup(0);
-
-/usr/src/25/init/main.c:183: undefined reference to `open'
-
-I assume this worked for you because it's against 2.6.8 and we were still
-supporting kernel syscalls then.
-
-Please always test patches against current kernels.
-
-I'll fix it up.
+>  +++++++++++++++++++++++++++++++++++++++++++
+>  This Mail Was Scanned By Mail-seCure System
+>  at the Tel-Aviv University CC.
+> 

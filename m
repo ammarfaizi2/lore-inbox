@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVCLQjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVCLQnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVCLQjl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCLQje
+	id S261958AbVCLQnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCLQnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:39:34 -0500
-Received: from webmail.sub.ru ([213.247.139.22]:48655 "HELO techno.sub.ru")
-	by vger.kernel.org with SMTP id S261955AbVCLQhq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 11:37:46 -0500
-From: Mikhail Ramendik <mr@ramendik.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Proposal: "Latest Base Kernel" on kernel.org
-Date: Sat, 12 Mar 2005 19:37:32 +0300
-User-Agent: KMail/1.7.1
+	Sat, 12 Mar 2005 11:43:15 -0500
+Received: from web8508.mail.in.yahoo.com ([202.43.219.170]:19301 "HELO
+	web8508.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S261958AbVCLQmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 11:42:36 -0500
+Message-ID: <20050312164229.50537.qmail@web8508.mail.in.yahoo.com>
+Date: Sat, 12 Mar 2005 16:42:29 +0000 (GMT)
+From: Dinesh Ahuja <mdlinux7@yahoo.co.in>
+Subject: Implementation of Buffer Headers in Linux kernel
+To: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503121937.32854.mr@ramendik.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I have a few queries regarding the buffer headers in
+linux. I a newbie so these queries may sound stupid to
+linux gurus.
 
-The "Latest Stable Kernel" on the main page of www.kernel.org is 2.6.11.2 and 
-this is of course right.
+1. As per my understanding, block number in this
+stucture corresponds to the block no of the data on a
+logical device rather than on a physical device (hard
+disk).
 
-But people who want to apply an -rc patch, or some other patchsets (e.g. -ck) 
-want 2.6.11. They can currently get it only by browsing directories.
+2. Why do we need pointer to a pointer for hash list ?
+As per Maurice Bach book on OS, the hash list and free
+list both are implemented as a circular, doubly link
+list.
 
-Perhaps, to enable easier usage of such patchsets, a "latest Base kernel link" 
-should be added to the kernel.org main page? This would be the latest three 
-point release. Of course it should be below "stable", as "stable" is the 
-default choice.
+In the below, we have used a pointer for free list,
+then why pointer to pointer has been used for hash
+list.
 
--- 
-Yours, Mikhail Ramendik
+struct buffer_head {
+	/* First cache line: */
+	struct buffer_head *b_next;	/* Hash queue list */
+	struct buffer_head *b_next_free;/* lru/free list
+linkage */
+	struct buffer_head *b_prev_free;/* doubly linked list
+of buffers */
+	struct buffer_head **b_pprev;	/* doubly linked list
+of hash-queue */
+        // Rest part of sructure has been stripped
+off.    
+};
 
+
+Can anyone clarify my these queries.
+
+Thanks & Regards
+Dinesh
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314544AbSDSERD>; Fri, 19 Apr 2002 00:17:03 -0400
+	id <S311650AbSDSEiS>; Fri, 19 Apr 2002 00:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314545AbSDSERC>; Fri, 19 Apr 2002 00:17:02 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:40200 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S314544AbSDSERB>;
-	Fri, 19 Apr 2002 00:17:01 -0400
-Date: Fri, 19 Apr 2002 00:12:08 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Stevie O <stevie@qrpff.net>
-Cc: Larry McVoy <lm@bitmover.com>, Kent Borg <kentborg@borg.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
-Message-ID: <20020419001208.A14615@mark.mielke.cc>
-In-Reply-To: <20020418110558.A16135@borg.org> <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com> <5.1.0.14.2.20020418191904.028f1290@whisper.qrpff.net>
+	id <S314546AbSDSEiR>; Fri, 19 Apr 2002 00:38:17 -0400
+Received: from holomorphy.com ([66.224.33.161]:22944 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S311650AbSDSEiQ>;
+	Fri, 19 Apr 2002 00:38:16 -0400
+Date: Thu, 18 Apr 2002 21:37:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu
+Subject: Re: [RFC] 2.4 truncate locking
+Message-ID: <20020419043729.GZ21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, viro@math.psu.edu
+In-Reply-To: <20020417150912.GI23767@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 07:19:47PM -0400, Stevie O wrote:
-> At 08:20 AM 4/18/2002 -0700, Larry McVoy wrote:
-> >It's certainly a fun space, file system hacking is always fun.  There
-> >doesn't seem to be a good match between file system operations and
-> >SCM operations, especially stuff like checkin.  write != checkin.
-> >But you can handle that with
-> How about
->         fsync(fd) || close(fd) == checkin?
+On Wed, Apr 17, 2002 at 08:09:12AM -0700, William Lee Irwin III wrote:
+> I did some research on how truncate_inode_pages()'s locking works.
+> Please feel free to clarify and/or correct my notes on the subject,
+> which I'd like to turn into a docpatch soon.
+>
+> (9) exclusion from simultaneous manipulation of page->mapping
+> 	pagemap_lru_lock
 
-Source management systems usually work much better given explicit
-control for the user.
+This is incorrect. It appears to be a combination of PG_locked and
+pagecache_lock, where both are required for writing, and only one of
+the two for reading.
 
-ClearCase has MVFS to do what is being suggested. Compare:
 
-    cat a.c                 # currently selected version of a.c
-    cat a.c@@/main/5        # version 5 on the main branch
-
-    cat a.c@@LINUX_2.4.18   # the version of a.c selected by the
-                            # label 'LINUX_2.4.18'
-
-Having a file system that implicitly performs these operations is
-not very useful.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Cheers,
+Bill

@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTKGWOt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTKGWNw
+	id S261879AbTKGWTG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTKGWSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:13:52 -0500
-Received: from mail-6.tiscali.it ([195.130.225.152]:50026 "EHLO
-	mail-6.tiscali.it") by vger.kernel.org with ESMTP id S264605AbTKGTet convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 14:34:49 -0500
-Date: Fri, 7 Nov 2003 20:34:48 +0100
-Message-ID: <3FAA85C400002BAB@mail-6.tiscali.it>
-From: daz@tiscali.it
-Subject: Exception on host-PCI-bridge master-abort
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 7 Nov 2003 17:18:37 -0500
+Received: from ns.suse.de ([195.135.220.2]:53726 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263939AbTKGIZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 03:25:39 -0500
+Date: Fri, 7 Nov 2003 09:24:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-ID: <20031107082435.GA504@suse.de>
+References: <3FA69CDF.5070908@gmx.de> <3FA8C916.3060702@gmx.de> <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de> <boe68a$f3g$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <boe68a$f3g$1@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Items: custom PCI card, master-abort on host-PCI bridge, i386 PC, kernel
-2.4.18
+On Thu, Nov 06 2003, bill davidsen wrote:
+> In article <3FA8CA87.2070201@gmx.de>,
+> Prakash K. Cheemplavam <prakashkc@gmx.de> wrote:
+> 
+> | Sorry, I wasn't precise: The data is on the disc, as my DVD-ROM restores 
+> | the full image (md5sum matches), but the CD-RW does not.
+> 
+> There is a problem with ide-scsi in 2.6, and rather than fix it someone
+> came up with a patch to cdrecord to allow that application to work
+> properly, and perhaps "better" in some way. Since the problem with
 
-Hi,
-I'm developing i386 linux drivers for a custom PCI card basically built
-on
-a programmable FPGA.
+You have this completely backwards. A way to eliminate ide-scsi for cd
+burning was invented for 2.6, which is both more efficient wrt space
+consumption and cpu usage. Naturally, this is now the preferred way to
+burns CD's. It works equally well with whatever burner you have, be it
+atapi, scsi, or usb.
 
-Every time I re-program the FPGA (without re-booting the PC), the PCI
-configuration regs of the card are resetted, which makes memory and I/O
-aperture of the card disappearing from the PCI bus.
+ide-scsi being broken is an orthogonal issue. The incentive to fix it
+isn't that big, because its area of use has diminished a _lot_.
 
-By calling pci_restore_state() I restore the proper configuration, but
-unfortunately sometimes I'm not fast enough, and the PC issues a read or
-write requests when the card is still wrong configured.
-In such bad situation the PC freezes!
+Just setting the record straight.
 
-   From the PCI spec, if a card does not respond, after a small timeout
-a
-master-abort situation will accour.
-
-It will be desiderable having, e.g. a CPU exception when the host-PCI
-bridge fails with a master-abort.
-By putting a pci_restore_state() call in the exception handler I could solve
-the problem.
-
-Digging in the kernel code I didn't found a way for doing that.
-No PCI bridge for PC seems having such a feature. Isn't it?
-
-Using a ARM Integrator platform instead of a PC, the solution seems easy.
-The V3 PCI controller is programmed to rise an exception when a master-abort
-accurs (v3_fault() in arch/arm/mach-integrator/pci_v3.c).
-
-Please could you suggest me a way for getting this exception on PC?
-
-Currently I'm using a PC with SIS620 chipset, but if you know solutions
-related with different chipsets, I'm ready to change MB.
-
-Regards
-Antonio Borneo
-antonio.borneo@stNOS.PAMcom
-
-
-__________________________________________________________________
-Tiscali ADSL SENZA CANONE, paghi solo quello che consumi!
-Navighi a 1,5 euro all'ora e il modem e' gratis! Abbonati subito.
-http://point.tiscali.it/Adsl/prodotti/senzacanone/
-
-
+-- 
+Jens Axboe
 

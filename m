@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281909AbRKUQSz>; Wed, 21 Nov 2001 11:18:55 -0500
+	id <S281919AbRKUQVP>; Wed, 21 Nov 2001 11:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281905AbRKUQSp>; Wed, 21 Nov 2001 11:18:45 -0500
-Received: from demai05.mw.mediaone.net ([24.131.1.56]:18128 "EHLO
-	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
-	id <S281395AbRKUQSk>; Wed, 21 Nov 2001 11:18:40 -0500
-Message-Id: <200111211618.fALGIXE06714@demai05.mw.mediaone.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Brian <hiryuu@envisiongames.net>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Subject: Re: Mixing 32- and 64-bit cards
-Date: Wed, 21 Nov 2001 11:18:21 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200111210600.fAL60kE11763@demai05.mw.mediaone.net> <3BFB625B.3000709@stesmi.com>
-In-Reply-To: <3BFB625B.3000709@stesmi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S281905AbRKUQVG>; Wed, 21 Nov 2001 11:21:06 -0500
+Received: from holomorphy.com ([216.36.33.161]:1177 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S281395AbRKUQU6>;
+	Wed, 21 Nov 2001 11:20:58 -0500
+Date: Wed, 21 Nov 2001 08:20:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] tree-based bootmem
+Message-ID: <20011121082045.A17332@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011117011415.B1180@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20011117011415.B1180@holomorphy.com>; from wli@holomorphy.com on Sat, Nov 17, 2001 at 01:14:15AM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was not aware of the causes, but that's actually kind of the problem.
+On Sat, Nov 17, 2001 at 01:14:15AM -0800, William Lee Irwin III wrote:
+> This is a repost including some corrections of a bootmem allocator that
+> tracks ranges explicitly, and uses segment trees to assist in searching
+> for available memory. Perhaps it is even a new version. Some prior
+> reports indicated mail headers were munged, preventing replies and some
+> people from seeing it at all.
 
-Our main supplier says the 7000 series will be in 'soon' but the 6000 
-series is available now.  We're at 95+% on the current setup, so now is 
-better than soon :)
+Some more corrections are needed, and many thanks to Russell King for
+assisting me in finding them, and for providing access to a system in
+order to debug these issues.
 
-If worst comes to worst, we'll replace the 6800 when we add a second card. 
- I'm hoping Linux can handle it a little more gradefully than that, though.
+(1) prevent integer overflow in FEASIBLE()
+(2) prevent integer overflow in ENDS_ABOVE()
+(3) test for !segment_contains_point(optimum, goal)
+	in __alloc_bootmem_core() as an additional condition under
+	which the the goal should be discounted as a possible starting
+	address for the returned interval. The symptom seen without
+	the test is an interval that wraps around ULONG_MAX
 
-	-- Brian
 
-On Wednesday 21 November 2001 03:14 am, Stefan Smietanowski wrote:
-> > At the moment, we plan to get a 6800 (32-bit PCI).  If we add 7800's
-> > (64-bit PCI) or some other 3ware card later, will the driver correctly
-> > configure them all?  IOW, if I have
->
-> Sorry, I'm not answering your question but I do have a comment.
->
-> A month or so back 3ware discontinued _ALL_ their 3ware Escalades, the
-> 6xxx and the 7xxx, they have since then recieved so many mails that
-> they've restarted development, support and production of them.
->
-> With one 'minor' issue, they're discontinuing their 6xxx (32bit) series
-> of cards. So I would recommend getting the 64bit 7xxx series directly
-> instead.
+This patch tested on ARM.
+
+
+Cheers,
+Bill
+
+
+--- linux/mm/bootmem.c	Sun Nov 18 23:42:26 2001
++++ linux-arm/mm/bootmem.c	Wed Nov 21 07:58:25 2001
+@@ -462,14 +440,18 @@
+  * that is not sufficient because of alignment constraints.
+  */
+ 
+-#define FEASIBLE(seg, len, align) \
+-	((RND_UP(segment_start(seg), align) + (len) - 1) <= segment_end(seg))
++#define FEASIBLE(seg, len, align)					\
++(									\
++	(segment_end(seg) >= RND_UP(segment_start(seg), align))		\
++		&&							\
++	((segment_end(seg) - RND_UP(segment_start(seg), align)) > (len))\
++)
+ 
+ #define STARTS_BELOW(seg,goal,align,len) \
+ 	(RND_UP(segment_start(seg), align) <= (goal))
+ 
+ #define ENDS_ABOVE(seg, goal, align, len) \
+-	(segment_end(seg) > ((goal) + (len)))
++	((segment_end(seg) > (goal)) && ((segment_end(seg) - (goal)) > (len)))
+ 
+ #define GOAL_WITHIN(seg,goal,align,len) \
+ 	(STARTS_BELOW(seg,goal,align,len) && ENDS_ABOVE(seg,goal,align,len))
+@@ -635,7 +608,9 @@
+ 
+ 	segment_set_endpoints(&reserved, goal, goal + length - 1);
+ 
+-	if(!segment_contains(optimum, &reserved))
++	if(!segment_contains_point(optimum, goal)
++		|| !segment_contains(optimum, &reserved))
++
+ 		segment_set_endpoints(&reserved,
+ 				RND_UP(segment_start(optimum), align),
+ 				RND_UP(segment_start(optimum),align)+length-1);

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTDUFzl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 01:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTDUFzl
+	id S263777AbTDUGT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 02:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTDUGT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 01:55:41 -0400
-Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:55975
-	"EHLO minerva") by vger.kernel.org with ESMTP id S263775AbTDUFzl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 01:55:41 -0400
-Date: Mon, 21 Apr 2003 01:07:43 -0500
-From: Matt Reppert <arashi@yomerashi.yi.org>
-To: Brian Jackson <brian@mdrx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sooner 2.4.21-pre8
-Message-Id: <20030421010743.5309f585.arashi@yomerashi.yi.org>
-In-Reply-To: <200304202352.06128.brian@mdrx.com>
-References: <Pine.LNX.4.55.0304210823230.944@boston.corp.fedex.com>
-	<20030421032606.07d467db.soppscum@online.no>
-	<200304202352.06128.brian@mdrx.com>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
-Mime-Version: 1.0
+	Mon, 21 Apr 2003 02:19:58 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:269 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263777AbTDUGT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 02:19:57 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] new system call mknod64
+Date: 20 Apr 2003 23:31:18 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b8037m$2al$1@cesium.transmeta.com>
+References: <UTC200304202212.h3KMCIW15403.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003 23:52:05 -0500
-Brian Jackson <brian@mdrx.com> wrote:
+Followup to:  <UTC200304202212.h3KMCIW15403.aeb@smtp.cwi.nl>
+By author:    Andries.Brouwer@cwi.nl
+In newsgroup: linux.dev.kernel
+>
+> > the _right_ interface is keeping the <major, minor> tuple explicit
+> 
+> Good! I debated with myself and changed three times between
+> 
+> 	mknod64(path, mode, major, minor);
+> 
+> and
+> 
+> 	mknod64(path, mode, devhi, devlo);
+> 
+> 
+> This becomes the fourth time.
+> 
+> Andries
+> 
+> [My choice is still unsigned int major, minor.
+> Do you prefer __u32?]
+> 
 
-> Isn't there a place to get frequent bk snapshots, or is that only Linus' tree?
+Yes, if we are splitting it we definitely should make it __u32
+(uint32_t), especially to be nice to the 64/32 platforms.
 
-export CVSROOT=:pserver:anonymous@kernel.bkbits.net:/home/cvs
+	-hpa
 
-And you now have read access to up-to-date CVS "mirrors" of whatever's in bk.
-The module names are 'linux-2.4' and 'linux-2.5'.
-
-Matt
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,52 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUKJT6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbUKJT7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUKJT6K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUKJT6K
+	id S262033AbUKJT7z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUKJT7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:58:10 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:22156 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S262113AbUKJT6J (ORCPT
+	Wed, 10 Nov 2004 14:59:55 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1931 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262033AbUKJT7m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:58:09 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Wanted: small number of crazy highpoint IDE  (HPT366-372N/374) controller owners
-Date: Wed, 10 Nov 2004 20:58:05 +0100
-User-Agent: KMail/1.6.2
-References: <1100111436.20556.15.camel@localhost.localdomain>
-In-Reply-To: <1100111436.20556.15.camel@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 10 Nov 2004 14:59:42 -0500
+Message-ID: <41927055.9030306@osdl.org>
+Date: Wed, 10 Nov 2004 11:47:33 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+To: Stelian Pop <stelian@popies.net>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] drivers/net/pcmcia: use module_param() instead of MODULE_PARM()
+References: <20041104112736.GT3472@crusoe.alcove-fr> <418AE490.1010304@pobox.com> <20041110155903.GA8542@sd291.sivit.org> <20041110160058.GB8542@sd291.sivit.org> <41924339.1070809@osdl.org> <20041110195200.GJ2706@deep-space-9.dsnet>
+In-Reply-To: <20041110195200.GJ2706@deep-space-9.dsnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411102058.05982.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can see volunteers line up already with this kind of incentive (-:
+Stelian Pop wrote:
+> On Wed, Nov 10, 2004 at 08:35:05AM -0800, Randy.Dunlap wrote:
+> 
+> 
+>>Hi Stelian,
+> 
+> 
+> Hi.
+> 
+>>Several of these changes expose module parameters to sysfs
+>>(i.e., have permissions of non-zero value) without need for that IMO.
+>>
+>>This came up yesterday on the kernel-janitors mailing list.
+>>When asked about it, Greg KH replied:
+> 
+> 
+> :)
+> 
+> I shouldn't probably discuss Greg's advice, but...
 
-Sorry, already have a not so trustable SATA controller, a possibly broken IDE  
-disk in a software raid5 array, and just survived another SCSI disk crash. 
-This one will pass me by by lack of the mentioned controller. If someone 
-sends me one, I don't have problem with testing it, machines and disks 
-enough.
+AFAIK, you are free to disagree as long as I or we can also
+disagree.  :)
 
-On Wednesday 10 November 2004 19:30, you wrote:
-> I've been debugging and chasing down various HPT IDE problems. I've done
-> some cleanups, fixed the PLL tune and little bits like that. These are
-> the kind of changes that turn your disk into a random number generator
-> if they go wrong but OTOH the HPT372N crashes should be fixed.
->
-> Now it needs some testers...
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>>>Can someone please clarify the "official guidelines" for
+>>>module parameter permissions in sysfs?
+>>
+>>"When it makes sense to have it exposed to userspace"
+>>
+>>Yeah, it's vague, sorry, but it all depends.
+>>
+>>For things that can be changed on the fly, expose it.
+> 
+> 
+> ... with a write permission. Agreed.
+> 
+> 
+>>For things that don't really matter, and no one will ever look them up,
+>>don't. 
+>>I think the irq stuff is in the "don't" category, as almost no
+>>one messes with them anymore.
+> 
+> 
+> In this case why is this a module parameter at all ? If it doesn't
+> matter at all then it should get removed from all places.
+> 
+> In fact, I do think that all module parameter should be exposed in
+> /sys, and that a '0' in module_param() should really mean 0400.
+> 
+> It can be useful to know what parameters have been passed to a module,
+> and I cannot think of a single case where we want to hide this 
+> information (and no, security doesn't really apply here. If you have
+> root rights than you can also look into the kernel memory and find
+> out the value by yourself).
+> 
+> The only questions one should ask himself about a module parameter is
+> whether:
+> 	- it is a R/O or a R/W value (and this is determined by
+> 	  the code who uses this value, if it is dynamic then let
+> 	  the parameter be R/W, if it's only used to make assumptions
+> 	  in the init phase then it must be R/O).
+> 
+> 	- it can be shown to everybody, or only root should be able
+> 	  to read the value (0400 vs 0440/0444). I'm not sure this is
+> 	  really useful since /etc/modprobe.conf is generaly 0644,
+> 	  but it could be in some cases...
+
+I don't have an argument with most of that, but I am concerned
+about how much memory each entry requires and how useful it really
+is.  IOW, if I need to know the module parameters for a module,
+I can probably find that info somewhere else, like in
+/etc/modprobe.conf or a script etc., so why waste memory on it?
+
+But then there's the question of if someone else needs to know
+the module parameters that were used, where do they look?
+I could say:  same answer as I gave above.
+Or you could say:  exposed in /sys.
+If memory usage is not an issue, I'll agree.
+
+-- 
+~Randy

@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbTLNFLn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 00:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbTLNFLm
+	id S265351AbTLNFZV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 00:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbTLNFZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 00:11:42 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:14038 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S265350AbTLNFLk (ORCPT
+	Sun, 14 Dec 2003 00:25:21 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:12423 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S265351AbTLNFZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 00:11:40 -0500
-Date: Sat, 13 Dec 2003 23:11:37 -0600 (CST)
-From: Eric Sandeen <sandeen@sgi.com>
-X-X-Sender: sandeen@stout.americas.sgi.com
-To: Emilio Gargiulo <emiliogargiulo@supereva.it>
-cc: linux-kernel@vger.kernel.org, <linux-xfs@oss.sgi.com>
-Subject: Re: 2.4.24-pre1 hangs with XFS on LVM filesystem full
-In-Reply-To: <200312131937.10987.emiliogargiulo@supereva.it>
-Message-ID: <Pine.LNX.4.44.0312132302520.766-100000@stout.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 14 Dec 2003 00:25:17 -0500
+Date: Sun, 14 Dec 2003 06:25:16 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with exiting threads under NPTL
+Message-ID: <20031214052516.GA313@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So you are seeing a hang when you (over)fill the filesystem, if 
-I understand correctly?  If there is any chance that you could
-test it with XFS to a normal disk (no LVM) or with some other
-filesystem with LVM, that might help to narrow down the problem.
-Nightly XFS QA tests do check ENOSPC conditions, but perhaps
-there is bad interaction with LVM.
+Hi,
+  several times one of our threads ended up as ZOMBIE and
+nobody wants to pick him up - even init ignores it. Inspection
+of kernel structures revealed that task's exit code is 0,
+exit_signal is -1, ptrace is 0 and state is 8 (ZOMBIE).
 
-You could also get a CVS kernel from oss.sgi.com, or apply
-the KDB patch you your kernel, and enter kdb when the system
-freezes.  Then you could look at backtraces of the relevant
-processes to get an idea of where things are stuck.
+   Quick look at exit_notify reveals that it should not happen:
+if task has exit_signal == -1 and is not ptraced, we should immediate
+move to TASK_DEAD and get rid of task as fast as possible.
 
--Eric
+   But problem is that in do_notify_parent we have code which
+sets exit_signal to -1 if parent ignores SIGCHLD, and we call
+do_notify_parent() for group leader from release_task() when
+last member of thread group exits, without taking any care
+about eventual changes in exit_signal field.
 
-On Sat, 13 Dec 2003, Emilio Gargiulo wrote:
+   So if some process ignores SIGCHLD, and spawns child process 
+which creates additional thread, and main thread in child exits 
+before child it created, you'll end up with immortal zombie.
 
-> Hi
-> There is a severe XFS problem with kernel 2.4.24-pre1. If you try to copy a 
-> file in a XFS filesystem on LVM bigger than free spaces, the Linux Box will 
-> hang. No messages, no warnings, it just freeze. It happens also if the 
-> filesystem was not the root filesystem.
-> The problem is fully reproducible on 2 different computer, an old K6/400MHz 
-> and a P4/2,4GHz.
-> 
-> If i can do something for address the issue, please tell me.
-> Thanks
-> Emilio Gargiulo
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
+
+F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
+5     0  3709     1  15   0     0    0 exit   Z    tty3       0:00 [test] <defunct>
+
+
+Creator of immortal zombies:
+
+#include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdio.h>
+
+static void* thread(void* dummy) {
+	/* Make sure that we exit as second thread */
+        sleep(1);
+        return NULL;
+}
+
+void main(void) {
+        int pid;
+
+        signal(SIGCHLD, SIG_IGN);
+
+        pid = fork();
+        if (pid == 0) {
+                pthread_t p;
+
+                pthread_create(&p, NULL, thread, NULL);
+        } else {
+                /* Sleep some time so we know that child threads exit before us */
+                sleep(2);
+                printf("Look for task %d...\n", pid);
+        }
+}
 

@@ -1,55 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281160AbRKYWSa>; Sun, 25 Nov 2001 17:18:30 -0500
+	id <S281165AbRKYWYk>; Sun, 25 Nov 2001 17:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281159AbRKYWSV>; Sun, 25 Nov 2001 17:18:21 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:16891 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281157AbRKYWSL>;
-	Sun, 25 Nov 2001 17:18:11 -0500
-Date: Sun, 25 Nov 2001 15:17:56 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16-pre1 : e2fsck, File size limit exceeded (core dumped)
-Message-ID: <20011125151756.C712@lynx.no>
-Mail-Followup-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C00EEA0.F43E95AA@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C00EEA0.F43E95AA@wanadoo.fr>; from jean-luc.coulon@wanadoo.fr on Sun, Nov 25, 2001 at 02:14:08PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S281159AbRKYWYa>; Sun, 25 Nov 2001 17:24:30 -0500
+Received: from AGrenoble-101-1-6-196.abo.wanadoo.fr ([80.11.197.196]:20372
+	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S281157AbRKYWYY> convert rfc822-to-8bit; Sun, 25 Nov 2001 17:24:24 -0500
+Message-ID: <3C017077.506@wanadoo.fr>
+Date: Sun, 25 Nov 2001 23:28:07 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: Patrick McFarland <unknown@panax.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com> <20011125170701.H238@localhost>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 25, 2001  14:14 +0100, Jean-Luc Coulon wrote:
-> I've two partitions. /dev/hda1 where I can boot 2.2.20 or 2.4.16-pre1,
-> /dev/hda3 with only 2.4.16-pre1.
-> 
-> Now, if I boot 2.4.16-pre1, I have the following :
-> 
-> e2fsck 1.25 (20-Sep-2001)
-> Pass 1: Checking inodes, blocks, and sizes
-> Pass 2: Checking directory structure
-> Pass 3: Checking directory connectivity
-> Pass 4: Checking reference counts
-> Pass 5: Checking group summary information
-> /dev/hda3: 79176/250368 files (1.5% non-contiguous), 277317/500023
-> blocks
-> File size limit exceeded (core dumped)
+Patrick McFarland wrote:
 
-This is a kernel bug.  It can be avoided by running as a user with no
-filesystem limits.  Note that _any_ call to "ulimit" is currently
-broken, especially "ulimit -f unlimited", which will actually impose
-a 2GB file limit on the block device.  Remove any "ulimit" statements
-from the system startup or root .bash* scripts, and you should be OK.
+> The Linux kernel is a very important peice of software, 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+
+So true
+
+> not the little project you started many years ago. 
+
+
+Yes. But I believe Linus does want to manage it. It was very kind of
+him to allow us to play with it in the first place. If you're not happy
+with that, I believe you're free to leave, exactly the same as you
+were free to join.
+
+> Its grown beyond what you can manage alone, Linus. 
+
+> Find someone to help you. You cant develop and maintain at the same time. 
+
+
+2.4 is now in the hands of Marcelo, to me that means 2.4 is nearly
+"finished", i.e. going into *real* maintenance mode.
+
+> Well, not unless we can clone you, or get rid of whatever real life you have. 
+
+
+I won't comment on that one.
+
+Regards,
+
+François Cami
+
+
+> On 25-Nov-2001, Linus Torvalds wrote:
+> 
+>>On Sun, 25 Nov 2001, Stephan von Krawczynski wrote:
+>>
+>>>The "problem" effectively arises from _fast_ releasing "stable" versions.
+>>>
+>>Actually, I think that is just the _symptom_ of the basic issue: I do not
+>>like being a maintainer.
+>>
+>>Let's face it, we had similar problems in 2.2.x, for all the same reasons:
+>>I'm simply not a good maintainer, because I'm too impatient and get too
+>>bored with it.
+>>
+>>The fact that I've held on to 2.4.x for too long, mostly due to the VM
+>>problems, really doesn't help. That just makes me _less_ likely to be
+>>careful. Especially when the last known VM problem was fixed (ie the
+>>Oracle highmem deadlock), I had a very strong urge to just "get the d*mn
+>>thing out to Marcelo".
+>>
+>>I'm much happier doing development, and what I'm best at for Linux is at
+>>doing the "hard decisions" - and not necessarily because of technical
+>>reasons, but simply because I _can_ make them without too many people
+>>grumbling. An example of this is to do the VM reorg in the first place,
+>>something that at the time a lot of people disagreed with.
+>>
+>>But I'm not a good, careful, maintainer. I never claim to be.
+>>
+>>I bet you'll see better, more consistent quality from Marcelo.
+>>
+>>		Linus
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+> 
+
+
 

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVCDJUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVCDJUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbVCDJUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVCDJUQ
+	id S262722AbVCDJUf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVCDJUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:20:16 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:9938 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262715AbVCDJR6 (ORCPT
+	Fri, 4 Mar 2005 04:20:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3974 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262703AbVCDJQl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:17:58 -0500
-Date: Fri, 4 Mar 2005 10:17:17 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: adaplas@pol.net, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [2.6 patch] make savagefb one module
-In-Reply-To: <20050303230750.GT4608@stusta.de>
-Message-ID: <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
-References: <20050301024118.GF4021@stusta.de> <200503040350.51163.adaplas@hotpop.com>
- <20050303202039.GH4608@stusta.de> <200503040437.43495.adaplas@hotpop.com>
- <20050303230750.GT4608@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Mar 2005 04:16:41 -0500
+Date: Fri, 4 Mar 2005 10:16:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel/power/disk.c trivial cleanups
+Message-ID: <20050304091623.GA1551@elf.ucw.cz>
+References: <20050303231543.GA28559@slurryseal.ddns.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303231543.GA28559@slurryseal.ddns.mvista.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Mar 2005, Adrian Bunk wrote:
-> This patch links all selected files under drivers/video/savagefb/ into 
-> one module.
+Hi!
+
+> * Remove duplicate include.
 > 
-> This required a renaming of savagefb.c to savagefb_driver.c .
+> * Avoid "mode set to ''" message when error updating /sys/power/disk.
 > 
-> As a side effect, the EXPORT_SYMBOL's in this directory are no longer 
-> required.
-> 
-> ---
-> 
-> Other names than savagefb_driver.c (e.g. savagefb_main.c) are easily 
-> possible - I do not claim being good at picking names...
+> Signed-off-by: Todd Poynor <tpoynor@mvista.com>
 
-savagefb_core.c?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Duplicate remove killed, thanks. I do not think debugging print
+requires that much care...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

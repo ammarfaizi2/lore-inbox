@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264088AbUDVOgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264073AbUDVOkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbUDVOgm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 10:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbUDVOgm
+	id S264073AbUDVOkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 10:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264084AbUDVOkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 10:36:42 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21453 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264067AbUDVOg3
+	Thu, 22 Apr 2004 10:40:09 -0400
+Received: from dsl-gw-90.pilosoft.com ([69.31.90.1]:24538 "EHLO
+	paix.pilosoft.com") by vger.kernel.org with ESMTP id S264073AbUDVOkD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 10:36:29 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Subject: Re: [PATCH] prevent module unloading for legacy IDE chipset drivers
-Date: Thu, 22 Apr 2004 16:35:12 +0200
-User-Agent: KMail/1.5.3
-Cc: andersen@codepoet.org, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200404212219.24622.bzolnier@elka.pw.edu.pl> <200404220250.15078.bzolnier@elka.pw.edu.pl> <20040422103355.GC15176@harddisk-recovery.com>
-In-Reply-To: <20040422103355.GC15176@harddisk-recovery.com>
+	Thu, 22 Apr 2004 10:40:03 -0400
+Date: Thu, 22 Apr 2004 10:37:42 -0400 (EDT)
+From: alex@pilosoft.com
+To: jamal <hadi@cyberus.ca>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+In-Reply-To: <1082644022.1099.40.camel@jzny.localdomain>
+Message-ID: <Pine.LNX.4.44.0404221030240.2738-100000@paix.pilosoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404221635.12490.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 of April 2004 12:33, Erik Mouw wrote:
-> On Thu, Apr 22, 2004 at 02:50:15AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > On Thursday 22 of April 2004 02:41, Erik Andersen wrote:
-> > > Out of curiosity, what would be needed to make it safe to unload
-> > > all ide modules from a system with a scsi rootfs?
-> >
-> > It doesn't matter - you still may end up unloading modules which are in
-> > use.
->
-> FWIW, with the old IDE code I've been unloading IDE modules for years
-> without a single problem.
+On 22 Apr 2004, jamal wrote:
 
-IDE chipset drivers were made 'modular' in 2.4.21
-(release date 13-Jun-2003) and this complicated things
+> Unless its a private network with locked vaults for the pipes, any
+> network is vulnerable. I am not trying to downplay the relevance of
+> this; all i am saying is it may a little overhyped with the media being
+> involved. Its infact harder to create this attack compared to a simple
+> SYN attack.
+Not quite. With a SYN you have to respond with exactly the same sequence 
+number as attacking host in order to establish connection. With RST, your 
+sequence number needs to be +- rwin in order to kill the connection. That 
+significantly reduces search space.
 
-> What makes IDE sufficiently different from SCSI that we can't unload
-> IDE host drivers?
+> Unless i misunderstood: You need someone/thing to see about 64K packets
+> within a single flow to make the predicition so the attack is succesful.
+> Sure to have access to such capability is to be in a hostile path, no?
+> ;->
+No, you do not need to see any packet. 
 
-- no reference counting
-- lack of release() method
-- insufficient locking
+> > And it's not BGP specific.  You might be able to use this attack to
+> > split IRC networks, too.  However, it's a bit harder in this case
+> > because IRC servers usually use more random source ports.
+> 
+> Any long lived flow with close to fixed ports. FTP from kernel.org could
+> be vulnerable - get a better client and its just becomes a nuisance. 80%
+> of the internet traffic is still TCP/HTTP1.0 which is very short lived
+> (there could be changes lately - these are numbers from a while back)
+> i.e you wont see more than 8 packets i.e it is highly unlikely your
+> traffic there is affected even if you used fixed ports.
+Inter-provider BGP is long-lived with close to fixed ports, which is why 
+it has caused quite a stir.
 
-Cheers,
-Bartlomiej
+Nevertheless, number of packets to kill the session is still *large* 
+(under "best-case" for attacker, you need to send 2^30 packets)...
+
+-alex
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317601AbSFRUVJ>; Tue, 18 Jun 2002 16:21:09 -0400
+	id <S317600AbSFRUWQ>; Tue, 18 Jun 2002 16:22:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317600AbSFRUVI>; Tue, 18 Jun 2002 16:21:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28423 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317601AbSFRUVH>; Tue, 18 Jun 2002 16:21:07 -0400
-Date: Tue, 18 Jun 2002 13:21:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Benjamin LaHaise <bcrl@redhat.com>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken 
-In-Reply-To: <E17KPMG-0003oZ-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0206181319400.872-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317603AbSFRUWP>; Tue, 18 Jun 2002 16:22:15 -0400
+Received: from bitmover.com ([192.132.92.2]:51628 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S317600AbSFRUWP>;
+	Tue, 18 Jun 2002 16:22:15 -0400
+Date: Tue, 18 Jun 2002 13:22:14 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: fbdev updates
+Message-ID: <20020618132214.F9220@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	James Simmons <jsimmons@transvirtual.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44.0206181314350.5510-100000@www.transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0206181314350.5510-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, Jun 18, 2002 at 01:16:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 18, 2002 at 01:16:26PM -0700, James Simmons wrote:
+> If anyone sent me updates in the last 14 days for the fbdev layer please
+> send them again. I had a sync problem and then I attempted to fix it all
+> my work got blown away for the last week by BK. I guess BK needs ALOT more
+> work in this area.
 
-
-On Wed, 19 Jun 2002, Rusty Russell wrote:
->
-> > That doesn't work.  Think of SMT CPU pairs (aka HyperThreading) or
-> > quads that share caches.
->
-> This is the NUMA "I want to be in this group" problem.  If you're
-> serious about this, you'll go for a sys_sched_groupaffinity call, or
-> add an extra arg to sys_sched_setaffinity, or simply use the top 16
-> bits of the cpu arg.
-
-Oh, yes. That makes sense. NOT.
-
-> Sorry, the current interface is insufficient for NUMA *and* is
-> impossible[1] for the user to use correctly.
-
-Don't be silly.
-
-Give _one_ good reason why the affinity system call cannot take a simple
-bitmask? It's trivial to use, your arguments do not make any sense.
-
-		Linus
-
+Hmm.  Can you be more specific than "blown away"?  BK is careful to a fault
+about not deleting your data.  Unless you did a "rm -rf my_repo" it's hard
+to imagine that you lost anything.  How about you contact me offline and we'll
+see if you changes are actually still there?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

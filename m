@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267647AbUGWL1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267654AbUGWLmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267647AbUGWL1T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 07:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUGWL1T
+	id S267654AbUGWLmm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 07:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267655AbUGWLmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 07:27:19 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:13709 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267647AbUGWL1S (ORCPT
+	Fri, 23 Jul 2004 07:42:42 -0400
+Received: from mproxy.gmail.com ([216.239.56.253]:36403 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267654AbUGWLmk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 07:27:18 -0400
-Date: Fri, 23 Jul 2004 13:28:42 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+	Fri, 23 Jul 2004 07:42:40 -0400
+Message-ID: <4d8e3fd30407230442afe80c1@mail.gmail.com>
+Date: Fri, 23 Jul 2004 13:42:37 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-I3
 Cc: linux-kernel@vger.kernel.org, Rudo Thomas <rudo@matfyz.cz>,
        Matt Heler <lkml@lpbproductions.com>
-Subject: [patch] voluntary-preempt-2.6.8-rc2-I4
-Message-ID: <20040723112842.GA5133@elte.hu>
-References: <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu> <20040722172428.GA5632@ss1000.ms.mff.cuni.cz> <20040722175457.GA5855@ss1000.ms.mff.cuni.cz> <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu> <20040722181426.GA892@elte.hu> <20040723104246.GA2752@elte.hu> <4d8e3fd30407230358141e0e58@mail.gmail.com> <20040723110430.GA3787@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20040723110430.GA3787@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040722100657.GA14909@elte.hu> <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu> <20040722172428.GA5632@ss1000.ms.mff.cuni.cz> <20040722175457.GA5855@ss1000.ms.mff.cuni.cz> <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu> <20040722181426.GA892@elte.hu> <20040723104246.GA2752@elte.hu> <4d8e3fd30407230358141e0e58@mail.gmail.com> <20040723110430.GA3787@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
+On Fri, 23 Jul 2004 13:04:30 +0200, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> * Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> 
+> > > i've uploaded the -I3 voluntary-preempt patch:
+> > >
 > > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I3
-> > > 
+> > >
 > > > it mainly fixes an ext3 livelock that could result in long delays during
 > > > heavy commit traffic.
-> > 
+> >
 > > Hello Ingo, do you have any measurement of the improvement available ?
 > 
 > it's a bug in the patch, not really a latency fix. When this (rare)
@@ -50,14 +45,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > the vanilla kernel, it got introduced by earlier versions of
 > voluntary-preempt.
 
-there's one more new version:
+Hi Ingo,
+thanks for the clarification.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I4
+What about performance of vanilla vs voluntary-preempt-2.6.8-rc2-I3 ?
+Do you have numbers available ? Can we, somehow, support you ?
 
-this fixes another rare bug: release_task() could trigger a 'Badness'
-atomicity message when the right conditions occur on a preemptible
-kernel. This bugfix also allowed the addition of might_sleep() checks
-(and hence voluntary-preemption points) to dput() and fput(), two common
-functions.
-
-	Ingo
+Ciao,
+                Paolo
